@@ -31,79 +31,109 @@
  */
 package jme3test.material;
 
-import com.jme3.app.SimpleApplication;
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.GeneratedTextureKey;
+import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.jme3.system.JmeSystem;
+import com.jme3.texture.Texture;
 
-public class TestMaterialCompare extends SimpleApplication {
+public class TestMaterialCompare {
 
     public static void main(String[] args) {
-        TestMaterialCompare app = new TestMaterialCompare();
-        app.start();
-    }
-
-    @Override
-    public void simpleInitApp() {
-      
-        Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
+        AssetManager assetManager = JmeSystem.newAssetManager(
+                TestMaterialCompare.class.getResource("/com/jme3/asset/Desktop.cfg"));
         
-        //clonned mats
+        // Cloned materials
         Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setName("mat1");
         mat1.setColor("Color", ColorRGBA.Blue);
 
         Material mat2 = mat1.clone();
         mat2.setName("mat2");
-        testMats(mat1,mat2,true);
+        testEquality(mat1, mat2, true);
 
-        //clonned mat with different additional render state
-        Material mat3 = mat1.clone();;
-        mat3.setName("mat3");    
-        mat3.getAdditionalRenderState().setBlendMode(BlendMode.ModulateX2);        
-        testMats(mat1,mat3,false);
-        
-        //two separately loaded materials
+        // Cloned material with different render states
+        Material mat3 = mat1.clone();
+        mat3.setName("mat3");
+        mat3.getAdditionalRenderState().setBlendMode(BlendMode.ModulateX2);
+        testEquality(mat1, mat3, false);
+
+        // Two separately loaded materials
         Material mat4 = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
-        mat4.setName("mat4");    
+        mat4.setName("mat4");
         Material mat5 = assetManager.loadMaterial("Models/Sign Post/Sign Post.j3m");
-        mat5.setName("mat5");    
-        testMats(mat4,mat5,true);       
+        mat5.setName("mat5");
+        testEquality(mat4, mat5, true);
         
-        //two materials created the same way
+        // Comparing same textures
+        TextureKey originalKey = (TextureKey) mat4.getTextureParam("DiffuseMap").getTextureValue().getKey();
+        TextureKey tex1key = new TextureKey("Models/Sign Post/Sign Post.jpg", false);
+        tex1key.setGenerateMips(true);
+        
+        // Texture keys from the original and the loaded texture
+        // must be identical, otherwise the resultant textures not identical
+        // and thus materials are not identical!
+        if (!originalKey.equals(tex1key)){
+            System.out.println("TEXTURE KEYS ARE NOT EQUAL");
+        }
+        
+        Texture tex1 = assetManager.loadTexture(tex1key);
+        mat4.setTexture("DiffuseMap", tex1);
+        testEquality(mat4, mat5, true);
+        
+        // Change some stuff on the texture and compare, materials no longer equal
+        tex1.setWrap(Texture.WrapMode.MirroredRepeat);
+        testEquality(mat4, mat5, false);
+        
+        // Comparing different textures
+        Texture tex2 = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
+        mat4.setTexture("DiffuseMap", tex2);
+        testEquality(mat4, mat5, false);
+
+        // Two materials created the same way
         Material mat6 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat6.setName("mat6");
         mat6.setColor("Color", ColorRGBA.Blue);
-        testMats(mat1,mat6,true);
-        
-        //changing a material param
+        testEquality(mat1, mat6, true);
+
+        // Changing a material param
         mat6.setColor("Color", ColorRGBA.Green);
-        testMats(mat1,mat6,false);
-                
-        
+        testEquality(mat1, mat6, false);
     }
 
-    private void testMats(Material mat1, Material mat2, boolean expected) {
+    private static void testEquality(Material mat1, Material mat2, boolean expected) {
         if (mat2.equals(mat1)) {
-            System.out.print(mat1.getName() + " equals " + mat2.getName());
-            if(expected){
-                System.out.println(" success");
-            }else{
-                System.out.println(" fail");
+            System.out.print(mat1.getName() + " == " + mat2.getName());
+            if (expected) {
+                System.out.println(" EQUAL OK");
+            } else {
+                System.out.println(" EQUAL FAIL!");
             }
-        }else{
-            System.out.print(mat1.getName() + " is not equal " + mat2.getName());
-            if(!expected){
-                System.out.println(" success");
-            }else{
-                System.out.println(" fail");
+        } else {
+            System.out.print(mat1.getName() + " != " + mat2.getName());
+            if (!expected) {
+                System.out.println(" EQUAL OK");
+            } else {
+                System.out.println(" EQUAL FAIL!");
             }
         }
-    }
-
-    @Override
-    public void simpleUpdate(float tpf) {
+        if (mat2.hashCode() == mat1.hashCode()){
+            System.out.print(mat1.getName() + " == " + mat2.getName());
+            if (expected) {
+                System.out.println(" HASH OK");
+            } else {
+                System.out.println(" HASH FAIL!");
+            }
+        } else {
+            System.out.print(mat1.getName() + " != " + mat2.getName());
+            if (!expected) {
+                System.out.println(" HASH OK");
+            } else {
+                System.out.println(" HASH FAIL!");
+            }
+        }
     }
 }
