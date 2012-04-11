@@ -146,18 +146,16 @@ public class AnimationTrack extends AbstractCinematicEvent {
             channel.setSpeed(speed);
             channel.setLoopMode(loopMode);
             channel.setTime(time);
-       }
+        }
     }
 
     @Override
     public void setSpeed(float speed) {
         super.setSpeed(speed);
-        if(channel!=null){
+        if (channel != null) {
             channel.setSpeed(speed);
         }
     }
-    
-    
 
     @Override
     public void onUpdate(float tpf) {
@@ -165,19 +163,25 @@ public class AnimationTrack extends AbstractCinematicEvent {
 
     @Override
     public void onStop() {
-        channel.setTime(0);
-        channel.reset(false);
+        if (channel != null) {
+            channel.setTime(0);
+            channel.reset(false);
+        }
     }
 
     @Override
     public void onPause() {
-        channel.getControl().setEnabled(false);
+        if (channel != null) {
+            channel.getControl().setEnabled(false);
+        }
     }
 
     @Override
     public void setLoopMode(LoopMode loopMode) {
         super.setLoopMode(loopMode);
-        channel.setLoopMode(loopMode);
+        if (channel != null) {
+            channel.setLoopMode(loopMode);
+        }
     }
 
     @Override
