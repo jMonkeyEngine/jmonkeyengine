@@ -63,6 +63,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jme3tools.shader.ShaderDebug;
 
 public class OGLESShaderRenderer implements Renderer {
 
@@ -1049,8 +1050,8 @@ public class OGLESShaderRenderer implements Renderer {
                 logger.log(Level.FINE, "compile success: " + source.getName());
             }
         } else {
-           logger.log(Level.WARNING, "Bad compile of:\n{0}{1}",
-                    new Object[]{source.getDefines(), source.getSource()});
+           logger.log(Level.WARNING, "Bad compile of:\n{0}",
+                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource())});
             if (infoLog != null) {
                 throw new RendererException("compile error in:" + source + " error:" + infoLog);
             } else {

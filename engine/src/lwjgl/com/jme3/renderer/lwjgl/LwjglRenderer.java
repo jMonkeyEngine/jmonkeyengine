@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jme3tools.converters.MipMapGenerator;
+import jme3tools.shader.ShaderDebug;
 import static org.lwjgl.opengl.ARBTextureMultisample.*;
 import static org.lwjgl.opengl.EXTFramebufferBlit.*;
 import static org.lwjgl.opengl.EXTFramebufferMultisample.*;
@@ -505,8 +506,8 @@ public class LwjglRenderer implements Renderer {
 
         if (state.isPointSprite() && !context.pointSprite) {
             // Only enable/disable sprite
-            if (context.boundTextures[0] != null){
-                if (context.boundTextureUnit != 0){
+            if (context.boundTextures[0] != null) {
+                if (context.boundTextureUnit != 0) {
                     glActiveTexture(GL_TEXTURE0);
                     context.boundTextureUnit = 0;
                 }
@@ -515,8 +516,8 @@ public class LwjglRenderer implements Renderer {
             }
             context.pointSprite = true;
         } else if (!state.isPointSprite() && context.pointSprite) {
-            if (context.boundTextures[0] != null){
-                if (context.boundTextureUnit != 0){
+            if (context.boundTextures[0] != null) {
+                if (context.boundTextureUnit != 0) {
                     glActiveTexture(GL_TEXTURE0);
                     context.boundTextureUnit = 0;
                 }
@@ -771,7 +772,7 @@ public class LwjglRenderer implements Renderer {
         }
     }
 
-    protected void bindProgram(Shader shader){
+    protected void bindProgram(Shader shader) {
         int shaderId = shader.getId();
         if (context.boundShaderProgram != shaderId) {
             glUseProgram(shaderId);
@@ -782,7 +783,7 @@ public class LwjglRenderer implements Renderer {
             statistics.onShaderUse(shader, false);
         }
     }
-    
+
     protected void updateUniform(Shader shader, Uniform uniform) {
         int shaderId = shader.getId();
 
@@ -933,7 +934,7 @@ public class LwjglRenderer implements Renderer {
             }
 
             source.setId(id);
-        }else{
+        } else {
             throw new RendererException("Cannot recompile shader source");
         }
 
@@ -995,9 +996,9 @@ public class LwjglRenderer implements Renderer {
             } else {
                 logger.log(Level.FINE, "{0} compile success", source.getName());
             }
-        } else {
-            logger.log(Level.WARNING, "Bad compile of:\n{0}{1}",
-                    new Object[]{source.getDefines(), source.getSource()});
+        } else {            
+            logger.log(Level.WARNING, "Bad compile of:\n{0}",
+                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource())});
             if (infoLog != null) {
                 throw new RendererException("compile error in:" + source + " error:" + infoLog);
             } else {
@@ -1231,39 +1232,42 @@ public class LwjglRenderer implements Renderer {
             // TODO: support non-blit copies?
         }
     }
-    
-    private String getTargetBufferName(int buffer){
-        switch (buffer){
-            case GL_NONE: return "NONE";
-            case GL_FRONT: return "GL_FRONT";
-            case GL_BACK: return "GL_BACK";
+
+    private String getTargetBufferName(int buffer) {
+        switch (buffer) {
+            case GL_NONE:
+                return "NONE";
+            case GL_FRONT:
+                return "GL_FRONT";
+            case GL_BACK:
+                return "GL_BACK";
             default:
-                if ( buffer >= GL_COLOR_ATTACHMENT0_EXT
-                  && buffer <= GL_COLOR_ATTACHMENT15_EXT){
-                    return "GL_COLOR_ATTACHMENT" + 
-                                (buffer - GL_COLOR_ATTACHMENT0_EXT);
-                }else{
+                if (buffer >= GL_COLOR_ATTACHMENT0_EXT
+                        && buffer <= GL_COLOR_ATTACHMENT15_EXT) {
+                    return "GL_COLOR_ATTACHMENT"
+                            + (buffer - GL_COLOR_ATTACHMENT0_EXT);
+                } else {
                     return "UNKNOWN? " + buffer;
                 }
         }
     }
 
-    private void printRealRenderBufferInfo(FrameBuffer fb, RenderBuffer rb, String name){
+    private void printRealRenderBufferInfo(FrameBuffer fb, RenderBuffer rb, String name) {
         System.out.println("== Renderbuffer " + name + " ==");
         System.out.println("RB ID: " + rb.getId());
         System.out.println("Is proper? " + glIsRenderbufferEXT(rb.getId()));
-        
+
         int attachment = convertAttachmentSlot(rb.getSlot());
-        
+
         int type = glGetFramebufferAttachmentParameterEXT(GL_DRAW_FRAMEBUFFER_EXT,
-                                                          attachment,
-                                                          GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT);
-        
+                attachment,
+                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT);
+
         int rbName = glGetFramebufferAttachmentParameterEXT(GL_DRAW_FRAMEBUFFER_EXT,
-                                                            attachment,
-                                                            GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT);
-        
-        switch (type){
+                attachment,
+                GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT);
+
+        switch (type) {
             case GL_NONE:
                 System.out.println("Type: None");
                 return; // note: return from method as other queries will be invalid
@@ -1275,20 +1279,20 @@ public class LwjglRenderer implements Renderer {
                 System.out.println("RB ID: " + rbName);
                 break;
         }
-        
-        
-        
+
+
+
     }
-    
+
     private void printRealFrameBufferInfo(FrameBuffer fb) {
         boolean doubleBuffer = glGetBoolean(GL_DOUBLEBUFFER);
         String drawBuf = getTargetBufferName(glGetInteger(GL_DRAW_BUFFER));
         String readBuf = getTargetBufferName(glGetInteger(GL_READ_BUFFER));
-        
+
         int fbId = fb.getId();
         int curDrawBinding = glGetInteger(ARBFramebufferObject.GL_DRAW_FRAMEBUFFER_BINDING);
         int curReadBinding = glGetInteger(ARBFramebufferObject.GL_READ_FRAMEBUFFER_BINDING);
-    
+
         System.out.println("=== OpenGL FBO State ===");
         System.out.println("Context doublebuffered? " + doubleBuffer);
         System.out.println("FBO ID: " + fbId);
@@ -1297,20 +1301,20 @@ public class LwjglRenderer implements Renderer {
         System.out.println("Is bound to read? " + (fbId == curReadBinding));
         System.out.println("Draw buffer: " + drawBuf);
         System.out.println("Read buffer: " + readBuf);
-        
-        if (context.boundFBO != fbId){
+
+        if (context.boundFBO != fbId) {
             glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, fbId);
             context.boundFBO = fbId;
         }
-        
-        if (fb.getDepthBuffer() != null){
+
+        if (fb.getDepthBuffer() != null) {
             printRealRenderBufferInfo(fb, fb.getDepthBuffer(), "Depth");
         }
-        for (int i = 0; i < fb.getNumColorBuffers(); i++){
+        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
             printRealRenderBufferInfo(fb, fb.getColorBuffer(i), "Color" + i);
         }
     }
-    
+
     private void checkFrameBufferError() {
         int status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
         switch (status) {
@@ -1477,18 +1481,18 @@ public class LwjglRenderer implements Renderer {
         }
         return samplePositions;
     }
-    
-    public void setMainFrameBufferOverride(FrameBuffer fb){
+
+    public void setMainFrameBufferOverride(FrameBuffer fb) {
         mainFbOverride = fb;
     }
 
     public void setFrameBuffer(FrameBuffer fb) {
-        if (fb == null && mainFbOverride != null){
+        if (fb == null && mainFbOverride != null) {
             fb = mainFbOverride;
         }
-        
+
         if (lastFb == fb) {
-            if (fb == null || !fb.isUpdateNeeded()){
+            if (fb == null || !fb.isUpdateNeeded()) {
                 return;
             }
         }
@@ -1530,11 +1534,11 @@ public class LwjglRenderer implements Renderer {
 
             lastFb = null;
         } else {
-            if (fb.getNumColorBuffers() == 0 && fb.getDepthBuffer() == null){
-                throw new IllegalArgumentException("The framebuffer: " + fb + 
-                                                   "\nDoesn't have any color/depth buffers");
+            if (fb.getNumColorBuffers() == 0 && fb.getDepthBuffer() == null) {
+                throw new IllegalArgumentException("The framebuffer: " + fb
+                        + "\nDoesn't have any color/depth buffers");
             }
-            
+
             if (fb.isUpdateNeeded()) {
                 updateFrameBuffer(fb);
             }
@@ -1591,9 +1595,9 @@ public class LwjglRenderer implements Renderer {
 
             assert fb.getId() >= 0;
             assert context.boundFBO == fb.getId();
-            
+
             lastFb = fb;
-            
+
             try {
                 checkFrameBufferError();
             } catch (IllegalStateException ex) {
@@ -1998,7 +2002,7 @@ public class LwjglRenderer implements Renderer {
             objManager.registerForCleanup(vb);
 
             //statistics.onNewVertexBuffer();
-            
+
             created = true;
         }
 
@@ -2010,7 +2014,7 @@ public class LwjglRenderer implements Renderer {
                 glBindBuffer(target, bufId);
                 context.boundElementArrayVBO = bufId;
                 //statistics.onVertexBufferUse(vb, true);
-            }else{
+            } else {
                 //statistics.onVertexBufferUse(vb, false);
             }
         } else {
@@ -2019,7 +2023,7 @@ public class LwjglRenderer implements Renderer {
                 glBindBuffer(target, bufId);
                 context.boundArrayVBO = bufId;
                 //statistics.onVertexBufferUse(vb, true);
-            }else{
+            } else {
                 //statistics.onVertexBufferUse(vb, false);
             }
         }
@@ -2128,7 +2132,7 @@ public class LwjglRenderer implements Renderer {
             intBuf1.position(0).limit(1);
             glDeleteBuffers(intBuf1);
             vb.resetObject();
-            
+
             //statistics.onDeleteVertexBuffer();
         }
     }
@@ -2170,11 +2174,11 @@ public class LwjglRenderer implements Renderer {
                     attrib.setLocation(loc);
                 }
             }
-            
+
             if (vb.isUpdateNeeded() && idb == null) {
                 updateBufferData(vb);
             }
-            
+
             VertexBuffer[] attribs = context.boundAttribs;
             if (!context.attribIndexList.moveToNew(loc)) {
                 glEnableVertexAttribArray(loc);
@@ -2188,7 +2192,7 @@ public class LwjglRenderer implements Renderer {
                     glBindBuffer(GL_ARRAY_BUFFER, bufId);
                     context.boundArrayVBO = bufId;
                     //statistics.onVertexBufferUse(vb, true);
-                }else{
+                } else {
                     //statistics.onVertexBufferUse(vb, false);
                 }
 
@@ -2235,7 +2239,7 @@ public class LwjglRenderer implements Renderer {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufId);
             context.boundElementArrayVBO = bufId;
             //statistics.onVertexBufferUse(indexBuf, true);
-        }else{
+        } else {
             //statistics.onVertexBufferUse(indexBuf, true);
         }
 
@@ -2360,9 +2364,9 @@ public class LwjglRenderer implements Renderer {
     }
 
     private void renderMeshVertexArray(Mesh mesh, int lod, int count) {
-        if (mesh.getId() == -1){
+        if (mesh.getId() == -1) {
             updateVertexArray(mesh);
-        }else{
+        } else {
             // TODO: Check if it was updated
         }
 
@@ -2403,10 +2407,10 @@ public class LwjglRenderer implements Renderer {
         } else {
             indices = mesh.getBuffer(Type.Index);
         }
-        
+
 //        for (Entry<VertexBuffer> entry : buffers) {
 //             VertexBuffer vb = entry.getValue();
-        for (VertexBuffer vb : mesh.getBufferList().getArray()){
+        for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
@@ -2436,10 +2440,10 @@ public class LwjglRenderer implements Renderer {
             return;
         }
 
-        if (context.pointSprite && mesh.getMode() != Mode.Points){
+        if (context.pointSprite && mesh.getMode() != Mode.Points) {
             // XXX: Hack, disable point sprite mode if mesh not in point mode
-            if (context.boundTextures[0] != null){
-                if (context.boundTextureUnit != 0){
+            if (context.boundTextures[0] != null) {
+                if (context.boundTextureUnit != 0) {
                     glActiveTexture(GL_TEXTURE0);
                     context.boundTextureUnit = 0;
                 }
@@ -2462,7 +2466,7 @@ public class LwjglRenderer implements Renderer {
 //        if (GLContext.getCapabilities().GL_ARB_vertex_array_object){
 //            renderMeshVertexArray(mesh, lod, count);
 //        }else{
-            renderMeshDefault(mesh, lod, count);
+        renderMeshDefault(mesh, lod, count);
 //        }
     }
 }
