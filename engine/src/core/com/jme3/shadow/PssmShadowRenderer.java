@@ -220,6 +220,9 @@ public class PssmShadowRenderer implements SceneProcessor {
         //initializing render state for post shadow pass (modulade blending and cullmode of for back faces )
         state.setBlendMode(RenderState.BlendMode.Modulate);
         state.setFaceCullMode(RenderState.FaceCullMode.Off);
+        state.setDepthWrite(false);
+        state.setPolyOffset(-0.1f, 0);
+               
     }
 
     /**
