@@ -995,10 +995,10 @@ public class LwjglRenderer implements Renderer {
                         new Object[]{source.getName(), infoLog});
             } else {
                 logger.log(Level.FINE, "{0} compile success", source.getName());
-            }
-        } else {            
+            }            
+        } else {                        
             logger.log(Level.WARNING, "Bad compile of:\n{0}",
-                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource())});
+                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource(),stringBuf.toString())});
             if (infoLog != null) {
                 throw new RendererException("compile error in:" + source + " error:" + infoLog);
             } else {

@@ -1051,7 +1051,7 @@ public class OGLESShaderRenderer implements Renderer {
             }
         } else {
            logger.log(Level.WARNING, "Bad compile of:\n{0}",
-                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource())});
+                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource(),stringBuf.toString())});
             if (infoLog != null) {
                 throw new RendererException("compile error in:" + source + " error:" + infoLog);
             } else {
