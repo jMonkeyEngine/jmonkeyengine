@@ -137,7 +137,7 @@ public class TestPostWater extends SimpleApplication {
         water.setWaterHeight(initialWaterHeight);
       uw=cam.getLocation().y<waterHeight; 
       
-        waves = new AudioNode(audioRenderer, assetManager, "Sound/Environment/Ocean Waves.ogg", false);
+        waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", false);
         waves.setLooping(true);
         waves.setReverbEnabled(true);
         if(uw){
