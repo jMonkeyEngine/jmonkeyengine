@@ -1,13 +1,11 @@
 package com.jme3.scene.plugins.blender.objects;
 
-import com.jme3.export.*;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +17,7 @@ import java.util.logging.Logger;
  * This class is valid for all versions of blender.
  * @author Marcin Roguski (Kaelthas)
  */
-public class Properties implements Cloneable, Savable {
+public class Properties implements Cloneable {
 	private static final Logger		LOGGER				= Logger.getLogger(Properties.class.getName());
 
 	// property type
@@ -310,6 +308,7 @@ public class Properties implements Cloneable, Savable {
 		}
 	}
 
+        /*
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void write(JmeExporter ex) throws IOException {
@@ -410,6 +409,7 @@ public class Properties implements Cloneable, Savable {
 				LOGGER.warning("Cannot read the property's value! Invalid type! Property: name: " + name + "; type: " + type);
 		}
 	}
+        */
 
 	@Override
 	public int hashCode() {
