@@ -53,12 +53,8 @@ import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
-import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
-import com.jme3.util.ListMap;
-import com.jme3.util.NativeObjectManager;
-import com.jme3.util.SafeArrayList;
+import com.jme3.util.*;
 import java.nio.*;
 import java.util.EnumSet;
 import java.util.List;
@@ -109,7 +105,6 @@ public class LwjglRenderer implements Renderer {
     private int maxTriCount;
     private int maxColorTexSamples;
     private int maxDepthTexSamples;
-    private boolean tdc;
     private FrameBuffer lastFb = null;
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
@@ -272,6 +267,10 @@ public class LwjglRenderer implements Renderer {
         if (ctxCaps.GL_ARB_depth_buffer_float) {
             caps.add(Caps.FloatDepthBuffer);
         }
+        
+        if (ctxCaps.OpenGL30){
+            caps.add(Caps.PackedDepthStencilBuffer);
+        }
 
         if (ctxCaps.GL_ARB_draw_instanced) {
             caps.add(Caps.MeshInstancing);
@@ -304,12 +303,8 @@ public class LwjglRenderer implements Renderer {
         }
 
         boolean latc = ctxCaps.GL_EXT_texture_compression_latc;
-        boolean atdc = ctxCaps.GL_ATI_texture_compression_3dc;
-        if (latc || atdc) {
+        if (latc) {
             caps.add(Caps.TextureCompressionLATC);
-            if (atdc && !latc) {
-                tdc = true;
-            }
         }
 
         if (ctxCaps.GL_EXT_packed_float) {
@@ -454,10 +449,12 @@ public class LwjglRenderer implements Renderer {
     }
 
     public void setAlphaToCoverage(boolean value) {
-        if (value) {
-            glEnable(ARBMultisample.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
-        } else {
-            glDisable(ARBMultisample.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+        if (caps.contains(Caps.Multisample)){
+            if (value) {
+                glEnable(ARBMultisample.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+            } else {
+                glDisable(ARBMultisample.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
+            }
         }
     }
 
@@ -1270,7 +1267,7 @@ public class LwjglRenderer implements Renderer {
         switch (type) {
             case GL_NONE:
                 System.out.println("Type: None");
-                return; // note: return from method as other queries will be invalid
+                break;
             case GL_TEXTURE:
                 System.out.println("Type: Texture");
                 break;
@@ -1364,8 +1361,8 @@ public class LwjglRenderer implements Renderer {
                     + ":" + fb.getHeight() + " is not supported.");
         }
 
-        TextureUtil.checkFormatSupported(rb.getFormat());
-
+        TextureUtil.GLImageFormat glFmt = TextureUtil.getImageFormatWithError(rb.getFormat());
+        
         if (fb.getSamples() > 1 && GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
             int samples = fb.getSamples();
             if (maxFBOSamples < samples) {
@@ -1373,12 +1370,12 @@ public class LwjglRenderer implements Renderer {
             }
             glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER_EXT,
                     samples,
-                    TextureUtil.convertTextureFormat(rb.getFormat()),
+                    glFmt.internalFormat,
                     fb.getWidth(),
                     fb.getHeight());
         } else {
             glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,
-                    TextureUtil.convertTextureFormat(rb.getFormat()),
+                    glFmt.internalFormat,
                     fb.getWidth(),
                     fb.getHeight());
         }
@@ -1854,19 +1851,19 @@ public class LwjglRenderer implements Renderer {
                 return;
             }
             for (int i = 0; i < 6; i++) {
-                TextureUtil.uploadTexture(img, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, tdc);
+                TextureUtil.uploadTexture(img, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0);
             }
         } else if (target == EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT) {
             List<ByteBuffer> data = img.getData();
             // -1 index specifies prepare data for 2D Array
-            TextureUtil.uploadTexture(img, target, -1, 0, tdc);
+            TextureUtil.uploadTexture(img, target, -1, 0);
             for (int i = 0; i < data.size(); i++) {
                 // upload each slice of 2D array in turn
                 // this time with the appropriate index
-                TextureUtil.uploadTexture(img, target, i, 0, tdc);
+                TextureUtil.uploadTexture(img, target, i, 0);
             }
         } else {
-            TextureUtil.uploadTexture(img, target, 0, 0, tdc);
+            TextureUtil.uploadTexture(img, target, 0, 0);
         }
 
         if (img.getMultiSamples() != imageSamples) {
@@ -1978,8 +1975,8 @@ public class LwjglRenderer implements Renderer {
                 return GL_INT;
             case UnsignedInt:
                 return GL_UNSIGNED_INT;
-            case Half:
-                return NVHalfFloat.GL_HALF_FLOAT_NV;
+//            case Half:
+//                return NVHalfFloat.GL_HALF_FLOAT_NV;
 //                return ARBHalfFloatVertex.GL_HALF_FLOAT;
             case Float:
                 return GL_FLOAT;
@@ -2343,10 +2340,7 @@ public class LwjglRenderer implements Renderer {
             updateBufferData(interleavedData);
         }
 
-        IntMap<VertexBuffer> buffers = mesh.getBuffers();
-        for (Entry<VertexBuffer> entry : buffers) {
-            VertexBuffer vb = entry.getValue();
-
+        for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
@@ -2376,7 +2370,7 @@ public class LwjglRenderer implements Renderer {
         }
 
 //        IntMap<VertexBuffer> buffers = mesh.getBuffers();
-        VertexBuffer indices = null;
+        VertexBuffer indices;
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {

@@ -738,7 +738,6 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
                     // Resize texture to Power-of-2 size
                     MipMapGenerator.resizeToPowerOf2(img);
-
                 }
             }
         }
@@ -777,7 +776,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         TextureUtil.uploadTexture(img, target, i, 0, tdc);
         }
         } else {*/
-        TextureUtil.uploadTexture(img, target, 0, 0, false);
+        TextureUtil.uploadTexture(img, target, 0, 0);
         //}
 
         img.clearUpdateNeeded();
@@ -1052,15 +1051,12 @@ public class LwjglGL1Renderer implements GL1Renderer {
             updateBufferData(interleavedData);
         }
 
-        IntMap<VertexBuffer> buffers = mesh.getBuffers();
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {
-            indices = buffers.get(Type.Index.ordinal());
+            indices = mesh.getBuffer(Type.Index);
         }
-        for (Entry<VertexBuffer> entry : buffers) {
-            VertexBuffer vb = entry.getValue();
-
+        for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
@@ -1108,9 +1104,8 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
 
         if (mesh.getNumLodLevels() == 0) {
-            IntMap<VertexBuffer> bufs = mesh.getBuffers();
-            for (Entry<VertexBuffer> entry : bufs) {
-                if (entry.getValue().getUsage() != VertexBuffer.Usage.Static) {
+            for (VertexBuffer vb : mesh.getBufferList().getArray()) {
+                if (vb.getUsage() != VertexBuffer.Usage.Static) {
                     dynamic = true;
                     break;
                 }

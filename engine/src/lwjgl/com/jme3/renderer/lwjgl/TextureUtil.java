@@ -36,369 +36,192 @@ import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import java.nio.ByteBuffer;
-import static org.lwjgl.opengl.ATITextureCompression3DC.GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI;
-import static org.lwjgl.opengl.EXTTextureCompressionLATC.GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
-import static org.lwjgl.opengl.EXTTextureCompressionLATC.GL_COMPRESSED_LUMINANCE_LATC1_EXT;
-import static org.lwjgl.opengl.EXTTextureCompressionS3TC.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
-import static org.lwjgl.opengl.GL13.glCompressedTexImage2D;
-import static org.lwjgl.opengl.GL13.glCompressedTexImage3D;
-import static org.lwjgl.opengl.GL14.*;
 import org.lwjgl.opengl.*;
 
-public class TextureUtil {
+class TextureUtil {
 
-    private static boolean isFormatSupported(Format fmt, ContextCapabilities caps){
+    static class GLImageFormat {
+        
+        int internalFormat;
+        int format;
+        int dataType;
+        boolean compressed;
+
+        public GLImageFormat(int internalFormat, int format, int dataType, boolean compressed) {
+            this.internalFormat = internalFormat;
+            this.format = format;
+            this.dataType = dataType;
+            this.compressed = compressed;
+        }
+    }
+    
+    private static final GLImageFormat[] formatToGL = new GLImageFormat[Format.values().length];
+    
+    private static void setFormat(Format format, int glInternalFormat, int glFormat, int glDataType, boolean glCompressed){
+        formatToGL[format.ordinal()] = new GLImageFormat(glInternalFormat, glFormat, glDataType, glCompressed);
+    }
+    
+    static {
+        // Alpha formats
+        setFormat(Format.Alpha8,  GL11.GL_ALPHA8,  GL11.GL_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Alpha16, GL11.GL_ALPHA16, GL11.GL_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
+        
+        // Luminance formats
+        setFormat(Format.Luminance8,   GL11.GL_LUMINANCE8,  GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Luminance16,  GL11.GL_LUMINANCE16, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Luminance16F, ARBTextureFloat.GL_LUMINANCE16F_ARB, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Luminance32F, ARBTextureFloat.GL_LUMINANCE32F_ARB, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
+        
+        // Luminance alpha formats
+        setFormat(Format.Luminance8Alpha8, GL11.GL_LUMINANCE8_ALPHA8,  GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Luminance16Alpha16, GL11.GL_LUMINANCE16_ALPHA16, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Luminance16FAlpha16F, ARBTextureFloat.GL_LUMINANCE_ALPHA16F_ARB, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
+        
+        // Depth formats
+        setFormat(Format.Depth,    GL11.GL_DEPTH_COMPONENT,    GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Depth16,  GL14.GL_DEPTH_COMPONENT16,  GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Depth24,  GL14.GL_DEPTH_COMPONENT24,  GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Depth32,  GL14.GL_DEPTH_COMPONENT32,  GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Depth32F, GL30.GL_DEPTH_COMPONENT32F, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT,         false);
+        
+        // Depth stencil formats
+        setFormat(Format.Depth24Stencil8, GL30.GL_DEPTH24_STENCIL8, GL11.GL_DEPTH_COMPONENT, GL30.GL_UNSIGNED_INT_24_8, false);
+        
+        // RGB formats
+        setFormat(Format.BGR8,       GL11.GL_RGB8,  EXTBgra.GL_BGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.RGB8,       GL11.GL_RGB8,  GL11.GL_RGB,        GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.RGB10,      GL11.GL_RGB10, GL11.GL_RGB,        GL12.GL_UNSIGNED_INT_10_10_10_2, false); 
+        setFormat(Format.RGB16,      GL11.GL_RGB16, GL11.GL_RGB,        GL11.GL_UNSIGNED_BYTE, false); // might be incorrect
+        setFormat(Format.RGB16F,     ARBTextureFloat.GL_RGB16F_ARB, GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
+        setFormat(Format.RGB32F,     ARBTextureFloat.GL_RGB32F_ARB, GL11.GL_RGB, GL11.GL_FLOAT, false);
+        
+        // Special RGB formats
+        setFormat(Format.RGB111110F, EXTPackedFloat.GL_R11F_G11F_B10F_EXT,    GL11.GL_RGB, EXTPackedFloat.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT, false);
+        setFormat(Format.RGB9E5,     EXTTextureSharedExponent.GL_RGB9_E5_EXT, GL11.GL_RGB, EXTTextureSharedExponent.GL_UNSIGNED_INT_5_9_9_9_REV_EXT, false);
+        setFormat(Format.RGB16F_to_RGB111110F, EXTPackedFloat.GL_R11F_G11F_B10F_EXT,    GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
+        setFormat(Format.RGB16F_to_RGB111110F, EXTTextureSharedExponent.GL_RGB9_E5_EXT, GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
+        
+        // RGBA formats
+        setFormat(Format.ABGR8,   GL11.GL_RGBA8,       EXTAbgr.GL_ABGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.RGB5A1,  GL11.GL_RGB5_A1,     GL11.GL_RGBA,        GL12.GL_UNSIGNED_SHORT_5_5_5_1, false);
+        setFormat(Format.RGBA8,   GL11.GL_RGBA8,       GL11.GL_RGBA,        GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.RGBA16,  GL11.GL_RGBA16,      GL11.GL_RGBA,        GL11.GL_UNSIGNED_BYTE, false); // might be incorrect
+        setFormat(Format.RGBA16F, ARBTextureFloat.GL_RGBA16F_ARB, GL11.GL_RGBA, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
+        setFormat(Format.RGBA32F, ARBTextureFloat.GL_RGBA32F_ARB, GL11.GL_RGBA, GL11.GL_FLOAT, false);
+        
+        // DXT formats
+        setFormat(Format.DXT1,  EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL11.GL_RGB,   GL11.GL_UNSIGNED_BYTE, true);
+        setFormat(Format.DXT1A, EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true);
+        setFormat(Format.DXT3,  EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true);
+        setFormat(Format.DXT5,  EXTTextureCompressionS3TC.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true);
+    
+        // LTC/LATC/3Dc formats
+        setFormat(Format.LTC,  EXTTextureCompressionLATC.GL_COMPRESSED_LUMINANCE_LATC1_EXT,       GL11.GL_LUMINANCE,       GL11.GL_UNSIGNED_BYTE, true);
+        setFormat(Format.LATC, EXTTextureCompressionLATC.GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, true);
+    }
+    
+    public static GLImageFormat getImageFormat(ContextCapabilities caps, Format fmt){
         switch (fmt){
-            case ARGB4444:
-                return false;
+            case ABGR8:
+                if (!caps.GL_EXT_abgr){
+                    return null;
+                }
+                break;
             case BGR8:
-                return caps.OpenGL12 || caps.GL_EXT_bgra;
+                if (!caps.OpenGL12 && !caps.GL_EXT_bgra){
+                    return null;
+                }
+                break;
             case DXT1:
             case DXT1A:
             case DXT3:
             case DXT5:
-                return caps.GL_EXT_texture_compression_s3tc;
+                if (!caps.GL_EXT_texture_compression_s3tc) {
+                    return null;
+                }
+                break;
             case Depth:
             case Depth16:
             case Depth24:
             case Depth32:
-                return caps.OpenGL14 || caps.GL_ARB_depth_texture;
-            case Depth32F:
+                if (!caps.OpenGL14 && !caps.GL_ARB_depth_texture){
+                    return null;
+                }
+                break;
             case Luminance16F:
             case Luminance16FAlpha16F:
             case Luminance32F:
+                if (!caps.GL_ARB_texture_float){
+                    return null;
+                }
+                break;
+            case RGB16F:
+            case RGB32F:
             case RGBA16F:
             case RGBA32F:
-                return caps.OpenGL30 || caps.GL_ARB_texture_float;
+                if (!caps.OpenGL30 && !caps.GL_ARB_texture_float){
+                    return null;
+                }
+                break;
+            case Depth32F:
+                if (!caps.OpenGL30 && !caps.GL_NV_depth_buffer_float){
+                    return null;
+                }
+                break;
             case LATC:
             case LTC:
-                return caps.GL_EXT_texture_compression_latc;
+                if (!caps.GL_EXT_texture_compression_latc){
+                    return null;
+                }
+                break;
             case RGB9E5:
             case RGB16F_to_RGB9E5:
-                return caps.OpenGL30 || caps.GL_EXT_texture_shared_exponent;
+                if (!caps.OpenGL30 && !caps.GL_EXT_texture_shared_exponent){
+                    return null;
+                }
+                break;
             case RGB111110F:
             case RGB16F_to_RGB111110F:
-                return caps.OpenGL30 || caps.GL_EXT_packed_float;
-            default:
-                return true;
+                if (!caps.OpenGL30 && !caps.GL_EXT_packed_float){
+                    return null;
+                }
+                break;
         }
+        return formatToGL[fmt.ordinal()];
     }
-
-    public static void checkFormatSupported(Format fmt) {
-        if (!isFormatSupported(fmt, GLContext.getCapabilities())) {
+    
+    public static GLImageFormat getImageFormatWithError(Format fmt) {
+        GLImageFormat glFmt = getImageFormat(GLContext.getCapabilities(), fmt);
+        if (glFmt == null) {
             throw new RendererException("Image format '" + fmt + "' is unsupported by the video hardware.");
         }
+        return glFmt;
     }
-
-    public static int convertTextureFormat(Format fmt){
-        switch (fmt){
-            case Alpha16:
-                return GL_ALPHA16;
-            case Alpha8:
-                return GL_ALPHA8;
-            case DXT1:
-                return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-            case DXT1A:
-                return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-            case DXT3:
-                return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-            case DXT5:
-                return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-            case LATC:
-                return GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
-            case Depth:
-                return GL_DEPTH_COMPONENT;
-            case Depth16:
-                return GL_DEPTH_COMPONENT16;
-            case Depth24:
-                return GL_DEPTH_COMPONENT24;
-            case Depth32:
-                return GL_DEPTH_COMPONENT32;
-            case Depth32F:
-                return ARBDepthBufferFloat.GL_DEPTH_COMPONENT32F;
-            case Luminance8Alpha8:
-                return GL_LUMINANCE8_ALPHA8;
-            case Luminance16Alpha16:
-                return GL_LUMINANCE16_ALPHA16;
-            case Luminance16FAlpha16F:
-                return ARBTextureFloat.GL_LUMINANCE_ALPHA16F_ARB;
-            case Intensity8:
-                return GL_INTENSITY8;
-            case Intensity16:
-                return GL_INTENSITY16;
-            case Luminance8:
-                return GL_LUMINANCE8;
-            case Luminance16:
-                return GL_LUMINANCE16;
-            case Luminance16F:
-                return ARBTextureFloat.GL_LUMINANCE16F_ARB;
-             case Luminance32F:
-                return ARBTextureFloat.GL_LUMINANCE32F_ARB;
-            case RGB10:
-                return GL_RGB10;
-            case RGB16:
-                return GL_RGB16;
-            case RGB111110F:
-                return EXTPackedFloat.GL_R11F_G11F_B10F_EXT;
-            case RGB9E5:
-                return EXTTextureSharedExponent.GL_RGB9_E5_EXT;
-            case RGB16F:
-                return ARBTextureFloat.GL_RGB16F_ARB;
-            case RGBA16F:
-                return ARBTextureFloat.GL_RGBA16F_ARB;
-            case RGB32F:
-                return ARBTextureFloat.GL_RGB32F_ARB;
-            case RGB5A1:
-                return GL_RGB5_A1;
-            case BGR8:
-                return GL_RGB8;
-            case RGB8:
-                return GL_RGB8;
-            case RGBA16:
-                return GL_RGBA16;
-            case RGBA8:
-                return GL_RGBA8;
-            default:
-                throw new UnsupportedOperationException("Unrecognized format: "+fmt);
-        }
-    }
-
-    public static void uploadTexture(Image img,
+    
+    public static void uploadTexture(Image image,
                                      int target,
                                      int index,
-                                     int border,
-                                     boolean tdc){
-        Image.Format fmt = img.getFormat();
-
-        checkFormatSupported(fmt);
+                                     int border){
+        
+        Image.Format fmt = image.getFormat();
+        GLImageFormat glFmt = getImageFormatWithError(fmt);
 
         ByteBuffer data;
-        if (index >= 0 && img.getData() != null && img.getData().size() > 0){
-            data = img.getData(index);
+        if (index >= 0 && image.getData() != null && image.getData().size() > 0){
+            data = image.getData(index);
         }else{
             data = null;
         }
 
-        int width = img.getWidth();
-        int height = img.getHeight();
-        int depth = img.getDepth();
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int depth = image.getDepth();
 
-        boolean compress = false;
-        int internalFormat = -1;
-        int format = -1;
-        int dataType = -1;
-
-        switch (fmt){
-            case Alpha16:
-                internalFormat = GL_ALPHA16;
-                format = GL_ALPHA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Alpha8:
-                internalFormat = GL_ALPHA8;
-                format = GL_ALPHA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case DXT1:
-                compress = true;
-                internalFormat = GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-                format = GL_RGB;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case DXT1A:
-                compress = true;
-                internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-                format = GL_RGBA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case DXT3:
-                compress = true;
-                internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-                format = GL_RGBA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case DXT5:
-                compress = true;
-                internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-                format = GL_RGBA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case LATC:
-                compress = true;
-                if (tdc){
-                    internalFormat = GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI;
-                }else{
-                    internalFormat = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
-                }
-                format = GL_LUMINANCE_ALPHA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case LTC:
-                compress = true;
-                internalFormat = GL_COMPRESSED_LUMINANCE_LATC1_EXT;
-                format = GL_LUMINANCE_ALPHA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Depth:
-                internalFormat = GL_DEPTH_COMPONENT;
-                format = GL_DEPTH_COMPONENT;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Depth16:
-                internalFormat = GL_DEPTH_COMPONENT16;
-                format = GL_DEPTH_COMPONENT;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Depth24:
-                internalFormat = GL_DEPTH_COMPONENT24;
-                format = GL_DEPTH_COMPONENT;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Depth32:
-                internalFormat = GL_DEPTH_COMPONENT32;
-                format = GL_DEPTH_COMPONENT;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Depth32F:
-                internalFormat = NVDepthBufferFloat.GL_DEPTH_COMPONENT32F_NV;
-                format = GL_DEPTH_COMPONENT;
-                dataType = GL_FLOAT;
-                break;
-            case Luminance16FAlpha16F:
-                internalFormat = ARBTextureFloat.GL_LUMINANCE_ALPHA16F_ARB;
-                format = GL_LUMINANCE_ALPHA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Intensity8:
-                internalFormat = GL_INTENSITY8;
-                format = GL_INTENSITY;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Intensity16:
-                internalFormat = GL_INTENSITY16;
-                format = GL_INTENSITY;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Luminance8:
-                internalFormat = GL_LUMINANCE8;
-                format = GL_LUMINANCE;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Luminance8Alpha8:
-                internalFormat = GL_LUMINANCE8_ALPHA8;
-                format = GL_LUMINANCE_ALPHA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Luminance16Alpha16:
-                internalFormat = GL_LUMINANCE16_ALPHA16;
-                format = GL_LUMINANCE_ALPHA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Luminance16:
-                internalFormat = GL_LUMINANCE16;
-                format = GL_LUMINANCE;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case Luminance16F:
-                internalFormat = ARBTextureFloat.GL_LUMINANCE16F_ARB;
-                format = GL_LUMINANCE;
-                dataType = ARBHalfFloatPixel.GL_HALF_FLOAT_ARB;
-                break;
-            case Luminance32F:
-                internalFormat = ARBTextureFloat.GL_LUMINANCE32F_ARB;
-                format = GL_LUMINANCE;
-                dataType = GL_FLOAT;
-                break;
-            case RGB10:
-                internalFormat = GL_RGB10;
-                format = GL_RGB;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case RGB16:
-                internalFormat = GL_RGB16;
-                format = GL_RGB;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case RGB111110F:
-                internalFormat = EXTPackedFloat.GL_R11F_G11F_B10F_EXT;
-                format = GL_RGB;
-                dataType = EXTPackedFloat.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT;
-                break;
-            case RGB16F_to_RGB111110F:
-                internalFormat = EXTPackedFloat.GL_R11F_G11F_B10F_EXT;
-                format = GL_RGB;
-                dataType = ARBHalfFloatPixel.GL_HALF_FLOAT_ARB;
-                break;
-            case RGB16F_to_RGB9E5:
-                internalFormat = EXTTextureSharedExponent.GL_RGB9_E5_EXT;
-                format = GL_RGB;
-                dataType = ARBHalfFloatPixel.GL_HALF_FLOAT_ARB;
-                break;
-            case RGB9E5:
-                internalFormat = EXTTextureSharedExponent.GL_RGB9_E5_EXT;
-                format = GL_RGB;
-                dataType = EXTTextureSharedExponent.GL_UNSIGNED_INT_5_9_9_9_REV_EXT;
-                break;
-            case RGB16F:
-                internalFormat = ARBTextureFloat.GL_RGB16F_ARB;
-                format = GL_RGB;
-                dataType = ARBHalfFloatPixel.GL_HALF_FLOAT_ARB;
-                break;
-            case RGBA16F:
-                internalFormat = ARBTextureFloat.GL_RGBA16F_ARB;
-                format = GL_RGBA;
-                dataType = ARBHalfFloatPixel.GL_HALF_FLOAT_ARB;
-                break;
-            case RGB32F:
-                internalFormat = ARBTextureFloat.GL_RGB32F_ARB;
-                format = GL_RGB;
-                dataType = GL_FLOAT;
-                break;
-            case RGBA32F:
-                internalFormat = ARBTextureFloat.GL_RGBA32F_ARB;
-                format = GL_RGBA;
-                dataType = GL_FLOAT;
-                break;
-            case RGB5A1:
-                internalFormat = GL_RGB5_A1;
-                format = GL_RGBA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case RGB8:
-                internalFormat = GL_RGB8;
-                format = GL_RGB;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case BGR8:
-                internalFormat = GL_RGB8;
-                format = GL_BGR;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case RGBA16:
-                internalFormat = GL_RGBA16;
-                format = GL_RGBA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case RGBA8:
-                internalFormat = GL_RGBA8;
-                format = GL_RGBA;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            case ABGR8:
-                internalFormat = GL_RGBA8;
-                format = EXTAbgr.GL_ABGR_EXT;
-                dataType = GL_UNSIGNED_BYTE;
-                break;
-            default:
-                throw new UnsupportedOperationException("Unrecognized format: "+fmt);
+        if (data != null) {
+            GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
         }
 
-        if (data != null)
-            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-        int[] mipSizes = img.getMipMapSizes();
+        int[] mipSizes = image.getMipMapSizes();
         int pos = 0;
         // TODO: Remove unneccessary allocation
         if (mipSizes == null){
@@ -409,7 +232,7 @@ public class TextureUtil {
         }
 
         boolean subtex = false;
-        int samples = img.getMultiSamples();
+        int samples = image.getMultiSamples();
 
         for (int i = 0; i < mipSizes.length; i++){
             int mipWidth =  Math.max(1, width  >> i);
@@ -421,95 +244,96 @@ public class TextureUtil {
                 data.limit(pos + mipSizes[i]);
             }
             
-            if (compress && data != null){
-                if (target == GL_TEXTURE_3D){
-                    glCompressedTexImage3D(target,
-                                           i,
-                                           internalFormat,
-                                           mipWidth,
-                                           mipHeight,
-                                           mipDepth,
-                                           border,
-                                           data);
+            if (glFmt.compressed && data != null){
+                if (target == GL12.GL_TEXTURE_3D){
+                    GL13.glCompressedTexImage3D(target,
+                                                i,
+                                                glFmt.internalFormat,
+                                                mipWidth,
+                                                mipHeight,
+                                                mipDepth,
+                                                border,
+                                                data);
                 }else{
                     //all other targets use 2D: array, cubemap, 2d
-                    glCompressedTexImage2D(target,
-                                           i,
-                                           internalFormat,
-                                           mipWidth,
-                                           mipHeight,
-                                           border,
-                                           data);
+                    GL13.glCompressedTexImage2D(target,
+                                                i,
+                                                glFmt.internalFormat,
+                                                mipWidth,
+                                                mipHeight,
+                                                border,
+                                                data);
                 }
             }else{
-                if (target == GL_TEXTURE_3D){
-                    glTexImage3D(target,
-                                 i,
-                                 internalFormat,
-                                 mipWidth,
-                                 mipHeight,
-                                 mipDepth,
-                                 border,
-                                 format,
-                                 dataType,
-                                 data);
+                if (target == GL12.GL_TEXTURE_3D){
+                    GL12.glTexImage3D(target,
+                                      i,
+                                      glFmt.internalFormat,
+                                      mipWidth,
+                                      mipHeight,
+                                      mipDepth,
+                                      border,
+                                      glFmt.format,
+                                      glFmt.dataType,
+                                      data);
                 }else if (target == EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT){
                     // prepare data for 2D array
                     // or upload slice
                     if (index == -1){
-                        glTexImage3D(target,
-                                     0,
-                                     internalFormat,
-                                     mipWidth,
-                                     mipHeight,
-                                     img.getData().size(), //# of slices
-                                     border,
-                                     format,
-                                     dataType,
-                                     data);
+                        GL12.glTexImage3D(target,
+                                          0,
+                                          glFmt.internalFormat,
+                                          mipWidth,
+                                          mipHeight,
+                                          image.getData().size(), //# of slices
+                                          border,
+                                          glFmt.format,
+                                          glFmt.dataType,
+                                          data);
                     }else{
-                        glTexSubImage3D(target,
-                                        i, // level
-                                        0, // xoffset
-                                        0, // yoffset
-                                        index, // zoffset
-                                        width, // width
-                                        height, // height
-                                        1, // depth
-                                        format,
-                                        dataType,
-                                        data);
+                        GL12.glTexSubImage3D(target,
+                                             i, // level
+                                             0, // xoffset
+                                             0, // yoffset
+                                             index, // zoffset
+                                             width, // width
+                                             height, // height
+                                             1, // depth
+                                             glFmt.format,
+                                             glFmt.dataType,
+                                             data);
                     }
                 }else{
                     if (subtex){
-                        if (samples > 1)
+                        if (samples > 1){
                             throw new IllegalStateException("Cannot update multisample textures");
+                        }
 
-                        glTexSubImage2D(target,
-                                        i,
-                                        0, 0,
-                                        mipWidth, mipHeight,
-                                        format,
-                                        dataType,
-                                        data);
+                        GL11.glTexSubImage2D(target,
+                                             i,
+                                             0, 0,
+                                             mipWidth, mipHeight,
+                                             glFmt.format,
+                                             glFmt.dataType,
+                                             data);
                     }else{
                         if (samples > 1){
                             ARBTextureMultisample.glTexImage2DMultisample(target,
                                                                           samples,
-                                                                          internalFormat,
+                                                                          glFmt.internalFormat,
                                                                           mipWidth,
                                                                           mipHeight,
                                                                           true);
                         }else{
-                            glTexImage2D(target,
-                                         i,
-                                         internalFormat,
-                                         mipWidth,
-                                         mipHeight,
-                                         border,
-                                         format,
-                                         dataType,
-                                         data);
+                            GL11.glTexImage2D(target,
+                                              i,
+                                              glFmt.internalFormat,
+                                              mipWidth,
+                                              mipHeight,
+                                              border,
+                                              glFmt.format,
+                                              glFmt.dataType,
+                                              data);
                         }
                     }
                 }
