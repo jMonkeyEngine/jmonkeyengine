@@ -73,16 +73,18 @@ public class AssetConfig {
                 for (int i = 0; i < extensions.length; i++){
                     extensions[i] = extensions[i].trim();
                 }
-                if (hasClass(loaderClass)) {
-                    manager.registerLoader(loaderClass, extensions);
+                Class clazz = acquireClass(loaderClass);
+                if (clazz != null) {
+                    manager.registerLoader(clazz, extensions);
                 } else {
                     Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot find loader {0}", loaderClass);
                 }
             } else if (cmd.equals("LOCATOR")) {
                 String rootPath = scan.next();
                 String locatorClass = scan.nextLine().trim();
-                if (hasClass(locatorClass)) {
-                    manager.registerLocator(rootPath, locatorClass);
+                Class clazz = acquireClass(locatorClass);
+                if (clazz != null) {
+                    manager.registerLocator(rootPath, clazz);
                 } else {
                     Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot find locator {0}", locatorClass);
                 }
@@ -92,15 +94,16 @@ public class AssetConfig {
         }
     }
     
-    private boolean hasClass(String name) {
+    private Class acquireClass(String name) {
         try {
             Class clazz = Class.forName(name);
-            return clazz != null;
+            return clazz;
         } catch (ClassNotFoundException ex) {
-            return false;
+            return null;
         }
     }
-
+    
+    /*
     private static String readString(DataInput dataIn) throws IOException{
         int length = dataIn.readUnsignedShort();
         char[] chrs = new char[length];
@@ -110,7 +113,6 @@ public class AssetConfig {
         return String.valueOf(chrs);
     }
 
-    /*
     public void loadBinary(DataInput dataIn) throws IOException{
         // read signature and version
 
