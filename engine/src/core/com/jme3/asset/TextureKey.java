@@ -31,15 +31,29 @@
  */
 package com.jme3.asset;
 
+import com.jme3.asset.cache.AssetCache;
+import com.jme3.asset.cache.WeakRefCloneAssetCache;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.texture.Image;
+import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.Type;
-import com.jme3.texture.*;
+import com.jme3.texture.TextureProcessor;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
+/**
+ * Used to load textures from image files such as JPG or PNG. 
+ * Note that texture loaders actually load the asset as an {@link Image}
+ * object, which is then converted to a {@link Texture} in the 
+ * {@link TextureProcessor#postProcess(com.jme3.asset.AssetKey, java.lang.Object) }
+ * method. Since textures are cloneable smart assets, the texture stored
+ * in the cache will be collected when all clones of the texture become
+ * unreachable.
+ * 
+ * @author Kirill Vainer
+ */
 public class TextureKey extends AssetKey<Texture> {
 
     private boolean generateMips;
@@ -47,7 +61,7 @@ public class TextureKey extends AssetKey<Texture> {
     private boolean asCube;
     private boolean asTexture3D;
     private int anisotropy;
-    private Texture.Type textureTypeHint=Texture.Type.TwoDimensional;
+    private Texture.Type textureTypeHint = Texture.Type.TwoDimensional;
 
     public TextureKey(String name, boolean flipY) {
         super(name);
@@ -64,58 +78,19 @@ public class TextureKey extends AssetKey<Texture> {
 
     @Override
     public String toString() {
-        return name + (flipY ? " (Flipped)" : "") + (asCube ? " (Cube)" : "") + (generateMips ? " (Mipmaped)" : "");
+        return name + (flipY ? " (Flipped)" : "") + (asCube ? " (Cube)" : "") + (generateMips ? " (Mipmapped)" : "");
     }
-
-    /**
-     * Enable smart caching for textures
-     * @return true to enable smart cache
-     */
+    
     @Override
-    public boolean useSmartCache() {
-        return true;
+    public Class<? extends AssetCache> getCacheType(){
+        return WeakRefCloneAssetCache.class;
     }
 
     @Override
-    public Object createClonedInstance(Object asset) {
-        Texture tex = (Texture) asset;
-        return tex.createSimpleClone();
+    public Class<? extends AssetProcessor> getProcessorType(){
+        return TextureProcessor.class;
     }
-
-    @Override
-    public Object postProcess(Object asset) {
-        Image img = (Image) asset;
-        if (img == null) {
-            return null;
-        }
-
-        Texture tex;
-        if (isAsCube()) {
-            if (isFlipY()) {
-                // also flip -y and +y image in cubemap
-                ByteBuffer pos_y = img.getData(2);
-                img.setData(2, img.getData(3));
-                img.setData(3, pos_y);
-            }
-            tex = new TextureCubeMap();
-        } else if (isAsTexture3D()) {
-            tex = new Texture3D();
-        } else {
-            tex = new Texture2D();
-        }
-
-        // enable mipmaps if image has them
-        // or generate them if requested by user
-        if (img.hasMipmaps() || isGenerateMips()) {
-            tex.setMinFilter(Texture.MinFilter.Trilinear);
-        }
-
-        tex.setAnisotropicFilter(getAnisotropy());
-        tex.setName(getName());
-        tex.setImage(img);
-        return tex;
-    }
-
+    
     public boolean isFlipY() {
         return flipY;
     }
@@ -152,14 +127,6 @@ public class TextureKey extends AssetKey<Texture> {
         this.asTexture3D = asTexture3D;
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof TextureKey)) {
-            return false;
-        }
-        return super.equals(other) && isFlipY() == ((TextureKey) other).isFlipY();
-    }
-
     public Type getTextureTypeHint() {
         return textureTypeHint;
     }
@@ -168,7 +135,53 @@ public class TextureKey extends AssetKey<Texture> {
         this.textureTypeHint = textureTypeHint;
     }   
     
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TextureKey other = (TextureKey) obj;
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (this.generateMips != other.generateMips) {
+            return false;
+        }
+        if (this.flipY != other.flipY) {
+            return false;
+        }
+        if (this.asCube != other.asCube) {
+            return false;
+        }
+        if (this.asTexture3D != other.asTexture3D) {
+            return false;
+        }
+        if (this.anisotropy != other.anisotropy) {
+            return false;
+        }
+        if (this.textureTypeHint != other.textureTypeHint) {
+            return false;
+        }
+        return true;
+    }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 17 * hash + (super.hashCode());
+        hash = 17 * hash + (this.generateMips ? 1 : 0);
+        hash = 17 * hash + (this.flipY ? 1 : 0);
+        hash = 17 * hash + (this.asCube ? 1 : 0);
+        hash = 17 * hash + (this.asTexture3D ? 1 : 0);
+        hash = 17 * hash + this.anisotropy;
+        hash = 17 * hash + (this.textureTypeHint != null ? this.textureTypeHint.hashCode() : 0);
+        return hash;
+    }
+    
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);

@@ -32,6 +32,8 @@
 
 package com.jme3.asset;
 
+import com.jme3.asset.cache.AssetCache;
+import com.jme3.asset.cache.SimpleAssetCache;
 import com.jme3.export.*;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -55,7 +57,7 @@ public class AssetKey<T> implements Savable {
     public AssetKey(){
     }
 
-    protected static String getExtension(String name){
+    protected static String getExtension(String name) {
         int idx = name.lastIndexOf('.');
         //workaround for filenames ending with xml and another dot ending before that (my.mesh.xml)
         if (name.toLowerCase().endsWith(".xml")) {
@@ -64,20 +66,25 @@ public class AssetKey<T> implements Savable {
                 idx = name.lastIndexOf('.');
             }
         }
-        if (idx <= 0 || idx == name.length() - 1)
+        if (idx <= 0 || idx == name.length() - 1) {
             return "";
-        else
-            return name.substring(idx+1).toLowerCase();
+        } else {
+            return name.substring(idx + 1).toLowerCase();
+        }
     }
 
-    protected static String getFolder(String name){
+    protected static String getFolder(String name) {
         int idx = name.lastIndexOf('/');
-        if (idx <= 0 || idx == name.length() - 1)
+        if (idx <= 0 || idx == name.length() - 1) {
             return "";
-        else
-            return name.substring(0, idx+1);
+        } else {
+            return name.substring(0, idx + 1);
+        }
     }
 
+    /**
+     * @return The asset path
+     */
     public String getName() {
         return name;
     }
@@ -90,6 +97,11 @@ public class AssetKey<T> implements Savable {
         return extension;
     }
 
+    /**
+     * @return The folder in which the asset is located in.
+     * E.g. if the {@link #getName() name} is "Models/MyModel/MyModel.j3o" 
+     * then "Models/MyModel/" is returned.
+     */
     public String getFolder(){
         if (folder == null)
             folder = getFolder(name);
@@ -98,41 +110,20 @@ public class AssetKey<T> implements Savable {
     }
 
     /**
-     * Do any post-processing on the resource after it has been loaded.
-     * @param asset
+     * @return The preferred cache class for this asset type. Specify "null"
+     * if caching is to be disabled. By default the 
+     * {@link SimpleAssetCache} is returned.
      */
-    public Object postProcess(Object asset){
-        return asset;
+    public Class<? extends AssetCache> getCacheType(){
+        return SimpleAssetCache.class;
     }
-
+    
     /**
-     * Create a new instance of the asset, based on a prototype that is stored
-     * in the cache. Implementations are allowed to return the given parameter
-     * as-is if it is considered that cloning is not necessary for that particular
-     * asset type.
-     * 
-     * @param asset The asset to be cloned.
-     * @return The asset, possibly cloned.
+     * @return The preferred processor type for this asset type. Specify "null"
+     * if no processing is required.
      */
-    public Object createClonedInstance(Object asset){
-        return asset;
-    }
-
-    /**
-     * @return True if the asset for this key should be cached. Subclasses
-     * should override this method if they want to override caching behavior.
-     */
-    public boolean shouldCache(){
-        return true;
-    }
-
-    /**
-     * @return Should return true, if the asset objects implement the "Asset"
-     * interface and want to be removed from the cache when no longer
-     * referenced in user-code.
-     */
-    public boolean useSmartCache(){
-        return false;
+    public Class<? extends AssetProcessor> getProcessorType(){
+        return null;
     }
     
     /**

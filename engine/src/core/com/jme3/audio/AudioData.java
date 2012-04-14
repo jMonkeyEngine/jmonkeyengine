@@ -70,7 +70,7 @@ public abstract class AudioData extends NativeObject {
      * @return the duration in seconds of the audio clip.
      */
     public abstract float getDuration();
-
+    
     /**
      * @return Bits per single sample from a channel.
      */
@@ -106,5 +106,4 @@ public abstract class AudioData extends NativeObject {
         this.bitsPerSample = bitsPerSample;
         this.sampleRate = sampleRate;
     }
-
 }

@@ -33,6 +33,9 @@
 package com.jme3.audio;
 
 import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetProcessor;
+import com.jme3.asset.cache.AssetCache;
+import com.jme3.asset.cache.WeakRefAssetCache;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -44,7 +47,7 @@ import java.io.IOException;
  *
  * @author Kirill Vainer
  */
-public class AudioKey extends AssetKey<AudioData> {
+public class AudioKey extends AssetKey<AudioNode> {
 
     private boolean stream;
     private boolean streamCache;
@@ -114,10 +117,51 @@ public class AudioKey extends AssetKey<AudioData> {
     }
 
     @Override
-    public boolean shouldCache(){
-        return !stream && !streamCache;
+    public Class<? extends AssetCache> getCacheType() {
+        if ((stream && streamCache) || !stream) {
+            // Use non-cloning cache
+            return WeakRefAssetCache.class;
+        } else {
+            // Disable caching for streaming audio
+            return null;
+        }
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final AudioKey other = (AudioKey) obj;
+        if (!super.equals(other)) {
+            return false;
+        }
+        if (this.stream != other.stream) {
+            return false;
+        }
+        if (this.streamCache != other.streamCache) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + (super.hashCode());
+        hash = 67 * hash + (this.stream ? 1 : 0);
+        hash = 67 * hash + (this.streamCache ? 1 : 0);
+        return hash;
+    }
+    
+    @Override
+    public Class<? extends AssetProcessor> getProcessorType() {
+        return AudioProcessor.class;
+    }
+    
     @Override
     public void write(JmeExporter ex) throws IOException{
         super.write(ex);

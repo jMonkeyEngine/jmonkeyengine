@@ -32,14 +32,17 @@
 
 package com.jme3.asset;
 
+import com.jme3.asset.cache.WeakRefCloneAssetCache;
+
 /**
- * Implementing the asset interface allows use of smart asset management.
+ * Implementing the <code>CloneableSmartAsset</code> interface allows use 
+ * of cloneable smart asset management.
  * <p>
  * Smart asset management requires cooperation from the {@link AssetKey}. 
- * In particular, the AssetKey should return true in its 
- * {@link AssetKey#useSmartCache() } method. Also smart assets MUST
+ * In particular, the AssetKey should return {@link WeakRefCloneAssetCache} in its 
+ * {@link AssetKey#getCacheType()} method. Also smart assets MUST
  * create a clone of the asset and cannot return the same reference,
- * e.g. {@link AssetKey#createClonedInstance(java.lang.Object) createCloneInstance(someAsset)} <code>!= someAsset</code>.
+ * e.g. {@link AssetProcessor#createClone(java.lang.Object) createClone(someAsset)} <code>!= someAsset</code>.
  * <p>
  * If the {@link AssetManager#loadAsset(com.jme3.asset.AssetKey) } method
  * is called twice with the same asset key (equals() wise, not necessarily reference wise)
@@ -49,7 +52,18 @@ package com.jme3.asset;
  * are garbage collected, the shared asset key becomes unreachable and at that 
  * point it is removed from the smart asset cache. 
  */
-public interface Asset {
+public interface CloneableSmartAsset extends Cloneable {
+    
+    /**
+     * Creates a clone of the asset. 
+     * 
+     * Please see {@link Object#clone() } for more info on how this method
+     * should be implemented. 
+     * 
+     * @return A clone of this asset. 
+     * The cloned asset cannot reference equal this asset.
+     */
+    public Object clone();
     
     /**
      * Set by the {@link AssetManager} to track this asset. 

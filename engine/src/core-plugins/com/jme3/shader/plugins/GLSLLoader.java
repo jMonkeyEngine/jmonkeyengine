@@ -36,6 +36,7 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.cache.AssetCache;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,12 +79,15 @@ public class GLSLLoader implements AssetLoader {
     }
 
     private class GlslDependKey extends AssetKey<InputStream> {
-        public GlslDependKey(String name){
+
+        public GlslDependKey(String name) {
             super(name);
         }
+
         @Override
-        public boolean shouldCache(){
-            return false;
+        public Class<? extends AssetCache> getCacheType() {
+            // Disallow caching here
+            return null;
         }
     }
 

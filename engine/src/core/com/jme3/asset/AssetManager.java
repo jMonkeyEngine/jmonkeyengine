@@ -32,65 +32,123 @@
 
 package com.jme3.asset;
 
-import com.jme3.audio.AudioData;
+import com.jme3.asset.plugins.ClasspathLocator;
+import com.jme3.asset.plugins.FileLocator;
 import com.jme3.audio.AudioKey;
+import com.jme3.audio.AudioNode;
 import com.jme3.font.BitmapFont;
 import com.jme3.material.Material;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.plugins.OBJLoader;
 import com.jme3.shader.Shader;
 import com.jme3.shader.ShaderKey;
 import com.jme3.texture.Texture;
+import com.jme3.texture.plugins.TGALoader;
 import java.util.List;
 
 /**
  * <code>AssetManager</code> provides an interface for managing the data assets
  * of a jME3 application.
+ * <p>
+ * The asset manager provides a means to register {@link AssetLocator}s,
+ * which are used to find asset data on disk, network, or other file system.
+ * The asset locators are invoked in order of addition to find the asset data.
+ * Use the {@link #registerLocator(java.lang.String, java.lang.Class) } method
+ * to add new {@link AssetLocator}s. 
+ * Some examples of locators:
+ * <ul>
+ * <li>{@link FileLocator} - Used to find assets on the local file system.</li>
+ * <li>{@link ClasspathLocator} - Used to find assets in the Java classpath</li>
+ * </ul>
+ * <p>
+ * The asset data is represented by the {@link AssetInfo} class, this
+ * data is passed into the registered {@link AssetLoader}s in order to 
+ * convert the data into a usable object. Use the
+ * {@link #registerLoader(java.lang.Class, java.lang.String[]) } method
+ * to add loaders.
+ * Some examples of loaders:
+ * <ul>
+ * <li>{@link OBJLoader} - Used to load Wavefront .OBJ model files</li>
+ * <li>{@link TGALoader} - Used to load Targa image files</li>
+ * </ul>
+ * <p>
+ * Once the asset has been loaded, 
  */
 public interface AssetManager {
 
     /**
-     * Adds a ClassLoader that is used to load *Classes* that are needed for Assets like j3o models.
-     * This does *not* allow loading assets from that classpath, use registerLocator for that.
-     * @param loader A ClassLoader that Classes in asset files can be loaded from
+     * Adds a {@link ClassLoader} that is used to load {@link Class classes}
+     * that are needed for finding and loading Assets. 
+     * This does <strong>not</strong> allow loading assets from that classpath, 
+     * use registerLocator for that.
+     * 
+     * @param loader A ClassLoader that Classes in asset files can be loaded from.
      */
     public void addClassLoader(ClassLoader loader);
 
     /**
-     * Remove a ClassLoader from the list of registered ClassLoaders
+     * Remove a {@link ClassLoader} from the list of registered ClassLoaders
      */
     public void removeClassLoader(ClassLoader loader);
 
     /**
-     * Retrieve the list of registered ClassLoaders that are used for loading Classes from
-     * asset files.
+     * Retrieve the list of registered ClassLoaders that are used for loading 
+     * {@link Class classes} from asset files.
      */
     public List<ClassLoader> getClassLoaders();
     
     /**
      * Registers a loader for the given extensions.
+     * 
      * @param loaderClassName
      * @param extensions
+     * 
+     * @deprecated Please use {@link #registerLoader(java.lang.Class, java.lang.String[]) }
+     * together with {@link Class#forName(java.lang.String) } to find a class
+     * and then register it.
+     * 
+     * @deprecated Please use {@link #registerLoader(java.lang.Class, java.lang.String[]) }
+     * with {@link Class#forName(java.lang.String) } instead.
      */
+    @Deprecated
     public void registerLoader(String loaderClassName, String ... extensions);
 
     /**
-     * Registers an {@link AssetLocator} by using a class name, instead of 
-     * a class instance. See the {@link AssetManager#registerLocator(java.lang.String, java.lang.Class) }
+     * Registers an {@link AssetLocator} by using a class name. 
+     * See the {@link AssetManager#registerLocator(java.lang.String, java.lang.Class) }
      * method for more information.
      *
-     * @param rootPath The root path from which to locate assets, implementation
-     * dependent.
+     * @param rootPath The root path from which to locate assets, this 
+     * depends on the implementation of the asset locator. 
+     * A URL based locator will expect a url folder such as "http://www.example.com/"
+     * while a File based locator will expect a file path (OS dependent).
      * @param locatorClassName The full class name of the {@link AssetLocator}
      * implementation.
+     * 
+     * @deprecated Please use {@link #registerLocator(java.lang.String, java.lang.Class)  }
+     * together with {@link Class#forName(java.lang.String) } to find a class
+     * and then register it.
      */
+    @Deprecated
     public void registerLocator(String rootPath, String locatorClassName);
 
     /**
-     *
+     * Register an {@link AssetLoader} by using a class object.
+     * 
      * @param loaderClass
      * @param extensions
      */
     public void registerLoader(Class<? extends AssetLoader> loaderClass, String ... extensions);
+    
+    /**
+     * Unregister a {@link AssetLoader} from loading its assigned extensions.
+     * This undoes the effect of calling 
+     * {@link #registerLoader(java.lang.Class, java.lang.String[]) }.
+     * 
+     * @param loaderClass The loader class to unregister.
+     * @see #registerLoader(java.lang.Class, java.lang.String[]) 
+     */
+    public void unregisterLoader(Class<? extends AssetLoader> loaderClass);
 
     /**
      * Registers the given locator class for locating assets with this
@@ -119,16 +177,42 @@ public interface AssetManager {
      * @param rootPath Should be the same as the root path specified in {@link
      * #registerLocator(java.lang.String, java.lang.Class) }.
      * @param locatorClass The locator class to unregister
+     * 
+     * @see #registerLocator(java.lang.String, java.lang.Class) 
      */
     public void unregisterLocator(String rootPath, Class<? extends AssetLocator> locatorClass);
     
     /**
-     * Set an {@link AssetEventListener} to receive events from this
-     * <code>AssetManager</code>. There can only be one {@link  AssetEventListener}
-     * associated with an <code>AssetManager</code>
-     * 
-     * @param listener
+     * Add an {@link AssetEventListener} to receive events from this
+     * <code>AssetManager</code>. 
+     * @param listener The asset event listener to add
      */
+    public void addAssetEventListener(AssetEventListener listener);
+    
+    /**
+     * Remove an {@link AssetEventListener} from receiving events from this
+     * <code>AssetManager</code>
+     * @param listener The asset event listener to remove
+     */
+    public void removeAssetEventListener(AssetEventListener listener);
+    
+    /**
+     * Removes all asset event listeners.
+     * 
+     * @see #addAssetEventListener(com.jme3.asset.AssetEventListener) 
+     */
+    public void clearAssetEventListeners();
+    
+    /**
+     * Set an {@link AssetEventListener} to receive events from this
+     * <code>AssetManager</code>. Any currently added listeners are
+     * cleared and then the given listener is added.
+     * 
+     * @param listener The listener to set
+     * @deprecated Please use {@link #addAssetEventListener(com.jme3.asset.AssetEventListener) }
+     * to listen for asset events.
+     */
+    @Deprecated
     public void setAssetEventListener(AssetEventListener listener);
 
     /**
@@ -162,7 +246,7 @@ public interface AssetManager {
     public <T> T loadAsset(AssetKey<T> key);
 
     /**
-     * Load a named asset by name, calling this method
+     * Load an asset by name, calling this method
      * is the same as calling
      * <code>
      * loadAsset(new AssetKey(name)).
@@ -199,27 +283,27 @@ public interface AssetManager {
 
     /**
      * Load audio file, supported types are WAV or OGG.
-     * @param key
+     * @param key Asset key of the audio file to load
      * @return The audio data loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
-    public AudioData loadAudio(AudioKey key);
+    public AudioNode loadAudio(AudioKey key);
 
     /**
      * Load audio file, supported types are WAV or OGG.
      * The file is loaded without stream-mode.
-     * @param name
+     * @param name Asset name of the audio file to load
      * @return The audio data loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
-    public AudioData loadAudio(String name);
+    public AudioNode loadAudio(String name);
 
     /**
-     * Loads a named model. Models can be jME3 object files (J3O) or
-     * OgreXML/OBJ files.
-     * @param key
+     * Loads a 3D model with a ModelKey. 
+     * Models can be jME3 object files (J3O) or OgreXML/OBJ files.
+     * @param key Asset key of the model to load
      * @return The model that was loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
@@ -227,9 +311,9 @@ public interface AssetManager {
     public Spatial loadModel(ModelKey key);
 
     /**
-     * Loads a named model. Models can be jME3 object files (J3O) or
+     * Loads a 3D model. Models can be jME3 object files (J3O) or
      * OgreXML/OBJ files.
-     * @param name
+     * @param name Asset name of the model to load
      * @return The model that was loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
@@ -237,8 +321,8 @@ public interface AssetManager {
     public Spatial loadModel(String name);
 
     /**
-     * Load a material (J3M) file.
-     * @param name
+     * Load a material instance (J3M) file.
+     * @param name Asset name of the material to load
      * @return The material that was loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
@@ -256,7 +340,7 @@ public interface AssetManager {
      * Load a font file. Font files are in AngelCode text format,
      * and are with the extension "fnt".
      *
-     * @param name
+     * @param name Asset name of the font to load
      * @return The font loaded
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey) 

@@ -32,9 +32,12 @@
 
 package com.jme3.asset;
 
+import com.jme3.asset.cache.AssetCache;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,40 +52,62 @@ public class ImplHandler {
 
     private static final Logger logger = Logger.getLogger(ImplHandler.class.getName());
 
-    private final AssetManager owner;
+    private final AssetManager assetManager;
     
     private final ThreadLocal<AssetKey> parentAssetKey 
             = new ThreadLocal<AssetKey>();
     
-    private final ArrayList<ImplThreadLocal> genericLocators =
-                new ArrayList<ImplThreadLocal>();
+    private final CopyOnWriteArrayList<ImplThreadLocal<AssetLocator>> locatorsList =
+                new CopyOnWriteArrayList<ImplThreadLocal<AssetLocator>>();
+    
+    private final HashMap<Class<?>, ImplThreadLocal<AssetLoader>> classToLoaderMap = 
+                new HashMap<Class<?>, ImplThreadLocal<AssetLoader>>();
 
-    private final HashMap<String, ImplThreadLocal> loaders =
-                new HashMap<String, ImplThreadLocal>();
+    private final ConcurrentHashMap<String, ImplThreadLocal<AssetLoader>> extensionToLoaderMap =
+                new ConcurrentHashMap<String, ImplThreadLocal<AssetLoader>>();
+    
+    private final ConcurrentHashMap<Class<? extends AssetProcessor>, AssetProcessor> classToProcMap =
+                new ConcurrentHashMap<Class<? extends AssetProcessor>, AssetProcessor>();
+    
+    private final ConcurrentHashMap<Class<? extends AssetCache>, AssetCache> classToCacheMap =
+                new ConcurrentHashMap<Class<? extends AssetCache>, AssetCache>();
 
-    public ImplHandler(AssetManager owner){
-        this.owner = owner;
+    public ImplHandler(AssetManager assetManager){
+        this.assetManager = assetManager;
     }
 
-    protected class ImplThreadLocal extends ThreadLocal {
+    protected class ImplThreadLocal<T> extends ThreadLocal {
 
-        private final Class<?> type;
+        private final Class<T> type;
         private final String path;
+        private final String[] extensions;
 
-        public ImplThreadLocal(Class<?> type){
+        public ImplThreadLocal(Class<T> type, String[] extensions){
             this.type = type;
-            path = null;
+            this.extensions = extensions;
+            this.path = null;
         }
 
-        public ImplThreadLocal(Class<?> type, String path){
+        public ImplThreadLocal(Class<T> type, String path){
             this.type = type;
             this.path = path;
+            this.extensions = null;
         }
 
+        public ImplThreadLocal(Class<T> type){
+            this.type = type;
+            this.path = null;
+            this.extensions = null;
+        }
+        
         public String getPath() {
             return path;
         }
-
+        
+        public String[] getExtensions(){
+            return extensions;
+        }
+        
         public Class<?> getTypeClass(){
             return type;
         }
@@ -137,27 +162,29 @@ public class ImplHandler {
      * access, or null if not found.
      */
     public AssetInfo tryLocate(AssetKey key){
-        synchronized (genericLocators){
-            if (genericLocators.isEmpty())
-                return null;
-
-            for (ImplThreadLocal local : genericLocators){
-                AssetLocator locator = (AssetLocator) local.get();
-                if (local.getPath() != null){
-                    locator.setRootPath((String) local.getPath());
-                }
-                AssetInfo info = locator.locate(owner, key);
-                if (info != null)
-                    return info;
-            }
+        if (locatorsList.isEmpty()){
+            logger.warning("There are no locators currently"+
+                            " registered. Use AssetManager."+
+                            "registerLocator() to register a"+
+                            " locator.");
+            return null;
         }
+        
+        for (ImplThreadLocal local : locatorsList){
+            AssetLocator locator = (AssetLocator) local.get();
+            if (local.getPath() != null){
+                locator.setRootPath((String) local.getPath());
+            }
+            AssetInfo info = locator.locate(assetManager, key);
+            if (info != null)
+                return info;
+        }
+        
         return null;
     }
 
     public int getLocatorCount(){
-        synchronized (genericLocators){
-            return genericLocators.size();
-        }
+        return locatorsList.size();
     }
 
     /**
@@ -166,44 +193,120 @@ public class ImplHandler {
      * @return AssetLoader registered with addLoader.
      */
     public AssetLoader aquireLoader(AssetKey key){
-        synchronized (loaders){
-            ImplThreadLocal local = loaders.get(key.getExtension());
-            if (local != null){
-                AssetLoader loader = (AssetLoader) local.get();
-                return loader;
-            }
+        // No need to synchronize() against map, its concurrent
+        ImplThreadLocal local = extensionToLoaderMap.get(key.getExtension());
+        if (local == null){
+            throw new IllegalStateException("No loader registered for type \"" +
+                                        key.getExtension() + "\"");
+
+        }
+        return (AssetLoader) local.get();
+    }
+    
+    public void clearCache(){
+        // The iterator of the values collection is thread safe
+        for (AssetCache cache : classToCacheMap.values()){
+            cache.clearCache();
+        }
+    }
+    
+    public <T extends AssetCache> T getCache(Class<T> cacheClass) {
+        if (cacheClass == null) {
             return null;
         }
-    }
-
-    public void addLoader(final Class<?> loaderType, String ... extensions){
-        ImplThreadLocal local = new ImplThreadLocal(loaderType);
-        for (String extension : extensions){
-            extension = extension.toLowerCase();
-            synchronized (loaders){
-                loaders.put(extension, local);
-            }
-        }
-    }
-
-    public void addLocator(final Class<?> locatorType, String rootPath){
-        ImplThreadLocal local = new ImplThreadLocal(locatorType, rootPath);
-        synchronized (genericLocators){
-            genericLocators.add(local);
-        }
-    }
-
-    public void removeLocator(final Class<?> locatorType, String rootPath){
-        synchronized (genericLocators){
-            Iterator<ImplThreadLocal> it = genericLocators.iterator();
-            while (it.hasNext()){
-                ImplThreadLocal locator = it.next();
-                if (locator.getPath().equals(rootPath) &&
-                    locator.getTypeClass().equals(locatorType)){
-                    it.remove();
+        
+        T cache = (T) classToCacheMap.get(cacheClass);
+        if (cache == null) {
+            synchronized (classToCacheMap) {
+                cache = (T) classToCacheMap.get(cacheClass);
+                if (cache == null) {
+                    try {
+                        cache = cacheClass.newInstance();
+                        classToCacheMap.put(cacheClass, cache);
+                    } catch (InstantiationException ex) {
+                        throw new IllegalArgumentException("The cache class cannot"
+                                + " be created, ensure it has empty constructor", ex);
+                    } catch (IllegalAccessException ex) {
+                        throw new IllegalArgumentException("The cache class cannot "
+                                + "be accessed", ex);
+                    }
                 }
             }
         }
+        return cache;
+    }
+    
+    public <T extends AssetProcessor> T getProcessor(Class<T> procClass){
+        if (procClass == null)
+            return null;
+        
+        T proc = (T) classToProcMap.get(procClass);
+        if (proc == null){
+            synchronized(classToProcMap){
+                proc = (T) classToProcMap.get(procClass);
+                if (proc == null) {
+                    try {
+                        proc = procClass.newInstance();
+                        classToProcMap.put(procClass, proc);
+                    } catch (InstantiationException ex) {
+                        throw new IllegalArgumentException("The processor class cannot"
+                                + " be created, ensure it has empty constructor", ex);
+                    } catch (IllegalAccessException ex) {
+                        throw new IllegalArgumentException("The processor class cannot "
+                                + "be accessed", ex);
+                    }
+                }
+            }
+        }
+        return proc;
+    }
+    
+    public void addLoader(final Class<? extends AssetLoader> loaderType, String ... extensions){
+        // Synchronized access must be used for any ops on classToLoaderMap
+        ImplThreadLocal local = new ImplThreadLocal(loaderType, extensions);
+        for (String extension : extensions){
+            extension = extension.toLowerCase();
+            synchronized (classToLoaderMap){
+                classToLoaderMap.put(loaderType, local);
+                extensionToLoaderMap.put(extension, local);
+            }
+        }
+    }
+
+    public void removeLoader(final Class<? extends AssetLoader> loaderType){
+        // Synchronized access must be used for any ops on classToLoaderMap
+        // Find the loader ImplThreadLocal for this class
+        synchronized (classToLoaderMap){
+            ImplThreadLocal local = classToLoaderMap.get(loaderType);
+            // Remove it from the class->loader map
+            classToLoaderMap.remove(loaderType);
+            // Remove it from the extension->loader map
+            for (String extension : local.getExtensions()){
+                extensionToLoaderMap.remove(extension);
+            }
+        }
+    }
+    
+    public void addLocator(final Class<? extends AssetLocator> locatorType, String rootPath){
+        locatorsList.add(new ImplThreadLocal(locatorType, rootPath));
+    }
+
+    public void removeLocator(final Class<? extends AssetLocator> locatorType, String rootPath){
+        ArrayList<ImplThreadLocal<AssetLocator>> locatorsToRemove = new ArrayList<ImplThreadLocal<AssetLocator>>();
+        Iterator<ImplThreadLocal<AssetLocator>> it = locatorsList.iterator();
+       
+        while (it.hasNext()){
+            ImplThreadLocal locator = it.next();
+            if (locator.getPath().equals(rootPath) &&
+                locator.getTypeClass().equals(locatorType)){
+                //it.remove();
+                // copy on write list doesn't support iterator remove,
+                // must use temporary list
+                locatorsToRemove.add(locator);
+            }
+        }
+        
+        locatorsList.removeAll(locatorsToRemove);
     }
 
 }

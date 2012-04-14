@@ -29,7 +29,7 @@
  */
 package com.jme3.material;
 
-import com.jme3.asset.Asset;
+import com.jme3.asset.CloneableSmartAsset;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.export.*;
@@ -66,7 +66,7 @@ import java.util.logging.Logger;
  * 
  * @author Kirill Vainer
  */
-public class Material implements Asset, Cloneable, Savable {
+public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     // Version #2: Fixed issue with RenderState.apply*** flags not getting exported
     public static final int SAVABLE_VERSION = 2;

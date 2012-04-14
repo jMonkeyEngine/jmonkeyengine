@@ -31,8 +31,8 @@
  */
 package com.jme3.scene;
 
-import com.jme3.asset.Asset;
 import com.jme3.asset.AssetKey;
+import com.jme3.asset.CloneableSmartAsset;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.export.*;
@@ -63,7 +63,7 @@ import java.util.logging.Logger;
  * @author Joshua Slack
  * @version $Revision: 4075 $, $Data$
  */
-public abstract class Spatial implements Savable, Cloneable, Collidable, Asset {
+public abstract class Spatial implements Savable, Cloneable, Collidable, CloneableSmartAsset {
 
     private static final Logger logger = Logger.getLogger(Spatial.class.getName());
 
