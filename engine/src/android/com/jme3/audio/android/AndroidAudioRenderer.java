@@ -38,7 +38,6 @@ import android.content.res.AssetManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
-import android.util.Log;
 
 import com.jme3.asset.AssetKey;
 import com.jme3.audio.AudioNode.Status;
@@ -47,7 +46,6 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -179,9 +177,13 @@ public class AndroidAudioRenderer implements AudioRenderer,
                 }
                 break;
             case Volume:
-
-                soundPool.setVolume(src.getChannel(), src.getVolume(),
-                        src.getVolume());
+                MediaPlayer mp = musicPlaying.get(src);
+                if (mp != null) {
+                    mp.setVolume(src.getVolume(), src.getVolume());
+                } else {
+                    soundPool.setVolume(src.getChannel(), src.getVolume(),
+                            src.getVolume());
+                }
 
                 break;
             case Pitch:
@@ -228,30 +230,30 @@ public class AndroidAudioRenderer implements AudioRenderer,
         for (AudioNode src : musicPlaying.keySet()) {
 
             MediaPlayer mp = musicPlaying.get(src);
-            {
-                // Calc the distance to the listener
-                distanceVector.set(listenerPosition);
-                distanceVector.subtractLocal(src.getLocalTranslation());
-                distance = FastMath.abs(distanceVector.length());
 
-                if (distance < src.getRefDistance()) {
-                    distance = src.getRefDistance();
-                }
-                if (distance > src.getMaxDistance()) {
-                    distance = src.getMaxDistance();
-                }
-                volume = src.getRefDistance() / distance;
+            // Calc the distance to the listener
+            distanceVector.set(listenerPosition);
+            distanceVector.subtractLocal(src.getLocalTranslation());
+            distance = FastMath.abs(distanceVector.length());
 
-                AndroidAudioData audioData = (AndroidAudioData) src.getAudioData();
-
-                if (FastMath.abs(audioData.getCurrentVolume() - volume) > FastMath.FLT_EPSILON) {
-                    // Left / Right channel get the same volume by now, only
-                    // positional
-                    mp.setVolume(volume, volume);
-
-                    audioData.setCurrentVolume(volume);
-                }
+            if (distance < src.getRefDistance()) {
+                distance = src.getRefDistance();
             }
+            if (distance > src.getMaxDistance()) {
+                distance = src.getMaxDistance();
+            }
+            volume = src.getRefDistance() / distance;
+
+            AndroidAudioData audioData = (AndroidAudioData) src.getAudioData();
+
+            if (FastMath.abs(audioData.getCurrentVolume() - volume) > FastMath.FLT_EPSILON) {
+                // Left / Right channel get the same volume by now, only
+                // positional
+                mp.setVolume(volume, volume);
+
+                audioData.setCurrentVolume(volume);
+            }
+
         }
     }
 
@@ -328,7 +330,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
         AudioKey assetKey = (AudioKey) audioData.getAssetKey();
 
         try {
-            
+
             if (audioData.getId() < 0) { // found something to load                                
                 int soundId = soundPool.load(
                         assetManager.openFd(assetKey.getName()), 1);
@@ -341,6 +343,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
                 soundpoolStillLoading.put(audioData.getId(), src);
             } else {
                 src.setChannel(channel); // receive a channel at the last
+                setSourceParams(src);
                 // playing at least
             }
         } catch (IOException e) {
@@ -362,11 +365,12 @@ public class AndroidAudioRenderer implements AudioRenderer,
 
         AudioData audioData = src.getAudioData();
 
-        if (status == 0) // load was successfull
-        {
+        // load was successfull
+        if (status == 0) {
             int channelIndex;
             channelIndex = soundPool.play(audioData.getId(), 1f, 1f, 1, 0, 1f);
             src.setChannel(channelIndex);
+            setSourceParams(src);
         }
     }
 
@@ -382,26 +386,41 @@ public class AndroidAudioRenderer implements AudioRenderer,
             mp = new MediaPlayer();
             mp.setOnCompletionListener(this);
             mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        }
-
+        } 
+       
         try {
-            AssetKey<?> key = audioData.getAssetKey();
-            
-            AssetFileDescriptor afd = assetManager.openFd(key.getName()); // assetKey.getName()
-            mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(),
-                    afd.getLength());
-            mp.prepare();
-            mp.setLooping(src.isLooping());
-            mp.start();
-            src.setChannel(0);
-            src.setStatus(Status.Playing);
-            musicPlaying.put(src, mp);
+            if (src.getStatus() == Status.Stopped) {
+                mp.reset();            
+                AssetKey<?> key = audioData.getAssetKey();
 
+                AssetFileDescriptor afd = assetManager.openFd(key.getName()); // assetKey.getName()
+                mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(),
+                        afd.getLength());
+                mp.prepare();
+                setSourceParams(src, mp);
+                src.setChannel(0);
+                src.setStatus(Status.Playing);
+                musicPlaying.put(src, mp);
+                mp.start();
+            }else{
+                mp.start();
+            }
         } catch (IllegalStateException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void setSourceParams(AudioNode src, MediaPlayer mp) {
+        mp.setLooping(true);
+        mp.setVolume(src.getVolume(), src.getVolume());
+        //src.getDryFilter();
+    }
+
+    private void setSourceParams(AudioNode src) {
+        soundPool.setLoop(src.getChannel(), src.isLooping() ? -1 : 0);
+        soundPool.setVolume(src.getChannel(), src.getVolume(), src.getVolume());
     }
 
     /**
