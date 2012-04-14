@@ -113,29 +113,6 @@ public class AudioNode extends Node {
     }
 
     /**
-     * Creates a new <code>AudioNode</code> without any audio data set.
-     * 
-     * @param audioRenderer The audio renderer to use for playing. Cannot be null.
-     *
-     * @deprecated AudioRenderer parameter is ignored.
-     */
-    public AudioNode(AudioRenderer audioRenderer) {
-    }
-
-    /**
-     * Creates a new <code>AudioNode</code> with the given data and key.
-     * 
-     * @param audioRenderer The audio renderer to use for playing. Cannot be null.
-     * @param audioData The audio data contains the audio track to play.
-     * @param audioKey The audio key that was used to load the AudioData
-     *
-     * @deprecated AudioRenderer parameter is ignored.
-     */
-    public AudioNode(AudioRenderer audioRenderer, AudioData audioData, AudioKey audioKey) {
-        setAudioData(audioData, audioKey);
-    }
-
-    /**
      * Creates a new <code>AudioNode</code> with the given data and key.
      * 
      * @param audioData The audio data contains the audio track to play.
@@ -143,26 +120,6 @@ public class AudioNode extends Node {
      */
     public AudioNode(AudioData audioData, AudioKey audioKey) {
         setAudioData(audioData, audioKey);
-    }
-
-    /**
-     * Creates a new <code>AudioNode</code> with the given audio file.
-     * 
-     * @param audioRenderer The audio renderer to use for playing. Cannot be null.
-     * @param assetManager The asset manager to use to load the audio file
-     * @param name The filename of the audio file
-     * @param stream If true, the audio will be streamed gradually from disk, 
-     *               otherwise, it will be buffered.
-     * @param streamCache If stream is also true, then this specifies if
-     * the stream cache is used. When enabled, the audio stream will
-     * be read entirely but not decoded, allowing features such as 
-     * seeking, looping and determining duration.
-     *
-     * @deprecated AudioRenderer parameter is ignored.
-     */
-    public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name, boolean stream, boolean streamCache) {
-        this.audioKey = new AudioKey(name, stream, streamCache);
-        this.data = (AudioData) assetManager.loadAsset(audioKey);
     }
 
     /**
@@ -179,22 +136,7 @@ public class AudioNode extends Node {
      */
     public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
         this.audioKey = new AudioKey(name, stream, streamCache);
-        this.data = (AudioData) assetManager.loadAsset(audioKey);
-    }
-    
-    /**
-     * Creates a new <code>AudioNode</code> with the given audio file.
-     * 
-     * @param audioRenderer The audio renderer to use for playing. Cannot be null.
-     * @param assetManager The asset manager to use to load the audio file
-     * @param name The filename of the audio file
-     * @param stream If true, the audio will be streamed gradually from disk, 
-     *               otherwise, it will be buffered.
-     *
-     * @deprecated AudioRenderer parameter is ignored.
-     */
-    public AudioNode(AudioRenderer audioRenderer, AssetManager assetManager, String name, boolean stream) {
-        this(audioRenderer, assetManager, name, stream, false);
+        this.data = (AudioData) assetManager.loadAsset(audioKey).data;
     }
 
     /**
@@ -787,7 +729,7 @@ public class AudioNode extends Node {
         
         if (audioKey != null) {
             try {
-                data = im.getAssetManager().loadAudio(audioKey);
+                data = im.getAssetManager().loadAsset(audioKey).data;
             } catch (AssetNotFoundException ex){
                 Logger.getLogger(AudioNode.class.getName()).log(Level.FINE, "Cannot locate {0} for audio node {1}", new Object[]{audioKey, key});
                 data = PlaceholderAssets.getPlaceholderAudio();
