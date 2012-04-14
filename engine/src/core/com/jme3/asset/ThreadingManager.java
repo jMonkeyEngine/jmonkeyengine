@@ -32,10 +32,7 @@
 
 package com.jme3.asset;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.*;
 
 /**
  * <code>ThreadingManager</code> manages the threads used to load content
@@ -46,11 +43,10 @@ import java.util.concurrent.ThreadFactory;
 public class ThreadingManager {
 
     protected final ExecutorService executor =
-            Executors.newFixedThreadPool(2,
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(), 
                                          new LoadingThreadFactory());
 
     protected final AssetManager owner;
-
     protected int nextThreadId = 0;
 
     public ThreadingManager(AssetManager owner){
@@ -59,44 +55,32 @@ public class ThreadingManager {
 
     protected class LoadingThreadFactory implements ThreadFactory {
         public Thread newThread(Runnable r) {
-            Thread t = new Thread(r, "pool" + (nextThreadId++));
+            Thread t = new Thread(r, "jME3-threadpool-" + (nextThreadId++));
             t.setDaemon(true);
             t.setPriority(Thread.MIN_PRIORITY);
             return t;
         }
     }
 
-    protected class LoadingTask implements Callable<Object> {
-        private final String resourceName;
-        public LoadingTask(String resourceName){
-            this.resourceName = resourceName;
+    protected class LoadingTask<T> implements Callable<T> {
+
+        private final AssetKey<T> assetKey;
+
+        public LoadingTask(AssetKey<T> assetKey) {
+            this.assetKey = assetKey;
         }
-        public Object call() throws Exception {
-            return owner.loadAsset(new AssetKey(resourceName));
+
+        public T call() throws Exception {
+            return owner.loadAsset(assetKey);
         }
     }
 
-//    protected class MultiLoadingTask implements Callable<Void> {
-//        private final String[] resourceNames;
-//        public MultiLoadingTask(String[] resourceNames){
-//            this.resourceNames = resourceNames;
-//        }
-//        public Void call(){
-//            owner.loadContents(resourceNames);
-//            return null;
-//        }
-//    }
-
-//    public Future<Void> loadContents(String ... names){
-//        return executor.submit(new MultiLoadingTask(names));
-//    }
-
-//    public Future<Object> loadContent(String name) {
-//        return executor.submit(new LoadingTask(name));
-//    }
+    public <T> Future<T> loadAsset(AssetKey<T> assetKey) {
+        return executor.submit(new LoadingTask(assetKey));
+    }
 
     public static boolean isLoadingThread() {
-        return Thread.currentThread().getName().startsWith("pool");
+        return Thread.currentThread().getName().startsWith("jME3-threadpool");
     }
 
 
