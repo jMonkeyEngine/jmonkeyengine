@@ -62,7 +62,7 @@ public class TestLeakingGL extends SimpleApplication {
     public void simpleInitApp() {
         original = new Sphere(4, 4, 1);
         original.setStatic();
-        original.setInterleaved();
+        //original.setInterleaved();
 
         // this will make sure all spheres are rendered always
         rootNode.setCullHint(CullHint.Never);
