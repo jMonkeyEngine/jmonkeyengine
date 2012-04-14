@@ -66,6 +66,36 @@ public class OgreMeshKey extends ModelKey {
         this.materialName = materialName;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final OgreMeshKey other = (OgreMeshKey) obj;
+        if (!super.equals(other)) {
+            return false;
+        }
+        if (this.materialList != other.materialList && (this.materialList == null || !this.materialList.equals(other.materialList))) {
+            return false;
+        }
+        if ((this.materialName == null) ? (other.materialName != null) : !this.materialName.equals(other.materialName)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 31 * hash + (super.hashCode());
+        hash = 31 * hash + (this.materialList != null ? this.materialList.hashCode() : 0);
+        hash = 31 * hash + (this.materialName != null ? this.materialName.hashCode() : 0);
+        return hash;
+    }
+    
     public MaterialList getMaterialList() {
         return materialList;
     }
