@@ -39,11 +39,12 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * A <code>Curve</code> is a visual, line-based representation of a {@link Spline}.
- * The underlying Spline will be sampled N times where N is the number of 
- * segments as specified in the constructor. Each segment will represent
- * one line in the generated mesh.
- * 
+ * A
+ * <code>Curve</code> is a visual, line-based representation of a {@link Spline}.
+ * The underlying Spline will be sampled N times where N is the number of
+ * segments as specified in the constructor. Each segment will represent one
+ * line in the generated mesh.
+ *
  * @author Nehon
  */
 public class Curve extends Mesh {
@@ -54,13 +55,12 @@ public class Curve extends Mesh {
     /**
      * Serialization only. Do not use.
      */
-    public Curve(){
+    public Curve() {
     }
-    
+
     /**
-     * Create a curve mesh.
-     * Use a CatmullRom spline model that does not cycle.
-     * 
+     * Create a curve mesh. Use a CatmullRom spline model that does not cycle.
+     *
      * @param controlPoints the control points to use to create this curve
      * @param nbSubSegments the number of subsegments between the control points
      */
@@ -70,7 +70,7 @@ public class Curve extends Mesh {
 
     /**
      * Create a curve mesh from a Spline
-     * 
+     *
      * @param spline the spline to use
      * @param nbSubSegments the number of subsegments between the control points
      */
@@ -79,17 +79,17 @@ public class Curve extends Mesh {
         this.spline = spline;
         switch (spline.getType()) {
             case CatmullRom:
-            	this.createCatmullRomMesh(nbSubSegments);
+                this.createCatmullRomMesh(nbSubSegments);
                 break;
             case Bezier:
-            	this.createBezierMesh(nbSubSegments);
-            	break;
+                this.createBezierMesh(nbSubSegments);
+                break;
             case Nurb:
-            	this.createNurbMesh(nbSubSegments);
-            	break;
+                this.createNurbMesh(nbSubSegments);
+                break;
             case Linear:
             default:
-            	this.createLinearMesh();
+                this.createLinearMesh();
                 break;
         }
     }
@@ -122,7 +122,7 @@ public class Curve extends Mesh {
         }
 
         i = 0;
-        int k = 0;
+        int k;
         for (int j = 0; j < (spline.getControlPoints().size() - 1) * nbSubSegments; j++) {
             k = j;
             indices[i] = (short) k;
@@ -140,100 +140,101 @@ public class Curve extends Mesh {
     }
 
     /**
-	 * This method creates the Bezier path for this curve.
-	 * 
-	 * @param nbSubSegments
-	 *            amount of subsegments between position control points
-	 */
-	private void createBezierMesh(int nbSubSegments) {
-		if(nbSubSegments==0) {
-			nbSubSegments = 1;
-		}
-		int centerPointsAmount = (spline.getControlPoints().size() + 2) / 3;
-		
-		//calculating vertices
-		float[] array = new float[((centerPointsAmount - 1) * nbSubSegments + 1) * 3];
-		int currentControlPoint = 0;
-		List<Vector3f> controlPoints = spline.getControlPoints();
-		int lineIndex = 0;
-		for (int i = 0; i < centerPointsAmount - 1; ++i) {
-			Vector3f vector3f = controlPoints.get(currentControlPoint);
-			array[lineIndex++] = vector3f.x;
-			array[lineIndex++] = vector3f.y;
-			array[lineIndex++] = vector3f.z;
-			for (int j = 1; j < nbSubSegments; ++j) {
-				spline.interpolate((float) j / nbSubSegments, currentControlPoint, temp);
-				array[lineIndex++] = temp.getX();
-				array[lineIndex++] = temp.getY();
-				array[lineIndex++] = temp.getZ();
-			}
-			currentControlPoint += 3;
-		}
-		Vector3f vector3f = controlPoints.get(currentControlPoint);
-		array[lineIndex++] = vector3f.x;
-		array[lineIndex++] = vector3f.y;
-		array[lineIndex++] = vector3f.z;
+     * This method creates the Bezier path for this curve.
+     *
+     * @param nbSubSegments amount of subsegments between position control
+     * points
+     */
+    private void createBezierMesh(int nbSubSegments) {
+        if (nbSubSegments == 0) {
+            nbSubSegments = 1;
+        }
+        int centerPointsAmount = (spline.getControlPoints().size() + 2) / 3;
 
-		//calculating indexes
-		int i = 0, k = 0;
-		short[] indices = new short[(centerPointsAmount - 1) * nbSubSegments << 1];
-		for (int j = 0; j < (centerPointsAmount - 1) * nbSubSegments; ++j) {
-			k = j;
-			indices[i++] = (short) k;
-			++k;
-			indices[i++] = (short) k;
-		}
+        //calculating vertices
+        float[] array = new float[((centerPointsAmount - 1) * nbSubSegments + 1) * 3];
+        int currentControlPoint = 0;
+        List<Vector3f> controlPoints = spline.getControlPoints();
+        int lineIndex = 0;
+        for (int i = 0; i < centerPointsAmount - 1; ++i) {
+            Vector3f vector3f = controlPoints.get(currentControlPoint);
+            array[lineIndex++] = vector3f.x;
+            array[lineIndex++] = vector3f.y;
+            array[lineIndex++] = vector3f.z;
+            for (int j = 1; j < nbSubSegments; ++j) {
+                spline.interpolate((float) j / nbSubSegments, currentControlPoint, temp);
+                array[lineIndex++] = temp.getX();
+                array[lineIndex++] = temp.getY();
+                array[lineIndex++] = temp.getZ();
+            }
+            currentControlPoint += 3;
+        }
+        Vector3f vector3f = controlPoints.get(currentControlPoint);
+        array[lineIndex++] = vector3f.x;
+        array[lineIndex++] = vector3f.y;
+        array[lineIndex++] = vector3f.z;
 
-		this.setMode(Mesh.Mode.Lines);
-		this.setBuffer(VertexBuffer.Type.Position, 3, array);
-		this.setBuffer(VertexBuffer.Type.Index, 2, indices);
-		this.updateBound();
-		this.updateCounts();
-	}
-	
-	/**
-	 * This method creates the Nurb path for this curve.
-	 * @param nbSubSegments
-	 *            amount of subsegments between position control points
-	 */
-	private void createNurbMesh(int nbSubSegments) {
-		float minKnot = spline.getMinNurbKnot();
-		float maxKnot = spline.getMaxNurbKnot();
-		float deltaU = (maxKnot - minKnot)/nbSubSegments;
-		
-		float[] array = new float[(nbSubSegments + 1) * 3];
-		
-		float u = minKnot;
-		Vector3f interpolationResult = new Vector3f();
-		for(int i=0;i<array.length;i+=3) {
-			spline.interpolate(u, 0, interpolationResult);
-			array[i] = interpolationResult.x;
-			array[i + 1] = interpolationResult.y;
-			array[i + 2] = interpolationResult.z;
-			u += deltaU;
-		}
-		
-		//calculating indexes
-		int i = 0;
-		short[] indices = new short[nbSubSegments << 1];
-		for (int j = 0; j < nbSubSegments; ++j) {
-			indices[i++] = (short) j;
-			indices[i++] = (short) (j + 1);
-		}
+        //calculating indexes
+        int i = 0, k;
+        short[] indices = new short[(centerPointsAmount - 1) * nbSubSegments << 1];
+        for (int j = 0; j < (centerPointsAmount - 1) * nbSubSegments; ++j) {
+            k = j;
+            indices[i++] = (short) k;
+            ++k;
+            indices[i++] = (short) k;
+        }
 
-		this.setMode(Mesh.Mode.Lines);
-		this.setBuffer(VertexBuffer.Type.Position, 3, array);
-		this.setBuffer(VertexBuffer.Type.Index, 2, indices);
-		this.updateBound();
-		this.updateCounts();
-	}
-    
+        this.setMode(Mesh.Mode.Lines);
+        this.setBuffer(VertexBuffer.Type.Position, 3, array);
+        this.setBuffer(VertexBuffer.Type.Index, 2, indices);
+        this.updateBound();
+        this.updateCounts();
+    }
+
+    /**
+     * This method creates the Nurb path for this curve.
+     *
+     * @param nbSubSegments amount of subsegments between position control
+     * points
+     */
+    private void createNurbMesh(int nbSubSegments) {
+        float minKnot = spline.getMinNurbKnot();
+        float maxKnot = spline.getMaxNurbKnot();
+        float deltaU = (maxKnot - minKnot) / nbSubSegments;
+
+        float[] array = new float[(nbSubSegments + 1) * 3];
+
+        float u = minKnot;
+        Vector3f interpolationResult = new Vector3f();
+        for (int i = 0; i < array.length; i += 3) {
+            spline.interpolate(u, 0, interpolationResult);
+            array[i] = interpolationResult.x;
+            array[i + 1] = interpolationResult.y;
+            array[i + 2] = interpolationResult.z;
+            u += deltaU;
+        }
+
+        //calculating indexes
+        int i = 0;
+        short[] indices = new short[nbSubSegments << 1];
+        for (int j = 0; j < nbSubSegments; ++j) {
+            indices[i++] = (short) j;
+            indices[i++] = (short) (j + 1);
+        }
+
+        this.setMode(Mesh.Mode.Lines);
+        this.setBuffer(VertexBuffer.Type.Position, 3, array);
+        this.setBuffer(VertexBuffer.Type.Index, 2, indices);
+        this.updateBound();
+        this.updateCounts();
+    }
+
     private void createLinearMesh() {
         float[] array = new float[spline.getControlPoints().size() * 3];
         short[] indices = new short[(spline.getControlPoints().size() - 1) * 2];
         int i = 0;
         int cpt = 0;
-        int k = 0;
+        int k;
         int j = 0;
         for (Iterator<Vector3f> it = spline.getControlPoints().iterator(); it.hasNext();) {
             Vector3f vector3f = it.next();
@@ -260,12 +261,13 @@ public class Curve extends Mesh {
         this.updateBound();
         this.updateCounts();
     }
-    
+
     /**
      * This method returns the length of the curve.
+     *
      * @return the length of the curve
      */
     public float getLength() {
-    	return spline.getTotalLength();
+        return spline.getTotalLength();
     }
 }

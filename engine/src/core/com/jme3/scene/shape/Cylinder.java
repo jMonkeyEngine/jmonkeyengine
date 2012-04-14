@@ -392,6 +392,7 @@ public class Cylinder extends Mesh {
         updateBound();
     }
 
+    @Override
     public void read(JmeImporter e) throws IOException {
         super.read(e);
         InputCapsule capsule = e.getCapsule(this);
@@ -404,6 +405,7 @@ public class Cylinder extends Mesh {
         inverted = capsule.readBoolean("inverted", false);
     }
 
+    @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
         OutputCapsule capsule = e.getCapsule(this);

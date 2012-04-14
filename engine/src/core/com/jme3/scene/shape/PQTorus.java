@@ -105,17 +105,6 @@ public class PQTorus extends Mesh {
         return width;
     }
 
-    public void read(JmeImporter e) throws IOException {
-        super.read(e);
-        InputCapsule capsule = e.getCapsule(this);
-        p = capsule.readFloat("p", 0);
-        q = capsule.readFloat("q", 0);
-        radius = capsule.readFloat("radius", 0);
-        width = capsule.readFloat("width", 0);
-        steps = capsule.readInt("steps", 0);
-        radialSamples = capsule.readInt("radialSamples", 0);
-    }
-
     /**
      * Rebuilds this torus based on a new set of parameters.
      * 
@@ -145,9 +134,9 @@ public class PQTorus extends Mesh {
         FloatBuffer fnb = createVector3Buffer(vertCount);
         FloatBuffer ftb = createVector2Buffer(vertCount);
 
-        Vector3f pointB = new Vector3f(), T = new Vector3f(), N = new Vector3f(), B = new Vector3f();
+        Vector3f pointB, T, N, B;
         Vector3f tempNorm = new Vector3f();
-        float r, x, y, z, theta = 0.0f, beta = 0.0f;
+        float r, x, y, z, theta = 0.0f, beta;
         int nvertex = 0;
 
         // Move along the length of the pq torus
@@ -224,6 +213,18 @@ public class PQTorus extends Mesh {
         setBuffer(Type.Index,    3, sib);
     }
 
+    @Override
+    public void read(JmeImporter e) throws IOException {
+        super.read(e);
+        InputCapsule capsule = e.getCapsule(this);
+        p = capsule.readFloat("p", 0);
+        q = capsule.readFloat("q", 0);
+        radius = capsule.readFloat("radius", 0);
+        width = capsule.readFloat("width", 0);
+        steps = capsule.readInt("steps", 0);
+        radialSamples = capsule.readInt("radialSamples", 0);
+    }
+    
     @Override
     public void write(JmeExporter e) throws IOException {
         super.write(e);
