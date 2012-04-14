@@ -76,7 +76,7 @@ public class MeshCollisionShape extends CollisionShape {
         numTriangles = mesh.getTriangleCount();
         triangleIndexStride = 12; //3 index entries * 4 bytes each.
 
-        IndexBuffer indices = mesh.getIndexBuffer();
+        IndexBuffer indices = mesh.getIndicesAsList();
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
         vertices.rewind();
 
