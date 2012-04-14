@@ -59,7 +59,7 @@ public class JmeFormatter extends Formatter {
 
     @Override
     public String format(LogRecord record) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         calendar.setTime(record.getMillis());
         args[0] = calendar;
