@@ -52,6 +52,12 @@ public class NativeObjectManager {
     private static final Logger logger = Logger.getLogger(NativeObjectManager.class.getName());
 
     /**
+     * The maximum number of objects that should be removed per frame.
+     * If the limit is reached, no more objects will be removed for that frame.
+     */
+    private static final int MAX_REMOVES_PER_FRAME = 100;
+    
+    /**
      * The queue will receive notifications of {@link NativeObject}s which are no longer
      * referenced.
      */
@@ -91,15 +97,19 @@ public class NativeObjectManager {
      * Deletes unused GLObjects
      */
     public void deleteUnused(Object rendererObject){
-        while (true){
+        int removed = 0;
+        while (removed < MAX_REMOVES_PER_FRAME) {
             NativeObjectRef ref = (NativeObjectRef) refQueue.poll();
             if (ref == null)
-                return;
+                break;
 
             refList.remove(ref);
             ref.objClone.deleteObject(rendererObject);
-            if (logger.isLoggable(Level.FINEST))
-                logger.log(Level.FINEST, "Deleted: {0}", ref.objClone);
+            removed++;
+        }
+        if (removed >= 1) {
+            //System.out.println("NativeObjectManager: " + removed + " native objects were removed from GL");
+            logger.log(Level.FINE, "NativeObjectManager: {0} native objects were removed from GL", removed);
         }
     }
 
