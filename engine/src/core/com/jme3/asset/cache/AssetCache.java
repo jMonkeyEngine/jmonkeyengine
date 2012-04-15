@@ -10,7 +10,13 @@ import com.jme3.asset.AssetKey;
  * caching method can be selected that is most appropriate for that asset type.
  * The asset cache must be thread safe.
  * <p>
- * 
+ * Some caches are used to manage cloneable assets, which track reachability
+ * based on a shared key in all instances exposed in user code. 
+ * E.g. {@link WeakRefCloneAssetCache} uses this approach.
+ * For those particular caches, either {@link #registerAssetClone(com.jme3.asset.AssetKey, java.lang.Object) }
+ * or {@link #notifyNoAssetClone() } <b>MUST</b> be called to avoid memory 
+ * leaking following a successful {@link #addToCache(com.jme3.asset.AssetKey, java.lang.Object) }
+ * or {@link #getFromCache(com.jme3.asset.AssetKey) } call!
  * 
  * @author Kirill Vainer
  */
@@ -42,6 +48,15 @@ public interface AssetCache {
      * the cache.
      */
     public <T> void registerAssetClone(AssetKey<T> key, T clone);
+    
+    /**
+     * Notifies the cache that even though the methods {@link #addToCache(com.jme3.asset.AssetKey, java.lang.Object) }
+     * or {@link #getFromCache(com.jme3.asset.AssetKey) } were used, there won't
+     * be a call to {@link #registerAssetClone(com.jme3.asset.AssetKey, java.lang.Object) }
+     * for some reason. For example, if an error occurred during loading
+     * or if the addToCache/getFromCache were used from user code.
+     */
+    public void notifyNoAssetClone();
     
     /**
      * Retrieves an asset from the cache.

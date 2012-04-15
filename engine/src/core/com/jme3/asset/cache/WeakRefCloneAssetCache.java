@@ -1,7 +1,7 @@
 package com.jme3.asset.cache;
 
-import com.jme3.asset.CloneableSmartAsset;
 import com.jme3.asset.AssetKey;
+import com.jme3.asset.CloneableSmartAsset;
 import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
 import java.util.WeakHashMap;
@@ -60,6 +60,11 @@ public class WeakRefCloneAssetCache implements AssetCache {
     public <T> void registerAssetClone(AssetKey<T> key, T clone) {
         ArrayDeque<AssetKey> loadStack = assetLoadStack.get();
         ((CloneableSmartAsset)clone).setKey(loadStack.pop());
+    }
+    
+    public void notifyNoAssetClone() {
+        ArrayDeque<AssetKey> loadStack = assetLoadStack.get();
+        loadStack.pop();
     }
 
     public <T> T getFromCache(AssetKey<T> key) {

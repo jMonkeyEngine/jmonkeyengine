@@ -193,20 +193,52 @@ public class DesktopAssetManager implements AssetManager {
         }
     }
     
-    public void clearCache(){
-        handler.clearCache();
-        if (logger.isLoggable(Level.FINER)){
-            logger.log(Level.FINER, "All asset caches cleared.");
-        }
-    }
-
     public AssetInfo locateAsset(AssetKey<?> key){
         AssetInfo info = handler.tryLocate(key);
         if (info == null){
             logger.log(Level.WARNING, "Cannot locate resource: {0}", key);
         }
-
         return info;
+    }
+    
+    public <T> T getFromCache(AssetKey<T> key) {
+        AssetCache cache = handler.getCache(key.getCacheType());
+        if (cache != null) {
+            T asset = cache.getFromCache(key);
+            if (asset != null) {
+                // Since getFromCache fills the load stack, it has to be popped
+                cache.notifyNoAssetClone();
+            }
+            return asset;
+        } else {
+            throw new IllegalArgumentException("Key " + key + " specifies no cache.");
+        }
+    }
+    
+    public <T> void addToCache(AssetKey<T> key, T asset) {
+        AssetCache cache = handler.getCache(key.getCacheType());
+        if (cache != null) {
+            cache.addToCache(key, asset);
+            cache.notifyNoAssetClone();
+        } else {
+            throw new IllegalArgumentException("Key " + key + " specifies no cache.");
+        }
+    }
+    
+    public <T> boolean deleteFromCache(AssetKey<T> key) {
+        AssetCache cache = handler.getCache(key.getCacheType());
+        if (cache != null) {
+            return cache.deleteFromCache(key);
+        } else {
+            throw new IllegalArgumentException("Key " + key + " specifies no cache.");
+        }
+    }
+    
+    public void clearCache(){
+        handler.clearCache();
+        if (logger.isLoggable(Level.FINER)){
+            logger.log(Level.FINER, "All asset caches cleared.");
+        }
     }
 
     /**

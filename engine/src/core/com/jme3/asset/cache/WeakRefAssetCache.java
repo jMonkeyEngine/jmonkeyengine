@@ -5,6 +5,8 @@ import com.jme3.asset.AssetProcessor;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A garbage collector bound asset cache that handles non-clonable objects.
@@ -20,11 +22,13 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WeakRefAssetCache implements AssetCache {
 
+    private static final Logger logger = Logger.getLogger(WeakRefAssetCache.class.getName());
+    
     private final ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
     
     private final ConcurrentHashMap<AssetKey, AssetRef> assetCache 
             = new ConcurrentHashMap<AssetKey, AssetRef>();
-    
+
     private static class AssetRef extends WeakReference<Object> {
         
         private final AssetKey assetKey;
@@ -46,7 +50,7 @@ public class WeakRefAssetCache implements AssetCache {
             }
         }
         if (removedAssets >= 1) {
-//            System.out.println("WeakRefAssetCache: " + removedAssets + " assets were purged from the cache.");
+            logger.log(Level.INFO, "WeakRefAssetCache: {0} assets were purged from the cache.", removedAssets);
         }
     }
     
@@ -81,8 +85,8 @@ public class WeakRefAssetCache implements AssetCache {
     }
     
     public <T> void registerAssetClone(AssetKey<T> key, T clone) {
-//        Texture t = (Texture) clone;
-//        System.out.println("clonable asset " + System.identityHashCode(t.getImage()));
-        //throw new UnsupportedOperationException("Cannot use this cache for cloneable assets");
+    }
+    
+    public void notifyNoAssetClone() {
     }
 }

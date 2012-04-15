@@ -37,5 +37,8 @@ public class SimpleAssetCache implements AssetCache {
     public void clearCache() {
         keyToAssetMap.clear();
     }
+
+    public void notifyNoAssetClone() {
+    }
     
 }
