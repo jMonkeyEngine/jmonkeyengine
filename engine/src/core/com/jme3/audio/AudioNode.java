@@ -136,7 +136,7 @@ public class AudioNode extends Node {
      */
     public AudioNode(AssetManager assetManager, String name, boolean stream, boolean streamCache) {
         this.audioKey = new AudioKey(name, stream, streamCache);
-        this.data = (AudioData) assetManager.loadAsset(audioKey).data;
+        this.data = (AudioData) assetManager.loadAsset(audioKey);
     }
 
     /**
@@ -729,7 +729,7 @@ public class AudioNode extends Node {
         
         if (audioKey != null) {
             try {
-                data = im.getAssetManager().loadAsset(audioKey).data;
+                data = im.getAssetManager().loadAsset(audioKey);
             } catch (AssetNotFoundException ex){
                 Logger.getLogger(AudioNode.class.getName()).log(Level.FINE, "Cannot locate {0} for audio node {1}", new Object[]{audioKey, key});
                 data = PlaceholderAssets.getPlaceholderAudio();

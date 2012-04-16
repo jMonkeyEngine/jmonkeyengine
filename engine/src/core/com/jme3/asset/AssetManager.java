@@ -34,8 +34,8 @@ package com.jme3.asset;
 
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.asset.plugins.FileLocator;
+import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioKey;
-import com.jme3.audio.AudioNode;
 import com.jme3.font.BitmapFont;
 import com.jme3.material.Material;
 import com.jme3.scene.Spatial;
@@ -288,7 +288,7 @@ public interface AssetManager {
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
-    public AudioNode loadAudio(AudioKey key);
+    public AudioData loadAudio(AudioKey key);
 
     /**
      * Load audio file, supported types are WAV or OGG.
@@ -298,7 +298,7 @@ public interface AssetManager {
      *
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
-    public AudioNode loadAudio(String name);
+    public AudioData loadAudio(String name);
 
     /**
      * Loads a 3D model with a ModelKey. 

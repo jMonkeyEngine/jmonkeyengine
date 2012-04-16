@@ -35,7 +35,7 @@ package jme3test.asset;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.plugins.ClasspathLocator;
-import com.jme3.audio.AudioNode;
+import com.jme3.audio.AudioData;
 import com.jme3.audio.plugins.WAVLoader;
 import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.AWTLoader;
@@ -51,7 +51,7 @@ public class TestAbsoluteLocators {
         am.registerLocator("/",  ClasspathLocator.class);
 
         // find a sound
-        AudioNode audio = am.loadAudio("Sound/Effects/Gun.wav");
+        AudioData audio = am.loadAudio("Sound/Effects/Gun.wav");
 
         // find a texture
         Texture tex = am.loadTexture("Textures/Terrain/Pond/Pond.jpg");

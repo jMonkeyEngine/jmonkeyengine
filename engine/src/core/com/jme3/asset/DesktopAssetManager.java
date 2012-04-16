@@ -34,8 +34,8 @@ package com.jme3.asset;
 
 import com.jme3.asset.cache.AssetCache;
 import com.jme3.asset.cache.SimpleAssetCache;
+import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioKey;
-import com.jme3.audio.AudioNode;
 import com.jme3.font.BitmapFont;
 import com.jme3.material.Material;
 import com.jme3.scene.Spatial;
@@ -353,11 +353,11 @@ public class DesktopAssetManager implements AssetManager {
         return loadTexture(new TextureKey(name, false));
     }
 
-    public AudioNode loadAudio(AudioKey key){
-        return (AudioNode) loadAsset(key);
+    public AudioData loadAudio(AudioKey key){
+        return (AudioData) loadAsset(key);
     }
 
-    public AudioNode loadAudio(String name){
+    public AudioData loadAudio(String name){
         return loadAudio(new AudioKey(name, false));
     }
 

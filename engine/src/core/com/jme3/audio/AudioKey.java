@@ -47,7 +47,7 @@ import java.io.IOException;
  *
  * @author Kirill Vainer
  */
-public class AudioKey extends AssetKey<AudioNode> {
+public class AudioKey extends AssetKey<AudioData> {
 
     private boolean stream;
     private boolean streamCache;
@@ -159,7 +159,7 @@ public class AudioKey extends AssetKey<AudioNode> {
     
     @Override
     public Class<? extends AssetProcessor> getProcessorType() {
-        return AudioProcessor.class;
+        return null;
     }
     
     @Override
