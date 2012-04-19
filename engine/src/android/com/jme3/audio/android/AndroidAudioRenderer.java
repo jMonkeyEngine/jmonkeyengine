@@ -295,16 +295,19 @@ public class AndroidAudioRenderer implements AudioRenderer,
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        mp.seekTo(0);
-        mp.stop();
-        // XXX: This has bad performance -> maybe change overall structure of
-        // mediaplayer in this audiorenderer?
-        for (AudioNode src : musicPlaying.keySet()) {
-            if (musicPlaying.get(src) == mp) {
-                src.setStatus(Status.Stopped);
-                break;
-            }
+        if (mp.isPlaying()) {
+            mp.seekTo(0);
+            mp.stop();
         }
+            // XXX: This has bad performance -> maybe change overall structure of
+            // mediaplayer in this audiorenderer?
+            for (AudioNode src : musicPlaying.keySet()) {
+                if (musicPlaying.get(src) == mp) {
+                    src.setStatus(Status.Stopped);
+                    break;
+                }
+            }
+        
     }
 
     /**
@@ -342,9 +345,15 @@ public class AndroidAudioRenderer implements AudioRenderer,
             if (channel == 0) {
                 soundpoolStillLoading.put(audioData.getId(), src);
             } else {
+                if (src.getStatus() != Status.Stopped) {
+                    soundPool.stop(channel);
+                    src.setStatus(Status.Stopped);
+                }
                 src.setChannel(channel); // receive a channel at the last
                 setSourceParams(src);
                 // playing at least
+
+
             }
         } catch (IOException e) {
             logger.log(Level.SEVERE,
@@ -386,11 +395,11 @@ public class AndroidAudioRenderer implements AudioRenderer,
             mp = new MediaPlayer();
             mp.setOnCompletionListener(this);
             mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        } 
-       
+        }
+
         try {
             if (src.getStatus() == Status.Stopped) {
-                mp.reset();            
+                mp.reset();
                 AssetKey<?> key = audioData.getAssetKey();
 
                 AssetFileDescriptor afd = assetManager.openFd(key.getName()); // assetKey.getName()
@@ -402,7 +411,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
                 src.setStatus(Status.Playing);
                 musicPlaying.put(src, mp);
                 mp.start();
-            }else{
+            } else {
                 mp.start();
             }
         } catch (IllegalStateException e) {
@@ -413,7 +422,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
     }
 
     private void setSourceParams(AudioNode src, MediaPlayer mp) {
-        mp.setLooping(true);
+        mp.setLooping(src.isLooping());
         mp.setVolume(src.getVolume(), src.getVolume());
         //src.getDryFilter();
     }
