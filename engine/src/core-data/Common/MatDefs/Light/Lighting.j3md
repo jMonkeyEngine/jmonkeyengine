@@ -295,6 +295,7 @@ MaterialDef Phong Lighting {
         }
 
         Defines {
+            NEED_TEXCOORD1
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
         }

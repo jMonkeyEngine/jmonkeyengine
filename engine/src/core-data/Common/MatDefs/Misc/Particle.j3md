@@ -102,6 +102,7 @@ MaterialDef Point Sprite {
         }
 
         Defines {
+            NEED_TEXCOORD1
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
         }

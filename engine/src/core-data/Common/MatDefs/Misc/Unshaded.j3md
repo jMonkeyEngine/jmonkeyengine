@@ -58,9 +58,9 @@ MaterialDef Unshaded {
         }
 
         Defines {
+            NEED_TEXCOORD1
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
-            HAS_COLORMAP // Must be passed so that Unshaded.vert exports texCoord.
         }
     }
 

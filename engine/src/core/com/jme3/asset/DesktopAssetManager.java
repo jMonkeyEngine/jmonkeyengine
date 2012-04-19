@@ -350,7 +350,11 @@ public class DesktopAssetManager implements AssetManager {
     }
 
     public Texture loadTexture(String name){
-        return loadTexture(new TextureKey(name, false));
+        TextureKey key = new TextureKey(name, true);
+        key.setGenerateMips(true);
+        Texture tex = loadTexture(key);
+        System.out.println(tex + " - " + tex.getMinFilter());
+        return tex;
     }
 
     public AudioData loadAudio(AudioKey key){
