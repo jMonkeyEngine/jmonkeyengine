@@ -99,7 +99,9 @@ public class BlenderKey extends ModelKey {
 	 * If set to -1 then the current layer will be loaded.
 	 */
 	protected int								layersToLoad			= -1;
-
+	/** A variable that toggles the object custom properties loading. */
+	protected boolean							loadObjectProperties	= true;
+	
 	/**
 	 * Constructor used by serialization mechanisms.
 	 */
@@ -216,6 +218,22 @@ public class BlenderKey extends ModelKey {
 		return layersToLoad;
 	}
 
+	/**
+	 * This method sets the properies loading policy.
+	 * By default the value is true.
+	 * @param loadObjectProperties true to load properties and false to suspend their loading
+	 */
+	public void setLoadObjectProperties(boolean loadObjectProperties) {
+		this.loadObjectProperties = loadObjectProperties;
+	}
+	
+	/**
+	 * @return the current properties loading properties
+	 */
+	public boolean isLoadObjectProperties() {
+		return loadObjectProperties;
+	}
+	
 	/**
 	 * This method sets the asset root path.
 	 * @param assetRootPath

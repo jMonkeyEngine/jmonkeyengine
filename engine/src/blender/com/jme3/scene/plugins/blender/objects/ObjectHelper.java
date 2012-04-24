@@ -274,9 +274,11 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			}
 			
 			//reading custom properties
-			Properties properties = this.loadProperties(objectStructure, blenderContext);
-			if(result instanceof Spatial && properties != null && properties.getValue() != null) {
-				((Spatial)result).setUserData("properties", properties);
+			if(blenderContext.getBlenderKey().isLoadObjectProperties()) {
+				Properties properties = this.loadProperties(objectStructure, blenderContext);
+				if(result instanceof Spatial && properties != null && properties.getValue() != null) {
+					((Spatial)result).setUserData("properties", properties);
+				}
 			}
 		}
 		return result;
