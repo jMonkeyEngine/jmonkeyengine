@@ -58,25 +58,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * TerrainGrid itself is an actual TerrainQuad. Its four children are the visible four tiles.
- * 
+ * <p>
+ * TerrainGrid itself is an actual TerrainQuad. Its four children are the visible four tiles.</p>
+ * </p><p>
  * The grid is indexed by cells. Each cell has an integer XZ coordinate originating at 0,0.
  * TerrainGrid will piggyback on the TerrainLodControl so it can use the camera for its
  * updates as well. It does this in the overwritten update() method.
- * 
+ * </p><p>
  * It uses an LRU (Least Recently Used) cache of 16 terrain tiles (full TerrainQuadTrees). The
  * center 4 are the ones that are visible. As the camera moves, it checks what camera cell it is in
  * and will attach the now visible tiles.
- * 
- * The 'quadIndex' variable is a 4x4 array that represents the tiles. The center 
+ * </p><p>
+ * The 'quadIndex' variable is a 4x4 array that represents the tiles. The center
  * four (index numbers: 5, 6, 9, 10) are what is visible. Each quadIndex value is an
  * offset vector. The vector contains whole numbers and represents how many tiles in offset
  * this location is from the center of the map. So for example the index 11 [Vector3f(2, 0, 1)]
  * is located 2*terrainSize in X axis and 1*terrainSize in Z axis.
- * 
+ * </p><p>
  * As the camera moves, it tests what cameraCell it is in. Each camera cell covers four quad tiles
  * and is half way inside each one.
- * 
+ * </p><pre>
  * +-------+-------+
  * | 1     |     4 |    Four terrainQuads that make up the grid
  * |    *..|..*    |    with the cameraCell in the middle, covering
@@ -84,25 +85,26 @@ import java.util.logging.Logger;
  * |    *..|..*    |
  * | 2     |     3 |
  * +-------+-------+
- * 
+ * </pre><p>
  * This results in the effect of when the camera gets half way across one of the sides of a quad to
  * an empty (non-loaded) area, it will trigger the system to load in the next tiles.
- * 
+ * </p><p>
  * The tile loading is done on a background thread, and once the tile is loaded, then it is
  * attached to the qrid quad tree, back on the OGL thread. It will grab the terrain quad from
  * the LRU cache if it exists. If it does not exist, it will load in the new TerrainQuad tile.
- * 
+ * </p><p>
  * The loading of new tiles triggers events for any TerrainGridListeners. The events are:
- *  -tile Attached
- *  -tile Detached
- *  -grid moved.
- * 
+ * <ul>
+ *  <li>tile Attached
+ *  <li>tile Detached
+ *  <li>grid moved.
+ * </ul>
+ * <p>
  * These allow physics to update, and other operation (often needed for loading the terrain) to occur
  * at the right time.
- * 
+ * </p>
  * @author Anthyon
  */
-public class TerrainGrid extends TerrainQuad {
 
     protected static final Logger log = Logger.getLogger(TerrainGrid.class.getCanonicalName());
     protected Vector3f currentCamCell = Vector3f.ZERO;
