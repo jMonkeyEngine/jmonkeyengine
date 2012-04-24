@@ -65,16 +65,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * <p>
  * A terrain quad is a node in the quad tree of the terrain system.
  * The root terrain quad will be the only one that receives the update() call every frame
  * and it will determine if there has been any LOD change.
- *
+ * </p><p>
  * The leaves of the terrain quad tree are Terrain Patches. These have the real geometry mesh.
- *
- * 
+ * </p><p>
  * Heightmap coordinates start from the bottom left of the world and work towards the
  * top right.
- * 
+ * </p><pre>
  *  +x
  *  ^
  *  | ......N = length of heightmap
@@ -83,11 +83,10 @@ import java.util.logging.Logger;
  *  | 0.....:
  *  +---------> +z
  * (world coordinates)
- * 
+ * </pre>
  * @author Brent Owens
  */
 public class TerrainQuad extends Node implements Terrain {
-
     protected Vector2f offset;
 
     protected int totalSize; // the size of this entire terrain tree (on one side)
