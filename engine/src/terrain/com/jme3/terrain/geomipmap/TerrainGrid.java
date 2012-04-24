@@ -43,7 +43,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.UpdateControl;
 import com.jme3.terrain.Terrain;
-import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
 import com.jme3.terrain.heightmap.HeightMap;
 import com.jme3.terrain.heightmap.HeightMapGrid;
 import java.io.IOException;
@@ -105,7 +104,7 @@ import java.util.logging.Logger;
  * </p>
  * @author Anthyon
  */
-
+public class TerrainGrid extends TerrainQuad {
     protected static final Logger log = Logger.getLogger(TerrainGrid.class.getCanonicalName());
     protected Vector3f currentCamCell = Vector3f.ZERO;
     protected int quarterSize; // half of quadSize
