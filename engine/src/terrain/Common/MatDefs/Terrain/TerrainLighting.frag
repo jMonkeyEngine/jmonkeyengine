@@ -182,7 +182,10 @@ float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in f
 vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 wvLightDir){
    float diffuseFactor = lightComputeDiffuse(wvNorm, wvLightDir, wvViewDir);
    float specularFactor = lightComputeSpecular(wvNorm, wvViewDir, wvLightDir, m_Shininess);
-   specularFactor *= step(1.0, m_Shininess);
+
+   if (m_Shininess <= 1.0) {
+       specularFactor = 0.0; // should be one instruction on most cards ..
+   }
 
    float att = vLightDir.w;
 
