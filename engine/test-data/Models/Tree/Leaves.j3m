@@ -4,8 +4,7 @@ Material Leaves : Common/MatDefs/Light/Lighting.j3md {
 
     MaterialParameters {
         DiffuseMap : Models/Tree/Leaves.png
-        UseAlpha : true
-        AlphaDiscardThreshold : 0.5
+        UseAlpha : true        
         UseMaterialColors : true
         Ambient : .5 .5 .5 .5
         Diffuse : 0.7 0.7 0.7 1

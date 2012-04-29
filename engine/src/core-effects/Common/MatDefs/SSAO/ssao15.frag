@@ -57,12 +57,10 @@ vec2 reflection(in vec2 v1,in vec2 v2){
 }
 
 
-//const vec2 vec[4] = vec2[4](vec2(1.0,0.0), vec2(-1.0,0.0), vec2(0.0,1.0), vec2(0.0,-1.0));
 void main(){
 
    float result;
 
-   //vec2 vec[4] = { vec2(1.0, 0.0), vec2(-1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0) };
    vec3 position = getPosition(texCoord);
     //optimization, do not calculate AO if depth is 1
    if(depthv==1.0){
@@ -91,6 +89,5 @@ void main(){
    result = 1.0-ao;
 
    gl_FragColor=vec4(result,result,result, 1.0);
-//gl_FragColor=vec4(depthv,depthv,depthv, 1.0);
 
 }

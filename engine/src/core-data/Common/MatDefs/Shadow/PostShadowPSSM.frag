@@ -114,31 +114,27 @@ float Shadow_DoPCF(in SHADOWMAP tex, in vec4 projCoord){
     return shadow;
 }
 
-#ifdef DISCARD_ALPHA
-    #ifdef COLOR_MAP
-        uniform sampler2D m_ColorMap;
-    #else    
-        uniform sampler2D m_DiffuseMap;
-    #endif
-    uniform float m_AlphaDiscardThreshold;
+#ifdef COLOR_MAP
+    uniform sampler2D m_ColorMap;
+    varying vec2 texCoord;
+#endif    
+#ifdef DIFFUSEMAP
+    uniform sampler2D m_DiffuseMap;
     varying vec2 texCoord;
 #endif
-
+   
 void main(){   
  
-    #ifdef DISCARD_ALPHA
-        #ifdef COLOR_MAP
-            float alpha = texture2D(m_ColorMap,texCoord).a;
-        #else    
-            float alpha = texture2D(m_DiffuseMap,texCoord).a;
-        #endif
-        if(alpha<=m_AlphaDiscardThreshold){
-            discard;
-        }
-
+    float alpha =1.0;
+    
+    #ifdef COLOR_MAP
+        alpha = texture2D(m_ColorMap,texCoord).a;
     #endif
+    #ifdef DIFFUSEMAP
+        alpha = texture2D(m_DiffuseMap,texCoord).a;
+    #endif       
+    
    
-
     vec4 shadowPerSplit = vec4(0.0);
     shadowPerSplit.x = GETSHADOW(m_ShadowMap0, projCoord0);
     shadowPerSplit.y = GETSHADOW(m_ShadowMap1, projCoord1);
@@ -151,9 +147,6 @@ void main(){
     float shadow = dot(shadowPerSplit, less * more );
     
     shadow = shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity);
-  
-
-  gl_FragColor = vec4(shadow, shadow, shadow, 1.0);
-  //gl_FragColor = vec4(alpha, alpha, alpha, 1.0);
+    gl_FragColor =  vec4(0.0, 0.0, 0.0, min(1.0 - shadow,alpha));
 }
 

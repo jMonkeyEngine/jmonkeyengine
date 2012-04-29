@@ -15,9 +15,6 @@ MaterialDef Phong Lighting {
         // Output alpha from the diffuse map
         Boolean UseAlpha
 
-        // Apha threshold for fragment discarding
-        Float AlphaDiscardThreshold
-
         // Normal map is in BC5/ATI2n/LATC/3Dc compression format
         Boolean LATC
 
@@ -160,7 +157,7 @@ MaterialDef Phong Lighting {
             SEPARATE_TEXCOORD : SeparateTexCoord
 
             USE_REFLECTION : EnvMap
-            SPHERE_MAP : SphereMap            
+            SPHERE_MAP : EnvMapAsSphereMap            
         }
     }
 
@@ -174,9 +171,8 @@ MaterialDef Phong Lighting {
             WorldViewMatrix
         }
 
-        Defines {
-            COLOR_MAP : ColorMap
-            DISCARD_ALPHA : AlphaDiscardThreshold
+        Defines {           
+            DIFFUSEMAP : DiffuseMap
         }
 
         RenderState {
@@ -203,12 +199,11 @@ MaterialDef Phong Lighting {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold
-            COLOR_MAP : ColorMap
+            DIFFUSEMAP : DiffuseMap         
         }
 
         RenderState {
-            Blend Modulate
+            Blend Alpha
         }
     }
 
@@ -225,12 +220,11 @@ MaterialDef Phong Lighting {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold
-            COLOR_MAP : ColorMap
+            DIFFUSEMAP : DiffuseMap     
         }
 
         RenderState {
-            Blend Modulate
+            Blend Alpha
         }
     }
 

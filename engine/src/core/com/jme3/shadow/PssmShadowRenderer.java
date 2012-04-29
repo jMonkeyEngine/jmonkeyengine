@@ -142,8 +142,6 @@ public class PssmShadowRenderer implements SceneProcessor {
     private Picture[] dispPic;
     private Vector3f[] points = new Vector3f[8];
     private boolean flushQueues = true;
-    //render state for post shadow pass
-    private RenderState state = new RenderState();
     // define if the fallback material should be used.
     private boolean needsfallBackMaterial = false;
     //Name of the post material technique
@@ -216,13 +214,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }
-
-        //initializing render state for post shadow pass (modulade blending and cullmode of for back faces )
-        state.setBlendMode(RenderState.BlendMode.Modulate);
-        state.setFaceCullMode(RenderState.FaceCullMode.Off);
-        state.setDepthWrite(false);
-        state.setPolyOffset(-0.1f, 0);
-               
+       
     }
 
     /**
@@ -458,17 +450,15 @@ public class PssmShadowRenderer implements SceneProcessor {
                 renderManager.setForcedMaterial(postshadowMat);
             }
             
-            //forcing the post shadow technique and render state
+            //forcing the post shadow technique
             renderManager.setForcedTechnique(postTechniqueName);
-            renderManager.setForcedRenderState(state);
             
             //rendering the post shadow pass
             viewPort.getQueue().renderShadowQueue(ShadowMode.Receive, renderManager, cam, flushQueues);
 
             //resetting renderManager settings
             renderManager.setForcedTechnique(null);
-            renderManager.setForcedMaterial(null);
-            renderManager.setForcedRenderState(null);
+            renderManager.setForcedMaterial(null);       
             renderManager.setCamera(cam, false);
 
         }

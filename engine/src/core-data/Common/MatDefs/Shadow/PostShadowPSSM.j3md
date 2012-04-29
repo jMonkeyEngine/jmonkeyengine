@@ -36,7 +36,7 @@ MaterialDef Post Shadow {
         }
 
         RenderState {
-            Blend Modulate
+            Blend Alpha
         }
     }
 
@@ -56,7 +56,7 @@ MaterialDef Post Shadow {
         }
 
         RenderState {
-            Blend Modulate
+            Blend Alpha
         }
     }
 

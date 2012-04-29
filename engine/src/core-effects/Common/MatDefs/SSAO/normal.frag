@@ -11,11 +11,9 @@ void main(void)
 {
 
     #ifdef DIFFUSEMAP_ALPHA
-        if(texture2D(m_DiffuseMap,texCoord).a<m_AlphaDiscardThreshold){
-            discard;
-        }
+        float alpha=texture2D(m_DiffuseMap,texCoord).a;
     #endif
-    gl_FragColor = vec4(normal.xy* 0.5 + 0.5,-normal.z* 0.5 + 0.5, 1.0);
+    gl_FragColor = vec4(normal.xy* 0.5 + 0.5,-normal.z* 0.5 + 0.5, alpha);
 
 }
 

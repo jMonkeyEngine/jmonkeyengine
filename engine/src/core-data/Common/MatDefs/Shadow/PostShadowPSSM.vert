@@ -16,7 +16,7 @@ varying float shadowPosition;
 varying vec2 texCoord;
 
 attribute vec3 inPosition;
-#ifdef DISCARD_ALPHA
+#ifdef DIFFUSEMAP) || defined(COLOR_MAP)
     attribute vec2 inTexCoord;
 #endif
 
@@ -33,7 +33,7 @@ void main(){
     // get the vertex in world space
     vec4 worldPos = g_WorldMatrix * vec4(inPosition, 1.0);
 
-    #ifdef DISCARD_ALPHA
+    #if defined(DIFFUSEMAP) || defined(COLOR_MAP)
        texCoord = inTexCoord;
     #endif
     // populate the light view matrices array and convert vertex to light viewProj space
