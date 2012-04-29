@@ -2,14 +2,13 @@ package com.jme3.scene.plugins.blender.textures.blending;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.textures.TexturePixel;
+import com.jme3.scene.plugins.blender.textures.io.PixelIOFactory;
+import com.jme3.scene.plugins.blender.textures.io.PixelInputOutput;
 import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture2D;
-import com.jme3.texture.Texture3D;
 import com.jme3.texture.Image.Format;
 import com.jme3.util.BufferUtils;
 
@@ -36,127 +35,178 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski (Kaelthas)
  */
 public class TextureBlenderAWT extends AbstractTextureBlender {
-	private static final Logger	LOGGER	= Logger.getLogger(TextureBlenderAWT.class.getName());
-
+	public TextureBlenderAWT(int flag, boolean negateTexture, int blendType, float[] materialColor, float[] color, float blendFactor) {
+		super(flag, negateTexture, blendType, materialColor, color, blendFactor);
+	}
+	
 	@Override
-	public Texture blend(float[] materialColor, Texture texture, float[] color, float affectFactor, int blendType, boolean neg, BlenderContext blenderContext) {
+	public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
 		float[] pixelColor = new float[] { color[0], color[1], color[2], 1.0f };
-		Format format = texture.getImage().getFormat();
-		ByteBuffer data = texture.getImage().getData(0);
-		data.rewind();
-
-		int width = texture.getImage().getWidth();
-		int height = texture.getImage().getHeight();
-		int depth = texture.getImage().getDepth();
+		Format format = image.getFormat();
+		ByteBuffer data = image.getData(0);
+		
+		PixelInputOutput basePixelIO = null, pixelReader = PixelIOFactory.getPixelIO(format);
+		TexturePixel basePixel = null, pixel = new TexturePixel();
+		float[] materialColor = this.materialColor;
+		if(baseImage != null) {
+			basePixelIO = PixelIOFactory.getPixelIO(baseImage.getFormat());
+			materialColor = new float[this.materialColor.length];
+			basePixel = new TexturePixel();
+		}
+		
+		int width = image.getWidth();
+		int height = image.getHeight();
+		int depth = image.getDepth();
 		if (depth == 0) {
 			depth = 1;
 		}
 		ByteBuffer newData = BufferUtils.createByteBuffer(width * height * depth * 4);
-
+		
 		float[] resultPixel = new float[4];
-		int dataIndex = 0;
-		while (data.hasRemaining()) {
-			this.setupMaterialColor(data, format, neg, pixelColor);
-			this.blendPixel(resultPixel, materialColor, pixelColor, affectFactor, blendType, blenderContext);
+		int dataIndex = 0, x = 0, y = 0, index = 0;
+		while (index < data.limit()) {
+			//getting the proper material color if the base texture is applied
+			if(basePixelIO != null) {
+				basePixelIO.read(baseImage, basePixel, x, y);
+				basePixel.toRGBA(materialColor);
+			}			
+			
+			//reading the current texture's pixel
+			pixelReader.read(image, pixel, index);
+			index += image.getFormat().getBitsPerPixel() >> 3;
+			pixel.toRGBA(pixelColor);
+			if (negateTexture) {
+				pixel.negate();
+			}
+			
+			this.blendPixel(resultPixel, materialColor, pixelColor, blenderContext);
 			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
 			newData.put(dataIndex++, (byte) (pixelColor[3] * 255.0f));
+			
+			++x;
+			if(x >= width) {
+				x = 0;
+				++y;
+			}
 		}
-		if (texture.getType() == Texture.Type.TwoDimensional) {
-			return new Texture2D(new Image(Format.RGBA8, width, height, newData));
-		} else {
+		if(depth > 1) {
 			ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
 			dataArray.add(newData);
-			return new Texture3D(new Image(Format.RGBA8, width, height, depth, dataArray));
+			return new Image(Format.RGBA8, width, height, depth, dataArray);
+		} else {
+			return new Image(Format.RGBA8, width, height, newData);
 		}
 	}
 
 	/**
-	 * This method alters the material color in a way dependent on the type of
-	 * the image. For example the color remains untouched if the texture is of
-	 * Luminance type. The luminance defines the interaction between the
-	 * material color and color defined for texture blending. If the type has 3
-	 * or more color channels then the material color is replaced with the
-	 * texture's color and later blended with the defined blend color. All alpha
-	 * values (if present) are ignored and not used during blending.
+	 * This method blends the single pixel depending on the blending type.
 	 * 
-	 * @param data
-	 *            the image data
-	 * @param imageFormat
-	 *            the format of the image
-	 * @param neg
-	 *            defines it the result color should be nagated
+	 * @param result
+	 *            the result pixel
 	 * @param materialColor
-	 *            the material's color (value may be changed)
-	 * @return texture intensity for the current pixel
+	 *            the material color
+	 * @param pixelColor
+	 *            the pixel color
+	 * @param blendFactor
+	 *            the blending factor
+	 * @param blendtype
+	 *            the blending type
+	 * @param blenderContext
+	 *            the blender context
 	 */
-	protected float setupMaterialColor(ByteBuffer data, Format imageFormat, boolean neg, float[] materialColor) {
-		float tin = 0.0f;
-		byte pixelValue = data.get();// at least one byte is always taken :)
-		float firstPixelValue = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-		switch (imageFormat) {
-			case RGBA8:
-				materialColor[0] = firstPixelValue;
-				pixelValue = data.get();
-				materialColor[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get();
-				materialColor[2] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get();
-				materialColor[3] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+	protected void blendPixel(float[] result, float[] materialColor, float[] pixelColor, BlenderContext blenderContext) {
+		float blendFactor = this.blendFactor * pixelColor[3];
+		float oneMinusFactor = 1.0f - blendFactor, col;
+
+		switch (blendType) {
+			case MTEX_BLEND:
+				result[0] = blendFactor * pixelColor[0] + oneMinusFactor * materialColor[0];
+				result[1] = blendFactor * pixelColor[1] + oneMinusFactor * materialColor[1];
+				result[2] = blendFactor * pixelColor[2] + oneMinusFactor * materialColor[2];
 				break;
-			case ABGR8:
-				materialColor[3] = firstPixelValue;
-				pixelValue = data.get();
-				materialColor[2] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get();
-				materialColor[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get();
-				materialColor[0] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+			case MTEX_MUL:
+				result[0] = (oneMinusFactor + blendFactor * materialColor[0]) * pixelColor[0];
+				result[1] = (oneMinusFactor + blendFactor * materialColor[1]) * pixelColor[1];
+				result[2] = (oneMinusFactor + blendFactor * materialColor[2]) * pixelColor[2];
 				break;
-			case BGR8:
-				materialColor[2] = firstPixelValue;
-				pixelValue = data.get();
-				materialColor[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get();
-				materialColor[0] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				materialColor[3] = 1.0f;
+			case MTEX_DIV:
+				if (pixelColor[0] != 0.0) {
+					result[0] = (oneMinusFactor * materialColor[0] + blendFactor * materialColor[0] / pixelColor[0]) * 0.5f;
+				}
+				if (pixelColor[1] != 0.0) {
+					result[1] = (oneMinusFactor * materialColor[1] + blendFactor * materialColor[1] / pixelColor[1]) * 0.5f;
+				}
+				if (pixelColor[2] != 0.0) {
+					result[2] = (oneMinusFactor * materialColor[2] + blendFactor * materialColor[2] / pixelColor[2]) * 0.5f;
+				}
 				break;
-			case RGB8:
-				materialColor[0] = firstPixelValue;
-				pixelValue = data.get();
-				materialColor[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get();
-				materialColor[2] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				materialColor[3] = 1.0f;
+			case MTEX_SCREEN:
+				result[0] = 1.0f - (oneMinusFactor + blendFactor * (1.0f - materialColor[0])) * (1.0f - pixelColor[0]);
+				result[1] = 1.0f - (oneMinusFactor + blendFactor * (1.0f - materialColor[1])) * (1.0f - pixelColor[1]);
+				result[2] = 1.0f - (oneMinusFactor + blendFactor * (1.0f - materialColor[2])) * (1.0f - pixelColor[2]);
 				break;
-			case ARGB4444:
-			case RGB10:
-			case RGB111110F:
-			case RGB16:
-			case RGB16F:
-			case RGB16F_to_RGB111110F:
-			case RGB16F_to_RGB9E5:
-			case RGB32F:
-			case RGB565:
-			case RGB5A1:
-			case RGB9E5:
-			case RGBA16:
-			case RGBA16F:
-			case RGBA32F:// TODO: implement these textures
-				LOGGER.log(Level.WARNING, "Image type not yet supported for blending: {0}", imageFormat);
+			case MTEX_OVERLAY:
+				if (materialColor[0] < 0.5f) {
+					result[0] = pixelColor[0] * (oneMinusFactor + 2.0f * blendFactor * materialColor[0]);
+				} else {
+					result[0] = 1.0f - (oneMinusFactor + 2.0f * blendFactor * (1.0f - materialColor[0])) * (1.0f - pixelColor[0]);
+				}
+				if (materialColor[1] < 0.5f) {
+					result[1] = pixelColor[1] * (oneMinusFactor + 2.0f * blendFactor * materialColor[1]);
+				} else {
+					result[1] = 1.0f - (oneMinusFactor + 2.0f * blendFactor * (1.0f - materialColor[1])) * (1.0f - pixelColor[1]);
+				}
+				if (materialColor[2] < 0.5f) {
+					result[2] = pixelColor[2] * (oneMinusFactor + 2.0f * blendFactor * materialColor[2]);
+				} else {
+					result[2] = 1.0f - (oneMinusFactor + 2.0f * blendFactor * (1.0f - materialColor[2])) * (1.0f - pixelColor[2]);
+				}
+				break;
+			case MTEX_SUB:
+				result[0] = materialColor[0] - blendFactor * pixelColor[0];
+				result[1] = materialColor[1] - blendFactor * pixelColor[1];
+				result[2] = materialColor[2] - blendFactor * pixelColor[2];
+				result[0] = FastMath.clamp(result[0], 0.0f, 1.0f);
+				result[1] = FastMath.clamp(result[1], 0.0f, 1.0f);
+				result[2] = FastMath.clamp(result[2], 0.0f, 1.0f);
+				break;
+			case MTEX_ADD:
+				result[0] = (blendFactor * pixelColor[0] + materialColor[0]) * 0.5f;
+				result[1] = (blendFactor * pixelColor[1] + materialColor[1]) * 0.5f;
+				result[2] = (blendFactor * pixelColor[2] + materialColor[2]) * 0.5f;
+				break;
+			case MTEX_DIFF:
+				result[0] = oneMinusFactor * materialColor[0] + blendFactor * Math.abs(materialColor[0] - pixelColor[0]);
+				result[1] = oneMinusFactor * materialColor[1] + blendFactor * Math.abs(materialColor[1] - pixelColor[1]);
+				result[2] = oneMinusFactor * materialColor[2] + blendFactor * Math.abs(materialColor[2] - pixelColor[2]);
+				break;
+			case MTEX_DARK:
+				col = blendFactor * pixelColor[0];
+				result[0] = col < materialColor[0] ? col : materialColor[0];
+				col = blendFactor * pixelColor[1];
+				result[1] = col < materialColor[1] ? col : materialColor[1];
+				col = blendFactor * pixelColor[2];
+				result[2] = col < materialColor[2] ? col : materialColor[2];
+				break;
+			case MTEX_LIGHT:
+				col = blendFactor * pixelColor[0];
+				result[0] = col > materialColor[0] ? col : materialColor[0];
+				col = blendFactor * pixelColor[1];
+				result[1] = col > materialColor[1] ? col : materialColor[1];
+				col = blendFactor * pixelColor[2];
+				result[2] = col > materialColor[2] ? col : materialColor[2];
+				break;
+			case MTEX_BLEND_HUE:
+			case MTEX_BLEND_SAT:
+			case MTEX_BLEND_VAL:
+			case MTEX_BLEND_COLOR:
+				System.arraycopy(materialColor, 0, result, 0, 3);
+				this.blendHSV(blendType, result, blendFactor, pixelColor, blenderContext);
 				break;
 			default:
-				throw new IllegalStateException("Invalid image format type for AWT texture blender: " + imageFormat);
+				throw new IllegalStateException("Unknown blend type: " + blendType);
 		}
-		if (neg) {
-			materialColor[0] = 1.0f - materialColor[0];
-			materialColor[1] = 1.0f - materialColor[1];
-			materialColor[2] = 1.0f - materialColor[2];
-		}
-		// Blender formula for texture intensity calculation:
-		// 0.35*texres.tr+0.45*texres.tg+0.2*texres.tb
-		tin = 0.35f * materialColor[0] + 0.45f * materialColor[1] + 0.2f * materialColor[2];
-		return tin;
 	}
 }

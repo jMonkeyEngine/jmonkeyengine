@@ -103,11 +103,11 @@ public class BlenderLoader extends AbstractBlenderLoader {
 							}
 						}
 						break;
-					case FileBlockHeader.BLOCK_MA00:// Material
-						if (blenderKey.isLoadUnlinkedAssets() && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
-							loadingResults.addMaterial(this.toMaterial(block.getStructure(blenderContext)));
-						}
-						break;
+//					case FileBlockHeader.BLOCK_MA00:// Material
+//						if (blenderKey.isLoadUnlinkedAssets() && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
+//							loadingResults.addMaterial(this.toMaterial(block.getStructure(blenderContext)));
+//						}
+//						break;
 					case FileBlockHeader.BLOCK_SC00:// Scene
 						if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.SCENES) != 0) {
 							loadingResults.addScene(this.toScene(block.getStructure(blenderContext)));
@@ -203,11 +203,7 @@ public class BlenderLoader extends AbstractBlenderLoader {
 		blenderContext.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
 		blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
 
-		// setting additional data to helpers
-		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
-		materialHelper.setFaceCullMode(blenderKey.getFaceCullMode());
-
-		// reading the blocks (dna block is automatically saved in the blender context when found)//TODO: zmienić to
+		// reading the blocks (dna block is automatically saved in the blender context when found)
 		FileBlockHeader sceneFileBlock = null;
 		do {
 			fileBlock = new FileBlockHeader(inputStream, blenderContext);

@@ -29,13 +29,14 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.blender.textures;
+package com.jme3.scene.plugins.blender.textures.generating;
 
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.textures.TextureGeneratorMusgrave.MusgraveData;
+import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgrave.MusgraveData;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -54,18 +55,6 @@ import java.util.logging.Logger;
 /*package*/ class NoiseGenerator extends AbstractBlenderHelper {
     private static final Logger LOGGER = Logger.getLogger(NoiseGenerator.class.getName());
     
-    // flag
-    protected static final int TEX_COLORBAND = 1;
-    protected static final int TEX_FLIPBLEND = 2;
-    protected static final int TEX_NEGALPHA = 4;
-    protected static final int TEX_CHECKER_ODD = 8;
-    protected static final int TEX_CHECKER_EVEN = 16;
-    protected static final int TEX_PRV_ALPHA = 32;
-    protected static final int TEX_PRV_NOR = 64;
-    protected static final int TEX_REPEAT_XMIR = 128;
-    protected static final int TEX_REPEAT_YMIR = 256;
-    protected static final int TEX_FLAG_MASK = TEX_COLORBAND | TEX_FLIPBLEND | TEX_NEGALPHA | TEX_CHECKER_ODD | TEX_CHECKER_EVEN | TEX_PRV_ALPHA | TEX_PRV_NOR | TEX_REPEAT_XMIR | TEX_REPEAT_YMIR;
-
     // tex->stype
     protected static final int TEX_PLASTIC = 0;
     protected static final int TEX_WALLIN = 1;
@@ -575,7 +564,7 @@ import java.util.logging.Logger;
             int xi = (int) FastMath.floor(x);
             int yi = (int) FastMath.floor(y);
             int zi = (int) FastMath.floor(z);
-            da[0] = da[1] = da[2] = da[3] = 1e10f;
+            da[0] = da[1] = da[2] = da[3] = Float.MAX_VALUE;//1e10f;
             for (int i = xi - 1; i <= xi + 1; ++i) {
                 for (int j = yi - 1; j <= yi + 1; ++j) {
                     for (int k = zi - 1; k <= zi + 1; ++k) {

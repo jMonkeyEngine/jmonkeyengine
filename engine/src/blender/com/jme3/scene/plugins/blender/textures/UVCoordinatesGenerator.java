@@ -31,6 +31,11 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
@@ -39,69 +44,144 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.scene.plugins.blender.textures.UVProjectionGenerator.UVProjectionType;
 import com.jme3.util.BufferUtils;
-import java.nio.FloatBuffer;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * This class is used for UV coordinates generation.
+ * 
  * @author Marcin Roguski (Kaelthas)
  */
 public class UVCoordinatesGenerator {
-	private static final Logger	LOGGER						= Logger.getLogger(UVCoordinatesGenerator.class.getName());
+	private static final Logger	LOGGER	= Logger.getLogger(UVCoordinatesGenerator.class.getName());
 
-	// texture UV coordinates types
-	public static final int		TEXCO_ORCO					= 1;
-	public static final int		TEXCO_REFL					= 2;
-	public static final int		TEXCO_NORM					= 4;
-	public static final int		TEXCO_GLOB					= 8;
-	public static final int		TEXCO_UV					= 16;
-	public static final int		TEXCO_OBJECT				= 32;
-	public static final int		TEXCO_LAVECTOR				= 64;
-	public static final int		TEXCO_VIEW					= 128;
-	public static final int		TEXCO_STICKY				= 256;
-	public static final int		TEXCO_OSA					= 512;
-	public static final int		TEXCO_WINDOW				= 1024;
-	public static final int		NEED_UV						= 2048;
-	public static final int		TEXCO_TANGENT				= 4096;
-	// still stored in vertex->accum, 1 D
-	public static final int		TEXCO_PARTICLE_OR_STRAND	= 8192;													// strand is used
-	public static final int		TEXCO_STRESS				= 16384;
-	public static final int		TEXCO_SPEED					= 32768;
+	public static enum UVCoordinatesType {
+		TEXCO_ORCO(1), 
+		TEXCO_REFL(2), 
+		TEXCO_NORM(4), 
+		TEXCO_GLOB(8), 
+		TEXCO_UV(16), 
+		TEXCO_OBJECT(32), 
+		TEXCO_LAVECTOR(64), 
+		TEXCO_VIEW(128), 
+		TEXCO_STICKY(256), 
+		TEXCO_OSA(512), 
+		TEXCO_WINDOW(1024), 
+		NEED_UV(2048), 
+		TEXCO_TANGENT(4096),
+		// still stored in vertex->accum, 1 D
+		TEXCO_PARTICLE_OR_STRAND(8192), 
+		TEXCO_STRESS(16384), 
+		TEXCO_SPEED(32768);
 
-	// 2D texture mapping (projection)
-	public static final int		PROJECTION_FLAT				= 0;
-	public static final int		PROJECTION_CUBE				= 1;
-	public static final int		PROJECTION_TUBE				= 2;
-	public static final int		PROJECTION_SPHERE			= 3;
+		public final int	blenderValue;
 
-	/**
-	 * This method generates UV coordinates for the given mesh.
-	 * IMPORTANT! This method assumes that all geometries represent one node.
-	 * Each containing mesh with separate material.
-	 * So all meshes have the same reference to vertex table which stores all their vertices.
-	 * @param texco
-	 *        texture coordinates type
-	 * @param projection
-	 *        the projection type for 2D textures
-	 * @param textureDimension
-	 *        the dimension of the texture (only 2D and 3D)
-	 * @param coordinatesSwappingIndexes
-	 *        an array that tells how UV-coordinates need to be swapped
-	 * @param geometries
-	 *        a list of geometries the UV coordinates will be applied to
-	 * @return created UV-coordinates buffer
-	 */
-	public static VertexBuffer generateUVCoordinates(int texco, int projection, int textureDimension, int[] coordinatesSwappingIndexes, List<Geometry> geometries) {
-		if (textureDimension != 2 && textureDimension != 3) {
-			throw new IllegalStateException("Unsupported texture dimension: " + textureDimension);
+		private UVCoordinatesType(int blenderValue) {
+			this.blenderValue = blenderValue;
 		}
 
-		VertexBuffer result = new VertexBuffer(VertexBuffer.Type.TexCoord);
-		Mesh mesh = geometries.get(0).getMesh();
+		public static UVCoordinatesType valueOf(int blenderValue) {
+			for (UVCoordinatesType coordinatesType : UVCoordinatesType.values()) {
+				if (coordinatesType.blenderValue == blenderValue) {
+					return coordinatesType;
+				}
+			}
+			return null;
+		}
+	}
+
+	/**
+	 * Generates a UV coordinates for 2D texture.
+	 * 
+	 * @param mesh
+	 *            the mesh we generate UV's for
+	 * @param texco
+	 *            UV coordinates type
+	 * @param projection
+	 *            projection type
+	 * @param geometries
+	 *            the geometris the given mesh belongs to (required to compute
+	 *            bounding box)
+	 * @return UV coordinates for the given mesh
+	 */
+	public static List<Vector2f> generateUVCoordinatesFor2DTexture(Mesh mesh, UVCoordinatesType texco, UVProjectionType projection, List<Geometry> geometries) {
+		List<Vector2f> result = new ArrayList<Vector2f>();
+		BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometries);
+		float[] inputData = null;// positions, normals, reflection vectors, etc.
+
+		switch (texco) {
+			case TEXCO_ORCO:
+				inputData = BufferUtils.getFloatArray(mesh.getFloatBuffer(VertexBuffer.Type.Position));
+				break;
+			case TEXCO_UV:// this should be used if not defined by user explicitly
+				Vector2f[] data = new Vector2f[] { new Vector2f(0, 1), new Vector2f(0, 0), new Vector2f(1, 0) };
+				for (int i = 0; i < mesh.getVertexCount(); ++i) {
+					result.add(data[i % 3]);
+				}
+				break;
+			case TEXCO_NORM:
+				inputData = BufferUtils.getFloatArray(mesh.getFloatBuffer(VertexBuffer.Type.Normal));
+				break;
+			case TEXCO_REFL:
+			case TEXCO_GLOB:
+			case TEXCO_TANGENT:
+			case TEXCO_STRESS:
+			case TEXCO_LAVECTOR:
+			case TEXCO_OBJECT:
+			case TEXCO_OSA:
+			case TEXCO_PARTICLE_OR_STRAND:
+			case TEXCO_SPEED:
+			case TEXCO_STICKY:
+			case TEXCO_VIEW:
+			case TEXCO_WINDOW:
+				LOGGER.warning("Texture coordinates type not currently supported: " + texco);
+				break;
+			default:
+				throw new IllegalStateException("Unknown texture coordinates value: " + texco);
+		}
+
+		if (inputData != null) {// make projection calculations
+			switch (projection) {
+				case PROJECTION_FLAT:
+					inputData = UVProjectionGenerator.flatProjection(inputData, bb);
+					break;
+				case PROJECTION_CUBE:
+					inputData = UVProjectionGenerator.cubeProjection(inputData, bb);
+					break;
+				case PROJECTION_TUBE:
+					BoundingTube bt = UVCoordinatesGenerator.getBoundingTube(geometries);
+					inputData = UVProjectionGenerator.tubeProjection(inputData, bt);
+					break;
+				case PROJECTION_SPHERE:
+					BoundingSphere bs = UVCoordinatesGenerator.getBoundingSphere(geometries);
+					inputData = UVProjectionGenerator.sphereProjection(inputData, bs);
+					break;
+				default:
+					throw new IllegalStateException("Unknown projection type: " + projection);
+			}
+			for (int i = 0; i < inputData.length; i += 2) {
+				result.add(new Vector2f(inputData[i], inputData[i + 1]));
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Generates a UV coordinates for 3D texture.
+	 * 
+	 * @param mesh
+	 *            the mesh we generate UV's for
+	 * @param texco
+	 *            UV coordinates type
+	 * @param coordinatesSwappingIndexes
+	 *            coordinates swapping indexes
+	 * @param geometries
+	 *            the geometris the given mesh belongs to (required to compute
+	 *            bounding box)
+	 * @return UV coordinates for the given mesh
+	 */
+	public static List<Vector3f> generateUVCoordinatesFor3DTexture(Mesh mesh, UVCoordinatesType texco, int[] coordinatesSwappingIndexes, List<Geometry> geometries) {
+		List<Vector3f> result = new ArrayList<Vector3f>();
 		BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometries);
 		float[] inputData = null;// positions, normals, reflection vectors, etc.
 
@@ -110,17 +190,11 @@ public class UVCoordinatesGenerator {
 				inputData = BufferUtils.getFloatArray(mesh.getFloatBuffer(VertexBuffer.Type.Position));
 				break;
 			case TEXCO_UV:
-				FloatBuffer uvCoordinatesBuffer = BufferUtils.createFloatBuffer(mesh.getVertexCount() * textureDimension);
 				Vector2f[] data = new Vector2f[] { new Vector2f(0, 1), new Vector2f(0, 0), new Vector2f(1, 0) };
 				for (int i = 0; i < mesh.getVertexCount(); ++i) {
 					Vector2f uv = data[i % 3];
-					uvCoordinatesBuffer.put(uv.x);
-					uvCoordinatesBuffer.put(uv.y);
-					if(textureDimension == 3) {
-						uvCoordinatesBuffer.put(0);
-					}
+					result.add(new Vector3f(uv.x, uv.y, 0));
 				}
-				result.setupData(Usage.Static, textureDimension, Format.Float, uvCoordinatesBuffer);
 				break;
 			case TEXCO_NORM:
 				inputData = BufferUtils.getFloatArray(mesh.getFloatBuffer(VertexBuffer.Type.Normal));
@@ -144,62 +218,34 @@ public class UVCoordinatesGenerator {
 		}
 
 		if (inputData != null) {// make calculations
-			if (textureDimension == 2) {
-				switch (projection) {
-					case PROJECTION_FLAT:
-						inputData = UVProjectionGenerator.flatProjection(mesh, bb);
-						break;
-					case PROJECTION_CUBE:
-						inputData = UVProjectionGenerator.cubeProjection(mesh, bb);
-						break;
-					case PROJECTION_TUBE:
-						BoundingTube bt = UVCoordinatesGenerator.getBoundingTube(geometries);
-						inputData = UVProjectionGenerator.tubeProjection(mesh, bt);
-						break;
-					case PROJECTION_SPHERE:
-						BoundingSphere bs = UVCoordinatesGenerator.getBoundingSphere(geometries);
-						inputData = UVProjectionGenerator.sphereProjection(mesh, bs);
-						break;
-					default:
-						throw new IllegalStateException("Unknown projection type: " + projection);
-				}
-			} else {
-				Vector3f min = bb.getMin(null);
-				float[] uvCoordsResults = new float[4];//used for coordinates swapping
-				float[] ext = new float[] { bb.getXExtent() * 2, bb.getYExtent() * 2, bb.getZExtent() * 2 };
-
-				// now transform the coordinates so that they are in the range of <0; 1>
-				for (int i = 0; i < inputData.length; i += 3) {
-					uvCoordsResults[1] = (inputData[i] - min.x) / ext[0];
-					uvCoordsResults[2] = (inputData[i + 1] - min.y) / ext[1];
-					uvCoordsResults[3] = (inputData[i + 2] - min.z) / ext[2];
-					
-					
-					inputData[i] = uvCoordsResults[coordinatesSwappingIndexes[0]];
-					inputData[i + 1] = uvCoordsResults[coordinatesSwappingIndexes[1]];
-					inputData[i + 2] = uvCoordsResults[coordinatesSwappingIndexes[2]];
+			Vector3f min = bb.getMin(null);
+			float[] uvCoordsResults = new float[4];// used for coordinates swapping
+			float[] ext = new float[] { bb.getXExtent() * 2, bb.getYExtent() * 2, bb.getZExtent() * 2 };
+			for (int i = 0; i < ext.length; ++i) {
+				if (ext[i] == 0) {
+					ext[i] = 1;
 				}
 			}
-			result.setupData(Usage.Static, textureDimension, Format.Float, BufferUtils.createFloatBuffer(inputData));
+			// now transform the coordinates so that they are in the range of
+			// <0; 1>
+			for (int i = 0; i < inputData.length; i += 3) {
+				uvCoordsResults[1] = (inputData[i] - min.x) / ext[0];
+				uvCoordsResults[2] = (inputData[i + 1] - min.y) / ext[1];
+				uvCoordsResults[3] = (inputData[i + 2] - min.z) / ext[2];
+				result.add(new Vector3f(uvCoordsResults[coordinatesSwappingIndexes[0]], uvCoordsResults[coordinatesSwappingIndexes[1]], uvCoordsResults[coordinatesSwappingIndexes[2]]));
+			}
 		}
-
-		// each mesh will have the same coordinates
-		for (Geometry geometry : geometries) {
-			mesh = geometry.getMesh();
-			mesh.clearBuffer(VertexBuffer.Type.TexCoord);// in case there are coordinates already set
-			mesh.setBuffer(result);
-		}
-		
 		return result;
 	}
 
 	/**
 	 * This method returns the bounding box of the given geometries.
+	 * 
 	 * @param geometries
-	 *        the list of geometries
+	 *            the list of geometries
 	 * @return bounding box of the given geometries
 	 */
-	/* package */static BoundingBox getBoundingBox(List<Geometry> geometries) {
+	public static BoundingBox getBoundingBox(List<Geometry> geometries) {
 		BoundingBox result = null;
 		for (Geometry geometry : geometries) {
 			BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometry.getMesh());
@@ -214,8 +260,9 @@ public class UVCoordinatesGenerator {
 
 	/**
 	 * This method returns the bounding box of the given mesh.
+	 * 
 	 * @param mesh
-	 *        the mesh
+	 *            the mesh
 	 * @return bounding box of the given mesh
 	 */
 	/* package */static BoundingBox getBoundingBox(Mesh mesh) {
@@ -234,8 +281,9 @@ public class UVCoordinatesGenerator {
 
 	/**
 	 * This method returns the bounding sphere of the given geometries.
+	 * 
 	 * @param geometries
-	 *        the list of geometries
+	 *            the list of geometries
 	 * @return bounding sphere of the given geometries
 	 */
 	/* package */static BoundingSphere getBoundingSphere(List<Geometry> geometries) {
@@ -253,8 +301,9 @@ public class UVCoordinatesGenerator {
 
 	/**
 	 * This method returns the bounding sphere of the given mesh.
+	 * 
 	 * @param mesh
-	 *        the mesh
+	 *            the mesh
 	 * @return bounding sphere of the given mesh
 	 */
 	/* package */static BoundingSphere getBoundingSphere(Mesh mesh) {
@@ -274,8 +323,9 @@ public class UVCoordinatesGenerator {
 
 	/**
 	 * This method returns the bounding tube of the given mesh.
+	 * 
 	 * @param mesh
-	 *        the mesh
+	 *            the mesh
 	 * @return bounding tube of the given mesh
 	 */
 	/* package */static BoundingTube getBoundingTube(Mesh mesh) {
@@ -303,11 +353,12 @@ public class UVCoordinatesGenerator {
 		float radius = Math.max(maxx - minx, maxy - miny) * 0.5f;
 		return new BoundingTube(radius, maxz - minz, center);
 	}
-	
+
 	/**
 	 * This method returns the bounding tube of the given geometries.
+	 * 
 	 * @param geometries
-	 *        the list of geometries
+	 *            the list of geometries
 	 * @return bounding tube of the given geometries
 	 */
 	/* package */static BoundingTube getBoundingTube(List<Geometry> geometries) {
@@ -324,9 +375,11 @@ public class UVCoordinatesGenerator {
 	}
 
 	/**
-	 * A very simple bounding tube. Id holds only the basic data bout the bounding tube
-	 * and does not provide full functionality of a BoundingVolume.
-	 * Should be replaced with a bounding tube that extends the BoundingVolume if it is ever created.
+	 * A very simple bounding tube. Id holds only the basic data bout the
+	 * bounding tube and does not provide full functionality of a
+	 * BoundingVolume. Should be replaced with a bounding tube that extends the
+	 * BoundingVolume if it is ever created.
+	 * 
 	 * @author Marcin Roguski (Kaelthas)
 	 */
 	/* package */static class BoundingTube {
@@ -336,12 +389,13 @@ public class UVCoordinatesGenerator {
 
 		/**
 		 * Constructor creates the tube with the given params.
+		 * 
 		 * @param radius
-		 *        the radius of the tube
+		 *            the radius of the tube
 		 * @param height
-		 *        the height of the tube
+		 *            the height of the tube
 		 * @param center
-		 *        the center of the tube
+		 *            the center of the tube
 		 */
 		public BoundingTube(float radius, float height, Vector3f center) {
 			this.radius = radius;
@@ -351,8 +405,9 @@ public class UVCoordinatesGenerator {
 
 		/**
 		 * This method merges two bounding tubes.
+		 * 
 		 * @param boundingTube
-		 *        bounding tube to be merged woth the current one
+		 *            bounding tube to be merged woth the current one
 		 * @return new instance of bounding tube representing the tubes' merge
 		 */
 		public BoundingTube merge(BoundingTube boundingTube) {
@@ -375,14 +430,14 @@ public class UVCoordinatesGenerator {
 			Vector3f center = tube1.center.add(distance.mult(0.5f));
 			distance.z = 0;// projecting this vector on XY plane
 			float d = distance.length();
-			// d <= r1 - r2: tube2 is inside tube1 or touches tube1 from the inside
+			// d <= r1 - r2: tube2 is inside tube1 or touches tube1 from the
+			// inside
 			// d > r1 - r2: tube2 is outside or touches tube1 or crosses tube1
 			float radius = d <= r1 - r2 ? tube1.radius : (d + r1 + r2) * 0.5f;
 			return new BoundingTube(radius, height, center);
 		}
 
 		/**
-		 * This method returns the radius of the tube.
 		 * @return the radius of the tube
 		 */
 		public float getRadius() {
@@ -390,7 +445,6 @@ public class UVCoordinatesGenerator {
 		}
 
 		/**
-		 * This method returns the height of the tube.
 		 * @return the height of the tube
 		 */
 		public float getHeight() {
@@ -398,7 +452,6 @@ public class UVCoordinatesGenerator {
 		}
 
 		/**
-		 * This method returns the center of the tube.
 		 * @return the center of the tube
 		 */
 		public Vector3f getCenter() {

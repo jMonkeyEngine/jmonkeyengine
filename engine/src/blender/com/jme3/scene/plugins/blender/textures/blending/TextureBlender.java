@@ -1,7 +1,7 @@
 package com.jme3.scene.plugins.blender.textures.blending;
 
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.texture.Texture;
+import com.jme3.texture.Image;
 
 /**
  * An interface for texture blending classes (the classes that mix the texture
@@ -32,20 +32,22 @@ public interface TextureBlender {
 	 * color in 'map to' panel. As a result of this method a new texture is
 	 * created. The input texture is NOT.
 	 * 
-	 * @param materialColor
-	 *            the material diffuse color
-	 * @param texture
-	 *            the texture we use in blending
-	 * @param color
-	 *            the color defined for the texture
-	 * @param affectFactor
-	 *            the factor that the color affects the texture (value form 0.0
-	 *            to 1.0)
-	 * @param blendType
-	 *            the blending type
+	 * @param image
+	 *            the image we use in blending
+	 * @param baseImage
+	 *            the texture that is underneath the current texture (its pixels
+	 *            will be used instead of material color)
 	 * @param blenderContext
 	 *            the blender context
-	 * @return new texture that was created after the blending
+	 * @return new image that was created after the blending
 	 */
-	Texture blend(float[] materialColor, Texture texture, float[] color, float affectFactor, int blendType, boolean neg, BlenderContext blenderContext);
+	Image blend(Image image, Image baseImage, BlenderContext blenderContext);
+
+	/**
+	 * Copies blending data. Used for blending type format changing.
+	 * 
+	 * @param textureBlender
+	 *            the blend data that should be copied
+	 */
+	void copyBlendingData(TextureBlender textureBlender);
 }

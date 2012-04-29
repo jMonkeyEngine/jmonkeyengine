@@ -29,18 +29,13 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.blender.textures;
+package com.jme3.scene.plugins.blender.textures.generating;
 
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.texture.Image;
+import com.jme3.scene.plugins.blender.textures.TexturePixel;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture3D;
-import com.jme3.util.BufferUtils;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 /**
  * This class generates the 'magic' texture.
@@ -111,78 +106,62 @@ public class TextureGeneratorMagic extends TextureGenerator {
 		};
 	}
 	
+	protected int noisedepth;
+	protected float turbul;
+	protected float[] xyz = new float[3];
+	
 	/**
 	 * Constructor stores the given noise generator.
 	 * @param noiseGenerator
 	 *        the noise generator
 	 */
 	public TextureGeneratorMagic(NoiseGenerator noiseGenerator) {
-		super(noiseGenerator);
+		super(noiseGenerator, Format.RGBA8);
 	}
-
+	
 	@Override
-	protected Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext) {
-		float xyz[] = new float[3], turb;
-		int noisedepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
-		float turbul = ((Number) tex.getFieldValue("turbul")).floatValue() / 5.0f;
-		float[] texvec = new float[] { 0, 0, 0 };
-		TexturePixel texres = new TexturePixel();
-		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
-		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD;
-		float[][] colorBand = this.computeColorband(tex, blenderContext);
-		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
-		
-		byte[] data = new byte[width * height * depth * 4];
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i;
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j;
-				for (int k = -halfD; k < halfD; ++k) {
-					turb = turbul;
-					texvec[2] = dDelta * k;
-					xyz[0] = (float) Math.sin((texvec[0] + texvec[1] + texvec[2]) * 5.0f);
-					xyz[1] = (float) Math.cos((-texvec[0] + texvec[1] - texvec[2]) * 5.0f);
-					xyz[2] = -(float) Math.cos((-texvec[0] - texvec[1] + texvec[2]) * 5.0f);
+	public void readData(Structure tex, BlenderContext blenderContext) {
+		super.readData(tex, blenderContext);
+		noisedepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
+		turbul = ((Number) tex.getFieldValue("turbul")).floatValue() / 5.0f;
+	}
+	
+	@Override
+	public void getPixel(TexturePixel pixel, float x, float y, float z) {
+		float turb = turbul;
+		xyz[0] = (float) Math.sin((x + y + z) * 5.0f);
+		xyz[1] = (float) Math.cos((-x + y - z) * 5.0f);
+		xyz[2] = -(float) Math.cos((-x - y + z) * 5.0f);
 
-					if (colorBand != null) {
-						texres.intensity = FastMath.clamp(0.3333f * (xyz[0] + xyz[1] + xyz[2]), 0.0f, 1.0f);
-						int colorbandIndex = (int) (texres.intensity * 1000.0f);
-						texres.red = colorBand[colorbandIndex][0];
-						texres.green = colorBand[colorbandIndex][1];
-						texres.blue = colorBand[colorbandIndex][2];
-						texres.alpha = colorBand[colorbandIndex][3];
-					} else {
-						if (noisedepth > 0) {
-							xyz[0] *= turb;
-							xyz[1] *= turb;
-							xyz[2] *= turb;
-							for (int m=0;m<noisedepth;++m) {
-								noiseDepthFunctions[m].compute(xyz, turb);
-							}
-						}
-
-						if (turb != 0.0f) {
-							turb *= 2.0f;
-							xyz[0] /= turb;
-							xyz[1] /= turb;
-							xyz[2] /= turb;
-						}
-						texres.red = 0.5f - xyz[0];
-						texres.green = 0.5f - xyz[1];
-						texres.blue = 0.5f - xyz[2];
-						texres.alpha = 1.0f;
-					}
-					this.applyBrightnessAndContrast(bacd, texres);
-					data[index++] = (byte) (texres.red * 255.0f);
-					data[index++] = (byte) (texres.green * 255.0f);
-					data[index++] = (byte) (texres.blue * 255.0f);
-					data[index++] = (byte) (texres.alpha * 255.0f);
+		if (colorBand != null) {
+			pixel.intensity = FastMath.clamp(0.3333f * (xyz[0] + xyz[1] + xyz[2]), 0.0f, 1.0f);
+			int colorbandIndex = (int) (pixel.intensity * 1000.0f);
+			pixel.red = colorBand[colorbandIndex][0];
+			pixel.green = colorBand[colorbandIndex][1];
+			pixel.blue = colorBand[colorbandIndex][2];
+			pixel.alpha = colorBand[colorbandIndex][3];
+		} else {
+			if (noisedepth > 0) {
+				xyz[0] *= turb;
+				xyz[1] *= turb;
+				xyz[2] *= turb;
+				for (int m=0;m<noisedepth;++m) {
+					noiseDepthFunctions[m].compute(xyz, turb);
 				}
 			}
+
+			if (turb != 0.0f) {
+				turb *= 2.0f;
+				xyz[0] /= turb;
+				xyz[1] /= turb;
+				xyz[2] /= turb;
+			}
+			pixel.red = 0.5f - xyz[0];
+			pixel.green = 0.5f - xyz[1];
+			pixel.blue = 0.5f - xyz[2];
+			pixel.alpha = 1.0f;
 		}
-		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
-		dataArray.add(BufferUtils.createByteBuffer(data));
-		return new Texture3D(new Image(Format.RGBA8, width, height, depth, dataArray));
+		this.applyBrightnessAndContrast(bacd, pixel);
 	}
 	
 	private static interface NoiseDepthFunction {

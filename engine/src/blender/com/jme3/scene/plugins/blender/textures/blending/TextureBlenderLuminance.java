@@ -7,10 +7,10 @@ import java.util.logging.Logger;
 
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.textures.TexturePixel;
+import com.jme3.scene.plugins.blender.textures.io.PixelIOFactory;
+import com.jme3.scene.plugins.blender.textures.io.PixelInputOutput;
 import com.jme3.texture.Image;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture2D;
-import com.jme3.texture.Texture3D;
 import com.jme3.texture.Image.Format;
 import com.jme3.util.BufferUtils;
 
@@ -29,15 +29,28 @@ import com.jme3.util.BufferUtils;
 public class TextureBlenderLuminance extends AbstractTextureBlender {
 	private static final Logger	LOGGER	= Logger.getLogger(TextureBlenderLuminance.class.getName());
 
+	public TextureBlenderLuminance(int flag, boolean negateTexture, int blendType, float[] materialColor, float[] color, float blendFactor) {
+		super(flag, negateTexture, blendType, materialColor, color, blendFactor);
+	}
+	
 	@Override
-	public Texture blend(float[] materialColor, Texture texture, float[] color, float affectFactor, int blendType, boolean neg, BlenderContext blenderContext) {
-		Format format = texture.getImage().getFormat();
-		ByteBuffer data = texture.getImage().getData(0);
+	public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
+		Format format = image.getFormat();
+		ByteBuffer data = image.getData(0);
 		data.rewind();
 
-		int width = texture.getImage().getWidth();
-		int height = texture.getImage().getHeight();
-		int depth = texture.getImage().getDepth();
+		PixelInputOutput basePixelIO = null;
+		TexturePixel basePixel = null;
+		float[] materialColor = this.materialColor;
+		if(baseImage != null) {
+			basePixelIO = PixelIOFactory.getPixelIO(baseImage.getFormat());
+			materialColor = new float[this.materialColor.length];
+			basePixel = new TexturePixel();
+		}
+		
+		int width = image.getWidth();
+		int height = image.getHeight();
+		int depth = image.getDepth();
 		if (depth == 0) {
 			depth = 1;
 		}
@@ -45,21 +58,34 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
 
 		float[] resultPixel = new float[4];
 		float[] tinAndAlpha = new float[2];
-		int dataIndex = 0;
+		int dataIndex = 0, x = 0, y = 0;
 		while (data.hasRemaining()) {
-			this.getTinAndAlpha(data, format, neg, tinAndAlpha);
-			this.blendPixel(resultPixel, materialColor, color, tinAndAlpha[0], affectFactor, blendType, blenderContext);
+			//getting the proper material color if the base texture is applied
+			if(basePixelIO != null) {
+				basePixelIO.read(baseImage, basePixel, x, y);
+				basePixel.toRGBA(materialColor);
+			}
+			
+			this.getTinAndAlpha(data, format, negateTexture, tinAndAlpha);
+			this.blendPixel(resultPixel, materialColor, color, tinAndAlpha[0], blendFactor, blendType, blenderContext);
 			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
 			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
 			newData.put(dataIndex++, (byte) (tinAndAlpha[1] * 255.0f));
+			
+			++x;
+			if(x >= width) {
+				x = 0;
+				++y;
+			}
 		}
-		if (texture.getType() == Texture.Type.TwoDimensional) {
-			return new Texture2D(new Image(Format.RGBA8, width, height, newData));
-		} else {
+		
+		if(depth > 1) {
 			ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
 			dataArray.add(newData);
-			return new Texture3D(new Image(Format.RGBA8, width, height, depth, dataArray));
+			return new Image(Format.RGBA8, width, height, depth, dataArray);
+		} else {
+			return new Image(Format.RGBA8, width, height, newData);
 		}
 	}
 
@@ -77,7 +103,7 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
 	 */
 	protected void getTinAndAlpha(ByteBuffer data, Format imageFormat, boolean neg, float[] result) {
 		byte pixelValue = data.get();// at least one byte is always taken
-		float firstPixelValue = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+		float firstPixelValue = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - ~pixelValue / 255.0f;
 		switch (imageFormat) {
 			case Luminance8:
 				result[0] = neg ? 1.0f - firstPixelValue : firstPixelValue;
@@ -86,7 +112,7 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
 			case Luminance8Alpha8:
 				result[0] = neg ? 1.0f - firstPixelValue : firstPixelValue;
 				pixelValue = data.get();
-				result[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+				result[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - ~pixelValue / 255.0f;
 				break;
 			case Luminance16:
 			case Luminance16Alpha16:
@@ -96,7 +122,7 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
 				LOGGER.log(Level.WARNING, "Image type not yet supported for blending: {0}", imageFormat);
 				break;
 			default:
-				throw new IllegalStateException("Invalid image format type for DDS texture blender: " + imageFormat);
+				throw new IllegalStateException("Invalid image format type for Luminance texture blender: " + imageFormat);
 		}
 	}
 

@@ -31,12 +31,18 @@
  */
 package com.jme3.scene.plugins.blender.materials;
 
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.material.MatParam;
 import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState.BlendMode;
-import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
@@ -49,21 +55,12 @@ import com.jme3.shader.VarType;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.Type;
 import com.jme3.util.BufferUtils;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MaterialHelper extends AbstractBlenderHelper {
 	private static final Logger					LOGGER					= Logger.getLogger(MaterialHelper.class.getName());
 	protected static final float				DEFAULT_SHININESS		= 20.0f;
 
-	public static final String					TEXTURE_TYPE_3D			= "Texture";
 	public static final String					TEXTURE_TYPE_COLOR		= "ColorMap";
 	public static final String					TEXTURE_TYPE_DIFFUSE	= "DiffuseMap";
 	public static final String					TEXTURE_TYPE_NORMAL		= "NormalMap";
@@ -90,9 +87,6 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	public static enum SpecularShader {
 		COOKTORRENCE, PHONG, BLINN, TOON, WARDISO
 	}
-
-	/** Face cull mode. Should be excplicitly set before this helper is used. */
-	protected FaceCullMode	faceCullMode;
 
 	/**
 	 * This constructor parses the given blender version and stores the result. Some functionalities may differ in different blender
@@ -166,16 +160,6 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	}
 
 	/**
-	 * This method sets the face cull mode to be used with every loaded material.
-	 * 
-	 * @param faceCullMode
-	 *        the face cull mode
-	 */
-	public void setFaceCullMode(FaceCullMode faceCullMode) {
-		this.faceCullMode = faceCullMode;
-	}
-
-	/**
 	 * This method converts the material structure to jme Material.
 	 * @param structure
 	 *        structure with material data
@@ -185,105 +169,15 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * @throws BlenderFileException
 	 *         an exception is throw when problems with blend file occur
 	 */
-	public Material toMaterial(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
+	public MaterialContext toMaterialContext(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
 		LOGGER.log(Level.INFO, "Loading material.");
-		if (structure == null) {
-			return blenderContext.getDefaultMaterial();
-		}
-		Material result = (Material) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+		MaterialContext result = (MaterialContext) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if (result != null) {
 			return result;
 		}
 		
-		MaterialContext materialContext = new MaterialContext(structure, blenderContext);
-		LOGGER.log(Level.INFO, "Material's name: {0}", materialContext.name);
-		
-		if(materialContext.textures.size() > 1) {
-			LOGGER.log(Level.WARNING, "Attetion! Many textures found for material: {0}. Only the first of each supported mapping types will be used!", materialContext.name);
-		}
-		
-		// texture
-		Type colorTextureType = null;
-		Map<String, Texture> texturesMap = new HashMap<String, Texture>();
-		for(Entry<Number, Texture> textureEntry : materialContext.loadedTextures.entrySet()) {
-			int mapto = textureEntry.getKey().intValue();
-			Texture texture = textureEntry.getValue();
-			if ((mapto & MaterialContext.MTEX_COL) != 0) {
-				colorTextureType = texture.getType();
-				if (materialContext.shadeless) {
-					texturesMap.put(colorTextureType==Type.ThreeDimensional ? TEXTURE_TYPE_3D : TEXTURE_TYPE_COLOR, texture);
-				} else {
-					texturesMap.put(colorTextureType==Type.ThreeDimensional ? TEXTURE_TYPE_3D : TEXTURE_TYPE_DIFFUSE, texture);
-				}
-			}
-			if(texture.getType()==Type.TwoDimensional) {//so far only 2D textures can be mapped in other way than color
-				if ((mapto & MaterialContext.MTEX_NOR) != 0 && !materialContext.shadeless) {
-					//Structure mTex = materialContext.getMTex(texture);
-					//Texture normalMapTexture = textureHelper.convertToNormalMapTexture(texture, ((Number) mTex.getFieldValue("norfac")).floatValue());
-					//texturesMap.put(TEXTURE_TYPE_NORMAL, normalMapTexture);
-                                        texturesMap.put(TEXTURE_TYPE_NORMAL, texture);
-				}
-				if ((mapto & MaterialContext.MTEX_EMIT) != 0) {
-					texturesMap.put(TEXTURE_TYPE_GLOW, texture);
-				}
-				if ((mapto & MaterialContext.MTEX_SPEC) != 0 && !materialContext.shadeless) {
-					texturesMap.put(TEXTURE_TYPE_SPECULAR, texture);
-				}
-				if ((mapto & MaterialContext.MTEX_ALPHA) != 0 && !materialContext.shadeless) {
-					texturesMap.put(TEXTURE_TYPE_ALPHA, texture);
-				}
-			}
-		}
-		
-		//creating the material
-		if(colorTextureType==Type.ThreeDimensional) {
-			result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Texture3D/tex3D.j3md");
-		} else {
-			if (materialContext.shadeless) {
-				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
-                
-                if (!materialContext.transparent) {
-                    materialContext.diffuseColor.a = 1;
-                }
-                
-                result.setColor("Color", materialContext.diffuseColor);
-			} else {
-				result = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Light/Lighting.j3md");
-				result.setBoolean("UseMaterialColors", Boolean.TRUE);
-
-				// setting the colors
-				result.setBoolean("Minnaert", materialContext.diffuseShader == DiffuseShader.MINNAERT);
-				if (!materialContext.transparent) {
-					materialContext.diffuseColor.a = 1;
-				}
-				result.setColor("Diffuse", materialContext.diffuseColor);
-
-				result.setBoolean("WardIso", materialContext.specularShader == SpecularShader.WARDISO);
-				result.setColor("Specular", materialContext.specularColor);
-
-				result.setColor("Ambient", materialContext.ambientColor);
-				result.setFloat("Shininess", materialContext.shininess);
-			}
-			
-			if (materialContext.vertexColor) {
-				result.setBoolean(materialContext.shadeless ? "VertexColor" : "UseVertexColor", true);
-			}
-		}
-		
-		//applying textures
-		for(Entry<String, Texture> textureEntry : texturesMap.entrySet()) {
-			result.setTexture(textureEntry.getKey(), textureEntry.getValue());
-		}
-		
-		//applying other data
-		result.getAdditionalRenderState().setFaceCullMode(faceCullMode);
-		if (materialContext.transparent) {
-			result.setTransparent(true);
-			result.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
-		}
-		
-		result.setName(materialContext.getName());
-		blenderContext.setMaterialContext(result, materialContext);
+		result = new MaterialContext(structure, blenderContext);
+		LOGGER.log(Level.INFO, "Material's name: {0}", result.name);
 		blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, result);
 		return result;
 	}
@@ -392,9 +286,6 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 */
 	public boolean hasTexture(Material material) {
 		if (material != null) {
-			if (material.getTextureParam(TEXTURE_TYPE_3D) != null) {
-				return true;
-			}
 			if (material.getTextureParam(TEXTURE_TYPE_ALPHA) != null) {
 				return true;
 			}
@@ -445,21 +336,17 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 * @throws BlenderFileException
 	 *         this exception is thrown when the blend file structure is somehow invalid or corrupted
 	 */
-	public Material[] getMaterials(Structure structureWithMaterials, BlenderContext blenderContext) throws BlenderFileException {
+	public MaterialContext[] getMaterials(Structure structureWithMaterials, BlenderContext blenderContext) throws BlenderFileException {
 		Pointer ppMaterials = (Pointer) structureWithMaterials.getFieldValue("mat");
-		Material[] materials = null;
+		MaterialContext[] materials = null;
 		if (ppMaterials.isNotNull()) {
 			List<Structure> materialStructures = ppMaterials.fetchData(blenderContext.getInputStream());
 			if (materialStructures != null && materialStructures.size() > 0) {
 				MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
-				materials = new Material[materialStructures.size()];
+				materials = new MaterialContext[materialStructures.size()];
 				int i = 0;
 				for (Structure s : materialStructures) {
-					Material material = (Material) blenderContext.getLoadedFeature(s.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
-					if (material == null) {
-						material = materialHelper.toMaterial(s, blenderContext);
-					}
-					materials[i++] = material;
+					materials[i++] = materialHelper.toMaterialContext(s, blenderContext);
 				}
 			}
 		}

@@ -29,18 +29,13 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.blender.textures;
+package com.jme3.scene.plugins.blender.textures.generating;
 
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.texture.Image;
+import com.jme3.scene.plugins.blender.textures.TexturePixel;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture3D;
-import com.jme3.util.BufferUtils;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 /**
  * This class generates the 'blend' texture.
@@ -110,58 +105,33 @@ public final class TextureGeneratorBlend extends TextureGenerator {
 	 *        the noise generator
 	 */
 	public TextureGeneratorBlend(NoiseGenerator noiseGenerator) {
-		super(noiseGenerator);
-	}
-
-	@Override
-	protected Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext) {
-		int flag = ((Number) tex.getFieldValue("flag")).intValue();
-		int stype = ((Number) tex.getFieldValue("stype")).intValue();
-		TexturePixel texres = new TexturePixel();
-		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
-		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD, x, y;
-		float[][] colorBand = this.computeColorband(tex, blenderContext);
-		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
-		Format format = colorBand != null ? Format.RGBA8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 4 : 1;
-		boolean flipped = (flag & NoiseGenerator.TEX_FLIPBLEND) != 0;
-		
-		byte[] data = new byte[width * height * depth * bytesPerPixel];
-		for (int i = -halfW; i < halfW; ++i) {
-			x = wDelta * i;
-			for (int j = -halfH; j < halfH; ++j) {
-				if (flipped) {
-					y = x;
-					x = hDelta * j;
-				} else {
-					y = hDelta * j;
-				}
-				for (int k = -halfD; k < halfD; ++k) {
-					texres.intensity = INTENSITY_FUNCTION[stype].getIntensity(x, y, dDelta * k);
-					
-					if (colorBand != null) {
-						int colorbandIndex = (int) (texres.intensity * 1000.0f);
-						texres.red = colorBand[colorbandIndex][0];
-						texres.green = colorBand[colorbandIndex][1];
-						texres.blue = colorBand[colorbandIndex][2];
-						
-						this.applyBrightnessAndContrast(bacd, texres);
-						data[index++] = (byte) (texres.red * 255.0f);
-						data[index++] = (byte) (texres.green * 255.0f);
-						data[index++] = (byte) (texres.blue * 255.0f);
-						data[index++] = (byte) (colorBand[colorbandIndex][3] * 255.0f);
-					} else {
-						this.applyBrightnessAndContrast(texres, bacd.contrast, bacd.brightness);
-						data[index++] = (byte) (texres.intensity * 255.0f);
-					}
-				}
-			}
-		}
-		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
-		dataArray.add(BufferUtils.createByteBuffer(data));
-		return new Texture3D(new Image(format, width, height, depth, dataArray));
+		super(noiseGenerator, Format.Luminance8);
 	}
 	
+	protected int stype;
+	
+	@Override
+	public void readData(Structure tex, BlenderContext blenderContext) {
+		super.readData(tex, blenderContext);
+		stype = ((Number) tex.getFieldValue("stype")).intValue();
+	}
+	
+	@Override
+	public void getPixel(TexturePixel pixel, float x, float y, float z) {
+		pixel.intensity = INTENSITY_FUNCTION[stype].getIntensity(x, y, z);
+		
+		if (colorBand != null) {
+			int colorbandIndex = (int) (pixel.intensity * 1000.0f);
+			pixel.red = colorBand[colorbandIndex][0];
+			pixel.green = colorBand[colorbandIndex][1];
+			pixel.blue = colorBand[colorbandIndex][2];
+			
+			this.applyBrightnessAndContrast(bacd, pixel);
+		} else {
+			this.applyBrightnessAndContrast(pixel, bacd.contrast, bacd.brightness);
+		}
+	}
+
 	private static interface IntensityFunction {
 		float getIntensity(float x, float y, float z);
 	}

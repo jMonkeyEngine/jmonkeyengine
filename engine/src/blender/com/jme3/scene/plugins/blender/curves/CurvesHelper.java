@@ -11,6 +11,7 @@ import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.*;
+import com.jme3.scene.plugins.blender.materials.MaterialContext;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.meshes.MeshHelper;
 import com.jme3.scene.plugins.blender.objects.Properties;
@@ -88,12 +89,15 @@ public class CurvesHelper extends AbstractBlenderHelper {
 
         //getting materials
         MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
-        Material[] materials = materialHelper.getMaterials(curveStructure, blenderContext);
-        if (materials == null) {
-            materials = new Material[]{blenderContext.getDefaultMaterial().clone()};
-        }
-        for (Material material : materials) {
-            material.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off);
+        MaterialContext[] materialContexts = materialHelper.getMaterials(curveStructure, blenderContext);
+        Material defaultMaterial = null;
+        if (materialContexts != null) {
+        	for (MaterialContext materialContext : materialContexts) {
+	        	materialContext.setFaceCullMode(FaceCullMode.Off);
+	        }
+        } else {
+        	defaultMaterial = blenderContext.getDefaultMaterial().clone();
+        	defaultMaterial.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off);
         }
 
         //getting or creating bevel object
@@ -179,7 +183,11 @@ public class CurvesHelper extends AbstractBlenderHelper {
                 }
                 if (nurbGeoms != null) {//setting the name and assigning materials
                     for (Geometry nurbGeom : nurbGeoms) {
-                        nurbGeom.setMaterial(materials[nurbEntry.getKey().intValue()]);
+                    	if(materialContexts != null) {
+                    		materialContexts[nurbEntry.getKey().intValue()].applyMaterial(nurbGeom, curveStructure.getOldMemoryAddress(), false, null, blenderContext);
+                    	} else {
+                    		nurbGeom.setMaterial(defaultMaterial);
+                    	}
                         nurbGeom.setName(name);
                         result.add(nurbGeom);
                     }

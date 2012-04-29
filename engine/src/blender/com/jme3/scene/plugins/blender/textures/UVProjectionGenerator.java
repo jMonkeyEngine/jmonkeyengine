@@ -5,10 +5,7 @@ import com.jme3.bounding.BoundingSphere;
 import com.jme3.math.FastMath;
 import com.jme3.math.Triangle;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.plugins.blender.textures.UVCoordinatesGenerator.BoundingTube;
-import java.nio.FloatBuffer;
 
 /**
  * This class helps with projection calculations.
@@ -16,6 +13,32 @@ import java.nio.FloatBuffer;
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class UVProjectionGenerator {
+	/**
+	 * 2D texture mapping (projection)
+	 * @author Marcin Roguski (Kaelthas)
+	 */
+	public static enum UVProjectionType {
+		PROJECTION_FLAT(0),
+		PROJECTION_CUBE(1),
+		PROJECTION_TUBE(2),
+		PROJECTION_SPHERE(3);
+		
+		public final int blenderValue;
+		
+		private UVProjectionType(int blenderValue) {
+			this.blenderValue = blenderValue;
+		}
+		
+		public static UVProjectionType valueOf(int blenderValue) {
+			for(UVProjectionType projectionType : UVProjectionType.values()) {
+				if(projectionType.blenderValue == blenderValue) {
+					return projectionType;
+				}
+			}
+			return null;
+		}
+	}
+	
 	/**
 	 * Flat projection for 2D textures.
 	 * 
@@ -25,18 +48,14 @@ import java.nio.FloatBuffer;
 	 *            the bounding box for projecting
 	 * @return UV coordinates after the projection
 	 */
-	public static float[] flatProjection(Mesh mesh, BoundingBox bb) {
-		if (bb == null) {
-			bb = UVCoordinatesGenerator.getBoundingBox(mesh);
-		}
+	public static float[] flatProjection(float[] positions, BoundingBox bb) {
 		Vector3f min = bb.getMin(null);
-		float[] ext = new float[] { bb.getXExtent() * 2.0f, bb.getYExtent() * 2.0f };
-		FloatBuffer positions = mesh.getFloatBuffer(VertexBuffer.Type.Position);
-		float[] uvCoordinates = new float[positions.limit() / 3 * 2];
-		for (int i = 0, j = 0; i < positions.limit(); i += 3, j += 2) {
-			uvCoordinates[j] = (positions.get(i) - min.x) / ext[0];
-			uvCoordinates[j + 1] = (positions.get(i + 1) - min.y) / ext[1];
-			// skip the Z-coordinate
+		float[] ext = new float[] { bb.getXExtent() * 2.0f, bb.getZExtent() * 2.0f };
+		float[] uvCoordinates = new float[positions.length / 3 * 2];
+		for (int i = 0, j = 0; i < positions.length; i += 3, j += 2) {
+			uvCoordinates[j] = (positions[i] - min.x) / ext[0];
+			// skip the Y-coordinate
+			uvCoordinates[j + 1] = (positions[i + 2] - min.z) / ext[1];
 		}
 		return uvCoordinates;
 	}
@@ -44,13 +63,13 @@ import java.nio.FloatBuffer;
 	/**
 	 * Cube projection for 2D textures.
 	 * 
-	 * @param mesh
-	 *            mesh that is to be projected
+	 * @param positions
+	 *            points to be projected
 	 * @param bb
 	 *            the bounding box for projecting
 	 * @return UV coordinates after the projection
 	 */
-	public static float[] cubeProjection(Mesh mesh, BoundingBox bb) {
+	public static float[] cubeProjection(float[] positions, BoundingBox bb) {
 		Triangle triangle = new Triangle();
 		Vector3f x = new Vector3f(1, 0, 0);
 		Vector3f y = new Vector3f(0, 1, 0);
@@ -58,10 +77,12 @@ import java.nio.FloatBuffer;
 		Vector3f min = bb.getMin(null);
 		float[] ext = new float[] { bb.getXExtent() * 2.0f, bb.getYExtent() * 2.0f, bb.getZExtent() * 2.0f };
 
-		float[] uvCoordinates = new float[mesh.getTriangleCount() * 6];// 6 == 3 * 2
+		float[] uvCoordinates = new float[positions.length/3*2];
 		float borderAngle = (float) Math.sqrt(2.0f) / 2.0f;
-		for (int i = 0, pointIndex = 0; i < mesh.getTriangleCount(); ++i) {
-			mesh.getTriangle(i, triangle);
+		for (int i = 0, pointIndex = 0; i < positions.length; i+=9) {
+			triangle.set(0, positions[i], positions[i + 1], positions[i + 2]);
+			triangle.set(1, positions[i + 3], positions[i + 4], positions[i + 5]);
+			triangle.set(2, positions[i + 6], positions[i + 7], positions[i + 8]);
 			Vector3f n = triangle.getNormal();
 			float dotNX = Math.abs(n.dot(x));
 			float dorNY = Math.abs(n.dot(y));
@@ -107,23 +128,22 @@ import java.nio.FloatBuffer;
 	/**
 	 * Tube projection for 2D textures.
 	 * 
-	 * @param mesh
-	 *            mesh that is to be projected
+	 * @param positions
+	 *            points to be projected
 	 * @param bt
 	 *            the bounding tube for projecting
 	 * @return UV coordinates after the projection
 	 */
-	public static float[] tubeProjection(Mesh mesh, BoundingTube bt) {
-		FloatBuffer positions = mesh.getFloatBuffer(VertexBuffer.Type.Position);
-		float[] uvCoordinates = new float[positions.limit() / 3 * 2];
+	public static float[] tubeProjection(float[] positions, BoundingTube bt) {
+		float[] uvCoordinates = new float[positions.length / 3 * 2];
 		Vector3f v = new Vector3f();
-		float cx = bt.getCenter().x, cy = bt.getCenter().y;
-		Vector3f uBase = new Vector3f(0, -1, 0);
+		float cx = bt.getCenter().x, cz = bt.getCenter().z;
+		Vector3f uBase = new Vector3f(0, 0, -1);
 		
-		float vBase = bt.getCenter().z - bt.getHeight() * 0.5f;
-		for (int i = 0, j = 0; i < positions.limit(); i += 3, j += 2) {
+		float vBase = bt.getCenter().y - bt.getHeight() * 0.5f;
+		for (int i = 0, j = 0; i < positions.length; i += 3, j += 2) {
 			// calculating U
-			v.set(positions.get(i)-cx, positions.get(i + 1)-cy, 0);
+			v.set(positions[i]-cx, 0, positions[i + 2]-cz);
 			v.normalizeLocal();
 			float angle = v.angleBetween(uBase);// result between [0; PI]
 			if (v.x < 0) {// the angle should be greater than PI, we're on the other part of the image then
@@ -132,31 +152,32 @@ import java.nio.FloatBuffer;
 			uvCoordinates[j] = angle / FastMath.TWO_PI;
 
 			// calculating V
-			float z = positions.get(i + 2);
-			uvCoordinates[j + 1] = (z - vBase) / bt.getHeight();
+			float y = positions[i + 1];
+			uvCoordinates[j + 1] = (y - vBase) / bt.getHeight();
 		}
 		
 		//looking for splitted triangles
 		Triangle triangle = new Triangle();
-		for(int i=0;i<mesh.getTriangleCount();++i) {
-			mesh.getTriangle(i, triangle);
+		for (int i = 0; i < positions.length; i+=9) {
+			triangle.set(0, positions[i], positions[i + 1], positions[i + 2]);
+			triangle.set(1, positions[i + 3], positions[i + 4], positions[i + 5]);
+			triangle.set(2, positions[i + 6], positions[i + 7], positions[i + 8]);
 			float sgn1 = Math.signum(triangle.get1().x-cx);
 			float sgn2 = Math.signum(triangle.get2().x-cx);
 			float sgn3 = Math.signum(triangle.get3().x-cx);
 			float xSideFactor = sgn1 + sgn2 + sgn3;
-			float ySideFactor = Math.signum(triangle.get1().y-cy)+
-					   Math.signum(triangle.get2().y-cy)+
-					   Math.signum(triangle.get3().y-cy);
+			float ySideFactor = Math.signum(triangle.get1().z-cz)+
+					   Math.signum(triangle.get2().z-cz)+
+					   Math.signum(triangle.get3().z-cz);
 			if((xSideFactor>-3 || xSideFactor<3) && ySideFactor<0) {//the triangle is on the splitting plane
-				//indexOfUcoord = (indexOfTriangle*3 + indexOfTrianglesVertex)*2
 				if(sgn1==1.0f) {
-					uvCoordinates[i*3*2] += 1.0f;
+					uvCoordinates[i/3*2] += 1.0f;
 				}
 				if(sgn2==1.0f) {
-					uvCoordinates[(i*3+1)*2] += 1.0f;
+					uvCoordinates[(i/3+1)*2] += 1.0f;
 				}
 				if(sgn3==1.0f) {
-					uvCoordinates[(i*3+2)*2] += 1.0f;
+					uvCoordinates[(i/3+2)*2] += 1.0f;
 				}
 			}
 		}
@@ -166,23 +187,22 @@ import java.nio.FloatBuffer;
 	/**
 	 * Sphere projection for 2D textures.
 	 * 
-	 * @param mesh
-	 *            mesh that is to be projected
+	 * @param positions
+	 *            points to be projected
 	 * @param bb
 	 *            the bounding box for projecting
 	 * @return UV coordinates after the projection
 	 */
-	public static float[] sphereProjection(Mesh mesh, BoundingSphere bs) {
-		FloatBuffer positions = mesh.getFloatBuffer(VertexBuffer.Type.Position);
-		float[] uvCoordinates = new float[positions.limit() / 3 * 2];
+	public static float[] sphereProjection(float[] positions, BoundingSphere bs) {//TODO: rotate it to be vertical
+		float[] uvCoordinates = new float[positions.length / 3 * 2];
 		Vector3f v = new Vector3f();
 		float cx = bs.getCenter().x, cy = bs.getCenter().y, cz = bs.getCenter().z;
 		Vector3f uBase = new Vector3f(0, -1, 0);
 		Vector3f vBase = new Vector3f(0, 0, -1);
 
-		for (int i = 0, j = 0; i < positions.limit(); i += 3, j += 2) {
+		for (int i = 0, j = 0; i < positions.length; i += 3, j += 2) {
 			// calculating U
-			v.set(positions.get(i)-cx, positions.get(i + 1)-cy, 0);
+			v.set(positions[i]-cx, positions[i + 1] - cy, 0);
 			v.normalizeLocal();
 			float angle = v.angleBetween(uBase);// result between [0; PI]
 			if (v.x < 0) {// the angle should be greater than PI, we're on the other part of the image then
@@ -191,7 +211,7 @@ import java.nio.FloatBuffer;
 			uvCoordinates[j] = angle / FastMath.TWO_PI;
 
 			// calculating V
-			v.set(positions.get(i)-cx, positions.get(i + 1)-cy, positions.get(i + 2)-cz);
+			v.set(positions[i]-cx, positions[i + 1]-cy, positions[i + 2]-cz);
 			v.normalizeLocal();
 			angle = v.angleBetween(vBase);// result between [0; PI]
 			uvCoordinates[j+1] = angle / FastMath.PI;
@@ -199,8 +219,10 @@ import java.nio.FloatBuffer;
 		
 		//looking for splitted triangles
 		Triangle triangle = new Triangle();
-		for(int i=0;i<mesh.getTriangleCount();++i) {
-			mesh.getTriangle(i, triangle);
+		for (int i = 0; i < positions.length; i+=9) {
+			triangle.set(0, positions[i], positions[i + 1], positions[i + 2]);
+			triangle.set(1, positions[i + 3], positions[i + 4], positions[i + 5]);
+			triangle.set(2, positions[i + 6], positions[i + 7], positions[i + 8]);
 			float sgn1 = Math.signum(triangle.get1().x-cx);
 			float sgn2 = Math.signum(triangle.get2().x-cx);
 			float sgn3 = Math.signum(triangle.get3().x-cx);
@@ -209,15 +231,14 @@ import java.nio.FloatBuffer;
 					   Math.signum(triangle.get2().y-cy)+
 					   Math.signum(triangle.get3().y-cy);
 			if((xSideFactor>-3 || xSideFactor<3) && ySideFactor<0) {//the triangle is on the splitting plane
-				//indexOfUcoord = (indexOfTriangle*3 + indexOfTrianglesVertex)*2
 				if(sgn1==1.0f) {
-					uvCoordinates[i*3*2] += 1.0f;
+					uvCoordinates[i/3*2] += 1.0f;
 				}
 				if(sgn2==1.0f) {
-					uvCoordinates[(i*3+1)*2] += 1.0f;
+					uvCoordinates[(i/3+1)*2] += 1.0f;
 				}
 				if(sgn3==1.0f) {
-					uvCoordinates[(i*3+2)*2] += 1.0f;
+					uvCoordinates[(i/3+2)*2] += 1.0f;
 				}
 			}
 		}

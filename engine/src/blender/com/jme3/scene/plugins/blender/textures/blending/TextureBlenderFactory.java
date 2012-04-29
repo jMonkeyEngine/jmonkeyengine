@@ -35,7 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.texture.Texture;
+import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 
 /**
@@ -53,7 +53,7 @@ public class TextureBlenderFactory {
 	 *            the texture format
 	 * @return texture blending class
 	 */
-	public static TextureBlender createTextureBlender(Format format) {
+	public static TextureBlender createTextureBlender(Format format, int flag, boolean negate, int blendType, float[] materialColor, float[] color, float colfac) {
 		switch (format) {
 			case Luminance8:
 			case Luminance8Alpha8:
@@ -62,7 +62,7 @@ public class TextureBlenderFactory {
 			case Luminance16F:
 			case Luminance16FAlpha16F:
 			case Luminance32F:
-				return new TextureBlenderLuminance();
+				return new TextureBlenderLuminance(flag, negate, blendType, materialColor, color, colfac);
 			case RGBA8:
 			case ABGR8:
 			case BGR8:
@@ -80,12 +80,12 @@ public class TextureBlenderFactory {
 			case RGBA16:
 			case RGBA16F:
 			case RGBA32F:
-				return new TextureBlenderAWT();
+				return new TextureBlenderAWT(flag, negate, blendType, materialColor, color, colfac);
 			case DXT1:
 			case DXT1A:
 			case DXT3:
 			case DXT5:
-				return new TextureBlenderDDS();
+				return new TextureBlenderDDS(flag, negate, blendType, materialColor, color, colfac);
 			case Alpha16:
 			case Alpha8:
 			case ARGB4444:
@@ -101,12 +101,31 @@ public class TextureBlenderFactory {
 				LOGGER.log(Level.WARNING, "Image type not yet supported for blending: {0}. Returning a blender that does not change the texture.", format);
 				return new TextureBlender() {
 					@Override
-					public Texture blend(float[] materialColor, Texture texture, float[] color, float affectFactor, int blendType, boolean neg, BlenderContext blenderContext) {
-						return texture;
+					public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
+						return image;
+					}
+
+					@Override
+					public void copyBlendingData(TextureBlender textureBlender) {
 					}
 				};
 			default:
 				throw new IllegalStateException("Unknown image format type: " + format);
 		}
+	}
+
+	/**
+	 * This method changes the image format in the texture blender.
+	 * 
+	 * @param format
+	 *            the new image format
+	 * @param textureBlender
+	 *            the texture blender that will be altered
+	 * @return altered texture blender
+	 */
+	public static TextureBlender alterTextureType(Format format, TextureBlender textureBlender) {
+		TextureBlender result = TextureBlenderFactory.createTextureBlender(format, 0, false, 0, null, null, 0);
+		result.copyBlendingData(textureBlender);
+		return result;
 	}
 }

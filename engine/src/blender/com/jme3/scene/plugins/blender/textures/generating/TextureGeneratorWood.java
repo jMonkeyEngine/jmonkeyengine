@@ -28,18 +28,13 @@
  * ***** END GPL LICENSE BLOCK *****
  *
  */
-package com.jme3.scene.plugins.blender.textures;
+package com.jme3.scene.plugins.blender.textures.generating;
 
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.texture.Image;
+import com.jme3.scene.plugins.blender.textures.TexturePixel;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture3D;
-import com.jme3.util.BufferUtils;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 /**
  * This class generates the 'wood' texture.
@@ -61,62 +56,37 @@ public class TextureGeneratorWood extends TextureGenerator {
     protected static final int TEX_NOISESOFT = 0;
     protected static final int TEX_NOISEPERL = 1;
     
+    protected WoodIntensityData woodIntensityData;
+    
 	/**
 	 * Constructor stores the given noise generator.
 	 * @param noiseGenerator the noise generator
 	 */
 	public TextureGeneratorWood(NoiseGenerator noiseGenerator) {
-		super(noiseGenerator);
+		super(noiseGenerator, Format.Luminance8);
 	}
-
+	
 	@Override
-	protected Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext) {
-		float[] texvec = new float[] { 0, 0, 0 };
-		TexturePixel texres = new TexturePixel();
-		int halfW = width >> 1;
-		int halfH = height >> 1;
-		int halfD = depth >> 1;
-		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD;
+	public void readData(Structure tex, BlenderContext blenderContext) {
+		super.readData(tex, blenderContext);
+		woodIntensityData = new WoodIntensityData(tex);
+	}
+	
+	@Override
+	public void getPixel(TexturePixel pixel, float x, float y, float z) {
+		pixel.intensity = this.woodIntensity(woodIntensityData, x, y, z);
 		
-		float[][] colorBand = this.computeColorband(tex, blenderContext);
-		Format format = colorBand != null ? Format.RGBA8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 4 : 1;
-		WoodIntensityData woodIntensityData = new WoodIntensityData(tex);
-		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
-		
-		int index = 0;
-		byte[] data = new byte[width * height * depth * bytesPerPixel];
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i;
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j;
-				for(int k = -halfD; k < halfD; ++k) {
-					texvec[2] = dDelta * k;
-					texres.intensity = this.woodIntensity(woodIntensityData, texvec[0], texvec[1], texvec[2]);
-					
-					if (colorBand != null) {
-						int colorbandIndex = (int) (texres.intensity * 1000.0f);
-						texres.red = colorBand[colorbandIndex][0];
-						texres.green = colorBand[colorbandIndex][1];
-						texres.blue = colorBand[colorbandIndex][2];
-						
-						this.applyBrightnessAndContrast(bacd, texres);
-						
-						data[index++] = (byte) (texres.red * 255.0f);
-						data[index++] = (byte) (texres.green * 255.0f);
-						data[index++] = (byte) (texres.blue * 255.0f);
-						data[index++] = (byte) (colorBand[colorbandIndex][3] * 255.0f);
-					} else {
-						this.applyBrightnessAndContrast(texres, bacd.contrast, bacd.brightness);
-						data[index++] = (byte) (texres.intensity * 255.0f);
-					}
-				}
-			}
+		if (colorBand != null) {
+			int colorbandIndex = (int) (pixel.intensity * 1000.0f);
+			pixel.red = colorBand[colorbandIndex][0];
+			pixel.green = colorBand[colorbandIndex][1];
+			pixel.blue = colorBand[colorbandIndex][2];
+			
+			this.applyBrightnessAndContrast(bacd, pixel);
+			pixel.alpha = colorBand[colorbandIndex][3];
+		} else {
+			this.applyBrightnessAndContrast(pixel, bacd.contrast, bacd.brightness);
 		}
-		
-		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
-		dataArray.add(BufferUtils.createByteBuffer(data));
-		return new Texture3D(new Image(format, width, height, depth, dataArray));
 	}
 	
     protected static WaveForm[] waveformFunctions = new WaveForm[3];

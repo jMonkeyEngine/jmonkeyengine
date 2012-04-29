@@ -29,88 +29,65 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.blender.textures;
+package com.jme3.scene.plugins.blender.textures.generating;
 
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.textures.NoiseGenerator.MusgraveFunction;
-import com.jme3.texture.Image;
+import com.jme3.scene.plugins.blender.textures.TexturePixel;
+import com.jme3.scene.plugins.blender.textures.generating.NoiseGenerator.MusgraveFunction;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture3D;
-import com.jme3.util.BufferUtils;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 /**
  * This class generates the 'musgrave' texture.
  * @author Marcin Roguski (Kaelthas)
  */
 public class TextureGeneratorMusgrave extends TextureGenerator {
-
+	protected MusgraveData musgraveData;
+	protected MusgraveFunction musgraveFunction;
+	protected int stype;
+	protected float noisesize;
+	
 	/**
 	 * Constructor stores the given noise generator.
 	 * @param noiseGenerator
 	 *        the noise generator
 	 */
 	public TextureGeneratorMusgrave(NoiseGenerator noiseGenerator) {
-		super(noiseGenerator);
+		super(noiseGenerator, Format.Luminance8);
+	}
+	
+	@Override
+	public void readData(Structure tex, BlenderContext blenderContext) {
+		super.readData(tex, blenderContext);
+		musgraveData = new MusgraveData(tex);
+		stype = ((Number) tex.getFieldValue("stype")).intValue();
+		noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
+		musgraveFunction = NoiseGenerator.musgraveFunctions.get(Integer.valueOf(musgraveData.stype));
+		if(musgraveFunction==null) {
+			throw new IllegalStateException("Unknown type of musgrave texture: " + stype);
+		}
 	}
 
 	@Override
-	protected Texture generate(Structure tex, int width, int height, int depth, BlenderContext blenderContext) {
-		int stype = ((Number) tex.getFieldValue("stype")).intValue();
-		float noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
-		TexturePixel texres = new TexturePixel();
-		float[] texvec = new float[] { 0, 0, 0 };
-		int halfW = width >> 1, halfH = height >> 1, halfD = depth >> 1, index = 0;
-		float wDelta = 1.0f / halfW, hDelta = 1.0f / halfH, dDelta = 1.0f / halfD;
-		float[][] colorBand = this.computeColorband(tex, blenderContext);
-		Format format = colorBand != null ? Format.RGBA8 : Format.Luminance8;
-		int bytesPerPixel = colorBand != null ? 4 : 1;
-		MusgraveData musgraveData = new MusgraveData(tex);
-		MusgraveFunction musgraveFunction;
-		BrightnessAndContrastData bacd = new BrightnessAndContrastData(tex);
-		
-		byte[] data = new byte[width * height * depth * bytesPerPixel];
-		for (int i = -halfW; i < halfW; ++i) {
-			texvec[0] = wDelta * i / noisesize;
-			for (int j = -halfH; j < halfH; ++j) {
-				texvec[1] = hDelta * j / noisesize;
-				for (int k = -halfD; k < halfD; ++k) {
-					texvec[2] = dDelta * k / noisesize;
-					musgraveFunction = NoiseGenerator.musgraveFunctions.get(Integer.valueOf(musgraveData.stype));
-					if(musgraveFunction==null) {
-						throw new IllegalStateException("Unknown type of musgrave texture: " + stype);
-					}
-					texres.intensity = musgraveData.outscale * musgraveFunction.execute(musgraveData, texvec[0], texvec[1], texvec[2]);
-					if(texres.intensity>1) {
-						texres.intensity = 1.0f;
-					} else if(texres.intensity < 0) {
-						texres.intensity = 0.0f;
-					}
-					
-					if (colorBand != null) {
-						int colorbandIndex = (int) (texres.intensity * 1000.0f);
-						texres.red = colorBand[colorbandIndex][0];
-						texres.green = colorBand[colorbandIndex][1];
-						texres.blue = colorBand[colorbandIndex][2];
-						
-						this.applyBrightnessAndContrast(texres, bacd.contrast, bacd.brightness);
-						data[index++] = (byte) (texres.red * 255.0f);
-						data[index++] = (byte) (texres.green * 255.0f);
-						data[index++] = (byte) (texres.blue * 255.0f);
-						data[index++] = (byte) (colorBand[colorbandIndex][3] * 255.0f);
-					} else {
-						this.applyBrightnessAndContrast(bacd, texres);
-						data[index++] = (byte) (texres.intensity * 255.0f);
-					}
-				}
-			}
+	public void getPixel(TexturePixel pixel, float x, float y, float z) {
+		pixel.intensity = musgraveData.outscale * musgraveFunction.execute(musgraveData, x, y, z);
+		if(pixel.intensity>1) {
+			pixel.intensity = 1.0f;
+		} else if(pixel.intensity < 0) {
+			pixel.intensity = 0.0f;
 		}
-		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
-		dataArray.add(BufferUtils.createByteBuffer(data));
-		return new Texture3D(new Image(format, width, height, depth, dataArray));
+		
+		if (colorBand != null) {
+			int colorbandIndex = (int) (pixel.intensity * 1000.0f);
+			pixel.red = colorBand[colorbandIndex][0];
+			pixel.green = colorBand[colorbandIndex][1];
+			pixel.blue = colorBand[colorbandIndex][2];
+			
+			this.applyBrightnessAndContrast(pixel, bacd.contrast, bacd.brightness);
+			pixel.alpha = colorBand[colorbandIndex][3];
+		} else {
+			this.applyBrightnessAndContrast(bacd, pixel);
+		}
 	}
 	
     protected static class MusgraveData {

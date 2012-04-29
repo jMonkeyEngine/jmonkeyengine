@@ -31,12 +31,15 @@
  */
 package com.jme3.scene.plugins.blender;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.WorldData;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.Light;
-import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
@@ -47,12 +50,8 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.lights.LightHelper;
-import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.meshes.MeshHelper;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class converts blender file blocks into jMonkeyEngine data structures.
@@ -150,19 +149,19 @@ import java.util.logging.Logger;
 		return null;
 	}
 
-	/**
-	 * This method converts the given structure to a material.
-	 * @param structure
-	 *        structure of a material
-	 * @return material's node
-	 */
-	public Material toMaterial(Structure structure) throws BlenderFileException {
-		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
-		if (materialHelper.shouldBeLoaded(structure, blenderContext)) {
-			return materialHelper.toMaterial(structure, blenderContext);
-		}
-		return null;
-	}
+//	/**
+//	 * This method converts the given structure to a material.
+//	 * @param structure
+//	 *        structure of a material
+//	 * @return material's node
+//	 */
+//	public Material toMaterial(Structure structure) throws BlenderFileException {
+//		MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
+//		if (materialHelper.shouldBeLoaded(structure, blenderContext)) {
+//			return materialHelper.toMaterial(structure, blenderContext);
+//		}
+//		return null;
+//	}
 
 	/**
 	 * This method returns the data read from the WORLD file block. The block contains data that can be stored as

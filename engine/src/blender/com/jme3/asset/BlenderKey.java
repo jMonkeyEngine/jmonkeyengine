@@ -31,6 +31,13 @@
  */
 package com.jme3.asset;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+
+import org.lwjgl.opengl.GL11;
+
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
@@ -49,10 +56,6 @@ import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.ogre.AnimData;
 import com.jme3.texture.Texture;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
 
 /**
  * Blender key. Contains path of the blender file and its loading properties.
@@ -66,12 +69,6 @@ public class BlenderKey extends ModelKey {
 	 * between the frames.
 	 */
 	protected int								fps						= DEFAULT_FPS;
-	/** Width of generated textures (in pixels). */
-	protected int								generatedTextureWidth	= 60;
-	/** Height of generated textures (in pixels). */
-	protected int								generatedTextureHeight	= 60;
-	/** Depth of generated textures (in pixels). */
-	protected int								generatedTextureDepth	= 60;
 	/**
 	 * This variable is a bitwise flag of FeatureToLoad interface values; By default everything is being loaded.
 	 */
@@ -82,6 +79,8 @@ public class BlenderKey extends ModelKey {
 	protected String							assetRootPath;
 	/** This variable indicate if Y axis is UP axis. If not then Z is up. By default set to true. */
 	protected boolean							fixUpAxis				= true;
+	/** Generated textures resolution (PPU - Pixels Per Unit). */
+	protected int								generatedTexturePPU		= 128;
 	/**
 	 * The name of world settings that the importer will use. If not set or specified name does not occur in the file
 	 * then the first world settings in the file will be used.
@@ -101,6 +100,8 @@ public class BlenderKey extends ModelKey {
 	protected int								layersToLoad			= -1;
 	/** A variable that toggles the object custom properties loading. */
 	protected boolean							loadObjectProperties	= true;
+	/** Maximum texture size. Might be dependant on the graphic card.*/
+	protected int								maxTextureSize = -1;
 	
 	/**
 	 * Constructor used by serialization mechanisms.
@@ -131,57 +132,6 @@ public class BlenderKey extends ModelKey {
 	 */
 	public void setFps(int fps) {
 		this.fps = fps;
-	}
-
-	/**
-	 * This method sets the width of generated texture (in pixels). By default the value is 140 px.
-	 * @param generatedTextureWidth
-	 *        the width of generated texture
-	 */
-	public void setGeneratedTextureWidth(int generatedTextureWidth) {
-		this.generatedTextureWidth = generatedTextureWidth;
-	}
-
-	/**
-	 * This method returns the width of generated texture (in pixels). By default the value is 140 px.
-	 * @return the width of generated texture
-	 */
-	public int getGeneratedTextureWidth() {
-		return generatedTextureWidth;
-	}
-
-	/**
-	 * This method sets the height of generated texture (in pixels). By default the value is 20 px.
-	 * @param generatedTextureHeight
-	 *        the height of generated texture
-	 */
-	public void setGeneratedTextureHeight(int generatedTextureHeight) {
-		this.generatedTextureHeight = generatedTextureHeight;
-	}
-
-	/**
-	 * This method returns the height of generated texture (in pixels). By default the value is 20 px.
-	 * @return the height of generated texture
-	 */
-	public int getGeneratedTextureHeight() {
-		return generatedTextureHeight;
-	}
-	
-	/**
-	 * This method sets the depth of generated texture (in pixels). By default the value is 20 px.
-	 * @param generatedTextureDepth
-	 *        the depth of generated texture
-	 */
-	public void setGeneratedTextureDepth(int generatedTextureDepth) {
-		this.generatedTextureDepth = generatedTextureDepth;
-	}
-
-	/**
-	 * This method returns the depth of generated texture (in pixels). By default the value is 20 px.
-	 * @return the depth of generated texture
-	 */
-	public int getGeneratedTextureDepth() {
-		return generatedTextureDepth;
 	}
 
 	/**
@@ -232,6 +182,24 @@ public class BlenderKey extends ModelKey {
 	 */
 	public boolean isLoadObjectProperties() {
 		return loadObjectProperties;
+	}
+	
+	/**
+	 * @return maximum texture size (width/height)
+	 */
+	public int getMaxTextureSize() {
+		if(maxTextureSize <= 0) {
+			maxTextureSize = GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE);
+		}
+		return maxTextureSize;
+	}
+	
+	/**
+	 * This method sets the maximum texture size.
+	 * @param maxTextureSize the maximum texture size
+	 */
+	public void setMaxTextureSize(int maxTextureSize) {
+		this.maxTextureSize = maxTextureSize;
 	}
 	
 	/**
@@ -330,6 +298,21 @@ public class BlenderKey extends ModelKey {
 	}
 
 	/**
+	 * This method sets the generated textures resolution.
+	 * @param generatedTexturePPU the generated textures resolution
+	 */
+	public void setGeneratedTexturePPU(int generatedTexturePPU) {
+		this.generatedTexturePPU = generatedTexturePPU;
+	}
+	
+	/**
+	 * @return the generated textures resolution
+	 */
+	public int getGeneratedTexturePPU() {
+		return generatedTexturePPU;
+	}
+	
+	/**
 	 * This mehtod sets the name of the WORLD data block taht should be used during file loading. By default the name is
 	 * not set. If no name is set or the given name does not occur in the file - the first WORLD data block will be used
 	 * during loading (assumin any exists in the file).
@@ -370,13 +353,11 @@ public class BlenderKey extends ModelKey {
 		super.write(e);
 		OutputCapsule oc = e.getCapsule(this);
 		oc.write(fps, "fps", DEFAULT_FPS);
-		oc.write(generatedTextureWidth, "generated-texture-width", 20);
-		oc.write(generatedTextureHeight, "generated-texture-height", 20);
-		oc.write(generatedTextureDepth, "generated-texture-depth", 20);
 		oc.write(featuresToLoad, "features-to-load", FeaturesToLoad.ALL);
 		oc.write(loadUnlinkedAssets, "load-unlinked-assets", false);
 		oc.write(assetRootPath, "asset-root-path", null);
 		oc.write(fixUpAxis, "fix-up-axis", true);
+		oc.write(generatedTexturePPU, "generated-texture-ppu", 128);
 		oc.write(usedWorld, "used-world", null);
 		oc.write(defaultMaterial, "default-material", null);
 		oc.write(faceCullMode, "face-cull-mode", FaceCullMode.Off);
@@ -388,13 +369,11 @@ public class BlenderKey extends ModelKey {
 		super.read(e);
 		InputCapsule ic = e.getCapsule(this);
 		fps = ic.readInt("fps", DEFAULT_FPS);
-		generatedTextureWidth = ic.readInt("generated-texture-width", 20);
-		generatedTextureHeight = ic.readInt("generated-texture-height", 20);
-		generatedTextureDepth = ic.readInt("generated-texture-depth", 20);
 		featuresToLoad = ic.readInt("features-to-load", FeaturesToLoad.ALL);
 		loadUnlinkedAssets = ic.readBoolean("load-unlinked-assets", false);
 		assetRootPath = ic.readString("asset-root-path", null);
 		fixUpAxis = ic.readBoolean("fix-up-axis", true);
+		generatedTexturePPU = ic.readInt("generated-texture-ppu", 128);
 		usedWorld = ic.readString("used-world", null);
 		defaultMaterial = (Material) ic.readSavable("default-material", null);
 		faceCullMode = ic.readEnum("face-cull-mode", FaceCullMode.class, FaceCullMode.Off);
@@ -411,9 +390,7 @@ public class BlenderKey extends ModelKey {
 		result = prime * result + featuresToLoad;
 		result = prime * result + (fixUpAxis ? 1231 : 1237);
 		result = prime * result + fps;
-		result = prime * result + generatedTextureDepth;
-		result = prime * result + generatedTextureHeight;
-		result = prime * result + generatedTextureWidth;
+		result = prime * result + generatedTexturePPU;
 		result = prime * result + layersToLoad;
 		result = prime * result + (loadUnlinkedAssets ? 1231 : 1237);
 		result = prime * result + (usedWorld == null ? 0 : usedWorld.hashCode());
@@ -458,13 +435,7 @@ public class BlenderKey extends ModelKey {
 		if (fps != other.fps) {
 			return false;
 		}
-		if (generatedTextureDepth != other.generatedTextureDepth) {
-			return false;
-		}
-		if (generatedTextureHeight != other.generatedTextureHeight) {
-			return false;
-		}
-		if (generatedTextureWidth != other.generatedTextureWidth) {
+		if (generatedTexturePPU != other.generatedTexturePPU) {
 			return false;
 		}
 		if (layersToLoad != other.layersToLoad) {
@@ -482,6 +453,8 @@ public class BlenderKey extends ModelKey {
 		}
 		return true;
 	}
+
+
 
 	/**
 	 * This interface describes the features of the scene that are to be loaded.

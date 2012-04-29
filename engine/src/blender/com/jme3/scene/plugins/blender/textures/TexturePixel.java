@@ -2,10 +2,6 @@ package com.jme3.scene.plugins.blender.textures;
 
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.texture.Image.Format;
-import java.nio.ByteBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The class that stores the pixel values of a texture.
@@ -13,8 +9,6 @@ import java.util.logging.Logger;
  * @author Marcin Roguski (Kaelthas)
  */
 public class TexturePixel implements Cloneable {
-	private static final Logger	LOGGER	= Logger.getLogger(TexturePixel.class.getName());
-
 	/** The pixel data. */
 	public float				intensity, red, green, blue, alpha;
 
@@ -65,6 +59,35 @@ public class TexturePixel implements Cloneable {
 	}
 
 	/**
+	 * Copies the values from the given values.
+	 * 
+	 * @param a
+	 *            the alpha value
+	 * @param r
+	 *            the red value
+	 * @param g
+	 *            the green value
+	 * @param b
+	 *            the blue value
+	 */
+	public void fromARGB8(byte a, byte r, byte g, byte b) {
+		this.alpha = a >= 0 ? a / 255.0f : 1.0f - ~a / 255.0f;
+		this.red = r >= 0 ? r / 255.0f : 1.0f - ~r / 255.0f;
+		this.green = g >= 0 ? g / 255.0f : 1.0f - ~g / 255.0f;
+		this.blue = b >= 0 ? b / 255.0f : 1.0f - ~b / 255.0f;
+	}
+	
+	/**
+	 * Copies the intensity from the given value.
+	 * 
+	 * @param intensity
+	 *            the intensity value
+	 */
+	public void fromIntensity(byte intensity) {
+		this.intensity = intensity >= 0 ? intensity / 255.0f : 1.0f - ~intensity / 255.0f;
+	}
+	
+	/**
 	 * Copies the values from the given integer that stores the ARGB8 data.
 	 * 
 	 * @param argb8
@@ -72,81 +95,15 @@ public class TexturePixel implements Cloneable {
 	 */
 	public void fromARGB8(int argb8) {
 		byte pixelValue = (byte) ((argb8 & 0xFF000000) >> 24);
-		this.alpha = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+		this.alpha = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - ~pixelValue / 255.0f;
 		pixelValue = (byte) ((argb8 & 0xFF0000) >> 16);
-		this.red = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+		this.red = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - ~pixelValue / 255.0f;
 		pixelValue = (byte) ((argb8 & 0xFF00) >> 8);
-		this.green = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+		this.green = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - ~pixelValue / 255.0f;
 		pixelValue = (byte) (argb8 & 0xFF);
-		this.blue = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
+		this.blue = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - ~pixelValue / 255.0f;
 	}
-
-	/**
-	 * Copies the data from the given image.
-	 * 
-	 * @param imageFormat
-	 *            the image format
-	 * @param data
-	 *            the image data
-	 * @param pixelIndex
-	 *            the index of the required pixel
-	 */
-	public void fromImage(Format imageFormat, ByteBuffer data, int pixelIndex) {
-		int firstByteIndex;
-		byte pixelValue;
-		switch (imageFormat) {
-			case ABGR8:
-				firstByteIndex = pixelIndex << 2;
-				pixelValue = data.get(firstByteIndex);
-				this.alpha = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get(firstByteIndex + 1);
-				this.blue = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get(firstByteIndex + 2);
-				this.green = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get(firstByteIndex + 3);
-				this.red = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				break;
-			case RGBA8:
-				firstByteIndex = pixelIndex << 2;
-				pixelValue = data.get(firstByteIndex);
-				this.red = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get(firstByteIndex + 1);
-				this.green = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get(firstByteIndex + 2);
-				this.blue = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get(firstByteIndex + 3);
-				this.alpha = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				break;
-			case BGR8:
-				firstByteIndex = pixelIndex * 3;
-				pixelValue = data.get(firstByteIndex);
-				this.blue = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get(firstByteIndex + 1);
-				this.green = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get(firstByteIndex + 2);
-				this.red = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				this.alpha = 1.0f;
-				break;
-			case RGB8:
-				firstByteIndex = pixelIndex * 3;
-				pixelValue = data.get(firstByteIndex);
-				this.red = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get(firstByteIndex + 1);
-				this.green = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				pixelValue = data.get(firstByteIndex + 2);
-				this.blue = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				this.alpha = 1.0f;
-				break;
-			case Luminance8:
-				pixelValue = data.get(pixelIndex);
-				this.intensity = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - (~pixelValue) / 255.0f;
-				break;
-			default:
-				LOGGER.log(Level.FINEST, "Unknown type of texture: {0}. Black pixel used!", imageFormat);
-				this.intensity = this.blue = this.red = this.green = this.alpha = 0.0f;
-		}
-	}
-
+	
 	/**
 	 * Stores RGBA values in the given array.
 	 * 
@@ -192,6 +149,41 @@ public class TexturePixel implements Cloneable {
 	}
 
 	/**
+	 * @return the intensity of the pixel
+	 */
+	public byte getInt() {
+		return (byte) (this.intensity * 255.0f);
+	}
+	
+	/**
+	 * @return the alpha value of the pixel
+	 */
+	public byte getA8() {
+		return (byte) (this.alpha * 255.0f);
+	}
+	
+	/**
+	 * @return the alpha red of the pixel
+	 */
+	public byte getR8() {
+		return (byte) (this.red * 255.0f);
+	}
+	
+	/**
+	 * @return the green value of the pixel
+	 */
+	public byte getG8() {
+		return (byte) (this.green * 255.0f);
+	}
+	
+	/**
+	 * @return the blue value of the pixel
+	 */
+	public byte getB8() {
+		return (byte) (this.blue * 255.0f);
+	}
+	
+	/**
 	 * Merges two pixels (adds the values of each color).
 	 * 
 	 * @param pixel
@@ -202,7 +194,7 @@ public class TexturePixel implements Cloneable {
 		this.red = oneMinusAlpha * this.red + pixel.alpha * pixel.red;
 		this.green = oneMinusAlpha * this.green + pixel.alpha * pixel.green;
 		this.blue = oneMinusAlpha * this.blue + pixel.alpha * pixel.blue;
-		// alpha should be always 1.0f as a result
+		this.alpha = (this.alpha + pixel.alpha) * 0.5f;
 	}
 
 	/**

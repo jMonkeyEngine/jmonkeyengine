@@ -11,9 +11,6 @@ import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture2D;
-import com.jme3.texture.Texture3D;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -25,18 +22,23 @@ import com.jme3.util.BufferUtils;
  * <li> DXT1A:
  * @author Marcin Roguski (Kaelthas)
  */
-public class TextureBlenderDDS extends AbstractTextureBlender {
+public class TextureBlenderDDS extends TextureBlenderAWT {
 	private static final Logger	LOGGER	= Logger.getLogger(TextureBlenderDDS.class.getName());
 
+	public TextureBlenderDDS(int flag, boolean negateTexture, int blendType, float[] materialColor, float[] color, float blendFactor) {
+		super(flag, negateTexture, blendType, materialColor, color, blendFactor);
+	}
+	
+	//TODO: implement using base texture
 	@Override
-	public Texture blend(float[] materialColor, Texture texture, float[] color, float affectFactor, int blendType, boolean neg, BlenderContext blenderContext) {
-		Format format = texture.getImage().getFormat();
-		ByteBuffer data = texture.getImage().getData(0);
+	public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
+		Format format = image.getFormat();
+		ByteBuffer data = image.getData(0);
 		data.rewind();
 
-		int width = texture.getImage().getWidth();
-		int height = texture.getImage().getHeight();
-		int depth = texture.getImage().getDepth();
+		int width = image.getWidth();
+		int height = image.getHeight();
+		int depth = image.getDepth();
 		if (depth == 0) {
 			depth = 1;
 		}
@@ -50,9 +52,7 @@ public class TextureBlenderDDS extends AbstractTextureBlender {
 			switch (format) {
 				case DXT3:
 				case DXT5:
-					newData.putLong(dataIndex, data.getLong());// just copy the
-																// 8 bytes of
-																// alphas
+					newData.putLong(dataIndex, data.getLong());// just copy the 8 bytes of alphas
 					dataIndex += 8;
 				case DXT1:
 					int col0 = RGB565.RGB565_to_ARGB8(data.getShort());
@@ -69,11 +69,11 @@ public class TextureBlenderDDS extends AbstractTextureBlender {
 
 			// blending colors
 			for (int i = 0; i < colors.length; ++i) {
-				if (neg) {
+				if (negateTexture) {
 					colors[i].negate();
 				}
 				colors[i].toRGBA(pixelColor);
-				this.blendPixel(resultPixel, materialColor, pixelColor, affectFactor, blendType, blenderContext);
+				this.blendPixel(resultPixel, materialColor, pixelColor, blenderContext);
 				colors[i].fromARGB8(1, resultPixel[0], resultPixel[1], resultPixel[2]);
 				int argb8 = colors[i].toARGB8();
 				short rgb565 = RGB565.ARGB8_to_RGB565(argb8);
@@ -85,12 +85,13 @@ public class TextureBlenderDDS extends AbstractTextureBlender {
 			newData.putInt(dataIndex, data.getInt());
 			dataIndex += 4;
 		}
-		if (texture.getType() == Texture.Type.TwoDimensional) {
-			return new Texture2D(new Image(format, width, height, newData));
-		} else {
+		
+		if(depth > 1) {
 			ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
 			dataArray.add(newData);
-			return new Texture3D(new Image(format, width, height, depth, dataArray));
+			return new Image(format, width, height, depth, dataArray);
+		} else {
+			return new Image(format, width, height, newData);
 		}
 	}
 }
