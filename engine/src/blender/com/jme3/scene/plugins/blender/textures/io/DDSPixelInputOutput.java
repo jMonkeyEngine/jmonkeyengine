@@ -14,8 +14,11 @@ import com.jme3.texture.Image;
  * @author Marcin Roguski (Kaelthas)
  */
 /*package*/ class DDSPixelInputOutput implements PixelInputOutput {
+	/**
+	 * For this class the index should be considered as a pixel index in AWT image format.
+	 */
 	public void read(Image image, TexturePixel pixel, int index) {
-		throw new UnsupportedOperationException("Cannot get the DXT pixel by index because not every index contains the pixel color!");
+		this.read(image, pixel, index % image.getWidth(), index / image.getWidth());
 	}
 
 	public void read(Image image, TexturePixel pixel, int x, int y) {
