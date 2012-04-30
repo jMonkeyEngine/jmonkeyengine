@@ -14,12 +14,10 @@ import com.jme3.texture.Image;
  * @author Marcin Roguski (Kaelthas)
  */
 /*package*/ class DDSPixelInputOutput implements PixelInputOutput {
-	@Override
 	public void read(Image image, TexturePixel pixel, int index) {
 		throw new UnsupportedOperationException("Cannot get the DXT pixel by index because not every index contains the pixel color!");
 	}
 
-	@Override
 	public void read(Image image, TexturePixel pixel, int x, int y) {
 		int xTexetlIndex = x % image.getWidth() >> 2;
 		int yTexelIndex = y % image.getHeight() >> 2;
@@ -162,12 +160,10 @@ import com.jme3.texture.Image;
 		pixel.alpha = alpha;
 	}
 
-	@Override
 	public void write(Image image, TexturePixel pixel, int index) {
 		throw new UnsupportedOperationException("Cannot put the DXT pixel by index because not every index contains the pixel color!");
 	}
 
-	@Override
 	public void write(Image image, TexturePixel pixel, int x, int y) {
 		throw new UnsupportedOperationException("Writing to DDS texture pixel by pixel is not yet supported!");
 	}

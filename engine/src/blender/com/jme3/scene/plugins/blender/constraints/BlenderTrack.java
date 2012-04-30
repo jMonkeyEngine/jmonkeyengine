@@ -113,15 +113,12 @@ import com.jme3.util.TempVars;
 		}
 	}
 
-	@Override
 	public void write(JmeExporter ex) throws IOException {
 	}
 
-	@Override
 	public void read(JmeImporter im) throws IOException {
 	}
 
-	@Override
 	public void setTime(float time, float weight, AnimControl control,
 			AnimChannel channel, TempVars vars) {
 		if (boneTrack != null) {
@@ -131,7 +128,6 @@ import com.jme3.util.TempVars;
 		}
 	}
 
-	@Override
 	public float getLength() {
 		return spatialTrack == null ? boneTrack.getLength() : spatialTrack
 				.getLength();

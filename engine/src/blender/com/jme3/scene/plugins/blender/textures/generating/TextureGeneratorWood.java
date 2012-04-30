@@ -93,14 +93,12 @@ public class TextureGeneratorWood extends TextureGenerator {
     static {
         waveformFunctions[0] = new WaveForm() {// sinus (TEX_SIN)
 
-            @Override
             public float execute(float x) {
                 return 0.5f + 0.5f * (float) Math.sin(x);
             }
         };
         waveformFunctions[1] = new WaveForm() {// saw (TEX_SAW)
 
-            @Override
             public float execute(float x) {
                 int n = (int) (x * FastMath.INV_TWO_PI);
                 x -= n * FastMath.TWO_PI;
@@ -112,7 +110,6 @@ public class TextureGeneratorWood extends TextureGenerator {
         };
         waveformFunctions[2] = new WaveForm() {// triangle (TEX_TRI)
 
-            @Override
             public float execute(float x) {
                 return 1.0f - 2.0f * FastMath.abs((float) Math.floor(x * FastMath.INV_TWO_PI + 0.5f) - x * FastMath.INV_TWO_PI);
             }

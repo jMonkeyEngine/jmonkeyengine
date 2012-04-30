@@ -74,7 +74,6 @@ public class BlenderLoader extends AbstractBlenderLoader {
 	/** The blocks read from the file. */
 	protected List<FileBlockHeader>	blocks;
 
-	@Override
 	public Spatial load(AssetInfo assetInfo) throws IOException {
 		try {
 			this.setup(assetInfo);

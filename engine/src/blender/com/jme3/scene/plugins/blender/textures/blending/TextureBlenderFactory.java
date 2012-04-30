@@ -100,12 +100,10 @@ public class TextureBlenderFactory {
 			case LTC:
 				LOGGER.log(Level.WARNING, "Image type not yet supported for blending: {0}. Returning a blender that does not change the texture.", format);
 				return new TextureBlender() {
-					@Override
 					public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
 						return image;
 					}
 
-					@Override
 					public void copyBlendingData(TextureBlender textureBlender) {
 					}
 				};

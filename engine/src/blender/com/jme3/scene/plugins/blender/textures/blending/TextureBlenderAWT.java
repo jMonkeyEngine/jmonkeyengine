@@ -39,7 +39,6 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
 		super(flag, negateTexture, blendType, materialColor, color, blendFactor);
 	}
 	
-	@Override
 	public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
 		float[] pixelColor = new float[] { color[0], color[1], color[2], 1.0f };
 		Format format = image.getFormat();

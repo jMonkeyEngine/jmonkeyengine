@@ -122,50 +122,42 @@ import java.util.logging.Logger;
     static {
         noiseFunctions.put(Integer.valueOf(0), new NoiseFunction() {
         	// originalBlenderNoise
-            @Override
             public float execute(float x, float y, float z) {
                 return NoiseFunctions.originalBlenderNoise(x, y, z);
             }
 
-            @Override
             public float executeSigned(float x, float y, float z) {
                 return 2.0f * NoiseFunctions.originalBlenderNoise(x, y, z) - 1.0f;
             }
         });
         noiseFunctions.put(Integer.valueOf(1), new NoiseFunction() {
         	// orgPerlinNoise
-            @Override
             public float execute(float x, float y, float z) {
                 return 0.5f + 0.5f * NoiseFunctions.noise3Perlin(x, y, z);
             }
 
-            @Override
             public float executeSigned(float x, float y, float z) {
                 return NoiseFunctions.noise3Perlin(x, y, z);
             }
         });
         noiseFunctions.put(Integer.valueOf(2), new NoiseFunction() {
         	// newPerlin
-            @Override
             public float execute(float x, float y, float z) {
                 return 0.5f + 0.5f * NoiseFunctions.newPerlin(x, y, z);
             }
 
-            @Override
             public float executeSigned(float x, float y, float z) {
                 return this.execute(x, y, z);
             }
         });
         noiseFunctions.put(Integer.valueOf(3), new NoiseFunction() {
         	// voronoi_F1
-            @Override
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[0];
             }
 
-            @Override
             public float executeSigned(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
@@ -174,14 +166,12 @@ import java.util.logging.Logger;
         });
         noiseFunctions.put(Integer.valueOf(4), new NoiseFunction() {
         	// voronoi_F2
-            @Override
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[1];
             }
 
-            @Override
             public float executeSigned(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
@@ -190,14 +180,12 @@ import java.util.logging.Logger;
         });
         noiseFunctions.put(Integer.valueOf(5), new NoiseFunction() {
         	// voronoi_F3
-            @Override
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[2];
             }
 
-            @Override
             public float executeSigned(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
@@ -206,14 +194,12 @@ import java.util.logging.Logger;
         });
         noiseFunctions.put(Integer.valueOf(6), new NoiseFunction() {
         	// voronoi_F4
-            @Override
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[3];
             }
 
-            @Override
             public float executeSigned(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
@@ -222,14 +208,12 @@ import java.util.logging.Logger;
         });
         noiseFunctions.put(Integer.valueOf(7), new NoiseFunction() {
         	// voronoi_F1F2
-            @Override
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[1] - da[0];
             }
 
-            @Override
             public float executeSigned(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
@@ -238,13 +222,11 @@ import java.util.logging.Logger;
         });
         noiseFunctions.put(Integer.valueOf(8), new NoiseFunction() {
         	// voronoi_Cr
-            @Override
             public float execute(float x, float y, float z) {
                 float t = 10 * noiseFunctions.get(Integer.valueOf(7)).execute(x, y, z);// voronoi_F1F2
                 return t > 1.0f ? 1.0f : t;
             }
 
-            @Override
             public float executeSigned(float x, float y, float z) {
                 float t = 10.0f * noiseFunctions.get(Integer.valueOf(7)).execute(x, y, z);// voronoi_F1F2
                 return t > 1.0f ? 1.0f : 2.0f * t - 1.0f;
@@ -252,7 +234,6 @@ import java.util.logging.Logger;
         });
         noiseFunctions.put(Integer.valueOf(14), new NoiseFunction() {
         	// cellNoise
-            @Override
             public float execute(float x, float y, float z) {
                 int xi = (int) Math.floor(x);
                 int yi = (int) Math.floor(y);
@@ -262,7 +243,6 @@ import java.util.logging.Logger;
                 return (n * (n * n * 15731 + 789221) + 1376312589) / 4294967296.0f;
             }
 
-            @Override
             public float executeSigned(float x, float y, float z) {
                 return 2.0f * this.execute(x, y, z) - 1.0f;
             }
@@ -274,28 +254,24 @@ import java.util.logging.Logger;
     static {
         distanceFunctions.put(Integer.valueOf(0), new DistanceFunction() {
         	// real distance
-            @Override
             public float execute(float x, float y, float z, float e) {
                 return (float) Math.sqrt(x * x + y * y + z * z);
             }
         });
         distanceFunctions.put(Integer.valueOf(1), new DistanceFunction() {
         	// distance squared
-            @Override
             public float execute(float x, float y, float z, float e) {
                 return x * x + y * y + z * z;
             }
         });
         distanceFunctions.put(Integer.valueOf(2), new DistanceFunction() {
         	// manhattan/taxicab/cityblock distance
-            @Override
             public float execute(float x, float y, float z, float e) {
                 return FastMath.abs(x) + FastMath.abs(y) + FastMath.abs(z);
             }
         });
         distanceFunctions.put(Integer.valueOf(3), new DistanceFunction() {
         	// Chebychev
-            @Override
             public float execute(float x, float y, float z, float e) {
                 x = FastMath.abs(x);
                 y = FastMath.abs(y);
@@ -306,7 +282,6 @@ import java.util.logging.Logger;
         });
         distanceFunctions.put(Integer.valueOf(4), new DistanceFunction() {
         	// Minkovsky, preset exponent 0.5 (MinkovskyH)
-            @Override
             public float execute(float x, float y, float z, float e) {
                 float d = (float) (Math.sqrt(FastMath.abs(x)) + Math.sqrt(FastMath.abs(y)) + Math.sqrt(FastMath.abs(z)));
                 return d * d;
@@ -314,7 +289,6 @@ import java.util.logging.Logger;
         });
         distanceFunctions.put(Integer.valueOf(5), new DistanceFunction() {
         	// Minkovsky, preset exponent 0.25 (Minkovsky4)
-            @Override
             public float execute(float x, float y, float z, float e) {
                 x *= x;
                 y *= y;
@@ -324,7 +298,6 @@ import java.util.logging.Logger;
         });
         distanceFunctions.put(Integer.valueOf(6), new DistanceFunction() {
         	// Minkovsky, general case
-            @Override
             public float execute(float x, float y, float z, float e) {
                 return (float) Math.pow(Math.pow(FastMath.abs(x), e) + Math.pow(FastMath.abs(y), e) + Math.pow(FastMath.abs(z), e), 1.0f / e);
             }
@@ -335,7 +308,6 @@ import java.util.logging.Logger;
     static {
         musgraveFunctions.put(Integer.valueOf(TEX_MFRACTAL), new MusgraveFunction() {
 
-            @Override
             public float execute(MusgraveData musgraveData, float x, float y, float z) {
                 float rmd, value = 1.0f, pwr = 1.0f, pwHL = (float) Math.pow(musgraveData.lacunarity, -musgraveData.h);
                 NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(musgraveData.noisebasis));
@@ -359,7 +331,6 @@ import java.util.logging.Logger;
         });
         musgraveFunctions.put(Integer.valueOf(TEX_RIDGEDMF), new MusgraveFunction() {
 
-            @Override
             public float execute(MusgraveData musgraveData, float x, float y, float z) {
                 float result, signal, weight;
                 float pwHL = (float) Math.pow(musgraveData.lacunarity, -musgraveData.h);
@@ -396,7 +367,6 @@ import java.util.logging.Logger;
         });
         musgraveFunctions.put(Integer.valueOf(TEX_HYBRIDMF), new MusgraveFunction() {
 
-            @Override
             public float execute(MusgraveData musgraveData, float x, float y, float z) {
                 float result, signal, weight, rmd;
                 float pwHL = (float) Math.pow(musgraveData.lacunarity, -musgraveData.h);
@@ -434,7 +404,6 @@ import java.util.logging.Logger;
         });
         musgraveFunctions.put(Integer.valueOf(TEX_FBM), new MusgraveFunction() {
 
-            @Override
             public float execute(MusgraveData musgraveData, float x, float y, float z) {
                 float rmd, value = 0.0f, pwr = 1.0f, pwHL = (float) Math.pow(musgraveData.lacunarity, -musgraveData.h);
 
@@ -460,7 +429,6 @@ import java.util.logging.Logger;
         });
         musgraveFunctions.put(Integer.valueOf(TEX_HTERRAIN), new MusgraveFunction() {
 
-            @Override
             public float execute(MusgraveData musgraveData, float x, float y, float z) {
                 float value, increment, rmd;
                 float pwHL = (float) Math.pow(musgraveData.lacunarity, -musgraveData.h);

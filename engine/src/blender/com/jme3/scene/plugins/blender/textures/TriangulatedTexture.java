@@ -68,7 +68,6 @@ import com.jme3.util.BufferUtils;
 	public TriangulatedTexture(Texture2D texture2d, List<Vector2f> uvs, BlenderContext blenderContext) {
 		maxTextureSize = blenderContext.getBlenderKey().getMaxTextureSize();
 		faceTextures = new TreeSet<TriangleTextureElement>(new Comparator<TriangleTextureElement>() {
-			@Override
 			public int compare(TriangleTextureElement o1, TriangleTextureElement o2) {
 				return o1.faceIndex - o2.faceIndex;
 			}
@@ -209,7 +208,6 @@ import com.jme3.util.BufferUtils;
 			// sorting the parts by their height (from highest to the lowest)
 			List<TriangleTextureElement> list = new ArrayList<TriangleTextureElement>(faceTextures);
 			Collections.sort(list, new Comparator<TriangleTextureElement>() {
-				@Override
 				public int compare(TriangleTextureElement o1, TriangleTextureElement o2) {
 					return o2.image.getHeight() - o1.image.getHeight();
 				}

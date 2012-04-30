@@ -104,7 +104,6 @@ import com.jme3.texture.Texture;
 		Vector3f[] uvsArray = uvs.toArray(new Vector3f[uvs.size()]);
 		BoundingBox boundingBox = UVCoordinatesGenerator.getBoundingBox(geometries);
 		Set<TriangleTextureElement> triangleTextureElements = new TreeSet<TriangleTextureElement>(new Comparator<TriangleTextureElement>() {
-			@Override
 			public int compare(TriangleTextureElement o1, TriangleTextureElement o2) {
 				return o1.faceIndex - o2.faceIndex;
 			}

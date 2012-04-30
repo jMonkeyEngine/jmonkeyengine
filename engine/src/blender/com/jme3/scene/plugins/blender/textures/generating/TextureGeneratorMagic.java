@@ -45,61 +45,51 @@ public class TextureGeneratorMagic extends TextureGenerator {
 	private static NoiseDepthFunction[] noiseDepthFunctions = new NoiseDepthFunction[10];
 	static {
 		noiseDepthFunctions[0] = new NoiseDepthFunction() {
-			@Override
 			public void compute(float[] xyz, float turbulence) {
 				xyz[1] = -(float) Math.cos(xyz[0] - xyz[1] + xyz[2]) * turbulence;
 			}
 		};
 		noiseDepthFunctions[1] = new NoiseDepthFunction() {
-			@Override
 			public void compute(float[] xyz, float turbulence) {
 				xyz[0] = (float) Math.cos(xyz[0] - xyz[1] - xyz[2]) * turbulence;
 			}
 		};
 		noiseDepthFunctions[2] = new NoiseDepthFunction() {
-			@Override
 			public void compute(float[] xyz, float turbulence) {
 				xyz[2] = (float) Math.sin(-xyz[0] - xyz[1] - xyz[2]) * turbulence;
 			}
 		};
 		noiseDepthFunctions[3] = new NoiseDepthFunction() {
-			@Override
 			public void compute(float[] xyz, float turbulence) {
 				xyz[0] = -(float) Math.cos(-xyz[0] + xyz[1] - xyz[2]) * turbulence;
 			}
 		};
 		noiseDepthFunctions[4] = new NoiseDepthFunction() {
-			@Override
 			public void compute(float[] xyz, float turbulence) {
 				xyz[1] = -(float) Math.sin(-xyz[0] + xyz[1] + xyz[2]) * turbulence;
 			}
 		};
 		noiseDepthFunctions[5] = new NoiseDepthFunction() {
-			@Override
 			public void compute(float[] xyz, float turbulence) {
 				xyz[1] = -(float) Math.cos(-xyz[0] + xyz[1] + xyz[2]) * turbulence;
 			}
 		};
 		noiseDepthFunctions[6] = new NoiseDepthFunction() {
-			@Override
 			public void compute(float[] xyz, float turbulence) {
 				xyz[0] = (float) Math.cos(xyz[0] + xyz[1] + xyz[2]) * turbulence;
 			}
 		};
 		noiseDepthFunctions[7] = new NoiseDepthFunction() {
-			@Override
 			public void compute(float[] xyz, float turbulence) {
 				xyz[2] = (float) Math.sin(xyz[0] + xyz[1] - xyz[2]) * turbulence;
 			}
 		};
 		noiseDepthFunctions[8] = new NoiseDepthFunction() {
-			@Override
 			public void compute(float[] xyz, float turbulence) {
 				xyz[0] = -(float) Math.cos(-xyz[0] - xyz[1] + xyz[2]) * turbulence;
 			}
 		};
 		noiseDepthFunctions[9] = new NoiseDepthFunction() {
-			@Override
 			public void compute(float[] xyz, float turbulence) {
 				xyz[1] = -(float) Math.sin(xyz[0] - xyz[1] + xyz[2]) * turbulence;
 			}

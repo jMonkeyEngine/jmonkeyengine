@@ -100,7 +100,6 @@ import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 		}
 	}
 	
-	@Override
 	public void copyBlendingData(TextureBlender textureBlender) {
 		if(textureBlender instanceof AbstractTextureBlender) {
 			this.flag = ((AbstractTextureBlender) textureBlender).flag;

@@ -46,20 +46,17 @@ public final class TextureGeneratorBlend extends TextureGenerator {
     private static final IntensityFunction INTENSITY_FUNCTION[] = new IntensityFunction[7];
     static {
     	INTENSITY_FUNCTION[0] = new IntensityFunction() {//Linear: stype = 0 (TEX_LIN)
-			@Override
 			public float getIntensity(float x, float y, float z) {
 				return (1.0f + x) * 0.5f;
 			}
 		};
 		INTENSITY_FUNCTION[1] = new IntensityFunction() {//Quad: stype = 1 (TEX_QUAD)
-			@Override
 			public float getIntensity(float x, float y, float z) {
 				float result = (1.0f + x) * 0.5f;
 				return result * result;
 			}
 		};
 		INTENSITY_FUNCTION[2] = new IntensityFunction() {//Ease: stype = 2 (TEX_EASE)
-			@Override
 			public float getIntensity(float x, float y, float z) {
 				float result = (1.0f + x) * 0.5f;
 				if (result <= 0.0f) {
@@ -72,27 +69,23 @@ public final class TextureGeneratorBlend extends TextureGenerator {
 			}
 		};
 		INTENSITY_FUNCTION[3] = new IntensityFunction() {//Diagonal: stype = 3 (TEX_DIAG)
-			@Override
 			public float getIntensity(float x, float y, float z) {
 				return (2.0f + x + y) * 0.25f;
 			}
 		};
 		INTENSITY_FUNCTION[4] = new IntensityFunction() {//Sphere: stype = 4 (TEX_SPHERE)
-			@Override
 			public float getIntensity(float x, float y, float z) {
 				float result = 1.0f - (float) Math.sqrt(x * x + y * y + z * z);
 				return result < 0.0f ? 0.0f : result;
 			}
 		};
 		INTENSITY_FUNCTION[5] = new IntensityFunction() {//Halo: stype = 5 (TEX_HALO)
-			@Override
 			public float getIntensity(float x, float y, float z) {
 				float result = 1.0f - (float) Math.sqrt(x * x + y * y + z * z);
 				return result <= 0.0f ? 0.0f : result * result;
 			}
 		};
 		INTENSITY_FUNCTION[6] = new IntensityFunction() {//Radial: stype = 6 (TEX_RAD)
-			@Override
 			public float getIntensity(float x, float y, float z) {
 				return (float) Math.atan2(y, x) * FastMath.INV_TWO_PI + 0.5f;
 			}

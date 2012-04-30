@@ -8,7 +8,6 @@ import com.jme3.texture.Image;
  * @author Marcin Roguski (Kaelthas)
  */
 /*package*/ class AWTPixelInputOutput implements PixelInputOutput {
-	@Override
 	public void read(Image image, TexturePixel pixel, int index) {
 		byte r,g,b,a;
 		switch(image.getFormat()) {//TODO: add other formats
@@ -36,13 +35,11 @@ import com.jme3.texture.Image;
 		pixel.fromARGB8(a, r, g, b);
 	}
 	
-	@Override
 	public void read(Image image, TexturePixel pixel, int x, int y) {
 		int index = (y * image.getWidth() + x) * (image.getFormat().getBitsPerPixel() >> 3);
 		this.read(image, pixel, index);
 	}
 
-	@Override
 	public void write(Image image, TexturePixel pixel, int index) {
 		switch(image.getFormat()) {
 			case RGBA8:
@@ -67,7 +64,6 @@ import com.jme3.texture.Image;
 		}
 	}
 	
-	@Override
 	public void write(Image image, TexturePixel pixel, int x, int y) {
 		int index = (y * image.getWidth() + x) * (image.getFormat().getBitsPerPixel() >> 3);
 		this.write(image, pixel, index);
