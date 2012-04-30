@@ -4,8 +4,8 @@
  */
 package com.jme3.gde.nmgen.wizard;
 
-import com.jme3.asset.AssetKey;
 import com.jme3.gde.core.util.PropertyUtils;
+import com.jme3.gde.nmgen.NavMeshAction;
 import com.jme3.gde.nmgen.NavMeshGenerator;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
@@ -40,8 +40,8 @@ public class NavMeshGeneratorNode extends AbstractNode {
             if (prop != null) {
                 try {
                     Property sup = new PropertySupport.Reflection(key, prop.getPropertyType(), prop.getReadMethod(), prop.getWriteMethod());
-                    sup.setName(prop.getName());
                     sup.setDisplayName(prop.getDisplayName());
+                    sup.setShortDescription(org.openide.util.NbBundle.getMessage(NavMeshAction.class, "properties."+prop.getName()));
                     set.put(sup);
                 } catch (Exception e) {
                     Exceptions.printStackTrace(e);

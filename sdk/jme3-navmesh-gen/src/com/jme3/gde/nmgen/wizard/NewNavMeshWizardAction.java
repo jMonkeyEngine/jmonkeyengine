@@ -35,6 +35,7 @@ import org.openide.WizardDescriptor;
 public final class NewNavMeshWizardAction extends AbstractNewSpatialWizardAction {
 
     private WizardDescriptor.Panel[] panels;
+    private NavMeshGenerator generator;
 
     public NewNavMeshWizardAction() {
         name = "NavMesh..";
@@ -46,8 +47,9 @@ public final class NewNavMeshWizardAction extends AbstractNewSpatialWizardAction
         // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
         wizardDescriptor.setTitleFormat(new MessageFormat("{0}"));
         wizardDescriptor.setTitle("Create NavMesh");
-        NavMeshGenerator gen = new NavMeshGenerator();
-        wizardDescriptor.putProperty("generator", gen);
+        if (generator == null)
+            generator = new NavMeshGenerator();
+        wizardDescriptor.putProperty("generator", generator);
 
         Dialog dialog = DialogDisplayer.getDefault().createDialog(wizardDescriptor);
         dialog.setVisible(true);
