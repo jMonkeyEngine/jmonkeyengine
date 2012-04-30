@@ -189,7 +189,12 @@ public class BlenderKey extends ModelKey {
 	 */
 	public int getMaxTextureSize() {
 		if(maxTextureSize <= 0) {
-			maxTextureSize = GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE);
+			try {
+				maxTextureSize = GL11.glGetInteger(GL11.GL_MAX_TEXTURE_SIZE);
+			} catch(Exception e) {
+				//this is in case this method was called before openGL initialization
+				return 8192;
+			}
 		}
 		return maxTextureSize;
 	}
@@ -658,7 +663,6 @@ public class BlenderKey extends ModelKey {
 			return lights;
 		}
 
-		@Override
 		public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
 			return 0;
 		}
