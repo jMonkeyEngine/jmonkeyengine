@@ -4,7 +4,6 @@ varying vec2 texCoord;
 
 #ifdef DIFFUSEMAP_ALPHA
     uniform sampler2D m_DiffuseMap;
-    uniform float m_AlphaDiscardThreshold;
 #endif
 
 void main(void)

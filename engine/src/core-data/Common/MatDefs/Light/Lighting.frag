@@ -55,8 +55,6 @@ varying vec3 SpecularSum;
   uniform sampler2D m_ColorRamp;
 #endif
 
-uniform float m_AlphaDiscardThreshold;
-
 #ifndef VERTEX_LIGHTING
 uniform float m_Shininess;
 
@@ -171,10 +169,7 @@ void main(){
     float alpha = DiffuseSum.a * diffuseColor.a;
     #ifdef ALPHAMAP
        alpha = alpha * texture2D(m_AlphaMap, newTexCoord).r;
-    #endif
-    if(alpha < m_AlphaDiscardThreshold){
-        discard;
-    }
+    #endif  
 
     #ifndef VERTEX_LIGHTING
         float spotFallOff = 1.0;
