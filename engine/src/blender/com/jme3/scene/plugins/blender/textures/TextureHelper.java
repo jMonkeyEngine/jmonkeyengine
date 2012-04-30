@@ -236,26 +236,74 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * @return the decompressed image
 	 */
 	public Image decompress(Image image) {
-		byte[] bytes = null;
-		TexturePixel[] colors = null;
-		ByteBuffer data = image.getData(0);// TODO: support decompression of all data 'layers'
-		data.rewind();
 		Format format = image.getFormat();
+		int depth = image.getDepth();
+		if(depth == 0) {
+			depth = 1;
+		}
+		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(depth);
+		TexturePixel[] colors = new TexturePixel[] { new TexturePixel(), new TexturePixel(), new TexturePixel(), new TexturePixel() };
+		
+		for (int dataLayerIndex = 0; dataLayerIndex < depth; ++dataLayerIndex) {
+			ByteBuffer data = image.getData(dataLayerIndex);
+			data.rewind();
+			
+			byte[] bytes = new byte[image.getWidth() * image.getHeight() << 2];
+			DDSTexelData texelData = new DDSTexelData(data.remaining() * 8/format.getBitsPerPixel()/16/*data.remaining() / (format.getBitsPerPixel() << 1)*/, 
+					image.getWidth(), image.getHeight(), format != Format.DXT1);
+			switch (format) {
+				case DXT1:// BC1
+				case DXT1A:
+					while (data.hasRemaining()) {
+						short c0 = data.getShort();
+						short c1 = data.getShort();
+						int col0 = RGB565.RGB565_to_ARGB8(c0);
+						int col1 = RGB565.RGB565_to_ARGB8(c1);
+						colors[0].fromARGB8(col0);
+						colors[1].fromARGB8(col1);
 
-		DDSTexelData texelData = new DDSTexelData(data.remaining() / (format.getBitsPerPixel() * 2), image.getWidth(), image.getHeight(), format != Format.DXT1);
-		switch (format) {// TODO: DXT1A
-			case DXT1:// BC1
-				bytes = new byte[image.getWidth() * image.getHeight() * 4];
-				colors = new TexturePixel[] { new TexturePixel(), new TexturePixel(), new TexturePixel(), new TexturePixel() };
-				while (data.hasRemaining()) {
-					short c0 = data.getShort();
-					short c1 = data.getShort();
-					int col0 = RGB565.RGB565_to_ARGB8(c0);
-					int col1 = RGB565.RGB565_to_ARGB8(c1);
-					colors[0].fromARGB8(col0);
-					colors[1].fromARGB8(col1);
+						if (col0 > col1) {
+							// creating color2 = 2/3color0 + 1/3color1
+							colors[2].fromPixel(colors[0]);
+							colors[2].mult(2);
+							colors[2].add(colors[1]);
+							colors[2].divide(3);
 
-					if (col0 > col1) {
+							// creating color3 = 1/3color0 + 2/3color1;
+							colors[3].fromPixel(colors[1]);
+							colors[3].mult(2);
+							colors[3].add(colors[0]);
+							colors[3].divide(3);
+						} else {
+							// creating color2 = 1/2color0 + 1/2color1
+							colors[2].fromPixel(colors[0]);
+							colors[2].add(colors[1]);
+							colors[2].mult(0.5f);
+
+							colors[3].fromARGB8(0);
+						}
+						int indexes = data.getInt();// 4-byte table with color indexes in decompressed table
+						texelData.add(colors, indexes);
+					}
+					break;
+				case DXT3:// BC2
+					while (data.hasRemaining()) {
+						long alpha = data.getLong();
+						float[] alphas = new float[16];
+						long alphasIndex = 0;
+						for (int i = 0; i < 16; ++i) {
+							alphasIndex |= i << i * 4;
+							byte a = (byte) ((alpha >> i * 4 & 0x0F) << 4);
+							alphas[i] = a >= 0 ? a / 255.0f : 1.0f - ~a / 255.0f;
+						}
+
+						short c0 = data.getShort();
+						short c1 = data.getShort();
+						int col0 = RGB565.RGB565_to_ARGB8(c0);
+						int col1 = RGB565.RGB565_to_ARGB8(c1);
+						colors[0].fromARGB8(col0);
+						colors[1].fromARGB8(col1);
+
 						// creating color2 = 2/3color0 + 1/3color1
 						colors[2].fromPixel(colors[0]);
 						colors[2].mult(2);
@@ -267,106 +315,60 @@ public class TextureHelper extends AbstractBlenderHelper {
 						colors[3].mult(2);
 						colors[3].add(colors[0]);
 						colors[3].divide(3);
-					} else {
-						// creating color2 = 1/2color0 + 1/2color1
+
+						int indexes = data.getInt();// 4-byte table with color indexes in decompressed table
+						texelData.add(colors, indexes, alphas, alphasIndex);
+					}
+					break;
+				case DXT5:// BC3
+					float[] alphas = new float[8];
+					while (data.hasRemaining()) {
+						alphas[0] = data.get() * 255.0f;
+						alphas[1] = data.get() * 255.0f;
+						long alphaIndices = data.get() | data.get() << 8 | data.get() << 16 | data.get() << 24 | data.get() << 32 | data.get() << 40;
+						if (alphas[0] > alphas[1]) {// 6 interpolated alpha values.
+							alphas[2] = (6 * alphas[0] + alphas[1]) / 7;
+							alphas[3] = (5 * alphas[0] + 2 * alphas[1]) / 7;
+							alphas[4] = (4 * alphas[0] + 3 * alphas[1]) / 7;
+							alphas[5] = (3 * alphas[0] + 4 * alphas[1]) / 7;
+							alphas[6] = (2 * alphas[0] + 5 * alphas[1]) / 7;
+							alphas[7] = (alphas[0] + 6 * alphas[1]) / 7;
+						} else {
+							alphas[2] = (4 * alphas[0] + alphas[1]) * 0.2f;
+							alphas[3] = (3 * alphas[0] + 2 * alphas[1]) * 0.2f;
+							alphas[4] = (2 * alphas[0] + 3 * alphas[1]) * 0.2f;
+							alphas[5] = (alphas[0] + 4 * alphas[1]) * 0.2f;
+							alphas[6] = 0;
+							alphas[7] = 1;
+						}
+
+						short c0 = data.getShort();
+						short c1 = data.getShort();
+						int col0 = RGB565.RGB565_to_ARGB8(c0);
+						int col1 = RGB565.RGB565_to_ARGB8(c1);
+						colors[0].fromARGB8(col0);
+						colors[1].fromARGB8(col1);
+
+						// creating color2 = 2/3color0 + 1/3color1
 						colors[2].fromPixel(colors[0]);
+						colors[2].mult(2);
 						colors[2].add(colors[1]);
-						colors[2].mult(0.5f);
+						colors[2].divide(3);
 
-						colors[3].fromARGB8(0);
+						// creating color3 = 1/3color0 + 2/3color1;
+						colors[3].fromPixel(colors[1]);
+						colors[3].mult(2);
+						colors[3].add(colors[0]);
+						colors[3].divide(3);
+
+						int indexes = data.getInt();// 4-byte table with color indexes in decompressed table
+						texelData.add(colors, indexes, alphas, alphaIndices);
 					}
-					int indexes = data.getInt();// 4-byte table with color indexes in decompressed table
-					texelData.add(colors, indexes);
-				}
-				break;
-			case DXT3:// BC2
-				bytes = new byte[image.getWidth() * image.getHeight() * 4];
-				colors = new TexturePixel[] { new TexturePixel(), new TexturePixel(), new TexturePixel(), new TexturePixel() };
-				while (data.hasRemaining()) {
-					long alpha = data.getLong();
-					float[] alphas = new float[16];
-					long alphasIndex = 0;
-					for (int i = 0; i < 16; ++i) {
-						alphasIndex |= i << i * 4;
-						byte a = (byte) ((alpha >> i * 4 & 0x0F) << 4);
-						alphas[i] = a >= 0 ? a / 255.0f : 1.0f - ~a / 255.0f;
-					}
+					break;
+				default:
+					throw new IllegalStateException("Unknown compressed format: " + format);
+			}
 
-					short c0 = data.getShort();
-					short c1 = data.getShort();
-					int col0 = RGB565.RGB565_to_ARGB8(c0);
-					int col1 = RGB565.RGB565_to_ARGB8(c1);
-					colors[0].fromARGB8(col0);
-					colors[1].fromARGB8(col1);
-
-					// creating color2 = 2/3color0 + 1/3color1
-					colors[2].fromPixel(colors[0]);
-					colors[2].mult(2);
-					colors[2].add(colors[1]);
-					colors[2].divide(3);
-
-					// creating color3 = 1/3color0 + 2/3color1;
-					colors[3].fromPixel(colors[1]);
-					colors[3].mult(2);
-					colors[3].add(colors[0]);
-					colors[3].divide(3);
-
-					int indexes = data.getInt();// 4-byte table with color indexes in decompressed table
-					texelData.add(colors, indexes, alphas, alphasIndex);
-				}
-				break;
-			case DXT5:// BC3
-				bytes = new byte[image.getWidth() * image.getHeight() * 4];
-				colors = new TexturePixel[] { new TexturePixel(), new TexturePixel(), new TexturePixel(), new TexturePixel() };
-				float[] alphas = new float[8];
-				while (data.hasRemaining()) {
-					alphas[0] = data.get() * 255.0f;
-					alphas[1] = data.get() * 255.0f;
-					long alphaIndices = data.get() | data.get() << 8 | data.get() << 16 | data.get() << 24 | data.get() << 32 | data.get() << 40;
-					if (alphas[0] > alphas[1]) {// 6 interpolated alpha values.
-						alphas[2] = (6 * alphas[0] + alphas[1]) / 7;
-						alphas[3] = (5 * alphas[0] + 2 * alphas[1]) / 7;
-						alphas[4] = (4 * alphas[0] + 3 * alphas[1]) / 7;
-						alphas[5] = (3 * alphas[0] + 4 * alphas[1]) / 7;
-						alphas[6] = (2 * alphas[0] + 5 * alphas[1]) / 7;
-						alphas[7] = (alphas[0] + 6 * alphas[1]) / 7;
-					} else {
-						alphas[2] = (4 * alphas[0] + alphas[1]) * 0.2f;
-						alphas[3] = (3 * alphas[0] + 2 * alphas[1]) * 0.2f;
-						alphas[4] = (2 * alphas[0] + 3 * alphas[1]) * 0.2f;
-						alphas[5] = (alphas[0] + 4 * alphas[1]) * 0.2f;
-						alphas[6] = 0;
-						alphas[7] = 1;
-					}
-
-					short c0 = data.getShort();
-					short c1 = data.getShort();
-					int col0 = RGB565.RGB565_to_ARGB8(c0);
-					int col1 = RGB565.RGB565_to_ARGB8(c1);
-					colors[0].fromARGB8(col0);
-					colors[1].fromARGB8(col1);
-
-					// creating color2 = 2/3color0 + 1/3color1
-					colors[2].fromPixel(colors[0]);
-					colors[2].mult(2);
-					colors[2].add(colors[1]);
-					colors[2].divide(3);
-
-					// creating color3 = 1/3color0 + 2/3color1;
-					colors[3].fromPixel(colors[1]);
-					colors[3].mult(2);
-					colors[3].add(colors[0]);
-					colors[3].divide(3);
-
-					int indexes = data.getInt();// 4-byte table with color indexes in decompressed table
-					texelData.add(colors, indexes, alphas, alphaIndices);
-				}
-				break;
-			default:
-				LOGGER.fine("Unsupported decompression format.");
-		}
-
-		if (bytes != null) {// writing the data to the result table
 			byte[] pixelBytes = new byte[4];
 			for (int i = 0; i < image.getWidth(); ++i) {
 				for (int j = 0; j < image.getHeight(); ++j) {
@@ -377,11 +379,15 @@ public class TextureHelper extends AbstractBlenderHelper {
 					bytes[(j * image.getWidth() + i) * 4 + 3] = pixelBytes[3];
 				}
 			}
-			// TODO: think of other image formats (ie. RGB if the texture has no
-			// alpha values)
-			return new Image(Format.RGBA8, image.getWidth(), image.getHeight(), BufferUtils.createByteBuffer(bytes));
+			dataArray.add(BufferUtils.createByteBuffer(bytes));
 		}
-		return image;
+		
+		Image result = depth > 1 ? new Image(Format.RGBA8, image.getWidth(), image.getHeight(), depth, dataArray) : 
+								   new Image(Format.RGBA8, image.getWidth(), image.getHeight(), dataArray.get(0));
+		if(image.getMipMapSizes() != null) {
+			result.setMipMapSizes(image.getMipMapSizes().clone());
+		}
+		return result;
 	}
 
 	/**

@@ -34,7 +34,8 @@ import com.jme3.texture.Image;
 		ByteBuffer data = image.getData().get(0);
 		
 		switch (image.getFormat()) {
-			case DXT1: {// BC1
+			case DXT1: // BC1
+			case DXT1A:{
 				data.position(texelIndex * 8);
 				short c0 = data.getShort();
 				short c1 = data.getShort();
@@ -142,8 +143,6 @@ import com.jme3.texture.Image;
 				indexes = data.getInt();// 4-byte table with color indexes in decompressed table
 				break;
 			}
-			case DXT1A://TODO: implement
-				break;
 			default:
 				throw new IllegalStateException("Unsupported decompression format.");
 		}

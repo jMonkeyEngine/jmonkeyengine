@@ -42,7 +42,6 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
 	public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
 		float[] pixelColor = new float[] { color[0], color[1], color[2], 1.0f };
 		Format format = image.getFormat();
-		ByteBuffer data = image.getData(0);
 		
 		PixelInputOutput basePixelIO = null, pixelReader = PixelIOFactory.getPixelIO(format);
 		TexturePixel basePixel = null, pixel = new TexturePixel();
@@ -59,44 +58,50 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
 		if (depth == 0) {
 			depth = 1;
 		}
-		ByteBuffer newData = BufferUtils.createByteBuffer(width * height * depth * 4);
+		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(depth);
 		
 		float[] resultPixel = new float[4];
-		int dataIndex = 0, x = 0, y = 0, index = 0;
-		while (index < data.limit()) {
-			//getting the proper material color if the base texture is applied
-			if(basePixelIO != null) {
-				basePixelIO.read(baseImage, basePixel, x, y);
-				basePixel.toRGBA(materialColor);
-			}			
+		for (int dataLayerIndex = 0; dataLayerIndex < depth; ++dataLayerIndex) {
+			ByteBuffer data = image.getData(dataLayerIndex);
+			data.rewind();
+			ByteBuffer newData = BufferUtils.createByteBuffer(width * height * 4);
 			
-			//reading the current texture's pixel
-			pixelReader.read(image, pixel, index);
-			index += image.getFormat().getBitsPerPixel() >> 3;
-			pixel.toRGBA(pixelColor);
-			if (negateTexture) {
-				pixel.negate();
+			int dataIndex = 0, x = 0, y = 0, index = 0;
+			while (index < data.limit()) {
+				//getting the proper material color if the base texture is applied
+				if(basePixelIO != null) {
+					basePixelIO.read(baseImage, basePixel, x, y);
+					basePixel.toRGBA(materialColor);
+				}			
+				
+				//reading the current texture's pixel
+				pixelReader.read(image, pixel, index);
+				index += image.getFormat().getBitsPerPixel() >> 3;
+				pixel.toRGBA(pixelColor);
+				if (negateTexture) {
+					pixel.negate();
+				}
+				
+				this.blendPixel(resultPixel, materialColor, pixelColor, blenderContext);
+				newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
+				newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
+				newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
+				newData.put(dataIndex++, (byte) (pixelColor[3] * 255.0f));
+				
+				++x;
+				if(x >= width) {
+					x = 0;
+					++y;
+				}
 			}
-			
-			this.blendPixel(resultPixel, materialColor, pixelColor, blenderContext);
-			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
-			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
-			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
-			newData.put(dataIndex++, (byte) (pixelColor[3] * 255.0f));
-			
-			++x;
-			if(x >= width) {
-				x = 0;
-				++y;
-			}
-		}
-		if(depth > 1) {
-			ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
 			dataArray.add(newData);
-			return new Image(Format.RGBA8, width, height, depth, dataArray);
-		} else {
-			return new Image(Format.RGBA8, width, height, newData);
 		}
+		
+		Image result = depth > 1 ? new Image(Format.RGBA8, width, height, depth, dataArray) : new Image(Format.RGBA8, width, height, dataArray.get(0));
+		if(image.getMipMapSizes() != null) {
+			result.setMipMapSizes(image.getMipMapSizes().clone());
+		}
+		return result;
 	}
 
 	/**

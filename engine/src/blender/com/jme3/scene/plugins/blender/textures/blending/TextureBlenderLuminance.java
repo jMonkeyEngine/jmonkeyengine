@@ -35,8 +35,6 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
 	
 	public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
 		Format format = image.getFormat();
-		ByteBuffer data = image.getData(0);
-		data.rewind();
 
 		PixelInputOutput basePixelIO = null;
 		TexturePixel basePixel = null;
@@ -53,39 +51,44 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
 		if (depth == 0) {
 			depth = 1;
 		}
-		ByteBuffer newData = BufferUtils.createByteBuffer(width * height * depth * 4);
+		ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(depth);
 
 		float[] resultPixel = new float[4];
 		float[] tinAndAlpha = new float[2];
-		int dataIndex = 0, x = 0, y = 0;
-		while (data.hasRemaining()) {
-			//getting the proper material color if the base texture is applied
-			if(basePixelIO != null) {
-				basePixelIO.read(baseImage, basePixel, x, y);
-				basePixel.toRGBA(materialColor);
-			}
+		for (int dataLayerIndex = 0; dataLayerIndex < depth; ++dataLayerIndex) {
+			ByteBuffer data = image.getData(dataLayerIndex);
+			data.rewind();
+			ByteBuffer newData = BufferUtils.createByteBuffer(width * height * 4);
 			
-			this.getTinAndAlpha(data, format, negateTexture, tinAndAlpha);
-			this.blendPixel(resultPixel, materialColor, color, tinAndAlpha[0], blendFactor, blendType, blenderContext);
-			newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
-			newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
-			newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
-			newData.put(dataIndex++, (byte) (tinAndAlpha[1] * 255.0f));
-			
-			++x;
-			if(x >= width) {
-				x = 0;
-				++y;
+			int dataIndex = 0, x = 0, y = 0;
+			while (data.hasRemaining()) {
+				//getting the proper material color if the base texture is applied
+				if(basePixelIO != null) {
+					basePixelIO.read(baseImage, basePixel, x, y);
+					basePixel.toRGBA(materialColor);
+				}
+				
+				this.getTinAndAlpha(data, format, negateTexture, tinAndAlpha);
+				this.blendPixel(resultPixel, materialColor, color, tinAndAlpha[0], blendFactor, blendType, blenderContext);
+				newData.put(dataIndex++, (byte) (resultPixel[0] * 255.0f));
+				newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
+				newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
+				newData.put(dataIndex++, (byte) (tinAndAlpha[1] * 255.0f));
+				
+				++x;
+				if(x >= width) {
+					x = 0;
+					++y;
+				}
 			}
+			dataArray.add(newData);
 		}
 		
-		if(depth > 1) {
-			ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(1);
-			dataArray.add(newData);
-			return new Image(Format.RGBA8, width, height, depth, dataArray);
-		} else {
-			return new Image(Format.RGBA8, width, height, newData);
+		Image result = depth > 1 ? new Image(Format.RGBA8, width, height, depth, dataArray) : new Image(Format.RGBA8, width, height, dataArray.get(0));
+		if(image.getMipMapSizes() != null) {
+			result.setMipMapSizes(image.getMipMapSizes().clone());
 		}
+		return result;
 	}
 
 	/**
