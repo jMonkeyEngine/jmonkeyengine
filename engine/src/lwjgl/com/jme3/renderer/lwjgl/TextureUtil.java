@@ -85,7 +85,7 @@ class TextureUtil {
         setFormat(Format.Depth32F, GL30.GL_DEPTH_COMPONENT32F, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT,         false);
         
         // Depth stencil formats
-        setFormat(Format.Depth24Stencil8, GL30.GL_DEPTH24_STENCIL8, GL11.GL_DEPTH_COMPONENT, GL30.GL_UNSIGNED_INT_24_8, false);
+        setFormat(Format.Depth24Stencil8, GL30.GL_DEPTH24_STENCIL8, GL30.GL_DEPTH_STENCIL, GL30.GL_UNSIGNED_INT_24_8, false);
         
         // RGB formats
         setFormat(Format.BGR8,       GL11.GL_RGB8,  EXTBgra.GL_BGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
@@ -145,6 +145,11 @@ class TextureUtil {
             case Depth24:
             case Depth32:
                 if (!caps.OpenGL14 && !caps.GL_ARB_depth_texture){
+                    return null;
+                }
+                break;
+            case Depth24Stencil8:
+                if (!caps.OpenGL30){
                     return null;
                 }
                 break;
