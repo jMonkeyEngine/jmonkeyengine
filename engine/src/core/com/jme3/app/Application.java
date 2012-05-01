@@ -568,6 +568,18 @@ public class Application implements SystemListener {
     }
 
     /**
+     * Runs tasks enqueued via {@link #enqueue(Callable)}
+     */
+    protected void runQueuedTasks() {
+	  AppTask<?> task;
+        while( (task = taskQueue.poll()) != null ) {
+            if (!task.isCancelled()) {
+                task.invoke();
+            }
+        }
+    } 
+
+    /**
      * Do not call manually.
      * Callback from ContextListener.
      */
@@ -575,26 +587,7 @@ public class Application implements SystemListener {
         // Make sure the audio renderer is available to callables
         AudioContext.setAudioRenderer(audioRenderer);
         
-        AppTask<?> task = taskQueue.poll();
-        toploop: do {
-            if (task == null) break;
-            while (task.isCancelled()) {
-                task = taskQueue.poll();
-                if (task == null) break toploop;
-            }
-            task.invoke();
-        } while (((task = taskQueue.poll()) != null));
-        
-        /* I think the above is really just doing this:
-        AppTask<?> task;
-        while( (task = taskQueue.poll()) != null ) {
-            if (!task.isCancelled()) {
-                task.invoke();
-            }
-        }
-        //...but it's hard to say for sure.  It's so twisted
-        //up that I don't trust my eyes.  -pspeed
-        */ 
+        runQueuedTasks();
     
         if (speed == 0 || paused)
             return;
