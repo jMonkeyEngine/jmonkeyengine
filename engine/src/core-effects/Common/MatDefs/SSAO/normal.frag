@@ -8,9 +8,9 @@ varying vec2 texCoord;
 
 void main(void)
 {
-
+    float alpha= 1.0;
     #ifdef DIFFUSEMAP_ALPHA
-        float alpha=texture2D(m_DiffuseMap,texCoord).a;
+        alpha=texture2D(m_DiffuseMap,texCoord).a;
     #endif
     gl_FragColor = vec4(normal.xy* 0.5 + 0.5,-normal.z* 0.5 + 0.5, alpha);
 
