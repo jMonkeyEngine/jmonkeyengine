@@ -31,12 +31,14 @@
  */
 package com.jme3.scene.plugins.blender.objects;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
+import com.jme3.export.Savable;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
@@ -276,8 +278,26 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			//reading custom properties
 			if(blenderContext.getBlenderKey().isLoadObjectProperties()) {
 				Properties properties = this.loadProperties(objectStructure, blenderContext);
+				//the loaded property is a group property, so we need to get each value and set it to Spatial
 				if(result instanceof Spatial && properties != null && properties.getValue() != null) {
-					((Spatial)result).setUserData("properties", properties);
+					List<String> propertyNames = properties.getSubPropertiesNames();
+					if(propertyNames != null && propertyNames.size() > 0) {
+						for(String propertyName : propertyNames) {
+							Object value = properties.findValue(propertyName);
+							if(value instanceof Savable || value instanceof Boolean || value instanceof String ||
+							   value instanceof Float || value instanceof Integer || value instanceof Long) {
+								((Spatial)result).setUserData(propertyName, value);
+							} else if(value instanceof Double) {
+								((Spatial)result).setUserData(propertyName, ((Double) value).floatValue());
+							} else if(value instanceof int[]) {
+								((Spatial)result).setUserData(propertyName, Arrays.toString((int[])value));
+							} else if(value instanceof float[]) {
+								((Spatial)result).setUserData(propertyName, Arrays.toString((float[])value));
+							} else if(value instanceof double[]) {
+								((Spatial)result).setUserData(propertyName, Arrays.toString((double[])value));
+							}
+						}
+					}
 				}
 			}
 		}

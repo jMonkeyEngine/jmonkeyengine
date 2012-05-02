@@ -1,16 +1,16 @@
 package com.jme3.scene.plugins.blender.objects;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * The blender object's custom properties.
@@ -18,8 +18,6 @@ import java.util.logging.Logger;
  * @author Marcin Roguski (Kaelthas)
  */
 public class Properties implements Cloneable {
-	private static final Logger		LOGGER				= Logger.getLogger(Properties.class.getName());
-
 	// property type
 	public static final int			IDP_STRING			= 0;
 	public static final int			IDP_INT				= 1;
@@ -192,6 +190,25 @@ public class Properties implements Cloneable {
 	}
 	
 	/**
+	 * @return the names of properties that are stored withing this property 
+	 * (assuming this property is of IDP_GROUP type) 
+	 */
+	@SuppressWarnings("unchecked")
+	public List<String> getSubPropertiesNames() {
+		List<String> result = null;
+		if(this.type == IDP_GROUP) {
+			List<Properties> properties = (List<Properties>)this.value;
+			if(properties != null && properties.size() > 0) {
+				result = new ArrayList<String>(properties.size());
+				for(Properties property : properties) {
+					result.add(property.getName());
+				}
+			}
+		}
+		return result;
+	}
+	
+	/**
 	 * This method returns the same as getValue if the current property is of
 	 * other type than IDP_GROUP and its name matches 'propertyName' param. If
 	 * this property is a group property the method tries to find subproperty
@@ -307,109 +324,6 @@ public class Properties implements Cloneable {
 			}
 		}
 	}
-
-        /*
-	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void write(JmeExporter ex) throws IOException {
-		OutputCapsule oc = ex.getCapsule(this);
-		oc.write(name, "name", DEFAULT_NAME);
-		oc.write(type, "type", 0);
-		oc.write(subType, "subtype", 0);
-		oc.write(description, "description", null);
-		switch (type) {
-			case IDP_STRING:
-				oc.write((String) value, "value", null);
-				break;
-			case IDP_INT:
-				oc.write((Integer) value, "value", 0);
-				break;
-			case IDP_FLOAT:
-				oc.write((Float) value, "value", 0);
-				break;
-			case IDP_ARRAY:
-				switch (subType) {
-					case IDP_INT:
-						oc.write((int[]) value, "value", null);
-						break;
-					case IDP_FLOAT:
-						oc.write((float[]) value, "value", null);
-						break;
-					case IDP_DOUBLE:
-						oc.write((double[]) value, "value", null);
-						break;
-					default:
-						LOGGER.warning("Cannot save the property's value! Invalid array subtype! Property: name: " + name + "; subtype: " + subType);
-				}
-			case IDP_GROUP:
-				oc.writeSavableArrayList((ArrayList<Properties>) value, "value", null);
-				break;
-			case IDP_DOUBLE:
-				oc.write((Double) value, "value", 0);
-				break;
-			case IDP_IDPARRAY:
-				oc.writeSavableArrayList((ArrayList) value, "value", null);
-				break;
-			case IDP_NUMTYPES:
-				LOGGER.warning("Numtypes value not supported! Cannot write it!");
-				break;
-			// case IDP_ID://not yet implemented in blender
-			// break;
-			default:
-				LOGGER.warning("Cannot save the property's value! Invalid type! Property: name: " + name + "; type: " + type);
-		}
-	}
-
-	@Override
-	public void read(JmeImporter im) throws IOException {
-		InputCapsule ic = im.getCapsule(this);
-		name = ic.readString("name", DEFAULT_NAME);
-		type = ic.readInt("type", 0);
-		subType = ic.readInt("subtype", 0);
-		description = ic.readString("description", null);
-		switch (type) {
-			case IDP_STRING:
-				value = ic.readString("value", null);
-				break;
-			case IDP_INT:
-				value = Integer.valueOf(ic.readInt("value", 0));
-				break;
-			case IDP_FLOAT:
-				value = Float.valueOf(ic.readFloat("value", 0.0f));
-				break;
-			case IDP_ARRAY:
-				switch (subType) {
-					case IDP_INT:
-						value = ic.readIntArray("value", null);
-						break;
-					case IDP_FLOAT:
-						value = ic.readFloatArray("value", null);
-						break;
-					case IDP_DOUBLE:
-						value = ic.readDoubleArray("value", null);
-						break;
-					default:
-						LOGGER.warning("Cannot read the property's value! Invalid array subtype! Property: name: " + name + "; subtype: " + subType);
-				}
-			case IDP_GROUP:
-				value = ic.readSavable("value", null);
-				break;
-			case IDP_DOUBLE:
-				value = Double.valueOf(ic.readDouble("value", 0.0));
-				break;
-			case IDP_IDPARRAY:
-				value = ic.readSavableArrayList("value", null);
-				break;
-			case IDP_NUMTYPES:
-				LOGGER.warning("Numtypes value not supported! Cannot read it!");
-				break;
-			// case IDP_ID://not yet implemented in blender
-			// break;
-			default:
-				LOGGER.warning("Cannot read the property's value! Invalid type! Property: name: " + name + "; type: " + type);
-		}
-	}
-        */
 
 	@Override
 	public int hashCode() {
