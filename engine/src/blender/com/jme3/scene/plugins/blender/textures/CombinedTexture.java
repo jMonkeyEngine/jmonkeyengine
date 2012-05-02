@@ -210,6 +210,13 @@ public class CombinedTexture {
 	public List<Vector2f> getResultUVS() {
 		return resultUVS;
 	}
+	
+	/**
+	 * @return the amount of added textures
+	 */
+	public int getTexturesCount() {
+		return textureDatas.size();
+	}
 
 	/**
 	 * This method merges two given textures. The result is stored in the

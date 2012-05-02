@@ -126,23 +126,24 @@ public final class MaterialContext {
 		TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
 		for(Entry<Number, List<TextureData>> entry : textureDataMap.entrySet()) {
 			if(entry.getValue().size()>0) {
-				CombinedTexture combinedTexture = loadedTextures.get(entry.getKey());
-				if(combinedTexture == null) {
-					combinedTexture = new CombinedTexture();
-					loadedTextures.put(entry.getKey(), combinedTexture);
-				}
+				CombinedTexture combinedTexture = new CombinedTexture();
 				for(TextureData textureData : entry.getValue()) {
 					int texflag = ((Number) textureData.mtex.getFieldValue("texflag")).intValue();
 					boolean negateTexture = (texflag & 0x04) != 0;
 					Texture texture = textureHelper.getTexture(textureData.textureStructure, textureData.mtex, blenderContext);
-					int blendType = ((Number) textureData.mtex.getFieldValue("blendtype")).intValue();
-					float[] color = new float[] { ((Number) textureData.mtex.getFieldValue("r")).floatValue(), 
-												  ((Number) textureData.mtex.getFieldValue("g")).floatValue(), 
-												  ((Number) textureData.mtex.getFieldValue("b")).floatValue() };
-					float colfac = ((Number) textureData.mtex.getFieldValue("colfac")).floatValue();
-					TextureBlender textureBlender = TextureBlenderFactory.createTextureBlender(texture.getImage().getFormat(),
-							texflag, negateTexture, blendType, diffuseColorArray, color, colfac);
-					combinedTexture.add(texture, textureBlender, textureData.uvCoordinatesType, textureData.projectionType, textureData.textureStructure, blenderContext);
+					if(texture != null) {
+						int blendType = ((Number) textureData.mtex.getFieldValue("blendtype")).intValue();
+						float[] color = new float[] { ((Number) textureData.mtex.getFieldValue("r")).floatValue(), 
+													  ((Number) textureData.mtex.getFieldValue("g")).floatValue(), 
+													  ((Number) textureData.mtex.getFieldValue("b")).floatValue() };
+						float colfac = ((Number) textureData.mtex.getFieldValue("colfac")).floatValue();
+						TextureBlender textureBlender = TextureBlenderFactory.createTextureBlender(texture.getImage().getFormat(),
+								texflag, negateTexture, blendType, diffuseColorArray, color, colfac);
+						combinedTexture.add(texture, textureBlender, textureData.uvCoordinatesType, textureData.projectionType, textureData.textureStructure, blenderContext);
+					}
+				}
+				if(combinedTexture.getTexturesCount() > 0) {
+					loadedTextures.put(entry.getKey(), combinedTexture);
 				}
 			}
 		}
