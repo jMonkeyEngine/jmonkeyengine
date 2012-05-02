@@ -143,6 +143,7 @@ public class SkyboxWizardPanel2 implements WizardDescriptor.Panel {
             float z = new Float(comp.getNormal2Z().getText());
             wiz.putProperty("normalScale", new Vector3f(x,y,z) );
             wiz.putProperty("useSpheremap", comp.getSpheremapCheckBox().isSelected());
+            wiz.putProperty("flipY", comp.getFlipYCheckBox().isSelected());
         }
     }
 }

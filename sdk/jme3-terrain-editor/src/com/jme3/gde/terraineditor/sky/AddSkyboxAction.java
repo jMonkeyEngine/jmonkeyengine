@@ -4,6 +4,7 @@
  */
 package com.jme3.gde.terraineditor.sky;
 
+import com.jme3.asset.TextureKey;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractNewSpatialWizardAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewSpatialAction;
 import com.jme3.math.Vector3f;
@@ -68,7 +69,13 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction {
             Texture textureSingle = (Texture) wiz.getProperty("textureSingle");
             Vector3f normalScale = (Vector3f) wiz.getProperty("normalScale");
             boolean useSpheremap = (Boolean) wiz.getProperty("useSpheremap");
-            return SkyFactory.createSky(pm, textureSingle, normalScale, useSpheremap);
+            boolean flipY = (Boolean) wiz.getProperty("flipY");
+            // reload the texture so we can use flipY
+            TextureKey key = (TextureKey) textureSingle.getKey();
+            TextureKey newKey = new TextureKey(key.getName(), flipY);
+            newKey.setGenerateMips(true);
+            newKey.setAsCube(!useSpheremap);
+            return SkyFactory.createSky(pm, pm.loadTexture(newKey), normalScale, useSpheremap);
         }
     }
 
