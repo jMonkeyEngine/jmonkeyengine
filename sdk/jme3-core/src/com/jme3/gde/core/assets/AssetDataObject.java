@@ -193,7 +193,7 @@ public class AssetDataObject extends MultiDataObject {
 
     public synchronized void saveAsset() throws IOException {
         if (savable == null) {
-            Logger.getLogger(AssetDataObject.class.getName()).log(Level.WARNING, "Trying to save asset that has not been loaded before or does not support saving!");
+            Logger.getLogger(AssetDataObject.class.getName()).log(Level.WARNING, "Trying to write asset failed, asset data null!\nImport failed?");
             return;
         }
         final Savable savable = this.savable;
