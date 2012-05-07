@@ -145,7 +145,7 @@ public class MoveTool extends SceneEditTool {
         if (character != null) {
             character.setPhysicsLocation(toolController.getSelectedSpatial().getWorldTranslation());
         }
-        updateToolsTransformation();
+        doUpdateToolsTransformation();
         
         wasDragging = true;
     }

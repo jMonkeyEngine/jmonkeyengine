@@ -123,25 +123,31 @@ public abstract class SceneEditTool {
     /**
      * Called when the selected spatial has been modified
      * outside of the tool.
+     * TODO: why? just move the tool where the object is each frame?
      */
     public void updateToolsTransformation() {
 
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {
-                if (toolController.getSelectedSpatial() != null) {
-                    axisMarker.setLocalTranslation(toolController.getSelectedSpatial().getWorldTranslation());
-                    axisMarker.setLocalRotation(toolController.getSelectedSpatial().getWorldRotation());
-                    setAxisMarkerScale(toolController.getSelectedSpatial());
-                } else {
-                    axisMarker.setLocalTranslation(Vector3f.ZERO);
-                    axisMarker.setLocalRotation(Quaternion.IDENTITY);
-                }
+                doUpdateToolsTransformation();
                 return null;
             }
+
         });
     }
 
+    public void doUpdateToolsTransformation() {
+        if (toolController.getSelectedSpatial() != null) {
+            axisMarker.setLocalTranslation(toolController.getSelectedSpatial().getWorldTranslation());
+            axisMarker.setLocalRotation(toolController.getSelectedSpatial().getWorldRotation());
+            setAxisMarkerScale(toolController.getSelectedSpatial());
+        } else {
+            axisMarker.setLocalTranslation(Vector3f.ZERO);
+            axisMarker.setLocalRotation(Quaternion.IDENTITY);
+        }
+    }
+    
     /**
      * Adjust the scale of the marker so it is relative to the size of the
      * selected spatial. It will have a minimum scale of 2.

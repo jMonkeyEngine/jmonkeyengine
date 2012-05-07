@@ -104,7 +104,7 @@ public class SceneComposerToolController extends SceneToolController {
             onTopToolsNode.updateGeometricState();
         }
         if (editTool != null) {
-            editTool.updateToolsTransformation();
+            editTool.doUpdateToolsTransformation();
         }
 
     }
@@ -154,13 +154,7 @@ public class SceneComposerToolController extends SceneToolController {
 
     public void selectedSpatialTransformed() {
         if (editTool != null) {
-            SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
-                public Object call() throws Exception {
-                    editTool.updateToolsTransformation();
-                    return null;
-                }
-            });
+            editTool.updateToolsTransformation();
         }
     }
 
