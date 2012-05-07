@@ -413,7 +413,7 @@ public class ProjectExtensionManager {
                 extender.removeLibrary(LibraryManager.getDefault().getLibrary(name));
 //                ProjectManager.getDefault().saveProject(proj);
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }
     }
