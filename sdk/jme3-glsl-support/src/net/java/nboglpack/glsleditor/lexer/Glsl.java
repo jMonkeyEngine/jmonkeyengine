@@ -1,10 +1,9 @@
 /*
  * VertexLanguage.java
- * 
+ *
  * Created on 19.08.2007, 18:25:24
- * 
+ *
  */
-
 package net.java.nboglpack.glsleditor.lexer;
 
 import java.util.Collection;
@@ -23,17 +22,16 @@ import org.netbeans.spi.lexer.LexerRestartInfo;
  * @author Michael Bien
  */
 public class Glsl extends LanguageHierarchy<GlslTokenId> {
- 
- public static final Glsl VERTEX_LANGUAGE = new Glsl(GlslVertexShaderDataLoader.REQUIRED_MIME);
- public static final Glsl GEOMETRY_LANGUAGE = new Glsl(GlslGeometryShaderDataLoader.REQUIRED_MIME);
- public static final Glsl FRAGMENT_LANGUAGE = new Glsl(GlslFragmentShaderDataLoader.REQUIRED_MIME);
- 
- private final String mimeType;
- 
- private Glsl(String mimeType) {
-     this.mimeType = mimeType;
- }
- 
+
+    public static final Glsl VERTEX_LANGUAGE = new Glsl(GlslVertexShaderDataLoader.REQUIRED_MIME);
+    public static final Glsl GEOMETRY_LANGUAGE = new Glsl(GlslGeometryShaderDataLoader.REQUIRED_MIME);
+    public static final Glsl FRAGMENT_LANGUAGE = new Glsl(GlslFragmentShaderDataLoader.REQUIRED_MIME);
+    private final String mimeType;
+
+    private Glsl(String mimeType) {
+        this.mimeType = mimeType;
+    }
+
     @Override
     protected String mimeType() {
         return mimeType;
@@ -43,19 +41,21 @@ public class Glsl extends LanguageHierarchy<GlslTokenId> {
     protected Collection<GlslTokenId> createTokenIds() {
         return EnumSet.allOf(GlslTokenId.class);
     }
-    
+
     @Override
     protected Lexer<GlslTokenId> createLexer(LexerRestartInfo<GlslTokenId> info) {
         return new GlslLexer(info, GlslVocabularyManager.getInstance(mimeType()));
     }
-    
-    public static Language<GlslTokenId> vertexLanguage(){
+
+    public static Language<GlslTokenId> vertexLanguage() {
         return VERTEX_LANGUAGE.language();
     }
-    public static Language<GlslTokenId> fragmentLanguage(){
+
+    public static Language<GlslTokenId> fragmentLanguage() {
         return FRAGMENT_LANGUAGE.language();
     }
-    public static Language<GlslTokenId> geometryLanguage(){
+
+    public static Language<GlslTokenId> geometryLanguage() {
         return GEOMETRY_LANGUAGE.language();
     }
 }

@@ -14,7 +14,6 @@ import org.openide.text.CloneableEditorSupport;
 import org.openide.util.Lookup;
 import org.openide.text.DataEditorSupport;
 
-
 /**
  * @author Michael Bien
  */
@@ -30,21 +29,7 @@ public class GlslGeometryShaderDataObject extends MultiDataObject {
         observer = new GlslShaderFileObserver(this);
 
         final CloneableEditorSupport support = DataEditorSupport.create(this, getPrimaryEntry(), cookies);
-        support.addPropertyChangeListener(new PropertyChangeListener() {
-
-            public void propertyChange(PropertyChangeEvent event) {
-                if ("document".equals(event.getPropertyName())) {
-                    if (event.getNewValue() != null) {
-                        support.getDocument().addDocumentListener(observer);
-                        observer.runCompileTask();
-                    } else if (event.getOldValue() != null) {
-                        // cylab: I think this is never called.
-                        // But I don't know if unregistering the observer makes any difference...
-                        ((Document) event.getOldValue()).removeDocumentListener(observer);
-                    }
-                }
-            }
-        });
+        support.addPropertyChangeListener(new PropertyChangeListenerImpl(support));
         cookies.add((Node.Cookie) support);
     }
 
@@ -56,5 +41,27 @@ public class GlslGeometryShaderDataObject extends MultiDataObject {
     @Override
     public Lookup getLookup() {
         return getCookieSet().getLookup();
+    }
+
+    private class PropertyChangeListenerImpl implements PropertyChangeListener {
+
+        private final CloneableEditorSupport support;
+
+        public PropertyChangeListenerImpl(CloneableEditorSupport support) {
+            this.support = support;
+        }
+
+        public void propertyChange(PropertyChangeEvent event) {
+            if ("document".equals(event.getPropertyName())) {
+                if (event.getNewValue() != null) {
+                    support.getDocument().addDocumentListener(observer);
+                    observer.runCompileTask();
+                } else if (event.getOldValue() != null) {
+                    // cylab: I think this is never called.
+                    // But I don't know if unregistering the observer makes any difference...
+                    ((Document) event.getOldValue()).removeDocumentListener(observer);
+                }
+            }
+        }
     }
 }

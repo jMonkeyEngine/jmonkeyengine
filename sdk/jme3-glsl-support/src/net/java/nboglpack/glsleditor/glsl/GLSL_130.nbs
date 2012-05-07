@@ -176,10 +176,10 @@ assignment_operator = <EQ>
 
 comperator = <LEFT_ANGLE> | <RIGHT_ANGLE> | <LE> | <GE> | <EQEQ> | <NE>;
 
-operator = <PLUS> 
-         | <MINUS> 
-         | <STAR> 
-         | <SLASH> 
+operator = <PLUS>
+         | <MINUS>
+         | <STAR>
+         | <SLASH>
          | <AMP>
          | <AMPAMP>
          | <BAR>            # reserved
@@ -191,13 +191,13 @@ operator = <PLUS>
          | <LEFT_BITSHIFT>; # reserved
 
 unary_operator = <PLUS>
-               | <MINUS> 
-               | <BANG> 
+               | <MINUS>
+               | <BANG>
                | <TILDE>; # reserved
 
 increment_or_decrement_operator = <PLUSPLUS> | <MINUSMINUS>;
 
-reserved = "asm" 
+reserved = "asm"
          | "common"
          | "partition"
          | "active"
@@ -213,9 +213,9 @@ reserved = "asm"
          | "noinline"
          | "volatile"
          | "public"
-         | "static" 
-         | "extern" 
-         | "external" 
+         | "static"
+         | "extern"
+         | "external"
          | "interface"
          | "long"
          | "short"
@@ -284,6 +284,7 @@ global_identifier_list = global_declared_identifier [array_index] (<COMMA> globa
 global_declared_identifier = <IDENTIFIER>;
 global_preprocessor = <PREPROCESSOR>;
 
+field_declaration = ("in" | "uniform") type_specifier_or_identifier <BUILD_IN_VAR> ;
 field_declaration = global_type_qualifier struct_declaration;
 field_declaration = global_type_qualifier global_type_declaration [assignment2];
 
@@ -364,7 +365,7 @@ constructor_call = type_specifier [array_index] "(" [expression_list] ")"; #TODO
 expression_list = "void" | (expression (<COMMA> expression)*);
 
 ## code flow ###################################################################
-conditional_statement = if_statement 
+conditional_statement = if_statement
                       | for_statement
                       | while_statement
                       | do_while_statement

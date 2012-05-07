@@ -23,14 +23,12 @@ import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.Map;
 import net.java.nboglpack.glsleditor.dataobject.GlslFragmentShaderDataLoader;
 import net.java.nboglpack.glsleditor.dataobject.GlslGeometryShaderDataLoader;
 import net.java.nboglpack.glsleditor.dataobject.GlslVertexShaderDataLoader;
 import net.java.nboglpack.glsleditor.glsl.Glsl;
 import net.java.nboglpack.glsleditor.vocabulary.GLSLElementDescriptor;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
-
 
 /**
  * Completion provider for the OpenGL Shading Language editor.
@@ -41,9 +39,8 @@ import org.netbeans.spi.editor.completion.support.CompletionUtilities;
 public class GlslCompletionProvider implements CompletionProvider {
 
     private static final ErrorManager LOGGER = ErrorManager.getDefault().getInstance(GlslCompletionProvider.class.getName());
-
     private final String mimeType;
-    
+
     private GlslCompletionProvider(String mimeType) {
         this.mimeType = mimeType;
     }
@@ -55,20 +52,19 @@ public class GlslCompletionProvider implements CompletionProvider {
     public int getAutoQueryTypes(JTextComponent component, String typedText) {
         return 0;
     }
-    
-    public static GlslCompletionProvider createVSCompletionProvider(){
+
+    public static GlslCompletionProvider createVSCompletionProvider() {
         return new GlslCompletionProvider(GlslVertexShaderDataLoader.REQUIRED_MIME);
     }
-    
-    public static GlslCompletionProvider createGSCompletionProvider(){
+
+    public static GlslCompletionProvider createGSCompletionProvider() {
         return new GlslCompletionProvider(GlslGeometryShaderDataLoader.REQUIRED_MIME);
     }
-    
-    public static GlslCompletionProvider createFSCompletionProvider(){
+
+    public static GlslCompletionProvider createFSCompletionProvider() {
         return new GlslCompletionProvider(GlslFragmentShaderDataLoader.REQUIRED_MIME);
     }
 
-    
     private static class GlslCompletionQuery extends AsyncCompletionQuery {
 
         private GlslVocabularyManager vocabulary;
@@ -78,13 +74,13 @@ public class GlslCompletionProvider implements CompletionProvider {
         }
 
         protected void query(CompletionResultSet completionResultSet, Document document, int pos) {
-            
+
             fillResultset(completionResultSet, document, pos);
             completionResultSet.finish();
         }
 
         private void fillResultset(CompletionResultSet completionResultSet, Document doc, int pos) {
-            
+
             Element paragraph = ((BaseDocument) doc).getParagraphElement(pos);
             String prefix;
             try {
@@ -99,14 +95,14 @@ public class GlslCompletionProvider implements CompletionProvider {
             }
 
             // add user declared functions first
-            synchronized(Glsl.declaredFunctions) {
+            synchronized (Glsl.declaredFunctions) {
                 Set<Entry<String, GLSLElementDescriptor>> entrySet = Glsl.declaredFunctions.entrySet();
 
                 for (Entry<String, GLSLElementDescriptor> entry : entrySet) {
 
                     String name = entry.getKey();
                     GLSLElementDescriptor desc = entry.getValue();
-                    
+
                     if (name.regionMatches(true, 0, prefix, 0, prefix.length())) {
                         completionResultSet.addItem(new GlslCompletionItem(name.substring(0, name.indexOf('(')), desc, prefix, pos));
                     }
@@ -116,21 +112,22 @@ public class GlslCompletionProvider implements CompletionProvider {
 
             // add core GLSL completion items
             Iterator it = vocabulary.getKeys().iterator();
-            
+
             while (it.hasNext()) {
 
                 String name = (String) it.next();
-                
+
                 if (name.regionMatches(true, 0, prefix, 0, prefix.length())) {
 
                     GLSLElementDescriptor[] elements = vocabulary.getDesc(name);
-                    
+
                     if (elements != null) {
-                        for (GLSLElementDescriptor element : elements) 
+                        for (GLSLElementDescriptor element : elements) {
                             completionResultSet.addItem(new GlslCompletionItem(name, element, prefix, pos));
+                        }
                     }
                 }
-                
+
             }
         }
     }
@@ -141,14 +138,11 @@ public class GlslCompletionProvider implements CompletionProvider {
         private GLSLElementDescriptor content;
         private int carretPosition = 0;
         private String prefix;
-
         private String leftText;
         private String rightText;
-
         private String ARGUMENTS_COLOR = "<font color=#b28b00>";
         private String BUILD_IN_VAR_COLOR = "<font color=#ce7b00>";
         private String KEYWORD_COLOR = "<font color=#000099>";
-
         private int priority;
 
         public GlslCompletionItem(String key, GLSLElementDescriptor content, String prefix, int carretPosition) {
@@ -207,7 +201,7 @@ public class GlslCompletionProvider implements CompletionProvider {
                     text.append(BUILD_IN_VAR_COLOR);
                     break;
             }
-            
+
             text.append("<b>");
             text.append(key);
             text.append("</b></font>");
@@ -224,8 +218,8 @@ public class GlslCompletionProvider implements CompletionProvider {
             Completion.get().hideAll();
             // replace prefix with key
             try {
-                component.getDocument().remove(carretPosition-prefix.length(), prefix.length());
-                component.getDocument().insertString(carretPosition-prefix.length(), key, null);
+                component.getDocument().remove(carretPosition - prefix.length(), prefix.length());
+                component.getDocument().insertString(carretPosition - prefix.length(), key, null);
             } catch (BadLocationException e) {
                 LOGGER.notify(e);
             }
@@ -240,9 +234,9 @@ public class GlslCompletionProvider implements CompletionProvider {
         }
 
         public void render(Graphics g, Font defaultFont, Color defaultColor, Color backgroundColor, int width, int height, boolean selected) {
-            
+
             CompletionUtilities.renderHtml(null, leftText, rightText, g, defaultFont, defaultColor, width, height, selected);
-            
+
         }
 
         public CompletionTask createDocumentationTask() {
@@ -250,8 +244,9 @@ public class GlslCompletionProvider implements CompletionProvider {
             if (content.doc == null) {
                 return null;
             }
-            
+
             return new AsyncCompletionTask(new AsyncCompletionQuery() {
+
                 private GlslDocItem item = new GlslDocItem(key, content);
 
                 protected void query(CompletionResultSet completionResultSet, Document document, int i) {
@@ -288,23 +283,23 @@ public class GlslCompletionProvider implements CompletionProvider {
         private String text;
 
         public GlslDocItem(String item, GLSLElementDescriptor content) {
-            
+
             StringBuilder sb = new StringBuilder();
             sb.append("<code>");
-            if(content.type != null) {
+            if (content.type != null) {
                 sb.append(content.type);
                 sb.append(" ");
             }
             sb.append("<b>");
             sb.append(item);
             sb.append("</b>");
-            if(content.arguments != null) {
+            if (content.arguments != null) {
                 sb.append(content.arguments);
             }
             sb.append("</code><p>");
             sb.append(content.doc);
             sb.append("</p>");
-            
+
             text = sb.toString();
         }
 
