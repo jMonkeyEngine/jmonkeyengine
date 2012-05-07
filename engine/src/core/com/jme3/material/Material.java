@@ -222,8 +222,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param otherObj the material to compare to this material
      * @return true if the materials are equal.
      */
-    @Override
-    public boolean equals(Object otherObj) {
+    public boolean contentEquals(Object otherObj) {
         if (!(otherObj instanceof Material)) {
             return false;
         }
@@ -287,16 +286,16 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return true;
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + (this.def != null ? this.def.hashCode() : 0);
-        hash = 29 * hash + (this.paramValues != null ? this.paramValues.hashCode() : 0);
-        hash = 29 * hash + (this.technique != null ? this.technique.getDef().getName().hashCode() : 0);
-        hash = 29 * hash + (this.additionalState != null ? this.additionalState.hashCode() : 0);
-        return hash;
-    }
-
+//    @Override
+//    public int hashCode() {
+//        int hash = 7;
+//        hash = 29 * hash + (this.def != null ? this.def.hashCode() : 0);
+//        hash = 29 * hash + (this.paramValues != null ? this.paramValues.hashCode() : 0);
+//        hash = 29 * hash + (this.technique != null ? this.technique.getDef().getName().hashCode() : 0);
+//        hash = 29 * hash + (this.additionalState != null ? this.additionalState.hashCode() : 0);
+//        return hash;
+//    }
+    
     /**
      * Returns the currently active technique.
      * <p>

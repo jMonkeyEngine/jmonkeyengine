@@ -241,9 +241,9 @@ public class BatchNode extends Node implements Savable {
                     }
                     List<Geometry> list = map.get(g.getMaterial());
                     if (list == null) {
-                        //trying to compare materials with the isEqual method 
+                        //trying to compare materials with the contentEquals method 
                         for ( Map.Entry<Material, List<Geometry>> mat : map.entrySet()) {
-                            if (g.getMaterial().equals(mat.getKey())) {
+                            if (g.getMaterial().contentEquals(mat.getKey())) {
                                 list = mat.getValue();
                             }
                         }

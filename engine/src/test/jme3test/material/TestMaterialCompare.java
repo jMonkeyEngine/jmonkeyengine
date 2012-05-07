@@ -105,7 +105,7 @@ public class TestMaterialCompare {
     }
 
     private static void testEquality(Material mat1, Material mat2, boolean expected) {
-        if (mat2.equals(mat1)) {
+        if (mat2.contentEquals(mat1)) {
             System.out.print(mat1.getName() + " == " + mat2.getName());
             if (expected) {
                 System.out.println(" EQUAL OK");
