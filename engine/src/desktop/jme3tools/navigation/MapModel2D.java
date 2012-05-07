@@ -1,12 +1,7 @@
 package jme3tools.navigation;
+
 import java.awt.Point;
 import java.text.DecimalFormat;
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 
 /**
  * A representation of the actual map in terms of lat/long and x,y co-ordinates.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -105,7 +105,7 @@ public abstract class PhysicsCollisionObject implements Savable {
 
     /**
      * Returns the collision group for this collision shape
-     * @return
+     * @return The collision group
      */
     public int getCollisionGroup() {
         return collisionGroup;
@@ -152,7 +152,7 @@ public abstract class PhysicsCollisionObject implements Savable {
 
     /**
      * Directly set the bitmask for collision groups that this object collides with.
-     * @param collisionGroup
+     * @param collisionGroups
      */
     public void setCollideWithGroups(int collisionGroups) {
         this.collisionGroupsMask = collisionGroups;
@@ -163,7 +163,7 @@ public abstract class PhysicsCollisionObject implements Savable {
 
     /**
      * Gets the bitmask of collision groups that this object collides with.
-     * @return
+     * @return Collision groups mask
      */
     public int getCollideWithGroups() {
         return collisionGroupsMask;
@@ -199,9 +199,9 @@ public abstract class PhysicsCollisionObject implements Savable {
     }
     
     /**
-     * creates a debug shape for this CollisionObject
+     * Creates a debug shape for this CollisionObject
      * @param manager
-     * @return 
+     * @return  The created debug shape
      */
     public Spatial createDebugShape(AssetManager manager){
         return attachDebugShape(manager);

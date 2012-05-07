@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -276,8 +276,10 @@ public class RenderQueue {
 
     /**
      * 
-     * @param shadBucket
-     * @return 
+     * @param shadBucket The shadow mode to retrieve the {@link GeometryList
+     * queue content} for.  Only {@link ShadowMode#Cast Cast} and
+     * {@link ShadowMode#Receive Receive} are valid.
+     * @return The cast or receive {@link GeometryList}
      */
     public GeometryList getShadowQueueContent(ShadowMode shadBucket) {
         switch (shadBucket) {

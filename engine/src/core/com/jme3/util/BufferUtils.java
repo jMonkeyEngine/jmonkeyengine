@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -433,7 +433,7 @@ public final class BufferUtils {
      * @param index
      *            the position (in terms of vectors, not floats) of the vector
      *            in the buffer to check against
-     * @return
+     * @return true if the data is equivalent, otherwise false.
      */
     public static boolean equals(Vector3f check, FloatBuffer buf, int index) {
         TempVars vars = TempVars.get();
@@ -638,7 +638,7 @@ public final class BufferUtils {
      * @param index
      *            the position (in terms of vectors, not floats) of the vector
      *            in the buffer to check against
-     * @return
+     * @return true if the data is equivalent, otherwise false.
      */
     public static boolean equals(Vector2f check, FloatBuffer buf, int index) {
         TempVars vars = TempVars.get();

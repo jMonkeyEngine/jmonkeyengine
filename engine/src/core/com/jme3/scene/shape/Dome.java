@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,7 @@ public class Dome extends Mesh {
      *            Influences how round the base of the dome is.
      * @param radius
      *            Radius of the dome.
-     * @see #Dome(java.lang.String, com.jme.math.Vector3f, int, int, float)
+     * @see #Dome(com.jme.math.Vector3f, int, int, float)
      */
     public Dome(int planes, int radialSamples, float radius) {
         this(new Vector3f(0, 0, 0), planes, radialSamples, radius);

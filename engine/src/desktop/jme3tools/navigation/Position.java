@@ -76,10 +76,11 @@ public class Position {
     /**
      * A new position expressed in NMEA GPS message format:
      * 4807.038,N,01131.000,E
-     * @param
-     * @param
-     * @param
-     * @param
+     * @param latNMEAGPS
+     * @param latQuad
+     * @param lngNMEAGPS
+     * @param lngQuad
+     * @param utcTimeStamp
      * @since  12.0
      */
     public Position(String latNMEAGPS, String latQuad, String lngNMEAGPS, String lngQuad, String utcTimeStamp) {

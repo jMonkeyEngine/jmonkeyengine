@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -302,7 +302,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
     private int anisotropicFilter;
 
     /**
-     * @return
+     * @return A cloned Texture object.
      */
     @Override
     public Texture clone(){

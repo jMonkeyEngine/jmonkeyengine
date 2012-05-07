@@ -64,7 +64,7 @@ the transformations for bones when no animated pose is applied to the skeleton.
 All bones <em>must</em> have a bind pose transformation before they can be
 animated. To set the bind pose for the skeleton, set the local (relative
 to parent) transformations for all the bones using the call
-{@link com.jme3.animation.Bone#setBindTransforms(com.jme3.math.Vector3f, com.jme3.math.Quaternion) }.
+{@link com.jme3.animation.Bone#setBindTransforms(com.jme3.math.Vector3f, com.jme3.math.Quaternion, com.jme3.math.Vector3f) }.
 Then call {@link com.jme3.animation.Skeleton#updateWorldVectors() } followed by
 {@link com.jme3.animation.Skeleton#setBindingPose() }. <br>
 <p>

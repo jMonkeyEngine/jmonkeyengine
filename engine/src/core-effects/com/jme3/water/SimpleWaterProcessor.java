@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -359,7 +359,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
     /**
      * Set the reflection Texture render size,
      * set before adding the processor!
-     * @param with
+     * @param width
      * @param height
      */
     public void setRenderSize(int width, int height) {

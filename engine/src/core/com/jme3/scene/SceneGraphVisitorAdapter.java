@@ -18,7 +18,7 @@ public class SceneGraphVisitorAdapter implements SceneGraphVisitor {
     public void visit(Geometry geom) {}
     
     /**
-     * Called when a {@link visit} is visited.
+     * Called when a {@link Node} is visited.
      * 
      * @param geom The visited node
      */

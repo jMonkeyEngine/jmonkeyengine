@@ -19,7 +19,7 @@ public class StringUtil {
      *
      * @param str the string to split up
      * @param delimiter the delimiter to use in splitting
-     * @returns an array of String objects equivalent to str
+     * @return an array of String objects equivalent to str
      */
     public String[] splitDelimitedStr(String str, String delimiter) {
         Pattern pttn = Pattern.compile(delimiter);
@@ -213,9 +213,9 @@ public class StringUtil {
     }
 
     /**
-     * Right aligns a float number with zeros for printing
+     * Right aligns a {@link String} with zeros for printing
      *
-     * @param num the number to be aligned
+     * @param input the String to be aligned
      * @param wholeLen the total length of the padded string
      * @return the padded number
      */

@@ -835,8 +835,8 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * returns true if the water uses foam
-     * @return
+     * Whether or not the water uses foam
+     * @return true if the water uses foam
      */
     public boolean isUseFoam() {
         return useFoam;
@@ -867,8 +867,8 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * returns true if caustics are rendered
-     * @return 
+     * Whether or not caustics are rendered
+     * @return true if caustics are rendered
      */
     public boolean isUseCaustics() {
         return useCaustics;
@@ -886,8 +886,8 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * return true 
-     * @return
+     * Whether or not the shader is set to use high-quality shoreline.
+     * @return true if high-quality shoreline is enabled
      */
     public boolean isUseHQShoreline() {
         return useHQShoreline;
@@ -902,8 +902,8 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * returns true if the water use the refraction
-     * @return 
+     * Whether or not the water uses the refraction
+     * @return true if the water uses refraction
      */
     public boolean isUseRefraction() {
         return useRefraction;
@@ -922,8 +922,8 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * returns true if the ater use ripples
-     * @return 
+     * Whether or not the water uses ripples
+     * @return true if the water is set to use ripples
      */
     public boolean isUseRipples() {
         return useRipples;
@@ -931,7 +931,7 @@ public class WaterFilter extends Filter {
 
     /**
      * 
-     * Set to true tu use ripples
+     * Set to true to use ripples
      * @param useRipples 
      */
     public void setUseRipples(boolean useRipples) {
@@ -943,8 +943,8 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * returns true if the water use specular
-     * @return 
+     * Whether or not the water is using specular
+     * @return true if the water is set to use specular
      */
     public boolean isUseSpecular() {
         return useSpecular;
@@ -983,7 +983,7 @@ public class WaterFilter extends Filter {
 
     /**
      * returns the reflection displace
-     * see {@link setReflectionDisplace(float reflectionDisplace)}
+     * see {@link #setReflectionDisplace(float) }
      * @return 
      */
     public float getReflectionDisplace() {
@@ -1002,8 +1002,8 @@ public class WaterFilter extends Filter {
     }
 
     /**
-     * returns true if the camera is under the water level
-     * @return 
+     * Whether or not the camera is under the water level
+     * @return true if the camera is under the water level
      */
     public boolean isUnderWater() {
         return underWater;
