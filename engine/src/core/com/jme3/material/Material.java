@@ -216,13 +216,15 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
-     * Compares two materials and returns true if they are equal.
-     * This methods compare definition, parameters, additional render states
+     * Compares two materials and returns true if they are equal. 
+     * This methods compare definition, parameters, additional render states.
+     * Since materials are mutable objects, implementing equals() properly is not possible, 
+     * hence the name dynamicEquals().
      * 
      * @param otherObj the material to compare to this material
      * @return true if the materials are equal.
      */
-    public boolean equals(Object otherObj) {
+    public boolean dynamicEquals(Object otherObj) {
         if (!(otherObj instanceof Material)) {
             return false;
         }
