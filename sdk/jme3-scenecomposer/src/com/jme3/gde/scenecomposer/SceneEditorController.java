@@ -54,7 +54,8 @@ import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
 /**
- *
+ * Example of a class that edits the scene, logic happens on the AWT side,
+ * do.. methods do not use global variables.
  * @author normenhansen
  */
 @SuppressWarnings("unchecked")
@@ -210,11 +211,10 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         }
         Vector3f after = new Vector3f(localTranslation);
         selected.setLocalTranslation(localTranslation);
-        AbstractSceneExplorerNode selectedSpat = this.selectedSpat;
-        moveUndo(selected, before, after, selectedSpat);
+        moveUndo(selected, before, after);
     }
     
-    private void moveUndo(final Spatial spatial, final Vector3f before, final Vector3f after, final AbstractSceneExplorerNode parentNode) {
+    private void moveUndo(final Spatial spatial, final Vector3f before, final Vector3f after) {
         if (spatial != null && before != null) {
             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
                 
@@ -261,10 +261,10 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         Vector3f before = new Vector3f(selected.getLocalTranslation());
         selected.setLocalTranslation(before.add(translation));
         Vector3f after = new Vector3f(selected.getLocalTranslation());
-        nudgeUndo(selected, before, after, selectedSpat);
+        nudgeUndo(selected, before, after);
     }
     
-    private void nudgeUndo(final Spatial spatial, final Vector3f before, final Vector3f after, final AbstractSceneExplorerNode parentNode) {
+    private void nudgeUndo(final Spatial spatial, final Vector3f before, final Vector3f after) {
         if (spatial != null && before != null) {
             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
                 
@@ -311,10 +311,10 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
         Quaternion before = new Quaternion(selected.getLocalRotation());
         selected.rotate(rotation);
         Quaternion after = new Quaternion(selected.getLocalRotation());
-        rotateUndo(selected, before, after, selectedSpat);
+        rotateUndo(selected, before, after);
     }
     
-    private void rotateUndo(final Spatial spatial, final Quaternion before, final Quaternion after, final AbstractSceneExplorerNode parentNode) {
+    private void rotateUndo(final Spatial spatial, final Quaternion before, final Quaternion after) {
         if (spatial != null && before != null) {
             Lookup.getDefault().lookup(SceneUndoRedoManager.class).addEdit(this, new AbstractUndoableSceneEdit() {
                 
@@ -422,8 +422,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             parent.attachChild(selected);
         }
         refreshSelected();
-        AbstractSceneExplorerNode selectedSpat = this.selectedSpat;
-        addControlUndo(parent, control, selectedSpat);
+        addControlUndo(parent, control, jmeRootNode);
     }
     
     public void createDynamicPhysicsMeshForSelectedSpatial(final float weight) {
@@ -463,8 +462,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             parent.attachChild(selected);
         }
         refreshSelected();
-        AbstractSceneExplorerNode selectedSpat = this.selectedSpat;
-        addControlUndo(parent, control, selectedSpat);
+        addControlUndo(parent, control, jmeRootNode);
     }
     
     public void createCharacterControlForSelectedSpatial(final boolean auto, final float radius, final float height) {
@@ -509,8 +507,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
             parent.attachChild(selected);
         }
         refreshSelected();
-        AbstractSceneExplorerNode selectedSpat = this.selectedSpat;
-        addControlUndo(parent, control, selectedSpat);
+        addControlUndo(parent, control, jmeRootNode);
     }
     
     private void addControlUndo(final Node undoParent, final Control undoControl, final AbstractSceneExplorerNode parentNode) {
@@ -583,7 +580,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
                 }
             }
             refreshSelected();
-            addSpatialUndo(selected, linkNode, null, selectedSpat);
+            addSpatialUndo(selected, linkNode, null, jmeRootNode);
         } catch (Exception ex) {
             Confirmation msg = new NotifyDescriptor.Confirmation(
                     "Error importing " + file.getName() + "\n" + ex.toString(),
@@ -632,7 +629,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
                     selected.worldToLocal(location, localVec);
                     linkNode.setLocalTranslation(localVec);
                 }
-                addSpatialUndo(selected, linkNode, null, selectedSpat);
+                addSpatialUndo(selected, linkNode, null, jmeRootNode);
             }
             refreshSelected();
         } catch (Exception ex) {
@@ -682,7 +679,7 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
                 }
             }
             refreshSelected();
-            addSpatialUndo(selected, file, null, selectedSpat);
+            addSpatialUndo(selected, file, null, jmeRootNode);
         } catch (Exception ex) {
             Confirmation msg = new NotifyDescriptor.Confirmation(
                     "Error importing " + file.getName() + "\n" + ex.toString(),
