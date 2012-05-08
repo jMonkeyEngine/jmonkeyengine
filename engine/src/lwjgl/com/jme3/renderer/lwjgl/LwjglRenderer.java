@@ -267,8 +267,8 @@ public class LwjglRenderer implements Renderer {
         if (ctxCaps.GL_ARB_depth_buffer_float) {
             caps.add(Caps.FloatDepthBuffer);
         }
-        
-        if (ctxCaps.OpenGL30){
+
+        if (ctxCaps.OpenGL30) {
             caps.add(Caps.PackedDepthStencilBuffer);
         }
 
@@ -449,7 +449,7 @@ public class LwjglRenderer implements Renderer {
     }
 
     public void setAlphaToCoverage(boolean value) {
-        if (caps.contains(Caps.Multisample)){
+        if (caps.contains(Caps.Multisample)) {
             if (value) {
                 glEnable(ARBMultisample.GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
             } else {
@@ -992,10 +992,10 @@ public class LwjglRenderer implements Renderer {
                         new Object[]{source.getName(), infoLog});
             } else {
                 logger.log(Level.FINE, "{0} compile success", source.getName());
-            }            
-        } else {                        
+            }
+        } else {
             logger.log(Level.WARNING, "Bad compile of:\n{0}",
-                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource(),stringBuf.toString())});
+                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource(), stringBuf.toString())});
             if (infoLog != null) {
                 throw new RendererException("compile error in:" + source + " error:" + infoLog);
             } else {
@@ -1362,7 +1362,7 @@ public class LwjglRenderer implements Renderer {
         }
 
         TextureUtil.GLImageFormat glFmt = TextureUtil.getImageFormatWithError(rb.getFormat());
-        
+
         if (fb.getSamples() > 1 && GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
             int samples = fb.getSamples();
             if (maxFBOSamples < samples) {
@@ -1406,7 +1406,7 @@ public class LwjglRenderer implements Renderer {
 
         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                 convertAttachmentSlot(rb.getSlot()),
-                convertTextureType(tex.getType(), image.getMultiSamples()),
+                convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
                 image.getId(),
                 0);
     }
@@ -1503,7 +1503,7 @@ public class LwjglRenderer implements Renderer {
                         && tex.getMinFilter().usesMipMapLevels()) {
                     setTexture(0, rb.getTexture());
 
-                    int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples());
+                    int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
                     glEnable(textureType);
                     glGenerateMipmapEXT(textureType);
                     glDisable(textureType);
@@ -1655,7 +1655,7 @@ public class LwjglRenderer implements Renderer {
     /*********************************************************************\
     |* Textures                                                          *|
     \*********************************************************************/
-    private int convertTextureType(Texture.Type type, int samples) {
+    private int convertTextureType(Texture.Type type, int samples, int face) {
         switch (type) {
             case TwoDimensional:
                 if (samples > 1) {
@@ -1672,7 +1672,13 @@ public class LwjglRenderer implements Renderer {
             case ThreeDimensional:
                 return GL_TEXTURE_3D;
             case CubeMap:
-                return GL_TEXTURE_CUBE_MAP;
+                if (face < 0) {
+                    return GL_TEXTURE_CUBE_MAP;
+                } else if (face < 6) {
+                    return GL_TEXTURE_CUBE_MAP_POSITIVE_X + face;
+                } else {
+                    throw new UnsupportedOperationException("Invalid cube map face index: " + face);
+                }
             default:
                 throw new UnsupportedOperationException("Unknown texture type: " + type);
         }
@@ -1728,7 +1734,7 @@ public class LwjglRenderer implements Renderer {
     @SuppressWarnings("fallthrough")
     private void setupTextureParams(Texture tex) {
         Image image = tex.getImage();
-        int target = convertTextureType(tex.getType(), image != null ? image.getMultiSamples() : 1);
+        int target = convertTextureType(tex.getType(), image != null ? image.getMultiSamples() : 1, -1);
 
         // filter things
         int minFilter = convertMinFilter(tex.getMinFilter());
@@ -1787,8 +1793,8 @@ public class LwjglRenderer implements Renderer {
             statistics.onNewTexture();
         }
 
-        // bind texture
-        int target = convertTextureType(type, img.getMultiSamples());
+        // bind texture       
+        int target = convertTextureType(type, img.getMultiSamples(), -1);
         if (context.boundTextureUnit != unit) {
             glActiveTexture(GL_TEXTURE0 + unit);
             context.boundTextureUnit = unit;
@@ -1893,7 +1899,7 @@ public class LwjglRenderer implements Renderer {
 
         Image[] textures = context.boundTextures;
 
-        int type = convertTextureType(tex.getType(), image.getMultiSamples());
+        int type = convertTextureType(tex.getType(), image.getMultiSamples(), -1);
 //        if (!context.textureIndexList.moveToNew(unit)) {
 //             if (context.boundTextureUnit != unit){
 //                glActiveTexture(GL_TEXTURE0 + unit);

@@ -92,7 +92,8 @@ public class FrameBuffer extends NativeObject {
         Image.Format format;
         int id = -1;
         int slot = -1;
-
+        int face = -1;
+        
         /**
          * @return The image format of the render buffer.
          */
@@ -127,6 +128,10 @@ public class FrameBuffer extends NativeObject {
          */
         public int getSlot() {
             return slot;
+        }
+        
+        public int getFace() {
+            return face;
         }
 
         public void resetObject(){
@@ -305,14 +310,28 @@ public class FrameBuffer extends NativeObject {
     /**
      * Set the color texture to use for this framebuffer.
      * This automatically clears all existing textures added previously
-     * with {@link FrameBuffer#addColorTexture(com.jme3.texture.Texture2D) }
-     * and adds this texture as the only target.
+     * with {@link FrameBuffer#addColorTexture } and adds this texture as the
+     * only target.
      * 
      * @param tex The color texture to set.
      */
     public void setColorTexture(Texture2D tex){
         clearColorTargets();
         addColorTexture(tex);
+    }
+    
+    /**
+     * Set the color texture to use for this framebuffer.
+     * This automatically clears all existing textures added previously
+     * with {@link FrameBuffer#addColorTexture } and adds this texture as the
+     * only target.
+     *
+     * @param tex The cube-map texture to set.
+     * @param face The face of the cube-map to render to.
+     */
+    public void setColorTexture(TextureCubeMap tex, TextureCubeMap.Face face) {
+        clearColorTargets();
+        addColorTexture(tex, face);
     }
 
     /**
@@ -342,6 +361,32 @@ public class FrameBuffer extends NativeObject {
         colorBuf.slot = colorBufs.size();
         colorBuf.tex = tex;
         colorBuf.format = img.getFormat();
+
+        colorBufs.add(colorBuf);
+    }
+    
+     /**
+     * Add a color texture to use for this framebuffer.
+     * If MRT is enabled, then each subsequently added texture can be
+     * rendered to through a shader that writes to the array <code>gl_FragData</code>.
+     * If MRT is not enabled, then the index set with {@link FrameBuffer#setTargetIndex(int) }
+     * is rendered to by the shader.
+     *
+     * @param tex The cube-map texture to add.
+     * @param face The face of the cube-map to render to.
+     */
+    public void addColorTexture(TextureCubeMap tex, TextureCubeMap.Face face) {
+        if (id != -1)
+            throw new UnsupportedOperationException("FrameBuffer already initialized.");
+
+        Image img = tex.getImage();
+        checkSetTexture(tex, false);
+
+        RenderBuffer colorBuf = new RenderBuffer();
+        colorBuf.slot = colorBufs.size();
+        colorBuf.tex = tex;
+        colorBuf.format = img.getFormat();
+        colorBuf.face = face.ordinal();
 
         colorBufs.add(colorBuf);
     }
