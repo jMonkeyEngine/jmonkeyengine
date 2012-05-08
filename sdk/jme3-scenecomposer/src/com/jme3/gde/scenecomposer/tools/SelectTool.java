@@ -44,7 +44,7 @@ public class SelectTool extends SceneEditTool {
             });
 
             if (result != null) {
-                doUpdateToolsTransformation();
+                updateToolsTransformation();
             }
         }
 

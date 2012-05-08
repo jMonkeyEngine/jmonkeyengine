@@ -99,7 +99,7 @@ public class ScaleTool extends SceneEditTool {
             Vector3f scale = toolController.getSelectedSpatial().getLocalScale().add(diff, diff, diff);
             lastScale = scale;
             toolController.getSelectedSpatial().setLocalScale(scale);
-            doUpdateToolsTransformation();
+            updateToolsTransformation();
         }
         
         wasDragging = true;
