@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ public interface JmeExporter {
      * Returns the {@link OutputCapsule} for the given savable object.
      * 
      * @param object The object to retrieve an output capsule for.
-     * @return  
+     * @return  the {@link OutputCapsule} for the given savable object.
      */
     public OutputCapsule getCapsule(Savable object);
 }

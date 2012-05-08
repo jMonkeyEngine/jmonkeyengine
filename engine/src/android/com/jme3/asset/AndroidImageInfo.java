@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
-  * <code>AndroidImageInfo</code> is set in a jME3 image via the {@link Image#setEfficientData(java.lang.Object)}
+  * <code>AndroidImageInfo</code> is set in a jME3 image via the {@link Image#setEfficentData(java.lang.Object) }
   * method to retrieve a {@link Bitmap} when it is needed by the renderer. 
   * User code may extend <code>AndroidImageInfo</code> and provide their own implementation of the 
   * {@link AndroidImageInfo#loadBitmap()} method to acquire a bitmap by their own means.

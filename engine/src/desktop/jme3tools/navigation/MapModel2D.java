@@ -290,7 +290,7 @@ public class MapModel2D {
 
     /**
      * Returns the pixel (x,y) centre of the map
-     * @return {@link Point) object marking the map's (x,y) centre
+     * @return {@link Point} object marking the map's (x,y) centre
      * @since 1.0
      */
     public Point getPixelCentre() {

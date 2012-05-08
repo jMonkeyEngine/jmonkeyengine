@@ -52,11 +52,10 @@ import javax.swing.*;
  * <code>GameSettings</code> class. The <code>GameSettings</code> object
  * is still created by the client application, and passed during construction.
  * 
- * @see com.jme.system.GameSettings
+ * @see AppSettings
  * @author Mark Powell
  * @author Eric Woroshow
  * @author Joshua Slack - reworked for proper use of GL commands.
- * @version $Id: LWJGLPropertiesDialog.java 4131 2009-03-19 20:15:28Z blaine.dev $
  */
 public final class SettingsDialog extends JDialog {
 

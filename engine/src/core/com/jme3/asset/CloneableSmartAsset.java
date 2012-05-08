@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ import com.jme3.asset.cache.WeakRefCloneAssetCache;
  * If the {@link AssetManager#loadAsset(com.jme3.asset.AssetKey) } method
  * is called twice with the same asset key (equals() wise, not necessarily reference wise)
  * then both assets will have the same asset key set (reference wise) via
- * {@link Asset#setKey(com.jme3.asset.AssetKey) }, then this asset key
+ * {@link AssetKey#AssetKey() }, then this asset key
  * is used to track all instances of that asset. Once all clones of the asset 
  * are garbage collected, the shared asset key becomes unreachable and at that 
  * point it is removed from the smart asset cache. 

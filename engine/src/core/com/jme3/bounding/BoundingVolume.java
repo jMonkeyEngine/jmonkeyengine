@@ -64,11 +64,6 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
         AABB, 
         
         /**
-         * {@link com.jme3.bounding.OrientedBoundingBox}
-         */
-        OBB, 
-        
-        /**
          * Currently unsupported by jME3.
          */
         Capsule;
