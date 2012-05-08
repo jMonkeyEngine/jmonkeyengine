@@ -222,7 +222,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param otherObj the material to compare to this material
      * @return true if the materials are equal.
      */
-    public boolean contentEquals(Object otherObj) {
+    public boolean equals(Object otherObj) {
         if (!(otherObj instanceof Material)) {
             return false;
         }
@@ -286,15 +286,17 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return true;
     }
 
-//    @Override
-//    public int hashCode() {
-//        int hash = 7;
-//        hash = 29 * hash + (this.def != null ? this.def.hashCode() : 0);
-//        hash = 29 * hash + (this.paramValues != null ? this.paramValues.hashCode() : 0);
-//        hash = 29 * hash + (this.technique != null ? this.technique.getDef().getName().hashCode() : 0);
-//        hash = 29 * hash + (this.additionalState != null ? this.additionalState.hashCode() : 0);
-//        return hash;
-//    }
+    /**
+     * Works like {@link Object#hashCode() } except it may change together with the material as the material is mutable by definition.
+     */
+    public int dynamicHashCode() {
+        int hash = 7;
+        hash = 29 * hash + (this.def != null ? this.def.hashCode() : 0);
+        hash = 29 * hash + (this.paramValues != null ? this.paramValues.hashCode() : 0);
+        hash = 29 * hash + (this.technique != null ? this.technique.getDef().getName().hashCode() : 0);
+        hash = 29 * hash + (this.additionalState != null ? this.additionalState.dynamicHashCode() : 0);
+        return hash;
+    }
     
     /**
      * Returns the currently active technique.

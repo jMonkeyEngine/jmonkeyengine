@@ -1044,8 +1044,10 @@ public class RenderState implements Cloneable, Savable {
         return applyWireFrame;
     }
 
-    @Override
-    public int hashCode() {
+    /**
+     *
+     */
+    public int dynamicHashCode() {
         if (cachedHashCode == -1){
             int hash = 7;
             hash = 79 * hash + (this.pointSprite ? 1 : 0);
