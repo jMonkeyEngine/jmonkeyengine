@@ -124,7 +124,13 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
         processor = new VideoProcessor();
         List<ViewPort> vps = app.getRenderManager().getPostViews();
-        lastViewPort = vps.get(vps.size()-1);
+
+        for (int i = vps.size() - 1; i >= 0; i-- ) {
+            lastViewPort = vps.get(i);
+            if (lastViewPort.isEnabled()) {
+                break;
+            }
+        }
         lastViewPort.addProcessor(processor);
     }
 
@@ -256,7 +262,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         }
 
         public long getResolution() {
-            return 1000000000L;
+            return 1000L;
         }
 
         public float getFrameRate() {
