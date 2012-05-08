@@ -99,14 +99,13 @@ public class SceneComposerToolController extends SceneToolController {
     @Override
     public void update(float tpf) {
         super.update(tpf);
+        if (editTool != null) {
+            editTool.doUpdateToolsTransformation();
+        }
         if (onTopToolsNode != null) {
             onTopToolsNode.updateLogicalState(tpf);
             onTopToolsNode.updateGeometricState();
         }
-        if (editTool != null) {
-            editTool.doUpdateToolsTransformation();
-        }
-
     }
 
     @Override
