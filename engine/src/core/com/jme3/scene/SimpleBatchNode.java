@@ -40,7 +40,7 @@ public class SimpleBatchNode extends BatchNode {
 
         refreshFlags |= RF_TRANSFORM;
         setBoundRefresh();
-        for (Batch batch : batches.values()) {
+        for (Batch batch : batches.getArray()) {
             batch.geometry.setTransformRefresh();
         }
     }
