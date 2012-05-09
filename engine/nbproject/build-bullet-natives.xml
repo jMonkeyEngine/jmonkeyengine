@@ -374,6 +374,7 @@
             <includepath path="${bullet.java.include}/win32"/>
             <includepath path="${bullet.bullet.include}"/>
             <compilerarg value="-static-libgcc"/>
+            <compilerarg value="-fpermissive"/>
             <linker name="${bullet.linux.crosscompiler}">
                 <linkerarg value="-static"/>
                 <libset dir="build/bullet-base-mingw-64" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
