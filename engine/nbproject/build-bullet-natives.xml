@@ -106,6 +106,12 @@
                 <isfalse value="${haveBulletLibrary}"/>
             </and>
         </condition>
+        <condition property="doBuildWindowsBase64">
+            <and>
+                <istrue value="${isWindows}"/>
+                <isfalse value="${haveBulletLibrary64}"/>
+            </and>
+        </condition>
         <condition property="doBuildSolarisBase">
             <and>
                 <istrue value="${isSolaris}"/>
@@ -163,14 +169,23 @@
             <and>
                 <istrue value="${isWindows}"/>
                 <istrue value="${haveBuiltBulletLibrary}"/>
+                <isfalse value="${is64bit}"/>
+            </and>
+        </condition>
+        <condition property="doBuildWindowsBinary64">
+            <and>
+                <istrue value="${isWindows}"/>
+                <istrue value="${haveBuiltBulletLibrary64}"/>
+                <istrue value="${is64bit}"/>
             </and>
         </condition>
         <condition property="doBuildSolarisBinary">
             <and>
                 <istrue value="${isSolaris}"/>
                 <istrue value="${haveBuiltBulletLibrary}"/>
+                <isfalse value="${is64bit}"/>
             </and>
-        </condition>        
+        </condition>
     </target>
     
     <target name="build-bullet-natives" description="builds the native bullet library for the platform being run on and for android if NDK available" depends="create-native-headers, compile-bullet-sources, compile-native-library, compile-android">
@@ -255,7 +270,7 @@
         <delete file="bullet-api-diff.xml"/>
     </target>
 
-    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="-check-conditions-post, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-linux, -nativelib-linux-64, -nativelib-linux-mingw, -nativelib-linux-mingw-64, -nativelib-solaris"/>
+    <target name="compile-native-library" description="compiles the native libbulletjme binary for the current platform" depends="-check-conditions-post, -create-folders, -nativelib-osx, -nativelib-windows, -nativelib-windows-64, -nativelib-linux, -nativelib-linux-64, -nativelib-linux-mingw, -nativelib-linux-mingw-64, -nativelib-solaris"/>
     
     <target name="-create-folders" description="creates the needed folders">
         <mkdir dir="${bullet.source.dir}"/>
@@ -416,7 +431,7 @@
     </target>
 
     <target name="-nativelib-windows" if="doBuildWindowsBinary">
-        <echo message="Building Windows version of native bullet"/>
+        <echo message="Building Windows 32bit version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/windows"/>
         <cc multithreaded="" name="${bullet.windows.compiler}" warnings="none" debug="${bullet.compile.debug}" outtype="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}" objdir="build/bullet-native">
             <fileset dir="${bullet.source.dir}">
@@ -432,6 +447,29 @@
                 <linkerarg value="--kill-at" />
                 <linkerarg value="-static"/>
                 <libset dir="build/bullet-base" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/> 
+            </linker>
+        </cc>
+        <delete file="${bullet.output.dir}/windows/history.xml"/>
+    </target>
+
+    <target name="-nativelib-windows-64" if="doBuildWindowsBinary64">
+        <echo message="Building Windows 64bit version of native bullet"/>
+        <mkdir dir="${bullet.output.dir}/windows"/>
+        <cc multithreaded="" name="${bullet.windows.compiler}" warnings="none" debug="${bullet.compile.debug}" outtype="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}64" objdir="build/bullet-native">
+            <compilerarg value="-fpermissive"/>
+            <fileset dir="${bullet.source.dir}">
+                <include name="*.cpp">
+                </include>
+            </fileset>
+            <includepath path="${bullet.java.include}"/>
+            <includepath path="${bullet.java.include}/win32"/>
+            <includepath path="${bullet.bullet.include}"/>
+            <!--compilerarg value="-m32"/-->
+            <linker name="${bullet.windows.compiler}" debug="${bullet.compile.debug}" >
+                <linkerarg value="-o${bullet.library.name}64.dll" />
+                <linkerarg value="--kill-at" />
+                <linkerarg value="-static"/>
+                <libset dir="build/bullet-base" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
             </linker>
         </cc>
         <delete file="${bullet.output.dir}/windows/history.xml"/>
@@ -502,6 +540,8 @@
             <arg value="-DBUILD_EXTRAS:BOOL=OFF"/>
             <arg value="-DBUILD_DEMOS:BOOL=OFF"/>
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
+            <arg value="-DCMAKE_CXX_FLAGS=-fpermissive"/>
+
             <arg value="."/>
             <arg value="-G"/>
             <arg value="MinGW Makefiles"/>
@@ -548,16 +588,16 @@
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
         <exec executable="ranlib">
-        	<arg value="${basedir}/build/bullet-base/libBulletMultiThreaded.a"/>
+            <arg value="${basedir}/build/bullet-base/libBulletMultiThreaded.a"/>
         </exec>
         <exec executable="ranlib">
-        	<arg value="${basedir}/build/bullet-base/libBulletDynamics.a"/>
+            <arg value="${basedir}/build/bullet-base/libBulletDynamics.a"/>
         </exec>
         <exec executable="ranlib">
-        	<arg value="${basedir}/build/bullet-base/libBulletCollision.a"/>
+            <arg value="${basedir}/build/bullet-base/libBulletCollision.a"/>
         </exec>
         <exec executable="ranlib">
-        	<arg value="${basedir}/build/bullet-base/libLinearMath.a"/>
+            <arg value="${basedir}/build/bullet-base/libLinearMath.a"/>
         </exec>
     </target>
 
@@ -606,16 +646,16 @@
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
         <exec executable="${cross.compile.target}-ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw/libBulletMultiThreaded.a"/>
+            <arg value="${basedir}/build/bullet-base-mingw/libBulletMultiThreaded.a"/>
         </exec>
         <exec executable="${cross.compile.target}-ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw/libBulletDynamics.a"/>
+            <arg value="${basedir}/build/bullet-base-mingw/libBulletDynamics.a"/>
         </exec>
         <exec executable="${cross.compile.target}-ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw/libBulletCollision.a"/>
+            <arg value="${basedir}/build/bullet-base-mingw/libBulletCollision.a"/>
         </exec>
         <exec executable="${cross.compile.target}-ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw/libLinearMath.a"/>
+            <arg value="${basedir}/build/bullet-base-mingw/libLinearMath.a"/>
         </exec>
     </target>
     
@@ -642,16 +682,16 @@
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
         <exec executable="${cross.compile.target64}-ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw-64/libBulletMultiThreaded.a"/>
+            <arg value="${basedir}/build/bullet-base-mingw-64/libBulletMultiThreaded.a"/>
         </exec>
         <exec executable="${cross.compile.target64}-ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw-64/libBulletDynamics.a"/>
+            <arg value="${basedir}/build/bullet-base-mingw-64/libBulletDynamics.a"/>
         </exec>
         <exec executable="${cross.compile.target64}-ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw-64/libBulletCollision.a"/>
+            <arg value="${basedir}/build/bullet-base-mingw-64/libBulletCollision.a"/>
         </exec>
         <exec executable="${cross.compile.target64}-ranlib">
-        	<arg value="${basedir}/build/bullet-base-mingw-64/libLinearMath.a"/>
+            <arg value="${basedir}/build/bullet-base-mingw-64/libLinearMath.a"/>
         </exec>
     </target>
     
