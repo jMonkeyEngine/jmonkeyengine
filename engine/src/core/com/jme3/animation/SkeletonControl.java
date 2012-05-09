@@ -155,10 +155,10 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
 
     void resetToBind() {
         for (Mesh mesh : targets) {
-            if (isMeshAnimated(mesh)) {
-                VertexBuffer bi = mesh.getBuffer(Type.BoneIndex);
-                ByteBuffer bib = (ByteBuffer) bi.getData();
-                if (!bib.hasArray()) {
+            if (isMeshAnimated(mesh)) {                
+                FloatBuffer bwBuff = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
+                ByteBuffer biBuff = (ByteBuffer)mesh.getBuffer(Type.BoneIndex).getData();                
+                if (!biBuff.hasArray() || !bwBuff.hasArray()) {
                     mesh.prepareForAnim(true); // prepare for software animation
                 }
                 VertexBuffer bindPos = mesh.getBuffer(Type.BindPosePosition);
@@ -420,7 +420,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         FloatBuffer ftb = (FloatBuffer) tb.getData();
         ftb.rewind();
 
-   
+
         // get boneIndexes and weights for mesh
         ByteBuffer ib = (ByteBuffer) mesh.getBuffer(Type.BoneIndex).getData();
         FloatBuffer wb = (FloatBuffer) mesh.getBuffer(Type.BoneWeight).getData();
@@ -440,7 +440,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         float[] tanBuf = vars.skinTangents;
 
         int iterations = (int) FastMath.ceil(fvb.capacity() / ((float) posBuf.length));
-        int bufLength = 0;       
+        int bufLength = 0;
         int tanLength = 0;
         for (int i = iterations - 1; i >= 0; i--) {
             // read next set of positions and normals from native buffer
