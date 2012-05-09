@@ -219,12 +219,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * Compares two materials and returns true if they are equal. 
      * This methods compare definition, parameters, additional render states.
      * Since materials are mutable objects, implementing equals() properly is not possible, 
-     * hence the name dynamicEquals().
+     * hence the name contentEquals().
      * 
      * @param otherObj the material to compare to this material
      * @return true if the materials are equal.
      */
-    public boolean dynamicEquals(Object otherObj) {
+    public boolean contentEquals(Object otherObj) {
         if (!(otherObj instanceof Material)) {
             return false;
         }
@@ -291,12 +291,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     /**
      * Works like {@link Object#hashCode() } except it may change together with the material as the material is mutable by definition.
      */
-    public int dynamicHashCode() {
+    public int contentHashCode() {
         int hash = 7;
         hash = 29 * hash + (this.def != null ? this.def.hashCode() : 0);
         hash = 29 * hash + (this.paramValues != null ? this.paramValues.hashCode() : 0);
         hash = 29 * hash + (this.technique != null ? this.technique.getDef().getName().hashCode() : 0);
-        hash = 29 * hash + (this.additionalState != null ? this.additionalState.dynamicHashCode() : 0);
+        hash = 29 * hash + (this.additionalState != null ? this.additionalState.contentHashCode() : 0);
         return hash;
     }
     

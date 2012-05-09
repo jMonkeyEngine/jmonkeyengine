@@ -291,7 +291,7 @@ public class GeometryBatchFactory {
             if (outList == null) {
                 //trying to compare materials with the contentEquals method 
                 for (Material mat : matToGeom.keySet()) {
-                    if (geom.getMaterial().dynamicEquals(mat)){
+                    if (geom.getMaterial().contentEquals(mat)){
                         outList = matToGeom.get(mat);
                     }
                 }

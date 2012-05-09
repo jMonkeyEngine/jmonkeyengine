@@ -259,7 +259,7 @@ public class BatchNode extends Node implements Savable {
                     if (list == null) {
                         //trying to compare materials with the isEqual method 
                         for (Map.Entry<Material, List<Geometry>> mat : map.entrySet()) {
-                            if (g.getMaterial().dynamicEquals(mat)) {
+                            if (g.getMaterial().contentEquals(mat)) {
                                 list = mat.getValue();
                             }
                         }
@@ -286,7 +286,7 @@ public class BatchNode extends Node implements Savable {
 
     private Batch findBatchByMaterial(Material m) {
         for (Batch batch : batches.getArray()) {
-            if (batch.geometry.getMaterial().dynamicEquals(m)) {
+            if (batch.geometry.getMaterial().contentEquals(m)) {
                 return batch;
             }
         }
