@@ -636,6 +636,7 @@
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_EXTRAS=OFF"/>
             <arg value="-DBUILD_DEMOS=OFF"/>
+            <arg value="-DCMAKE_CXX_FLAGS=-fpermissive"/>
             <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw64.folder.resolved}'"/>
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
