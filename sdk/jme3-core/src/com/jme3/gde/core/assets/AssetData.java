@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
+import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileAlreadyLockedException;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -69,6 +70,14 @@ public class AssetData extends Properties {
     
     public void setAssetKey(AssetKey key){
         file.setAssetKeyData(key);
+    }
+    
+    public void setModified(boolean modified){
+        file.setModified(modified);
+    }
+    
+    public void setSaveCookie(SaveCookie cookie){
+        file.setSaveCookie(cookie);
     }
 
     public Object loadAsset() {
