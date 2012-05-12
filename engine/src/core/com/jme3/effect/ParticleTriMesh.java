@@ -40,7 +40,6 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.SortUtil;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -50,9 +49,9 @@ public class ParticleTriMesh extends ParticleMesh {
     private int imagesX = 1;
     private int imagesY = 1;
     private boolean uniqueTexCoords = false;
-    private ParticleComparator comparator = new ParticleComparator();
+//    private ParticleComparator comparator = new ParticleComparator();
     private ParticleEmitter emitter;
-    private Particle[] particlesCopy;
+//    private Particle[] particlesCopy;
 
     @Override
     public void initParticleData(ParticleEmitter emitter, int numParticles) {
@@ -60,38 +59,34 @@ public class ParticleTriMesh extends ParticleMesh {
 
         this.emitter = emitter;
 
-        particlesCopy = new Particle[numParticles];
+//        particlesCopy = new Particle[numParticles];
 
         // set positions
         FloatBuffer pb = BufferUtils.createVector3Buffer(numParticles * 4);
-        VertexBuffer pvb = new VertexBuffer(VertexBuffer.Type.Position);
-        pvb.setupData(Usage.Stream, 3, Format.Float, pb);
-        
-        //if the buffer is already set only update the data
+        // if the buffer is already set only update the data
         VertexBuffer buf = getBuffer(VertexBuffer.Type.Position);
         if (buf != null) {
             buf.updateData(pb);
         } else {
+            VertexBuffer pvb = new VertexBuffer(VertexBuffer.Type.Position);
+            pvb.setupData(Usage.Stream, 3, Format.Float, pb);
             setBuffer(pvb);
         }
         
         // set colors
         ByteBuffer cb = BufferUtils.createByteBuffer(numParticles * 4 * 4);
-        VertexBuffer cvb = new VertexBuffer(VertexBuffer.Type.Color);
-        cvb.setupData(Usage.Stream, 4, Format.UnsignedByte, cb);
-        cvb.setNormalized(true);
-        
         buf = getBuffer(VertexBuffer.Type.Color);
         if (buf != null) {
             buf.updateData(cb);
         } else {
+            VertexBuffer cvb = new VertexBuffer(VertexBuffer.Type.Color);
+            cvb.setupData(Usage.Stream, 4, Format.UnsignedByte, cb);
+            cvb.setNormalized(true);
             setBuffer(cvb);
         }
 
         // set texcoords
-        VertexBuffer tvb = new VertexBuffer(VertexBuffer.Type.TexCoord);
         FloatBuffer tb = BufferUtils.createVector2Buffer(numParticles * 4);
-        
         uniqueTexCoords = false;
         for (int i = 0; i < numParticles; i++){
             tb.put(0f).put(1f);
@@ -100,12 +95,13 @@ public class ParticleTriMesh extends ParticleMesh {
             tb.put(1f).put(0f);
         }
         tb.flip();
-        tvb.setupData(Usage.Static, 2, Format.Float, tb);
         
         buf = getBuffer(VertexBuffer.Type.TexCoord);
         if (buf != null) {
             buf.updateData(tb);
         } else {
+            VertexBuffer tvb = new VertexBuffer(VertexBuffer.Type.TexCoord);
+            tvb.setupData(Usage.Static, 2, Format.Float, tb);
             setBuffer(tvb);
         }
 
@@ -125,17 +121,17 @@ public class ParticleTriMesh extends ParticleMesh {
               .put((short)(startIdx + 3));
         }
         ib.flip();
-        
-        VertexBuffer ivb = new VertexBuffer(VertexBuffer.Type.Index);
-        ivb.setupData(Usage.Static, 3, Format.UnsignedShort, ib);
-        
+
         buf = getBuffer(VertexBuffer.Type.Index);
         if (buf != null) {
             buf.updateData(ib);
         } else {
+            VertexBuffer ivb = new VertexBuffer(VertexBuffer.Type.Index);
+            ivb.setupData(Usage.Static, 3, Format.UnsignedShort, ib);
             setBuffer(ivb);
         }
         
+        updateCounts();
     }
     
     @Override
@@ -150,12 +146,12 @@ public class ParticleTriMesh extends ParticleMesh {
 
     @Override
     public void updateParticleData(Particle[] particles, Camera cam, Matrix3f inverseRotation) {
-        System.arraycopy(particles, 0, particlesCopy, 0, particlesCopy.length);
-        comparator.setCamera(cam);
+//        System.arraycopy(particles, 0, particlesCopy, 0, particlesCopy.length);
+//        comparator.setCamera(cam);
 //        Arrays.sort(particlesCopy, comparator);
 //        SortUtil.qsort(particlesCopy, comparator);
-        SortUtil.msort(particles, particlesCopy, comparator);
-        particles = particlesCopy;
+//        SortUtil.msort(particles, particlesCopy, comparator);
+//        particles = particlesCopy;
 
         VertexBuffer pvb = getBuffer(VertexBuffer.Type.Position);
         FloatBuffer positions = (FloatBuffer) pvb.getData();

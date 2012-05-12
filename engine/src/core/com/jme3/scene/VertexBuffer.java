@@ -542,9 +542,11 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * data already set, e.g. vb.updateData(vb.getData()), this will just
      * set the proper update flag indicating the data should be sent to the GPU
      * again.
+     * <p>
      * It is allowed to specify a buffer with different capacity than the
-     * originally set buffer.
-     *
+     * originally set buffer, HOWEVER, if you do so, you must
+     * call Mesh.updateCounts() otherwise bizarre errors can occur.
+     * 
      * @param data The data buffer to set
      */
     public void updateData(Buffer data){
