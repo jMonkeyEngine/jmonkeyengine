@@ -157,7 +157,7 @@ public final class TGALoader implements AssetLoader {
 
         // Skip image ID
         if (idLength > 0) {
-            in.skip(idLength);
+            dis.skip(idLength);
         }
 
         ColorMapEntry[] cMapEntries = null;
@@ -167,7 +167,7 @@ public final class TGALoader implements AssetLoader {
             int bitsPerColor = Math.min(cMapDepth / 3, 8);
 
             byte[] cMapData = new byte[bytesInColorMap];
-            in.read(cMapData);
+            dis.read(cMapData);
 
             // Only go to the trouble of constructing the color map
             // table if this is declared a color mapped image.
@@ -423,9 +423,9 @@ public final class TGALoader implements AssetLoader {
                         }
 
                         ColorMapEntry entry = cMapEntries[index];
-                        rawData[rawDataIndex++] = entry.red;
-                        rawData[rawDataIndex++] = entry.green;
                         rawData[rawDataIndex++] = entry.blue;
+                        rawData[rawDataIndex++] = entry.green;
+                        rawData[rawDataIndex++] = entry.red;
                         if (dl == 4) {
                             rawData[rawDataIndex++] = entry.alpha;
                         }
@@ -444,9 +444,9 @@ public final class TGALoader implements AssetLoader {
                         }
 
                         ColorMapEntry entry = cMapEntries[index];
-                        rawData[rawDataIndex++] = entry.red;
-                        rawData[rawDataIndex++] = entry.green;
                         rawData[rawDataIndex++] = entry.blue;
+                        rawData[rawDataIndex++] = entry.green;
+                        rawData[rawDataIndex++] = entry.red;
                         if (dl == 4) {
                             rawData[rawDataIndex++] = entry.alpha;
                         }
@@ -458,7 +458,7 @@ public final class TGALoader implements AssetLoader {
 
             format = dl == 4 ? Format.RGBA8 : Format.RGB8;
         } else {
-            throw new IOException("Grayscale TGA not supported");
+            throw new IOException("Monochrome and RLE colormapped images are not supported");
         }
 
 
