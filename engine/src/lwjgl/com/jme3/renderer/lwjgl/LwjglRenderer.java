@@ -355,12 +355,19 @@ public class LwjglRenderer implements Renderer {
                 logger.log(Level.FINER, "Texture Multisample Depth Samples: {0}", maxDepthTexSamples);
             }
 
-            if (ctxCaps.GL_ARB_draw_buffers) {
+            glGetInteger(GL_MAX_DRAW_BUFFERS, intBuf16);
+            maxMRTFBOAttachs = intBuf16.get(0);
+            if (maxMRTFBOAttachs > 1) {
                 caps.add(Caps.FrameBufferMRT);
-                glGetInteger(ARBDrawBuffers.GL_MAX_DRAW_BUFFERS_ARB, intBuf16);
-                maxMRTFBOAttachs = intBuf16.get(0);
                 logger.log(Level.FINER, "FBO Max MRT renderbuffers: {0}", maxMRTFBOAttachs);
             }
+            
+//            if (ctxCaps.GL_ARB_draw_buffers) {
+//                caps.add(Caps.FrameBufferMRT);
+//                glGetInteger(ARBDrawBuffers.GL_MAX_DRAW_BUFFERS_ARB, intBuf16);
+//                maxMRTFBOAttachs = intBuf16.get(0);
+//                logger.log(Level.FINER, "FBO Max MRT renderbuffers: {0}", maxMRTFBOAttachs);
+            //}
         }
 
         if (ctxCaps.GL_ARB_multisample) {
@@ -1175,11 +1182,26 @@ public class LwjglRenderer implements Renderer {
 
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
         if (GLContext.getCapabilities().GL_EXT_framebuffer_blit) {
+            int srcX = 0;
+            int srcY = 0;
             int srcW = 0;
             int srcH = 0;
+            
+            int dstX = 0;
+            int dstY = 0;
             int dstW = 0;
             int dstH = 0;
+            
             int prevFBO = context.boundFBO;
+            
+            if (mainFbOverride != null) {
+                if (src == null) {
+                    src = mainFbOverride;
+                }
+                if (dst == null) {
+                    dst = mainFbOverride;
+                }
+            }
 
             if (src != null && src.isUpdateNeeded()) {
                 updateFrameBuffer(src);
@@ -1191,8 +1213,10 @@ public class LwjglRenderer implements Renderer {
 
             if (src == null) {
                 glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
-//                srcW = viewWidth;
-//                srcH = viewHeight;
+                srcX = vpX;
+                srcY = vpY;
+                srcW = vpW;
+                srcH = vpH;
             } else {
                 glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, src.getId());
                 srcW = src.getWidth();
@@ -1200,20 +1224,22 @@ public class LwjglRenderer implements Renderer {
             }
             if (dst == null) {
                 glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
-//                dstW = viewWidth;
-//                dstH = viewHeight;
+                dstX = vpX;
+                dstY = vpY;
+                dstW = vpW - 1;
+                dstH = vpH - 1;
             } else {
                 glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, dst.getId());
-                dstW = dst.getWidth();
-                dstH = dst.getHeight();
+                dstW = dst.getWidth() - 1;
+                dstH = dst.getHeight() - 1;
             }
             int mask = GL_COLOR_BUFFER_BIT;
             if (copyDepth) {
                 mask |= GL_DEPTH_BUFFER_BIT;
             }
             glBlitFramebufferEXT(0, 0, srcW, srcH,
-                    0, 0, dstW, dstH, mask,
-                    GL_NEAREST);
+                                 0, 0, dstW, dstH, mask,
+                                 GL_NEAREST);
 
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prevFBO);
@@ -1563,11 +1589,16 @@ public class LwjglRenderer implements Renderer {
                     context.boundReadBuf = -2;
                 }
             } else {
+                if (fb.getNumColorBuffers() > maxFBOAttachs) {
+                    throw new RendererException("Framebuffer has more color "
+                            + "attachments than are supported"
+                            + " by the video hardware!");
+                }
                 if (fb.isMultiTarget()) {
                     if (fb.getNumColorBuffers() > maxMRTFBOAttachs) {
                         throw new RendererException("Framebuffer has more"
-                                + " targets than are supported"
-                                + " on the system!");
+                                + " multi targets than are supported"
+                                + " by the video hardware!");
                     }
 
                     if (context.boundDrawBuf != 100 + fb.getNumColorBuffers()) {
