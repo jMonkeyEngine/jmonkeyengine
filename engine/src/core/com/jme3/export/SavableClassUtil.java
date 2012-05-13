@@ -70,6 +70,7 @@ public class SavableClassUtil {
         addRemapping("com.jme3.material.Material$MatParamTexture", MatParamTexture.class);
         addRemapping("com.jme3.animation.BoneAnimation", Animation.class);
         addRemapping("com.jme3.animation.SpatialAnimation", Animation.class);
+        addRemapping("com.jme3.scene.plugins.blender.objects.Properties", NullSavable.class);
     }
     
     private static String remapClass(String className) throws ClassNotFoundException {
