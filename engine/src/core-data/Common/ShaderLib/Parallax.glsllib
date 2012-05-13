@@ -36,10 +36,10 @@
            
            #ifdef NORMALMAP_PARALLAX
                //parallax map is stored in the alpha channel of the normal map         
-               fCurrHeight = texture2DLod( parallaxMap, vTexCurrentOffset,1.0).a; 
+               fCurrHeight = texture2D( parallaxMap, vTexCurrentOffset).a; 
            #else
                //parallax map is a texture
-               fCurrHeight = texture2DLod( parallaxMap, vTexCurrentOffset,1.0).r;                
+               fCurrHeight = texture2D( parallaxMap, vTexCurrentOffset).r;                
            #endif
            
             fCurrentBound -= fStepSize;
