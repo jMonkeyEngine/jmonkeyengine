@@ -360,8 +360,19 @@ public class MeshHelper extends AbstractBlenderHelper {
                 materialContext.applyMaterial(geometry, structure.getOldMemoryAddress(), noTextures, uvCoordinates.get(Integer.valueOf(materialNumber)), blenderContext);
         	}
         } else {
+        	//add UV coordinates if they are defined even if the material is not applied to the model
+        	VertexBuffer uvCoordsBuffer = null;
+        	if(uvCoordinates.size() > 0) {
+	        	List<Vector2f> uvs = uvCoordinates.get(0);
+	        	uvCoordsBuffer = new VertexBuffer(Type.TexCoord);
+	            uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
+        	}
+			
         	for(Geometry geometry : geometries) {
         		geometry.setMaterial(blenderContext.getDefaultMaterial());
+        		if(uvCoordsBuffer != null) {
+        			geometry.getMesh().setBuffer(uvCoordsBuffer);
+        		}
         	}
         }
         
