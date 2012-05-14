@@ -106,6 +106,8 @@ public class TerrainQuad extends Node implements Terrain {
     private TerrainPicker picker;
     private Vector3f lastScale = Vector3f.UNIT_XYZ;
 
+    protected NeighbourFinder neighbourFinder;
+    
     public TerrainQuad() {
         super("Terrain");
     }
@@ -195,6 +197,10 @@ public class TerrainQuad extends Node implements Terrain {
         this.patchSize = patchSize;
         this.stepScale = scale;
         split(patchSize, heightMap);
+    }
+
+    public void setNeighbourFinder(NeighbourFinder neighbourFinder) {
+        this.neighbourFinder = neighbourFinder;
     }
 
     /**
@@ -824,6 +830,8 @@ public class TerrainQuad extends Node implements Terrain {
         int x = Math.round((xz.x / getWorldScale().x) + halfSize);
         int z = Math.round((xz.y / getWorldScale().z) + halfSize);
 
+        if (!isInside(x, z))
+            return Float.NaN;
         return getHeightmapHeight(x, z);
     }
 
@@ -922,6 +930,17 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     /**
+     * is the 2d point inside the terrain?
+     * @param x local coordinate
+     * @param z local coordinate
+     */
+    private boolean isInside(int x, int z) {
+        if (x < 0 || z < 0 || x > totalSize || z > totalSize)
+            return false;
+        return true;
+    }
+
+    /**
      * Used for searching for a child and keeping
      * track of its quadrant
      */
@@ -984,6 +1003,8 @@ public class TerrainQuad extends Node implements Terrain {
         // offset
         float x = (float)(((xz.x - getWorldTranslation().x) / getWorldScale().x) + (float)(totalSize-1) / 2f);
         float z = (float)(((xz.y - getWorldTranslation().z) / getWorldScale().z) + (float)(totalSize-1) / 2f);
+        if (!isInside((int)x, (int)z))
+            return Float.NaN;
         float height = getHeight((int)x, (int)z, (x%1f), (z%1f));
         height *= getWorldScale().y;
         return height;
@@ -1075,6 +1096,8 @@ public class TerrainQuad extends Node implements Terrain {
         for (int i=0; i<xz.size(); i++) {
             int x = Math.round((xz.get(i).x / getWorldScale().x) + halfSize);
             int z = Math.round((xz.get(i).y / getWorldScale().z) + halfSize);
+            if (!isInside(x, z))
+                continue;
             locations.add(new LocationHeight(x,z,height.get(i)));
         }
 
@@ -1137,7 +1160,6 @@ public class TerrainQuad extends Node implements Terrain {
         // distribute each locationHeight into the quadrant it intersects
         for (LocationHeight lh : locations) {
             int quad = findQuadrant(lh.x, lh.z);
-
             int col = lh.x;
             int row = lh.z;
 
@@ -1347,8 +1369,12 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     protected TerrainQuad findRightQuad() {
+        boolean useFinder = false;
         if (getParent() == null || !(getParent() instanceof TerrainQuad))
-            return null;
+             if (neighbourFinder == null)
+                return null;
+            else
+                useFinder = true;
 
         TerrainQuad pQuad = (TerrainQuad) getParent();
 
@@ -1357,11 +1383,19 @@ public class TerrainQuad extends Node implements Terrain {
         else if (quadrant == 2)
             return pQuad.getQuad(4);
         else if (quadrant == 3) {
-            TerrainQuad quad = pQuad.findRightQuad();
+            TerrainQuad quad = null;
+            if (useFinder)
+                quad = neighbourFinder.getRightQuad(this);
+            else
+                quad = pQuad.findRightQuad();
             if (quad != null)
                 return quad.getQuad(1);
         } else if (quadrant == 4) {
-            TerrainQuad quad = pQuad.findRightQuad();
+            TerrainQuad quad = null;
+            if (useFinder)
+                quad = neighbourFinder.getRightQuad(this);
+            else
+                quad = pQuad.findRightQuad();
             if (quad != null)
                 return quad.getQuad(2);
         }
@@ -1370,8 +1404,12 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     protected TerrainQuad findDownQuad() {
+        boolean useFinder = false;
         if (getParent() == null || !(getParent() instanceof TerrainQuad))
-            return null;
+             if (neighbourFinder == null)
+                return null;
+            else
+                useFinder = true;
 
         TerrainQuad pQuad = (TerrainQuad) getParent();
 
@@ -1380,11 +1418,19 @@ public class TerrainQuad extends Node implements Terrain {
         else if (quadrant == 3)
             return pQuad.getQuad(4);
         else if (quadrant == 2) {
-            TerrainQuad quad = pQuad.findDownQuad();
+            TerrainQuad quad = null;
+            if (useFinder)
+                quad = neighbourFinder.getDownQuad(this);
+            else
+                quad = pQuad.findDownQuad();
             if (quad != null)
                 return quad.getQuad(1);
         } else if (quadrant == 4) {
-            TerrainQuad quad = pQuad.findDownQuad();
+            TerrainQuad quad = null;
+            if (useFinder)
+                quad = neighbourFinder.getDownQuad(this);
+            else
+                quad = pQuad.findDownQuad();
             if (quad != null)
                 return quad.getQuad(3);
         }
@@ -1393,8 +1439,12 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     protected TerrainQuad findTopQuad() {
+        boolean useFinder = false;
         if (getParent() == null || !(getParent() instanceof TerrainQuad))
-            return null;
+             if (neighbourFinder == null)
+                return null;
+            else
+                useFinder = true;
 
         TerrainQuad pQuad = (TerrainQuad) getParent();
 
@@ -1403,11 +1453,19 @@ public class TerrainQuad extends Node implements Terrain {
         else if (quadrant == 4)
             return pQuad.getQuad(3);
         else if (quadrant == 1) {
-            TerrainQuad quad = pQuad.findTopQuad();
+            TerrainQuad quad = null;
+            if (useFinder)
+                quad = neighbourFinder.getTopQuad(this);
+            else
+                quad = pQuad.findTopQuad();
             if (quad != null)
                 return quad.getQuad(2);
         } else if (quadrant == 3) {
-            TerrainQuad quad = pQuad.findTopQuad();
+            TerrainQuad quad = null;
+            if (useFinder)
+                quad = neighbourFinder.getTopQuad(this);
+            else
+                quad = pQuad.findTopQuad();
             if (quad != null)
                 return quad.getQuad(4);
         }
@@ -1416,8 +1474,12 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     protected TerrainQuad findLeftQuad() {
+        boolean useFinder = false;
         if (getParent() == null || !(getParent() instanceof TerrainQuad))
-            return null;
+             if (neighbourFinder == null)
+                return null;
+            else
+                useFinder = true;
 
         TerrainQuad pQuad = (TerrainQuad) getParent();
 
@@ -1426,11 +1488,19 @@ public class TerrainQuad extends Node implements Terrain {
         else if (quadrant == 4)
             return pQuad.getQuad(2);
         else if (quadrant == 1) {
-            TerrainQuad quad = pQuad.findLeftQuad();
+            TerrainQuad quad = null;
+            if (useFinder)
+                quad = neighbourFinder.getLeftQuad(this);
+            else
+                quad = pQuad.findLeftQuad();
             if (quad != null)
                 return quad.getQuad(3);
         } else if (quadrant == 2) {
-            TerrainQuad quad = pQuad.findLeftQuad();
+            TerrainQuad quad = null;
+            if (useFinder)
+                quad = neighbourFinder.getLeftQuad(this);
+            else
+                quad = pQuad.findLeftQuad();
             if (quad != null)
                 return quad.getQuad(4);
         }
