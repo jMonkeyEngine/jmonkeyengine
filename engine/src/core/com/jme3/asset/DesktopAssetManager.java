@@ -353,7 +353,7 @@ public class DesktopAssetManager implements AssetManager {
         TextureKey key = new TextureKey(name, true);
         key.setGenerateMips(true);
         Texture tex = loadTexture(key);
-        System.out.println(tex + " - " + tex.getMinFilter());
+        logger.log(Level.FINE, "{0} - {1}", new Object[]{tex, tex.getMinFilter()});
         return tex;
     }
 
