@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@ import java.util.regex.Pattern;
  * @author YongHoon
  */
 public class BitmapText extends Node {
+
     private BitmapFont font;
     private StringBlock block;
     private boolean needRefresh = true;
@@ -85,7 +86,7 @@ public class BitmapText extends Node {
     public BitmapFont getFont() {
         return font;
     }
-    
+
     /**
      * Changes text size
      * @param size text size
@@ -102,7 +103,7 @@ public class BitmapText extends Node {
      */
     public void setText(CharSequence text) {
         // note: text.toString() is free if text is already a java.lang.String.
-        setText( text != null ? text.toString() : null );
+        setText(text != null ? text.toString() : null);
     }
 
     /**
@@ -110,14 +111,36 @@ public class BitmapText extends Node {
      * @param text String to change text to
      */
     public void setText(String text) {
+        System.out.println("HI");
+
         text = text == null ? "" : text;
-        if (text == block.getText() || block.getText().equals(text)) {
+        if (block.getText().equals(text)) {
             return;
+        } else {
+            // If the text is empty, reset
+            if (text.isEmpty()) {
+                System.out.println("text is different");
+                detachAllChildren();
+                
+                for (int page = 0; page < textPages.length; page++) {
+                    textPages[page] = new BitmapTextPage(font, true, page);
+                    attachChild(textPages[page]);
+                }
+
+                System.out.println("Creating new StringBlock and Letters");
+                block = new StringBlock();
+                letters = new Letters(font, block, letters.getQuad().isRightToLeft());
+            }
+            
+            // Update the text content
+            block.setText(text);
+            letters.setText(text);
+
+            // Flat for refresh
+            needRefresh = true;
         }
 
-        block.setText(text);
-        letters.setText(text);
-        needRefresh = true;
+
     }
 
     /**
@@ -153,14 +176,14 @@ public class BitmapText extends Node {
         letters.invalidate();
         needRefresh = true;
     }
-    
+
     /**
      * @return height of the line
      */
     public float getLineHeight() {
         return font.getLineHeight(block);
     }
-    
+
     /**
      * @return height of whole textblock
      */
@@ -168,14 +191,14 @@ public class BitmapText extends Node {
         if (needRefresh) {
             assemble();
         }
-        float height = getLineHeight()*block.getLineCount();
+        float height = getLineHeight() * block.getLineCount();
         Rectangle textBox = block.getTextBox();
         if (textBox != null) {
             return Math.max(height, textBox.height);
         }
         return height;
     }
-    
+
     /**
      * @return width of line
      */
@@ -189,7 +212,7 @@ public class BitmapText extends Node {
         }
         return letters.getTotalWidth();
     }
-    
+
     /**
      * @return line count
      */
@@ -199,11 +222,11 @@ public class BitmapText extends Node {
         }
         return block.getLineCount();
     }
-    
+
     public LineWrapMode getLineWrapMode() {
         return block.getLineWrapMode();
     }
-    
+
     /**
      * Set horizontal alignment. Applicable only when text bound is set.
      * @param align
@@ -216,7 +239,7 @@ public class BitmapText extends Node {
         letters.invalidate();
         needRefresh = true;
     }
-    
+
     /**
      * Set vertical alignment. Applicable only when text bound is set.
      * @param align
@@ -229,15 +252,15 @@ public class BitmapText extends Node {
         letters.invalidate();
         needRefresh = true;
     }
-    
+
     public BitmapFont.Align getAlignment() {
         return block.getAlignment();
     }
-    
+
     public BitmapFont.VAlign getVerticalAlignment() {
         return block.getVerticalAlignment();
     }
-    
+
     /**
      * Set the font style of substring. If font doesn't contain style, default style is used
      * @param start start index to set style. inclusive.
@@ -247,7 +270,7 @@ public class BitmapText extends Node {
     public void setStyle(int start, int end, int style) {
         letters.setStyle(start, end, style);
     }
-    
+
     /**
      * Set the font style of substring. If font doesn't contain style, default style is applied
      * @param regexp regular expression
@@ -260,7 +283,7 @@ public class BitmapText extends Node {
             setStyle(m.start(), m.end(), style);
         }
     }
-    
+
     /**
      * Set the color of substring.
      * @param start start index to set style. inclusive.
@@ -272,7 +295,7 @@ public class BitmapText extends Node {
         letters.invalidate();
         needRefresh = true;
     }
-    
+
     /**
      * Set the color of substring.
      * @param regexp regular expression
@@ -287,7 +310,7 @@ public class BitmapText extends Node {
         letters.invalidate();
         needRefresh = true;
     }
-    
+
     /**
      * @param tabs tab positions
      */
@@ -296,7 +319,7 @@ public class BitmapText extends Node {
         letters.invalidate();
         needRefresh = false;
     }
-    
+
     /**
      * used for the tabs over the last tab position.
      * @param width tab size
@@ -306,7 +329,7 @@ public class BitmapText extends Node {
         letters.invalidate();
         needRefresh = false;
     }
-    
+
     /**
      * for setLineWrapType(LineWrapType.NoWrap),
      * set the last character when the text exceeds the bound.
@@ -344,13 +367,13 @@ public class BitmapText extends Node {
     private void assemble() {
         // first generate quadlist
         letters.update();
-        
+
         for (int i = 0; i < textPages.length; i++) {
             textPages[i].assemble(letters);
         }
         needRefresh = false;
     }
-    
+
     public void render(RenderManager rm) {
         for (BitmapTextPage page : textPages) {
             Material mat = page.getMaterial();

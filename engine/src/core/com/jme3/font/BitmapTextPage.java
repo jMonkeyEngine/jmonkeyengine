@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ import java.util.LinkedList;
  * @author Lim, YongHoon
  */
 class BitmapTextPage extends Geometry {
-    
+
     private final float[] pos;
     private final float[] tc;
     private final short[] idx;
@@ -86,6 +86,10 @@ class BitmapTextPage extends Geometry {
 
         arrayBased = true;
 
+        /*
+         * TODO: Since this is forced to true, should we just lose the conditional?
+         * - Skye (sbook)
+         */
         if (arrayBased) {
             pos = new float[4 * 3];  // 4 verticies * 3 floats
             tc = new float[4 * 2];  // 4 verticies * 2 floats
@@ -98,7 +102,7 @@ class BitmapTextPage extends Geometry {
             color = null;
         }
     }
-    
+
     BitmapTextPage(BitmapFont font, boolean arrayBased) {
         this(font, arrayBased, 0);
     }
@@ -106,7 +110,7 @@ class BitmapTextPage extends Geometry {
     BitmapTextPage(BitmapFont font) {
         this(font, false, 0);
     }
-    
+
     Texture2D getTexture() {
         return texture;
     }
@@ -121,7 +125,7 @@ class BitmapTextPage extends Geometry {
     void assemble(Letters quads) {
         pageQuads.clear();
         quads.rewind();
-        
+
         while (quads.nextCharacter()) {
             if (quads.isPrintable()) {
                 if (quads.getCharacterSetPage() == page) {
@@ -129,7 +133,7 @@ class BitmapTextPage extends Geometry {
                 }
             }
         }
-        
+
         Mesh m = getMesh();
         int vertCount = pageQuads.size() * 4;
         int triCount = pageQuads.size() * 2;
@@ -191,7 +195,7 @@ class BitmapTextPage extends Geometry {
         ftb.rewind();
         sib.rewind();
         bcb.rewind();
-        
+
         updateModelBound();
     }
 }
