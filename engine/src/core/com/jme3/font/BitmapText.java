@@ -112,9 +112,7 @@ public class BitmapText extends Node {
      */
     public void setText(String text) {
         text = text == null ? "" : text;
-        if (block.getText().equals(text)) {
-            return;
-        } else {
+        if (!block.getText().equals(text)) {
             // If the text is empty, reset
             if (text.isEmpty()) {
                 System.out.println("text is different");
