@@ -121,6 +121,14 @@ JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_addConstraint
 
 /*
  * Class:     com_jme3_bullet_PhysicsSpace
+ * Method:    addConstraintC
+ * Signature: (JJZ)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_addConstraintC
+  (JNIEnv *, jobject, jlong, jlong, jboolean);
+
+/*
+ * Class:     com_jme3_bullet_PhysicsSpace
  * Method:    removeConstraint
  * Signature: (JJ)V
  */

@@ -561,6 +561,8 @@ public class PhysicsSpace {
     private native void removeVehicle(long space, long id);
 
     private native void addConstraint(long space, long id);
+    
+    private native void addConstraintC(long space, long id, boolean collision);
 
     private native void removeConstraint(long space, long id);
 
@@ -626,7 +628,7 @@ public class PhysicsSpace {
     private void addJoint(PhysicsJoint joint) {
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding Joint {0} to physics space.", Long.toHexString(joint.getObjectId()));
         physicsJoints.add(joint);
-        addConstraint(physicsSpaceId, joint.getObjectId());
+        addConstraintC(physicsSpaceId, joint.getObjectId(), !joint.isCollisionBetweenLinkedBodys());
 //        dynamicsWorld.addConstraint(joint.getObjectId(), !joint.isCollisionBetweenLinkedBodys());
     }
 
