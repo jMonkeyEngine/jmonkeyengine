@@ -1,5 +1,5 @@
 
-<h1><a>JME 3 Tutorial (5) - Hello Input System</a></h1>
+<h1><a>jMonkeyEngine 3 Tutorial (5) - Hello Input System</a></h1>
 <div>
 
 <p>
@@ -9,7 +9,7 @@ Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.html">Hello 
 </p>
 
 <p>
-By default, SimpleApplication sets up an input system that allows you to steer the camera with the WASD keys, the arrow keys, and the mouse. You can use it as a flying first-person camera right away. But what if you need a third-person camera, or you want keys to trigger special game actions? 
+By default, SimpleApplication sets up a camera control that allows you to steer the camera with the WASD keys, the arrow keys, and the mouse. You can use it as a flying first-person camera right away. But what if you need a third-person camera, or you want keys to trigger special game actions? 
 </p>
 
 <p>
@@ -228,6 +228,41 @@ In this example, we trigger the following actions:
   &#125;;</pre>
 
 <p>
+You can also combine both listeners into one, the engine will send the appropriate events to each method (onAction or onAnalog). For example:
+
+</p>
+<pre>  private MyCombinedListener combinedListener = new MyCombinedListener&#40;&#41;;
+&nbsp;
+  private static class MyCombinedListener implements AnalogListener, ActionListener &#123;
+    public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
+      if &#40;name.equals&#40;&quot;Pause&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
+        isRunning = !isRunning;
+      &#125;
+    &#125;
+&nbsp;
+    public void onAnalog&#40;String name, float value, float tpf&#41; &#123;
+      if &#40;isRunning&#41; &#123;
+        if &#40;name.equals&#40;&quot;Rotate&quot;&#41;&#41; &#123;
+          player.rotate&#40;0, value*speed, 0&#41;;
+        &#125;
+        if &#40;name.equals&#40;&quot;Right&quot;&#41;&#41; &#123;
+          Vector3f v = player.getLocalTranslation&#40;&#41;;
+          player.setLocalTranslation&#40;v.x + value*speed, v.y, v.z&#41;;
+        &#125;
+        if &#40;name.equals&#40;&quot;Left&quot;&#41;&#41; &#123;
+          Vector3f v = player.getLocalTranslation&#40;&#41;;
+          player.setLocalTranslation&#40;v.x - value*speed, v.y, v.z&#41;;
+        &#125;
+      &#125; else &#123;
+        System.out.println&#40;&quot;Press P to unpause.&quot;&#41;;
+      &#125;
+    &#125;
+  &#125;
+// ...
+inputManager.addListener&#40;analogListener, new String&#91;&#93;&#123;&quot;Pause&quot;, &quot;Left&quot;, &quot;Right&quot;, &quot;Rotate&quot;&#125;&#41;;
+&nbsp;</pre>
+
+<p>
 It&#039;s okay to use only one of the two Listeners, and not implement the other one, if you are not using this type of interaction. In the following, we have a closer look how to decide which of the two listeners is best suited for which situation.
 </p>
 
@@ -319,7 +354,7 @@ You can find the list of input constants in the files <code>src/core/com/jme3/in
 KeyTrigger(KeyInput.KEY_LEFT), KeyTrigger(KeyInput.KEY_RIGHT) </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [9414-10010] -->
+<!-- EDIT1 TABLE [10614-11210] -->
 <p>
 
 <strong>Tip:</strong> If you don&#039;t recall an input constant during development, you benefit from an IDE&#039;s code completion functionality: Place the caret after e.g. <code>KeyInput.|</code> and trigger code completion to select possible input identifiers.

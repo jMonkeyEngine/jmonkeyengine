@@ -4,27 +4,38 @@
 
 <p>
 
-Typically, you create a set of custom materials, and use them throughout the game. For example, you can initialize and configure your materials objects in the <code>initSimpleApp()</code> method, and then load 3D models (Geometries) and use setMaterial() on them. 
+All Geometries need a Materual. Every Material is based on a Material Definition. The most common Material Definitions are included in the engine, advanced users can create custom ones.
 </p>
+<pre>Spatial myGeometry = assetManager.loadModel&#40;&quot;Models/Teapot/Teapot.j3o&quot;&#41;;
+Material mat = new Material&#40;assetManager,  // Create new material and...
+    &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;  // ... specify a Material Definition file, here &quot;Unshaded.j3md&quot;!
+mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;     // Set one or more material parameters.
+myGeometry.setMaterial&#40;mat&#41;;               // Use material on this Geometry.</pre>
 
 <p>
-<strong>Tip:</strong> If you use one custom material very often, additionally read about storing material configurations in user-friendly <a href="/com/jme3/gde/core/docs/jme3/advanced/j3m_material_files.html">j3m Material Files</a>.
+<p><div>If you use one custom material very often, read about storing material configurations in user-friendly <a href="/com/jme3/gde/core/docs/jme3/advanced/j3m_material_files.html">j3m Material Files</a>. Either <a href="/com/jme3/gde/core/docs/sdk/material_editing.html">use the jMonkeyEngine SDK to create .j3m files</a> (easier), or <a href="/com/jme3/gde/core/docs/jme3/advanced/j3m_material_files.html">write .j3m files in a text editor</a>.
+</div></p>
 </p>
 
 </div>
 
 <h2><a>Preparing a Material</a></h2>
 <div>
+
+<p>
+
+In the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a> list,
+</p>
 <ol>
-<li><div> Choose a Material Definition from the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a> list that has the features that you need. </div>
+<li><div> Choose a Material Definition that has the features that you need. </div>
 <ul>
 <li><div> Tip: If you don&#039;t know, you can always start with <code>Unshaded.j3md</code>.</div>
 </li>
 </ul>
 </li>
-<li><div> Look at the applicable parameters of the Material Definition and determine which ones you need to achieve the desired effect. Most parameters are optional.</div>
-<ol>
-<li><div> Create and save the necessary Texture files to the assets directory.</div>
+<li><div> Look at the applicable parameters of the Material Definition and determine which parameters you need to achieve the desired effect (e.g. &quot;glow&quot; or &quot;color&quot;). Most parameters are optional. </div>
+</li>
+<li><div> Create and save the necessary Texture files to your assets directory.</div>
 <ul>
 <li><div> E.g. ColorMap; DiffuseMap, NormalMap, AlphaMap, etc…</div>
 </li>
@@ -37,20 +48,47 @@ Typically, you create a set of custom materials, and use them throughout the gam
 </ul>
 </li>
 </ol>
-</li>
-</ol>
 
 </div>
 
 <h2><a>Using a Material</a></h2>
 <div>
+
+<p>
+
+In your Java code,
+</p>
 <ol>
-<li><div> In you Java code, create a Material object based on the .j3md file: e.g. <pre>Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;</pre>
+<li><div> Create a Material object based on the chosen Material Definition (.j3md file): <pre>Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;</pre>
 </div>
 </li>
-<li><div> Configure your Material by setting the appropriate values listed in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a> table. Here are examples of the methods that set the different data types:</div>
+<li><div> Configure your Material by setting the appropriate values listed in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a> table. <pre>mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Yellow &#41;; // and more</pre>
+</div>
+</li>
+<li><div> Apply your prepared Material to a Geometry: <pre>myGeometry.setMaterial&#40;mat&#41;;</pre>
+</div>
+</li>
+<li><div> (Optional) Adjust the texture scale: <pre>geometry.scaleTextureCoordinates&#40;new Vector2f&#40;1f, .5f&#41;&#41;;</pre>
+</div>
+</li>
+</ol>
+
+<p>
+
+For details see also: <a href="/com/jme3/gde/core/docs/jme3/intermediate/how_to_use_materials.html">How to Use Materials</a>
+</p>
+
+</div>
+
+<h3><a>Examples</a></h3>
+<div>
+
+<p>
+
+Here are examples of the methods that set the different data types:
+</p>
 <ul>
-<li><div> <code>mat.setColor(   &quot;Color&quot;,       ColorRGBA.White );</code></div>
+<li><div> <code>mat.setColor(   &quot;Color&quot;,       ColorRGBA.White );</code> </div>
 </li>
 <li><div> <code>mat.setTexture( &quot;ColorMap&quot;,    assetManager.loadTexture(&quot;Interface/Logo/Monkey.png&quot; ));</code></div>
 </li>
@@ -61,19 +99,6 @@ Typically, you create a set of custom materials, and use them throughout the gam
 <li><div> <code>mat.setVector3( &quot;NormalScale&quot;, new Vector3f(1f,1f,1f));</code></div>
 </li>
 </ul>
-</li>
-<li><div> Use your prepared material on a Geometry: <pre>myGeometry.setMaterial&#40;mat&#41;;</pre>
-</div>
-</li>
-<li><div> (Optional) Adjust the texture scale: <pre>geometry.scaleTextureCoordinates&#40;new Vector2f&#40;1f, .5f&#41;&#41;;</pre>
-</div>
-</li>
-</ol>
-
-</div>
-
-<h2><a>Examples</a></h2>
-<div>
 
 <p>
 
@@ -105,9 +130,41 @@ geom.setMaterial&#40;mat&#41;;
 rootNode.attachChild&#40;geom&#41;;</pre>
 
 <p>
-<strong>Tip:</strong> You can find these and other common code snippets in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Code Palette. Drag and drop them into your source code.
+<p><div>You can find these and other common code snippets in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Code Palette. Drag and drop them into your source code.
+</div></p>
+</p>
+
+</div>
+
+<h2><a>Creating a Custom Material Definition</a></h2>
+<div>
+
+<p>
+
+Check out the <a href="/com/jme3/gde/core/docs/jme3/build_from_sources.html">engine source code</a> and have a look at how Material Definitions are implemented. You can create your own Material Definitions and place them in your projects MatDefs directory.
 
 </p>
+<ol>
+<li><div> Find the existing MatDefs are in <code>engine/src/core-data/Common/MatDefs/</code>. </div>
+</li>
+<li><div> Open a Something.j3md file in a text editor. You see that this jme3 file defines Material Parameters and Techniques.</div>
+<ul>
+<li><div> Material Parameters are the ones that you set in Materials, as shown in the examples above.</div>
+</li>
+<li><div> The Techniques rely on VertexShaders and FragmentShaders: You find those in the files Something.vert and Something.frag in the same directory.</div>
+</li>
+</ul>
+</li>
+<li><div> Learn about GLSL (OpenGL Shading Language) to understand the .vert and .frag syntax, and write your own.</div>
+</li>
+</ol>
+<div><span>
+	<a href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">SDK</a>,
+	<a href="/wiki/doku.php/tag:matdef?do=showtag&amp;tag=tag%3Amatdef">MatDef</a>,
+	<a href="/wiki/doku.php/tag:file?do=showtag&amp;tag=tag%3Afile">file</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
+</span></div>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:material_definitions?do=export_xhtmlbody">view online version</a></em></p>

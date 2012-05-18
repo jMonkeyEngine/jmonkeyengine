@@ -58,7 +58,7 @@ The simplest type of Meshes are the built-in JME Shapes. You can create Shapes w
 <h2><a>Non-3D shapes</a></h2>
 <div>
 <ul>
-<li><div> com.jme3.scene.shape.Quad – A flat 2D rectangle (has two sides)</div>
+<li><div> com.jme3.scene.shape.Quad – A flat 2D rectangle (single-sided, center is in bottom-left corner)</div>
 </li>
 <li><div> com.jme3.scene.shape.Line – A straight 1D line defined by a start and end point.</div>
 </li>
@@ -68,12 +68,12 @@ The simplest type of Meshes are the built-in JME Shapes. You can create Shapes w
 
 </div>
 
-<h4><a>Math versus Shape?</a></h4>
+<h4><a>com.jme3.math versus com.jme3.shape?</a></h4>
 <div>
 
 <p>
 
-Do not mix up these visible Shapes with similarly named classes from the maths package. Choose the right package when letting your IDE fill in the import statements!
+Do not mix up these visible com.jme3.shapes with similarly named classes from the com.jme3.math package. Choose the right package when letting your IDE fill in the import statements!
 </p>
 <ul>
 <li><div> com.jme3.math.Line – is invisible, has a direction, goes through a point, infinite length.</div>
@@ -120,6 +120,7 @@ To add a shape to the scene:
 <div>
 
 <p>
+
 You can compose more complex custom Geometries out of simple Shapes. Think of the buildings in games like Angry Birds, or the building blocks in Second Life (&quot;prims&quot;) and in Tetris (&quot;Tetrominos&quot;).
 </p>
 <ol>
@@ -143,6 +144,12 @@ The order is important: First arrange around origin, then transform. Otherwise, 
 
 <h2><a>Code Examples</a></h2>
 <div>
+
+<p>
+
+Create the Mesh shape:
+
+</p>
 <pre>Sphere mesh = new Sphere&#40;32, 32, 10, false, true&#41;;</pre>
 <pre>Dome mesh = new Dome&#40;Vector3f.ZERO, 2, 4, 1f,false&#41;; // Pyramid</pre>
 <pre>Dome mesh = new Dome&#40;Vector3f.ZERO, 2, 32, 1f,false&#41;; // Cone</pre>
@@ -156,11 +163,12 @@ The order is important: First arrange around origin, then transform. Otherwise, 
 Use one of the above examples together with the following geometry in a scene:
 
 </p>
-<pre>Geometry geom = new Geometry&#40;&quot;A shape&quot;, mesh&#41;;
-Material mat = new Material&#40;assetManager,
-    &quot;Common/MatDefs/Misc/ShowNormals.j3md&quot;&#41;;
-geom.setMaterial&#40;mat&#41;;
-rootNode.attachChild&#40;geom&#41;;</pre>
+<pre>Geometry geom = new Geometry&#40;&quot;A shape&quot;, mesh&#41;; // wrap shape into geometry
+Material mat = new Material&#40;assetManager,      
+    &quot;Common/MatDefs/Misc/ShowNormals.j3md&quot;&#41;;   // create material
+geom.setMaterial&#40;mat&#41;;                         // assign material to geometry
+// if you want, transform (move, rotate, scale) the geometry.
+rootNode.attachChild&#40;geom&#41;;                    // attach geometry to a node</pre>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:shape?do=export_xhtmlbody">view online version</a></em></p>

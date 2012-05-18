@@ -76,7 +76,8 @@
             <tocitem text="Integrate a new model filetype and loader" target="sdk.development.model_loader"/>
 <!--        </tocitem>-->
         </tocitem>
-        <tocitem text="Updating jMP" target="com.jme3.gde.core.updating"/>
+        <tocitem text="Updating the SDK and Engine" target="com.jme3.gde.core.updating"/>
+        <tocitem text="Troubleshooting the SDK" target="sdk.troubleshooting"/>
     </tocitem>
     <tocitem text="jMonkeyEngine3 Engine" expand="true">
         <tocitem text="Beginner Tutorials" expand="false">

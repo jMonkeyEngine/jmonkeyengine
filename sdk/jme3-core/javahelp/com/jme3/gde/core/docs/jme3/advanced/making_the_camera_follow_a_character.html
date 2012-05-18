@@ -51,12 +51,12 @@ flyCam.setEnabled&#40;false&#41;;
 camNode = new CameraNode&#40;&quot;Camera Node&quot;, cam&#41;;
 //This mode means that camera copies the movements of the target:
 camNode.setControlDir&#40;ControlDirection.SpatialToCamera&#41;;
+//Attach the camNode to the target:
+target.attachChild&#40;camNode&#41;;
 //Move camNode, e.g. behind and above the target:
 camNode.setLocalTranslation&#40;new Vector3f&#40;0, 5, -5&#41;&#41;;
 //Rotate the camNode to look at the target:
-camNode.lookAt&#40;target.getLocalTranslation&#40;&#41;, Vector3f.UNIT_Y&#41;;
-//Attach the camNode to the target:
-target.attachChild&#40;camNode&#41;;</pre>
+camNode.lookAt&#40;target.getLocalTranslation&#40;&#41;, Vector3f.UNIT_Y&#41;;</pre>
 
 <p>
 <strong>Important:</strong> Where the example says <code>camNode.setLocalTranslation(new Vector3f(0, 5, -5));</code>, you have to supply your own start position for the camera. This depends on the size of your target (the player character) and its position in your particular scene. Optimally, you set this to a spot a bit behind and above the target.
@@ -73,10 +73,10 @@ Example: Use with <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">C
 	</tr>
 	<tr>
 		<td>setControlDir(ControlDirection.CameraToSpatial)</td><td>User input steers the camera, and the target spatial follows the camera. <br/>
-The camera&#039;s transformation is copied over the spatial&#039;s transformation.</td>
+The camera&#039;s transformation is copied over the spatial&#039;s transformation. Use with first-person flyCam.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [2445-2926] -->
+<!-- EDIT1 TABLE [2445-2956] -->
 <p>
 
 <strong>Code sample:</strong>
@@ -137,7 +137,7 @@ new KeyTrigger(KeyInput.KEY_SPACE))</td><td>Activate mutiple triggers for the ro
 		<td>setRotationSensitivity(5f)</td><td>How fast the camera rotates. Use values around &lt;1.0f (all bigger values are ignored).</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [3702-5114] -->
+<!-- EDIT2 TABLE [3732-5144] -->
 <p>
 
 <strong>Code sample:</strong>
@@ -171,6 +171,6 @@ What is the difference of the two code samples above?
 		<td>Drag-to-Rotate rotates the target and the camera. You always see the target from behind.</td><td>Drag-to-Rotate rotates only the camera. You can see the target from various sides.</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [5443-5914] -->
+<!-- EDIT3 TABLE [5473-5944] -->
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:making_the_camera_follow_a_character?do=export_xhtmlbody">view online version</a></em></p>

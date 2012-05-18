@@ -94,7 +94,7 @@ The camera object is created with the following defaults:
 
 <p>
 
-The flyby camera is an extension of the default camera in com.jme3.app.SimpleApplication. It is preconfigured to respond to the WASD keys for walking forwards and backwards, and for strafing to the sides. Move the mouse to rotate the camera, scroll the mouse wheel for zooming in or out. The QZ keys raise or lower the camera.
+The flyby camera is an AppState that extends the default camera in com.jme3.app.SimpleApplication. It is preconfigured to respond to the WASD keys for walking forwards and backwards, and strafing to the sides; move the mouse to rotate the camera (&quot;Mouse Look&quot;), scroll the mouse wheel for zooming in or out. The QZ keys raise or lower the camera vertically.
 
 </p>
 <div><table>
@@ -111,10 +111,10 @@ The flyby camera is an extension of the default camera in com.jme3.app.SimpleApp
 		<td>flyCam.setRotationSpeed(10);</td><td>Control the rotation speed</td>
 	</tr>
 	<tr>
-		<td>flyCam.setDragToRotate(true)</td><td>Must keep mouse button pressed to rotate camera. Used e.g. for Applets. if false, all mouse movement will be captured and interpreted as rotations.</td>
+		<td>flyCam.setDragToRotate(true)</td><td>Forces the player to keep mouse button pressed to rotate camera, typically used for Applets. If false (default), all mouse movement will be captured and interpreted as rotations.</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [2295-2646] -->
+<!-- EDIT2 TABLE [2326-2708] -->
 </div>
 
 <h2><a>Chase Camera</a></h2>
@@ -164,7 +164,7 @@ ChaseCamera chaseCam = new ChaseCamera&#40;cam, target, inputManager&#41;;</pre>
 		<td>chaseCam.setDefaultHorizontalRotation(-FastMath.PI/2);</td><td>The default horizontal rotation angle of the camera around the target at the start of the application.</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [2955-4427] --><div><span>
+<!-- EDIT3 TABLE [3017-4489] --><div><span>
 	<a href="/wiki/doku.php/tag:camera?do=showtag&amp;tag=tag%3Acamera">camera</a>,
 	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
 </span></div>

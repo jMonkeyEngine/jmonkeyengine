@@ -1,31 +1,14 @@
 
-<h1><a>Nifty GUI 1.3 Scenarios</a></h1>
+<h1><a>Nifty GUI 1.3 - Usecase Scenarios</a></h1>
 <div>
 
 <p>
 
-This document contains best practices for typical NiftyGUI usercase scenarios. These tips assume that you have read the <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui.html">Introduction to jME3&#039;s Nifty GUI integration</a> first, and have laid out a basic <acronym title="Graphical User Interface">GUI</acronym> that interacts with your Java application. Here you learn how you integrate the <acronym title="Graphical User Interface">GUI</acronym> better, and add effects and advanced controls.
+This document contains typical NiftyGUI usecase scenarios, such as adding effects, game states, and creating typical game screens. 
 </p>
 
-</div>
-
-<h2><a>Java or XML?</a></h2>
-<div>
-
 <p>
-
-You can build Nifty GUIs using <acronym title="Extensible Markup Language">XML</acronym> or Java syntax. Which one should you choose?
-</p>
-<ul>
-<li><div> Build your basic static UI layout using <acronym title="Extensible Markup Language">XML</acronym> - it&#039;s cleaner to write and read. </div>
-</li>
-<li><div> While the game runs, you dynamically change the UI content using Java code. </div>
-</li>
-</ul>
-
-<p>
-
-This approach has the advantage that you can, for example, switch between a phone and a desktop UI by simply swapping one base <acronym title="Extensible Markup Language">XML</acronym> file. You design the swappable UI with different layouts, but use the same element IDs, so your dynamic Java code works the same no matetr which base <acronym title="Extensible Markup Language">XML</acronym> layout you use it on.
+Requirements: These tips assume that you have read and understood the <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui.html">Creating JME3 User Interfaces with Nifty GUI</a> tutorial, and have already laid out a basic <acronym title="Graphical User Interface">GUI</acronym> that interacts with your JME3 application. Here you learn how you integrate the <acronym title="Graphical User Interface">GUI</acronym> better, and add effects and advanced controls.
 </p>
 
 </div>
@@ -142,7 +125,7 @@ public StartScreenState&#40;SimpleApplication app&#41;&#123;
 		<td>${PROP.key}</td><td> looks up <code>key</code> in the Nifty properties. Use Nifty.setGlobalproperties(properties) and Nifty.getGlobalproperties(&quot;key&quot;). Or SystemGetProperties(key);</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [4107-4638] -->
+<!-- EDIT1 TABLE [3632-4163] -->
 <p>
 
 See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=MarkUp"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=MarkUp</u></html>"><param name="textColor" value="blue"></object>
@@ -170,12 +153,12 @@ For example, create a <code>MyHudScreen.java</code> for the <code>hud</code> scr
 
 </div>
 
-<h2><a>Create a Load Screen</a></h2>
+<h2><a>Create a &quot;Loading...&quot; Screen</a></h2>
 <div>
 
 <p>
-<a href="/com/jme3/gde/core/docs/jme3/advanced/loading_screen.html">loading_screen</a>
 
+Get the full <a href="/com/jme3/gde/core/docs/jme3/advanced/loading_screen.html">Loading Screen</a> tutorial here.
 </p>
 
 </div>
@@ -184,7 +167,8 @@ For example, create a <code>MyHudScreen.java</code> for the <code>hud</code> scr
 <div>
 
 <p>
-<a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_popup_menu.html">nifty GUI PopUp Menu</a>
+
+Get the full <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_popup_menu.html">Nifty GUI PopUp Menu</a> tutorial here.
 </p>
 
 </div>
@@ -270,13 +254,13 @@ You can name the method (here <code>clicked</code>) what ever you like, as long 
 
 </div>
 
-<h2><a>Loading Several XML Files</a></h2>
+<h2><a>Load Several XML Files</a></h2>
 <div>
 
 <p>
 
 The basic Nifty <acronym title="Graphical User Interface">GUI</acronym> example showed how to use the <code>nifty.fromXML()</code> method to load one <acronym title="Extensible Markup Language">XML</acronym> file containing all Nifty <acronym title="Graphical User Interface">GUI</acronym> screens.
-The following code sample shows how you can load several <acronym title="Extensible Markup Language">XML</acronym> files into one nifty object. Loading several files with <code>nifty.addXml()</code> allows you to use one <acronym title="Extensible Markup Language">XML</acronym> file per one screen layout. 
+The following code sample shows how you can load several <acronym title="Extensible Markup Language">XML</acronym> files into one nifty object. Loading several files with <code>nifty.addXml()</code> allows you to split up each screen into one <acronym title="Extensible Markup Language">XML</acronym> file, insetad of all into one hard-to-read <acronym title="Extensible Markup Language">XML</acronym> file. 
 </p>
 <pre>NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay&#40;assetManager, inputManager, audioRenderer, viewPort&#41;;
 Nifty nifty = niftyDisplay.getNifty&#40;&#41;;

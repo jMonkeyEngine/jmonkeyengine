@@ -1,5 +1,5 @@
 
-<h1><a>JME 3 Tutorial (2) - Hello Node</a></h1>
+<h1><a>jMonkeyEngine 3 Tutorial (2) - Hello Node</a></h1>
 <div>
 
 <p>
@@ -125,7 +125,7 @@ In this tutorial, you learn some new terms:
 		<td>Position/move, turn, or resize an object</td><td>Translate, rotate, scale an object. Transform an object.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [3079-3496] -->
+<!-- EDIT1 TABLE [3089-3506] -->
 <p>
 
 Every JME3 application has a rootNode: Your game automatically inherits the <code>rootNode</code> object from SimpleApplication. Everything attached to the rootNode is part of the scene graph. The elements of the scene graph are Spatials.
@@ -152,7 +152,7 @@ Every JME3 application has a rootNode: Your game automatically inherits the <cod
 		<th> Examples: </th><td> A box, a sphere, a player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc… </td><td> The <code>rootNode</code>, a floor node grouping several terrains, a custom vehicle-with-passengers node, a player-with-weapon node, an audio node, etc… </td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [3912-4405] -->
+<!-- EDIT2 TABLE [3922-4415] -->
 </div>
 
 <h2><a>Understanding the Code</a></h2>
@@ -293,7 +293,7 @@ thing.setMaterial&#40;mat&#41;;</pre>
 		<td> Specify what should be loaded at the start </td><td> Everything you initialize and attach to the <code>rootNode</code> in the <code>simpleInitApp()</code> method is part of the scene at the start of the game. </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [8042-9304] -->
+<!-- EDIT3 TABLE [8052-9314] -->
 </div>
 
 <h2><a>How do I Transform Spatials?</a></h2>
@@ -319,7 +319,7 @@ To move a Spatial <em>to</em> specific coordinates, such as (0,40.2f,-2), use: <
 </td><td>+right -left</td><td>+up -down</td><td>+forward -backward</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [9429-9945] --><div><table>
+<!-- EDIT4 TABLE [9439-9955] --><div><table>
 	<tr>
 		<th> Scaling resizes Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -331,7 +331,7 @@ To scale a Spatial 10 times longer, one tenth the height, and keep the same widt
 </td><td>length</td><td>height</td><td>width</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [9947-10436] --><div><table>
+<!-- EDIT5 TABLE [9957-10446] --><div><table>
 	<tr>
 		<th> Rotation turns Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -347,7 +347,7 @@ To roll an object 180° around the z axis: <pre>thing.rotate&#40; 0f , 0f , 180*
 </td><td>pitch = nodding your head</td><td>yaw = shaking your head</td><td>roll = cocking your head</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [10438-11219] -->
+<!-- EDIT6 TABLE [10448-11229] -->
 </div>
 
 <h2><a>How do I Troubleshoot Spatials?</a></h2>
@@ -378,7 +378,7 @@ Did you rotate around the right axis? </td>
 		<td> A Geometry has an unexpected Color or Material. </td><td> Did you reuse a Material from another Geometry and have inadvertently changed its properties? (If so, consider cloning it: mat2 = mat.clone(); )  </td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [11352-12325] -->
+<!-- EDIT7 TABLE [11362-12335] -->
 </div>
 
 <h2><a>How do I Add Custom Data to Spatials?</a></h2>

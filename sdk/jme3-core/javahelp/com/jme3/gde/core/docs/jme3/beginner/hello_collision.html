@@ -1,5 +1,5 @@
 
-<h1><a>JME 3 Tutorial (9) - Hello Collision</a></h1>
+<h1><a>jMonkeyEngine 3 Tutorial (9) - Hello Collision</a></h1>
 <div>
 
 <p>
@@ -149,13 +149,13 @@ public class HelloCollision extends SimpleApplication
    * We do not walk yet, we just keep track of the direction the user pressed. */</span>
   public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
     if &#40;binding.equals&#40;&quot;Left&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; left = true; &#125; else &#123; left = false; &#125;
+      left = value;
     &#125; else if &#40;binding.equals&#40;&quot;Right&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; right = true; &#125; else &#123; right = false; &#125;
+      right = value;
     &#125; else if &#40;binding.equals&#40;&quot;Up&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; up = true; &#125; else &#123; up = false; &#125;
+      up = value;
     &#125; else if &#40;binding.equals&#40;&quot;Down&quot;&#41;&#41; &#123;
-      if &#40;value&#41; &#123; down = true; &#125; else &#123; down = false; &#125;
+      down = value;
     &#125; else if &#40;binding.equals&#40;&quot;Jump&quot;&#41;&#41; &#123;
       player.jump&#40;&#41;;
     &#125;

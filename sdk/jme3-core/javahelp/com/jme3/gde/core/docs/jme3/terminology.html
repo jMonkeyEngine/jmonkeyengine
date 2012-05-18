@@ -13,10 +13,11 @@ Before you start, make certain you are familiar with the following concepts and 
 <div>
 
 <p>
+
 <strong>OpenGL</strong> is the Open Graphics Library, a platform-independent specification for rendering 2D/3D computer graphics. For Java, there are two implementations of OpenGL-based renderers:
 </p>
 <ol>
-<li><div> Lightweight Java Game Library (LWJGL)</div>
+<li><div> Lightweight Java Game Library (LWJGL) – jme3 uses lwjgl.</div>
 </li>
 <li><div> Java OpenGL (JOGL)</div>
 </li>
@@ -38,9 +39,9 @@ The <strong>jME Context</strong> makes settings, renderer, timer, input and even
 <ul>
 <li><div> The <strong>jME Display System</strong> is what draws the custom JME window (instead of Java Swing).</div>
 </li>
-<li><div> The <strong>input system</strong> is what lets you respond to user input via mouse, keyboard, and joystick.</div>
+<li><div> The <strong>Input System</strong> is the component that lets you respond to user input: Mouse clicks and movements, keyboard presses, and joystick motions.</div>
 </li>
-<li><div> The <strong>renderer</strong> is what does all the work of calculating how to draw the 3D scenegraph to the 2D screen.</div>
+<li><div> The <strong>Renderer</strong> is what does all the work of calculating how to draw the 3D scenegraph to the 2D screen.</div>
 <ul>
 <li><div> The <strong>Shader</strong> is a programmable part of the rendering pipeline. The jME3 game engine uses it to offer advanced customizable materials.</div>
 </li>
@@ -52,116 +53,6 @@ The <strong>jME Context</strong> makes settings, renderer, timer, input and even
 
 <h1><a>Geometry</a></h1>
 <div>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/intermediate/coordinate-system.png">
-</p>
-
-</div>
-
-<h2><a>Coordinates</a></h2>
-<div>
-
-<p>
-
-Coordinates represent a location in a coordinate system. Coordinates are relative to the origin at (0,0,0). In 3D space, you need to specify three coordinate values to locate a point: X (right), Y (up), Z (towards you). 
-In contrast to a vector (which looks similar), a coordinate is a location, not a direction.
-</p>
-
-</div>
-
-<h3><a>The Origin</a></h3>
-<div>
-
-<p>
-
-The origin is the central point in the 3D world, where the three axes meet. It&#039;s at the coordinates (0,0,0).
-</p>
-
-<p>
-<strong>Example:</strong> <code>Vector3f origin = new Vector3f( Vector3f.ZERO );</code>
-</p>
-
-</div>
-
-<h2><a>Vectors</a></h2>
-<div>
-
-<p>
-
-A vector has a length and a direction, like an arrow in 3D space. A vector starts at the origin (0,0,0), and ends at the target coordinate (x,y,z). Backwards directions are expressed with negative values.
-</p>
-
-<p>
-<strong>Example:</strong> <code>Vector3f v = new Vector3f( 17 , -4 , 0 );</code>
-</p>
-
-</div>
-
-<h3><a>Unit Vectors</a></h3>
-<div>
-
-<p>
-
-A <em>unit vector</em> is a basic vector with a length of 1 world unit. Since its length is fixed (and it thus can only point at one location anyway), the only interesting thing about this vector is its direction.
-</p>
-<ul>
-<li><div> <code>Vector3f.UNIT_X</code>  = ( 1, 0, 0) = right</div>
-</li>
-<li><div> <code>Vector3f.UNIT_Y</code>  = ( 0, 1, 0) = up</div>
-</li>
-<li><div> <code>Vector3f.UNIT_Z</code>  = ( 0, 0, 1) = forwards</div>
-</li>
-<li><div> <code>Vector3f.UNIT_XYZ</code> = 1 wu diagonal right-up-forewards</div>
-</li>
-</ul>
-
-<p>
-Negate the vegator to change its direction, e.g. (-1, 0, 0) = left.
-</p>
-
-</div>
-
-<h3><a>Normalized Vectors</a></h3>
-<div>
-
-<p>
-
-A <em>normalized vector</em> is a custom <em>unit vector</em>. A normalized vector is not the same as a <em>(surface) normal vector</em>.
-When you normalize a vector, it still has the same direction, but you lose the information where the vector originally pointed.
-</p>
-
-<p>
-<strong>Example:</strong> You normalize vectors before calculating angles.
-</p>
-
-</div>
-
-<h3><a>Surface Normal Vectors</a></h3>
-<div>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/core/docs/jme3/300px-surface_normal.png">
-A surface normal is a vector that is perpendicular (orthogonal) to a plane. 
-You calculate the Surface Normal by calculating the cross product.
-</p>
-
-</div>
-
-<h3><a>Cross Product</a></h3>
-<div>
-
-<p>
-
-The cross product is a calculation that you use to find a perpendicular vector (an orthogonal, a &quot;right angle&quot; at 90°).
-In 3D space, speaking of an orthogonal only makes sense with respect to a plane. You need two vectors to uniquely define a plane. The cross product of the two vectors, <code>v1 × v2</code>, is a new vector that is perpendicular to this plane. A vector perpendicular to a plane is a called <em>Surface Normal</em>.
-</p>
-
-<p>
-<strong>Example:</strong> The x unit vector and the y unit vector together define the x/y plane. The vector perpendicular to them is the z axis. JME can calculate that this equation is true: <br/>
-
-<code>( Vector3f.UNIT_X.cross( Vector3f.UNIT_Y ) ).equals( Vector3f.UNIT_Z )</code> == true
-</p>
 
 </div>
 
@@ -183,10 +74,6 @@ Every shape is reduced to a number of connected polygons, usually triangles; eve
 
 <p>
 You create 3D meshes in tools called mesh editors, e.g in Blender. The jMonkeyEngine can load finished meshes (=models) and arrange them to scenes, but it cannot edit the mesh itself.
-</p>
-
-<p>
-<a href="/com/jme3/gde/core/docs/jme3/math.html">Learn more about 3D maths here.</a>
 </p>
 
 </div>
@@ -297,15 +184,17 @@ Textures are part of Materials. In the simplest case, an object could have just 
 </p>
 
 <p>
-The more information you (the game designer) provide additionally to the Color Map, the higher the degree of detail and realism. Whether you want photo-realistic rendering or &quot;toon&quot; rendering (Cel Shading), everything depends on the quality of your materials and texture maps. Modern 3D graphics use several layers of information to describe one material, each layer is a Texture Map.
-<p><div>You have no textures? <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://opengameart.org"><param name="text" value="<html><u>Download free textures</u></html>"><param name="textColor" value="blue"></object> (including texture maps) from opengameart.org.
-</div></p>
+The more information you (the game designer) provide additionally to the Color Map, the higher the degree of detail and realism. Whether you want photo-realistic rendering or &quot;toon&quot; rendering (Cel Shading), everything depends on the quality of your materials and textures. Modern 3D graphics use several layers of information to describe one material, each mapped layer is a texture.
+</p>
 
+<p>
+<p><div>Got no textures? <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://opengameart.org"><param name="text" value="<html><u>Download free textures from opengameart.org</u></html>"><param name="textColor" value="blue"></object>. Remember to keep the copyright notice together with the textures!
+</div></p>
 </p>
 
 </div>
 
-<h2><a>Texture Maps</a></h2>
+<h2><a>Texture Mapping</a></h2>
 <div>
 
 </div>
@@ -314,6 +203,7 @@ The more information you (the game designer) provide additionally to the Color M
 <div>
 
 <p>
+
 <img src="/wiki/lib/exe/fetch.php">
 </p>
 <ul>
@@ -321,9 +211,9 @@ The more information you (the game designer) provide additionally to the Color M
 </li>
 <li><div> The image can have alpha channels for transparency.</div>
 </li>
-<li><div> <strong>A Color Map is the minimum texture.</strong> You can add texture maps as optional improvements. </div>
+<li><div> <strong>A Color Map is the minimum texture.</strong> You can map more textures as optional improvements. </div>
 </li>
-<li><div> Color Maps are called Diffuse Map in a Phong-illuminated Material, because the map defines the basic colors of light that are diffused by this object.</div>
+<li><div> Color Maps are unshaded. The same is called Diffuse Map in a Phong-illuminated material, because this texture defines the basic colors of light that are <em>diffused</em> by this object.</div>
 </li>
 </ul>
 
@@ -333,6 +223,7 @@ The more information you (the game designer) provide additionally to the Color M
 <div>
 
 <p>
+
 Bump maps are used to describe detailed shapes that would be too hard or simply too inefficient to sculpt in a mesh editor. There are two types:
 </p>
 <ul>
@@ -344,7 +235,6 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 
 <p>
 <img src="/wiki/lib/exe/fetch.php">
-
 </p>
 
 </div>
@@ -366,6 +256,7 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 <div>
 
 <p>
+
 <img src="/wiki/lib/exe/fetch.php">
 </p>
 <ul>
@@ -373,7 +264,7 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 </li>
 <li><div> When you open a Normal Map in an image editor, it looks like a false-color version of the Color Map. Normal maps however are never used for coloring, instead, each the color values encode displacement data of bumps and cracks on the surface. Displacement data is represented by the Surface Normals of the slopes, hence the name.</div>
 </li>
-<li><div> You cannot draw normal maps by hand, professional designers use software to calculate them off high-quality 3D models. </div>
+<li><div> You cannot draw or edit normal maps by hand, professional designers use software to calculate them off high-quality 3D models. You can either buy a professional texture set, or find free collections that include Normal Maps.</div>
 </li>
 </ul>
 
@@ -383,6 +274,7 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 <div>
 
 <p>
+
 <img src="/wiki/lib/exe/fetch.php">
 </p>
 <ul>
@@ -390,7 +282,7 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 </li>
 <li><div> Start out with a copy of the Diffuse Map in a medium gray that corresponds to the average shininess/dullness of this material. Then add ligher grays for smoother, shinier, more reflective areas; and darker grays for duller, rougher, worn-out areas. The resulting image file looks similar to a grayscale version of the Diffuse Map.</div>
 </li>
-<li><div> You can use colors in a specular map to create certain reflective effects (fake iridiscence, metallic effect).</div>
+<li><div> You can use colors in a Specular map to create certain reflective effects (fake iridiscence, metallic effect).</div>
 </li>
 </ul>
 
@@ -400,17 +292,22 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 <div>
 
 <p>
+
 <img src="/wiki/lib/exe/fetch.php">
 Tiles are a very simple, commonly used type of texture. When texturing a wide area (e.g. walls, floors), you don&#039;t create one huge texture – instead you tile a small texture repeatedly to fill the area.
 </p>
 
 <p>
-A seamless texture is an image file that has been designed so that it can be used as tiles: The right edge matches the left edge, and the top edge matches the bottom edge. The onlooker cannot easily tell where one starts and the next one ends, thus creating an illusion of a huge texture. The downside is that the tiling becomes painfully obvious when the area is viewed from a distance. Also you cannot use it on more complex models such as characters.
+A seamless texture is an image file that has been designed or modified so that it can be used as tiles: The right edge matches the left edge, and the top edge matches the bottom edge. The onlooker cannot easily tell where one starts and the next one ends, thus creating an illusion of a huge texture. The downside is that the tiling becomes painfully obvious when the area is viewed from a distance. Also you cannot use it on more complex models such as characters. 
+</p>
+
+<p>
+See also this tutorial on <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.photoshoptextures.com/texture-tutorials/seamless-textures.htm"><param name="text" value="<html><u>How to make seamless textures in Photoshop</u></html>"><param name="textColor" value="blue"></object>.
 </p>
 
 </div>
 
-<h2><a>UV Maps</a></h2>
+<h2><a>UV Maps / Texture Atlas</a></h2>
 <div>
 
 <p>
@@ -419,16 +316,16 @@ A seamless texture is an image file that has been designed so that it can be use
 </p>
 
 <p>
-Creating a texture for a cube is easy – but what about a character with a face and extremities? For more complex objects, you design the texture in the same ways as a flat sewing pattern: One image file contains the outline of the front, back, and side of the object, next to one another. Specific areas of the flat texture (UV coordinates) map onto certain areas of your 3D model (XYZ coordinates), hence the name UV map. Using UV Maps, one model can have different textures on each side.
+Creating a texture for a cube is easy – but what about a character with a face and extremities? For more complex objects, you design the texture in the same ways as a flat sewing pattern: One image file contains the outline of the front, back, and side of the object, next to one another. Specific areas of the flat texture (UV coordinates) map onto certain areas of your 3D model (XYZ coordinates), hence the name UV map. Using UV Maps (also known as Texture Atlas), one model can have different textures on each side. You create one corresponding UV map for each texture.
 </p>
 
 <p>
-Getting the seams and mappings right is crucial: You must use a graphic tool like Blender to create UV Maps and store the coordinates. It&#039;s worth the while to learn this, UV mapped models look a lot more professional.
+Getting the seams and mappings right is crucial: You must use a graphic tool like Blender to create UV Maps (Texture Atlas) and store the coordinates correctly. It&#039;s worth the while to learn this, UV mapped models look a lot more professional.
 </p>
 
 </div>
 
-<h2><a>Environment Maps</a></h2>
+<h2><a>Environment Mapping</a></h2>
 <div>
 
 <p>
@@ -437,11 +334,15 @@ Getting the seams and mappings right is crucial: You must use a graphic tool lik
 </p>
 
 <p>
-Environment Maps are used to create the impression of reflections and refractions. You create a Cube Map to represent your environment, similar to a skybox. (Sphere Maps are possible, but often look distorted.) You give the Cube Map a set of images showing a &quot;360° view&quot; of the completed scene. The renderer uses this as base to texture the reflective surface.
+Environment Mapping or Reflection Mapping is used to create the impression of reflections and refractions in real time. It&#039;s faster (but less accurate) than the raytracing methods used in offline rendering applications. 
 </p>
 
 <p>
-Of course the reflected environment is static and not &quot;real&quot;, e.g. the player will not see his avatar&#039;s face reflected, etc. But EnvMaps cause the desired &quot;glass/mirror/water&quot; effect, and are fast enough to render in real usecases.
+You create a Cube Map to represent your environment; Sphere Maps are also possible, but often look distorted. Basically you give the environment map a set of images showing a &quot;360° view&quot; of the background scene – very similar to a skybox. The renderer maps the environment on the texture of the reflective surface, which results in an acceptable &quot;glass/mirror/water&quot; effect. Just like a skybox, the reflection map is static, so dynamic things (such as the player walking) are not part of the reflection. (!) 
+</p>
+
+<p>
+See also: <a href="/com/jme3/gde/core/docs/jme3/advanced/water.html">Water</a>.
 </p>
 
 </div>
@@ -538,6 +439,22 @@ E.g. when the thigh bone moves, the leg is fully affected, the hips joints less 
 </li>
 </ol>
 
+<p>
+
+<p><div>What is the difference between animation (rigging, skinning, keyframes) and transformation (rotation, scaling, moving, &quot;slerp&quot;)?
+</p>
+<ul>
+<li><div> Transformation is simpler than animation. Sometimes, transforming a geometry already makes it look like it is animated: For example, a spinning windmill, a pulsating alien ball of energy, moving rods of a machine. Transformations can be easily done with JME3 methods. </div>
+</li>
+<li><div> Animations however are more complex and are encoded in a special format (keyframes). They distort the skin of the mesh, and complex series of motions be &quot;recorded&quot; (in external tools) and played (in JME3).</div>
+</li>
+</ul>
+
+<p>
+
+</div></p>
+</p>
+
 </div>
 
 <h2><a>Kinematics</a></h2>
@@ -611,10 +528,169 @@ There are lots of resources explaining interesting AI algorithms:
 
 </div>
 
+<h1><a>Math</a></h1>
+<div>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/intermediate/coordinate-system.png">
+</p>
+
+</div>
+
+<h2><a>Coordinates</a></h2>
+<div>
+
+<p>
+
+Coordinates represent a location in a coordinate system. Coordinates are relative to the origin at (0,0,0). In 3D space, you need to specify three coordinate values to locate a point: X (right), Y (up), Z (towards you). Similarly, -X (left), -Y (down), -Z (away from you).
+In contrast to a vector (which looks similar), a coordinate is a location, not a direction.
+</p>
+
+</div>
+
+<h3><a>The Origin</a></h3>
+<div>
+
+<p>
+
+The origin is the central point in the 3D world, where the three axes meet. It&#039;s always at the coordinates (0,0,0).
+</p>
+
+<p>
+<strong>Example:</strong> <code>Vector3f origin = new Vector3f( Vector3f.ZERO );</code>
+</p>
+
+</div>
+
+<h2><a>Vectors</a></h2>
+<div>
+
+<p>
+
+A vector has a length and a direction, like an arrow in 3D space. A vector starts at a coordinate (x1,y1,z1) or at the origin, and ends at the target coordinate (x2,y2,z2). Backwards directions are expressed with negative values.
+</p>
+
+<p>
+<strong>Example:</strong> 
+</p>
+<pre>Vector3f v = new Vector3f&#40; 17f , -4f , 0f &#41;; // starts at (0/0/0)
+Vector3f v = new Vector3f&#40; 8f , 0f , 33f &#41;.add&#40;new Vector3f&#40; 0f , -2f , -2f &#41;&#41;; // starts at (8/0/33)</pre>
+
+</div>
+
+<h3><a>Unit Vectors</a></h3>
+<div>
+
+<p>
+
+A <em>unit vector</em> is a basic vector with a length of 1 world unit. Since its length is fixed (and it thus can only point at one location anyway), the only interesting thing about this vector is its direction.
+</p>
+<ul>
+<li><div> <code>Vector3f.UNIT_X</code>  = ( 1, 0, 0) = right</div>
+</li>
+<li><div> <code>Vector3f.UNIT_Y</code>  = ( 0, 1, 0) = up</div>
+</li>
+<li><div> <code>Vector3f.UNIT_Z</code>  = ( 0, 0, 1) = forwards</div>
+</li>
+<li><div> <code>Vector3f.UNIT_XYZ</code> = 1 wu diagonal right-up-forewards</div>
+</li>
+</ul>
+
+<p>
+Negate the vegator to change its direction, e.g. (-1, 0, 0) = left.
+</p>
+
+</div>
+
+<h3><a>Normalized Vectors</a></h3>
+<div>
+
+<p>
+
+A <em>normalized vector</em> is a custom <em>unit vector</em>. A normalized vector is not the same as a <em>(surface) normal vector</em>.
+When you normalize a vector, it still has the same direction, but you lose the information where the vector originally pointed.
+</p>
+
+<p>
+<strong>Example:</strong> You normalize vectors before calculating angles. 
+</p>
+
+</div>
+
+<h3><a>Surface Normal Vectors</a></h3>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/300px-surface_normal.png">
+A surface normal is a vector that is perpendicular (orthogonal) to a plane. 
+You calculate the Surface Normal by calculating the cross product.
+</p>
+
+</div>
+
+<h3><a>Cross Product</a></h3>
+<div>
+
+<p>
+
+The cross product is a calculation that you use to find a perpendicular vector (an orthogonal, a &quot;right angle&quot; at 90°).
+In 3D space, speaking of an orthogonal only makes sense with respect to a plane. You need two vectors to uniquely define a plane. The cross product of the two vectors, <code>v1 × v2</code>, is a new vector that is perpendicular to this plane. A vector perpendicular to a plane is a called <em>Surface Normal</em>.
+</p>
+
+<p>
+<strong>Example:</strong> The x unit vector and the y unit vector together define the x/y plane. The vector perpendicular to them is the z axis. JME can calculate that this equation is true: <br/>
+
+<code>( Vector3f.UNIT_X.cross( Vector3f.UNIT_Y ) ).equals( Vector3f.UNIT_Z )</code> == true
+</p>
+
+</div>
+
+<h3><a>Transformation</a></h3>
+<div>
+
+<p>
+
+Transformation means rotating (turning), scaling (resizing), or translating (moving) objects in 3D scenes. 3D engines offer simple methods so you can write code that transforms nodes. 
+</p>
+
+<p>
+Examples: Falling and rotating bricks in 3D Tetris.
+</p>
+
+</div>
+
+<h3><a>Slerp</a></h3>
+<div>
+
+<p>
+
+Slerp is how we pronounce spherical linear interpolation when we are in a hurry. A slerp is an interpolated transformation that is used as a simple &quot;animation&quot; in 3D engines. You define a start and end state, and the slerp interpolates a constant-speed transition from one state to the other. You can play the motion, pause it at various percentages (values between 0.0 and 1.0), and play it backwards and forwards. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/javadoc/com/jme3/math/Quaternion.html#slerp(com.jme3.math.Quaternion,%20com.jme3.math.Quaternion,%20float)"><param name="text" value="<html><u>JavaDoc: slerp()</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1, scale s1&quot; in the sky down to &quot;p2, r2, s2&quot; into a crater.
+</p>
+
+<p>
+<a href="/com/jme3/gde/core/docs/jme3/math.html">Learn more about 3D maths here.</a>
+</p>
+
+</div>
+
 <h1><a>Game Developer Jargon</a></h1>
 <div>
 <ul>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gamasutra.com/view/feature/6504/a_game_studio_culture_dictionary.php?print=1"><param name="text" value="<html><u>A Game Studio Culture Dictionary</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+
+<h1><a>3D graphics Terminology Wiki book</a></h1>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/User:Jreynaga/Books/3D_Graphics_Terms"><param name="text" value="<html><u>http://en.wikipedia.org/wiki/User:Jreynaga/Books/3D_Graphics_Terms</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
 </ul>
 

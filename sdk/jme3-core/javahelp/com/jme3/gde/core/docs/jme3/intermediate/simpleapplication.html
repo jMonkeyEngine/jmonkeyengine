@@ -1,5 +1,5 @@
 
-<h1><a>SimpleApplication and Application</a></h1>
+<h1><a>SimpleApplication</a></h1>
 <div>
 
 <p>
@@ -8,7 +8,12 @@ The base class of the jMonkeyEngine3 is <code>com.jme3.app.SimpleApplication</co
 </p>
 
 <p>
-SimpleApplication offers standard game features such as a scene graph, input handling, and a fly-by camera. You call app.start() and app.stop() on your game instance to start or quit the application. 
+SimpleApplication gives you access to standard game features, such as a scene graph (rootNode), an asset manager, a user interface (guiNode), input manager, audio manager, a physics simulation, and a fly-by camera. You call app.start() and app.stop() on your game instance to start or quit the application. 
+</p>
+
+<p>
+<p><div>For each game, you (directly or indirectly) extend SimpleApplication exactly once as the central class. If you need access to any SimpleApplication features from another game class, make the other class extend <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">AbstractAppState</a> (don&#039;t extend SimpleApplication once more).
+</div></p>
 </p>
 
 <p>
@@ -90,7 +95,7 @@ getInputManager()</td><td>Use the <a href="/com/jme3/gde/core/docs/jme3/advanced
 getStateManager()</td><td>You use the Application&#039;s state manager to activate <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">AppStates</a>, such as <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">Physics</a>.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [1601-3027] --><div><table>
+<!-- EDIT1 TABLE [2024-3450] --><div><table>
 	<tr>
 		<th>Application methods</th><th>Purpose</th>
 	</tr>
@@ -114,7 +119,7 @@ Type.Headless – jME application runs its event loop without calculating any vi
 Type.OffscreenSurface – jME application view is not shown and no window opens, but everything calculated and cached as bitmap (back buffer) for use by other applications.</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [3029-4215] --><div><table>
+<!-- EDIT2 TABLE [3452-4638] --><div><table>
 	<tr>
 		<th>Internal class field/method</th><th>Purpose</th>
 	</tr>
@@ -146,7 +151,7 @@ getGuiViewPort()</td><td>The view object for the orthogonal <acronym title="Grap
 		<td>paused</td><td>Boolean is used only internally during runtime to pause/unpause a game. (You need to implement your own isRunning boolean or so.)</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [4217-5413] -->
+<!-- EDIT3 TABLE [4640-5836] -->
 </div>
 
 <h2><a>SimpleApplication Class</a></h2>
@@ -187,7 +192,7 @@ getGuiNode()</td><td>Attach flat <acronym title="Graphical User Interface">GUI</
 getFlyByCamera()</td><td>The default first-person fly-by camera control. This default camera control lets you navigate the 3D scene using the preconfigured WASD and arrow keys and the mouse.</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [5982-6525] --><div><table>
+<!-- EDIT4 TABLE [6405-6948] --><div><table>
 	<tr>
 		<th>SimpleApplication Method</th><th>Purpose</th>
 	</tr>
@@ -204,7 +209,7 @@ getFlyByCamera()</td><td>The default first-person fly-by camera control. This de
 		<td>setDisplayStatView(false);</td><td>A default SimpleApplication displays mesh statistics on the screen using the com.jme3.app.StatsView class. The information is valuable during the development and debugging phase, but for the release, you should hide the statistics HUD.</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [6527-7319] --><div><table>
+<!-- EDIT5 TABLE [6950-7742] --><div><table>
 	<tr>
 		<th>SimpleApplication Interface</th><th>Purpose</th>
 	</tr>
@@ -218,7 +223,7 @@ getFlyByCamera()</td><td>The default first-person fly-by camera control. This de
 		<td>public void simpleRender(RenderManager rm)</td><td><strong>Optional:</strong> Override this method to implement <em>advanced</em> modifications of the frameBuffer and scene graph.</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [7321-8239] -->
+<!-- EDIT6 TABLE [7744-8662] -->
 <p>
 
 <p><div>Use <code>app.setShowSettings(true);</code> to present the user with a splashscreen and the built-in display settings dialog when starting the game; or use <code>app.setShowSettings(false);</code> to hide the buil-in screen (in this case, you may want to provide a custom splashscreen and settings panel). Set this boolean before calling <code>app.start()</code> in the <code>main()</code> method of the SimpleApplication. See also <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">AppSettings</a>.
@@ -243,16 +248,19 @@ The following default navigational input actions are mapped by the default <code
 		<td>KEY_ESCAPE</td><td>Quits the game by calling <code>app.stop()</code></td>
 	</tr>
 	<tr>
-		<td>KEY_C</td><td>Prints camera position, rotation, and direction to the out stream.</td>
+		<td>KEY_C</td><td>Debug key: Prints camera position, rotation, and direction to the out stream.</td>
 	</tr>
 	<tr>
-		<td>KEY_M</td><td>Prints memory usage stats the out stream.</td>
+		<td>KEY_M</td><td>Debug key: Prints memory usage stats the out stream.</td>
+	</tr>
+	<tr>
+		<td>F5</td><td>Hides or shows the statistics the bottom left.</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [8942-9133] -->
+<!-- EDIT7 TABLE [9365-9630] -->
 <p>
 
-As long as useInput() is true, the default Flyby Cam is active. Then the following so-called &quot;WASD&quot; inputs are additionally available:
+As long as the <code>flyCam</code> is enabled, the following so-called &quot;WASD&quot; inputs, including MouseLook, are available:
 
 </p>
 <div><table>
@@ -299,7 +307,34 @@ As long as useInput() is true, the default Flyby Cam is active. Then the followi
 		<td>Zoom Out</td><td>AXIS_WHEEL, or scroll mouse wheel forward</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [9271-9882] --><div><span>
+<!-- EDIT8 TABLE [9746-10357] -->
+</div>
+
+<h2><a>Defaults and Customization</a></h2>
+<div>
+
+<p>
+
+By default, a SimpleApplication displays Statistics (<code>new StatsAppState()</code>), has debug output keys configured (<code>new DebugKeysAppState()</code>), and enables the flyCam (<code>new FlyCamAppState()</code>). You can customize which you want to reuse in your SimpleApplication.
+</p>
+
+<p>
+The following example shows how you can remove one of the default AppStates, in this case, the FlyCamAppState:
+
+</p>
+<ul>
+<li><div> Either In your application&#039;s contructor, you create the SimpleApplication with only the AppStates you want to keep: <pre>public MyAppliction&#40;&#41; &#123;
+  super&#40; new StatsAppState&#40;&#41;, new DebugKeysAppState&#40;&#41; &#41;;
+&#125;</pre>
+</div>
+</li>
+<li><div> Or in the <code>simpleInitApp()</code> method, you remove the ones you do not want to keep: <pre>  public void simpleInitApp&#40;&#41; &#123;
+    stateManager.detach&#40; stateManager.getState&#40;FlyCamAppState.class&#41;&#41;;
+    ...</pre>
+</div>
+</li>
+</ul>
+<div><span>
 	<a href="/wiki/doku.php/tag:display?do=showtag&amp;tag=tag%3Adisplay">display</a>,
 	<a href="/wiki/doku.php/tag:basegame?do=showtag&amp;tag=tag%3Abasegame">basegame</a>,
 	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,

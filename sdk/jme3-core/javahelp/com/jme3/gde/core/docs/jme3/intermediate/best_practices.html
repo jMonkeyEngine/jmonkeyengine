@@ -4,13 +4,26 @@
 
 <p>
 
-A collection of recommendations and expert tips. Feel free to add your own!
+Every milestone of a game development project is made up of phases: Planning, development, testing, and release. Every milestone involves updates to multi-media assets and to code.  
+</p>
+
+<p>
+This &quot;best practices&quot; page is a collection of recommendations and expert tips. Feel free to add your own!
+</p>
+
+</div>
+
+<h2><a>Requirements and Planning</a></h2>
+<div>
+
+<p>
+
 If you are a beginner, you should first <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.hobbygamedev.com/digests/?page=free"><param name="text" value="<html><u>read some</u></html>"><param name="textColor" value="blue"></object> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://gamasutra.com/"><param name="text" value="<html><u>articles about</u></html>"><param name="textColor" value="blue"></object> game development. We cannot cover all general tips here.
 </p>
 
 </div>
 
-<h2><a>Requirements Gathering</a></h2>
+<h3><a>Requirements Gathering</a></h3>
 <div>
 
 <p>
@@ -28,7 +41,7 @@ As a quick overview, answer yourself the following questions:
 </li>
 <li><div> Game type</div>
 <ul>
-<li><div> Point of view (camera)? What character(s) does the player control (if any)?</div>
+<li><div> Point of view (camera)? What character(s) does the player control? (if applicable)</div>
 </li>
 <li><div> Time- or turn-based?</div>
 </li>
@@ -40,18 +53,19 @@ As a quick overview, answer yourself the following questions:
 <ul>
 <li><div> What is the start state, what is the end state?</div>
 </li>
-<li><div> What resources does the player manage? How are resources gained, transformed, spent? E.g. speed, gold, health, &quot;points&quot;.</div>
+<li><div> What resources does the player manage? How are resources gained, transformed, spent? <br/>
+E.g. speed, gold, health, &quot;points&quot;.</div>
 </li>
-<li><div> How does the player interact? I.e. rules, challenges, game mechanics.</div>
+<li><div> How does the player interact? Define rules, challenges, game mechanics.</div>
 </li>
-<li><div> What state is considered winning, and what losing?</div>
+<li><div> What state is considered winning, and what losing, or is it an open world?</div>
 </li>
 </ul>
 </li>
 <li><div> Multi-media assets</div>
 <ul>
 <li><div> Which media will you need? How will you get this content? <br/>
-Models, terrains; materials, textures; noises, music, voices; video, cutscenes; spoken/written dialog; level maps, quests, story; AI scripts…</div>
+E.g. models, terrains; materials, textures; noises, music, voices; video, cutscenes; spoken/written dialog; level maps, quests, story; AI scripts.</div>
 </li>
 </ul>
 </li>
@@ -59,9 +73,9 @@ Models, terrains; materials, textures; noises, music, voices; video, cutscenes; 
 <ul>
 <li><div> Can you achieve a high degree of input control? Even minor navigation and interaction glitches make the game unsolvable.</div>
 </li>
-<li><div> Clearly reflect current status, and changes in game states. E.g. health/damage.</div>
+<li><div> Decide how to reflect current status, and changes in game states. E.g. health/damage.</div>
 </li>
-<li><div> Clearly reward good moves and discourage bad ones.</div>
+<li><div> Decide how to reward good moves and discourage bad ones.</div>
 </li>
 </ul>
 </li>
@@ -69,7 +83,7 @@ Models, terrains; materials, textures; noises, music, voices; video, cutscenes; 
 
 </div>
 
-<h2><a>Planning Development Milestones</a></h2>
+<h3><a>Planning Development Milestones</a></h3>
 <div>
 
 <p>
@@ -78,40 +92,40 @@ Use an <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><pa
 </p>
 <ol>
 <li><div> Pre-Alpha</div>
-<ol>
+<ul>
 <li><div> Artwork: Test asset loading and saving with mock-ups and stock art.</div>
 </li>
 <li><div> Lay out the overall application flow, i.e. switching between intro / options / game screen, etc.</div>
 </li>
 <li><div> Get one typical level working. E.g. if the game is a &quot;Jump&#039;n&#039;Run&quot;, jumping and running must work before you can announce Alpha.</div>
 </li>
-</ol>
+</ul>
 </li>
 <li><div> Alpha Release</div>
-<ol>
+<ul>
 <li><div> Artwork: Replace all mock-ups with first drafts of real media and level maps.</div>
 </li>
 <li><div> Run alpha tests, track bugs, debug, optimize.</div>
 </li>
 <li><div> Declare <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Feature_freeze"><param name="text" value="<html><u>Feature Freeze</u></html>"><param name="textColor" value="blue"></object> before you announce Beta. This prevents a bottomless pit of new bugs.</div>
 </li>
-</ol>
+</ul>
 </li>
 <li><div> Beta Release</div>
-<ol>
+<ul>
 <li><div> Artwork: Fill in the final media and level maps.</div>
 </li>
 <li><div> Have external people review and &quot;beta test&quot; it (track bugs).</div>
 </li>
 <li><div> Even out the kinks in code and gameplay – don&#039;t add any more new features.</div>
 </li>
-</ol>
+</ul>
 </li>
 <li><div> Gamma, Delta = Release Candidates</div>
-<ol>
+<ul>
 <li><div> Test the heck out of it. Last chance to find a horrible bug.</div>
 </li>
-</ol>
+</ul>
 </li>
 <li><div> Omega = Final Release</div>
 </li>
@@ -119,14 +133,91 @@ Use an <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><pa
 
 <p>
 
-How you name or number these stages is fully up to you. Development teams use the word milestone, Greek letters, version numbers, or combinations thereof.
-Every milestone is made up of a development phase and a test phase. Here are some best practices:
+How you name or number these stages is fully up to your team. Development teams use numbered milestones (m1, m2, m3), Greek letters (e.g. alpha, beta, gamma, delta), <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Software_versioning"><param name="text" value="<html><u>&quot;major.minor.patch-build&quot; version</u></html>"><param name="textColor" value="blue"></object> numbering (e.g. &quot;2.7.23-1328&quot;), or combinations thereof. 
+</p>
+
+</div>
+
+<h3><a>Use File Version Control</a></h3>
+<div>
+
+<p>
+
+Whether you work in a team or alone, keeping a version controlled repository of your code will help you roll-back buggy changes, or recover old code that someone deleted and that is now needed again.
+</p>
+<ul>
+<li><div> Treat commit messages as messages to your future self. &quot;Made some changes&quot; is <em>not</em> a commit message.</div>
+</li>
+<li><div> The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> supports Subversion, Mercurial, and <acronym title="Concurrent Versions System">CVS</acronym>. <br/>
+If you don&#039;t know which to choose, Subversion is a good choice for starters.</div>
+</li>
+<li><div> Set up your own local server, or get free remote hosting space from various open-source dev portals like <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/"><param name="text" value="<html><u>Sourceforge</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://github.com/"><param name="text" value="<html><u>Github</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://bitbucket.org/"><param name="text" value="<html><u>bitbucket</u></html>"><param name="textColor" value="blue"></object> (supports private projects), <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://home.java.net/create-project"><param name="text" value="<html><u>Java.net</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://code.google.com"><param name="text" value="<html><u>Google Code</u></html>"><param name="textColor" value="blue"></object>…</div>
+</li>
+</ul>
+
+</div>
+
+<h2><a>Multi-Media Asset Pipeline</a></h2>
+<div>
+<div><table>
+	<tr>
+		<th>DO</th><th>DON&#039;T</th>
+	</tr>
+	<tr>
+		<td> Save original models+textures into <code>assets/Textures</code>. </td><td> Don&#039;t reference textures or models outside your JME project. </td>
+	</tr>
+	<tr>
+		<td> Save sounds into <code>assets/Sounds.</code></td><td> Don&#039;t reference audio files outside your JME project. </td>
+	</tr>
+	<tr>
+		<td> Create simple, low-polygon models. </td><td> Don&#039;t create high-polygon models, they render too slow to be useful in games. </td>
+	</tr>
+	<tr>
+		<td> Only use Diffuse Map, Normal Map, Glow Map, Specular Map. </td><td> Don&#039;t use unsupported material properties that are not listed in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a>.</td>
+	</tr>
+	<tr>
+		<td> Use UV texture / texture atlases / baking for each texture map. </td><td> Don&#039;t create models based on multiple separate textures, it will break the model into separate meshes.</td>
+	</tr>
+	<tr>
+		<td> Convert Models to j3o format. Move j3o files into <code>assets/Models</code>. </td><td>Don&#039;t reference Blender/Ogre/OBJ files in your load() code, because these unoptimized files are not packaged into the JAR.</td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [4358-5244] -->
+<p>
+
+Learn details about the <a href="/com/jme3/gde/core/docs/jme3/intermediate/multi-media_asset_pipeline.html">Multi-Media Asset Pipeline</a> here.
 </p>
 
 </div>
 
 <h2><a>Development Phase</a></h2>
 <div>
+
+<p>
+
+<p><div>Many game developers dream of creating their very own &quot;MMORPG with full-physics, AI, post-rendering effects, multi-player networking, procedurally generated maps, and customizable characters&quot;. So why aren&#039;t there tons of MMORPGs out there? <br/>
+Even for large experienced game producers, the creation of such a complex game is time-intensive and failure-prone. How familiar are you with multi-threading, persistance, optimization, client-server synchonization, …? Unless your answer is &quot;very!&quot;, then start with a single-player desktop game, and work your way up – just as the pros did when they started.
+</div></p>
+</p>
+
+</div>
+
+<h3><a>Extend SimpleApplication</a></h3>
+<div>
+
+<p>
+
+Every jME3 game is centered around one main class that (directly or indirectly) extends com.jme3.app.<a href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a>. 
+</p>
+
+<p>
+<p><div>Note that although the &quot;SimpleApplication&quot; name might be misleading, all jME3 applications, including very large projects, are based on this class. The name only implies that this class is a simple application already. You make it &quot;non-simple&quot; by extending it! ;)
+</div></p>
+</p>
+
+<p>
+For your future game releases, you will want to rely on your own base framework: Your framework extends SimpleApplication, and includes your custom methods for loading, saving, and arranging your scenes, your custom navigation, your inputs for pausing and switching your custom screens, your custom user interface (options screen, HUD, etc), your custom NPC factory, your custom physics properties, your custom networking synchronization, etc. Reusing (extending) your own base framework saves you time. When you update your generic base classes, all your games that extend them benefit from the improvements. Also it will give your games a common look and feel.
+</p>
 
 </div>
 
@@ -135,23 +226,18 @@ Every milestone is made up of a development phase and a test phase. Here are som
 
 <p>
 
-<p><div>Many game developers dream of creating their very own &quot;MMORPG with full-physics, AI, post-rendering effects, multi-player networking, procedurally generated maps, and customizable characters&quot;. So why aren&#039;t there tons of MMORPGs out there? Even for large experienced game producers, the creation of such a complex game is time-intensive and failure-prone. How familiar are you with multi-threading, persistance, optimization, client-server synchonization, …? Unless your answer is &quot;very!&quot;, then start with a single-player desktop game, and work your way up – just as the pros did when they started.
-</div></p>
-</p>
-
-<p>
 You have a list of features that you want in game, but which one do you implement first? You will keep adding features to a project that grows more and more complex, how can you minimize the amount of rewriting required?
 </p>
 <ol>
 <li><div> Make sure the game&#039;s high-level frame (screen switching, networking, loading/saving) is sound and solid. </div>
 </li>
-<li><div> Start with implementing the most complex game feature first – the one that imposes most constraints on the structure of your project (for instance, networking, physics.)</div>
+<li><div> Start with implementing the most complex game feature first – the one that imposes most constraints on the structure of your project (for example: networking or physics.)</div>
 </li>
 <li><div> Add only one larger feature at a time. If there are complex interactions (such as &quot;networking + physics&quot;), start with a small test case (&quot;one cube&quot;) and work your way up, don&#039;t start with a whole scene.</div>
 </li>
-<li><div> Implement low-complexity details (audio and visual effects) last.</div>
+<li><div> Implement low-complexity decorations (audio and visual effects) last.</div>
 </li>
-<li><div> Test for side-effects on existing code before you add the next feature.</div>
+<li><div> Test for side-effects on existing code after you add a feature.</div>
 </li>
 </ol>
 
@@ -163,157 +249,103 @@ You have a list of features that you want in game, but which one do you implemen
 
 </div>
 
-<h3><a>Extend SimpleApplication</a></h3>
+<h3><a>The Smart Way to Add Custom Methods and Fields</a></h3>
 <div>
 
 <p>
 
-Extend your custom base class off of jME3&#039;s com.jme3.app.SimpleApplication. For all your games, you will want a customized basic framework: Methods for loading and saving scenes, screen switching (logon/start screen, options, game screen, etc), physics, networking, etc. Then you reuse (extend) your own generic game class when you create any specific game (a racing game, or a space game, a shooter, etc). 
+Game entities (<code>Nodes</code> and <code>Geometry</code>s) often carry custom fields and custom methods with them. For example, players and NPCs have fields such as <code>health, gold coins, inventory, equipment,</code> etc. We call these fields <strong>user data</strong>. Game entities also have methods that modify user data. Examples include <code>attack(), addGold(), getHealth(), pickUpItem(), dropItem(), useItem(), walk(),</code> etc. 
 </p>
 
 <p>
-Follow these steps:
-</p>
-<ol>
-<li><div> Create a generic library for your own &quot;game development business&quot;:</div>
-<ol>
-<li><div> Create a jME3-based project MyBaseGame with all necessary JARs on the classpath.</div>
-</li>
-<li><div> Create a class in this package and name it something like <code>my.company.MyBaseGame.java</code>.</div>
-<ol>
-<li><div> Make MyBaseGame extend com.jme3.app.SimpleApplication.</div>
-</li>
-<li><div> Include generic assets (company logo, reusable <acronym title="Graphical User Interface">GUI</acronym> elements in your company style, etc) in the MyBaseGame&#039;s assets directory.</div>
-</li>
-<li><div> Implement <em>generic</em> game features in the MyBaseGame class: <acronym title="Graphical User Interface">GUI</acronym> (start screen, highscore screen), screen switching and pausing, the in-game HUD, level loading, saving and loading games, AppSettings, the main() method, etc. </div>
-</li>
-</ol>
-</li>
-<li><div> Build the project. You get a JAR file, your custom MyBaseGame.jar.</div>
-</li>
-</ol>
-</li>
-<li><div> Create your actual game, e.g. a zombie shooter:</div>
-<ol>
-<li><div> Create a second JME3-based project, MyZombieGame, with all necessary JME3 JARs on the classpath.</div>
-</li>
-<li><div> Create a package for the game, e.g. <code>my.company.zombieshooter.MyZombieGame.java</code>.</div>
-</li>
-<li><div> Add MyBaseGame.jar to the classpath of MyZombieGame. You can now re-use you custom generic game library.</div>
-<ol>
-<li><div> Make MyZombieGame.java extend your MyBaseGame class (which extends SimpleApplication).</div>
-<ul>
-<li><div> MyZombieGame.java has no main() method because it uses the inherited main() method. </div>
-</li>
-<li><div> MyZombieGame.java makes super calls and overrides the SimpleApplication methods it inherited: <pre>    public void simpleInitApp&#40;&#41; &#123; super.simpleInitApp&#40;&#41;; &#125;
-    public void simpleUpdate&#40;float tpf&#41; &#123; super.simpleUpdate&#40;tpf&#41;; &#125;
-    public void simpleRender&#40;RenderManager rm&#41; &#123; super.simpleRender&#40;rm&#41;; &#125;</pre>
-</div>
-</li>
-</ul>
-</li>
-<li><div> Place the specific assets (scenes, models) of this game go into MyZombieGame&#039;s own assets folder.</div>
-</li>
-<li><div> After the generic super calls, add the specific game code for this game. Now you can implement this specific game&#039;s mechanics and levels using controls and app states, without having to worry about logon&amp;settings screens and all the other generic features that you already dealt with in MyBaseGame.</div>
-</li>
-</ol>
-</li>
-</ol>
-</li>
-</ol>
-
-</div>
-
-<h3><a>The Smart Way to Add Custom Methods and Fields to Nodes</a></h3>
-<div>
-
-<p>
-
-Game elements (Spatials such as Nodes and Geometrys) often carry custom fields and custom methods with them. For example, players have health, gold coins, an inventory, equipment, etc. You may have methods that modify the player state, such as addGold(), addHealth(), pickUpItem(), dropItem(), wieldItem(), etc.
+<strong>Avoid the Anti-Pattern:</strong> You might be tempted to create character classes using Java inheritance: For example, <code>MyMobileNode extends Node</code> and then <code>MyNPC extends MyMobileNode</code>. Then you might create subclasses such as <code>MyFighterNPC extends MyNPC</code> and <code>MyShopKeeperNPC extends MyNPC</code>. But what if you need a group of MyShopKeeperNPCs that fight back? Do you write a MyFightingShopKeeperNPC class, and copy and paste fighting methods from MyFighterNPC? The inheritance approach will soon turn out to be an unmaintainable mess – this is not what you want. 
 </p>
 
 <p>
-<strong>Anti-Pattern:</strong> In Java it&#039;s possible that you extend the Node class to create a custom Node class. But be aware not to get trapped by the following anti-pattern: You might try to create different character nodes with <code>MyMobileNode extends Node</code> and then <code>MyNPC extends MyMobileNode</code>. Then you might continue creating subclasses such as <code>MyCityGuardNPC extends MyNPC</code> and <code>MyShopKeeperNPC extends MyNPC</code>. What do you do now if you need a MyShopKeeperNPC that also fights, do you write a whole new MyFightingShopKeeperNPC class? Inheritance does not help you here.
-</p>
-
-<p>
-Also, extending a Node just to add custom fields to it is unneccesary, because you can store any custom Java objects in Spatials! This user data is accessible where ever the Spatial is accessible. Read the <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a> documentation to learn more about how to use the <code>setUserData()</code> method on Nodes and Geometries.
-</p>
-
-<p>
-In short: Don&#039;t extend Node to implement game mechanics of your entities. Instead:
+<strong>Follow the Best Practice:</strong> You can add user data, accessors, and methods directly to each Spatial.
 </p>
 <ul>
-<li><div> Add <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> to supply your Nodes with custom methods!</div>
+<li><div> Use <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">&#039;&#039;setUserData()&#039;&#039;</a> to add custom fields with user data to Spatials.</div>
 </li>
-<li><div> Use <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">&#039;&#039;setUserData()&#039;&#039;</a> to add custom data fields to Spatials!</div>
+<li><div> Use <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Controls</a> to add custom methods (including getters and setters) to Spatials.</div>
 </li>
 </ul>
 
 </div>
 
-<h3><a>The Smart Way to Implement Game Logic: Controls and AppStates</a></h3>
+<h3><a>The Smart Way to Access Game Features</a></h3>
 <div>
 
 <p>
 
-As your SimpleApplication-based game grows more advanced, you may find yourself putting more and more tests in the <code>simpleUpdate()</code> loop, passing around lots of object references, and your simpleInitApp() methods grows longer and longer…. 
+<a href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a> gives you access to game features such as a the rootNode, assetManager, guiNode, inputManager, audioManager, physicsSpace, viewPort, and the camera. But what if you need access to the assetManager or rootNode etc from another class? Don&#039;t pass around lots of object references in constructors. This is a sign that this class should be designed as an <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">AppState</a> (read details there). 
 </p>
 
 <p>
-Move game behaviour into reusable classes of their own. In jME3 these resuable classes are Controls and AppStates.
+An AppState has access to all game features in the SimpleApplication via the <code>this.app</code> and <code>this.stateManager</code> objects. 
+</p>
+
+<p>
+Examples:
+
+</p>
+<pre>Spatial sky = SkyFactory.createSky&#40;this.app.getAssetManager&#40;&#41;, &quot;sky.dds&quot;, false&#41;;
+this.app.getRootNode&#40;&#41;.attachChild&#40; sky &#41;;</pre>
+
+</div>
+
+<h3><a>The Smart Way to Implement Game Logic</a></h3>
+<div>
+
+<p>
+
+As your SimpleApplication-based game grows more advanced, you find yourself putting more and more interactions in the <code>simpleUpdate()</code> loop, and your <code>simpleInitApp()</code> methods grows longer and longer. It&#039;s a best practice to move blocks of game mechanics into reusable component classes of their own. In jME3, these resuable classes are called <code>Controls</code> and <code>AppStates</code>.
+
 </p>
 <ul>
-<li><div> Use <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Controls</a> to implement the <em>behaviour of types of game entities</em>. </div>
-<ul>
-<li><div> Controls add a type of behaviour to individual Spatials. </div>
-</li>
-<li><div> Each Spatial needs its own instance of the Control. One Spatial can be influenced by several Controls. </div>
-</li>
-<li><div> Use Controls to move code out of the <code>simpleUpdate()</code> loop.</div>
-</li>
-<li><div> Examples: An NPC Control that defines how types of enemy Spatials find their way around, a player Control an generic animation control that triggers animations in various types of 3D models, the RigidBodyControl (part of the physics integration), etc.</div>
-</li>
-</ul>
-</li>
 <li><div> Use <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">AppStates</a> to implement <em>global game mechanics</em>. </div>
 <ul>
-<li><div> Use AppStates to move code out of the <code>simpleInitApp()</code> method.  </div>
+<li><div> Each AppState calls its own <code>initialize()</code> and <code>cleanup()</code> methods when it is attached to or detached from the game. </div>
 </li>
-<li><div> Each AppState brings its own set of game states: You write code so that enabling and disabling an AppState activates and deactivates one particular set of class fields, <acronym title="Graphical User Interface">GUI</acronym>, spatials, input handlers, etc. This way you use AppStates to switch between e.g. an InGameState and a MainMenuState.</div>
+<li><div> Each AppState runs its own <code>update()</code> loop that hooks into the main simpleUpdate() loop. </div>
 </li>
-<li><div> Examples: The integrated jBullet physics simulation, an overall artificial intelligence AppState that coordinates cooperating enemies, an in-game AppState that loads the scene and the HUD and activates the in-game input mappings, a main menu AppState that switches input handling (clicks are interpreted differently than in game) and displays buttons and lets the user open highscore and settings screens, etc.</div>
+<li><div> You can specify what happens if an AppState is paused/unpaused.</div>
+</li>
+<li><div> You can use an AppState to switch between sets of AppStates.</div>
+</li>
+<li><div> An AppState has access to everything in the SimpleApplication (rootNode, AssetManager, StateManager, InputListener, ViewPort, etc). </div>
 </li>
 </ul>
 </li>
 </ul>
-
-<p>
-
-Controls and AppStates can work together:
-</p>
 <ul>
-<li><div> An AppState can reach up to the application and get all Spatials that carry a specific Control, and use this information to perform some global action on them. </div>
-</li>
-<li><div> Example: Individual physical spatials (carrying RigidBodyControls) that are steered by the overall physics simulation (BulletAppState).</div>
-</li>
-</ul>
-
-<p>
-
-Both Control and AppState automatically hook into the main update loop.
-</p>
+<li><div> Use <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Controls</a> to implement the <em>behaviour of game entities</em>. </div>
 <ul>
-<li><div> Instead of remote controlling all game entities via code in the simpleUpdate() method, you define the desired behaviour in the update() methods <em>inside</em> your custom Controls and AppStates. </div>
+<li><div> Controls add a type of behaviour (methods and fields) to an individual Spatial (a player, an NPC). </div>
 </li>
-<li><div> Add Controls to Spatials, and AppStates to the application. jME3 automatically triggers their update() methods as part of the main update loop. </div>
+<li><div> Each Control runs its own <code>controlUpdate()</code> loop that hooks into the main <code>simpleUpdate()</code> loop. </div>
 </li>
-<li><div> This cleans up your main class considerably. In the ideal case, you abstract all interactions into Controls and AppStates, and your simpleInitApp() and simpleUpdate() could even end up being empty. </div>
+<li><div> One Spatial can be influenced by several Controls. (!)</div>
+</li>
+<li><div> Each Spatial needs its own instance of the Control. </div>
+</li>
+<li><div> A Control only has control over and access to the spatial that it is attached to (and its sub-spatials).</div>
+</li>
+</ul>
 </li>
 </ul>
 
 <p>
 
+Controls and AppStates often work together: An AppState can reach up to the application and <code>get</code> all Spatials from the rootNode that carry a specific Control, and perform a global action on them. Example: In BulletPhysics, all physical Spatials that carry RigidBodyControls are steered by the overall BulletAppState.
+</p>
+
+<p>
+<p><div>AppStates and Controls are extensions to a SimpleApplication. They are your modular building blocks to build a more complex game. In the ideal case, you move all init/update code into Controls and AppStates, and your simpleInitApp() and simpleUpdate() could end up virtually empty. This powerful and modular approach cleans up your code considerably. 
+</div></p>
+</p>
+
+<p>
 Read all about <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> and <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">Application States</a> here.
 </p>
 
@@ -322,70 +354,13 @@ Read all about <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.ht
 <h3><a>Optimize Application Performance</a></h3>
 <div>
 <ul>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a></div>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a> – how to avoid wasting cycles</div>
 </li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/multithreading.html">Multithreading</a></div>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/multithreading.html">Multithreading</a> – use concurrency, and don&#039;t change the scene graph from outside the update loop.</div>
 </li>
-</ul>
-
-</div>
-
-<h3><a>Use an Assets Folder</a></h3>
-<div>
-
-<p>
-
-Put your assets into subfolders of your project&#039;s <code>assets</code> directory. This is the default path where the AssetManager looks for files.
-</p>
-<pre>jMonkeyProjects/MyGame/assets/    # Store assets in subfolders here!
-jMonkeyProjects/MyGame/build/     # SDK generates built classes here *
-jMonkeyProjects/MyGame/build.xml  # Customize Ant build script here
-jMonkeyProjects/MyGame/nbproject/ # SDK stores default build.xml and meta data *
-jMonkeyProjects/MyGame/dist/      # SDK generates executables here *
-jMonkeyProjects/MyGame/src/       # Store Java sources here
-jMonkeyProjects/MyGame/test/      # Store test classes here (optional)
-(*) managed by jMonkeyEngine SDK, don&#039;t edit</pre>
-<ul>
-<li><div> Agree on a file and directory naming scheme with the graphic designers.</div>
-<ul>
-<li><div> Are there assets (models, sound files, …) that will be used interchangeably? Then name or number them in a way so that the developer can swap the assets by swapping part of the path string.</div>
-</li>
-<li><div> Decide on naming standards for naming interactive parts of models (e.g. arms/legs in an animation).</div>
+<li><div> You can add a <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">Java Profiler</a> to the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> via Tools → Plugins → Available. The profiler presents statistics on the lifecycle of methods and objects. Performance problems may be caused by just a few methods that take long, or are called too often (try to cache values to avoid this). If object creation and garbage collection counts keep increasing, you are looking at a memory leak.</div>
 </li>
 </ul>
-</li>
-<li><div> Structure the subfolders of <code>assets</code> in any way that suits the project – but stick with one system.</div>
-<ul>
-<li><div> Either keep all Textures together with their Ogre meshes in the Model directory.</div>
-</li>
-<li><div> Or keep the Ogre meshes with their Textures in the Textures directory. (Recommended.)</div>
-</li>
-</ul>
-</li>
-<li><div> Place reusable Textures and Materials (the ones that you set programmatically) into the Textures and Materials directory, respectively.</div>
-</li>
-<li><div> If different types of assets (materials, textures, models) belong together, create a parallel subdirectory structure for them: <code>Textures/vehicles/car/</code>, <code>Materials/vehicles/car/</code>, <code>Models/vehicles/car/</code></div>
-</li>
-</ul>
-
-<p>
-
-Here is an example of a commonly used directory structure for various file types:
-
-</p>
-<pre>jMonkeyProjects/MyGame/assets/Interface/ # .font, .jpg, .png, .xml
-jMonkeyProjects/MyGame/assets/MatDefs/   # .j3md
-jMonkeyProjects/MyGame/assets/Materials/ # .j3m
-jMonkeyProjects/MyGame/assets/Models/    # .j3o
-jMonkeyProjects/MyGame/assets/Scenes/    # .j3o
-jMonkeyProjects/MyGame/assets/Shaders/   # .j3f, .vert, .frag
-jMonkeyProjects/MyGame/assets/Sounds/    # .ogg, .wav
-jMonkeyProjects/MyGame/assets/Textures/  # .mesh.xml+.material, .mtl+.obj, .jpg, .png</pre>
-
-<p>
-
-See also: <a href="/com/jme3/gde/core/docs/sdk/asset_packs.html">Asset Packs</a> and <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>.
-</p>
 
 </div>
 
@@ -394,7 +369,7 @@ See also: <a href="/com/jme3/gde/core/docs/sdk/asset_packs.html">Asset Packs</a>
 
 <p>
 
-Here are some tips especially for users who already know jME2. Automatic handling of the Geometric State has improved in jME3, and it is now a best practice to <em>not</em> mess with it.
+These tips are especially for users who already know jME2. Automatic handling of the Geometric State has improved in jME3, and it is now a best practice to <em>not</em> mess with it.
 </p>
 <ul>
 <li><div> Do not call updateGeometricState() on anything but the root node!</div>
@@ -412,22 +387,14 @@ Here are some tips especially for users who already know jME2. Automatic handlin
 
 <p>
 
-It&#039;s unlikely you will be willing to fully document <em>every</em> class you write. You should at minimum javadoc the most crucial methods/parameters in a meaningful way.
+It&#039;s unlikely you will fully document <em>every</em> class you write, we hear you. However, you should at least write meaningful javadoc to provide context for your most crucial methods/parameters.
 </p>
 <ul>
-<li><div> Answer three questions for every crucial method/parameter:</div>
-<ul>
-<li><div> What is this?</div>
-</li>
-<li><div> How does it solve its task? (e.g. algorithm used)</div>
-</li>
-<li><div> In which situation do I want to use this?</div>
-</li>
-</ul>
+<li><div> What is this? How does it solve its task (input, algorithm used, output, side-effects)? </div>
 </li>
 <li><div> Write down limits (e.g. min/max values) and defaults while you still remember.</div>
 </li>
-<li><div> Is this optional or required? What are the alternatives? Is this part of a series of steps that are prerequistes? </div>
+<li><div> In which situation do I want to use this, is this part of a larger process? Is this step required, or what are the alternatives? </div>
 </li>
 </ul>
 
@@ -438,97 +405,28 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 
 </div>
 
-<h3><a>Use File Version Control</a></h3>
-<div>
-
-<p>
-
-Whether you work in a team or alone, keeping a version controlled repository of your code will help you roll-back buggy changes, or recover old code that someone deleted and that is now needed again.
-</p>
-<ul>
-<li><div> Treat commit messages as messages to your future self. &quot;Made some changes&quot; is <em>not</em> a commit message.</div>
-</li>
-<li><div> The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> supports Subversion, Mercurial, and <acronym title="Concurrent Versions System">CVS</acronym>.</div>
-<ul>
-<li><div> If you don&#039;t know which to choose, Subversion is a good choice for starters.</div>
-</li>
-<li><div> You can get free project hosting space from various open-source dev portals like <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/"><param name="text" value="<html><u>Sourceforge</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://github.com/"><param name="text" value="<html><u>Github</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://bitbucket.org/"><param name="text" value="<html><u>bitbucket</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://home.java.net/create-project"><param name="text" value="<html><u>Java.net</u></html>"><param name="textColor" value="blue"></object>,  or <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://code.google.com"><param name="text" value="<html><u>Google Code</u></html>"><param name="textColor" value="blue"></object>. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://bitbucket.org/"><param name="text" value="<html><u>Bitbucket</u></html>"><param name="textColor" value="blue"></object> supports private projects.</div>
-</li>
-</ul>
-</li>
-</ul>
-
-</div>
-
-<h3><a>Convert Models to .j3o Format</a></h3>
-<div>
-
-<p>
-
-From the beta on, convert all models and scenes (Ogre mesh and Wavefront and Blender) to jME3&#039;s binary .j3o format. Use the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> for the conversion, and save the .j3o files into the Models directory.
-</p>
-<ul>
-<li><div> .j3o is an optimized format to store part of a jME3 scenegraph. <br/>
-It can contain an individual model or a whole scene. Optionally (using the jMonkeyEngine SceneComposer) you can include the model&#039;s physical properties, materials, lights, particle emitters, and audio nodes, in the .j3o file.</div>
-</li>
-<li><div> If you kept the Ogre mesh together with the textures in the Textures directory during the conversion, the paths are recorded in a way so that you can move the .j3o to another directory, and it will still find its textures.</div>
-</li>
-<li><div> The default Ant build script copies .j3o / .j3m files and other assets into the distributable JAR automatically.</div>
-</li>
-<li><div> Important: Other model files however (.mesh.xml, .material, .obj, .mat) are not bundled automatically. You will get a runtime error that a resource was not found if you try to run the JAR with code referring to these files.</div>
-</li>
-</ul>
-
-<p>
-
-See also: <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">Model Loader and Viewer</a>
-</p>
-
-</div>
-
 <h2><a>Debugging and Test Phase</a></h2>
 <div>
 
-</div>
-
-<h3><a>Test</a></h3>
-<div>
-
 <p>
 
-Unit Tests (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/1.4.2/docs/guide/lang/assert.html"><param name="text" value="<html><u>Java Assertions</u></html>"><param name="textColor" value="blue"></object>) have a different status in 3D graphics development than in other types of software. You cannot write any assertions that automatically test whether the rendered image <em>looks</em> correct, or whether interactions are <em>intuitive</em>. Still you should <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">create simple test cases</a> for individual game features such as loaders, content generators, effects. Run the test cases now and then to see whether they still work as intended – or whether they are affected by side effects. Keep the test classes in a test directory in the project, but don&#039;t include them in the distribution.
+<strong>A <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">Java Debugger</a></strong> is included in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. It allows you to set a break point in your code near the point where an exception happens. Then you step through the execution line by line and watch object and variable states to detect where the bug starts.
 </p>
 
 <p>
-Quality Assurance (QA) means maintaining a clear list of steps that must always work, and checking them. It will always happen that there are hard-to-find bugs in the gameplay somewhere – but basic tasks such as installing and de-installing, saving and loading, starting/pausing/quitting the game, <em>must work</em>, no excuse. After every milestone, you go through the QA list again, on every supported operating system, and systematically look for regressions or newly introduced bugs.
+<strong>Use the <a href="/com/jme3/gde/core/docs/jme3/advanced/logging.html">Logger</a></strong> to print status messages during the development and debugging phase, instead of System.out.println(). The logger can be switched off with one line of code, whereas commenting out all your <code>println()</code>s takes a while.
 </p>
 
 <p>
-Alpha and Beta Testing means that you ask someone to try to install and run your game. It should be a real user situation, where they are left to figure it out by themselves (you only can include the usual read-me and help docs). Provide the testers with an easy method to report back descriptions of their problems, or why they gave up. Evaluate whether these problems are exceptions or must be fixed for the game to be playable.
-</p>
-
-</div>
-
-<h3><a>Debug</a></h3>
-<div>
-
-<p>
-
-A <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">Java Debugger</a> is included in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. It allows you to set a break point in your code near the point where an exception happens. Then you step through the execution line by line and watch object and variable states to detect where the bug starts.
+<strong>Unit Testing (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/1.4.2/docs/guide/lang/assert.html"><param name="text" value="<html><u>Java Assertions</u></html>"><param name="textColor" value="blue"></object>)</strong> has a different status in 3D graphics development than in other types of software. You cannot write assertions that automatically test whether the rendered image <em>looks</em> correct, or whether interactions are <em>intuitive</em>. Still you should <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">create simple test cases</a> for individual game features such as loaders, content generators, effects. Run the test cases now and then to see whether they still work as intended – or whether they are suffering from side-effects. Keep the test classes in a test directory in the project, don&#039;t include them in the distribution.
 </p>
 
 <p>
-Use the <a href="/com/jme3/gde/core/docs/jme3/advanced/logging.html">Logger</a> to print status messages during the development and debugging phase, instead of System.out.println(). The logger can be switched off with one line of code, whereas commenting out your println()s takes a while.
+<strong>Quality Assurance (QA)</strong> means repeatedly checking a certain set of features that must work, but that might be unexpectedly broken as a side-effect. Every game has some crazy bugs somewhere – but basic tasks <em>must work</em>, no excuse. This includes installing and de-installing; saving and loading; changing options; starting, pausing, quitting; basic actions such as walking, fighting, etc. After every milestone, you go through your QA list again and systematically look for regressions or newly introduced bugs. Check the application <em>on every supported operating system and hardware</em> (!) because not all graphic cards support the same features. If you don&#039;t find the obvious bugs, your users will, and carelessness will put them off.
 </p>
 
-</div>
-
-<h3><a>Enhance Performance</a></h3>
-<div>
-
 <p>
-
-You can add a <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">Java Profiler</a> to the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> via Tools → Plugins → Available. The profiler presents statistics on the lifecycle of methods and objects. Performance problems may be caused by just a few methods that take long, or are called too often. If object creation and garbage collection counts keep increasing, you are looking at a memory leak.
+<strong>Alpha and Beta Testing</strong> means that you ask someone to try to install and run your game. It should be a real user situation, where they are left to figure the gameplay out by themselves (you only can include the usual read-me and help docs). Provide the testers with an easy method to report back problems, or why they gave up. Evaluate whether these problems are exceptions or must be fixed for the game to be playable.
 </p>
 
 </div>
@@ -536,10 +434,10 @@ You can add a <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.h
 <h2><a>Release Phase</a></h2>
 <div>
 
-<p>
+</div>
 
-<strong>Pre-Release To-Do List</strong>
-</p>
+<h3><a>Pre-Release To-Do List</a></h3>
+<div>
 <ul>
 <li><div> Prepare a web page, advertise, etc</div>
 </li>
@@ -561,13 +459,18 @@ You can add a <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.h
 </li>
 </ul>
 
+</div>
+
+<h3><a>Distributing the Executables</a></h3>
+<div>
+
 <p>
 
-<strong>Distributable Executable</strong>
+The <a href="/com/jme3/gde/core/docs/sdk/application_deployment.html">jMonkeyEngine SDK helps you with deployment</a>: You specify your branding and deployment options in the Project Properties dialog, and then choose Clean and Build from the context menu. If you use another IDE, then consult the IDE&#039;s documentation. 
 </p>
 
 <p>
-The jMonkeyEngine <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> helps you with deployment (unless you used another IDE, then consult the IDE&#039;s documentation). Do you want to release your game as WebStart, Desktop JAR, or Applet? Each has its pros and cons.
+Decide whether you want to release your game as WebStart, Desktop JAR, or Applet – Each has its pros and cons.
 
 </p>
 <div><table>
@@ -592,13 +495,17 @@ The jMonkeyEngine <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> helps you w
 	</tr>
 	<tr>
 		<td>Android <br/>
-(.APK)</td><td>Game runs on Android devices</td><td>Android devices do not support post-procesor effects.</td>
+(.APK)</td><td>Game runs on Android devices.</td><td>Android devices do not support post-procesor effects.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [21658-22877] -->
+<!-- EDIT2 TABLE [18475-19695] -->
 <p>
 
 Which ever method you choose, a Java-Application works on the main operating systems: Windows, Mac <acronym title="Operating System">OS</acronym>, Linux, Android.
+</p>
+
+<p>
+The distribution appears in a newly generated <code>dist</code> directory inside your project directory. These are the files that you upload or burn to CD to distribute to your customers.
 
 </p>
 

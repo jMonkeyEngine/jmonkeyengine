@@ -121,15 +121,20 @@ TerraMonkey is a quad tree. Each node is a TerrainQuad, and each leaf is a Terra
 
 <p>
 
-We recommend to <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/sdk:terrain_editor"><param name="text" value="<html><u>create and edit Splat Textures for terrains visually in the jMonkeyEngine SDK</u></html>"><param name="textColor" value="blue"></object>. If you are curious or want to create materials manually, read on for the implementation details:
-</p>
-
-<p>
 When you &quot;slap&quot; a texture on a mesh, the whole mesh looks the same. For big meshes (such as terrains) that is undesirable because it looks very boring (your whole landscape would be all rock, or all grass, or all sand). Texture Splatting is a technique that lets you &quot;paint&quot; several textures into one combined texure. Each of the splat textures has an opacity value so you can define where it is visible in the final overall texture.
 </p>
 
 <p>
-The default material for TerraMonkey is TerrainLighting.j3md. This material combines several texture maps to produce the final custom texture. Remember, Diffuse Maps are the main textures that define the look; optionally, each Diffuse Map can be enhanced with a Normal Map; Alpha Maps describe the opacity of each Diffuse Map used (one color –red, green, blue, or alpha– stands for one Diffuse Map&#039;s opacity); Glow and Specular Maps define optional effects. Here are the names of the material properties:
+The default material for TerraMonkey is TerrainLighting.j3md. This material combines several texture maps to produce the final custom texture. Remember, Diffuse Maps are the main textures that define the look; optionally, each Diffuse Map can be enhanced with a Normal Map; Alpha Maps describe the opacity of each Diffuse Map used (one color –red, green, blue, or alpha– stands for one Diffuse Map&#039;s opacity); Glow and Specular Maps define optional effects. 
+</p>
+
+<p>
+<p><div>We recommend to <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/sdk:terrain_editor"><param name="text" value="<html><u>create and edit Splat Textures for terrains visually in the jMonkeyEngine SDK</u></html>"><param name="textColor" value="blue"></object>, and not do it manually. If you are simply curious about how the <acronym title="Software Development Kit">SDK</acronym>&#039;s terrain texture plugin works, or if you indeed want to generate materials manually, then read on for the implementation details.
+</div></p>
+</p>
+
+<p>
+Here are the names of TerrainLighting.j3md&#039;s material properties:
 </p>
 
 <p>
@@ -146,21 +151,21 @@ The default material for TerraMonkey is TerrainLighting.j3md. This material comb
 </li>
 </ul>
 </li>
-<li><div> 12 Diffuse and/or Normal Maps (either in pairs, or stand-alone Diffuse Maps)</div>
+<li><div> 12 Diffuse and/or Normal Maps (either in 6 pairs, or 12 stand-alone Diffuse Maps)</div>
 <ul>
-<li><div> <code>DiffuseMap</code></div>
+<li><div> <code>DiffuseMap</code>, <code>DiffuseMap_0_scale</code>, <code>NormalMap</code> </div>
 </li>
-<li><div> <code>NormalMap</code> </div>
+<li><div> <code>DiffuseMap_1</code>, <code>DiffuseMap_1_scale</code>, <code>NormalMap_1</code></div>
 </li>
-<li><div> <code>DiffuseMap_1</code></div>
+<li><div> <code>DiffuseMap_2</code>, <code>DiffuseMap_2_scale</code>, <code>NormalMap_2</code></div>
 </li>
-<li><div> <code>NormalMap_1</code> <img src="/wiki/lib/exe/fetch.php"></div>
+<li><div> <code>DiffuseMap_3</code>, <code>DiffuseMap_3_scale</code>, <code>NormalMap_3</code> <img src="/wiki/lib/exe/fetch.php"></div>
 </li>
-<li><div> <code>DiffuseMap_2</code></div>
+<li><div> <code>DiffuseMap_4</code>, <code>DiffuseMap_4_scale</code>, <code>NormalMap_4</code></div>
 </li>
-<li><div> <code>NormalMap_2</code></div>
+<li><div> <code>DiffuseMap_5</code>, <code>DiffuseMap_5_scale</code>, <code>NormalMap_5</code></div>
 </li>
-<li><div> etc, up to <code>…Map_11</code>.</div>
+<li><div> <code>DiffuseMap_6</code>, <code>DiffuseMap_6_scale</code>, …, <code>DiffuseMap_11</code></div>
 </li>
 </ul>
 </li>
@@ -176,21 +181,29 @@ The default material for TerraMonkey is TerrainLighting.j3md. This material comb
 
 <p>
 
-Video cards support a maximum of 16 Splat textures total. This means you can only use a subset of material properties at the same time! Follow these constraints:
+<strong>Note:</strong> <code>DiffuseMap_0_scale</code> is a float value (e.g. 1.0f); you must specify one scale per Diffuse Map.
+</p>
+
+<p>
+Video cards support a maximum of 16 Splat textures total. This means you can only use a subset of material properties at the same time!
+</p>
+
+<p>
+Adhere to the following constraints:
 <img src="/wiki/lib/exe/fetch.php">
 </p>
 <ul>
-<li><div> 1-12 Diffuse Maps</div>
+<li><div> 1-12 Diffuse Maps (one Diffuse Map is the minimum)</div>
 </li>
 <li><div> 1-3 Alpha Maps (for each 4 Diffuse Maps, you need 1 more Alpha Map!)</div>
 </li>
-<li><div> 0-6 Normal Maps (number must be equal or less than number of Diffuse Maps, since they come in pairs!)</div>
+<li><div> 0-6 Normal Maps (Diffuse Maps &amp; Normal Maps come in pairs!)</div>
 </li>
 <li><div> 0 or 1 Glow Map</div>
 </li>
 <li><div> 0 or 1 Specular Map.</div>
 </li>
-<li><div> The sum of all maps used must be 16 or less.</div>
+<li><div> <strong>The sum of all textures used must be 16, or less.</strong></div>
 </li>
 </ul>
 

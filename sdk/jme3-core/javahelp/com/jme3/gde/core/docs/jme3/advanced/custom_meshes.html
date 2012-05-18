@@ -115,14 +115,14 @@ The Mesh data is stored in a buffer.
 </li>
 <li><div> We assign the data to the appropriate type of buffer inside the mesh object. The three buffer types are taken from an enum in <code>com.jme3.scene.VertexBuffer.Type</code>.</div>
 </li>
-<li><div> The third parameter describes the number of components of the values. Vertex postions are 3 float values, texture coordinates are 2 float values, and the indices are single ints.</div>
+<li><div> The third parameter describes the number of components of the values. Vertex postions are 3 float values, texture coordinates are 2 float values, and the indices are 3 ints representing 3 vertices in a triangle.</div>
 </li>
 <li><div> In order for jMonkey to correctly show the mesh in the scene, it needs to know the bounds of our new mesh. This can easily be achieved by calling the updateBound() method on it.</div>
 </li>
 </ol>
 <pre>mesh.setBuffer&#40;Type.Position, 3, BufferUtils.createFloatBuffer&#40;vertices&#41;&#41;;
 mesh.setBuffer&#40;Type.TexCoord, 2, BufferUtils.createFloatBuffer&#40;texCoord&#41;&#41;;
-mesh.setBuffer&#40;Type.Index,    1, BufferUtils.createIntBuffer&#40;indexes&#41;&#41;;
+mesh.setBuffer&#40;Type.Index,    3, BufferUtils.createIntBuffer&#40;indexes&#41;&#41;;
 mesh.updateBound&#40;&#41;;</pre>
 
 <p>
@@ -172,7 +172,8 @@ Vertex coloring is a simple way of coloring meshes. Instead of just assigning on
 
 </p>
 <pre>Geometry geo = new Geometry &#40;&quot;ColoredMesh&quot;, mesh&#41;;
-Material matVC = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;</pre>
+Material matVC = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+matVC.setBoolean&#40;&quot;VertexColor&quot;, true&#41;;</pre>
 
 <p>
 

@@ -7,6 +7,10 @@
 In the <a href="/com/jme3/gde/core/docs/jme3/advanced/material_definitions.html">Material Definitions</a> article you learned how to configure <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials</a>  programmatically in Java code. If you have certain commonly used Materials that never change, you can clean up the amount of Java code that clutters your init method, by moving material settings into .j3m files. Then later in your code, you only need to call one setter instead of several to apply the material.
 </p>
 
+<p>
+If you want to colorize simple shapes (one texture all around), then .j3m are the most easily customizable solution. J3m files can contain texture mapped materials, but as usual you have to create the textures in an external editor, especially if you use UV-mapped textures. 
+</p>
+
 </div>
 
 <h2><a>Writing the .j3m File</a></h2>
@@ -57,7 +61,8 @@ How to this file is structured:
 
 <p>
 
-<strong>Tip:</strong> In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, use File&gt;New File&gt;Material&gt;Empty Material File to create .j3m files.
+<p><div>In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, use File→New File→Material→Empty Material File to create .j3m files. You can edit .j3m files directly in the <acronym title="Software Development Kit">SDK</acronym>. On the other hand, they are plain text files, so you can also create them in any plain text editor.
+</div></p>
 </p>
 
 </div>
@@ -175,7 +180,7 @@ All data types (except Color) are specified in com.jme3.shader.VarType.
 		<td> TextureArray</td><td> </td><td> (Currently not supported in J3M) </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [3132-4546] -->
+<!-- EDIT1 TABLE [3565-4979] -->
 </div>
 
 <h3><a>Flip and Repeat Syntax</a></h3>
@@ -239,7 +244,7 @@ See the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><p
 		<td> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/javadoc/com/jme3/material/RenderState.html#setPointSprite(boolean)"><param name="text" value="<html><u>PointSprite</u></html>"><param name="textColor" value="blue"></object> </td><td>(Boolean)</td><td> Enable point sprite rendering for point meshes </td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [5184-6752] -->
+<!-- EDIT2 TABLE [5617-7185] -->
 </div>
 
 <h2><a>Examples</a></h2>
@@ -334,6 +339,14 @@ The file <code>assets/Models/Tree/Leaves.j3m</code> contains:
 <p>
 The <acronym title="Portable Network Graphics">PNG</acronym> file is in the same directory, <code>assets/Models/Tree/…</code>
 </p>
+<div><span>
+	<a href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>,
+	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>,
+	<a href="/wiki/doku.php/tag:file?do=showtag&amp;tag=tag%3Afile">file</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:wireframe?do=showtag&amp;tag=tag%3Awireframe">wireframe</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
+</span></div>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:j3m_material_files?do=export_xhtmlbody">view online version</a></em></p>

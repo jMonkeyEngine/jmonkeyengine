@@ -1,5 +1,5 @@
 
-<h1><a>Setting up JME3 in Netbeans 6.x</a></h1>
+<h1><a>Setting up JME3 in Netbeans 6+</a></h1>
 <div>
 
 <p>
@@ -59,36 +59,9 @@ j-ogg-vorbisd.jar       asm-all-3.1.jar jbullet.jar
 jheora-jst-debug-0.6.0.jar              xmlpull.xpp3-1.1.4c.jar
 nifty*.jar                              eventbus-1.4.jar</pre>
 
-</div>
-
-<h3><a>Optional: Setting up Android Support</a></h3>
-<div>
-
 <p>
-
-Work in progress …
+For a detailed description of the separate jar files see <a href="/com/jme3/gde/core/docs/jme3/jme3_source_structure#structure_of_jmonkeyengine3_jars.html">this list</a>.
 </p>
-
-<p>
-A jme3 application can either be deployed to the desktop (as Java Swing application) and web browser (as JNLP/WebStart or Applet), or to an Android phone. While the former is the default, switching to Android deployment can be done in a few steps.
-
-</p>
-<ol>
-<li><div> Open Project Properties, go to Sources category.</div>
-</li>
-<li><div> At Source Packages Folders, click &quot;Add Folder&quot;. </div>
-<ul>
-<li><div> Add <code>src/android/</code></div>
-</li>
-<li><div> Remove <code>src/desktop</code></div>
-</li>
-<li><div> Remove <code>src/desktop_fx</code></div>
-</li>
-</ul>
-</li>
-<li><div> build.xml…</div>
-</li>
-</ol>
 
 </div>
 
@@ -173,13 +146,17 @@ If you are working on a game project that depends on jme3:
 <p>
 
 This tip works for any third-party JAR library that you use. (You may have to download the javadoc/sources from their home page separately).
+
 </p>
 <hr />
 
 <p>
-
-Sources used: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/wiki/BuildJme3"><param name="text" value="<html><u>BuildJme3</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/forum/index.php?topic=13108.0"><param name="text" value="<html><u>netbeans tutorial from forum</u></html>"><param name="textColor" value="blue"></object>
+Sources used: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/wiki/BuildJme3"><param name="text" value="<html><u>BuildJme3</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/forum/index.php?topic=13108.0"><param name="text" value="<html><u>NetBeans tutorial from forum</u></html>"><param name="textColor" value="blue"></object>
 </p>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:install?do=showtag&amp;tag=tag%3Ainstall">install</a>
+</span></div>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:build_jme3_sources_with_netbeans?do=export_xhtmlbody">view online version</a></em></p>

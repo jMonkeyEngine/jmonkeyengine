@@ -1,8 +1,9 @@
 
-<h1><a>JME 3 Tutorial (8) - Hello Picking</a></h1>
+<h1><a>jMonkeyEngine 3 Tutorial (8) - Hello Picking</a></h1>
 <div>
 
 <p>
+
 Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_animation.html">Hello Animation</a>,
 Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_collision.html">Hello Collision</a>
 </p>
@@ -395,7 +396,7 @@ Vector2f click2d = inputManager.getCursorPosition&#40;&#41;;
 Vector3f click3d = cam.getWorldCoordinates&#40;
     new Vector2f&#40;click2d.x, click2d.y&#41;, 0f&#41;.clone&#40;&#41;;
 Vector3f dir = cam.getWorldCoordinates&#40;
-    new Vector2f&#40;click2d.x, click2d.y&#41;, 1f&#41;.subtractLocal&#40;click3d&#41;;
+    new Vector2f&#40;click2d.x, click2d.y&#41;, 1f&#41;.subtractLocal&#40;click3d&#41;.normalizeLocal&#40;&#41;;
 Ray ray = new Ray&#40;click3d, dir&#41;;
 shootables.collideWith&#40;ray, results&#41;;
 ...</pre>

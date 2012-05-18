@@ -108,6 +108,10 @@ The model is converted to j3o and all necessary files are copied to the project 
 Note: It is important that you copy the model file and its textures to the correct assets folder before creating the j3o file because the paths for textures (and possibly other things) will be stored as absolute (to the assets folder root) when you convert that model. This means the texture location should not change after the import.
 </p>
 
+<p>
+Note: If the SceneViewer doesn&#039;t work refer to <a href="/com/jme3/gde/core/docs/sdk/troubleshooting.html">Troubleshooting jMonkeyEngine3 SDK</a>.
+</p>
+
 </div>
 
 <h2><a>Working With a Model</a></h2>
@@ -162,8 +166,14 @@ You might wonder why jMonkeyEngine <acronym title="Software Development Kit">SDK
 
 <p>
 To have a valid jME3 object, the paths to textures and other assets belonging to the model have to be read with the correct, final path that can then be stored in the j3o object. The j3o object will use those paths when it is loaded with the AssetManager and it requires the AssetManager to deliver the assets on those paths, this is why the folder structure while converting has to be the same as when loading.
-
 </p>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>,
+	<a href="/wiki/doku.php/tag:asset?do=showtag&amp;tag=tag%3Aasset">asset</a>,
+	<a href="/wiki/doku.php/tag:scene?do=showtag&amp;tag=tag%3Ascene">scene</a>
+</span></div>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:model_loader_and_viewer?do=export_xhtmlbody">view online version</a></em></p>

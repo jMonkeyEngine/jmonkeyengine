@@ -1,5 +1,5 @@
 
-<h1><a>Creating User Interfaces with Nifty GUI</a></h1>
+<h1><a>Creating JME3 User Interfaces with Nifty GUI</a></h1>
 <div>
 
 <p>
@@ -21,19 +21,21 @@ This document introduces you to <object classid="java:org.netbeans.modules.javah
 
 </div>
 
-<h2><a>Overview</a></h2>
+<h2><a>Tutorial Overview</a></h2>
 <div>
 
 <p>
 
-To add a Nifty <acronym title="Graphical User Interface">GUI</acronym> to your jME3 game:
+Learn to add a Nifty <acronym title="Graphical User Interface">GUI</acronym> to your jME3 game by going through this multi-part tutorial:
 </p>
 <ol>
 <li><div> <span><a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui.html">Understand the Nifty GUI Concepts</a></span> described on this page.</div>
 </li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_best_practices.html">Browse this short list of Best Practices</a></div>
+</li>
 <li><div> Lay out your graphical user interface:</div>
 <ul>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Lay out the GUI in XML</a> </div>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Lay out the GUI in XML</a> – or –</div>
 </li>
 <li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_layout.html">Lay out the GUI in Java</a></div>
 </li>
@@ -53,7 +55,7 @@ To add a Nifty <acronym title="Graphical User Interface">GUI</acronym> to your j
 
 </div>
 
-<h2><a>Nifty GUI Concepts</a></h2>
+<h2><a>Must Know: Nifty GUI Concepts</a></h2>
 <div>
 
 <p>
@@ -66,27 +68,27 @@ Nifty GUIs are made up of the following <strong>elements</strong>:
 
 </p>
 <ul>
-<li><div> A Nifty <acronym title="Graphical User Interface">GUI</acronym> is made up of one or more <strong>screens</strong>.</div>
+<li><div> A Nifty <acronym title="Graphical User Interface">GUI</acronym> contains one or more <strong>screens</strong>.</div>
 <ul>
-<li><div> Nifty displays exactly one screen at a time.</div>
+<li><div> Only one screen is visible at a time.</div>
 </li>
 <li><div> Name the first screen <code>start</code>. Name any others whatever you like.</div>
 </li>
-<li><div> Every screen is <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">controlled by a Java Controller class</a>.</div>
+<li><div> Screen are <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_interaction.html">controlled by a Java Controller class</a>.</div>
 </li>
 </ul>
 </li>
 <li><div> A screen contains one or more <strong>layers</strong>.</div>
 <ul>
-<li><div> Layers are containers that impose an alignment on their content (vertical, horizontal, centered)</div>
+<li><div> Layers are containers that impose alignment on their contents (vertical, horizontal, or centered)</div>
 </li>
-<li><div> Layers overlap (z-order), and cannot be nested.</div>
+<li><div> Layers can overlap (z-order), and cannot be nested.</div>
 </li>
 </ul>
 </li>
 <li><div> A layer contains <strong>panels</strong>.</div>
 <ul>
-<li><div> Panels are containers that impose an alignment on their content (vertical, horizontal, centered)</div>
+<li><div> Panels are containers that impose alignment on their contents (vertical, horizontal, or centered)</div>
 </li>
 <li><div> Panels can be nested, and cannot overlap.</div>
 </li>
@@ -96,90 +98,18 @@ Nifty GUIs are made up of the following <strong>elements</strong>:
 </li>
 </ul>
 
-<p>
+</div>
 
-General usage tips about elements:
-</p>
+<h2><a>Resources</a></h2>
+<div>
 <ul>
-<li><div> You give an element an ID String if you want to interact with it. <br/>
-You can also use transparent, ID-less panels as spacers.</div>
-</li>
-<li><div> For layers and panels, you specify width and height in percent, or use <code>*</code> to fill the remaining space automatically.</div>
-</li>
-<li><div> Screen, layers, and panels… </div>
-<ul>
-<li><div> can have an RGBA background color: You can use colors during layout development to highlight which container is which.</div>
-</li>
-<li><div> can be transparent: In the finished <acronym title="Graphical User Interface">GUI</acronym>, the visible elements are images, text, and controls inside the panels.</div>
-</li>
-</ul>
-</li>
-<li><div> The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s Nifty editor lets you switch between the <acronym title="Extensible Markup Language">XML</acronym> editor and a <acronym title="Graphical User Interface">GUI</acronym> preview, so you see the effects of your code changes.</div>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_best_practices.html">Browse this short list of Best Practices before you start</a></div>
 </li>
 </ul>
 
 </div>
 
-<h2><a>Some Pro Tips...</a></h2>
-<div>
-
-</div>
-
-<h4><a>XML or Java? Both!</a></h4>
-<div>
-
-<p>
-
-The <acronym title="Extensible Markup Language">XML</acronym> and Java syntax are equivalent, so is it an either-or choice? Not quite.
-We recommend to use <acronym title="Extensible Markup Language">XML</acronym> to lay out the static parts of the <acronym title="Graphical User Interface">GUI</acronym>. Then use Java syntax to control the dynamic parts of the <acronym title="Graphical User Interface">GUI</acronym> at runtime.
-</p>
-
-</div>
-
-<h4><a>Activate Debug Highlighting</a></h4>
-<div>
-
-<p>
-
-During development (and during this tutorial), the following debug code makes all panels visible. This helps you arrange them and find errors.
-
-</p>
-<pre>nifty.setDebugOptionPanelColors&#40;true&#41;;</pre>
-
-<p>
-
-Before the release, and for testing, set it to false again.
-</p>
-
-</div>
-
-<h4><a>Use the jMonkeyEngine SDK</a></h4>
-<div>
-
-<p>
-
-The <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> includes an <acronym title="Extensible Markup Language">XML</acronym> editor and previewer for Nifty <acronym title="Graphical User Interface">GUI</acronym> files. Open an <acronym title="Extensible Markup Language">XML</acronym> file, and switch between <acronym title="Extensible Markup Language">XML</acronym> and Preview mode.
-</p>
-
-</div>
-
-<h4><a>Use XML Schema</a></h4>
-<div>
-
-<p>
-
-Include the following <acronym title="Extensible Markup Language">XML</acronym> schema in the first line of your NiftyGUI <acronym title="Extensible Markup Language">XML</acronym> files and your IDE gives you hints and code completion.
-
-</p>
-<pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
-<span>&lt;nifty xmlns=&quot;http://nifty-gui.sourceforge.net/nifty-1.3.xsd&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
-<span>       xsi:schemaLocation=&quot;http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd&quot;&gt;</span>
-     &lt;!-- Your IDE now tells you that one &lt;screen&gt;&lt;/screen&gt; element is expected here, etc. --&gt;
-<span><span>&lt;/nifty&gt;</span></span></pre>
-
-</div>
-
-<h2><a>JME-Nifty Sample Code</a></h2>
+<h3><a>JME-Nifty Sample Code</a></h3>
 <div>
 <ul>
 <li><div> <acronym title="Extensible Markup Language">XML</acronym> examples</div>
@@ -208,12 +138,12 @@ Include the following <acronym title="Extensible Markup Language">XML</acronym> 
 
 </div>
 
-<h2><a>External Documentation</a></h2>
+<h3><a>External Documentation</a></h3>
 <div>
 
 <p>
 
-Learn more from the NiftyGUI page!
+Learn more from the NiftyGUI page:
 </p>
 <ul>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/projects/nifty-gui/files/nifty-gui/nifty-gui-the-manual-v1.0.pdf/download"><param name="text" value="<html><u>Nifty GUI - the Manual</u></html>"><param name="textColor" value="blue"></object></div>
@@ -233,7 +163,7 @@ Learn more from the NiftyGUI page!
 
 <p>
 
-Next, learn how to lay out your graphical user interface. Typically, you start with <acronym title="Extensible Markup Language">XML</acronym>.
+Now that you understand the concepts and know where to find more information, learn how to lay out a simple graphical user interface. Typically, you start doing this in <acronym title="Extensible Markup Language">XML</acronym>.
 </p>
 <ul>
 <li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_xml_layout.html">Lay out the GUI in XML</a> (recommended)</div>
@@ -241,6 +171,18 @@ Next, learn how to lay out your graphical user interface. Typically, you start w
 <li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/nifty_gui_java_layout.html">Lay out the GUI in Java</a> (optional)</div>
 </li>
 </ul>
+
+</div>
+
+<h2><a>Nifty Logging (Nifty 1.3.1)</a></h2>
+<div>
+
+<p>
+If you want to disable the nifty log lines, add this code after you created nifty:
+
+</p>
+<pre>Logger.getLogger(&quot;de.lessvoid.nifty&quot;).setLevel(Level.SEVERE); 
+Logger.getLogger(&quot;NiftyInputEventHandlingLog&quot;).setLevel(Level.SEVERE); </pre>
 <div><span>
 	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>,
 	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,

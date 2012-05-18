@@ -194,12 +194,39 @@ private Callable&lt;MyWayList&gt; findWay = new Callable&lt;MyWayList&gt;&#40;&#
 
 </div>
 
+<h3><a>The jME3 Threading Model</a></h3>
+<div>
+
+<p>
+
+jME3 is similar to Swing in that for speed and efficiency all changes to the world must be made in a single update thread. This is handled automatically for you if using Controllers or simpleUpdate however whenever you pass work to another thread you need to hand the results back to the main jME3 thread before making any changes to the scene graph.
+</p>
+<pre>    public void rotateGeography(final Geography goe, final Quaternian rot) {
+        mainApp.enqueue(new Callable&lt;Spatial&gt;() {
+
+            public Spatial call() throws Exception {
+                return geo.rotate(rot);
+            }
+            
+        });
+    }</pre>
+
+<p>
+Note that this example does not fetch the returned value by calling <code>get()</code> on the Future object returned from <code>enqueue()</code>. This means that the example method <code>rotateGeography()</code> will return immediately and will not wait for the rotation to be processed before continuing.
+</p>
+
+<p>
+If the processing thread needs to wait or needs the return value then <code>get()</code> or the other methods in the returned Future object such as <code>isDone()</code> can be used.
+</p>
+
+</div>
+
 <h2><a>Conclusion</a></h2>
 <div>
 
 <p>
 
-The cool thing about this appraoch is that every entity creates one self-contained Callable for the Executor, and they are all executed in parallel. In theory, you can have one thread per entity without changing anything else but the settings of the executor.
+The cool thing about this approach is that every entity creates one self-contained Callable for the Executor, and they are all executed in parallel. In theory, you can have one thread per entity without changing anything else but the settings of the executor.
 
 </p>
 <div><span>

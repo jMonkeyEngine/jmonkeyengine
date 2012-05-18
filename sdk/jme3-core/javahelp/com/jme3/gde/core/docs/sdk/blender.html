@@ -8,6 +8,7 @@
 <div>
 
 <p>
+
 Importing models to any game engine is as important as using them. The quality of the models depends on the abilities of the people who create it and on the tools they use.
 Blender is one of the best free tools for creating 3D enviroments. Its high amount of features attract many model designers.
 So far jMonkeyEngine used Ogre mesh files to import 3D data. These files were created by the python script that exported data from blender.
@@ -259,29 +260,40 @@ If you define animations in your BlenderKey the animations will as well be impor
 
 <p>
 Here is the list of how blender features are mapped into jme.
-
 </p>
-<ul>
-<li><div> Scene		→		Node</div>
-</li>
-<li><div> Object		→		Node</div>
-</li>
-<li><div> Mesh		→		List&lt;Geometry&gt; (one mesh can have several materials so that 							        is why a list is needed here)</div>
-</li>
-<li><div> Lamp		→		Light</div>
-</li>
-<li><div> Camera		→	Camera</div>
-</li>
-<li><div> Material		→	Material</div>
-</li>
-<li><div> Texture		→	Texture</div>
-</li>
-<li><div> Curve		→		Node (with Curve as its mesh)</div>
-</li>
-<li><div> Surface		→	Node (surface is transformed to the proper mesh)</div>
-</li>
-</ul>
-
+<div><table>
+	<tr>
+		<th>Blender</th><th>jMonkeyEngine3</th><th>Note</th>
+	</tr>
+	<tr>
+		<td>Scene		</td><td>Node</td><td> </td>
+	</tr>
+	<tr>
+		<td>Object		</td><td>Node</td><td> </td>
+	</tr>
+	<tr>
+		<td>Mesh		</td><td>List&lt;Geometry&gt; </td><td>One mesh can have several materials so that is why a list is needed here.</td>
+	</tr>
+	<tr>
+		<td>Lamp		</td><td>Light</td><td> </td>
+	</tr>
+	<tr>
+		<td>Camera		</td><td>Camera</td><td> </td>
+	</tr>
+	<tr>
+		<td>Material	</td><td>Material</td><td> </td>
+	</tr>
+	<tr>
+		<td>Texture	</td><td>Texture</td><td> </td>
+	</tr>
+	<tr>
+		<td>Curve		</td><td>Node </td><td>Node with Curve as its mesh</td>
+	</tr>
+	<tr>
+		<td>Surface	</td><td>Node </td><td>The surface is transformed to the proper mesh</td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [6619-6970] -->
 <p>
 
 Using BlenderLoader can allow you to use blend file as your local assets repository.
@@ -320,6 +332,12 @@ See also:
 <li><div> <a href="/com/jme3/gde/core/docs/sdk/3ds_to_blender_to_jmp.html">3DS to Blender to j3o</a></div>
 </li>
 </ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>,
+	<a href="/wiki/doku.php/tag:asset?do=showtag&amp;tag=tag%3Aasset">asset</a>
+</span></div>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:blender?do=export_xhtmlbody">view online version</a></em></p>

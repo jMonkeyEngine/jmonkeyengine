@@ -133,7 +133,30 @@ In your IDE, use code completion to quickly look up Trigger literals. In the jMo
 
 </div>
 
-<h2><a>2. Add a Trigger Mapping</a></h2>
+<h2><a>2. Remove Default Trigger Mappings</a></h2>
+<div>
+<pre>inputManager.deleteMapping( SimpleApplication.INPUT_MAPPING_MEMORY );</pre>
+<div><table>
+	<tr>
+		<th>Default Mapping</th><th>Key</th><th>Description</th>
+	</tr>
+	<tr>
+		<td>INPUT_MAPPING_HIDE_STATS</td><td>F5</td><td>Hides the statistics in the bottom left.</td>
+	</tr>
+	<tr>
+		<td>INPUT_MAPPING_CAMERA_POS</td><td>KEY_C</td><td>Prints debug output about the camera.</td>
+	</tr>
+	<tr>
+		<td>INPUT_MAPPING_MEMORY</td><td>KEY_M</td><td>Prints debug output for memtory usage.</td>
+	</tr>
+	<tr>
+		<td>INPUT_MAPPING_EXIT</td><td>KEY_ESCAPE</td><td>Closes the application by calling <code>stop();</code>. Typically you do not remove this, unless you replace it by another way of quitting gracefully.</td>
+	</tr>
+</table></div>
+<!-- EDIT2 TABLE [3404-3821] -->
+</div>
+
+<h2><a>3. Add Custom Trigger Mapping</a></h2>
 <div>
 
 <p>
@@ -159,7 +182,7 @@ inputManager.addMapping&#40;&quot;Right&quot;, new KeyTrigger&#40;KeyInput.KEY_D
 
 </div>
 
-<h2><a>3. Create Listeners</a></h2>
+<h2><a>4. Create Listeners</a></h2>
 <div>
 
 <p>

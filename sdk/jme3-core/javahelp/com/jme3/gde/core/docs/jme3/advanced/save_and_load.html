@@ -4,7 +4,12 @@
 
 <p>
 
-You can save and load scenes and individual Nodes using com.jme3.export.binary.BinaryExporter and com.jme3.export.binary.BinaryImporter. Use standard Java serialization to load game data or use the Savable interface. The jMonkeyEngine binary file format is .j3o. You can open, view, and edit .j3o files in the jMonkeyEngine <a href="/com/jme3/gde/core/docs/jme3/advanced/sdk.html">SDK</a>.
+Spatials can contain Nodes, Geometries, and user data (player score, health, inventory, etc). You can save and load individual Nodes or Geometries, as well as whole scenes using <code>com.jme3.export.binary.BinaryExporter</code> and <code>com.jme3.export.binary.BinaryImporter</code>. The jMonkeyEngine&#039;s serialization system is the <code>com.jme3.export.Savable</code> interface; the jMonkeyEngine&#039;s binary file format is called <code>.j3o</code>. You can open, view, and edit .j3o files in the jMonkeyEngine <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a>.
+</p>
+
+<p>
+<p><div>JME&#039;s BinaryExporter/BinaryImporter can read and write standard Java objects, JME objects, and primitive data types that are included in a <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">spatial&#039;s user data</a>. See below how to make additional custom classes &quot;Savable&quot;.
+</div></p>
 </p>
 
 </div>
@@ -20,47 +25,99 @@ You can save and load scenes and individual Nodes using com.jme3.export.binary.B
 
 <h2><a>Saving a Node</a></h2>
 <div>
-<pre>  @Override
+
+<p>
+
+The following example overrides <code>destroy()</code> to save the rootNode to a file when the user quits the application. The saved rootNode is a normal .j3o binary file that you open in the <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a>.
+</p>
+
+<p>
+<p><div>Note that when you save a model that has textures the textures are references to those textures are stored as absolute paths, so when loading the j3o file they have to be accessible at the exact location (relative to the assetmanager root) they were loaded from. This is why the <acronym title="Software Development Kit">SDK</acronym> manages the conversion on the project level.
+</div></p>
+</p>
+<pre>  /* This is called when the user quits the app. */
+  @Override
   public void destroy&#40;&#41; &#123;
     System.getProperty&#40;&quot;user.home&quot;&#41;;
     BinaryExporter exporter = BinaryExporter.getInstance&#40;&#41;;
-    File&#40;userHome+&quot;/somefile.j3o&quot;&#41;;
+    File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;LastSavedGame.j3o&quot;&#41;;
     try &#123;
       exporter.save&#40;rootNode, file&#41;;
     &#125; catch &#40;IOException ex&#41; &#123;
-      Logger.getLogger&#40;Main.class.getName&#40;&#41;&#41;.log&#40;Level.SEVERE, &quot;Failed to save node!&quot;, ex&#41;;
+      Logger.getLogger&#40;Main.class.getName&#40;&#41;&#41;.log&#40;Level.SEVERE, &quot;Error: Failed to save game!&quot;, ex&#41;;
     &#125;
-    super.destroy&#40;&#41;;
+    super.destroy&#40;&#41;; // continue quitting the game
   &#125;</pre>
+
+<p>
+<p><div>You can add a timestamp to your saved files: 
+</p>
+<pre>long timestamp = System.currentTimeMillis&#40;&#41;/1000;
+File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;/SavedGame-&quot;+timestamp+&quot;.j3o&quot;&#41;;</pre>
+
+<p>
+ 
+</div></p>
+</p>
 
 </div>
 
 <h2><a>Loading a Node</a></h2>
 <div>
+
+<p>
+
+The following example uses simpleInitApp() to load the last saved game when the game is initialized.
+</p>
 <pre>  @Override
   public void simpleInitApp&#40;&#41; &#123;
     System.getProperty&#40;&quot;user.home&quot;&#41;;
     BinaryImporter importer = BinaryImporter.getInstance&#40;&#41;;
     importer.setAssetManager&#40;assetManager&#41;;
-    File&#40;userHome+&quot;/somefile.j3o&quot;&#41;;
-    try &#123;
-      Node loadedNode = &#40;Node&#41;importer.load&#40;file&#41;;
-      loadedNode.setName&#40;&quot;loaded node&quot;&#41;;
-      rootNode.attachChild&#40;loadedNode&#41;;
-    &#125; catch &#40;IOException ex&#41; &#123;
-      Logger.getLogger&#40;Main.class.getName&#40;&#41;&#41;.log&#40;Level.SEVERE, &quot;No saved node loaded.&quot;, ex&#41;;
+    File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;LastSavedGame.j3o&quot;&#41;;
+    if&#40;file.exists&#40;&#41;&#41;&#123;
+      try &#123;
+        Node loadedNode = &#40;Node&#41;importer.load&#40;file&#41;;
+        loadedNode.setName&#40;&quot;loaded node&quot;&#41;;
+        rootNode.attachChild&#40;loadedNode&#41;;
+      &#125; catch &#40;IOException ex&#41; &#123;
+        Logger.getLogger&#40;Main.class.getName&#40;&#41;&#41;.log&#40;Level.SEVERE, &quot;Could not load saved game.&quot;, ex&#41;;
+      &#125;
+    else &#123;
+      // No previous game. Create new game, or let user browse to file, etc...    
     &#125;
-    ...
 &nbsp;</pre>
+
+<p>
+<p><div>Here you see why we save user data inside spatials – so it can be saved and loaded together with the .j3o file. If you have game data outside Spatials, you have to remember to save() and load(), and get() and set() it yourself.
+</div></p>
+</p>
 
 </div>
 
-<h2><a>Custom Savable</a></h2>
+<h2><a>Custom Savable Class</a></h2>
 <div>
 
 <p>
 
-If you have a custom class that you want to save or assign using <code>setUserData()</code>, the class must implement the <code>com.jme3.export.Savable</code> interface.
+JME&#039;s BinaryExporter/BinaryImporter can read and write standard Java objects (String, ArrayList, buffers, etc), JME objects (Savables, such as Material), and primitive data types (int, float, etc). If you are using any custom class together with a Spatial, then the custom class must implement the <code>com.jme3.export.Savable</code> interface. There are two common cases where this is relevant:
+
+</p>
+<ul>
+<li><div> The Spatial is carrying any <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a>. <br/>
+Example: You used something like <code>mySpatial.addControl(myControl);</code></div>
+</li>
+<li><div> The Spatial&#039;s user data can contain a custom Java object. <br/>
+Example: You used something like <code>mySpatial.setUserData(&quot;inventory&quot;, myInventory);</code></div>
+</li>
+</ul>
+
+<p>
+If your custom classes (the user data or the Controls) do not implement Savable, then the BinaryImporter/BinaryExporter cannot save the Spatial! 
+</p>
+
+<p>
+So every time you create a custom Control or custom user data class, remember to implement Savable:
 </p>
 <pre>import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -71,9 +128,9 @@ import com.jme3.material.Material;
 import java.io.IOException;
 &nbsp;
 public class MyCustomClass implements Savable &#123;
-    private int      someIntValue;
-    private float    someFloatValue;
-    private Material someJmeObject;
+    private int      someIntValue;   // some custom user data
+    private float    someFloatValue; // some custom user data
+    private Material someJmeObject;  // some custom user data
 &nbsp;
     ...
     // your other code...
@@ -95,12 +152,16 @@ public class MyCustomClass implements Savable &#123;
 &#125;</pre>
 
 <p>
-For each class field that you want to save and load,
+To make a custom class savable:
 </p>
+<ol>
+<li><div> Implement <code>Savable</code> and add the <code>write()</code> and <code>read()</code> methods as shown in the example above.</div>
+</li>
+<li><div> Do the following for each non-temporary class field: </div>
 <ul>
 <li><div> Add one line that <code>write()</code>s the data to the JmeExport output capsule. </div>
 <ul>
-<li><div> Specify the variable to save, give it String name (can be the same as the variable name), and specify a default value.</div>
+<li><div> Specify the variable to save, give it a String name (can be the same as the variable name), and specify a default value.</div>
 </li>
 </ul>
 </li>
@@ -108,11 +169,19 @@ For each class field that you want to save and load,
 <ul>
 <li><div> On the left side of the assignment, specify the class field that you are restoring</div>
 </li>
-<li><div> One the right side, use the appropriate <code>capsule.read…()</code> method for the data type. Specify the String name of the variable (must be the same ones that you used in the <code>write() method</code>) and a default value.</div>
+<li><div> On the right side, use the appropriate <code>capsule.read…()</code> method for the data type. Specify the String name of the variable (must be the same as you used in the <code>write() method</code>), and again specify a default value.</div>
 </li>
 </ul>
 </li>
 </ul>
+</li>
+</ol>
+
+<p>
+
+<p><div>As with all serialization, remember that if you ever change data types in custom classes, the updated read() methods will no longer be able to read your old files.
+</div></p>
+</p>
 
 </div>
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:save_and_load?do=export_xhtmlbody">view online version</a></em></p>

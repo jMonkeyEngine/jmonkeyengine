@@ -108,7 +108,7 @@ The following example rotates Spatials named &quot;Red Box&quot; or &quot;Blue B
         // Convert screen click to 3d position
         Vector2f click2d = inputManager.getCursorPosition&#40;&#41;;
         Vector3f click3d = cam.getWorldCoordinates&#40;new Vector2f&#40;click2d.x, click2d.y&#41;, 0f&#41;.clone&#40;&#41;;
-        Vector3f dir = cam.getWorldCoordinates&#40;new Vector2f&#40;click2d.x, click2d.y&#41;, 1f&#41;.subtractLocal&#40;click3d&#41;;
+        Vector3f dir = cam.getWorldCoordinates&#40;new Vector2f&#40;click2d.x, click2d.y&#41;, 1f&#41;.subtractLocal&#40;click3d&#41;.normalizeLocal&#40;&#41;;
         // Aim the ray from the clicked spot forwards.
         Ray ray = new Ray&#40;click3d, dir&#41;;
         // Collect intersections between ray and all nodes in results list.

@@ -60,6 +60,10 @@ You control the color and intensity of each light source. Typically you set the 
 You can choose to use lights in other colors than white, or darker colors. This influences the scene&#039;s atmosphere and will make the scene appear colder (e.g. <code>ColorRGBA.Cyan</code>) or warmer (<code>ColorRGBA.Yellow</code>), brighter (higher values) or darker (lower values).
 </p>
 
+<p>
+You can get a list of all lights added to a Spatial by calling <code>getWorldLightList()</code> (includes inherited lights) or <code>getLocalLightList()</code> (only directly added lights), and iterating over the result.
+</p>
+
 </div>
 
 <h3><a>PointLight</a></h3>
@@ -71,7 +75,7 @@ You can choose to use lights in other colors than white, or darker colors. This 
 </p>
 
 <p>
-A PointLight has a location and shines from there in all directions as far as its radius reaches. The light intensity decreases with increased distance from the light source. A PointLight can be used together with shadows. 
+A PointLight has a location and shines from there in all directions as far as its radius reaches. The light intensity decreases with increased distance from the light source. A PointLight can at the moment not be used for casting shadows (using the PssmShadowRenderer - read more about this below). 
 </p>
 
 <p>
@@ -102,7 +106,7 @@ A DirectionalLight has no position, only a direction. It sends out parallel beam
 </p>
 <pre>DirectionalLight sun = new DirectionalLight&#40;&#41;;
 sun.setColor&#40;ColorRGBA.White&#41;;
-sun.setDirection&#40;new Vector3f&#40;-1,13, -1,13, 1,13&#41;.normalizeLocal&#40;&#41;&#41;;
+sun.setDirection&#40;new Vector3f&#40;-.5f,-.5f,-.5f&#41;.normalizeLocal&#40;&#41;&#41;;
 rootNode.addLight&#40;sun&#41;;</pre>
 
 </div>
@@ -122,14 +126,18 @@ A SpotLight sends out a distinct beam or cone of light. A SpotLight has a direct
 <p>
 <strong>Typical Example:</strong> Flashlight
 </p>
-<pre>SpotLight sl = new SpotLight&#40;&#41;;
-sl.setDirection&#40;new Vector3f&#40;1,0,1&#41;&#41;; // direction
-sl.setPosition&#40;new Vector3f&#40;0,0,0&#41;&#41;;
-sl.setSpotInnerAngle&#40;15f&#41;;            // inner light cone (maximum)
-sl.setSpotOuterAngle&#40;35f&#41;;            // outer light cone (edge of the light)
-sl.setSpotRange&#40;10f&#41;;                 // distance
-sl.setColor&#40;ColorRGBA.White.mult&#40;1.3f&#41;&#41;;
-rootNode.addLight&#40;sl&#41;;</pre>
+<pre>SpotLight spot = new SpotLight&#40;&#41;;
+spot.setSpotRange&#40;100f&#41;;                           // distance
+spot.setSpotInnerAngle&#40;15f * FastMath.DEG_TO_RAD&#41;; // inner light cone (central beam)
+spot.setSpotOuterAngle&#40;35f * FastMath.DEG_TO_RAD&#41;; // outer light cone (edge of the light)
+spot.setColor&#40;ColorRGBA.White.mult&#40;1.3f&#41;&#41;;         // light color
+spot.setPosition&#40;cam.getLocation&#40;&#41;&#41;;               // shine from camera loc
+spot.setDirection&#40;cam.getDirection&#40;&#41;&#41;;             // shine forward from camera loc
+rootNode.addLight&#40;spot&#41;;</pre>
+
+<p>
+If you want the spotlight to follow the flycam, repeat the setDirection(…) and setPosition(…) calls in the update loop, and kee syncing them with the camera position and direction.
+</p>
 
 </div>
 
@@ -258,7 +266,7 @@ Use the Shadow Renderer to make Geometries with Lighting.j3md-based Materials ca
 public void simpleInitApp&#40;&#41; &#123;
     ...
     bsr = new BasicShadowRenderer&#40;assetManager, 256&#41;;
-    bsr.setDirection&#40;new Vector3f&#40;-1, -1, -1&#41;.normalizeLocal&#40;&#41;&#41;; // light direction
+    bsr.setDirection&#40;new Vector3f&#40;-.5f,-.5f,-.5f&#41;.normalizeLocal&#40;&#41;&#41;; // light direction
     viewPort.addProcessor&#40;bsr&#41;;
     ...</pre>
 
@@ -298,7 +306,7 @@ The more advanced PSSM shadow renderer can cast real-time shadows, even on curve
 public void simpleInitApp&#40;&#41; &#123;
     ....
     pssmRenderer = new PssmShadowRenderer&#40;assetManager, 1024, 3&#41;;
-    pssmRenderer.setDirection&#40;new Vector3f&#40;-1, -1, -1&#41;.normalizeLocal&#40;&#41;&#41;; // light direction
+    pssmRenderer.setDirection&#40;new Vector3f&#40;-.5f,-.5f,-.5f&#41;.normalizeLocal&#40;&#41;&#41;; // light direction
     viewPort.addProcessor&#40;pssmRenderer&#41;;</pre>
 
 <p>
