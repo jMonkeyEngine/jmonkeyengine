@@ -115,7 +115,6 @@ public class BitmapText extends Node {
         if (!block.getText().equals(text)) {
             // If the text is empty, reset
             if (text.isEmpty()) {
-                System.out.println("text is different");
                 detachAllChildren();
                 
                 for (int page = 0; page < textPages.length; page++) {
@@ -123,7 +122,6 @@ public class BitmapText extends Node {
                     attachChild(textPages[page]);
                 }
 
-                System.out.println("Creating new StringBlock and Letters");
                 block = new StringBlock();
                 letters = new Letters(font, block, letters.getQuad().isRightToLeft());
             }
