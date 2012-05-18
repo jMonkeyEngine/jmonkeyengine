@@ -111,8 +111,6 @@ public class BitmapText extends Node {
      * @param text String to change text to
      */
     public void setText(String text) {
-        System.out.println("HI");
-
         text = text == null ? "" : text;
         if (block.getText().equals(text)) {
             return;
