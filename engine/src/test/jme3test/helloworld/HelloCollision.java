@@ -83,7 +83,7 @@ public class HelloCollision extends SimpleApplication
     setUpLight();
 
     // We load the scene from the zip file and adjust its size.
-    assetManager.registerLocator("town.zip", ZipLocator.class.getName());
+    assetManager.registerLocator("town.zip", ZipLocator.class);
     sceneModel = assetManager.loadModel("main.scene");
     sceneModel.setLocalScale(2f);
 

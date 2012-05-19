@@ -89,9 +89,9 @@ public class TestQ3 extends SimpleApplication implements ActionListener {
 
         // load the level from zip or http zip
         if (useHttp) {
-            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/quake3level.zip", HttpZipLocator.class.getName());
+            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/quake3level.zip", HttpZipLocator.class);
         } else {
-            assetManager.registerLocator("quake3level.zip", ZipLocator.class.getName());
+            assetManager.registerLocator("quake3level.zip", ZipLocator.class);
         }
 
         // create the geometry and attach it

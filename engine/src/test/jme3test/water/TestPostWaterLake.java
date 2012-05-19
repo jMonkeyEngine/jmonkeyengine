@@ -72,9 +72,9 @@ public class TestPostWaterLake extends SimpleApplication {
         // create the geometry and attach it
         // load the level from zip or http zip
         if (useHttp) {
-            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/wildhouse.zip", HttpZipLocator.class.getName());
+            assetManager.registerLocator("http://jmonkeyengine.googlecode.com/files/wildhouse.zip", HttpZipLocator.class);
         } else {
-            assetManager.registerLocator("wildhouse.zip", ZipLocator.class.getName());
+            assetManager.registerLocator("wildhouse.zip", ZipLocator.class);
         }
         Spatial scene = assetManager.loadModel("main.scene");
         rootNode.attachChild(scene);

@@ -82,7 +82,7 @@ public class TestOctree extends SimpleApplication implements SceneProcessor {
 
 //        mat2 = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
 
-        assetManager.registerLocator("quake3level.zip", "com.jme3.asset.plugins.ZipLocator");
+        assetManager.registerLocator("quake3level.zip", com.jme3.asset.plugins.ZipLocator.class);
         MaterialList matList = (MaterialList) assetManager.loadAsset("Scene.material");
         OgreMeshKey key = new OgreMeshKey("main.meshxml", matList);
         Spatial scene = assetManager.loadModel(key);
