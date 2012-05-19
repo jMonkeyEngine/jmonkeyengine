@@ -53,7 +53,8 @@ public class CapsuleCollisionShape extends CollisionShape{
     }
 
     /**
-     * creates a new CapsuleCollisionShape with the given radius and height
+     * Creates a new CapsuleCollisionShape with the given radius and height.
+     * The capsule is oriented along the Y axis (1).
      * @param radius the radius of the capsule
      * @param height the height of the capsule
      */
@@ -66,7 +67,7 @@ public class CapsuleCollisionShape extends CollisionShape{
     }
 
     /**
-     * creates a capsule shape around the given axis (0=X,1=Y,2=Z)
+     * Creates a capsule shape around the given axis (0=X,1=Y,2=Z).
      * @param radius
      * @param height
      * @param axis
