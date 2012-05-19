@@ -215,14 +215,14 @@ public class HelloPhysics extends SimpleApplication {
 
   /** A plus sign used as crosshairs to help the player with aiming.*/
   protected void initCrossHairs() {
-    guiNode.detachAllChildren();
-    guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+    setDisplayStatView(false);
+    //guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
     BitmapText ch = new BitmapText(guiFont, false);
     ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
     ch.setText("+");        // fake crosshairs :)
     ch.setLocalTranslation( // center
-      settings.getWidth() / 2 - guiFont.getCharSet().getRenderedSize() / 3 * 2,
-      settings.getHeight() / 2 + ch.getLineHeight() / 2, 0);
+      settings.getWidth() / 2,
+      settings.getHeight() / 2, 0);
     guiNode.attachChild(ch);
   }
 }

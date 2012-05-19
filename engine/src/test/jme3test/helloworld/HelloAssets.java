@@ -69,7 +69,7 @@ public class HelloAssets extends SimpleApplication {
         rootNode.attachChild(wall);
 
         /** Display a line of text (default font from test-data) */
-        guiNode.detachAllChildren();
+        setDisplayStatView(false);
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         BitmapText helloText = new BitmapText(guiFont, false);
         helloText.setSize(guiFont.getCharSet().getRenderedSize());

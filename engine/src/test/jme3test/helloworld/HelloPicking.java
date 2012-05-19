@@ -154,14 +154,13 @@ public class HelloPicking extends SimpleApplication {
 
   /** A centred plus sign to help the player aim. */
   protected void initCrossHairs() {
-    guiNode.detachAllChildren();
+    setDisplayStatView(false);
     guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
     BitmapText ch = new BitmapText(guiFont, false);
     ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
     ch.setText("+"); // crosshairs
     ch.setLocalTranslation( // center
-      settings.getWidth() / 2 - guiFont.getCharSet().getRenderedSize() / 3 * 2,
-      settings.getHeight() / 2 + ch.getLineHeight() / 2, 0);
+      settings.getWidth() / 2, settings.getHeight() / 2, 0);
     guiNode.attachChild(ch);
   }
 

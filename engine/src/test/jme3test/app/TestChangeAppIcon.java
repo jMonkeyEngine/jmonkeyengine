@@ -66,7 +66,7 @@ public class TestChangeAppIcon extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         // Write text on the screen (HUD)
-        guiNode.detachAllChildren();
+        setDisplayStatView(false);
         BitmapText helloText = new BitmapText(guiFont);
         helloText.setText("The icon of the app should be a smart monkey!");
         helloText.setLocalTranslation(300, helloText.getLineHeight(), 0);
