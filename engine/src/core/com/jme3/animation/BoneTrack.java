@@ -243,11 +243,11 @@ public final class BoneTrack implements Track {
             tempS.interpolate(tempS2, blend);
         }
 
-        if (weight != 1f) {
+//        if (weight != 1f) {
             target.blendAnimTransforms(tempV, tempQ, scales != null ? tempS : null, weight);
-        } else {
-            target.setAnimTransforms(tempV, tempQ, scales != null ? tempS : null);
-        }
+//        } else {
+//            target.setAnimTransforms(tempV, tempQ, scales != null ? tempS : null);
+//        }
     }
     
     /**
