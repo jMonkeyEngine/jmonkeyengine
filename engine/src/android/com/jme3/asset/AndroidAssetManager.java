@@ -59,9 +59,10 @@ public class AndroidAssetManager extends DesktopAssetManager {
         this(null);
     }
     
-    private void registerLoaderSafe(Class<? extends AssetLoader> loaderClass, String ... extensions) {
+    private void registerLoaderSafe(String loaderClass, String ... extensions) {
         try {
-            registerLoader(loaderClass, extensions);
+            Class<? extends AssetLoader> loader = (Class<? extends AssetLoader>) Class.forName(loaderClass);
+            registerLoader(loader, extensions);
         } catch (Exception e){
             logger.log(Level.WARNING, "Failed to load AssetLoader", e);
         }
@@ -88,16 +89,16 @@ public class AndroidAssetManager extends DesktopAssetManager {
         registerLoader(com.jme3.font.plugins.BitmapFontLoader.class, "fnt");
         
         // Less common loaders (especially on Android)
-        registerLoaderSafe(com.jme3.texture.plugins.DDSLoader.class, "dds");
-        registerLoaderSafe(com.jme3.texture.plugins.PFMLoader.class, "pfm");
-        registerLoaderSafe(com.jme3.texture.plugins.HDRLoader.class, "hdr");
-        registerLoaderSafe(com.jme3.texture.plugins.TGALoader.class, "tga");
-        registerLoaderSafe(com.jme3.scene.plugins.OBJLoader.class, "obj");
-        registerLoaderSafe(com.jme3.scene.plugins.MTLLoader.class, "mtl");
-        registerLoaderSafe(com.jme3.scene.plugins.ogre.MeshLoader.class, "mesh.xml");
-        registerLoaderSafe(com.jme3.scene.plugins.ogre.SkeletonLoader.class, "skeleton.xml");
-        registerLoaderSafe(com.jme3.scene.plugins.ogre.MaterialLoader.class, "material");
-        registerLoaderSafe(com.jme3.scene.plugins.ogre.SceneLoader.class, "scene");
+        registerLoaderSafe("com.jme3.texture.plugins.DDSLoader", "dds");
+        registerLoaderSafe("com.jme3.texture.plugins.PFMLoader", "pfm");
+        registerLoaderSafe("com.jme3.texture.plugins.HDRLoader", "hdr");
+        registerLoaderSafe("com.jme3.texture.plugins.TGALoader", "tga");
+        registerLoaderSafe("com.jme3.scene.plugins.OBJLoader", "obj");
+        registerLoaderSafe("com.jme3.scene.plugins.MTLLoader", "mtl");
+        registerLoaderSafe("com.jme3.scene.plugins.ogre.MeshLoader", "mesh.xml");
+        registerLoaderSafe("com.jme3.scene.plugins.ogre.SkeletonLoader", "skeleton.xml");
+        registerLoaderSafe("com.jme3.scene.plugins.ogre.MaterialLoader", "material");
+        registerLoaderSafe("com.jme3.scene.plugins.ogre.SceneLoader", "scene");
         
 
         logger.info("AndroidAssetManager created.");
