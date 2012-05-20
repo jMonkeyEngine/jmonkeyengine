@@ -7,6 +7,8 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
   * <code>AndroidImageInfo</code> is set in a jME3 image via the {@link Image#setEfficentData(java.lang.Object) }
@@ -17,6 +19,8 @@ import java.io.InputStream;
   * @author Kirill Vainer
   */
 public class AndroidImageInfo {
+    
+    private static final Logger logger = Logger.getLogger(AndroidImageInfo.class.getName());
     
     protected AssetInfo assetInfo;
     protected Bitmap bitmap;
@@ -40,7 +44,14 @@ public class AndroidImageInfo {
         return bitmap;
     }
     
-    
+    public void notifyBitmapUploaded() {
+        // Default function is to recycle the bitmap.
+        if (bitmap != null && !bitmap.isRecycled()) {
+            bitmap.recycle();
+            bitmap = null;
+            logger.log(Level.INFO, "Bitmap was deleted. ");
+        }
+    }
     
     public Format getFormat(){
         return format;

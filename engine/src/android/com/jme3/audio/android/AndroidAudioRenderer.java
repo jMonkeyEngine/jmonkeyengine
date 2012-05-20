@@ -88,8 +88,6 @@ public class AndroidAudioRenderer implements AudioRenderer,
 
     @Override
     public void updateSourceParam(AudioNode src, AudioParam param) {
-        // logger.log(Level.INFO, "updateSourceParam " + param);
-
         if (audioDisabled) {
             return;
         }
@@ -195,7 +193,6 @@ public class AndroidAudioRenderer implements AudioRenderer,
 
     @Override
     public void updateListenerParam(Listener listener, ListenerParam param) {
-        // logger.log(Level.INFO, "updateListenerParam " + param);
         if (audioDisabled) {
             return;
         }
@@ -203,7 +200,6 @@ public class AndroidAudioRenderer implements AudioRenderer,
         switch (param) {
             case Position:
                 listenerPosition.set(listener.getLocation());
-
                 break;
             case Rotation:
                 Vector3f dir = listener.getDirection();
