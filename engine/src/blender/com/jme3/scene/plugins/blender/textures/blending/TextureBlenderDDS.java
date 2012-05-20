@@ -28,6 +28,8 @@ public class TextureBlenderDDS extends TextureBlenderAWT {
 	
 	@Override
 	public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
+		this.prepareImagesForBlending(image, baseImage);
+		
 		Format format = image.getFormat();
 		int width = image.getWidth();
 		int height = image.getHeight();
@@ -55,7 +57,6 @@ public class TextureBlenderDDS extends TextureBlenderAWT {
 			ByteBuffer data = image.getData(dataLayerIndex);
 			data.rewind();
 			ByteBuffer newData = BufferUtils.createByteBuffer(data.remaining());
-			System.out.println(dataLayerIndex);
 			while (data.hasRemaining()) {
 				if(format == Format.DXT3) {
 					long alpha = data.getLong();
@@ -84,8 +85,8 @@ public class TextureBlenderDDS extends TextureBlenderAWT {
 				//compressing 16 pixels from the base texture as if they belonged to a texel
 				if(baseImage != null) {
 					//reading pixels (first and last of the 16 colors array)
-					basePixelIO.read(baseImage, baseTextureColors[0], baseXTexelIndex << 2, baseYTexelIndex << 2);//first pixel
-					basePixelIO.read(baseImage, baseTextureColors[1], baseXTexelIndex << 2 + 4, baseYTexelIndex << 2 + 4);//last pixel
+					basePixelIO.read(baseImage, dataLayerIndex, baseTextureColors[0], baseXTexelIndex << 2, baseYTexelIndex << 2);//first pixel
+					basePixelIO.read(baseImage, dataLayerIndex, baseTextureColors[1], baseXTexelIndex << 2 + 4, baseYTexelIndex << 2 + 4);//last pixel
 					baseTextureColors[0].toRGBA(compressedMaterialColor[0]);
 					baseTextureColors[1].toRGBA(compressedMaterialColor[1]);
 				}

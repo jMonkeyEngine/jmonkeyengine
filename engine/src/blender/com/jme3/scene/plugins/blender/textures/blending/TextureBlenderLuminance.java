@@ -34,8 +34,9 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
 	}
 	
 	public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
+		this.prepareImagesForBlending(image, baseImage);
+		
 		Format format = image.getFormat();
-
 		PixelInputOutput basePixelIO = null;
 		TexturePixel basePixel = null;
 		float[] materialColor = this.materialColor;
@@ -64,7 +65,7 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
 			while (data.hasRemaining()) {
 				//getting the proper material color if the base texture is applied
 				if(basePixelIO != null) {
-					basePixelIO.read(baseImage, basePixel, x, y);
+					basePixelIO.read(baseImage, dataLayerIndex, basePixel, x, y);
 					basePixel.toRGBA(materialColor);
 				}
 				

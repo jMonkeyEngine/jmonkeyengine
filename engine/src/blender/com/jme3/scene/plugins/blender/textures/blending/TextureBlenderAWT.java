@@ -40,6 +40,8 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
 	}
 	
 	public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
+		this.prepareImagesForBlending(image, baseImage);
+		
 		float[] pixelColor = new float[] { color[0], color[1], color[2], 1.0f };
 		Format format = image.getFormat();
 		
@@ -70,12 +72,12 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
 			while (index < data.limit()) {
 				//getting the proper material color if the base texture is applied
 				if(basePixelIO != null) {
-					basePixelIO.read(baseImage, basePixel, x, y);
+					basePixelIO.read(baseImage, dataLayerIndex, basePixel, x, y);
 					basePixel.toRGBA(materialColor);
 				}			
 				
 				//reading the current texture's pixel
-				pixelReader.read(image, pixel, index);
+				pixelReader.read(image, dataLayerIndex, pixel, index);
 				index += image.getFormat().getBitsPerPixel() >> 3;
 				pixel.toRGBA(pixelColor);
 				if (negateTexture) {

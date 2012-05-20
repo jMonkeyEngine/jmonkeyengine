@@ -1,13 +1,14 @@
 package com.jme3.scene.plugins.blender.textures;
 
 import com.jme3.math.FastMath;
+import com.jme3.texture.Image.Format;
 
 /**
  * The data that helps in bytes calculations for the result image.
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class DDSTexelData {
+/* package */class DDSTexelData {
 	/** The colors of the texes. */
 	private TexturePixel[][]	colors;
 	/** The indexes of the texels. */
@@ -21,36 +22,33 @@ import com.jme3.math.FastMath;
 	/** The counter of texel y row. */
 	private int					yCounter;
 	/** The width of the image in pixels. */
-	private int					pixelWidth;
+	private int					widthInPixels;
 	/** The height of the image in pixels. */
-	private int					pixelHeight;
+	private int					heightInPixels;
 	/** The total texel count. */
 	private int					xTexelCount;
 
 	/**
-	 * Constructor. Allocates the required memory. Initializes variables.
+	 * Constructor. Allocates memory for data structures.
 	 * 
-	 * @param textelsCount
-	 *            the total count of the texels
-	 * @param pixelWidth
-	 *            the width of the image in pixels
-	 * @param pixelHeight
-	 *            the height of the image in pixels
-	 * @param isAlpha
-	 *            indicates if the memory for alpha values should be
-	 *            allocated
+	 * @param compressedSize
+	 *            the size of compressed image (or its mipmap)
+	 * @param widthToHeightRatio
+	 *            width/height ratio for the image
+	 * @param format
+	 *            the format of the image
 	 */
-	public DDSTexelData(int textelsCount, int pixelWidth, int pixelHeight, boolean isAlpha) {
-		textelsCount = pixelWidth * pixelHeight >> 4;
-		this.colors = new TexturePixel[textelsCount][];
-		this.indexes = new long[textelsCount];
-		this.xTexelCount = pixelWidth >> 2;
-		this.yCounter = (pixelHeight >> 2) - 1;// xCounter is 0 for now
-		this.pixelHeight = pixelHeight;
-		this.pixelWidth = pixelWidth;
-		if (isAlpha) {
-			this.alphas = new float[textelsCount][];
-			this.alphaIndexes = new long[textelsCount];
+	public DDSTexelData(int compressedSize, float widthToHeightRatio, Format format) {
+		int texelsCount = compressedSize * 8 / format.getBitsPerPixel() / 16;
+		this.colors = new TexturePixel[texelsCount][];
+		this.indexes = new long[texelsCount];
+		this.widthInPixels = (int) (0.5f * (float) Math.sqrt(this.getSizeInBytes() / widthToHeightRatio));
+		this.heightInPixels = (int) (this.widthInPixels / widthToHeightRatio);
+		this.xTexelCount = widthInPixels >> 2;
+		this.yCounter = (heightInPixels >> 2) - 1;// xCounter is 0 for now
+		if (format == Format.DXT3 || format == Format.DXT5) {
+			this.alphas = new float[texelsCount][];
+			this.alphaIndexes = new long[texelsCount];
 		}
 	}
 
@@ -104,28 +102,56 @@ import com.jme3.math.FastMath;
 	 *            the y coordinate of the pixel
 	 * @param result
 	 *            the table where the result is stored
+	 * @return <b>true</b> if the pixel was correctly read and <b>false</b> if
+	 *         the position was outside the image sizes
 	 */
-	public void getRGBA8(int x, int y, byte[] result) {
-		int xTexetlIndex = x % pixelWidth / 4;
-		int yTexelIndex = y % pixelHeight / 4;
+	public boolean getRGBA8(int x, int y, byte[] result) {
+		int xTexetlIndex = x % widthInPixels / 4;
+		int yTexelIndex = y % heightInPixels / 4;
 
 		int texelIndex = yTexelIndex * xTexelCount + xTexetlIndex;
-		TexturePixel[] colors = this.colors[texelIndex];
+		if (texelIndex < colors.length) {
+			TexturePixel[] colors = this.colors[texelIndex];
 
-		// coordinates of the pixel in the selected texel
-		x = x - 4 * xTexetlIndex;// pixels are arranged from left to right
-		y = 3 - y - 4 * yTexelIndex;// pixels are arranged from bottom to top (that is why '3 - ...' is at the start)
+			// coordinates of the pixel in the selected texel
+			x = x - 4 * xTexetlIndex;// pixels are arranged from left to right
+			y = 3 - y - 4 * yTexelIndex;// pixels are arranged from bottom to top (that is why '3 - ...' is at the start)
 
-		int pixelIndexInTexel = (y * 4 + x) * (int) FastMath.log(colors.length, 2);
-		int alphaIndexInTexel = alphas != null ? (y * 4 + x) * (int) FastMath.log(alphas.length, 2) : 0;
+			int pixelIndexInTexel = (y * 4 + x) * (int) FastMath.log(colors.length, 2);
+			int alphaIndexInTexel = alphas != null ? (y * 4 + x) * (int) FastMath.log(alphas.length, 2) : 0;
 
-		// getting the pixel
-		int indexMask = colors.length - 1;
-		int colorIndex = (int) (this.indexes[texelIndex] >> pixelIndexInTexel & indexMask);
-		float alpha = this.alphas != null ? this.alphas[texelIndex][(int) (this.alphaIndexes[texelIndex] >> alphaIndexInTexel & 0x07)] : colors[colorIndex].alpha;
-		result[0] = (byte) (colors[colorIndex].red * 255.0f);
-		result[1] = (byte) (colors[colorIndex].green * 255.0f);
-		result[2] = (byte) (colors[colorIndex].blue * 255.0f);
-		result[3] = (byte) (alpha * 255.0f);
+			// getting the pixel
+			int indexMask = colors.length - 1;
+			int colorIndex = (int) (this.indexes[texelIndex] >> pixelIndexInTexel & indexMask);
+			float alpha = this.alphas != null ? this.alphas[texelIndex][(int) (this.alphaIndexes[texelIndex] >> alphaIndexInTexel & 0x07)] : colors[colorIndex].alpha;
+			result[0] = (byte) (colors[colorIndex].red * 255.0f);
+			result[1] = (byte) (colors[colorIndex].green * 255.0f);
+			result[2] = (byte) (colors[colorIndex].blue * 255.0f);
+			result[3] = (byte) (alpha * 255.0f);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @return the size of the decompressed texel (in bytes)
+	 */
+	public int getSizeInBytes() {
+		// indexes.length == count of texels
+		return indexes.length * 16 * 4;
+	}
+
+	/**
+	 * @return image (mipmap) width
+	 */
+	public int getPixelWidth() {
+		return widthInPixels;
+	}
+
+	/**
+	 * @return image (mipmap) height
+	 */
+	public int getPixelHeight() {
+		return heightInPixels;
 	}
 }

@@ -184,10 +184,10 @@ import com.jme3.util.BufferUtils;
 
 			for (int x = 0; x < sourceImage.getWidth(); ++x) {
 				for (int y = 0; y < sourceImage.getHeight(); ++y) {
-					sourceIO.read(sourceImage, sourcePixel, x, y);
-					targetIO.read(targetImage, targetPixel, x, y);
+					sourceIO.read(sourceImage, 0, sourcePixel, x, y);
+					targetIO.read(targetImage, 0, targetPixel, x, y);
 					targetPixel.merge(sourcePixel);
-					targetIO.write(targetImage, targetPixel, x, y);
+					targetIO.write(targetImage, 0, targetPixel, x, y);
 				}
 			}
 		}
@@ -331,8 +331,8 @@ import com.jme3.util.BufferUtils;
 
 		for (int x = 0; x < source.getWidth(); ++x) {
 			for (int y = 0; y < source.getHeight(); ++y) {
-				sourceIO.read(source, pixel, x, y);
-				targetIO.write(target, pixel, targetXPos + x, targetYPos + y);
+				sourceIO.read(source, 0, pixel, x, y);
+				targetIO.write(target, 0, pixel, targetXPos + x, targetYPos + y);
 			}
 		}
 	}
@@ -465,7 +465,7 @@ import com.jme3.util.BufferUtils;
 				for (int x = minX; x < maxX; ++x) {
 					int xPos = x >= sourceImage.getWidth() ? x - sourceImage.getWidth() : x;
 					int yPos = y >= sourceImage.getHeight() ? y - sourceImage.getHeight() : y;
-					pixelReader.read(sourceImage, pixel, xPos, yPos);
+					pixelReader.read(sourceImage, 0, pixel, xPos, yPos);
 					data.put(pixel.getR8());
 					data.put(pixel.getG8());
 					data.put(pixel.getB8());
@@ -542,7 +542,7 @@ import com.jme3.util.BufferUtils;
 				for (int y = 0; y < imageHeight; ++y) {
 					this.toTextureUV(boundingBox, point, uvs);
 					texture.getPixel(pixel, uvs[0], uvs[1], uvs[2]);
-					pixelWriter.write(image, pixel, x, y);
+					pixelWriter.write(image, 0, pixel, x, y);
 					point.addLocal(hDelta);
 				}
 

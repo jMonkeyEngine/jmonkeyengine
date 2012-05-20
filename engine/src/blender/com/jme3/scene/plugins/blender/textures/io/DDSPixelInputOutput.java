@@ -17,11 +17,11 @@ import com.jme3.texture.Image;
 	/**
 	 * For this class the index should be considered as a pixel index in AWT image format.
 	 */
-	public void read(Image image, TexturePixel pixel, int index) {
-		this.read(image, pixel, index % image.getWidth(), index / image.getWidth());
+	public void read(Image image, int layer, TexturePixel pixel, int index) {
+		this.read(image, layer, pixel, index % image.getWidth(), index / image.getWidth());
 	}
 
-	public void read(Image image, TexturePixel pixel, int x, int y) {
+	public void read(Image image, int layer, TexturePixel pixel, int x, int y) {
 		int xTexetlIndex = x % image.getWidth() >> 2;
 		int yTexelIndex = y % image.getHeight() >> 2;
 		int xTexelCount = image.getWidth() >> 2;
@@ -31,7 +31,7 @@ import com.jme3.texture.Image;
 		int indexes = 0;
 		long alphaIndexes = 0;
 		float[] alphas = null;
-		ByteBuffer data = image.getData().get(0);
+		ByteBuffer data = image.getData().get(layer);
 		
 		switch (image.getFormat()) {
 			case DXT1: // BC1
@@ -162,11 +162,11 @@ import com.jme3.texture.Image;
 		pixel.alpha = alpha;
 	}
 
-	public void write(Image image, TexturePixel pixel, int index) {
+	public void write(Image image, int layer, TexturePixel pixel, int index) {
 		throw new UnsupportedOperationException("Cannot put the DXT pixel by index because not every index contains the pixel color!");
 	}
 
-	public void write(Image image, TexturePixel pixel, int x, int y) {
+	public void write(Image image, int layer, TexturePixel pixel, int x, int y) {
 		throw new UnsupportedOperationException("Writing to DDS texture pixel by pixel is not yet supported!");
 	}
 }

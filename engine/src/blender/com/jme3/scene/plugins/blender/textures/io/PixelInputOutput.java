@@ -19,7 +19,7 @@ public interface PixelInputOutput {
 	 * @param index
 	 *            the index where the pixel begins in the image data
 	 */
-	void read(Image image, TexturePixel pixel, int index);
+	void read(Image image, int layer, TexturePixel pixel, int index);
 
 	/**
 	 * This method reads a pixel that is located at the given position on the
@@ -34,7 +34,7 @@ public interface PixelInputOutput {
 	 * @param y
 	 *            the Y coordinate of the pixel
 	 */
-	void read(Image image, TexturePixel pixel, int x, int y);
+	void read(Image image, int layer, TexturePixel pixel, int x, int y);
 
 	/**
 	 * This method writes a pixel that starts at the given index.
@@ -46,7 +46,7 @@ public interface PixelInputOutput {
 	 * @param index
 	 *            the index where the pixel begins in the image data
 	 */
-	void write(Image image, TexturePixel pixel, int index);
+	void write(Image image, int layer, TexturePixel pixel, int index);
 
 	/**
 	 * This method writes a pixel that is located at the given position on the
@@ -61,5 +61,5 @@ public interface PixelInputOutput {
 	 * @param y
 	 *            the Y coordinate of the pixel
 	 */
-	void write(Image image, TexturePixel pixel, int x, int y);
+	void write(Image image, int layer, TexturePixel pixel, int x, int y);
 }

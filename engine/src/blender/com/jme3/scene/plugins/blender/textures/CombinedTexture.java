@@ -100,8 +100,7 @@ public class CombinedTexture {
 		Texture previousTexture = null;
 		UVCoordinatesType masterUVCoordinatesType = null;
 		for (TextureData textureData : textureDatas) {
-			// decompress compressed textures (all will be merged into one
-			// texture anyway)
+			// decompress compressed textures (all will be merged into one texture anyway)
 			if (textureDatas.size() > 1 && textureData.texture.getImage().getFormat().isCompressed()) {
 				textureData.texture.setImage(textureHelper.decompress(textureData.texture.getImage()));
 				textureData.textureBlender = TextureBlenderFactory.alterTextureType(textureData.texture.getImage().getFormat(), textureData.textureBlender);
@@ -228,19 +227,25 @@ public class CombinedTexture {
 	 *            the source texture
 	 */
 	private void merge(Texture2D target, Texture2D source) {
+		if(target.getImage().getDepth() != source.getImage().getDepth()) {
+			throw new IllegalArgumentException("Cannot merge images with different depths!");
+		}
 		Image sourceImage = source.getImage();
 		Image targetImage = target.getImage();
 		PixelInputOutput sourceIO = PixelIOFactory.getPixelIO(sourceImage.getFormat());
 		PixelInputOutput targetIO = PixelIOFactory.getPixelIO(targetImage.getFormat());
 		TexturePixel sourcePixel = new TexturePixel();
 		TexturePixel targetPixel = new TexturePixel();
-
-		for (int x = 0; x < sourceImage.getWidth(); ++x) {
-			for (int y = 0; y < sourceImage.getHeight(); ++y) {
-				sourceIO.read(sourceImage, sourcePixel, x, y);
-				targetIO.read(targetImage, targetPixel, x, y);
-				targetPixel.merge(sourcePixel);
-				targetIO.write(targetImage, targetPixel, x, y);
+		int depth = target.getImage().getDepth() == 0 ? 1 : target.getImage().getDepth();
+		
+		for (int layerIndex = 0; layerIndex < depth; ++layerIndex) {
+			for (int x = 0; x < sourceImage.getWidth(); ++x) {
+				for (int y = 0; y < sourceImage.getHeight(); ++y) {
+					sourceIO.read(sourceImage, layerIndex, sourcePixel, x, y);
+					targetIO.read(targetImage, layerIndex, targetPixel, x, y);
+					targetPixel.merge(sourcePixel);
+					targetIO.write(targetImage, layerIndex, targetPixel, x, y);
+				}
 			}
 		}
 	}
@@ -299,15 +304,17 @@ public class CombinedTexture {
 					case RGBA16:
 					case RGBA16F:
 					case RGBA32F:
-					case RGBA8:// with these types it is better to make sure if
-								// the texture is or is not transparent
+					case RGBA8:// with these types it is better to make sure if the texture is or is not transparent
 						PixelInputOutput pixelInputOutput = PixelIOFactory.getPixelIO(image.getFormat());
 						TexturePixel pixel = new TexturePixel();
-						for (int x = 0; x < image.getWidth(); ++x) {
-							for (int y = 0; y < image.getHeight(); ++y) {
-								pixelInputOutput.read(image, pixel, x, y);
-								if (pixel.alpha < 1.0f) {
-									return false;
+						int depth = image.getDepth() == 0 ? 1 : image.getDepth();
+						for (int layerIndex = 0; layerIndex < depth; ++layerIndex) {
+							for (int x = 0; x < image.getWidth(); ++x) {
+								for (int y = 0; y < image.getHeight(); ++y) {
+									pixelInputOutput.read(image, layerIndex, pixel, x, y);
+									if (pixel.alpha < 1.0f) {
+										return false;
+									}
 								}
 							}
 						}

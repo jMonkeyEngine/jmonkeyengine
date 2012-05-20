@@ -8,22 +8,22 @@ import com.jme3.texture.Image;
  * @author Marcin Roguski (Kaelthas)
  */
 /*package*/ class LuminancePixelInputOutput implements PixelInputOutput {
-	public void read(Image image, TexturePixel pixel, int index) {
-		byte intensity = image.getData(0).get(index);
+	public void read(Image image, int layer, TexturePixel pixel, int index) {
+		byte intensity = image.getData(layer).get(index);
 		pixel.fromIntensity(intensity);
 	}
 	
-	public void read(Image image, TexturePixel pixel, int x, int y) {
+	public void read(Image image, int layer, TexturePixel pixel, int x, int y) {
 		int index = y * image.getWidth() + x;
-		this.read(image, pixel, index);
+		this.read(image, layer, pixel, index);
 	}
 	
-	public void write(Image image, TexturePixel pixel, int index) {
-		image.getData(0).put(index, pixel.getInt());
+	public void write(Image image, int layer, TexturePixel pixel, int index) {
+		image.getData(layer).put(index, pixel.getInt());
 	}
 
-	public void write(Image image, TexturePixel pixel, int x, int y) {
+	public void write(Image image, int layer, TexturePixel pixel, int x, int y) {
 		int index = y * image.getWidth() + x;
-		this.write(image, pixel, index);
+		this.write(image, layer,pixel,  index);
 	}
 }

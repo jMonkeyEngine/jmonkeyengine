@@ -2,8 +2,11 @@ package com.jme3.scene.plugins.blender.textures.blending;
 
 import java.util.logging.Logger;
 
+import jme3tools.converters.MipMapGenerator;
+
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
+import com.jme3.texture.Image;
 
 /**
  * An abstract class that contains the basic methods used by the classes that
@@ -110,6 +113,26 @@ import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 			this.blendFactor = ((AbstractTextureBlender) textureBlender).blendFactor;
 		} else {
 			LOGGER.warning("Cannot copy blending data from other types than " + this.getClass());
+		}
+	}
+	
+	/**
+	 * The method prepares images for blending. It generates mipmaps if one of
+	 * the images has them defined and the other one has not.
+	 * 
+	 * @param target
+	 *            the image where the blending result is stored
+	 * @param source
+	 *            the image that is being read only
+	 */
+	protected void prepareImagesForBlending(Image target, Image source) {
+		LOGGER.fine("Generating mipmaps if needed!");
+		boolean targetHasMipmaps = target == null ? false : target.getMipMapSizes() != null && target.getMipMapSizes().length > 0;
+		boolean sourceHasMipmaps = source == null ? false : source.getMipMapSizes() != null && source.getMipMapSizes().length > 0;
+		if (target != null && !targetHasMipmaps && sourceHasMipmaps) {
+			MipMapGenerator.generateMipMaps(target);
+		} else if (source != null && !sourceHasMipmaps && targetHasMipmaps) {
+			MipMapGenerator.generateMipMaps(source);
 		}
 	}
 }
