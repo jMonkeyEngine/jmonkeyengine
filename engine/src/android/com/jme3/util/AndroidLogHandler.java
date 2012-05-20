@@ -24,8 +24,9 @@ public class AndroidLogHandler extends Handler {
     public void publish(LogRecord record) {
         Level level = record.getLevel();
         String clsName = record.getSourceClassName();
-        String msg = record.getMessage();
+        String msg = String.format(record.getMessage(), record.getParameters());
         Throwable t = record.getThrown();
+        
         if (level == Level.INFO) {
             Log.i(clsName, msg, t);
         } else if (level == Level.SEVERE) {

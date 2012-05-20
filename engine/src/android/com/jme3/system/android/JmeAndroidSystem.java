@@ -1,8 +1,8 @@
 package com.jme3.system.android;
 
 import android.app.Activity;
-import android.content.res.Resources;
 import android.os.Environment;
+import android.util.Log;
 import com.jme3.asset.AndroidAssetManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
@@ -12,27 +12,33 @@ import com.jme3.system.JmeContext;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystemDelegate;
 import com.jme3.system.Platform;
-import com.jme3.util.AndroidLogHandler;
 import com.jme3.util.JmeFormatter;
 import java.io.File;
 import java.net.URL;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JmeAndroidSystem extends JmeSystemDelegate {
 
-    private static Resources res;
     private static Activity activity;
 
+    static {
+        try {
+            System.loadLibrary("bulletjme");
+        } catch (UnsatisfiedLinkError e) {
+        }
+    }
+    
     @Override
     public AssetManager newAssetManager(URL configFile) {
-        logger.log(Level.INFO, "newAssetManager({0})", configFile);
+        logger.log(Level.INFO, "Creating asset manager with config {0}", configFile);
         return new AndroidAssetManager(configFile);
     }
 
     @Override
     public AssetManager newAssetManager() {
-        logger.log(Level.INFO, "newAssetManager()");
+        logger.log(Level.INFO, "Creating asset manager with default config");
         return new AndroidAssetManager(null);
     }
 
@@ -60,10 +66,30 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
         initialized = true;
         try {
-            JmeFormatter formatter = new JmeFormatter();
-
-            Handler consoleHandler = new AndroidLogHandler();
-            consoleHandler.setFormatter(formatter);
+//            JmeFormatter formatter = new JmeFormatter();
+//            Handler consoleHandler = new AndroidLogHandler();
+//            consoleHandler.setFormatter(formatter);
+//            
+//            Logger log = Logger.getLogger("");
+//            for (Handler h : log.getHandlers()) {
+//                log.removeHandler(h);
+//            }
+//            log.addHandler(consoleHandler);
+            Logger log = Logger.getLogger(JmeAndroidSystem.class.getName());
+            boolean bIsLogFormatSet = false;
+            do {
+                log.setLevel(Level.ALL);
+                if (log.getHandlers().length == 0) {
+                    log = logger.getParent();
+                    if (log != null) {
+                        for (Handler h : log.getHandlers()) {
+                            h.setFormatter(new JmeFormatter());
+                            h.setLevel(Level.ALL);
+                            bIsLogFormatSet = true;
+                        }
+                    }
+                }
+            } while (log != null && !bIsLogFormatSet);
         } catch (SecurityException ex) {
             logger.log(Level.SEVERE, "Security error in creating log file", ex);
         }
@@ -93,19 +119,12 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         //http://developer.android.com/reference/android/content/Context.html#getExternalFilesDir
         //http://developer.android.com/guide/topics/data/data-storage.html
 
-        boolean mExternalStorageWriteable = false;
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
-            mExternalStorageWriteable = true;
-        } else {
-            mExternalStorageWriteable = false;
-        }
-
-        if (mExternalStorageWriteable) {
-            //getExternalFilesDir automatically creates the directory if necessary.
-            //directory structure should be: /mnt/sdcard/Android/data/<packagename>/files
-            //when created this way, the directory is automatically removed by the Android
-            //  system when the app is uninstalled
+            // getExternalFilesDir automatically creates the directory if necessary.
+            // directory structure should be: /mnt/sdcard/Android/data/<packagename>/files
+            // when created this way, the directory is automatically removed by the Android
+            //   system when the app is uninstalled
             storageFolder = activity.getApplicationContext().getExternalFilesDir(null);
             logger.log(Level.INFO, "Storage Folder Path: {0}", storageFolder.getAbsolutePath());
 
@@ -114,14 +133,6 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
             return null;
         }
 
-    }
-
-    public static void setResources(Resources res) {
-        JmeAndroidSystem.res = res;
-    }
-
-    public static Resources getResources() {
-        return res;
     }
 
     public static void setActivity(Activity activity) {

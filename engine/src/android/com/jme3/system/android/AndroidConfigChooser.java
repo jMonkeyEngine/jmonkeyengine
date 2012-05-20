@@ -31,10 +31,12 @@ public class AndroidConfigChooser implements EGLConfigChooser {
          * RGB565, 0 alpha, 16 depth, 0 stencil
          */
         FASTEST,
+        
         /**
          * RGB???, 0 alpha, >=16 depth, 0 stencil
          */
         BEST,
+        
         /**
          * Turn off config chooser and use hardcoded
          * setEGLContextClientVersion(2); setEGLConfigChooser(5, 6, 5, 0, 16,
@@ -65,11 +67,9 @@ public class AndroidConfigChooser implements EGLConfigChooser {
      * @return true if successfull, false if no config was found
      */
     public boolean findConfig(EGL10 egl, EGLDisplay display) {
-
         if (type == ConfigType.BEST) {
             ComponentSizeChooser compChooser = new ComponentSizeChooser(8, 8, 8, 8, 32, 0);
             choosenConfig = compChooser.chooseConfig(egl, display);
-
             if (choosenConfig == null) {
                 compChooser = new ComponentSizeChooser(8, 8, 8, 0, 32, 0);
                 choosenConfig = compChooser.chooseConfig(egl, display);
@@ -97,7 +97,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
             clientOpenGLESVersion = getOpenGLVersion(choosenConfig, display, egl);
             return true;
         } else {
-            logger.severe("###ERROR### Unable to get a valid OpenGL ES 2.0 config, nether Fastest nor Best found! Bug. Please report this.");
+            logger.severe("ERROR: Unable to get a valid OpenGL ES 2.0 config, neither Fastest nor Best found! Bug. Please report this.");
             clientOpenGLESVersion = 1;
             pixelFormat = PixelFormat.UNKNOWN;
             return false;

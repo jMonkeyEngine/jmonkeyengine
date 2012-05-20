@@ -58,7 +58,7 @@ public class AndroidLocator implements AssetLocator {
     }
     
     public AndroidLocator() {
-        androidManager = JmeAndroidSystem.getResources().getAssets();
+        androidManager = JmeAndroidSystem.getActivity().getAssets();
     }
 
     public void setRootPath(String rootPath) {

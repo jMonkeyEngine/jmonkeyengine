@@ -128,19 +128,32 @@ public class JmeSystem {
         systemDelegate.initialize(settings);
     }
 
+    private static JmeSystemDelegate tryLoadDelegate(String className) throws InstantiationException, IllegalAccessException {
+        try {
+            return (JmeSystemDelegate) Class.forName(className).newInstance();
+        } catch (ClassNotFoundException ex) {
+            return null;
+        }
+    }
+    
     @SuppressWarnings("unchecked")
     private static void checkDelegate() {
         if (systemDelegate == null) {
-            Class<JmeSystemDelegate> systemDelegateClass;
             try {
-                systemDelegateClass = (Class<JmeSystemDelegate>) Class.forName("com.jme3.system.JmeDesktopSystem");
-                systemDelegate = systemDelegateClass.newInstance();
+                systemDelegate = tryLoadDelegate("com.jme3.system.JmeDesktopSystem");
+                if (systemDelegate == null) {
+                    systemDelegate = tryLoadDelegate("com.jme3.system.android.JmeAndroidSystem");
+                    if (systemDelegate == null) {
+                        // None of the system delegates were found ..
+                        Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE,
+                                "Failed to find a JmeSystem delegate!"
+                                + "Ensure either desktop or android jME3 jar is in the classpath.");
+                    }
+                }
             } catch (InstantiationException ex) {
-                Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "No JmeSystemDelegate specified, cannot instantiate default JmeDesktopSystem:\n{0}", ex);
+                Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "Failed to create JmeSystem delegate:\n{0}", ex);
             } catch (IllegalAccessException ex) {
-                Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "No JmeSystemDelegate specified, cannot instantiate default JmeDesktopSystem:\n{0}", ex);
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "No JmeSystemDelegate specified, cannot instantiate default JmeDesktopSystem:\n{0}", ex);
+                Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE, "Failed to create JmeSystem delegate:\n{0}", ex);
             }
         }
     }

@@ -15,6 +15,7 @@ import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.input.event.TouchEvent;
 import com.jme3.input.event.TouchEvent.Type;
 import com.jme3.math.Vector2f;
+import com.jme3.system.AppSettings;
 import com.jme3.util.RingBuffer;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -244,11 +245,9 @@ public class AndroidInput extends GLSurfaceView implements
 
                 bWasHandled = true;
                 break;
-
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
-
                 touch = getNextFreeTouchEvent();
                 touch.set(Type.UP, event.getX(pointerIndex), this.getHeight() - event.getY(pointerIndex), 0, 0);
                 touch.setPointerId(pointerId);
@@ -256,12 +255,9 @@ public class AndroidInput extends GLSurfaceView implements
                 touch.setPressure(event.getPressure(pointerIndex));
                 processEvent(touch);
 
-
                 bWasHandled = true;
                 break;
             case MotionEvent.ACTION_MOVE:
-
-
                 // Convert all pointers into events
                 for (int p = 0; p < event.getPointerCount(); p++) {
                     Vector2f lastPos = lastPositions.get(pointerIndex);
@@ -329,6 +325,12 @@ public class AndroidInput extends GLSurfaceView implements
         } else {
             return true;
         }
+    }
+    
+    public void loadSettings(AppSettings settings) {
+        mouseEventsEnabled = settings.isEmulateMouse();
+        mouseEventsInvertX = settings.isEmulateMouseFlipX();
+        mouseEventsInvertY = settings.isEmulateMouseFlipY();
     }
 
     // -----------------------------------------
@@ -449,8 +451,6 @@ public class AndroidInput extends GLSurfaceView implements
                                 lastY = newY;
                                 break;
                         }
-
-
                     }
                 }
 
@@ -575,15 +575,6 @@ public class AndroidInput extends GLSurfaceView implements
     }
 
     @Override
-    public void setSimulateMouse(boolean simulate) {
-        mouseEventsEnabled = simulate;
-    }
-    @Override
-    public boolean getSimulateMouse() {
-        return mouseEventsEnabled;
-    }
-
-    @Override
     public void setSimulateKeyboard(boolean simulate) {
         keyboardEventsEnabled = simulate;
     }
@@ -593,11 +584,15 @@ public class AndroidInput extends GLSurfaceView implements
         this.dontSendHistory = dontSendHistory;
     }
 
-    // TODO: move to TouchInput
+    /**
+     * @deprecated Use {@link #getSimulateMouse()};
+     */
+    @Deprecated
     public boolean isMouseEventsEnabled() {
         return mouseEventsEnabled;
     }
 
+    @Deprecated
     public void setMouseEventsEnabled(boolean mouseEventsEnabled) {
         this.mouseEventsEnabled = mouseEventsEnabled;
     }
@@ -616,5 +611,17 @@ public class AndroidInput extends GLSurfaceView implements
 
     public void setMouseEventsInvertX(boolean mouseEventsInvertX) {
         this.mouseEventsInvertX = mouseEventsInvertX;
+    }
+
+    public void setSimulateMouse(boolean simulate) {
+        mouseEventsEnabled = simulate;
+    }
+
+    public boolean getSimulateMouse() {
+        return isSimulateMouse();
+    }
+
+    public boolean isSimulateMouse() {
+        return mouseEventsEnabled;
     }
 }

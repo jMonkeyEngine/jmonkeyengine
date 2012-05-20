@@ -34,7 +34,6 @@ package com.jme3.system;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -405,6 +404,47 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public void putFloat(String key, float value) {
         put(key, Float.valueOf(value));
+    }
+    
+    /**
+     * Enable or disable mouse emulation on touchscreen based devices.
+     * This will convert taps on the touchscreen or movement of finger
+     * over touchscreen (only the first) into the appropriate mouse events.
+     * 
+     * @param emulateMouse If mouse emulation should be enabled.
+     */
+    public void setEmulateMouse(boolean emulateMouse) {
+        putBoolean("TouchEmulateMouse", emulateMouse);
+    }
+    
+    /**
+     * Returns true if mouse emulation is enabled, false otherwise.
+     * 
+     * @return Mouse emulation mode.
+     */
+    public boolean isEmulateMouse() {
+        return getBoolean("TouchEmulateMouse");
+    }
+    
+    /**
+     * Specify if the X or Y (or both) axes should be flipped for emulated mouse.
+     * 
+     * @param flipX Set to flip X axis
+     * @param flipY Set to flip Y axis
+     * 
+     * @see #setEmulateMouse(boolean) 
+     */
+    public void setEmulateMouseFlipAxis(boolean flipX, boolean flipY) {
+        putBoolean("TouchEmulateMouseFlipX", flipX);
+        putBoolean("TouchEmulateMouseFlipY", flipY);
+    }
+    
+    public boolean isEmulateMouseFlipX() {
+        return getBoolean("TouchEmulateMouseFlipX");
+    }
+    
+    public boolean isEmulateMouseFlipY() {
+        return getBoolean("TouchEmulateMouseFlipY");
     }
 
     /**

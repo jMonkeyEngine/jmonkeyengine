@@ -76,9 +76,15 @@ public interface TouchInput extends Input {
     
     /**
      * Get if mouse events are generated
-     *
+     * @deprecated Use {@link #isSimulateMouse() }.
      */
+    @Deprecated
     public boolean getSimulateMouse();
+    
+    /**
+     * @return true if mouse event simulation is enabled, false otherwise.
+     */
+    public boolean isSimulateMouse();
 
     /**
      * Set if keyboard events should be generated

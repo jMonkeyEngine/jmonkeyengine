@@ -31,9 +31,7 @@
  */
 package com.jme3.system.android;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.opengl.GLSurfaceView;
 import android.text.InputType;
@@ -42,24 +40,13 @@ import android.view.SurfaceHolder;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import com.jme3.app.AndroidHarness;
-import com.jme3.app.Application;
-import com.jme3.input.JoyInput;
-import com.jme3.input.KeyInput;
-import com.jme3.input.MouseInput;
-import com.jme3.input.SoftTextDialogInput;
-import com.jme3.input.TouchInput;
+import com.jme3.input.*;
 import com.jme3.input.android.AndroidInput;
 import com.jme3.input.controls.SoftTextDialogInputListener;
-import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.OGLESShaderRenderer;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext;
-import com.jme3.system.JmeSystem;
-import com.jme3.system.SystemListener;
-import com.jme3.system.Timer;
+import com.jme3.system.*;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -86,14 +73,12 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected SystemListener listener;
     protected boolean autoFlush = true;
     protected AndroidInput view;
-    //protected int minFrameDuration = 1000 / frameRate;  // Set a max FPS of 33
     protected int minFrameDuration = 0;                   // No FPS cap
     /**
      * EGL_RENDERABLE_TYPE: EGL_OPENGL_ES_BIT = OpenGL ES 1.0 |
      * EGL_OPENGL_ES2_BIT = OpenGL ES 2.0
      */
     protected int clientOpenGLESVersion = 1;
-    protected boolean verboseLogging = false;
 
     public OGLESContext() {
     }
@@ -104,47 +89,28 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     }
 
     /**
-     * <code>createView</code>
-     *
-     * @param activity The Android activity which is parent for the
-     * GLSurfaceView
-     * @return GLSurfaceView The newly created view
-     */
-    public GLSurfaceView createView(Activity activity) {
-        return createView(new AndroidInput(activity));
-    }
-
-    /**
-     * <code>createView</code>
-     *
-     * @param view The Android input which will be used as the GLSurfaceView for
-     * this context
-     * @return GLSurfaceView The newly created view
-     */
-    public GLSurfaceView createView(AndroidInput view) {
-        return createView(view, ConfigType.FASTEST, false);
-    }
-
-    /**
-     * <code>createView</code> initializes the GLSurfaceView
-     *
-     * @param view The Android input which will be used as the GLSurfaceView for
-     * this context
+     * <code>createView</code> creates the GLSurfaceView that the 
+     * renderer will draw to.
+     * <p>
+     * The result GLSurfaceView will receive input events and forward
+     * them to the Application. Any rendering will be done into
+     * the GLSurfaceView. Only one GLSurfaceView can be created at this time.
+     * The given configType specifies how to determine the display configuration.
+     * 
+     * 
      * @param configType ConfigType.FASTEST (Default) | ConfigType.LEGACY |
      * ConfigType.BEST
      * @param eglConfigVerboseLogging if true show all found configs
      * @return GLSurfaceView The newly created view
      */
-    public GLSurfaceView createView(AndroidInput view, ConfigType configType, boolean eglConfigVerboseLogging) {
+    public GLSurfaceView createView(ConfigType configType, boolean eglConfigVerboseLogging) {
         // Start to set up the view
-        this.view = view;
-        verboseLogging = eglConfigVerboseLogging;
-
+        this.view = new AndroidInput(JmeAndroidSystem.getActivity());
         if (configType == ConfigType.LEGACY) {
             // Hardcoded egl setup
             clientOpenGLESVersion = 2;
             view.setEGLContextClientVersion(2);
-            //RGB565, Depth16
+            // RGB565, Depth16
             view.setEGLConfigChooser(5, 6, 5, 0, 16, 0);
             logger.info("ConfigType.LEGACY using RGB565");
         } else {
@@ -194,7 +160,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     // renderer:initialize
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig cfg) {
-
         if (created.get() && renderer != null) {
             renderer.resetGLObjects();
         } else {
@@ -211,13 +176,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         created.set(true);
 
         logger.info("OGLESContext create");
-        logger.info("Running on thread: " + Thread.currentThread().getName());
-
+        logger.log(Level.INFO, "Running on thread: {0}", Thread.currentThread().getName());
 
         // Setup unhandled Exception Handler
-
         Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-
             public void uncaughtException(Thread thread, Throwable thrown) {
                 listener.handleError("Exception thrown in " + thread.toString(), thrown);
             }
@@ -230,12 +192,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         timer = new AndroidTimer();
         renderer = new OGLESShaderRenderer();
 
-        renderer.setUseVA(true);
-        renderer.setVerboseLogging(verboseLogging);
-
         renderer.initialize();
         listener.initialize();
-
 
         JmeSystem.setSoftTextDialogInput(this);
 
@@ -263,21 +221,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             logger.info("Display destroyed.");
 
             renderable.set(false);
-
-        }
-    }
-
-    protected void applySettingsToRenderer(OGLESShaderRenderer renderer, AppSettings settings) {
-        logger.warning("setSettings.USE_VA: [" + settings.getBoolean("USE_VA") + "]");
-        logger.warning("setSettings.VERBOSE_LOGGING: [" + settings.getBoolean("VERBOSE_LOGGING") + "]");
-        renderer.setUseVA(settings.getBoolean("USE_VA"));
-        renderer.setVerboseLogging(settings.getBoolean("VERBOSE_LOGGING"));
-    }
-
-    protected void applySettings(AppSettings settings) {
-        setSettings(settings);
-        if (renderer != null) {
-            applySettingsToRenderer(renderer, this.settings);
         }
     }
 
@@ -343,10 +286,9 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     // SystemListener:reshape
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        logger.info("GL Surface changed, width: " + width + " height: " + height);
+        logger.log(Level.INFO, "GL Surface changed, width: {0} height: {1}", new Object[]{width, height});
         settings.setResolution(width, height);
         listener.reshape(width, height);
-        //     androidListener.reshape(width, height);
     }
 
     // SystemListener:update
@@ -365,8 +307,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             long milliStart = System.currentTimeMillis();
 
             listener.update();
-
-
             if (autoFlush) {
                 renderer.onFrame();
             }
@@ -381,7 +321,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 } catch (InterruptedException e) {
                 }
             }
-
         }
     }
 
@@ -435,7 +374,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 new Object[]{title, initialValue});
 
         JmeAndroidSystem.getActivity().runOnUiThread(new Runnable() {
-
             @Override
             public void run() {
 
