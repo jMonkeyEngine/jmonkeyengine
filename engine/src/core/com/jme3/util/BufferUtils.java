@@ -1183,10 +1183,13 @@ public final class BufferUtils {
             }
             
             // Apache Harmony
-            freeMethod = loadMethod("org.apache.harmony.nio.internal.DirectBuffer", "free");
-            
-            // GUN Classpath (not likely)
-            //finalizeMethod = loadMethod("java.nio.DirectByteBufferImpl", "finalize");
+            ByteBuffer bb = BufferUtils.createByteBuffer(1);
+            Class<?> clazz = bb.getClass();
+            try {
+                freeMethod = clazz.getMethod("free");
+            } catch (NoSuchMethodException ex) {
+            } catch (SecurityException ex) {
+            }
         }
     }
     
