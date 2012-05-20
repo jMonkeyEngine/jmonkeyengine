@@ -373,11 +373,13 @@ public class Geometry extends Spatial {
      * Indicate that the transform of this spatial has changed and that
      * a refresh is required.
      */
-    @Override
-    protected void setTransformRefresh() {
-        refreshFlags |= RF_TRANSFORM;
-        setBoundRefresh();
-    }
+    // NOTE: Spatial has an identical implementation of this method,
+    // thus it was commented out.
+//    @Override
+//    protected void setTransformRefresh() {
+//        refreshFlags |= RF_TRANSFORM;
+//        setBoundRefresh();
+//    }
 
     /**
      * Recomputes the matrix returned by {@link Geometry#getWorldMatrix() }.
