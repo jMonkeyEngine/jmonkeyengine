@@ -177,9 +177,20 @@ import com.jme3.util.BufferUtils;
 		}
 
 		// setting weights for bones
-		List<Geometry> geomList = (List<Geometry>) blenderContext.getLoadedFeature(this.meshOMA, LoadedFeatureDataType.LOADED_FEATURE);
+		List<Geometry> geomList = (List<Geometry>) blenderContext.getLoadedFeature(meshOMA, LoadedFeatureDataType.LOADED_FEATURE);
+		MeshContext meshContext = blenderContext.getMeshContext(meshOMA);
 		for (Geometry geom : geomList) {
 			Mesh mesh = geom.getMesh();
+			if(meshContext.getBindNormalBuffer() != null) {
+				mesh.setBuffer(meshContext.getBindNormalBuffer());
+			}
+			if(meshContext.getBindPoseBuffer() != null) {
+				mesh.setBuffer(meshContext.getBindPoseBuffer());
+			}
+			//change the usage type of vertex and normal buffers from Static to Stream
+			mesh.getBuffer(Type.Position).setUsage(Usage.Stream);
+			mesh.getBuffer(Type.Normal).setUsage(Usage.Stream);
+			
 			if (this.verticesWeights != null) {
 				mesh.setMaxNumWeights(this.boneGroups);
 				mesh.setBuffer(this.verticesWeights);

@@ -14,13 +14,17 @@ import java.util.Map;
  */
 public class MeshContext {
 	/** The mesh stored here as a list of geometries. */
-	private List<Geometry> mesh;
+	private List<Geometry>				mesh;
 	/** Vertex list that is referenced by all the geometries. */
-	private List<Vector3f> vertexList;
+	private List<Vector3f>				vertexList;
 	/** The vertex reference map. */
-	private Map<Integer, List<Integer>> vertexReferenceMap;
+	private Map<Integer, List<Integer>>	vertexReferenceMap;
 	/** The UV-coordinates for each of the geometries. */
-	private Map<Geometry, VertexBuffer> uvCoordinates = new HashMap<Geometry, VertexBuffer>();
+	private Map<Geometry, VertexBuffer>	uvCoordinates	= new HashMap<Geometry, VertexBuffer>();
+	/** Bind buffer for vertices is stored here and applied when required. */
+	private VertexBuffer				bindPoseBuffer;
+	/** Bind buffer for normals is stored here and applied when required. */
+	private VertexBuffer				bindNormalBuffer;
 
 	/**
 	 * This method returns the referenced mesh.
@@ -75,8 +79,7 @@ public class MeshContext {
 	 * @param vertexReferenceMap
 	 *            the vertex reference map
 	 */
-	public void setVertexReferenceMap(
-			Map<Integer, List<Integer>> vertexReferenceMap) {
+	public void setVertexReferenceMap(Map<Integer, List<Integer>> vertexReferenceMap) {
 		this.vertexReferenceMap = vertexReferenceMap;
 	}
 
@@ -101,5 +104,39 @@ public class MeshContext {
 	 */
 	public VertexBuffer getUVCoordinates(Geometry geometry) {
 		return uvCoordinates.get(geometry);
+	}
+
+	/**
+	 * This method sets the bind buffer for vertices.
+	 * 
+	 * @param bindNormalBuffer
+	 *            the bind buffer for vertices
+	 */
+	public void setBindNormalBuffer(VertexBuffer bindNormalBuffer) {
+		this.bindNormalBuffer = bindNormalBuffer;
+	}
+
+	/**
+	 * @return the bind buffer for vertices
+	 */
+	public VertexBuffer getBindNormalBuffer() {
+		return bindNormalBuffer;
+	}
+
+	/**
+	 * This method sets the bind buffer for normals.
+	 * 
+	 * @param bindNormalBuffer
+	 *            the bind buffer for normals
+	 */
+	public void setBindPoseBuffer(VertexBuffer bindPoseBuffer) {
+		this.bindPoseBuffer = bindPoseBuffer;
+	}
+
+	/**
+	 * @return the bind buffer for normals
+	 */
+	public VertexBuffer getBindPoseBuffer() {
+		return bindPoseBuffer;
 	}
 }

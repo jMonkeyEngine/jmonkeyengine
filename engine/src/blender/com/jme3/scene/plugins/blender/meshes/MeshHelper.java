@@ -278,7 +278,7 @@ public class MeshHelper extends AbstractBlenderHelper {
         geometries = new ArrayList<Geometry>(meshesMap.size());
 
         VertexBuffer verticesBuffer = new VertexBuffer(Type.Position);
-        verticesBuffer.setupData(Usage.Stream, 3, Format.Float,
+        verticesBuffer.setupData(Usage.Static, 3, Format.Float,
                 BufferUtils.createFloatBuffer(vertexList.toArray(new Vector3f[vertexList.size()])));
 
         // initial vertex position (used with animation)
@@ -286,7 +286,7 @@ public class MeshHelper extends AbstractBlenderHelper {
         verticesBind.setupData(Usage.CpuOnly, 3, Format.Float, BufferUtils.clone(verticesBuffer.getData()));
 
         VertexBuffer normalsBuffer = new VertexBuffer(Type.Normal);
-        normalsBuffer.setupData(Usage.Stream, 3, Format.Float, BufferUtils.createFloatBuffer(normals));
+        normalsBuffer.setupData(Usage.Static, 3, Format.Float, BufferUtils.createFloatBuffer(normals));
 
         // initial normals position (used with animation)
         VertexBuffer normalsBind = new VertexBuffer(Type.BindPoseNormal);
@@ -323,7 +323,7 @@ public class MeshHelper extends AbstractBlenderHelper {
             }
             
             mesh.setBuffer(verticesBuffer);
-            mesh.setBuffer(verticesBind);
+            meshContext.setBindPoseBuffer(verticesBind);//this is stored in the context and applied when needed (when animation is applied to the mesh)
 
             // setting vertices colors
             if (verticesColorsBuffer != null) {
@@ -333,7 +333,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 
             // setting faces' normals
             mesh.setBuffer(normalsBuffer);
-            mesh.setBuffer(normalsBind);
+            meshContext.setBindNormalBuffer(normalsBind);//this is stored in the context and applied when needed (when animation is applied to the mesh)
 
             // creating the result
             Geometry geometry = new Geometry(name + (geometries.size() + 1), mesh);
