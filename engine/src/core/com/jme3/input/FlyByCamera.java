@@ -279,7 +279,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
 
         Quaternion q = new Quaternion();
         q.fromAxes(left, up, dir);
-        q.normalize();
+        q.normalizeLocal();
 
         cam.setAxes(q);
     }

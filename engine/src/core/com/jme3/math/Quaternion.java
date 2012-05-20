@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     public static final Quaternion IDENTITY = new Quaternion();
     public static final Quaternion DIRECTION_Z = new Quaternion();
     public static final Quaternion ZERO = new Quaternion(0, 0, 0, 0);
-
+    
     static {
         DIRECTION_Z.fromAxes(Vector3f.UNIT_X, Vector3f.UNIT_Y, Vector3f.UNIT_Z);
     }
@@ -1080,29 +1080,30 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         return w * w + x * x + y * y + z * z;
     }
 
-    /**
-     * <code>normalize</code> normalizes the current <code>Quaternion</code>
-     * @deprecated The naming of this method doesn't follow convention.
-     * Please use {@link Quaternion#normalizeLocal() } instead.
-     */
-    @Deprecated
-    public void normalize() {
-        float n = FastMath.invSqrt(norm());
-        x *= n;
-        y *= n;
-        z *= n;
-        w *= n;
-    }
+//    /**
+//     * <code>normalize</code> normalizes the current <code>Quaternion</code>
+//     * @deprecated The naming of this method doesn't follow convention.
+//     * Please use {@link Quaternion#normalizeLocal() } instead.
+//     */
+//    @Deprecated
+//    public void normalize() {
+//        float n = FastMath.invSqrt(norm());
+//        x *= n;
+//        y *= n;
+//        z *= n;
+//        w *= n;
+//    }
 
     /**
      * <code>normalize</code> normalizes the current <code>Quaternion</code>
      */
-    public void normalizeLocal() {
+    public Quaternion normalizeLocal() {
         float n = FastMath.invSqrt(norm());
         x *= n;
         y *= n;
         z *= n;
         w *= n;
+        return this;
     }
 
     /**
