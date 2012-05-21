@@ -225,7 +225,6 @@ public class CollisionShapeFactory {
      * @return BoxCollisionShape with the size of the spatials BoundingBox
      */
     private static BoxCollisionShape createSingleBoxShape(Spatial spatial, Spatial parent) {
-        spatial.setModelBound(new BoundingBox());
         //TODO: using world bound here instead of "local world" bound...
         BoxCollisionShape shape = new BoxCollisionShape(
                 ((BoundingBox) spatial.getWorldBound()).getExtent(new Vector3f()));
