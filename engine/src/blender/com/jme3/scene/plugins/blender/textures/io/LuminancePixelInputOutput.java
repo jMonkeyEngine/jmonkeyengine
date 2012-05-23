@@ -1,29 +1,88 @@
 package com.jme3.scene.plugins.blender.textures.io;
 
+import java.nio.ByteBuffer;
+
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
 import com.jme3.texture.Image;
 
 /**
  * Implemens read/write operations for luminance images.
+ * 
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class LuminancePixelInputOutput implements PixelInputOutput {
+/* package */class LuminancePixelInputOutput implements PixelInputOutput {
 	public void read(Image image, int layer, TexturePixel pixel, int index) {
-		byte intensity = image.getData(layer).get(index);
-		pixel.fromIntensity(intensity);
+		ByteBuffer data = image.getData(layer);
+		switch (image.getFormat()) {
+			case Luminance8:
+				pixel.fromIntensity(data.get(index));
+				break;
+			case Luminance8Alpha8:
+				pixel.fromIntensity(data.get(index));
+				pixel.setAlpha(data.get(index + 1));
+				break;
+			case Luminance16:
+				pixel.fromIntensity(data.getShort(index));
+				break;
+			case Luminance16Alpha16:
+				pixel.fromIntensity(data.getShort(index));
+				pixel.setAlpha(data.getShort(index + 2));
+				break;
+			case Luminance16F:
+				pixel.intensity = Float.intBitsToFloat(data.getShort(index));
+				break;
+			case Luminance16FAlpha16F:
+				pixel.intensity = Float.intBitsToFloat(data.getShort(index));
+				pixel.alpha = Float.intBitsToFloat(data.getShort(index + 2));
+				break;
+			case Luminance32F:
+				pixel.intensity = Float.intBitsToFloat(data.getInt(index));
+				break;
+			default:
+				throw new IllegalStateException("Unknown luminance format type.");
+		}
 	}
-	
+
 	public void read(Image image, int layer, TexturePixel pixel, int x, int y) {
 		int index = y * image.getWidth() + x;
 		this.read(image, layer, pixel, index);
 	}
-	
+
 	public void write(Image image, int layer, TexturePixel pixel, int index) {
-		image.getData(layer).put(index, pixel.getInt());
+		ByteBuffer data = image.getData(layer);
+		data.put(index, pixel.getInt());
+		switch (image.getFormat()) {
+			case Luminance8:
+				data.put(index, pixel.getInt());
+				break;
+			case Luminance8Alpha8:
+				data.put(index, pixel.getInt());
+				data.put(index + 1, pixel.getA8());
+				break;
+			case Luminance16:
+				data.putShort(index, (short) (pixel.intensity * 65535.0f));
+				break;
+			case Luminance16Alpha16:
+				data.putShort(index, (short) (pixel.intensity * 65535.0f));
+				data.putShort(index + 2, (short) (pixel.alpha * 65535.0f));
+				break;
+			case Luminance16F:
+				pixel.intensity = Float.intBitsToFloat(data.getShort(index));
+				break;
+			case Luminance16FAlpha16F:
+				pixel.intensity = Float.intBitsToFloat(data.getShort(index));
+				pixel.alpha = Float.intBitsToFloat(data.getShort(index + 2));
+				break;
+			case Luminance32F:
+				data.putInt(index, Float.floatToIntBits(pixel.intensity));
+				break;
+			default:
+				throw new IllegalStateException("Unknown luminance format type.");
+		}
 	}
 
 	public void write(Image image, int layer, TexturePixel pixel, int x, int y) {
 		int index = y * image.getWidth() + x;
-		this.write(image, layer,pixel,  index);
+		this.write(image, layer, pixel, index);
 	}
 }
