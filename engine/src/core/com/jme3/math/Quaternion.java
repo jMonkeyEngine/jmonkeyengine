@@ -233,7 +233,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 
     /**
      * <code>fromAngles</code> builds a Quaternion from the Euler rotation
-     * angles (x,y,z) aka (pitch, yaw, rall)). Note that we are applying in order: roll, yaw, pitch but
+     * angles (x,y,z) aka (pitch, yaw, rall)). Note that we are applying in order: (y, z, x) aka (yaw, roll, pitch) but
      * we've ordered them in x, y, and z for convenience.
      * @see <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm">http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm</a>
      * 
@@ -489,7 +489,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>getRotationColumn</code> returns one of three columns specified
      * by the parameter. This column is returned as a <code>Vector3f</code>
-     * object.  The value is retrieved as if this quaternion was first normalized.
+     * object. The value is retrieved as if this quaternion was first normalized.
      *
      * @param i
      *            the column to retrieve. Must be between 0 and 2.
@@ -585,7 +585,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>toAngleAxis</code> sets a given angle and axis to that
      * represented by the current quaternion. The values are stored as
-     * following: The axis is provided as a parameter and built by the method,
+     * follows: The axis is provided as a parameter and built by the method,
      * the angle is returned as a float.
      *
      * @param axisStore
@@ -1095,7 +1095,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
 //    }
 
     /**
-     * <code>normalize</code> normalizes the current <code>Quaternion</code>
+     * <code>normalize</code> normalizes the current <code>Quaternion</code>.
+     * The result is stored internally.
      */
     public Quaternion normalizeLocal() {
         float n = FastMath.invSqrt(norm());
@@ -1128,7 +1129,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      * <code>inverse</code> calculates the inverse of this quaternion and
      * returns this quaternion after it is calculated. If this quaternion does
-     * not have an inverse (if it's norma is 0 or less), nothing happens
+     * not have an inverse (if it's normal is 0 or less), nothing happens
      *
      * @return the inverse of this quaternion
      */
@@ -1158,7 +1159,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     /**
      *
      * <code>toString</code> creates the string representation of this
-     * <code>Quaternion</code>. The values of the quaternion are displace (x,
+     * <code>Quaternion</code>. The values of the quaternion are displaced (x,
      * y, z, w), in the following manner: <br>
      * (x, y, z, w)
      *
