@@ -47,7 +47,7 @@ public class JmePaletteSunLight implements ActiveEditorDrop {
 
     private String createBody() {
 
-        String body = "    /** A white, directional light source */ \n    DirectionalLight sun = new DirectionalLight();\n    sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalize());\n    sun.setColor(ColorRGBA.White);\n    rootNode.addLight(sun); ";
+        String body = "    /** A white, directional light source */ \n    DirectionalLight sun = new DirectionalLight();\n    sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalizeLocal());\n    sun.setColor(ColorRGBA.White);\n    rootNode.addLight(sun); ";
         return body;
     }
 
