@@ -88,6 +88,38 @@ public class TexturePixel implements Cloneable {
 	}
 	
 	/**
+	 * Copies the intensity from the given value.
+	 * 
+	 * @param intensity
+	 *            the intensity value
+	 */
+	public void fromIntensity(short intensity) {
+		this.intensity = intensity >= 0 ? intensity / 65535.0f : 1.0f - ~intensity / 65535.0f;
+	}
+	
+	/**
+	 * This method sets the alpha value (converts it to float number from range
+	 * <0, 1>).
+	 * 
+	 * @param alpha
+	 *            the alpha value
+	 */
+	public void setAlpha(byte alpha) {
+		this.alpha = alpha >= 0 ? alpha / 255.0f : 1.0f - ~alpha / 255.0f;
+	}
+
+	/**
+	 * This method sets the alpha value (converts it to float number from range
+	 * <0, 1>).
+	 * 
+	 * @param alpha
+	 *            the alpha value
+	 */
+	public void setAlpha(short alpha) {
+		this.alpha = alpha >= 0 ? alpha / 65535.0f : 1.0f - ~alpha / 65535.0f;
+	}
+	
+	/**
 	 * Copies the values from the given integer that stores the ARGB8 data.
 	 * 
 	 * @param argb8
