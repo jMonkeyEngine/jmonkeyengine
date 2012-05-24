@@ -21,7 +21,8 @@ The reason for this is, that for every object a render command must be done, her
 <strong>Possible optimization techniques</strong>
 </p>
 <ul>
-<li><div> Use GeometryBatchFactory.optimize(node) to merge the meshes of the geometries contained in the given node into fewer batches (based on common Material used). You can do this using the SceneComposer in the <acronym title="Software Development Kit">SDK</acronym> as well, just right-click a node and select &quot;Optimize Geometry&quot;</div>
+<li><div> Use GeometryBatchFactory.optimize(node) to merge the meshes of the geometries contained in the given node into fewer batches, each based on common Materials used. <br/>
+You can optimize nodes using the SceneComposer in the <acronym title="Software Development Kit">SDK</acronym> as well: Right-click a node and select &quot;Optimize Geometry&quot;.</div>
 </li>
 </ul>
 
@@ -29,7 +30,7 @@ The reason for this is, that for every object a render command must be done, her
 <strong>Side-effects</strong>
 </p>
 <ul>
-<li><div> Using GeometryBatchFactory merges individual Geometries into a single mesh. Thereby it becomes hard to apply specific Materials or to remove a single Geometry. Therefore it should be used for static Geometry only that does not require frequent changes or individual materials/texturing.</div>
+<li><div> Using GeometryBatchFactory merges individual Geometries into a single mesh. Thereby it becomes hard to apply specific Materials or to remove a single Geometry. Therefore it should be used for static Geometry only that does not require frequent changes or individual materials/texturing. </div>
 </li>
 <li><div>Using Texture atlases might be a way to provide a limited individual texturing.</div>
 </li>
@@ -93,11 +94,12 @@ Genereally jME3 is well optimized and optimizes these things correctly. The norm
 </li>
 <li><div> If the (M) values are much higher than the (F) values, that means a lot more GL objects are in memory than are actually used. This can happen in rare cases, such as extremely large scenes (&gt; 2000 wu). In this case, you should can optimize performance by identifying spatials to cull or detach.</div>
 </li>
-<li><div> The Object Count (Batch Count) is a very important value that indicates how many geometries were rendered in the last frame. In general, try to keep the object count around 100-200 to keep your game fast and responsive. If the count is permanently higher, optimize your scene via GeometryBatchFactory or other means.</div>
+<li><div> The Object Count (Batch Count) is a very important value that indicates how many geometries were rendered in the last frame. In general, try to keep the object count around 100-200 to keep your game fast and responsive. If the count is permanently higher, hand-code rules that detach remote objects, or optimize a complex multi-material scene using: <pre>GeometryBatchFactory.optimize(complexNode, true);</pre>
+</div>
 </li>
-<li><div> Same for Triangle Counts. If your game runs sluggishly and triangle count is high, then you are rendering too many too detailed meshes.</div>
+<li><div> Same for Triangle Counts. If your game runs sluggishly and triangle (polygon) count is high, then you are rendering too many too detailed meshes. Tell your graphic designers to create models with lower polygon counts.</div>
 </li>
-<li><div> FrameBuffers: If you don&#039;t use any post-processing effects (FilterPostProcessor), this count should be zero. The more effects you use, the more FrameBuffers are in use.</div>
+<li><div> FrameBuffers: If you don&#039;t use any post-processing effects (FilterPostProcessor), this count should be zero. The more effects you use, the more FrameBuffers are in use. If this value is high while others are normal, you can speed up the application by using fewer post-processing effects.</div>
 </li>
 </ul>
 <div><span>

@@ -8,8 +8,8 @@
 <div>
 
 <p>
-Since bullet is not (yet) multithreaded or GPU accelerated the jME3 implementation allows to run each physics space on a separate thread that is executed in parallel to rendering.
 
+Since bullet is not (yet) multithreaded or GPU accelerated, the jME3 implementation allows to run each physics space on a separate thread that is executed in parallel to rendering.
 </p>
 
 </div>
@@ -18,24 +18,41 @@ Since bullet is not (yet) multithreaded or GPU accelerated the jME3 implementati
 <div>
 
 <p>
+
 A SimpleApplication with a BulletAppState allows setting the threading type via 
 </p>
 <pre>setThreadingType(ThreadingType type);</pre>
 
 <p>
- where ThreadingType can be either SEQUENTIAL or PARALLEL.
+ where ThreadingType can be either SEQUENTIAL or PARALLEL. By default, it&#039;s SEQUENTIAL.
 </p>
 
 <p>
-In the simpleInitApp() method:
-
+You can activate PARALLEL threading in the simpleInitApp() method:
 </p>
 <pre>bulletAppState = new BulletAppState&#40;&#41;;
 bulletAppState.setThreadingType&#40;BulletAppState.ThreadingType.PARALLEL&#41;;
 stateManager.attach&#40;bulletAppState&#41;;</pre>
 
 <p>
-The physics update happens in parallel to rendering, after the users changes have been made in the update() call. This way the loop logic is still maintained: the user can set and change values in physics and scenegraph objects before render() and physicsUpdate() are called in parallel. More physics spaces can simply be added by using multiple bulletAppStates.
+Now the physics update happens in parallel to render(), that is, after the user&#039;s changes in the update() call have been applied. During update() the physics update loop pauses. This way the loop logic is still maintained: the user can set and change values in physics and scenegraph objects before render() and physicsUpdate() are called in parallel. This allows you to use physics methods in update() as if it was single-threaded.
+</p>
+<div><table>
+	<tr>
+		<th>PARALLEL</th><th>SEQUENTIAL</th>
+	</tr>
+	<tr>
+		<td>1. update(), 2. render() and physics update().</td><td>1. update(), 2. render(), 3. physics update().  </td>
+	</tr>
+	<tr>
+		<td>Physics Debug View is rendered inaccurately (out of sync)</td><td>Physics Debug View is rendered accurately.</td>
+	</tr>
+</table></div>
+<!-- EDIT1 TABLE [1202-1424] -->
+<p>
+
+<p><div>You can add more physics spaces by using multiple PARALLEL bulletAppStates. You would do that if you have sets physical objects that never collide (for example, underground bolders and flying cannon balls above ground), so you put those into separate physics spaces, which improves performances (less collisions to check!). 
+</div></p>
 </p>
 <div><span>
 	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,

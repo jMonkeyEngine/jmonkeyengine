@@ -199,10 +199,10 @@ In a real game, you would load a scene model here instead of a test world. You c
 ..
 public void simpleInitApp&#40;&#41; &#123;
   ...
-  //assetManager.registerLocator(&quot;quake3level.zip&quot;, ZipLocator.class.getName());
+  //assetManager.registerLocator(&quot;quake3level.zip&quot;, ZipLocator.class);
   assetManager.registerLocator&#40;
   &quot;http://jmonkeyengine.googlecode.com/files/quake3level.zip&quot;,
-    HttpZipLocator.class.getName&#40;&#41;&#41;;
+    HttpZipLocator.class&#41;;
   MaterialList matList = &#40;MaterialList&#41; assetManager.loadAsset&#40;&quot;Scene.material&quot;&#41;;
   OgreMeshKey key = new OgreMeshKey&#40;&quot;main.meshxml&quot;, matList&#41;;
   gameLevel = &#40;Node&#41; assetManager.loadAsset&#40;key&#41;;

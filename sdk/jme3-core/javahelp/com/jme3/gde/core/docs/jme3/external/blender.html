@@ -1,0 +1,91 @@
+
+<h1><a>Creating jME3 models in Blender3D</a></h1>
+<div>
+
+<p>
+This section discusses how to create and import models from Blender3D (2.62+, see bottom of page for Blender 2.49 and before) to jME3.
+</p>
+
+</div>
+
+<h2><a>Asset Management</a></h2>
+<div>
+
+<p>
+For the managing of assets in general, be sure to read the <a href="/com/jme3/gde/core/docs/jme3/intermediate/multi-media_asset_pipeline.html">Asset Pipeline Documentation</a>. It contains vital information on how to manage your asset files.
+</p>
+
+</div>
+
+<h2><a>Creation Process</a></h2>
+<div>
+
+<p>
+To export an animated model in Blender make sure the following conditions are met:
+
+</p>
+<ol>
+<li><div> Apply Location, Rotation and Scate to the mesh on Blender: On 3D View editor on Blender, select the mesh in Object Mode and go to the 3D View Editor’s header → Object Menu → Apply → Location / Rotation / Location.</div>
+</li>
+<li><div> Apply Location, Rotation and Scate to the armature on Blender: On 3D View editor on Blender, select the armature in Object Mode and go to the 3D View Editor’s header → Object Menu → Apply → Location / Rotation / Location.</div>
+</li>
+<li><div> Set the mesh’s origin point in the bottom of the mesh (see the images bellow).</div>
+</li>
+<li><div> Set the armature’s origin point in the bottom of the armature (see the images bellow).</div>
+</li>
+<li><div> Armature’s origin point and mesh’s origin point must be in the same location(see the images bellow).</div>
+</li>
+<li><div> Use a root bone located in the armature’s origin. This root bone must be in vertical position (see the images bellow) and it is the root bone of the armature. If you rotate the root bone, the the entire armature might be rotate when you import the model into jMonkey (I’m just mentioning the result, I don’t know where is the problem (jmonkey importer or blender’s ogre exporter plugin)).</div>
+</li>
+<li><div> Uncheck “Bone Envelopes” checkbox on the Armature modifier for the mesh (see the images bellow).</div>
+</li>
+<li><div> Uncheck “Envelopes” checkbox on the armature (see the images bellow).</div>
+</li>
+<li><div> Use SkeletonDebugger to show the skeleton on your game in order to check if the mesh and the skeleton are loaded correctly:</div>
+</li>
+</ol>
+<pre>    final Material soldier2Mat = assetManager.loadMaterial&#40;&quot;Materials/soldier2/soldier2.j3m&quot;&#41;;
+    final Spatial soldier2 = assetManager.loadModel&#40;&quot;Models/soldier2/soldier2.j3o&quot;&#41;;
+    TangentBinormalGenerator.generate&#40;soldier2&#41;;
+    soldier2.setMaterial&#40;soldier2Mat&#41;;
+&nbsp;
+    final Node soldier2Node = new Node&#40;&quot;Soldier2 Node&quot;&#41;;
+&nbsp;
+    soldier2Node.attachChild&#40;soldier2&#41;;
+    rootNode.attachChild&#40;soldier2Node&#41;;
+&nbsp;
+    final AnimControl control = soldier2.getControl&#40;AnimControl.class&#41;;
+    control.addListener&#40;this&#41;;
+    final AnimChanel channel = control.createChannel&#40;&#41;;
+&nbsp;
+    final SkeletonDebugger skeletonDebug = new SkeletonDebugger&#40;&quot;skeleton&quot;, control.getSkeleton&#40;&#41;&#41;;
+    final Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Green&#41;;
+    mat.getAdditionalRenderState&#40;&#41;.setDepthTest&#40;false&#41;;
+    skeletonDebug.setMaterial&#40;mat&#41;;
+    soldier2Node.attachChild&#40;skeletonDebug&#41;;</pre>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/external/blender_rootbone.png">
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/external/blender_apply_mesh.png">
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/external/blender_apply_bones.png">
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/external/blender_envelopes.png">
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/external/blender_finished.png">
+</p>
+
+<p>
+Also check out these videos and resources:
+
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/import-assets/forum/topic/blender-2-61-animation-issues/?topic_page=2&amp;num=15"><param name="text" value="<html><u>Forum: How to import animated models from Blender 2.6 correctly</u></html>"><param name="textColor" value="blue"></object> (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://www.youtube.com/watch?v=QiLCs4AKh28"><param name="text" value="<html><u>Video</u></html>"><param name="textColor" value="blue"></object>)</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.youtube.com/watch?v=NdjC9sCRV0s"><param name="text" value="<html><u>Video tutorial for animated models from Blender 2.6</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://docs.google.com/fileview?id=0B9hhZie2D-fENDBlZDU5MzgtNzlkYi00YmQzLTliNTQtNzZhYTJhYjEzNWNk&amp;hl=en"><param name="text" value="<html><u>Exporting OgreXML scenes from Blender 2.49 to jME</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:external:blender?do=export_xhtmlbody">view online version</a></em></p>

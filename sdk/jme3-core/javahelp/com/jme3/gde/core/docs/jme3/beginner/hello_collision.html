@@ -88,7 +88,7 @@ public class HelloCollision extends SimpleApplication
     setUpLight&#40;&#41;;
 &nbsp;
     // We load the scene from the zip file and adjust its size.
-    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
+    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class&#41;;
     sceneModel = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
     sceneModel.setLocalScale&#40;2f&#41;;
 &nbsp;
@@ -268,7 +268,7 @@ The first thing you do in every physics game is create a BulletAppState object. 
 <p>
 For the scene, you load the <code>sceneModel</code> from a zip file, and adjust the size.
 </p>
-<pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
+<pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class&#41;;
     sceneModel = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
     sceneModel.setLocalScale&#40;2f&#41;;</pre>
 

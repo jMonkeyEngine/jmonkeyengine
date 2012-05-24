@@ -35,7 +35,7 @@ You have two options how to create HUDs.
 		<th>Option</th><th>Pros</th><th>Cons</th>
 	</tr>
 	<tr>
-		<th>Attach elements to default guiNode:</th><td>Easy to learn. jMonkeyEngine built-in <acronym title="Application Programming Interface">API</acronym> for attaching images and bitmap text.</td><td>Only basic features. <br/>
+		<th>Attach elements to default guiNode:</th><td>Easy to learn. jMonkeyEngine built-in <acronym title="Application Programming Interface">API</acronym> for attaching plain images and bitmap text.</td><td>Only basic features. <br/>
 You will have to write custom controls / buttons / effects if you need them.</td>
 	</tr>
 	<tr>
@@ -44,7 +44,12 @@ Includes buttons, effects, controls. <br/>
 Supports <acronym title="Extensible Markup Language">XML</acronym> and Java layouts.</td><td>Steeper learning curve.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [834-1253] -->
+<!-- EDIT1 TABLE [834-1259] -->
+<p>
+
+Using the <acronym title="Graphical User Interface">GUI</acronym> Node is the default approach in jme3 to create simple HUDs. If you just quickly want to display a line of text, or a simple icon on the screen, use the no-frills <acronym title="Graphical User Interface">GUI</acronym> Node, it&#039;s easier.
+</p>
+
 </div>
 
 <h2><a>Simple HUD: GUI Node</a></h2>
@@ -52,18 +57,14 @@ Supports <acronym title="Extensible Markup Language">XML</acronym> and Java layo
 
 <p>
 
-Using the <acronym title="Graphical User Interface">GUI</acronym> Node is the default approach in jme3 to create simple HUDs. If you just quickly want to display a line of text, or a simple icon on the screen, use this no-frills method.
-</p>
-
-<p>
-Next to the rootNode for the 3-dimensional scene graph, jME3 also offers a 2-dimension (orthogonal) node, the <code>guiNode</code>. 
+You already know the <code>rootNode</code> that holds the 3-dimensional scene graph. jME3 also offers a 2-dimension (orthogonal) node, the <code>guiNode</code>. 
 </p>
 
 <p>
 This is how you use the guiNode for HUDs:
 </p>
 <ul>
-<li><div> Create a <acronym title="Graphical User Interface">GUI</acronym> element: BitmapText or Picture.</div>
+<li><div> Create a <acronym title="Graphical User Interface">GUI</acronym> element: a BitmapText or Picture object.</div>
 </li>
 <li><div> Attach the element to the guiNode. </div>
 </li>
@@ -76,13 +77,14 @@ The BitmapTexts and Pictures appear as 2 dimensional element on the screen.
 </p>
 
 <p>
-<strong>Note:</strong> The size unit for the guiNode is pixels, not world units. 
+<p><div>By default, the guiNode has some scene graph statistics attached. To clear the guiNode before you attach your own <acronym title="Graphical User Interface">GUI</acronym> elements, use the following methods: 
 </p>
+<pre>setDisplayStatView&#40;false&#41;; setDisplayFps&#40;false&#41;;</pre>
 
 <p>
-By default, the guiNode has some scene graph statistics attached in SimpleApplication. To clear the guiNode and attach your own <acronym title="Graphical User Interface">GUI</acronym> elements, you detach all children.
+
+</div></p>
 </p>
-<pre>guiNode.detachAllChildren&#40;&#41;;</pre>
 
 </div>
 
@@ -128,26 +130,31 @@ hudText = new BitmapText(myFont, false);</pre>
 
 </div>
 
+<h3><a>Positioning HUD Elements</a></h3>
+<div>
+<ul>
+<li><div> When positioning <acronym title="Graphical User Interface">GUI</acronym> text and images in 2D, the <strong>bottom left corner</strong> of the screen is <code>(0f,0f)</code>, and the <strong>top right corner</strong> is at <code>(settings.getWidth(),settings.getHeight())</code>.</div>
+</li>
+<li><div> If you have several 2D elements in the <acronym title="Graphical User Interface">GUI</acronym> bucket that overlap, define their depth order by specifing a Z value. For example use <code>pic.move(x, y, -1)</code> to move the picture to the background, or <code>hudText.setLocalTranslation(x,y,1)</code> to move text to the foreground.</div>
+</li>
+<li><div> Size and length values in the orthogonal render queue are treated like pixels. A 20*20-wu big quad is rendered 20 pixels wide.</div>
+</li>
+</ul>
+
+</div>
+
 <h3><a>Displaying Geometries in the HUD</a></h3>
 <div>
 
 <p>
 
-It is technically possible to attach Quads and 3D Geometries to the HUD. They show up as flat, static <acronym title="Graphical User Interface">GUI</acronym> elements. Note that if you use a lit Material, you must add a light to the guiNode. Also remember that size units are pixels in the HUD (a 2-wu cube is displayed tiny 2 pixels wide!). 
+It is technically possible to attach Quads and 3D Geometries to the HUD. They show up as flat, static <acronym title="Graphical User Interface">GUI</acronym> elements. The size unit for the guiNode is pixels, not world units. If you attach a Geometry that uses a lit Material, you must add a light to the guiNode. 
 </p>
 
-</div>
-
-<h3><a>Positioning HUD Elements</a></h3>
-<div>
-<ul>
-<li><div> When positioning text and images in 2D, the bottom left corner of the screen is <code>(0f,0f)</code>, and the top right corner is at <code>(settings.getWidth(),settings.getHeight())</code>.</div>
-</li>
-<li><div> If you have several 2D elements in the <acronym title="Graphical User Interface">GUI</acronym> bucket that overlap, define their depth order by specifing a Z value. You can use <code>pic.move(x, y, -2)</code> or <code>hudText.setLocalTranslation(x,y,-2)</code>.</div>
-</li>
-<li><div> Size and length values in the orthogonal render queue are treated like pixels. A 20*20-wu big quad is rendered 20 pixels wide.</div>
-</li>
-</ul>
+<p>
+<p><div>If you don&#039;t see an attached object in the <acronym title="Graphical User Interface">GUI</acronym>, check it&#039;s position and material (add a light to guiNode). Also verify whether it is not too tiny to be seen. For comparison: A 1 world-unit wide cube is only 1 pixel wide when attached to the guiNode! You may need to scale it bigger.
+</div></p>
+</p>
 
 </div>
 

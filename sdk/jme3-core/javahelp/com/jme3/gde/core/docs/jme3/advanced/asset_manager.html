@@ -126,7 +126,7 @@ Loading a model:
 Loading a scene from an Ogre3D dotScene file stored inside a zip:
 
 </p>
-<pre>assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
+<pre>assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class&#41;;
 Spatial scene = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
 rootNode.attachChild&#40;scene&#41;;</pre>
 
@@ -134,7 +134,7 @@ rootNode.attachChild&#40;scene&#41;;</pre>
 Alternatively to ZipLocator, there is also a HttpZipLocator that can stream models from a zip file online:
 </p>
 <pre>assetManager.registerLocator&#40;&quot;http://jmonkeyengine.googlecode.com/files/wildhouse.zip&quot;, 
-                             HttpZipLocator.class.getName&#40;&#41;&#41;;
+                             HttpZipLocator.class&#41;;
 Spatial scene = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
 rootNode.attachChild&#40;scene&#41;;</pre>
 
@@ -175,7 +175,7 @@ rootNode.attachChild&#40;scene&#41;;</pre>
 </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [6199-7127] -->
+<!-- EDIT1 TABLE [6179-7107] -->
 </div>
 
 <h2><a>NullPointerException: Cannot locate resource?</a></h2>

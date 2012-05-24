@@ -62,6 +62,8 @@ Use <span><a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">C
 </li>
 <li><div> A Control only has access to and control over the Spatial it is attached to.</div>
 </li>
+<li><div> Controls can be saved as .j3o file together with a Spatial. </div>
+</li>
 </ul>
 
 <p>
@@ -218,7 +220,7 @@ See also:
 
 <p>
 
-<p><div>If you want to create a Control that also extends another existing class (rare, but possible), then create a custom extension of the Control Interface. You custom Control implements your custom interface.
+<p><div>In the less common case that you want to create a Control that also extends another class, create a custom interface that  extends jME3&#039;s Control interface. Your class can become a Control by implement the Control interface, and at the same time extend another class.
 </div></p>
 </p>
 

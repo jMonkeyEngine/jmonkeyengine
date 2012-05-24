@@ -215,7 +215,7 @@ What if your game relies on user supplied model files, that are not included in 
 <p>
 Here is a usage example of a ZipLocator that is registered to a file <code>town.zip</code> in the top level of your project directory:
 </p>
-<pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
+<pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class&#41;;
     Spatial scene = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
     rootNode.attachChild&#40;scene&#41;;</pre>
 
@@ -224,7 +224,7 @@ Here is a HttpZipLocator that can download zipped models and load them:
 </p>
 <pre>    assetManager.registerLocator&#40;
       &quot;http://jmonkeyengine.googlecode.com/files/wildhouse.zip&quot;, 
-      HttpZipLocator.class.getName&#40;&#41;&#41;;
+      HttpZipLocator.class&#41;;
     Spatial scene = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
     rootNode.attachChild&#40;scene&#41;;</pre>
 
@@ -346,7 +346,7 @@ rootNode.attachChild&#40;scene&#41;;</pre>
 </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [10838-11892] -->
+<!-- EDIT1 TABLE [10818-11872] -->
 </div>
 
 <h2><a>Excercise - How to Load Assets</a></h2>
@@ -378,7 +378,7 @@ Use the following method to load models from a zip file:
 <ol>
 <li><div> Verify <code>town.zip</code> is in the project directory.</div>
 </li>
-<li><div> Register a zip file locator to the project directory: Add the following code under <code>simpleInitApp() {</code><pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;
+<li><div> Register a zip file locator to the project directory: Add the following code under <code>simpleInitApp() {</code><pre>    assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class&#41;;
     Spatial gameLevel = assetManager.loadModel&#40;&quot;main.scene&quot;&#41;;
     gameLevel.setLocalTranslation&#40;0, -5.2f, 0&#41;;
     gameLevel.setLocalScale&#40;2&#41;;
@@ -472,11 +472,7 @@ Let&#039;s add some action to the scene and continue with the <a href="/com/jme3
 <strong>See also:</strong>
 </p>
 <ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/import-assets/forum/topic/blender-2-61-animation-issues/?topic_page=2&amp;num=15"><param name="text" value="<html><u>Forum: How to import animated models from Blender 2.6 correctly</u></html>"><param name="textColor" value="blue"></object> (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://www.youtube.com/watch?v=QiLCs4AKh28"><param name="text" value="<html><u>Video</u></html>"><param name="textColor" value="blue"></object>)</div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.youtube.com/watch?v=NdjC9sCRV0s"><param name="text" value="<html><u>Video tutorial for animated models from Blender 2.6</u></html>"><param name="textColor" value="blue"></object></div>
-</li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://docs.google.com/fileview?id=0B9hhZie2D-fENDBlZDU5MzgtNzlkYi00YmQzLTliNTQtNzZhYTJhYjEzNWNk&amp;hl=en"><param name="text" value="<html><u>Exporting OgreXML scenes from Blender to jME</u></html>"><param name="textColor" value="blue"></object> </div>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/external/blender.html">The definitive Blender import tutorial</a></div>
 </li>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/forum/index.php?topic=14418.0"><param name="text" value="<html><u>Screenshots of a great loaded model</u></html>"><param name="textColor" value="blue"></object></div>
 </li>

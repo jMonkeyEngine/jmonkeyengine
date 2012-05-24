@@ -146,7 +146,7 @@ If you are not using the default <code>assets</code> directory, verify that you 
 </p>
 <pre>this.assetManager.registerLocator&#40;&quot;assets/&quot;, FileLocator.class&#41;; // default
 this.assetManager.registerLocator&#40;&quot;c:/jme3User/JMEisSoCool/myAwesomeFolder/&quot;, FileLocator.class&#41;;
-this.assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class.getName&#40;&#41;&#41;;</pre>
+this.assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class&#41;;</pre>
 
 <p>
 
@@ -556,7 +556,10 @@ Use a PhysicsControl&#039;s hinges and joints.
 <div>
 
 <p>
-At the bottom left of every default SimpleGame, you see the <a href="/com/jme3/gde/core/docs/jme3/advanced/statsview.html">StatsView</a> and the FPS (frames per seconds) view. It provides you with extra information during the development phase. For example, if the object count is increasing and the FPS slows down, then you now that your code attaches too many and does not detach enough objects.
+At the bottom left of every default SimpleGame, you see the <a href="/com/jme3/gde/core/docs/jme3/advanced/statsview.html">StatsView</a> and the FPS (frames per seconds) view. These views provide you with extra information during the development phase. For example, if you notice the object count is increasing and the FPS is decreasing, then you know that your code attaches too many objects and does not detach enough of them again (maybe a loop gone wild?).
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/statsview.html">StatsView</a>
+
 </p>
 
 </div>
@@ -570,6 +573,13 @@ In the application&#039;s simpleInitApp() method, call:
 </p>
 <pre>setDisplayFps(false); // to hide the FPS
 setDisplayStatView(false); // to hide the statistics </pre>
+
+<p>
+
+<br/>
+<strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/advanced/statsview.html">StatsView</a>
+
+</p>
 
 </div>
 
