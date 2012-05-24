@@ -37,7 +37,7 @@ The main purpose of the Vertex shader is to compute the screen coordinate of a v
 
 This is a very simplified graphic to describe the call stack: <br/>
 
-<img src="/wiki/lib/exe/fetch.php"><br/>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/jme3andshaders.png"><br/>
 
 The main program sends mesh data to the vertex shader (vertex position in object space, normals, tangents, etc..). The vertex shader computes the screen position of the vertex and sends it to the Fragment shader. The fragment shader computes the color, and the result is displayed on screen or in a texture.
 <br/>
@@ -78,7 +78,7 @@ There is a large panel of variable types to be used, for more information about 
 <p>
 To understand the coming example you must know about the different spaces in 3D computer graphics, and the matrices used to translate coordinate from one space to another.<br/>
 
-<img src="/wiki/lib/exe/fetch.php"><br/>
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/advanced/jme3andshaders-1.png"><br/>
 
 The engine passes the object space coordinates to the vertex shader. We need to compute its position in projection space. To do that we transform the object space position by the WorldViewProjectionMatrix which is a combination of the World, View, Projection matrices (who would have guessed?).<br/>
 
@@ -452,7 +452,7 @@ Those attributes are deprecated since GLSL 1.3 (opengl 3), hence JME3 global uni
 		<td>gl_NormalMatrix	</td><td>g_NormalMatrix</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [11389-11700] -->
+<!-- EDIT1 TABLE [11313-11624] -->
 </div>
 
 <h3><a>Useful links</a></h3>
