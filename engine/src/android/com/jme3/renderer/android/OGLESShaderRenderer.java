@@ -131,40 +131,45 @@ public class OGLESShaderRenderer implements Renderer {
     public EnumSet<Caps> getCaps() {
         return caps;
     }
+    
+    private int extractVersion(String prefixStr, String versionStr) {
+        if (versionStr != null) {
+            int spaceIdx = versionStr.indexOf(" ", prefixStr.length());
+            if (spaceIdx >= 1) {
+                versionStr = versionStr.substring(prefixStr.length(), spaceIdx).trim();
+            } else {
+                versionStr = versionStr.substring(prefixStr.length()).trim();
+            }
+            float version = Float.parseFloat(versionStr);
+            return (int) (version * 100);
+        } else {
+            return -1;
+        }
+    }
 
     public void initialize() {
         logger.log(Level.INFO, "Vendor: {0}", GLES20.glGetString(GLES20.GL_VENDOR));
         logger.log(Level.INFO, "Renderer: {0}", GLES20.glGetString(GLES20.GL_RENDERER));
         logger.log(Level.INFO, "Version: {0}", GLES20.glGetString(GLES20.GL_VERSION));
-
+        logger.log(Level.INFO, "Shading Language Version: {0}", GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION));
+        
         powerVr = GLES20.glGetString(GLES20.GL_RENDERER).contains("PowerVR");
         
-        String versionStr = GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION);
-        logger.log(Level.INFO, "GLES20.Shading Language Version: {0}", versionStr);
-        if (versionStr == null || versionStr.equals("")) {
-            glslVer = -1;
-            throw new UnsupportedOperationException("GLSL and OpenGL2 is "
-                    + "required for the OpenGL ES "
-                    + "renderer!");
-        }
-
         // Fix issue in TestRenderToMemory when GL_FRONT is the main
         // buffer being used.
 
 //        initialDrawBuf = GLES20.glGetIntegeri(GLES20.GL_DRAW_BUFFER);
 //        initialReadBuf = GLES20.glGetIntegeri(GLES20.GL_READ_BUFFER);
 
-        String openGlEsStr = "OpenGL ES GLSL ES ";
-        int spaceIdx = versionStr.indexOf(" ", openGlEsStr.length());
-        if (spaceIdx >= 1) {
-            versionStr = versionStr.substring(openGlEsStr.length(), spaceIdx).trim();
-        }else{
-            versionStr = versionStr.substring(openGlEsStr.length()).trim();
+        // Check OpenGL version 
+        int openGlVer = extractVersion("OpenGL ES ", GLES20.glGetString(GLES20.GL_VERSION));
+        if (openGlVer == -1) {
+            glslVer = -1;
+            throw new UnsupportedOperationException("OpenGL ES 2.0+ is required for OGLESShaderRenderer!");
         }
-
-        float version = Float.parseFloat(versionStr);
-        glslVer = (int) (version * 100);
-
+        
+        // Check shader language version
+        glslVer = extractVersion("OpenGL ES GLSL ES ", GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION));
         switch (glslVer) {
             // TODO: When new versions of OpenGL ES shader language come out, 
             // update this.
@@ -172,12 +177,7 @@ public class OGLESShaderRenderer implements Renderer {
                 caps.add(Caps.GLSL100);
                 break;
         }
-
-        if (!caps.contains(Caps.GLSL100)) {
-            logger.warning("Force-adding GLSL100 support, since OpenGL2 is supported.");
-            caps.add(Caps.GLSL100);
-        }
-
+        
         GLES20.glGetIntegerv(GLES20.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, intBuf16);
         vertexTextureUnits = intBuf16.get(0);
         logger.log(Level.INFO, "VTF Units: {0}", vertexTextureUnits);
