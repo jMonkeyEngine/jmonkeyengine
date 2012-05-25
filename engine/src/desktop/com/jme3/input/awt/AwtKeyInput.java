@@ -39,6 +39,8 @@ import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -55,7 +57,8 @@ public class AwtKeyInput implements KeyInput, KeyListener {
     private final ArrayList<KeyInputEvent> eventQueue = new ArrayList<KeyInputEvent>();
     private RawInputListener listener;
     private Component component;
-
+    private BitSet keyStateSet = new BitSet(0xFF);
+    
     public AwtKeyInput(){
     }
 
@@ -70,6 +73,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
             if (component != null){
                 component.removeKeyListener(this);
                 eventQueue.clear();
+                keyStateSet.clear();
             }
             component = comp;
             component.addKeyListener(this);
@@ -104,29 +108,35 @@ public class AwtKeyInput implements KeyInput, KeyListener {
 
     public void keyTyped(KeyEvent evt) {
         // key code is zero for typed events
-//        int code = 0;
-//        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, true);
-//        keyEvent.setTime(evt.getWhen());
-//        synchronized (eventQueue){
-//            eventQueue.add(keyEvent);
-//        }
     }
 
     public void keyPressed(KeyEvent evt) {
         int code = convertAwtKey(evt.getKeyCode());
-        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
-        keyEvent.setTime(evt.getWhen());
-        synchronized (eventQueue){
-            eventQueue.add(keyEvent);
+        
+        // Check if key was already pressed
+        if (!keyStateSet.get(code)){
+            keyStateSet.set(code);
+            KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
+            keyEvent.setTime(evt.getWhen());
+            synchronized (eventQueue){
+                eventQueue.add(keyEvent);
+            }
+            System.out.println(evt);
         }
     }
 
     public void keyReleased(KeyEvent evt) {
         int code = convertAwtKey(evt.getKeyCode());
-        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
-        keyEvent.setTime(evt.getWhen());
-        synchronized (eventQueue){
-            eventQueue.add(keyEvent);
+        
+        // Check if key was already released
+        if (keyStateSet.get(code)) {
+            keyStateSet.clear(code);
+            KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
+            keyEvent.setTime(evt.getWhen());
+            synchronized (eventQueue){
+                eventQueue.add(keyEvent);
+            }
+            System.out.println(evt);
         }
     }
 
@@ -365,7 +375,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
             case KEY_RMENU:
                 return KeyEvent.VK_ALT; //todo: location right
         }
-        logger.warning("unsupported key:" + key);
+        logger.log(Level.WARNING, "unsupported key:{0}", key);
         return 0x10000 + key;
     }
 
@@ -595,7 +605,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
             	return KEY_RCONTROL;
 
         }
-        logger.warning( "unsupported key:" + key );
+        logger.log( Level.WARNING, "unsupported key:{0}", key);
         if ( key >= 0x10000 ) {
             return key - 0x10000;
         }

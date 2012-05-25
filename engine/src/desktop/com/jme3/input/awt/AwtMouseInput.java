@@ -89,21 +89,21 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         centerLocationOnScreen = new Point();
         lastKnownLocation = new Point();
 
-        try{
+        try {
             robot = new Robot();
-        }catch (java.awt.AWTException e){
+        } catch (java.awt.AWTException e) {
             logger.log(Level.SEVERE, "Could not create a robot, so the mouse cannot be grabbed! ", e);
         }
     }
     
-    public void setInputSource(Component comp){
-        if (component != null){
+    public void setInputSource(Component comp) {
+        if (component != null) {
             component.removeMouseListener(this);
             component.removeMouseMotionListener(this);
             component.removeMouseWheelListener(this);
-            
+
             eventQueue.clear();
-            
+
             wheelPos = 0;
             isRecentering = false;
             eventsSinceRecenter = 0;
@@ -132,7 +132,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         return true;
     }
 
-    public void setInputListener(RawInputListener listener){
+    public void setInputListener(RawInputListener listener) {
         this.listener = listener;
     }
 
@@ -140,25 +140,25 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         return System.nanoTime();
     }
 
-    public void setCursorVisible(boolean visible){
-        if (this.visible != visible){
-            
+    public void setCursorVisible(boolean visible) {
+        if (this.visible != visible) {
             lastKnownLocation.x = lastKnownLocation.y = 0;
-            
+
             this.visible = visible;
             final boolean newVisible = visible;
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     component.setCursor(newVisible ? null : getTransparentCursor());
-                    if (!newVisible)
+                    if (!newVisible) {
                         recenterMouse(component);
+                    }
                 }
             });
         }
     }
 
     public void update() {
-        if (cursorMoved){
+        if (cursorMoved) {
             int newX = location.x;
             int newY = location.y;
             int newWheel = wheelPos;
@@ -175,24 +175,24 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
             lastEventX = newX;
             lastEventY = newY;
             lastEventWheel = newWheel;
-            
+
             cursorMoved = false;
         }
 
-        synchronized (eventQueue){
+        synchronized (eventQueue) {
             eventQueueCopy.clear();
             eventQueueCopy.addAll(eventQueue);
             eventQueue.clear();
         }
-        
+
         int size = eventQueueCopy.size();
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             listener.onMouseButtonEvent(eventQueueCopy.get(i));
         }
     }
 
     private Cursor getTransparentCursor() {
-        if (transparentCursor == null){
+        if (transparentCursor == null) {
             BufferedImage cursorImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
             cursorImage.setRGB(0, 0, 0);
             transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImage, new Point(0, 0), "empty cursor");
@@ -214,70 +214,72 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         return 3;
     }
 
-    public void mouseClicked(MouseEvent arg0) {
+    public void mouseClicked(MouseEvent awtEvt) {
 //        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(arg0), false);
 //        listener.onMouseButtonEvent(evt);
     }
 
-    public void mousePressed(MouseEvent arg0) {
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(arg0), true, arg0.getX(), arg0.getY());
-        evt.setTime(arg0.getWhen());
-        synchronized (eventQueue){
+    public void mousePressed(MouseEvent awtEvt) {
+        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), true, awtEvt.getX(), awtEvt.getY());
+        evt.setTime(awtEvt.getWhen());
+        synchronized (eventQueue) {
             eventQueue.add(evt);
         }
     }
 
-    public void mouseReleased(MouseEvent arg0) {
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(arg0), false, arg0.getX(), arg0.getY());
-        evt.setTime(arg0.getWhen());
-        synchronized (eventQueue){
+    public void mouseReleased(MouseEvent awtEvt) {
+        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), false, awtEvt.getX(), awtEvt.getY());
+        evt.setTime(awtEvt.getWhen());
+        synchronized (eventQueue) {
             eventQueue.add(evt);
         }
     }
 
-    public void mouseEntered(MouseEvent arg0) {
-        if (!visible)
-            recenterMouse(arg0.getComponent());
+    public void mouseEntered(MouseEvent awtEvt) {
+        if (!visible) {
+            recenterMouse(awtEvt.getComponent());
+        }
     }
 
-    public void mouseExited(MouseEvent arg0) {
-        if (!visible)
-            recenterMouse(arg0.getComponent());
+    public void mouseExited(MouseEvent awtEvt) {
+        if (!visible) {
+            recenterMouse(awtEvt.getComponent());
+        }
     }
 
-    public void mouseWheelMoved(MouseWheelEvent arg0) {
-        int dwheel = arg0.getUnitsToScroll();
+    public void mouseWheelMoved(MouseWheelEvent awtEvt) {
+        int dwheel = awtEvt.getUnitsToScroll();
         wheelPos += dwheel * WHEEL_AMP;
         cursorMoved = true;
     }
 
-    public void mouseDragged(MouseEvent arg0) {
-        mouseMoved(arg0);
+    public void mouseDragged(MouseEvent awtEvt) {
+        mouseMoved(awtEvt);
     }
 
-    public void mouseMoved(MouseEvent arg0) {
+    public void mouseMoved(MouseEvent awtEvt) {
         if (isRecentering) {
             // MHenze (cylab) Fix Issue 35:
             // As long as the MouseInput is in recentering mode, nothing is done until the mouse is entered in the component
             // by the events generated by the robot. If this happens, the last known location is resetted.
-            if ((centerLocation.x == arg0.getX() && centerLocation.y == arg0.getY()) || eventsSinceRecenter++ == 5) {
-                lastKnownLocation.x = arg0.getX();
-                lastKnownLocation.y = arg0.getY();
+            if ((centerLocation.x == awtEvt.getX() && centerLocation.y == awtEvt.getY()) || eventsSinceRecenter++ == 5) {
+                lastKnownLocation.x = awtEvt.getX();
+                lastKnownLocation.y = awtEvt.getY();
                 isRecentering = false;
             }
         } else {
             // MHenze (cylab) Fix Issue 35:
             // Compute the delta and absolute coordinates and recenter the mouse if necessary
-            int dx = arg0.getX() - lastKnownLocation.x;
-            int dy = arg0.getY() - lastKnownLocation.y;
+            int dx = awtEvt.getX() - lastKnownLocation.x;
+            int dy = awtEvt.getY() - lastKnownLocation.y;
             location.x += dx;
             location.y += dy;
             if (!visible) {
-                recenterMouse(arg0.getComponent());
+                recenterMouse(awtEvt.getComponent());
             }
-            lastKnownLocation.x = arg0.getX();
-            lastKnownLocation.y = arg0.getY();
-            
+            lastKnownLocation.x = awtEvt.getX();
+            lastKnownLocation.y = awtEvt.getY();
+
             cursorMoved = true;
         }
     }
@@ -287,16 +289,16 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
         if (robot != null) {
             eventsSinceRecenter = 0;
             isRecentering = true;
-            centerLocation.setLocation(component.getWidth()/2, component.getHeight()/2);
+            centerLocation.setLocation(component.getWidth() / 2, component.getHeight() / 2);
             centerLocationOnScreen.setLocation(centerLocation);
             SwingUtilities.convertPointToScreen(centerLocationOnScreen, component);
             robot.mouseMove(centerLocationOnScreen.x, centerLocationOnScreen.y);
         }
     }
 
-    private int getJMEButtonIndex( MouseEvent arg0 ) {
+    private int getJMEButtonIndex(MouseEvent awtEvt) {
         int index;
-        switch (arg0.getButton()) {
+        switch (awtEvt.getButton()) {
             default:
             case MouseEvent.BUTTON1: //left
                 index = MouseInput.BUTTON_LEFT;
