@@ -51,7 +51,7 @@ public class TexturePixel implements Cloneable {
 	 * @param b
 	 *            the blue value
 	 */
-	public void fromARGB8(float a, float r, float g, float b) {
+	public void fromARGB(float a, float r, float g, float b) {
 		this.alpha = a;
 		this.red = r;
 		this.green = g;
@@ -75,6 +75,25 @@ public class TexturePixel implements Cloneable {
 		this.red = r >= 0 ? r / 255.0f : 1.0f - ~r / 255.0f;
 		this.green = g >= 0 ? g / 255.0f : 1.0f - ~g / 255.0f;
 		this.blue = b >= 0 ? b / 255.0f : 1.0f - ~b / 255.0f;
+	}
+	
+	/**
+	 * Copies the values from the given values.
+	 * 
+	 * @param a
+	 *            the alpha value
+	 * @param r
+	 *            the red value
+	 * @param g
+	 *            the green value
+	 * @param b
+	 *            the blue value
+	 */
+	public void fromARGB16(short a, short r, short g, short b) {
+		this.alpha = a >= 0 ? a / 65535.0f : 1.0f - ~a / 65535.0f;
+		this.red = r >= 0 ? r / 65535.0f : 1.0f - ~r / 65535.0f;
+		this.green = g >= 0 ? g / 65535.0f : 1.0f - ~g / 65535.0f;
+		this.blue = b >= 0 ? b / 65535.0f : 1.0f - ~b / 65535.0f;
 	}
 	
 	/**
@@ -213,6 +232,34 @@ public class TexturePixel implements Cloneable {
 	 */
 	public byte getB8() {
 		return (byte) (this.blue * 255.0f);
+	}
+	
+	/**
+	 * @return the alpha value of the pixel
+	 */
+	public short getA16() {
+		return (byte) (this.alpha * 65535.0f);
+	}
+	
+	/**
+	 * @return the alpha red of the pixel
+	 */
+	public short getR16() {
+		return (byte) (this.red * 65535.0f);
+	}
+	
+	/**
+	 * @return the green value of the pixel
+	 */
+	public short getG16() {
+		return (byte) (this.green * 65535.0f);
+	}
+	
+	/**
+	 * @return the blue value of the pixel
+	 */
+	public short getB16() {
+		return (byte) (this.blue * 65535.0f);
 	}
 	
 	/**

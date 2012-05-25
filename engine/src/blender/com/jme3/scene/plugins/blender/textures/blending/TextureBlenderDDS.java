@@ -99,7 +99,7 @@ public class TextureBlenderDDS extends TextureBlenderAWT {
 					colors[i].toRGBA(pixelColor);
 					pixelColor[3] = alphas[i];
 					this.blendPixel(resultPixel, compressedMaterialColor != null ? compressedMaterialColor[i] : materialColor, pixelColor, blenderContext);
-					colors[i].fromARGB8(1, resultPixel[0], resultPixel[1], resultPixel[2]);
+					colors[i].fromARGB(1, resultPixel[0], resultPixel[1], resultPixel[2]);
 					int argb8 = colors[i].toARGB8();
 					short rgb565 = RGB565.ARGB8_to_RGB565(argb8);
 					newData.putShort(rgb565);
