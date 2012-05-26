@@ -2,6 +2,7 @@ package com.jme3.scene.plugins.blender.textures.io;
 
 import java.nio.ByteBuffer;
 
+import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
 import com.jme3.texture.Image;
 
@@ -29,11 +30,11 @@ import com.jme3.texture.Image;
 				pixel.setAlpha(data.getShort(index + 2));
 				break;
 			case Luminance16F:
-				pixel.intensity = Float.intBitsToFloat(data.getShort(index));
+				pixel.intensity = FastMath.convertHalfToFloat(data.getShort(index));
 				break;
 			case Luminance16FAlpha16F:
-				pixel.intensity = Float.intBitsToFloat(data.getShort(index));
-				pixel.alpha = Float.intBitsToFloat(data.getShort(index + 2));
+				pixel.intensity = FastMath.convertHalfToFloat(data.getShort(index));
+				pixel.alpha = FastMath.convertHalfToFloat(data.getShort(index + 2));
 				break;
 			case Luminance32F:
 				pixel.intensity = Float.intBitsToFloat(data.getInt(index));
@@ -67,11 +68,11 @@ import com.jme3.texture.Image;
 				data.putShort(index + 2, (short) (pixel.alpha * 65535.0f));
 				break;
 			case Luminance16F:
-				pixel.intensity = Float.intBitsToFloat(data.getShort(index));
+				data.putShort(index, FastMath.convertFloatToHalf(pixel.intensity));
 				break;
 			case Luminance16FAlpha16F:
-				pixel.intensity = Float.intBitsToFloat(data.getShort(index));
-				pixel.alpha = Float.intBitsToFloat(data.getShort(index + 2));
+				data.putShort(index, FastMath.convertFloatToHalf(pixel.intensity));
+				data.putShort(index + 2, FastMath.convertFloatToHalf(pixel.alpha));
 				break;
 			case Luminance32F:
 				data.putInt(index, Float.floatToIntBits(pixel.intensity));
