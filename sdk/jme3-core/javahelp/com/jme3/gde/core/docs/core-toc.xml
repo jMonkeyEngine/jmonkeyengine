@@ -173,7 +173,8 @@
                 <tocitem text="Multiple Cameras" target="jme3.advanced.multiple_camera_views"/>
                 <tocitem text="Camera Follows Character" target="jme3.advanced.making_the_camera_follow_a_character"/>
                 <tocitem text="Remote-Control Camera" target="jme3.advanced.remote-controlling_the_camera"/>
-                <tocitem text="Screen Capture" target="jme3.advanced.screen_capture"/>
+                <tocitem text="Screen Capture" target="jme3.advanced.capture_audio_video_to_a_file"/>
+                <tocitem text="Screen Shots" target="jme3.advanced.screenshots"/>
             </tocitem>
             <tocitem text="User Interaction" expand="false">
                 <tocitem text="Input Handling" target="jme3.advanced.input_handling"/>
