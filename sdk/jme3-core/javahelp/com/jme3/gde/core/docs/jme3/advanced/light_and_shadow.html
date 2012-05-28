@@ -24,7 +24,7 @@ Light and Shadow are two separate things in 3D engines, although we percieve the
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Light and Shadow" [1-1017] -->
 <h2><a>Light Sources and Colors</a></h2>
 <div>
 
@@ -65,7 +65,7 @@ You can get a list of all lights added to a Spatial by calling <code>getWorldLig
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Light Sources and Colors" [1018-2059] -->
 <h3><a>PointLight</a></h3>
 <div>
 
@@ -88,7 +88,7 @@ lamp_light.setPosition&#40;new Vector3f&#40;lamp_geo.getLocalTranslation&#40;&#4
 rootNode.addLight&#40;lamp_light&#41;;</pre>
 
 </div>
-
+<!-- EDIT3 SECTION "PointLight" [2060-2762] -->
 <h3><a>DirectionalLight</a></h3>
 <div>
 
@@ -110,7 +110,7 @@ sun.setDirection&#40;new Vector3f&#40;-.5f,-.5f,-.5f&#41;.normalizeLocal&#40;&#4
 rootNode.addLight&#40;sun&#41;;</pre>
 
 </div>
-
+<!-- EDIT4 SECTION "DirectionalLight" [2763-3367] -->
 <h3><a>SpotLight</a></h3>
 <div>
 
@@ -140,7 +140,7 @@ If you want the spotlight to follow the flycam, repeat the setDirection(…) and
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "SpotLight" [3368-4502] -->
 <h3><a>AmbientLight</a></h3>
 <div>
 
@@ -163,7 +163,7 @@ Example: <code>mylight.setColor(ColorRGBA.White.mult(1.3f));</code>
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "AmbientLight" [4503-5325] -->
 <h2><a>Light Follows Spatial</a></h2>
 <div>
 
@@ -181,7 +181,7 @@ Obviously, this does apply to AmbientLights which have no position.
 </p>
 
 </div>
-
+<!-- EDIT7 SECTION "Light Follows Spatial" [5326-5886] -->
 <h2><a>Simple Lighting</a></h2>
 <div>
 
@@ -240,7 +240,7 @@ These light effects update live when the object or light source moves. If you sh
 </p>
 
 </div>
-
+<!-- EDIT8 SECTION "Simple Lighting" [5887-8536] -->
 <h2><a>BasicShadowRenderer</a></h2>
 <div>
 
@@ -280,7 +280,7 @@ airplane.setShadowMode&#40;ShadowMode.Cast&#41;;       // nothing casts shadows 
 ghost.setShadowMode&#40;ShadowMode.Off&#41;;           // ghost is translucent anyway...</pre>
 
 </div>
-
+<!-- EDIT9 SECTION "BasicShadowRenderer" [8537-10206] -->
 <h2><a>Parallel-Split Shadow Map</a></h2>
 <div>
 
@@ -344,7 +344,7 @@ As said above, it&#039;s more efficient to specify individual shadow behaviour f
 terrain.setShadowMode&#40;ShadowMode.Receive&#41;; </pre>
 
 </div>
-
+<!-- EDIT10 SECTION "Parallel-Split Shadow Map" [10207-11929] -->
 <h2><a>Screen Space Ambient Occlusion</a></h2>
 <div>
 
@@ -376,4 +376,5 @@ viewPort.addProcessor&#40;fpp&#41;;</pre>
 </p>
 
 </div>
+<!-- EDIT11 SECTION "Screen Space Ambient Occlusion" [11930-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:light_and_shadow?do=export_xhtmlbody">view online version</a></em></p>

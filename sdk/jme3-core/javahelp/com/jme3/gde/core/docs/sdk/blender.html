@@ -3,7 +3,7 @@
 <div>
 
 </div>
-
+<!-- EDIT1 SECTION "Blender importer for jMonkeyEngine 3" [1-52] -->
 <h2><a>Introduction</a></h2>
 <div>
 
@@ -17,7 +17,7 @@ Now we have an opportunity to simplify the import process by loading data direct
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Introduction" [53-791] -->
 <h2><a>Usage</a></h2>
 <div>
 
@@ -27,7 +27,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "Usage" [792-1108] -->
 <h2><a>Currently supported features</a></h2>
 <div>
 <ol>
@@ -71,7 +71,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </li>
 <li><div> Feel free to use colorbands.</div>
 </li>
-<li><div> Generated textures are 3D textures.</div>
+<li><div> Generated textures are &#039;baked&#039; into 2D textures and merged to create one flat texture. They can be freely merged with image textures.</div>
 </li>
 </ul>
 </li>
@@ -152,7 +152,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </ol>
 
 </div>
-
+<!-- EDIT4 SECTION "Currently supported features" [1109-4057] -->
 <h2><a>Planned features.</a></h2>
 <div>
 <ol>
@@ -171,22 +171,16 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </ol>
 
 </div>
-
-<h2><a>Known bugs</a></h2>
+<!-- EDIT5 SECTION "Planned features." [4058-4318] -->
+<h2><a>Known bugs/problems.</a></h2>
 <div>
 <ol>
-<li><div> Blend texture is located in a wrong direction.</div>
-</li>
-<li><div> Blend texture has different colors on borders than expected.</div>
+<li><div> RGB10 and RGB9E5 texture types are not supported in texture merging operations (which means that you can use this as a single texture on the model, but you should not combine it with other images or generated textures).</div>
 </li>
 </ol>
 
-<p>
-I&#039;ll fix these when I fix more important stuff ;)
-</p>
-
 </div>
-
+<!-- EDIT6 SECTION "Known bugs/problems." [4319-4576] -->
 <h2><a>Using BlenderLoader instead of BlenderModelLoader</a></h2>
 <div>
 
@@ -247,7 +241,7 @@ You can use ModelKey as well. This will give the same result as using default Bl
 </p>
 
 </div>
-
+<!-- EDIT7 SECTION "Using BlenderLoader instead of BlenderModelLoader" [4577-6313] -->
 <h2><a>How does it work?</a></h2>
 <div>
 
@@ -293,7 +287,7 @@ Here is the list of how blender features are mapped into jme.
 		<td>Surface	</td><td>Node </td><td>The surface is transformed to the proper mesh</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [6619-6970] -->
+<!-- EDIT9 TABLE [6787-7138] -->
 <p>
 
 Using BlenderLoader can allow you to use blend file as your local assets repository.
@@ -303,7 +297,7 @@ Probably versions before 2.49 will work pretty well too, but I never checked tha
 </p>
 
 </div>
-
+<!-- EDIT8 SECTION "How does it work?" [6314-7473] -->
 <h2><a>Notes</a></h2>
 <div>
 
@@ -340,4 +334,5 @@ See also:
 </span></div>
 
 </div>
+<!-- EDIT10 SECTION "Notes" [7474-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:blender?do=export_xhtmlbody">view online version</a></em></p>

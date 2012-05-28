@@ -11,7 +11,7 @@ This tutorial explains how to add 3D sound to a game, and how make sounds play t
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (11) - Hello Audio" [1-477] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -43,7 +43,7 @@ public class HelloAudio extends SimpleApplication &#123;
     flyCam.setMoveSpeed&#40;40&#41;;
 &nbsp;
     /** just a blue box floating in space */
-    Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+    Box box1 = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
     player = new Geometry&#40;&quot;Player&quot;, box1&#41;;
     Material mat1 = new Material&#40;assetManager, 
             &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -81,7 +81,7 @@ public class HelloAudio extends SimpleApplication &#123;
   &#125;
 &nbsp;
   /** Defining the &quot;Shoot&quot; action: Play a gun sound. */
-  private ActionListener&#40;&#41; &#123;
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
     @Override
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
@@ -104,7 +104,7 @@ When you run the sample, you should see a blue cube. You should hear a nature-li
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Sample Code" [478-3313] -->
 <h2><a>Understanding the Code Sample</a></h2>
 <div>
 
@@ -122,7 +122,7 @@ Let&#039;s have a closer look at <code>initAudio()</code> to learn how to use <c
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "Understanding the Code Sample" [3314-3923] -->
 <h2><a>AudioNodes</a></h2>
 <div>
 
@@ -178,7 +178,7 @@ Here you make audio_nature a positional sound that comes from a certain place. F
 </p>
 
 </div>
-
+<!-- EDIT4 SECTION "AudioNodes" [3924-6585] -->
 <h2><a>Triggering Sound</a></h2>
 <div>
 
@@ -196,7 +196,7 @@ Let&#039;s have a closer look at <code>initKeys()</code>: As you learned in prev
 Setting up the ActionListener should also be familiar from previous tutorials. You declare that, when the trigger (the mouse button) is pressed and released, you want to play a gun sound.
 </p>
 <pre>  /** Defining the &quot;Shoot&quot; action: Play a gun sound. */
-  private ActionListener&#40;&#41; &#123;
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
     @Override
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
@@ -210,7 +210,7 @@ Since you want to be able to shoot fast repeatedly, so you do not want to wait f
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "Triggering Sound" [6586-8050] -->
 <h2><a>Ambient or Situational?</a></h2>
 <div>
 
@@ -246,7 +246,7 @@ Apart from the looping boolean, another difference is where <code>play()</code> 
 </div>
 </li>
 <li><div> The gunshot sound, however, is triggered situationally, once, only as part of the <code>Shoot</code> input action that you defined in the ActionListener.<pre>  /** Defining the &quot;Shoot&quot; action: Play a gun sound. */
-  private ActionListener&#40;&#41; &#123;
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
     @Override
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
@@ -259,7 +259,7 @@ Apart from the looping boolean, another difference is where <code>play()</code> 
 </ul>
 
 </div>
-
+<!-- EDIT6 SECTION "Ambient or Situational?" [8051-9286] -->
 <h2><a>Buffered or Streaming?</a></h2>
 <div>
 
@@ -277,7 +277,7 @@ Typically, you stream long sounds, and buffer short sounds.
 </p>
 
 </div>
-
+<!-- EDIT7 SECTION "Buffered or Streaming?" [9287-9709] -->
 <h2><a>Play() or PlayInstance()?</a></h2>
 <div>
 <div><table>
@@ -294,9 +294,9 @@ Typically, you stream long sounds, and buffer short sounds.
 		<td>The same sound cannot play twice at the same time.</td><td>The same sounds can play multiple times and overlap.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [9749-9993] -->
+<!-- EDIT9 TABLE [9749-9993] -->
 </div>
-
+<!-- EDIT8 SECTION "Play() or PlayInstance()?" [9710-9994] -->
 <h2><a>Your Ear in the Scene</a></h2>
 <div>
 
@@ -318,7 +318,7 @@ If you don&#039;t do that, the results of 3D audio will be quite random.
 </p>
 
 </div>
-
+<!-- EDIT10 SECTION "Your Ear in the Scene" [9995-10697] -->
 <h2><a>Global, Directional, Positional?</a></h2>
 <div>
 
@@ -345,7 +345,7 @@ In short, you must choose in every situation whether it makes sense for a sound 
 </p>
 
 </div>
-
+<!-- EDIT11 SECTION "Global, Directional, Positional?" [10698-12056] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -380,4 +380,5 @@ See also:
 </span></div>
 
 </div>
+<!-- EDIT12 SECTION "Conclusion" [12057-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_audio?do=export_xhtmlbody">view online version</a></em></p>

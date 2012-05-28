@@ -17,7 +17,7 @@ This tutorial shows how to add an animation controller and channels, and how to 
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (7) - Hello Animation" [1-311] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -80,7 +80,7 @@ public class HelloAnimation extends SimpleApplication
     inputManager.addMapping&#40;&quot;Walk&quot;, new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
     inputManager.addListener&#40;actionListener, &quot;Walk&quot;&#41;;
   &#125;
-  private ActionListener&#40;&#41; &#123;
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Walk&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
         if &#40;!channel.getAnimationName&#40;&#41;.equals&#40;&quot;Walk&quot;&#41;&#41; &#123;
@@ -93,7 +93,7 @@ public class HelloAnimation extends SimpleApplication
 &#125;</pre>
 
 </div>
-
+<!-- EDIT2 SECTION "Sample Code" [312-2738] -->
 <h2><a>Creating and Loading Animated Models</a></h2>
 <div>
 
@@ -122,7 +122,7 @@ Don&#039;t forget to add a light source to make the material visible.
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "Creating and Loading Animated Models" [2739-4159] -->
 <h2><a>Animation Controler and Channel</a></h2>
 <div>
 
@@ -152,7 +152,7 @@ After you load the animated model, you register it to the Animation Controller.
     ...</pre>
 
 </div>
-
+<!-- EDIT4 SECTION "Animation Controler and Channel" [4160-4997] -->
 <h2><a>Responding to Animation Events</a></h2>
 <div>
 
@@ -177,7 +177,7 @@ Add <code>implements AnimEventListener</code> to the class declaration. This int
   &#125;</pre>
 
 </div>
-
+<!-- EDIT5 SECTION "Responding to Animation Events" [4998-5885] -->
 <h2><a>Trigger Animations After User Input</a></h2>
 <div>
 
@@ -221,7 +221,7 @@ Test for each action by name, and set the channel to the corresponding animation
 <li><div> Optionally, use channel.setTime() to Fast-forward or rewind to a certain moment in time of this animation.</div>
 </li>
 </ul>
-<pre>  private ActionListener&#40;&#41; &#123;
+<pre>  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
         if &#40;name.equals&#40;&quot;Walk&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
             if &#40;!channel.getAnimationName&#40;&#41;.equals&#40;&quot;Walk&quot;&#41;&#41;&#123;
@@ -233,7 +233,7 @@ Test for each action by name, and set the channel to the corresponding animation
   &#125;;</pre>
 
 </div>
-
+<!-- EDIT6 SECTION "Trigger Animations After User Input" [5886-7774] -->
 <h2><a>Exercises</a></h2>
 <div>
 
@@ -251,7 +251,7 @@ Make a mouse click trigger another animation sequence!
 </li>
 <li><div> Create a new key trigger mapping and action (see: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_input_system.html">Hello Input</a>)</div>
 </li>
-<li><div> Tip: Do you want to find out what animation sequences are available in the model? Use: <pre>for &#40;System.out.println&#40;anim&#41;; &#125;</pre>
+<li><div> Tip: Do you want to find out what animation sequences are available in the model? Use: <pre>for &#40;String anim : control.getAnimationNames&#40;&#41;&#41; &#123; System.out.println&#40;anim&#41;; &#125;</pre>
 </div>
 </li>
 </ol>
@@ -302,7 +302,7 @@ Can you identify individual bones in the skeleton?
 </p>
 
 </div>
-
+<!-- EDIT7 SECTION "Exercises" [7775-9642] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -332,4 +332,5 @@ See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
 </span></div>
 
 </div>
+<!-- EDIT8 SECTION "Conclusion" [9643-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_animation?do=export_xhtmlbody">view online version</a></em></p>

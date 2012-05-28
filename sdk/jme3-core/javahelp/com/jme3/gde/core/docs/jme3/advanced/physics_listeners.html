@@ -7,7 +7,7 @@ You can control physical objects (push them around) by applying physical forces 
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Physics Listeners" [1-329] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <ul>
@@ -20,7 +20,7 @@ You can control physical objects (push them around) by applying physical forces 
 </ul>
 
 </div>
-
+<!-- EDIT2 SECTION "Sample Code" [330-809] -->
 <h2><a>PhysicsGhostObjects</a></h2>
 <div>
 
@@ -59,9 +59,9 @@ getPhysicsSpace&#40;&#41;.add&#40;ghost&#41;;</pre>
 		<td>getOverlapping(i)</td><td>Get PhysicsCollisionObject number i.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [2299-2565] -->
+<!-- EDIT4 TABLE [2299-2565] -->
 </div>
-
+<!-- EDIT3 SECTION "PhysicsGhostObjects" [810-2566] -->
 <h2><a>Physics Tick Listener</a></h2>
 <div>
 
@@ -72,7 +72,7 @@ Applying forces or checking for overlaps only has an effect right at a physics u
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "Physics Tick Listener" [2567-2979] -->
 <h3><a>When (Not) to Use Tick Listener?</a></h3>
 <div>
 
@@ -90,7 +90,7 @@ When your game mechanics however just poll the current state (e.g. getPhysicsLoc
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "When (Not) to Use Tick Listener?" [2980-3836] -->
 <h3><a>How to Listen to Physics Ticks</a></h3>
 <div>
 
@@ -124,12 +124,12 @@ public void physicsTick&#40;PhysicsSpace space, float tpf&#41;&#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT7 SECTION "How to Listen to Physics Ticks" [3837-4856] -->
 <h2><a>Physics Collision Listener</a></h2>
 <div>
 
 </div>
-
+<!-- EDIT8 SECTION "Physics Collision Listener" [4857-4896] -->
 <h3><a>When (Not) to Use Collision Listener</a></h3>
 <div>
 
@@ -155,7 +155,7 @@ If however you want to respond to a collision event (com.jme3.bullet.collision.P
 </ul>
 
 </div>
-
+<!-- EDIT9 SECTION "When (Not) to Use Collision Listener" [4897-5699] -->
 <h3><a>How to Listen to Collisions</a></h3>
 <div>
 
@@ -194,7 +194,7 @@ After you identify the colliding nodes, specify the action to trigger when this 
 </p>
 
 </div>
-
+<!-- EDIT10 SECTION "How to Listen to Collisions" [5700-7311] -->
 <h3><a>Reading Details From a PhysicsCollisionEvent</a></h3>
 <div>
 
@@ -226,13 +226,13 @@ getObjectB()     </td><td> The two participants in the collision. You cannot kno
 		<td> getCombinedRestitution()     </td><td> A float value representing the collision restitution (bounciness) </td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [7578-8263] -->
+<!-- EDIT12 TABLE [7578-8263] -->
 <p>
 Note that after the collision method has been called the object is not valid anymore so you should copy any data you want to keep into local variables.
 </p>
 
 </div>
-
+<!-- EDIT11 SECTION "Reading Details From a PhysicsCollisionEvent" [7312-8416] -->
 <h3><a>Collision Groups</a></h3>
 <div>
 
@@ -255,4 +255,5 @@ myNode.getControl&#40;RigidBodyControl.class&#41;.setCollideWithGroups&#40;Physi
 </span></div>
 
 </div>
+<!-- EDIT13 SECTION "Collision Groups" [8417-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:physics_listeners?do=export_xhtmlbody">view online version</a></em></p>

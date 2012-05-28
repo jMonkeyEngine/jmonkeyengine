@@ -8,7 +8,7 @@ To reduce system overhead the jMonkeyEngine <acronym title="Software Development
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "jMonkeyEngine SDK -- The Scene" [1-304] -->
 <h2><a>How to access the Scene</a></h2>
 <div>
 
@@ -24,7 +24,7 @@ There are several ways for your plugin to interact with the Scene:
 </ul>
 
 </div>
-
+<!-- EDIT2 SECTION "How to access the Scene" [305-616] -->
 <h2><a>Listening for Node selection</a></h2>
 <div>
 
@@ -63,7 +63,7 @@ for &#40;JmeSpatial jmeSpatial : items&#41; &#123;
     final Spatial realSpatial = jmeSpatial.getLookup&#40;&#41;.lookup&#40;Spatial.class&#41;;
     //use a Callable to execute on the render thread:
     SceneApplication.getApplication&#40;&#41;.enqueue&#40;new Callable&#40;&#41; &#123;
-        public Exception &#123;
+        public Object call&#40;&#41; throws Exception &#123;
             realSpatial.setLocalTranslation&#40;Vector3f.ZERO&#41;;
             return null;
         &#125;
@@ -72,7 +72,7 @@ for &#40;JmeSpatial jmeSpatial : items&#41; &#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT3 SECTION "Listening for Node selection" [617-2664] -->
 <h2><a>Requesting the Scene</a></h2>
 <div>
 
@@ -116,7 +116,7 @@ public void sceneClosed&#40;SceneRequest request&#41; &#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT4 SECTION "Requesting the Scene" [2665-4627] -->
 <h2><a>Undo/Redo support</a></h2>
 <div>
 
@@ -162,4 +162,5 @@ Note: Its important that you use the method addEdit(Object source, UndoableEdit 
 </p>
 
 </div>
+<!-- EDIT5 SECTION "Undo/Redo support" [4628-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:scene?do=export_xhtmlbody">view online version</a></em></p>

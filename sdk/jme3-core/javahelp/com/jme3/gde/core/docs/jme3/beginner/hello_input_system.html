@@ -17,7 +17,7 @@ Every game has its custom keybindings, and this tutorial explains how you define
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (5) - Hello Input System" [1-633] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -47,7 +47,7 @@ public class HelloInput extends SimpleApplication &#123;
 &nbsp;
   @Override
   public void simpleInitApp&#40;&#41; &#123;
-    Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+    Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
     player = new Geometry&#40;&quot;Player&quot;, b&#41;;
     Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
@@ -70,7 +70,7 @@ public class HelloInput extends SimpleApplication &#123;
 &nbsp;
   &#125;
 &nbsp;
-  private ActionListener&#40;&#41; &#123;
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Pause&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
         isRunning = !isRunning;
@@ -112,7 +112,7 @@ Build and run the example.
 </ul>
 
 </div>
-
+<!-- EDIT2 SECTION "Sample Code" [634-3678] -->
 <h2><a>Defining Mappings and Triggers</a></h2>
 <div>
 
@@ -172,7 +172,7 @@ This code goes into the <code>simpleInitApp()</code> method. But since we will l
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "Defining Mappings and Triggers" [3679-5893] -->
 <h2><a>Implementing the Actions</a></h2>
 <div>
 
@@ -199,7 +199,7 @@ In this example, we trigger the following actions:
 <li><div> We also want to check the boolean <code>isRunning</code> before any action (other than unpausing) is executed.</div>
 </li>
 </ol>
-<pre>  private ActionListener&#40;&#41; &#123;
+<pre>  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;Pause&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
         isRunning = !isRunning;
@@ -267,7 +267,7 @@ It&#039;s okay to use only one of the two Listeners, and not implement the other
 </p>
 
 </div>
-
+<!-- EDIT4 SECTION "Implementing the Actions" [5894-9011] -->
 <h2><a>Analog, Pressed, or Released?</a></h2>
 <div>
 
@@ -318,7 +318,7 @@ Mappings registered to the <strong>ActionListener</strong> are digital either-or
       &#125;</pre>
 
 </div>
-
+<!-- EDIT5 SECTION "Analog, Pressed, or Released?" [9012-10381] -->
 <h2><a>Table of Triggers</a></h2>
 <div>
 
@@ -354,14 +354,14 @@ You can find the list of input constants in the files <code>src/core/com/jme3/in
 KeyTrigger(KeyInput.KEY_LEFT), KeyTrigger(KeyInput.KEY_RIGHT) </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [10614-11210] -->
+<!-- EDIT7 TABLE [10614-11210] -->
 <p>
 
 <strong>Tip:</strong> If you don&#039;t recall an input constant during development, you benefit from an IDE&#039;s code completion functionality: Place the caret after e.g. <code>KeyInput.|</code> and trigger code completion to select possible input identifiers.
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "Table of Triggers" [10382-11444] -->
 <h2><a>Exercises</a></h2>
 <div>
 <ol>
@@ -381,7 +381,7 @@ inputManager.addMapping&#40;&quot;Pause&quot;,  new KeyTrigger&#40;usersPauseKey
 </ol>
 
 </div>
-
+<!-- EDIT8 SECTION "Exercises" [11445-11967] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -403,4 +403,5 @@ Now you can already write a little interactive game! But wouldn&#039;t it be coo
 </span></div>
 
 </div>
+<!-- EDIT9 SECTION "Conclusion" [11968-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_input_system?do=export_xhtmlbody">view online version</a></em></p>

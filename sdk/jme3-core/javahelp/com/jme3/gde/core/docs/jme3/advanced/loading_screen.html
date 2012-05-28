@@ -118,7 +118,7 @@ This screen displays our custom progress bar control with a text control
     <span><span>&lt;/screen&gt;</span></span></pre>
 
 </div>
-
+<!-- EDIT1 SECTION "Nifty Loading Screen (Progress Bar)" [1-4344] -->
 <h3><a>Creating the bindings to use the Nifty XML</a></h3>
 <div>
 
@@ -327,12 +327,12 @@ public class TestLoadingScreen extends SimpleApplication implements ScreenContro
     &#125;
 &nbsp;
     @Override
-    public void bind&#40;Nifty nifty, Screen screen, Attributes atrbts&#41; &#123;
+    public void bind&#40;Nifty nifty, Screen screen, Element elmnt, Properties prprts, Attributes atrbts&#41; &#123;
         progressBarElement = elmnt.findElementByName&#40;&quot;progressbar&quot;&#41;;
     &#125;
 &nbsp;
     @Override
-    public void init&#40;Attributes atrbts&#41; &#123;
+    public void init&#40;Properties prprts, Attributes atrbts&#41; &#123;
     &#125;
 &nbsp;
     public void onFocus&#40;boolean getFocus&#41; &#123;
@@ -508,7 +508,7 @@ public class TestLoadingScreen1 extends SimpleApplication implements ScreenContr
         //since this method is called from another thread, we enqueue the changes to the progressbar to the update loop thread
         enqueue&#40;new Callable&#40;&#41; &#123;
 &nbsp;
-            public Exception &#123;
+            public Object call&#40;&#41; throws Exception &#123;
                 final int MIN_WIDTH = 32;
                 int pixelWidth = &#40;int&#41; &#40;MIN_WIDTH + &#40;progressBarElement.getParent&#40;&#41;.getWidth&#40;&#41; - MIN_WIDTH&#41; * progress&#41;;
                 progressBarElement.setConstraintWidth&#40;new SizeValue&#40;pixelWidth + &quot;px&quot;&#41;&#41;;
@@ -546,12 +546,12 @@ public class TestLoadingScreen1 extends SimpleApplication implements ScreenContr
     &#125;
 &nbsp;
     @Override
-    public void bind&#40;Nifty nifty, Screen screen, Attributes atrbts&#41; &#123;
+    public void bind&#40;Nifty nifty, Screen screen, Element elmnt, Properties prprts, Attributes atrbts&#41; &#123;
         progressBarElement = elmnt.findElementByName&#40;&quot;progressbar&quot;&#41;;
     &#125;
 &nbsp;
     @Override
-    public void init&#40;Attributes atrbts&#41; &#123;
+    public void init&#40;Properties prprts, Attributes atrbts&#41; &#123;
     &#125;
 &nbsp;
     public void onFocus&#40;boolean getFocus&#41; &#123;
@@ -569,4 +569,5 @@ TO DO
 </p>
 
 </div>
+<!-- EDIT2 SECTION "Creating the bindings to use the Nifty XML" [4345-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:loading_screen?do=export_xhtmlbody">view online version</a></em></p>

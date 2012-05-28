@@ -30,7 +30,7 @@ Copy the two classes ComboMoveExecution.java and ComboMove.java into your applic
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Combo Moves" [1-824] -->
 <h2><a>Example Code</a></h2>
 <div>
 <ul>
@@ -43,7 +43,7 @@ Copy the two classes ComboMoveExecution.java and ComboMove.java into your applic
 </ul>
 
 </div>
-
+<!-- EDIT2 SECTION "Example Code" [825-1321] -->
 <h2><a>Create Input Triggers</a></h2>
 <div>
 
@@ -64,7 +64,7 @@ inputManager.addMapping&#40;&quot;Attack1&quot;, new KeyTrigger&#40;KeyInput.KEY
 inputManager.addListener&#40;this, &quot;Left&quot;, &quot;Right&quot;, &quot;Up&quot;, &quot;Down&quot;, &quot;Attack1&quot;&#41;;</pre>
 
 </div>
-
+<!-- EDIT3 SECTION "Create Input Triggers" [1322-2092] -->
 <h2><a>Define Combos</a></h2>
 <div>
 
@@ -89,7 +89,7 @@ Also create a ComboMoveExecution object for each ComboMove. You need it later to
 <pre>ComboMoveExecution fireballExec = new ComboMoveExecution&#40;fireball&#41;;</pre>
 
 </div>
-
+<!-- EDIT4 SECTION "Define Combos" [2093-3001] -->
 <h3><a>ComboMove Class Methods</a></h3>
 <div>
 
@@ -129,7 +129,7 @@ False: Do not wait on a final state, chain combo steps. (?) <br/>
 True: This is the final state, do not chain combo steps. (?)</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [3096-4090] -->
+<!-- EDIT6 TABLE [3096-4090] -->
 <p>
 
 The <code>press()</code> and <code>notPress()</code> methods accept sets of Input Triggers, e.g. <code>fireball.press(&quot;A&quot;,&quot;B&quot;,&quot;C&quot;).done()</code>.
@@ -153,9 +153,9 @@ The following getters give you more information about the game state:
 		<td>getPriority()</td><td>Returns the priority of this move</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [4283-4489] -->
+<!-- EDIT7 TABLE [4283-4489] -->
 </div>
-
+<!-- EDIT5 SECTION "ComboMove Class Methods" [3002-4490] -->
 <h2><a>Detect Combos in ActionListener</a></h2>
 <div>
 
@@ -214,7 +214,7 @@ public void onAction&#40;String name, boolean isPressed, float tpf&#41; &#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT8 SECTION "Detect Combos in ActionListener" [4491-6314] -->
 <h2><a>Execute Combos in the Update Loop</a></h2>
 <div>
 
@@ -244,7 +244,7 @@ Test <code>currentMove.getMoveName()</code> and proceed to call methods that imp
 </p>
 
 </div>
-
+<!-- EDIT9 SECTION "Execute Combos in the Update Loop" [6315-7152] -->
 <h2><a>Why Combos?</a></h2>
 <div>
 
@@ -266,4 +266,5 @@ Depending on the game genre, the designer can reward the players&#039; intrinsic
 </span></div>
 
 </div>
+<!-- EDIT10 SECTION "Why Combos?" [7153-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:combo_moves?do=export_xhtmlbody">view online version</a></em></p>

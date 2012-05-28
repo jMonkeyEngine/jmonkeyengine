@@ -13,7 +13,7 @@ Now that you know how to load assets, such as 3D models, you want to implement s
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (4) - Hello Update Loop" [1-404] -->
 <h2><a>Code Sample</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -39,7 +39,7 @@ public class HelloLoop extends SimpleApplication &#123;
     @Override
     public void simpleInitApp&#40;&#41; &#123;
 &nbsp;
-        Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+        Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
         player = new Geometry&#40;&quot;blue cube&quot;, b&#41;;
         Material mat = new Material&#40;assetManager,
           &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -61,7 +61,7 @@ Build and run the file: You see a constantly rotating cube.
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Code Sample" [405-1613] -->
 <h2><a>Understanding the Code</a></h2>
 <div>
 
@@ -83,7 +83,7 @@ Now have a closer look at the <code>simpleUpdate()</code> method – this is the
 </ul>
 
 </div>
-
+<!-- EDIT3 SECTION "Understanding the Code" [1614-2397] -->
 <h2><a>Using the Update Loop</a></h2>
 <div>
 
@@ -108,7 +108,7 @@ A rotating object is just a simple example. In the update loop, you typically ha
 </ul>
 
 </div>
-
+<!-- EDIT4 SECTION "Using the Update Loop" [2398-3231] -->
 <h2><a>Init - Update - Render</a></h2>
 <div>
 
@@ -155,7 +155,7 @@ Keep this in mind for later when your application grows.
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "Init - Update - Render" [3232-4501] -->
 <h2><a>Exercises</a></h2>
 <div>
 
@@ -182,7 +182,7 @@ Look back at the <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html"
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "Exercises" [4502-5111] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -214,4 +214,5 @@ See also:
 </span></div>
 
 </div>
+<!-- EDIT7 SECTION "Conclusion" [5112-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_main_event_loop?do=export_xhtmlbody">view online version</a></em></p>

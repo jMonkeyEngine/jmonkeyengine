@@ -49,7 +49,7 @@ Let&#039;s have a look at the <acronym title="Application Programming Interface"
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "SimpleApplication" [1-1718] -->
 <h2><a>Application Class</a></h2>
 <div>
 
@@ -95,7 +95,7 @@ getInputManager()</td><td>Use the <a href="/com/jme3/gde/core/docs/jme3/advanced
 getStateManager()</td><td>You use the Application&#039;s state manager to activate <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">AppStates</a>, such as <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">Physics</a>.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [2024-3450] --><div><table>
+<!-- EDIT3 TABLE [2024-3450] --><div><table>
 	<tr>
 		<th>Application methods</th><th>Purpose</th>
 	</tr>
@@ -119,7 +119,7 @@ Type.Headless – jME application runs its event loop without calculating any vi
 Type.OffscreenSurface – jME application view is not shown and no window opens, but everything calculated and cached as bitmap (back buffer) for use by other applications.</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [3452-4638] --><div><table>
+<!-- EDIT4 TABLE [3452-4638] --><div><table>
 	<tr>
 		<th>Internal class field/method</th><th>Purpose</th>
 	</tr>
@@ -151,9 +151,9 @@ getGuiViewPort()</td><td>The view object for the orthogonal <acronym title="Grap
 		<td>paused</td><td>Boolean is used only internally during runtime to pause/unpause a game. (You need to implement your own isRunning boolean or so.)</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [4640-5836] -->
+<!-- EDIT5 TABLE [4640-5836] -->
 </div>
-
+<!-- EDIT2 SECTION "Application Class" [1719-5837] -->
 <h2><a>SimpleApplication Class</a></h2>
 <div>
 
@@ -192,7 +192,7 @@ getGuiNode()</td><td>Attach flat <acronym title="Graphical User Interface">GUI</
 getFlyByCamera()</td><td>The default first-person fly-by camera control. This default camera control lets you navigate the 3D scene using the preconfigured WASD and arrow keys and the mouse.</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [6405-6948] --><div><table>
+<!-- EDIT7 TABLE [6405-6948] --><div><table>
 	<tr>
 		<th>SimpleApplication Method</th><th>Purpose</th>
 	</tr>
@@ -209,7 +209,7 @@ getFlyByCamera()</td><td>The default first-person fly-by camera control. This de
 		<td>setDisplayStatView(false);</td><td>A default SimpleApplication displays mesh statistics on the screen using the com.jme3.app.StatsView class. The information is valuable during the development and debugging phase, but for the release, you should hide the statistics HUD.</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [6950-7742] --><div><table>
+<!-- EDIT8 TABLE [6950-7742] --><div><table>
 	<tr>
 		<th>SimpleApplication Interface</th><th>Purpose</th>
 	</tr>
@@ -223,7 +223,7 @@ getFlyByCamera()</td><td>The default first-person fly-by camera control. This de
 		<td>public void simpleRender(RenderManager rm)</td><td><strong>Optional:</strong> Override this method to implement <em>advanced</em> modifications of the frameBuffer and scene graph.</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [7744-8662] -->
+<!-- EDIT9 TABLE [7744-8662] -->
 <p>
 
 <p><div>Use <code>app.setShowSettings(true);</code> to present the user with a splashscreen and the built-in display settings dialog when starting the game; or use <code>app.setShowSettings(false);</code> to hide the buil-in screen (in this case, you may want to provide a custom splashscreen and settings panel). Set this boolean before calling <code>app.start()</code> in the <code>main()</code> method of the SimpleApplication. See also <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">AppSettings</a>.
@@ -231,7 +231,7 @@ getFlyByCamera()</td><td>The default first-person fly-by camera control. This de
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "SimpleApplication Class" [5838-9094] -->
 <h2><a>Default Input Mappings</a></h2>
 <div>
 
@@ -257,7 +257,7 @@ The following default navigational input actions are mapped by the default <code
 		<td>F5</td><td>Hides or shows the statistics the bottom left.</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [9365-9630] -->
+<!-- EDIT11 TABLE [9365-9630] -->
 <p>
 
 As long as the <code>flyCam</code> is enabled, the following so-called &quot;WASD&quot; inputs, including MouseLook, are available:
@@ -307,9 +307,9 @@ As long as the <code>flyCam</code> is enabled, the following so-called &quot;WAS
 		<td>Zoom Out</td><td>AXIS_WHEEL, or scroll mouse wheel forward</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [9746-10357] -->
+<!-- EDIT12 TABLE [9746-10357] -->
 </div>
-
+<!-- EDIT10 SECTION "Default Input Mappings" [9095-10358] -->
 <h2><a>Defaults and Customization</a></h2>
 <div>
 
@@ -350,4 +350,5 @@ The following example shows how you can remove one of the default AppStates, in 
 </span></div>
 
 </div>
+<!-- EDIT13 SECTION "Defaults and Customization" [10359-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:simpleapplication?do=export_xhtmlbody">view online version</a></em></p>

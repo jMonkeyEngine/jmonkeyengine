@@ -38,7 +38,7 @@ The Java code within your defined ScreenController implementation:
 ...
 public void createMyPopupMenu&#40;&#41;&#123;
   popup = nifty.createPopup&#40;&quot;niftyPopupMenu&quot;&#41;;
-  Menu.class&#41;;
+  Menu myMenu = popup.findNiftyControl&#40;&quot;#menu&quot;, Menu.class&#41;;
   myMenu.setWidth&#40;new SizeValue&#40;&quot;100px&quot;&#41;&#41;; // must be set
   myMenu.addMenuItem&#40;&quot;Click me!&quot;, &quot;menuItemIcon.png&quot;, 
     new menuItem&#40;&quot;menuItemid&quot;, &quot;blah blah&quot;&#41;&#41;; // menuItem is a custom class
@@ -60,7 +60,7 @@ public void showMenu&#40;&#41; &#123; // the method to trigger the menu
 private class menuItem &#123;
   public String id;
   public String name;
-  public menuItem&#40;String name&#41;&#123;
+  public menuItem&#40;String id, String name&#41;&#123;
     this.id= id;
     this.name = name;
   &#125;

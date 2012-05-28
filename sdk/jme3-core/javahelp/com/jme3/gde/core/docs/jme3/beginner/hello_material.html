@@ -14,7 +14,7 @@ The term Material includes everything that influences what the surface of a 3D m
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (6) - Hello Materials" [1-510] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -45,7 +45,7 @@ public class HelloMaterial extends SimpleApplication &#123;
   @Override
   public void simpleInitApp&#40;&#41; &#123;
     /** A simple textured cube -- in good MIP map quality. */
-    Box&#40;new Vector3f&#40;-3f,1.1f,0f&#41;, 1f,1f,1f&#41;;
+    Box boxshape1 = new Box&#40;new Vector3f&#40;-3f,1.1f,0f&#41;, 1f,1f,1f&#41;;
     Geometry cube = new Geometry&#40;&quot;My Textured Box&quot;, boxshape1&#41;;
     Material mat_stl = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     Texture tex_ml = assetManager.loadTexture&#40;&quot;Interface/Logo/Monkey.jpg&quot;&#41;;
@@ -54,7 +54,7 @@ public class HelloMaterial extends SimpleApplication &#123;
     rootNode.attachChild&#40;cube&#41;;
 &nbsp;
     /** A translucent/transparent texture, similar to a window frame. */
-    Box&#40;new Vector3f&#40;0f,0f,0f&#41;, 1f,1f,0.01f&#41;;
+    Box boxshape3 = new Box&#40;new Vector3f&#40;0f,0f,0f&#41;, 1f,1f,0.01f&#41;;
     Geometry window_frame = new Geometry&#40;&quot;window frame&quot;, boxshape3&#41;;
     Material mat_tt = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     mat_tt.setTexture&#40;&quot;ColorMap&quot;, assetManager.loadTexture&#40;&quot;Textures/ColoredTex/Monkey.png&quot;&#41;&#41;;
@@ -66,7 +66,7 @@ public class HelloMaterial extends SimpleApplication &#123;
     rootNode.attachChild&#40;window_frame&#41;;
 &nbsp;
     /** A cube with base color &quot;leaking&quot; through a partially transparent texture */
-    Box&#40;new Vector3f&#40;3f,-1f,0f&#41;, 1f,1f,1f&#41;;
+    Box boxshape4 = new Box&#40;new Vector3f&#40;3f,-1f,0f&#41;, 1f,1f,1f&#41;;
     Geometry cube_leak = new Geometry&#40;&quot;Leak-through color cube&quot;, boxshape4&#41;;
     Material mat_tl = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     mat_tl.setTexture&#40;&quot;ColorMap&quot;, assetManager.loadTexture&#40;&quot;Textures/ColoredTex/Monkey.png&quot;&#41;&#41;;
@@ -116,7 +116,7 @@ Move around with the WASD keys to have a closer look at the translucency, and th
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Sample Code" [511-4720] -->
 <h2><a>Simple Unshaded Texture</a></h2>
 <div>
 
@@ -125,7 +125,7 @@ Move around with the WASD keys to have a closer look at the translucency, and th
 Typically you want to give objects in your scene textures: It can be rock, grass, brick, wood, water, metal, paper… A texture is a normal image file in <acronym title="Joint Photographics Experts Group">JPG</acronym> or <acronym title="Portable Network Graphics">PNG</acronym> format. In this example, you create a box with a simple unshaded Monkey texture as material.
 </p>
 <pre>    /** A simple textured cube. */
-    Box&#40;new Vector3f&#40;-3f,1.1f,0f&#41;, 1f,1f,1f&#41;;
+    Box boxshape1 = new Box&#40;new Vector3f&#40;-3f,1.1f,0f&#41;, 1f,1f,1f&#41;;
     Geometry cube = new Geometry&#40;&quot;My Textured Box&quot;, boxshape1&#41;;
     Material mat_stl = new Material&#40;assetManager, 
         &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -150,7 +150,7 @@ The ColorMap is the typical material layer where textures go.</div>
 </ol>
 
 </div>
-
+<!-- EDIT3 SECTION "Simple Unshaded Texture" [4721-5871] -->
 <h2><a>Transparent Unshaded Texture</a></h2>
 <div>
 
@@ -171,7 +171,7 @@ For a partially translucent/transparent texture, you need:
 </li>
 </ul>
 <pre>    /** A translucent/transparent texture. */
-    Box&#40;new Vector3f&#40;0f,0f,0f&#41;, 1f,1f,0.01f&#41;;
+    Box boxshape3 = new Box&#40;new Vector3f&#40;0f,0f,0f&#41;, 1f,1f,0.01f&#41;;
     Geometry seethrough = new Geometry&#40;&quot;see-through box&quot;, boxshape3&#41;;
     Material mat_tt = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     mat_tt.setTexture&#40;&quot;ColorMap&quot;, assetManager.loadTexture&#40;&quot;Textures/ColoredTex/Monkey.png&quot;&#41;&#41;;
@@ -207,7 +207,7 @@ The ColorMap is the material layer where textures go. This <acronym title="Porta
 </p>
 
 </div>
-
+<!-- EDIT4 SECTION "Transparent Unshaded Texture" [5872-8173] -->
 <h2><a>Shininess and Bumpiness</a></h2>
 <div>
 
@@ -274,7 +274,7 @@ Remember that any Lighting.j3md-based material requires a light source, as shown
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "Shininess and Bumpiness" [8174-11057] -->
 <h2><a>Default Material Definitions</a></h2>
 <div>
 
@@ -299,19 +299,19 @@ DiffuseMap, NormalMap, SpecularMap : Texture2D <br/>
 Shininess : Float </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [11197-11667] -->
+<!-- EDIT7 TABLE [11197-11667] -->
 <p>
 
 For a game, you create custom Materials based on these existing MaterialDefintions – as you have just seen in the example with the shiny rock&#039;s material.
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "Default Material Definitions" [11058-11824] -->
 <h2><a>Exercises</a></h2>
 <div>
 
 </div>
-
+<!-- EDIT8 SECTION "Exercises" [11825-11847] -->
 <h3><a>Exercise 1: Custom .j3m Material</a></h3>
 <div>
 
@@ -364,7 +364,7 @@ Using this new custom material <code>LeakThrough.j3m</code> only takes one line.
 </p>
 
 </div>
-
+<!-- EDIT9 SECTION "Exercise 1: Custom .j3m Material" [11848-13407] -->
 <h3><a>Exercise 2: Bumpiness and Shininess</a></h3>
 <div>
 
@@ -394,7 +394,7 @@ Go back to the bumpy rock sample above:
 </ol>
 
 </div>
-
+<!-- EDIT10 SECTION "Exercise 2: Bumpiness and Shininess" [13408-13835] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -444,4 +444,5 @@ See also
 </span></div>
 
 </div>
+<!-- EDIT11 SECTION "Conclusion" [13836-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_material?do=export_xhtmlbody">view online version</a></em></p>

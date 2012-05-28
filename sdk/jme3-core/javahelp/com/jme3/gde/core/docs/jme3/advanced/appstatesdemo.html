@@ -12,7 +12,7 @@ There are four files, Main.java, GameRunningState.java, StartScreenState.java, S
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Simple AppStates Demo" [1-369] -->
 <h2><a>Main.java</a></h2>
 <div>
 <pre>package chapter04.appstatedemo;
@@ -72,7 +72,7 @@ public class Main extends SimpleApplication &#123;
     inputManager.addListener&#40;actionListener, new String&#91;&#93;&#123;&quot;Toggle Settings&quot;&#125;&#41;;
   &#125;
 &nbsp;
-  private ActionListener&#40;&#41; &#123;
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean isPressed, float tpf&#41; &#123;
       System.out.println&#40;&quot;key&quot; + name&#41;;
       if &#40;name.equals&#40;&quot;Game Pause Unpause&quot;&#41; &amp;&amp; !isPressed&#41; &#123;
@@ -108,7 +108,7 @@ public class Main extends SimpleApplication &#123;
 &nbsp;</pre>
 
 </div>
-
+<!-- EDIT2 SECTION "Main.java" [370-3778] -->
 <h2><a>GameRunningState.java</a></h2>
 <div>
 <pre>package chapter04.appstatedemo;
@@ -156,7 +156,7 @@ public class GameRunningState extends AbstractAppState &#123;
     /** Load this scene */
     viewPort.setBackgroundColor&#40;backgroundColor&#41;;
 &nbsp;
-    Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+    Box mesh = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
     Geometry geom = new Geometry&#40;&quot;Box&quot;, mesh&#41;;
     Material mat = new Material&#40;assetManager,
             &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -200,7 +200,7 @@ public class GameRunningState extends AbstractAppState &#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT3 SECTION "GameRunningState.java" [3779-6746] -->
 <h2><a>SettingsScreenState.java</a></h2>
 <div>
 <pre>package chapter04.appstatedemo;
@@ -248,7 +248,7 @@ public class SettingsScreenState extends AbstractAppState &#123;
     /** Load this scene */
     viewPort.setBackgroundColor&#40;backgroundColor&#41;;
 &nbsp;
-    Box&#40;new Vector3f&#40;-1, -1, 0&#41;, .5f, .5f, .5f&#41;;
+    Box mesh = new Box&#40;new Vector3f&#40;-1, -1, 0&#41;, .5f, .5f, .5f&#41;;
     Geometry geom = new Geometry&#40;&quot;Box&quot;, mesh&#41;;
     Material mat = new Material&#40;assetManager,
             &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -289,7 +289,7 @@ public class SettingsScreenState extends AbstractAppState &#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT4 SECTION "SettingsScreenState.java" [6747-9561] -->
 <h2><a>StartScreenState.java</a></h2>
 <div>
 <pre>package chapter04.appstatedemo;
@@ -337,7 +337,7 @@ public StartScreenState&#40;SimpleApplication app&#41;&#123;
     /** Init this scene */
     viewPort.setBackgroundColor&#40;backgroundColor&#41;;
 &nbsp;
-    Box&#40;new Vector3f&#40;-1,1,0&#41;, .5f,.5f,.5f&#41;;
+    Box mesh = new Box&#40;new Vector3f&#40;-1,1,0&#41;, .5f,.5f,.5f&#41;;
     Geometry geom = new Geometry&#40;&quot;Box&quot;, mesh&#41;;
     Material mat = new Material&#40;assetManager,
             &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -378,4 +378,5 @@ public StartScreenState&#40;SimpleApplication app&#41;&#123;
 &#125;</pre>
 
 </div>
+<!-- EDIT5 SECTION "StartScreenState.java" [9562-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:appstatesdemo?do=export_xhtmlbody">view online version</a></em></p>

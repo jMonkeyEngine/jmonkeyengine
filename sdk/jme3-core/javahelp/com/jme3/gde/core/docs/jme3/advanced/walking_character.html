@@ -12,7 +12,7 @@ Other games however require a third-person perspective of the character: In thes
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Walking Character" [1-727] -->
 <h2><a>Sample Code</a></h2>
 <div>
 
@@ -45,7 +45,7 @@ The code in this tutorial is a combination of these samples.
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Sample Code" [728-1788] -->
 <h2><a>CharacterControl</a></h2>
 <div>
 
@@ -101,19 +101,19 @@ Default: 1, because for characters and vehicles, up is typically along the Y axi
 Use <code>setWalkDirection(Vector3f.ZERO)</code> to stop a directional motion. </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [3702-4865] -->
+<!-- EDIT4 TABLE [3702-4865] -->
 <p>
 
 For best practices on how to use <code>setWalkDirection()</code>, see the Navigation Inputs example below.
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "CharacterControl" [1789-4965] -->
 <h2><a>Walking Character Demo</a></h2>
 <div>
 
 </div>
-
+<!-- EDIT5 SECTION "Walking Character Demo" [4966-5001] -->
 <h3><a>Code Skeleton</a></h3>
 <div>
 <pre>public class WalkingCharacterDemo extends SimpleApplication
@@ -135,7 +135,7 @@ For best practices on how to use <code>setWalkDirection()</code>, see the Naviga
   public void onAnimChange&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123; &#125;</pre>
 
 </div>
-
+<!-- EDIT6 SECTION "Code Skeleton" [5002-5619] -->
 <h3><a>Overview</a></h3>
 <div>
 
@@ -165,7 +165,7 @@ To create a walking character:
 </ol>
 
 </div>
-
+<!-- EDIT7 SECTION "Overview" [5620-6143] -->
 <h3><a>Activate Physics</a></h3>
 <div>
 <pre>private BulletAppState bulletAppState;
@@ -178,7 +178,7 @@ public void simpleInitApp&#40;&#41; &#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT8 SECTION "Activate Physics" [6144-6437] -->
 <h3><a>Initialize the Scene</a></h3>
 <div>
 
@@ -221,7 +221,7 @@ Also, add a light source to be able to see the scene.
   rootNode.addLight&#40;light&#41;;</pre>
 
 </div>
-
+<!-- EDIT9 SECTION "Initialize the Scene" [6438-7904] -->
 <h3><a>Create the Animated Character</a></h3>
 <div>
 
@@ -263,7 +263,7 @@ public void simpleInitApp&#40;&#41; &#123;
 </p>
 
 </div>
-
+<!-- EDIT10 SECTION "Create the Animated Character" [7905-9242] -->
 <h3><a>Set Up AnimControl and AnimChannels</a></h3>
 <div>
 
@@ -291,7 +291,7 @@ The attackChannel only controls one arm, while the walking channels controls the
 </p>
 
 </div>
-
+<!-- EDIT11 SECTION "Set Up AnimControl and AnimChannels" [9243-10268] -->
 <h3><a>Add ChaseCam / CameraNode</a></h3>
 <div>
 <pre>private ChaseCamera chaseCam;
@@ -305,7 +305,7 @@ public void simpleInitApp&#40;&#41; &#123;
   ...</pre>
 
 </div>
-
+<!-- EDIT12 SECTION "Add ChaseCam / CameraNode" [10269-10488] -->
 <h3><a>Handle Navigation</a></h3>
 <div>
 
@@ -428,4 +428,5 @@ public void onAnimChange&#40;AnimControl control, AnimChannel channel, String an
 </span></div>
 
 </div>
+<!-- EDIT13 SECTION "Handle Navigation" [10489-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:walking_character?do=export_xhtmlbody">view online version</a></em></p>

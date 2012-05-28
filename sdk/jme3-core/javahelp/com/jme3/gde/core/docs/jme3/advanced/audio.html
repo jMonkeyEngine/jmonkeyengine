@@ -12,7 +12,7 @@ Place audio files in the <code>assets/Sound/</code> directory of your project. j
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Audio in jME3" [1-334] -->
 <h2><a>Creating Audio Nodes: Streamed or Buffered</a></h2>
 <div>
 
@@ -31,7 +31,7 @@ The main class to look at is <code>com.jme3.audio.AudioNode</code>.
 </ul>
 
 </div>
-
+<!-- EDIT2 SECTION "Creating Audio Nodes: Streamed or Buffered" [335-1026] -->
 <h2><a>Getting AudioNode Properties</a></h2>
 <div>
 <div><table>
@@ -48,14 +48,14 @@ The main class to look at is <code>com.jme3.audio.AudioNode</code>.
 		<td>getPitch()</td><td>Returns the pitch. </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [1068-1240] -->
+<!-- EDIT4 TABLE [1068-1240] -->
 <p>
 
 There are other obvious getters to poll the status of corresponding setters below.
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "Getting AudioNode Properties" [1027-1325] -->
 <h2><a>Setting AudioNode Properties</a></h2>
 <div>
 <div><table>
@@ -69,7 +69,7 @@ There are other obvious getters to poll the status of corresponding setters belo
 		<td>setPitch(1)</td><td>Makes the sound play in a higher or lower pitch. Default is 1. 2 is twice as high, .5f is half as high. </td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [1368-1617] --><div><table>
+<!-- EDIT6 TABLE [1368-1617] --><div><table>
 	<tr>
 		<th>AudioNode Method</th><th>Usage</th>
 	</tr>
@@ -91,7 +91,7 @@ setDirectional(false)</td><td>All 3D effects switched off. This sound is global 
 		<td>setMaxDistance(100f)</td><td>Maximum distance the sound can be heard, in world units. Default is 20.</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [1619-2353] --><div><table>
+<!-- EDIT7 TABLE [1619-2353] --><div><table>
 	<tr>
 		<th>AudioNode Method</th><th>Usage</th>
 	</tr>
@@ -103,7 +103,7 @@ setLocalTranslation(…)</td><td>Activates 3D audio: The sound appears to come f
 		<td>setReverbEnabled(true)</td><td>A 3D echo effect that only makes sense to use with positional AudioNodes. The reverb effect is influenced by the environment that the audio renderer is in. See &quot;Setting Environment Properties&quot; below. </td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [2355-2827] --><div><table>
+<!-- EDIT8 TABLE [2355-2827] --><div><table>
 	<tr>
 		<th>AudioNode Method</th><th>Usage</th>
 	</tr>
@@ -116,9 +116,9 @@ setDirection(…) </td><td>Activates 3D audio: This sound can only be heard from
 setOuterAngle()</td><td>Set the angle in degrees for the directional audio. The angle is relative to the direction. Note: By default, both angles are 360° and the sound can be heard from all directions!</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [2829-3356] -->
+<!-- EDIT9 TABLE [2829-3356] -->
 </div>
-
+<!-- EDIT5 SECTION "Setting AudioNode Properties" [1326-3357] -->
 <h2><a>Play, Pause, Stop</a></h2>
 <div>
 
@@ -140,7 +140,7 @@ You can also start playing an instance of this AudioNode. Use the playInstance()
 <pre>myAudioNode.playInstance&#40;&#41;;</pre>
 
 </div>
-
+<!-- EDIT10 SECTION "Play, Pause, Stop" [3358-4062] -->
 <h2><a>The Listener</a></h2>
 <div>
 
@@ -156,7 +156,7 @@ The default listener object is the user&#039;s ear in the scene. If you use posi
   &#125;</pre>
 
 </div>
-
+<!-- EDIT11 SECTION "The Listener" [4063-4607] -->
 <h2><a>Setting Environment Properties</a></h2>
 <div>
 
@@ -185,12 +185,12 @@ Optionally, You can choose from the following environmental presets from <code>c
 		<td>Closet      </td><td>1.00f</td><td>1.0f</td><td>1.0f</td><td>1.00f</td><td>0.15f</td><td>1.0f</td><td>0.600f</td><td>0.0025f</td><td>0.500f</td><td>0.0006f</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [4931-5420] -->
+<!-- EDIT13 TABLE [4931-5420] -->
 <p>
 
 Activate the preset with setEnvironment(). E.g. in a dungeon environment: 
 </p>
-<pre>audioRenderer.setEnvironment&#40;new Environment.Dungeon&#41;&#41;;</pre>
+<pre>audioRenderer.setEnvironment&#40;new Environment&#40;Environment.Dungeon&#41;&#41;;</pre>
 
 <p>
 A sound engineer can create a custom <code>com.​jme3.​audio.Environment</code> object and specify custom environment factors. You can find many <a href="/com/jme3/gde/core/docs/jme3/advanced/audio_environment_presets.html">examples of audio environment presets</a> here. Activate your custom environment settings in the Environment constructor:
@@ -209,4 +209,5 @@ You can find more info about OpenAL and its advanced features here: <object clas
 </span></div>
 
 </div>
+<!-- EDIT12 SECTION "Setting Environment Properties" [4608-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:audio?do=export_xhtmlbody">view online version</a></em></p>

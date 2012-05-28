@@ -13,7 +13,7 @@ Spatials can contain Nodes, Geometries, and user data (player score, health, inv
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Saving and Loading Games" [1-781] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <ul>
@@ -22,7 +22,7 @@ Spatials can contain Nodes, Geometries, and user data (player score, health, inv
 </ul>
 
 </div>
-
+<!-- EDIT2 SECTION "Sample Code" [782-939] -->
 <h2><a>Saving a Node</a></h2>
 <div>
 
@@ -38,9 +38,9 @@ The following example overrides <code>destroy()</code> to save the rootNode to a
 <pre>  /* This is called when the user quits the app. */
   @Override
   public void destroy&#40;&#41; &#123;
-    System.getProperty&#40;&quot;user.home&quot;&#41;;
+    String userHome = System.getProperty&#40;&quot;user.home&quot;&#41;;
     BinaryExporter exporter = BinaryExporter.getInstance&#40;&#41;;
-    File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;LastSavedGame.j3o&quot;&#41;;
+    File file = new File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;LastSavedGame.j3o&quot;&#41;;
     try &#123;
       exporter.save&#40;rootNode, file&#41;;
     &#125; catch &#40;IOException ex&#41; &#123;
@@ -53,7 +53,7 @@ The following example overrides <code>destroy()</code> to save the rootNode to a
 <p><div>You can add a timestamp to your saved files: 
 </p>
 <pre>long timestamp = System.currentTimeMillis&#40;&#41;/1000;
-File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;/SavedGame-&quot;+timestamp+&quot;.j3o&quot;&#41;;</pre>
+File file = new File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;/SavedGame-&quot;+timestamp+&quot;.j3o&quot;&#41;;</pre>
 
 <p>
  
@@ -61,7 +61,7 @@ File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;/SavedGame-&quot;+timestamp+&q
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "Saving a Node" [940-2256] -->
 <h2><a>Loading a Node</a></h2>
 <div>
 
@@ -71,10 +71,10 @@ The following example uses simpleInitApp() to load the last saved game when the 
 </p>
 <pre>  @Override
   public void simpleInitApp&#40;&#41; &#123;
-    System.getProperty&#40;&quot;user.home&quot;&#41;;
+    String userHome = System.getProperty&#40;&quot;user.home&quot;&#41;;
     BinaryImporter importer = BinaryImporter.getInstance&#40;&#41;;
     importer.setAssetManager&#40;assetManager&#41;;
-    File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;LastSavedGame.j3o&quot;&#41;;
+    File file = new File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;LastSavedGame.j3o&quot;&#41;;
     if&#40;file.exists&#40;&#41;&#41;&#123;
       try &#123;
         Node loadedNode = &#40;Node&#41;importer.load&#40;file&#41;;
@@ -94,7 +94,7 @@ The following example uses simpleInitApp() to load the last saved game when the 
 </p>
 
 </div>
-
+<!-- EDIT4 SECTION "Loading a Node" [2257-3344] -->
 <h2><a>Custom Savable Class</a></h2>
 <div>
 
@@ -184,4 +184,5 @@ To make a custom class savable:
 </p>
 
 </div>
+<!-- EDIT5 SECTION "Custom Savable Class" [3345-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:save_and_load?do=export_xhtmlbody">view online version</a></em></p>

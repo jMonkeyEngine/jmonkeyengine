@@ -3,7 +3,7 @@
 <div>
 
 </div>
-
+<!-- EDIT1 SECTION "The SceneExplorer" [1-32] -->
 <h2><a>Adding Node types to SceneExplorer</a></h2>
 <div>
 
@@ -35,7 +35,7 @@ The SceneExplorerNode can be used for Spatial and Control type objects.
 </ul>
 
 </div>
-
+<!-- EDIT2 SECTION "Adding Node types to SceneExplorer" [33-1415] -->
 <h3><a>Spatial Example</a></h3>
 <div>
 <pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
@@ -93,7 +93,7 @@ public class JmeGeometry extends JmeSpatial &#123;
         return JmeGeometry.class;
     &#125;
 &nbsp;
-    public org.openide.nodes.Node&#91;&#93; createNodes&#40;Object key2, boolean readOnly&#41; &#123;
+    public org.openide.nodes.Node&#91;&#93; createNodes&#40;Object key, Object key2, boolean readOnly&#41; &#123;
         SceneExplorerChildren children=new SceneExplorerChildren&#40;&#40;com.jme3.scene.Spatial&#41;key&#41;;
         children.setReadOnly&#40;readOnly&#41;;
         return new org.openide.nodes.Node&#91;&#93;&#123;new JmeGeometry&#40;&#40;Geometry&#41; key, children&#41;.setReadOnly&#40;readOnly&#41;&#125;;
@@ -101,7 +101,7 @@ public class JmeGeometry extends JmeSpatial &#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT3 SECTION "Spatial Example" [1416-3357] -->
 <h3><a>Control Example</a></h3>
 <div>
 <pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
@@ -153,7 +153,7 @@ public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
         try &#123;
             SceneApplication.getApplication&#40;&#41;.enqueue&#40;new Callable&lt;Void&gt;&#40;&#41; &#123;
 &nbsp;
-                public Exception &#123;
+                public Void call&#40;&#41; throws Exception &#123;
                     spat.removeControl&#40;control&#41;;
                     return null;
                 &#125;
@@ -203,7 +203,7 @@ public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT4 SECTION "Control Example" [3358-6769] -->
 <h2><a>Adding items to the add and tools menus</a></h2>
 <div>
 
@@ -367,7 +367,7 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
                         new SkyboxWizardPanel1&#40;&#41;,
                         new SkyboxWizardPanel2&#40;&#41;
                     &#125;;
-            String&#91;panels.length&#93;;
+            String&#91;&#93; steps = new String&#91;panels.length&#93;;
             for &#40;int i = 0; i &lt; panels.length; i++&#41; &#123;
                 Component c = panels&#91;i&#93;.getComponent&#40;&#41;;
                 // Default step name to component name of panel. Mainly useful
@@ -375,7 +375,7 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
                 // list of steps.
                 steps&#91;i&#93; = c.getName&#40;&#41;;
                 if &#40;c instanceof JComponent&#41; &#123; // assume Swing components
-                    JComponent&#41; c;
+                    JComponent jc = &#40;JComponent&#41; c;
                     // Sets step number of a component
                     // TODO if using org.openide.dialogs &gt;= 7.8, can use WizardDescriptor.PROP_*:
                     jc.putClientProperty&#40;&quot;WizardPanel_contentSelectedIndex&quot;, new Integer&#40;i&#41;&#41;;
@@ -401,4 +401,5 @@ public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
 </p>
 
 </div>
+<!-- EDIT5 SECTION "Adding items to the add and tools menus" [6770-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:sceneexplorer?do=export_xhtmlbody">view online version</a></em></p>

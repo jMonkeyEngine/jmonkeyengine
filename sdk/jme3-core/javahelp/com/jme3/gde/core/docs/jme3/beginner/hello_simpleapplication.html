@@ -21,7 +21,7 @@ OK, let&#039;s get ready to create our first jMonkeyEngine3 application.
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (1) - Hello SimpleApplication" [1-726] -->
 <h2><a>Create a Project</a></h2>
 <div>
 
@@ -55,7 +55,7 @@ If you have questions, read more about <a href="/com/jme3/gde/core/docs/sdk/proj
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Create a Project" [727-1588] -->
 <h2><a>Write a SimpleApplication</a></h2>
 <div>
 
@@ -85,7 +85,7 @@ The <acronym title="Software Development Kit">SDK</acronym> creates the file Hel
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "Write a SimpleApplication" [1589-2061] -->
 <h2><a>Sample Code</a></h2>
 <div>
 
@@ -114,7 +114,7 @@ public class HelloJME3 extends SimpleApplication &#123;
 &nbsp;
     @Override
     public void simpleInitApp&#40;&#41; &#123;
-        Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // create cube shape at the origin
+        Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // create cube shape at the origin
         Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;  // create cube geometry from the shape
         Material mat = new Material&#40;assetManager,
           &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;  // create a simple material
@@ -143,7 +143,7 @@ Congratulations! Now let&#039;s find out how it works!
 </p>
 
 </div>
-
+<!-- EDIT4 SECTION "Sample Code" [2062-3976] -->
 <h2><a>Understanding the Code</a></h2>
 <div>
 
@@ -153,7 +153,7 @@ The code above has initialized the scene, and started the application.
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "Understanding the Code" [3977-4084] -->
 <h3><a>Start the SimpleApplication</a></h3>
 <div>
 
@@ -188,7 +188,7 @@ This code opens your application window. Let&#039;s learn how you put something 
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "Start the SimpleApplication" [4085-5044] -->
 <h3><a>Understanding the Terminology</a></h3>
 <div>
 <div><table>
@@ -211,14 +211,14 @@ This code opens your application window. Let&#039;s learn how you put something 
 		<td>You want the cube to appear in the center.</td><td>I create the Box at the origin = at <code>Vector3f.ZERO</code>.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [5086-5559] -->
+<!-- EDIT8 TABLE [5086-5559] -->
 <p>
 
 If you are unfamiliar with the vocabulary, read more about <a href="/com/jme3/gde/core/docs/jme3/the_scene_graph.html">the Scene Graph</a> here.
 </p>
 
 </div>
-
+<!-- EDIT7 SECTION "Understanding the Terminology" [5045-5652] -->
 <h3><a>Initialize the Scene</a></h3>
 <div>
 
@@ -234,7 +234,7 @@ Look at rest of the code sample. The <code>simpleInitApp()</code> method is auto
 The initialization code of a blue cube looks as follows:
 </p>
 <pre>    public void simpleInitApp&#40;&#41; &#123;
-        Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // create a 1x1x1 box shape at the origin
+        Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // create a 1x1x1 box shape at the origin
         Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;  // create a cube geometry from the box shape
         Material mat = new Material&#40;assetManager,
           &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;  // create a simple material
@@ -288,7 +288,7 @@ A typical JME3 game has the following initialization process:
 </ol>
 
 </div>
-
+<!-- EDIT9 SECTION "Initialize the Scene" [5653-7652] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -349,4 +349,5 @@ See also:
 </span></div>
 
 </div>
+<!-- EDIT10 SECTION "Conclusion" [7653-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_simpleapplication?do=export_xhtmlbody">view online version</a></em></p>

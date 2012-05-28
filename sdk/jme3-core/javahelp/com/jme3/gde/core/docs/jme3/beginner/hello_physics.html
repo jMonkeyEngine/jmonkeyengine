@@ -39,7 +39,7 @@ All these physical properties can be simulated in JME3. Let&#039;s have a look a
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (13) - Hello Physics" [1-1174] -->
 <h2><a>Sample Code</a></h2>
 <div>
 
@@ -136,7 +136,7 @@ public class HelloPhysics extends SimpleApplication &#123;
    * Every time the shoot action is triggered, a new cannon ball is produced.
    * The ball is set up to fly from the camera position in the camera direction.
    */</span>
-  private ActionListener&#40;&#41; &#123;
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
     public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
       if &#40;name.equals&#40;&quot;shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
         makeCannonBall&#40;&#41;;
@@ -246,7 +246,7 @@ You should see a brick wall. Click to shoot cannon balls. Watch the bricks fall 
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Sample Code" [1175-8560] -->
 <h2><a>A Basic Physics Application</a></h2>
 <div>
 
@@ -274,12 +274,12 @@ The BulletAppState gives the game access to a PhysicsSpace. The PhysicsSpace let
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "A Basic Physics Application" [8561-9544] -->
 <h2><a>Creating Bricks and Cannon Balls</a></h2>
 <div>
 
 </div>
-
+<!-- EDIT4 SECTION "Creating Bricks and Cannon Balls" [9545-9590] -->
 <h3><a>Geometries</a></h3>
 <div>
 
@@ -308,7 +308,7 @@ In this &quot;shoot at the wall&quot; example, you use Geometries such as cannon
   &#125;</pre>
 
 </div>
-
+<!-- EDIT5 SECTION "Geometries" [9591-10686] -->
 <h3><a>RigidBodyControl: Brick</a></h3>
 <div>
 
@@ -370,7 +370,7 @@ This code sample does the following:
 </ol>
 
 </div>
-
+<!-- EDIT6 SECTION "RigidBodyControl: Brick" [10687-12209] -->
 <h3><a>RigidBodyControl: Cannonball</a></h3>
 <div>
 
@@ -433,7 +433,7 @@ Since you are shooting cannon balls, the last line accelerates the ball in the d
 </p>
 
 </div>
-
+<!-- EDIT7 SECTION "RigidBodyControl: Cannonball" [12210-13807] -->
 <h3><a>RigidBodyControl: Floor</a></h3>
 <div>
 
@@ -488,7 +488,7 @@ This code sample does the following:
 </ol>
 
 </div>
-
+<!-- EDIT8 SECTION "RigidBodyControl: Floor" [13808-15232] -->
 <h2><a>Creating the Scene</a></h2>
 <div>
 
@@ -513,7 +513,7 @@ These methods are each called once from the <code>simpleInitApp()</code> method 
 </p>
 
 </div>
-
+<!-- EDIT9 SECTION "Creating the Scene" [15233-16061] -->
 <h2><a>The Cannon Ball Shooting Action</a></h2>
 <div>
 
@@ -530,7 +530,7 @@ In the <code>initInputs()</code> method, you add an input mapping that triggers 
 <p>
 You define the actual action of shooting a new cannon ball as follows:
 </p>
-<pre>    private ActionListener&#40;&#41; &#123;
+<pre>    private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
         public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
             if &#40;name.equals&#40;&quot;shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
                 makeCannonBall&#40;&#41;;
@@ -543,7 +543,7 @@ In the moment the cannonball appears in the scene, it flies off with the velocit
 </p>
 
 </div>
-
+<!-- EDIT10 SECTION "The Cannon Ball Shooting Action" [16062-17102] -->
 <h2><a>Moving a Physical Spatial</a></h2>
 <div>
 
@@ -570,12 +570,12 @@ Learn more about static versus kinematic versus dynamic in the <a href="/com/jme
 </p>
 
 </div>
-
+<!-- EDIT11 SECTION "Moving a Physical Spatial" [17103-18072] -->
 <h2><a>Excercises</a></h2>
 <div>
 
 </div>
-
+<!-- EDIT12 SECTION "Excercises" [18073-18096] -->
 <h3><a>Exercise 1: Debug Shapes</a></h3>
 <div>
 
@@ -592,7 +592,7 @@ Now you see the collisionShapes of the bricks and spheres, and the floor highlig
 </p>
 
 </div>
-
+<!-- EDIT13 SECTION "Exercise 1: Debug Shapes" [18097-18362] -->
 <h3><a>Exercise 2: No Mo&#039; Static</a></h3>
 <div>
 
@@ -602,7 +602,7 @@ What happens if you give a static node, such as the floor, a mass of more than 0
 </p>
 
 </div>
-
+<!-- EDIT14 SECTION "Exercise 2: No Mo' Static" [18363-18483] -->
 <h3><a>Exercise 3: Behind the Curtain</a></h3>
 <div>
 
@@ -620,7 +620,7 @@ Using physics everywhere in a game sounds like a cool idea, but it is easily ove
 </p>
 
 </div>
-
+<!-- EDIT15 SECTION "Exercise 3: Behind the Curtain" [18484-19489] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -644,4 +644,5 @@ You have learned how to activate the jBullet PhysicsSpace in an application by a
 </span></div>
 
 </div>
+<!-- EDIT16 SECTION "Conclusion" [19490-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_physics?do=export_xhtmlbody">view online version</a></em></p>

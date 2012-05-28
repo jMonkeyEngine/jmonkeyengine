@@ -13,7 +13,7 @@ In this tutorial, we (re)create a very simple rectangular mesh, and we have a lo
 </ul>
 
 </div>
-
+<!-- EDIT1 SECTION "Custom Mesh Shapes" [1-811] -->
 <h2><a>Polygon Meshes</a></h2>
 <div>
 
@@ -25,7 +25,7 @@ Sounds worse than it is – here is an example:
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Polygon Meshes" [812-1383] -->
 <h2><a>Creating a Quad Mesh</a></h2>
 <div>
 
@@ -44,7 +44,7 @@ If you create your own Mesh-based class, replace <code>mesh</code> by <code>this
 <pre>public class MyMesh extends Mesh &#123;  &#125;</pre>
 
 </div>
-
+<!-- EDIT3 SECTION "Creating a Quad Mesh" [1384-1766] -->
 <h3><a>Vertices</a></h3>
 <div>
 
@@ -59,7 +59,7 @@ vertices&#91;2&#93; = new Vector3f&#40;0,3,0&#41;;
 vertices&#91;3&#93; = new Vector3f&#40;3,3,0&#41;;</pre>
 
 </div>
-
+<!-- EDIT4 SECTION "Vertices" [1767-2222] -->
 <h3><a>Texture Coordinates</a></h3>
 <div>
 
@@ -74,7 +74,7 @@ texCoord&#91;2&#93; = new Vector2f&#40;0,1&#41;;
 texCoord&#91;3&#93; = new Vector2f&#40;1,1&#41;;</pre>
 
 </div>
-
+<!-- EDIT5 SECTION "Texture Coordinates" [2223-2608] -->
 <h3><a>Connecting the Dots</a></h3>
 <div>
 
@@ -95,7 +95,7 @@ Next we turn the unrelated coordinates into triangles – We define the order in
 0--1\1</pre>
 
 </div>
-
+<!-- EDIT6 SECTION "Connecting the Dots" [2609-3204] -->
 <h3><a>Setting the Mesh Buffer</a></h3>
 <div>
 
@@ -132,7 +132,7 @@ Our Mesh is ready! Now we want to see it.
 </p>
 
 </div>
-
+<!-- EDIT7 SECTION "Setting the Mesh Buffer" [3205-4320] -->
 <h2><a>Using the Mesh in a Scene</a></h2>
 <div>
 
@@ -153,7 +153,7 @@ Ta-daa!
 </p>
 
 </div>
-
+<!-- EDIT8 SECTION "Using the Mesh in a Scene" [4321-4740] -->
 <h2><a>Optional Mesh Features</a></h2>
 <div>
 
@@ -163,7 +163,7 @@ There are more vertex buffers in a Mesh than the three shown above. For an overv
 </p>
 
 </div>
-
+<!-- EDIT9 SECTION "Optional Mesh Features" [4741-4879] -->
 <h3><a>Example: Vertex Colors</a></h3>
 <div>
 
@@ -229,7 +229,7 @@ Now you see a gradient color extending from each vertex.
 </p>
 
 </div>
-
+<!-- EDIT10 SECTION "Example: Vertex Colors" [4880-7029] -->
 <h3><a>Example: Shaded Mesh with Normals</a></h3>
 <div>
 
@@ -247,7 +247,7 @@ You need as many normals as the polygon has vertices. For a flat quad, they poin
 </p>
 
 </div>
-
+<!-- EDIT11 SECTION "Example: Shaded Mesh with Normals" [7030-7801] -->
 <h3><a>Example: Point Mode</a></h3>
 <div>
 
@@ -273,7 +273,7 @@ This will result in a 10 px dot being rendered for each of the four vertices. Th
 </p>
 
 </div>
-
+<!-- EDIT12 SECTION "Example: Point Mode" [7802-8456] -->
 <h2><a>Tip: Front and Back Faces</a></h2>
 <div>
 
@@ -292,4 +292,5 @@ In case that your use case requires the backfaces to be visible, you have two op
 </ul>
 
 </div>
+<!-- EDIT13 SECTION "Tip: Front and Back Faces" [8457-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:custom_meshes?do=export_xhtmlbody">view online version</a></em></p>

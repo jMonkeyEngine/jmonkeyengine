@@ -22,7 +22,7 @@ In this tutorial we will learn to load 3-D models and text into the scene graph,
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (3) - Hello Assets" [1-616] -->
 <h2><a>Code Sample</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -55,7 +55,7 @@ public class HelloAssets extends SimpleApplication &#123;
         rootNode.attachChild&#40;teapot&#41;;
 &nbsp;
         // Create a wall with a simple texture from test_data
-        Box&#40;Vector3f.ZERO, 2.5f,2.5f,1.0f&#41;;
+        Box box = new Box&#40;Vector3f.ZERO, 2.5f,2.5f,1.0f&#41;;
         Spatial wall = new Geometry&#40;&quot;Box&quot;, box &#41;;
         Material mat_brick = new Material&#40; 
             assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -93,7 +93,7 @@ Build and run the code sample. You should see a green Ninja with a colorful teap
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Code Sample" [617-3227] -->
 <h2><a>The Asset Manager</a></h2>
 <div>
 
@@ -132,7 +132,7 @@ This is just a suggested best practice, you can name the directories in the asse
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "The Asset Manager" [3228-4057] -->
 <h3><a>Loading Textures</a></h3>
 <div>
 
@@ -141,7 +141,7 @@ This is just a suggested best practice, you can name the directories in the asse
 Place your textures in a subdirectory of <code>assets/Textures/</code>. Load the texture into the material before you set the Material. The following code sample is from the <code>simpleInitApp()</code> method and loads a simple wall model:
 </p>
 <pre>// Create a wall with a simple texture from test_data
-Box&#40;Vector3f.ZERO, 2.5f,2.5f,1.0f&#41;;
+Box box = new Box&#40;Vector3f.ZERO, 2.5f,2.5f,1.0f&#41;;
 Spatial wall = new Geometry&#40;&quot;Box&quot;, box &#41;;
 Material mat_brick = new Material&#40; 
     assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -156,7 +156,7 @@ In this case, you <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.
 </p>
 
 </div>
-
+<!-- EDIT4 SECTION "Loading Textures" [4058-4974] -->
 <h3><a>Loading Text and Fonts</a></h3>
 <div>
 
@@ -179,7 +179,7 @@ guiNode.attachChild&#40;helloText&#41;;</pre>
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "Loading Text and Fonts" [4975-5820] -->
 <h3><a>Loading a Model</a></h3>
 <div>
 
@@ -203,7 +203,7 @@ Note that you do no need to create a Material if you exported the model with a m
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "Loading a Model" [5821-6749] -->
 <h3><a>Loading Assets From Custom Paths</a></h3>
 <div>
 
@@ -233,7 +233,7 @@ JME3 offers ClasspathLocator, ZipLocator, FileLocator, HttpZipLocator, and UrlLo
 </p>
 
 </div>
-
+<!-- EDIT7 SECTION "Loading Assets From Custom Paths" [6750-7767] -->
 <h2><a>Creating Models and Scenes</a></h2>
 <div>
 
@@ -272,7 +272,7 @@ If you use Blender, export your models as Ogre <acronym title="Extensible Markup
 </ol>
 
 </div>
-
+<!-- EDIT8 SECTION "Creating Models and Scenes" [7768-8927] -->
 <h3><a>Model File Formats</a></h3>
 <div>
 
@@ -317,7 +317,7 @@ If your executable gets a runtime exception, make sure you have converted all mo
 </p>
 
 </div>
-
+<!-- EDIT9 SECTION "Model File Formats" [8928-10780] -->
 <h3><a>Loading Models and Scenes</a></h3>
 <div>
 <div><table>
@@ -346,9 +346,9 @@ rootNode.attachChild&#40;scene&#41;;</pre>
 </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [10818-11872] -->
+<!-- EDIT11 TABLE [10818-11872] -->
 </div>
-
+<!-- EDIT10 SECTION "Loading Models and Scenes" [10781-11873] -->
 <h2><a>Excercise - How to Load Assets</a></h2>
 <div>
 
@@ -453,7 +453,7 @@ Again, you should see the Ninja+wall+teapot standing in a town. </div>
 </ol>
 
 </div>
-
+<!-- EDIT12 SECTION "Excercise - How to Load Assets" [11874-15208] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -497,4 +497,5 @@ Let&#039;s add some action to the scene and continue with the <a href="/com/jme3
 </span></div>
 
 </div>
+<!-- EDIT13 SECTION "Conclusion" [15209-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_asset?do=export_xhtmlbody">view online version</a></em></p>

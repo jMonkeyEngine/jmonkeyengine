@@ -32,7 +32,7 @@ This <acronym title="Graphical User Interface">GUI</acronym> projection variant 
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Integrating Nifty GUI: Projection" [1-1192] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <ul>
@@ -41,7 +41,7 @@ This <acronym title="Graphical User Interface">GUI</acronym> projection variant 
 </ul>
 
 </div>
-
+<!-- EDIT2 SECTION "Sample Code" [1193-1360] -->
 <h2><a>Projecting the User Interface Onto a Texture</a></h2>
 <div>
 
@@ -70,7 +70,7 @@ niftyView.setClearEnabled&#40;true&#41;;
 niftyView.setOutputFrameBuffer&#40;fb&#41;;
 &nbsp;
 /** This is the 3D cube we project the GUI on */
-Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
 Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;
 Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
 mat.setTexture&#40;&quot;m_ColorMap&quot;, niftytex&#41;; /** Here comes the texture! */
@@ -86,7 +86,7 @@ Run the code sample. You select buttons on this <acronym title="Graphical User I
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "Projecting the User Interface Onto a Texture" [1361-3239] -->
 <h2><a>Next Steps</a></h2>
 <div>
 
@@ -107,4 +107,5 @@ Now that you have layed out and integrated the <acronym title="Graphical User In
 </span></div>
 
 </div>
+<!-- EDIT4 SECTION "Next Steps" [3240-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_projection?do=export_xhtmlbody">view online version</a></em></p>

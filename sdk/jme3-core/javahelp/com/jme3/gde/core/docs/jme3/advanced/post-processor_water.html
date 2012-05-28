@@ -16,7 +16,7 @@ Need simpler <a href="/com/jme3/gde/core/docs/jme3/advanced/water.html">water</a
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Rendering Water as Post-Process Effect" [1-590] -->
 <h2><a>The Theory</a></h2>
 <div>
 
@@ -34,7 +34,7 @@ The GameDev.net article describes how those effects are achieved, but the main i
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "The Theory" [591-1706] -->
 <h2><a>How Did We Implement it in jME3?</a></h2>
 <div>
 
@@ -56,7 +56,7 @@ Now we have the rendered scene in a texture, and we can reconstruct the position
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "How Did We Implement it in jME3?" [1707-2442] -->
 <h2><a>Sample Code</a></h2>
 <div>
 
@@ -75,7 +75,7 @@ There are two test cases in the jME3 repository:
 </ul>
 
 </div>
-
+<!-- EDIT4 SECTION "Sample Code" [2443-2901] -->
 <h3><a>Using the Water Filter</a></h3>
 <div>
 
@@ -108,7 +108,7 @@ Usually you make the water reflect everything attached to the rootNode. But you 
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "Using the Water Filter" [2902-4206] -->
 <h3><a>Optional: Waves</a></h3>
 <div>
 
@@ -128,7 +128,7 @@ public void simpleUpdate&#40;float tpf&#41; &#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT6 SECTION "Optional: Waves" [4207-4731] -->
 <h3><a>Optional: Water Wave and Color Effects</a></h3>
 <div>
 
@@ -175,7 +175,7 @@ manager.loadTexture(&quot;Textures/wavenormals.png&quot;) )</td><td>This normal 
 		<td>water.setNormalScale(0.5f)</td><td>Sets the normal scaling factors to apply to the normal map. The higher the value, the more small ripples will be visible on the waves.</td><td>1.0f</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [4898-6062] --><div><table>
+<!-- EDIT8 TABLE [4898-6062] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Color</th><th>Default</th>
 	</tr>
@@ -200,7 +200,7 @@ Vector3f(0.0f, 0.0f,0.2f,1.0f)</td>
 		<td>water.setColorExtinction(new Vector3f(10f,20f,30f));</td><td>Sets At what depth the refraction color extincts. The three values are RGB (red, green, blue) in this order. Play with these parameters to &quot;muddy&quot; the water.</td><td>Vector3f(5f,20f,30f)</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [6064-7068] --><div><table>
+<!-- EDIT9 TABLE [6064-7068] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Shore</th><th>Default</th>
 	</tr>
@@ -211,7 +211,7 @@ Vector3f(0.0f, 0.0f,0.2f,1.0f)</td>
 		<td>water.setUseHQShoreline(false);</td><td>Renders shoreline with better quality ?</td><td>true</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [7070-7359] --><div><table>
+<!-- EDIT10 TABLE [7070-7359] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Foam</th><th>Default</th>
 	</tr>
@@ -229,7 +229,7 @@ Vector3f(0.0f, 0.0f,0.2f,1.0f)</td>
 manager.loadTexture(&quot;Textures/foam.png&quot;) )</td><td>This foam texture will be used with WrapMode.Repeat</td><td>&quot;Common/MatDefs/Water/Textures/foam.jpg&quot;</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [7361-8006] --><div><table>
+<!-- EDIT11 TABLE [7361-8006] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Light</th><th>Default</th>
 	</tr>
@@ -255,9 +255,9 @@ manager.loadTexture(&quot;Textures/foam.png&quot;) )</td><td>This foam texture w
 		<td>water.setReflectionMapSize(256)</td><td>Sets the size of the reflection map. The higher, the better the quality, but the slower the effect.</td><td>512</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [8008-8923] -->
+<!-- EDIT12 TABLE [8008-8923] -->
 </div>
-
+<!-- EDIT7 SECTION "Optional: Water Wave and Color Effects" [4732-8925] -->
 <h3><a>Sound Effects</a></h3>
 <div>
 
@@ -281,4 +281,5 @@ See also:
 </ul>
 
 </div>
+<!-- EDIT13 SECTION "Sound Effects" [8926-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:post-processor_water?do=export_xhtmlbody">view online version</a></em></p>

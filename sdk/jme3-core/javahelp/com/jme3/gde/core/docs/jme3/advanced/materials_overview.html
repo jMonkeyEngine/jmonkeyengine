@@ -22,7 +22,7 @@ Or find more background info on <a href="/com/jme3/gde/core/docs/jme3/advanced/m
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Material Definition Properties" [1-841] -->
 <h2><a>All Materials Definition Properties</a></h2>
 <div>
 
@@ -44,7 +44,7 @@ Most Material parameters are optional. For example, it is okay to specify solely
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "All Materials Definition Properties" [842-1717] -->
 <h3><a>Unshaded Coloring and Textures</a></h3>
 <div>
 
@@ -83,7 +83,7 @@ setTexture(&quot;GlowMap&quot;, assetManager.loadTexture(&quot;&quot;)); <br/>
 setColor(&quot;GlowColor&quot;, ColorRGBA.White); </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [2273-2913] -->
+<!-- EDIT4 TABLE [2273-2913] -->
 <p>
 
 Other useful, but less commonly used material definitions:
@@ -143,9 +143,9 @@ setColor(&quot;GlowColor&quot;, ColorRGBA.White); <br/>
  setBoolean(&quot;PointSprite&quot;,true); </td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [2975-5491] -->
+<!-- EDIT5 TABLE [2975-5491] -->
 </div>
-
+<!-- EDIT3 SECTION "Unshaded Coloring and Textures" [1718-5492] -->
 <h3><a>Phong Illuminated</a></h3>
 <div>
 
@@ -203,7 +203,7 @@ setColor(&quot;Specular&quot;, ColorRGBA.White); <br/>
 setBoolean(&quot;WardIso&quot;,true);<sup><a href="#fn__4">4)</a></sup>  </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [6152-7870] --><div><table>
+<!-- EDIT7 TABLE [6152-7870] --><div><table>
 	<tr>
 		<th>Special Illuminated Material Definitions </th><th> Usage </th><th> Material Parameters </th>
 	</tr>
@@ -250,9 +250,9 @@ setBoolean(&quot;WardIso&quot;,true); <br/>
  setBoolean(&quot;SphereMap&quot;,true); </td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [7872-10158] -->
+<!-- EDIT8 TABLE [7872-10158] -->
 </div>
-
+<!-- EDIT6 SECTION "Phong Illuminated" [5493-10159] -->
 <h3><a>Other: Test and Debug</a></h3>
 <div>
 <div><table>
@@ -263,14 +263,14 @@ setBoolean(&quot;WardIso&quot;,true); <br/>
 		<td> Common/MatDefs/Misc/ShowNormals.j3md    </td><td> A color gradient calculated from the model&#039;s surface normals. You can use this built-in material to debug the generation of normals in meshes, to preview models that have no material and no lights, or as fall-back default material. This built-in material has no parameters. </td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [10193-10564] -->
+<!-- EDIT10 TABLE [10193-10564] -->
 </div>
-
+<!-- EDIT9 SECTION "Other: Test and Debug" [10160-10565] -->
 <h2><a>RenderStates</a></h2>
 <div>
 
 </div>
-
+<!-- EDIT11 SECTION "RenderStates" [10566-10591] -->
 <h3><a>Transparency</a></h3>
 <div>
 <div><table>
@@ -311,7 +311,7 @@ Deactivate Alpha Testing for gradually <strong>translucent</strong> objects, suc
 		<td>getAdditionalRenderState().setBlendMode(BlendMode.PremultAlpha);</td><td>Pre-multiplied alpha blending. E.g. if the color of the object has already been multiplied by its alpha, this is used instead of &quot;Alpha&quot; blend mode.</td><td>For use with Premult Alpha textures.</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [10616-13066] -->
+<!-- EDIT13 TABLE [10616-13066] -->
 <p>
 
 If the DiffuseMap has an alpha channel, use:
@@ -332,7 +332,7 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 </ul>
 
 </div>
-
+<!-- EDIT12 SECTION "Transparency" [10592-13365] -->
 <h3><a>Culling</a></h3>
 <div>
 <div><table>
@@ -352,9 +352,9 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.FrontAndBack)</td><td>Cull both backfaces and frontfaces.</td><td>Use this as an efficient way to make an object temporarily invisible, while keeping all its other in-game properties (node attachment, collision shapes, interactions, etc) active.</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [13385-14484] -->
+<!-- EDIT15 TABLE [13385-14484] -->
 </div>
-
+<!-- EDIT14 SECTION "Culling" [13366-14485] -->
 <h3><a>Miscellaneous</a></h3>
 <div>
 <div><table>
@@ -368,7 +368,7 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 		<td>getAdditionalRenderState().setPolyOffset();</td><td>Enable polygon offset.</td><td>Use this when you have meshes that have triangles really close to each over (e.g. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Coplanarity"><param name="text" value="<html><u>Coplanar</u></html>"><param name="textColor" value="blue"></object>), it will shift the depth values to prevent <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Z-fighting"><param name="text" value="<html><u>Z-fighting</u></html>"><param name="textColor" value="blue"></object>.</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [14511-15277] --><div><span>
+<!-- EDIT17 TABLE [14511-15277] --><div><span>
 	<a href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>,
 	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>,
 	<a href="/wiki/doku.php/tag:matdefs?do=showtag&amp;tag=tag%3Amatdefs">MatDefs</a>,
@@ -379,7 +379,7 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 </span></div>
 
 </div>
-<div>
+<!-- EDIT16 SECTION "Miscellaneous" [14486-] --><div>
 <div><sup><a href="#fnt__1">1)</a></sup> 
 UseAlpha specifies whether DiffuseMap uses the alpha channel</div>
 <div><sup><a href="#fnt__2">2)</a></sup> 

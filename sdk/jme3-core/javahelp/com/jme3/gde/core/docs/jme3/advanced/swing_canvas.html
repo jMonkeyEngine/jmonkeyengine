@@ -33,7 +33,7 @@ Here is the full <object classid="java:org.netbeans.modules.javahelp.BrowserDisp
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "JME3 Canvas in a Swing GUI" [1-1097] -->
 <h2><a>Extending SimpleApplication</a></h2>
 <div>
 
@@ -58,7 +58,7 @@ In short: The first thing that is different is the <code>main()</code> method. W
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Extending SimpleApplication" [1098-2174] -->
 <h2><a>Main() and Runnable()</a></h2>
 <div>
 
@@ -70,7 +70,7 @@ In the SwingCanvasTest&#039;s main() method, create a queued runnable(). It will
 
 </p>
 <pre>  public static void main&#40;String&#91;&#93; args&#41; &#123;
-    java.awt.Runnable&#40;&#41; &#123;
+    java.awt.EventQueue.invokeLater&#40;new Runnable&#40;&#41; &#123;
       public void run&#40;&#41; &#123;
          // ... see below ...
       &#125;
@@ -78,7 +78,7 @@ In the SwingCanvasTest&#039;s main() method, create a queued runnable(). It will
   &#125;</pre>
 
 </div>
-
+<!-- EDIT3 SECTION "Main() and Runnable()" [2175-2792] -->
 <h3><a>Creating the Canvas</a></h3>
 <div>
 
@@ -103,7 +103,7 @@ canvasApplication.setSettings&#40;settings&#41;;
 canvasApplication.createCanvas&#40;&#41;; // create canvas!
 JmeCanvasContext ctx = &#40;JmeCanvasContext&#41; canvasApplication.getContext&#40;&#41;;
 ctx.setSystemListener&#40;canvasApplication&#41;;
-Dimension&#40;640, 480&#41;;
+Dimension dim = new Dimension&#40;640, 480&#41;;
 ctx.getCanvas&#40;&#41;.setPreferredSize&#40;dim&#41;;</pre>
 
 <p>
@@ -113,7 +113,7 @@ Note that we have not called start() on the application, as we would usually do 
 </p>
 
 </div>
-
+<!-- EDIT4 SECTION "Creating the Canvas" [2793-4077] -->
 <h3><a>Creating the Swing Frame</a></h3>
 <div>
 
@@ -122,7 +122,7 @@ Inside the run() method, you create the Swing window as you would usually do. Cr
 Which ever you do, let&#039;s call the jFrame <code>window</code>.
 
 </p>
-<pre>JFrame&#40;&quot;Swing Application&quot;&#41;;
+<pre>JFrame window = new JFrame&#40;&quot;Swing Application&quot;&#41;;
 window.setDefaultCloseOperation&#40;JFrame.EXIT_ON_CLOSE&#41;;</pre>
 
 <p>
@@ -133,7 +133,7 @@ We create a standard JPanel inside the JFrame. Give it any Layout you wish – h
 The important step is to add() the canvas component into the panel, like all the other Swing components.
 
 </p>
-<pre>FlowLayout&#40;&#41;&#41;; // a panel
+<pre>JPanel panel = new JPanel&#40;new FlowLayout&#40;&#41;&#41;; // a panel
 // add all your Swing components ...
 panel.add&#40;new JButton&#40;&quot;Some Swing Component&quot;&#41;&#41;;
 ...
@@ -163,7 +163,7 @@ Clean, build, and run!
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "Creating the Swing Frame" [4078-5551] -->
 <h2><a>Navigation</a></h2>
 <div>
 
@@ -177,4 +177,5 @@ Remember, to navigate in the scene, click and drag (!) the mouse, or press the W
 </span></div>
 
 </div>
+<!-- EDIT6 SECTION "Navigation" [5552-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:swing_canvas?do=export_xhtmlbody">view online version</a></em></p>

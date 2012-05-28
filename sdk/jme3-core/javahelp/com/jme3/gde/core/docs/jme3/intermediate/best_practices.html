@@ -12,7 +12,7 @@ This &quot;best practices&quot; page is a collection of recommendations and expe
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Best Practices For jME3 Developers" [1-341] -->
 <h2><a>Requirements and Planning</a></h2>
 <div>
 
@@ -22,7 +22,7 @@ If you are a beginner, you should first <object classid="java:org.netbeans.modul
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Requirements and Planning" [342-634] -->
 <h3><a>Requirements Gathering</a></h3>
 <div>
 
@@ -82,7 +82,7 @@ E.g. models, terrains; materials, textures; noises, music, voices; video, cutsce
 </ul>
 
 </div>
-
+<!-- EDIT3 SECTION "Requirements Gathering" [635-2000] -->
 <h3><a>Planning Development Milestones</a></h3>
 <div>
 
@@ -137,7 +137,7 @@ How you name or number these stages is fully up to your team. Development teams 
 </p>
 
 </div>
-
+<!-- EDIT4 SECTION "Planning Development Milestones" [2001-3484] -->
 <h3><a>Use File Version Control</a></h3>
 <div>
 
@@ -156,7 +156,7 @@ If you don&#039;t know which to choose, Subversion is a good choice for starters
 </ul>
 
 </div>
-
+<!-- EDIT5 SECTION "Use File Version Control" [3485-4317] -->
 <h2><a>Multi-Media Asset Pipeline</a></h2>
 <div>
 <div><table>
@@ -182,14 +182,14 @@ If you don&#039;t know which to choose, Subversion is a good choice for starters
 		<td> Convert Models to j3o format. Move j3o files into <code>assets/Models</code>. </td><td>Don&#039;t reference Blender/Ogre/OBJ files in your load() code, because these unoptimized files are not packaged into the JAR.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [4358-5244] -->
+<!-- EDIT7 TABLE [4358-5244] -->
 <p>
 
 Learn details about the <a href="/com/jme3/gde/core/docs/jme3/intermediate/multi-media_asset_pipeline.html">Multi-Media Asset Pipeline</a> here.
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "Multi-Media Asset Pipeline" [4318-5327] -->
 <h2><a>Development Phase</a></h2>
 <div>
 
@@ -201,7 +201,7 @@ Even for large experienced game producers, the creation of such a complex game i
 </p>
 
 </div>
-
+<!-- EDIT8 SECTION "Development Phase" [5328-5977] -->
 <h3><a>Extend SimpleApplication</a></h3>
 <div>
 
@@ -220,7 +220,7 @@ For your future game releases, you will want to rely on your own base framework:
 </p>
 
 </div>
-
+<!-- EDIT9 SECTION "Extend SimpleApplication" [5978-7091] -->
 <h3><a>Where to Start?</a></h3>
 <div>
 
@@ -248,7 +248,7 @@ You have a list of features that you want in game, but which one do you implemen
 </p>
 
 </div>
-
+<!-- EDIT10 SECTION "Where to Start?" [7092-8371] -->
 <h3><a>The Smart Way to Add Custom Methods and Fields</a></h3>
 <div>
 
@@ -272,7 +272,7 @@ Game entities (<code>Nodes</code> and <code>Geometry</code>s) often carry custom
 </ul>
 
 </div>
-
+<!-- EDIT11 SECTION "The Smart Way to Add Custom Methods and Fields" [8372-9720] -->
 <h3><a>The Smart Way to Access Game Features</a></h3>
 <div>
 
@@ -293,7 +293,7 @@ Examples:
 this.app.getRootNode&#40;&#41;.attachChild&#40; sky &#41;;</pre>
 
 </div>
-
+<!-- EDIT12 SECTION "The Smart Way to Access Game Features" [9721-10493] -->
 <h3><a>The Smart Way to Implement Game Logic</a></h3>
 <div>
 
@@ -350,7 +350,7 @@ Read all about <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.ht
 </p>
 
 </div>
-
+<!-- EDIT13 SECTION "The Smart Way to Implement Game Logic" [10494-12862] -->
 <h3><a>Optimize Application Performance</a></h3>
 <div>
 <ul>
@@ -363,7 +363,7 @@ Read all about <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.ht
 </ul>
 
 </div>
-
+<!-- EDIT14 SECTION "Optimize Application Performance" [12863-13535] -->
 <h3><a>Don&#039;t Mess With Geometric State</a></h3>
 <div>
 
@@ -381,7 +381,7 @@ These tips are especially for users who already know jME2. Automatic handling of
 </ul>
 
 </div>
-
+<!-- EDIT15 SECTION "Don't Mess With Geometric State" [13536-13987] -->
 <h3><a>Maintain Internal Documentation</a></h3>
 <div>
 
@@ -404,7 +404,7 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </p>
 
 </div>
-
+<!-- EDIT16 SECTION "Maintain Internal Documentation" [13988-14715] -->
 <h2><a>Debugging and Test Phase</a></h2>
 <div>
 
@@ -430,12 +430,12 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </p>
 
 </div>
-
+<!-- EDIT17 SECTION "Debugging and Test Phase" [14716-17201] -->
 <h2><a>Release Phase</a></h2>
 <div>
 
 </div>
-
+<!-- EDIT18 SECTION "Release Phase" [17202-17228] -->
 <h3><a>Pre-Release To-Do List</a></h3>
 <div>
 <ul>
@@ -460,7 +460,7 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </ul>
 
 </div>
-
+<!-- EDIT19 SECTION "Pre-Release To-Do List" [17229-18041] -->
 <h3><a>Distributing the Executables</a></h3>
 <div>
 
@@ -498,7 +498,7 @@ Decide whether you want to release your game as WebStart, Desktop JAR, or Applet
 (.APK)</td><td>Game runs on Android devices.</td><td>Android devices do not support post-procesor effects.</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [18475-19695] -->
+<!-- EDIT21 TABLE [18475-19695] -->
 <p>
 
 Which ever method you choose, a Java-Application works on the main operating systems: Windows, Mac <acronym title="Operating System">OS</acronym>, Linux, Android.
@@ -510,4 +510,5 @@ The distribution appears in a newly generated <code>dist</code> directory inside
 </p>
 
 </div>
+<!-- EDIT20 SECTION "Distributing the Executables" [18042-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:best_practices?do=export_xhtmlbody">view online version</a></em></p>

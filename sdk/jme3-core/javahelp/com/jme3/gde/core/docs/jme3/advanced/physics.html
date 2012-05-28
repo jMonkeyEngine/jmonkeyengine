@@ -16,7 +16,7 @@ If you are looking for info on how to respond to physics events such as collisio
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Physics: Gravity, Collisions, Forces" [1-867] -->
 <h2><a>Technical Overview</a></h2>
 <div>
 
@@ -53,7 +53,7 @@ When you use this physics simulation, values correspond to the following units:
 </ul>
 
 </div>
-
+<!-- EDIT2 SECTION "Technical Overview" [868-2043] -->
 <h2><a>Sample Code</a></h2>
 <div>
 
@@ -73,7 +73,7 @@ Full code samples are here:
 </ul>
 
 </div>
-
+<!-- EDIT3 SECTION "Sample Code" [2044-2643] -->
 <h2><a>Physics Application</a></h2>
 <div>
 
@@ -86,7 +86,7 @@ A short overview of how to write a jME application with Physics capabilities:
 Do the following once per application to gain access to the <code>physicsSpace</code> object:
 </p>
 <ol>
-<li><div> Make you application extend <code>com.jme3.app.SimpleApplication</code>.</div>
+<li><div> Make your application extend <code>com.jme3.app.SimpleApplication</code>.</div>
 </li>
 <li><div> Create a BulletAppState field: <pre>private BulletAppState bulletAppState;</pre>
 </div>
@@ -133,7 +133,7 @@ Let&#039;s look at the details:
 </p>
 
 </div>
-
+<!-- EDIT4 SECTION "Physics Application" [2644-3845] -->
 <h2><a>Create a CollisionShape</a></h2>
 <div>
 
@@ -173,7 +173,7 @@ Disc-shaped objects like wheels, plates. </td>
 		<td> PlaneCollisionShape()       </td><td> A 2D plane. Very fast. </td><td> Flat solid floor or wall. </td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [4303-5700] -->
+<!-- EDIT6 TABLE [4304-5701] -->
 <p>
 
 All non-mesh CollisionShapes can be used for dynamic, kinematic, as well as static Spatials. (Code samples see below)
@@ -200,7 +200,7 @@ All non-mesh CollisionShapes can be used for dynamic, kinematic, as well as stat
 <strong>Limitations:</strong> Requires heightmap data. Collisions between two mesh-accurate shapes cannot be detected, only non-mesh shapes can collide with this shape.</td><td>Static terrains.</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [5821-7338] -->
+<!-- EDIT7 TABLE [5822-7339] -->
 <p>
 
 The mesh-accurate shapes can use a CollisionShapeFactory as constructor (code samples see below).
@@ -217,7 +217,7 @@ The mesh-accurate shapes can use a CollisionShapeFactory as constructor (code sa
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "Create a CollisionShape" [3846-8009] -->
 <h3><a>CollisionShape Code Samples</a></h3>
 <div>
 <ul>
@@ -248,7 +248,7 @@ The mesh-accurate shapes can use a CollisionShapeFactory as constructor (code sa
 </ul>
 
 </div>
-
+<!-- EDIT8 SECTION "CollisionShape Code Samples" [8010-9136] -->
 <h2><a>Create PhysicsControl</a></h2>
 <div>
 
@@ -269,7 +269,7 @@ Solid immobile floors, walls, static obstacles.</td>
 		<td>GhostControl</td><td>Use for collision and intersection detection between physical objects. A GhostControl itself is <em>non-solid</em> and invisible. GhostControl moves with the Spatial it is attached to. Use GhostControls to <a href="/com/jme3/gde/core/docs/jme3/advanced/physics_listeners.html">implement custom game interactions</a> by adding it to a visible Geometry. </td><td>A monster&#039;s &quot;aggro radius&quot;, CharacterControl collisions, motion detectors, photo-electric alarm sensors, poisonous or radioactive perimeters, life-draining ghosts, etc. </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [9527-10506] --><div><table>
+<!-- EDIT10 TABLE [9528-10507] --><div><table>
 	<tr>
 		<th>Special PhysicsControls</th><th> Usage</th><th> Examples </th>
 	</tr>
@@ -284,14 +284,14 @@ PhysicsVehicleWheel</td><td> Special Control used for <a href="/com/jme3/gde/cor
 		<td>RagDollControl</td><td>Special Control used for <a href="/com/jme3/gde/core/docs/jme3/advanced/ragdoll.html">collapsing, flailing, or falling characters</a> </td><td>Falling persons, animals, robots, &quot;Rag dolls&quot;</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [10508-11020] -->
+<!-- EDIT11 TABLE [10509-11021] -->
 <p>
 
 Click the links for details on the special PhysicsControls. This article is about RigidBodyControl.
 </p>
 
 </div>
-
+<!-- EDIT9 SECTION "Create PhysicsControl" [9137-11123] -->
 <h3><a>PhysicsControls Code Samples</a></h3>
 <div>
 
@@ -312,7 +312,7 @@ The PhysicsControl constructors expect a Collision Shape and a mass (a float in 
 <p>
 The following creates a box Geometry with the correct default BoxCollisionShape:
 </p>
-<pre>Box&#40;1,1,1&#41;;
+<pre>Box b = new Box&#40;1,1,1&#41;;
 Geometry box_geo = new Geometry&#40;&quot;Box&quot;, b&#41;;
 box_geo.addControl&#40;new RigidBodyControl&#40; 1.0f &#41;&#41;; // explicit non-zero mass, implicit BoxCollisionShape</pre>
 
@@ -330,7 +330,7 @@ gameLevel.addControl&#40;new RigidBodyControl&#40;0.0f&#41;&#41;; // explicit ze
 </p>
 
 </div>
-
+<!-- EDIT12 SECTION "PhysicsControls Code Samples" [11124-12596] -->
 <h2><a>Add PhysicsControl to Spatial</a></h2>
 <div>
 
@@ -347,7 +347,7 @@ For each physical Spatial in the scene:
 </ol>
 
 </div>
-
+<!-- EDIT13 SECTION "Add PhysicsControl to Spatial" [12597-12844] -->
 <h2><a>Add PhysicsControl to PhysicsSpace</a></h2>
 <div>
 
@@ -374,7 +374,7 @@ myThing_geo.removeFromParent&#40;&#41;;</pre>
 </p>
 
 </div>
-
+<!-- EDIT14 SECTION "Add PhysicsControl to PhysicsSpace" [12845-13660] -->
 <h3><a>PhysicsSpace Code Samples</a></h3>
 <div>
 
@@ -396,7 +396,7 @@ bulletAppState.getPhysicsSpace&#40;&#41;.setWorldMin&#40;new Vector3f&#40;-10000
 </ul>
 
 </div>
-
+<!-- EDIT15 SECTION "PhysicsSpace Code Samples" [13661-14361] -->
 <h2><a>Specify Physical Properties</a></h2>
 <div>
 
@@ -435,7 +435,7 @@ This setting has an impact on performance, so use it sparingly. </td><td> Brick:
 Rubber ball: 1.0f </td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [14585-16006] -->
+<!-- EDIT17 TABLE [14586-16007] -->
 <p>
 
 On a RigidBodyControl, you can apply the following physical forces:
@@ -459,9 +459,9 @@ On a RigidBodyControl, you can apply the following physical forces:
 (See detailed explanation below.) </td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [16077-16867] -->
+<!-- EDIT18 TABLE [16078-16868] -->
 </div>
-
+<!-- EDIT16 SECTION "Specify Physical Properties" [14362-16869] -->
 <h3><a>Kinematic vs Dynamic vs Static</a></h3>
 <div>
 
@@ -511,7 +511,7 @@ setKinematic(true);</td><td>setMass(1f); <br/>
 setKinematic(false);</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [17105-18164] -->
+<!-- EDIT20 TABLE [17106-18165] -->
 </div>
 
 <h4><a>When Do I Use Kinematic Objects?</a></h4>
@@ -534,7 +534,7 @@ setKinematic(false);</td>
 </p>
 
 </div>
-
+<!-- EDIT19 SECTION "Kinematic vs Dynamic vs Static" [16870-19271] -->
 <h2><a>Forces: Moving Dynamic Objects</a></h2>
 <div>
 
@@ -572,7 +572,7 @@ Use the following methods to move dynamic physical objects.
 		<td> clearForces()</td><td>Cancels out all forces (force, torque) etc and stops the motion.</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [19376-20365] -->
+<!-- EDIT22 TABLE [19377-20366] -->
 <p>
 
 <p><div>It is technically possible to position PhysicsControls using setLocalTranslation(), e.g. to place them in their start position in the scene. However you must be very careful not to cause an &quot;impossible state&quot; where one physical object overlaps with another! Within the game, you typically use the setters shown here exclusively.
@@ -612,7 +612,7 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 		<td> setCcdSweptSphereRadius(.5f)</td><td>Bullet does not use the full collision shape for continuous collision detection, insteadit uses a &quot;swept sphere&quot; shape to approximate a motion. Only relevant for fast moving dynamic bodies. (?) </td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [20783-22588] -->
+<!-- EDIT23 TABLE [20784-22589] -->
 <p>
 
 <p><div> You can <code>setApplyPhysicsLocal(true)</code> for an object to make it move relatively to its local physics space. You would do that if you need a physics space that moves with a node (e.g. a spaceship with artificial gravity surrounded by zero-g space). By default, it&#039;s set to false, and all movement is relative to the world.
@@ -620,7 +620,7 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 </p>
 
 </div>
-
+<!-- EDIT21 SECTION "Forces: Moving Dynamic Objects" [19272-22931] -->
 <h2><a>Best Practices</a></h2>
 <div>
 <ul>
@@ -651,7 +651,7 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 </span></div>
 
 </div>
-<div>
+<!-- EDIT24 SECTION "Best Practices" [22932-] --><div>
 <div><sup><a href="#fnt__1">1)</a></sup> 
 Inertia is calculated for kinematic objects, and you need mass to do that.</div>
 </div>

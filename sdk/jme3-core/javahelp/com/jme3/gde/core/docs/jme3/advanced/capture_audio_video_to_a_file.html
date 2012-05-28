@@ -21,7 +21,7 @@ feature to record high-quality game trailers!
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Capture Audio/Video to a File" [1-630] -->
 <h2><a>Simple Way</a></h2>
 <div>
 
@@ -50,7 +50,7 @@ That&#039;s all!
 </p>
 
 </div>
-
+<!-- EDIT2 SECTION "Simple Way" [631-1314] -->
 <h2><a>Advanced Way</a></h2>
 <div>
 
@@ -153,7 +153,7 @@ a file.
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "Advanced Way" [1315-4507] -->
 <h3><a>Basic Example</a></h3>
 <div>
 
@@ -182,9 +182,9 @@ import com.jme3.app.SimpleApplication;
 &nbsp;
 public class Basic &#123;
 &nbsp;
-    public static void main&#40;IOException&#123;
-	File.createTempFile&#40;&quot;JME-water-video&quot;, &quot;.avi&quot;&#41;;
-	File.createTempFile&#40;&quot;JME-water-audio&quot;, &quot;.wav&quot;&#41;;
+    public static void main&#40;String&#91;&#93; ignore&#41; throws IOException&#123;
+	File video = File.createTempFile&#40;&quot;JME-water-video&quot;, &quot;.avi&quot;&#41;;
+	File audio = File.createTempFile&#40;&quot;JME-water-audio&quot;, &quot;.wav&quot;&#41;;
 &nbsp;
 	SimpleApplication app = new TestPostWater&#40;&#41;;
 	app.setTimer&#40;new IsoTimer&#40;60&#41;&#41;;
@@ -201,7 +201,7 @@ public class Basic &#123;
 &#125;</pre>
 
 </div>
-
+<!-- EDIT4 SECTION "Basic Example" [4508-5640] -->
 <h3><a>How it works</a></h3>
 <div>
 
@@ -242,7 +242,7 @@ would be useless.
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "How it works" [5641-7279] -->
 <h3><a>Advanced Example</a></h3>
 <div>
 
@@ -596,7 +596,7 @@ The <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "Advanced Example" [7280-17183] -->
 <h3><a>Using Advanced features to Record from more than one perspective at once</a></h3>
 <div>
 
@@ -617,7 +617,7 @@ The <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param
 </p>
 
 </div>
-
+<!-- EDIT7 SECTION "Using Advanced features to Record from more than one perspective at once" [17184-17325] -->
 <h2><a>More Information</a></h2>
 <div>
 
@@ -649,4 +649,5 @@ listeners can be found here.
 </p>
 
 </div>
+<!-- EDIT8 SECTION "More Information" [17326-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:capture_audio_video_to_a_file?do=export_xhtmlbody">view online version</a></em></p>

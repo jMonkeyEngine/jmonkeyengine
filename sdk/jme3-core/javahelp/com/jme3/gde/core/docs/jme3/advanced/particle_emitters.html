@@ -18,7 +18,7 @@ Creating an effect involves some trial and error to get the settings <em>just ri
 </p>
 
 </div>
-
+<!-- EDIT1 SECTION "Particle Emmitter Settings" [1-844] -->
 <h2><a>Create an Emitter</a></h2>
 <div>
 <ol>
@@ -49,7 +49,7 @@ Choose one of the following mesh shapes
 </ul>
 
 </div>
-
+<!-- EDIT2 SECTION "Create an Emitter" [845-1473] -->
 <h2><a>Configure Parameters</a></h2>
 <div>
 
@@ -115,13 +115,13 @@ false = Particles fly straight like you drew them in the sprite texture (e.g. in
 		<td> start area        </td><td><code>setShape(new EmitterSphereShape( Vector3f.ZERO, 2f));</code></td><td>EmitterPointShape()</td><td>By default, particles are emitted from the emitters location (a point). You can increase the emitter shape to occupy a sphere, so that the start point of new particles can be anywhere inside the sphere, which makes the effect a bit more irregular.</td>
 	</tr>
 </table></div>
-<!-- EDIT1 TABLE [1638-5412] -->
+<!-- EDIT4 TABLE [1638-5412] -->
 <p>
 Build up you effect by specifying one parameter after the other. If you change several parameters at the same time, it&#039;s difficult to tell which of the values caused which outcome.
 </p>
 
 </div>
-
+<!-- EDIT3 SECTION "Configure Parameters" [1474-5594] -->
 <h2><a>Create an Effect Material</a></h2>
 <div>
 
@@ -158,7 +158,7 @@ The effect texture can be one image, or contain a sprite animation – a series 
 </p>
 
 </div>
-
+<!-- EDIT5 SECTION "Create an Effect Material" [5595-6915] -->
 <h3><a>Default Particle Textures</a></h3>
 <div>
 
@@ -195,14 +195,14 @@ The following effect textures are available by default from <code>test-data.jar<
 		<td> Effects/Smoke/Smoke.png          </td><td> 1*15 </td><td> <img src="/wiki/lib/exe/fetch.php"> </td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [7231-8476] -->
+<!-- EDIT7 TABLE [7231-8476] -->
 <p>
 
 <strong>Tip:</strong> Use the <code>setStartColor()</code>/<code>setEndColor()</code> settings described above to colorize the white and gray parts of textures.
 </p>
 
 </div>
-
+<!-- EDIT6 SECTION "Default Particle Textures" [6916-8608] -->
 <h2><a>Usage Example</a></h2>
 <div>
 <pre>    ParticleEmitter fire = new ParticleEmitter&#40;&quot;Emitter&quot;, ParticleMesh.Type.Triangle, 30&#41;;
@@ -237,4 +237,5 @@ See also: <a href="/com/jme3/gde/core/docs/jme3/advanced/effects_overview.html">
 </span></div>
 
 </div>
+<!-- EDIT8 SECTION "Usage Example" [8609-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:particle_emitters?do=export_xhtmlbody">view online version</a></em></p>
