@@ -106,15 +106,15 @@ public class PerspectiveLodCalculator implements LodCalculator {
                 }
                 int prevLOD = patch.getLod();
 
-                //previousLod = lod;
-                //lod = i;
+                
                 UpdatedTerrainPatch utp = updates.get(patch.getName());
                 if (utp == null) {
-                    utp = new UpdatedTerrainPatch(patch, i);//save in here, do not update actual variables
+                    utp = new UpdatedTerrainPatch(patch);//save in here, do not update actual variables
                     updates.put(utp.getName(), utp);
                 }
+                utp.setNewLod(i);
                 utp.setPreviousLod(prevLOD);
-                utp.setReIndexNeeded(reIndexNeeded);
+                //utp.setReIndexNeeded(reIndexNeeded);
                 return reIndexNeeded;
             }
         }

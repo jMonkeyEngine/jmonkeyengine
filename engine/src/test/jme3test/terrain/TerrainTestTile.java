@@ -15,11 +15,13 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.terrain.ProgressMonitor;
 import com.jme3.terrain.Terrain;
+import com.jme3.terrain.geomipmap.MultiTerrainLodControl;
 import com.jme3.terrain.geomipmap.NeighbourFinder;
-import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.texture.Texture;
@@ -29,7 +31,8 @@ import java.util.List;
 /**
  * Demonstrates the NeighbourFinder interface for TerrainQuads,
  * allowing you to tile terrains together without having to use
- * TerrainGrid.
+ * TerrainGrid. It also introduces the MultiTerrainLodControl that
+ * will seam the edges of all the terrains supplied.
  * 
  * @author sploreg
  */
@@ -75,7 +78,31 @@ public class TerrainTestTile extends SimpleApplication {
         rootNode.addLight(ambLight);
 
         cam.setLocation(new Vector3f(0, 256, 0));
-        cam.lookAtDirection(new Vector3f(0, -1f, 0).normalizeLocal(), Vector3f.UNIT_X);
+        cam.lookAtDirection(new Vector3f(0, -1, -1).normalizeLocal(), Vector3f.UNIT_Y);
+        
+        
+        Sphere s = new Sphere(12, 12, 3);
+        Geometry g = new Geometry("marker");
+        g.setMesh(s);
+        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat.setColor("Color", ColorRGBA.Red);
+        g.setMaterial(mat);
+        g.setLocalTranslation(0, -100, 0);
+        rootNode.attachChild(g);
+        
+        Geometry g2 = new Geometry("marker");
+        g2.setMesh(s);
+        mat.setColor("Color", ColorRGBA.Red);
+        g2.setMaterial(mat);
+        g2.setLocalTranslation(10, -100, 0);
+        rootNode.attachChild(g2);
+        
+        Geometry g3 = new Geometry("marker");
+        g3.setMesh(s);
+        mat.setColor("Color", ColorRGBA.Red);
+        g3.setMaterial(mat);
+        g3.setLocalTranslation(0, -100, 10);
+        rootNode.attachChild(g3);
     }
     
     public void loadHintText() {
@@ -110,6 +137,8 @@ public class TerrainTestTile extends SimpleApplication {
      * the use of NeighbourFinder.
      * It just links up the left,right,top,bottom TerrainQuads
      * so LOD can work.
+     * It does not implement many of the Terrain interface's methods,
+     * you will want to do that for your own implementations.
      */
     private class TiledTerrain extends Node implements Terrain, NeighbourFinder {
 
@@ -132,41 +161,43 @@ public class TerrainTestTile extends SimpleApplication {
             matTerrain.setFloat("DiffuseMap_0_scale", grassScale);
 
             // CREATE THE TERRAIN
-            terrain1 = new TerrainQuad("terrain", 65, 513, null);
-            TerrainLodControl control1 = new TerrainLodControl(terrain1, getCamera());
-            control1.setLodCalculator( new DistanceLodCalculator(65, 2.7f) ); // patch size, and a multiplier
-            terrain1.addControl(control1);
+            terrain1 = new TerrainQuad("terrain 1", 65, 513, null);
             terrain1.setMaterial(matTerrain);
             terrain1.setLocalTranslation(-256, -100, -256);
             terrain1.setLocalScale(1f, 1f, 1f);
             this.attachChild(terrain1);
 
-            terrain2 = new TerrainQuad("terrain", 65, 513, null);
-            TerrainLodControl control2 = new TerrainLodControl(terrain2, getCamera());
-            control2.setLodCalculator( new DistanceLodCalculator(65, 2.7f) ); // patch size, and a multiplier
-            terrain2.addControl(control2);
+            terrain2 = new TerrainQuad("terrain 2", 65, 513, null);
             terrain2.setMaterial(matTerrain);
             terrain2.setLocalTranslation(-256, -100, 256);
             terrain2.setLocalScale(1f, 1f, 1f);
             this.attachChild(terrain2);
 
-            terrain3 = new TerrainQuad("terrain", 65, 513, null);
-            TerrainLodControl control3 = new TerrainLodControl(terrain3, getCamera());
-            control3.setLodCalculator( new DistanceLodCalculator(65, 2.7f) ); // patch size, and a multiplier
-            terrain3.addControl(control3);
+            terrain3 = new TerrainQuad("terrain 3", 65, 513, null);
             terrain3.setMaterial(matTerrain);
             terrain3.setLocalTranslation(256, -100, -256);
             terrain3.setLocalScale(1f, 1f, 1f);
             this.attachChild(terrain3);
 
-            terrain4 = new TerrainQuad("terrain", 65, 513, null);
-            TerrainLodControl control4 = new TerrainLodControl(terrain4, getCamera());
-            control4.setLodCalculator( new DistanceLodCalculator(65, 2.7f) ); // patch size, and a multiplier
-            terrain4.addControl(control4);
+            terrain4 = new TerrainQuad("terrain 4", 65, 513, null);
             terrain4.setMaterial(matTerrain);
             terrain4.setLocalTranslation(256, -100, 256);
             terrain4.setLocalScale(1f, 1f, 1f);
             this.attachChild(terrain4);
+            
+            terrain1.setNeighbourFinder(this);
+            terrain2.setNeighbourFinder(this);
+            terrain3.setNeighbourFinder(this);
+            terrain4.setNeighbourFinder(this);
+            
+            MultiTerrainLodControl lodControl = new MultiTerrainLodControl(getCamera());
+            lodControl.setLodCalculator( new DistanceLodCalculator(65, 2.7f) ); // patch size, and a multiplier
+            lodControl.addTerrain(terrain1);
+            lodControl.addTerrain(terrain2);
+            lodControl.addTerrain(terrain3);// order of these seems to matter
+            lodControl.addTerrain(terrain4);
+            this.addControl(lodControl);
+            
         }
         
         /**
@@ -174,6 +205,7 @@ public class TerrainTestTile extends SimpleApplication {
          * 2  4
          */
         public TerrainQuad getRightQuad(TerrainQuad center) {
+            //System.out.println("lookup neighbour");
             if (center == terrain1)
                 return terrain3;
             if (center == terrain2)
@@ -187,6 +219,7 @@ public class TerrainTestTile extends SimpleApplication {
          * 2  4
          */
         public TerrainQuad getLeftQuad(TerrainQuad center) {
+            //System.out.println("lookup neighbour");
             if (center == terrain3)
                 return terrain1;
             if (center == terrain4)
@@ -200,6 +233,7 @@ public class TerrainTestTile extends SimpleApplication {
          * 2  4
          */
         public TerrainQuad getTopQuad(TerrainQuad center) {
+            //System.out.println("lookup neighbour");
             if (center == terrain2)
                 return terrain1;
             if (center == terrain4)
@@ -213,6 +247,7 @@ public class TerrainTestTile extends SimpleApplication {
          * 2  4
          */
         public TerrainQuad getDownQuad(TerrainQuad center) {
+            //System.out.println("lookup neighbour");
             if (center == terrain1)
                 return terrain2;
             if (center == terrain3)

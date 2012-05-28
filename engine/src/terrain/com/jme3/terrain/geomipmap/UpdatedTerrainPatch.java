@@ -49,21 +49,16 @@ public class UpdatedTerrainPatch {
     private int previousLod;
     private int rightLod,topLod,leftLod,bottomLod;
     private IntBuffer newIndexBuffer;
-    private boolean reIndexNeeded = false;
+    //private boolean reIndexNeeded = false;
     private boolean fixEdges = false;
+
+    public UpdatedTerrainPatch(TerrainPatch updatedPatch) {
+        this.updatedPatch = updatedPatch;
+    }
 
     public UpdatedTerrainPatch(TerrainPatch updatedPatch, int newLod) {
         this.updatedPatch = updatedPatch;
         this.newLod = newLod;
-    }
-
-    public UpdatedTerrainPatch(TerrainPatch updatedPatch, int newLod, int prevLOD, boolean reIndexNeeded) {
-        this.updatedPatch = updatedPatch;
-        this.newLod = newLod;
-        this.previousLod = prevLOD;
-        this.reIndexNeeded = reIndexNeeded;
-        if (this.newLod <= 0)
-            throw new IllegalArgumentException();
     }
 
     public String getName() {
@@ -71,7 +66,7 @@ public class UpdatedTerrainPatch {
     }
 
     protected boolean lodChanged() {
-        if (reIndexNeeded && previousLod != newLod)
+        if ( previousLod != newLod)
             return true;
         else
             return false;
@@ -88,16 +83,16 @@ public class UpdatedTerrainPatch {
     protected int getNewLod() {
         return newLod;
     }
-
+    
     public void setNewLod(int newLod) {
         this.newLod = newLod;
         if (this.newLod < 0)
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("newLod cannot be less than zero, was: "+newLod);
     }
 
-    protected IntBuffer getNewIndexBuffer() {
+    /*protected IntBuffer getNewIndexBuffer() {
         return newIndexBuffer;
-    }
+    }*/
 
     protected void setNewIndexBuffer(IntBuffer newIndexBuffer) {
         this.newIndexBuffer = newIndexBuffer;
@@ -144,12 +139,16 @@ public class UpdatedTerrainPatch {
     }
 
     public boolean isReIndexNeeded() {
-        return reIndexNeeded;
+        if (lodChanged() || isFixEdges())
+            return true;
+        //if (leftLod != newLod || rightLod != newLod || bottomLod != newLod || topLod != newLod)
+        //    return true;
+        return false;
     }
 
-    public void setReIndexNeeded(boolean reIndexNeeded) {
+    /*public void setReIndexNeeded(boolean reIndexNeeded) {
         this.reIndexNeeded = reIndexNeeded;
-    }
+    }*/
 
     public boolean isFixEdges() {
         return fixEdges;
@@ -159,9 +158,9 @@ public class UpdatedTerrainPatch {
         this.fixEdges = fixEdges;
     }
 
-    public int getPreviousLod() {
+    /*public int getPreviousLod() {
         return previousLod;
-    }
+    }*/
 
     public void setPreviousLod(int previousLod) {
         this.previousLod = previousLod;
@@ -173,11 +172,11 @@ public class UpdatedTerrainPatch {
         updatedPatch.setLodTop(topLod);
         updatedPatch.setLodLeft(leftLod);
         updatedPatch.setLodBottom(bottomLod);
-        if (newIndexBuffer != null && (reIndexNeeded || fixEdges)) {
+        if (newIndexBuffer != null && isReIndexNeeded()) {
             updatedPatch.setPreviousLod(previousLod);
             updatedPatch.getMesh().clearBuffer(Type.Index);
             updatedPatch.getMesh().setBuffer(Type.Index, 3, newIndexBuffer);
         }
     }
-
+    
 }

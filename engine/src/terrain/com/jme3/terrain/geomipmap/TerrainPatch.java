@@ -80,7 +80,7 @@ import java.util.List;
 public class TerrainPatch extends Geometry {
 
     protected LODGeomap geomap;
-    protected int lod = -1; // this terrain patch's LOD
+    protected int lod = 0; // this terrain patch's LOD
     private int maxLod = -1;
     protected int previousLod = -1;
     protected int lodLeft, lodTop, lodRight, lodBottom; // it's neighbour's LODs
@@ -234,7 +234,7 @@ public class TerrainPatch extends Geometry {
 
         UpdatedTerrainPatch utp = updated.get(getName());
 
-        if (utp != null && (utp.isReIndexNeeded() || utp.isFixEdges()) ) {
+        if (utp != null && utp.isReIndexNeeded() ) {
             int pow = (int) Math.pow(2, utp.getNewLod());
             boolean left = utp.getLeftLod() > utp.getNewLod();
             boolean top = utp.getTopLod() > utp.getNewLod();

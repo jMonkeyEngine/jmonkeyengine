@@ -13,7 +13,7 @@ package com.jme3.terrain.geomipmap;
  * With this you can have a parent, control or spatial, that manages a group of
  * TerrainQuads by linking them together through these four methods.
  * 
- * The general orientation of TerrainQuads and their sun-quads is as such:
+ * The general orientation of TerrainQuads and their sub-quads is as such:
  * 
  * 
  *  +-- x+ ---->
@@ -32,11 +32,23 @@ package com.jme3.terrain.geomipmap;
  */
 public interface NeighbourFinder {
     
+    /**
+     * Get the TerrainQuad to the right of the supplied 'center' quad.
+     */
     public TerrainQuad getRightQuad(TerrainQuad center);
     
+    /**
+     * Get the TerrainQuad to the left of the supplied 'center' quad.
+     */
     public TerrainQuad getLeftQuad(TerrainQuad center);
     
+    /**
+     * Get the TerrainQuad above the supplied 'center' quad.
+     */
     public TerrainQuad getTopQuad(TerrainQuad center);
     
+    /**
+     * Get the TerrainQuad below the supplied 'center' quad.
+     */
     public TerrainQuad getDownQuad(TerrainQuad center);
 }

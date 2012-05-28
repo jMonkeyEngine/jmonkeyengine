@@ -71,12 +71,12 @@ public class DistanceLodCalculator implements LodCalculator {
             int prevLOD = terrainPatch.getLod();
             UpdatedTerrainPatch utp = updates.get(terrainPatch.getName());
             if (utp == null) {
-                utp = new UpdatedTerrainPatch(terrainPatch, 0);
+                utp = new UpdatedTerrainPatch(terrainPatch);
                 updates.put(utp.getName(), utp);
             }
             utp.setNewLod(0);
             utp.setPreviousLod(prevLOD);
-            utp.setReIndexNeeded(true);
+            //utp.setReIndexNeeded(true);
             return true;
         }
         
@@ -89,15 +89,15 @@ public class DistanceLodCalculator implements LodCalculator {
                     //System.out.println("lod change: "+lod+" > "+i+"    dist: "+distance);
                 }
                 int prevLOD = terrainPatch.getLod();
-                //previousLod = lod;
-                //lod = i;
+                
                 UpdatedTerrainPatch utp = updates.get(terrainPatch.getName());
                 if (utp == null) {
-                    utp = new UpdatedTerrainPatch(terrainPatch, i);//save in here, do not update actual variables
+                    utp = new UpdatedTerrainPatch(terrainPatch);//save in here, do not update actual variables
                     updates.put(utp.getName(), utp);
                 }
+                utp.setNewLod(i);
                 utp.setPreviousLod(prevLOD);
-                utp.setReIndexNeeded(reIndexNeeded);
+                //utp.setReIndexNeeded(reIndexNeeded);
 
                 return reIndexNeeded;
             }

@@ -154,6 +154,9 @@ public class LODGeomap extends GeoMap {
      */
     public IntBuffer writeIndexArrayLodDiff(IntBuffer store, int lod, boolean rightLod, boolean topLod, boolean leftLod, boolean bottomLod) {
 
+        //if (true)
+        //return writeIndexArrayLodVariable(store, lod, height, lod, lod, lod);
+        
         IntBuffer buffer2 = store;
         int numIndexes = calculateNumIndexesLodDiff(lod);
         if (store == null) {
@@ -275,7 +278,7 @@ public class LODGeomap extends GeoMap {
                 buffer.put(idx);
                 idx = (row + 2 * lod) * getWidth();
                 buffer.put(idx);
-                if (row < getWidth() - lod - 2 - 1) { //if not the last one
+                if (row < getWidth() - 1 - 2 * lod) { //if not the last one
                     idx = (row + 2 * lod) * getWidth() + lod;
                     buffer.put(idx);
                     idx = (row + 2 * lod) * getWidth();
@@ -917,10 +920,12 @@ public class LODGeomap extends GeoMap {
 
         public void put(int value) {
             try {
-                delegate.put(value);
                 count++;
+                if (count > delegate.limit())
+                    throw new BufferOverflowException();
+                delegate.put(value);
             } catch (BufferOverflowException e) {
-                //System.out.println("err buffer size: "+delegate.capacity());
+                System.out.println("err buffer size: "+delegate.capacity());
             }
         }
 
