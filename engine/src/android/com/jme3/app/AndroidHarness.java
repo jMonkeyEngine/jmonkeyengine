@@ -134,8 +134,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected OGLESContext ctx;
     protected GLSurfaceView view = null;
     protected boolean isGLThreadPaused = true;
-    private ImageView splashImageView = null;
-    private FrameLayout frameLayout = null;
+    protected ImageView splashImageView = null;
+    protected FrameLayout frameLayout = null;
     final private String ESCAPE_EVENT = "TouchEscape";
     private boolean firstDrawFrame = true;
 
@@ -175,10 +175,11 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             view = ctx.createView(eglConfigType, eglConfigVerboseLogging);
 
             // Set the screen reolution
-//            WindowManager wind = this.getWindowManager();
-//            Display disp = wind.getDefaultDisplay();
-//            logger.log(Level.WARNING, "Resolution from Window: {0}, {1}", new Object[]{disp.getWidth(), disp.getHeight()});
-//            ctx.getSettings().setResolution(disp.getWidth(), disp.getHeight());
+            //TODO try to find a better way to get a hand on the resolution
+            WindowManager wind = this.getWindowManager();
+            Display disp = wind.getDefaultDisplay();
+            logger.log(Level.WARNING, "Resolution from Window: {0}, {1}", new Object[]{disp.getWidth(), disp.getHeight()});
+            ctx.getSettings().setResolution(disp.getWidth(), disp.getHeight());
 
             // AndroidHarness wraps the app as a SystemListener.
             ctx.setSystemListener(this);

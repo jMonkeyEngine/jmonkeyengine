@@ -19,7 +19,8 @@ public class TextureUtil {
 
     private static final Logger logger = Logger.getLogger(TextureUtil.class.getName());
     
-    private static boolean ENABLE_COMPRESSION = true;
+    //TODO Make this configurable through appSettings
+    public static boolean ENABLE_COMPRESSION = true;
     private static boolean NPOT = false;
     private static boolean ETC1support = false;
     private static boolean DXT1 = false;
