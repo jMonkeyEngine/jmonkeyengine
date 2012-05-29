@@ -436,7 +436,9 @@ public class AndroidAudioRenderer implements AudioRenderer,
         if (soundPool != null) {
             soundPool.autoPause();
             for (MediaPlayer mp : musicPlaying.values()) {
-                mp.pause();
+                if(mp.isPlaying()){
+                    mp.pause();
+                }
             }
         }
     }
