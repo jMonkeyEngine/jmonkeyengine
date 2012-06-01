@@ -611,6 +611,8 @@ public class TangentBinormalGenerator {
             }
         }
         
+        // If the model already had a tangent buffer, replace it with the regenerated one
+        mesh.clearBuffer(Type.Tangent); 
         mesh.setBuffer(Type.Tangent, 4, tangents);
 //        if (!approxTangent) mesh.setBuffer(Type.Binormal, 3, binormals);
     }
