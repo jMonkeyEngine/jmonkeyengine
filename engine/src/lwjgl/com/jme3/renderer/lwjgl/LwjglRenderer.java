@@ -1846,7 +1846,7 @@ public class LwjglRenderer implements Renderer {
         } else {
 //          glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0 );
             if (img.getMipMapSizes() != null) {
-                glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length);
+                glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
             }
         }
 
