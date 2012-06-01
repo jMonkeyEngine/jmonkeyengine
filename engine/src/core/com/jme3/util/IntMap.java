@@ -61,11 +61,11 @@ public final class IntMap<T> implements Iterable<Entry<T>>, Cloneable {
         if (initialCapacity > 1 << 30){
             throw new IllegalArgumentException("initialCapacity is too large.");
         }
-        if (initialCapacity < 0){
+        if (initialCapacity <= 0){
             throw new IllegalArgumentException("initialCapacity must be greater than zero.");
         }
         if (loadFactor <= 0){
-            throw new IllegalArgumentException("initialCapacity must be greater than zero.");
+            throw new IllegalArgumentException("loadFactor must be greater than zero.");
         }
         capacity = 1;
         while (capacity < initialCapacity){
