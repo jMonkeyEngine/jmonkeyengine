@@ -372,14 +372,14 @@ public class AudioNode extends Node {
     }
 
     /**
-     * @return The time offset in seconds when the sound will start playing.
+     * @return the time offset in the sound sample when to start playing.
      */
     public float getTimeOffset() {
         return timeOffset;
     }
 
     /**
-     * Set the time offset in seconds when the sound will start playing.
+     * Set the time offset in the sound sample when to start playing.
      * 
      * @param timeOffset The time offset
      * @throws IllegalArgumentException If timeOffset is negative
