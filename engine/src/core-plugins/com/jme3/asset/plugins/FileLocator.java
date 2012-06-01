@@ -51,7 +51,7 @@ public class FileLocator implements AssetLocator {
         try {
             root = new File(rootPath).getCanonicalFile();
             if (!root.isDirectory()){
-                throw new IllegalArgumentException("Given root path \"" + root + "\" not a directory");
+                throw new IllegalArgumentException("Given root path \"" + root + "\" is not a directory");
             }
         } catch (IOException ex) {
             throw new AssetLoadException("Root path is invalid", ex);

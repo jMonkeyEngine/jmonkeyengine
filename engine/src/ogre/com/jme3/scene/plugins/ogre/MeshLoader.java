@@ -101,6 +101,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     private int vertCount;
     private boolean usesSharedVerts;
     private boolean usesBigIndices;
+    private boolean submeshNamesHack;
     // Global data
     private Mesh sharedMesh;
     private int meshIndex = 0;
@@ -138,6 +139,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         animData = null;
 
         actuallyHasWeights = false;
+        submeshNamesHack = false;
         indicesData = null;
         weightsFloatData = null;
     }
@@ -649,10 +651,15 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         } else if (qName.equals("boneassignments")) {
             startBoneAssigns();
         } else if (qName.equals("submesh")) {
-            startSubMesh(attribs.getValue("material"),
-                    attribs.getValue("usesharedvertices"),
-                    attribs.getValue("use32bitindexes"),
-                    attribs.getValue("operationtype"));
+            if (submeshNamesHack) {
+                // Hack for blender2ogre only
+                startSubmeshName(attribs.getValue("index"), attribs.getValue("name"));
+            } else {
+                startSubMesh(attribs.getValue("material"),
+                        attribs.getValue("usesharedvertices"),
+                        attribs.getValue("use32bitindexes"),
+                        attribs.getValue("operationtype"));
+            }
         } else if (qName.equals("sharedgeometry")) {
             String count = attribs.getValue("vertexcount");
             if (count == null) {
@@ -668,6 +675,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             startSkeleton(attribs.getValue("name"));
         } else if (qName.equals("submeshnames")) {
             // ok
+            // setting submeshNamesHack to true will make "submesh" tag be interpreted
+            // as a "submeshname" tag.
+            submeshNamesHack = true;
         } else if (qName.equals("submeshname")) {
             startSubmeshName(attribs.getValue("index"), attribs.getValue("name"));
         } else if (qName.equals("mesh")) {
@@ -733,6 +743,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             endLevelOfDetail();
         } else if (qName.equals("boneassignments")) {
             endBoneAssigns();
+        } else if (qName.equals("submeshnames")) {
+            // Restore default handling for "submesh" tag.
+            submeshNamesHack = false;
         }
     }
 
