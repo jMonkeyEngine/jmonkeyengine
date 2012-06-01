@@ -80,7 +80,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
             do {
                 log.setLevel(Level.ALL);
                 if (log.getHandlers().length == 0) {
-                    log = logger.getParent();
+                    log = log.getParent();
                     if (log != null) {
                         for (Handler h : log.getHandlers()) {
                             h.setFormatter(new JmeFormatter());
