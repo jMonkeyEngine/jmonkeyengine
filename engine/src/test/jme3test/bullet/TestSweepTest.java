@@ -36,15 +36,15 @@ public class TestSweepTest extends SimpleApplication {
         stateManager.attach(bulletAppState);
 
         capsule = new Node("capsule");
+        capsule.move(-2, 0, 0);
         capsule.addControl(new RigidBodyControl(capsuleCollisionShape, 1));
         capsule.getControl(RigidBodyControl.class).setKinematic(true);
-        capsule.move(-2, 0, 0);
         bulletAppState.getPhysicsSpace().add(capsule);
         rootNode.attachChild(capsule);
 
         obstacle = new Node("obstacle");
-        RigidBodyControl bodyControl = new RigidBodyControl(obstacleCollisionShape, 0);
         obstacle.move(2, 0, 0);
+        RigidBodyControl bodyControl = new RigidBodyControl(obstacleCollisionShape, 0);
         obstacle.addControl(bodyControl);
         bulletAppState.getPhysicsSpace().add(obstacle);
         rootNode.attachChild(obstacle);
