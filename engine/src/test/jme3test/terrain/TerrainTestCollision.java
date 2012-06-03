@@ -31,7 +31,6 @@
  */
 package jme3test.terrain;
 
-import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
@@ -63,7 +62,6 @@ import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
-import jme3tools.converters.ImageToAwt;
 
 /**
  * Creates a terrain object and a collision node to go with it. Then

@@ -1,7 +1,7 @@
 package checkers.quals;
 
-import static java.lang.annotation.ElementType.FIELD;
 import java.lang.annotation.*;
+import static java.lang.annotation.ElementType.FIELD;
 
 /**
  * Declares that the field may not be accessed if the receiver is of the

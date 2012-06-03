@@ -38,7 +38,6 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import de.lessvoid.nifty.Nifty;
 import de.lessvoid.nifty.screen.NullScreen;
-import de.lessvoid.nifty.screen.Screen;
 import java.io.IOException;
 
 /**

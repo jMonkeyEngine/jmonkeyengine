@@ -1,10 +1,5 @@
 package com.jme3.scene.plugins.blender.textures.blending;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-
-import jme3tools.converters.RGB565;
-
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
 import com.jme3.scene.plugins.blender.textures.io.PixelIOFactory;
@@ -12,6 +7,9 @@ import com.jme3.scene.plugins.blender.textures.io.PixelInputOutput;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.util.BufferUtils;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import jme3tools.converters.RGB565;
 
 /**
  * The class that is responsible for blending the following texture types:

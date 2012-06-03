@@ -29,11 +29,10 @@
  */
 package com.jme3.terrain.noise.filter;
 
-import java.nio.FloatBuffer;
-import java.util.logging.Logger;
-
 import com.jme3.terrain.noise.ShaderUtils;
 import com.jme3.terrain.noise.fractal.FractalSum;
+import java.nio.FloatBuffer;
+import java.util.logging.Logger;
 
 public class PerturbFilter extends AbstractFilter {
 

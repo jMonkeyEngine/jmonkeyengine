@@ -1,9 +1,8 @@
 package com.jme3.scene.plugins.blender.textures.io;
 
+import com.jme3.texture.Image.Format;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.jme3.texture.Image.Format;
 
 /**
  * This class creates a pixel IO object for the specified image format.

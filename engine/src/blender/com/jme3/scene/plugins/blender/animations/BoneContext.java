@@ -1,9 +1,5 @@
 package com.jme3.scene.plugins.blender.animations;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.jme3.animation.Bone;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
@@ -14,6 +10,9 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class holds the basic data that describes a bone.

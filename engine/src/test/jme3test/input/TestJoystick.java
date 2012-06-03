@@ -5,7 +5,6 @@ import com.jme3.input.JoyInput;
 import com.jme3.input.Joystick;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
-import com.jme3.input.controls.JoyAxisTrigger;
 import com.jme3.system.AppSettings;
 
 public class TestJoystick extends SimpleApplication implements AnalogListener, ActionListener {

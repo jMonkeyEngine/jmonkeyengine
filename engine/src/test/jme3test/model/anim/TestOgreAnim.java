@@ -51,6 +51,7 @@ public class TestOgreAnim extends SimpleApplication
 
     private AnimChannel channel;
     private AnimControl control;
+    private Geometry geom;
 
     public static void main(String[] args) {
         TestOgreAnim app = new TestOgreAnim();
@@ -79,7 +80,7 @@ public class TestOgreAnim extends SimpleApplication
             System.out.println(anim);
 
         channel.setAnim("stand");
-
+        geom = (Geometry)((Node)model).getChild(0);
         SkeletonControl skeletonControl = model.getControl(SkeletonControl.class);
 
         Box b = new Box(.25f,3f,.25f);
@@ -94,6 +95,14 @@ public class TestOgreAnim extends SimpleApplication
         inputManager.addListener(this, "Attack");
         inputManager.addMapping("Attack", new KeyTrigger(KeyInput.KEY_SPACE));
     }
+
+    @Override
+    public void simpleUpdate(float tpf) {
+        super.simpleUpdate(tpf);
+//                        geom.getMesh().createCollisionData();
+
+    }
+    
 
     public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
         if (animName.equals("Dodge")){

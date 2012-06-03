@@ -1,5 +1,18 @@
 package com.jme3.scene.plugins.blender.textures;
 
+import com.jme3.bounding.BoundingBox;
+import com.jme3.math.FastMath;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.textures.blending.TextureBlender;
+import com.jme3.scene.plugins.blender.textures.io.PixelIOFactory;
+import com.jme3.scene.plugins.blender.textures.io.PixelInputOutput;
+import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture2D;
+import com.jme3.util.BufferUtils;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
@@ -16,22 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-
 import jme3tools.converters.ImageToAwt;
-
-import com.jme3.bounding.BoundingBox;
-import com.jme3.math.FastMath;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.textures.blending.TextureBlender;
-import com.jme3.scene.plugins.blender.textures.io.PixelIOFactory;
-import com.jme3.scene.plugins.blender.textures.io.PixelInputOutput;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture2D;
-import com.jme3.util.BufferUtils;
 
 /**
  * This texture holds a set of images for each face in the specified mesh. It

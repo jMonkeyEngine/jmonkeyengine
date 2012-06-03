@@ -32,9 +32,9 @@
 
 package com.jme3.terrain.heightmap;
 
-import java.nio.ByteBuffer;
 import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Image;
+import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 
 /**

@@ -29,9 +29,9 @@
  */
 package com.jme3.material;
 
-import com.jme3.asset.CloneableSmartAsset;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.CloneableSmartAsset;
 import com.jme3.export.*;
 import com.jme3.light.*;
 import com.jme3.material.RenderState.BlendMode;

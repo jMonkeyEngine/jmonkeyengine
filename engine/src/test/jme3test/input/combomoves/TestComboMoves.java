@@ -38,7 +38,6 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.math.ColorRGBA;
-import com.jme3.scene.Spatial.CullHint;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

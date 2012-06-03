@@ -1,14 +1,5 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.animation.Bone;
@@ -35,6 +26,14 @@ import com.jme3.scene.plugins.blender.meshes.MeshContext;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.scene.plugins.ogre.AnimData;
 import com.jme3.util.BufferUtils;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This modifier allows to add bone animation to the object.

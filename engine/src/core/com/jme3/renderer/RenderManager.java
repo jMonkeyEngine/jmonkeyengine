@@ -47,7 +47,6 @@ import com.jme3.shader.UniformBinding;
 import com.jme3.shader.VarType;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
-import com.jme3.util.IntMap.Entry;
 import com.jme3.util.TempVars;
 import java.util.ArrayList;
 import java.util.Collections;

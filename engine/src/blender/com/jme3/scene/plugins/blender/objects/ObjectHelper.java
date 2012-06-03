@@ -31,12 +31,6 @@
  */
 package com.jme3.scene.plugins.blender.objects;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.export.Savable;
 import com.jme3.light.DirectionalLight;
@@ -67,6 +61,11 @@ import com.jme3.scene.plugins.blender.lights.LightHelper;
 import com.jme3.scene.plugins.blender.meshes.MeshHelper;
 import com.jme3.scene.plugins.blender.modifiers.Modifier;
 import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A class that is used in object calculations.

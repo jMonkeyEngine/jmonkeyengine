@@ -32,8 +32,8 @@
 
 package com.jme3.audio.lwjgl;
 
-import com.jme3.audio.AudioNode.Status;
 import com.jme3.audio.*;
+import com.jme3.audio.AudioNode.Status;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
@@ -45,8 +45,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
-import static org.lwjgl.openal.AL10.*;
 import org.lwjgl.openal.*;
+import static org.lwjgl.openal.AL10.*;
 
 public class LwjglAudioRenderer implements AudioRenderer, Runnable {
 

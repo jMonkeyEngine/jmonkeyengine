@@ -32,8 +32,8 @@
 
 package com.jme3.network.base;
 
-import com.jme3.network.ClientStateListener.DisconnectInfo;
 import com.jme3.network.*;
+import com.jme3.network.ClientStateListener.DisconnectInfo;
 import com.jme3.network.kernel.Connector;
 import com.jme3.network.message.ChannelInfoMessage;
 import com.jme3.network.message.ClientRegistrationMessage;

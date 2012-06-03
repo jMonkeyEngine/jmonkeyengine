@@ -33,8 +33,8 @@
 package com.jme3.util;
 
 import java.io.Serializable;
-import java.util.Map.Entry;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Implementation of a Map that favors iteration speed rather than

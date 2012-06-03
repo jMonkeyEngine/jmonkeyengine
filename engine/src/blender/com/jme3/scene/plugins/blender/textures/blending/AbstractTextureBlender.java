@@ -1,12 +1,10 @@
 package com.jme3.scene.plugins.blender.textures.blending;
 
-import java.util.logging.Logger;
-
-import jme3tools.converters.MipMapGenerator;
-
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.texture.Image;
+import java.util.logging.Logger;
+import jme3tools.converters.MipMapGenerator;
 
 /**
  * An abstract class that contains the basic methods used by the classes that

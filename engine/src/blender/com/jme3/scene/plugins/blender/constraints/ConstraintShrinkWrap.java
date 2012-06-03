@@ -1,9 +1,5 @@
 package com.jme3.scene.plugins.blender.constraints;
 
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jme3.animation.Animation;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -17,6 +13,9 @@ import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.ogre.AnimData;
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents 'Shrink wrap' constraint type in blender.

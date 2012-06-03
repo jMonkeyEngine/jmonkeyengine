@@ -29,13 +29,12 @@
  */
 package com.jme3.terrain.noise.basis;
 
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jme3.terrain.noise.Basis;
 import com.jme3.terrain.noise.filter.AbstractFilter;
 import com.jme3.terrain.noise.modulator.Modulator;
+import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FilteredBasis extends AbstractFilter implements Basis {
 

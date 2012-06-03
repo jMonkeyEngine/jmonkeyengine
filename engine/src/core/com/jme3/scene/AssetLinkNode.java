@@ -42,8 +42,8 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.export.binary.BinaryImporter;
 import com.jme3.util.SafeArrayList;
 import java.io.IOException;
-import java.util.Map.Entry;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

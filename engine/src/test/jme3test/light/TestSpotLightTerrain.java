@@ -52,7 +52,6 @@ import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
-import jme3tools.converters.ImageToAwt;
 
 /**
  * Uses the terrain's lighting texture with normal maps and lights.

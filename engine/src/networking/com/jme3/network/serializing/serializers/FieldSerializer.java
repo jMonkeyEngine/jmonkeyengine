@@ -40,7 +40,6 @@ import java.lang.reflect.Modifier;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.*;
-import java.util.logging.Level;
 
 /**
  * The field serializer is the default serializer used for custom class.

@@ -1,12 +1,10 @@
 package com.jme3.scene.plugins.blender.textures.io;
 
-import java.nio.ByteBuffer;
-
-import jme3tools.converters.RGB565;
-
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
 import com.jme3.texture.Image;
+import java.nio.ByteBuffer;
+import jme3tools.converters.RGB565;
 
 /**
  * Implemens read/write operations for DDS images.

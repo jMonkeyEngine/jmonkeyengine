@@ -1,10 +1,5 @@
 package com.jme3.scene.plugins.blender.textures;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import com.jme3.bounding.BoundingBox;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -17,6 +12,10 @@ import com.jme3.scene.plugins.blender.textures.UVCoordinatesGenerator.UVCoordina
 import com.jme3.scene.plugins.blender.textures.generating.TextureGenerator;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * The generated texture loaded from blender file. The texture is not generated

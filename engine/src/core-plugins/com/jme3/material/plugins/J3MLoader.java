@@ -33,9 +33,9 @@
 package com.jme3.material.plugins;
 
 import com.jme3.asset.*;
+import com.jme3.material.*;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
-import com.jme3.material.*;
 import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.TechniqueDef.ShadowMode;
 import com.jme3.math.ColorRGBA;

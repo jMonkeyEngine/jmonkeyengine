@@ -2,8 +2,8 @@ package com.jme3.scene.plugins.blender.curves;
 
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.FaceCullMode;
-import com.jme3.math.Spline.SplineType;
 import com.jme3.math.*;
+import com.jme3.math.Spline.SplineType;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;

@@ -8,11 +8,11 @@ import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.util.IntMap;
 import java.util.HashMap;
+import net.java.games.input.*;
 import net.java.games.input.Component.Identifier;
 import net.java.games.input.Component.Identifier.Axis;
 import net.java.games.input.Component.Identifier.Button;
 import net.java.games.input.Component.POV;
-import net.java.games.input.*;
 
 public class JInputJoyInput implements JoyInput {
 

@@ -29,11 +29,10 @@
  */
 package com.jme3.terrain.noise.filter;
 
+import com.jme3.terrain.noise.Filter;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.jme3.terrain.noise.Filter;
 
 public class IterativeFilter extends AbstractFilter {
 

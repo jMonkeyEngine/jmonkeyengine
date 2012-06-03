@@ -1,10 +1,9 @@
 package com.jme3.scene.plugins.blender.textures.io;
 
-import java.nio.ByteBuffer;
-
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
 import com.jme3.texture.Image;
+import java.nio.ByteBuffer;
 
 /**
  * Implemens read/write operations for luminance images.

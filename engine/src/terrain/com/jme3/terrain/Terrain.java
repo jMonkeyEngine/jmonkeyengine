@@ -34,7 +34,6 @@ package com.jme3.terrain;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.terrain.geomipmap.lodcalc.LodCalculator;
 import java.util.List;
 
 /**

@@ -31,14 +31,6 @@
  */
 package com.jme3.scene.plugins.blender.meshes;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
@@ -62,6 +54,13 @@ import com.jme3.scene.plugins.blender.objects.Properties;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * A class that is used in mesh calculations.

@@ -32,7 +32,6 @@
 package jme3test.material;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.asset.GeneratedTextureKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;

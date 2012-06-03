@@ -29,10 +29,9 @@
  */
 package com.jme3.terrain.noise;
 
-import java.nio.FloatBuffer;
-
 import com.jme3.terrain.noise.basis.ImprovedNoise;
 import com.jme3.terrain.noise.modulator.Modulator;
+import java.nio.FloatBuffer;
 
 /**
  * Interface for - basically 3D - noise generation algorithms, based on the

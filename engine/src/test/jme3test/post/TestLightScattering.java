@@ -33,8 +33,6 @@
 package jme3test.post;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.app.StatsView;
-import com.jme3.font.BitmapText;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;

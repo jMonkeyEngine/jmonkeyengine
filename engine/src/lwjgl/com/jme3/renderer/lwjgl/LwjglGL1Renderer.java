@@ -23,8 +23,6 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.IntMap;
-import com.jme3.util.IntMap.Entry;
 import com.jme3.util.NativeObjectManager;
 import java.nio.*;
 import java.util.ArrayList;

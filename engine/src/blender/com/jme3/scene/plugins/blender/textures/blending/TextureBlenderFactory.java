@@ -31,12 +31,11 @@
  */
 package com.jme3.scene.plugins.blender.textures.blending;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class creates the texture blending class depending on the texture type.

@@ -2,7 +2,6 @@ package com.jme3.system.android;
 
 import android.app.Activity;
 import android.os.Environment;
-import android.util.Log;
 import com.jme3.asset.AndroidAssetManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;

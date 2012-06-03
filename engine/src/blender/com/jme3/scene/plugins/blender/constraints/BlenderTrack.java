@@ -1,7 +1,5 @@
 package com.jme3.scene.plugins.blender.constraints;
 
-import java.io.IOException;
-
 import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.BoneTrack;
@@ -12,6 +10,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.util.TempVars;
+import java.io.IOException;
 
 /**
  * This class holds either the bone track or spatial track. Is made to improve

@@ -1,7 +1,5 @@
 package com.jme3.scene.plugins.blender.animations;
 
-import java.util.List;
-
 import com.jme3.animation.BoneTrack;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -11,6 +9,7 @@ import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import java.util.List;
 
 /**
  * This class helps to compute values from interpolation curves for features

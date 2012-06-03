@@ -53,7 +53,6 @@ import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
-import com.jme3.util.IntMap.Entry;
 import com.jme3.util.*;
 import java.nio.*;
 import java.util.EnumSet;
@@ -62,6 +61,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import jme3tools.converters.MipMapGenerator;
 import jme3tools.shader.ShaderDebug;
+import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.ARBTextureMultisample.*;
 import static org.lwjgl.opengl.EXTFramebufferBlit.*;
 import static org.lwjgl.opengl.EXTFramebufferMultisample.*;
@@ -72,7 +72,6 @@ import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
-import org.lwjgl.opengl.*;
 //import static org.lwjgl.opengl.ARBDrawInstanced.*;
 
 public class LwjglRenderer implements Renderer {

@@ -1,12 +1,5 @@
 package com.jme3.scene.plugins.blender.materials;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Logger;
-
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
@@ -30,6 +23,12 @@ import com.jme3.scene.plugins.blender.textures.blending.TextureBlender;
 import com.jme3.scene.plugins.blender.textures.blending.TextureBlenderFactory;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 /**
  * This class holds the data about the material.

@@ -32,8 +32,8 @@
 
 package jme3tools.converters.model;
 
-import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.*;
+import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;

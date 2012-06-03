@@ -5,7 +5,6 @@
 package com.jme3.terrain.geomipmap.grid;
 
 
-import com.jme3.asset.AssetManager;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.math.Vector3f;
@@ -13,9 +12,9 @@ import com.jme3.terrain.geomipmap.TerrainGridTileLoader;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
 import com.jme3.terrain.heightmap.HeightMap;
+import com.jme3.terrain.noise.Basis;
 import java.io.IOException;
 import java.nio.FloatBuffer;
-import com.jme3.terrain.noise.Basis;
 
 /**
  *

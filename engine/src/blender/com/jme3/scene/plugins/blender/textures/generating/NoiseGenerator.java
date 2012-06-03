@@ -36,7 +36,6 @@ import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgrave.MusgraveData;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;

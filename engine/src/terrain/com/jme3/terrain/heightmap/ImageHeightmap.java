@@ -4,8 +4,6 @@
  */
 package com.jme3.terrain.heightmap;
 
-import com.jme3.texture.Image;
-
 /**
  * A heightmap that is built off an image.
  * If you want to be able to supply different Image types to 

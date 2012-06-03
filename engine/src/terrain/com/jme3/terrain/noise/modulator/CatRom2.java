@@ -29,10 +29,9 @@
  */
 package com.jme3.terrain.noise.modulator;
 
+import com.jme3.terrain.noise.ShaderUtils;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.jme3.terrain.noise.ShaderUtils;
 
 public class CatRom2 implements Modulator {
 
