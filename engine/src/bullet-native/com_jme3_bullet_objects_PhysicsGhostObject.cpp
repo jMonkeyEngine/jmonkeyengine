@@ -172,17 +172,24 @@ extern "C" {
     class jmeGhostOverlapCallback : public btOverlapCallback {
         JNIEnv* m_env;
         jobject m_object;
+        btCollisionObject *m_ghost;
     public:
-        jmeGhostOverlapCallback(JNIEnv *env, jobject object)
+        jmeGhostOverlapCallback(JNIEnv *env, jobject object, btCollisionObject *ghost)
                 :m_env(env),
-                 m_object(object)
+                 m_object(object),
+                 m_ghost(ghost)
         {
         }
         virtual ~jmeGhostOverlapCallback() {}
         virtual bool    processOverlap(btBroadphasePair& pair)
         {
-            btCollisionObject *co1 = (btCollisionObject *)pair.m_pProxy1->m_clientObject;
-            jmeUserPointer *up1 = (jmeUserPointer*)co1 -> getUserPointer();
+            btCollisionObject *other;
+            if(pair.m_pProxy1->m_clientObject == m_ghost){
+                other = (btCollisionObject *)pair.m_pProxy0->m_clientObject;
+            }else{
+                other = (btCollisionObject *)pair.m_pProxy1->m_clientObject;
+            }
+            jmeUserPointer *up1 = (jmeUserPointer*)other -> getUserPointer();
             jobject javaCollisionObject1 = m_env->NewLocalRef(up1->javaCollisionObject);
             m_env->CallVoidMethod(m_object, jmeClasses::PhysicsGhostObject_addOverlappingObject, javaCollisionObject1);
             m_env->DeleteLocalRef(javaCollisionObject1);
@@ -209,7 +216,7 @@ extern "C" {
             return;
         }
         btHashedOverlappingPairCache * pc = ghost->getOverlappingPairCache();
-        jmeGhostOverlapCallback cb(env, object);
+        jmeGhostOverlapCallback cb(env, object, ghost);
         pc -> processAllOverlappingPairs(&cb, NULL);
     }
     /*
