@@ -40,8 +40,6 @@ import org.openide.loaders.DataObject;
  * 1) fixed scale and rotation values by holding Ctrl and dragging mouse
  * BUGS:
  * 1) window always needs focus from primary click when it should focus from secondary and middle mouse
- * 2) ESC will not reset currentState (ESC get hijacked)
- * 3) rotation towards screen is busted (wrong axis)
  * 
  * @author Brent Owens
  */
@@ -609,8 +607,8 @@ public class SelectTool extends SceneEditTool {
         } else if (axis == Axis.z) {
             rotate = rotate.fromAngleAxis(newRotAngle, Vector3f.UNIT_Z);
         } else {
-            Vector3f screen = getCamera().getScreenCoordinates(selected.getWorldTranslation());
-            rotate = rotate.fromAngleAxis(newRotAngle, screen.normalize());
+            Vector3f screen = getCamera().getLocation().subtract(selected.getWorldTranslation()).normalize();
+            rotate = rotate.fromAngleAxis(newRotAngle, screen);
         }
         selected.setLocalRotation(selected.getLocalRotation().mult(rotate));
         
