@@ -132,6 +132,9 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jSeparator6 = new javax.swing.JSeparator();
         jLabel5 = new javax.swing.JLabel();
         emitButton = new javax.swing.JButton();
+        snapToSceneCheckbox = new javax.swing.JCheckBox();
+        snapToGridCheckbox = new javax.swing.JCheckBox();
+        selectTerrainCheckbox = new javax.swing.JCheckBox();
 
         setBackground(new java.awt.Color(204, 204, 204));
 
@@ -421,6 +424,31 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             }
         });
 
+        snapToSceneCheckbox.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(snapToSceneCheckbox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToSceneCheckbox.text")); // NOI18N
+        snapToSceneCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToSceneCheckbox.toolTipText")); // NOI18N
+        snapToSceneCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                snapToSceneCheckboxActionPerformed(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(snapToGridCheckbox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToGridCheckbox.text")); // NOI18N
+        snapToGridCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToGridCheckbox.toolTipText")); // NOI18N
+        snapToGridCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                snapToGridCheckboxActionPerformed(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(selectTerrainCheckbox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.selectTerrainCheckbox.text")); // NOI18N
+        selectTerrainCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.selectTerrainCheckbox.toolTipText")); // NOI18N
+        selectTerrainCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectTerrainCheckboxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -430,12 +458,20 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator6, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(10, 10, 10)
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(emitButton, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE))
-                    .addComponent(jSeparator6, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE))
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(snapToSceneCheckbox)
+                                .addGap(18, 18, 18)
+                                .addComponent(snapToGridCheckbox)
+                                .addGap(18, 18, 18)
+                                .addComponent(selectTerrainCheckbox))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(emitButton, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -450,7 +486,12 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(emitButton))
-                .addContainerGap(40, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(snapToSceneCheckbox)
+                    .addComponent(snapToGridCheckbox)
+                    .addComponent(selectTerrainCheckbox))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -572,6 +613,18 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         toolController.showEditTool(tool);
     }//GEN-LAST:event_rotateButtonActionPerformed
 
+    private void snapToSceneCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_snapToSceneCheckboxActionPerformed
+        toolController.setSnapToScene(snapToSceneCheckbox.isSelected());
+    }//GEN-LAST:event_snapToSceneCheckboxActionPerformed
+
+    private void snapToGridCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_snapToGridCheckboxActionPerformed
+        toolController.setSnapToGrid(snapToGridCheckbox.isSelected());
+    }//GEN-LAST:event_snapToGridCheckboxActionPerformed
+
+    private void selectTerrainCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectTerrainCheckboxActionPerformed
+        toolController.setSelectTerrain(selectTerrainCheckbox.isSelected());
+    }//GEN-LAST:event_selectTerrainCheckboxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton camToCursorSelectionButton;
     private javax.swing.JButton createPhysicsMeshButton;
@@ -611,8 +664,11 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JLabel sceneInfoLabel2;
     private javax.swing.JPanel sceneInfoPanel;
     private javax.swing.JToggleButton selectButton;
+    private javax.swing.JCheckBox selectTerrainCheckbox;
     private javax.swing.JToggleButton showGridToggleButton;
     private javax.swing.JToggleButton showSelectionToggleButton;
+    private javax.swing.JCheckBox snapToGridCheckbox;
+    private javax.swing.JCheckBox snapToSceneCheckbox;
     private javax.swing.ButtonGroup spatialModButtonGroup;
     // End of variables declaration//GEN-END:variables
 
@@ -862,6 +918,7 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             return;
         } else {
             if (toolController != null) {
+                toolController.setSelectedSpatial(spatial);
                 toolController.updateSelection(spatial.getLookup().lookup(Spatial.class));
             }
         }

@@ -6,6 +6,7 @@ package com.jme3.gde.scenecomposer.tools;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.scenecomposer.SceneComposerToolController;
 import com.jme3.gde.scenecomposer.SceneEditTool;
@@ -57,7 +58,7 @@ public class ScaleTool extends SceneEditTool {
     }
 
     @Override
-    public void mouseMoved(Vector2f screenCoord) {
+    public void mouseMoved(Vector2f screenCoord, JmeNode rootNode, DataObject currentDataObject, JmeSpatial selectedSpatial) {
         if (pickedPlane == null) {
             highlightAxisMarker(camera, screenCoord, axisPickType, true);
         }

@@ -9,6 +9,8 @@ import com.jme3.audio.AudioNode;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.input.event.KeyInputEvent;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
 import com.jme3.light.SpotLight;
@@ -44,6 +46,10 @@ public class SceneComposerToolController extends SceneToolController {
     private Node nonSpatialMarkersNode;
     private Material lightMarkerMaterial;
     private Material audioMarkerMaterial;
+    private JmeSpatial selectedSpatial;
+    private boolean snapToGrid = false;
+    private boolean snapToScene = true;
+    private boolean selectTerrain = false;
 
     public SceneComposerToolController(final Node toolsNode, AssetManager manager, JmeNode rootNode) {
         super(toolsNode, manager);
@@ -190,7 +196,7 @@ public class SceneComposerToolController extends SceneToolController {
     public void doEditToolMoved(Vector2f mouseLoc, Camera camera) {
         if (editTool != null) {
             editTool.setCamera(camera);
-            editTool.mouseMoved(mouseLoc);
+            editTool.mouseMoved(mouseLoc, rootNode, editorController.getCurrentDataObject(), selectedSpatial);
         }
     }
 
@@ -205,6 +211,12 @@ public class SceneComposerToolController extends SceneToolController {
         if (editTool != null) {
             editTool.setCamera(camera);
             editTool.draggedSecondary(mouseLoc, pressed, rootNode, editorController.getCurrentDataObject());
+        }
+    }
+    
+    void doKeyPressed(KeyInputEvent kie) {
+        if (editTool != null) {
+            editTool.keyPressed(kie);
         }
     }
     
@@ -288,6 +300,30 @@ public class SceneComposerToolController extends SceneToolController {
                 //TODO later if we include other types of non-spatial markers
             }
         }
+    }
+
+    public boolean isSnapToGrid() {
+        return snapToGrid;
+    }
+
+    public void setSnapToGrid(boolean snapToGrid) {
+        this.snapToGrid = snapToGrid;
+    }
+
+    public void setSnapToScene(boolean snapToScene) {
+        this.snapToScene = snapToScene;
+    }
+
+    public boolean isSnapToScene() {
+        return snapToScene;
+    }
+
+    public boolean selectTerrain() {
+        return selectTerrain;
+    }
+
+    public void setSelectTerrain(boolean selectTerrain) {
+        this.selectTerrain = selectTerrain;
     }
     
     /**
@@ -440,5 +476,12 @@ public class SceneComposerToolController extends SceneToolController {
         }
         
     }
+
+    public JmeNode getRootNode() {
+        return rootNode;
+    }
     
+    public void setSelectedSpatial(JmeSpatial selectedSpatial) {
+        this.selectedSpatial = selectedSpatial;
+    }
 }

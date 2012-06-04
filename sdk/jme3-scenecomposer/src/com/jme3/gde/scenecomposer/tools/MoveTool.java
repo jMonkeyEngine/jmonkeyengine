@@ -8,6 +8,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.scenecomposer.SceneComposerToolController;
 import com.jme3.gde.scenecomposer.SceneEditTool;
@@ -87,7 +88,7 @@ public class MoveTool extends SceneEditTool {
     }
 
     @Override
-    public void mouseMoved(Vector2f screenCoord) {
+    public void mouseMoved(Vector2f screenCoord, JmeNode rootNode, DataObject currentDataObject, JmeSpatial selectedSpatial) {
         if (pickedPlane == null) {
             highlightAxisMarker(camera, screenCoord, axisPickType);
         }
@@ -127,7 +128,7 @@ public class MoveTool extends SceneEditTool {
             plane.setLocalTranslation(startLoc);
         }
         
-        Vector3f planeHit = pickWorldLocation(camera, screenCoord, plane);
+        Vector3f planeHit = pickWorldLocation(camera, screenCoord, plane, null);
         if (planeHit == null)
             return;
 

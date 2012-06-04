@@ -18,8 +18,10 @@ import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
+import com.jme3.input.event.KeyInputEvent;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
@@ -39,6 +41,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.debug.WireBox;
 import com.jme3.scene.shape.Quad;
+import java.util.Iterator;
 import java.util.concurrent.Callable;
 import org.openide.loaders.DataObject;
 import org.openide.util.Lookup;
@@ -178,7 +181,7 @@ public abstract class SceneEditTool {
     /**
      * Called when the mouse is moved but not dragged (ie no buttons are pressed)
      */
-    public abstract void mouseMoved(Vector2f screenCoord);
+    public abstract void mouseMoved(Vector2f screenCoord, JmeNode rootNode, DataObject dataObject, JmeSpatial selectedSpatial);
 
     /**
      * Called when the mouse is moved while the primary button is down
@@ -190,6 +193,8 @@ public abstract class SceneEditTool {
      */
     public abstract void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject);
 
+    public void keyPressed(KeyInputEvent kie) {}
+    
     /**
      * Call when an action is performed that requires the scene to be saved
      * and an undo can be performed
@@ -223,11 +228,23 @@ public abstract class SceneEditTool {
      */
     protected Vector3f pickWorldLocation(Camera cam, Vector2f mouseLoc, JmeNode jmeRootNode) {
         Node rootNode = jmeRootNode.getLookup().lookup(Node.class);
-        return pickWorldLocation(cam, mouseLoc, rootNode);
+        return pickWorldLocation(cam, mouseLoc, rootNode, null);
+    }
+    
+    /**
+     * Pick anything except the excluded spatial
+     * @param excludeSpat to not pick
+     */
+    protected Vector3f pickWorldLocation(Camera cam, Vector2f mouseLoc, JmeNode jmeRootNode, JmeSpatial excludeSpat) {
+        Node rootNode = jmeRootNode.getLookup().lookup(Node.class);
+        return pickWorldLocation(cam, mouseLoc, rootNode, excludeSpat);
     }
 
-    protected Vector3f pickWorldLocation(Camera cam, Vector2f mouseLoc, Node rootNode) {
-        CollisionResult cr = pick(cam, mouseLoc, rootNode);
+    protected Vector3f pickWorldLocation(Camera cam, Vector2f mouseLoc, Node rootNode, JmeSpatial excludeSpat) {
+        Spatial exclude = null;
+        if (excludeSpat != null)
+            exclude = excludeSpat.getLookup().lookup(Spatial.class);
+        CollisionResult cr = doPick(cam, mouseLoc, rootNode, exclude);
         if (cr != null) {
             return cr.getContactPoint();
         } else {
@@ -235,6 +252,46 @@ public abstract class SceneEditTool {
         }
     }
 
+    private CollisionResult doPick(Camera cam, Vector2f mouseLoc, Node node, Spatial exclude) {
+        CollisionResults results = new CollisionResults();
+        Ray ray = new Ray();
+        Vector3f pos = cam.getWorldCoordinates(mouseLoc, 0).clone();
+        Vector3f dir = cam.getWorldCoordinates(mouseLoc, 0.1f).clone();
+        dir.subtractLocal(pos).normalizeLocal();
+        ray.setOrigin(pos);
+        ray.setDirection(dir);
+        node.collideWith(ray, results);
+        CollisionResult result = null;
+        if (exclude == null)
+            result = results.getClosestCollision();
+        else {
+            Iterator<CollisionResult> it = results.iterator();
+            while (it.hasNext()) {
+                CollisionResult cr = it.next();
+                if (isExcluded(cr.getGeometry(), exclude))
+                    continue;
+                else
+                    return cr;
+            }
+            
+        }
+        return result;
+    }
+    
+    /**
+     * Is the selected spatial the one we want to exclude from the picking?
+     * Recursively looks up the parents to find out.
+     */
+    private boolean isExcluded(Spatial s, Spatial exclude) {
+        if (s.equals(exclude))
+            return true;
+        
+        if (s.getParent() != null) {
+            return isExcluded(s.getParent(), exclude);
+        }
+        return false;
+    }
+    
     /**
      * Pick a part of the axis marker. The result is a Vector3f that represents
      * what part of the axis was selected.

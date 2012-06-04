@@ -80,6 +80,7 @@ public class ComposerCameraController extends AbstractCameraController {
                 forceCameraControls = false;
             }
         }
+        toolController.doKeyPressed(kie);
     }
 
     @Override
@@ -116,4 +117,5 @@ public class ComposerCameraController extends AbstractCameraController {
     public boolean useCameraControls() {
         return isToolUsesCameraControls() || forceCameraControls;
     }
+
 }
