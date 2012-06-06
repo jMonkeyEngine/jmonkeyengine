@@ -40,13 +40,39 @@ import java.nio.ByteBuffer;
 /**
  * String serializer.
  *
- * @author Lars Wesselius
+ * @author Lars Wesselius, Paul Speed
  */
 @SuppressWarnings("unchecked")
 public class StringSerializer extends Serializer {
 
-    public String readObject(ByteBuffer data, Class c) throws IOException {
+    public static void writeString( String s, ByteBuffer buffer ) throws IOException {
+        if (s == null) {
+            // Write that it's 0.
+            buffer.put((byte)0);
+            return;
+        }
+        byte[] stringBytes = s.getBytes("UTF-8");
+        int bufferLength = stringBytes.length;
 
+        try {
+            if (bufferLength <= Byte.MAX_VALUE) {
+                buffer.put((byte)1);
+                buffer.put((byte)bufferLength);
+            } else if (bufferLength <= Short.MAX_VALUE) {
+                buffer.put((byte)2);
+                buffer.putShort((short)bufferLength);
+            } else {
+                buffer.put((byte)3);
+                buffer.putInt(bufferLength);
+            }
+            buffer.put(stringBytes);
+        }
+        catch (BufferOverflowException e) {
+            e.printStackTrace();
+        }    
+    }
+
+    public static String readString( ByteBuffer data ) throws IOException {
         int length = -1;
         byte type = data.get();
         if (type == (byte)0) {
@@ -68,32 +94,13 @@ public class StringSerializer extends Serializer {
         return new String(buffer, "UTF-8");
     }
 
+    public String readObject(ByteBuffer data, Class c) throws IOException {
+        return readString(data);
+    }
+
     public void writeObject(ByteBuffer buffer, Object object) throws IOException {
         String string = (String)object;
 
-        if (string == null) {
-            // Write that it's 0.
-            buffer.put((byte)0);
-            return;
-        }
-        byte[] stringBytes = string.getBytes("UTF-8");
-        int bufferLength = stringBytes.length;
-
-        try {
-            if (bufferLength <= Byte.MAX_VALUE) {
-                buffer.put((byte)1);
-                buffer.put((byte)bufferLength);
-            } else if (bufferLength <= Short.MAX_VALUE) {
-                buffer.put((byte)2);
-                buffer.putShort((short)bufferLength);
-            } else {
-                buffer.put((byte)3);
-                buffer.putInt(bufferLength);
-            }
-            buffer.put(stringBytes);
-        }
-        catch (BufferOverflowException e) {
-            e.printStackTrace();
-        }
+        writeString(string, buffer);
     }
 }
