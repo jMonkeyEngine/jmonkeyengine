@@ -69,7 +69,7 @@ public abstract class Serializer {
     private static final Serializer                         serializableSerializer  = new SerializableSerializer();
     private static final Serializer                         arraySerializer         = new ArraySerializer();
 
-    private static short                                    nextId                  = -1;
+    private static short nextAvailableId = -2; // historically the first ID was always -2
 
     private static boolean strictRegistration = true;
 
@@ -139,6 +139,7 @@ public abstract class Serializer {
         registerClass(HashMap.class,                    new MapSerializer());
         registerClass(Hashtable.class,                  new MapSerializer());
         registerClass(IdentityHashMap.class,            new MapSerializer());
+        //registerClass(java.awt.RenderingHints.class,    new MapSerializer());
         registerClass(TreeMap.class,                    new MapSerializer());
         registerClass(WeakHashMap.class,                new MapSerializer());
         
@@ -171,6 +172,33 @@ public abstract class Serializer {
         }
     }
     
+    private static short nextId() {
+    
+        // If the ID we are about to return is already in use
+        // then skip it.
+        while (idRegistrations.containsKey(nextAvailableId) ) {
+            nextAvailableId--;   
+        }
+        
+        // Return the available ID and post-decrement to get
+        // ready for next time.    
+        return nextAvailableId--;
+    }
+ 
+    protected static SerializerRegistration registerClassForId( short id, Class cls, Serializer serializer ) {
+    
+        SerializerRegistration reg = new SerializerRegistration(serializer, cls, id);
+
+        idRegistrations.put(id, reg);
+        classRegistrations.put(cls, reg);
+        
+        log.log( Level.INFO, "Registered class[" + id + "]:{0} to:" + serializer, cls );
+
+        serializer.initialize(cls);
+
+        return reg;    
+    }
+    
     /**
      *  Registers the specified class. The failOnMiss flag controls whether or
      *  not this method returns null for failed registration or throws an exception.
@@ -182,7 +210,7 @@ public abstract class Serializer {
 
             Class serializerClass = serializable.serializer();
             short classId = serializable.id();
-            if (classId == 0) classId = --nextId;
+            if (classId == 0) classId = nextId();
 
             Serializer serializer = getSerializer(serializerClass, false);
 
@@ -191,15 +219,10 @@ public abstract class Serializer {
             SerializerRegistration existingReg = getExactSerializerRegistration(cls);
 
             if (existingReg != null) classId = existingReg.getId();
+            
             SerializerRegistration reg = new SerializerRegistration(serializer, cls, classId);
 
-            idRegistrations.put(classId, reg);
-            classRegistrations.put(cls, reg);
-
-            serializer.initialize(cls);
-
-            log.log( Level.INFO, "Registered class[" + classId + "]:{0}.", cls );
-            return reg;
+            return registerClassForId( classId, cls, serializer );
         }
         if (failOnMiss) {
             throw new IllegalArgumentException( "Class is not marked @Serializable:" + cls );            
@@ -263,18 +286,9 @@ public abstract class Serializer {
         if (existingReg != null) { 
             id = existingReg.getId();
         } else {
-            id = --nextId;
+            id = nextId();
         }            
-        SerializerRegistration reg = new SerializerRegistration(serializer, cls, id);
-
-        idRegistrations.put(id, reg);
-        classRegistrations.put(cls, reg);
-        
-        log.log( Level.INFO, "Registered class[" + id + "]:{0} to:" + serializer, cls );
-
-        serializer.initialize(cls);
-
-        return reg;
+        return registerClassForId( id, cls, serializer );
     }
 
     public static Serializer getExactSerializer(Class cls) {
