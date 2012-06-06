@@ -73,30 +73,20 @@ public abstract class Serializer {
 
     private static boolean strictRegistration = true;
 
-    /****************************************************************
-     ****************************************************************
-     ****************************************************************
-     
-        READ THIS BEFORE CHANGING ANYTHING BELOW
-        
-        If a registration is moved or removed before the 
-        ClientRegistrationMessage then it screws up the application's
-        ability to gracefully warn users about bad versions. 
- 
-        There really needs to be a version rolled into the protocol
-        and I intend to do that very soon.  In the mean time, don't
-        edit the static registrations without decrementing nextId
-        appropriately.
-        
-        Yes, that's how fragile this is.  Live and learn.       
-     
-     ****************************************************************     
-     ****************************************************************
-     ****************************************************************/
-
 
     // Registers the classes we already have serializers for.
     static {
+
+        // Preregister some fixed serializers so that they don't move
+        // if the list below is modified.  Automatic ID generation will
+        // skip these IDs.    
+        registerClassForId( DisconnectMessage.SERIALIZER_ID, DisconnectMessage.class, 
+                            new DisconnectMessage.DisconnectSerializer() );
+        registerClassForId( ClientRegistrationMessage.SERIALIZER_ID, ClientRegistrationMessage.class, 
+                            new ClientRegistrationMessage.ClientRegistrationSerializer() );
+         
+    
+    
         registerClass(boolean.class,   new BooleanSerializer());
         registerClass(byte.class,      new ByteSerializer());
         registerClass(char.class,      new CharSerializer());
@@ -125,8 +115,6 @@ public abstract class Serializer {
         registerClass(AbstractList.class,               new CollectionSerializer());
         registerClass(AbstractSet.class,                new CollectionSerializer());
         registerClass(ArrayList.class,                  new CollectionSerializer());
-        registerClass(BeanContextServicesSupport.class, new CollectionSerializer());
-        registerClass(BeanContextSupport.class,         new CollectionSerializer());
         registerClass(HashSet.class,                    new CollectionSerializer());
         registerClass(LinkedHashSet.class,              new CollectionSerializer());
         registerClass(LinkedList.class,                 new CollectionSerializer());
@@ -139,7 +127,6 @@ public abstract class Serializer {
         registerClass(HashMap.class,                    new MapSerializer());
         registerClass(Hashtable.class,                  new MapSerializer());
         registerClass(IdentityHashMap.class,            new MapSerializer());
-        //registerClass(java.awt.RenderingHints.class,    new MapSerializer());
         registerClass(TreeMap.class,                    new MapSerializer());
         registerClass(WeakHashMap.class,                new MapSerializer());
         
@@ -147,8 +134,6 @@ public abstract class Serializer {
         registerClass(GZIPCompressedMessage.class, new GZIPSerializer());
         registerClass(ZIPCompressedMessage.class, new ZIPSerializer());
 
-        registerClass(DisconnectMessage.class);
-        registerClass(ClientRegistrationMessage.class);
         registerClass(ChannelInfoMessage.class);
     }
     
@@ -186,7 +171,7 @@ public abstract class Serializer {
     }
  
     protected static SerializerRegistration registerClassForId( short id, Class cls, Serializer serializer ) {
-    
+ 
         SerializerRegistration reg = new SerializerRegistration(serializer, cls, id);
 
         idRegistrations.put(id, reg);
