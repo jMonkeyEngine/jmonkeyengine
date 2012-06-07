@@ -253,7 +253,7 @@ public class SelectTool extends SceneEditTool {
     
     private boolean checkCommandKey(KeyInputEvent kie) {
         if (kie.getKeyCode() == KeyInput.KEY_D) {
-            if (ctrlDown && shiftDown) {
+            if (shiftDown) {
                 duplicateSelected();
                 return true;
             }
@@ -383,6 +383,7 @@ public class SelectTool extends SceneEditTool {
                         actionPerformed(scaling);
                         scaling = null;
                         clearState(false);
+                        toolController.rebuildSelectionBox();
                     } else if (rotating != null) {
                         rotating.after = selected.getLocalRotation().clone();
                         actionPerformed(rotating);
@@ -408,7 +409,12 @@ public class SelectTool extends SceneEditTool {
         if (pressed) {
             // mouse down
             
-            if (!wasDraggingR && !wasDownR) { // wasn't dragging and was not down already
+            if (moving != null) {
+                moving.sceneUndo();
+                moving = null;
+                clearState();
+            }
+            else if (!wasDraggingR && !wasDownR) { // wasn't dragging and was not down already
                 // pick on the spot
                 Spatial s = pickWorldSpatial(camera, screenCoord, rootNode);
                 if (!toolController.selectTerrain() && isTerrain(s) ) {
@@ -454,6 +460,9 @@ public class SelectTool extends SceneEditTool {
      * TODO: use userData to determine the actual model's parent.
      */
     private Spatial findModelNodeParent(Spatial child) {
+        if (child == null)
+            return null;
+        
         if (child instanceof Node)
             return child;
         
@@ -785,6 +794,8 @@ public class SelectTool extends SceneEditTool {
      * Recursive call.
      */
     protected boolean isTerrain(Spatial s) {
+        if (s == null)
+            return false;
         if (s instanceof Terrain)
             return true;
         

@@ -51,7 +51,6 @@ public class SceneToolController implements AppState {
     protected Spatial selectionShape;
     protected AssetManager manager;
     protected Material blueMat;
-    protected Vector3f selctionShapeOffset = new Vector3f(0, 0, 0);
 
     public SceneToolController(AssetManager manager) {
         this.toolsNode = new Node("ToolsNode");
@@ -143,6 +142,22 @@ public class SceneToolController implements AppState {
         selected = spat;
     }
 
+    public void rebuildSelectionBox() {
+        if (SceneApplication.getApplication().isAwt()) {
+            SceneApplication.getApplication().enqueue(new Callable<Object>() {
+                public Object call() throws Exception {
+                    doUpdateSelection(selected);
+                    return null;
+                }
+            });
+        }
+        else {
+            if (selected != null) {
+                attachSelectionShape(selected);
+            }
+        }
+    }
+    
     public void setCursorLocation(final Vector3f location) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
@@ -178,7 +193,6 @@ public class SceneToolController implements AppState {
             selectionShape.removeFromParent();
             selectionShape = null;
         }
-        selctionShapeOffset.set(Vector3f.ZERO);
         if (spat instanceof ParticleEmitter) {
             attachBoxSelection(spat);
 
@@ -232,16 +246,23 @@ public class SceneToolController implements AppState {
             bbox.getExtent(extent);
             WireBox wireBox = new WireBox();
             wireBox.fromBoundingBox(bbox);
-            selctionShapeOffset.set(bbox.getCenter()).subtractLocal(geom.getWorldTranslation());
             final Geometry selectionGeometry = new Geometry("selection_geometry_sceneviewer", wireBox);
             selectionGeometry.setMaterial(blueMat);
-            selectionGeometry.setLocalTransform(geom.getWorldTransform());
-            selectionGeometry.setLocalTranslation(bbox.getCenter());
-            selectionShape = selectionGeometry;
+            selectionGeometry.setLocalTranslation( bbox.getCenter().subtract(geom.getWorldTranslation()) );
+            //Vector3f scale = new Vector3f(1,1,1);
+            //scale.x = 1/geom.getWorldScale().x;
+            //scale.y = 1/geom.getWorldScale().y;
+            //scale.z = 1/geom.getWorldScale().z;
+            selectionShape = new Node("SelectionParent");
+            ((Node)selectionShape).attachChild(selectionGeometry);
+            //selectionShape.setLocalTransform(geom.getWorldTransform());
+            //selectionShape.setLocalTranslation(geom.getWorldTranslation());
+            //selectionGeometry.setLocalScale(scale);
+            
             SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
                 public Object call() throws Exception {
-                    toolsNode.attachChild(selectionGeometry);
+                    toolsNode.attachChild(selectionShape);
                     return null;
                 }
             });
@@ -394,12 +415,10 @@ public class SceneToolController implements AppState {
         if (selected == null || selectionShape == null) {
             return;
         }
-        TempVars vars = TempVars.get();
-        vars.vect1.set(selctionShapeOffset);
-        selectionShape.setLocalTranslation(vars.vect1.addLocal(selected.getWorldTranslation()));
-        vars.release();
+        
+        selectionShape.setLocalTranslation(selected.getWorldTranslation());
         selectionShape.setLocalRotation(selected.getWorldRotation());
-        selectionShape.setLocalScale(selected.getWorldScale());
+        //selectionShape.setLocalScale(selected.getWorldScale());
 
     }
 
