@@ -413,6 +413,14 @@ public class SelectTool extends SceneEditTool {
                 moving.sceneUndo();
                 moving = null;
                 clearState();
+            } else if (scaling != null) {
+                scaling.sceneUndo();
+                scaling = null;
+                clearState();
+            } else if (rotating != null) {
+                rotating.sceneUndo();
+                rotating = null;
+                clearState();
             }
             else if (!wasDraggingR && !wasDownR) { // wasn't dragging and was not down already
                 // pick on the spot
