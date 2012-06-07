@@ -252,8 +252,8 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             // E.g. if user chose custom technique for one material but 
             // uses default technique for other material, the materials 
             // are not equal.
-            String thisDefName = this.technique != null ? this.technique.getDef().getName() : "";
-            String otherDefName = other.technique != null ? other.technique.getDef().getName() : "";
+            String thisDefName = this.technique != null ? this.technique.getDef().getName() : "Default";
+            String otherDefName = other.technique != null ? other.technique.getDef().getName() : "Default";
             if (!thisDefName.equals(otherDefName)) {
                 return false;
             }
