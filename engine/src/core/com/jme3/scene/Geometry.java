@@ -329,15 +329,19 @@ public class Geometry extends Spatial {
     }
 
     @Override
-    public boolean removeFromParent() {
-        boolean removed = super.removeFromParent();
-        //if the geometry is batched we also have to unbatch it
-        if (isBatched()) {
-            unBatch();
-        }
-        return removed;
+    public boolean removeFromParent() {       
+        return super.removeFromParent();
     }
 
+    @Override
+    protected void setParent(Node parent) {
+        super.setParent(parent);
+         //if the geometry is batched we also have to unbatch it
+        if(parent==null && isBatched()){
+             unBatch();
+        }
+    }
+    
     /**
      * Recomputes the cached offset matrix used when the geometry is batched     * 
      */
