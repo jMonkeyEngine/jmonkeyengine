@@ -134,7 +134,7 @@ public class Ipo {
 			Vector3f[] translations = new Vector3f[framesAmount + 1];
 			float[] translation = new float[3];
 			Quaternion[] rotations = new Quaternion[framesAmount + 1];
-			float[] quaternionRotation = new float[4];
+			float[] quaternionRotation = new float[] { 0, 0, 0, 1 };
 			float[] objectRotation = new float[3];
 			Vector3f[] scales = new Vector3f[framesAmount + 1];
 			float[] scale = new float[] { 1.0f, 1.0f, 1.0f };
