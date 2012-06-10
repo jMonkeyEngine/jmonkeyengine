@@ -44,7 +44,7 @@ public final class MobileOptionsPanelController extends OptionsPanelController {
     }
 
     public HelpCtx getHelpCtx() {
-        return null; // new HelpCtx("...ID") if you have a help set
+        return new HelpCtx("jme3.android"); // new HelpCtx("...ID") if you have a help set
     }
 
     public JComponent getComponent(Lookup masterLookup) {
