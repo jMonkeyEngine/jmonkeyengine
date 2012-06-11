@@ -235,13 +235,13 @@ public final class CodelessProjectWizardVisualPanel1 extends JPanel {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         File path=new File(jTextField1.getText());
         if(path.isDirectory()){
-            FileChooserBuilder builder = new FileChooserBuilder(path.getAbsolutePath());
+            FileChooserBuilder builder = new FileChooserBuilder(path.getAbsolutePath().replaceAll("\\","/"));
             builder.setDirectoriesOnly(true);
             builder.setTitle("Select Assets Folder");
             File file = builder.showOpenDialog();
             if (file != null) {
                 try {
-                    jTextField2.setText(file.getAbsolutePath().substring(path.getAbsolutePath().length(), file.getAbsolutePath().length()));
+                    jTextField2.setText(file.getAbsolutePath().substring(path.getAbsolutePath().length(), file.getAbsolutePath().length()).replaceAll("\\","/"));
                 } catch (Exception e) {
                 }
             }
