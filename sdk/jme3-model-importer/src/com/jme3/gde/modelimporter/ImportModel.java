@@ -76,6 +76,7 @@ public final class ImportModel implements ActionListener {
         boolean keepFiles = (Boolean) wiz.getProperty("keepfiles");
         List<FileObject> assetList = (List<FileObject>) wiz.getProperty("assetfiles");
         String importPath = (String) wiz.getProperty("destpath");
+        ProjectAssetManager importManager = (ProjectAssetManager) wiz.getProperty("manager");
         ProjectAssetManager manager = context.getLookup().lookup(ProjectAssetManager.class);
         if (manager == null) {
             throw new IllegalStateException("Cannot find project AssetManager!");
@@ -84,7 +85,7 @@ public final class ImportModel implements ActionListener {
         for (Iterator<FileObject> it = assetList.iterator(); it.hasNext();) {
             FileObject source = it.next();
             try {
-                String folderName = importPath + "/" + manager.getRelativeAssetPath(source.getParent().getPath());
+                String folderName = importPath + "/" + importManager.getRelativeAssetPath(source.getParent().getPath());
                 FileObject dest = manager.getAssetFolder().getFileObject(folderName);
                 if (dest == null) {
                     dest = FileUtil.createFolder(manager.getAssetFolder(), folderName);
@@ -100,6 +101,7 @@ public final class ImportModel implements ActionListener {
                         fileObj.delete();
                         fileObj = source.copy(dest, source.getName(), source.getExt());
                     } else {
+                        fileObj = null;
                     }
                 } else {
                     fileObj = source.copy(dest, source.getName(), source.getExt());
@@ -109,9 +111,11 @@ public final class ImportModel implements ActionListener {
                     AssetData data = obj.getLookup().lookup(AssetData.class);
                     if (data != null) {
                         AssetKey assetKey = data.getAssetKey();
-                        if (!(assetKey instanceof TextureKey) && fileObj != null) {
+                        if (!(assetKey instanceof TextureKey)) {
                             deleteList.add(fileObj);
                         }
+                    } else{
+                        deleteList.add(fileObj);
                     }
                 }
             } catch (Exception ex) {
