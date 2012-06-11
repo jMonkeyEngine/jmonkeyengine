@@ -219,6 +219,16 @@
                     </file>
                 </folder>
             </folder>
+            <folder name="ogrexmlskeleton+xml">
+                <folder name="Factories">
+                    <file name="OgreSceneDataLoader.instance">
+                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/jme3/gde/ogrexml/ogre-logo.png"/>
+                        <attr name="dataObjectClass" stringvalue="com.jme3.gde.ogrexml.OgreXMLSkeletonDataObject"/>
+                        <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
+                        <attr name="mimeType" stringvalue="text/ogrescene+xml"/>
+                    </file>
+                </folder>
+            </folder>
         </folder>
     </folder>
     <folder name="Services">
@@ -231,6 +241,9 @@
             </file>
             <file name="OgreXMLResolver.xml" url="OgreXMLResolver.xml">
                 <attr name="displayName" bundlevalue="com.jme3.gde.ogrexml.Bundle#Services/MIMEResolver/OgreXMLResolver.xml"/>
+            </file>
+            <file name="OgreXMLSkeletonResolver.xml" url="OgreXMLSkeletonResolver.xml">
+                <attr name="displayName" bundlevalue="com.jme3.gde.ogrexml.Bundle#Services/MIMEResolver/OgreXMLSkeletonResolver.xml"/>
             </file>
         </folder>
     </folder>
