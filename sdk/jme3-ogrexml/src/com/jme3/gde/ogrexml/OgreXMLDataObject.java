@@ -86,13 +86,7 @@ public class OgreXMLDataObject extends SpatialAssetDataObject {
             name = name.substring(0, idx);
         }
         FileObject sourceMatFile = getPrimaryFile().getParent().getFileObject(name, "material");
-        if (sourceMatFile != null && sourceMatFile.isValid()) {
-            try {
-                sourceMatFile.copy(sourceMatFile.getParent(), "+" + sourceMatFile.getName(), sourceMatFile.getExt());
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        } else {
+        if (sourceMatFile == null || !sourceMatFile.isValid()) {
             Confirmation msg = new NotifyDescriptor.Confirmation(
                     "No material file found for " + getPrimaryFile().getNameExt() + "\n"
                     + "A file named " + name + ".material should be in the same folder.\n"
