@@ -87,11 +87,11 @@ public final class ModelImporterVisualPanel1 extends JPanel {
             if (data != null) {
                 ((AssetDataObject) dataObject).getLookupContents().add(manager);
                 mainKey = data.getAssetKey();
-                updateProperties(mainKey);
             }
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }
+        updateProperties(mainKey);
         panel.fireChangeEvent();
     }
 
