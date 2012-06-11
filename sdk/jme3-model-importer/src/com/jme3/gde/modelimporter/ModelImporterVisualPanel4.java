@@ -54,6 +54,7 @@ public final class ModelImporterVisualPanel4 extends JPanel {
         jTextArea1.setRows(5);
         jTextArea1.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel4.class, "ModelImporterVisualPanel4.jTextArea1.text")); // NOI18N
         jTextArea1.setWrapStyleWord(true);
+        jTextArea1.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         jScrollPane1.setViewportView(jTextArea1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

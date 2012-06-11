@@ -224,10 +224,12 @@ public final class ModelImporterVisualPanel3 extends JPanel {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel3.class, "ModelImporterVisualPanel3.jLabel1.text_1")); // NOI18N
 
         infoTextArea.setColumns(20);
+        infoTextArea.setEditable(false);
         infoTextArea.setLineWrap(true);
         infoTextArea.setRows(5);
         infoTextArea.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel3.class, "ModelImporterVisualPanel3.infoTextArea.text_1")); // NOI18N
         infoTextArea.setWrapStyleWord(true);
+        infoTextArea.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         jScrollPane1.setViewportView(infoTextArea);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
