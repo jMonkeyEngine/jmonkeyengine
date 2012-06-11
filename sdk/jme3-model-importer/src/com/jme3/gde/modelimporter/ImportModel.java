@@ -25,6 +25,7 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.Project;
 import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -51,10 +52,9 @@ public final class ImportModel implements ActionListener {
         dialog.setVisible(true);
         dialog.toFront();
         boolean cancelled = wiz.getValue() != WizardDescriptor.FINISH_OPTION;
-        ((ModelImporterWizardPanel1) panels[0]).cleanup();
+        ((ModelImporterWizardPanel3) panels[1]).cleanup();
         if (!cancelled) {
             new Thread(new Runnable() {
-
                 public void run() {
                     ProgressHandle handle = ProgressHandleFactory.createHandle("Importing Model..");
                     handle.start();
@@ -89,8 +89,22 @@ public final class ImportModel implements ActionListener {
                 destFolder.mkdirs();
                 FileObject dest = FileUtil.toFileObject(destFolder);
                 try {
-                    FileObject fileObj = source.copy(dest, source.getName(), source.getExt());
-                    if (!(assetKey instanceof TextureKey)) {
+                    FileObject fileObj = dest.getFileObject(source.getName(), source.getExt());
+                    if (fileObj != null) {
+                        NotifyDescriptor.Confirmation msg = new NotifyDescriptor.Confirmation(
+                                "File "+source.getNameExt()+" exists, overwrite?",
+                                NotifyDescriptor.YES_NO_OPTION,
+                                NotifyDescriptor.WARNING_MESSAGE);
+                        Object result = DialogDisplayer.getDefault().notify(msg);
+                        if (NotifyDescriptor.YES_OPTION.equals(result)) {
+                            fileObj.delete();
+                            fileObj = source.copy(dest, source.getName(), source.getExt());
+                        } else {
+                        }
+                    } else {
+                        fileObj = source.copy(dest, source.getName(), source.getExt());
+                    }
+                    if (!(assetKey instanceof TextureKey) && fileObj != null) {
                         deleteList.add(fileObj);
                     }
                 } catch (Exception ex) {
@@ -137,14 +151,15 @@ public final class ImportModel implements ActionListener {
     }
 
     /**
-     * Initialize panels representing individual wizard's steps and sets
-     * various properties for them influencing wizard appearance.
+     * Initialize panels representing individual wizard's steps and sets various
+     * properties for them influencing wizard appearance.
      */
     private WizardDescriptor.Panel[] getPanels() {
         if (panels == null) {
             panels = new WizardDescriptor.Panel[]{
                 new ModelImporterWizardPanel1(),
-                new ModelImporterWizardPanel2()
+                new ModelImporterWizardPanel3(),
+                new ModelImporterWizardPanel4()
             };
             String[] steps = new String[panels.length];
             for (int i = 0; i < panels.length; i++) {

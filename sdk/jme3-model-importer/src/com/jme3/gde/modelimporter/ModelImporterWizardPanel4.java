@@ -9,13 +9,13 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
-public class ModelImporterWizardPanel2 implements WizardDescriptor.Panel {
+public class ModelImporterWizardPanel4 implements WizardDescriptor.Panel {
 
     /**
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    private ModelImporterVisualPanel2 component;
+    private ModelImporterVisualPanel4 component;
 
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created
@@ -23,7 +23,7 @@ public class ModelImporterWizardPanel2 implements WizardDescriptor.Panel {
     // create only those which really need to be visible.
     public Component getComponent() {
         if (component == null) {
-            component = new ModelImporterVisualPanel2();
+            component = new ModelImporterVisualPanel4();
         }
         return component;
     }

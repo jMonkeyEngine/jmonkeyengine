@@ -13,13 +13,13 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
-public class ModelImporterWizardPanel1 implements WizardDescriptor.Panel {
+public class ModelImporterWizardPanel3 implements WizardDescriptor.Panel {
 
     /**
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    private ModelImporterVisualPanel1 component;
+    private ModelImporterVisualPanel3 component;
 
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created
@@ -27,7 +27,7 @@ public class ModelImporterWizardPanel1 implements WizardDescriptor.Panel {
     // create only those which really need to be visible.
     public Component getComponent() {
         if (component == null) {
-            component = new ModelImporterVisualPanel1(this);
+            component = new ModelImporterVisualPanel3(this);
         }
         return component;
     }
@@ -42,8 +42,12 @@ public class ModelImporterWizardPanel1 implements WizardDescriptor.Panel {
     public boolean isValid() {
         // If it is always OK to press Next or Finish, then:
         return component.checkValid();
+        // If it depends on some condition (form filled out...), then:
+        // return someCondition();
+        // and when this condition changes (last form field filled in...) then:
+        // fireChangeEvent();
+        // and uncomment the complicated stuff below.
     }
-    
     private final Set<ChangeListener> listeners = new HashSet<ChangeListener>(1); // or can use ChangeSupport in NB 6.0
 
     public final void addChangeListener(ChangeListener l) {
@@ -79,5 +83,9 @@ public class ModelImporterWizardPanel1 implements WizardDescriptor.Panel {
 
     public void storeSettings(Object settings) {
         component.applySettings((WizardDescriptor) settings);
+    }
+
+    public void cleanup() {
+        component.cleanup();
     }
 }
