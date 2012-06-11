@@ -54,6 +54,7 @@ public final class ModelImporterVisualPanel3 extends JPanel {
         loadModel(mainKey);
         if (currentModel != null) {
             offPanel.attach(currentModel);
+            jList2.setListData(new Object[]{mainKey});
         }
     }
 
