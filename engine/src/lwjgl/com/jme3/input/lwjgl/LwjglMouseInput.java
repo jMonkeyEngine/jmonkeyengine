@@ -32,6 +32,7 @@
 
 package com.jme3.input.lwjgl;
 
+import com.jme3.cursors.plugins.JmeCursor;
 import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
@@ -70,7 +71,7 @@ public class LwjglMouseInput implements MouseInput {
             Mouse.create();
             logger.info("Mouse created.");
             supportHardwareCursor = (Cursor.getCapabilities() & Cursor.CURSOR_ONE_BIT_TRANSPARENCY) != 0;
-            
+
             // Recall state that was set before initialization
             Mouse.setGrabbed(!cursorVisible);
         } catch (LWJGLException ex) {
@@ -138,7 +139,7 @@ public class LwjglMouseInput implements MouseInput {
         cursorVisible = visible;
         if (!context.isRenderable())
             return;
-        
+
         Mouse.setGrabbed(!visible);
     }
 
@@ -148,6 +149,22 @@ public class LwjglMouseInput implements MouseInput {
 
     public long getInputTimeNanos() {
         return Sys.getTime() * LwjglTimer.LWJGL_TIME_TO_NANOS;
+    }
+
+    public void setNativeCursor(JmeCursor jmeCursor) {
+        try {
+            Cursor newCursor = new Cursor(
+                    jmeCursor.getWidth(),
+                    jmeCursor.getHeight(),
+                    jmeCursor.getXHotSpot(),
+                    jmeCursor.getYHotSpot(),
+                    jmeCursor.getNumImages(),
+                    jmeCursor.getImagesData(),
+                    jmeCursor.getImagesDelay());
+            Mouse.setNativeCursor(newCursor);
+        } catch (LWJGLException ex) {
+            Logger.getLogger(LwjglMouseInput.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

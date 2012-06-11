@@ -98,7 +98,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
         x = (int) evt.getX();
         y = (int) (height - evt.getY());
 
-        if (!inputManager.getSimulateMouse()) {            
+        if (!inputManager.getSimulateMouse()) {
             switch (evt.getType()) {
                 case DOWN:
                     consumed = nic.processMouseEvent(x, y, 0, 0, true);
@@ -150,7 +150,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
         // Mouse button raised. End dragging
         if (wasPressed && !pressed) {
             if (!niftyOwnsDragging) {
-                forwardToNifty = false;
+                forwardToNifty = true;
             }
             isDragging = false;
             niftyOwnsDragging = false;

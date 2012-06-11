@@ -32,6 +32,7 @@
 
 package com.jme3.input.awt;
 
+import com.jme3.cursors.plugins.JmeCursor;
 import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
@@ -49,7 +50,7 @@ import javax.swing.SwingUtilities;
  *
  * @author Joshua Slack
  * @author MHenze (cylab)
- * 
+ *
  * @version $Revision$
  */
 public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListener, MouseMotionListener {
@@ -66,7 +67,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
 
     private final ArrayList<MouseButtonEvent> eventQueue = new ArrayList<MouseButtonEvent>();
     private final ArrayList<MouseButtonEvent> eventQueueCopy = new ArrayList<MouseButtonEvent>();
-    
+
     private int lastEventX;
     private int lastEventY;
     private int lastEventWheel;
@@ -95,7 +96,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
             logger.log(Level.SEVERE, "Could not create a robot, so the mouse cannot be grabbed! ", e);
         }
     }
-    
+
     public void setInputSource(Component comp) {
         if (component != null) {
             component.removeMouseListener(this);
@@ -311,5 +312,8 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
                 break;
         }
         return index;
+    }
+
+    public void setNativeCursor(JmeCursor cursor) {
     }
 }
