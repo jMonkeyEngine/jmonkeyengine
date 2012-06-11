@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
 @SuppressWarnings({"unchecked", "serial"})
@@ -26,8 +27,9 @@ public final class ModelImporterVisualPanel3 extends JPanel {
     private AssetData data;
     private AssetKey mainKey;
     private Spatial currentModel;
-    private List<AssetKey> assets;
-    private List<AssetKey> failed;
+    private List<FileObject> assets;
+    private List<AssetKey> assetKeys;
+    private List<AssetKey> failedKeys;
 
     /**
      * Creates new form ModelImporterVisualPanel1
@@ -51,6 +53,9 @@ public final class ModelImporterVisualPanel3 extends JPanel {
         manager = (ProjectAssetManager) wiz.getProperty("manager");
         mainKey = (AssetKey) wiz.getProperty("mainkey");
         data = (AssetData) wiz.getProperty("assetdata");
+        assets = null;
+        assetKeys = null;
+        failedKeys = null;
         loadModel(mainKey);
         if (currentModel != null) {
             offPanel.attach(currentModel);
@@ -60,8 +65,9 @@ public final class ModelImporterVisualPanel3 extends JPanel {
     }
 
     public void applySettings(WizardDescriptor wiz) {
-        wiz.putProperty("assetlist", assets);
-        wiz.putProperty("failedlist", failed);
+        wiz.putProperty("assetfiles", assets);
+        wiz.putProperty("assetlist", assetKeys);
+        wiz.putProperty("failedlist", failedKeys);
         wiz.putProperty("model", currentModel);
         if (currentModel != null) {
             offPanel.detach(currentModel);
@@ -83,11 +89,12 @@ public final class ModelImporterVisualPanel3 extends JPanel {
         try {
             currentModel = (Spatial) data.loadAsset();
             if (currentModel != null) {
-                assets = data.getAssetKeyList();
-                failed = data.getFailedList();
-                jList1.setListData(assets.toArray());
-                jList2.setListData(failed.toArray());
-                if (failed.size() > 0) {
+                assetKeys = data.getAssetKeyList();
+                failedKeys = data.getFailedList();
+                assets = data.getAssetList();
+                jList1.setListData(assetKeys.toArray());
+                jList2.setListData(failedKeys.toArray());
+                if (failedKeys.size() > 0) {
                     statusLabel.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel3.class, "ModelImporterVisualPanel3.statusLabel.text_missing"));
                     infoTextArea.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel3.class, "ModelImporterVisualPanel3.infoTextArea.text_missing"));
                 } else {

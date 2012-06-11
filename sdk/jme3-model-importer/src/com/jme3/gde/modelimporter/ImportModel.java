@@ -70,53 +70,59 @@ public final class ImportModel implements ActionListener {
     }
 
     private void copyModel(WizardDescriptor wiz) {
+//        List<AssetKey> keyList = (List<AssetKey>) wiz.getProperty("assetlist");
+//        String path = (String) wiz.getProperty("path");
         AssetKey key = (AssetKey) wiz.getProperty("mainkey");
         boolean keepFiles = (Boolean) wiz.getProperty("keepfiles");
-        List<AssetKey> keyList = (List<AssetKey>) wiz.getProperty("assetlist");
-        String path = (String) wiz.getProperty("path");
+        List<FileObject> assetList = (List<FileObject>) wiz.getProperty("assetfiles");
         String importPath = (String) wiz.getProperty("destpath");
         ProjectAssetManager manager = context.getLookup().lookup(ProjectAssetManager.class);
         if (manager == null) {
             throw new IllegalStateException("Cannot find project AssetManager!");
         }
         List<FileObject> deleteList = new LinkedList<FileObject>();
-        for (Iterator<AssetKey> it = keyList.iterator(); it.hasNext();) {
-            AssetKey assetKey = it.next();
-            File file = new File(path + "/" + assetKey.getFolder() + assetKey.getName());
-            if (file.exists()) {
-                FileObject source = FileUtil.toFileObject(file);
-                File destFolder = new File(manager.getAssetFolderName() + "/" + importPath + "/" + assetKey.getFolder() + "/");
-                destFolder.mkdirs();
-                FileObject dest = FileUtil.toFileObject(destFolder);
-                try {
-                    FileObject fileObj = dest.getFileObject(source.getName(), source.getExt());
-                    if (fileObj != null) {
-                        NotifyDescriptor.Confirmation msg = new NotifyDescriptor.Confirmation(
-                                "File "+source.getNameExt()+" exists, overwrite?",
-                                NotifyDescriptor.YES_NO_OPTION,
-                                NotifyDescriptor.WARNING_MESSAGE);
-                        Object result = DialogDisplayer.getDefault().notify(msg);
-                        if (NotifyDescriptor.YES_OPTION.equals(result)) {
-                            fileObj.delete();
-                            fileObj = source.copy(dest, source.getName(), source.getExt());
-                        } else {
-                        }
-                    } else {
-                        fileObj = source.copy(dest, source.getName(), source.getExt());
-                    }
-                    if (!(assetKey instanceof TextureKey) && fileObj != null) {
-                        deleteList.add(fileObj);
-                    }
-                } catch (Exception ex) {
-                    Exceptions.printStackTrace(ex);
+        for (Iterator<FileObject> it = assetList.iterator(); it.hasNext();) {
+            FileObject source = it.next();
+            try {
+                String folderName = importPath + "/" + manager.getRelativeAssetPath(source.getParent().getPath());
+                FileObject dest = manager.getAssetFolder().getFileObject(folderName);
+                if (dest == null) {
+                    dest = FileUtil.createFolder(manager.getAssetFolder(), folderName);
                 }
+                FileObject fileObj = dest.getFileObject(source.getName(), source.getExt());
+                if (fileObj != null) {
+                    NotifyDescriptor.Confirmation msg = new NotifyDescriptor.Confirmation(
+                            "File " + source.getNameExt() + " exists, overwrite?",
+                            NotifyDescriptor.YES_NO_OPTION,
+                            NotifyDescriptor.WARNING_MESSAGE);
+                    Object result = DialogDisplayer.getDefault().notify(msg);
+                    if (NotifyDescriptor.YES_OPTION.equals(result)) {
+                        fileObj.delete();
+                        fileObj = source.copy(dest, source.getName(), source.getExt());
+                    } else {
+                    }
+                } else {
+                    fileObj = source.copy(dest, source.getName(), source.getExt());
+                }
+                if (fileObj != null) {
+                    DataObject obj = DataObject.find(fileObj);
+                    AssetData data = obj.getLookup().lookup(AssetData.class);
+                    if (data != null) {
+                        AssetKey assetKey = data.getAssetKey();
+                        if (!(assetKey instanceof TextureKey) && fileObj != null) {
+                            deleteList.add(fileObj);
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
-        File file = new File(manager.getAssetFolderName() + "/" + importPath + "/" + key.getName());
-//        File outFile = new File(manager.getAssetFolderName() + "/" + importPath + "/" + key.getName().replaceAll(key.getExtension(), "j3o"));
+
+        FileObject file = manager.getAssetFolder().getFileObject(importPath + "/" + key.getName());
         DataObject targetModel;
         try {
-            targetModel = DataObject.find(FileUtil.toFileObject(file));
+            targetModel = DataObject.find(file);
             if (targetModel instanceof SpatialAssetDataObject) {
                 //TODO: wtf? why do i have to add the assetmanager?
                 ((SpatialAssetDataObject) targetModel).getLookupContents().add(manager);
@@ -128,8 +134,6 @@ public final class ImportModel implements ActionListener {
 
                 }
                 data.saveAsset();
-//                BinaryExporter exp = BinaryExporter.getInstance();
-//                exp.save(spat, outFile);
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
