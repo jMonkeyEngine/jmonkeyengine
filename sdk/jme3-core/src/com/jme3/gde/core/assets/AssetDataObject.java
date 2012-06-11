@@ -77,11 +77,9 @@ public class AssetDataObject extends MultiDataObject {
     protected final Lookup lookup;
     protected final InstanceContent lookupContents = new InstanceContent();
     protected SaveCookie saveCookie = new SaveCookie() {
-
         public void save() throws IOException {
             //TODO: On OpenGL thread? -- safest way.. with get()?
             SceneApplication.getApplication().enqueue(new Callable() {
-
                 public Object call() throws Exception {
                     saveAsset();
                     return null;
@@ -305,7 +303,9 @@ public class AssetDataObject extends MultiDataObject {
                 assetList.remove(obj);
                 assetKeyList.remove(ak1);
             }
-            failedList.add(ak1);
+            if (!failedList.contains(ak1)) {
+                failedList.add(ak1);
+            }
         }
 
         public void start() {
