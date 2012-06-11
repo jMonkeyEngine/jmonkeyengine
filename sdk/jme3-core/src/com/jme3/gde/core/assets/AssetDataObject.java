@@ -289,7 +289,7 @@ public class AssetDataObject extends MultiDataObject {
                 return;
             }
             FileObject obj = pm.getAssetFolder().getFileObject(ak.getName());
-            if (obj != null) {
+            if (obj != null && !assetList.contains(obj)) {
                 assetList.add(obj);
                 assetKeyList.add(ak);
             }
@@ -303,8 +303,9 @@ public class AssetDataObject extends MultiDataObject {
             FileObject obj = pm.getAssetFolder().getFileObject(ak1.getName());
             if (obj != null && assetList.contains(obj)) {
                 assetList.remove(obj);
-                failedList.add(ak1);
+                assetKeyList.remove(ak1);
             }
+            failedList.add(ak1);
         }
 
         public void start() {
