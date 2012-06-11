@@ -86,25 +86,15 @@ public final class ModelImporterVisualPanel3 extends JPanel {
                 jList1.setListData(assets.toArray());
                 jList2.setListData(failed.toArray());
                 if (failed.size() > 0) {
-                    statusLabel.setText("Model loaded, some assets could not be loaded.");
-                    infoTextArea.setText("Check if the model looks as expected,"
-                            + " some textures fail to load, make sure they are in the same folder or a subfolder of the model."
-                            + " Textures that can not be found will be replaced with a red material."
-                            + "\nWith the buttons above you can move the camera.");
+                    statusLabel.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel3.class, "ModelImporterVisualPanel3.statusLabel.text_missing"));
+                    infoTextArea.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel3.class, "ModelImporterVisualPanel3.infoTextArea.text_missing"));
                 } else {
-                    statusLabel.setText("Model loaded successfully.");
-                    infoTextArea.setText("Check if the model looks as expected."
-                            + "\nWith the buttons above you can move the camera.");
+                    statusLabel.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel3.class, "ModelImporterVisualPanel3.statusLabel.text_good"));
+                    infoTextArea.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel3.class, "ModelImporterVisualPanel3.infoTextArea.text_good"));
                 }
             } else {
-                statusLabel.setText("Model cannot be loaded.");
-                infoTextArea.setText("This file can not be loaded, it is either in an unsupported format or is incompatible."
-                        + "\n Check the bottom right corner of the SDK for a little warning sign. If it is there"
-                        + " double-click it and report the contained stack trace at jmonkeyengine.org");
-//                Message msg = new NotifyDescriptor.Message(
-//                        "Cannot import this file!",
-//                        NotifyDescriptor.ERROR_MESSAGE);
-//                DialogDisplayer.getDefault().notifyLater(msg);
+                statusLabel.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel3.class, "ModelImporterVisualPanel3.statusLabel.text_failed"));
+                infoTextArea.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel3.class, "ModelImporterVisualPanel3.infoTextArea.text_failed"));
             }
         } catch (Exception e) {
             statusLabel.setText("Error importing file");
