@@ -46,6 +46,8 @@ public final class ModelImporterVisualPanel3 extends JPanel {
     }
 
     public void loadSettings(WizardDescriptor wiz) {
+        jList1.setListData(new Object[0]);
+        jList2.setListData(new Object[0]);
         manager = (ProjectAssetManager) wiz.getProperty("manager");
         mainKey = (AssetKey) wiz.getProperty("mainkey");
         data = (AssetData) wiz.getProperty("assetdata");
