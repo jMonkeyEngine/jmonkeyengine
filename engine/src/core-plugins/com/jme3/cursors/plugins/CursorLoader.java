@@ -36,6 +36,9 @@ public class CursorLoader implements AssetLoader {
      */
     public JmeCursor load(AssetInfo info) throws IOException {
 
+        isIco = false;
+        isAni = false;
+
         isIco = ((AssetKey) info.getKey()).getExtension().equals("ico");
         if (!isIco) {
             isIco = ((AssetKey) info.getKey()).getExtension().equals("cur");
@@ -125,7 +128,7 @@ public class CursorLoader implements AssetLoader {
                             nextInt = leIn.readInt();
                             if (nextInt == 0x4f464e49) { // Got an INFO, skip its length
                                 // this part consist  of Author, title, etc
-//                                int skipped = leIn.skipBytes(length - 4);
+                                leIn.skipBytes(length - 4);
 //                                System.out.println(" Discarding INFO (skipped = " + skipped + ")");
                                 nextInt = leIn.readInt();
                             } else if (nextInt == 0x6d617266) { // found a 'fram' for animation
@@ -144,6 +147,12 @@ public class CursorLoader implements AssetLoader {
                                         }
                                         byte[] data = new byte[icoLength];
                                         ((InputStream) leIn).read(data, 0, icoLength);
+                                        // in case the header didn't have width or height
+                                        // get it from first image.
+                                        if (width == 0 || height == 0 && i == 1) {
+                                            width = data[6];
+                                            height = data[7];
+                                        }
                                         icons.add(data);
                                     }
                                     // at this point we have the icons, rates (either
@@ -155,7 +164,7 @@ public class CursorLoader implements AssetLoader {
                                     nextInt = leIn.readInt();
                                     // if for some reason there's JUNK (nextInt > -1)
                                     // bail out.
-                                    nextInt = nextInt > -1 ?  -1 : nextInt;
+                                    nextInt = nextInt > -1 ? -1 : nextInt;
                                 }
                             }
                         }
@@ -180,7 +189,7 @@ public class CursorLoader implements AssetLoader {
         }
 
         BufferedImage bi[] = parseICOImage(icoimages);
-        CursorImageData cid = new CursorImageData(bi, 0, 0, 0);
+        CursorImageData cid = new CursorImageData(bi, 0, 0, 0, 0);
         cid.completeCursor();
 
         return setJmeCursor(cid);
@@ -513,23 +522,22 @@ public class CursorLoader implements AssetLoader {
         public CursorImageData() {
         }
 
-        CursorImageData(BufferedImage[] bi, int delay, int hsX, int hsY) {
+        CursorImageData(BufferedImage[] bi, int delay, int hsX, int hsY, int curType) {
+            // cursor type
+            // 0 - Undefined (an array of images inside an ICO)
+            // 1 - ICO
+            // 2 - CUR
             IntBuffer singleCursor = null;
             ArrayList<IntBuffer> cursors = new ArrayList<IntBuffer>();
             int bwidth = 0;
             int bheight = 0;
-            // cursor type
-            // 1 - ICO
-            // 2 - CUR
-            // Anything else is invalid.
-            int curType = 0;
+            boolean multIcons = false;
 
             // make the cursor image
             for (int i = 0; i < bi.length; i++) {
                 BufferedImage img = bi[i];
                 bwidth = img.getWidth();
                 bheight = img.getHeight();
-                curType = img.getType();
                 if (curType == 1) {
                     hsX = 0;
                     hsY = bheight - 1;
@@ -539,8 +547,19 @@ public class CursorLoader implements AssetLoader {
                         hsY = bheight - 1;
                     }
                 } else {
-                    throw new IllegalArgumentException(
-                            "An image contained is not of the right type! Only proper ICO and CUR formats are valid.");
+                    // We force to choose 32x32 icon from
+                    // the array of icons in that ICO file.
+                    if (bwidth != 32 && bheight != 32) {
+                        multIcons = true;
+                        continue;
+                    } else {
+                        if (img.getType() != 2) {
+                            continue;
+                        } else {
+                            // force hotspot
+                            hsY = bheight - 1;
+                        }
+                    }
                 }
 
                 // We flip our image because .ICO and .CUR will always be reversed.
@@ -555,10 +574,18 @@ public class CursorLoader implements AssetLoader {
                 cursors.add(singleCursor);
             }
 
+            int count;
+            if (multIcons) {
+                bwidth = 32;
+                bheight = 32;
+                count = 1;
+            } else {
+                count = cursors.size();
+            }
             // put the image in the IntBuffer
             data = BufferUtils.createIntBuffer(bwidth * bheight);
             imgDelay = BufferUtils.createIntBuffer(bi.length);
-            for (int i = 0; i < cursors.size(); i++) {
+            for (int i = 0; i < count; i++) {
                 data.put(cursors.get(i));
                 if (delay > 0) {
                     imgDelay.put(delay);
@@ -568,14 +595,14 @@ public class CursorLoader implements AssetLoader {
             height = bheight;
             xHotSpot = hsX;
             yHotSpot = hsY;
-            numImages = cursors.size();
+            numImages = count;
             data.rewind();
             if (imgDelay != null) {
                 imgDelay.rewind();
             }
         }
 
-        private void addFrame(byte[] imgData, int rate, int jiffy, int width, int height) throws IOException {
+        private void addFrame(byte[] imgData, int rate, int jiffy, int width, int height, int numSeq) throws IOException {
             BufferedImage bi[] = parseICOImage(imgData);
             int hotspotx = 0;
             int hotspoty = 0;
@@ -585,15 +612,16 @@ public class CursorLoader implements AssetLoader {
                 hotspotx = imgData[10] | imgData[11];
                 hotspoty = imgData[12] | imgData[13];
             } else if (type == 1) {
-                // ICO type, hotspot not stored. Leave at 0;
+                // ICO type, hotspot not stored. Put at 0, height - 1
+                // because it's flipped.
                 hotspotx = 0;
-                hotspoty = 0;
+                hotspoty = height - 1;
             }
 //            System.out.println("Image type = " + (type == 1 ? "CUR" : "ICO"));
             if (rate == 0) {
                 rate = jiffy;
             }
-            CursorImageData cid = new CursorImageData(bi, rate, hotspotx, hotspoty);
+            CursorImageData cid = new CursorImageData(bi, rate, hotspotx, hotspoty, type);
             if (width == 0) {
                 this.width = cid.width;
             } else {
@@ -605,13 +633,21 @@ public class CursorLoader implements AssetLoader {
                 this.height = height;
             }
             if (data == null) {
-                data = BufferUtils.createIntBuffer(this.width * this.height * numImages);
+                if (numSeq > numImages) {
+                    data = BufferUtils.createIntBuffer(this.width * this.height * numSeq);
+                } else {
+                    data = BufferUtils.createIntBuffer(this.width * this.height * numImages);
+                }
                 data.put(cid.data);
             } else {
                 data.put(cid.data);
             }
-            if (imgDelay == null && numImages > 1) {
-                imgDelay = BufferUtils.createIntBuffer(numImages);
+            if (imgDelay == null && (numImages > 1 || numSeq > 1)) {
+                if (numSeq > numImages) {
+                    imgDelay = BufferUtils.createIntBuffer(numSeq);
+                } else {
+                    imgDelay = BufferUtils.createIntBuffer(numImages);
+                }
                 imgDelay.put(cid.imgDelay);
             } else if (imgData != null) {
                 imgDelay.put(cid.imgDelay);
@@ -631,8 +667,8 @@ public class CursorLoader implements AssetLoader {
             // since the sequence can be larger than the number
             // of images in the ani if it reuses one or more of those
             // images.
-            if (animSeq != null) {
-                for (int i = 0 ; i < animSeq.length ; i++) {
+            if (animSeq != null && animSeq.length > 0) {
+                for (int i = 0; i < animSeq.length; i++) {
                     if (rate != null) {
                         frRate = rate[i] * MULT;
                     } else {
@@ -640,18 +676,18 @@ public class CursorLoader implements AssetLoader {
                     }
                     // the frame # is the one in the animation sequence
                     frame = icons.get(animSeq[i]);
-                    addFrame(frame, frRate, jiffy, width, height);
+                    addFrame(frame, frRate, jiffy, width, height, animSeq.length);
 //                    System.out.println("delay of " + frRate);
                 }
             } else {
-                for (int i = 0 ; i < icons.size() ; i++) {
+                for (int i = 0; i < icons.size(); i++) {
                     frame = icons.get(i);
                     if (rate == null) {
                         frRate = jiffy * MULT;
                     } else {
                         frRate = rate[i] * MULT;
                     }
-                    addFrame(frame, frRate, jiffy, width, height);
+                    addFrame(frame, frRate, jiffy, width, height, 0);
 //                    System.out.println("delay of " + frRate);
                 }
             }
