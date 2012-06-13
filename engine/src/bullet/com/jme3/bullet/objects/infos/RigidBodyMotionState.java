@@ -65,7 +65,7 @@ public class RigidBodyMotionState {
      * applies the current transform to the given jme Node if the location has been updated on the physics side
      * @param spatial
      */
-    public synchronized boolean applyTransform(Spatial spatial) {
+    public boolean applyTransform(Spatial spatial) {
         Vector3f localLocation = spatial.getLocalTranslation();
         Quaternion localRotationQuat = spatial.getLocalRotation();
         boolean physicsLocationDirty = applyTransform(motionStateId, localLocation, localRotationQuat);
@@ -94,7 +94,7 @@ public class RigidBodyMotionState {
         return true;
     }
 
-    private synchronized native boolean applyTransform(long stateId, Vector3f location, Quaternion rotation);
+    private native boolean applyTransform(long stateId, Vector3f location, Quaternion rotation);
 
     /**
      * @return the worldLocation

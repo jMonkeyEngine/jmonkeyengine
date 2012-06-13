@@ -71,7 +71,7 @@ public class RigidBodyMotionState extends MotionState {
      * @param t
      * @return
      */
-    public synchronized Transform getWorldTransform(Transform t) {
+    public Transform getWorldTransform(Transform t) {
         t.set(motionStateTrans);
         return t;
     }
@@ -80,7 +80,7 @@ public class RigidBodyMotionState extends MotionState {
      * called from bullet when the transform of the rigidbody changes
      * @param worldTrans
      */
-    public synchronized void setWorldTransform(Transform worldTrans) {
+    public void setWorldTransform(Transform worldTrans) {
         if (jmeLocationDirty) {
             return;
         }
@@ -102,7 +102,7 @@ public class RigidBodyMotionState extends MotionState {
      * applies the current transform to the given jme Node if the location has been updated on the physics side
      * @param spatial
      */
-    public synchronized boolean applyTransform(Spatial spatial) {
+    public boolean applyTransform(Spatial spatial) {
         if (!physicsLocationDirty) {
             return false;
         }

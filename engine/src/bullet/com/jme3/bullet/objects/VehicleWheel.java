@@ -86,7 +86,7 @@ public class VehicleWheel implements Savable {
         this.radius = radius;
     }
 
-    public synchronized void updatePhysicsState() {
+    public void updatePhysicsState() {
         getWheelLocation(wheelId, wheelIndex, wheelWorldLocation);
         getWheelRotation(wheelId, wheelIndex, tmp_Matrix);
         wheelWorldRotation.fromRotationMatrix(tmp_Matrix);
@@ -96,7 +96,7 @@ public class VehicleWheel implements Savable {
 
     private native void getWheelRotation(long vehicleId, int wheelId, Matrix3f location);
 
-    public synchronized void applyWheelTransform() {
+    public void applyWheelTransform() {
         if (wheelSpatial == null) {
             return;
         }

@@ -326,7 +326,7 @@ public class PhysicsSpace {
 
     public void distributeEvents() {
         //add collision callbacks
-        synchronized (collisionEvents) {
+//        synchronized (collisionEvents) {
             for (Iterator<PhysicsCollisionEvent> it = collisionEvents.iterator(); it.hasNext();) {
                 PhysicsCollisionEvent physicsCollisionEvent = it.next();
                 for (PhysicsCollisionListener listener : collisionListeners) {
@@ -336,7 +336,7 @@ public class PhysicsSpace {
                 eventFactory.recycle(physicsCollisionEvent);
                 it.remove();
             }
-        }
+//        }
     }
 
     public static <V> Future<V> enqueueOnThisThread(Callable<V> callable) {

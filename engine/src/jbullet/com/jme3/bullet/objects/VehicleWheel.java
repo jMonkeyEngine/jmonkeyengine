@@ -86,13 +86,13 @@ public class VehicleWheel implements Savable {
         this.radius = radius;
     }
 
-    public synchronized void updatePhysicsState() {
+    public void updatePhysicsState() {
         Converter.convert(wheelInfo.worldTransform.origin, wheelWorldLocation);
         Converter.convert(wheelInfo.worldTransform.basis, tmp_Matrix);
         wheelWorldRotation.fromRotationMatrix(tmp_Matrix);
     }
 
-    public synchronized void applyWheelTransform() {
+    public void applyWheelTransform() {
         if (wheelSpatial == null) {
             return;
         }
