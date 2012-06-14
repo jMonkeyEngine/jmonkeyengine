@@ -34,6 +34,9 @@ package com.jme3.scene.mesh;
 
 import com.jme3.util.BufferUtils;
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 
 /**
  * <code>IndexBuffer</code> is an abstraction for integer index buffers,
@@ -43,6 +46,18 @@ import java.nio.Buffer;
  * @author lex
  */
 public abstract class IndexBuffer {
+    
+    public static IndexBuffer wrapIndexBuffer(Buffer buf) {
+        if (buf instanceof ByteBuffer) {
+            return new IndexByteBuffer((ByteBuffer) buf);
+        } else if (buf instanceof ShortBuffer) {
+            return new IndexShortBuffer((ShortBuffer) buf);
+        } else if (buf instanceof IntBuffer) {
+            return new IndexIntBuffer((IntBuffer) buf);
+        } else {
+            throw new UnsupportedOperationException("Index buffer type unsupported: "+ buf.getClass());
+        }
+    }
     
     /**
      * Creates an index buffer that can contain the given amount

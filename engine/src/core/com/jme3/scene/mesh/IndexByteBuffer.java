@@ -45,7 +45,8 @@ public class IndexByteBuffer extends IndexBuffer {
     private ByteBuffer buf;
 
     public IndexByteBuffer(ByteBuffer buffer) {
-        this.buf = buffer;
+        buf = buffer;
+        buf.rewind();
     }
     
     @Override
