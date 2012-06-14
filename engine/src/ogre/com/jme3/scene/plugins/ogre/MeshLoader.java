@@ -697,11 +697,14 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             return;
         }
 
-        if (qName.equals("submesh")) {
+        
+        // If submesh hack is enabled, ignore any submesh/submeshes
+        // end tags.
+        if (qName.equals("submesh") && !submeshNamesHack) {
             usesBigIndices = false;
             geom = null;
             mesh = null;
-        } else if (qName.equals("submeshes")) {
+        } else if (qName.equals("submeshes") && !submeshNamesHack) {
             // IMPORTANT: restore sharedmesh, for use with shared boneweights
             geom = null;
             mesh = sharedMesh;
