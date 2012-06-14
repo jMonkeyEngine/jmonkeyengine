@@ -46,6 +46,7 @@ import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.BufferUtils;
 import java.nio.*;
 
+@Deprecated
 public class FloatToFixed {
 
     private static final float shortSize = Short.MAX_VALUE - Short.MIN_VALUE;
@@ -54,6 +55,7 @@ public class FloatToFixed {
     private static final float byteSize = Byte.MAX_VALUE - Byte.MIN_VALUE;
     private static final float byteOff  = (Byte.MAX_VALUE + Byte.MIN_VALUE) * 0.5f;
 
+    @Deprecated
     public static void convertToFixed(Geometry geom, Format posFmt, Format nmFmt, Format tcFmt){
         geom.updateModelBound();
         BoundingBox bbox = (BoundingBox) geom.getModelBound();
