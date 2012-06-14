@@ -43,7 +43,7 @@ import java.util.LinkedList;
  * look up a resource from a cache. 
  * This class should be immutable.
  */
-public class AssetKey<T> implements Savable {
+public class AssetKey<T> implements Savable, Cloneable {
 
     protected String name;
     protected transient String folder;
@@ -57,6 +57,15 @@ public class AssetKey<T> implements Savable {
     public AssetKey(){
     }
 
+    @Override
+    public AssetKey<T> clone() {
+        try {
+            return (AssetKey<T>) super.clone();
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
+        }
+    }
+    
     protected static String getExtension(String name) {
         int idx = name.lastIndexOf('.');
         //workaround for filenames ending with xml and another dot ending before that (my.mesh.xml)
