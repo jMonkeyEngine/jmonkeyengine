@@ -75,8 +75,6 @@ public class TestOctree extends SimpleApplication implements SceneProcessor {
     public void simpleInitApp() {
 //        this.flyCam.setMoveSpeed(2000);
 //        this.cam.setFrustumFar(10000);
-        MeshLoader.AUTO_INTERLEAVE = false;
-
 //        mat = new Material(assetManager, "Common/MatDefs/Misc/WireColor.j3md");
 //        mat.setColor("Color", ColorRGBA.White);
 
@@ -102,8 +100,8 @@ public class TestOctree extends SimpleApplication implements SceneProcessor {
 
         // generate octree
 //        tree = new Octree(scene, 20000);
-        tree = new Octree(scene, 50);
-        tree.construct();
+        tree = new Octree(scene);
+        tree.construct(50, 0.01f, 50);
         
         ArrayList<Geometry> globalGeomList = new ArrayList<Geometry>();
         tree.createFastOctnodes(globalGeomList);

@@ -55,7 +55,6 @@ public class Octree {
     private final ArrayList<OCTTriangle> allTris = new ArrayList<OCTTriangle>();
     private final Geometry[] geoms;
     private final BoundingBox bbox;
-    private final int minTrisPerNode;
     private Octnode root;
 
     private CollisionResults boundResults = new CollisionResults();
@@ -77,7 +76,7 @@ public class Octree {
         }
     }
 
-    public Octree(Spatial scene, int minTrisPerNode){
+    public Octree(Spatial scene){
         scene.updateGeometricState();
 
         List<Geometry> geomsList = getGeometries(scene);
@@ -96,8 +95,6 @@ public class Octree {
         bbox.setYExtent(extent);
         bbox.setZExtent(extent);
 
-        this.minTrisPerNode = minTrisPerNode;
-
         Triangle t = new Triangle();
         for (int g = 0; g < geoms.length; g++){
             Mesh m = geoms[g].getMesh();
@@ -113,13 +110,9 @@ public class Octree {
         }
     }
 
-    public Octree(Spatial scene){
-        this(scene,11);
-    }
-
-    public void construct(){
+    public void construct(int maxDepth, float maxVolume, int minTrisPerNode){
         root = new Octnode(bbox, allTris);
-        root.subdivide(minTrisPerNode);
+        root.subdivide(maxDepth, maxVolume, minTrisPerNode);
         root.collectTriangles(geoms);
     }
 

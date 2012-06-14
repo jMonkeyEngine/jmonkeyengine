@@ -109,8 +109,8 @@ public class Octnode {
         return false;
     }
 
-    public void subdivide(int depth, int minTrisPerNode){
-        if (tris == null || depth > 50 || bbox.getVolume() < 0.01f || tris.size() < minTrisPerNode){
+    public void subdivide(int depth, int maxDepth, float maxVolume, int minTrisPerNode){
+        if (tris == null || depth > maxDepth || bbox.getVolume() < maxVolume || tris.size() < minTrisPerNode){
             // no need to subdivide anymore
             leaf = true;
             return;
@@ -161,13 +161,13 @@ public class Octnode {
         for (int i = 0; i < 8; i++){
             if (trisForChild[i].size() > 0){
                 children[i] = new Octnode(boxForChild[i], trisForChild[i]);
-                children[i].subdivide(depth + 1, minTrisPerNode);
+                children[i].subdivide(depth + 1, maxDepth, maxVolume, minTrisPerNode);
             }
         }
     }
 
-    public void subdivide(int minTrisPerNode){
-        subdivide(0, minTrisPerNode);
+    public void subdivide(int maxDepth, float maxVolume, int minTrisPerNode){
+        subdivide(0, maxDepth, maxVolume, minTrisPerNode);
     }
 
     public void createFastOctnode(List<Geometry> globalGeomList){
