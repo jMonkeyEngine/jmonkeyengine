@@ -524,7 +524,13 @@ import jme3tools.converters.ImageToAwt;
 			// create the result image
 			Format imageFormat = texture.getImage().getFormat();
 			int imageWidth = (int) (envelope.width * blenderContext.getBlenderKey().getGeneratedTexturePPU());
+			if(imageWidth == 0) {
+				imageWidth = 1;
+			}
 			int imageHeight = (int) (envelope.height * blenderContext.getBlenderKey().getGeneratedTexturePPU());
+			if(imageHeight == 0) {
+				imageHeight = 1;
+			}
 			ByteBuffer data = BufferUtils.createByteBuffer(imageWidth * imageHeight * (imageFormat.getBitsPerPixel() >> 3));
 			image = new Image(texture.getImage().getFormat(), imageWidth, imageHeight, data);
 
