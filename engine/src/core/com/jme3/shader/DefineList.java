@@ -58,9 +58,6 @@ public class DefineList implements Savable {
 
         oc.write(keys, "keys", null);
         oc.write(vals, "vals", null);
-
-        // for compatability only with older versions
-        oc.write(compiled, "compiled", null);
     }
 
     public void read(JmeImporter im) throws IOException{
@@ -71,8 +68,6 @@ public class DefineList implements Savable {
         for (int i = 0; i < keys.length; i++){
             defines.put(keys[i], vals[i]);
         }
-
-        compiled = ic.readString("compiled", null);
     }
 
     public void clear() {
@@ -81,16 +76,8 @@ public class DefineList implements Savable {
     }
 
     public String get(String key){
-        // I do not see the point of forcing a rebuild on get()
-        // so I'm commenting it out. -pspeed
-        //compiled = null;
         return defines.get(key);
     }
-
-//    public void set(String key, String val){
-//        compiled = null;
-//        defines.put(key, val);
-//    }
 
     public boolean set(String key, VarType type, Object val){    
         if (val == null){
@@ -103,14 +90,14 @@ public class DefineList implements Savable {
             case Boolean:
                 if ( ((Boolean) val).booleanValue() ) {
                     // same literal, != should work
-                    if( defines.put(key, "1") != "1" ) {  
+                    if (defines.put(key, "1") != "1") {
                         compiled = null;
                         return true;
-                    }                    
+                    }
                 } else if (defines.containsKey(key)) {
                     defines.remove(key);
                     compiled = null;
-                    return true;            
+                    return true;
                 }
                 
                 break;
