@@ -144,7 +144,7 @@ public class MatParam implements Savable, Cloneable {
     void apply(Renderer r, Technique technique) {
         TechniqueDef techDef = technique.getDef();
         if (techDef.isUsingShaders()) {
-            technique.updateUniformParam(getPrefixedName(), getVarType(), getValue(), true);
+            technique.updateUniformParam(getPrefixedName(), getVarType(), getValue());
         }
         if (ffBinding != null && r instanceof GL1Renderer) {
             ((GL1Renderer) r).setFixedFuncBinding(ffBinding, getValue());

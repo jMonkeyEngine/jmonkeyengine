@@ -402,8 +402,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @return The MatParam if set, or null if not set.
      */
     public MatParam getParam(String name) {
-        MatParam param = paramValues.get(name);
-        return param;
+        return paramValues.get(name);
     }
 
     /**
@@ -432,28 +431,20 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return paramValues.values();
     }
 
-    private String checkSetParam(VarType type, String name) {
+    /**
+     * Check if setting the parameter given the type and name is allowed.
+     * @param type The type that the "set" function is designed to set
+     * @param name The name of the parameter
+     */
+    private void checkSetParam(VarType type, String name) {
         MatParam paramDef = def.getMaterialParam(name);
-        String newName = name;
-
-        if (paramDef == null && name.startsWith("m_")) {
-            newName = name.substring(2);
-            paramDef = def.getMaterialParam(newName);
-            if (paramDef == null) {
-                throw new IllegalArgumentException("Material parameter is not defined: " + name);
-            } else {
-                logger.log(Level.WARNING, "Material parameter {0} uses a deprecated naming convention use {1} instead ", new Object[]{name, newName});
-            }
-        } else if (paramDef == null) {
+        if (paramDef == null) {
             throw new IllegalArgumentException("Material parameter is not defined: " + name);
         }
-
         if (type != null && paramDef.getVarType() != type) {
             logger.log(Level.WARNING, "Material parameter being set: {0} with "
                     + "type {1} doesn''t match definition types {2}", new Object[]{name, type.name(), paramDef.getVarType()});
         }
-
-        return newName;
     }
 
     /**
@@ -464,17 +455,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param value the value of the parameter
      */
     public void setParam(String name, VarType type, Object value) {
-        name = checkSetParam(type, name);
-
+        checkSetParam(type, name);
+        
         MatParam val = getParam(name);
-        if (technique != null) {
-            technique.notifySetParam(name, type, value);
-        }
         if (val == null) {
             MatParam paramDef = def.getMaterialParam(name);
             paramValues.put(name, new MatParam(type, name, value, paramDef.getFixedFuncBinding()));
         } else {
             val.setValue(value);
+        }
+        
+        if (technique != null) {
+            technique.notifyParamChanged(name, type, value);
         }
     }
 
@@ -483,54 +475,29 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * @param name the name of the parameter to clear
      */
     public void clearParam(String name) {
-        //On removal, we don't check if the param exists in the paramDef, and just go on with the process.
-        // name = checkSetParam(null, name);
-
+        checkSetParam(null, name);
         MatParam matParam = getParam(name);
-        if (matParam != null) {
-            paramValues.remove(name);
-            if (technique != null) {
-                technique.notifyClearParam(name);
-            }
-            if (matParam instanceof MatParamTexture) {
-                int texUnit = ((MatParamTexture) matParam).getUnit();
-                nextTexUnit--;
-                for (MatParam param : paramValues.values()) {
-                    if (param instanceof MatParamTexture) {
-                        MatParamTexture texParam = (MatParamTexture) param;
-                        if (texParam.getUnit() > texUnit) {
-                            texParam.setUnit(texParam.getUnit() - 1);
-                        }
+        if (matParam == null) {
+            return;
+        }
+        
+        paramValues.remove(name);
+        if (matParam instanceof MatParamTexture) {
+            int texUnit = ((MatParamTexture) matParam).getUnit();
+            nextTexUnit--;
+            for (MatParam param : paramValues.values()) {
+                if (param instanceof MatParamTexture) {
+                    MatParamTexture texParam = (MatParamTexture) param;
+                    if (texParam.getUnit() > texUnit) {
+                        texParam.setUnit(texParam.getUnit() - 1);
                     }
                 }
             }
+            sortingId = -1;
         }
-//        else {
-//            throw new IllegalArgumentException("The given parameter is not set.");
-//        }
-    }
-
-    private void clearTextureParam(String name) {
-        name = checkSetParam(null, name);
-
-        MatParamTexture val = getTextureParam(name);
-        if (val == null) {
-            throw new IllegalArgumentException("The given texture for parameter \"" + name + "\" is null.");
+        if (technique != null) {
+            technique.notifyParamChanged(name, null, null);
         }
-
-        int texUnit = val.getUnit();
-        paramValues.remove(name);
-        nextTexUnit--;
-        for (MatParam param : paramValues.values()) {
-            if (param instanceof MatParamTexture) {
-                MatParamTexture texParam = (MatParamTexture) param;
-                if (texParam.getUnit() > texUnit) {
-                    texParam.setUnit(texParam.getUnit() - 1);
-                }
-            }
-        }
-
-        sortingId = -1;
     }
 
     /**
@@ -547,7 +514,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             throw new IllegalArgumentException();
         }
 
-        name = checkSetParam(type, name);
+        checkSetParam(type, name);
         MatParamTexture val = getTextureParam(name);
         if (val == null) {
             paramValues.put(name, new MatParamTexture(type, name, value, nextTexUnit++));
@@ -556,7 +523,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         if (technique != null) {
-            technique.notifySetParam(name, type, nextTexUnit - 1);
+            technique.notifyParamChanged(name, type, nextTexUnit - 1);
         }
 
         // need to recompute sort ID
@@ -573,7 +540,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     public void setTexture(String name, Texture value) {
         if (value == null) {
             // clear it
-            clearTextureParam(name);
+            clearParam(name);
             return;
         }
 
@@ -950,7 +917,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         technique = tech;
-        tech.makeCurrent(def.getAssetManager());
+        tech.makeCurrent(def.getAssetManager(), true);
 
         // shader was changed
         sortingId = -1;
@@ -961,13 +928,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             // NOTE: Not really needed anymore since we have technique
             // selection by caps. Rename all "FixedFunc" techniques to "Default"
             // and remove this hack.
-            if (!rm.getRenderer().getCaps().contains(Caps.GLSL100)) {
+            if (def.getTechniqueDef("FixedFunc") != null && !rm.getRenderer().getCaps().contains(Caps.GLSL100)) {
                 selectTechnique("FixedFunc", rm);
             } else {
                 selectTechnique("Default", rm);
             }
-        } else if (technique.isNeedReload()) {
-            technique.makeCurrent(def.getAssetManager());
+        } else {
+            technique.makeCurrent(def.getAssetManager(), false);
         }
     }
 
@@ -996,9 +963,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                     continue;
                 }
 
-                technique.updateUniformParam(param.getName(),
-                        param.getVarType(),
-                        param.getValue(), true);
+                technique.updateUniformParam(param.getName(), param.getVarType(), param.getValue());
             }
         }
 
@@ -1177,7 +1142,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                     continue;
                 }
             }
-            param.setName(checkSetParam(param.getVarType(), param.getName()));
+            
+            if (im.getFormatVersion() == 0 && param.getName().startsWith("m_")) {
+                // Ancient version of jME3 ...
+                param.setName(param.getName().substring(2));
+            }
+            
+            checkSetParam(param.getVarType(), param.getName());
             paramValues.put(param.getName(), param);
         }
 

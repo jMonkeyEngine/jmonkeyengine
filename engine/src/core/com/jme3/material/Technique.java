@@ -109,41 +109,33 @@ public class Technique implements Savable {
     }
 
     /**
-     * Called by the material to tell the technique a parameter was modified
+     * Called by the material to tell the technique a parameter was modified.
+     * Specify <code>null</code> for value if the param is to be cleared.
      */
-    void notifySetParam(String paramName, VarType type, Object value) {
+    void notifyParamChanged(String paramName, VarType type, Object value) {
+        // Check if there's a define binding associated with this
+        // parameter.
         String defineName = def.getShaderParamDefine(paramName);
         if (defineName != null) {
-            needReload = defines.set(defineName, type, value);
-        }
-        if (shader != null) {
-            updateUniformParam(paramName, type, value);
-        }
-    }
-
-    /**
-     * Called by the material to tell the technique a parameter was cleared
-     */
-    void notifyClearParam(String paramName) {
-        String defineName = def.getShaderParamDefine(paramName);
-        if (defineName != null) {
-            needReload = defines.remove(defineName);
-        }
-        if (shader != null) {
-            if (!paramName.startsWith("m_")) {
-                paramName = "m_" + paramName;
+            // There is a define. Change it on the define list.
+            // The "needReload" variable will determine
+            // if the shader will be reloaded when the material
+            // is rendered.
+            
+            if (value == null) {
+                // Clear the define.
+                needReload = defines.remove(defineName);
+            } else {
+                // Set the define.
+                needReload = defines.set(defineName, type, value);
             }
-            shader.removeUniform(paramName);
         }
     }
 
-    void updateUniformParam(String paramName, VarType type, Object value, boolean ifNotOwner) {
+    void updateUniformParam(String paramName, VarType type, Object value) {
         Uniform u = shader.getUniform(paramName);
-
-//        if (ifNotOwner && u.getLastChanger() == owner)
-//            return;
-
         switch (type) {
+            case TextureBuffer:
             case Texture2D: // fall intentional
             case Texture3D:
             case TextureArray:
@@ -155,11 +147,6 @@ public class Technique implements Savable {
                 u.setValue(type, value);
                 break;
         }
-//        u.setLastChanger(owner);
-    }
-
-    void updateUniformParam(String paramName, VarType type, Object value) {
-        updateUniformParam(paramName, type, value, false);
     }
 
     /**
@@ -181,9 +168,15 @@ public class Technique implements Savable {
      * 
      * @param assetManager The asset manager to use for loading shaders.
      */
-    public void makeCurrent(AssetManager assetManager) {
-        // check if reload is needed..
-        if (def.isUsingShaders()) {
+    public void makeCurrent(AssetManager assetManager, boolean techniqueSwitched) {
+        if (!def.isUsingShaders()) {
+            // No shaders are used, no processing is neccessary. 
+            return;
+        }
+        
+        if (techniqueSwitched) {
+            // If the technique was switched, check if the define list changed
+            // based on material parameters.
             DefineList newDefines = new DefineList();
             Collection<MatParam> params = owner.getParams();
             for (MatParam param : params) {
@@ -192,16 +185,17 @@ public class Technique implements Savable {
                     newDefines.set(defineName, param.getVarType(), param.getValue());
                 }
             }
-
-            if (!needReload && defines.getCompiled().equals(newDefines.getCompiled())) {
-                newDefines = null;
-                // defines have not been changed..
-            } else {
+            
+            if (!defines.getCompiled().equals(newDefines.getCompiled())) {
+                // Defines were changed, update define list
                 defines.clear();
                 defines.addFrom(newDefines);
-                // defines changed, recompile needed
-                loadShader(assetManager);
+                needReload = true;
             }
+        }
+
+        if (needReload) {
+            loadShader(assetManager);
         }
     }
 
@@ -212,17 +206,10 @@ public class Technique implements Savable {
         allDefines.addFrom(defines);
 
         ShaderKey key = new ShaderKey(def.getVertexShaderName(),
-                def.getFragmentShaderName(),
-                allDefines,
-                def.getShaderLanguage());
+                                      def.getFragmentShaderName(),
+                                      allDefines,
+                                      def.getShaderLanguage());
         shader = manager.loadShader(key);
-        if (shader == null) {
-            logger.warning("Failed to reload shader!");
-            return;
-        }
-
-        // refresh the uniform links
-        //owner.updateUniformLinks();
 
         // register the world bound uniforms
         worldBindUniforms.clear();
@@ -235,15 +222,12 @@ public class Technique implements Savable {
                }
            }
         }
-
         needReload = false;
     }
     
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(def, "def", null);
-        // TODO:
-        // oc.write(owner, "owner", null);
         oc.writeSavableArrayList(worldBindUniforms, "worldBindUniforms", null);
         oc.write(defines, "defines", null);
         oc.write(shader, "shader", null);
@@ -255,7 +239,5 @@ public class Technique implements Savable {
         worldBindUniforms = ic.readSavableArrayList("worldBindUniforms", null);
         defines = (DefineList) ic.readSavable("defines", null);
         shader = (Shader) ic.readSavable("shader", null);
-        //if (shader != null)
-        //    owner.updateUniformLinks();
     }
 }
