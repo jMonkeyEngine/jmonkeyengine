@@ -310,6 +310,7 @@ When arrays can be inserted in J3M files
         InputCapsule ic = im.getCapsule(this);
         type = ic.readEnum("varType", VarType.class, null);
         name = ic.readString("name", null);
+        prefixedName = "m_" + name;
         ffBinding = ic.readEnum("ff_binding", FixedFuncBinding.class, null);
         switch (getVarType()) {
             case Boolean:

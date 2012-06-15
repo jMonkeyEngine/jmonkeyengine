@@ -161,17 +161,15 @@ public class Uniform extends ShaderVariable {
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
-        if (name != null){
-            sb.append("Uniform[name=");
-            sb.append(name);
-            if (varType != null){
-                sb.append(", type=");
-                sb.append(varType);
-                sb.append(", value=");
-                sb.append(value);
-            }else{
-                sb.append(", value=<not set>");
-            }
+        sb.append("Uniform[name=");
+        sb.append(name);
+        if (varType != null){
+            sb.append(", type=");
+            sb.append(varType);
+            sb.append(", value=");
+            sb.append(value);
+        }else{
+            sb.append(", value=<not set>");
         }
         sb.append("]");
         return sb.toString();
