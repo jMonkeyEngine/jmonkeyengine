@@ -1057,6 +1057,9 @@ public class LwjglRenderer implements Renderer {
         if (caps.contains(Caps.OpenGL30)) {
             // Check if GLSL version is 1.5 for shader
             GL30.glBindFragDataLocation(id, 0, "outFragColor");
+            for(int i = 0 ; i < maxMRTFBOAttachs ; i++) {
+                GL30.glBindFragDataLocation(id, i, "outFragData[" + i + "]");
+            }
         }
 
         // link shaders to program
