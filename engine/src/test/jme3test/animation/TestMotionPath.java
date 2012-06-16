@@ -31,6 +31,7 @@
  */
 package jme3test.animation;
 
+import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.MotionPath;
 import com.jme3.cinematic.MotionPathListener;
@@ -83,8 +84,7 @@ public class TestMotionPath extends SimpleApplication {
         motionControl.setDirectionType(MotionTrack.Direction.PathAndRotation);
         motionControl.setRotation(new Quaternion().fromAngleNormalAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y));
         motionControl.setInitialDuration(10f);
-        motionControl.setSpeed(2f);
-
+        motionControl.setSpeed(2f);       
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         final BitmapText wayPointsText = new BitmapText(guiFont, false);
         wayPointsText.setSize(guiFont.getCharSet().getRenderedSize());
@@ -105,6 +105,10 @@ public class TestMotionPath extends SimpleApplication {
 
         flyCam.setEnabled(false);
         ChaseCamera chaser = new ChaseCamera(cam, teapot);
+//        motionControl.setSpeed(-3f);
+//        motionControl.setLoopMode(LoopMode.Loop);
+//        path.setCycle(true);
+        
 
         // chaser.setEnabled(false);
         chaser.registerWithInput(inputManager);

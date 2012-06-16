@@ -59,15 +59,15 @@ public class MotionPath implements Savable {
     private Node debugNode;
     private AssetManager assetManager;
     private List<MotionPathListener> listeners;
-    private Spline spline = new Spline();
-    private float eps = 0.0001f;
+    private Spline spline = new Spline();    
+    int prevWayPoint = 0;    
 
     /**
      * Create a motion Path
      */
     public MotionPath() {
     }
-
+    
     /**
      * interpolate the path giving the time since the beginnin and the motionControl     
      * this methods sets the new localTranslation to the spatial of the motionTrack control.
@@ -89,17 +89,27 @@ public class MotionPath implements Savable {
         //setting values
         control.setCurrentWayPoint((int) v.x);
         control.setCurrentValue(v.y);
-        
+
         //interpolating new position
         getSpline().interpolate(control.getCurrentValue(), control.getCurrentWayPoint(), temp);
         if (control.needsDirection()) {
             tmpVector.set(temp);
             control.setDirection(tmpVector.subtractLocal(control.getSpatial().getLocalTranslation()).normalizeLocal());
         }
-
+        checkWayPoint(control);
+        
         control.getSpatial().setLocalTranslation(temp);
         vars.release();
         return traveledDistance;
+    }
+
+    public void checkWayPoint(MotionTrack control) {
+        if (control.getCurrentWayPoint() != prevWayPoint) {
+             if (control.getCurrentValue() >= 0f && control.getCurrentValue() < 0.01) {       
+                triggerWayPointReach(control.getCurrentWayPoint(), control);
+                prevWayPoint = control.getCurrentWayPoint();
+            }
+        }
     }
 
     private void attachDebugNode(Node root) {

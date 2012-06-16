@@ -161,15 +161,24 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
 
     public void update(float tpf) {
         if (isControl) {
+            internalUpdate(tpf);
+        }
+    }
 
-            if (playState == PlayState.Playing) {
-                time = time + (tpf * speed);
-
-                if (time >= initialDuration && loopMode == loopMode.DontLoop) {
-                    stop();
-                } else {
-                    onUpdate(tpf);
+    @Override
+    public void internalUpdate(float tpf) {
+        if (playState == PlayState.Playing) {
+            time = time + (tpf * speed);
+            if( loopMode == loopMode.Loop && time<0){
+                time = initialDuration;
+            }
+            if ((time >= initialDuration || time < 0) && loopMode == loopMode.DontLoop) {
+                if (time >= initialDuration) {
+                    path.triggerWayPointReach(path.getNbWayPoints() - 1, this);
                 }
+                stop();
+            } else {
+                onUpdate(tpf);
             }
         }
     }
@@ -282,7 +291,6 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
 
     @Override
     public void onStop() {
-        setCurrentWayPoint(path.getNbWayPoints()-1);
         currentWayPoint = 0;
     }
 
@@ -319,10 +327,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
      *
      */
     public void setCurrentWayPoint(int currentWayPoint) {
-        if (this.currentWayPoint != currentWayPoint) {
-            this.currentWayPoint = currentWayPoint;
-            path.triggerWayPointReach(currentWayPoint, this);
-        }
+        this.currentWayPoint = currentWayPoint;
     }
 
     /**
