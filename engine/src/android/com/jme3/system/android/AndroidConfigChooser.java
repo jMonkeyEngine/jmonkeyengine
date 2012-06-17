@@ -31,12 +31,10 @@ public class AndroidConfigChooser implements EGLConfigChooser {
          * RGB565, 0 alpha, 16 depth, 0 stencil
          */
         FASTEST,
-        
         /**
          * RGB???, 0 alpha, >=16 depth, 0 stencil
          */
         BEST,
-        
         /**
          * Turn off config chooser and use hardcoded
          * setEGLContextClientVersion(2); setEGLConfigChooser(5, 6, 5, 0, 16,
@@ -106,29 +104,20 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
     private int getPixelFormat(EGLConfig conf, EGLDisplay display, EGL10 egl) {
         int[] value = new int[1];
-        int result = PixelFormat.RGB_565;
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RED_SIZE, value);
-        if (value[0] == 8) {
-            result = PixelFormat.RGBA_8888;
-            /*
-            egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
-            if (value[0] == 8)
-            {
-                result = PixelFormat.RGBA_8888;
-            }
-            else
-            {
-                result = PixelFormat.RGB_888;
-            }*/
+       
+        //Android Pixel format is not very well documented.
+        //From what i gathered, the format is chosen automatically except for the alpha channel
+        //if the alpha channel has 8 bit or more, e set the pixel format to Transluscent, as it allow transparent view background
+        //if it's 0 bit, the format is OPAQUE otherwise it's TRANSPARENT        
+        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
+        if (value[0] >= 8) {
+            return PixelFormat.TRANSLUCENT;
+        }
+        if (value[0] >= 1) {
+            return PixelFormat.TRANSPARENT;
         }
 
-        if (verbose) {
-            logger.log(Level.INFO, "Using PixelFormat {0}", result);
-        }
-
-        //return result; TODO Test pixelformat
-        return PixelFormat.TRANSPARENT;
+        return PixelFormat.OPAQUE;
     }
 
     private int getOpenGLVersion(EGLConfig conf, EGLDisplay display, EGL10 egl) {
@@ -268,7 +257,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         protected int mAlphaSize;
         protected int mDepthSize;
         protected int mStencilSize;
-        
+
         public ComponentSizeChooser(int redSize, int greenSize, int blueSize,
                 int alphaSize, int depthSize, int stencilSize) {
             super(new int[]{

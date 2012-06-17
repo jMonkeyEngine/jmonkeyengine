@@ -33,6 +33,7 @@ package com.jme3.system.android;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.text.InputType;
 import android.view.Gravity;
@@ -104,6 +105,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      * @return GLSurfaceView The newly created view
      */
     public GLSurfaceView createView(ConfigType configType, boolean eglConfigVerboseLogging) {
+
         // Start to set up the view
         this.view = new AndroidInput(JmeAndroidSystem.getActivity());
         if (configType == ConfigType.LEGACY) {
@@ -152,8 +154,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
         view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
+        //This is important to allow the GL surface to have a translucent background
+        view.setZOrderOnTop(true);
         view.setRenderer(this);
-
+        
         return view;
     }
 
