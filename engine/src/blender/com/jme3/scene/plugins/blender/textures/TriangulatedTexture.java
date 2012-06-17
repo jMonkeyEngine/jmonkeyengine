@@ -504,7 +504,7 @@ import jme3tools.converters.ImageToAwt;
 		 * @param blenderContext
 		 *            the blender context
 		 */
-		public TriangleTextureElement(int faceIndex, BoundingBox boundingBox, GeneratedTexture texture, Vector3f[] uv, BlenderContext blenderContext) {
+		public TriangleTextureElement(int faceIndex, BoundingBox boundingBox, GeneratedTexture texture, Vector3f[] uv, int[] uvIndices, BlenderContext blenderContext) {
 			this.faceIndex = faceIndex;
 
 			// compute the face vertices from the UV coordinates
@@ -512,11 +512,10 @@ import jme3tools.converters.ImageToAwt;
 			float height = boundingBox.getYExtent() * 2;
 			float depth = boundingBox.getZExtent() * 2;
 
-			int uvIndex = faceIndex * 3;
 			Vector3f min = boundingBox.getMin(null);
-			Vector3f v1 = min.add(uv[uvIndex].x * width, uv[uvIndex].y * height, uv[uvIndex].z * depth);
-			Vector3f v2 = min.add(uv[uvIndex + 1].x * width, uv[uvIndex + 1].y * height, uv[uvIndex + 1].z * depth);
-			Vector3f v3 = min.add(uv[uvIndex + 2].x * width, uv[uvIndex + 2].y * height, uv[uvIndex + 2].z * depth);
+			Vector3f v1 = min.add(uv[uvIndices[0]].x * width, uv[uvIndices[0]].y * height, uv[uvIndices[0]].z * depth);
+			Vector3f v2 = min.add(uv[uvIndices[1]].x * width, uv[uvIndices[1]].y * height, uv[uvIndices[1]].z * depth);
+			Vector3f v3 = min.add(uv[uvIndices[2]].x * width, uv[uvIndices[2]].y * height, uv[uvIndices[2]].z * depth);
 
 			// get the rectangle envelope for the triangle
 			RectangleEnvelope envelope = this.getTriangleEnvelope(v1, v2, v3);

@@ -107,8 +107,10 @@ import java.util.TreeSet;
 				return o1.faceIndex - o2.faceIndex;
 			}
 		});
+		int[] indices = new int[3];
 		for (int i = 0; i < mesh.getTriangleCount(); ++i) {
-			triangleTextureElements.add(new TriangleTextureElement(i, boundingBox, this, uvsArray, blenderContext));
+			mesh.getTriangle(i, indices);
+			triangleTextureElements.add(new TriangleTextureElement(i, boundingBox, this, uvsArray, indices, blenderContext));
 		}
 		return new TriangulatedTexture(triangleTextureElements, blenderContext);
 	}

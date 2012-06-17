@@ -337,7 +337,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 				materials = new MaterialContext[materialStructures.size()];
 				int i = 0;
 				for (Structure s : materialStructures) {
-					materials[i++] = materialHelper.toMaterialContext(s, blenderContext);
+					materials[i++] = s == null ? null : materialHelper.toMaterialContext(s, blenderContext);
 				}
 			}
 		}

@@ -1,11 +1,12 @@
 package com.jme3.scene.plugins.blender.meshes;
 
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.VertexBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import com.jme3.scene.Geometry;
+import com.jme3.scene.VertexBuffer;
 
 /**
  * Class that holds information about the mesh.
@@ -13,12 +14,10 @@ import java.util.Map;
  * @author Marcin Roguski (Kaelthas)
  */
 public class MeshContext {
-	/** The mesh stored here as a list of geometries. */
-	private List<Geometry>				mesh;
-	/** Vertex list that is referenced by all the geometries. */
-	private List<Vector3f>				vertexList;
+	/** A map between material index and the geometry. */
+	private Map<Integer, Geometry> geometries = new HashMap<Integer, Geometry>();
 	/** The vertex reference map. */
-	private Map<Integer, List<Integer>>	vertexReferenceMap;
+	private Map<Integer, Map<Integer, List<Integer>>>	vertexReferenceMap;
 	/** The UV-coordinates for each of the geometries. */
 	private Map<Geometry, VertexBuffer>	uvCoordinates	= new HashMap<Geometry, VertexBuffer>();
 	/** Bind buffer for vertices is stored here and applied when required. */
@@ -27,50 +26,44 @@ public class MeshContext {
 	private VertexBuffer				bindNormalBuffer;
 
 	/**
-	 * This method returns the referenced mesh.
-	 * 
-	 * @return the referenced mesh
+	 * Adds a geometry for the specified material index.
+	 * @param materialIndex the material index
+	 * @param geometry the geometry
 	 */
-	public List<Geometry> getMesh() {
-		return mesh;
+	public void putGeometry(Integer materialIndex, Geometry geometry) {
+		geometries.put(materialIndex, geometry);
 	}
-
+	
 	/**
-	 * This method sets the referenced mesh.
-	 * 
-	 * @param mesh
-	 *            the referenced mesh
+	 * @param materialIndex the material index
+	 * @return vertices amount that is used by mesh with the specified material
 	 */
-	public void setMesh(List<Geometry> mesh) {
-		this.mesh = mesh;
+	public int getVertexCount(int materialIndex) {
+		return geometries.get(materialIndex).getVertexCount();
 	}
-
+	
 	/**
-	 * This method returns the vertex list.
-	 * 
-	 * @return the vertex list
+	 * Returns material index for the geometry.
+	 * @param geometry the geometry
+	 * @return material index
+	 * @throws IllegalStateException this exception is thrown when no material is found for the specified geometry
 	 */
-	public List<Vector3f> getVertexList() {
-		return vertexList;
+	public int getMaterialIndex(Geometry geometry) {
+		for(Entry<Integer, Geometry> entry : geometries.entrySet()) {
+			if(entry.getValue().equals(geometry)) {
+				return entry.getKey();
+			}
+		}
+		throw new IllegalStateException("Cannot find material index for the given geometry: " + geometry);
 	}
-
-	/**
-	 * This method sets the vertex list.
-	 * 
-	 * @param vertexList
-	 *            the vertex list
-	 */
-	public void setVertexList(List<Vector3f> vertexList) {
-		this.vertexList = vertexList;
-	}
-
+	
 	/**
 	 * This method returns the vertex reference map.
 	 * 
 	 * @return the vertex reference map
 	 */
-	public Map<Integer, List<Integer>> getVertexReferenceMap() {
-		return vertexReferenceMap;
+	public Map<Integer, List<Integer>> getVertexReferenceMap(int materialIndex) {
+		return vertexReferenceMap.get(materialIndex);
 	}
 
 	/**
@@ -79,7 +72,7 @@ public class MeshContext {
 	 * @param vertexReferenceMap
 	 *            the vertex reference map
 	 */
-	public void setVertexReferenceMap(Map<Integer, List<Integer>> vertexReferenceMap) {
+	public void setVertexReferenceMap(Map<Integer, Map<Integer, List<Integer>>> vertexReferenceMap) {
 		this.vertexReferenceMap = vertexReferenceMap;
 	}
 

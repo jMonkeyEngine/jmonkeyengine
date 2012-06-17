@@ -103,6 +103,13 @@ public class Pointer {
                     } else {
                         structures.addAll(p.fetchData(inputStream));
                     }
+                } else {
+                	//it is necessary to put null's if the pointer is null, ie. in materials array that is attached to the mesh, the index
+                	//of the material is important, that is why we need null's to indicate that some materials' slots are empty
+                	if(structures == null) {
+                		structures = new ArrayList<Structure>();
+                	}
+                	structures.add(null);
                 }
             }
         } else {

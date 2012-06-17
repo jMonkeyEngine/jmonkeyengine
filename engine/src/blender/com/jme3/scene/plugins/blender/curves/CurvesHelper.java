@@ -1,23 +1,5 @@
 package com.jme3.scene.plugins.blender.curves;
 
-import com.jme3.material.Material;
-import com.jme3.material.RenderState.FaceCullMode;
-import com.jme3.math.*;
-import com.jme3.math.Spline.SplineType;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.*;
-import com.jme3.scene.plugins.blender.materials.MaterialContext;
-import com.jme3.scene.plugins.blender.materials.MaterialHelper;
-import com.jme3.scene.plugins.blender.meshes.MeshHelper;
-import com.jme3.scene.plugins.blender.objects.Properties;
-import com.jme3.scene.shape.Curve;
-import com.jme3.scene.shape.Surface;
-import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -26,6 +8,33 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+
+import com.jme3.material.Material;
+import com.jme3.material.RenderState.FaceCullMode;
+import com.jme3.math.FastMath;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Spline;
+import com.jme3.math.Spline.SplineType;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.BlenderInputStream;
+import com.jme3.scene.plugins.blender.file.DynamicArray;
+import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.file.Pointer;
+import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.materials.MaterialContext;
+import com.jme3.scene.plugins.blender.materials.MaterialHelper;
+import com.jme3.scene.plugins.blender.objects.Properties;
+import com.jme3.scene.shape.Curve;
+import com.jme3.scene.shape.Surface;
+import com.jme3.util.BufferUtils;
 
 /**
  * A class that is used in mesh calculations.
@@ -396,7 +405,6 @@ public class CurvesHelper extends AbstractBlenderHelper {
     protected List<Geometry> applyBevelAndTaper(Curve curve, List<Geometry> bevelObject, Curve taperObject,
             boolean smooth, BlenderContext blenderContext) {
         float[] curvePoints = BufferUtils.getFloatArray(curve.getFloatBuffer(Type.Position));
-        MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
         float curveLength = curve.getLength();
         //TODO: use the smooth var
 
@@ -512,7 +520,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
             int[] allIndices = BufferUtils.getIntArray(indexBuffers[geomIndex]);
             for (int i = 0; i < allIndices.length - 3; i += 3) {
                 Vector3f n = FastMath.computeNormal(allVerts[allIndices[i]], allVerts[allIndices[i + 1]], allVerts[allIndices[i + 2]]);
-                meshHelper.addNormal(n, normalMap, smooth, allVerts[allIndices[i]], allVerts[allIndices[i + 1]], allVerts[allIndices[i + 2]]);
+                this.addNormal(n, normalMap, smooth, allVerts[allIndices[i]], allVerts[allIndices[i + 1]], allVerts[allIndices[i + 2]]);
             }
             if (normalBuffers[geomIndex] == null) {
                 normalBuffers[geomIndex] = BufferUtils.createFloatBuffer(allVerts.length * 3);
@@ -541,6 +549,29 @@ public class CurvesHelper extends AbstractBlenderHelper {
         return result;
     }
 
+    /**
+     * This method adds a normal to a normals' map. This map is used to merge normals of a vertor that should be rendered smooth.
+     * 
+     * @param normalToAdd
+     *            a normal to be added
+     * @param normalMap
+     *            merges normals of faces that will be rendered smooth; the key is the vertex and the value - its normal vector
+     * @param smooth
+     *            the variable that indicates wheather to merge normals (creating the smooth mesh) or not
+     * @param vertices
+     *            a list of vertices read from the blender file
+     */
+    private void addNormal(Vector3f normalToAdd, Map<Vector3f, Vector3f> normalMap, boolean smooth, Vector3f... vertices) {
+        for (Vector3f v : vertices) {
+            Vector3f n = normalMap.get(v);
+            if (!smooth || n == null) {
+                normalMap.put(v, normalToAdd.clone());
+            } else {
+                n.addLocal(normalToAdd).normalizeLocal();
+            }
+        }
+    }
+    
     /**
      * This method loads the taper object.
      * @param taperStructure

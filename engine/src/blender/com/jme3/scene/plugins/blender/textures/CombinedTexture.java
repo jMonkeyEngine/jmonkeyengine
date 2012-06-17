@@ -216,6 +216,20 @@ public class CombinedTexture {
 	}
 
 	/**
+	 * @return <b>true</b> if the texture has at least one generated texture component and <b>false</b> otherwise
+	 */
+	public boolean hasGeneratedTextures() {
+		if(textureDatas != null) {
+			for(TextureData textureData : textureDatas) {
+				if(textureData.texture instanceof GeneratedTexture) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * This method merges two given textures. The result is stored in the
 	 * 'target' texture.
 	 * 
