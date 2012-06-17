@@ -40,8 +40,11 @@ public class AndroidConfigChooser implements EGLConfigChooser {
          * setEGLContextClientVersion(2); setEGLConfigChooser(5, 6, 5, 0, 16,
          * 0);
          */
-        LEGACY
-    }
+        LEGACY,
+        /**
+         * RGB???, 8 alpha, >=16 depth, 0 stencil
+         */
+        BEST_TRANSLUCENT,}
 
     public AndroidConfigChooser(ConfigType type) {
         this.type = type;
@@ -65,27 +68,32 @@ public class AndroidConfigChooser implements EGLConfigChooser {
      * @return true if successfull, false if no config was found
      */
     public boolean findConfig(EGL10 egl, EGLDisplay display) {
-        if (type == ConfigType.BEST) {
-            ComponentSizeChooser compChooser = new ComponentSizeChooser(8, 8, 8, 8, 32, 0);
-            choosenConfig = compChooser.chooseConfig(egl, display);
-            if (choosenConfig == null) {
+        ComponentSizeChooser compChooser = null;
+        switch (type) {
+            case BEST:
                 compChooser = new ComponentSizeChooser(8, 8, 8, 0, 32, 0);
+                choosenConfig = compChooser.chooseConfig(egl, display);
+                if (choosenConfig == null) {
+                    compChooser = new ComponentSizeChooser(8, 8, 8, 0, 16, 0);
+                    choosenConfig = compChooser.chooseConfig(egl, display);
+                }
+                logger.info("JME3 using best EGL configuration available here: ");
+                break;
+            case BEST_TRANSLUCENT:
+                compChooser = new ComponentSizeChooser(8, 8, 8, 8, 32, 0);
                 choosenConfig = compChooser.chooseConfig(egl, display);
                 if (choosenConfig == null) {
                     compChooser = new ComponentSizeChooser(8, 8, 8, 8, 16, 0);
                     choosenConfig = compChooser.chooseConfig(egl, display);
-                    if (choosenConfig == null) {
-                        compChooser = new ComponentSizeChooser(8, 8, 8, 0, 16, 0);
-                        choosenConfig = compChooser.chooseConfig(egl, display);
-                    }
                 }
-            }
+                logger.info("JME3 using best EGL configuration available here with translucent pixels: ");
+                break;
+            case FASTEST:
+                compChooser = new ComponentSizeChooser(5, 6, 5, 0, 16, 0);
+                choosenConfig = compChooser.chooseConfig(egl, display);
+                logger.info("JME3 using fastest EGL configuration available here: ");
+                break;
 
-            logger.info("JME3 using best EGL configuration available here: ");
-        } else {
-            ComponentSizeChooser compChooser = new ComponentSizeChooser(5, 6, 5, 0, 16, 0);
-            choosenConfig = compChooser.chooseConfig(egl, display);
-            logger.info("JME3 using fastest EGL configuration available here: ");
         }
 
         if (choosenConfig != null) {
@@ -104,7 +112,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
     private int getPixelFormat(EGLConfig conf, EGLDisplay display, EGL10 egl) {
         int[] value = new int[1];
-       
+
         //Android Pixel format is not very well documented.
         //From what i gathered, the format is chosen automatically except for the alpha channel
         //if the alpha channel has 8 bit or more, e set the pixel format to Transluscent, as it allow transparent view background

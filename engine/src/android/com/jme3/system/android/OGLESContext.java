@@ -154,10 +154,12 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
         view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
-        //This is important to allow the GL surface to have a translucent background
-        view.setZOrderOnTop(true);
+        if (configType == ConfigType.BEST_TRANSLUCENT) {
+            //This is important to allow the GL surface to have a translucent background
+            view.setZOrderOnTop(true);
+        }
         view.setRenderer(this);
-        
+
         return view;
     }
 
@@ -184,6 +186,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         // Setup unhandled Exception Handler
         Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+
             public void uncaughtException(Thread thread, Throwable thrown) {
                 listener.handleError("Exception thrown in " + thread.toString(), thrown);
             }
@@ -378,6 +381,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 new Object[]{title, initialValue});
 
         JmeAndroidSystem.getActivity().runOnUiThread(new Runnable() {
+
             @Override
             public void run() {
 
