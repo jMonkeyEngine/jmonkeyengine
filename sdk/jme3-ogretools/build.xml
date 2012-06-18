@@ -6,14 +6,14 @@
     <description>Builds, tests, and runs the project com.jme3.gde.ogretools.</description>
     <import file="nbproject/build-impl.xml"/>
 
-    <target depends="init" name="zip-scripts" description="Updates the script zip files">
+    <target name="init" depends="-zip-data,basic-init,files-init,build-init,-javac-init"/>
+    
+    <target name="-zip-data" description="Zips scripts">
         <zip destfile="src/com/jme3/gde/ogretools/blender/scripts.zip">
-            <zipfileset dir="/Users/normenhansen/Documents/Blender/BlenderExport/ogre-svn/">
-                <exclude name=".DS_Store"/>
-            </zipfileset>
-            <zipfileset dir="/Users/normenhansen/Documents/Blender/BlenderExport/ogrescene-svn/">
+            <zipfileset dir="scripts">
                 <exclude name=".DS_Store"/>
             </zipfileset>
         </zip>
     </target>
+    
 </project>
