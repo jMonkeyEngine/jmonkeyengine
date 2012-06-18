@@ -26,6 +26,17 @@ This is how you add interaction to your game:
 
 </div>
 <!-- EDIT1 SECTION "Input Handling" [1-561] -->
+<h2><a>Code Samples</a></h2>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/input/TestControls.java"><param name="text" value="<html><u>TestControls.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/input/TestJoystick.java"><param name="text" value="<html><u>TestJoystick.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Code Samples" [562-858] -->
 <h2><a>1. Choose Trigger</a></h2>
 <div>
 
@@ -125,14 +136,14 @@ JoyButtonTrigger(0, JoyInput.AXIS_POV_Y) ? </td>
 		<td> Joystick Movement: Backward</td><td> JoyAxisTrigger(0, JoyInput.AXIS_POV_Z, false) </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [1098-3076] -->
+<!-- EDIT4 TABLE [1395-3373] -->
 <p>
 
 In your IDE, use code completion to quickly look up Trigger literals. In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> for example, press ctrl-space or ctrl-/ after <code>KeyInput.|</code> to choose from the list of all keys.
 </p>
 
 </div>
-<!-- EDIT2 SECTION "1. Choose Trigger" [562-3271] -->
+<!-- EDIT3 SECTION "1. Choose Trigger" [859-3568] -->
 <h2><a>2. Remove Default Trigger Mappings</a></h2>
 <div>
 <pre>inputManager.deleteMapping( SimpleApplication.INPUT_MAPPING_MEMORY );</pre>
@@ -153,9 +164,9 @@ In your IDE, use code completion to quickly look up Trigger literals. In the jMo
 		<td>INPUT_MAPPING_EXIT</td><td>KEY_ESCAPE</td><td>Closes the application by calling <code>stop();</code>. Typically you do not remove this, unless you replace it by another way of quitting gracefully.</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [3404-3821] -->
+<!-- EDIT6 TABLE [3701-4118] -->
 </div>
-<!-- EDIT4 SECTION "2. Remove Default Trigger Mappings" [3272-3822] -->
+<!-- EDIT5 SECTION "2. Remove Default Trigger Mappings" [3569-4119] -->
 <h2><a>3. Add Custom Trigger Mapping</a></h2>
 <div>
 
@@ -181,7 +192,7 @@ inputManager.addMapping&#40;&quot;Right&quot;, new KeyTrigger&#40;KeyInput.KEY_D
                                  ...</pre>
 
 </div>
-<!-- EDIT6 SECTION "3. Add Custom Trigger Mapping" [3823-4887] -->
+<!-- EDIT7 SECTION "3. Add Custom Trigger Mapping" [4120-5184] -->
 <h2><a>4. Create Listeners</a></h2>
 <div>
 
@@ -195,7 +206,7 @@ The jME3 input manager supports two types of event listeners for inputs: AnalogL
 </p>
 
 </div>
-<!-- EDIT7 SECTION "4. Create Listeners" [4888-5361] -->
+<!-- EDIT8 SECTION "4. Create Listeners" [5185-5658] -->
 <h3><a>ActionListener</a></h3>
 <div>
 
@@ -230,7 +241,7 @@ The jME3 input manager supports two types of event listeners for inputs: AnalogL
 &#125;;</pre>
 
 </div>
-<!-- EDIT8 SECTION "ActionListener" [5362-6028] -->
+<!-- EDIT9 SECTION "ActionListener" [5659-6325] -->
 <h3><a>AnalogListener</a></h3>
 <div>
 
@@ -263,7 +274,7 @@ The jME3 input manager supports two types of event listeners for inputs: AnalogL
 &#125;;</pre>
 
 </div>
-<!-- EDIT9 SECTION "AnalogListener" [6029-6665] -->
+<!-- EDIT10 SECTION "AnalogListener" [6326-6962] -->
 <h2><a>4. Register Mappings to Listeners</a></h2>
 <div>
 
@@ -292,7 +303,7 @@ As you see, you can add several listeners in one String array. You can call the 
 </p>
 
 </div>
-<!-- EDIT10 SECTION "4. Register Mappings to Listeners" [6666-7914] -->
+<!-- EDIT11 SECTION "4. Register Mappings to Listeners" [6963-8211] -->
 <h2><a>5. Implement Actions in Listeners</a></h2>
 <div>
 
@@ -312,7 +323,7 @@ Make use of the distinction between <code>if</code> and <code>else if</code> in 
 </ul>
 
 </div>
-<!-- EDIT11 SECTION "5. Implement Actions in Listeners" [7915-8650] -->
+<!-- EDIT12 SECTION "5. Implement Actions in Listeners" [8212-8947] -->
 <h3><a>ActionListener</a></h3>
 <div>
 
@@ -333,7 +344,7 @@ In the most common case, you want an action to be triggered once, in the moment 
   &#125;;</pre>
 
 </div>
-<!-- EDIT12 SECTION "ActionListener" [8651-9322] -->
+<!-- EDIT13 SECTION "ActionListener" [8948-9619] -->
 <h3><a>AnalogListener</a></h3>
 <div>
 
@@ -354,7 +365,7 @@ The following example shows how you define actions with an AnalogListener. Thies
   &#125;;</pre>
 
 </div>
-<!-- EDIT13 SECTION "AnalogListener" [9323-9903] -->
+<!-- EDIT14 SECTION "AnalogListener" [9620-10200] -->
 <h2><a>Let Users Remap Keys</a></h2>
 <div>
 
@@ -373,5 +384,5 @@ The abstraction of separating triggers and mappings has the advantage that you c
 </span></div>
 
 </div>
-<!-- EDIT14 SECTION "Let Users Remap Keys" [9904-] -->
+<!-- EDIT15 SECTION "Let Users Remap Keys" [10201-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:input_handling?do=export_xhtmlbody">view online version</a></em></p>

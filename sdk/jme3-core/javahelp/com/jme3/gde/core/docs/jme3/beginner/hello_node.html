@@ -53,6 +53,7 @@ import com.jme3.scene.Node;
 <span>/** Sample 2 - How to use nodes as handles to manipulate objects in the scene.
  * You can rotate, translate, and scale objects by manipulating their parent nodes.
  * The Root Node is special: Only what is attached to the Root Node appears in the scene. */</span>
+&nbsp;
 public class HelloNode extends SimpleApplication &#123;
 &nbsp;
     public static void main&#40;String&#91;&#93; args&#41;&#123;
@@ -96,7 +97,7 @@ Build and run the code sample. You should see two colored boxes tilted at the sa
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Code Sample" [997-3000] -->
+<!-- EDIT2 SECTION "Code Sample" [997-3001] -->
 <h2><a>Understanding the Terminology</a></h2>
 <div>
 
@@ -125,7 +126,7 @@ In this tutorial, you learn some new terms:
 		<td>Position/move, turn, or resize an object</td><td>Translate, rotate, scale an object. Transform an object.</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [3089-3506] -->
+<!-- EDIT4 TABLE [3090-3507] -->
 <p>
 
 Every JME3 application has a rootNode: Your game automatically inherits the <code>rootNode</code> object from SimpleApplication. Everything attached to the rootNode is part of the scene graph. The elements of the scene graph are Spatials.
@@ -152,9 +153,9 @@ Every JME3 application has a rootNode: Your game automatically inherits the <cod
 		<th> Examples: </th><td> A box, a sphere, a player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc… </td><td> The <code>rootNode</code>, a floor node grouping several terrains, a custom vehicle-with-passengers node, a player-with-weapon node, an audio node, etc… </td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [3922-4415] -->
+<!-- EDIT5 TABLE [3923-4416] -->
 </div>
-<!-- EDIT3 SECTION "Understanding the Terminology" [3001-4416] -->
+<!-- EDIT3 SECTION "Understanding the Terminology" [3002-4417] -->
 <h2><a>Understanding the Code</a></h2>
 <div>
 
@@ -240,7 +241,7 @@ If you run the app with only the code up to here, you see two cubes: A red cube 
 </ol>
 
 </div>
-<!-- EDIT6 SECTION "Understanding the Code" [4417-6683] -->
+<!-- EDIT6 SECTION "Understanding the Code" [4418-6684] -->
 <h3><a>What is a Pivot Node?</a></h3>
 <div>
 
@@ -259,7 +260,7 @@ You can transform (e.g. rotate) Geometries around their own center, or around a 
 </ul>
 
 </div>
-<!-- EDIT7 SECTION "What is a Pivot Node?" [6684-8004] -->
+<!-- EDIT7 SECTION "What is a Pivot Node?" [6685-8005] -->
 <h2><a>How do I Populate the Scenegraph?</a></h2>
 <div>
 <div><table>
@@ -293,9 +294,9 @@ thing.setMaterial&#40;mat&#41;;</pre>
 		<td> Specify what should be loaded at the start </td><td> Everything you initialize and attach to the <code>rootNode</code> in the <code>simpleInitApp()</code> method is part of the scene at the start of the game. </td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [8052-9314] -->
+<!-- EDIT9 TABLE [8053-9315] -->
 </div>
-<!-- EDIT8 SECTION "How do I Populate the Scenegraph?" [8005-9315] -->
+<!-- EDIT8 SECTION "How do I Populate the Scenegraph?" [8006-9316] -->
 <h2><a>How do I Transform Spatials?</a></h2>
 <div>
 
@@ -319,7 +320,7 @@ To move a Spatial <em>to</em> specific coordinates, such as (0,40.2f,-2), use: <
 </td><td>+right -left</td><td>+up -down</td><td>+forward -backward</td>
 	</tr>
 </table></div>
-<!-- EDIT11 TABLE [9439-9955] --><div><table>
+<!-- EDIT11 TABLE [9440-9956] --><div><table>
 	<tr>
 		<th> Scaling resizes Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -331,7 +332,7 @@ To scale a Spatial 10 times longer, one tenth the height, and keep the same widt
 </td><td>length</td><td>height</td><td>width</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [9957-10446] --><div><table>
+<!-- EDIT12 TABLE [9958-10447] --><div><table>
 	<tr>
 		<th> Rotation turns Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -347,9 +348,9 @@ To roll an object 180° around the z axis: <pre>thing.rotate&#40; 0f , 0f , 180*
 </td><td>pitch = nodding your head</td><td>yaw = shaking your head</td><td>roll = cocking your head</td>
 	</tr>
 </table></div>
-<!-- EDIT13 TABLE [10448-11229] -->
+<!-- EDIT13 TABLE [10449-11230] -->
 </div>
-<!-- EDIT10 SECTION "How do I Transform Spatials?" [9316-11230] -->
+<!-- EDIT10 SECTION "How do I Transform Spatials?" [9317-11231] -->
 <h2><a>How do I Troubleshoot Spatials?</a></h2>
 <div>
 
@@ -378,9 +379,9 @@ Did you rotate around the right axis? </td>
 		<td> A Geometry has an unexpected Color or Material. </td><td> Did you reuse a Material from another Geometry and have inadvertently changed its properties? (If so, consider cloning it: mat2 = mat.clone(); )  </td>
 	</tr>
 </table></div>
-<!-- EDIT15 TABLE [11362-12335] -->
+<!-- EDIT15 TABLE [11363-12336] -->
 </div>
-<!-- EDIT14 SECTION "How do I Troubleshoot Spatials?" [11231-12336] -->
+<!-- EDIT14 SECTION "How do I Troubleshoot Spatials?" [11232-12337] -->
 <h2><a>How do I Add Custom Data to Spatials?</a></h2>
 <div>
 
@@ -413,7 +414,7 @@ By using different Strings keys (here the key is <code>pivot id</code>), you can
 </p>
 
 </div>
-<!-- EDIT16 SECTION "How do I Add Custom Data to Spatials?" [12337-13702] -->
+<!-- EDIT16 SECTION "How do I Add Custom Data to Spatials?" [12338-13703] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -435,5 +436,5 @@ Since standard shapes like spheres and boxes get old fast, continue with the nex
 </span></div>
 
 </div>
-<!-- EDIT17 SECTION "Conclusion" [13703-] -->
+<!-- EDIT17 SECTION "Conclusion" [13704-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_node?do=export_xhtmlbody">view online version</a></em></p>

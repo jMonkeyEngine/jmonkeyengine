@@ -111,7 +111,7 @@ Now let&#039;s have a look at the project&#039;s file structure in the File Expl
 Right-Click the project to open the Project properties.
 </p>
 <ul>
-<li><div> In the Run section, specify the main class of your project. </div>
+<li><div> In the Run section, specify the main class of your project. (Pressing F6 runs this main class.) </div>
 </li>
 <li><div> In the Run section, you can optionally configure JVM options and command line parameters.</div>
 </li>
@@ -122,7 +122,65 @@ Right-Click the project to open the Project properties.
 </ul>
 
 </div>
-<!-- EDIT4 SECTION "Project Configuration" [2976-3466] -->
+<!-- EDIT4 SECTION "Project Configuration" [2976-3502] -->
+<h3><a>Clean, Build and Run Cycle</a></h3>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/core/docs/sdk/jmonkeyplatform-docu-5.png">
+</p>
+
+<p>
+<p><div>Pressing <strong>F6 builds &amp; runs</strong> the <em>main</em> class of the <em>main project</em>. If there are several classes, or several projects, you have to specify which one you want F6 to run. Right-click a project and choose Set As Main Project, then right-click the project again and choose Properties &gt; Run and choose a Main Class. <br/>
+To build and run the main() of <em>any file that is open in the editor</em>, press <strong>Shift-F6</strong> !
+</div></p>
+
+</p>
+<ul>
+<li><div> Right-Click the project and use the context-menu to clean all generated classes and JARs.</div>
+</li>
+<li><div> Right-Click individual files with a main method to build and run them. (Shift-F6)</div>
+</li>
+<li><div> Press the Run button (green arrow in the toolbar) to build and run the project. (F6) </div>
+</li>
+</ul>
+
+<p>
+
+<strong>More than one project open?</strong> The toolbar buttons and the F-keys are bound to the main project, which is shown in bold in the Project Explorer. Right-click a project and select Set As Main Project to make it respond to the toolbar buttons and F-keys.
+</p>
+
+<p>
+<strong>Worried About Proprietary Lock-in?</strong> You are never locked into the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>: At any time, you can change into your project directory on the command line, and clean, build, and run your project, using non-proprietary Apache Ant commands: 
+</p>
+<pre>ant clean; ant jar; ant run;</pre>
+
+</div>
+<!-- EDIT5 SECTION "Clean, Build and Run Cycle" [3503-4839] -->
+<h3><a>Development Process</a></h3>
+<div>
+<ul>
+<li><div> <strong>Creating new files and packages:</strong> Select the Source Packages node (or any of its subnodes), and press ctrl-N (File→New File): Use the New File wizard to create new Java classes, Java packages, Java beans, Swing forms, JUnit files, j3m Materials, j3o scenes, j3f filters, and many more.</div>
+</li>
+<li><div> <strong>Editing files:</strong> Open the Projects Explorer and double-click a Java file from the Source Packages to open it in the Editor. The <a href="/com/jme3/gde/core/docs/sdk/code_editor.html">jMonkeyEngine SDK Code Editor</a> assists you in many ways, including syntactic and semantic code coloring, code completion, and javadoc. <a href="/com/jme3/gde/core/docs/sdk/code_editor.html">(More...)</a></div>
+</li>
+<li><div> <strong>Adding Assets:</strong></div>
+<ul>
+<li><div> You can <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">import models, scenes, and materials</a> as assets into your project.</div>
+</li>
+<li><div> To add sound files and images, use your operating system&#039;s file explorer and copy the files into your project&#039;s asset directory.</div>
+</li>
+</ul>
+</li>
+<li><div> <strong>ToDo List:</strong> The tasks window automatically lists all lines containing errors and warnings, and all lines that you have marked with the comment keywords <code>FIXME</code>, @todo, or TODO.</div>
+</li>
+<li><div> <strong>Integrated tools:</strong> <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">Debugging, Testing, Profiling</a>.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT6 SECTION "Development Process" [4840-6025] -->
 <h3><a>Adding external jar libraries</a></h3>
 <div>
 
@@ -168,59 +226,7 @@ That&#039;s it, your project can now use the external library. If you also linke
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Adding external jar libraries" [3467-4570] -->
-<h3><a>Development Process</a></h3>
-<div>
-<ul>
-<li><div> <strong>Creating new files and packages:</strong> Select the Source Packages node (or any of its subnodes), and press ctrl-N (File→New File): Use the New File wizard to create new Java classes, Java packages, Java beans, Swing forms, JUnit files, j3m Materials, j3o scenes, j3f filters, and many more.</div>
-</li>
-<li><div> <strong>Editing files:</strong> Open the Projects Explorer and double-click a Java file from the Source Packages to open it in the Editor. The <a href="/com/jme3/gde/core/docs/sdk/code_editor.html">jMonkeyEngine SDK Code Editor</a> assists you in many ways, including syntactic and semantic code coloring, code completion, and javadoc. <a href="/com/jme3/gde/core/docs/sdk/code_editor.html">(More...)</a></div>
-</li>
-<li><div> <strong>Adding Assets:</strong></div>
-<ul>
-<li><div> You can <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">import models, scenes, and materials</a> as assets into your project.</div>
-</li>
-<li><div> To add sound files and images, use your operating system&#039;s file explorer and copy the files into your project&#039;s asset directory.</div>
-</li>
-</ul>
-</li>
-<li><div> <strong>ToDo List:</strong> The tasks window automatically lists all lines containing errors and warnings, and all lines that you have marked with the comment keywords <code>FIXME</code>, @todo, or TODO.</div>
-</li>
-<li><div> <strong>Integrated tools:</strong> <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">Debugging, Testing, Profiling</a>.</div>
-</li>
-</ul>
-
-</div>
-<!-- EDIT6 SECTION "Development Process" [4571-5756] -->
-<h3><a>Clean, Build and Run Cycle</a></h3>
-<div>
-
-<p>
-
-<img src="nbdocs:/com/jme3/gde/core/docs/sdk/jmonkeyplatform-docu-5.png">
-
-</p>
-<ul>
-<li><div> Right-Click the project and use the context-menu to clean all generated classes and JARs.</div>
-</li>
-<li><div> Right-Click individual files with a main method to build and run them. (Shift-F6)</div>
-</li>
-<li><div> Press the Run button (green arrow in the toolbar) to build and run the project. (F6)</div>
-</li>
-</ul>
-
-<p>
-
-<strong>More than one project open?</strong> The toolbar buttons and the F-keys are bound to the main project, which is shown in bold in the Project Explorer. Right-click a project and select Set As Main Project to make it respond to the toolbar buttons and F-keys.
-</p>
-
-<p>
-<strong>Worried About Proprietary Lock-in?</strong> You are never locked into the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>: At any time, you can change into your project directory on the command line, and clean, build, and run your project, using non-proprietary Apache Ant commands: 
-</p>
-<pre>ant clean; ant jar; ant run;</pre>
-
-</div>
-<!-- EDIT7 SECTION "Clean, Build and Run Cycle" [5757-6655] -->
+<!-- EDIT7 SECTION "Adding external jar libraries" [6026-7129] -->
 <h3><a>Application Deployment</a></h3>
 <div>
 <ul>
@@ -229,7 +235,7 @@ That&#039;s it, your project can now use the external library. If you also linke
 </ul>
 
 </div>
-<!-- EDIT8 SECTION "Application Deployment" [6656-6875] -->
+<!-- EDIT8 SECTION "Application Deployment" [7130-7349] -->
 <h2><a>Running Sample Projects</a></h2>
 <div>
 
@@ -258,5 +264,5 @@ Choose samples from the TestChooser and try out the included demos.</div>
 </span></div>
 
 </div>
-<!-- EDIT9 SECTION "Running Sample Projects" [6876-] -->
+<!-- EDIT9 SECTION "Running Sample Projects" [7350-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:project_creation?do=export_xhtmlbody">view online version</a></em></p>

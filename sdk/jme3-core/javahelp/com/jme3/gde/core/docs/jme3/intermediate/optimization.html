@@ -92,7 +92,7 @@ Genereally jME3 is well optimized and optimizes these things correctly. The norm
 <ul>
 <li><div> If the (S) values are significantly higher than the (F) values, that means there are a lot of extra switches happening which can cause a performance loss. Switches happen for instance if you have many transparent materials in your scene. In that case this tells you that you should use fewer transparent materials.</div>
 </li>
-<li><div> If the (M) values are much higher than the (F) values, that means a lot more GL objects are in memory than are actually used. This can happen in rare cases, such as extremely large scenes (&gt; 2000 wu). In this case, you should can optimize performance by identifying spatials to cull or detach.</div>
+<li><div> If the (M) values are much higher than the (F) values, that means a lot more GL objects are in memory than are actually used. This can happen in rare cases, such as extremely large scenes (&gt; 2000 wu) with lots of spatials or lots of different materials. In this case, you should can optimize performance by identifying spatials to cull or detach.</div>
 </li>
 <li><div> The Object Count (Batch Count) is a very important value that indicates how many geometries were rendered in the last frame. In general, try to keep the object count around 100-200 to keep your game fast and responsive. If the count is permanently higher, hand-code rules that detach remote objects, or optimize a complex multi-material scene using: <pre>GeometryBatchFactory.optimize(complexNode, true);</pre>
 </div>

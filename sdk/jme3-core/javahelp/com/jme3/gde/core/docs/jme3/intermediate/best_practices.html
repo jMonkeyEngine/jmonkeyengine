@@ -307,9 +307,9 @@ As your SimpleApplication-based game grows more advanced, you find yourself putt
 <ul>
 <li><div> Each AppState calls its own <code>initialize()</code> and <code>cleanup()</code> methods when it is attached to or detached from the game. </div>
 </li>
-<li><div> Each AppState runs its own <code>update()</code> loop that hooks into the main simpleUpdate() loop. </div>
+<li><div> Each AppState runs its own <em>thread-safe</em> <code>update()</code> loop that hooks into the main <code>simpleUpdate()</code> loop. </div>
 </li>
-<li><div> You can specify what happens if an AppState is paused/unpaused.</div>
+<li><div> You specify what happens if an AppState is paused/unpaused.</div>
 </li>
 <li><div> You can use an AppState to switch between sets of AppStates.</div>
 </li>
@@ -323,7 +323,7 @@ As your SimpleApplication-based game grows more advanced, you find yourself putt
 <ul>
 <li><div> Controls add a type of behaviour (methods and fields) to an individual Spatial (a player, an NPC). </div>
 </li>
-<li><div> Each Control runs its own <code>controlUpdate()</code> loop that hooks into the main <code>simpleUpdate()</code> loop. </div>
+<li><div> Each Control runs its own <em>thread-safe</em> <code>controlUpdate()</code> loop that hooks into the main <code>simpleUpdate()</code> loop. </div>
 </li>
 <li><div> One Spatial can be influenced by several Controls. (!)</div>
 </li>
@@ -337,6 +337,11 @@ As your SimpleApplication-based game grows more advanced, you find yourself putt
 
 <p>
 
+<p><div>A game contains algorithms that do not directly affect spatials (for example, AI pathfinding code that calculates and chooses paths, but does not actually move spatials). You do not need to put such non-spatial code in controls, you can run thse things in a new thread. Only the tranformation code that actually modifies the spatial must be called from a control, or must be enqueue()ed.
+</div></p>
+</p>
+
+<p>
 Controls and AppStates often work together: An AppState can reach up to the application and <code>get</code> all Spatials from the rootNode that carry a specific Control, and perform a global action on them. Example: In BulletPhysics, all physical Spatials that carry RigidBodyControls are steered by the overall BulletAppState.
 </p>
 
@@ -350,7 +355,7 @@ Read all about <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.ht
 </p>
 
 </div>
-<!-- EDIT13 SECTION "The Smart Way to Implement Game Logic" [10494-12862] -->
+<!-- EDIT13 SECTION "The Smart Way to Implement Game Logic" [10494-13296] -->
 <h3><a>Optimize Application Performance</a></h3>
 <div>
 <ul>
@@ -363,7 +368,7 @@ Read all about <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.ht
 </ul>
 
 </div>
-<!-- EDIT14 SECTION "Optimize Application Performance" [12863-13535] -->
+<!-- EDIT14 SECTION "Optimize Application Performance" [13297-13969] -->
 <h3><a>Don&#039;t Mess With Geometric State</a></h3>
 <div>
 
@@ -381,7 +386,7 @@ These tips are especially for users who already know jME2. Automatic handling of
 </ul>
 
 </div>
-<!-- EDIT15 SECTION "Don't Mess With Geometric State" [13536-13987] -->
+<!-- EDIT15 SECTION "Don't Mess With Geometric State" [13970-14421] -->
 <h3><a>Maintain Internal Documentation</a></h3>
 <div>
 
@@ -404,7 +409,7 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </p>
 
 </div>
-<!-- EDIT16 SECTION "Maintain Internal Documentation" [13988-14715] -->
+<!-- EDIT16 SECTION "Maintain Internal Documentation" [14422-15149] -->
 <h2><a>Debugging and Test Phase</a></h2>
 <div>
 
@@ -430,12 +435,12 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </p>
 
 </div>
-<!-- EDIT17 SECTION "Debugging and Test Phase" [14716-17201] -->
+<!-- EDIT17 SECTION "Debugging and Test Phase" [15150-17635] -->
 <h2><a>Release Phase</a></h2>
 <div>
 
 </div>
-<!-- EDIT18 SECTION "Release Phase" [17202-17228] -->
+<!-- EDIT18 SECTION "Release Phase" [17636-17662] -->
 <h3><a>Pre-Release To-Do List</a></h3>
 <div>
 <ul>
@@ -460,7 +465,7 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </ul>
 
 </div>
-<!-- EDIT19 SECTION "Pre-Release To-Do List" [17229-18041] -->
+<!-- EDIT19 SECTION "Pre-Release To-Do List" [17663-18475] -->
 <h3><a>Distributing the Executables</a></h3>
 <div>
 
@@ -498,7 +503,7 @@ Decide whether you want to release your game as WebStart, Desktop JAR, or Applet
 (.APK)</td><td>Game runs on Android devices.</td><td>Android devices do not support post-procesor effects.</td>
 	</tr>
 </table></div>
-<!-- EDIT21 TABLE [18475-19695] -->
+<!-- EDIT21 TABLE [18909-20129] -->
 <p>
 
 Which ever method you choose, a Java-Application works on the main operating systems: Windows, Mac <acronym title="Operating System">OS</acronym>, Linux, Android.
@@ -510,5 +515,5 @@ The distribution appears in a newly generated <code>dist</code> directory inside
 </p>
 
 </div>
-<!-- EDIT20 SECTION "Distributing the Executables" [18042-] -->
+<!-- EDIT20 SECTION "Distributing the Executables" [18476-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:best_practices?do=export_xhtmlbody">view online version</a></em></p>

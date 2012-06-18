@@ -276,8 +276,13 @@ audio_nature = new AudioNode&#40;assetManager, &quot;Sound/Environment/Nature.og
 Typically, you stream long sounds, and buffer short sounds.
 </p>
 
+<p>
+Note that streamed sounds can not loop (i.e. setLooping will not work as you expect). Check the getStatus on the node and if it has stopped recreate the node.
+
+</p>
+
 </div>
-<!-- EDIT7 SECTION "Buffered or Streaming?" [9287-9709] -->
+<!-- EDIT7 SECTION "Buffered or Streaming?" [9287-9868] -->
 <h2><a>Play() or PlayInstance()?</a></h2>
 <div>
 <div><table>
@@ -294,9 +299,9 @@ Typically, you stream long sounds, and buffer short sounds.
 		<td>The same sound cannot play twice at the same time.</td><td>The same sounds can play multiple times and overlap.</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [9749-9993] -->
+<!-- EDIT9 TABLE [9908-10152] -->
 </div>
-<!-- EDIT8 SECTION "Play() or PlayInstance()?" [9710-9994] -->
+<!-- EDIT8 SECTION "Play() or PlayInstance()?" [9869-10153] -->
 <h2><a>Your Ear in the Scene</a></h2>
 <div>
 
@@ -318,7 +323,7 @@ If you don&#039;t do that, the results of 3D audio will be quite random.
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Your Ear in the Scene" [9995-10697] -->
+<!-- EDIT10 SECTION "Your Ear in the Scene" [10154-10856] -->
 <h2><a>Global, Directional, Positional?</a></h2>
 <div>
 
@@ -345,7 +350,7 @@ In short, you must choose in every situation whether it makes sense for a sound 
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Global, Directional, Positional?" [10698-12056] -->
+<!-- EDIT11 SECTION "Global, Directional, Positional?" [10857-12215] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -380,5 +385,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT12 SECTION "Conclusion" [12057-] -->
+<!-- EDIT12 SECTION "Conclusion" [12216-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_audio?do=export_xhtmlbody">view online version</a></em></p>

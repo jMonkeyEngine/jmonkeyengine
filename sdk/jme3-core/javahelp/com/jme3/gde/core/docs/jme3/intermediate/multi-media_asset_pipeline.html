@@ -222,7 +222,7 @@ Use the jMonkeyEngine SceneComposer to add these properties.</div>
 
 <p>
 
-<p><div>Important: Unoptimized external model files (.mesh.xml, .material, .obj, .mat, etc) are not bundled when you build your application! If you try to run the JAR with code referring to non-j3o models, you get a <strong>Runtime Error</strong> because the resource is not found. The final application code should only reference .j3o files.
+<p><div>Important: Unoptimized external model files (.mesh.xml, .material, .obj, .mat, .blend, etc) are not bundled by the default build script into the final executables! If you try to run executables containing code that loads non-.j3o models, you get a <strong>Runtime Error</strong> (resource not found). The final application code should only reference .j3o files. (Note that you will not get this runtime error when running development builds straight from the <acronym title="Software Development Kit">SDK</acronym>!)
 </div></p>
 </p>
 

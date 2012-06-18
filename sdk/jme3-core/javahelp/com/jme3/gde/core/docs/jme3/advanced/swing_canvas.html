@@ -77,8 +77,15 @@ In the SwingCanvasTest&#039;s main() method, create a queued runnable(). It will
     &#125;&#41;;
   &#125;</pre>
 
+<p>
+
+<p><div>Note that you have to use app.enqueue() when modifying objects in the scene from the AWT Event Queue like you have to use java.awt.EventQueue.invokeLater() from other threads (e.g. the update loop) when changing swing elements. This can get hairy quickly if you don’t have a proper threading model planned so you might want to use NiftyGUI as it is embedded in the update loop thread and is also cross-platform compatible (e.g. android etc.).
+</div></p>
+
+</p>
+
 </div>
-<!-- EDIT3 SECTION "Main() and Runnable()" [2175-2792] -->
+<!-- EDIT3 SECTION "Main() and Runnable()" [2175-3260] -->
 <h3><a>Creating the Canvas</a></h3>
 <div>
 
@@ -113,7 +120,7 @@ Note that we have not called start() on the application, as we would usually do 
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Creating the Canvas" [2793-4077] -->
+<!-- EDIT4 SECTION "Creating the Canvas" [3261-4545] -->
 <h3><a>Creating the Swing Frame</a></h3>
 <div>
 
@@ -163,7 +170,7 @@ Clean, build, and run!
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Creating the Swing Frame" [4078-5551] -->
+<!-- EDIT5 SECTION "Creating the Swing Frame" [4546-6019] -->
 <h2><a>Navigation</a></h2>
 <div>
 
@@ -177,5 +184,5 @@ Remember, to navigate in the scene, click and drag (!) the mouse, or press the W
 </span></div>
 
 </div>
-<!-- EDIT6 SECTION "Navigation" [5552-] -->
+<!-- EDIT6 SECTION "Navigation" [6020-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:swing_canvas?do=export_xhtmlbody">view online version</a></em></p>

@@ -156,6 +156,8 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 <h2><a>Planned features.</a></h2>
 <div>
 <ol>
+<li><div> Loading BMesh.</div>
+</li>
 <li><div> Loading sky.</div>
 </li>
 <li><div> Full support for scale and offset in texture input mapping.</div>
@@ -171,16 +173,18 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </ol>
 
 </div>
-<!-- EDIT5 SECTION "Planned features." [4058-4318] -->
+<!-- EDIT5 SECTION "Planned features." [4058-4337] -->
 <h2><a>Known bugs/problems.</a></h2>
 <div>
 <ol>
 <li><div> RGB10 and RGB9E5 texture types are not supported in texture merging operations (which means that you can use this as a single texture on the model, but you should not combine it with other images or generated textures).</div>
 </li>
+<li><div> If an armature is attached to a mesh that has more than one material the vertices of the mesh might be strongly displaced. Hope to fix that soon.</div>
+</li>
 </ol>
 
 </div>
-<!-- EDIT6 SECTION "Known bugs/problems." [4319-4576] -->
+<!-- EDIT6 SECTION "Known bugs/problems." [4338-4744] -->
 <h2><a>Using BlenderLoader instead of BlenderModelLoader</a></h2>
 <div>
 
@@ -241,7 +245,7 @@ You can use ModelKey as well. This will give the same result as using default Bl
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Using BlenderLoader instead of BlenderModelLoader" [4577-6313] -->
+<!-- EDIT7 SECTION "Using BlenderLoader instead of BlenderModelLoader" [4745-6481] -->
 <h2><a>How does it work?</a></h2>
 <div>
 
@@ -287,7 +291,7 @@ Here is the list of how blender features are mapped into jme.
 		<td>Surface	</td><td>Node </td><td>The surface is transformed to the proper mesh</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [6787-7138] -->
+<!-- EDIT9 TABLE [6955-7306] -->
 <p>
 
 Using BlenderLoader can allow you to use blend file as your local assets repository.
@@ -297,13 +301,17 @@ Probably versions before 2.49 will work pretty well too, but I never checked tha
 </p>
 
 </div>
-<!-- EDIT8 SECTION "How does it work?" [6314-7473] -->
+<!-- EDIT8 SECTION "How does it work?" [6482-7641] -->
 <h2><a>Notes</a></h2>
 <div>
 
 <p>
 I know that the current version of loader is not yet fully functional, but belive me – Blender is a very large issue ;)
 Hope I will meet your expectations.
+</p>
+
+<p>
+Be mindful of the result model vertices amount. The best results are achieved when the model is smooth and has no texture. Then the vertex amount is equal to the vertex amount in blender. If the model is not smooth or has a generated texture applied then the amount of vertices is 3 times larger than mesh&#039;s triangles amount. If a 2d texture is applied with UV mapping then the vertex count will vary depending on how much the UV map is fragmented.
 </p>
 
 <p>
@@ -334,5 +342,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT10 SECTION "Notes" [7474-] -->
+<!-- EDIT10 SECTION "Notes" [7642-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:blender?do=export_xhtmlbody">view online version</a></em></p>
