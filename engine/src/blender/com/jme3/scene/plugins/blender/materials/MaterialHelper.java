@@ -168,7 +168,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
 		}
 		
 		result = new MaterialContext(structure, blenderContext);
-		LOGGER.log(Level.INFO, "Material's name: {0}", result.name);
+		LOGGER.log(Level.INFO, "Material''s name: {0}", result.name);
 		blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, result);
 		return result;
 	}
