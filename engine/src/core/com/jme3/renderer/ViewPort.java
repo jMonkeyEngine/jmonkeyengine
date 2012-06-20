@@ -127,6 +127,9 @@ public class ViewPort {
      * @see SceneProcessor
      */
     public void addProcessor(SceneProcessor processor){
+        if (processor == null) {
+            throw new IllegalArgumentException( "Processor cannot be null." );
+        }
         processors.add(processor);
     }
 
@@ -140,6 +143,9 @@ public class ViewPort {
      * @see SceneProcessor
      */
     public void removeProcessor(SceneProcessor processor){
+        if (processor == null) {
+            throw new IllegalArgumentException( "Processor cannot be null." );
+        }
         processors.remove(processor);
         processor.cleanup();
     }
@@ -280,6 +286,9 @@ public class ViewPort {
      * @see Spatial
      */
     public void attachScene(Spatial scene){
+        if (scene == null) {
+            throw new IllegalArgumentException( "Scene cannot be null." );
+        }
         sceneList.add(scene);
     }
 
@@ -291,6 +300,9 @@ public class ViewPort {
      * @see #attachScene(com.jme3.scene.Spatial) 
      */
     public void detachScene(Spatial scene){
+        if (scene == null) {
+            throw new IllegalArgumentException( "Scene cannot be null." );
+        }
         sceneList.remove(scene);
     }
 
