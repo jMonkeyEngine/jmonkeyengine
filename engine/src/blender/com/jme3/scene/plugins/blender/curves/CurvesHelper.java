@@ -193,7 +193,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
                 if (nurbGeoms != null) {//setting the name and assigning materials
                     for (Geometry nurbGeom : nurbGeoms) {
                     	if(materialContexts != null) {
-                    		materialContexts[nurbEntry.getKey().intValue()].applyMaterial(nurbGeom, curveStructure.getOldMemoryAddress(), false, null, blenderContext);
+                    		materialContexts[nurbEntry.getKey().intValue()].applyMaterial(nurbGeom, curveStructure.getOldMemoryAddress(), null, blenderContext);
                     	} else {
                     		nurbGeom.setMaterial(defaultMaterial);
                     	}

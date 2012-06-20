@@ -110,11 +110,11 @@ public class CombinedTexture {
 				} else if (textureData.texture instanceof Texture2D) {
 					resultTexture = textureData.texture;
 
-					if (userDefinedUVCoordinates == null || userDefinedUVCoordinates.size() == 0) {
+					if(textureData.uvCoordinatesType == UVCoordinatesType.TEXCO_UV && userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
+						resultUVS = userDefinedUVCoordinates;
+					} else {
 						List<Geometry> geometries = (List<Geometry>) blenderContext.getLoadedFeature(geometriesOMA, LoadedFeatureDataType.LOADED_FEATURE);
 						resultUVS = UVCoordinatesGenerator.generateUVCoordinatesFor2DTexture(mesh, textureData.uvCoordinatesType, textureData.projectionType, geometries);
-					} else {
-						resultUVS = userDefinedUVCoordinates;
 					}
 				}
 				this.blend(resultTexture, textureData.textureBlender, blenderContext);
@@ -145,11 +145,11 @@ public class CombinedTexture {
 						}
 						// first triangulate the current texture
 						List<Vector2f> textureUVS = null;
-						if (textureData.uvCoordinatesType != UVCoordinatesType.TEXCO_UV) {
+						if(textureData.uvCoordinatesType == UVCoordinatesType.TEXCO_UV && userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
+							textureUVS = userDefinedUVCoordinates;
+						} else {
 							List<Geometry> geometries = (List<Geometry>) blenderContext.getLoadedFeature(geometriesOMA, LoadedFeatureDataType.LOADED_FEATURE);
 							textureUVS = UVCoordinatesGenerator.generateUVCoordinatesFor2DTexture(mesh, textureData.uvCoordinatesType, textureData.projectionType, geometries);
-						} else {
-							textureUVS = userDefinedUVCoordinates;
 						}
 						TriangulatedTexture triangulatedTexture = new TriangulatedTexture((Texture2D) textureData.texture, textureUVS, blenderContext);
 						// then move the texture to different UV's
