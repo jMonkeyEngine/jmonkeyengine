@@ -135,28 +135,13 @@ public class ModifierHelper extends AbstractBlenderHelper {
 	 */
 	private Modifier readAnimationModifier249(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
 		Modifier result = null;
-		Pointer pAction = (Pointer) objectStructure.getFieldValue("action");
-		IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
-		if (pAction.isNotNull()) {
-			Structure action = pAction.fetchData(blenderContext.getInputStream()).get(0);
-			List<Structure> actionChannels = ((Structure) action.getFieldValue("chanbase")).evaluateListBase(blenderContext);
-			if (actionChannels.size() == 1) {// object's animtion action has only one channel
-				Pointer pChannelIpo = (Pointer) actionChannels.get(0).getFieldValue("ipo");
-				Structure ipoStructure = pChannelIpo.fetchData(blenderContext.getInputStream()).get(0);
-				Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
-				result = new ObjectAnimationModifier(ipo, action.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
-				blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
-			} else {
-				throw new IllegalStateException("Object's action cannot have more than one channel!");
-			}
-		} else {
-			Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
-			if (pIpo.isNotNull()) {
-				Structure ipoStructure = pIpo.fetchData(blenderContext.getInputStream()).get(0);
-				Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
-				result = new ObjectAnimationModifier(ipo, objectStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
-				blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
-			}
+		Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
+		if (pIpo.isNotNull()) {
+			IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
+			Structure ipoStructure = pIpo.fetchData(blenderContext.getInputStream()).get(0);
+			Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
+			result = new ObjectAnimationModifier(ipo, objectStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
+			blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
 		}
 		return result;
 	}
