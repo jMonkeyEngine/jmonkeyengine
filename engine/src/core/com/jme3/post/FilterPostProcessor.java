@@ -98,6 +98,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param filter the filter to add
      */
     public void addFilter(Filter filter) {
+        if (filter == null) {
+            throw new IllegalArgumentException( "Filter cannot be null." );
+        }
         filters.add(filter);        
 
         if (isInitialized()) {
@@ -113,6 +116,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param filter 
      */
     public void removeFilter(Filter filter) {
+        if (filter == null) {
+            throw new IllegalArgumentException( "Filter cannot be null." );
+        }
         filters.remove(filter);
         filter.cleanup(renderer);
         updateLastFilterIndex();
