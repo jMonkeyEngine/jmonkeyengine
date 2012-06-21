@@ -1,5 +1,6 @@
 package com.jme3.scene.plugins.blender.meshes;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,10 +9,13 @@ import java.util.Map;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.util.BufferUtils;
 
 /*package*/ class MeshBuilder {
 	/** An array of reference vertices. */
 	private Vector3f[] vertices;
+	/** An list of vertices colors. */
+	private List<byte[]> verticesColors;
 	/** A variable that indicates if the model uses generated textures. */
 	private boolean usesGeneratedTextures;
 	
@@ -27,6 +31,8 @@ import com.jme3.math.Vector3f;
     private Map<Integer, List<Vector3f>> normalMap = new HashMap<Integer, List<Vector3f>>();
     /** The following map sorts vertices by material number (because in jme Mesh can have only one material). */
     private Map<Integer, List<Vector3f>> vertexMap = new HashMap<Integer, List<Vector3f>>();
+    /** The following map sorts vertices colors by material number (because in jme Mesh can have only one material). */
+    private Map<Integer, List<byte[]>> vertexColorsMap = new HashMap<Integer, List<byte[]>>();
     /** The following map sorts indexes by material number (because in jme Mesh can have only one material). */
     private Map<Integer, List<Integer>> indexMap = new HashMap<Integer, List<Integer>>();
     /** A map between material number and UV coordinates of mesh that has this material applied. */
@@ -39,11 +45,12 @@ import com.jme3.math.Vector3f;
      * @param vertices the reference vertices array
      * @param usesGeneratedTextures a variable that indicates if the model uses generated textures or not
      */
-	public MeshBuilder(Vector3f[] vertices, boolean usesGeneratedTextures) {
+	public MeshBuilder(Vector3f[] vertices, List<byte[]> verticesColors, boolean usesGeneratedTextures) {
 		if(vertices == null || vertices.length == 0) {
 			throw new IllegalArgumentException("No vertices loaded to build mesh.");
 		}
 		this.vertices = vertices;
+		this.verticesColors = verticesColors;
 		this.usesGeneratedTextures = usesGeneratedTextures;
 		globalVertexReferenceMap = new HashMap<Integer, Map<Integer, List<Integer>>>(vertices.length);
 	}
@@ -56,11 +63,15 @@ import com.jme3.math.Vector3f;
 	 * @param smooth indicates if this face should have smooth shading or flat shading
 	 * @param materialNumber the material number for this face
 	 * @param uvs a 3-element array of vertices UV coordinates
+	 * @param quad indicates if the appended face is a part of a quad face (used for creating vertex colors buffer)
+	 * @param faceIndex the face index (used for creating vertex colors buffer)
 	 */
-	public void appendFace(int v1, int v2, int v3, boolean smooth, int materialNumber, Vector2f[] uvs) {
+	public void appendFace(int v1, int v2, int v3, boolean smooth, int materialNumber, Vector2f[] uvs, boolean quad, int faceIndex) {
 		if(uvs != null && uvs.length != 3) {
 			throw new IllegalArgumentException("UV coordinates must be a 3-element array!");
 		}
+		
+		//getting the required lists
 		List<Integer> indexList = indexMap.get(materialNumber);
         if (indexList == null) {
             indexList = new ArrayList<Integer>();
@@ -70,6 +81,12 @@ import com.jme3.math.Vector3f;
         if (vertexList == null) {
             vertexList = new ArrayList<Vector3f>();
             vertexMap.put(materialNumber, vertexList);
+        }
+        List<byte[]> vertexColorsList = vertexColorsMap != null ? vertexColorsMap.get(materialNumber) : null;
+        int[] vertexColorIndex = new int[] { 0, 1, 2 };
+        if(vertexColorsList == null && vertexColorsMap != null) {
+        	vertexColorsList = new ArrayList<byte[]>();
+        	vertexColorsMap.put(materialNumber, vertexColorsList);
         }
         List<Vector3f> normalList = normalMap.get(materialNumber);
         if (normalList == null) {
@@ -81,7 +98,6 @@ import com.jme3.math.Vector3f;
         	vertexReferenceMap = new HashMap<Integer, List<Integer>>();
         	globalVertexReferenceMap.put(materialNumber, vertexReferenceMap);
         }
-        
         List<Vector2f> uvCoordinatesList = null;
         if(uvs != null) {
 	        uvCoordinatesList = uvCoordinates.get(Integer.valueOf(materialNumber));
@@ -91,6 +107,13 @@ import com.jme3.math.Vector3f;
 	        }
         }
         
+        faceIndex *= 4;
+        if(quad) {
+        	vertexColorIndex[1] = 2;
+        	vertexColorIndex[2] = 3;
+        }
+        
+        //creating faces
         Integer[] index = new Integer[] {v1, v2, v3};
 		Vector3f n = FastMath.computeNormal(vertices[v1], vertices[v2], vertices[v3]);
         this.addNormal(n, globalNormalMap, smooth, vertices[v1], vertices[v2], vertices[v3]);
@@ -99,6 +122,9 @@ import com.jme3.math.Vector3f;
         		if(!vertexReferenceMap.containsKey(index[i])) {
             		this.appendVertexReference(index[i], vertexList.size(), vertexReferenceMap);
             		vertexList.add(vertices[index[i]]);
+            		if(verticesColors != null) {
+            			vertexColorsList.add(verticesColors.get(faceIndex + vertexColorIndex[i]));
+            		}
             		normalList.add(globalNormalMap.get(vertices[index[i]]));
             		if(uvCoordinatesList != null) {
             			uvsMap.put(vertexList.size(), uvs[i]);
@@ -118,6 +144,9 @@ import com.jme3.math.Vector3f;
             			this.appendVertexReference(index[i], vertexList.size(), vertexReferenceMap);
             			uvsMap.put(vertexList.size(), uvs[i]);
             			vertexList.add(vertices[index[i]]);
+            			if(verticesColors != null) {
+            				vertexColorsList.add(verticesColors.get(faceIndex + vertexColorIndex[i]));
+            			}
                 		normalList.add(globalNormalMap.get(vertices[index[i]]));
             			uvCoordinatesList.add(uvs[i]);
             			index[i] = vertexList.size() - 1;
@@ -136,6 +165,9 @@ import com.jme3.math.Vector3f;
         			uvsMap.put(vertexList.size(), uvs[i]);
         		}
         		vertexList.add(vertices[index[i]]);
+        		if(verticesColors != null) {
+        			vertexColorsList.add(verticesColors.get(faceIndex + vertexColorIndex[i]));
+        		}
         		normalList.add(globalNormalMap.get(vertices[index[i]]));
         	}
         }
@@ -149,6 +181,8 @@ import com.jme3.math.Vector3f;
 	}
 	
 	/**
+	 * @param materialNumber
+	 *            the material index
 	 * @return result vertices array
 	 */
 	public Vector3f[] getVertices(int materialNumber) {
@@ -156,6 +190,8 @@ import com.jme3.math.Vector3f;
 	}
 	
 	/**
+	 * @param materialNumber
+	 *            the material index
 	 * @return the amount of result vertices
 	 */
 	public int getVerticesAmount(int materialNumber) {
@@ -163,10 +199,34 @@ import com.jme3.math.Vector3f;
 	}
 	
 	/**
+	 * @param materialNumber
+	 *            the material index
 	 * @return normals result array
 	 */
 	public Vector3f[] getNormals(int materialNumber) {
 		return normalMap.get(materialNumber).toArray(new Vector3f[normalMap.get(materialNumber).size()]);
+	}
+	
+	/**
+	 * @param materialNumber
+	 *            the material index
+	 * @return the vertices colors buffer or null if no vertex colors is set
+	 */
+	public ByteBuffer getVertexColorsBuffer(int materialNumber) {
+		ByteBuffer result = null;
+		if (verticesColors != null && vertexColorsMap.get(materialNumber) != null) {
+			List<byte[]> data = vertexColorsMap.get(materialNumber);
+			result = BufferUtils.createByteBuffer(4 * data.size());
+			for (byte[] v : data) {
+				if (v != null) {
+					result.put(v[0]).put(v[1]).put(v[2]).put(v[3]);
+				} else {
+					result.put((byte)0).put((byte)0).put((byte)0).put((byte)0);
+				}
+			}
+			result.flip();
+		}
+		return result;
 	}
 	
 	/**
@@ -184,7 +244,8 @@ import com.jme3.math.Vector3f;
 	}
 	
 	/**
-	 * @param materialNumber the material number that is appied to the mesh
+	 * @param materialNumber
+	 *            the material number that is appied to the mesh
 	 * @return UV coordinates of vertices that belong to the required mesh part
 	 */
 	public List<Vector2f> getUVCoordinates(int materialNumber) {

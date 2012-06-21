@@ -31,9 +31,7 @@
  */
 package com.jme3.scene.plugins.blender.meshes;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -87,8 +85,7 @@ public class MeshHelper extends AbstractBlenderHelper {
      */
     @SuppressWarnings("unchecked")
     public List<Geometry> toMesh(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
-        List<Geometry> geometries = (List<Geometry>) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(),
-                LoadedFeatureDataType.LOADED_FEATURE);
+        List<Geometry> geometries = (List<Geometry>) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
         if (geometries != null) {
             List<Geometry> copiedGeometries = new ArrayList<Geometry>(geometries.size());
             for (Geometry geometry : geometries) {
@@ -108,12 +105,11 @@ public class MeshHelper extends AbstractBlenderHelper {
             materials = materialHelper.getMaterials(structure, blenderContext);
         }
         
-        // reading vertices
+        // reading vertices and their colors
         Vector3f[] vertices = this.getVertices(structure, blenderContext);
-        MeshBuilder meshBuilder = new MeshBuilder(vertices, this.areGeneratedTexturesPresent(materials));
-        
-        // vertices Colors
         List<byte[]> verticesColors = this.getVerticesColors(structure, blenderContext);
+        
+        MeshBuilder meshBuilder = new MeshBuilder(vertices, verticesColors, this.areGeneratedTexturesPresent(materials));
 
         Pointer pMFace = (Pointer) structure.getFieldValue("mface");
         List<Structure> mFaces = null;
@@ -138,7 +134,6 @@ public class MeshHelper extends AbstractBlenderHelper {
         }
 
         // indicates if the material with the specified number should have a texture attached
-        int vertexColorIndex = 0;
         Vector2f[] uvCoordinatesForFace = new Vector2f[3];
         for (int i = 0; i < mFaces.size(); ++i) {
             Structure mFace = mFaces.get(i);
@@ -160,25 +155,14 @@ public class MeshHelper extends AbstractBlenderHelper {
             int v3 = ((Number) mFace.getFieldValue("v3")).intValue();
             int v4 = ((Number) mFace.getFieldValue("v4")).intValue();
 
-            meshBuilder.appendFace(v1, v2, v3, smooth, materialNumber, uvs == null ? null : uvCoordinatesForFace);
+            meshBuilder.appendFace(v1, v2, v3, smooth, materialNumber, uvs == null ? null : uvCoordinatesForFace, false, i);
             if (v4 > 0) {
                 if (uvs != null) {
                 	uvCoordinatesForFace[0] = new Vector2f(uvs.get(0, 0).floatValue(), uvs.get(0, 1).floatValue());
                 	uvCoordinatesForFace[1] = new Vector2f(uvs.get(2, 0).floatValue(), uvs.get(2, 1).floatValue());
                 	uvCoordinatesForFace[2] = new Vector2f(uvs.get(3, 0).floatValue(), uvs.get(3, 1).floatValue());
                 }
-                meshBuilder.appendFace(v1, v3, v4, smooth, materialNumber, uvs == null ? null : uvCoordinatesForFace);
-
-                if (verticesColors != null) {
-                    verticesColors.add(vertexColorIndex + 3, verticesColors.get(vertexColorIndex));
-                    verticesColors.add(vertexColorIndex + 4, verticesColors.get(vertexColorIndex + 2));
-                }
-                vertexColorIndex += 6;
-            } else {
-                if (verticesColors != null) {
-                    verticesColors.remove(vertexColorIndex + 3);
-                    vertexColorIndex += 3;
-                }
+                meshBuilder.appendFace(v1, v3, v4, smooth, materialNumber, uvs == null ? null : uvCoordinatesForFace, true, i);
             }
         }
         meshContext.setVertexReferenceMap(meshBuilder.getVertexReferenceMap());
@@ -200,7 +184,6 @@ public class MeshHelper extends AbstractBlenderHelper {
         Properties properties = this.loadProperties(structure, blenderContext);
 
         // generating meshes
-        ByteBuffer verticesColorsBuffer = this.createByteBuffer(verticesColors);
         for (Entry<Integer, List<Integer>> meshEntry : meshBuilder.getMeshesMap().entrySet()) {
         	int materialIndex = meshEntry.getKey();
         	//key is the material index (or -1 if the material has no texture)
@@ -241,8 +224,8 @@ public class MeshHelper extends AbstractBlenderHelper {
             meshContext.setBindPoseBuffer(verticesBind);//this is stored in the context and applied when needed (when animation is applied to the mesh)
 
             // setting vertices colors
-            if (verticesColorsBuffer != null) {
-                mesh.setBuffer(Type.Color, 4, verticesColorsBuffer);
+            if (verticesColors != null) {
+                mesh.setBuffer(Type.Color, 4, meshBuilder.getVertexColorsBuffer(materialIndex));
                 mesh.getBuffer(Type.Color).setNormalized(true);
             }
 
@@ -323,7 +306,7 @@ public class MeshHelper extends AbstractBlenderHelper {
         List<byte[]> verticesColors = null;
         List<Structure> mCol = null;
         if (pMCol.isNotNull()) {
-            verticesColors = new LinkedList<byte[]>();
+            verticesColors = new ArrayList<byte[]>();
             mCol = pMCol.fetchData(blenderContext.getInputStream());
             for (Structure color : mCol) {
                 byte r = ((Number)color.getFieldValue("r")).byteValue();
