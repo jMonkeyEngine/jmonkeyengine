@@ -260,6 +260,13 @@ import com.jme3.util.BufferUtils;
 	}
 	
 	/**
+	 * @return <b>true</b> if the mesh has no vertices and <b>false</b> otherwise
+	 */
+	public boolean isEmpty() {
+		return vertexMap.size() == 0;
+	}
+	
+	/**
      * This method adds a normal to a normals' map. This map is used to merge normals of a vertor that should be rendered smooth.
      * 
      * @param normalToAdd
