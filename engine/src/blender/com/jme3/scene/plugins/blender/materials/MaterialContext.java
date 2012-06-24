@@ -269,22 +269,29 @@ public final class MaterialContext {
 	}
 	
 	/**
-	 * This method sorts the textures by their mapping type.
-	 * In each group only textures of one type are put (either two- or three-dimensional).
-	 * If the mapping type is MTEX_COL then if the texture has no alpha channel then all textures before it are
-	 * discarded and will not be loaded and merged because texture with no alpha will cover them anyway.
+	 * This method sorts the textures by their mapping type. In each group only
+	 * textures of one type are put (either two- or three-dimensional). If the
+	 * mapping type is MTEX_COL then if the texture has no alpha channel then
+	 * all textures before it are discarded and will not be loaded and merged
+	 * because texture with no alpha will cover them anyway.
+	 * 
 	 * @return a map with sorted and filtered textures
 	 */
 	private Map<Number, List<TextureData>> sortAndFilterTextures(List<TextureData> textures) {
+		int[] mappings = new int[] { MTEX_COL, MTEX_NOR, MTEX_EMIT, MTEX_SPEC, MTEX_ALPHA };
 		Map<Number, List<TextureData>> result = new HashMap<Number, List<TextureData>>();
 		for (TextureData data : textures) {
 			Number mapto = (Number) data.mtex.getFieldValue("mapto");
-			List<TextureData> datas = result.get(mapto);
-			if(datas==null) {
-				datas = new ArrayList<TextureData>();
-				result.put(mapto, datas);
+			for (int i = 0; i < mappings.length; ++i) {
+				if((mappings[i] & mapto.intValue()) != 0) {
+					List<TextureData> datas = result.get(mappings[i]);
+					if (datas == null) {
+						datas = new ArrayList<TextureData>();
+						result.put(mappings[i], datas);
+					}
+					datas.add(data);
+				}
 			}
-			datas.add(data);
 		}
 		return result;
 	}
