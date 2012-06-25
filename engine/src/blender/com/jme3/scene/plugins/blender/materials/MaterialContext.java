@@ -1,5 +1,21 @@
 package com.jme3.scene.plugins.blender.materials;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
+
+import jme3tools.converters.ImageToAwt;
+
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
@@ -21,14 +37,9 @@ import com.jme3.scene.plugins.blender.textures.CombinedTexture;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
 import com.jme3.scene.plugins.blender.textures.blending.TextureBlender;
 import com.jme3.scene.plugins.blender.textures.blending.TextureBlenderFactory;
+import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Logger;
 
 /**
  * This class holds the data about the material.
@@ -195,44 +206,51 @@ public final class MaterialContext {
 		}
 		
 		//applying textures
-		for(Entry<Number, CombinedTexture> entry : loadedTextures.entrySet()) {
-			CombinedTexture combinedTexture = entry.getValue();
-			combinedTexture.flatten(geometry, geometriesOMA, userDefinedUVCoordinates, blenderContext);
-			VertexBuffer.Type uvCoordinatesType = null;
-			
-			switch(entry.getKey().intValue()) {
-				case MTEX_COL:
-					uvCoordinatesType = VertexBuffer.Type.TexCoord;
-					material.setTexture(shadeless ? MaterialHelper.TEXTURE_TYPE_COLOR : MaterialHelper.TEXTURE_TYPE_DIFFUSE, 
-							combinedTexture.getResultTexture());
-					break;
-				case MTEX_NOR:
-					uvCoordinatesType = VertexBuffer.Type.TexCoord2;
-					material.setTexture(MaterialHelper.TEXTURE_TYPE_NORMAL, combinedTexture.getResultTexture());
-					break;
-				case MTEX_SPEC:
-					uvCoordinatesType = VertexBuffer.Type.TexCoord3;
-					material.setTexture(MaterialHelper.TEXTURE_TYPE_SPECULAR, combinedTexture.getResultTexture());
-					break;
-				case MTEX_EMIT:
-					uvCoordinatesType = VertexBuffer.Type.TexCoord4;
-					material.setTexture(MaterialHelper.TEXTURE_TYPE_GLOW, combinedTexture.getResultTexture());
-					break;
-				case MTEX_ALPHA:
-					uvCoordinatesType = VertexBuffer.Type.TexCoord5;
-					material.setTexture(MaterialHelper.TEXTURE_TYPE_ALPHA, combinedTexture.getResultTexture());
-					break;
-				default:
-					LOGGER.severe("Unknown mapping type: " + entry.getKey().intValue());
+		if(loadedTextures != null && loadedTextures.size() > 0) {
+			for(Entry<Number, CombinedTexture> entry : loadedTextures.entrySet()) {
+				CombinedTexture combinedTexture = entry.getValue();
+				combinedTexture.flatten(geometry, geometriesOMA, userDefinedUVCoordinates, blenderContext);
+				VertexBuffer.Type uvCoordinatesType = null;
+				
+				switch(entry.getKey().intValue()) {
+					case MTEX_COL:
+						uvCoordinatesType = VertexBuffer.Type.TexCoord;
+						material.setTexture(shadeless ? MaterialHelper.TEXTURE_TYPE_COLOR : MaterialHelper.TEXTURE_TYPE_DIFFUSE, 
+								combinedTexture.getResultTexture());
+						break;
+					case MTEX_NOR:
+						uvCoordinatesType = VertexBuffer.Type.TexCoord2;
+						material.setTexture(MaterialHelper.TEXTURE_TYPE_NORMAL, combinedTexture.getResultTexture());
+						break;
+					case MTEX_SPEC:
+						uvCoordinatesType = VertexBuffer.Type.TexCoord3;
+						material.setTexture(MaterialHelper.TEXTURE_TYPE_SPECULAR, combinedTexture.getResultTexture());
+						break;
+					case MTEX_EMIT:
+						uvCoordinatesType = VertexBuffer.Type.TexCoord4;
+						material.setTexture(MaterialHelper.TEXTURE_TYPE_GLOW, combinedTexture.getResultTexture());
+						break;
+					case MTEX_ALPHA:
+						uvCoordinatesType = VertexBuffer.Type.TexCoord5;
+						material.setTexture(MaterialHelper.TEXTURE_TYPE_ALPHA, combinedTexture.getResultTexture());
+						break;
+					default:
+						LOGGER.severe("Unknown mapping type: " + entry.getKey().intValue());
+				}
+				
+				//applying texture coordinates
+				if(uvCoordinatesType != null) {
+					VertexBuffer uvCoordsBuffer = new VertexBuffer(uvCoordinatesType);
+		            uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float,
+		                    BufferUtils.createFloatBuffer(combinedTexture.getResultUVS().toArray(new Vector2f[combinedTexture.getResultUVS().size()])));
+					geometry.getMesh().setBuffer(uvCoordsBuffer);
+				}
 			}
-			
-			//applying texture coordinates
-			if(uvCoordinatesType != null) {
-				VertexBuffer uvCoordsBuffer = new VertexBuffer(uvCoordinatesType);
-	            uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float,
-	                    BufferUtils.createFloatBuffer(combinedTexture.getResultUVS().toArray(new Vector2f[combinedTexture.getResultUVS().size()])));
-				geometry.getMesh().setBuffer(uvCoordsBuffer);
-			}
+		} else if(userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
+			VertexBuffer uvCoordsBuffer = new VertexBuffer(VertexBuffer.Type.TexCoord);
+            uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float,
+                    BufferUtils.createFloatBuffer(userDefinedUVCoordinates.toArray(new Vector2f[userDefinedUVCoordinates.size()])));
+			geometry.getMesh().setBuffer(uvCoordsBuffer);
 		}
 		
 		//applying additional data
