@@ -74,6 +74,11 @@ import java.util.logging.Logger;
             (flag & 0x10) != 0 ? -1.0f : 1.0f,
             (flag & 0x20) != 0 ? -1.0f : 1.0f
         };
+        if(blenderContext.getBlenderKey().isFixUpAxis()) {
+        	float temp = mirrorFactor[1];
+        	mirrorFactor[1] = mirrorFactor[2];
+        	mirrorFactor[2] = temp;
+        }
         float[] center = new float[]{0.0f, 0.0f, 0.0f};
         Pointer pObject = (Pointer) modifierData.get("mirrorob");
         if (pObject != null) {
