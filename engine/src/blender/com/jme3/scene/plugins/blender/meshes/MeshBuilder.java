@@ -44,9 +44,6 @@ import com.jme3.util.BufferUtils;
      * @param usesGeneratedTextures a variable that indicates if the model uses generated textures or not
      */
 	public MeshBuilder(Vector3f[][] verticesAndNormals, List<byte[]> verticesColors, boolean usesGeneratedTextures) {
-		if(verticesAndNormals == null || verticesAndNormals.length == 0) {
-			throw new IllegalArgumentException("No vertices loaded to build mesh.");
-		}
 		this.verticesAndNormals = verticesAndNormals;
 		this.verticesColors = verticesColors;
 		this.usesGeneratedTextures = usesGeneratedTextures;
