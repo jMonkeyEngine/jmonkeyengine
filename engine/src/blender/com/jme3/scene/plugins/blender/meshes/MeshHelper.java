@@ -195,7 +195,7 @@ public class MeshHelper extends AbstractBlenderHelper {
             // creating the result
             Geometry geometry = new Geometry(name + (geometries.size() + 1), mesh);
             if (properties != null && properties.getValue() != null) {
-                geometry.setUserData("properties", properties);
+            	this.applyProperties(geometry, properties);
             }
             geometries.add(geometry);
             meshContext.putGeometry(materialIndex, geometry);

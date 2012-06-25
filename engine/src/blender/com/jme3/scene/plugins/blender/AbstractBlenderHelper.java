@@ -31,8 +31,13 @@
  */
 package com.jme3.scene.plugins.blender;
 
+import java.util.Arrays;
+import java.util.List;
+
+import com.jme3.export.Savable;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -113,6 +118,38 @@ public abstract class AbstractBlenderHelper {
 			}
 		}
 		return properties;
+	}
+	
+	/**
+	 * The method applies properties to the given spatial. The Properties
+	 * instance cannot be directly applied because the end-user might not have
+	 * the blender plugin jar file and thus receive ClassNotFoundException. The
+	 * values are set by name instead.
+	 * 
+	 * @param spatial
+	 *            the spatial that is to have properties applied
+	 * @param properties
+	 *            the properties to be applied
+	 */
+	protected void applyProperties(Spatial spatial, Properties properties) {
+		List<String> propertyNames = properties.getSubPropertiesNames();
+		if(propertyNames != null && propertyNames.size() > 0) {
+			for(String propertyName : propertyNames) {
+				Object value = properties.findValue(propertyName);
+				if(value instanceof Savable || value instanceof Boolean || value instanceof String ||
+				   value instanceof Float || value instanceof Integer || value instanceof Long) {
+					spatial.setUserData(propertyName, value);
+				} else if(value instanceof Double) {
+					spatial.setUserData(propertyName, ((Double) value).floatValue());
+				} else if(value instanceof int[]) {
+					spatial.setUserData(propertyName, Arrays.toString((int[])value));
+				} else if(value instanceof float[]) {
+					spatial.setUserData(propertyName, Arrays.toString((float[])value));
+				} else if(value instanceof double[]) {
+					spatial.setUserData(propertyName, Arrays.toString((double[])value));
+				}
+			}
+		}
 	}
 	
 	/**
