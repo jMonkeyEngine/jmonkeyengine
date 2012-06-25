@@ -137,7 +137,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 				if (pImage.isNotNull()) {
 					Structure image = pImage.fetchData(blenderContext.getInputStream()).get(0);
 					result = this.getTextureFromImage(image, blenderContext);
-					this.applyColorbandAndColorFactors(tex, result.getImage(), blenderContext);
+					if(result != null) {
+						this.applyColorbandAndColorFactors(tex, result.getImage(), blenderContext);
+					}
 				}
 				break;
 			case TEX_CLOUDS:
@@ -188,9 +190,8 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *            the normal strength factor
 	 * @return normal-map texture
 	 */
-	public Texture convertToNormalMapTexture(Texture source, float strengthFactor) {
-		Image image = source.getImage();
-		BufferedImage sourceImage = ImageToAwt.convert(image, false, false, 0);
+	public Image convertToNormalMapTexture(Image source, float strengthFactor) {
+		BufferedImage sourceImage = ImageToAwt.convert(source, false, false, 0);
 		BufferedImage heightMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		BufferedImage bumpMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		ColorConvertOp gscale = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
@@ -220,9 +221,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 				bumpMap.setRGB(x, y, this.vectorToColor(N.x, N.y, N.z));
 			}
 		}
-		ByteBuffer byteBuffer = BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 3);
+		ByteBuffer byteBuffer = BufferUtils.createByteBuffer(source.getWidth() * source.getHeight() * 3);
 		ImageToAwt.convert(bumpMap, Format.RGB8, byteBuffer);
-		return new Texture2D(new Image(Format.RGB8, image.getWidth(), image.getHeight(), byteBuffer));
+		return new Image(Format.RGB8, source.getWidth(), source.getHeight(), byteBuffer);
 	}
 
 	/**
