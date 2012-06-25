@@ -11,8 +11,11 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
+
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -110,7 +113,7 @@ import java.util.logging.Logger;
                         FloatBuffer cloneBindPosePosition = clone.getFloatBuffer(Type.BindPosePosition);
                         FloatBuffer cloneNormals = clone.getFloatBuffer(Type.Normal);
                         FloatBuffer cloneBindPoseNormals = clone.getFloatBuffer(Type.BindPoseNormal);
-                        IntBuffer cloneIndexes = (IntBuffer) clone.getBuffer(Type.Index).getData();
+                        Buffer cloneIndexes = clone.getBuffer(Type.Index).getData();
 
                         // modyfying data
                         for (int i = mirrorIndex; i < clonePosition.limit(); i += 3) {
@@ -119,32 +122,46 @@ import java.util.logging.Logger;
 
                             if (Math.abs(d) <= tolerance) {
                                 clonePosition.put(i, center[mirrorIndex]);
-                                cloneBindPosePosition.put(i, center[mirrorIndex]);
+                                if(cloneBindPosePosition != null) {
+                                	cloneBindPosePosition.put(i, center[mirrorIndex]);
+                                }
                                 position.put(i, center[mirrorIndex]);
-                                bindPosePosition.put(i, center[mirrorIndex]);
+                                if(bindPosePosition != null) {
+                                	bindPosePosition.put(i, center[mirrorIndex]);
+                                }
                             } else {
                                 clonePosition.put(i, value + 2.0f * d);
-                                cloneBindPosePosition.put(i, value + 2.0f * d);
+                                if(cloneBindPosePosition != null) {
+                                	cloneBindPosePosition.put(i, value + 2.0f * d);
+                                }
                             }
                             cloneNormals.put(i, -cloneNormals.get(i));
-                            cloneBindPoseNormals.put(i, -cloneNormals.get(i));
-
+                            if(cloneBindPoseNormals != null) {
+                            	cloneBindPoseNormals.put(i, -cloneNormals.get(i));
+                            }
+                            
                             //modifying clone indexes
                             int vertexIndex = (i - mirrorIndex) / 3;
                             if (vertexIndex % 3 == 0 && vertexIndex<cloneIndexes.limit()) {
-                                int index = cloneIndexes.get(vertexIndex + 2);
-                                cloneIndexes.put(vertexIndex + 2, cloneIndexes.get(vertexIndex + 1));
-                                cloneIndexes.put(vertexIndex + 1, index);
+                            	if(cloneIndexes instanceof ShortBuffer) {
+                            		short index = ((ShortBuffer)cloneIndexes).get(vertexIndex + 2);
+                            		((ShortBuffer)cloneIndexes).put(vertexIndex + 2, ((ShortBuffer)cloneIndexes).get(vertexIndex + 1));
+                            		((ShortBuffer)cloneIndexes).put(vertexIndex + 1, index);
+                            	} else {
+                            		int index = ((IntBuffer)cloneIndexes).get(vertexIndex + 2);
+                            		((IntBuffer)cloneIndexes).put(vertexIndex + 2, ((IntBuffer)cloneIndexes).get(vertexIndex + 1));
+                            		((IntBuffer)cloneIndexes).put(vertexIndex + 1, index);
+                            	}
                             }
                         }
 
-                        if (mirrorU) {
+                        if (mirrorU && clone.getBuffer(Type.TexCoord) != null) {
                             FloatBuffer cloneUVs = (FloatBuffer) clone.getBuffer(Type.TexCoord).getData();
                             for (int i = 0; i < cloneUVs.limit(); i += 2) {
                                 cloneUVs.put(i, 1.0f - cloneUVs.get(i));
                             }
                         }
-                        if (mirrorV) {
+                        if (mirrorV && clone.getBuffer(Type.TexCoord) != null) {
                             FloatBuffer cloneUVs = (FloatBuffer) clone.getBuffer(Type.TexCoord).getData();
                             for (int i = 1; i < cloneUVs.limit(); i += 2) {
                                 cloneUVs.put(i, 1.0f - cloneUVs.get(i));
