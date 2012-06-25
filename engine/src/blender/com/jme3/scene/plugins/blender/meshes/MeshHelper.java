@@ -106,10 +106,10 @@ public class MeshHelper extends AbstractBlenderHelper {
         }
         
         // reading vertices and their colors
-        Vector3f[] vertices = this.getVertices(structure, blenderContext);
+        Vector3f[][] verticesAndNormals = this.getVerticesAndNormals(structure, blenderContext);
         List<byte[]> verticesColors = this.getVerticesColors(structure, blenderContext);
         
-        MeshBuilder meshBuilder = new MeshBuilder(vertices, verticesColors, this.areGeneratedTexturesPresent(materials));
+        MeshBuilder meshBuilder = new MeshBuilder(verticesAndNormals, verticesColors, this.areGeneratedTexturesPresent(materials));
 
         Pointer pMFace = (Pointer) structure.getFieldValue("mface");
         if(pMFace.isNotNull()) {
@@ -415,32 +415,38 @@ public class MeshHelper extends AbstractBlenderHelper {
      *            the structure containing the mesh data
      * @param blenderContext
      *            the blender context
-     * @return a list of vertices colors, each color belongs to a single vertex
+     * @return a list of two - element arrays, the first element is the vertex and the second - its normal
      * @throws BlenderFileException
      *             this exception is thrown when the blend file structure is somehow invalid or corrupted
      */
     @SuppressWarnings("unchecked")
-    private Vector3f[] getVertices(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
-        int verticesAmount = ((Number) meshStructure.getFieldValue("totvert")).intValue();
-        Vector3f[] vertices = new Vector3f[verticesAmount];
-        if (verticesAmount == 0) {
-            return vertices;
+    private Vector3f[][] getVerticesAndNormals(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+        int count = ((Number) meshStructure.getFieldValue("totvert")).intValue();
+        Vector3f[][] result = new Vector3f[count][2];
+        if (count == 0) {
+            return result;
         }
 
         Pointer pMVert = (Pointer) meshStructure.getFieldValue("mvert");
         List<Structure> mVerts = pMVert.fetchData(blenderContext.getInputStream());
         if(this.fixUpAxis) {
-        	for (int i = 0; i < verticesAmount; ++i) {
+        	for (int i = 0; i < count; ++i) {
                 DynamicArray<Number> coordinates = (DynamicArray<Number>) mVerts.get(i).getFieldValue("co");
-                vertices[i] = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(2).floatValue(), -coordinates.get(1).floatValue());
+                result[i][0] = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(2).floatValue(), -coordinates.get(1).floatValue());
+                
+                DynamicArray<Number> normals = (DynamicArray<Number>) mVerts.get(i).getFieldValue("no");
+                result[i][1] = new Vector3f(normals.get(0).shortValue()/32767.0f, normals.get(2).shortValue()/32767.0f, -normals.get(1).shortValue()/32767.0f);
             }
         } else {
-        	for (int i = 0; i < verticesAmount; ++i) {
+        	for (int i = 0; i < count; ++i) {
                 DynamicArray<Number> coordinates = (DynamicArray<Number>) mVerts.get(i).getFieldValue("co");
-                vertices[i] = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(1).floatValue(), coordinates.get(2).floatValue());
+                result[i][0] = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(1).floatValue(), coordinates.get(2).floatValue());
+                
+                DynamicArray<Number> normals = (DynamicArray<Number>) mVerts.get(i).getFieldValue("no");
+                result[i][1] = new Vector3f(normals.get(0).shortValue()/32767.0f, normals.get(1).shortValue()/32767.0f, normals.get(2).shortValue()/32767.0f);
             }
         }
-        return vertices;
+        return result;
     }
 
     @Override

@@ -13,7 +13,7 @@ import com.jme3.util.BufferUtils;
 
 /*package*/ class MeshBuilder {
 	/** An array of reference vertices. */
-	private Vector3f[] vertices;
+	private Vector3f[][] verticesAndNormals;
 	/** An list of vertices colors. */
 	private List<byte[]> verticesColors;
 	/** A variable that indicates if the model uses generated textures. */
@@ -22,8 +22,6 @@ import com.jme3.util.BufferUtils;
 	/** This map's key is the vertex index from 'vertices 'table and the value are indices from 'vertexList'
     positions (it simply tells which vertex is referenced where in the result list). */
     private Map<Integer, Map<Integer, List<Integer>>> globalVertexReferenceMap;
-    /** A map between vertex and its normal vector. */
-    private Map<Vector3f, Vector3f> globalNormalMap = new HashMap<Vector3f, Vector3f>();
     
     /** A map between vertex index and its UV coordinates. */
     private Map<Integer, Vector2f> uvsMap = new HashMap<Integer, Vector2f>();
@@ -42,17 +40,17 @@ import com.jme3.util.BufferUtils;
      * Constructor. Stores the given array (not copying it).
      * The second argument describes if the model uses generated textures. If yes then no vertex amount optimisation is applied.
      * The amount of vertices is always faceCount * 3.
-     * @param vertices the reference vertices array
+     * @param verticesAndNormals the reference vertices and normals array
      * @param usesGeneratedTextures a variable that indicates if the model uses generated textures or not
      */
-	public MeshBuilder(Vector3f[] vertices, List<byte[]> verticesColors, boolean usesGeneratedTextures) {
-		if(vertices == null || vertices.length == 0) {
+	public MeshBuilder(Vector3f[][] verticesAndNormals, List<byte[]> verticesColors, boolean usesGeneratedTextures) {
+		if(verticesAndNormals == null || verticesAndNormals.length == 0) {
 			throw new IllegalArgumentException("No vertices loaded to build mesh.");
 		}
-		this.vertices = vertices;
+		this.verticesAndNormals = verticesAndNormals;
 		this.verticesColors = verticesColors;
 		this.usesGeneratedTextures = usesGeneratedTextures;
-		globalVertexReferenceMap = new HashMap<Integer, Map<Integer, List<Integer>>>(vertices.length);
+		globalVertexReferenceMap = new HashMap<Integer, Map<Integer, List<Integer>>>(verticesAndNormals.length);
 	}
 	
 	/**
@@ -115,17 +113,15 @@ import com.jme3.util.BufferUtils;
         
         //creating faces
         Integer[] index = new Integer[] {v1, v2, v3};
-		Vector3f n = FastMath.computeNormal(vertices[v1], vertices[v2], vertices[v3]);
-        this.addNormal(n, globalNormalMap, smooth, vertices[v1], vertices[v2], vertices[v3]);
         if(smooth && !usesGeneratedTextures) {
 			for (int i = 0; i < 3; ++i) {
         		if(!vertexReferenceMap.containsKey(index[i])) {
             		this.appendVertexReference(index[i], vertexList.size(), vertexReferenceMap);
-            		vertexList.add(vertices[index[i]]);
+            		vertexList.add(verticesAndNormals[index[i]][0]);
             		if(verticesColors != null) {
             			vertexColorsList.add(verticesColors.get(faceIndex + vertexColorIndex[i]));
             		}
-            		normalList.add(globalNormalMap.get(vertices[index[i]]));
+            		normalList.add(verticesAndNormals[index[i]][1]);
             		if(uvCoordinatesList != null) {
             			uvsMap.put(vertexList.size(), uvs[i]);
             			uvCoordinatesList.add(uvs[i]);
@@ -143,20 +139,21 @@ import com.jme3.util.BufferUtils;
             		if(!vertexAlreadyUsed) {
             			this.appendVertexReference(index[i], vertexList.size(), vertexReferenceMap);
             			uvsMap.put(vertexList.size(), uvs[i]);
-            			vertexList.add(vertices[index[i]]);
+            			vertexList.add(verticesAndNormals[index[i]][0]);
             			if(verticesColors != null) {
             				vertexColorsList.add(verticesColors.get(faceIndex + vertexColorIndex[i]));
             			}
-                		normalList.add(globalNormalMap.get(vertices[index[i]]));
+            			normalList.add(verticesAndNormals[index[i]][1]);
             			uvCoordinatesList.add(uvs[i]);
             			index[i] = vertexList.size() - 1;
             		}
             	} else {
-            		index[i] = vertexList.indexOf(vertices[index[i]]);
+            		index[i] = vertexList.indexOf(verticesAndNormals[index[i]]);
             	}
         		indexList.add(index[i]);
         	}
         } else {
+        	Vector3f n = FastMath.computeNormal(verticesAndNormals[v1][0], verticesAndNormals[v2][0], verticesAndNormals[v3][0]);
         	for (int i = 0; i < 3; ++i) {
         		indexList.add(vertexList.size());
         		this.appendVertexReference(index[i], vertexList.size(), vertexReferenceMap);
@@ -164,11 +161,11 @@ import com.jme3.util.BufferUtils;
         			uvCoordinatesList.add(uvs[i]);
         			uvsMap.put(vertexList.size(), uvs[i]);
         		}
-        		vertexList.add(vertices[index[i]]);
+        		vertexList.add(verticesAndNormals[index[i]][0]);
         		if(verticesColors != null) {
         			vertexColorsList.add(verticesColors.get(faceIndex + vertexColorIndex[i]));
         		}
-        		normalList.add(globalNormalMap.get(vertices[index[i]]));
+        		normalList.add(n);
         	}
         }
 	}
@@ -266,29 +263,6 @@ import com.jme3.util.BufferUtils;
 		return vertexMap.size() == 0;
 	}
 	
-	/**
-     * This method adds a normal to a normals' map. This map is used to merge normals of a vertor that should be rendered smooth.
-     * 
-     * @param normalToAdd
-     *            a normal to be added
-     * @param normalMap
-     *            merges normals of faces that will be rendered smooth; the key is the vertex and the value - its normal vector
-     * @param smooth
-     *            the variable that indicates wheather to merge normals (creating the smooth mesh) or not
-     * @param vertices
-     *            a list of vertices read from the blender file
-     */
-    private void addNormal(Vector3f normalToAdd, Map<Vector3f, Vector3f> normalMap, boolean smooth, Vector3f... vertices) {
-        for (Vector3f v : vertices) {
-            Vector3f n = normalMap.get(v);
-            if (!smooth || n == null) {
-                normalMap.put(v, normalToAdd.clone());
-            } else {
-                n.addLocal(normalToAdd).normalizeLocal();
-            }
-        }
-    }
-    
     /**
      * This method fills the vertex reference map. The vertices are loaded once and referenced many times in the model. This map is created
      * to tell where the basic vertices are referenced in the result vertex lists. The key of the map is the basic vertex index, and its key
