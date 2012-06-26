@@ -150,7 +150,7 @@ import com.jme3.util.BufferUtils;
         		indexList.add(index[i]);
         	}
         } else {
-        	Vector3f n = FastMath.computeNormal(verticesAndNormals[v1][0], verticesAndNormals[v2][0], verticesAndNormals[v3][0]);
+        	Vector3f n = smooth ? null : FastMath.computeNormal(verticesAndNormals[v1][0], verticesAndNormals[v2][0], verticesAndNormals[v3][0]);
         	for (int i = 0; i < 3; ++i) {
         		indexList.add(vertexList.size());
         		this.appendVertexReference(index[i], vertexList.size(), vertexReferenceMap);
@@ -162,7 +162,7 @@ import com.jme3.util.BufferUtils;
         		if(verticesColors != null) {
         			vertexColorsList.add(verticesColors.get(faceIndex + vertexColorIndex[i]));
         		}
-        		normalList.add(n);
+        		normalList.add(smooth ? verticesAndNormals[index[i]][1] : n);
         	}
         }
 	}
