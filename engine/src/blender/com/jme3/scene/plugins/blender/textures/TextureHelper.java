@@ -31,6 +31,20 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
+import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorConvertOp;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import jme3tools.converters.ImageToAwt;
+import jme3tools.converters.RGB565;
+
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.BlenderKey;
@@ -55,16 +69,6 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.util.BufferUtils;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import jme3tools.converters.ImageToAwt;
-import jme3tools.converters.RGB565;
 
 /**
  * A class that is used in texture calculations.
@@ -192,6 +196,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 */
 	public Image convertToNormalMapTexture(Image source, float strengthFactor) {
 		BufferedImage sourceImage = ImageToAwt.convert(source, false, false, 0);
+		
+		// flip the image because the result image is upside-down without this operation
+		AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+		tx.translate(0, -sourceImage.getHeight(null));
+		AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+		sourceImage = op.filter(sourceImage, null);
+		
 		BufferedImage heightMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		BufferedImage bumpMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		ColorConvertOp gscale = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
