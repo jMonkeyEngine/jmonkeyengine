@@ -1145,7 +1145,6 @@ public final class BufferUtils {
         }
     }
     
-    private static final AtomicBoolean loadedMethods = new AtomicBoolean(false);
     private static Method cleanerMethod = null;
     private static Method cleanMethod = null;
     private static Method viewedBufferMethod = null;
@@ -1165,31 +1164,23 @@ public final class BufferUtils {
         }
     }
     
-    private static void loadCleanerMethods() {
-        // If its already true, exit, if not, set it to true.
-        if (loadedMethods.getAndSet(true)) {
-            return;
+    static {
+        // Oracle JRE / OpenJDK
+        cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
+        cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
+        viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
+        if (viewedBufferMethod == null){
+            // They changed the name in Java 7 (???)
+            viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
         }
-        // This could potentially be called many times if used from multiple
-        // threads
-        synchronized (loadedMethods) {
-            // Oracle JRE / OpenJDK
-            cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
-            cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
-            viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
-            if (viewedBufferMethod == null){
-                // They changed the name in Java 7 (???)
-                viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
-            }
             
-            // Apache Harmony
-            ByteBuffer bb = BufferUtils.createByteBuffer(1);
-            Class<?> clazz = bb.getClass();
-            try {
-                freeMethod = clazz.getMethod("free");
-            } catch (NoSuchMethodException ex) {
-            } catch (SecurityException ex) {
-            }
+        // Apache Harmony
+        ByteBuffer bb = BufferUtils.createByteBuffer(1);
+        Class<?> clazz = bb.getClass();
+        try {
+            freeMethod = clazz.getMethod("free");
+        } catch (NoSuchMethodException ex) {
+        } catch (SecurityException ex) {
         }
     }
     
@@ -1209,8 +1200,6 @@ public final class BufferUtils {
         if (!toBeDestroyed.isDirect()) {
             return;
         }
-        
-        loadCleanerMethods();
         
         try {
             if (freeMethod != null) {
