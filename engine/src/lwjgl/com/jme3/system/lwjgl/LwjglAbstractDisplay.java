@@ -90,8 +90,8 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
     /**
      * Does LWJGL display initialization in the OpenGL thread
      */
-    protected void initInThread(){
-        try{
+    protected boolean initInThread(){
+        try {
             if (!JmeSystem.isLowPermissions()){
                 // Enable uncaught exception handler only for current thread
                 Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -114,6 +114,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             printContextInitInfo();
 
             created.set(true);
+            super.internalCreate();
         } catch (Exception ex){
             try {
                 if (Display.isCreated())
@@ -123,10 +124,11 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             }
 
             listener.handleError("Failed to create display", ex);
-            return; // if we failed to create display, do not continue
+            return false; // if we failed to create display, do not continue
         }
-        super.internalCreate();
+        
         listener.initialize();
+        return true;
     }
 
     protected boolean checkGLError(){
@@ -202,7 +204,10 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
                                           + "Must set with JmeContext.setSystemListner().");
 
         logger.log(Level.INFO, "Using LWJGL {0}", Sys.getVersion());
-        initInThread();
+        if (!initInThread()) {
+            logger.log(Level.SEVERE, "Display initialization failed. Cannot continue.");
+            return;
+        }
         while (true){
             if (renderable.get()){
                 if (Display.isCloseRequested())
