@@ -61,6 +61,13 @@ public final class PoseTrack implements Track {
         }
         
         /**
+         * Serialization-only. Do not use.
+         */
+        public PoseFrame()
+        {
+        }
+        
+        /**
          * This method creates a clone of the current object.
          * @return a clone of the current object
          */
@@ -89,8 +96,13 @@ public final class PoseTrack implements Track {
 
         public void read(JmeImporter i) throws IOException {
             InputCapsule in = i.getCapsule(this);
-            poses = (Pose[]) in.readSavableArray("poses", null);
             weights = in.readFloatArray("weights", null);
+            
+            Savable[] readSavableArray = in.readSavableArray("poses", null);
+            if (readSavableArray != null) {
+                poses = new Pose[readSavableArray.length];
+                System.arraycopy(readSavableArray, 0, poses, 0, readSavableArray.length);
+            }
         }
     }
 
@@ -98,6 +110,13 @@ public final class PoseTrack implements Track {
         this.targetMeshIndex = targetMeshIndex;
         this.times = times;
         this.frames = frames;
+    }
+    
+    /**
+     * Serialization-only. Do not use.
+     */
+    public PoseTrack()
+    {
     }
     
     private void applyFrame(Mesh target, int frameIndex, float weight){
@@ -180,7 +199,12 @@ public final class PoseTrack implements Track {
     public void read(JmeImporter i) throws IOException {
         InputCapsule in = i.getCapsule(this);
         targetMeshIndex = in.readInt("meshIndex", 0);
-        frames = (PoseFrame[]) in.readSavableArray("frames", null);
         times = in.readFloatArray("times", null);
+        
+        Savable[] readSavableArray = in.readSavableArray("frames", null);
+        if (readSavableArray != null) {
+            frames = new PoseFrame[readSavableArray.length];
+            System.arraycopy(readSavableArray, 0, frames, 0, readSavableArray.length);
+        }
     }
 }

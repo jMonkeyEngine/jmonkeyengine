@@ -59,6 +59,13 @@ public final class Pose implements Savable, Cloneable {
         this.indices = indices;
     }
 
+    /**
+     * Serialization-only. Do not use.
+     */
+    public Pose()
+    {
+    }
+    
     public int getTargetMeshIndex(){
         return targetMeshIndex;
     }
@@ -92,21 +99,22 @@ public final class Pose implements Savable, Cloneable {
      * This method creates a clone of the current object.
      * @return a clone of the current object
      */
+    @Override
     public Pose clone() {
-		try {
-			Pose result = (Pose) super.clone();
+        try {
+            Pose result = (Pose) super.clone();
             result.indices = this.indices.clone();
-            if(this.offsets!=null) {
-            	result.offsets = new Vector3f[this.offsets.length];
-            	for(int i=0;i<this.offsets.length;++i) {
-            		result.offsets[i] = this.offsets[i].clone();
-            	}
+            if (this.offsets != null) {
+                result.offsets = new Vector3f[this.offsets.length];
+                for (int i = 0; i < this.offsets.length; ++i) {
+                    result.offsets[i] = this.offsets[i].clone();
+                }
             }
-    		return result;
+            return result;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }
-	}
+    }
 
     public void write(JmeExporter e) throws IOException {
         OutputCapsule out = e.getCapsule(this);
@@ -120,7 +128,12 @@ public final class Pose implements Savable, Cloneable {
         InputCapsule in = i.getCapsule(this);
         name = in.readString("name", "");
         targetMeshIndex = in.readInt("meshIndex", -1);
-        offsets = (Vector3f[]) in.readSavableArray("offsets", null);
         indices = in.readIntArray("indices", null);
+
+        Savable[] readSavableArray = in.readSavableArray("offsets", null);
+        if (readSavableArray != null) {
+            offsets = new Vector3f[readSavableArray.length];
+            System.arraycopy(readSavableArray, 0, offsets, 0, readSavableArray.length);
+        }
     }
 }
