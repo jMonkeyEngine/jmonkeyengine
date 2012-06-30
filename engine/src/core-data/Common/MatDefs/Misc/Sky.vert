@@ -21,5 +21,5 @@ void main(){
     gl_Position = g_ProjectionMatrix * pos;
 
     vec4 normal = vec4(inNormal * m_NormalScale, 0.0);
-    direction = normalize( (g_WorldMatrix * normal).xyz );
+    direction = (g_WorldMatrix * normal).xyz;
 }
