@@ -1,6 +1,6 @@
 #ifdef TEXTURE
-uniform sampler2D m_Texture;
-varying vec2 texCoord;
+    uniform sampler2D m_Texture;
+    varying vec2 texCoord;
 #endif
 
 varying vec4 color;
