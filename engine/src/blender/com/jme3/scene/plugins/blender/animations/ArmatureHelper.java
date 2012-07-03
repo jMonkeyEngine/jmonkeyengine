@@ -130,9 +130,9 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 			int groupIndex = 0;
 			for (Structure deformGroup : deformGroups) {
 				String deformGroupName = deformGroup.getFieldValue("name").toString();
-				Integer boneIndex = this.getBoneIndex(skeleton, deformGroupName);
-				if (boneIndex != null) {
-					result.put(Integer.valueOf(groupIndex), boneIndex);
+				int boneIndex = this.getBoneIndex(skeleton, deformGroupName);
+				if (boneIndex >= 0) {
+					result.put(groupIndex, boneIndex);
 				}
 				++groupIndex;
 			}
