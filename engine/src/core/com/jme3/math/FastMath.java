@@ -784,7 +784,7 @@ final public class FastMath {
     }
 
     /**
-     * Returns a random float between min and max.
+     * Returns a random integer between min and max.
      * 
      * @return A random int between <tt>min</tt> (inclusive) to
      *         <tt>max</tt> (inclusive).
