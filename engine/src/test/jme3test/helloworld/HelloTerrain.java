@@ -38,6 +38,7 @@ import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
+import com.jme3.terrain.heightmap.HillHeightMap; // second example
 import com.jme3.terrain.heightmap.ImageBasedHeightMap;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
@@ -85,11 +86,21 @@ public class HelloTerrain extends SimpleApplication {
     mat_terrain.setTexture("Tex3", rock);
     mat_terrain.setFloat("Tex3Scale", 128f);
 
-    /** 2. Create the height map */
+    /** 2.a Create a custom height map from an image */
     AbstractHeightMap heightmap = null;
     Texture heightMapImage = assetManager.loadTexture(
             "Textures/Terrain/splat/mountains512.png");
     heightmap = new ImageBasedHeightMap(heightMapImage.getImage());
+    
+/** 2.b Create a random height map */    
+//      HillHeightMap heightmap = null;
+//      HillHeightMap.NORMALIZE_RANGE = 100;
+//      try {
+//          heightmap = new HillHeightMap(513, 1000, 50, 100, (byte) 3);
+//      } catch (Exception ex) {
+//          ex.printStackTrace();
+//      }
+
     heightmap.load();
 
     /** 3. We have prepared material and heightmap. 
