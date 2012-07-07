@@ -36,6 +36,7 @@ import com.jme3.cinematic.events.MotionTrack;
 import com.jme3.export.*;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Spline;
 import com.jme3.math.Spline.SplineType;
 import com.jme3.math.Vector2f;
@@ -59,22 +60,22 @@ public class MotionPath implements Savable {
     private Node debugNode;
     private AssetManager assetManager;
     private List<MotionPathListener> listeners;
-    private Spline spline = new Spline();    
-    int prevWayPoint = 0;    
+    private Spline spline = new Spline();
+    int prevWayPoint = 0;
 
     /**
      * Create a motion Path
      */
     public MotionPath() {
     }
-    
+
     /**
      * interpolate the path giving the time since the beginnin and the motionControl     
      * this methods sets the new localTranslation to the spatial of the motionTrack control.
      * @param time the time since the animation started
      * @param control the ocntrol over the moving spatial
      */
-    public float interpolatePath(float time, MotionTrack control) {
+    public float interpolatePath(float time, MotionTrack control, float tpf) {
 
         float traveledDistance = 0;
         TempVars vars = TempVars.get();
@@ -96,16 +97,18 @@ public class MotionPath implements Savable {
             tmpVector.set(temp);
             control.setDirection(tmpVector.subtractLocal(control.getSpatial().getLocalTranslation()).normalizeLocal());
         }
-        checkWayPoint(control);
-        
+        checkWayPoint(control, tpf);
+
         control.getSpatial().setLocalTranslation(temp);
         vars.release();
         return traveledDistance;
     }
 
-    public void checkWayPoint(MotionTrack control) {
+    public void checkWayPoint(MotionTrack control, float tpf) {
+        //Epsilon varies with the tpf to avoid missing a waypoint on low framerate.
+        float epsilon =  tpf * 4f;
         if (control.getCurrentWayPoint() != prevWayPoint) {
-             if (control.getCurrentValue() >= 0f && control.getCurrentValue() < 0.01) {       
+            if (control.getCurrentValue() >= 0f && control.getCurrentValue() < epsilon) {
                 triggerWayPointReach(control.getCurrentWayPoint(), control);
                 prevWayPoint = control.getCurrentWayPoint();
             }

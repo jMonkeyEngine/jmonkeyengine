@@ -169,7 +169,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     public void internalUpdate(float tpf) {
         if (playState == PlayState.Playing) {
             time = time + (tpf * speed);
-            if( loopMode == loopMode.Loop && time<0){
+            if (loopMode == loopMode.Loop && time < 0) {
                 time = initialDuration;
             }
             if ((time >= initialDuration || time < 0) && loopMode == loopMode.DontLoop) {
@@ -196,7 +196,7 @@ public class MotionTrack extends AbstractCinematicEvent implements Control {
     }
 
     public void onUpdate(float tpf) {
-        traveledDistance = path.interpolatePath(time, this);
+        traveledDistance = path.interpolatePath(time, this, tpf);
         computeTargetDirection();
     }
 
