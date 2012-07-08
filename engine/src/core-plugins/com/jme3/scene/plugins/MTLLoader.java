@@ -70,7 +70,6 @@ public class MTLLoader implements AssetLoader {
     protected String matName;
     protected float alpha = 1;
     protected boolean transparent = false;
-    protected boolean disallowTransparency = false;
     protected boolean disallowAmbient = false;
     protected boolean disallowSpecular = false;
     
@@ -110,7 +109,6 @@ public class MTLLoader implements AssetLoader {
         diffuse.set(ColorRGBA.LightGray);
         specular.set(ColorRGBA.Black);
         shininess = 16;
-        disallowTransparency = false;
         disallowAmbient = false;
         disallowSpecular = false;
         shadeless = false;
@@ -126,7 +124,7 @@ public class MTLLoader implements AssetLoader {
     protected void createMaterial(){
         Material material;
         
-        if (alpha < 1f && transparent && !disallowTransparency){
+        if (alpha < 1f && transparent){
             diffuse.a = alpha;
         }
         
@@ -149,7 +147,7 @@ public class MTLLoader implements AssetLoader {
             if (alphaMap != null)    material.setTexture("AlphaMap", alphaMap);
         }
         
-        if (transparent && !disallowTransparency){
+        if (transparent){
             material.setTransparent(true);
             material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
             material.getAdditionalRenderState().setAlphaTest(true);
@@ -255,17 +253,14 @@ public class MTLLoader implements AssetLoader {
                 case 0:
                     // no lighting
                     shadeless = true;
-                    disallowTransparency = true;
                     break;
                 case 1:
                     disallowSpecular = true;
-                    disallowTransparency = true;
                     break;
                 case 2:
                 case 3:
                 case 5:
                 case 8:
-                    disallowTransparency = true;
                     break;
                 case 4:
                 case 6:

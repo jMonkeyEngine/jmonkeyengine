@@ -38,8 +38,8 @@ import com.jme3.material.MaterialList;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
-import com.jme3.scene.*;
 import com.jme3.scene.Mesh.Mode;
+import com.jme3.scene.*;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.mesh.IndexIntBuffer;
@@ -52,8 +52,8 @@ import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.*;
 import java.util.Map.Entry;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -268,8 +268,10 @@ public final class OBJLoader implements AssetLoader {
             vertList.add(vx);
         }
 
-        if (vertList.size() > 4 || vertList.size() <= 2)
+        if (vertList.size() > 4 || vertList.size() <= 2) {
             logger.warning("Edge or polygon detected in OBJ. Ignored.");
+            return;
+        }
 
         f.verticies = new Vertex[vertList.size()];
         for (int i = 0; i < vertList.size(); i++){
