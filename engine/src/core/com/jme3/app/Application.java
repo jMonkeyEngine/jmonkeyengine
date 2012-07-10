@@ -43,8 +43,8 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.system.*;
 import com.jme3.system.JmeContext.Type;
+import com.jme3.system.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
@@ -518,8 +518,16 @@ public class Application implements SystemListener {
      * Internal use only.
      */
     public void handleError(String errMsg, Throwable t){
+        // Print error to log.
         logger.log(Level.SEVERE, errMsg, t);
-        // user should add additional code to handle the error.
+        // Display error message on screen
+        if (t != null) {
+            JmeSystem.showErrorDialog(errMsg + "\n" + t.getClass().getSimpleName() + 
+                    (t.getMessage() != null ? ": " +  t.getMessage() : ""));
+        } else {
+            JmeSystem.showErrorDialog(errMsg);
+        }
+        
         stop(); // stop the application
     }
 

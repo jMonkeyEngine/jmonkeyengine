@@ -38,11 +38,13 @@ import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.system.JmeContext.Type;
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 /**
@@ -61,6 +63,17 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return new DesktopAssetManager(null);
     }
 
+    @Override
+    public void showErrorDialog(String message) {
+        final String msg = message;
+        final String title = "Error in jMonkeyEngine app";
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                JOptionPane.showMessageDialog(null, msg, title, JOptionPane.ERROR_MESSAGE);
+            }
+        });
+    }
+    
     @Override
     public boolean showSettingsDialog(AppSettings sourceSettings, final boolean loadFromRegistry) {
         if (SwingUtilities.isEventDispatchThread()) {

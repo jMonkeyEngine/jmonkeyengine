@@ -123,6 +123,19 @@ public class JmeSystem {
         return systemDelegate.newAudioRenderer(settings);
     }
 
+    /**
+     * Displays an error message to the user in whichever way the context
+     * feels is appropriate. If this is a headless or an offscreen surface
+     * context, this method should do nothing. 
+     * 
+     * @param message The error message to display. May contain new line
+     * characters.
+     */
+    public static void showErrorDialog(String message){
+        checkDelegate();
+        systemDelegate.showErrorDialog(message);
+    }
+    
     public static void initialize(AppSettings settings) {
         checkDelegate();
         systemDelegate.initialize(settings);

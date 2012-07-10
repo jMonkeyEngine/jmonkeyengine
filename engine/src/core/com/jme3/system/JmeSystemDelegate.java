@@ -100,6 +100,8 @@ public abstract class JmeSystemDelegate {
 
     public abstract AssetManager newAssetManager();
 
+    public abstract void showErrorDialog(String message);
+    
     public abstract boolean showSettingsDialog(AppSettings sourceSettings, boolean loadFromRegistry);
 
     private boolean is64Bit(String arch) {
