@@ -147,7 +147,7 @@ public class TestMultiPostWater extends SimpleApplication {
         matRock.setBoolean("useTriPlanarMapping", false);
         matRock.setBoolean("WardIso", true);
         matRock.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alphamap.png"));
-        Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/test.png");
+        Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/pools.png");
         Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         matRock.setTexture("DiffuseMap", grass);
