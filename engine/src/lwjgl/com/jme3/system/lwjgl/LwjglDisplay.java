@@ -68,20 +68,21 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
     }
 
     protected void createContext(AppSettings settings) throws LWJGLException{
-        DisplayMode displayMode = null;
+        DisplayMode displayMode;
         if (settings.getWidth() <= 0 || settings.getHeight() <= 0){
             displayMode = Display.getDesktopDisplayMode();
             settings.setResolution(displayMode.getWidth(), displayMode.getHeight());
         }else if (settings.isFullscreen()){
             displayMode = getFullscreenDisplayMode(settings.getWidth(), settings.getHeight(),
                                                    settings.getBitsPerPixel(), settings.getFrequency());
-            if (displayMode == null)
+            if (displayMode == null) {
                 throw new RuntimeException("Unable to find fullscreen display mode matching settings");
+            }
         }else{
             displayMode = new DisplayMode(settings.getWidth(), settings.getHeight());
         }
 
-	   int samples = 0;
+        int samples = 0;
         if (settings.getSamples() > 1){
             samples = settings.getSamples();
         }
@@ -106,14 +107,15 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         pixelFormat = pf;
         
         Display.setTitle(settings.getTitle());
-        if (displayMode != null){
-            if (settings.isFullscreen()){
+        
+        if (displayMode != null) {
+            if (settings.isFullscreen()) {
                 Display.setDisplayModeAndFullscreen(displayMode);
-            }else{
+            } else {
                 Display.setFullscreen(false);
                 Display.setDisplayMode(displayMode);
             }
-        }else{
+        } else {
             Display.setFullscreen(settings.isFullscreen());
         }
 
@@ -123,7 +125,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
         
         Display.setVSyncEnabled(settings.isVSync());
         
-        if (created.get() && !pixelFormatChanged){
+        if (created.get() && !pixelFormatChanged) {
             Display.releaseContext();
             Display.makeCurrent();
             Display.update();

@@ -73,11 +73,9 @@ public class RadialBlurFilter extends Filter {
 
     @Override
     protected Material getMaterial() {
-
         material.setFloat("SampleDist", sampleDist);
         material.setFloat("SampleStrength", sampleStrength);
         material.setParam("Samples", VarType.FloatArray, samples);
-
         return material;
     }
 

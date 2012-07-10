@@ -65,7 +65,6 @@ public class DistanceLodCalculator implements LodCalculator {
     public boolean calculateLod(TerrainPatch terrainPatch, List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
         float distance = getCenterLocation(terrainPatch).distance(locations.get(0));
 
-        
         if (turnOffLod) {
             // set to full detail
             int prevLOD = terrainPatch.getLod();

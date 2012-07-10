@@ -46,8 +46,8 @@ public final class SAXUtil {
      * Parses an integer from a string, if the string is null returns
      * def.
      * 
-     * @param i
-     * @param def
+     * @param i The string to parse
+     * @param def The default value if the string is null
      * @return
      * @throws SAXException 
      */

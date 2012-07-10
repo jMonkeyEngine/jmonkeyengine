@@ -62,7 +62,6 @@ public class Node extends Spatial implements Savable {
 
     private static final Logger logger = Logger.getLogger(Node.class.getName());
 
-
     /** 
      * This node's children.
      */

@@ -53,16 +53,16 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     private int width;
     private int height;
     private PixelFormat pixelFormat;
-
+    
     protected void initInThread(){
         if ((Pbuffer.getCapabilities() & Pbuffer.PBUFFER_SUPPORTED) == 0){
             logger.severe("Offscreen surfaces are not supported.");
             return;
         }
 
-	   int samples = 0;
-         if (settings.getSamples() > 1){
-              samples = settings.getSamples();
+        int samples = 0;
+        if (settings.getSamples() > 1) {
+            samples = settings.getSamples();
         }
         pixelFormat = new PixelFormat(settings.getBitsPerPixel(),
                                       0,

@@ -173,7 +173,6 @@ public class InputSystemJme implements InputSystem, RawInputListener {
         if (consumed && pressed) {
             processSoftKeyboard();
         }
-
     }
 
     private void onKeyEventQueued(KeyInputEvent evt, NiftyInputConsumer nic) {
@@ -259,7 +258,6 @@ public class InputSystemJme implements InputSystem, RawInputListener {
                     }
 
                     softTextDialogInput.requestDialog(SoftTextDialogInput.TEXT_ENTRY_DIALOG, "Enter Text", initialValue, new SoftTextDialogInputListener() {
-
                         public void onSoftText(int action, String text) {
                             if (action == SoftTextDialogInputListener.COMPLETE) {
                                 textField.setText(text);

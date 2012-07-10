@@ -32,6 +32,7 @@
 
 package com.jme3.util;
 
+import com.jme3.renderer.Renderer;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -58,8 +59,8 @@ public class NativeObjectManager {
     private static final int MAX_REMOVES_PER_FRAME = 100;
     
     /**
-     * The queue will receive notifications of {@link NativeObject}s which are no longer
-     * referenced.
+     * The queue will receive notifications of {@link NativeObject}s which 
+     * are no longer referenced.
      */
     private ReferenceQueue<Object> refQueue = new ReferenceQueue<Object>();
 
@@ -89,27 +90,32 @@ public class NativeObjectManager {
     public void registerForCleanup(NativeObject obj){
         NativeObjectRef ref = new NativeObjectRef(obj);
         refList.add(ref);
-        if (logger.isLoggable(Level.FINEST))
+        if (logger.isLoggable(Level.FINEST)) {
             logger.log(Level.FINEST, "Registered: {0}", new String[]{obj.toString()});
+        }
     }
 
     /**
-     * Deletes unused GLObjects
+     * Deletes unused NativeObjects.
+     * Will delete at most {@link #MAX_REMOVES_PER_FRAME} objects.
+     * 
+     * @param rendererObject The renderer object. 
+     * For graphics objects, {@link Renderer} is used, for audio, {#link AudioRenderer} is used.
      */
     public void deleteUnused(Object rendererObject){
         int removed = 0;
         while (removed < MAX_REMOVES_PER_FRAME) {
             NativeObjectRef ref = (NativeObjectRef) refQueue.poll();
-            if (ref == null)
+            if (ref == null) {
                 break;
+            }
 
             refList.remove(ref);
             ref.objClone.deleteObject(rendererObject);
             removed++;
         }
         if (removed >= 1) {
-            //System.out.println("NativeObjectManager: " + removed + " native objects were removed from GL");
-            logger.log(Level.FINE, "NativeObjectManager: {0} native objects were removed from GL", removed);
+            logger.log(Level.FINE, "NativeObjectManager: {0} native objects were removed from native", removed);
         }
     }
 

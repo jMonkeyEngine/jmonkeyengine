@@ -70,7 +70,7 @@ public class Environment {
         Closet = new Environment(1, 1, 1, 1, .15f, 1, .6f, .0025f, .5f, .0006f);
     }
 
-    private static final float eaxDbToAmp(float eaxDb){
+    private static float eaxDbToAmp(float eaxDb){
         float dB = eaxDb / 2000f;
         return FastMath.pow(10f, dB);
     }
