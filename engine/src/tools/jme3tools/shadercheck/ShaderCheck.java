@@ -42,7 +42,8 @@ public class ShaderCheck {
                 ShaderKey shaderKey = new ShaderKey(techDef.getVertexShaderName(),
                                                     techDef.getFragmentShaderName(),
                                                     dl,
-                                                    techDef.getShaderLanguage());
+                                                    techDef.getVertexShaderLanguage(),
+                                                    techDef.getFragmentShaderLanguage());
                 Shader shader = assetManager.loadShader(shaderKey);
                 
                 for (Validator validator : validators){
