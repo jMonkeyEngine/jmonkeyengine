@@ -2,7 +2,7 @@ MaterialDef Colored Textured {
 
     MaterialParameters {
         Texture2D ColorMap
-        Color Color
+        Color Color (Color)
     }
 
     Technique {
@@ -14,7 +14,7 @@ MaterialDef Colored Textured {
         }
     }
 
-    Technique FixedFunc {
+    Technique {
     }
 
 }

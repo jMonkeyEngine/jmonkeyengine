@@ -37,7 +37,4 @@ MaterialDef Bloom {
             DO_EXTRACT : Extract
         }
     }
-
-    Technique FixedFunc {
-    }
 }

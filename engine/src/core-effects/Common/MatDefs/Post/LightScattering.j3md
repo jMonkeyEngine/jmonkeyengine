@@ -35,7 +35,4 @@ MaterialDef Light Scattering {
             WorldViewProjectionMatrix
         }
     }
-
-    Technique FixedFunc {
-    }
 }

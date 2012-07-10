@@ -15,6 +15,4 @@ MaterialDef FXAA {
             Resolution
         }
     }
-    Technique FixedFunc {
-    }
 }

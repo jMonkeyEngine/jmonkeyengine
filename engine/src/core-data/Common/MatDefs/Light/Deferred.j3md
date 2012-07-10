@@ -55,7 +55,7 @@ MaterialDef Phong Lighting Deferred {
         }
     }
 
-    Technique FixedFunc {
+    Technique {
     }
 
 }

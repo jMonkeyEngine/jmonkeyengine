@@ -157,10 +157,10 @@ public class MaterialDef {
      * 
      * @param technique The technique definition to add.
      */
-    public void addTechniqueDef(TechniqueDef technique){
-        if (technique.getName().equals("Default")){
+    public void addTechniqueDef(TechniqueDef technique) {
+        if (technique.getName().equals("Default")) {
             defaultTechs.add(technique);
-        }else{
+        } else {
             techniques.put(technique.getName(), technique);
         }
     }

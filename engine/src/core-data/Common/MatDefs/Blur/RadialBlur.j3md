@@ -30,7 +30,4 @@ MaterialDef Radial Blur {
             WorldViewProjectionMatrix
         }
     }
-
-    Technique FixedFunc {
-    }
 }

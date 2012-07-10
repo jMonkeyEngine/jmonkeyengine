@@ -22,6 +22,6 @@ MaterialDef Sky Plane {
             SPHERE_MAP : SphereMap
         }
     }
-    Technique FixedFunc {
+    Technique {
     }
 }

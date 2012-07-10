@@ -84,7 +84,4 @@ MaterialDef Advanced Water {
 
         }
     }
-
-    Technique FixedFunc {
-    }
 }

@@ -19,7 +19,4 @@ MaterialDef Depth Of Field {
             WorldViewProjectionMatrix
         }
     }
-
-    Technique FixedFunc {
-    }
 }

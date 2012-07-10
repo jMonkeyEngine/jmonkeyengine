@@ -10,10 +10,9 @@ MaterialDef Default GUI {
 
         WorldParameters {
             WorldViewProjectionMatrix
-        }   
+        }
     }
 
-    Technique FixedFunc {
+    Technique {
     }
-
 }

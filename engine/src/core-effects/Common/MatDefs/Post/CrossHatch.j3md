@@ -34,8 +34,4 @@ MaterialDef CrossHatch {
             WorldViewProjectionMatrix
         }
     }
- 
-    Technique FixedFunc {
-    }
- 
 }

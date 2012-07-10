@@ -3,8 +3,8 @@ MaterialDef Unshaded {
     MaterialParameters {
         Texture2D ColorMap
         Texture2D LightMap
-        Color Color ( Color )
-        Boolean VertexColor
+        Color Color (Color)
+        Boolean VertexColor (UseVertexColor)
         Boolean SeparateTexCoord
 
         // Texture of the glowing parts of the material
@@ -30,6 +30,9 @@ MaterialDef Unshaded {
         }
     }
 
+    Technique {
+    }
+
       Technique PreNormalPass {
 
             VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
@@ -42,9 +45,7 @@ MaterialDef Unshaded {
             }
 
             RenderState {
-
             }
-
         }
 
 
@@ -63,8 +64,4 @@ MaterialDef Unshaded {
             HAS_GLOWCOLOR : GlowColor
         }
     }
-
-    Technique FixedFunc {
-    }
-
 }

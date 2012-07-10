@@ -84,7 +84,7 @@ MaterialDef Point Sprite {
         }
     }
 
-    Technique FixedFunc {
+    Technique {
         RenderState {
             Blend AlphaAdditive
             // DepthWrite Off

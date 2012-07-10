@@ -27,8 +27,4 @@ MaterialDef Fade {
             WorldViewProjectionMatrix           
         }
     }
-
-    Technique FixedFunc {
-    }
-
 }

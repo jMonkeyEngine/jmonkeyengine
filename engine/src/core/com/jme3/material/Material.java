@@ -925,14 +925,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
     private void autoSelectTechnique(RenderManager rm) {
         if (technique == null) {
-            // NOTE: Not really needed anymore since we have technique
-            // selection by caps. Rename all "FixedFunc" techniques to "Default"
-            // and remove this hack.
-            if (def.getTechniqueDef("FixedFunc") != null && !rm.getRenderer().getCaps().contains(Caps.GLSL100)) {
-                selectTechnique("FixedFunc", rm);
-            } else {
-                selectTechnique("Default", rm);
-            }
+            selectTechnique("Default", rm);
         } else {
             technique.makeCurrent(def.getAssetManager(), false);
         }

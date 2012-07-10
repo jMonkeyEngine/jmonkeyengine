@@ -66,7 +66,9 @@ public class J3MLoader implements AssetLoader {
     private TechniqueDef technique;
     private RenderState renderState;
 
-    private String shaderLang;
+    private String vertLanguage;
+    private String fragLanguage;
+    
     private String vertName;
     private String fragName;
     
@@ -86,18 +88,20 @@ public class J3MLoader implements AssetLoader {
     // <TYPE> <LANG> : <SOURCE>
     private void readShaderStatement(String statement) throws IOException {
         String[] split = statement.split(":");
-        if (split.length != 2){
+        if (split.length != 2) {
             throw new IOException("Shader statement syntax incorrect" + statement);
         }
         String[] typeAndLang = split[0].split(whitespacePattern);
-        if (typeAndLang.length != 2){
+        if (typeAndLang.length != 2) {
             throw new IOException("Shader statement syntax incorrect: " + statement);
         }
-        shaderLang = typeAndLang[1];
-        if (typeAndLang[0].equals("VertexShader")){
+        
+        if (typeAndLang[0].equals("VertexShader")) {
             vertName = split[1].trim();
-        }else if (typeAndLang[0].equals("FragmentShader")){
+            vertLanguage = typeAndLang[1];
+        } else if (typeAndLang[0].equals("FragmentShader")) {
             fragName = split[1].trim();
+            fragLanguage = typeAndLang[1];
         }
     }
 
@@ -399,11 +403,17 @@ public class J3MLoader implements AssetLoader {
 
     private void readTechnique(Statement techStat) throws IOException{
         String[] split = techStat.getLine().split(whitespacePattern);
-        if (split.length == 1){
+        if (split.length == 1) {
             technique = new TechniqueDef(null);
-        }else if (split.length == 2){
-            technique = new TechniqueDef(split[1]);
-        }else{
+        } else if (split.length == 2) {
+            String techName = split[1];
+            if (techName.equals("FixedFunc")) {
+                throw new UnsupportedOperationException(
+                        "In material: " + key + "\nThe 'FixedFunc' technique name no longer has any special meanining.\n"
+                        + "To support fixed pipeline mode, remove that technique's name entirely.");
+            }
+            technique = new TechniqueDef(techName);
+        } else {
             throw new IOException("Technique statement syntax incorrect");
         }
         
@@ -412,14 +422,15 @@ public class J3MLoader implements AssetLoader {
         }
 
         if (vertName != null && fragName != null){
-            technique.setShaderFile(vertName, fragName, shaderLang);
+            technique.setShaderFile(vertName, fragName, vertLanguage, fragLanguage);
         }
         
         materialDef.addTechniqueDef(technique);
         technique = null;
         vertName = null;
         fragName = null;
-        shaderLang = null;
+        vertLanguage = null;
+        fragLanguage = null;
     }
 
     private void loadFromRoot(List<Statement> roots) throws IOException{

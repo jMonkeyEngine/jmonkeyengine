@@ -42,7 +42,4 @@ MaterialDef Cartoon Edge {
             Resolution
         }
     }
-
-    Technique FixedFunc {
-    }
 }

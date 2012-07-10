@@ -32,8 +32,4 @@ MaterialDef GammaCorrection {
             COMPUTE_LUMA : computeLuma
         }
     }
- 
-    Technique FixedFunc {
-    }
- 
 }

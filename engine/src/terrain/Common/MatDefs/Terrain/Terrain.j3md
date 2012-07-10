@@ -27,7 +27,6 @@ MaterialDef Terrain {
         }
 	}
 	
-	Technique FixedFunc {
+    Technique {
     }
-
 }

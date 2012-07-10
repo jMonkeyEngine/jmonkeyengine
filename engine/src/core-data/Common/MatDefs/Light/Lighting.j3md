@@ -275,7 +275,7 @@ MaterialDef Phong Lighting {
         }
     }
 
-    Technique FixedFunc {
+    Technique {
         LightMode FixedPipeline
     }
 

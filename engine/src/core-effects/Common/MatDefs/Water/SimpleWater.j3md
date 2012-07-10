@@ -28,7 +28,4 @@ MaterialDef Simple Water {
             CameraPosition
         }
     }
-
-    Technique FixedFunc {
-    }
 }

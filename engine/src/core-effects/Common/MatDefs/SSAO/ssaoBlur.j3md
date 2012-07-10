@@ -49,9 +49,4 @@ MaterialDef SSAOBlur {
             RESOLVE_DEPTH_MS : NumSamplesDepth
         }
     }
-
-
-
-    Technique FixedFunc {
-    }
 }

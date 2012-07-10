@@ -43,9 +43,4 @@ MaterialDef SSAO {
 
         }
     }
-
-
-
-    Technique FixedFunc {
-    }
 }

@@ -14,7 +14,7 @@ MaterialDef Default GUI {
         }
     }
 
-    Technique FixedFunc {
+    Technique {
     }
 
 }
