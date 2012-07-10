@@ -115,6 +115,9 @@ public class WaterFilter extends Filter {
     private float underWaterFogDistance = 120;
     private boolean useCaustics = true;
     private float causticsIntensity = 0.5f;
+    //positional attributes
+    private Vector3f center;
+    private float radius;
 
     /**
      * Create a Water Filter
@@ -207,7 +210,7 @@ public class WaterFilter extends Filter {
     }
 
     private DirectionalLight findLight(Node node) {
-        for (Light light : node.getWorldLightList()) {    
+        for (Light light : node.getWorldLightList()) {
             if (light instanceof DirectionalLight) {
                 return (DirectionalLight) light;
             }
@@ -294,6 +297,10 @@ public class WaterFilter extends Filter {
         material.setFloat("FoamIntensity", foamIntensity);
         material.setFloat("UnderWaterFogDistance", underWaterFogDistance);
         material.setFloat("CausticsIntensity", causticsIntensity);
+        if (center != null) {
+            material.setVector3("Center", center);
+            material.setFloat("Radius", radius * radius);
+        }
 
 
     }
@@ -1045,6 +1052,41 @@ public class WaterFilter extends Filter {
         this.causticsIntensity = causticsIntensity;
         if (material != null) {
             material.setFloat("CausticsIntensity", causticsIntensity);
+        }
+    }
+
+    public Vector3f getCenter() {
+        return center;
+    }
+
+    /**
+     * Set the center of the effect.
+     * By default the water will extent to the entire scene.
+     * By setting a center and a radius you can restrain it to a portion of the scene.
+     * @param center the center of the effect
+     */
+    public void setCenter(Vector3f center) {
+        this.center = center;
+        if (material != null) {
+            material.setVector3("Center", center);
+        }
+    }
+
+    public float getRadius() {
+        return radius;
+
+    }
+
+    /**
+     * Set the radius of the effect.
+     * By default the water will extent to the entire scene.
+     * By setting a center and a radius you can restrain it to a portion of the scene.
+     * @param radius the radius of the effect
+     */
+    public void setRadius(float radius) {
+        this.radius = radius;
+        if (material != null) {
+            material.setFloat("Radius", radius * radius);
         }
     }
 }

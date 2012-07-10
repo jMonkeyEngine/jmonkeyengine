@@ -36,6 +36,10 @@ uniform float m_SunScale;
 uniform float m_WaveScale;
 uniform float m_UnderWaterFogDistance;
 uniform float m_CausticsIntensity;
+#ifdef ENABLE_AREA
+uniform vec3 m_Center;
+uniform float m_Radius;
+#endif
 
 vec2 scale = vec2(m_WaveScale, m_WaveScale);
 float refractionScale = m_WaveScale;
@@ -231,14 +235,28 @@ void main(){
     vec3 color = color2;
 
     vec3 position = getPosition(sceneDepth,texCoord);
-
     float level = m_WaterHeight;
 
     // If we are underwater let's go to under water function
     if(level >= m_CameraPosition.y){
+        #ifdef ENABLE_AREA
+            vec3 dist = m_CameraPosition-m_Center;
+            if(dot(dist,dist) >m_Radius){    
+                gl_FragColor = vec4(color2, 1.0);
+                return;
+            }    
+        #endif
         gl_FragColor = underWater();
         return ;
     }
+
+    #ifdef ENABLE_AREA
+       vec3 dist = position-m_Center;
+        if(dot(dist,dist) >m_Radius){    
+            gl_FragColor = vec4(color2, 1.0);
+            return;
+        }  
+    #endif
 
     //#ifndef ENABLE_RIPPLES
     // This optimization won't work on NVIDIA cards if ripples are enabled

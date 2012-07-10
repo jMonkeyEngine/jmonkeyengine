@@ -45,6 +45,9 @@ MaterialDef Advanced Water {
         Boolean UseCaustics 
         Boolean UseRefraction
 
+        Float Radius
+        Vector3 Center
+
     }
 
     Technique {
@@ -64,6 +67,8 @@ MaterialDef Advanced Water {
             ENABLE_FOAM : UseFoam
             ENABLE_CAUSTICS : UseCaustics
             ENABLE_REFRACTION : UseRefraction
+            ENABLE_AREA : Center
+
         }
     }
 
@@ -81,7 +86,7 @@ MaterialDef Advanced Water {
             ENABLE_FOAM : UseFoam
             ENABLE_CAUSTICS : UseCaustics
             ENABLE_REFRACTION : UseRefraction
-
+            ENABLE_AREA : Center
         }
     }
 }

@@ -41,6 +41,11 @@ uniform float m_WaveScale;
 uniform float m_UnderWaterFogDistance;
 uniform float m_CausticsIntensity;
 
+#ifdef ENABLE_AREA
+uniform vec3 m_Center;
+uniform float m_Radius;
+#endif
+
 
 vec2 scale = vec2(m_WaveScale, m_WaveScale);
 float refractionScale = m_WaveScale;
@@ -122,7 +127,7 @@ vec4 underWater(int sampleNum){
     float sceneDepth = fetchTextureSample(m_DepthTexture, texCoord, sampleNum).r;
     vec3 color2 = fetchTextureSample(m_Texture, texCoord, sampleNum).rgb;
     
-    vec3 position = getPosition(sceneDepth, texCoord);
+    vec3 position = getPosition(sceneDepth, texCoord);  
     float level = m_WaterHeight;
 
     vec3 eyeVec = position - m_CameraPosition;    
@@ -228,7 +233,12 @@ vec4 underWater(int sampleNum){
 vec4 main_multiSample(int sampleNum){
     // If we are underwater let's call the underwater function
     if(m_WaterHeight >= m_CameraPosition.y){
-
+       #ifdef ENABLE_AREA        
+            vec2 dist = m_CameraPosition.xz-m_Center.xz;
+            if(dot(dist,dist) >m_Radius){            
+                return fetchTextureSample(m_Texture, texCoord, sampleNum);
+            }   
+        #endif
         return underWater(sampleNum);
     }
 
@@ -237,6 +247,13 @@ vec4 main_multiSample(int sampleNum){
 
     vec3 color = color2;
     vec3 position = getPosition(sceneDepth, texCoord);
+
+    #ifdef ENABLE_AREA        
+        vec2 dist = position.xz-m_Center.xz;
+        if(dot(dist,dist) >m_Radius){            
+            return  vec4(color2, 1.0);
+        }
+    #endif
 
     float level = m_WaterHeight;
     
