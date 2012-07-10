@@ -118,6 +118,12 @@ public class WaterFilter extends Filter {
     //positional attributes
     private Vector3f center;
     private float radius;
+    private AreaShape shapeType = AreaShape.Circular;
+    
+    public enum AreaShape{
+        Circular,
+        Square
+    }
 
     /**
      * Create a Water Filter
@@ -300,6 +306,7 @@ public class WaterFilter extends Filter {
         if (center != null) {
             material.setVector3("Center", center);
             material.setFloat("Radius", radius * radius);
+            material.setBoolean("SquareArea", shapeType==AreaShape.Square);
         }
 
 
@@ -1055,6 +1062,10 @@ public class WaterFilter extends Filter {
         }
     }
 
+    /**
+     * returns the center of this effect
+     * @return the center of this effect
+     */
     public Vector3f getCenter() {
         return center;
     }
@@ -1072,6 +1083,10 @@ public class WaterFilter extends Filter {
         }
     }
 
+    /**
+     * returns the radius of this effect
+     * @return the radius of this effect
+     */
     public float getRadius() {
         return radius;
 
@@ -1089,4 +1104,26 @@ public class WaterFilter extends Filter {
             material.setFloat("Radius", radius * radius);
         }
     }
+
+    /**
+     * returns the shape of the water area
+     * @return the shape of the water area
+     */
+    public AreaShape getShapeType() {
+        return shapeType;
+    }
+
+    /**
+     * Set the shape of the water area (Circular (default) or Square).
+     * if the shape is square the radius is considered as an extent.
+     * @param shapeType the shape type
+     */
+    public void setShapeType(AreaShape shapeType) {
+        this.shapeType = shapeType;
+        if (material != null) {
+            material.setBoolean("SquareArea", shapeType==AreaShape.Square);
+        }
+    }
+    
+    
 }

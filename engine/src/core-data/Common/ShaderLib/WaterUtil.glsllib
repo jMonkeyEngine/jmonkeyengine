@@ -1,0 +1,10 @@
+#ifdef ENABLE_AREA        
+bool isOverExtent(vec3 position,vec3 center,float radius){
+        vec2 dist = position.xz-center.xz;
+        #ifdef SQUARE_AREA 
+                return dist.x*dist.x >radius || dist.y*dist.y >radius;
+        #else
+                return dot(dist,dist)>radius;
+        #endif
+}
+#endif

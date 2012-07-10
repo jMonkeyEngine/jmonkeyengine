@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/WaterUtil.glsllib"
 // Water pixel shader
 // Copyright (C) JMonkeyEngine 3.0
 // by Remy Bouquet (nehon) for JMonkeyEngine 3.0
@@ -241,7 +242,7 @@ void main(){
     if(level >= m_CameraPosition.y){
         #ifdef ENABLE_AREA
             vec3 dist = m_CameraPosition-m_Center;
-            if(dot(dist,dist) >m_Radius){    
+            if(isOverExtent(m_CameraPosition, m_Center, m_Radius)){    
                 gl_FragColor = vec4(color2, 1.0);
                 return;
             }    
@@ -251,8 +252,7 @@ void main(){
     }
 
     #ifdef ENABLE_AREA
-       vec3 dist = position-m_Center;
-        if(dot(dist,dist) >m_Radius){    
+        if(isOverExtent(position, m_Center, m_Radius)){    
             gl_FragColor = vec4(color2, 1.0);
             return;
         }  

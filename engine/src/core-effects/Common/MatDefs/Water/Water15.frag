@@ -1,4 +1,5 @@
 #import "Common/ShaderLib/MultiSample.glsllib"
+#import "Common/ShaderLib/WaterUtil.glsllib"
 
 // Water pixel shader
 // Copyright (C) JMonkeyEngine 3.0
@@ -229,13 +230,14 @@ vec4 underWater(int sampleNum){
 
     return vec4(color, 1.0);   
 }
+
+
 // NOTE: This will be called even for single-sampling
 vec4 main_multiSample(int sampleNum){
     // If we are underwater let's call the underwater function
     if(m_WaterHeight >= m_CameraPosition.y){
-       #ifdef ENABLE_AREA        
-            vec2 dist = m_CameraPosition.xz-m_Center.xz;
-            if(dot(dist,dist) >m_Radius){            
+        #ifdef ENABLE_AREA      
+            if(isOverExtent(m_CameraPosition, m_Center, m_Radius)){            
                 return fetchTextureSample(m_Texture, texCoord, sampleNum);
             }   
         #endif
@@ -248,10 +250,9 @@ vec4 main_multiSample(int sampleNum){
     vec3 color = color2;
     vec3 position = getPosition(sceneDepth, texCoord);
 
-    #ifdef ENABLE_AREA        
-        vec2 dist = position.xz-m_Center.xz;
-        if(dot(dist,dist) >m_Radius){            
-            return  vec4(color2, 1.0);
+    #ifdef ENABLE_AREA               
+        if(isOverExtent(position, m_Center, m_Radius)){         
+            return vec4(color2, 1.0);
         }
     #endif
 

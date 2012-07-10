@@ -47,6 +47,7 @@ MaterialDef Advanced Water {
 
         Float Radius
         Vector3 Center
+        Boolean SquareArea
 
     }
 
@@ -68,7 +69,7 @@ MaterialDef Advanced Water {
             ENABLE_CAUSTICS : UseCaustics
             ENABLE_REFRACTION : UseRefraction
             ENABLE_AREA : Center
-
+            SQUARE_AREA : SquareArea
         }
     }
 
@@ -87,6 +88,7 @@ MaterialDef Advanced Water {
             ENABLE_CAUSTICS : UseCaustics
             ENABLE_REFRACTION : UseRefraction
             ENABLE_AREA : Center
+            SQUARE_AREA : SquareArea
         }
     }
 }
