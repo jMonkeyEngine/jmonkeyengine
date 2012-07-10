@@ -32,37 +32,33 @@
 
 package com.jme3.shader;
 
-import com.jme3.export.*;
 import com.jme3.renderer.Renderer;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
-public final class Shader extends NativeObject implements Savable {
+public final class Shader extends NativeObject {
 
+    /**
+     * 
+     * @deprecated shader language now specified per shader source. See
+     * {@link ShaderSource#setLanguage(String)
+     */
+    @Deprecated
     private String language;
-
+    
     /**
-     * True if the shader is fully compiled & linked.
-     * (e.g no GL error will be invoked if used).
+     * A list of all shader sources currently attached.
      */
-    private boolean usable = false;
-
-    /**
-     * A list of all shaders currently attached.
-     */
-    private ArrayList<ShaderSource> shaderList;
+    private ArrayList<ShaderSource> shaderSourceList;
 
     /**
      * Maps uniform name to the uniform variable.
      */
-//    private HashMap<String, Uniform> uniforms;
     private ListMap<String, Uniform> uniforms;
 
     /**
@@ -94,48 +90,30 @@ public final class Shader extends NativeObject implements Savable {
      * Shader source describes a shader object in OpenGL. Each shader source
      * is assigned a certain pipeline which it controls (described by it's type).
      */
-    public static class ShaderSource extends NativeObject implements Savable {
+    public static class ShaderSource extends NativeObject {
 
-        ShaderType shaderType;
-
-        boolean usable = false;
-        String name = null;
-        String source = null;
-        String defines = null;
+        ShaderType sourceType;
+        String language;
+        String name;
+        String source;
+        String defines;
 
         public ShaderSource(ShaderType type){
             super(ShaderSource.class);
-            this.shaderType = type;
-            if (type == null)
+            this.sourceType = type;
+            if (type == null) {
                 throw new NullPointerException("The shader type must be specified");
+            }
         }
         
         protected ShaderSource(ShaderSource ss){
             super(ShaderSource.class, ss.id);
-            this.shaderType = ss.shaderType;
-            usable = false;
-            name = ss.name;
-            // forget source & defines
+            // No data needs to be copied.
+            // (This is a destructable clone)
         }
 
         public ShaderSource(){
             super(ShaderSource.class);
-        }
-
-        public void write(JmeExporter ex) throws IOException{
-            OutputCapsule oc = ex.getCapsule(this);
-            oc.write(shaderType, "shaderType", null);
-            oc.write(name, "name", null);
-            oc.write(source, "source", null);
-            oc.write(defines, "defines", null);
-        }
-
-        public void read(JmeImporter im) throws IOException{
-            InputCapsule ic = im.getCapsule(this);
-            shaderType = ic.readEnum("shaderType", ShaderType.class, null);
-            name = ic.readString("name", null);
-            source = ic.readString("source", null);
-            defines = ic.readString("defines", null);
         }
 
         public void setName(String name){
@@ -147,21 +125,33 @@ public final class Shader extends NativeObject implements Savable {
         }
 
         public ShaderType getType() {
-            return shaderType;
+            return sourceType;
+        }
+
+        public String getLanguage() {
+            return language;
+        }
+
+        public void setLanguage(String language) {
+            if (language == null) {
+                throw new NullPointerException("Shader language cannot be null");
+            }
+            this.language = language;
+            setUpdateNeeded();
         }
 
         public void setSource(String source){
-            if (source == null)
+            if (source == null) {
                 throw new NullPointerException("Shader source cannot be null");
-
+            }
             this.source = source;
             setUpdateNeeded();
         }
 
         public void setDefines(String defines){
-            if (defines == null)
+            if (defines == null) {
                 throw new NullPointerException("Shader defines cannot be null");
-
+            }
             this.defines = defines;
             setUpdateNeeded();
         }
@@ -174,14 +164,6 @@ public final class Shader extends NativeObject implements Savable {
             return defines;
         }
         
-        public boolean isUsable(){
-            return usable;
-        }
-
-        public void setUsable(boolean usable){
-            this.usable = usable;
-        }
-
         @Override
         public String toString(){
             String nameTxt = "";
@@ -192,12 +174,11 @@ public final class Shader extends NativeObject implements Savable {
             
 
             return getClass().getSimpleName() + "["+nameTxt+"type="
-                                              + shaderType.name()+"]";
+                                              + sourceType.name()+", language=" + language + "]";
         }
 
         public void resetObject(){
             id = -1;
-            usable = false;
             setUpdateNeeded();
         }
 
@@ -211,110 +192,103 @@ public final class Shader extends NativeObject implements Savable {
     }
 
     /**
-     * Create an empty shader.
+     * @deprecated Shader sources are now associated with the shader
+     * language.
      */
+    @Deprecated
     public Shader(String language){
         super(Shader.class);
         this.language = language;
-        shaderList = new ArrayList<ShaderSource>();
-//        uniforms = new HashMap<String, Uniform>();
-        uniforms = new ListMap<String, Uniform>();
-        attribs = new IntMap<Attribute>();
+        initialize();
     }
 
     /**
-     * Do not use this constructor. Serialization purposes only.
+     * Initializes the shader for use, must be called after the 
+     * constructor without arguments is used.
+     */
+    public void initialize() {
+        shaderSourceList = new ArrayList<ShaderSource>();
+        uniforms = new ListMap<String, Uniform>();
+        attribs = new IntMap<Attribute>();
+    }
+    
+    /**
+     * Creates a new shader, {@link #initialize() } must be called
+     * after this constructor for the shader to be usable.
      */
     public Shader(){
         super(Shader.class);
     }
 
+    /**
+     * Do not use this constructor. Used for destructable clones only.
+     */
     protected Shader(Shader s){
         super(Shader.class, s.id);
-        shaderList = new ArrayList<ShaderSource>();
-        //uniforms = new ListMap<String, Uniform>();
-        //attribs = new IntMap<Attribute>();
         
-        // NOTE: Because ShaderSources are registered separately with
-        // the GLObjectManager
-        for (ShaderSource source : s.shaderList){
-            shaderList.add( (ShaderSource)source.createDestructableClone() );
+        // Shader sources cannot be shared, therefore they must
+        // be destroyed together with the parent shader.
+        shaderSourceList = new ArrayList<ShaderSource>();
+        for (ShaderSource source : s.shaderSourceList){
+            shaderSourceList.add( (ShaderSource)source.createDestructableClone() );
         }
     }
 
-    public void write(JmeExporter ex) throws IOException{
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(language, "language", null);
-        oc.writeSavableArrayList(shaderList, "shaderList", null);
-        oc.writeIntSavableMap(attribs, "attribs", null);
-        oc.writeStringSavableMap(uniforms, "uniforms", null);
-    }
-
-    public void read(JmeImporter im) throws IOException{
-        InputCapsule ic = im.getCapsule(this);
-        language = ic.readString("language", null);
-        shaderList = ic.readSavableArrayList("shaderList", null);
-        attribs = (IntMap<Attribute>) ic.readIntSavableMap("attribs", null);
-
-        HashMap<String, Uniform> uniMap = (HashMap<String, Uniform>) ic.readStringSavableMap("uniforms", null);
-        uniforms = new ListMap<String, Uniform>(uniMap);
-    }
-
     /**
-     * Creates a deep clone of the shader, where the sources are available
-     * but have not been compiled yet. Does not copy the uniforms or attribs.
-     * @return
+     * @deprecated Use the method that takes a language argument instead. 
+     * {@link #addSource(com.jme3.shader.Shader.ShaderType, java.lang.String, java.lang.String, java.lang.String, java.lang.String) }
      */
-//    public Shader createDeepClone(String defines){
-//        Shader newShader = new Shader(language);
-//        for (ShaderSource source : shaderList){
-//            if (!source.getDefines().equals(defines)){
-//                // need to clone the shadersource so
-//                // the correct defines can be placed
-//                ShaderSource newSource = new ShaderSource(source.getType());
-//                newSource.setSource(source.getSource());
-//                newSource.setDefines(defines);
-//                newShader.addSource(newSource);
-//            }else{
-//                // no need to clone source, also saves
-//                // having to compile the shadersource
-//                newShader.addSource(source);
-//            }
-//        }
-//        return newShader;
-//    }
-
-    /**
-     * Adds source code to a certain pipeline.
-     *
-     * @param type The pipeline to control
-     * @param source The shader source code (in GLSL).
-     */
-    public void addSource(ShaderType type, String name, String source, String defines){
-        ShaderSource shader = new ShaderSource(type);
-        shader.setSource(source);
-        shader.setName(name);
-        if (defines != null)
-            shader.setDefines(defines);
-        
-        shaderList.add(shader);
-        setUpdateNeeded();
+    @Deprecated
+    public void addSource(ShaderType type, String name, String source, String defines) {
+        addSource(type, name, source, defines, this.language);
     }
-
+    
+    /**
+     * @deprecated Use the method that takes a language argument instead. 
+     * {@link #addSource(com.jme3.shader.Shader.ShaderType, java.lang.String, java.lang.String, java.lang.String, java.lang.String) }
+     */
+    @Deprecated
     public void addSource(ShaderType type, String source, String defines){
         addSource(type, null, source, defines);
     }
 
+    /**
+     * @deprecated Use the method that takes a language argument instead. 
+     * {@link #addSource(com.jme3.shader.Shader.ShaderType, java.lang.String, java.lang.String, java.lang.String, java.lang.String) }
+     */
+    @Deprecated
     public void addSource(ShaderType type, String source){
         addSource(type, source, null);
     }
 
     /**
-     * Adds an existing shader source to this shader.
-     * @param source
+     * @deprecated Shader sources may not be shared.
+     * {@link #addSource(com.jme3.shader.Shader.ShaderType, java.lang.String, java.lang.String, java.lang.String, java.lang.String) }
      */
+    @Deprecated
     private void addSource(ShaderSource source){
-        shaderList.add(source);
+        shaderSourceList.add(source);
+        setUpdateNeeded();
+    }
+    
+    /**
+     * Adds source code to a certain pipeline.
+     *
+     * @param type The pipeline to control
+     * @param source The shader source code (in GLSL).
+     * @param defines Preprocessor defines (placed at the beginning of the shader)
+     * @param language The shader source language, currently accepted is GLSL###
+     * where ### is the version, e.g. GLSL100 = GLSL 1.0, GLSL330 = GLSL 3.3, etc.
+     */
+    public void addSource(ShaderType type, String name, String source, String defines, String language){
+        ShaderSource shaderSource = new ShaderSource(type);
+        shaderSource.setSource(source);
+        shaderSource.setName(name);
+        shaderSource.setLanguage(language);
+        if (defines != null) {
+            shaderSource.setDefines(defines);
+        }
+        shaderSourceList.add(shaderSource);
         setUpdateNeeded();
     }
 
@@ -343,69 +317,73 @@ public final class Shader extends NativeObject implements Savable {
         return attrib;
     }
 
-//    public Collection<Uniform> getUniforms(){
-//        return uniforms.values();
-//    }
-
     public ListMap<String, Uniform> getUniformMap(){
         return uniforms;
     }
 
-//    public Collection<Attribute> getAttributes() {
-//        return attribs.
-//    }
-
     public Collection<ShaderSource> getSources(){
-        return shaderList;
+        return shaderSourceList;
     }
 
+    /**
+     * @deprecated Shaders no longer have a language variable, 
+     * use {@link ShaderSource#getLanguage() } instead.
+     */
+    @Deprecated
     public String getLanguage(){
         return language;
     }
 
     @Override
-    public String toString(){
-        return getClass().getSimpleName() + "[language="+language
-                                           + ", numSources="+shaderList.size()
-                                           + ", numUniforms="+uniforms.size()
-                                           + ", shaderSources="+getSources()+"]";
+    public String toString() {
+        return getClass().getSimpleName() + 
+                "[numSources=" + shaderSourceList.size() +
+                ", numUniforms=" + uniforms.size() +
+                ", shaderSources=" + getSources() + "]";
     }
 
     /**
-     * Clears all sources. Assuming that they have already been detached and
-     * removed on the GL side.
+     * @deprecated This method is not needed since deleting
+     * a shader causes the sources to delete as well, thus its not required
+     * for them to be GC'd to be removed from GL.
      */
+    @Deprecated
     public void resetSources(){
-        shaderList.clear();
+        shaderSourceList.clear();
     }
 
     /**
-     * Returns true if this program and all it's shaders have been compiled,
-     * linked and validated successfuly.
+     * @deprecated Unusable shaders cause the renderer to crash, 
+     * therefore this field no longer serves any purpose.
      */
+    @Deprecated
     public boolean isUsable(){
-        return usable;
+        return true;
     }
 
     /**
-     * Sets if the program can be used. Should only be called by the Renderer.
-     * @param usable
+     * @deprecated Unusable shaders cause the renderer to crash, 
+     * therefore this field no longer serves any purpose.
      */
+    @Deprecated
     public void setUsable(boolean usable){
-        this.usable = usable;
     }
 
     /**
      * Usually called when the shader itself changes or during any
-     * time when the var locations need to be refreshed.
+     * time when the variable locations need to be refreshed.
      */
-    public void resetLocations(){
-        // NOTE: Shader sources will be reset seperately from the shader itself.
-        for (Uniform uniform : uniforms.values()){
-            uniform.reset(); // fixes issue with re-initialization
+    public void resetLocations() {
+        if (uniforms != null) {
+            // NOTE: Shader sources will be reset seperately from the shader itself.
+            for (Uniform uniform : uniforms.values()) {
+                uniform.reset(); // fixes issue with re-initialization
+            }
         }
-        for (Entry<Attribute> entry : attribs){
-            entry.getValue().location = -2;
+        if (attribs != null) {
+            for (Entry<Attribute> entry : attribs) {
+                entry.getValue().location = ShaderVariable.LOC_UNKNOWN;
+            }
         }
     }
 
@@ -422,12 +400,9 @@ public final class Shader extends NativeObject implements Savable {
     @Override
     public void resetObject() {
         this.id = -1;
-        this.usable = false;
-        
-        for (ShaderSource source : shaderList){
+        for (ShaderSource source : shaderSourceList){
             source.resetObject();
         }
-        
         setUpdateNeeded();
     }
 

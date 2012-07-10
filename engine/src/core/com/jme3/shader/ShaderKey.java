@@ -43,16 +43,18 @@ public class ShaderKey extends AssetKey<Shader> {
 
     protected String fragName;
     protected DefineList defines;
-    protected String language;
+    protected String vertLanguage;
+    protected String fragLanguage;
 
     public ShaderKey(){
     }
 
-    public ShaderKey(String vertName, String fragName, DefineList defines, String lang){
+    public ShaderKey(String vertName, String fragName, DefineList defines, String vertLanguage, String fragLanguage){
         super(vertName);
         this.fragName = fragName;
         this.defines = defines;
-        this.language = lang;
+        this.vertLanguage = vertLanguage;
+        this.fragLanguage = fragLanguage;
     }
 
     @Override
@@ -71,7 +73,6 @@ public class ShaderKey extends AssetKey<Shader> {
 
         final ShaderKey other = (ShaderKey) obj;
         if (name.equals(other.name) && fragName.equals(other.fragName)){
-//            return true;
             if (defines != null && other.defines != null)
                 return defines.getCompiled().equals(other.defines.getCompiled());
             else if (defines != null || other.defines != null)
@@ -103,8 +104,20 @@ public class ShaderKey extends AssetKey<Shader> {
         return fragName;
     }
 
+    /**
+     * @deprecated Use {@link #getVertexShaderLanguage() } instead.
+     */
+    @Deprecated
     public String getLanguage() {
-        return language;
+        return vertLanguage;
+    }
+    
+    public String getVertexShaderLanguage() { 
+        return vertLanguage;
+    }
+    
+    public String getFragmentShaderLanguage() {
+        return fragLanguage;
     }
 
     @Override
@@ -112,7 +125,7 @@ public class ShaderKey extends AssetKey<Shader> {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(fragName, "fragment_name", null);
-        oc.write(language, "language", null);
+        oc.write(vertLanguage, "language", null);
     }
 
     @Override
@@ -120,7 +133,7 @@ public class ShaderKey extends AssetKey<Shader> {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         fragName = ic.readString("fragment_name", null);
-        language = ic.readString("language", null);
+        vertLanguage = ic.readString("language", null);
     }
 
 }

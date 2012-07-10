@@ -52,6 +52,11 @@ import java.util.List;
 public class TechniqueDef implements Savable {
 
     /**
+     * Version #1: Separate shader language for each shader source.
+     */
+    public static final int SAVABLE_VERSION = 1;
+    
+    /**
      * Describes light rendering mode.
      */
     public enum LightMode {
@@ -101,7 +106,9 @@ public class TechniqueDef implements Savable {
 
     private String vertName;
     private String fragName;
-    private String shaderLang;
+    private String vertLanguage;
+    private String fragLanguage;
+    
     private DefineList presetDefines;
     private boolean usesShaders;
 
@@ -227,13 +234,16 @@ public class TechniqueDef implements Savable {
      * @param fragmentShader The name of the fragment shader
      * @param shaderLanguage The shader language
      */
-    public void setShaderFile(String vertexShader, String fragmentShader, String shaderLanguage){
+    public void setShaderFile(String vertexShader, String fragmentShader, String vertLanguage, String fragLanguage){
         this.vertName = vertexShader;
         this.fragName = fragmentShader;
-        this.shaderLang = shaderLanguage;
+        this.vertLanguage = vertLanguage;
+        this.fragLanguage = fragLanguage;
 
-        Caps langCap = Caps.valueOf(shaderLanguage);
-        requiredCaps.add(langCap);
+        Caps vertCap = Caps.valueOf(vertLanguage);
+        requiredCaps.add(vertCap);
+        Caps fragCap = Caps.valueOf(fragLanguage);
+        requiredCaps.add(fragCap);
 
         usesShaders = true;
     }
@@ -247,9 +257,9 @@ public class TechniqueDef implements Savable {
      * @see #addShaderParamDefine(java.lang.String, java.lang.String) 
      */
     public String getShaderParamDefine(String paramName){
-        if (defineParams == null)
+        if (defineParams == null) {
             return null;
-        
+        }
         return defineParams.get(paramName);
     }
 
@@ -266,9 +276,9 @@ public class TechniqueDef implements Savable {
      * @param defineName The name of the define parameter, e.g. USE_LIGHTING
      */
     public void addShaderParamDefine(String paramName, String defineName){
-        if (defineParams == null)
+        if (defineParams == null) {
             defineParams = new HashMap<String, String>();
-
+        }
         defineParams.put(paramName, defineName);
     }
 
@@ -297,9 +307,9 @@ public class TechniqueDef implements Savable {
      * @param value The value of the define
      */
     public void addShaderPresetDefine(String defineName, VarType type, Object value){
-        if (presetDefines == null)
+        if (presetDefines == null) {
             presetDefines = new DefineList();
-
+        }
         presetDefines.set(defineName, type, value);
     }
 
@@ -325,14 +335,27 @@ public class TechniqueDef implements Savable {
     }
 
     /**
-     * Returns the shader language of the shaders used in this technique.
-     * 
-     * @return the shader language of the shaders used in this technique.
+     * @deprecated Use {@link #getVertexShaderLanguage() } instead.
      */
+    @Deprecated
     public String getShaderLanguage() {
-        return shaderLang;
+        return vertLanguage;
     }
 
+    /**
+     * Returns the language of the fragment shader used in this technique.
+     */
+    public String getFragmentShaderLanguage() {
+        return fragLanguage;
+    }
+    
+    /**
+     * Returns the language of the vertex shader used in this technique.
+     */
+    public String getVertexShaderLanguage() {
+        return vertLanguage;
+    }
+    
     /**
      * Adds a new world parameter by the given name.
      * 
@@ -368,12 +391,14 @@ public class TechniqueDef implements Savable {
         oc.write(name, "name", null);
         oc.write(vertName, "vertName", null);
         oc.write(fragName, "fragName", null);
-        oc.write(shaderLang, "shaderLang", null);
+        oc.write(vertLanguage, "vertLanguage", null);
+        oc.write(vertLanguage, "fragLanguage", null);
         oc.write(presetDefines, "presetDefines", null);
         oc.write(lightMode, "lightMode", LightMode.Disable);
         oc.write(shadowMode, "shadowMode", ShadowMode.Disable);
         oc.write(renderState, "renderState", null);
         oc.write(usesShaders, "usesShaders", false);
+        
         // TODO: Finish this when Map<String, String> export is available
 //        oc.write(defineParams, "defineParams", null);
         // TODO: Finish this when List<Enum> export is available
@@ -385,12 +410,21 @@ public class TechniqueDef implements Savable {
         name = ic.readString("name", null);
         vertName = ic.readString("vertName", null);
         fragName = ic.readString("fragName", null);
-        shaderLang = ic.readString("shaderLang", null);
         presetDefines = (DefineList) ic.readSavable("presetDefines", null);
         lightMode = ic.readEnum("lightMode", LightMode.class, LightMode.Disable);
         shadowMode = ic.readEnum("shadowMode", ShadowMode.class, ShadowMode.Disable);
         renderState = (RenderState) ic.readSavable("renderState", null);
         usesShaders = ic.readBoolean("usesShaders", false);
+        
+        if (ic.getSavableVersion(TechniqueDef.class) == 0) {
+            // Old version
+            vertLanguage = ic.readString("shaderLang", null);
+            fragLanguage = vertLanguage;
+        } else {
+            // New version
+            vertLanguage = ic.readString("vertLanguage", null);
+            fragLanguage = ic.readString("fragLanguage", null);;
+        }
     }
     
 }

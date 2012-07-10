@@ -53,7 +53,10 @@ import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
-import com.jme3.util.*;
+import com.jme3.util.BufferUtils;
+import com.jme3.util.ListMap;
+import com.jme3.util.NativeObjectManager;
+import com.jme3.util.SafeArrayList;
 import java.nio.*;
 import java.util.EnumSet;
 import java.util.List;
@@ -61,7 +64,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import jme3tools.converters.MipMapGenerator;
 import jme3tools.shader.ShaderDebug;
-import org.lwjgl.opengl.*;
 import static org.lwjgl.opengl.ARBTextureMultisample.*;
 import static org.lwjgl.opengl.EXTFramebufferBlit.*;
 import static org.lwjgl.opengl.EXTFramebufferMultisample.*;
@@ -72,6 +74,7 @@ import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
+import org.lwjgl.opengl.*;
 //import static org.lwjgl.opengl.ARBDrawInstanced.*;
 
 public class LwjglRenderer implements Renderer {
@@ -889,7 +892,6 @@ public class LwjglRenderer implements Renderer {
 
     protected void updateShaderUniforms(Shader shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
-//        for (Uniform uniform : shader.getUniforms()){
         for (int i = 0; i < uniforms.size(); i++) {
             Uniform uniform = uniforms.getValue(i);
             if (uniform.isUpdateNeeded()) {
@@ -900,7 +902,6 @@ public class LwjglRenderer implements Renderer {
 
     protected void resetUniformLocations(Shader shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
-//        for (Uniform uniform : shader.getUniforms()){
         for (int i = 0; i < uniforms.size(); i++) {
             Uniform uniform = uniforms.getValue(i);
             uniform.reset(); // e.g check location again
@@ -927,10 +928,10 @@ public class LwjglRenderer implements Renderer {
         }
     }
 
-    public void updateShaderSourceData(ShaderSource source, String language) {
+    public void updateShaderSourceData(ShaderSource source) {
         int id = source.getId();
         if (id == -1) {
-            // create id
+            // Create id
             id = glCreateShader(convertShaderType(source.getType()));
             if (id <= 0) {
                 throw new RendererException("Invalid ID received when trying to create shader.");
@@ -941,9 +942,9 @@ public class LwjglRenderer implements Renderer {
             throw new RendererException("Cannot recompile shader source");
         }
 
-        // upload shader source
-        // merge the defines and source code
-
+        // Upload shader source.
+        // Merge the defines and source code.
+        String language = source.getLanguage();
         stringBuf.setLength(0);
         if (language.startsWith("GLSL")) {
             int version = Integer.parseInt(language.substring(4));
@@ -999,6 +1000,7 @@ public class LwjglRenderer implements Renderer {
             } else {
                 logger.log(Level.FINE, "{0} compile success", source.getName());
             }
+            source.clearUpdateNeeded();
         } else {
             logger.log(Level.WARNING, "Bad compile of:\n{0}",
                     new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource(), stringBuf.toString())});
@@ -1007,21 +1009,6 @@ public class LwjglRenderer implements Renderer {
             } else {
                 throw new RendererException("compile error in:" + source + " error: <not provided>");
             }
-        }
-
-        source.clearUpdateNeeded();
-        // only usable if compiled
-        source.setUsable(compiledOK);
-        if (!compiledOK) {
-            // make sure to dispose id cause all program's
-            // shaders will be cleared later.
-            glDeleteShader(id);
-        } else {
-            // register for cleanup since the ID is usable
-            // NOTE: From now on cleanup is handled
-            // by the parent shader object so no need
-            // to register.
-            //objManager.registerForCleanup(source);
         }
     }
 
@@ -1041,15 +1028,7 @@ public class LwjglRenderer implements Renderer {
 
         for (ShaderSource source : shader.getSources()) {
             if (source.isUpdateNeeded()) {
-                updateShaderSourceData(source, shader.getLanguage());
-                // shader has been compiled here
-            }
-
-            if (!source.isUsable()) {
-                // it's useless.. just forget about everything..
-                shader.setUsable(false);
-                shader.clearUpdateNeeded();
-                return;
+                updateShaderSourceData(source);
             }
             glAttachShader(id, source.getId());
         }
@@ -1057,13 +1036,16 @@ public class LwjglRenderer implements Renderer {
         if (caps.contains(Caps.OpenGL30)) {
             // Check if GLSL version is 1.5 for shader
             GL30.glBindFragDataLocation(id, 0, "outFragColor");
+            // For MRT
             for(int i = 0 ; i < maxMRTFBOAttachs ; i++) {
                 GL30.glBindFragDataLocation(id, i, "outFragData[" + i + "]");
             }
         }
 
-        // link shaders to program
+        // Link shaders to program
         glLinkProgram(id);
+        
+        // Check link status
         glGetProgram(id, GL_LINK_STATUS, intBuf1);
         boolean linkOK = intBuf1.get(0) == GL_TRUE;
         String infoLog = null;
@@ -1089,6 +1071,15 @@ public class LwjglRenderer implements Renderer {
             } else {
                 logger.fine("shader link success");
             }
+            shader.clearUpdateNeeded();
+            if (needRegister) {
+                // Register shader for clean up if it was created in this method.
+                objManager.registerForCleanup(shader);
+                statistics.onNewShader();
+            } else {
+                // OpenGL spec: uniform locations may change after re-link
+                resetUniformLocations(shader);
+            }
         } else {
             if (infoLog != null) {
                 throw new RendererException("Shader link failure, shader:" + shader + " info:" + infoLog);
@@ -1096,45 +1087,18 @@ public class LwjglRenderer implements Renderer {
                 throw new RendererException("Shader link failure, shader:" + shader + " info: <not provided>");
             }
         }
-
-        shader.clearUpdateNeeded();
-        if (!linkOK) {
-            // failure.. forget about everything
-            shader.resetSources();
-            shader.setUsable(false);
-            deleteShader(shader);
-        } else {
-            shader.setUsable(true);
-            if (needRegister) {
-                objManager.registerForCleanup(shader);
-                statistics.onNewShader();
-            } else {
-                // OpenGL spec: uniform locations may change after re-link
-                resetUniformLocations(shader);
-            }
-        }
     }
 
     public void setShader(Shader shader) {
         if (shader == null) {
-            throw new IllegalArgumentException("shader cannot be null");
-//            if (context.boundShaderProgram > 0) {
-//                glUseProgram(0);
-//                statistics.onShaderUse(null, true);
-//                context.boundShaderProgram = 0;
-//                boundShader = null;
-//            }
+            throw new IllegalArgumentException("Shader cannot be null");
         } else {
             if (shader.isUpdateNeeded()) {
                 updateShaderData(shader);
             }
-
+            
             // NOTE: might want to check if any of the
             // sources need an update?
-
-            if (!shader.isUsable()) {
-                return;
-            }
 
             assert shader.getId() > 0;
 
@@ -1148,7 +1112,6 @@ public class LwjglRenderer implements Renderer {
             logger.warning("Shader source is not uploaded to GPU, cannot delete.");
             return;
         }
-        source.setUsable(false);
         source.clearUpdateNeeded();
         glDeleteShader(source.getId());
         source.resetObject();
@@ -1167,12 +1130,9 @@ public class LwjglRenderer implements Renderer {
             }
         }
 
-        // kill all references so sources can be collected
-        // if needed.
-        shader.resetSources();
         glDeleteProgram(shader.getId());
-
         statistics.onDeleteShader();
+        shader.resetObject();
     }
 
     /*********************************************************************\
@@ -2116,46 +2076,6 @@ public class LwjglRenderer implements Renderer {
                     throw new UnsupportedOperationException("Unknown buffer format.");
             }
         }
-//        }else{
-//            if (created || vb.hasDataSizeChanged()){
-//                glBufferData(target, vb.getData().capacity() * vb.getFormat().getComponentSize(), usage);
-//            }
-//
-//            ByteBuffer buf = glMapBuffer(target,
-//                                         GL_WRITE_ONLY,
-//                                         vb.getMappedData());
-//
-//            if (buf != vb.getMappedData()){
-//                buf = buf.order(ByteOrder.nativeOrder());
-//                vb.setMappedData(buf);
-//            }
-//
-//            buf.clear();
-//
-//            switch (vb.getFormat()){
-//                case Byte:
-//                case UnsignedByte:
-//                    buf.put( (ByteBuffer) vb.getData() );
-//                    break;
-//                case Short:
-//                case UnsignedShort:
-//                    buf.asShortBuffer().put( (ShortBuffer) vb.getData() );
-//                    break;
-//                case Int:
-//                case UnsignedInt:
-//                    buf.asIntBuffer().put( (IntBuffer) vb.getData() );
-//                    break;
-//                case Float:
-//                    buf.asFloatBuffer().put( (FloatBuffer) vb.getData() );
-//                    break;
-//                case Double:
-//                    break;
-//                default:
-//                    throw new RuntimeException("Unknown buffer format.");
-//            }
-//
-//            glUnmapBuffer(target);
-//        }
 
         vb.clearUpdateNeeded();
     }

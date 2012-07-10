@@ -32,15 +32,15 @@
 
 package com.jme3.shader;
 
-import com.jme3.export.*;
-import java.io.IOException;
+public class ShaderVariable {
 
-public class ShaderVariable implements Savable {
-
+    public static final int LOC_UNKNOWN = -2,
+                            LOC_NOT_DEFINED = -1;
+    
     // if -2, location not known
     // if -1, not defined in shader
     // if >= 0, uniform defined and available.
-    protected int location = -2;
+    protected int location = LOC_UNKNOWN;
 
     /**
      * Name of the uniform as was declared in the shader.
@@ -54,15 +54,6 @@ public class ShaderVariable implements Savable {
      */
     protected boolean updateNeeded = true;;
 
-    public void write(JmeExporter ex) throws IOException{
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(name, "name", null);
-    }
-
-    public void read(JmeImporter im) throws IOException{
-        InputCapsule ic = im.getCapsule(this);
-        name = ic.readString("name", null);
-    }
 
     public void setLocation(int location){
         this.location = location;

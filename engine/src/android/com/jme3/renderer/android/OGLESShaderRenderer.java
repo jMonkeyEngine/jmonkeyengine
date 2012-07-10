@@ -590,6 +590,18 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
+    protected void bindProgram(Shader shader) {
+        int shaderId = shader.getId();
+        if (context.boundShaderProgram != shaderId) {
+            GLES20.glUseProgram(shaderId);
+            statistics.onShaderUse(shader, true);
+            boundShader = shader;
+            context.boundShaderProgram = shaderId;
+        } else {
+            statistics.onShaderUse(shader, false);
+        }
+    }
+    
     protected void updateUniform(Shader shader, Uniform uniform) {
         int shaderId = shader.getId();
 
@@ -698,7 +710,6 @@ public class OGLESShaderRenderer implements Renderer {
 
     protected void updateShaderUniforms(Shader shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
-//        for (Uniform uniform : shader.getUniforms()){
         for (int i = 0; i < uniforms.size(); i++) {
             Uniform uniform = uniforms.getValue(i);
             if (uniform.isUpdateNeeded()) {
@@ -709,7 +720,6 @@ public class OGLESShaderRenderer implements Renderer {
 
     protected void resetUniformLocations(Shader shader) {
         ListMap<String, Uniform> uniforms = shader.getUniformMap();
-//        for (Uniform uniform : shader.getUniforms()){
         for (int i = 0; i < uniforms.size(); i++) {
             Uniform uniform = uniforms.getValue(i);
             uniform.reset(); // e.g check location again
@@ -736,27 +746,28 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
-    public void updateShaderSourceData(ShaderSource source, String language) {
+    public void updateShaderSourceData(ShaderSource source) {
         int id = source.getId();
         if (id == -1) {
-            // create id
+            // Create id
             id = GLES20.glCreateShader(convertShaderType(source.getType()));
             if (id <= 0) {
                 throw new RendererException("Invalid ID received when trying to create shader.");
             }
             source.setId(id);
         }
+        
+        if (!source.getLanguage().equals("GLSL100")) {
+            throw new RendererException("This shader cannot run in OpenGL ES. "
+                                      + "Only GLSL 1.0 shaders are supported.");
+        }
 
         // upload shader source
         // merge the defines and source code
-        byte[] versionData = new byte[]{};//"#version 140\n".getBytes();
-//        versionData = "#define INSTANCING 1\n".getBytes();
         byte[] definesCodeData = source.getDefines().getBytes();
         byte[] sourceCodeData = source.getSource().getBytes();
-        ByteBuffer codeBuf = BufferUtils.createByteBuffer(versionData.length
-                + definesCodeData.length
-                + sourceCodeData.length);
-        codeBuf.put(versionData);
+        ByteBuffer codeBuf = BufferUtils.createByteBuffer(definesCodeData.length
+                                                        + sourceCodeData.length);
         codeBuf.put(definesCodeData);
         codeBuf.put(sourceCodeData);
         codeBuf.flip();
@@ -791,10 +802,11 @@ public class OGLESShaderRenderer implements Renderer {
 
         if (compiledOK) {
             if (infoLog != null) {
-                logger.log(Level.INFO, "compile success: " + source.getName() + ", " + infoLog);
+                logger.log(Level.INFO, "compile success: {0}, {1}", new Object[]{source.getName(), infoLog});
             } else {
-                logger.log(Level.FINE, "compile success: " + source.getName());
+                logger.log(Level.FINE, "compile success: {0}", source.getName());
             }
+            source.clearUpdateNeeded();
         } else {
            logger.log(Level.WARNING, "Bad compile of:\n{0}",
                     new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource(),stringBuf.toString())});
@@ -803,18 +815,6 @@ public class OGLESShaderRenderer implements Renderer {
             } else {
                 throw new RendererException("compile error in:" + source + " error: <not provided>");
             }
-        }
-
-        source.clearUpdateNeeded();
-        // only usable if compiled
-        source.setUsable(compiledOK);
-        if (!compiledOK) {
-            // make sure to dispose id cause all program's
-            // shaders will be cleared later.
-            GLES20.glDeleteShader(id);
-        } else {
-            // register for cleanup since the ID is usable
-            objManager.registerForCleanup(source);
         }
     }
 
@@ -835,15 +835,7 @@ public class OGLESShaderRenderer implements Renderer {
 
         for (ShaderSource source : shader.getSources()) {
             if (source.isUpdateNeeded()) {
-                updateShaderSourceData(source, shader.getLanguage());
-                // shader has been compiled here
-            }
-
-            if (!source.isUsable()) {
-                // it's useless.. just forget about everything..
-                shader.setUsable(false);
-                shader.clearUpdateNeeded();
-                return;
+                updateShaderSourceData(source);
             }
             GLES20.glAttachShader(id, source.getId());
         }
@@ -871,6 +863,15 @@ public class OGLESShaderRenderer implements Renderer {
             } else {
                 logger.fine("shader link success");
             }
+            shader.clearUpdateNeeded();
+            if (needRegister) {
+                // Register shader for clean up if it was created in this method.
+                objManager.registerForCleanup(shader);
+                statistics.onNewShader();
+            } else {
+                // OpenGL spec: uniform locations may change after re-link
+                resetUniformLocations(shader);
+            }
         } else {
             if (infoLog != null) {
                 throw new RendererException("Shader link failure, shader:" + shader + " info:" + infoLog);
@@ -878,34 +879,11 @@ public class OGLESShaderRenderer implements Renderer {
                 throw new RendererException("Shader link failure, shader:" + shader + " info: <not provided>");
             }
         }
-
-        shader.clearUpdateNeeded();
-        if (!linkOK) {
-            // failure.. forget about everything
-            shader.resetSources();
-            shader.setUsable(false);
-            deleteShader(shader);
-        } else {
-            shader.setUsable(true);
-            if (needRegister) {
-                objManager.registerForCleanup(shader);
-                statistics.onNewShader();
-            } else {
-                // OpenGL spec: uniform locations may change after re-link
-                resetUniformLocations(shader);
-            }
-        }
     }
-
+    
     public void setShader(Shader shader) {
         if (shader == null) {
-            if (context.boundShaderProgram > 0) {
-                GLES20.glUseProgram(0);
-
-                statistics.onShaderUse(null, true);
-                context.boundShaderProgram = 0;
-                boundShader = null;
-            }
+            throw new IllegalArgumentException("Shader cannot be null");
         } else {
             if (shader.isUpdateNeeded()) {
                 updateShaderData(shader);
@@ -913,37 +891,11 @@ public class OGLESShaderRenderer implements Renderer {
 
             // NOTE: might want to check if any of the 
             // sources need an update?
-            if (!shader.isUsable()) {
-                logger.warning("shader is not usable.");
-                return;
-            }
 
             assert shader.getId() > 0;
 
             updateShaderUniforms(shader);
-            if (context.boundShaderProgram != shader.getId()) {
-                if (VALIDATE_SHADER) {
-                    // check if shader can be used
-                    // with current state
-                    GLES20.glValidateProgram(shader.getId());
-                    GLES20.glGetProgramiv(shader.getId(), GLES20.GL_VALIDATE_STATUS, intBuf1);
-
-                    boolean validateOK = intBuf1.get(0) == GLES20.GL_TRUE;
-                    if (validateOK) {
-                        logger.fine("shader validate success");
-                    } else {
-                        logger.warning("shader validate failure");
-                    }
-                }
-
-                GLES20.glUseProgram(shader.getId());
-
-                statistics.onShaderUse(shader, true);
-                context.boundShaderProgram = shader.getId();
-                boundShader = shader;
-            } else {
-                statistics.onShaderUse(shader, false);
-            }
+            bindProgram(shader);
         }
     }
 
@@ -952,9 +904,8 @@ public class OGLESShaderRenderer implements Renderer {
             logger.warning("Shader source is not uploaded to GPU, cannot delete.");
             return;
         }
-        source.setUsable(false);
+        
         source.clearUpdateNeeded();
-
         GLES20.glDeleteShader(source.getId());
         source.resetObject();
     }
@@ -964,20 +915,17 @@ public class OGLESShaderRenderer implements Renderer {
             logger.warning("Shader is not uploaded to GPU, cannot delete.");
             return;
         }
+        
         for (ShaderSource source : shader.getSources()) {
             if (source.getId() != -1) {
                 GLES20.glDetachShader(shader.getId(), source.getId());
-                // the next part is done by the GLObjectManager automatically
-//                glDeleteShader(source.getId());
+                deleteShaderSource(source);
             }
         }
-        // kill all references so sources can be collected
-        // if needed.
-        shader.resetSources();
-
+        
         GLES20.glDeleteProgram(shader.getId());
-
         statistics.onDeleteShader();
+        shader.resetObject();
     }
 
     /*********************************************************************\

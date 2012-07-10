@@ -32,9 +32,7 @@
 package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.export.*;
 import com.jme3.shader.*;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +41,7 @@ import java.util.logging.Logger;
 /**
  * Represents a technique instance.
  */
-public class Technique implements Savable {
+public class Technique /* implements Savable */ {
 
     private static final Logger logger = Logger.getLogger(Technique.class.getName());
     private TechniqueDef def;
@@ -133,6 +131,10 @@ public class Technique implements Savable {
     }
 
     void updateUniformParam(String paramName, VarType type, Object value) {
+        if (paramName == null) {
+            throw new IllegalArgumentException();
+        }
+        
         Uniform u = shader.getUniform(paramName);
         switch (type) {
             case TextureBuffer:
@@ -208,7 +210,8 @@ public class Technique implements Savable {
         ShaderKey key = new ShaderKey(def.getVertexShaderName(),
                                       def.getFragmentShaderName(),
                                       allDefines,
-                                      def.getShaderLanguage());
+                                      def.getVertexShaderLanguage(),
+                                      def.getFragmentShaderLanguage());
         shader = manager.loadShader(key);
 
         // register the world bound uniforms
@@ -225,6 +228,7 @@ public class Technique implements Savable {
         needReload = false;
     }
     
+    /*
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(def, "def", null);
@@ -240,4 +244,5 @@ public class Technique implements Savable {
         defines = (DefineList) ic.readSavable("defines", null);
         shader = (Shader) ic.readSavable("shader", null);
     }
+    */
 }

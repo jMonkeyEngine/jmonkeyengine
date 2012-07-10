@@ -336,11 +336,6 @@ public class DesktopAssetManager implements AssetManager {
         return loadAsset(new AssetKey(name));
     }
 
-    /**
-     * Loads a texture.
-     *
-     * @return the texture
-     */
     public Texture loadTexture(TextureKey key){
         return (Texture) loadAsset(key);
     }
@@ -365,18 +360,16 @@ public class DesktopAssetManager implements AssetManager {
         return loadAudio(new AudioKey(name, false));
     }
 
-    /**
-     * Loads a bitmap font with the given name.
-     *
-     * @param name
-     * @return the loaded {@link BitmapFont}
-     */
     public BitmapFont loadFont(String name){
         return (BitmapFont) loadAsset(new AssetKey(name));
     }
 
-    public InputStream loadGLSLLibrary(AssetKey key){
-        return (InputStream) loadAsset(key);
+    public Spatial loadModel(ModelKey key){
+        return (Spatial) loadAsset(key);
+    }
+
+    public Spatial loadModel(String name){
+        return loadModel(new ModelKey(name));
     }
 
     /**
@@ -389,34 +382,21 @@ public class DesktopAssetManager implements AssetManager {
         // cache abuse in method
         // that doesn't use loaders/locators
         AssetCache cache = handler.getCache(SimpleAssetCache.class);
-        Shader s = (Shader) cache.getFromCache(key);
-        if (s == null){
+        Shader shader = (Shader) cache.getFromCache(key);
+        if (shader == null){
             String vertName = key.getVertName();
             String fragName = key.getFragName();
 
             String vertSource = (String) loadAsset(new AssetKey(vertName));
             String fragSource = (String) loadAsset(new AssetKey(fragName));
 
-            s = new Shader(key.getLanguage());
-            s.addSource(Shader.ShaderType.Vertex,   vertName, vertSource, key.getDefines().getCompiled());
-            s.addSource(Shader.ShaderType.Fragment, fragName, fragSource, key.getDefines().getCompiled());
+            shader = new Shader();
+            shader.initialize();
+            shader.addSource(Shader.ShaderType.Vertex,   vertName, vertSource, key.getDefines().getCompiled(), key.getVertexShaderLanguage());
+            shader.addSource(Shader.ShaderType.Fragment, fragName, fragSource, key.getDefines().getCompiled(), key.getFragmentShaderLanguage());
 
-            cache.addToCache(key, s);
+            cache.addToCache(key, shader);
         }
-        return s;
-    }
-
-    public Spatial loadModel(ModelKey key){
-        return (Spatial) loadAsset(key);
-    }
-
-    /**
-     * Load a model.
-     *
-     * @param name
-     * @return the loaded model
-     */
-    public Spatial loadModel(String name){
-        return loadModel(new ModelKey(name));
+        return shader;
     }
 }

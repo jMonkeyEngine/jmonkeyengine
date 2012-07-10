@@ -8,7 +8,7 @@ MaterialDef Bloom Final {
     }
 
     Technique {
-        VertexShader GLSL100:   Common/MatDefs/Post/Post15.vert
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
         FragmentShader GLSL150: Common/MatDefs/Post/bloomFinal15.frag
 
         WorldParameters {
@@ -27,10 +27,5 @@ MaterialDef Bloom Final {
         WorldParameters {
             WorldViewProjectionMatrix
         }
-    }
-
-
-
-    Technique FixedFunc {
     }
 }
