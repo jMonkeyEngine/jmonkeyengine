@@ -1,12 +1,6 @@
 package com.jme3.input.android;
 
-import android.content.Context;
-import android.opengl.GLSurfaceView;
-import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
+import android.view.*;
 import com.jme3.input.KeyInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.TouchInput;
@@ -25,8 +19,10 @@ import java.util.logging.Logger;
  * @author larynx
  *
  */
-public class AndroidInput extends GLSurfaceView implements
+public class AndroidInput implements
         TouchInput,
+        View.OnTouchListener,
+        View.OnKeyListener,
         GestureDetector.OnGestureListener,
         GestureDetector.OnDoubleTapListener,
         ScaleGestureDetector.OnScaleGestureListener {
@@ -44,6 +40,7 @@ public class AndroidInput extends GLSurfaceView implements
     final private RingBuffer<TouchEvent> eventPool = new RingBuffer<TouchEvent>(MAX_EVENTS);
     final private HashMap<Integer, Vector2f> lastPositions = new HashMap<Integer, Vector2f>();
     // Internal
+    private View view;
     private ScaleGestureDetector scaledetector;
     private GestureDetector detector;
     private int lastX;
@@ -149,17 +146,16 @@ public class AndroidInput extends GLSurfaceView implements
         0x0,//mute
     };
 
-    public AndroidInput(Context ctx, AttributeSet attribs) {
-        super(ctx, attribs);
+    public AndroidInput(View view) {
+        setView(view);
         detector = new GestureDetector(null, this, null, false);
-        scaledetector = new ScaleGestureDetector(ctx, this);
-
+        scaledetector = new ScaleGestureDetector(view.getContext(), this);
     }
 
-    public AndroidInput(Context ctx) {
-        super(ctx);
-        detector = new GestureDetector(null, this, null, false);
-        scaledetector = new ScaleGestureDetector(ctx, this);
+    public void setView(View view) {
+        this.view = view;
+        this.view.setOnTouchListener(this);
+        this.view.setOnKeyListener(this);
     }
 
     private TouchEvent getNextFreeTouchEvent() {
@@ -218,10 +214,12 @@ public class AndroidInput extends GLSurfaceView implements
     }
 
     /**
-     * onTouchEvent gets called from android thread on touchpad events
+     * onTouch gets called from android thread on touchpad events
      */
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouch(View view, MotionEvent event) {
+        if (view != this.view) {
+            return false;
+        }
         boolean bWasHandled = false;
         TouchEvent touch;
         //    System.out.println("native : " + event.getAction());
@@ -236,7 +234,7 @@ public class AndroidInput extends GLSurfaceView implements
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
                 touch = getNextFreeTouchEvent();
-                touch.set(Type.DOWN, event.getX(pointerIndex), this.getHeight() - event.getY(pointerIndex), 0, 0);
+                touch.set(Type.DOWN, event.getX(pointerIndex), view.getHeight() - event.getY(pointerIndex), 0, 0);
                 touch.setPointerId(pointerId);
                 touch.setTime(event.getEventTime());
                 touch.setPressure(event.getPressure(pointerIndex));
@@ -248,7 +246,7 @@ public class AndroidInput extends GLSurfaceView implements
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
                 touch = getNextFreeTouchEvent();
-                touch.set(Type.UP, event.getX(pointerIndex), this.getHeight() - event.getY(pointerIndex), 0, 0);
+                touch.set(Type.UP, event.getX(pointerIndex), view.getHeight() - event.getY(pointerIndex), 0, 0);
                 touch.setPointerId(pointerId);
                 touch.setTime(event.getEventTime());
                 touch.setPressure(event.getPressure(pointerIndex));
@@ -261,16 +259,16 @@ public class AndroidInput extends GLSurfaceView implements
                 for (int p = 0; p < event.getPointerCount(); p++) {
                     Vector2f lastPos = lastPositions.get(p);
                     if (lastPos == null) {
-                        lastPos = new Vector2f(event.getX(p), this.getHeight() - event.getY(p));
+                        lastPos = new Vector2f(event.getX(p), view.getHeight() - event.getY(p));
                         lastPositions.put(event.getPointerId(p), lastPos);
                     }
                     touch = getNextFreeTouchEvent();
-                    touch.set(Type.MOVE, event.getX(p), this.getHeight() - event.getY(p), event.getX(p) - lastPos.x, this.getHeight() - event.getY(p) - lastPos.y);
+                    touch.set(Type.MOVE, event.getX(p), view.getHeight() - event.getY(p), event.getX(p) - lastPos.x, view.getHeight() - event.getY(p) - lastPos.y);
                     touch.setPointerId(event.getPointerId(p));
                     touch.setTime(event.getEventTime());
                     touch.setPressure(event.getPressure(p));
                     processEvent(touch);
-                    lastPos.set(event.getX(p), this.getHeight() - event.getY(p));
+                    lastPos.set(event.getX(p), view.getHeight() - event.getY(p));
                 }
                 bWasHandled = true;
                 break;
@@ -286,8 +284,15 @@ public class AndroidInput extends GLSurfaceView implements
         return bWasHandled;
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    /**
+     * onKey gets called from android thread on key events
+     */
+    public boolean onKey(View view, int keyCode, KeyEvent event) {
+        if (view != this.view) {
+            return false;
+        }
+
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
         TouchEvent evt;
         evt = getNextFreeTouchEvent();
         evt.set(TouchEvent.Type.KEY_DOWN);
@@ -304,10 +309,7 @@ public class AndroidInput extends GLSurfaceView implements
         } else {
             return true;
         }
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        } else if (event.getAction() == KeyEvent.ACTION_UP) {
         TouchEvent evt;
         evt = getNextFreeTouchEvent();
         evt.set(TouchEvent.Type.KEY_UP);
@@ -323,6 +325,9 @@ public class AndroidInput extends GLSurfaceView implements
             return false;
         } else {
             return true;
+        }
+        } else {
+            return false;
         }
     }
 
@@ -401,13 +406,13 @@ public class AndroidInput extends GLSurfaceView implements
 
                     if (mouseEventsEnabled) {
                         if (mouseEventsInvertX) {
-                            newX = this.getWidth() - (int) event.getX();
+                            newX = view.getWidth() - (int) event.getX();
                         } else {
                             newX = (int) event.getX();
                         }
 
                         if (mouseEventsInvertY) {
-                            newY = this.getHeight() - (int) event.getY();
+                            newY = view.getHeight() - (int) event.getY();
                         } else {
                             newY = (int) event.getY();
                         }
@@ -476,7 +481,7 @@ public class AndroidInput extends GLSurfaceView implements
 
     public void onLongPress(MotionEvent event) {
         TouchEvent touch = getNextFreeTouchEvent();
-        touch.set(Type.LONGPRESSED, event.getX(), this.getHeight() - event.getY(), 0f, 0f);
+        touch.set(Type.LONGPRESSED, event.getX(), view.getHeight() - event.getY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);
@@ -484,7 +489,7 @@ public class AndroidInput extends GLSurfaceView implements
 
     public boolean onFling(MotionEvent event, MotionEvent event2, float vx, float vy) {
         TouchEvent touch = getNextFreeTouchEvent();
-        touch.set(Type.FLING, event.getX(), this.getHeight() - event.getY(), vx, vy);
+        touch.set(Type.FLING, event.getX(), view.getHeight() - event.getY(), vx, vy);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);
@@ -499,7 +504,7 @@ public class AndroidInput extends GLSurfaceView implements
 
     public boolean onDoubleTap(MotionEvent event) {
         TouchEvent touch = getNextFreeTouchEvent();
-        touch.set(Type.DOUBLETAP, event.getX(), this.getHeight() - event.getY(), 0f, 0f);
+        touch.set(Type.DOUBLETAP, event.getX(), view.getHeight() - event.getY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);
@@ -525,7 +530,7 @@ public class AndroidInput extends GLSurfaceView implements
 
     public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
         TouchEvent touch = getNextFreeTouchEvent();
-        touch.set(Type.SCALE_MOVE, scaleGestureDetector.getFocusX(), this.getHeight() - scaleGestureDetector.getFocusY(), 0f, 0f);
+        touch.set(Type.SCALE_MOVE, scaleGestureDetector.getFocusX(), view.getHeight() - scaleGestureDetector.getFocusY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(scaleGestureDetector.getEventTime());
         touch.setScaleSpan(scaleGestureDetector.getCurrentSpan());
@@ -538,7 +543,7 @@ public class AndroidInput extends GLSurfaceView implements
 
     public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
         TouchEvent touch = getNextFreeTouchEvent();
-        touch.set(Type.SCALE_END, scaleGestureDetector.getFocusX(), this.getHeight() - scaleGestureDetector.getFocusY(), 0f, 0f);
+        touch.set(Type.SCALE_END, scaleGestureDetector.getFocusX(), view.getHeight() - scaleGestureDetector.getFocusY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(scaleGestureDetector.getEventTime());
         touch.setScaleSpan(scaleGestureDetector.getCurrentSpan());
@@ -548,7 +553,7 @@ public class AndroidInput extends GLSurfaceView implements
 
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         TouchEvent touch = getNextFreeTouchEvent();
-        touch.set(Type.SCROLL, e1.getX(), this.getHeight() - e1.getY(), distanceX, distanceY * (-1));
+        touch.set(Type.SCROLL, e1.getX(), view.getHeight() - e1.getY(), distanceX, distanceY * (-1));
         touch.setPointerId(0);
         touch.setTime(e1.getEventTime());
         processEvent(touch);
@@ -558,7 +563,7 @@ public class AndroidInput extends GLSurfaceView implements
 
     public void onShowPress(MotionEvent event) {
         TouchEvent touch = getNextFreeTouchEvent();
-        touch.set(Type.SHOWPRESS, event.getX(), this.getHeight() - event.getY(), 0f, 0f);
+        touch.set(Type.SHOWPRESS, event.getX(), view.getHeight() - event.getY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);
@@ -566,7 +571,7 @@ public class AndroidInput extends GLSurfaceView implements
 
     public boolean onSingleTapUp(MotionEvent event) {
         TouchEvent touch = getNextFreeTouchEvent();
-        touch.set(Type.TAP, event.getX(), this.getHeight() - event.getY(), 0f, 0f);
+        touch.set(Type.TAP, event.getX(), view.getHeight() - event.getY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(event.getEventTime());
         processEvent(touch);
@@ -623,4 +628,5 @@ public class AndroidInput extends GLSurfaceView implements
     public boolean isSimulateMouse() {
         return mouseEventsEnabled;
     }
+
 }

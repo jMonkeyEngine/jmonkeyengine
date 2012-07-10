@@ -31,9 +31,10 @@
  */
 package com.jme3.system.android;
 
+import com.jme3.renderer.android.AndroidGLSurfaceView;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.text.InputType;
 import android.view.Gravity;
@@ -73,7 +74,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected Timer timer;
     protected SystemListener listener;
     protected boolean autoFlush = true;
-    protected AndroidInput view;
+    protected AndroidInput androidInput;
+    protected AndroidGLSurfaceView view;
     protected int minFrameDuration = 0;                   // No FPS cap
     /**
      * EGL_RENDERABLE_TYPE: EGL_OPENGL_ES_BIT = OpenGL ES 1.0 |
@@ -105,9 +107,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      * @return GLSurfaceView The newly created view
      */
     public GLSurfaceView createView(ConfigType configType, boolean eglConfigVerboseLogging) {
-
         // Start to set up the view
-        this.view = new AndroidInput(JmeAndroidSystem.getActivity());
+        view = new AndroidGLSurfaceView(JmeAndroidSystem.getActivity());
+        if (androidInput == null) {
+            androidInput = new AndroidInput(view);
+        } else {
+            androidInput.setView(view);
+        }
         if (configType == ConfigType.LEGACY) {
             // Hardcoded egl setup
             clientOpenGLESVersion = 2;
@@ -268,7 +274,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
     @Override
     public TouchInput getTouchInput() {
-        return view;
+        return androidInput;
     }
 
     @Override

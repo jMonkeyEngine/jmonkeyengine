@@ -137,7 +137,26 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected FrameLayout frameLayout = null;
     final private String ESCAPE_EVENT = "TouchEscape";
     private boolean firstDrawFrame = true;
+    private boolean inConfigChange = false;
 
+    private class DataObject {
+        protected Application app = null;
+    }
+    
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        logger.log(Level.INFO, "onRetainNonConfigurationInstance called");
+        final DataObject data = new DataObject();
+        data.app = this.app;
+        inConfigChange = true;
+        logger.log(Level.INFO, "app: {0}", app.hashCode());
+        logger.log(Level.INFO, "ctx: {0}", ctx.hashCode());
+        logger.log(Level.INFO, "view: {0}", view.hashCode());
+        logger.log(Level.INFO, "isGLThreadPaused: {0}", isGLThreadPaused);
+        logger.log(Level.INFO, "inConfigChange: {0}", inConfigChange);
+        return data;
+    }
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,37 +174,54 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
         setRequestedOrientation(screenOrientation);
 
-        // Create Settings
-        AppSettings settings = new AppSettings(true);
-        settings.setEmulateMouse(mouseEventsEnabled);
-        settings.setEmulateMouseFlipAxis(mouseEventsInvertX, mouseEventsInvertY);
+        final DataObject data = (DataObject) getLastNonConfigurationInstance();
+        if (data != null) {
+            logger.log(Level.INFO, "onCreate: onRetainNonConfigurationInstance is not null");
+            this.app = data.app;
 
-        // Create application instance
-        try {
-            if (app == null) {
-                @SuppressWarnings("unchecked")
-                Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
-                app = clazz.newInstance();
-            }
-
-            app.setSettings(settings);
-            app.start();
             ctx = (OGLESContext) app.getContext();
             view = ctx.createView(eglConfigType, eglConfigVerboseLogging);
-
-            // Set the screen reolution
-            //TODO try to find a better way to get a hand on the resolution
-            WindowManager wind = this.getWindowManager();
-            Display disp = wind.getDefaultDisplay();
-            logger.log(Level.WARNING, "Resolution from Window: {0}, {1}", new Object[]{disp.getWidth(), disp.getHeight()});
-            ctx.getSettings().setResolution(disp.getWidth(), disp.getHeight());
-
-            // AndroidHarness wraps the app as a SystemListener.
             ctx.setSystemListener(this);
             layoutDisplay();
-        } catch (Exception ex) {
-            handleError("Class " + appClass + " init failed", ex);
-            setContentView(new TextView(this));
+
+            logger.log(Level.INFO, "app: {0}", app.hashCode());
+            logger.log(Level.INFO, "ctx: {0}", ctx.hashCode());
+            logger.log(Level.INFO, "view: {0}", view.hashCode());
+        } else {
+            logger.log(Level.INFO, "onCreate: onRetainNonConfigurationInstance is null");
+
+            // Create Settings
+            AppSettings settings = new AppSettings(true);
+            settings.setEmulateMouse(mouseEventsEnabled);
+            settings.setEmulateMouseFlipAxis(mouseEventsInvertX, mouseEventsInvertY);
+
+            // Create application instance
+            try {
+                if (app == null) {
+                    @SuppressWarnings("unchecked")
+                    Class<? extends Application> clazz = (Class<? extends Application>) Class.forName(appClass);
+                    app = clazz.newInstance();
+                }
+
+                app.setSettings(settings);
+                app.start();
+                ctx = (OGLESContext) app.getContext();
+                view = ctx.createView(eglConfigType, eglConfigVerboseLogging);
+
+                // Set the screen reolution
+                //TODO try to find a better way to get a hand on the resolution
+                WindowManager wind = this.getWindowManager();
+                Display disp = wind.getDefaultDisplay();
+                logger.log(Level.WARNING, "Resolution from Window: {0}, {1}", new Object[]{disp.getWidth(), disp.getHeight()});
+                ctx.getSettings().setResolution(disp.getWidth(), disp.getHeight());
+
+                // AndroidHarness wraps the app as a SystemListener.
+                ctx.setSystemListener(this);
+                layoutDisplay();
+            } catch (Exception ex) {
+                handleError("Class " + appClass + " init failed", ex);
+                setContentView(new TextView(this));
+            }
         }
     }
 
@@ -258,8 +294,13 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     protected void onDestroy() {
-        if (app != null) {
-            app.stop(!isGLThreadPaused);
+        final DataObject data = (DataObject) getLastNonConfigurationInstance();
+        if (data != null || inConfigChange) {
+            logger.info("onDestroy: found DataObject or inConfigChange");
+        } else {
+            if (app != null) {
+                app.stop(!isGLThreadPaused);
+            }
         }
         logger.info("onDestroy");
         super.onDestroy();
@@ -293,7 +334,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         logger.log(Level.SEVERE, finalMsg);
 
         runOnUiThread(new Runnable() {
-
             @Override
             public void run() {
                 AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this) // .setIcon(R.drawable.alert_dialog_icon)
@@ -362,7 +402,14 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 splashImageView.setImageResource(splashPicID);
             }
 
+            if (view.getParent() != null) {
+                ((ViewGroup)view.getParent()).removeView(view);
+            }
             frameLayout.addView(view);
+            
+            if (splashImageView.getParent() != null) {
+                ((ViewGroup)splashImageView.getParent()).removeView(splashImageView);
+            }
             frameLayout.addView(splashImageView, lp);
 
             setContentView(frameLayout);
