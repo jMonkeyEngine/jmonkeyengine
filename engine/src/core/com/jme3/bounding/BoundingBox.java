@@ -221,30 +221,39 @@ public class BoundingBox extends BoundingVolume {
         }
 
         TempVars vars = TempVars.get();
+        
+        float[] tmpArray = vars.skinPositions;
 
-        BufferUtils.populateFromBuffer(vars.vect1, points, 0);
-        float minX = vars.vect1.x, minY = vars.vect1.y, minZ = vars.vect1.z;
-        float maxX = vars.vect1.x, maxY = vars.vect1.y, maxZ = vars.vect1.z;
+        float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE, minZ = Float.MAX_VALUE;
+        float maxX = Float.MIN_VALUE, maxY = Float.MIN_VALUE, maxZ = Float.MIN_VALUE;
+        
+        int iterations = (int) FastMath.ceil(points.limit() / ((float) tmpArray.length));
+        for (int i = iterations - 1; i >= 0; i--) {
+            int bufLength = Math.min(tmpArray.length, points.remaining());
+            points.get(tmpArray, 0, bufLength);
 
-        for (int i = 1, len = points.remaining() / 3; i < len; i++) {
-            BufferUtils.populateFromBuffer(vars.vect1, points, i);
+            for (int j = 0; j < bufLength; j += 3) {
+                vars.vect1.x = tmpArray[j];
+                vars.vect1.y = tmpArray[j+1];
+                vars.vect1.z = tmpArray[j+2];
+                
+                if (vars.vect1.x < minX) {
+                    minX = vars.vect1.x;
+                } else if (vars.vect1.x > maxX) {
+                    maxX = vars.vect1.x;
+                }
 
-            if (vars.vect1.x < minX) {
-                minX = vars.vect1.x;
-            } else if (vars.vect1.x > maxX) {
-                maxX = vars.vect1.x;
-            }
+                if (vars.vect1.y < minY) {
+                    minY = vars.vect1.y;
+                } else if (vars.vect1.y > maxY) {
+                    maxY = vars.vect1.y;
+                }
 
-            if (vars.vect1.y < minY) {
-                minY = vars.vect1.y;
-            } else if (vars.vect1.y > maxY) {
-                maxY = vars.vect1.y;
-            }
-
-            if (vars.vect1.z < minZ) {
-                minZ = vars.vect1.z;
-            } else if (vars.vect1.z > maxZ) {
-                maxZ = vars.vect1.z;
+                if (vars.vect1.z < minZ) {
+                    minZ = vars.vect1.z;
+                } else if (vars.vect1.z > maxZ) {
+                    maxZ = vars.vect1.z;
+                }
             }
         }
 
