@@ -38,7 +38,7 @@ public class SaveGame {
         BinaryExporter ex = BinaryExporter.getInstance();
         OutputStream os = null;
         try {
-            File daveFolder = new File(JmeSystem.getStorageFolder().getAbsolutePath() + File.separator + gamePath.replaceAll("/", File.separator));
+            File daveFolder = new File(JmeSystem.getStorageFolder().getAbsolutePath() + File.separator + gamePath.replace('/', File.separatorChar));
             if (!daveFolder.exists() && !daveFolder.mkdirs()) {
                 Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error creating save file!");
                 throw new IllegalStateException("SaveGame dataset cannot be created");
@@ -90,7 +90,7 @@ public class SaveGame {
         InputStream is = null;
         Savable sav = null;
         try {
-            File file = new File(JmeSystem.getStorageFolder().getAbsolutePath() + File.separator + gamePath.replaceAll("/", File.separator) + File.separator + dataName);
+            File file = new File(JmeSystem.getStorageFolder().getAbsolutePath() + File.separator + gamePath.replace('/', File.separatorChar) + File.separator + dataName);
             if(!file.exists()){
                 return null;
             }
