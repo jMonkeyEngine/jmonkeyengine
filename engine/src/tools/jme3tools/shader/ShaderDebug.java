@@ -43,25 +43,25 @@ public class ShaderDebug {
      * @param source the source
      * @return the formated source code
      */
-    public static String formatShaderSource(String defines, String source,String version) {
-        String[] lines0 = version.split("\n");
-        String[] lines = defines.split("\n");
-        String[] lines2 = source.split("\n");
+    public static String formatShaderSource(String defines, String source, String version) {
+        String[] versionLines = version.split("\n");
+        String[] definesLines = defines.split("\n");
+        String[] sourceLines = source.split("\n");
         int nblines = 0;
         StringBuilder out = new StringBuilder();
         if (!version.equals("")) {
-            for (String string : lines0) {
+            for (String string : versionLines) {
                 nblines++;
                 out.append(nblines).append("\t").append(string).append("\n");
             }
         }
         if (!defines.equals("")) {
-            for (String string : lines) {
+            for (String string : definesLines) {
                 nblines++;
                 out.append(nblines).append("\t").append(string).append("\n");
             }
         }
-        for (String string : lines2) {
+        for (String string : sourceLines) {
             nblines++;
             out.append(nblines).append("\t").append(string).append("\n");
         }

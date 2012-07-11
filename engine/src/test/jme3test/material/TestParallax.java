@@ -77,7 +77,6 @@ public class TestParallax extends SimpleApplication {
         mat = assetManager.loadMaterial("Textures/Terrain/BrickWall/BrickWall2.j3m");
         mat.getTextureParam("DiffuseMap").getTextureValue().setWrap(WrapMode.Repeat);
         mat.getTextureParam("NormalMap").getTextureValue().setWrap(WrapMode.Repeat);
-        mat.setFloat("Shininess", 0);
 
        // Node floorGeom = (Node) assetManager.loadAsset("Models/WaterTest/WaterTest.mesh.xml");
         //Geometry g = ((Geometry) floorGeom.getChild(0));
@@ -115,7 +114,6 @@ public class TestParallax extends SimpleApplication {
     public void simpleInitApp() {
         cam.setLocation(new Vector3f(-15.445636f, 30.162927f, 60.252777f));
         cam.setRotation(new Quaternion(0.05173137f, 0.92363626f, -0.13454558f, 0.35513034f));
-
         flyCam.setMoveSpeed(30);
 
 
@@ -152,11 +150,6 @@ public class TestParallax extends SimpleApplication {
             }
         }, "toggleSteep");
         inputManager.addMapping("toggleSteep", new KeyTrigger(KeyInput.KEY_SPACE));
-        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-        FXAAFilter fxaa = new FXAAFilter();
-        fxaa.setReduceMul(0.08f);
-        fpp.addFilter(fxaa);
-        viewPort.addProcessor(fpp);
     }
     float parallaxHeigh = 0.05f;
     float time = 0;
