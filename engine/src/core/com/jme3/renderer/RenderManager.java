@@ -44,6 +44,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.*;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.UniformBinding;
+import com.jme3.shader.UniformBindingManager;
 import com.jme3.shader.VarType;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
@@ -68,7 +69,8 @@ public class RenderManager {
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
     
     private Renderer renderer;
-    private Timer timer;
+    private UniformBindingManager uniformBindingManager = new UniformBindingManager();
+    
     private ArrayList<ViewPort> preViewPorts = new ArrayList<ViewPort>();
     private ArrayList<ViewPort> viewPorts = new ArrayList<ViewPort>();
     private ArrayList<ViewPort> postViewPorts = new ArrayList<ViewPort>();
@@ -78,17 +80,8 @@ public class RenderManager {
     private RenderState forcedRenderState = null;
     private boolean shader;
     private int viewX, viewY, viewWidth, viewHeight;
-    private float near, far;
     private Matrix4f orthoMatrix = new Matrix4f();
-    private Matrix4f viewMatrix = new Matrix4f();
-    private Matrix4f projMatrix = new Matrix4f();
-    private Matrix4f viewProjMatrix = new Matrix4f();
-    private Matrix4f worldMatrix = new Matrix4f();
-    private Vector3f camUp = new Vector3f(),
-            camLeft = new Vector3f(),
-            camDir = new Vector3f(),
-            camLoc = new Vector3f();
-    //temp technique
+    
     private String tmpTech;
     private boolean handleTranlucentBucket = true;
 
@@ -99,7 +92,6 @@ public class RenderManager {
      */
     public RenderManager(Renderer renderer) {
         this.renderer = renderer;
-        //this.shader = renderer.getCaps().contains(Caps.GLSL100);
     }
 
     /**
@@ -328,146 +320,6 @@ public class RenderManager {
     }
 
     /**
-     * Internal use only.
-     * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
-     * based on the current world state.
-     */
-    public void updateUniformBindings(List<Uniform> params) {
-        // assums worldMatrix is properly set.
-        TempVars vars = TempVars.get();
-
-        Matrix4f tempMat4 = vars.tempMat4;
-        Matrix3f tempMat3 = vars.tempMat3;
-        Vector2f tempVec2 = vars.vect2d;
-        Quaternion tempVec4 = vars.quat1;
-
-        for (int i = 0; i < params.size(); i++) {
-            Uniform u = params.get(i);
-            switch (u.getBinding()) {
-                case WorldMatrix:
-                    u.setValue(VarType.Matrix4, worldMatrix);
-                    break;
-                case ViewMatrix:
-                    u.setValue(VarType.Matrix4, viewMatrix);
-                    break;
-                case ProjectionMatrix:
-                    u.setValue(VarType.Matrix4, projMatrix);
-                    break;
-                case ViewProjectionMatrix:
-                    u.setValue(VarType.Matrix4, viewProjMatrix);
-                    break;
-                case WorldViewMatrix:
-                    tempMat4.set(viewMatrix);
-                    tempMat4.multLocal(worldMatrix);
-                    u.setValue(VarType.Matrix4, tempMat4);
-                    break;
-                case NormalMatrix:
-                    tempMat4.set(viewMatrix);
-                    tempMat4.multLocal(worldMatrix);
-                    tempMat4.toRotationMatrix(tempMat3);
-                    tempMat3.invertLocal();
-                    tempMat3.transposeLocal();
-                    u.setValue(VarType.Matrix3, tempMat3);
-                    break;
-                case WorldViewProjectionMatrix:
-                    tempMat4.set(viewProjMatrix);
-                    tempMat4.multLocal(worldMatrix);
-                    u.setValue(VarType.Matrix4, tempMat4);
-                    break;
-                case WorldMatrixInverse:
-                    tempMat4.set(worldMatrix);
-                    tempMat4.invertLocal();
-                    u.setValue(VarType.Matrix4, tempMat4);
-                    break;
-                case WorldMatrixInverseTranspose:
-                    worldMatrix.toRotationMatrix(tempMat3);
-                    tempMat3.invertLocal().transposeLocal();
-                    u.setValue(VarType.Matrix3, tempMat3);
-                    break;
-                case ViewMatrixInverse:
-                    tempMat4.set(viewMatrix);
-                    tempMat4.invertLocal();
-                    u.setValue(VarType.Matrix4, tempMat4);
-                    break;
-                case ProjectionMatrixInverse:
-                    tempMat4.set(projMatrix);
-                    tempMat4.invertLocal();
-                    u.setValue(VarType.Matrix4, tempMat4);
-                    break;
-                case ViewProjectionMatrixInverse:
-                    tempMat4.set(viewProjMatrix);
-                    tempMat4.invertLocal();
-                    u.setValue(VarType.Matrix4, tempMat4);
-                    break;
-                case WorldViewMatrixInverse:
-                    tempMat4.set(viewMatrix);
-                    tempMat4.multLocal(worldMatrix);
-                    tempMat4.invertLocal();
-                    u.setValue(VarType.Matrix4, tempMat4);
-                    break;
-                case NormalMatrixInverse:
-                    tempMat4.set(viewMatrix);
-                    tempMat4.multLocal(worldMatrix);
-                    tempMat4.toRotationMatrix(tempMat3);
-                    tempMat3.invertLocal();
-                    tempMat3.transposeLocal();
-                    tempMat3.invertLocal();
-                    u.setValue(VarType.Matrix3, tempMat3);
-                    break;
-                case WorldViewProjectionMatrixInverse:
-                    tempMat4.set(viewProjMatrix);
-                    tempMat4.multLocal(worldMatrix);
-                    tempMat4.invertLocal();
-                    u.setValue(VarType.Matrix4, tempMat4);
-                    break;
-                case ViewPort:
-                    tempVec4.set(viewX, viewY, viewWidth, viewHeight);
-                    u.setValue(VarType.Vector4, tempVec4);
-                    break;
-                case Resolution:
-                    tempVec2.set(viewWidth, viewHeight);
-                    u.setValue(VarType.Vector2, tempVec2);
-                    break;
-                case ResolutionInverse:
-                    tempVec2.set(1f / viewWidth, 1f / viewHeight);
-                    u.setValue(VarType.Vector2, tempVec2);
-                    break;
-                case Aspect:
-                    float aspect = ((float) viewWidth) / viewHeight;
-                    u.setValue(VarType.Float, aspect);
-                    break;
-                case FrustumNearFar:
-                    tempVec2.set(near, far);
-                    u.setValue(VarType.Vector2, tempVec2);
-                    break;
-                case CameraPosition:
-                    u.setValue(VarType.Vector3, camLoc);
-                    break;
-                case CameraDirection:
-                    u.setValue(VarType.Vector3, camDir);
-                    break;
-                case CameraLeft:
-                    u.setValue(VarType.Vector3, camLeft);
-                    break;
-                case CameraUp:
-                    u.setValue(VarType.Vector3, camUp);
-                    break;
-                case Time:
-                    u.setValue(VarType.Float, timer.getTimeInSeconds());
-                    break;
-                case Tpf:
-                    u.setValue(VarType.Float, timer.getTimePerFrame());
-                    break;
-                case FrameRate:
-                    u.setValue(VarType.Float, timer.getFrameRate());
-                    break;
-            }
-        }
-
-        vars.release();
-    }
-
-    /**
      * Set the material to use to render all future objects.
      * This overrides the material set on the geometry and renders
      * with the provided material instead.
@@ -508,7 +360,7 @@ public class RenderManager {
      * @param timer The timer to query time world parameters
      */
     public void setTimer(Timer timer) {
-        this.timer = timer;
+        uniformBindingManager.setTimer(timer);
     }
 
     /**
@@ -590,10 +442,19 @@ public class RenderManager {
      */
     public void setWorldMatrix(Matrix4f mat) {
         if (shader) {
-            worldMatrix.set(mat);
+            uniformBindingManager.setWorldMatrix(mat);
         } else {
             renderer.setWorldMatrix(mat);
         }
+    }
+    
+    /**
+     * Internal use only.
+     * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
+     * based on the current world state.
+     */
+    public void updateUniformBindings(List<Uniform> params) {
+        uniformBindingManager.updateUniformBindings(params);
     }
 
     /**
@@ -975,22 +836,10 @@ public class RenderManager {
     private void setViewProjection(Camera cam, boolean ortho) {
         if (shader) {
             if (ortho) {
-                viewMatrix.set(Matrix4f.IDENTITY);
-                projMatrix.set(orthoMatrix);
-                viewProjMatrix.set(orthoMatrix);
+                uniformBindingManager.setCamera(cam, Matrix4f.IDENTITY, orthoMatrix, orthoMatrix);
             } else {
-                viewMatrix.set(cam.getViewMatrix());
-                projMatrix.set(cam.getProjectionMatrix());
-                viewProjMatrix.set(cam.getViewProjectionMatrix());
+                uniformBindingManager.setCamera(cam, cam.getViewMatrix(), cam.getProjectionMatrix(), cam.getViewProjectionMatrix());
             }
-
-            camLoc.set(cam.getLocation());
-            cam.getLeft(camLeft);
-            cam.getUp(camUp);
-            cam.getDirection(camDir);
-
-            near = cam.getFrustumNear();
-            far = cam.getFrustumFar();
         } else {
             if (ortho) {
                 renderer.setViewProjectionMatrices(Matrix4f.IDENTITY, orthoMatrix);
@@ -998,7 +847,6 @@ public class RenderManager {
                 renderer.setViewProjectionMatrices(cam.getViewMatrix(),
                         cam.getProjectionMatrix());
             }
-
         }
     }
 

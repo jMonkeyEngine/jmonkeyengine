@@ -32,13 +32,8 @@
 
 package com.jme3.shader;
 
-import com.jme3.export.InputCapsule;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.OutputCapsule;
 import com.jme3.math.*;
 import com.jme3.util.BufferUtils;
-import java.io.IOException;
 import java.nio.FloatBuffer;
 
 public class Uniform extends ShaderVariable {
@@ -51,6 +46,11 @@ public class Uniform extends ShaderVariable {
      * Currently set value of the uniform.
      */
     protected Object value = null;
+    
+    /**
+     * For arrays or matrices, efficient format
+     * that can be sent to GL faster.
+     */
     protected FloatBuffer multiData = null;
 
     /**
@@ -63,100 +63,11 @@ public class Uniform extends ShaderVariable {
      */
     protected UniformBinding binding;
 
+    /**
+     * Used to track which uniforms to clear to avoid
+     * values leaking from other materials that use that shader.
+     */
     protected boolean setByCurrentMaterial = false;
-//    protected Object lastChanger = null;
-
-    @Override
-    public void write(JmeExporter ex) throws IOException{
-        super.write(ex);
-        OutputCapsule oc = ex.getCapsule(this);
-        oc.write(varType, "varType", null);
-        oc.write(binding, "binding", null);
-        switch (varType){
-            case Boolean:
-                oc.write( ((Boolean)value).booleanValue(), "valueBoolean", false );
-                break;
-            case Float:
-                oc.write( ((Float)value).floatValue(), "valueFloat", 0);
-                break;
-            case FloatArray:
-                oc.write( (FloatBuffer)value, "valueFloatArray", null);
-                break;
-            case Int:
-                oc.write( ((Integer)value).intValue(), "valueInt", 0);
-                break;
-            case Matrix3:
-                oc.write( (Matrix3f)value, "valueMatrix3", null);
-                break;
-            case Matrix3Array:
-            case Matrix4Array:
-            case Vector2Array:
-                throw new UnsupportedOperationException("Come again?");
-            case Matrix4:
-                oc.write( (Matrix4f)value, "valueMatrix4", null);
-                break;
-            case Vector2:
-                oc.write( (Vector2f)value, "valueVector2", null);
-                break;
-            case Vector3:
-                oc.write( (Vector3f)value, "valueVector3", null);
-                break;
-            case Vector3Array:
-                oc.write( (FloatBuffer)value, "valueVector3Array", null);
-                break;
-            case Vector4:
-                oc.write( (ColorRGBA)value, "valueVector4", null);
-                break;
-            case Vector4Array:
-                oc.write( (FloatBuffer)value, "valueVector4Array", null);
-                break;
-        }
-    }
-
-    @Override
-    public void read(JmeImporter im) throws IOException{
-        super.read(im);
-        InputCapsule ic = im.getCapsule(this);
-        varType = ic.readEnum("varType", VarType.class, null);
-        binding = ic.readEnum("binding", UniformBinding.class, null);
-        switch (varType){
-            case Boolean:
-                value = ic.readBoolean("valueBoolean", false);
-                break;
-            case Float:
-                value = ic.readFloat("valueFloat", 0);
-                break;
-            case FloatArray:
-                value = ic.readFloatBuffer("valueFloatArray", null);
-                break;
-            case Int:
-                value = ic.readInt("valueInt", 0);
-                break;
-            case Matrix3:
-                multiData = ic.readFloatBuffer("valueMatrix3", null);
-                value = multiData;
-                break;
-            case Matrix4:
-                multiData = ic.readFloatBuffer("valueMatrix4", null);
-                value = multiData;
-                break;
-            case Vector2:
-                value = ic.readSavable("valueVector2", null);
-                break;
-            case Vector3:
-                value = ic.readSavable("valueVector3", null);
-                break;
-            case Vector3Array:
-                value = ic.readFloatBuffer("valueVector3Array", null);
-                break;
-            case Vector4:
-                value = ic.readSavable("valueVector4", null);
-                break;
-            case Vector4Array:
-                value = ic.readFloatBuffer("valueVector4Array", null);
-                break;
-        }
-    }
 
     @Override
     public String toString(){
@@ -199,14 +110,21 @@ public class Uniform extends ShaderVariable {
         setByCurrentMaterial = false;
     }
 
-//    public void setLastChanger(Object lastChanger){
-//        this.lastChanger = lastChanger;
-//    }
-//
-//    public Object getLastChanger(){
-//        return lastChanger;
-//    }
-
+    private static void setVector4(Vector4f vec, Object value) {
+        if (value instanceof ColorRGBA) {
+            ColorRGBA color = (ColorRGBA) value;
+            vec.set(color.r, color.g, color.b, color.a);
+        } else if (value instanceof Quaternion) {
+            Quaternion quat = (Quaternion) value;
+            vec.set(quat.getX(), quat.getY(), quat.getZ(), quat.getW());
+        } else if (value instanceof Vector4f) {
+            Vector4f vec4 = (Vector4f) value;
+            vec.set(vec4);
+        } else{
+            throw new IllegalArgumentException();
+        }
+    }
+    
     public void clearValue(){
         updateNeeded = true;
 
@@ -224,9 +142,10 @@ public class Uniform extends ShaderVariable {
             return;
         }
 
-        if (varType == null)
+        if (varType == null) {
             return;
-
+        }
+            
         switch (varType){
             case Int:
                 this.value = ZERO_INT;
@@ -244,132 +163,123 @@ public class Uniform extends ShaderVariable {
                 this.value = Vector3f.ZERO;
                 break;
             case Vector4:
-                if (this.value instanceof ColorRGBA){
-                    this.value = ColorRGBA.BlackNoAlpha;
-                }else{
-                    this.value = Quaternion.ZERO;
-                }
+                this.value = Vector4f.ZERO;
                 break;
             default:
-                break; // won't happen because those are either textures
-                       // or multidata types
+                // won't happen because those are either textures
+                // or multidata types
         }
     }
-
+    
     public void setValue(VarType type, Object value){
-        if (location == -1)
+        if (location == LOC_NOT_DEFINED) {
             return;
+        }
 
-        if (varType != null && varType != type)
-            throw new IllegalArgumentException("Expected a "+varType.name()+" value!");
+        if (varType != null && varType != type) {
+            throw new IllegalArgumentException("Expected a " + varType.name() + " value!");
+        }
 
-        if (value == null)
+        if (value == null) {
             throw new NullPointerException();
+        }
 
         setByCurrentMaterial = true;
 
         switch (type){
             case Matrix3:
                 Matrix3f m3 = (Matrix3f) value;
-                if (multiData == null)
+                if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(9);
-                
+                }
                 m3.fillFloatBuffer(multiData, true);
                 multiData.clear();
                 break;
             case Matrix4:
                 Matrix4f m4 = (Matrix4f) value;
-                if (multiData == null)
+                if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(16);
-                
+                }
                 m4.fillFloatBuffer(multiData, true);
                 multiData.clear();
                 break;
             case FloatArray:
                 float[] fa = (float[]) value;
-                if (multiData == null){
+                if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(fa);
-                }else{
+                } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, fa.length);
                 }
-                
                 multiData.put(fa);
                 multiData.clear();
                 break;
             case Vector2Array:
                 Vector2f[] v2a = (Vector2f[]) value;
-                if (multiData == null){
+                if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(v2a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v2a.length * 2);
                 }
-
-                for (int i = 0; i < v2a.length; i++)
+                for (int i = 0; i < v2a.length; i++) {
                     BufferUtils.setInBuffer(v2a[i], multiData, i);
-                
+                }
                 multiData.clear();
                 break;
             case Vector3Array:
                 Vector3f[] v3a = (Vector3f[]) value;
-                if (multiData == null){
+                if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(v3a);
-                } else{
+                } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v3a.length * 3);
                 }
-                
-                for (int i = 0; i < v3a.length; i++)
+                for (int i = 0; i < v3a.length; i++) {
                     BufferUtils.setInBuffer(v3a[i], multiData, i);
-
+                }
                 multiData.clear();
                 break;
             case Vector4Array:
-                Quaternion[] v4a = (Quaternion[]) value;
-                if (multiData == null){
+                Vector4f[] v4a = (Vector4f[]) value;
+                if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(v4a);
                 } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, v4a.length * 4);
                 }
-                
-                for (int i = 0; i < v4a.length; i++)
+                for (int i = 0; i < v4a.length; i++) {
                     BufferUtils.setInBuffer(v4a[i], multiData, i);
-
+                }
                 multiData.clear();
                 break;
             case Matrix3Array:
                 Matrix3f[] m3a = (Matrix3f[]) value;
-
-                if (multiData == null)
+                if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(m3a.length * 9);
-                else{
+                } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, m3a.length * 9);
                 }
-
-                for (int i = 0; i < m3a.length; i++)
+                for (int i = 0; i < m3a.length; i++) {
                     m3a[i].fillFloatBuffer(multiData, true);
-                
+                }
                 multiData.clear();
                 break;
             case Matrix4Array:
                 Matrix4f[] m4a = (Matrix4f[]) value;
-
-                if (multiData == null)
+                if (multiData == null) {
                     multiData = BufferUtils.createFloatBuffer(m4a.length * 16);
-                else{
+                } else {
                     multiData = BufferUtils.ensureLargeEnough(multiData, m4a.length * 16);
                 }
-
-                for (int i = 0; i < m4a.length; i++)
+                for (int i = 0; i < m4a.length; i++) {
                     m4a[i].fillFloatBuffer(multiData, true);
-                
+                }
                 multiData.clear();
                 break;
-            // Only use check if equals optimization for primitive values
+                // Only use check if equals optimization for primitive values
             case Int:
             case Float:
             case Boolean:
-                if (this.value != null && this.value.equals(value))
+                if (this.value != null && this.value.equals(value)) {
                     return;
-
+                }
                 this.value = value;
                 break;
             default:
@@ -377,9 +287,10 @@ public class Uniform extends ShaderVariable {
                 break;
         }
 
-        if (multiData != null)
+        if (multiData != null) {
             this.value = multiData;
-        
+        }
+
         varType = type;
         updateNeeded = true;
     }
@@ -389,7 +300,7 @@ public class Uniform extends ShaderVariable {
             return;
 
         FloatBuffer fb = (FloatBuffer) value;
-        if (fb == null || fb.capacity() < length){
+        if (fb == null || fb.capacity() < length) {
             value = BufferUtils.createFloatBuffer(length * 4);
         }
 
