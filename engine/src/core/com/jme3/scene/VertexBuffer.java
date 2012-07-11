@@ -495,7 +495,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * @return The total number of data elements in the data buffer.
      */
     public int getNumElements(){
-        int elements = data.capacity() / components;
+        int elements = data.limit() / components;
         if (format == Format.Half)
             elements /= 2;
         return elements;
@@ -595,7 +595,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         if (format != Format.Float)
             throw new IllegalStateException("Format must be float!");
 
-        int numElements = data.capacity() / components;
+        int numElements = data.limit() / components;
         format = Format.Half;
         this.componentsLength = components * format.getComponentSize();
         
@@ -605,7 +605,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         FloatBuffer floatData = (FloatBuffer) data;
         floatData.rewind();
 
-        for (int i = 0; i < floatData.capacity(); i++){
+        for (int i = 0; i < floatData.limit(); i++){
             float f = floatData.get(i);
             short half = FastMath.convertFloatToHalf(f);
             halfData.putShort(half);
@@ -931,7 +931,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     public String toString(){
         String dataTxt = null;
         if (data != null){
-            dataTxt = ", elements="+data.capacity();
+            dataTxt = ", elements="+data.limit();
         }
         return getClass().getSimpleName() + "[fmt="+format.name()
                                             +", type="+bufType.name()

@@ -28,7 +28,7 @@ public class GeometryBatchFactory {
         // convert to be in component units
         offset *= 3;
 
-        for (int i = 0; i < inBuf.capacity() / 3; i++) {
+        for (int i = 0; i < inBuf.limit() / 3; i++) {
             pos.x = inBuf.get(i * 3 + 0);
             pos.y = inBuf.get(i * 3 + 1);
             pos.z = inBuf.get(i * 3 + 2);
@@ -48,7 +48,7 @@ public class GeometryBatchFactory {
         // convert to be in component units
         offset *= 3;
 
-        for (int i = 0; i < inBuf.capacity() / 3; i++) {
+        for (int i = 0; i < inBuf.limit() / 3; i++) {
             norm.x = inBuf.get(i * 3 + 0);
             norm.y = inBuf.get(i * 3 + 1);
             norm.z = inBuf.get(i * 3 + 2);
@@ -68,7 +68,7 @@ public class GeometryBatchFactory {
         // convert to be in component units
         offset *= components;
 
-        for (int i = 0; i < inBuf.capacity() / components; i++) {
+        for (int i = 0; i < inBuf.limit() / components; i++) {
             tan.x = inBuf.get(i * components + 0);
             tan.y = inBuf.get(i * components + 1);
             tan.z = inBuf.get(i * components + 2);
@@ -224,52 +224,62 @@ public class GeometryBatchFactory {
     }
 
     public static void makeLods(Collection<Geometry> geometries, Mesh outMesh) {
-        int lodLevels = 0;
-        int[] lodSize = null;
-        int index = 0;
+        // Determine number of LOD levels required.
+        int lodLevels = Integer.MAX_VALUE;
         for (Geometry g : geometries) {
-            if (lodLevels == 0) {
-                lodLevels = g.getMesh().getNumLodLevels();
-            }
-            if (lodSize == null) {
-                lodSize = new int[lodLevels];
-            }
+            lodLevels = Math.min(lodLevels, g.getMesh().getNumLodLevels());
+        }
+        if (lodLevels == Integer.MAX_VALUE || lodLevels == 0) {
+            // No LOD on any of the meshes.
+            return;
+        }
+        
+        // Sizes of the final LOD index buffers for each level.
+        int[] lodSizes = new int[lodLevels];
+        for (Geometry g : geometries) {
             for (int i = 0; i < lodLevels; i++) {
-                lodSize[i] += g.getMesh().getLodLevel(i).getData().capacity();
-                //if( i == 0) System.out.println(index + " " +lodSize[i]);
+                lodSizes[i] += g.getMesh().getLodLevel(i).getData().limit();
             }
-            index++;
         }
-        int[][] lodData = new int[lodLevels][];
-        for (int i = 0; i < lodLevels; i++) {
-            lodData[i] = new int[lodSize[i]];
-        }
-        VertexBuffer[] lods = new VertexBuffer[lodLevels];
+
+        // final LOD buffers for each LOD level.
+        IndexBuffer[] lods = new IndexBuffer[lodLevels];
         int bufferPos[] = new int[lodLevels];
-        //int index = 0;
         int numOfVertices = 0;
         int curGeom = 0;
-        for (Geometry g : geometries) {
-            if (numOfVertices == 0) {
-                numOfVertices = g.getVertexCount();
-            }
-            for (int i = 0; i < lodLevels; i++) {
-                ShortBuffer buffer = (ShortBuffer) g.getMesh().getLodLevel(i).getDataReadOnly();
-                //System.out.println("buffer: " + buffer.capacity() + " limit: " + lodSize[i] + " " + index);
-                for (int j = 0; j < buffer.capacity(); j++) {
-                    lodData[i][bufferPos[i] + j] = buffer.get() + numOfVertices * curGeom;
-                    //bufferPos[i]++;
-                }
-                bufferPos[i] += buffer.capacity();
-            }
-            curGeom++;
+        
+//        int components = compsForBuf[bufType];
+//        for (int tri = 0; tri < geomTriCount; tri++) {
+//            for (int comp = 0; comp < components; comp++) {
+//                int idx = inIdx.get(tri * components + comp) + globalVertIndex;
+//                outIdx.put((globalTriIndex + tri) * components + comp, idx);
+//            }
+//        }
+        
+        for (int lodLevel = 0; lodLevel < lodLevels; lodLevel++) {
+            
         }
-        for (int i = 0; i < lodLevels; i++) {
-            lods[i] = new VertexBuffer(Type.Index);
-            lods[i].setupData(Usage.Dynamic, 1, Format.UnsignedInt, BufferUtils.createIntBuffer(lodData[i]));
-        }
-        System.out.println(lods.length);
-        outMesh.setLodLevels(lods);
+        
+//        for (Geometry g : geometries) {
+//            if (numOfVertices == 0) {
+//                numOfVertices = g.getVertexCount();
+//            }
+//            for (int i = 0; i < lodLevels; i++) {
+//                IndexBuffer buffer = IndexBuffer.wrapIndexBuffer(g.getMesh().getLodLevel(i).getData());
+//                //System.out.println("buffer: " + buffer.capacity() + " limit: " + lodSize[i] + " " + index);
+//                for (int j = 0; j < buffer.size(); j++) {
+//                    lodData[i][bufferPos[i] + j] = buffer.get(j) + numOfVertices * curGeom;
+//                    //bufferPos[i]++;
+//                }
+//                bufferPos[i] += buffer.size();
+//            }
+//            curGeom++;
+//        }
+//        for (int i = 0; i < lodLevels; i++) {
+//            lods[i] = new VertexBuffer(Type.Index);
+//            lods[i].setupData(Usage.Dynamic, 1, Format.UnsignedInt, BufferUtils.createIntBuffer(lodData[i]));
+//        }
+//        outMesh.setLodLevels(lods);
     }
 
     public static List<Geometry> makeBatches(Collection<Geometry> geometries) {

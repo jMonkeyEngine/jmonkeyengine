@@ -47,7 +47,7 @@ public class EntropyComputeUtil {
         terrainBlock.createCollisionData();
 
         float entropy = 0;
-        for (int i = 0; i < positions.capacity() / 3; i++){
+        for (int i = 0; i < positions.limit() / 3; i++){
             BufferUtils.populateFromBuffer(pos, positions, i);
 
             float realHeight = pos.y;

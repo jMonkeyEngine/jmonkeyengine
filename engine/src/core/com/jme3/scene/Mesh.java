@@ -687,10 +687,10 @@ public class Mesh implements Savable, Cloneable {
         VertexBuffer pb = getBuffer(Type.Position);
         VertexBuffer ib = getBuffer(Type.Index);
         if (pb != null){
-            vertCount = pb.getData().capacity() / pb.getNumComponents();
+            vertCount = pb.getData().limit() / pb.getNumComponents();
         }
         if (ib != null){
-            elementCount = computeNumElements(ib.getData().capacity());
+            elementCount = computeNumElements(ib.getData().limit());
         }else{
             elementCount = computeNumElements(vertCount);
         }
@@ -710,7 +710,7 @@ public class Mesh implements Savable, Cloneable {
             if (lod >= lodLevels.length)
                 throw new IllegalArgumentException("LOD level "+lod+" does not exist!");
 
-            return computeNumElements(lodLevels[lod].getData().capacity());
+            return computeNumElements(lodLevels[lod].getData().limit());
         }else if (lod == 0){
             return elementCount;
         }else{
@@ -1039,16 +1039,7 @@ public class Mesh implements Savable, Cloneable {
         if (vb == null)
             return null;
         
-        Buffer buf = vb.getData();
-        if (buf instanceof ByteBuffer) {
-            return new IndexByteBuffer((ByteBuffer) buf);
-        } else if (buf instanceof ShortBuffer) {
-            return new IndexShortBuffer((ShortBuffer) buf);
-        } else if (buf instanceof IntBuffer) {
-            return new IndexIntBuffer((IntBuffer) buf);
-        } else {
-            throw new UnsupportedOperationException("Index buffer type unsupported: "+ buf.getClass());
-        }
+        return IndexBuffer.wrapIndexBuffer(vb.getData());
     }
 
     /**
@@ -1188,7 +1179,7 @@ public class Mesh implements Savable, Cloneable {
 
         FloatBuffer fb = (FloatBuffer) tc.getData();
         fb.clear();
-        for (int i = 0; i < fb.capacity() / 2; i++){
+        for (int i = 0; i < fb.limit() / 2; i++){
             float x = fb.get();
             float y = fb.get();
             fb.position(fb.position()-2);

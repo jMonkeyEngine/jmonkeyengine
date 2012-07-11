@@ -31,10 +31,7 @@
  */
 package com.jme3.util;
 
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.*;
@@ -196,6 +193,28 @@ public final class BufferUtils {
         buff.flip();
         return buff;
     }
+    
+    /**
+     * Generate a new FloatBuffer using the given array of Vector4 objects.
+     * The FloatBuffer will be 4 * data.length long and contain the vector data.
+     *
+     * @param data array of Vector4 objects to place into a new FloatBuffer
+     */
+    public static FloatBuffer createFloatBuffer(Vector4f... data) {
+        if (data == null) {
+            return null;
+        }
+        FloatBuffer buff = createFloatBuffer(4 * data.length);
+        for (int x = 0; x < data.length; x++) {
+            if (data[x] != null) {
+                buff.put(data[x].getX()).put(data[x].getY()).put(data[x].getZ()).put(data[x].getW());
+            } else {
+                buff.put(0).put(0).put(0);
+            }
+        }
+        buff.flip();
+        return buff;
+    }
 
     /**
      * Generate a new FloatBuffer using the given array of float primitives.
@@ -285,6 +304,26 @@ public final class BufferUtils {
         buf.put(quat.getY());
         buf.put(quat.getZ());
         buf.put(quat.getW());
+    }
+    
+    /**
+     * Sets the data contained in the given vector4 into the FloatBuffer at the
+     * specified index.
+     *
+     * @param vec
+     *            the {@link Vector4f} to insert
+     * @param buf
+     *            the buffer to insert into
+     * @param index
+     *            the postion to place the data; in terms of vector4 not floats
+     */
+    public static void setInBuffer(Vector4f vec, FloatBuffer buf,
+            int index) {
+        buf.position(index * 4);
+        buf.put(vec.getX());
+        buf.put(vec.getY());
+        buf.put(vec.getZ());
+        buf.put(vec.getW());
     }
 
     /**

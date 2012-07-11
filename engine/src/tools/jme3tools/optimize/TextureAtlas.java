@@ -657,7 +657,7 @@ public class TextureAtlas {
             // convert to be in component units
             offset *= 2;
 
-            for (int i = 0; i < inBuf.capacity() / 2; i++) {
+            for (int i = 0; i < inBuf.limit() / 2; i++) {
                 tex.x = inBuf.get(i * 2 + 0);
                 tex.y = inBuf.get(i * 2 + 1);
                 Vector2f location = getLocation(tex);

@@ -197,6 +197,7 @@ public class DXTFlipper {
     }
 
     public static ByteBuffer flipDXT(ByteBuffer img, int w, int h, Format format){
+        int originalLimit = img.limit();
         int blocksX = (int) FastMath.ceil((float)w / 4f);
         int blocksY = (int) FastMath.ceil((float)h / 4f);
 
@@ -227,11 +228,9 @@ public class DXTFlipper {
         int bpb = type == 1 || type == 5 ? 8 : 16;
 
         ByteBuffer retImg = BufferUtils.createByteBuffer(blocksX * blocksY * bpb);
-
         if (h == 1){
             retImg.put(img);
             retImg.rewind();
-            return retImg;
         }else if (h == 2){
             byte[] colorBlock = new byte[8];
             byte[] alphaBlock = type != 1 && type != 5 ? new byte[8] : null;
@@ -265,7 +264,6 @@ public class DXTFlipper {
                 }
             }
             retImg.rewind();
-            return retImg;
         }else if (h >= 4){
             byte[] colorBlock = new byte[8];
             byte[] alphaBlock = type != 1 && type != 5 ? new byte[8] : null;
@@ -309,10 +307,11 @@ public class DXTFlipper {
             }
             retImg.limit(retImg.capacity());
             retImg.position(0);
-            return retImg;
-        }else{
+        } else {
             return null;
         }
+        img.limit(originalLimit); // make sure to restore original limit.
+        return retImg;
     }
 
 }

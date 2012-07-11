@@ -665,7 +665,7 @@ public class BatchNode extends Node implements Savable {
         // convert to be in component units
         offset *= componentSize;
 
-        for (int i = 0; i < inBuf.capacity() / componentSize; i++) {
+        for (int i = 0; i < inBuf.limit() / componentSize; i++) {
             pos.x = inBuf.get(i * componentSize + 0);
             pos.y = inBuf.get(i * componentSize + 1);
             pos.z = inBuf.get(i * componentSize + 2);

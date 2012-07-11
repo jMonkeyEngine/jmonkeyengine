@@ -325,11 +325,10 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
 
         TempVars vars = TempVars.get();
 
-
         float[] posBuf = vars.skinPositions;
         float[] normBuf = vars.skinNormals;
 
-        int iterations = (int) FastMath.ceil(fvb.capacity() / ((float) posBuf.length));
+        int iterations = (int) FastMath.ceil(fvb.limit() / ((float) posBuf.length));
         int bufLength = posBuf.length;
         for (int i = iterations - 1; i >= 0; i--) {
             // read next set of positions and normals from native buffer
@@ -439,7 +438,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         float[] normBuf = vars.skinNormals;
         float[] tanBuf = vars.skinTangents;
 
-        int iterations = (int) FastMath.ceil(fvb.capacity() / ((float) posBuf.length));
+        int iterations = (int) FastMath.ceil(fvb.limit() / ((float) posBuf.length));
         int bufLength = 0;
         int tanLength = 0;
         for (int i = iterations - 1; i >= 0; i--) {

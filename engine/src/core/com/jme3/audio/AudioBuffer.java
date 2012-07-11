@@ -70,7 +70,7 @@ public class AudioBuffer extends AudioData {
     public float getDuration(){
         int bytesPerSec = (bitsPerSample / 8) * channels * sampleRate;
         if (audioData != null)
-            return (float) audioData.capacity() / bytesPerSec;
+            return (float) audioData.limit() / bytesPerSec;
         else
             return Float.NaN; // unknown
     }

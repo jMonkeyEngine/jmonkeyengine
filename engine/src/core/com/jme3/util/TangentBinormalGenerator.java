@@ -191,7 +191,7 @@ public class TangentBinormalGenerator {
         
         FloatBuffer textureBuffer = (FloatBuffer) mesh.getBuffer(Type.TexCoord).getData();
         
-        VertexData[] vertices = initVertexData(vertexBuffer.capacity() / 3);
+        VertexData[] vertices = initVertexData(vertexBuffer.limit() / 3);
         
         for (int i = 0; i < indexBuffer.size() / 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -217,7 +217,7 @@ public class TangentBinormalGenerator {
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         FloatBuffer textureBuffer = (FloatBuffer) mesh.getBuffer(Type.TexCoord).getData();
         
-        VertexData[] vertices = initVertexData(vertexBuffer.capacity() / 3);
+        VertexData[] vertices = initVertexData(vertexBuffer.limit() / 3);
         
         index[0] = indexBuffer.get(0);
         index[1] = indexBuffer.get(1);
@@ -265,7 +265,7 @@ public class TangentBinormalGenerator {
         FloatBuffer vertexBuffer = (FloatBuffer) mesh.getBuffer(Type.Position).getData();
         FloatBuffer textureBuffer = (FloatBuffer) mesh.getBuffer(Type.TexCoord).getData();
         
-        VertexData[] vertices = initVertexData(vertexBuffer.capacity() / 3);
+        VertexData[] vertices = initVertexData(vertexBuffer.limit() / 3);
         
         index[0] = indexBuffer.get(0);
         index[1] = indexBuffer.get(1);
@@ -276,7 +276,7 @@ public class TangentBinormalGenerator {
         populateFromBuffer(t[0], textureBuffer, index[0]);
         populateFromBuffer(t[1], textureBuffer, index[1]);
         
-        for (int i = 2; i < vertexBuffer.capacity() / 3; i++) {
+        for (int i = 2; i < vertexBuffer.limit() / 3; i++) {
             index[2] = indexBuffer.get(i);
             populateFromBuffer(v[2], vertexBuffer, index[2]);
             populateFromBuffer(t[2], textureBuffer, index[2]);
@@ -406,7 +406,7 @@ public class TangentBinormalGenerator {
         Vector3f normal = new Vector3f();
         Vector2f texCoord = new Vector2f();
         
-        final int size = vertexBuffer.capacity() / 3;
+        final int size = vertexBuffer.limit() / 3;
         for (int i = 0; i < size; i++) {
             
             populateFromBuffer(position, vertexBuffer, i);
@@ -638,10 +638,10 @@ public class TangentBinormalGenerator {
         Vector3f origin = new Vector3f();
         Vector3f point = new Vector3f();
         
-        FloatBuffer lineVertex = BufferUtils.createFloatBuffer(vertexBuffer.capacity() * 2);
-        FloatBuffer lineColor = BufferUtils.createFloatBuffer(vertexBuffer.capacity() / 3 * 4 * 2);
+        FloatBuffer lineVertex = BufferUtils.createFloatBuffer(vertexBuffer.limit() * 2);
+        FloatBuffer lineColor = BufferUtils.createFloatBuffer(vertexBuffer.limit() / 3 * 4 * 2);
         
-        for (int i = 0; i < vertexBuffer.capacity() / 3; i++) {
+        for (int i = 0; i < vertexBuffer.limit() / 3; i++) {
             populateFromBuffer(origin, vertexBuffer, i);
             populateFromBuffer(point, normalBuffer, i);
             
@@ -687,14 +687,14 @@ public class TangentBinormalGenerator {
         Vector3f tangent = new Vector3f();
         Vector3f normal = new Vector3f();
         
-        IntBuffer lineIndex = BufferUtils.createIntBuffer(vertexBuffer.capacity() / 3 * 6);
-        FloatBuffer lineVertex = BufferUtils.createFloatBuffer(vertexBuffer.capacity() * 4);
-        FloatBuffer lineColor = BufferUtils.createFloatBuffer(vertexBuffer.capacity() / 3 * 4 * 4);
+        IntBuffer lineIndex = BufferUtils.createIntBuffer(vertexBuffer.limit() / 3 * 6);
+        FloatBuffer lineVertex = BufferUtils.createFloatBuffer(vertexBuffer.limit() * 4);
+        FloatBuffer lineColor = BufferUtils.createFloatBuffer(vertexBuffer.limit() / 3 * 4 * 4);
         
         boolean hasParity = mesh.getBuffer(Type.Tangent).getNumComponents() == 4;
         float tangentW = 1;
         
-        for (int i = 0; i < vertexBuffer.capacity() / 3; i++) {
+        for (int i = 0; i < vertexBuffer.limit() / 3; i++) {
             populateFromBuffer(origin, vertexBuffer, i);
             populateFromBuffer(normal, normalBuffer, i);
             
