@@ -61,17 +61,15 @@ public class OgreSceneDataObject extends SpatialAssetDataObject {
             return null;
         }
         String name = getPrimaryFile().getName();
-        FileObject sourceMatFile = getPrimaryFile().getParent().getFileObject(name, "material");
-        if (sourceMatFile != null && sourceMatFile.isValid()) {
-            try {
-                sourceMatFile.copy(sourceMatFile.getParent(), "+" + sourceMatFile.getName(), sourceMatFile.getExt());
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        } else {
+        String matName = null;//((OgreSceneKey)getAssetKey()).getMaterialName();
+        if(matName == null){
+            matName = name;
+        }
+        FileObject sourceMatFile = getPrimaryFile().getParent().getFileObject(matName, "material");
+        if (sourceMatFile == null || !sourceMatFile.isValid()) {
             Confirmation msg = new NotifyDescriptor.Confirmation(
                     "No material file found for " + getPrimaryFile().getNameExt() + "\n"
-                    + "A file named " + name + ".material should be in the same folder.\n"
+                    + "A file named " + matName + ".material should be in the same folder.\n"
                     + "Press OK to import mesh only.",
                     NotifyDescriptor.OK_CANCEL_OPTION,
                     NotifyDescriptor.WARNING_MESSAGE);
