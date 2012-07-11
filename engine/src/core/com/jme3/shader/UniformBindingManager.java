@@ -7,6 +7,7 @@ package com.jme3.shader;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
 import com.jme3.system.Timer;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import java.util.List;
  * @author Kirill Vainer
  */
 public class UniformBindingManager {
-    
+
     private Timer timer;
     private float near, far;
     private int viewX, viewY, viewWidth, viewHeight;
@@ -29,18 +30,14 @@ public class UniformBindingManager {
             camLeft = new Vector3f(),
             camDir = new Vector3f(),
             camLoc = new Vector3f();
-    
     private Matrix4f tempMatrix = new Matrix4f();
-    
     private Matrix4f viewMatrix = new Matrix4f();
     private Matrix4f projMatrix = new Matrix4f();
     private Matrix4f viewProjMatrix = new Matrix4f();
     private Matrix4f worldMatrix = new Matrix4f();
-    
     private Matrix4f worldViewMatrix = new Matrix4f();
     private Matrix4f worldViewProjMatrix = new Matrix4f();
     private Matrix3f normalMatrix = new Matrix3f();
-    
     private Matrix4f worldMatrixInv = new Matrix4f();
     private Matrix4f viewMatrixInv = new Matrix4f();
     private Matrix4f projMatrixInv = new Matrix4f();
@@ -48,12 +45,11 @@ public class UniformBindingManager {
     private Matrix4f worldViewMatrixInv = new Matrix4f();
     private Matrix3f normalMatrixInv = new Matrix3f();
     private Matrix4f worldViewProjMatrixInv = new Matrix4f();
-    
     private Vector4f viewPort = new Vector4f();
     private Vector2f resolution = new Vector2f();
     private Vector2f resolutionInv = new Vector2f();
     private Vector2f nearFar = new Vector2f();
-    
+
     /**
      * Internal use only.
      * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
@@ -183,7 +179,7 @@ public class UniformBindingManager {
             }
         }
     }
-    
+
     /**
      * Internal use only. Sets the world matrix to use for future
      * rendering. This has no effect unless objects are rendered manually
@@ -196,7 +192,7 @@ public class UniformBindingManager {
     public void setWorldMatrix(Matrix4f mat) {
         worldMatrix.set(mat);
     }
-    
+
     /**
      * Set the timer that should be used to query the time based
      * {@link UniformBinding}s for material world parameters.
@@ -206,7 +202,7 @@ public class UniformBindingManager {
     public void setTimer(com.jme3.system.Timer timer) {
         this.timer = timer;
     }
-    
+
     public void setCamera(Camera cam, Matrix4f viewMatrix, Matrix4f projMatrix, Matrix4f viewProjMatrix) {
         this.viewMatrix.set(viewMatrix);
         this.projMatrix.set(projMatrix);
@@ -220,5 +216,11 @@ public class UniformBindingManager {
         near = cam.getFrustumNear();
         far = cam.getFrustumFar();
     }
-    
+
+    public void setViewPort(int viewX, int viewY, int viewWidth, int viewHeight) {    
+        this.viewX = viewX;
+        this.viewY = viewY;
+        this.viewWidth = viewWidth;
+        this.viewHeight = viewHeight;
+    }
 }

@@ -813,6 +813,7 @@ public class RenderManager {
             viewY = (int) (cam.getViewPortBottom() * cam.getHeight());
             viewWidth = (int) ((cam.getViewPortRight() - cam.getViewPortLeft()) * cam.getWidth());
             viewHeight = (int) ((cam.getViewPortTop() - cam.getViewPortBottom()) * cam.getHeight());
+            uniformBindingManager.setViewPort(viewX, viewY, viewWidth, viewHeight);
             renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
             renderer.setClipRect(viewX, viewY, viewWidth, viewHeight);
             cam.clearViewportChanged();
