@@ -65,19 +65,19 @@ public class OgreSceneDataObject extends SpatialAssetDataObject {
         if(matName == null){
             matName = name;
         }
-        FileObject sourceMatFile = getPrimaryFile().getParent().getFileObject(matName, "material");
-        if (sourceMatFile == null || !sourceMatFile.isValid()) {
-            Confirmation msg = new NotifyDescriptor.Confirmation(
-                    "No material file found for " + getPrimaryFile().getNameExt() + "\n"
-                    + "A file named " + matName + ".material should be in the same folder.\n"
-                    + "Press OK to import mesh only.",
-                    NotifyDescriptor.OK_CANCEL_OPTION,
-                    NotifyDescriptor.WARNING_MESSAGE);
-            Object result = DialogDisplayer.getDefault().notify(msg);
-            if (!NotifyDescriptor.OK_OPTION.equals(result)) {
-                return null;
-            }
-        }
+//        FileObject sourceMatFile = getPrimaryFile().getParent().getFileObject(matName, "material");
+//        if (sourceMatFile == null || !sourceMatFile.isValid()) {
+//            Confirmation msg = new NotifyDescriptor.Confirmation(
+//                    "No material file found for " + getPrimaryFile().getNameExt() + "\n"
+//                    + "A file named " + matName + ".material should be in the same folder.\n"
+//                    + "Press OK to import mesh only.",
+//                    NotifyDescriptor.OK_CANCEL_OPTION,
+//                    NotifyDescriptor.WARNING_MESSAGE);
+//            Object result = DialogDisplayer.getDefault().notify(msg);
+//            if (!NotifyDescriptor.OK_OPTION.equals(result)) {
+//                return null;
+//            }
+//        }
         
         FileLock lock = null;
         try {
