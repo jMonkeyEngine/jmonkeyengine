@@ -32,7 +32,7 @@
 package com.jme3.cinematic;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.cinematic.events.MotionTrack;
+import com.jme3.cinematic.events.MotionEvent;
 import com.jme3.export.*;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -71,11 +71,11 @@ public class MotionPath implements Savable {
 
     /**
      * interpolate the path giving the time since the beginnin and the motionControl     
-     * this methods sets the new localTranslation to the spatial of the motionTrack control.
+     * this methods sets the new localTranslation to the spatial of the MotionEvent control.
      * @param time the time since the animation started
      * @param control the ocntrol over the moving spatial
      */
-    public float interpolatePath(float time, MotionTrack control, float tpf) {
+    public float interpolatePath(float time, MotionEvent control, float tpf) {
 
         float traveledDistance = 0;
         TempVars vars = TempVars.get();
@@ -104,7 +104,7 @@ public class MotionPath implements Savable {
         return traveledDistance;
     }
 
-    public void checkWayPoint(MotionTrack control, float tpf) {
+    public void checkWayPoint(MotionEvent control, float tpf) {
         //Epsilon varies with the tpf to avoid missing a waypoint on low framerate.
         float epsilon =  tpf * 4f;
         if (control.getCurrentWayPoint() != prevWayPoint) {
@@ -317,7 +317,7 @@ public class MotionPath implements Savable {
         return spline.getControlPoints().size();
     }
 
-    public void triggerWayPointReach(int wayPointIndex, MotionTrack control) {
+    public void triggerWayPointReach(int wayPointIndex, MotionEvent control) {
         if (listeners != null) {
             for (Iterator<MotionPathListener> it = listeners.iterator(); it.hasNext();) {
                 MotionPathListener listener = it.next();

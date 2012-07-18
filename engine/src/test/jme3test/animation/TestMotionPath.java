@@ -35,7 +35,8 @@ import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.MotionPath;
 import com.jme3.cinematic.MotionPathListener;
-import com.jme3.cinematic.events.MotionTrack;
+import com.jme3.cinematic.events.MotionEvent;
+import com.jme3.cinematic.events.MotionEvent;
 import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
@@ -58,7 +59,7 @@ public class TestMotionPath extends SimpleApplication {
     private boolean active = true;
     private boolean playing = false;
     private MotionPath path;
-    private MotionTrack motionControl;
+    private MotionEvent motionControl;
 
     public static void main(String[] args) {
         TestMotionPath app = new TestMotionPath();
@@ -80,8 +81,8 @@ public class TestMotionPath extends SimpleApplication {
         path.addWayPoint(new Vector3f(15, 8, 10));
         path.enableDebugShape(assetManager, rootNode);
 
-        motionControl = new MotionTrack(teapot,path);
-        motionControl.setDirectionType(MotionTrack.Direction.PathAndRotation);
+        motionControl = new MotionEvent(teapot,path);
+        motionControl.setDirectionType(MotionEvent.Direction.PathAndRotation);
         motionControl.setRotation(new Quaternion().fromAngleNormalAxis(-FastMath.HALF_PI, Vector3f.UNIT_Y));
         motionControl.setInitialDuration(10f);
         motionControl.setSpeed(2f);       
@@ -93,7 +94,7 @@ public class TestMotionPath extends SimpleApplication {
 
         path.addListener(new MotionPathListener() {
 
-            public void onWayPointReach(MotionTrack control, int wayPointIndex) {
+            public void onWayPointReach(MotionEvent control, int wayPointIndex) {
                 if (path.getNbWayPoints() == wayPointIndex + 1) {
                     wayPointsText.setText(control.getSpatial().getName() + "Finished!!! ");
                 } else {

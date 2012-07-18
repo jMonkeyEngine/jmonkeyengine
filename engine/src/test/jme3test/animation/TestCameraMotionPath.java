@@ -35,7 +35,8 @@ import com.jme3.animation.LoopMode;
 import com.jme3.app.SimpleApplication;
 import com.jme3.cinematic.MotionPath;
 import com.jme3.cinematic.MotionPathListener;
-import com.jme3.cinematic.events.MotionTrack;
+import com.jme3.cinematic.events.MotionEvent;
+import com.jme3.cinematic.events.MotionEvent;
 import com.jme3.font.BitmapText;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
@@ -58,7 +59,7 @@ public class TestCameraMotionPath extends SimpleApplication {
     private boolean active = true;
     private boolean playing = false;
     private MotionPath path;
-    private MotionTrack cameraMotionControl;
+    private MotionEvent cameraMotionControl;
     private ChaseCamera chaser;
     private CameraNode camNode;
 
@@ -83,11 +84,11 @@ public class TestCameraMotionPath extends SimpleApplication {
         path.setCurveTension(0.83f);
         path.enableDebugShape(assetManager, rootNode);
 
-        cameraMotionControl = new MotionTrack(camNode, path);
+        cameraMotionControl = new MotionEvent(camNode, path);
         cameraMotionControl.setLoopMode(LoopMode.Loop);
         //cameraMotionControl.setDuration(15f);
         cameraMotionControl.setLookAt(teapot.getWorldTranslation(), Vector3f.UNIT_Y);
-        cameraMotionControl.setDirectionType(MotionTrack.Direction.LookAt);
+        cameraMotionControl.setDirectionType(MotionEvent.Direction.LookAt);
 
         rootNode.attachChild(camNode);
 
@@ -99,7 +100,7 @@ public class TestCameraMotionPath extends SimpleApplication {
 
         path.addListener(new MotionPathListener() {
 
-            public void onWayPointReach(MotionTrack control, int wayPointIndex) {
+            public void onWayPointReach(MotionEvent control, int wayPointIndex) {
                 if (path.getNbWayPoints() == wayPointIndex + 1) {
                     wayPointsText.setText(control.getSpatial().getName() + " Finish!!! ");
                 } else {
@@ -180,7 +181,7 @@ public class TestCameraMotionPath extends SimpleApplication {
                 }
 
                 if (name.equals("SwitchPathInterpolation") && keyPressed) {
-                    if (path.getPathSplineType() == SplineType.CatmullRom){
+                    if (path.getPathSplineType() == SplineType.CatmullRom) {
                         path.setPathSplineType(SplineType.Linear);
                     } else {
                         path.setPathSplineType(SplineType.CatmullRom);

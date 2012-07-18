@@ -65,7 +65,7 @@ public class TestCinematic extends SimpleApplication {
     private Spatial model;
     private Spatial teapot;
     private MotionPath path;
-    private MotionTrack cameraMotionTrack;
+    private MotionEvent cameraMotionEvent;
     private Cinematic cinematic;
     private ChaseCamera chaseCam;
     private FilterPostProcessor fpp;
@@ -119,16 +119,16 @@ public class TestCinematic extends SimpleApplication {
 
         //fade in
         cinematic.addCinematicEvent(0, new FadeEvent(true));
-       // cinematic.activateCamera(0, "aroundCam");
-        cinematic.addCinematicEvent(0, new AnimationTrack(teapot, "teapotAnim", LoopMode.DontLoop));
-        cinematic.addCinematicEvent(0, cameraMotionTrack);
-        cinematic.addCinematicEvent(0, new SoundTrack("Sound/Environment/Nature.ogg", LoopMode.Loop));
-        cinematic.addCinematicEvent(3f, new SoundTrack("Sound/Effects/kick.wav"));
+        // cinematic.activateCamera(0, "aroundCam");
+        cinematic.addCinematicEvent(0, new AnimationEvent(teapot, "teapotAnim", LoopMode.DontLoop));
+        cinematic.addCinematicEvent(0, cameraMotionEvent);
+        cinematic.addCinematicEvent(0, new SoundEvent("Sound/Environment/Nature.ogg", LoopMode.Loop));
+        cinematic.addCinematicEvent(3f, new SoundEvent("Sound/Effects/kick.wav"));
         cinematic.addCinematicEvent(3, new SubtitleTrack(nifty, "start", 3, "jMonkey engine really kicks A..."));
-        cinematic.addCinematicEvent(5.1f, new SoundTrack("Sound/Effects/Beep.ogg", 1));
-        cinematic.addCinematicEvent(2, new AnimationTrack(model, "Walk", LoopMode.Loop));
+        cinematic.addCinematicEvent(5.1f, new SoundEvent("Sound/Effects/Beep.ogg", 1));
+        cinematic.addCinematicEvent(2, new AnimationEvent(model, "Walk", LoopMode.Loop));
         cinematic.activateCamera(0, "topView");
-      //  cinematic.activateCamera(10, "aroundCam");
+        //  cinematic.activateCamera(10, "aroundCam");
 
         //fade out
         cinematic.addCinematicEvent(19, new FadeEvent(false));
@@ -193,10 +193,10 @@ public class TestCinematic extends SimpleApplication {
         path.addWayPoint(new Vector3f(-20, 3, 0));
         path.addWayPoint(new Vector3f(0, 3, -20));
         path.setCurveTension(0.83f);
-        cameraMotionTrack = new MotionTrack(camNode2, path);
-        cameraMotionTrack.setLoopMode(LoopMode.Loop);
-        cameraMotionTrack.setLookAt(model.getWorldTranslation(), Vector3f.UNIT_Y);
-        cameraMotionTrack.setDirectionType(MotionTrack.Direction.LookAt);
+        cameraMotionEvent = new MotionEvent(camNode2, path);
+        cameraMotionEvent.setLoopMode(LoopMode.Loop);
+        cameraMotionEvent.setLookAt(model.getWorldTranslation(), Vector3f.UNIT_Y);
+        cameraMotionEvent.setDirectionType(MotionEvent.Direction.LookAt);
 
     }
 
