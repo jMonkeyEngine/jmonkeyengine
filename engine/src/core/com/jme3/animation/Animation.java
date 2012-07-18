@@ -32,6 +32,7 @@
 package com.jme3.animation;
 
 import com.jme3.export.*;
+import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 
@@ -55,7 +56,7 @@ public class Animation implements Savable, Cloneable {
     /** 
      * The tracks of the animation. 
      */
-    private Track[] tracks;
+    private SafeArrayList<Track> tracks = new SafeArrayList<Track>(Track.class);
     
     /**
      * Serialization-only. Do not use.
@@ -104,22 +105,39 @@ public class Animation implements Savable, Cloneable {
         if (tracks == null)
             return;
         
-        for (int i = 0; i < tracks.length; i++){
-            tracks[i].setTime(time, blendAmount, control, channel, vars);
+        for (Track track : tracks) {
+            track.setTime(time, blendAmount, control, channel, vars);
         }
     }
     
     /**
      * Set the {@link Track}s to be used by this animation.
      * <p>
-     * The array should be organized so that the appropriate Track can
-     * be retrieved based on a bone index. 
      * 
      * @param tracks The tracks to set.
      */
-    public void setTracks(Track[] tracks){
-        this.tracks = tracks;
+    public void setTracks(Track[] tracksArray){
+        for (Track track : tracksArray) {
+            tracks.add(track);
+        }
     }
+    
+    
+    /**
+     * Adds a track to this animation
+     * @param track the track to add
+     */
+    public void addTrack(Track track){
+        tracks.add(track);
+    }
+    
+    /**
+     * removes a track from this animation
+     * @param track the track to remove
+     */   
+    public void removeTrack(Track track){
+        tracks.remove(track);
+    }    
     
     /**
      * Returns the tracks set in {@link #setTracks(com.jme3.animation.Track[]) }.
@@ -127,7 +145,7 @@ public class Animation implements Savable, Cloneable {
      * @return the tracks set previously
      */
     public Track[] getTracks() {
-    	return tracks;
+    	return tracks.getArray();
     }
     
     /**
@@ -138,9 +156,9 @@ public class Animation implements Savable, Cloneable {
    public Animation clone() {
         try {
             Animation result = (Animation) super.clone();
-            result.tracks = tracks.clone();
-            for (int i = 0; i < tracks.length; ++i) {
-                result.tracks[i] = this.tracks[i].clone();
+            result.tracks = new SafeArrayList<Track>(Track.class);
+            for (Track track : tracks) {
+                result.tracks.add(track.clone());
             }
             return result;
         } catch (CloneNotSupportedException e) {
@@ -158,7 +176,7 @@ public class Animation implements Savable, Cloneable {
         OutputCapsule out = ex.getCapsule(this);
         out.write(name, "name", null);
         out.write(length, "length", 0f);
-        out.write(tracks, "tracks", null);
+        out.write(tracks.getArray(), "tracks", null);
     }
 
     @Override
@@ -173,8 +191,10 @@ public class Animation implements Savable, Cloneable {
             // tracks set at all even though it makes no sense.
             // Since there's a null check in setTime(),
             // its only appropriate that the check is made here as well.
-            tracks = new Track[arr.length];
-            System.arraycopy(arr, 0, tracks, 0, arr.length);
+            tracks = new SafeArrayList<Track>(Track.class);
+            for (Savable savable : arr) {
+                tracks.add((Track)savable);
+            }            
         }
     }
 }
