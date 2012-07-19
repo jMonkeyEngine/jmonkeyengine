@@ -117,8 +117,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * Refresh flag types
      */
     protected static final int RF_TRANSFORM = 0x01, // need light resort + combine transforms
-            RF_BOUND = 0x02,
-            RF_LIGHTLIST = 0x04; // changes in light lists          
+                               RF_BOUND = 0x02,
+                               RF_LIGHTLIST = 0x04; // changes in light lists 
+    
     protected CullHint cullHint = CullHint.Inherit;
     protected BatchHint batchHint = BatchHint.Inherit;
     /** 
@@ -213,7 +214,6 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     protected void setBoundRefresh() {
         refreshFlags |= RF_BOUND;
 
-        // XXX: Replace with a recursive call?
         Spatial p = parent;
         while (p != null) {
             if ((p.refreshFlags & RF_BOUND) != 0) {
@@ -222,6 +222,25 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
             p.refreshFlags |= RF_BOUND;
             p = p.parent;
+        }
+    }
+    
+    /**
+     * (Internal use only) Forces a refresh of the given types of data.
+     * 
+     * @param transforms Refresh world transform based on parents'
+     * @param bounds Refresh bounding volume data based on child nodes
+     * @param lights Refresh light list based on parents'
+     */
+    public void forceRefresh(boolean transforms, boolean bounds, boolean lights) {
+        if (transforms) {
+            setTransformRefresh();
+        }
+        if (bounds) {
+            setBoundRefresh();
+        }
+        if (lights) {
+            setLightListRefresh();
         }
     }
 

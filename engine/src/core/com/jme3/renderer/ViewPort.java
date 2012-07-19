@@ -290,6 +290,7 @@ public class ViewPort {
             throw new IllegalArgumentException( "Scene cannot be null." );
         }
         sceneList.add(scene);
+        scene.forceRefresh(true, false, true);
     }
 
     /**
@@ -304,6 +305,7 @@ public class ViewPort {
             throw new IllegalArgumentException( "Scene cannot be null." );
         }
         sceneList.remove(scene);
+        scene.forceRefresh(true, false, true);
     }
 
     /**
