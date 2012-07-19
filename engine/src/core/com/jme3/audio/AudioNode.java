@@ -442,8 +442,9 @@ public class AudioNode extends Node {
      */
     public void setReverbEnabled(boolean reverbEnabled) {
         this.reverbEnabled = reverbEnabled;
-        if (channel >= 0)
+        if (channel >= 0) {
             getRenderer().updateSourceParam(this, AudioParam.ReverbEnabled);
+        }
     }
 
     /**
@@ -642,8 +643,9 @@ public class AudioNode extends Node {
      */
     public void setPositional(boolean positional) {
         this.positional = positional;
-        if (channel >= 0)
+        if (channel >= 0) {
             getRenderer().updateSourceParam(this, AudioParam.IsPositional);
+        }
     }
 
     @Override
