@@ -410,12 +410,12 @@ final public class FastMath {
     }
 
     /**
-     * Returns the arc cosine of an angle given in radians.<br>
+     * Returns the arc cosine of a value.<br>
      * Special cases:
      * <ul><li>If fValue is smaller than -1, then the result is PI.
      * <li>If the argument is greater than 1, then the result is 0.</ul>
-     * @param fValue The angle, in radians.
-     * @return fValue's acos
+     * @param fValue The value to arc cosine.
+     * @return The angle, in radians.
      * @see java.lang.Math#acos(double)
      */
     public static float acos(float fValue) {
@@ -431,12 +431,12 @@ final public class FastMath {
     }
 
     /**
-     * Returns the arc sine of an angle given in radians.<br>
+     * Returns the arc sine of a value.<br>
      * Special cases:
      * <ul><li>If fValue is smaller than -1, then the result is -HALF_PI.
      * <li>If the argument is greater than 1, then the result is HALF_PI.</ul>
-     * @param fValue The angle, in radians.
-     * @return fValue's asin
+     * @param fValue The value to arc sine.
+     * @return the angle in radians.
      * @see java.lang.Math#asin(double)
      */
     public static float asin(float fValue) {
@@ -504,12 +504,12 @@ final public class FastMath {
     }
 
     /**
-     * Returns sine of a value. 
+     * Returns sine of an angle. 
      * 
      * note: code from wiki posting on java.net by jeffpk
      * 
      * @param fValue
-     *            The value to sine, in radians.
+     *            The angle to sine, in radians.
      * @return The sine of fValue.
      * @see java.lang.Math#sin(double)
      */
@@ -523,10 +523,10 @@ final public class FastMath {
     }
 
     /**
-     * Returns cos of a value.
+     * Returns cos of an angle.
      * 
      * @param fValue
-     *            The value to cosine, in radians.
+     *            The angle to cosine, in radians.
      * @return The cosine of fValue.
      * @see java.lang.Math#cos(double)
      */
@@ -534,10 +534,22 @@ final public class FastMath {
         return sin2(fValue + HALF_PI);
     }
 
+    /**
+     * Returns cosine of an angle. Direct call to java.lang.Math
+     * @see Math#cos(double) 
+     * @param v The angle to cosine.
+     * @return  the cosine of the angle.
+     */
     public static float cos(float v) {
         return (float) Math.cos(v);
     }
 
+    /**
+     * Returns the sine of an angle. Direct call to java.lang.Math
+     * @see Math#sin(double) 
+     * @param v The angle to sine.
+     * @return the sine of the angle.
+     */
     public static float sin(float v) {
         return (float) Math.sin(v);
     }
