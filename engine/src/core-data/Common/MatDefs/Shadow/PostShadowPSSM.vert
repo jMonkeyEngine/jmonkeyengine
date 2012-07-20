@@ -16,7 +16,7 @@ varying float shadowPosition;
 varying vec2 texCoord;
 
 attribute vec3 inPosition;
-#ifdef DIFFUSEMAP) || defined(COLOR_MAP)
+#if defined(DIFFUSEMAP) || defined(COLOR_MAP)
     attribute vec2 inTexCoord;
 #endif
 
