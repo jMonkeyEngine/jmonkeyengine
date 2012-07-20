@@ -164,9 +164,9 @@ public class AndroidInput implements
 
     /**
      * Fetches a touch event from the reuse pool
-     * @param wait if true waits for a reusable event to get available/released 
+     * @param wait if true waits for a reusable event to get available/released
      * by an other thread, if false returns a new one if needed.
-     * 
+     *
      * @return a usable TouchEvent
      */
     private TouchEvent getNextFreeTouchEvent(boolean wait) {
@@ -227,6 +227,7 @@ public class AndroidInput implements
         int pointerIndex = (event.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK)
                 >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
         int pointerId = event.getPointerId(pointerIndex);
+        Vector2f lastPos = lastPositions.get(pointerId);
 
         // final int historySize = event.getHistorySize();
         //final int pointerCount = event.getPointerCount();
@@ -240,6 +241,9 @@ public class AndroidInput implements
                 touch.setPressure(event.getPressure(pointerIndex));
                 processEvent(touch);
 
+                lastPos = new Vector2f(event.getX(pointerIndex), view.getHeight() - event.getY(pointerIndex));
+                lastPositions.put(pointerId, lastPos);
+
                 bWasHandled = true;
                 break;
             case MotionEvent.ACTION_POINTER_UP:
@@ -251,13 +255,14 @@ public class AndroidInput implements
                 touch.setTime(event.getEventTime());
                 touch.setPressure(event.getPressure(pointerIndex));
                 processEvent(touch);
+                lastPositions.remove(pointerId);
 
                 bWasHandled = true;
                 break;
             case MotionEvent.ACTION_MOVE:
                 // Convert all pointers into events
                 for (int p = 0; p < event.getPointerCount(); p++) {
-                    Vector2f lastPos = lastPositions.get(p);
+                    lastPos = lastPositions.get(p);
                     if (lastPos == null) {
                         lastPos = new Vector2f(event.getX(p), view.getHeight() - event.getY(p));
                         lastPositions.put(event.getPointerId(p), lastPos);
@@ -277,7 +282,7 @@ public class AndroidInput implements
 
         }
 
-        // Try to detect gestures        
+        // Try to detect gestures
         this.detector.onTouchEvent(event);
         this.scaledetector.onTouchEvent(event);
 
@@ -384,7 +389,7 @@ public class AndroidInput implements
         }
     }
 
-    //  ---------------  INSIDE GLThread  --------------- 
+    //  ---------------  INSIDE GLThread  ---------------
     @Override
     public void update() {
         generateEvents();
@@ -419,7 +424,7 @@ public class AndroidInput implements
 
                         switch (event.getType()) {
                             case DOWN:
-                                // Handle mouse down event 
+                                // Handle mouse down event
                                 btn = new MouseButtonEvent(0, true, newX, newY);
                                 btn.setTime(event.getTime());
                                 listener.onMouseButtonEvent(btn);
@@ -429,7 +434,7 @@ public class AndroidInput implements
                                 break;
 
                             case UP:
-                                // Handle mouse up event 
+                                // Handle mouse up event
                                 btn = new MouseButtonEvent(0, false, newX, newY);
                                 btn.setTime(event.getTime());
                                 listener.onMouseButtonEvent(btn);
@@ -472,9 +477,9 @@ public class AndroidInput implements
 
         }
     }
-    //  --------------- ENDOF INSIDE GLThread  --------------- 
+    //  --------------- ENDOF INSIDE GLThread  ---------------
 
-    // --------------- Gesture detected callback events  --------------- 
+    // --------------- Gesture detected callback events  ---------------
     public boolean onDown(MotionEvent event) {
         return false;
     }
