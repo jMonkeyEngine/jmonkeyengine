@@ -35,8 +35,11 @@ import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -91,6 +94,11 @@ public class JmeSystem {
     public static SoftTextDialogInput getSoftTextDialogInput() {
         checkDelegate();
         return systemDelegate.getSoftTextDialogInput();
+    }
+    
+    public static void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
+        checkDelegate();
+        systemDelegate.writeImageFile(outStream, format, imageData, width, height);
     }
 
     public static AssetManager newAssetManager(URL configFile) {

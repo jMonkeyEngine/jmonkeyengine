@@ -38,12 +38,17 @@ import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.system.JmeContext.Type;
+import com.jme3.util.Screenshots;
 import java.awt.EventQueue;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
@@ -56,6 +61,13 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
     @Override
     public AssetManager newAssetManager(URL configFile) {
         return new DesktopAssetManager(configFile);
+    }
+    
+    @Override
+    public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
+        BufferedImage awtImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+        Screenshots.convertScreenShot(imageData, awtImage);
+        ImageIO.write(awtImage, format, outStream);
     }
 
     @Override

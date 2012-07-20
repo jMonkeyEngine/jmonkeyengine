@@ -1271,8 +1271,21 @@ public class OGLESShaderRenderer implements Renderer {
     }
      */
 
+    /**
+     * Reads the Color Buffer from OpenGL and stores into the ByteBuffer.
+     * Since jME for Android does not support Frame Buffers yet, make sure the FrameBuffer
+     * passed in is NULL (default) or an exception will be thrown.
+     * Also, make sure to call setViewPort with the appropriate viewport size before
+     * calling readFrameBuffer.
+     * @param fb FrameBuffer (must be NULL)
+     * @param byteBuf ByteBuffer to store the Color Buffer from OpenGL
+     */
     public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
-        logger.warning("readFrameBuffer is not supported.");
+        if (fb != null) {
+            throw new IllegalArgumentException("FrameBuffer is not supported yet.");
+    }
+
+        GLES20.glReadPixels(vpX, vpY, vpW, vpH, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, byteBuf);
     }
     /*
     public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf){

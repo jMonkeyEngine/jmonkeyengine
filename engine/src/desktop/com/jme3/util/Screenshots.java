@@ -33,6 +33,12 @@ public final class Screenshots {
 //        }
     }
     
+    /**
+     * Flips the image along the Y axis and converts BGRA to ABGR
+     * 
+     * @param bgraBuf
+     * @param out 
+     */
     public static void convertScreenShot(ByteBuffer bgraBuf, BufferedImage out){
         WritableRaster wr = out.getRaster();
         DataBufferByte db = (DataBufferByte) wr.getDataBuffer();

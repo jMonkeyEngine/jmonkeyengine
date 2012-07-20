@@ -10,17 +10,17 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.system.JmeSystem;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.util.BufferUtils;
-import com.jme3.util.Screenshots;
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 
 public class ScreenshotAppState extends AbstractAppState implements ActionListener, SceneProcessor {
 
@@ -30,8 +30,8 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private ByteBuffer outBuf;
     private String appName;
     private int shotIndex = 0;
-    private BufferedImage awtImage;
-
+    private int width, height;
+    
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         if (!super.isInitialized()){
@@ -66,8 +66,9 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     }
 
     public void reshape(ViewPort vp, int w, int h) {
-        outBuf = BufferUtils.createByteBuffer(w*h*4);
-        awtImage = new BufferedImage(w, h, BufferedImage.TYPE_4BYTE_ABGR);
+        outBuf = BufferUtils.createByteBuffer(w * h * 4);
+        width = w;
+        height = h;
     }
 
     public void preFrame(float tpf) {
@@ -82,12 +83,21 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             shotIndex++;
 
             renderer.readFrameBuffer(out, outBuf);
-            Screenshots.convertScreenShot(outBuf, awtImage);
-
+            File file = new File(appName + shotIndex + ".png").getAbsoluteFile();
+            OutputStream outStream = null;
             try {
-                ImageIO.write(awtImage, "png", new File(appName + shotIndex + ".png"));
-            } catch (IOException ex){
+                outStream = new FileOutputStream(file);
+                JmeSystem.writeImageFile(outStream, "png", outBuf, width, height);
+            } catch (IOException ex) {
                 logger.log(Level.SEVERE, "Error while saving screenshot", ex);
+            } finally {
+                if (outStream != null){
+                    try {
+                        outStream.close();
+                    } catch (IOException ex) {
+                        logger.log(Level.SEVERE, "Error while saving screenshot", ex);
+                    }
+                }
             }
         }
     }

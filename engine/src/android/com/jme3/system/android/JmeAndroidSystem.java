@@ -2,19 +2,21 @@ package com.jme3.system.android;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.graphics.Bitmap;
 import android.os.Environment;
 import com.jme3.asset.AndroidAssetManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext;
+import com.jme3.system.*;
 import com.jme3.system.JmeContext.Type;
-import com.jme3.system.JmeSystemDelegate;
-import com.jme3.system.Platform;
+import com.jme3.util.AndroidScreenshots;
 import com.jme3.util.JmeFormatter;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,6 +25,22 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     private static Activity activity;
 
+    @Override
+    public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
+        Bitmap bitmapImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        AndroidScreenshots.convertScreenShot(imageData, bitmapImage);
+        Bitmap.CompressFormat compressFormat;
+        if (format.equals("png")) {
+            compressFormat = Bitmap.CompressFormat.PNG;
+        } else if (format.equals("jpg")) {
+            compressFormat = Bitmap.CompressFormat.JPEG;
+        } else {
+            throw new UnsupportedOperationException("Only 'png' and 'jpg' formats are supported on Android");
+        }
+        bitmapImage.compress(compressFormat, 95, outStream);
+        bitmapImage.recycle();
+    }
+    
     static {
         try {
             System.loadLibrary("bulletjme");
