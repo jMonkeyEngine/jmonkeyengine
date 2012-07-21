@@ -1,11 +1,23 @@
 package com.jme3.scene.plugins.blender.textures;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import jme3tools.converters.ImageToAwt;
+
 import com.jme3.math.Vector2f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.materials.MaterialContext;
+import com.jme3.scene.plugins.blender.textures.TriangulatedTexture.TriangleTextureElement;
 import com.jme3.scene.plugins.blender.textures.UVCoordinatesGenerator.UVCoordinatesType;
 import com.jme3.scene.plugins.blender.textures.UVProjectionGenerator.UVProjectionType;
 import com.jme3.scene.plugins.blender.textures.blending.TextureBlender;
@@ -18,12 +30,6 @@ import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.List;
-import jme3tools.converters.ImageToAwt;
 
 /**
  * This class represents a texture that is defined for the material. It can be
@@ -33,14 +39,27 @@ import jme3tools.converters.ImageToAwt;
  * @author Marcin Roguski (Kaelthas)
  */
 public class CombinedTexture {
+	/** The mapping type of the texture. Defined bu MaterialContext.MTEX_COL, MTEX_NOR etc. */
+	private final int mappingType;
 	/** The data for each of the textures. */
 	private List<TextureData>	textureDatas	= new ArrayList<TextureData>();
-
+	/** The variable indicates if the texture was already triangulated or not. */
+	private boolean				wasTriangulated;
 	/** The result texture. */
 	private Texture				resultTexture;
 	/** The UV values for the result texture. */
 	private List<Vector2f>		resultUVS;
 
+	/**
+	 * Constructor. Stores the texture mapping type (ie. color map, normal map).
+	 * 
+	 * @param mappingType
+	 *            texture mapping type
+	 */
+	public CombinedTexture(int mappingType) {
+		this.mappingType = mappingType;
+	}
+	
 	/**
 	 * This method adds a texture data to the resulting texture.
 	 * 
@@ -70,8 +89,7 @@ public class CombinedTexture {
 		textureData.textureStructure = textureStructure;
 
 		if (this.isWithoutAlpha(textureData, blenderContext)) {
-			textureDatas.clear();// clear previous textures, they will be
-									// covered anyway
+			textureDatas.clear();// clear previous textures, they will be covered anyway
 		}
 		textureDatas.add(textureData);
 	}
@@ -161,10 +179,17 @@ public class CombinedTexture {
 		}
 
 		if (resultTexture instanceof TriangulatedTexture) {
+			if(mappingType == MaterialContext.MTEX_NOR) {
+				for(int i=0;i<((TriangulatedTexture) resultTexture).getFaceTextureCount();++i) {
+					TriangleTextureElement triangleTextureElement = ((TriangulatedTexture) resultTexture).getFaceTextureElement(i);
+					triangleTextureElement.image = textureHelper.convertToNormalMapTexture(triangleTextureElement.image, 1);//TODO: get proper strength factor
+				}
+			}
 			resultUVS = ((TriangulatedTexture) resultTexture).getResultUVS();
 			resultTexture = ((TriangulatedTexture) resultTexture).getResultTexture();
+			wasTriangulated = true;
 		}
-
+		
 		// setting additional data
 		resultTexture.setWrap(WrapMode.Repeat);
 		// the filters are required if generated textures are used because
@@ -194,6 +219,130 @@ public class CombinedTexture {
 		}
 	}
 
+	/**
+	 * This method casts the current image to the basic UV's owner UV's
+	 * coordinates.
+	 * 
+	 * @param basicUVSOwner
+	 *            the owner of the UV's we cast to
+	 * @param blenderContext
+	 *            the blender context
+	 */
+	public void castToUVS(CombinedTexture basicUVSOwner, BlenderContext blenderContext) {
+		if (!basicUVSOwner.wasTriangulated) {
+			throw new IllegalStateException("The given texture must be triangulated!");
+		}
+		if (!this.wasTriangulated) {
+			resultTexture = new TriangulatedTexture((Texture2D) resultTexture, resultUVS, blenderContext);
+			resultUVS = ((TriangulatedTexture) resultTexture).getResultUVS();
+			resultTexture = ((TriangulatedTexture) resultTexture).getResultTexture();
+		}
+		if (resultUVS.size() != basicUVSOwner.resultUVS.size()) {
+			throw new IllegalStateException("The amount of UV coordinates must be equal in order to cas one UV's onto another!");
+		}
+		if (!resultUVS.equals(basicUVSOwner.resultUVS)) {
+			// casting algorithm
+			TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
+			ImageLoader imageLoader = new ImageLoader();
+			List<TriangleTextureElement> faceTextures = new ArrayList<TriangleTextureElement>();
+			List<Vector2f> basicUVS = basicUVSOwner.getResultUVS();
+			int[] imageRectangle = new int[4];// minX, minY, maxX, maxY
+			int[] sourceSize = new int[2], targetSize = new int[2];// width,
+																	// height
+			Vector2f[] destinationUVS = new Vector2f[3];
+			Vector2f[] sourceUVS = new Vector2f[3];
+			List<Vector2f> partImageUVS = Arrays.asList(new Vector2f(), new Vector2f(), new Vector2f());
+			int faceIndex = 0;
+
+			for (int i = 0; i < basicUVS.size(); i += 3) {
+				// destination size nad UVS
+				destinationUVS[0] = basicUVS.get(i);
+				destinationUVS[1] = basicUVS.get(i + 1);
+				destinationUVS[2] = basicUVS.get(i + 2);
+				this.computeImageRectangle(destinationUVS, imageRectangle, basicUVSOwner.resultTexture.getImage().getWidth(), basicUVSOwner.resultTexture.getImage().getHeight(), blenderContext);
+				targetSize[0] = imageRectangle[2] - imageRectangle[0];
+				targetSize[1] = imageRectangle[3] - imageRectangle[1];
+				for (int j = 0; j < 3; ++j) {
+					partImageUVS.get(j).set((basicUVSOwner.resultTexture.getImage().getWidth() * destinationUVS[j].x - imageRectangle[0]) / targetSize[0],
+							(basicUVSOwner.resultTexture.getImage().getHeight() * destinationUVS[j].y - imageRectangle[1]) / targetSize[1]);
+				}
+
+				// source size and UVS (translate UVS to (0,0) and stretch it to
+				// the borders of the image)
+				sourceUVS[0] = resultUVS.get(i);
+				sourceUVS[1] = resultUVS.get(i + 1);
+				sourceUVS[2] = resultUVS.get(i + 2);
+				this.computeImageRectangle(sourceUVS, imageRectangle, resultTexture.getImage().getWidth(), resultTexture.getImage().getHeight(), blenderContext);
+				sourceSize[0] = imageRectangle[2] - imageRectangle[0];
+				sourceSize[1] = imageRectangle[3] - imageRectangle[1];
+				float xTranslateFactor = imageRectangle[0] / (float) resultTexture.getImage().getWidth();
+				float xStreachFactor = resultTexture.getImage().getWidth() / (float) sourceSize[0];
+				float yTranslateFactor = imageRectangle[1] / (float) resultTexture.getImage().getHeight();
+				float yStreachFactor = resultTexture.getImage().getHeight() / (float) sourceSize[1];
+				for (int j = 0; j < 3; ++j) {
+					sourceUVS[j].x = (sourceUVS[j].x - xTranslateFactor) * xStreachFactor;
+					sourceUVS[j].y = (sourceUVS[j].y - yTranslateFactor) * yStreachFactor;
+				}
+
+				AffineTransform affineTransform = textureHelper.createAffineTransform(sourceUVS, partImageUVS.toArray(new Vector2f[3]), sourceSize, targetSize);
+
+				Image image = textureHelper.getSubimage(resultTexture.getImage(), imageRectangle[0], imageRectangle[1], imageRectangle[2], imageRectangle[3]);
+
+				// compute the result texture
+				BufferedImage sourceImage = ImageToAwt.convert(image, false, true, 0);
+
+				BufferedImage targetImage = new BufferedImage(targetSize[0], targetSize[1], sourceImage.getType());
+				Graphics2D g = targetImage.createGraphics();
+				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+				g.drawImage(sourceImage, affineTransform, null);
+				g.dispose();
+
+				Image output = imageLoader.load(targetImage, false);
+				faceTextures.add(new TriangleTextureElement(faceIndex++, output, partImageUVS, false, blenderContext));
+			}
+			TriangulatedTexture triangulatedTexture = new TriangulatedTexture(faceTextures, blenderContext);
+			triangulatedTexture.setKeepIdenticalTextures(false);
+			resultTexture = triangulatedTexture.getResultTexture();
+			resultUVS = basicUVS;
+		}
+	}
+	
+	/**
+	 * This method computes the rectangle of an image constrained by the
+	 * triangle UV coordinates.
+	 * 
+	 * @param triangleVertices
+	 *            the triangle UV coordinates
+	 * @param result
+	 *            the array where the result is stored
+	 * @param totalImageWidth
+	 *            the total image width
+	 * @param totalImageHeight
+	 *            the total image height
+	 * @param blenderContext
+	 *            the blender context
+	 */
+	private void computeImageRectangle(Vector2f[] triangleVertices, int[] result, int totalImageWidth, int totalImageHeight, BlenderContext blenderContext) {
+		TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
+
+		float minX = Math.min(triangleVertices[0].x, triangleVertices[1].x);
+		minX = Math.min(minX, triangleVertices[2].x);
+
+		float maxX = Math.max(triangleVertices[0].x, triangleVertices[1].x);
+		maxX = Math.max(maxX, triangleVertices[2].x);
+
+		float minY = Math.min(triangleVertices[0].y, triangleVertices[1].y);
+		minY = Math.min(minY, triangleVertices[2].y);
+
+		float maxY = Math.max(triangleVertices[0].y, triangleVertices[1].y);
+		maxY = Math.max(maxY, triangleVertices[2].y);
+
+		result[0] = textureHelper.getPixelPosition(minX, totalImageWidth);
+		result[1] = textureHelper.getPixelPosition(minY, totalImageHeight);
+		result[2] = textureHelper.getPixelPosition(maxX, totalImageWidth);
+		result[3] = textureHelper.getPixelPosition(maxY, totalImageHeight);
+	}
+	
 	/**
 	 * @return the result texture
 	 */

@@ -1,18 +1,5 @@
 package com.jme3.scene.plugins.blender.textures;
 
-import com.jme3.bounding.BoundingBox;
-import com.jme3.math.FastMath;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.textures.blending.TextureBlender;
-import com.jme3.scene.plugins.blender.textures.io.PixelIOFactory;
-import com.jme3.scene.plugins.blender.textures.io.PixelInputOutput;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture;
-import com.jme3.texture.Texture2D;
-import com.jme3.util.BufferUtils;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
@@ -29,7 +16,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+
 import jme3tools.converters.ImageToAwt;
+
+import com.jme3.bounding.BoundingBox;
+import com.jme3.math.FastMath;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.textures.blending.TextureBlender;
+import com.jme3.scene.plugins.blender.textures.io.PixelIOFactory;
+import com.jme3.scene.plugins.blender.textures.io.PixelInputOutput;
+import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
+import com.jme3.texture.Texture;
+import com.jme3.texture.Texture2D;
+import com.jme3.util.BufferUtils;
 
 /**
  * This texture holds a set of images for each face in the specified mesh. It
@@ -38,7 +40,7 @@ import jme3tools.converters.ImageToAwt;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-/* package */class TriangulatedTexture extends Texture {
+/* package */class TriangulatedTexture extends Texture2D {
 	/** The result image format. */
 	private Format								format;
 	/** The collection of images for each face. */
@@ -48,12 +50,13 @@ import jme3tools.converters.ImageToAwt;
 	 * key.
 	 */
 	private int									maxTextureSize;
-
+	/** A variable that can prevent removing identical textures. */
+	private boolean								keepIdenticalTextures = false;
 	/** The result texture. */
 	private Texture2D							resultTexture;
 	/** The result texture's UV coordinates. */
 	private List<Vector2f>						resultUVS;
-
+    
 	/**
 	 * This method triangulates the given flat texture. The given texture is not
 	 * changed.
@@ -72,7 +75,7 @@ import jme3tools.converters.ImageToAwt;
 		});
 		int facesCount = uvs.size() / 3;
 		for (int i = 0; i < facesCount; ++i) {
-			faceTextures.add(new TriangleTextureElement(i, texture2d, uvs));
+			faceTextures.add(new TriangleTextureElement(i, texture2d.getImage(), uvs, true, blenderContext));
 		}
 		this.format = texture2d.getImage().getFormat();
 	}
@@ -134,6 +137,7 @@ import jme3tools.converters.ImageToAwt;
 	public void castToUVS(TriangulatedTexture targetTexture, BlenderContext blenderContext) {
 		int[] sourceSize = new int[2], targetSize = new int[2];
 		ImageLoader imageLoader = new ImageLoader();
+		TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
 		for (TriangleTextureElement entry : faceTextures) {
 			TriangleTextureElement targetFaceTextureElement = targetTexture.getFaceTextureElement(entry.faceIndex);
 			Vector2f[] dest = targetFaceTextureElement.uv;
@@ -145,7 +149,7 @@ import jme3tools.converters.ImageToAwt;
 			targetSize[1] = targetFaceTextureElement.image.getHeight();
 
 			// create triangle transformation
-			AffineTransform affineTransform = this.createTransform(entry.uv, dest, sourceSize, targetSize);
+			AffineTransform affineTransform = textureHelper.createAffineTransform(entry.uv, dest, sourceSize, targetSize);
 
 			// compute the result texture
 			BufferedImage sourceImage = ImageToAwt.convert(entry.image, false, true, 0);
@@ -227,11 +231,12 @@ import jme3tools.converters.ImageToAwt;
 				Integer[] currentPositions = new Integer[] { currentXPos, currentYPos };
 				imageLayoutData.put(currentElement, currentPositions);
 
-				// removing identical images
-				for (int i = 0; i < list.size(); ++i) {
-					if (currentElement.image.equals(list.get(i).image)) {
-						duplicatedFaceIndexes.add(list.get(i).faceIndex);
-						imageLayoutData.put(list.remove(i--), currentPositions);
+				if(keepIdenticalTextures) {// removing identical images
+					for (int i = 0; i < list.size(); ++i) {
+						if (currentElement.image.equals(list.get(i).image)) {
+							duplicatedFaceIndexes.add(list.get(i).faceIndex);
+							imageLayoutData.put(list.remove(i--), currentPositions);
+						}
 					}
 				}
 
@@ -271,6 +276,12 @@ import jme3tools.converters.ImageToAwt;
 					this.draw(resultImage, entry.getKey().image, entry.getValue()[0], entry.getValue()[1]);
 				}
 			}
+			
+			// setting additional data
+			resultTexture.setWrap(WrapAxis.S, this.getWrap(WrapAxis.S));
+			resultTexture.setWrap(WrapAxis.T, this.getWrap(WrapAxis.T));
+			resultTexture.setMagFilter(this.getMagFilter());
+			resultTexture.setMinFilter(this.getMinFilter());
 		}
 		return resultTexture;
 	}
@@ -300,13 +311,30 @@ import jme3tools.converters.ImageToAwt;
 	 *             this exception is thrown if the current image set does not
 	 *             contain an image for the given face index
 	 */
-	private TriangleTextureElement getFaceTextureElement(int faceIndex) {
+	public TriangleTextureElement getFaceTextureElement(int faceIndex) {
 		for (TriangleTextureElement textureElement : faceTextures) {
 			if (textureElement.faceIndex == faceIndex) {
 				return textureElement;
 			}
 		}
 		throw new IllegalStateException("No face texture element found for index: " + faceIndex);
+	}
+	
+	/**
+	 * @return the amount of texture faces
+	 */
+	public int getFaceTextureCount() {
+		return faceTextures.size();
+	}
+
+	/**
+	 * Tells the object wheather to keep or reduce identical face textures.
+	 * 
+	 * @param keepIdenticalTextures
+	 *            keeps or discards identical textures
+	 */
+	public void setKeepIdenticalTextures(boolean keepIdenticalTextures) {
+		this.keepIdenticalTextures = keepIdenticalTextures;
 	}
 
 	/**
@@ -336,44 +364,6 @@ import jme3tools.converters.ImageToAwt;
 	}
 
 	/**
-	 * This method creates the affine transform that is used to transform a
-	 * triangle defined by one UV coordinates into a triangle defined by
-	 * different UV's.
-	 * 
-	 * @param source
-	 *            source UV coordinates
-	 * @param dest
-	 *            target UV coordinates
-	 * @param sourceSize
-	 *            the width and height of the source image
-	 * @param targetSize
-	 *            the width and height of the target image
-	 * @return affine transform to transform one triangle to another
-	 */
-	private AffineTransform createTransform(Vector2f[] source, Vector2f[] dest, int[] sourceSize, int[] targetSize) {
-		float x11 = source[0].getX() * sourceSize[0];
-		float x12 = source[0].getY() * sourceSize[1];
-		float x21 = source[1].getX() * sourceSize[0];
-		float x22 = source[1].getY() * sourceSize[1];
-		float x31 = source[2].getX() * sourceSize[0];
-		float x32 = source[2].getY() * sourceSize[1];
-		float y11 = dest[0].getX() * targetSize[0];
-		float y12 = dest[0].getY() * targetSize[1];
-		float y21 = dest[1].getX() * targetSize[0];
-		float y22 = dest[1].getY() * targetSize[1];
-		float y31 = dest[2].getX() * targetSize[0];
-		float y32 = dest[2].getY() * targetSize[1];
-
-		float a1 = ((y11 - y21) * (x12 - x32) - (y11 - y31) * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
-		float a2 = ((y11 - y21) * (x11 - x31) - (y11 - y31) * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
-		float a3 = y11 - a1 * x11 - a2 * x12;
-		float a4 = ((y12 - y22) * (x12 - x32) - (y12 - y32) * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
-		float a5 = ((y12 - y22) * (x11 - x31) - (y12 - y32) * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
-		float a6 = y12 - a4 * x11 - a5 * x12;
-		return new AffineTransform(a1, a4, a2, a5, a3, a6);
-	}
-
-	/**
 	 * A class that represents an image for a single face of the mesh.
 	 * 
 	 * @author Marcin Roguski (Kaelthas)
@@ -395,36 +385,25 @@ import jme3tools.converters.ImageToAwt;
 		 * 
 		 * @param faceIndex
 		 *            the index of mesh's face this image refers to
-		 * @param texture
-		 *            the source texture
+		 * @param sourceImage
+		 *            the source image
 		 * @param uvCoordinates
 		 *            the UV coordinates that define the image
 		 */
-		public TriangleTextureElement(int faceIndex, Texture2D texture, List<Vector2f> uvCoordinates) {
+		public TriangleTextureElement(int faceIndex, Image sourceImage, List<Vector2f> uvCoordinates, boolean wholeUVList, BlenderContext blenderContext) {
+			TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
 			this.faceIndex = faceIndex;
-			Image sourceImage = texture.getImage();
 
-			uv = new Vector2f[] { uvCoordinates.get(faceIndex * 3).clone(), uvCoordinates.get(faceIndex * 3 + 1).clone(), uvCoordinates.get(faceIndex * 3 + 2).clone() };
-
-			float pixelWidth = 1 / (float) sourceImage.getWidth();
-			float pixelHeight = 1 / (float) sourceImage.getHeight();
+			uv = wholeUVList ? 
+					new Vector2f[] { uvCoordinates.get(faceIndex * 3).clone(), uvCoordinates.get(faceIndex * 3 + 1).clone(), uvCoordinates.get(faceIndex * 3 + 2).clone() } :
+					new Vector2f[] { uvCoordinates.get(0).clone(), uvCoordinates.get(1).clone(), uvCoordinates.get(2).clone() };
 
 			// be careful here, floating point operations might cause the
 			// texture positions to be inapropriate
 			int[][] texturePosition = new int[3][2];
 			for (int i = 0; i < texturePosition.length; ++i) {
-				float x = uv[i].x * sourceImage.getWidth();
-				float y = uv[i].y * sourceImage.getHeight();
-				// here is where errors may occur
-				texturePosition[i][0] = (int) x;
-				texturePosition[i][1] = (int) y;
-				// here is where we repair errors :)
-				if (Math.abs(texturePosition[i][0] - x) > pixelWidth) {
-					++texturePosition[i][0];
-				}
-				if (Math.abs(texturePosition[i][1] - y) > pixelHeight) {
-					++texturePosition[i][1];
-				}
+				texturePosition[i][0] = textureHelper.getPixelPosition(uv[i].x, sourceImage.getWidth());
+				texturePosition[i][1] = textureHelper.getPixelPosition(uv[i].y, sourceImage.getHeight());
 			}
 
 			// calculating the extent of the texture
@@ -695,24 +674,6 @@ import jme3tools.converters.ImageToAwt;
 		public String toString() {
 			return "Envelope[min = " + min + ", w = " + w + ", h = " + h + "]";
 		}
-	}
-
-	@Override
-	public void setWrap(WrapAxis axis, WrapMode mode) {
-	}
-
-	@Override
-	public void setWrap(WrapMode mode) {
-	}
-
-	@Override
-	public WrapMode getWrap(WrapAxis axis) {
-		return null;
-	}
-
-	@Override
-	public Type getType() {
-		return Type.TwoDimensional;
 	}
 
 	@Override

@@ -33,7 +33,6 @@ package com.jme3.scene.plugins.blender.textures;
 
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.nio.ByteBuffer;
@@ -51,6 +50,7 @@ import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.GeneratedTextureKey;
 import com.jme3.asset.TextureKey;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -196,12 +196,6 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 */
 	public Image convertToNormalMapTexture(Image source, float strengthFactor) {
 		BufferedImage sourceImage = ImageToAwt.convert(source, false, false, 0);
-		
-		// flip the image because the result image is upside-down without this operation
-		AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
-		tx.translate(0, -sourceImage.getHeight(null));
-		AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
-		sourceImage = op.filter(sourceImage, null);
 		
 		BufferedImage heightMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		BufferedImage bumpMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -513,7 +507,113 @@ public class TextureHelper extends AbstractBlenderHelper {
 		}
 		return result;
 	}
+	
+	/**
+	 * This method creates the affine transform that is used to transform a
+	 * triangle defined by one UV coordinates into a triangle defined by
+	 * different UV's.
+	 * 
+	 * @param source
+	 *            source UV coordinates
+	 * @param dest
+	 *            target UV coordinates
+	 * @param sourceSize
+	 *            the width and height of the source image
+	 * @param targetSize
+	 *            the width and height of the target image
+	 * @return affine transform to transform one triangle to another
+	 */
+	public AffineTransform createAffineTransform(Vector2f[] source, Vector2f[] dest, int[] sourceSize, int[] targetSize) {
+		float x11 = source[0].getX() * sourceSize[0];
+		float x12 = source[0].getY() * sourceSize[1];
+		float x21 = source[1].getX() * sourceSize[0];
+		float x22 = source[1].getY() * sourceSize[1];
+		float x31 = source[2].getX() * sourceSize[0];
+		float x32 = source[2].getY() * sourceSize[1];
+		float y11 = dest[0].getX() * targetSize[0];
+		float y12 = dest[0].getY() * targetSize[1];
+		float y21 = dest[1].getX() * targetSize[0];
+		float y22 = dest[1].getY() * targetSize[1];
+		float y31 = dest[2].getX() * targetSize[0];
+		float y32 = dest[2].getY() * targetSize[1];
 
+		float a1 = ((y11 - y21) * (x12 - x32) - (y11 - y31) * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
+		float a2 = ((y11 - y21) * (x11 - x31) - (y11 - y31) * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
+		float a3 = y11 - a1 * x11 - a2 * x12;
+		float a4 = ((y12 - y22) * (x12 - x32) - (y12 - y32) * (x12 - x22)) / ((x11 - x21) * (x12 - x32) - (x11 - x31) * (x12 - x22));
+		float a5 = ((y12 - y22) * (x11 - x31) - (y12 - y32) * (x11 - x21)) / ((x12 - x22) * (x11 - x31) - (x12 - x32) * (x11 - x21));
+		float a6 = y12 - a4 * x11 - a5 * x12;
+		return new AffineTransform(a1, a4, a2, a5, a3, a6);
+	}
+	
+	/**
+	 * This method returns the proper pixel position on the image.
+	 * 
+	 * @param pos
+	 *            the relative position (value of range <0, 1> (both inclusive))
+	 * @param size
+	 *            the size of the line the pixel lies on (width, heigth or
+	 *            depth)
+	 * @return the integer index of the pixel on the line of the specified width
+	 */
+	public int getPixelPosition(float pos, int size) {
+		float pixelWidth = 1 / (float) size;
+		pos *= size;
+		int result = (int) pos;
+		// here is where we repair floating point operations errors :)
+		if (Math.abs(result - pos) > pixelWidth) {
+			++result;
+		}
+		return result;
+	}
+
+	/**
+	 * This method returns subimage of the give image. The subimage is
+	 * constrained by the rectangle coordinates. The source image is unchanged.
+	 * 
+	 * @param image
+	 *            the image to be subimaged
+	 * @param minX
+	 *            minimum X position
+	 * @param minY
+	 *            minimum Y position
+	 * @param maxX
+	 *            maximum X position
+	 * @param maxY
+	 *            maximum Y position
+	 * @return a part of the given image
+	 */
+	public Image getSubimage(Image image, int minX, int minY, int maxX, int maxY) {
+		if (minY > maxY) {
+			throw new IllegalArgumentException("Minimum Y value is higher than maximum Y value!");
+		}
+		if (minX > maxX) {
+			throw new IllegalArgumentException("Minimum Y value is higher than maximum Y value!");
+		}
+		if (image.getData().size() > 1) {
+			throw new IllegalArgumentException("Only flat images are allowed for subimage operation!");
+		}
+		if (image.getMipMapSizes() != null) {
+			LOGGER.warning("Subimaging image with mipmaps is not yet supported!");
+		}
+
+		int width = maxX - minX;
+		int height = maxY - minY;
+		ByteBuffer data = BufferUtils.createByteBuffer(width * height * (image.getFormat().getBitsPerPixel() >> 3));
+
+		Image result = new Image(image.getFormat(), width, height, data);
+		PixelInputOutput pixelIO = PixelIOFactory.getPixelIO(image.getFormat());
+		TexturePixel pixel = new TexturePixel();
+
+		for (int x = minX; x < maxX; ++x) {
+			for (int y = minY; y < maxY; ++y) {
+				pixelIO.read(image, 0, pixel, x, y);
+				pixelIO.write(result, 0, pixel, x - minX, y - minY);
+			}
+		}
+		return result;
+	}
+	
 	/**
 	 * This method applies the colorband and color factors to image type
 	 * textures. If there is no colorband defined for the texture or the color
