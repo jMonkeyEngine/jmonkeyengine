@@ -170,6 +170,7 @@ public class TerrainCameraController extends AbstractCameraController {
                 forceCameraControls = false;
             }
         }
+        toolController.doKeyPressed(kie);
     }
 
     /**

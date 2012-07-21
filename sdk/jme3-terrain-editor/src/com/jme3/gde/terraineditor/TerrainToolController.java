@@ -38,6 +38,7 @@ import com.jme3.gde.core.scene.controller.SceneToolController;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.terraineditor.tools.TerrainTool;
+import com.jme3.input.event.KeyInputEvent;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import java.util.concurrent.Callable;
@@ -208,4 +209,9 @@ public class TerrainToolController extends SceneToolController {
         return terrainTool;
     }
 
+    void doKeyPressed(KeyInputEvent kie) {
+        if (terrainTool != null) {
+            terrainTool.keyPressed(kie);
+        }
+    }
 }

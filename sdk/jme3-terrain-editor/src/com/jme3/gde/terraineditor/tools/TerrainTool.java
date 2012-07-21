@@ -34,6 +34,7 @@ package com.jme3.gde.terraineditor.tools;
 import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.terraineditor.ExtraToolParams;
+import com.jme3.input.event.KeyInputEvent;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -83,6 +84,11 @@ public abstract class TerrainTool {
      * The secondary action for the tool gets activated
      */
     public abstract void actionSecondary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject);
+    
+    /**
+     * Key was pressed.
+     */
+    public void keyPressed(KeyInputEvent kie) {}
     
     /**
      * Location of the primary editor marker
