@@ -1,5 +1,7 @@
 package com.jme3.scene.plugins.blender.animations;
 
+import java.util.logging.Logger;
+
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.SpatialTrack;
 import com.jme3.animation.Track;
@@ -16,6 +18,7 @@ import com.jme3.scene.plugins.blender.curves.BezierCurve;
  * @author Marcin Roguski
  */
 public class Ipo {
+	private static final Logger LOGGER = Logger.getLogger(Ipo.class.getName());
 
 	public static final int	AC_LOC_X	= 1;
 	public static final int	AC_LOC_Y	= 2;
@@ -218,7 +221,7 @@ public class Ipo {
 							}
 							break;
 						default:
-							throw new IllegalStateException("Unknown ipo curve type: " + bezierCurves[j].getType());
+							LOGGER.warning("Unknown ipo curve type: " + bezierCurves[j].getType());
 					}
 				}
 				translations[index] = new Vector3f(translation[0], translation[1], translation[2]);

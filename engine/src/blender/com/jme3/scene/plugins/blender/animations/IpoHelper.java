@@ -10,6 +10,7 @@ import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * This class helps to compute values from interpolation curves for features
@@ -19,6 +20,7 @@ import java.util.List;
  * @author Marcin Roguski
  */
 public class IpoHelper extends AbstractBlenderHelper {
+	private static final Logger LOGGER = Logger.getLogger(IpoHelper.class.getName());
 
 	/**
 	 * This constructor parses the given blender version and stores the result.
@@ -132,7 +134,8 @@ public class IpoHelper extends AbstractBlenderHelper {
 		if (rnaPath.endsWith("rotation") || rnaPath.endsWith("rotation_euler")) {
 			return Ipo.OB_ROT_X + arrayIndex;
 		}
-		throw new IllegalStateException("Unknown curve rna path: " + rnaPath);
+		LOGGER.warning("Unknown curve rna path: " + rnaPath);
+		return -1;
 	}
 
 	/**
