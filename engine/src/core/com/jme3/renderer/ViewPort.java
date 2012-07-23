@@ -36,6 +36,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.Geometry;
 import com.jme3.texture.FrameBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -290,7 +291,9 @@ public class ViewPort {
             throw new IllegalArgumentException( "Scene cannot be null." );
         }
         sceneList.add(scene);
-        scene.forceRefresh(true, false, true);
+        if (scene instanceof Geometry) {
+            scene.forceRefresh(true, false, true);
+        }
     }
 
     /**
@@ -305,7 +308,9 @@ public class ViewPort {
             throw new IllegalArgumentException( "Scene cannot be null." );
         }
         sceneList.remove(scene);
-        scene.forceRefresh(true, false, true);
+        if (scene instanceof Geometry) {
+            scene.forceRefresh(true, false, true);
+        }
     }
 
     /**
