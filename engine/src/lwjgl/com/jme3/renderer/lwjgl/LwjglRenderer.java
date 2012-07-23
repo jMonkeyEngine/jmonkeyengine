@@ -382,6 +382,7 @@ public class LwjglRenderer implements Renderer {
             if (samples > 0 && available && !enabled) {
                 glEnable(ARBMultisample.GL_MULTISAMPLE_ARB);
             }
+            caps.add(Caps.Multisample);
         }
 
         logger.log(Level.INFO, "Caps: {0}", caps);
