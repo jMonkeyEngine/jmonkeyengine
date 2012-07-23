@@ -53,15 +53,17 @@ public class LevelTerrainToolAction extends AbstractTerrainToolAction {
     private float radius;
     private float height;
     private Vector3f levelTerrainLocation;
+    private boolean precision;
     
     List<Vector2f> undoLocs;
     List<Float> undoHeights;
 
-    public LevelTerrainToolAction(Vector3f markerLocation, float radius, float height, Vector3f levelTerrainLocation) {
+    public LevelTerrainToolAction(Vector3f markerLocation, float radius, float height, Vector3f levelTerrainLocation, boolean precision) {
         this.worldLoc = markerLocation.clone();
         this.radius = radius;
         this.height = height;
         this.levelTerrainLocation = levelTerrainLocation;
+        this.precision = precision;
         name = "Level terrain";
     }
 
@@ -70,7 +72,7 @@ public class LevelTerrainToolAction extends AbstractTerrainToolAction {
         Terrain terrain = getTerrain(rootNode.getLookup().lookup(Node.class));
         if (terrain == null)
             return null;
-        modifyHeight(terrain, radius, height);
+        modifyHeight(terrain, radius, height, precision);
         return terrain;
     }
     
@@ -80,10 +82,10 @@ public class LevelTerrainToolAction extends AbstractTerrainToolAction {
             return;
         if (undoLocs == null || undoHeights == null)
             return;
-        resetHeight((Terrain)undoObject, undoLocs, undoHeights);
+        resetHeight((Terrain)undoObject, undoLocs, undoHeights, precision);
     }
 
-    private void modifyHeight(Terrain terrain, float radius, float height) {
+    private void modifyHeight(Terrain terrain, float radius, float height, boolean precision) {
         if (levelTerrainLocation == null)
             return;
 
@@ -97,6 +99,7 @@ public class LevelTerrainToolAction extends AbstractTerrainToolAction {
 
         List<Vector2f> locs = new ArrayList<Vector2f>();
         List<Float> heights = new ArrayList<Float>();
+        undoHeights = new ArrayList<Float>();
 
         for (int z=-radiusStepsZ; z<radiusStepsZ; z++) {
             for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
@@ -130,29 +133,41 @@ public class LevelTerrainToolAction extends AbstractTerrainToolAction {
   
                     if (!ToolUtils.floatEquals(adj, 0, 0.001f)) {
                         locs.add(terrainLoc);
-                        heights.add(adj);
+                        if (precision) {
+                            heights.add(desiredHeight);
+                            undoHeights.add(terrainHeightAtLoc);
+                        } else
+                            heights.add(adj);
                     }
                     
                 }
             }
         }
         undoLocs = locs;
-        undoHeights = heights;
+        if (!precision)
+            undoHeights = heights;
         
         // do the actual height adjustment
-        terrain.adjustHeight(locs, heights);
+        if (precision)
+            terrain.setHeight(locs, heights);
+        else 
+            terrain.adjustHeight(locs, heights);
         
         ((Node)terrain).updateModelBound(); // or else we won't collide with it where we just edited
 
     }
 
     
-    private void resetHeight(Terrain terrain, List<Vector2f> undoLocs, List<Float> undoHeights) {
-        List<Float> neg = new ArrayList<Float>();
-        for (Float f : undoHeights)
-            neg.add( f * -1f );
-        
-        terrain.adjustHeight(undoLocs, neg);
+    private void resetHeight(Terrain terrain, List<Vector2f> undoLocs, List<Float> undoHeights, boolean precision) {
+        if (precision)
+            terrain.setHeight(undoLocs, undoHeights);
+        else {
+            List<Float> neg = new ArrayList<Float>();
+            for (Float f : undoHeights) {
+                neg.add(f * -1f);
+            }
+            terrain.adjustHeight(undoLocs, neg);
+        }
         ((Node)terrain).updateModelBound();
     }
     

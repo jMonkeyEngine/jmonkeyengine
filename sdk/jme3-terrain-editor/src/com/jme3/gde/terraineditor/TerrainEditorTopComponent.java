@@ -33,29 +33,20 @@ package com.jme3.gde.terraineditor;
 
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.properties.TexturePropertyEditor;
+import com.jme3.gde.core.properties.preview.DDSPreview;
 import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
-import com.jme3.gde.core.sceneexplorer.nodes.JmeTerrainQuad;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
-import com.jme3.gde.core.properties.TexturePropertyEditor;
-import com.jme3.gde.core.properties.preview.DDSPreview;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.core.util.DataObjectSaveNode;
 import com.jme3.gde.core.util.ToggleButtonGroup;
 import com.jme3.gde.terraineditor.sky.SkyboxWizardAction;
-import com.jme3.gde.terraineditor.tools.EraseTerrainTool;
-import com.jme3.gde.terraineditor.tools.LevelTerrainTool;
-import com.jme3.gde.terraineditor.tools.LowerTerrainTool;
-import com.jme3.gde.terraineditor.tools.PaintTerrainTool;
-import com.jme3.gde.terraineditor.tools.RaiseTerrainTool;
-import com.jme3.gde.terraineditor.tools.RoughExtraToolParams;
-import com.jme3.gde.terraineditor.tools.RoughTerrainTool;
-import com.jme3.gde.terraineditor.tools.SmoothTerrainTool;
-import com.jme3.gde.terraineditor.tools.TerrainTool;
+import com.jme3.gde.terraineditor.tools.*;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -71,19 +62,12 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
-import javax.swing.AbstractCellEditor;
-import javax.swing.DefaultListSelectionModel;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.InputVerifier;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
@@ -94,13 +78,6 @@ import javax.swing.table.TableCellRenderer;
 import jme3tools.converters.ImageToAwt;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.nodes.NodeEvent;
-import org.openide.nodes.NodeMemberEvent;
-import org.openide.nodes.NodeReorderEvent;
-import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
-import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -108,13 +85,14 @@ import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.WizardDescriptor;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.nodes.NodeEvent;
 import org.openide.nodes.NodeListener;
-import org.openide.util.Exceptions;
-import org.openide.util.HelpCtx;
+import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.Lookup.Result;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
-import org.openide.util.Utilities;
+import org.openide.util.*;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  * Top component which displays something.
@@ -142,6 +120,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private HelpCtx ctx = new HelpCtx("sdk.terrain_editor");
     private DDSPreview ddsPreview;
     private Map<String, JButton> buttons = new HashMap<String, JButton>();
+    private JPanel insideToolSettings;
 
     public TerrainEditorTopComponent() {
         initComponents();
@@ -203,17 +182,35 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         }
         
         // show/hide the extra tool variables scroll pane
-        if (tool == null) {
-            fractalBrushPanel.setVisible(false);
-        } else if (tool.getClass() == RoughTerrainTool.class) {
-            if (roughTerrainButton.isSelected()) {
-                fractalBrushPanel.setVisible(true);
-            } else {
-                fractalBrushPanel.setVisible(false);
-            }
-        } else {
-            fractalBrushPanel.setVisible(false);
+        if (insideToolSettings != null) {
+            insideToolSettings.setVisible(false);
+            toolSettingsPanel.remove(insideToolSettings);
+            insideToolSettings = null;
         }
+
+        if (tool != null) {
+            if (tool.getClass() == RoughTerrainTool.class) {
+                if (roughTerrainButton.isSelected()) {
+                    toolSettingsPanel.add(fractalBrushPanel);
+                    insideToolSettings = fractalBrushPanel;
+                }
+            } else if (tool.getClass() == LevelTerrainTool.class) {
+                if (levelTerrainButton.isSelected()) {
+                    toolSettingsPanel.add(levelBrushPanel);
+                    insideToolSettings = levelBrushPanel;
+                }
+            } else if (tool.getClass() == SlopeTerrainTool.class) {
+                if (slopeTerrainButton.isSelected()) {
+                    toolSettingsPanel.add(slopeBrushPanel);
+                    insideToolSettings = slopeBrushPanel;
+                }
+            }
+        }
+        
+        if (insideToolSettings != null)
+            insideToolSettings.setVisible(true);
+        
+        toolSettingsPanel.validate();
         validate();
         
     }
@@ -228,6 +225,21 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
         terrainModButtonGroup = new ToggleButtonGroup();
         textureFileChooser = new javax.swing.JFileChooser();
+        levelBrushPanel = new javax.swing.JPanel();
+        levelPrecisionCheckbox = new javax.swing.JCheckBox();
+        jLabel6 = new javax.swing.JLabel();
+        levelAbsoluteCheckbox = new javax.swing.JCheckBox();
+        levelAbsoluteHeightField = new javax.swing.JFormattedTextField(NumberFormat.getInstance());
+        fractalBrushPanel = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        lacunarityField = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        octavesField = new javax.swing.JTextField();
+        scaleLabel = new javax.swing.JLabel();
+        scaleField = new javax.swing.JTextField();
+        slopeBrushPanel = new javax.swing.JPanel();
+        slopePrecisionCheckbox = new javax.swing.JCheckBox();
+        jLabel7 = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
         createTerrainButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
@@ -236,6 +248,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         smoothTerrainButton = new javax.swing.JToggleButton();
         roughTerrainButton = new javax.swing.JToggleButton();
         levelTerrainButton = new javax.swing.JToggleButton();
+        slopeTerrainButton = new javax.swing.JToggleButton();
         jSeparator2 = new javax.swing.JToolBar.Separator();
         addTextureButton = new javax.swing.JButton();
         removeTextureButton = new javax.swing.JButton();
@@ -248,13 +261,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         heightSlider = new javax.swing.JSlider();
         jPanel3 = new javax.swing.JPanel();
         toolSettingsPanel = new javax.swing.JPanel();
-        fractalBrushPanel = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
-        lacunarityField = new javax.swing.JTextField();
-        jLabel4 = new javax.swing.JLabel();
-        octavesField = new javax.swing.JTextField();
-        scaleLabel = new javax.swing.JLabel();
-        scaleField = new javax.swing.JTextField();
         paintingPanel = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         textureTable = new javax.swing.JTable();
@@ -273,6 +279,110 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         textureFileChooser.setCurrentDirectory(new java.io.File("C:\\Assets\\Textures"));
         textureFileChooser.setDialogTitle(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.textureFileChooser.dialogTitle_1")); // NOI18N
         textureFileChooser.setFileFilter(new ImageFilter());
+
+        levelBrushPanel.setBackground(new java.awt.Color(204, 204, 204));
+        levelBrushPanel.setOpaque(false);
+        levelBrushPanel.setLayout(new java.awt.GridLayout(3, 2));
+
+        org.openide.awt.Mnemonics.setLocalizedText(levelPrecisionCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.levelPrecisionCheckbox.text")); // NOI18N
+        levelPrecisionCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                levelPrecisionCheckboxActionPerformed(evt);
+            }
+        });
+        levelBrushPanel.add(levelPrecisionCheckbox);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel6.text")); // NOI18N
+        levelBrushPanel.add(jLabel6);
+
+        org.openide.awt.Mnemonics.setLocalizedText(levelAbsoluteCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.levelAbsoluteCheckbox.text")); // NOI18N
+        levelAbsoluteCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                levelAbsoluteCheckboxActionPerformed(evt);
+            }
+        });
+        levelBrushPanel.add(levelAbsoluteCheckbox);
+
+        levelAbsoluteHeightField.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.levelAbsoluteHeightField.text")); // NOI18N
+        levelAbsoluteHeightField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                levelAbsoluteHeightFieldKeyTyped(evt);
+            }
+        });
+        levelBrushPanel.add(levelAbsoluteHeightField);
+
+        fractalBrushPanel.setBackground(new java.awt.Color(204, 204, 204));
+        fractalBrushPanel.setOpaque(false);
+        fractalBrushPanel.setLayout(new java.awt.GridLayout(3, 2));
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel3.text")); // NOI18N
+        jLabel3.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel3.toolTipText")); // NOI18N
+        fractalBrushPanel.add(jLabel3);
+
+        lacunarityField.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.lacunarityField.text")); // NOI18N
+        lacunarityField.setInputVerifier(new NumberInputVerifier());
+        lacunarityField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lacunarityFieldActionPerformed(evt);
+            }
+        });
+        lacunarityField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                lacunarityFieldKeyTyped(evt);
+            }
+        });
+        fractalBrushPanel.add(lacunarityField);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel4.text")); // NOI18N
+        jLabel4.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel4.toolTipText")); // NOI18N
+        fractalBrushPanel.add(jLabel4);
+
+        octavesField.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.octavesField.text")); // NOI18N
+        octavesField.setInputVerifier(new NumberInputVerifier());
+        octavesField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                octavesFieldActionPerformed(evt);
+            }
+        });
+        octavesField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                octavesFieldKeyTyped(evt);
+            }
+        });
+        fractalBrushPanel.add(octavesField);
+
+        org.openide.awt.Mnemonics.setLocalizedText(scaleLabel, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.scaleLabel.text")); // NOI18N
+        scaleLabel.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.scaleLabel.toolTipText")); // NOI18N
+        fractalBrushPanel.add(scaleLabel);
+
+        scaleField.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.scaleField.text")); // NOI18N
+        scaleField.setInputVerifier(new NumberInputVerifier());
+        scaleField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                scaleFieldActionPerformed(evt);
+            }
+        });
+        scaleField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                scaleFieldKeyTyped(evt);
+            }
+        });
+        fractalBrushPanel.add(scaleField);
+
+        slopeBrushPanel.setBackground(new java.awt.Color(204, 204, 204));
+        slopeBrushPanel.setOpaque(false);
+        slopeBrushPanel.setLayout(new java.awt.GridLayout(3, 2));
+
+        org.openide.awt.Mnemonics.setLocalizedText(slopePrecisionCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.slopePrecisionCheckbox.text")); // NOI18N
+        slopePrecisionCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                slopePrecisionCheckboxActionPerformed(evt);
+            }
+        });
+        slopeBrushPanel.add(slopePrecisionCheckbox);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel7.text")); // NOI18N
+        slopeBrushPanel.add(jLabel7);
 
         setBackground(java.awt.Color.gray);
 
@@ -354,6 +464,20 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             }
         });
         jToolBar1.add(levelTerrainButton);
+
+        terrainModButtonGroup.add(slopeTerrainButton);
+        slopeTerrainButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-slope.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(slopeTerrainButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.slopeTerrainButton.text")); // NOI18N
+        slopeTerrainButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.slopeTerrainButton.toolTipText")); // NOI18N
+        slopeTerrainButton.setFocusable(false);
+        slopeTerrainButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        slopeTerrainButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        slopeTerrainButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                slopeTerrainButtonActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(slopeTerrainButton);
         jToolBar1.add(jSeparator2);
 
         addTextureButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-add-texture.png"))); // NOI18N
@@ -448,7 +572,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 57, Short.MAX_VALUE)
+            .addGap(0, 147, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -461,66 +585,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         toolSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolSettingsPanel.border.title"))); // NOI18N
         toolSettingsPanel.setOpaque(false);
         toolSettingsPanel.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 0, 0));
-
-        fractalBrushPanel.setBackground(new java.awt.Color(204, 204, 204));
-        fractalBrushPanel.setOpaque(false);
-        fractalBrushPanel.setLayout(new java.awt.GridLayout(3, 2));
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel3.text")); // NOI18N
-        jLabel3.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel3.toolTipText")); // NOI18N
-        fractalBrushPanel.add(jLabel3);
-
-        lacunarityField.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.lacunarityField.text")); // NOI18N
-        lacunarityField.setInputVerifier(new NumberInputVerifier());
-        lacunarityField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lacunarityFieldActionPerformed(evt);
-            }
-        });
-        lacunarityField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                lacunarityFieldKeyTyped(evt);
-            }
-        });
-        fractalBrushPanel.add(lacunarityField);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel4.text")); // NOI18N
-        jLabel4.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel4.toolTipText")); // NOI18N
-        fractalBrushPanel.add(jLabel4);
-
-        octavesField.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.octavesField.text")); // NOI18N
-        octavesField.setInputVerifier(new NumberInputVerifier());
-        octavesField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                octavesFieldActionPerformed(evt);
-            }
-        });
-        octavesField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                octavesFieldKeyTyped(evt);
-            }
-        });
-        fractalBrushPanel.add(octavesField);
-
-        org.openide.awt.Mnemonics.setLocalizedText(scaleLabel, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.scaleLabel.text")); // NOI18N
-        scaleLabel.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.scaleLabel.toolTipText")); // NOI18N
-        fractalBrushPanel.add(scaleLabel);
-
-        scaleField.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.scaleField.text")); // NOI18N
-        scaleField.setInputVerifier(new NumberInputVerifier());
-        scaleField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                scaleFieldActionPerformed(evt);
-            }
-        });
-        scaleField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                scaleFieldKeyTyped(evt);
-            }
-        });
-        fractalBrushPanel.add(scaleField);
-
-        toolSettingsPanel.add(fractalBrushPanel);
 
         paintingPanel.setBackground(new java.awt.Color(204, 204, 204));
         paintingPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.paintingPanel.border.title"))); // NOI18N
@@ -637,7 +701,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         hintPanel.setLayout(hintPanelLayout);
         hintPanelLayout.setHorizontalGroup(
             hintPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
         );
         hintPanelLayout.setVerticalGroup(
             hintPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -656,7 +720,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(hintPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 898, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 1015, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -773,6 +837,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         if (levelTerrainButton.isSelected()) {
             LevelTerrainTool tool = new LevelTerrainTool();
             toolController.setTerrainEditButtonState(tool);
+            updateLevelToolParams();
             setHintText(tool);
         } else {
             toolController.setTerrainEditButtonState(null);
@@ -860,6 +925,34 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         // TODO add your handling code here:
     }//GEN-LAST:event_scaleFieldActionPerformed
 
+    private void slopeTerrainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_slopeTerrainButtonActionPerformed
+        if (slopeTerrainButton.isSelected()) {
+            SlopeTerrainTool tool = new SlopeTerrainTool();
+            toolController.setTerrainEditButtonState(tool);
+            updateSlopeToolParams();
+            setHintText(tool);
+        } else {
+            toolController.setTerrainEditButtonState(null);
+            setHintText((TerrainTool) null);
+        }
+    }//GEN-LAST:event_slopeTerrainButtonActionPerformed
+
+    private void levelPrecisionCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_levelPrecisionCheckboxActionPerformed
+        updateLevelToolParams();
+    }//GEN-LAST:event_levelPrecisionCheckboxActionPerformed
+
+    private void levelAbsoluteHeightFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_levelAbsoluteHeightFieldKeyTyped
+        updateLevelToolParams();
+    }//GEN-LAST:event_levelAbsoluteHeightFieldKeyTyped
+
+    private void levelAbsoluteCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_levelAbsoluteCheckboxActionPerformed
+        updateLevelToolParams();
+    }//GEN-LAST:event_levelAbsoluteCheckboxActionPerformed
+
+    private void slopePrecisionCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_slopePrecisionCheckboxActionPerformed
+        updateSlopeToolParams();
+    }//GEN-LAST:event_slopePrecisionCheckboxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTextureButton;
     private javax.swing.JButton createTerrainButton;
@@ -872,6 +965,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
@@ -881,6 +976,10 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JToolBar.Separator jSeparator3;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JTextField lacunarityField;
+    private javax.swing.JCheckBox levelAbsoluteCheckbox;
+    private javax.swing.JFormattedTextField levelAbsoluteHeightField;
+    private javax.swing.JPanel levelBrushPanel;
+    private javax.swing.JCheckBox levelPrecisionCheckbox;
     private javax.swing.JToggleButton levelTerrainButton;
     private javax.swing.JToggleButton lowerTerrainButton;
     private javax.swing.JTextField octavesField;
@@ -896,6 +995,9 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JTextField scaleField;
     private javax.swing.JLabel scaleLabel;
     private javax.swing.JTextField shininessField;
+    private javax.swing.JPanel slopeBrushPanel;
+    private javax.swing.JCheckBox slopePrecisionCheckbox;
+    private javax.swing.JToggleButton slopeTerrainButton;
     private javax.swing.JToggleButton smoothTerrainButton;
     private javax.swing.ButtonGroup terrainModButtonGroup;
     private javax.swing.JFileChooser textureFileChooser;
@@ -943,6 +1045,20 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         
     }
     
+     private void updateSlopeToolParams() {
+         SlopeExtraToolParams params = new SlopeExtraToolParams();
+         params.precision = slopePrecisionCheckbox.isSelected();
+         toolController.setExtraToolParams(params);
+    }
+    
+    private void updateLevelToolParams() {
+        LevelExtraToolParams params = new LevelExtraToolParams();
+        params.absolute = levelAbsoluteCheckbox.isSelected();
+        params.precision = levelPrecisionCheckbox.isSelected();
+        params.height = new Float(levelAbsoluteHeightField.getText());
+        toolController.setExtraToolParams(params);
+    }
+    
     private void updateRoughenFractalToolParams() {
         try {
             RoughExtraToolParams params = new RoughExtraToolParams();
@@ -961,6 +1077,10 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         if (toolController.getCurrentTerrainTool() != null) {
             if (toolController.getCurrentTerrainTool().getClass() == RoughTerrainTool.class)
                 updateRoughenFractalToolParams();
+            else if (toolController.getCurrentTerrainTool().getClass() == LevelTerrainTool.class)
+                updateLevelToolParams();
+            else if (toolController.getCurrentTerrainTool().getClass() == SlopeTerrainTool.class)
+                updateSlopeToolParams();
         }
     }
     

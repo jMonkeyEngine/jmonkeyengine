@@ -84,7 +84,7 @@ public class TerrainCameraController extends AbstractCameraController {
         if (!isTerrainEditButtonEnabled()) {
             return;
         }
-
+        
         // move the marker
         Vector3f pos = getTerrainCollisionPoint();
         if (pos != null) {

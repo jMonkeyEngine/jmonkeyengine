@@ -33,6 +33,7 @@ package com.jme3.gde.terraineditor.tools;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.terraineditor.ExtraToolParams;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
@@ -48,7 +49,7 @@ import org.openide.loaders.DataObject;
 public class LevelTerrainTool extends TerrainTool {
 
     private Vector3f desiredHeight;
-    
+    private LevelExtraToolParams toolParams;
     
     public LevelTerrainTool() {
         toolHintTextKey = "TerrainEditorTopComponent.toolHint.level";
@@ -66,7 +67,9 @@ public class LevelTerrainTool extends TerrainTool {
             return;
         if (desiredHeight == null)
             desiredHeight = point.clone();
-        LevelTerrainToolAction action = new LevelTerrainToolAction(point, radius, weight, desiredHeight);
+        if (toolParams.absolute)
+            desiredHeight.y = toolParams.height;
+        LevelTerrainToolAction action = new LevelTerrainToolAction(point, radius, weight, desiredHeight, toolParams.precision);
         action.doActionPerformed(rootNode, dataObject);
     }
 
@@ -80,5 +83,11 @@ public class LevelTerrainTool extends TerrainTool {
     public void addMarkerPrimary(Node parent) {
         super.addMarkerPrimary(parent);
         markerPrimary.getMaterial().setColor("Color", ColorRGBA.Red);
+    }
+
+    @Override
+    public void setExtraParams(ExtraToolParams params) {
+        if (params instanceof LevelExtraToolParams)
+            this.toolParams = (LevelExtraToolParams) params;
     }
 }
