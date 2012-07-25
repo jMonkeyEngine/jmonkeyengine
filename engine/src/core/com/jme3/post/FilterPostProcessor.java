@@ -77,7 +77,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private int originalHeight;
     private int lastFilterIndex = -1;
     private boolean cameraInit = false;
-    
+    private boolean clearColor= true;
+
     /**
      * Create a FilterProcessor 
      * @param assetManager the assetManager
@@ -99,9 +100,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      */
     public void addFilter(Filter filter) {
         if (filter == null) {
-            throw new IllegalArgumentException( "Filter cannot be null." );
+            throw new IllegalArgumentException("Filter cannot be null.");
         }
-        filters.add(filter);        
+        filters.add(filter);
 
         if (isInitialized()) {
             initFilter(filter, viewPort);
@@ -117,7 +118,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      */
     public void removeFilter(Filter filter) {
         if (filter == null) {
-            throw new IllegalArgumentException( "Filter cannot be null." );
+            throw new IllegalArgumentException("Filter cannot be null.");
         }
         filters.remove(filter);
         filter.cleanup(renderer);
@@ -128,7 +129,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         return filters.iterator();
     }
 
-    public void initialize(RenderManager rm, ViewPort vp) {
+    public void initialize(RenderManager rm, ViewPort vp) {        
         renderManager = rm;
         renderer = rm.getRenderer();
         viewPort = vp;
@@ -155,7 +156,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private void initFilter(Filter filter, ViewPort vp) {
         filter.setProcessor(this);
         if (filter.isRequiresDepthTexture()) {
-            if (!computeDepth && renderFrameBuffer != null) {                
+            if (!computeDepth && renderFrameBuffer != null) {
                 depthTexture = new Texture2D(width, height, Format.Depth24);
                 renderFrameBuffer.setDepthTexture(depthTexture);
             }
@@ -195,12 +196,12 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         fsQuad.updateGeometricState();
 
         renderManager.setCamera(filterCam, true);
-        r.setFrameBuffer(buff);
-        r.clearBuffers(false, true, true);
+        r.setFrameBuffer(buff);        
+        r.clearBuffers(clearColor, true, true);
         renderManager.renderGeometry(fsQuad);
 
     }
-
+    
     public boolean isInitialized() {
         return viewPort != null;
     }
@@ -364,7 +365,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             //reseting the viewport camera viewport to its initial value
             viewPort.getCamera().resize(originalWidth, originalHeight, true);
             viewPort.getCamera().setViewPort(left, right, bottom, top);
-            viewPort.setOutputFrameBuffer(outputBuffer);            
+            viewPort.setOutputFrameBuffer(outputBuffer);
             viewPort = null;
             for (Filter filter : filters) {
                 filter.cleanup(renderer);
@@ -392,6 +393,16 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         height = (int) (h * (Math.abs(bottom - top)));
         width = Math.max(1, width);
         height = Math.max(1, height);
+        
+        //Testing original versus actual viewport dimension.
+        //If they are different we are in a multiview situation and color from other view port must not be cleared.
+        //However, not clearing the color can cause issues when AlphaToCoverage is active on the renderer.        
+        if(originalWidth!=width || originalHeight!=height){
+            clearColor = false;
+        }else{
+            clearColor = true;
+        }
+        
         cam.resize(width, height, false);
         cameraInit = true;
         computeDepth = false;
@@ -495,7 +506,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * For internal use only<br>
      * returns the depth texture of the scene
      * @return the depth texture
-     */    
+     */
     public Texture2D getDepthTexture() {
         return depthTexture;
     }
