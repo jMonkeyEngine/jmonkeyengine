@@ -387,7 +387,7 @@ public class LwjglRenderer implements Renderer {
 
         logger.log(Level.INFO, "Caps: {0}", caps);
     }
-
+    
     public void invalidateState() {
         context.reset();
         boundShader = null;
@@ -1145,15 +1145,15 @@ public class LwjglRenderer implements Renderer {
 
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
         if (GLContext.getCapabilities().GL_EXT_framebuffer_blit) {
-            int srcX = 0;
-            int srcY = 0;
-            int srcW = 0;
-            int srcH = 0;
+            int srcX0 = 0;
+            int srcY0 = 0;
+            int srcX1 = 0;
+            int srcY1 = 0;
             
-            int dstX = 0;
-            int dstY = 0;
-            int dstW = 0;
-            int dstH = 0;
+            int dstX0 = 0;
+            int dstY0 = 0;
+            int dstX1 = 0;
+            int dstY1 = 0;
             
             int prevFBO = context.boundFBO;
             
@@ -1176,32 +1176,32 @@ public class LwjglRenderer implements Renderer {
 
             if (src == null) {
                 glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
-                srcX = vpX;
-                srcY = vpY;
-                srcW = vpW;
-                srcH = vpH;
+                srcX0 = vpX;
+                srcY0 = vpY;
+                srcX1 = vpX + vpW;
+                srcY1 = vpY + vpH;
             } else {
                 glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, src.getId());
-                srcW = src.getWidth();
-                srcH = src.getHeight();
+                srcX1 = src.getWidth();
+                srcY1 = src.getHeight();
             }
             if (dst == null) {
                 glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, 0);
-                dstX = vpX;
-                dstY = vpY;
-                dstW = vpW - 1;
-                dstH = vpH - 1;
+                dstX0 = vpX;
+                dstY0 = vpY;
+                dstX1 = vpX + vpW;
+                dstY1 = vpY + vpH;
             } else {
                 glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, dst.getId());
-                dstW = dst.getWidth() - 1;
-                dstH = dst.getHeight() - 1;
+                dstX1 = dst.getWidth();
+                dstY1 = dst.getHeight();
             }
             int mask = GL_COLOR_BUFFER_BIT;
             if (copyDepth) {
                 mask |= GL_DEPTH_BUFFER_BIT;
             }
-            glBlitFramebufferEXT(0, 0, srcW, srcH,
-                                 0, 0, dstW, dstH, mask,
+            glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1,
+                                 dstX0, dstY0, dstX1, dstY1, mask,
                                  GL_NEAREST);
 
 
