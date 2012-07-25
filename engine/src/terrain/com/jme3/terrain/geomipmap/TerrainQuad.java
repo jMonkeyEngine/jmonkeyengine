@@ -254,9 +254,15 @@ public class TerrainQuad extends Node implements Terrain {
             picker = new BresenhamTerrainPicker(this);
 
         Vector3f intersection = picker.getTerrainIntersection(ray, results);
-        if (intersection != null)
-            return 1;
-        else
+        if (intersection != null) {
+            if (ray.getLimit() < Float.POSITIVE_INFINITY) {
+                if (results.getClosestCollision().getDistance() <= ray.getLimit())
+                    return 1; // in range
+                else
+                    return 0; // out of range
+            } else
+                return 1;
+        } else
             return 0;
     }
 
