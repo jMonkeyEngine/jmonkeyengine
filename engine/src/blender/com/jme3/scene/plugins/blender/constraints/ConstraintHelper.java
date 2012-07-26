@@ -47,6 +47,10 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 		constraintClasses.put("bSplineIKConstraint", ConstraintSplineInverseKinematic.class);
 		constraintClasses.put("bDampTrackConstraint", ConstraintDampTrack.class);
 		constraintClasses.put("bPivotConstraint", ConstraintDampTrack.class);
+		//Blender 2.56+
+		constraintClasses.put("bTrackToConstraint", ConstraintTrackTo.class);
+		constraintClasses.put("bSameVolumeConstraint", ConstraintSameVolume.class);
+		constraintClasses.put("bTransLikeConstraint", ConstraintTransLike.class);
 	}
 	
 	/**
