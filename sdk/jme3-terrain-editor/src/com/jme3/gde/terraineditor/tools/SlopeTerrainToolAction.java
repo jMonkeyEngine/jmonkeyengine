@@ -32,7 +32,9 @@
 package com.jme3.gde.terraineditor.tools;
 
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
-import com.jme3.math.*;
+import com.jme3.math.Plane;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.terrain.Terrain;
 import java.util.ArrayList;
@@ -52,41 +54,43 @@ public class SlopeTerrainToolAction extends AbstractTerrainToolAction {
     private List<Vector2f> undoLocs;
     private List<Float> undoHeights;
     private final boolean precise;
+    private final boolean lock;
 
-    public SlopeTerrainToolAction(Vector3f current, Vector3f point1, Vector3f point2, float radius, float weight, boolean precise) {
+    public SlopeTerrainToolAction(Vector3f current, Vector3f point1, Vector3f point2, float radius, float weight, boolean precise, boolean lock) {
         this.current = current.clone();
         this.point1 = point1;
         this.point2 = point2;
         this.radius = radius;
         this.weight = weight;
         this.precise = precise;
+        this.lock = lock;
         name = "Slope terrain";
     }
 
     @Override
     protected Object doApplyTool(AbstractSceneExplorerNode rootNode) {
         Terrain terrain = getTerrain(rootNode.getLookup().lookup(Node.class));
-        if (terrain == null) {
+        if (terrain == null)
             return null;
-        }
 
-        modifyHeight(terrain, point1, point2, current, radius, weight, precise);
+        modifyHeight(terrain, point1, point2, current, radius, weight, precise, lock);
 
         return terrain;
     }
 
     @Override
     protected void doUndoTool(AbstractSceneExplorerNode rootNode, Object undoObject) {
-        if (undoObject == null) {
+        if (undoObject == null)
             return;
-        }
-        if (undoLocs == null || undoHeights == null) {
+
+        if (undoLocs == null || undoHeights == null)
             return;
-        }
+
         resetHeight((Terrain) undoObject, undoLocs, undoHeights, precise);
     }
 
-    private void modifyHeight(Terrain terrain, Vector3f point1, Vector3f point2, Vector3f current, float radius, float weight, boolean precise) {
+    private void modifyHeight(Terrain terrain, Vector3f point1, Vector3f point2, Vector3f current, float radius, float weight, boolean precise, boolean lock) {
+        // Make sure we go for the right direction, or we could be creating a slope to the oposite side
         if (point1.y > point2.y) {
             Vector3f temp = point1;
             point1 = point2;
@@ -104,55 +108,60 @@ public class SlopeTerrainToolAction extends AbstractTerrainToolAction {
         List<Vector2f> locs = new ArrayList<Vector2f>();
         List<Float> heights = new ArrayList<Float>();
         undoHeights = new ArrayList<Float>();
-        
-        for (int z = -radiusStepsZ; z < radiusStepsZ; z++) {
+
+        Plane p1 = new Plane();
+        Plane p2 = new Plane();
+        p1.setOriginNormal(point1, point1.subtract(point2).normalize());
+        p2.setOriginNormal(point2, point1.subtract(point2).normalize());
+
+        for (int z = -radiusStepsZ; z < radiusStepsZ; z++)
             for (int x = -radiusStepsZ; x < radiusStepsX; x++) {
 
                 float locX = current.x + (x * xStepAmount);
                 float locZ = current.z + (z * zStepAmount);
-                
-                // see if it is in the radius of the tool
-                if (ToolUtils.isInRadius(locX - current.x, locZ - current.z, radius)) {
-                    
+
+                if (ToolUtils.isInRadius(locX - current.x, locZ - current.z, radius)) { // see if it is in the radius of the tool
                     Vector2f terrainLoc = new Vector2f(locX, locZ);
+
                     // adjust height based on radius of the tool
                     float terrainHeightAtLoc = terrain.getHeightmapHeight(terrainLoc) * ((Node) terrain).getWorldScale().y;
-                    float radiusWeight = ToolUtils.calculateRadiusPercent(radius, locX - current.x, locZ - current.z);
-
                     float point1Distance = point1.distance(new Vector3f(locX, terrainHeightAtLoc, locZ));
                     float desiredHeight = point1.y + (point2.y - point1.y) * (point1Distance / totaldistance);
-                    
-                    if (!precise) {
-                        float epsilon = 0.1f * weight; // rounding error for snapping
+                    if (!lock || (lock && p1.whichSide(new Vector3f(locX, 0f, locZ)) != p2.whichSide(new Vector3f(locX, 0f, locZ))))
+                        if (!precise) {
+                            float epsilon = 0.1f * weight; // rounding error for snapping
 
-                        float adj = 0;
-                        if (terrainHeightAtLoc < desiredHeight) {
-                            adj = 1;
-                        } else if (terrainHeightAtLoc > desiredHeight) {
-                            adj = -1;
-                        }
+                            float adj = 0;
+                            if (terrainHeightAtLoc < desiredHeight)
+                                adj = 1;
+                            else
+                                if (terrainHeightAtLoc > desiredHeight)
+                                    adj = -1;
 
-                        adj *= radiusWeight * weight;
+                            float radiusWeight = ToolUtils.calculateRadiusPercent(radius, locX - current.x, locZ - current.z);
 
-                        // test if adjusting too far and then cap it
-                        if (adj > 0 && ToolUtils.floatGreaterThan((terrainHeightAtLoc + adj), desiredHeight, epsilon)) {
-                            adj = desiredHeight - terrainHeightAtLoc;
-                        } else if (adj < 0 && ToolUtils.floatLessThan((terrainHeightAtLoc + adj), desiredHeight, epsilon)) {
-                            adj = terrainHeightAtLoc - desiredHeight;
-                        }
-                        
-                        if (!ToolUtils.floatEquals(adj, 0, 0.001f)) {
+                            adj *= radiusWeight * weight;
+
+                            // test if adjusting too far and then cap it
+                            if (adj > 0 && ToolUtils.floatGreaterThan((terrainHeightAtLoc + adj), desiredHeight, epsilon))
+                                adj = desiredHeight - terrainHeightAtLoc;
+                            else
+                                if (adj < 0 && ToolUtils.floatLessThan((terrainHeightAtLoc + adj), desiredHeight, epsilon))
+                                    adj = terrainHeightAtLoc - desiredHeight;
+
+                            if (!ToolUtils.floatEquals(adj, 0, 0.001f)) {
+                                locs.add(terrainLoc);
+                                heights.add(adj);
+                            }
+                        } else {
                             locs.add(terrainLoc);
-                            heights.add(adj);
+                            heights.add(desiredHeight);
+                            undoHeights.add(terrainHeightAtLoc);
                         }
-                    } else {
-                        locs.add(terrainLoc);
-                        heights.add(desiredHeight);
-                        undoHeights.add(terrainHeightAtLoc);
-                    }
+
+
                 }
             }
-        }
         undoLocs = locs;
         if (!precise)
             undoHeights = heights;

@@ -239,7 +239,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         scaleField = new javax.swing.JTextField();
         slopeBrushPanel = new javax.swing.JPanel();
         slopePrecisionCheckbox = new javax.swing.JCheckBox();
-        jLabel7 = new javax.swing.JLabel();
+        slopeLockCheckbox = new javax.swing.JCheckBox();
         jToolBar1 = new javax.swing.JToolBar();
         createTerrainButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
@@ -381,8 +381,13 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         });
         slopeBrushPanel.add(slopePrecisionCheckbox);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel7.text")); // NOI18N
-        slopeBrushPanel.add(jLabel7);
+        org.openide.awt.Mnemonics.setLocalizedText(slopeLockCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.slopeLockCheckbox.text")); // NOI18N
+        slopeLockCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                slopeLockCheckboxActionPerformed(evt);
+            }
+        });
+        slopeBrushPanel.add(slopeLockCheckbox);
 
         setBackground(java.awt.Color.gray);
 
@@ -572,7 +577,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 147, Short.MAX_VALUE)
+            .addGap(0, 148, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -953,6 +958,10 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         updateSlopeToolParams();
     }//GEN-LAST:event_slopePrecisionCheckboxActionPerformed
 
+    private void slopeLockCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_slopeLockCheckboxActionPerformed
+        updateSlopeToolParams();
+    }//GEN-LAST:event_slopeLockCheckboxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTextureButton;
     private javax.swing.JButton createTerrainButton;
@@ -966,7 +975,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
@@ -996,6 +1004,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JLabel scaleLabel;
     private javax.swing.JTextField shininessField;
     private javax.swing.JPanel slopeBrushPanel;
+    private javax.swing.JCheckBox slopeLockCheckbox;
     private javax.swing.JCheckBox slopePrecisionCheckbox;
     private javax.swing.JToggleButton slopeTerrainButton;
     private javax.swing.JToggleButton smoothTerrainButton;
@@ -1048,6 +1057,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
      private void updateSlopeToolParams() {
          SlopeExtraToolParams params = new SlopeExtraToolParams();
          params.precision = slopePrecisionCheckbox.isSelected();
+         params.lock = slopeLockCheckbox.isSelected();
          toolController.setExtraToolParams(params);
     }
     

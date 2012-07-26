@@ -32,32 +32,39 @@
 package com.jme3.gde.terraineditor.tools;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.font.BitmapText;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.terraineditor.ExtraToolParams;
 import com.jme3.input.KeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.control.BillboardControl;
+import com.jme3.scene.shape.Line;
 import com.jme3.scene.shape.Sphere;
 import org.openide.loaders.DataObject;
 
 /**
- * Generates a slope between two control points.
+ *
  * @author Shirkit
  */
 public class SlopeTerrainTool extends TerrainTool {
 
     private Vector3f point1, point2;
-    private Geometry markerThird;
+    private Geometry markerThird, line;
     private Node parent;
     private SlopeExtraToolParams toolParams;
+    private BitmapText angleText;
+    private boolean leftCtrl = false;
 
     public SlopeTerrainTool() {
-        toolHintTextKey = "TerrainEditorTopComponent.toolHint.shirkit";
+        toolHintTextKey = "TerrainEditorTopComponent.toolHint.slope";
     }
 
     @Override
@@ -65,17 +72,20 @@ public class SlopeTerrainTool extends TerrainTool {
         super.activate(manager, parent);
         addMarkerSecondary(parent);
         addMarkerThird(parent);
+        addLineAndText();
         this.parent = parent;
     }
 
     @Override
     public void hideMarkers() {
         super.hideMarkers();
-        if (markerThird != null) {
+        if (markerThird != null)
             markerThird.removeFromParent();
-        }
+
+        line.removeFromParent();
+        angleText.removeFromParent();
     }
-    
+
     private void addMarkerThird(Node parent) {
         if (markerThird == null) {
             markerThird = new Geometry("edit marker secondary");
@@ -90,20 +100,29 @@ public class SlopeTerrainTool extends TerrainTool {
         parent.attachChild(markerThird);
     }
 
+    private void addLineAndText() {
+        line = new Geometry("line", new Line(Vector3f.ZERO, Vector3f.ZERO));
+        Material m = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
+        m.setColor("Color", ColorRGBA.White);
+        line.setMaterial(m);
+
+        angleText = new BitmapText(manager.loadFont("Interface/Fonts/Default.fnt"));
+        BillboardControl control = new BillboardControl();
+        angleText.addControl(control);
+        angleText.setSize(0.5f);
+        angleText.setCullHint(Spatial.CullHint.Never);
+    }
+
     @Override
     public void actionPrimary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject) {
-        if (point1 != null && point2 != null) {
-            SlopeTerrainToolAction action = new SlopeTerrainToolAction(point, point1, point2, radius, weight, toolParams.precision);
+        if (point1 != null && point2 != null && point1.distance(point2) > 0.01f) { // Preventing unexpected behavior, like destroying the terrain
+            SlopeTerrainToolAction action = new SlopeTerrainToolAction(point, point1, point2, radius, weight, toolParams.precision, toolParams.lock);
             action.actionPerformed(rootNode, dataObject);
         }
     }
-    private boolean leftCtrl = false;
 
     @Override
     public void keyPressed(KeyInputEvent kie) {
-        if (kie.getKeyCode() == KeyInput.KEY_LCONTROL) {
-            leftCtrl = kie.isPressed();
-        }
         switch (kie.getKeyCode()) {
             case KeyInput.KEY_LCONTROL:
                 leftCtrl = kie.isPressed();
@@ -113,25 +132,67 @@ public class SlopeTerrainTool extends TerrainTool {
                 point2 = null;
                 markerSecondary.removeFromParent();
                 markerThird.removeFromParent();
+                line.removeFromParent();
+                angleText.removeFromParent();
+                break;
+            case KeyInput.KEY_UP:
+                markerThird.move(0f, 0.1f, 0f);
+                point2.set(markerThird.getLocalTranslation());
+                updateAngle();
+                break;
+            case KeyInput.KEY_DOWN:
+                markerThird.move(0f, -0.1f, 0f);
+                point2.set(markerThird.getLocalTranslation());
+                updateAngle();
                 break;
         }
+    }
+
+    private void updateAngle() {
+        Vector3f temp, higher, lower;
+        if (point2.y > point1.y) {
+            temp = point2;
+            higher = point2;
+            lower = point1;
+        } else {
+            temp = point1;
+            higher = point1;
+            lower = point2;
+        }
+        temp = temp.clone().setY(lower.y);
+
+        float angle = ((FastMath.asin(temp.distance(higher) / lower.distance(higher))) * FastMath.RAD_TO_DEG);
+
+        angleText.setText(angle + " degrees");
+        angleText.setLocalTranslation(new Vector3f().interpolate(point1, point2, 0.5f));
+
+        if (line.getParent() == null) {
+            parent.attachChild(line);
+            parent.attachChild(angleText);
+        }
+        ((Line) line.getMesh()).updatePoints(point1, point2);
     }
 
     @Override
     public void actionSecondary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject) {
         if (leftCtrl) {
             point2 = point;
-            if (markerThird.getParent() == null) {
+            if (markerThird.getParent() == null)
                 parent.attachChild(markerThird);
-            }
+
             markerThird.setLocalTranslation(point);
         } else {
             point1 = point;
-            if (markerSecondary.getParent() == null) {
+            if (markerSecondary.getParent() == null)
                 parent.attachChild(markerSecondary);
-            }
+
             markerSecondary.setLocalTranslation(point);
         }
+        if (point1 != null && point2 != null)
+            updateAngle();
+        else
+            if (line != null)
+                line.removeFromParent();
     }
 
     @Override
@@ -139,6 +200,4 @@ public class SlopeTerrainTool extends TerrainTool {
         if (params instanceof SlopeExtraToolParams)
             this.toolParams = (SlopeExtraToolParams) params;
     }
-    
-    
 }

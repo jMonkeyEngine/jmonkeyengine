@@ -40,5 +40,6 @@ import com.jme3.gde.terraineditor.ExtraToolParams;
 public class SlopeExtraToolParams implements ExtraToolParams {
     
     public boolean precision;
+    public boolean lock;
     
 }
