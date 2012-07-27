@@ -109,8 +109,8 @@ public class TerrainTestAdvanced extends SimpleApplication {
         // GRASS texture
         Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
-        //matTerrain.setTexture("DiffuseMap_1", grass);
-        //matTerrain.setFloat("DiffuseMap_1_scale", grassScale);
+        matTerrain.setTexture("DiffuseMap_1", grass);
+        matTerrain.setFloat("DiffuseMap_1_scale", grassScale);
 
         // DIRT texture
         Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
@@ -121,20 +121,20 @@ public class TerrainTestAdvanced extends SimpleApplication {
         // ROCK texture
         Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
         rock.setWrap(WrapMode.Repeat);
-        //matTerrain.setTexture("DiffuseMap_2", rock);
-        //matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
+        matTerrain.setTexture("DiffuseMap_2", rock);
+        matTerrain.setFloat("DiffuseMap_2_scale", rockScale);
 
         // BRICK texture
         Texture brick = assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
         brick.setWrap(WrapMode.Repeat);
-        //matTerrain.setTexture("DiffuseMap_3", brick);
-        //matTerrain.setFloat("DiffuseMap_3_scale", rockScale);
+        matTerrain.setTexture("DiffuseMap_3", brick);
+        matTerrain.setFloat("DiffuseMap_3_scale", rockScale);
 
         // RIVER ROCK texture
         Texture riverRock = assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg");
         riverRock.setWrap(WrapMode.Repeat);
-        //matTerrain.setTexture("DiffuseMap_4", riverRock);
-        //matTerrain.setFloat("DiffuseMap_4_scale", rockScale);
+        matTerrain.setTexture("DiffuseMap_4", riverRock);
+        matTerrain.setFloat("DiffuseMap_4_scale", rockScale);
 
 
         Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
@@ -144,16 +144,16 @@ public class TerrainTestAdvanced extends SimpleApplication {
         Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("NormalMap", normalMap0);
-        //matTerrain.setTexture("NormalMap_1", normalMap2);
-        //matTerrain.setTexture("NormalMap_2", normalMap2);
-        //matTerrain.setTexture("NormalMap_4", normalMap2);
+        matTerrain.setTexture("NormalMap_1", normalMap2);
+        matTerrain.setTexture("NormalMap_2", normalMap2);
+        matTerrain.setTexture("NormalMap_4", normalMap2);
 
         // WIREFRAME material
         matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         matWire.getAdditionalRenderState().setWireframe(true);
         matWire.setColor("Color", ColorRGBA.Green);
 
-        //createSky();
+        createSky();
 
         // CREATE HEIGHTMAP
         AbstractHeightMap heightmap = null;
@@ -186,7 +186,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         terrain.setLocalScale(1f, 1f, 1f);
         rootNode.attachChild(terrain);
         
-        Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
+        //Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
         //terrain.generateDebugTangents(debugMat);
 
         DirectionalLight light = new DirectionalLight();
