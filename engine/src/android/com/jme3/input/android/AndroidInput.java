@@ -267,13 +267,18 @@ public class AndroidInput implements
                         lastPos = new Vector2f(event.getX(p), view.getHeight() - event.getY(p));
                         lastPositions.put(event.getPointerId(p), lastPos);
                     }
-                    touch = getNextFreeTouchEvent();
-                    touch.set(Type.MOVE, event.getX(p), view.getHeight() - event.getY(p), event.getX(p) - lastPos.x, view.getHeight() - event.getY(p) - lastPos.y);
-                    touch.setPointerId(event.getPointerId(p));
-                    touch.setTime(event.getEventTime());
-                    touch.setPressure(event.getPressure(p));
-                    processEvent(touch);
-                    lastPos.set(event.getX(p), view.getHeight() - event.getY(p));
+
+                    float dX = event.getX(p) - lastPos.x;
+                    float dY = view.getHeight() - event.getY(p) - lastPos.y;
+                    if (dX != 0 || dY != 0) {
+                        touch = getNextFreeTouchEvent();
+                        touch.set(Type.MOVE, event.getX(p), view.getHeight() - event.getY(p), dX, dY);
+                        touch.setPointerId(event.getPointerId(p));
+                        touch.setTime(event.getEventTime());
+                        touch.setPressure(event.getPressure(p));
+                        processEvent(touch);
+                        lastPos.set(event.getX(p), view.getHeight() - event.getY(p));
+                    }
                 }
                 bWasHandled = true;
                 break;
