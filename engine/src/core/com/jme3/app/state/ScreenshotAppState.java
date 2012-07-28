@@ -31,7 +31,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private String appName;
     private int shotIndex = 0;
     private int width, height;
-    
+
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         if (!super.isInitialized()){
@@ -45,7 +45,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
             appName = app.getClass().getSimpleName();
         }
-        
+
         super.initialize(stateManager, app);
     }
 
@@ -53,6 +53,10 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         if (value){
             capture = true;
         }
+    }
+
+    public void takeScreenshot() {
+        capture = true;
     }
 
     public void initialize(RenderManager rm, ViewPort vp) {
@@ -82,8 +86,12 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             capture = false;
             shotIndex++;
 
+            renderer.setViewPort(0, 0, width, height);
             renderer.readFrameBuffer(out, outBuf);
-            File file = new File(appName + shotIndex + ".png").getAbsoluteFile();
+
+            File file = new File(JmeSystem.getStorageFolder() + File.separator + appName + shotIndex + ".png").getAbsoluteFile();
+            logger.log(Level.INFO, "Saving ScreenShot to: {0}", file.getAbsolutePath());
+
             OutputStream outStream = null;
             try {
                 outStream = new FileOutputStream(file);
