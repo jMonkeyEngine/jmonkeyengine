@@ -25,12 +25,43 @@ import java.util.logging.Logger;
 public class ScreenshotAppState extends AbstractAppState implements ActionListener, SceneProcessor {
 
     private static final Logger logger = Logger.getLogger(ScreenshotAppState.class.getName());
+    private String filePath = null;
     private boolean capture = false;
     private Renderer renderer;
     private ByteBuffer outBuf;
     private String appName;
     private int shotIndex = 0;
     private int width, height;
+
+    /**
+     * Using this constructor, the screenshot files will be written sequentially to the system
+     * default storage folder.
+     */
+    public ScreenshotAppState() {
+        this(null);
+    }
+
+    /**
+     * This constructor allows you to specify the output file path of the screenshot.
+     * Include the seperator at the end of the path.
+     * Use an emptry string to use the application folder. Use NULL to use the system
+     * default storage folder.
+     * @param file The screenshot file path to use. Include the seperator at the end of the path.
+     */
+    public ScreenshotAppState(String filePath) {
+        this.filePath = filePath;
+    }
+
+    /**
+     * Set the file path to store the screenshot.
+     * Include the seperator at the end of the path.
+     * Use an emptry string to use the application folder. Use NULL to use the system
+     * default storage folder.
+     * @param file File path to use to store the screenshot. Include the seperator at the end of the path.
+     */
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
@@ -89,7 +120,12 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             renderer.setViewPort(0, 0, width, height);
             renderer.readFrameBuffer(out, outBuf);
 
-            File file = new File(JmeSystem.getStorageFolder() + File.separator + appName + shotIndex + ".png").getAbsoluteFile();
+            File file;
+            if (filePath == null) {
+                file = new File(JmeSystem.getStorageFolder() + File.separator + appName + shotIndex + ".png").getAbsoluteFile();
+            } else {
+                file = new File(filePath + appName + shotIndex + ".png").getAbsoluteFile();
+            }
             logger.log(Level.INFO, "Saving ScreenShot to: {0}", file.getAbsolutePath());
 
             OutputStream outStream = null;
