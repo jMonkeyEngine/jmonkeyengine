@@ -32,9 +32,7 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.animation.Bone;
-import com.jme3.animation.SkeletonControl;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.SceneExplorerTopComponent;
 import java.awt.Image;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.ActionEvent;
@@ -60,16 +58,15 @@ public class JmeBone extends AbstractSceneExplorerNode {
     private Bone bone;
     private JmeSkeletonControl jmeSkeletonControl;
     protected final DataFlavor BONE_FLAVOR = new DataFlavor(ClipboardSpatial.class, "Bone");
-   
+
     public JmeBone() {
-       
     }
 
-    public JmeBone(JmeSkeletonControl jmeSkeletonControl,Bone bone, JmeBoneChildren children) {       
+    public JmeBone(JmeSkeletonControl jmeSkeletonControl, Bone bone, JmeBoneChildren children) {
         super(children);
-        this.jmeChildren = children;     
+        this.jmeChildren = children;
         this.jmeSkeletonControl = jmeSkeletonControl;
-        getLookupContents().add(bone);        
+        getLookupContents().add(bone);
         getLookupContents().add(this);
         super.setName(bone.getName());
         this.bone = bone;
@@ -100,94 +97,34 @@ public class JmeBone extends AbstractSceneExplorerNode {
         return sheet;
 
     }
-//
-//    @Override
-//    public PasteType getDropType(final Transferable t, int action, int index) {
-//        Object data = null;
-//        try {
-//            data = t.getTransferData(BONE_FLAVOR);
-//        } catch (Exception ex) {
-////            Exceptions.printStackTrace(ex);
-//        }
-//        if (data == null) {
-//            return null;
-//        }
-//        if (data instanceof ClipboardSpatial) {
-//            final Spatial spat = ((ClipboardSpatial) data).createSpatial();
-//            return new PasteType() {
-//
-//                @Override
-//                public Transferable paste() throws IOException {
-//                    try {
-//                        fireSave(true);
-//                        SceneApplication.getApplication().enqueue(new Callable<Void>() {
-//
-//                            public Void call() throws Exception {
-//                                skeletonControl.getAttachmentsNode(bone.getName()).attachChild(spat);
-//                                return null;
-//                            }
-//                        }).get();
-//                        refresh(false);
-//                        return t;
-//                    } catch (InterruptedException ex) {
-//                        Exceptions.printStackTrace(ex);
-//                    } catch (ExecutionException ex) {
-//                        Exceptions.printStackTrace(ex);
-//                    }
-//                    return null;
-//                }
-//            };
-//        }
-//        return null;
-//    }
-//
-//    @Override
-//    protected void createPasteTypes(Transferable t, List<PasteType> s) {
-//        super.createPasteTypes(t, s);
-//        PasteType paste = getDropType(t, DnDConstants.ACTION_COPY_OR_MOVE, -1);
-//        if (null != paste) {
-//            s.add(paste);
-//        }
-//    }
 
     @Override
     public Action[] getActions(boolean context) {
-//        return super.getActions(context);
-        
-         return new Action[]{
-                 Actions.alwaysEnabled(new AttachementNodeActionListener(), "Get attachement Node", "", false),
-            };
-//        if (((JmeBoneChildren) jmeChildren).readOnly) {
-//            return new Action[]{
-//                 Actions.alwaysEnabled(new AttachementNodeActionListener(), "Get attachement Node", "", false),
-//            };
-//        } else {
-//             return new Action[]{
-//                 Actions.alwaysEnabled(new AttachementNodeActionListener(), "Get attachement Node", "", false),
-//            };
-//        }
-    }
-    
-    private class AttachementNodeActionListener implements ActionListener{
-          public void actionPerformed(ActionEvent e) {
-                     fireSave(true);
-                    try {
-                        SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
-                            public Void call() throws Exception {
-                                jmeSkeletonControl.getSkeletonControl().getAttachmentsNode(bone.getName());
-                                return null;
-                            }
-                          
-                        }).get();
-                        ((AbstractSceneExplorerNode)jmeSkeletonControl.getParentNode()).refresh(false);
-                    } catch (InterruptedException ex) {
-                        Exceptions.printStackTrace(ex);
-                    } catch (ExecutionException ex) {
-                        Exceptions.printStackTrace(ex);
+        return new Action[]{
+                    Actions.alwaysEnabled(new AttachementNodeActionListener(), "Get attachement Node", "", false),};
+    }
+
+    private class AttachementNodeActionListener implements ActionListener {
+
+        public void actionPerformed(ActionEvent e) {
+            fireSave(true);
+            try {
+                SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+                    public Void call() throws Exception {
+                        jmeSkeletonControl.getSkeletonControl().getAttachmentsNode(bone.getName());
+                        return null;
                     }
-                        
-                }
+                }).get();
+                ((AbstractSceneExplorerNode) jmeSkeletonControl.getParentNode()).refresh(false);
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ExecutionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+
+        }
     }
 
     public Class getExplorerObjectClass() {
@@ -199,9 +136,9 @@ public class JmeBone extends AbstractSceneExplorerNode {
     }
 
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
-        JmeBoneChildren children = new JmeBoneChildren(jmeSkeletonControl,(Bone) key);
+        JmeBoneChildren children = new JmeBoneChildren(jmeSkeletonControl, (Bone) key);
         children.setReadOnly(cookie);
         children.setDataObject(key2);
-        return new org.openide.nodes.Node[]{new JmeBone(jmeSkeletonControl,(Bone) key, children).setReadOnly(cookie)};
+        return new org.openide.nodes.Node[]{new JmeBone(jmeSkeletonControl, (Bone) key, children).setReadOnly(cookie)};
     }
 }

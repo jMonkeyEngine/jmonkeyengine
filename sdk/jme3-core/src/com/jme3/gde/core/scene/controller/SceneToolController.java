@@ -21,7 +21,6 @@ import com.jme3.effect.ParticleEmitter;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
@@ -31,8 +30,6 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.debug.WireBox;
-import com.jme3.scene.shape.Box;
-import com.jme3.util.TempVars;
 import java.util.concurrent.Callable;
 
 /**
@@ -145,19 +142,19 @@ public class SceneToolController implements AppState {
     public void rebuildSelectionBox() {
         if (SceneApplication.getApplication().isAwt()) {
             SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
                 public Object call() throws Exception {
                     doUpdateSelection(selected);
                     return null;
                 }
             });
-        }
-        else {
+        } else {
             if (selected != null) {
                 attachSelectionShape(selected);
             }
         }
     }
-    
+
     public void setCursorLocation(final Vector3f location) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
@@ -248,17 +245,17 @@ public class SceneToolController implements AppState {
             wireBox.fromBoundingBox(bbox);
             final Geometry selectionGeometry = new Geometry("selection_geometry_sceneviewer", wireBox);
             selectionGeometry.setMaterial(blueMat);
-            selectionGeometry.setLocalTranslation( bbox.getCenter().subtract(geom.getWorldTranslation()) );
+            selectionGeometry.setLocalTranslation(bbox.getCenter().subtract(geom.getWorldTranslation()));
             //Vector3f scale = new Vector3f(1,1,1);
             //scale.x = 1/geom.getWorldScale().x;
             //scale.y = 1/geom.getWorldScale().y;
             //scale.z = 1/geom.getWorldScale().z;
             selectionShape = new Node("SelectionParent");
-            ((Node)selectionShape).attachChild(selectionGeometry);
+            ((Node) selectionShape).attachChild(selectionGeometry);
             //selectionShape.setLocalTransform(geom.getWorldTransform());
             //selectionShape.setLocalTranslation(geom.getWorldTranslation());
             //selectionGeometry.setLocalScale(scale);
-            
+
             SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
                 public Object call() throws Exception {
@@ -415,7 +412,7 @@ public class SceneToolController implements AppState {
         if (selected == null || selectionShape == null) {
             return;
         }
-        
+
         selectionShape.setLocalTranslation(selected.getWorldTranslation());
         selectionShape.setLocalRotation(selected.getWorldRotation());
         //selectionShape.setLocalScale(selected.getWorldScale());

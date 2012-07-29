@@ -31,10 +31,8 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.animation.AnimControl;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.properties.AnimationProperty;
 import com.jme3.scene.Spatial;
 import java.awt.Image;
 import java.io.IOException;
@@ -43,7 +41,6 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
@@ -62,11 +59,10 @@ public class JmeSkeletonControl extends AbstractSceneExplorerNode {
             ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/skeletonControl.gif");
 
     public JmeSkeletonControl() {
-     
     }
 
     public JmeSkeletonControl(SkeletonControl skeletonControl, JmeBoneChildren children) {
-        super(children);       
+        super(children);
         this.skeletonControl = skeletonControl;
         lookupContents.add(this);
         lookupContents.add(skeletonControl);
@@ -149,13 +145,11 @@ public class JmeSkeletonControl extends AbstractSceneExplorerNode {
     public SkeletonControl getSkeletonControl() {
         return skeletonControl;
     }
-    
-    
 
     @Override
     public Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         JmeBoneChildren children = new JmeBoneChildren(null, null);
-        JmeSkeletonControl jsc = new JmeSkeletonControl((SkeletonControl) key, children);        
+        JmeSkeletonControl jsc = new JmeSkeletonControl((SkeletonControl) key, children);
         return new Node[]{jsc};
     }
 }

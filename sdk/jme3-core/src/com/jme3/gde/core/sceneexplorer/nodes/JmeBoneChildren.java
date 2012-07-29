@@ -32,27 +32,17 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.animation.Bone;
-import com.jme3.animation.SkeletonControl;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
-import com.jme3.light.PointLight;
-import com.jme3.light.SpotLight;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.control.Control;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 
 /**
  *
@@ -95,29 +85,12 @@ public class JmeBoneChildren extends Children.Keys<Object> {
 
                 public List<Object> call() throws Exception {
                     List<Object> keys = new LinkedList<Object>();
-                    if (rootBone != null) {                       
+                    if (rootBone != null) {
                         keys.addAll(rootBone.getChildren());
                     } else {
                         keys.addAll(Arrays.asList(jmeSkeletonControl.getSkeletonControl().getSkeleton().getRoots()));
                     }
-//                    if (spatial instanceof Geometry) {
-//                        Geometry geom = (Geometry) spatial;
-//                        Mesh mesh = geom.getMesh();
-//                        if (mesh != null) {
-//                            keys.add(new MeshGeometryPair(mesh, geom));
-//                        }
-//                    }
-//                    LightList lights = spatial.getLocalLightList();
-//                    for (int i = 0; i < lights.size(); i++) {
-//                        Light light = lights.get(i);
-//                        if (light != null) {
-//                            keys.add(new LightSpatialPair(light, spatial));
-//                        }
-//                    }
-//                    for (int i = 0; i < spatial.getNumControls(); i++) {
-//                        Control control = spatial.getControl(i);
-//                        keys.add(control);
-//                    }
+
                     return keys;
                 }
             }).get();
@@ -144,7 +117,7 @@ public class JmeBoneChildren extends Children.Keys<Object> {
         if (key instanceof Bone) {
             JmeBoneChildren children = new JmeBoneChildren(jmeSkeletonControl, (Bone) key);
             children.setReadOnly(readOnly);
-            children.setDataObject(dataObject);            
+            children.setDataObject(dataObject);
             return new Node[]{new JmeBone(jmeSkeletonControl, (Bone) key, children).setReadOnly(readOnly)};
         }
         return new Node[]{Node.EMPTY};
