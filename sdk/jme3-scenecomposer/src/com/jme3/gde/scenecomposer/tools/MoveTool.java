@@ -46,6 +46,9 @@ public class MoveTool extends SceneEditTool {
     private final Quaternion YZ = new Quaternion().fromAngleAxis(-FastMath.PI/2,   new Vector3f(0,1,0));
     private final Quaternion XZ = new Quaternion().fromAngleAxis(FastMath.PI/2,   new Vector3f(1,0,0));
     
+    //temp vars 
+    private Quaternion rot = new Quaternion();
+    private Vector3f newPos = new Vector3f();
     
     public MoveTool() {
         axisPickType = AxisMarkerPickType.axisAndPlane;
@@ -114,33 +117,31 @@ public class MoveTool extends SceneEditTool {
         
         if (toolController.getSelectedSpatial() == null)
             return;
-        TempVars vars = TempVars.get();
+        
         if (pickedPlane == null) {
             pickedPlane = pickAxisMarker(camera, screenCoord, axisPickType);
             if (pickedPlane == null)
                 return;
             startLoc = toolController.getSelectedSpatial().getLocalTranslation().clone();
-            Quaternion rot = vars.quat1.set(toolController.getSelectedSpatial().getWorldRotation());            
+            rot = rot.set(toolController.getSelectedSpatial().getWorldRotation());            
             if (pickedPlane.equals(new Vector3f(1,1,0)))
                 plane.setLocalRotation(rot.multLocal(XY));
             else if (pickedPlane.equals(new Vector3f(1,0,1)))
                 plane.setLocalRotation(rot.multLocal(XZ));
             else if (pickedPlane.equals(new Vector3f(0,1,1)))
-                plane.setLocalRotation(rot.multLocal(YZ));
+                plane.setLocalRotation(rot.multLocal(YZ));           
             plane.setLocalTranslation(startLoc);
         }
         
         Vector3f planeHit = pickWorldLocation(camera, screenCoord, plane, null);        
-        if (planeHit == null){
-            vars.release();
+        if (planeHit == null){            
             return;
         }
         
         Spatial selected = toolController.getSelectedSpatial();
         Spatial parent = selected.getParent();
         
-       
-        Vector3f newPos =vars.vect1;
+        
          if( parent == null ){
            //we are moving the root node, move is computed in local translation
            if (offset == null){                   
@@ -166,7 +167,7 @@ public class MoveTool extends SceneEditTool {
             selected.setLocalTranslation(newPos);
             lastLoc.set(newPos);
          }
-        vars.release();
+       
         RigidBodyControl control = toolController.getSelectedSpatial().getControl(RigidBodyControl.class);
         if (control != null) {
             control.setPhysicsLocation(toolController.getSelectedSpatial().getWorldTranslation());
