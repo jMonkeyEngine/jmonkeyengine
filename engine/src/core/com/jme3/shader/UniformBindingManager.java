@@ -4,10 +4,10 @@
  */
 package com.jme3.shader;
 
+import com.jme3.material.Material;
 import com.jme3.math.*;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
 import com.jme3.system.Timer;
 import java.util.List;
 
@@ -39,6 +39,7 @@ public class UniformBindingManager {
     private Matrix4f worldViewProjMatrix = new Matrix4f();
     private Matrix3f normalMatrix = new Matrix3f();
     private Matrix4f worldMatrixInv = new Matrix4f();
+    private Matrix3f worldMatrixInvTrsp = new Matrix3f();
     private Matrix4f viewMatrixInv = new Matrix4f();
     private Matrix4f projMatrixInv = new Matrix4f();
     private Matrix4f viewProjMatrixInv = new Matrix4f();
@@ -95,9 +96,9 @@ public class UniformBindingManager {
                     u.setValue(VarType.Matrix4, worldMatrixInv);
                     break;
                 case WorldMatrixInverseTranspose:
-//                    worldMatrix.toRotationMatrix(tempMat3);
-//                    tempMat3.invertLocal().transposeLocal();
-//                    u.setValue(VarType.Matrix3, tempMat3, true);
+                    worldMatrix.toRotationMatrix(worldMatrixInvTrsp);
+                    worldMatrixInvTrsp.invertLocal().transposeLocal();
+                    u.setValue(VarType.Matrix3, worldMatrixInvTrsp);
                     break;
                 case ViewMatrixInverse:
                     viewMatrixInv.set(viewMatrix);
@@ -217,7 +218,7 @@ public class UniformBindingManager {
         far = cam.getFrustumFar();
     }
 
-    public void setViewPort(int viewX, int viewY, int viewWidth, int viewHeight) {    
+    public void setViewPort(int viewX, int viewY, int viewWidth, int viewHeight) {
         this.viewX = viewX;
         this.viewY = viewY;
         this.viewWidth = viewWidth;
