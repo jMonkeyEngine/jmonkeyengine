@@ -6,14 +6,6 @@ package com.jme3.gde.scenecomposer;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bounding.BoundingBox;
-import com.jme3.bounding.BoundingVolume;
-import com.jme3.bullet.collision.PhysicsCollisionObject;
-import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.control.GhostControl;
-import com.jme3.bullet.control.PhysicsControl;
-import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.control.VehicleControl;
-import com.jme3.bullet.util.DebugShapeFactory;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.gde.core.scene.SceneApplication;
@@ -27,19 +19,15 @@ import com.jme3.material.RenderState.BlendMode;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
-import com.jme3.math.Transform;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.Arrow;
-import com.jme3.scene.debug.WireBox;
 import com.jme3.scene.shape.Quad;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
@@ -136,7 +124,6 @@ public abstract class SceneEditTool {
                 doUpdateToolsTransformation();
                 return null;
             }
-
         });
     }
 
@@ -150,7 +137,7 @@ public abstract class SceneEditTool {
             axisMarker.setLocalRotation(Quaternion.IDENTITY);
         }
     }
-    
+
     /**
      * Adjust the scale of the marker so it is relative to the size of the
      * selected spatial. It will have a minimum scale of 2.
@@ -160,14 +147,14 @@ public abstract class SceneEditTool {
             if (selected.getWorldBound() instanceof BoundingBox) {
                 BoundingBox bbox = (BoundingBox) selected.getWorldBound();
                 float smallest = Math.min(Math.min(bbox.getXExtent(), bbox.getYExtent()), bbox.getZExtent());
-                float scale = Math.max(1, smallest/2f);
-                axisMarker.setLocalScale(new Vector3f(scale,scale,scale));
+                float scale = Math.max(1, smallest / 2f);
+                axisMarker.setLocalScale(new Vector3f(scale, scale, scale));
             }
         } else {
-            axisMarker.setLocalScale(new Vector3f(2,2,2));
+            axisMarker.setLocalScale(new Vector3f(2, 2, 2));
         }
     }
-    
+
     /**
      * The primary action for the tool gets activated
      */
@@ -193,8 +180,9 @@ public abstract class SceneEditTool {
      */
     public abstract void draggedSecondary(Vector2f screenCoord, boolean pressed, JmeNode rootNode, DataObject currentDataObject);
 
-    public void keyPressed(KeyInputEvent kie) {}
-    
+    public void keyPressed(KeyInputEvent kie) {
+    }
+
     /**
      * Call when an action is performed that requires the scene to be saved
      * and an undo can be performed
@@ -210,7 +198,7 @@ public abstract class SceneEditTool {
      * @param jmeRootNode to pick from
      * @return the selected spatial, or null if nothing
      */
-    protected Spatial pickWorldSpatial(Camera cam, Vector2f mouseLoc, JmeNode jmeRootNode) {
+    public static Spatial pickWorldSpatial(Camera cam, Vector2f mouseLoc, JmeNode jmeRootNode) {
         Node rootNode = jmeRootNode.getLookup().lookup(Node.class);
         CollisionResult cr = pick(cam, mouseLoc, rootNode);
         if (cr != null) {
@@ -226,24 +214,22 @@ public abstract class SceneEditTool {
      * @param jmeRootNode to pick from
      * @return the location of the pick, or null if nothing collided with the mouse
      */
-    protected Vector3f pickWorldLocation(Camera cam, Vector2f mouseLoc, JmeNode jmeRootNode) {
+    public static Vector3f pickWorldLocation(Camera cam, Vector2f mouseLoc, JmeNode jmeRootNode) {
         Node rootNode = jmeRootNode.getLookup().lookup(Node.class);
         return pickWorldLocation(cam, mouseLoc, rootNode, null);
     }
-    
+
     /**
      * Pick anything except the excluded spatial
      * @param excludeSpat to not pick
      */
-    protected Vector3f pickWorldLocation(Camera cam, Vector2f mouseLoc, JmeNode jmeRootNode, JmeSpatial excludeSpat) {
+    public static Vector3f pickWorldLocation(Camera cam, Vector2f mouseLoc, JmeNode jmeRootNode, JmeSpatial excludeSpat) {
         Node rootNode = jmeRootNode.getLookup().lookup(Node.class);
-        return pickWorldLocation(cam, mouseLoc, rootNode, excludeSpat);
+        Spatial exclude = excludeSpat.getLookup().lookup(Spatial.class);
+        return pickWorldLocation(cam, mouseLoc, rootNode, exclude);
     }
 
-    protected Vector3f pickWorldLocation(Camera cam, Vector2f mouseLoc, Node rootNode, JmeSpatial excludeSpat) {
-        Spatial exclude = null;
-        if (excludeSpat != null)
-            exclude = excludeSpat.getLookup().lookup(Spatial.class);
+    public static Vector3f pickWorldLocation(Camera cam, Vector2f mouseLoc, Node rootNode, Spatial exclude) {
         CollisionResult cr = doPick(cam, mouseLoc, rootNode, exclude);
         if (cr != null) {
             return cr.getContactPoint();
@@ -252,46 +238,48 @@ public abstract class SceneEditTool {
         }
     }
 
-    private CollisionResult doPick(Camera cam, Vector2f mouseLoc, Node node, Spatial exclude) {
+    private static CollisionResult doPick(Camera cam, Vector2f mouseLoc, Node node, Spatial exclude) {
         CollisionResults results = new CollisionResults();
         Ray ray = new Ray();
         Vector3f pos = cam.getWorldCoordinates(mouseLoc, 0).clone();
-        Vector3f dir = cam.getWorldCoordinates(mouseLoc, 0.1f).clone();
+        Vector3f dir = cam.getWorldCoordinates(mouseLoc, 0.3f).clone();
         dir.subtractLocal(pos).normalizeLocal();
         ray.setOrigin(pos);
         ray.setDirection(dir);
         node.collideWith(ray, results);
         CollisionResult result = null;
-        if (exclude == null)
+        if (exclude == null) {
             result = results.getClosestCollision();
-        else {
+        } else {
             Iterator<CollisionResult> it = results.iterator();
             while (it.hasNext()) {
                 CollisionResult cr = it.next();
-                if (isExcluded(cr.getGeometry(), exclude))
+                if (isExcluded(cr.getGeometry(), exclude)) {
                     continue;
-                else
+                } else {
                     return cr;
+                }
             }
-            
+
         }
         return result;
     }
-    
+
     /**
      * Is the selected spatial the one we want to exclude from the picking?
      * Recursively looks up the parents to find out.
      */
-    private boolean isExcluded(Spatial s, Spatial exclude) {
-        if (s.equals(exclude))
+    private static boolean isExcluded(Spatial s, Spatial exclude) {
+        if (s.equals(exclude)) {
             return true;
-        
+        }
+
         if (s.getParent() != null) {
             return isExcluded(s.getParent(), exclude);
         }
         return false;
     }
-    
+
     /**
      * Pick a part of the axis marker. The result is a Vector3f that represents
      * what part of the axis was selected.
@@ -344,7 +332,7 @@ public abstract class SceneEditTool {
         return null;
     }
 
-    private CollisionResult pick(Camera cam, Vector2f mouseLoc, Node node) {
+    private static CollisionResult pick(Camera cam, Vector2f mouseLoc, Node node) {
         CollisionResults results = new CollisionResults();
         Ray ray = new Ray();
         Vector3f pos = cam.getWorldCoordinates(mouseLoc, 0).clone();
@@ -364,7 +352,7 @@ public abstract class SceneEditTool {
     protected void highlightAxisMarker(Camera camera, Vector2f screenCoord, AxisMarkerPickType axisMarkerPickType) {
         highlightAxisMarker(camera, screenCoord, axisMarkerPickType, false);
     }
-    
+
     /**
      * Show what axis or plane the mouse is currently over and will affect.
      * @param axisMarkerPickType 
@@ -379,20 +367,18 @@ public abstract class SceneEditTool {
 
         if (picked == ARROW_X) {
             axisMarker.getChild("arrowX").setMaterial(orangeMat);
-        } 
-        else if (picked == ARROW_Y) {
+        } else if (picked == ARROW_Y) {
             axisMarker.getChild("arrowY").setMaterial(orangeMat);
-        } 
-        else if (picked == ARROW_Z) {
+        } else if (picked == ARROW_Z) {
             axisMarker.getChild("arrowZ").setMaterial(orangeMat);
-        } 
-        
+        }
+
         if (picked == QUAD_XY || colorAll) {
             axisMarker.getChild("quadXY").setMaterial(orangeMat);
-        } 
+        }
         if (picked == QUAD_XZ || colorAll) {
             axisMarker.getChild("quadXZ").setMaterial(orangeMat);
-        } 
+        }
         if (picked == QUAD_YZ || colorAll) {
             axisMarker.getChild("quadYZ").setMaterial(orangeMat);
         }
@@ -492,7 +478,6 @@ public abstract class SceneEditTool {
         quadYZ.setMaterial(cyanMat);
     }
 
-  
     public Camera getCamera() {
         return camera;
     }

@@ -48,7 +48,7 @@ public class SceneComposerToolController extends SceneToolController {
     private Material audioMarkerMaterial;
     private JmeSpatial selectedSpatial;
     private boolean snapToGrid = false;
-    private boolean snapToScene = true;
+    private boolean snapToScene = false;
     private boolean selectTerrain = false;
 
     public SceneComposerToolController(final Node toolsNode, AssetManager manager, JmeNode rootNode) {

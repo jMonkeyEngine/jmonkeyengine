@@ -13,16 +13,14 @@ import com.jme3.gde.scenecomposer.SceneEditTool;
 import com.jme3.input.KeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.math.FastMath;
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.terrain.Terrain;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.openide.loaders.DataObject;
+import org.openide.util.Lookup;
 
 /**
  * This duplicates the Blender manipulate tool.
@@ -50,8 +48,8 @@ public class SelectTool extends SceneEditTool {
     private enum State {translate, rotate, scale};
     private State currentState = null;
     
-    private enum Axis {x, y, z};
-    private Axis currentAxis = null;
+    
+    private Vector3f currentAxis = Vector3f.UNIT_XYZ;
     
     private StringBuilder numberBuilder = new StringBuilder(); // gets appended with numbers
     
@@ -66,7 +64,7 @@ public class SelectTool extends SceneEditTool {
     private boolean shiftDown = false;
     private boolean altDown = false;
     
-    private MoveUndo moving;
+    private MoveManager.MoveUndo moving;
     private ScaleUndo scaling;
     private RotateUndo rotating;
     private Vector2f startMouseCoord; // for scaling and rotation
@@ -111,7 +109,7 @@ public class SelectTool extends SceneEditTool {
                 return; // commands take priority
             
             if (stateChange) {
-                currentAxis = null;
+                currentAxis = Vector3f.UNIT_XYZ;
                 numberBuilder = new StringBuilder();
                 recordInitialState(selected);
             }
@@ -161,7 +159,7 @@ public class SelectTool extends SceneEditTool {
                 selected.setLocalScale(startScale);
         }
         currentState = null;
-        currentAxis = null;
+        currentAxis = Vector3f.UNIT_XYZ;
         numberBuilder = new StringBuilder();
         startRot = null;
         startTrans = null;
@@ -192,26 +190,20 @@ public class SelectTool extends SceneEditTool {
         }
         
         if (currentState == State.translate) {
-            float x = 0, y= 0, z = 0;
-            if (currentAxis == Axis.x)
-                x = value;
-            else if (currentAxis == Axis.y)
-                y = value;
-            else if (currentAxis == Axis.z)
-                z = value;
-            Vector3f before = selected.getLocalTranslation().clone();
-            Vector3f after = selected.getLocalTranslation().addLocal(x, y, z);
-            selected.setLocalTranslation(after);
-            actionPerformed(new MoveUndo(selected, before, after));
+            MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
+            moveManager.moveAcross(currentAxis, value, toolController.isSnapToGrid());
+            moving.setAfter(selected.getLocalTranslation());
+            actionPerformed(moving);
+            moving = null;
         } else if (currentState == State.scale) {
             float x = 1, y= 1, z = 1;
-            if (currentAxis == Axis.x)
+            if (currentAxis == Vector3f.UNIT_X)
                 x = value;
-            else if (currentAxis == Axis.y)
+            else if (currentAxis == Vector3f.UNIT_Y)
                 y = value;
-            else if (currentAxis == Axis.z)
+            else if (currentAxis == Vector3f.UNIT_Z)
                 z = value;
-            else if (currentAxis == null) {
+            else if (currentAxis == Vector3f.UNIT_XYZ) {
                 x = value;
                 y = value;
                 z = value;
@@ -222,11 +214,11 @@ public class SelectTool extends SceneEditTool {
             actionPerformed(new ScaleUndo(selected, before, after));
         } else if (currentState == State.rotate) {
             float x = 0, y= 0, z = 0;
-            if (currentAxis == Axis.x)
+            if (currentAxis == Vector3f.UNIT_X)
                 x = 1;
-            else if (currentAxis == Axis.y)
+            else if (currentAxis == Vector3f.UNIT_Y)
                 y = 1;
-            else if (currentAxis == Axis.z)
+            else if (currentAxis == Vector3f.UNIT_Z)
                 z = 1;
             Vector3f axis = new Vector3f(x,y,z);
             Quaternion initialRot = selected.getLocalRotation().clone();
@@ -238,6 +230,7 @@ public class SelectTool extends SceneEditTool {
             toolController.updateSelection(null);// force a re-draw of the bbox shape
             toolController.updateSelection(selected);
         }
+        clearState(false);
     }
     
     private void checkModificatorKeys(KeyInputEvent kie) {
@@ -271,6 +264,11 @@ public class SelectTool extends SceneEditTool {
     private boolean checkStateKey(KeyInputEvent kie) {
         if (kie.getKeyCode() == KeyInput.KEY_G) {
             currentState = State.translate;
+            MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
+            moveManager.reset();
+            Quaternion rot = camera.getRotation().mult(new Quaternion().fromAngleAxis(FastMath.PI,Vector3f.UNIT_Y));
+            moveManager.initiateMove(selected, rot, false);
+            moving = moveManager.makeUndo();
             return true;
         } else if (kie.getKeyCode() == KeyInput.KEY_R) {
             currentState = State.rotate;
@@ -284,13 +282,40 @@ public class SelectTool extends SceneEditTool {
     
     private boolean checkAxisKey(KeyInputEvent kie) {
         if (kie.getKeyCode() == KeyInput.KEY_X) {
-            currentAxis = Axis.x;
+            currentAxis = Vector3f.UNIT_X;
+            MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
+            Quaternion rot = camera.getRotation().mult(new Quaternion().fromAngleAxis(FastMath.PI,Vector3f.UNIT_Y));
+            Quaternion planRot = null;          
+            if(rot.dot(MoveManager.XY)<rot.dot(MoveManager.XZ)){
+                planRot = MoveManager.XY;
+            }else{
+                planRot = MoveManager.XZ;
+            }           
+            moveManager.updatePlaneRotation(planRot);
             return true;
         } else if (kie.getKeyCode() == KeyInput.KEY_Y) {
-            currentAxis = Axis.y;
+            currentAxis = Vector3f.UNIT_Y;
+            MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
+            Quaternion rot = camera.getRotation().mult(new Quaternion().fromAngleAxis(FastMath.PI,Vector3f.UNIT_Y));
+            Quaternion planRot = null;          
+            if(rot.dot(MoveManager.XY)<rot.dot(MoveManager.YZ)){
+                planRot = MoveManager.XY;
+            }else{
+                planRot = MoveManager.YZ;
+            }           
+            moveManager.updatePlaneRotation(planRot);
             return true;
         } else if (kie.getKeyCode() == KeyInput.KEY_Z) {
-            currentAxis = Axis.z;
+            currentAxis = Vector3f.UNIT_Z;
+             MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
+            Quaternion rot = camera.getRotation().mult(new Quaternion().fromAngleAxis(FastMath.PI,Vector3f.UNIT_Y));
+            Quaternion planRot = null;          
+            if(rot.dot(MoveManager.XZ)<rot.dot(MoveManager.YZ)){
+                planRot = MoveManager.XZ;
+            }else{
+                planRot = MoveManager.YZ;
+            }           
+            moveManager.updatePlaneRotation(planRot);
             return true;
         }
         return false;
@@ -307,34 +332,34 @@ public class SelectTool extends SceneEditTool {
             } else
                 numberBuilder.append('-');
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_0) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_0 || kie.getKeyCode() == KeyInput.KEY_NUMPAD0) {
             numberBuilder.append('0');
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_1) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_1 || kie.getKeyCode() == KeyInput.KEY_NUMPAD1) {
             numberBuilder.append('1');
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_2) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_2 || kie.getKeyCode() == KeyInput.KEY_NUMPAD2) {
             numberBuilder.append('2');
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_3) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_3 || kie.getKeyCode() == KeyInput.KEY_NUMPAD3) {
             numberBuilder.append('3');
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_4) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_4 || kie.getKeyCode() == KeyInput.KEY_NUMPAD4) {
             numberBuilder.append('4');
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_5) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_5 || kie.getKeyCode() == KeyInput.KEY_NUMPAD5) {
             numberBuilder.append('5');
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_6) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_6 || kie.getKeyCode() == KeyInput.KEY_NUMPAD6) {
             numberBuilder.append('6');
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_7) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_7 || kie.getKeyCode() == KeyInput.KEY_NUMPAD7) {
             numberBuilder.append('7');
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_8) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_8 || kie.getKeyCode() == KeyInput.KEY_NUMPAD8) {
             numberBuilder.append('8');
             return true;
-        } else if (kie.getKeyCode() == KeyInput.KEY_9) {
+        } else if (kie.getKeyCode() == KeyInput.KEY_9 || kie.getKeyCode() == KeyInput.KEY_NUMPAD9) {
             numberBuilder.append('9');
             return true;
         } else if (kie.getKeyCode() == KeyInput.KEY_PERIOD) {
@@ -374,7 +399,7 @@ public class SelectTool extends SceneEditTool {
                 if (currentState != null) {
                     // finish manipulating the spatial
                     if (moving != null) {
-                        moving.after = selected.getLocalTranslation().clone();
+                        moving.setAfter(selected.getLocalTranslation());
                         actionPerformed(moving);
                         moving = null;
                         clearState(false);
@@ -483,12 +508,7 @@ public class SelectTool extends SceneEditTool {
     @Override
     public void mouseMoved(Vector2f screenCoord, JmeNode rootNode, DataObject currentDataObject, JmeSpatial selectedSpatial) {
         if (currentState != null) {
-            //if (currentAxis != null) {
-                // manipulate from specific axis
-                handleMouseManipulate(screenCoord, currentState, currentAxis, rootNode, currentDataObject, selectedSpatial);
-            //} else {
-                // manipulate from screen coordinates
-            //}
+            handleMouseManipulate(screenCoord, currentState, currentAxis, rootNode, currentDataObject, selectedSpatial);   
         }
     }
 
@@ -507,7 +527,7 @@ public class SelectTool extends SceneEditTool {
      */
     private void handleMouseManipulate( Vector2f screenCoord, 
                                         State state, 
-                                        Axis axis, 
+                                        Vector3f axis, 
                                         JmeNode rootNode, 
                                         DataObject currentDataObject, 
                                         JmeSpatial selectedSpatial) 
@@ -523,50 +543,17 @@ public class SelectTool extends SceneEditTool {
         }
             
     }
-    
-    private void doMouseTranslate(Axis axis, Vector2f screenCoord, JmeNode rootNode, JmeSpatial selectedSpatial) {
-        // free form translation
-        if (axis == null) {
-            if (toolController.isSnapToScene()) {
-                if (moving == null)
-                    moving = new MoveUndo(selected, selected.getLocalTranslation().clone(), null);
-                Vector3f loc = pickWorldLocation(camera, screenCoord, rootNode, selectedSpatial);
-                if (loc != null) {
-                    //Node sel = selectedSpatial.getLookup().lookup(Node.class);
-                    if (toolController.isSnapToGrid()) {
-                        selected.setLocalTranslation(loc.set(Math.round(loc.x), loc.y, Math.round(loc.z)));
-                    } else {
-                        selected.setLocalTranslation(loc);
-                    }
-                }
-            } else {
-                //TODO drag alone a camera-oriented axis
-            }
-        } else {
-            //snap to specific axis, ignoring snapToScene
-            if (moving == null)
-                moving = new MoveUndo(selected, selected.getLocalTranslation().clone(), null);
-            Vector3f loc = pickWorldLocation(camera, screenCoord, rootNode, selectedSpatial);
-            if (loc != null) {
-                if (toolController.isSnapToGrid())
-                    loc.set(Math.round(loc.x), Math.round(loc.y), Math.round(loc.z)); // round the values
-                
-                //Node sel = selectedSpatial.getLookup().lookup(Node.class);
-                Vector3f prev = selected.getLocalTranslation().clone();
-                Vector3f newLoc = new Vector3f(prev);
-                if (axis == Axis.x)
-                    newLoc.x = loc.x;
-                else if (axis == Axis.y)
-                    newLoc.y = loc.y;
-                if (axis == Axis.z)
-                    newLoc.z = loc.z;
-                
-                selected.setLocalTranslation(newLoc);
-            }
+
+    private void doMouseTranslate(Vector3f axis, Vector2f screenCoord, JmeNode rootNode, JmeSpatial selectedSpatial) {
+        MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
+        if(toolController.isSnapToScene()){
+            moveManager.setAlternativePickTarget(rootNode.getLookup().lookup(Node.class));
         }
+        // free form translation
+         moveManager.move(camera, screenCoord, axis,toolController.isSnapToGrid());
     }
     
-    private void doMouseScale(Axis axis, Vector2f screenCoord, JmeNode rootNode, JmeSpatial selectedSpatial) {
+    private void doMouseScale(Vector3f axis, Vector2f screenCoord, JmeNode rootNode, JmeSpatial selectedSpatial) {
         // scale based on the original mouse position and original model-to-screen position
         // and compare that to the distance from the new mouse position and the original distance
         if (startMouseCoord == null)
@@ -585,17 +572,17 @@ public class SelectTool extends SceneEditTool {
             origDist = 1;
         float ratio = newDist/origDist;
         Vector3f prev = selected.getLocalScale();
-        if (axis == Axis.x)
+        if (axis == Vector3f.UNIT_X)
             selected.setLocalScale(ratio, prev.y, prev.z);
-        else if (axis == Axis.y)
+        else if (axis == Vector3f.UNIT_Y)
             selected.setLocalScale(prev.x, ratio, prev.z);
-        else if (axis == Axis.z)
+        else if (axis == Vector3f.UNIT_Z)
             selected.setLocalScale(prev.x, prev.y, ratio);
         else
             selected.setLocalScale(ratio, ratio, ratio);
     }
     
-    private void doMouseRotate(Axis axis, Vector2f screenCoord, JmeNode rootNode, JmeSpatial selectedSpatial) {
+    private void doMouseRotate(Vector3f axis, Vector2f screenCoord, JmeNode rootNode, JmeSpatial selectedSpatial) {
         if (startMouseCoord == null)
             startMouseCoord = screenCoord.clone();
         if (startSelectedCoord == null) {
@@ -617,15 +604,11 @@ public class SelectTool extends SceneEditTool {
         lastRotAngle = temp;
         
         Quaternion rotate = new Quaternion();
-        if (axis == Axis.x) {
-            rotate = rotate.fromAngleAxis(newRotAngle, Vector3f.UNIT_X);
-        } else if (axis == Axis.y) {
-            rotate = rotate.fromAngleAxis(newRotAngle, Vector3f.UNIT_Y);
-        } else if (axis == Axis.z) {
-            rotate = rotate.fromAngleAxis(newRotAngle, Vector3f.UNIT_Z);
+        if (axis != Vector3f.UNIT_XYZ) {
+            rotate = rotate.fromAngleAxis(newRotAngle, axis);
         } else {
-            Vector3f screen = getCamera().getLocation().subtract(selected.getWorldTranslation()).normalize();
-            rotate = rotate.fromAngleAxis(newRotAngle, screen);
+            //Vector3f screen = getCamera().getLocation().subtract(selected.getWorldTranslation()).normalize();
+            rotate = rotate.fromAngleAxis(newRotAngle, getCamera().getDirection());
         }
         selected.setLocalRotation(selected.getLocalRotation().mult(rotate));
         
@@ -661,7 +644,7 @@ public class SelectTool extends SceneEditTool {
         // set to automatically 'grab'/'translate' the new cloned model
         toolController.updateSelection(selected);
         currentState = State.translate;
-        currentAxis = null;
+        currentAxis = Vector3f.UNIT_XYZ;
     }
     
     private void deleteSelected() {
@@ -685,28 +668,6 @@ public class SelectTool extends SceneEditTool {
                 jmeRootNode.getChild(parent).refresh(false);
             }
         });
-    }
-    
-    private class MoveUndo extends AbstractUndoableSceneEdit {
-
-        private Spatial spatial;
-        private Vector3f before,after;
-        
-        MoveUndo(Spatial spatial, Vector3f before, Vector3f after) {
-            this.spatial = spatial;
-            this.before = before;
-            this.after = after;
-        }
-        
-        @Override
-        public void sceneUndo() {
-            spatial.setLocalTranslation(before);
-        }
-
-        @Override
-        public void sceneRedo() {
-            spatial.setLocalTranslation(after);
-        }
     }
     
     private class ScaleUndo extends AbstractUndoableSceneEdit {

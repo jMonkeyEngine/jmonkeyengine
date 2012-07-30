@@ -428,7 +428,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             }
         });
 
-        snapToSceneCheckbox.setSelected(true);
+        snapToSceneCheckbox.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(snapToSceneCheckbox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToSceneCheckbox.text")); // NOI18N
         snapToSceneCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToSceneCheckbox.toolTipText")); // NOI18N
         snapToSceneCheckbox.addActionListener(new java.awt.event.ActionListener() {
@@ -437,6 +437,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             }
         });
 
+        snapToGridCheckbox.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(snapToGridCheckbox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToGridCheckbox.text")); // NOI18N
         snapToGridCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToGridCheckbox.toolTipText")); // NOI18N
         snapToGridCheckbox.addActionListener(new java.awt.event.ActionListener() {
@@ -445,6 +446,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             }
         });
 
+        selectTerrainCheckbox.setBackground(new java.awt.Color(204, 204, 204));
         org.openide.awt.Mnemonics.setLocalizedText(selectTerrainCheckbox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.selectTerrainCheckbox.text")); // NOI18N
         selectTerrainCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.selectTerrainCheckbox.toolTipText")); // NOI18N
         selectTerrainCheckbox.addActionListener(new java.awt.event.ActionListener() {
