@@ -166,6 +166,7 @@ public class SelectTool extends SceneEditTool {
         startScale = null;
         startMouseCoord = null;
         startSelectedCoord = null;
+        lastRotAngle = 0;
     }
 
     private void recordInitialState(Spatial selected) {
@@ -229,6 +230,7 @@ public class SelectTool extends SceneEditTool {
             actionPerformed(undo);
             toolController.updateSelection(null);// force a re-draw of the bbox shape
             toolController.updateSelection(selected);
+
         }
         clearState(false);
     }
@@ -286,42 +288,32 @@ public class SelectTool extends SceneEditTool {
     private boolean checkAxisKey(KeyInputEvent kie) {
         if (kie.getKeyCode() == KeyInput.KEY_X) {
             currentAxis = Vector3f.UNIT_X;
-            MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
-            Quaternion rot = camera.getRotation().mult(new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y));
-            Quaternion planRot = null;
-            if (rot.dot(MoveManager.XY) < rot.dot(MoveManager.XZ)) {
-                planRot = MoveManager.XY;
-            } else {
-                planRot = MoveManager.XZ;
-            }
-            moveManager.updatePlaneRotation(planRot);
+            checkMovePlane(MoveManager.XY, MoveManager.XZ);
             return true;
         } else if (kie.getKeyCode() == KeyInput.KEY_Y) {
             currentAxis = Vector3f.UNIT_Y;
-            MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
-            Quaternion rot = camera.getRotation().mult(new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y));
-            Quaternion planRot = null;
-            if (rot.dot(MoveManager.XY) < rot.dot(MoveManager.YZ)) {
-                planRot = MoveManager.XY;
-            } else {
-                planRot = MoveManager.YZ;
-            }
-            moveManager.updatePlaneRotation(planRot);
+            checkMovePlane(MoveManager.XY, MoveManager.YZ);
             return true;
         } else if (kie.getKeyCode() == KeyInput.KEY_Z) {
             currentAxis = Vector3f.UNIT_Z;
-            MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
-            Quaternion rot = camera.getRotation().mult(new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y));
-            Quaternion planRot = null;
-            if (rot.dot(MoveManager.XZ) < rot.dot(MoveManager.YZ)) {
-                planRot = MoveManager.XZ;
-            } else {
-                planRot = MoveManager.YZ;
-            }
-            moveManager.updatePlaneRotation(planRot);
+            checkMovePlane(MoveManager.XZ, MoveManager.YZ);
             return true;
         }
         return false;
+    }
+
+    private void checkMovePlane(Quaternion rot1, Quaternion rot2) {
+        if (currentState == State.translate) {
+            MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
+            Quaternion rot = camera.getRotation().mult(new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y));
+            Quaternion planRot = null;
+            if (rot.dot(rot1) < rot.dot(rot2)) {
+                planRot = rot1;
+            } else {
+                planRot = rot2;
+            }
+            moveManager.updatePlaneRotation(planRot);
+        }
     }
 
     private boolean checkNumberKey(KeyInputEvent kie) {
@@ -619,10 +611,9 @@ public class SelectTool extends SceneEditTool {
 
         Quaternion rotate = new Quaternion();
         if (axis != Vector3f.UNIT_XYZ) {
-            rotate = rotate.fromAngleAxis(newRotAngle, axis);
+            rotate = rotate.fromAngleAxis(newRotAngle, selected.getWorldRotation().inverse().mult(axis));
         } else {
-            //Vector3f screen = getCamera().getLocation().subtract(selected.getWorldTranslation()).normalize();
-            rotate = rotate.fromAngleAxis(newRotAngle, getCamera().getDirection());
+            rotate = rotate.fromAngleAxis(newRotAngle, selected.getWorldRotation().inverse().mult(getCamera().getDirection().mult(-1).normalizeLocal()));
         }
         selected.setLocalRotation(selected.getLocalRotation().mult(rotate));
 
