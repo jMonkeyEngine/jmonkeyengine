@@ -27,6 +27,7 @@ package com.jme3.gde.core.scene.controller;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.gde.core.Installer;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.toolbars.CameraToolbar;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
@@ -50,6 +51,7 @@ import com.jme3.renderer.RenderManager;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.openide.util.Exceptions;
+import org.openide.util.NbPreferences;
 
 /**
  *
@@ -418,13 +420,15 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
     public void onMouseButtonEvent(MouseButtonEvent mbe) {
         //on a click release we request the focus for the top component
         //this allow netbeans to catch keyEvents and trigger actions according to keymapping
-        if (mbe.isReleased()) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
+        if ("true".equals(NbPreferences.forModule(Installer.class).get("use_lwjgl_canvas", "false"))) {
+            if (mbe.isReleased()) {
+                java.awt.EventQueue.invokeLater(new Runnable() {
 
-                public void run() {
-                    SceneViewerTopComponent.findInstance().requestActive();
-                }
-            });
+                    public void run() {
+                        SceneViewerTopComponent.findInstance().requestActive();
+                    }
+                });
+            }
         }
 
     }
