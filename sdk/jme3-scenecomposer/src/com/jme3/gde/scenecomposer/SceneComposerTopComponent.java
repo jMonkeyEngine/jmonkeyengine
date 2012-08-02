@@ -22,13 +22,9 @@ import com.jme3.gde.scenecomposer.tools.MoveTool;
 import com.jme3.gde.scenecomposer.tools.RotateTool;
 import com.jme3.gde.scenecomposer.tools.ScaleTool;
 import com.jme3.gde.scenecomposer.tools.SelectTool;
-import com.jme3.input.awt.AwtKeyInput;
-import com.jme3.input.event.KeyInputEvent;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -910,11 +906,11 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         }
         Collection<JmeSpatial> items = (Collection<JmeSpatial>) result.allInstances();
         for (JmeSpatial spatial : items) {
-            selectSpatial(spatial);
+            selectSpatial(spatial);       
             return;
         }
     }
-
+    
     private void selectSpatial(JmeSpatial spatial) {
         if (editorController != null) {
             editorController.setSelectedSpat(spatial);
@@ -935,6 +931,7 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         } else {
             setSelectedObjectText(null);
         }
+        SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{spatial});
         SceneExplorerTopComponent.findInstance().setSelectedNode(spatial);
     }
 

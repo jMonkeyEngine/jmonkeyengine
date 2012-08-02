@@ -467,12 +467,13 @@ public class SelectTool extends SceneEditTool {
                         @Override
                         public void run() {
                             if (selec != null) {
-                                SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{rootNode.getChild(selec)});
-                                SceneExplorerTopComponent.findInstance().setSelectedNode(rootNode.getChild(selec));
-                            } else {
-                                SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{rootNode});
-                                SceneExplorerTopComponent.findInstance().setSelectedNode(rootNode);
+                                doSelect();
                             }
+                        }
+
+                        private void doSelect() {
+                            SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{rootNode.getChild(selec)});                            
+                            SceneExplorerTopComponent.findInstance().setSelectedNode(rootNode.getChild(selec));
                         }
                     });
                 }
@@ -641,9 +642,6 @@ public class SelectTool extends SceneEditTool {
                 if (cloned != null) {
                     SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{rootNode.getChild(cloned)});
                     SceneExplorerTopComponent.findInstance().setSelectedNode(rootNode.getChild(cloned));
-                } else {
-                    SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{rootNode});
-                    SceneExplorerTopComponent.findInstance().setSelectedNode(rootNode);
                 }
             }
         });
