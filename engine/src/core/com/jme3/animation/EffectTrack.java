@@ -158,6 +158,38 @@ public class EffectTrack implements Track {
         return new EffectTrack(emitter, length, startOffset);
 
     }    
+    
+     /**
+     * 
+     * @return the emitter used by this track
+     */
+    public ParticleEmitter getEmitter() {
+        return emitter;
+    }
+
+    /**
+     * Sets the Emitter to use in this track
+     * @param emitter 
+     */
+    public void setEmitter(ParticleEmitter emitter) {
+        this.emitter = emitter;
+    }
+
+    /**
+     * 
+     * @return the start offset of the track
+     */
+    public float getStartOffset() {
+        return startOffset;
+    }
+
+    /**
+     * set the start offset of the track
+     * @param startOffset 
+     */
+    public void setStartOffset(float startOffset) {
+        this.startOffset = startOffset;
+    }
 
     /**
      * Internal use only serialization
@@ -185,4 +217,8 @@ public class EffectTrack implements Track {
         length = in.readFloat("length", length);
         startOffset = in.readFloat("startOffset", 0);
     }
+
+   
+    
+    
 }

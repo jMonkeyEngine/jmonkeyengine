@@ -142,6 +142,38 @@ public class AudioTrack implements Track {
     }
 
     /**
+     * 
+     * @return the audio node used by this track
+     */
+    public AudioNode getAudio() {
+        return audio;
+    }
+
+    /**
+     * sets the audio node to be used for this track
+     * @param audio 
+     */
+    public void setAudio(AudioNode audio) {
+        this.audio = audio;
+    }
+
+    /**
+     * 
+     * @return the start offset of the track
+     */
+    public float getStartOffset() {
+        return startOffset;
+    }
+
+    /**
+     * set the start offset of the track
+     * @param startOffset 
+     */
+    public void setStartOffset(float startOffset) {
+        this.startOffset = startOffset;
+    }
+
+    /**
      * Internal use only serialization
      * @param ex exporter
      * @throws IOException exception
