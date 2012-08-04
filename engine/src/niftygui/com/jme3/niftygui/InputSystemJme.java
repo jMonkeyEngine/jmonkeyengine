@@ -132,10 +132,9 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             // Forward the event if nifty owns it or if the cursor is visible.
             if (niftyOwnsDragging[button] || inputManager.isCursorVisible()){
                 boolean consumed = nic.processMouseEvent(x, y, 0, button, false);
-                // TODO: nifty must always consume up event when it consumes down event!
-                // Otherwise jME3 will see a mouse up event
-                // without a mouse down event!
-                if (consumed) {
+                
+                // Only consume event if it ORIGINATED in nifty!
+                if (niftyOwnsDragging[button] && consumed) {
                     evt.setConsumed();
                     processSoftKeyboard();
                 }
