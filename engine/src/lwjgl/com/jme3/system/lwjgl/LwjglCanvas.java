@@ -84,8 +84,9 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         public void addNotify(){
             super.addNotify();
 
-            if (renderThread != null && renderThread.getState() == Thread.State.TERMINATED)
+            if (renderThread != null && renderThread.getState() == Thread.State.TERMINATED) {
                 return; // already destroyed.
+            }
 
             if (renderThread == null){
                 logger.log(Level.INFO, "EDT: Creating OGL thread.");
@@ -166,8 +167,9 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         }
         // do not do anything.
         // superclass's create() will be called at initInThread()
-        if (waitFor)
+        if (waitFor) {
             waitFor(true);
+        }
     }
 
     @Override
@@ -307,10 +309,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             return pbufferFormat;
         }else{
             if (canvasFormat == null){
-			int samples = 0;
-		      if (settings.getSamples() > 1){
-                    samples = settings.getSamples();
-                }
+                int samples = getNumSamplesToUse();
                 canvasFormat = new PixelFormat(settings.getBitsPerPixel(),
                                                0,
                                                settings.getDepthBits(),

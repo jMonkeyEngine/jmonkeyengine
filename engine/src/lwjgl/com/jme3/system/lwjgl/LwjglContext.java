@@ -35,6 +35,7 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
+import com.jme3.math.FastMath;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.lwjgl.LwjglGL1Renderer;
 import com.jme3.renderer.lwjgl.LwjglRenderer;
@@ -45,6 +46,7 @@ import com.jme3.system.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.*;
 
 /**
@@ -108,6 +110,73 @@ public abstract class LwjglContext implements JmeContext {
             return null;
         }
     }
+    
+    protected int determineMaxSamples(int requestedSamples) {
+        if ((Pbuffer.getCapabilities() & Pbuffer.PBUFFER_SUPPORTED) == 0) {
+            // No pbuffer, assume everything is supported.
+            return Integer.MAX_VALUE;
+        } else {
+            Pbuffer pb = null;
+            
+            // OpenGL2 method: Create pbuffer and query samples
+            // from GL_ARB_framebuffer_object or GL_EXT_framebuffer_multisample.
+            try {
+                pb = new Pbuffer(1, 1, new PixelFormat(0, 0, 0), null);
+                pb.makeCurrent();
+                
+                if (GLContext.getCapabilities().GL_ARB_framebuffer_object) {
+                    return GL11.glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
+                } else if (GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
+                    return GL11.glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
+                }
+                
+                // OpenGL2 method failed.
+            } catch (LWJGLException ex) {
+                // Something else failed.
+                return Integer.MAX_VALUE;
+            } finally { 
+                if (pb != null) {
+                    pb.destroy();
+                    pb = null;
+                }
+            }
+            
+            // OpenGL1 method
+            requestedSamples = FastMath.nearestPowerOfTwo(requestedSamples);
+            while (requestedSamples > 1) {
+                try {
+                    pb = new Pbuffer(1, 1, new PixelFormat(0, 0, 0, requestedSamples), null);
+                } catch (LWJGLException ex) {
+                    if (ex.getMessage().startsWith("Failed to find ARB pixel format")) {
+                        // Unsupported format, so continue.
+                        requestedSamples /= 2;
+                    } else {
+                        // Something else went wrong ..
+                        return Integer.MAX_VALUE;
+                    }
+                } finally {
+                    if (pb != null){
+                        pb.destroy();
+                        pb = null;
+                    }
+                }
+            }
+            
+            return requestedSamples;
+        }
+    }
+    
+    protected int getNumSamplesToUse() {
+        int samples = 0;
+        if (settings.getSamples() > 1){
+            samples = settings.getSamples();
+            int supportedSamples = determineMaxSamples(samples);
+            if (supportedSamples < samples) {
+                samples = supportedSamples;
+            }
+        }
+        return samples;
+    }
 
     protected void initContextFirstTime(){
         if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
@@ -136,14 +205,17 @@ public abstract class LwjglContext implements JmeContext {
         }
 
         // Init input
-        if (keyInput != null)
+        if (keyInput != null) {
             keyInput.initialize();
+        }
 
-        if (mouseInput != null)
+        if (mouseInput != null) {
             mouseInput.initialize();
+        }
 
-        if (joyInput != null)
+        if (joyInput != null) {
             joyInput.initialize();
+        }
     }
 
     public void internalDestroy(){

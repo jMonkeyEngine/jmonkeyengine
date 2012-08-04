@@ -82,10 +82,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
             displayMode = new DisplayMode(settings.getWidth(), settings.getHeight());
         }
 
-        int samples = 0;
-        if (settings.getSamples() > 1){
-            samples = settings.getSamples();
-        }
+        int samples = getNumSamplesToUse();
         PixelFormat pf = new PixelFormat(settings.getBitsPerPixel(),
                                          0,
                                          settings.getDepthBits(),
@@ -133,9 +130,9 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
 
         if (!created.get() || pixelFormatChanged){
             ContextAttribs attr = createContextAttribs();
-            if (attr != null){
+            if (attr != null) {
                 Display.create(pixelFormat, attr);
-            }else{
+            } else {
                 Display.create(pixelFormat);
             }
             renderable.set(true);

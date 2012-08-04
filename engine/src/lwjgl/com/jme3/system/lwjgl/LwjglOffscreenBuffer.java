@@ -61,15 +61,12 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
             return;
         }
 
-        int samples = 0;
-        if (settings.getSamples() > 1) {
-            samples = settings.getSamples();
-        }
+        int samples = getNumSamplesToUse();
         pixelFormat = new PixelFormat(settings.getBitsPerPixel(),
                                       0,
                                       settings.getDepthBits(),
                                       settings.getStencilBits(),
-                                      settings.getSamples());
+                                      samples);
 
         width = settings.getWidth();
         height = settings.getHeight();
