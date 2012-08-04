@@ -1472,7 +1472,7 @@ public class OGLESShaderRenderer implements Renderer {
      * @param type
      * @param needMips
      */
-    public void updateTexImageData(Image img, Texture.Type type, boolean needMips) {
+    public void updateTexImageData(Image img, Texture.Type type) {
         int texId = img.getId();
         if (texId == -1) {
             // create texture
@@ -1494,6 +1494,12 @@ public class OGLESShaderRenderer implements Renderer {
 
             GLES20.glBindTexture(target, texId);
             context.boundTextures[0] = img;
+        }
+        
+        boolean needMips = false;
+        if (img.isGeneratedMipmapsRequired()) {
+            needMips = true;
+            img.setMipmapsGenerated(true);
         }
 
         if (target == GLES20.GL_TEXTURE_CUBE_MAP) {
@@ -1534,8 +1540,8 @@ public class OGLESShaderRenderer implements Renderer {
 
     public void setTexture(int unit, Texture tex) {
         Image image = tex.getImage();
-        if (image.isUpdateNeeded()) {
-            updateTexImageData(image, tex.getType(), tex.getMinFilter().usesMipMapLevels());
+        if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated()) ) {
+            updateTexImageData(image, tex.getType());
         }
 
         int texId = image.getId();

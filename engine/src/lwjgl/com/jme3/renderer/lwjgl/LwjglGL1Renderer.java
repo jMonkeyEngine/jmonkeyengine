@@ -702,7 +702,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
     }
 
-    public void updateTexImageData(Image img, Texture.Type type, boolean mips, int unit) {
+    public void updateTexImageData(Image img, Texture.Type type, int unit) {
         int texId = img.getId();
         if (texId == -1) {
             // create texture
@@ -740,7 +740,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             }
         }
 
-        if (!img.hasMipmaps() && mips) {
+        if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired()) {
             // No pregenerated mips available,
             // generate from base level if required
 
@@ -750,6 +750,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             } else {
                 MipMapGenerator.generateMipMaps(img);
             }
+            img.setMipmapsGenerated(true);
         } else {
         }
 
@@ -787,8 +788,8 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
 
         Image image = tex.getImage();
-        if (image.isUpdateNeeded()) {
-            updateTexImageData(image, tex.getType(), tex.getMinFilter().usesMipMapLevels(), unit);
+        if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated()) ) {
+            updateTexImageData(image, tex.getType(), unit);
         }
 
         int texId = image.getId();
