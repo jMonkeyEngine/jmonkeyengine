@@ -94,8 +94,8 @@ public class LwjglGL1Renderer implements GL1Renderer {
         glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
         
-		// Enable rescaling/normaling of normal vectors.
-		// Fixes lighting issues with scaled models.
+        // Enable rescaling/normaling of normal vectors.
+        // Fixes lighting issues with scaled models.
         if (gl12){
             glEnable(GL12.GL_RESCALE_NORMAL);
         }else{
@@ -183,25 +183,25 @@ public class LwjglGL1Renderer implements GL1Renderer {
      * Applies fixed function bindings from the context to OpenGL
      */
     private void applyFixedFuncBindings(boolean forLighting){
-        if (forLighting){
+        if (forLighting) {
             glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, context.shininess);
-            setMaterialColor(GL_AMBIENT,  context.ambient,  ColorRGBA.DarkGray);
-            setMaterialColor(GL_DIFFUSE,  context.diffuse,  ColorRGBA.White);
+            setMaterialColor(GL_AMBIENT, context.ambient, ColorRGBA.DarkGray);
+            setMaterialColor(GL_DIFFUSE, context.diffuse, ColorRGBA.White);
             setMaterialColor(GL_SPECULAR, context.specular, ColorRGBA.Black);
-            
-            if (context.useVertexColor){
+
+            if (context.useVertexColor) {
                 glEnable(GL_COLOR_MATERIAL);
-            }else{
+            } else {
                 glDisable(GL_COLOR_MATERIAL);
             }
-        }else{
+        } else {
             // Ignore other values as they have no effect when 
             // GL_LIGHTING is disabled.
             ColorRGBA color = context.color;
-            if (color != null){
+            if (color != null) {
                 glColor4f(color.r, color.g, color.b, color.a);
-            }else{
-                glColor4f(1,1,1,1);
+            } else {
+                glColor4f(1, 1, 1, 1);
             }
         }
     }
@@ -462,7 +462,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
     public void setLighting(LightList list) {
         // XXX: This is abuse of setLighting() to
-		// apply fixed function bindings
+        // apply fixed function bindings
         // and do other book keeping.
         if (list == null || list.size() == 0){
             glDisable(GL_LIGHTING);
@@ -907,6 +907,11 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
 
     public void setVertexAttrib(VertexBuffer vb, VertexBuffer idb) {
+        if (vb.getBufferType() == VertexBuffer.Type.Color && !context.useVertexColor) {
+            // Ignore vertex color buffer if vertex color is disabled.
+            return;
+        }
+        
         int arrayType = convertArrayType(vb.getBufferType());
         if (arrayType == -1) {
             return; // unsupported
