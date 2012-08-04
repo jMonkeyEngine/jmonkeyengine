@@ -216,6 +216,9 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     public void onJoyButtonEvent(JoyButtonEvent evt) {
     }
 
+    public void onMotionSensorEvent(MotionSensorEvent evt) {
+    }
+
     public void onKeyEvent(KeyInputEvent evt) {
         inputQueue.add(evt);
     }

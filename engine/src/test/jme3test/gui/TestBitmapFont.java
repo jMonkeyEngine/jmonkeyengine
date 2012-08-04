@@ -47,7 +47,7 @@ public class TestBitmapFont extends SimpleApplication {
 
     private String txtB =
     "ABCDEFGHIKLMNOPQRSTUVWXYZ1234567 890`~!@#$%^&*()-=_+[]\\;',./{}|:<>?";
-    
+
     private BitmapText txt;
     private BitmapText txt2;
     private BitmapText txt3;
@@ -62,7 +62,7 @@ public class TestBitmapFont extends SimpleApplication {
         inputManager.addMapping("WordWrap", new KeyTrigger(KeyInput.KEY_TAB));
         inputManager.addListener(keyListener, "WordWrap");
         inputManager.addRawInputListener(textListener);
-        
+
         BitmapFont fnt = assetManager.loadFont("Interface/Fonts/Default.fnt");
         txt = new BitmapText(fnt, false);
         txt.setBox(new Rectangle(0, 0, settings.getWidth(), settings.getHeight()));
@@ -76,33 +76,33 @@ public class TestBitmapFont extends SimpleApplication {
         txt2.setText("Text without restriction. \nText without restriction. Text without restriction. Text without restriction");
         txt2.setLocalTranslation(0, txt2.getHeight(), 0);
         guiNode.attachChild(txt2);
-        
+
         txt3 = new BitmapText(fnt, false);
         txt3.setBox(new Rectangle(0, 0, settings.getWidth(), 0));
         txt3.setText("Press Tab to toggle word-wrap. type text and enter to input text");
         txt3.setLocalTranslation(0, settings.getHeight()/2, 0);
         guiNode.attachChild(txt3);
     }
-    
+
     private ActionListener keyListener = new ActionListener() {
         @Override
         public void onAction(String name, boolean isPressed, float tpf) {
             if (name.equals("WordWrap") && !isPressed) {
                 txt.setLineWrapMode( txt.getLineWrapMode() == LineWrapMode.Word ?
                                         LineWrapMode.NoWrap : LineWrapMode.Word );
-            }            
+            }
         }
     };
-    
+
     private RawInputListener textListener = new RawInputListener() {
         private StringBuilder str = new StringBuilder();
-        
+
         @Override
-        public void onMouseMotionEvent(MouseMotionEvent evt) { } 
-        
+        public void onMouseMotionEvent(MouseMotionEvent evt) { }
+
         @Override
-        public void onMouseButtonEvent(MouseButtonEvent evt) { } 
-        
+        public void onMouseButtonEvent(MouseButtonEvent evt) { }
+
         @Override
         public void onKeyEvent(KeyInputEvent evt) {
             if (evt.isReleased())
@@ -114,21 +114,24 @@ public class TestBitmapFont extends SimpleApplication {
                 str.append(evt.getKeyChar());
             }
         }
-        
+
         @Override
         public void onJoyButtonEvent(JoyButtonEvent evt) { }
-        
+
         @Override
         public void onJoyAxisEvent(JoyAxisEvent evt) { }
-        
+
         @Override
         public void endInput() { }
-        
+
         @Override
         public void beginInput() { }
 
         @Override
         public void onTouchEvent(TouchEvent evt) { }
+
+        @Override
+        public void onMotionSensorEvent(MotionSensorEvent evt) { }
     };
 
 }

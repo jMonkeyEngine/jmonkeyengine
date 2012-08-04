@@ -30,77 +30,29 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.input;
+package com.jme3.input.controls;
 
-import com.jme3.input.event.*;
+import com.jme3.input.SensorInput;
 
 /**
- * An interface used for receiving raw input from devices.
+ * <code>MotionSensorListener</code> is used to receive events from Sensors
+ *
+ * @author iwgeric
  */
-public interface RawInputListener {
+public interface MotionSensorListener extends InputListener {
 
     /**
-     * Called before a batch of input will be sent to this
-     * <code>RawInputListener</code>.
-     */
-    public void beginInput();
-
-    /**
-     * Called after a batch of input was sent to this
-     * <code>RawInputListener</code>.
+     * Called when data from a sensor has been updated.
      *
-     * The listener should set the {@link InputEvent#setConsumed() consumed flag}
-     * on any events that have been consumed either at this call or previous calls.
+     * @param name The name of the mapping that was invoked
+     * @param sensorType Sensor Type value from {@link SensorInput}.
+     * @param x X component of the new sensor data based on the sensor type.
+     * @param y Y component of the new sensor data based on the sensor type.
+     * @param z Z component of the new sensor data based on the sensor type.
+     * @param dX Change in the x component from the last update.
+     * @param dY Change in the y component from the last update.
+     * @param dZ Change in the z component from the last update.
      */
-    public void endInput();
+    public void onMotionSensorChange(String name, int sensorType, float x, float y, float z, float dX, float dY, float dZ);
 
-    /**
-     * Invoked on joystick axis events.
-     *
-     * @param evt
-     */
-    public void onJoyAxisEvent(JoyAxisEvent evt);
-
-    /**
-     * Invoked on joystick button presses.
-     *
-     * @param evt
-     */
-    public void onJoyButtonEvent(JoyButtonEvent evt);
-
-    /**
-     * Invoked on mouse movement/motion events.
-     *
-     * @param evt
-     */
-    public void onMouseMotionEvent(MouseMotionEvent evt);
-
-    /**
-     * Invoked on mouse button events.
-     *
-     * @param evt
-     */
-    public void onMouseButtonEvent(MouseButtonEvent evt);
-
-    /**
-     * Invoked on keyboard key press or release events.
-     *
-     * @param evt
-     */
-    public void onKeyEvent(KeyInputEvent evt);
-
-
-    /**
-     * Invoked on touchscreen touch events.
-     *
-     * @param evt
-     */
-    public void onTouchEvent(TouchEvent evt);
-
-    /**
-     * Invoked on motion sensor events.
-     *
-     * @param evt
-     */
-    public void onMotionSensorEvent(MotionSensorEvent evt);
 }

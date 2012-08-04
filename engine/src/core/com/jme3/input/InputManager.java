@@ -88,6 +88,7 @@ public class InputManager implements RawInputListener {
     private final MouseInput mouse;
     private final JoyInput joystick;
     private final TouchInput touch;
+    private final SensorInput sensor;
     private float frameTPF;
     private long lastLastUpdateTime = 0;
     private long lastUpdateTime = 0;
@@ -127,9 +128,10 @@ public class InputManager implements RawInputListener {
      * @param keys
      * @param joystick
      * @param touch
+     * @param sensor
      * @throws IllegalArgumentException If either mouseInput or keyInput are null.
      */
-    public InputManager(MouseInput mouse, KeyInput keys, JoyInput joystick, TouchInput touch) {
+    public InputManager(MouseInput mouse, KeyInput keys, JoyInput joystick, TouchInput touch, SensorInput sensor) {
         if (keys == null || mouse == null) {
             throw new NullPointerException("Mouse or keyboard cannot be null");
         }
@@ -138,6 +140,7 @@ public class InputManager implements RawInputListener {
         this.mouse = mouse;
         this.joystick = joystick;
         this.touch = touch;
+        this.sensor = sensor;
 
         keys.setInputListener(this);
         mouse.setInputListener(this);
@@ -147,6 +150,9 @@ public class InputManager implements RawInputListener {
         }
         if (touch != null) {
             touch.setInputListener(this);
+        }
+        if (sensor != null) {
+            sensor.setInputListener(this);
         }
 
         firstTime = keys.getInputTimeNanos();
@@ -440,6 +446,50 @@ public class InputManager implements RawInputListener {
         }
 
         inputQueue.add(evt);
+    }
+
+    private void onMotionSensorEventQueued(MotionSensorEvent evt) {
+        int hash = SensorTrigger.sensorHash(evt.getSensorType());
+
+        ArrayList<Mapping> maps = bindings.get(hash);
+        if (maps == null) {
+            return;
+        }
+
+        int size = maps.size();
+
+        for (int i = size - 1; i >= 0; i--) {
+            Mapping mapping = maps.get(i);
+            ArrayList<InputListener> listeners = mapping.listeners;
+            int listenerSize = listeners.size();
+            for (int j = listenerSize - 1; j >= 0; j--) {
+                InputListener listener = listeners.get(j);
+
+                if (listener instanceof MotionSensorListener) {
+                    ((MotionSensorListener) listener).onMotionSensorChange(mapping.name, evt.getSensorType(), evt.getX(), evt.getY(), evt.getZ(), evt.getDX(), evt.getDY(), evt.getDZ());
+                }
+
+            }
+        }
+    }
+
+    /**
+     * Callback from RawInputListener. Do not use.
+     */
+    public void onMotionSensorEvent(MotionSensorEvent evt) {
+        if (!eventsPermitted) {
+            throw new UnsupportedOperationException("SensorInput has raised an event at an illegal time.");
+        }
+        inputQueue.add(evt);
+    }
+
+    /**
+     * Returns the SensorInput implementation.  Use this as an entry point to
+     * enable and disable various sensors as well as setting other sensor settings.
+     * @return The SensorInput implementation.
+     */
+    public SensorInput getSensorInput() {
+        return sensor;
     }
 
     /**
@@ -784,6 +834,8 @@ public class InputManager implements RawInputListener {
                     listener.onJoyButtonEvent((JoyButtonEvent) event);
                 } else if (event instanceof TouchEvent) {
                     listener.onTouchEvent((TouchEvent) event);
+                } else if (event instanceof MotionSensorEvent) {
+                    listener.onMotionSensorEvent((MotionSensorEvent) event);
                 } else {
                     assert false;
                 }
@@ -810,6 +862,8 @@ public class InputManager implements RawInputListener {
                 onJoyButtonEventQueued((JoyButtonEvent) event);
             } else if (event instanceof TouchEvent) {
                 onTouchEventQueued((TouchEvent) event);
+            } else if (event instanceof MotionSensorEvent) {
+                onMotionSensorEventQueued((MotionSensorEvent) event);
             } else {
                 assert false;
             }
@@ -849,6 +903,9 @@ public class InputManager implements RawInputListener {
         }
         if (touch != null) {
             touch.update();
+        }
+        if (sensor != null) {
+            sensor.update();
         }
 
         eventsPermitted = false;

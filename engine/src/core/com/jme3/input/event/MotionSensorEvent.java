@@ -30,77 +30,89 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.input;
-
-import com.jme3.input.event.*;
+package com.jme3.input.event;
 
 /**
- * An interface used for receiving raw input from devices.
+ * Motion Sensor event.
+ *
+ * @author iwgeric
  */
-public interface RawInputListener {
+public class MotionSensorEvent extends InputEvent {
+
+    private int sensorType;
+    private float x, y, z, dX, dY, dZ;
+
+    public MotionSensorEvent(int sensorType, float x, float y, float z, float dX, float dY, float dZ) {
+        this.sensorType = sensorType;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.dX = dX;
+        this.dY = dY;
+        this.dZ = dZ;
+    }
 
     /**
-     * Called before a batch of input will be sent to this
-     * <code>RawInputListener</code>.
+     * Sensor Type
+     * @return Sensor Type
      */
-    public void beginInput();
+    public int getSensorType() {
+        return sensorType;
+    }
 
     /**
-     * Called after a batch of input was sent to this
-     * <code>RawInputListener</code>.
+     * Current X coordinate
+     * @return Current X coordinate
+     */
+    public float getX() {
+        return x;
+    }
+
+    /**
+     * Current Y coordinate
+     * @return Current Y coordinate
+     */
+    public float getY() {
+        return y;
+    }
+
+    /**
+     * Current Z coordinate
+     * @return Current Z coordinate
+     */
+    public float getZ() {
+        return z;
+    }
+
+    /**
+     * The change in X coordinate
+     * @return change in X coordinate
+     */
+    public float getDX() {
+        return dX;
+    }
+
+    /**
+     * The change in Y coordinate
      *
-     * The listener should set the {@link InputEvent#setConsumed() consumed flag}
-     * on any events that have been consumed either at this call or previous calls.
+     * @return change in Y coordinate
      */
-    public void endInput();
+    public float getDY() {
+        return dY;
+    }
 
     /**
-     * Invoked on joystick axis events.
+     * The change in Z coordinate
      *
-     * @param evt
+     * @return change in Z coordinate
      */
-    public void onJoyAxisEvent(JoyAxisEvent evt);
+    public float getDZ() {
+        return dZ;
+    }
 
-    /**
-     * Invoked on joystick button presses.
-     *
-     * @param evt
-     */
-    public void onJoyButtonEvent(JoyButtonEvent evt);
+    @Override
+    public String toString(){
+        return "MotionSensor(Type="+sensorType+", X="+x+", Y="+y+", Z="+z+", DX="+dX+", DY="+dY+", DZ="+dZ+")";
+    }
 
-    /**
-     * Invoked on mouse movement/motion events.
-     *
-     * @param evt
-     */
-    public void onMouseMotionEvent(MouseMotionEvent evt);
-
-    /**
-     * Invoked on mouse button events.
-     *
-     * @param evt
-     */
-    public void onMouseButtonEvent(MouseButtonEvent evt);
-
-    /**
-     * Invoked on keyboard key press or release events.
-     *
-     * @param evt
-     */
-    public void onKeyEvent(KeyInputEvent evt);
-
-
-    /**
-     * Invoked on touchscreen touch events.
-     *
-     * @param evt
-     */
-    public void onTouchEvent(TouchEvent evt);
-
-    /**
-     * Invoked on motion sensor events.
-     *
-     * @param evt
-     */
-    public void onMotionSensorEvent(MotionSensorEvent evt);
 }

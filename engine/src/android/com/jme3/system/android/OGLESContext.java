@@ -13,8 +13,8 @@
  *   notice, this list of conditions and the following disclaimer in the
  *   documentation and/or other materials provided with the distribution.
  *
- * * Neither the name of 'jMonkeyEngine' nor the names of its contributors 
- *   may be used to endorse or promote products derived from this software 
+ * * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+ *   may be used to endorse or promote products derived from this software
  *   without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -32,7 +32,6 @@
 package com.jme3.system.android;
 
 import com.jme3.renderer.android.AndroidGLSurfaceView;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.opengl.GLSurfaceView;
@@ -44,6 +43,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import com.jme3.input.*;
 import com.jme3.input.android.AndroidInput;
+import com.jme3.input.android.AndroidSensorInput;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
@@ -75,6 +75,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected SystemListener listener;
     protected boolean autoFlush = true;
     protected AndroidInput androidInput;
+    protected AndroidSensorInput androidSensorInput;
     protected AndroidGLSurfaceView view;
     protected int minFrameDuration = 0;                   // No FPS cap
     /**
@@ -92,15 +93,15 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     }
 
     /**
-     * <code>createView</code> creates the GLSurfaceView that the 
+     * <code>createView</code> creates the GLSurfaceView that the
      * renderer will draw to.
      * <p>
      * The result GLSurfaceView will receive input events and forward
      * them to the Application. Any rendering will be done into
      * the GLSurfaceView. Only one GLSurfaceView can be created at this time.
      * The given configType specifies how to determine the display configuration.
-     * 
-     * 
+     *
+     *
      * @param configType ConfigType.FASTEST (Default) | ConfigType.LEGACY |
      * ConfigType.BEST
      * @param eglConfigVerboseLogging if true show all found configs
@@ -113,6 +114,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             androidInput = new AndroidInput(view);
         } else {
             androidInput.setView(view);
+        }
+        if (androidSensorInput == null) {
+            logger.log(Level.INFO, "Creating New SensorInput");
+            androidSensorInput = new AndroidSensorInput();
+        } else {
+            logger.log(Level.INFO, "Resetting SensorInput");
+            androidSensorInput.resetSensorManager();
         }
         if (configType == ConfigType.LEGACY) {
             // Hardcoded egl setup
@@ -275,6 +283,11 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     @Override
     public TouchInput getTouchInput() {
         return androidInput;
+    }
+
+    @Override
+    public SensorInput getSensorInput() {
+        return androidSensorInput;
     }
 
     @Override

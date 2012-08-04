@@ -35,6 +35,7 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.SensorInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
@@ -54,7 +55,7 @@ import org.lwjgl.opengl.Util;
 public abstract class LwjglAbstractDisplay extends LwjglContext implements Runnable {
 
     private static final Logger logger = Logger.getLogger(LwjglAbstractDisplay.class.getName());
-    
+
     protected AtomicBoolean needClose = new AtomicBoolean(false);
     protected boolean wasActive = false;
     protected int frameRate = 0;
@@ -98,7 +99,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
                     public void uncaughtException(Thread thread, Throwable thrown) {
                         listener.handleError("Uncaught exception thrown in "+thread.toString(), thrown);
                         if (needClose.get()){
-                            // listener.handleError() has requested the 
+                            // listener.handleError() has requested the
                             // context to close. Satisfy request.
                             deinitInThread();
                         }
@@ -126,7 +127,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             listener.handleError("Failed to create display", ex);
             return false; // if we failed to create display, do not continue
         }
-        
+
         listener.initialize();
         return true;
     }
@@ -149,7 +150,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
             throw new IllegalStateException();
 
         listener.update();
-       
+
         // All this does is call swap buffers
         // If the canvas is not active, there's no need to waste time
         // doing that ..
@@ -253,11 +254,15 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         }
         return keyInput;
     }
-    
+
     public TouchInput getTouchInput() {
         return null;
     }
-    
+
+    public SensorInput getSensorInput() {
+        return null;
+    }
+
     public void setAutoFlushFrames(boolean enabled){
         this.autoFlush = enabled;
     }

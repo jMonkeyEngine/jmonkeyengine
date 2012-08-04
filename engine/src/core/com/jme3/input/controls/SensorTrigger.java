@@ -30,77 +30,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.jme3.input;
+package com.jme3.input.controls;
 
-import com.jme3.input.event.*;
+import com.jme3.input.SensorInput;
 
 /**
- * An interface used for receiving raw input from devices.
+ * A <code>SensorTrigger</code> is used as a mapping to receive events
+ * from a sensor.
+ *
+ * @author Kirill Vainer
  */
-public interface RawInputListener {
+public class SensorTrigger implements Trigger {
+
+//    private final SensorInput.Type sensorType;
+    private final int sensorType;
 
     /**
-     * Called before a batch of input will be sent to this
-     * <code>RawInputListener</code>.
-     */
-    public void beginInput();
-
-    /**
-     * Called after a batch of input was sent to this
-     * <code>RawInputListener</code>.
+     * Create a new <code>SensorTrigger</code> to receive sensor events.
      *
-     * The listener should set the {@link InputEvent#setConsumed() consumed flag}
-     * on any events that have been consumed either at this call or previous calls.
+     * @param Sensor Type. See {@link SensorInput}.
      */
-    public void endInput();
+//    public SensorTrigger(SensorInput.Type sensorType) {
+    public SensorTrigger(int sensorType) {
+//        if  (sensorType == null)
+        if  (sensorType < 0 || sensorType > 255)
+            throw new IllegalArgumentException("Invalide Sensor Type");
 
-    /**
-     * Invoked on joystick axis events.
-     *
-     * @param evt
-     */
-    public void onJoyAxisEvent(JoyAxisEvent evt);
+        this.sensorType = sensorType;
+    }
 
-    /**
-     * Invoked on joystick button presses.
-     *
-     * @param evt
-     */
-    public void onJoyButtonEvent(JoyButtonEvent evt);
+//    public SensorInput.Type getSensorType() {
+    public int getSensorType() {
+        return sensorType;
+    }
 
-    /**
-     * Invoked on mouse movement/motion events.
-     *
-     * @param evt
-     */
-    public void onMouseMotionEvent(MouseMotionEvent evt);
+    public String getName() {
+        return sensorType + " Sensor";
+    }
 
-    /**
-     * Invoked on mouse button events.
-     *
-     * @param evt
-     */
-    public void onMouseButtonEvent(MouseButtonEvent evt);
+//    public static int sensorHash(SensorInput.Type sensorType){
+    public static int sensorHash(int sensorType){
+//        assert sensorType != null;
+//        return 256 | (sensorType.ordinal() & 0xff);
+        assert sensorType >= 0 && sensorType <= 255;
+        return 1024 | (sensorType & 0xff);
+    }
 
-    /**
-     * Invoked on keyboard key press or release events.
-     *
-     * @param evt
-     */
-    public void onKeyEvent(KeyInputEvent evt);
+    public int triggerHashCode() {
+        return sensorHash(sensorType);
+    }
 
-
-    /**
-     * Invoked on touchscreen touch events.
-     *
-     * @param evt
-     */
-    public void onTouchEvent(TouchEvent evt);
-
-    /**
-     * Invoked on motion sensor events.
-     *
-     * @param evt
-     */
-    public void onMotionSensorEvent(MotionSensorEvent evt);
 }

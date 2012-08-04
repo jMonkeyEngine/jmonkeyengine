@@ -62,14 +62,14 @@ import java.util.logging.Logger;
  *
  * jME3 applications should extend this class and call start() to begin the
  * application.
- * 
+ *
  */
 public class Application implements SystemListener {
 
     private static final Logger logger = Logger.getLogger(Application.class.getName());
 
     protected AssetManager assetManager;
-    
+
     protected AudioRenderer audioRenderer;
     protected Renderer renderer;
     protected RenderManager renderManager;
@@ -90,6 +90,7 @@ public class Application implements SystemListener {
     protected KeyInput keyInput;
     protected JoyInput joyInput;
     protected TouchInput touchInput;
+    protected SensorInput sensorInput;
     protected InputManager inputManager;
     protected AppStateManager stateManager;
 
@@ -104,10 +105,10 @@ public class Application implements SystemListener {
 
     /**
      * Returns true if pause on lost focus is enabled, false otherwise.
-     * 
+     *
      * @return true if pause on lost focus is enabled
-     * 
-     * @see #setPauseOnLostFocus(boolean) 
+     *
+     * @see #setPauseOnLostFocus(boolean)
      */
     public boolean isPauseOnLostFocus() {
         return pauseOnFocus;
@@ -117,13 +118,13 @@ public class Application implements SystemListener {
      * Enable or disable pause on lost focus.
      * <p>
      * By default, pause on lost focus is enabled.
-     * If enabled, the application will stop updating 
-     * when it loses focus or becomes inactive (e.g. alt-tab). 
+     * If enabled, the application will stop updating
+     * when it loses focus or becomes inactive (e.g. alt-tab).
      * For online or real-time applications, this might not be preferable,
      * so this feature should be set to disabled. For other applications,
      * it is best to keep it on so that CPU usage is not used when
-     * not necessary. 
-     * 
+     * not necessary.
+     *
      * @param pauseOnLostFocus True to enable pause on lost focus, false
      * otherwise.
      */
@@ -199,30 +200,30 @@ public class Application implements SystemListener {
      */
     public void setTimer(Timer timer){
         this.timer = timer;
-        
+
         if (timer != null) {
             timer.reset();
         }
-        
+
         if (renderManager != null) {
             renderManager.setTimer(timer);
         }
     }
-    
+
     public Timer getTimer(){
         return timer;
-    } 
+    }
 
     private void initDisplay(){
         // aquire important objects
         // from the context
         settings = context.getSettings();
- 
-        // Only reset the timer if a user has not already provided one       
+
+        // Only reset the timer if a user has not already provided one
         if (timer == null) {
             timer = context.getTimer();
         }
-       
+
         renderer = context.getRenderer();
     }
 
@@ -274,7 +275,7 @@ public class Application implements SystemListener {
         keyInput = context.getKeyInput();
         if (keyInput != null)
             keyInput.initialize();
-        
+
         touchInput = context.getTouchInput();
         if (touchInput != null)
             touchInput.initialize();
@@ -285,12 +286,16 @@ public class Application implements SystemListener {
                 joyInput.initialize();
         }
 
-        inputManager = new InputManager(mouseInput, keyInput, joyInput, touchInput);
+        sensorInput = context.getSensorInput();
+        if (sensorInput != null)
+            sensorInput.initialize();
+
+        inputManager = new InputManager(mouseInput, keyInput, joyInput, touchInput, sensorInput);
     }
 
     private void initStateManager(){
         stateManager = new AppStateManager(this);
-        
+
         // Always register a ResetStatsState to make sure
         // that the stats are cleared every frame
         stateManager.attach(new ResetStatsState());
@@ -361,15 +366,15 @@ public class Application implements SystemListener {
 
     /**
      * Starts the application in {@link Type#Display display} mode.
-     * 
-     * @see #start(com.jme3.system.JmeContext.Type) 
+     *
+     * @see #start(com.jme3.system.JmeContext.Type)
      */
     public void start(){
         start(JmeContext.Type.Display);
     }
 
     /**
-     * Starts the application. 
+     * Starts the application.
      * Creating a rendering context and executing
      * the main loop in a separate thread.
      */
@@ -382,7 +387,7 @@ public class Application implements SystemListener {
         if (settings == null){
             settings = new AppSettings(true);
         }
-        
+
         logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
         context = JmeSystem.newContext(settings, contextType);
         context.setSystemListener(this);
@@ -392,15 +397,15 @@ public class Application implements SystemListener {
     /**
      * Initializes the application's canvas for use.
      * <p>
-     * After calling this method, cast the {@link #getContext() context} to 
+     * After calling this method, cast the {@link #getContext() context} to
      * {@link JmeCanvasContext},
      * then acquire the canvas with {@link JmeCanvasContext#getCanvas() }
      * and attach it to an AWT/Swing Frame.
      * The rendering thread will start when the canvas becomes visible on
      * screen, however if you wish to start the context immediately you
      * may call {@link #startCanvas() } to force the rendering thread
-     * to start. 
-     * 
+     * to start.
+     *
      * @see JmeCanvasContext
      * @see Type#Canvas
      */
@@ -423,8 +428,8 @@ public class Application implements SystemListener {
      * Starts the rendering thread after createCanvas() has been called.
      * <p>
      * Same as calling startCanvas(false)
-     * 
-     * @see #startCanvas(boolean) 
+     *
+     * @see #startCanvas(boolean)
      */
     public void startCanvas(){
         startCanvas(false);
@@ -435,8 +440,8 @@ public class Application implements SystemListener {
      * <p>
      * Calling this method is optional, the canvas will start automatically
      * when it becomes visible.
-     * 
-     * @param waitFor If true, the current thread will block until the 
+     *
+     * @param waitFor If true, the current thread will block until the
      * rendering thread is running
      */
     public void startCanvas(boolean waitFor){
@@ -444,7 +449,7 @@ public class Application implements SystemListener {
     }
 
     /**
-     * Internal use only. 
+     * Internal use only.
      */
     public void reshape(int w, int h){
         renderManager.notifyReshape(w, h);
@@ -453,7 +458,7 @@ public class Application implements SystemListener {
     /**
      * Restarts the context, applying any changed settings.
      * <p>
-     * Changes to the {@link AppSettings} of this Application are not 
+     * Changes to the {@link AppSettings} of this Application are not
      * applied immediately; calling this method forces the context
      * to restart, applying the new settings.
      */
@@ -465,10 +470,10 @@ public class Application implements SystemListener {
     /**
      * Requests the context to close, shutting down the main loop
      * and making necessary cleanup operations.
-     * 
+     *
      * Same as calling stop(false)
-     * 
-     * @see #stop(boolean) 
+     *
+     * @see #stop(boolean)
      */
     public void stop(){
         stop(false);
@@ -476,7 +481,7 @@ public class Application implements SystemListener {
 
     /**
      * Requests the context to close, shutting down the main loop
-     * and making necessary cleanup operations. 
+     * and making necessary cleanup operations.
      * After the application has stopped, it cannot be used anymore.
      */
     public void stop(boolean waitFor){
@@ -501,7 +506,7 @@ public class Application implements SystemListener {
 
         initDisplay();
         initCamera();
-        
+
         if (inputEnabled){
             initInput();
         }
@@ -522,12 +527,12 @@ public class Application implements SystemListener {
         logger.log(Level.SEVERE, errMsg, t);
         // Display error message on screen
         if (t != null) {
-            JmeSystem.showErrorDialog(errMsg + "\n" + t.getClass().getSimpleName() + 
+            JmeSystem.showErrorDialog(errMsg + "\n" + t.getClass().getSimpleName() +
                     (t.getMessage() != null ? ": " +  t.getMessage() : ""));
         } else {
             JmeSystem.showErrorDialog(errMsg);
         }
-        
+
         stop(); // stop the application
     }
 
@@ -563,7 +568,7 @@ public class Application implements SystemListener {
 
     /**
      * Enqueues a task/callable object to execute in the jME3
-     * rendering thread. 
+     * rendering thread.
      * <p>
      * Callables are executed right at the beginning of the main loop.
      * They are executed even if the application is currently paused
@@ -585,7 +590,7 @@ public class Application implements SystemListener {
                 task.invoke();
             }
         }
-    } 
+    }
 
     /**
      * Do not call manually.
@@ -594,9 +599,9 @@ public class Application implements SystemListener {
     public void update(){
         // Make sure the audio renderer is available to callables
         AudioContext.setAudioRenderer(audioRenderer);
-        
+
         runQueuedTasks();
-    
+
         if (speed == 0 || paused)
             return;
 
@@ -622,9 +627,12 @@ public class Application implements SystemListener {
 
         if (joyInput != null)
             joyInput.destroy();
-        
+
         if (touchInput != null)
-            touchInput.destroy();        
+            touchInput.destroy();
+
+        if (sensorInput != null)
+            sensorInput.destroy();
 
         inputManager = null;
     }
@@ -635,11 +643,11 @@ public class Application implements SystemListener {
      */
     public void destroy(){
         stateManager.cleanup();
-        
+
         destroyInput();
         if (audioRenderer != null)
             audioRenderer.cleanup();
-        
+
         timer.reset();
     }
 

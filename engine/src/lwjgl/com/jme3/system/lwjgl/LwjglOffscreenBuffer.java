@@ -35,6 +35,7 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.SensorInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
@@ -53,7 +54,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     private int width;
     private int height;
     private PixelFormat pixelFormat;
-    
+
     protected void initInThread(){
         if ((Pbuffer.getCapabilities() & Pbuffer.PBUFFER_SUPPORTED) == 0){
             logger.severe("Offscreen surfaces are not supported.");
@@ -69,7 +70,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
                                       settings.getDepthBits(),
                                       settings.getStencilBits(),
                                       settings.getSamples());
-        
+
         width = settings.getWidth();
         height = settings.getHeight();
         try{
@@ -122,9 +123,9 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
 
         listener.update();
         assert checkGLError();
-        
+
         renderer.onFrame();
-        
+
         int frameRate = settings.getFrameRate();
         if (frameRate >= 1){
             Display.sync(frameRate);
@@ -133,7 +134,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
 
     protected void deinitInThread(){
         renderable.set(false);
-        
+
         listener.destroy();
         renderer.cleanup();
         pbuffer.destroy();
@@ -187,8 +188,12 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     public JoyInput getJoyInput() {
         return null;
     }
-    
+
     public TouchInput getTouchInput() {
+        return null;
+    }
+
+    public SensorInput getSensorInput() {
         return null;
     }
 

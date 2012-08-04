@@ -35,6 +35,7 @@ package com.jme3.system;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.SensorInput;
 import com.jme3.input.TouchInput;
 import com.jme3.renderer.Renderer;
 
@@ -56,7 +57,7 @@ public interface JmeContext {
          * display with the windowing system.
          */
         Display,
-        
+
         /**
          * A canvas type context makes a rendering surface available as an
          * AWT {@link java.awt.Canvas} object that can be embedded in a Swing/AWT
@@ -64,7 +65,7 @@ public interface JmeContext {
          * to {@link JmeCanvasContext}.
          */
         Canvas,
-        
+
         /**
          * An <code>OffscreenSurface</code> is a context that is not visible
          * by the user. The application can use the offscreen surface to do
@@ -85,7 +86,7 @@ public interface JmeContext {
      * @return The type of the context.
      */
     public Type getType();
-    
+
     /**
      * @param settings the display settings to use for the created context. If
      * the context has already been created, then <code>restart()</code> must be called
@@ -100,7 +101,7 @@ public interface JmeContext {
     public void setSystemListener(SystemListener listener);
 
     /**
-     * @return The current display settings. Note that they might be 
+     * @return The current display settings. Note that they might be
      * different from the ones set with setDisplaySettings() if the context
      * was restarted or the settings changed internally.
      */
@@ -125,17 +126,22 @@ public interface JmeContext {
      * @return Joystick input implementation. May be null if not available.
      */
     public JoyInput getJoyInput();
-    
+
     /**
      * @return Touch device input implementation. May be null if not available.
      */
     public TouchInput getTouchInput();
-    
+
+    /**
+     * @return Sensor device input implementation. May be null if not available.
+     */
+    public SensorInput getSensorInput();
+
     /**
      * @return The timer for this context, or null if not created yet.
      */
     public Timer getTimer();
-    
+
     /**
      * Sets the title of the display (if available). This does nothing
      * for fullscreen, headless, or canvas contexts.

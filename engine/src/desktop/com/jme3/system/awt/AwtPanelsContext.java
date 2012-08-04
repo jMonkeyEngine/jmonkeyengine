@@ -3,6 +3,7 @@ package com.jme3.system.awt;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
+import com.jme3.input.SensorInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
@@ -17,12 +18,12 @@ public class AwtPanelsContext implements JmeContext {
     protected SystemListener listener;
     protected ArrayList<AwtPanel> panels = new ArrayList<AwtPanel>();
     protected AwtPanel inputSource;
-    
+
     protected AwtMouseInput mouseInput = new AwtMouseInput();
     protected AwtKeyInput keyInput = new AwtKeyInput();
-    
+
     protected boolean lastThrottleState = false;
-    
+
     private class AwtPanelsListener implements SystemListener {
 
         public void initialize() {
@@ -60,20 +61,20 @@ public class AwtPanelsContext implements JmeContext {
             destroyInThread();
         }
     }
-    
+
     public void setInputSource(AwtPanel panel){
         if (!panels.contains(panel))
             throw new IllegalArgumentException();
-        
+
         inputSource = panel;
         mouseInput.setInputSource(panel);
         keyInput.setInputSource(panel);
     }
-    
+
     public Type getType() {
         return Type.OffscreenSurface;
     }
-    
+
     public void setSystemListener(SystemListener listener) {
         this.listener = listener;
     }
@@ -102,6 +103,10 @@ public class AwtPanelsContext implements JmeContext {
         return null;
     }
 
+    public SensorInput getSensorInput() {
+        return null;
+    }
+
     public Timer getTimer() {
         return actualContext.getTimer();
     }
@@ -113,31 +118,31 @@ public class AwtPanelsContext implements JmeContext {
     public boolean isRenderable() {
         return actualContext != null && actualContext.isRenderable();
     }
-    
+
     public AwtPanelsContext(){
     }
-    
+
     public AwtPanel createPanel(PaintMode paintMode){
         AwtPanel panel = new AwtPanel(paintMode);
         panels.add(panel);
         return panel;
     }
-    
+
     private void initInThread(){
         listener.initialize();
     }
-    
+
     private void updateInThread(){
         // Check if throttle required
         boolean needThrottle = true;
-        
+
         for (AwtPanel panel : panels){
             if (panel.isActiveDrawing()){
                 needThrottle = false;
                 break;
             }
         }
-        
+
         if (lastThrottleState != needThrottle){
             lastThrottleState = needThrottle;
             if (lastThrottleState){
@@ -146,21 +151,21 @@ public class AwtPanelsContext implements JmeContext {
                 System.out.println("OGL: Ceased throttling update loop.");
             }
         }
-        
+
         if (needThrottle){
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
             }
         }
-        
+
         listener.update();
     }
-    
+
     private void destroyInThread(){
         listener.destroy();
     }
-    
+
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
         this.settings.setRenderer(AppSettings.LWJGL_OPENGL2);
@@ -173,7 +178,7 @@ public class AwtPanelsContext implements JmeContext {
         if (actualContext != null){
             throw new IllegalStateException("Already created");
         }
-        
+
         actualContext = JmeSystem.newContext(settings, Type.OffscreenSurface);
         actualContext.setSystemListener(new AwtPanelsListener());
         actualContext.create(waitFor);
@@ -182,15 +187,15 @@ public class AwtPanelsContext implements JmeContext {
     public void destroy(boolean waitFor) {
         if (actualContext == null)
             throw new IllegalStateException("Not created");
-        
+
         // destroy parent context
         actualContext.destroy(waitFor);
     }
-    
+
     public void setTitle(String title) {
         // not relevant, ignore
     }
-    
+
     public void setAutoFlushFrames(boolean enabled) {
         // not relevant, ignore
     }
@@ -198,5 +203,5 @@ public class AwtPanelsContext implements JmeContext {
     public void restart() {
         // only relevant if changing pixel format.
     }
-    
+
 }

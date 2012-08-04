@@ -73,7 +73,9 @@ public class TestSoftwareMouse extends SimpleApplication {
         }
         public void onKeyEvent(KeyInputEvent evt) {
         }
-        public void onTouchEvent(TouchEvent evt) {             
+        public void onTouchEvent(TouchEvent evt) {
+        }
+        public void onMotionSensorEvent(MotionSensorEvent evt) {
         }
     };
 
@@ -93,7 +95,7 @@ public class TestSoftwareMouse extends SimpleApplication {
 //        inputManager.setCursorVisible(false);
 
         Texture tex = assetManager.loadTexture("Interface/Logo/Cursor.png");
-        
+
         cursor = new Picture("cursor");
         cursor.setTexture(assetManager, (Texture2D) tex, true);
         cursor.setWidth(64);

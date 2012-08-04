@@ -15,7 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
+import com.jme3.input.SensorInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.android.AndroidSensorInput;
 import com.jme3.input.controls.TouchListener;
 import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.event.TouchEvent;
@@ -39,64 +41,64 @@ import java.util.logging.Logger;
 public class AndroidHarness extends Activity implements TouchListener, DialogInterface.OnClickListener, SystemListener {
 
     protected final static Logger logger = Logger.getLogger(AndroidHarness.class.getName());
-    
+
     /**
      * The application class to start
      */
     protected String appClass = "jme3test.android.Test";
-    
+
     /**
      * The jme3 application object
      */
     protected Application app = null;
-    
+
     /**
      * ConfigType.FASTEST is RGB565, GLSurfaceView default ConfigType.BEST is
      * RGBA8888 or better if supported by the hardware
      */
     protected ConfigType eglConfigType = ConfigType.FASTEST;
-    
+
     /**
      * If true all valid and not valid egl configs are logged
      */
     protected boolean eglConfigVerboseLogging = false;
-    
+
     /**
      * If true MouseEvents are generated from TouchEvents
      */
     protected boolean mouseEventsEnabled = true;
-    
+
     /**
      * Flip X axis
      */
     protected boolean mouseEventsInvertX = true;
-    
+
     /**
      * Flip Y axis
      */
     protected boolean mouseEventsInvertY = true;
-    
+
     /**
      * if true finish this activity when the jme app is stopped
      */
     protected boolean finishOnAppStop = true;
-    
+
     /**
      * set to false if you don't want the harness to handle the exit hook
      */
     protected boolean handleExitHook = true;
-    
+
     /**
      * Title of the exit dialog, default is "Do you want to exit?"
      */
     protected String exitDialogTitle = "Do you want to exit?";
-    
+
     /**
      * Message of the exit dialog, default is "Use your home key to bring this
      * app into the background or exit to terminate it."
      */
     protected String exitDialogMessage = "Use your home key to bring this app into the background or exit to terminate it.";
-    
+
     /**
      * Set the screen window mode. If screenFullSize is true, then the
      * notification bar and title bar are removed and the screen covers the
@@ -105,20 +107,20 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * false, then the title bar is also displayed under the notification bar.
      */
     protected boolean screenFullScreen = true;
-    
+
     /**
      * if screenShowTitle is true while screenFullScreen is false, then the
      * title bar is also displayed under the notification bar
      */
     protected boolean screenShowTitle = true;
-    
+
     /**
      * Splash Screen picture Resource ID. If a Splash Screen is desired, set
      * splashPicID to the value of the Resource ID (i.e. R.drawable.picname). If
      * splashPicID = 0, then no splash screen will be displayed.
      */
     protected int splashPicID = 0;
-    
+
     /**
      * Set the screen orientation, default is SENSOR
      * ActivityInfo.SCREEN_ORIENTATION_* constants package
@@ -142,7 +144,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     private class DataObject {
         protected Application app = null;
     }
-    
+
     @Override
     public Object onRetainNonConfigurationInstance() {
         logger.log(Level.INFO, "onRetainNonConfigurationInstance called");
@@ -156,7 +158,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         logger.log(Level.INFO, "inConfigChange: {0}", inConfigChange);
         return data;
     }
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -257,6 +259,16 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                     renderer.resumeAll();
                 }
             }
+            //resume the sensors
+            if (app.getInputManager() != null) {
+                SensorInput sensorInput = app.getInputManager().getSensorInput();
+                if (sensorInput != null) {
+                    logger.log(Level.INFO, "resume: {0}", sensorInput.getClass().getSimpleName());
+                    if (sensorInput instanceof AndroidSensorInput) {
+                        ((AndroidSensorInput)sensorInput).resumeSensors();
+                    }
+                }
+            }
         }
 
         isGLThreadPaused = false;
@@ -278,6 +290,16 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 if (result instanceof AndroidAudioRenderer) {
                     AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
                     renderer.pauseAll();
+                }
+            }
+            //pause the sensors
+            if (app.getInputManager() != null) {
+                SensorInput sensorInput = app.getInputManager().getSensorInput();
+                if (sensorInput != null) {
+                    logger.log(Level.INFO, "pause: {0}", sensorInput.getClass().getSimpleName());
+                    if (sensorInput instanceof AndroidSensorInput) {
+                        ((AndroidSensorInput)sensorInput).resumeSensors();
+                    }
                 }
             }
         }
@@ -406,7 +428,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 ((ViewGroup)view.getParent()).removeView(view);
             }
             frameLayout.addView(view);
-            
+
             if (splashImageView.getParent() != null) {
                 ((ViewGroup)splashImageView.getParent()).removeView(splashImageView);
             }
