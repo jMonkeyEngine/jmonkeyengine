@@ -54,9 +54,8 @@ public class InputSystemJme implements InputSystem, RawInputListener {
 
     private final ArrayList<InputEvent> inputQueue = new ArrayList<InputEvent>();
     private InputManager inputManager;
-    private boolean isDragging = false, niftyOwnsDragging = false;
-    private boolean pressed = false;
-    private int buttonIndex;
+    private boolean[] niftyOwnsDragging = new boolean[3];
+    private int inputPointerId = -1;
     private int x, y;
     private int height;
     private boolean shiftDown = false;
@@ -70,8 +69,29 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     public void setResourceLoader(NiftyResourceLoader niftyResourceLoader) {
     }
 
+    /**
+     * Must be set in order for nifty events to be forwarded correctly.
+     * 
+     * @param nifty 
+     */
     public void setNifty(Nifty nifty) {
         this.nifty = nifty;
+    }
+    
+    /**
+     * Reset internal state of the input system.
+     * Must be called when the display is reinitialized
+     * or when the internal state becomes invalid.
+     */
+    public void reset() {
+        x = 0;
+        y = 0;
+        inputPointerId = -1;
+        for (int i = 0; i < niftyOwnsDragging.length; i++) {
+            niftyOwnsDragging[i] = false;
+        }
+        shiftDown = false;
+        ctrlDown = false;
     }
 
     /**
@@ -83,6 +103,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     public void setMousePosition(int x, int y) {
+        // TODO: When does nifty use this?
     }
 
     public void beginInput() {
@@ -92,48 +113,78 @@ public class InputSystemJme implements InputSystem, RawInputListener {
         boolean result = nifty.update();
     }
 
+    private void handleMouseEvent(int button, boolean value, NiftyInputConsumer nic, InputEvent evt) {
+        if (value) {
+            // If nifty consumed the mouse down event, then
+            // it now owns the next mouse up event which
+            // won't be forwarded to jME3.
+            
+            // processMouseEvent doesn't return true even if cursor is above
+            // a nifty element (bug).
+            boolean consumed = nic.processMouseEvent(x, y, 0, button, true) 
+                             | nifty.getCurrentScreen().isMouseOverElement();
+            niftyOwnsDragging[button] = consumed;
+            if (consumed) {
+                evt.setConsumed();
+            }
+            //System.out.format("niftyMouse(%d, %d, %d, true) = %b\n", x, y, button, consumed);
+        } else {
+            // Forward the event if nifty owns it or if the cursor is visible.
+            if (niftyOwnsDragging[button] || inputManager.isCursorVisible()){
+                boolean consumed = nic.processMouseEvent(x, y, 0, button, false);
+                // TODO: nifty must always consume up event when it consumes down event!
+                // Otherwise jME3 will see a mouse up event
+                // without a mouse down event!
+                if (consumed) {
+                    evt.setConsumed();
+                    processSoftKeyboard();
+                }
+            }
+            niftyOwnsDragging[button] = false;
+            //System.out.format("niftyMouse(%d, %d, %d, false) = %b\n", x, y, button, consumed);
+        }
+    }
+    
     private void onTouchEventQueued(TouchEvent evt, NiftyInputConsumer nic) {
-        boolean consumed = false;
+        if (inputManager.getSimulateMouse()) {
+            return;
+        }
 
         x = (int) evt.getX();
         y = (int) (height - evt.getY());
-
-        if (!inputManager.getSimulateMouse()) {
-            switch (evt.getType()) {
-                case DOWN:
-                    consumed = nic.processMouseEvent(x, y, 0, 0, true);
-                    isDragging = true;
-                    niftyOwnsDragging = consumed;
-                    if (consumed) {
-                        evt.setConsumed();
-                    }
-
+        
+        // Input manager will not convert touch events to mouse events,
+        // thus we must do it ourselves..
+        switch (evt.getType()) {
+            case DOWN:
+                if (inputPointerId != -1) {
+                    // Another touch was done by the user
+                    // while the other interacts with nifty, ignore.
                     break;
+                }
 
-                case UP:
-                    if (niftyOwnsDragging) {
-                        consumed = nic.processMouseEvent(x, y, 0, 0, false);
-                        if (consumed) {
-                            evt.setConsumed();
-                        }
-                    }
+                inputPointerId = evt.getPointerId();
+                handleMouseEvent(0, true, nic, evt);
 
-                    isDragging = false;
-                    niftyOwnsDragging = false;
-
-                    if (consumed) {
-                        processSoftKeyboard();
-                    }
-
+                break;
+            case UP:
+                if (inputPointerId != evt.getPointerId()) {
+                    // Another touch was done by the user
+                    // while the other interacts with nifty, ignore.
                     break;
-            }
+                }
+
+                inputPointerId = -1;
+                handleMouseEvent(0, false, nic, evt);
+                
+                break;
         }
     }
 
     private void onMouseMotionEventQueued(MouseMotionEvent evt, NiftyInputConsumer nic) {
         x = evt.getX();
         y = height - evt.getY();
-        nic.processMouseEvent(x, y, evt.getDeltaWheel(), buttonIndex, pressed);
+        nic.processMouseEvent(x, y, evt.getDeltaWheel(), -1, false);
 //        if (nic.processMouseEvent(niftyEvt) /*|| nifty.getCurrentScreen().isMouseOverElement()*/){
         // Do not consume motion events
         //evt.setConsumed();
@@ -141,38 +192,9 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     private void onMouseButtonEventQueued(MouseButtonEvent evt, NiftyInputConsumer nic) {
-        boolean wasPressed = pressed;
-        boolean forwardToNifty = true;
-
-        buttonIndex = evt.getButtonIndex();
-        pressed = evt.isPressed();
-
-        // Mouse button raised. End dragging
-        if (wasPressed && !pressed) {
-            if (!niftyOwnsDragging) {
-                forwardToNifty = true;
-            }
-            isDragging = false;
-            niftyOwnsDragging = false;
-        }
-
-        boolean consumed = false;
-        if (forwardToNifty) {
-            consumed = nic.processMouseEvent(x, y, 0, buttonIndex, pressed);
-            if (consumed) {
-                evt.setConsumed();
-            }
-        }
-
-        // Mouse button pressed. Begin dragging
-        if (!wasPressed && pressed) {
-            isDragging = true;
-            niftyOwnsDragging = consumed;
-        }
-
-        if (consumed && pressed) {
-            processSoftKeyboard();
-        }
+        x = (int) evt.getX();
+        y = (int) (height - evt.getY());
+        handleMouseEvent(evt.getButtonIndex(), evt.isPressed(), nic, evt);
     }
 
     private void onKeyEventQueued(KeyInputEvent evt, NiftyInputConsumer nic) {
@@ -205,8 +227,12 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     public void onMouseButtonEvent(MouseButtonEvent evt) {
-        if (inputManager.isCursorVisible() && evt.getButtonIndex() >= 0 && evt.getButtonIndex() <= 2) {
-            inputQueue.add(evt);
+        if (evt.getButtonIndex() >= 0 && evt.getButtonIndex() <= 2) {
+            if (evt.isReleased() || inputManager.isCursorVisible()) {
+                // Always pass mouse button release events to nifty,
+                // even if the mouse cursor is invisible.
+                inputQueue.add(evt);
+            }
         }
     }
 
@@ -249,7 +275,6 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     private void processSoftKeyboard() {
         SoftTextDialogInput softTextDialogInput = JmeSystem.getSoftTextDialogInput();
         if (softTextDialogInput != null) {
-
             Element element = nifty.getCurrentScreen().getFocusHandler().getKeyboardFocusElement();
             if (element != null) {
                 final TextField textField = element.getNiftyControl(TextField.class);
