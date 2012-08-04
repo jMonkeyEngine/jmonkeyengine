@@ -393,6 +393,15 @@ public class InputManager implements RawInputListener {
         }
     }
 
+    /**
+     * Sets the mouse cursor image or animation.
+     * Set cursor to null to show default system cursor.
+     * To hide the cursor completely, use {@link #setCursorVisible(boolean) }.
+     * 
+     * @param jmeCursor The cursor to set, or null to reset to system cursor.
+     * 
+     * @see JmeCursor
+     */
     public void setMouseCursor(JmeCursor jmeCursor) {
         mouse.setNativeCursor(jmeCursor);
     }
