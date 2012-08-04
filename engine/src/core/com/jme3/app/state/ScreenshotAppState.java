@@ -6,6 +6,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.post.SceneProcessor;
+import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
@@ -28,6 +29,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private String filePath = null;
     private boolean capture = false;
     private Renderer renderer;
+    private RenderManager rm;
     private ByteBuffer outBuf;
     private String appName;
     private int shotIndex = 0;
@@ -92,6 +94,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     public void initialize(RenderManager rm, ViewPort vp) {
         renderer = rm.getRenderer();
+        this.rm = rm;
         reshape(vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
     }
 
@@ -117,8 +120,15 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             capture = false;
             shotIndex++;
 
+            Camera curCamera = rm.getCurrentCamera();
+            int viewX = (int) (curCamera.getViewPortLeft() * curCamera.getWidth());
+            int viewY = (int) (curCamera.getViewPortBottom() * curCamera.getHeight());
+            int viewWidth = (int) ((curCamera.getViewPortRight() - curCamera.getViewPortLeft()) * curCamera.getWidth());
+            int viewHeight = (int) ((curCamera.getViewPortTop() - curCamera.getViewPortBottom()) * curCamera.getHeight());
+
             renderer.setViewPort(0, 0, width, height);
             renderer.readFrameBuffer(out, outBuf);
+            renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
 
             File file;
             if (filePath == null) {
