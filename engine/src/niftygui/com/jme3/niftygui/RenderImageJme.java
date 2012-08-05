@@ -63,8 +63,9 @@ public class RenderImageJme implements RenderImage {
     }
 
     public RenderImageJme(Texture2D texture){
-        if (texture.getImage() == null)
+        if (texture.getImage() == null) {
             throw new IllegalArgumentException("texture.getImage() cannot be null");
+        }
         
         this.texture = texture;
         this.image = texture.getImage();

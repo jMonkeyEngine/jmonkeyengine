@@ -31,6 +31,7 @@
  */
 package com.jme3.niftygui;
 
+import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
@@ -63,13 +64,11 @@ public class RenderDeviceJme implements RenderDevice {
     private NiftyJmeDisplay display;
     private RenderManager rm;
     private Renderer r;
-    private HashMap<String, BitmapText> textCacheLastFrame = new HashMap<String, BitmapText>();
-    private HashMap<String, BitmapText> textCacheCurrentFrame = new HashMap<String, BitmapText>();
+    private HashMap<CachedTextKey, BitmapText> textCacheLastFrame = new HashMap<CachedTextKey, BitmapText>();
+    private HashMap<CachedTextKey, BitmapText> textCacheCurrentFrame = new HashMap<CachedTextKey, BitmapText>();
     private final Quad quad = new Quad(1, -1, true);
     private final Geometry quadGeom = new Geometry("nifty-quad", quad);
-    private final Material niftyMat;
-    private final Material niftyQuadMat;
-    private final Material niftyQuadGradMat;    
+    private final Material unshadedMat;
     private boolean clipWasSet = false;
     private BlendMode blendMode = null;
     private VertexBuffer quadDefaultTC = quad.getBuffer(Type.TexCoord);
@@ -77,6 +76,36 @@ public class RenderDeviceJme implements RenderDevice {
     private VertexBuffer quadColor;
     private Matrix4f tempMat = new Matrix4f();
     private ColorRGBA tempColor = new ColorRGBA();
+    
+    private static class CachedTextKey {
+        
+        BitmapFont font;
+        String text;
+//        ColorRGBA color;
+        
+        public CachedTextKey(BitmapFont font, String text/*, ColorRGBA color*/) {
+            this.font = font;
+            this.text = text;
+//            this.color = color;
+        }
+        
+        @Override
+        public boolean equals(Object other) {
+            CachedTextKey otherKey = (CachedTextKey) other;
+            return font.equals(otherKey.font) &&
+                   text.equals(otherKey.text)/* &&
+                   color.equals(otherKey.color)*/;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 53 * hash + font.hashCode();
+            hash = 53 * hash + text.hashCode();
+//            hash = 53 * hash + color.hashCode();
+            return hash;
+        }
+    }
     
     public RenderDeviceJme(NiftyJmeDisplay display) {
         this.display = display;
@@ -89,17 +118,10 @@ public class RenderDeviceJme implements RenderDevice {
         
         quadModTC.setUsage(Usage.Stream);
         
-        //Color + texture color material for text and images
-        niftyMat = new Material(display.getAssetManager(), "Common/MatDefs/Nifty/NiftyTex.j3md");
-        niftyMat.getAdditionalRenderState().setDepthTest(false);
-        //Color material for uniform colored quads
-        niftyQuadMat = new Material(display.getAssetManager(), "Common/MatDefs/Nifty/NiftyQuad.j3md");
-        niftyQuadMat.getAdditionalRenderState().setDepthTest(false);        
-        
-        //vertex color only for gradient quads (although i didn't find a way in nifty to make a gradient using vertex color)
-        niftyQuadGradMat = new Material(display.getAssetManager(), "Common/MatDefs/Nifty/NiftyQuadGrad.j3md");
-        niftyQuadGradMat.getAdditionalRenderState().setDepthTest(false);        
-        
+        // GUI material
+        unshadedMat = new Material(display.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+        unshadedMat.getAdditionalRenderState().setDepthTest(false);
+        unshadedMat.getAdditionalRenderState().setDepthWrite(false);
     }
     
     public void setResourceLoader(NiftyResourceLoader niftyResourceLoader) {
@@ -113,7 +135,6 @@ public class RenderDeviceJme implements RenderDevice {
     // TODO: Cursor support
     public MouseCursor createMouseCursor(String str, int x, int y) {
         return new MouseCursor() {
-            
             public void dispose() {
             }
         };
@@ -126,6 +147,7 @@ public class RenderDeviceJme implements RenderDevice {
     }
     
     public RenderImage createImage(String filename, boolean linear) {
+        //System.out.println("createImage(" + filename + ", " + linear + ")");
         return new RenderImageJme(filename, linear, display);
     }
     
@@ -137,12 +159,10 @@ public class RenderDeviceJme implements RenderDevice {
     }
     
     public void endFrame() {
-        HashMap<String, BitmapText> temp = textCacheLastFrame;
+        HashMap<CachedTextKey, BitmapText> temp = textCacheLastFrame;
         textCacheLastFrame = textCacheCurrentFrame;
         textCacheCurrentFrame = temp;
         textCacheCurrentFrame.clear();
-
-//        System.exit(1);
     }
     
     public int getWidth() {
@@ -186,36 +206,7 @@ public class RenderDeviceJme implements RenderDevice {
     private ColorRGBA convertColor(Color inColor, ColorRGBA outColor) {
         return outColor.set(inColor.getRed(), inColor.getGreen(), inColor.getBlue(), inColor.getAlpha());
     }
-    
-//    private void setColor(Color color) {
-//        ByteBuffer buf = (ByteBuffer) quadColor.getData();
-//        buf.rewind();
-//        
-//        int color2 = convertColor(color);
-//        buf.putInt(color2);
-//        buf.putInt(color2);
-//        buf.putInt(color2);
-//        buf.putInt(color2);
-//        
-//        buf.flip();
-//        quadColor.updateData(buf);
-//    }
 
-    /**
-     * 
-     * @param font
-     * @param str
-     * @param x
-     * @param y
-     * @param color
-     * @param size 
-     * @deprecated use renderFont(RenderFont font, String str, int x, int y, Color color, float sizeX, float sizeY) instead
-     */
-    @Deprecated
-    public void renderFont(RenderFont font, String str, int x, int y, Color color, float size) {        
-        renderFont(font, str, x, y, color, size, size);
-    }
-    
     @Override
     public void renderFont(RenderFont font, String str, int x, int y, Color color, float sizeX, float sizeY) {        
         if (str.length() == 0) {
@@ -228,7 +219,8 @@ public class RenderDeviceJme implements RenderDevice {
         
         RenderFontJme jmeFont = (RenderFontJme) font;
         
-        String key = font + str + color.getColorString();
+        ColorRGBA colorRgba = convertColor(color, tempColor);
+        CachedTextKey key = new CachedTextKey(jmeFont.getFont(), str/*, colorRgba*/);
         BitmapText text = textCacheLastFrame.get(key);
         if (text == null) {
             text = jmeFont.createText();
@@ -237,19 +229,24 @@ public class RenderDeviceJme implements RenderDevice {
         }
         textCacheCurrentFrame.put(key, text);
         
-        niftyMat.setColor("Color", convertColor(color, tempColor));        
-        niftyMat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);
-//        niftyMat.getAdditionalRenderState().setBlendMode(convertBlend());
-        text.setMaterial(niftyMat);
+//        unshadedMat.getAdditionalRenderState().setBlendMode(convertBlend());
+//        unshadedMat.setBoolean("VertexColor", true);
+//        unshadedMat.setColor("Color", convertColor(color, tempColor));        
+//        text.setMaterial(unshadedMat);
+        
+        float width = text.getLineWidth();
+//        float height = text.getLineHeight();
+        float x0 = x + 0.5f * width * (1f - sizeX);
+        float y0 = y; // + 0.5f * height * (1f - sizeY);
         
         tempMat.loadIdentity();
-        tempMat.setTranslation(x, getHeight() - y, 0);
+        tempMat.setTranslation(x0, getHeight() - y0, 0);
         tempMat.setScale(sizeX, sizeY, 0);
-        
-        rm.setWorldMatrix(tempMat);
-        text.render(rm);
 
-//        System.out.println("renderFont");
+        rm.setWorldMatrix(tempMat);
+        text.render(rm, colorRgba);
+        
+//        System.out.format("renderFont(%s, %s, %d, %d, %s, %f, %f)\n", jmeFont.getFont(), str, x, y, color.toString(), sizeX, sizeY);
     }
     
     public void renderImage(RenderImage image, int x, int y, int w, int h,
@@ -259,10 +256,10 @@ public class RenderDeviceJme implements RenderDevice {
         RenderImageJme jmeImage = (RenderImageJme) image;
         Texture2D texture = jmeImage.getTexture();
         
-        niftyMat.getAdditionalRenderState().setBlendMode(convertBlend());
-        niftyMat.setColor("Color", convertColor(color, tempColor));
-        niftyMat.setTexture("Texture", texture);        
-        //setColor(color);
+        unshadedMat.getAdditionalRenderState().setBlendMode(convertBlend());
+        unshadedMat.setColor("Color", convertColor(color, tempColor));
+        unshadedMat.setTexture("ColorMap", texture);        
+        unshadedMat.setBoolean("VertexColor", false);
         
         float imageWidth = jmeImage.getWidth();
         float imageHeight = jmeImage.getHeight();
@@ -295,9 +292,11 @@ public class RenderDeviceJme implements RenderDevice {
         tempMat.setScale(w * scale, h * scale, 0);
         
         rm.setWorldMatrix(tempMat);
-        niftyMat.render(quadGeom, rm);
-//        
-//        System.out.println("renderImage (Sub)");
+        unshadedMat.render(quadGeom, rm);
+        
+        //System.out.format("renderImage2(%s, %d, %d, %d, %d, %d, %d, %d, %d, %s, %f, %d, %d)\n", texture.getKey().toString(),
+        //                                                                                       x, y, w, h, srcX, srcY, srcW, srcH,
+        //                                                                                       color.toString(), scale, centerX, centerY);
     }
     
     public void renderImage(RenderImage image, int x, int y, int width, int height,
@@ -305,10 +304,10 @@ public class RenderDeviceJme implements RenderDevice {
         
         RenderImageJme jmeImage = (RenderImageJme) image;
         
-        niftyMat.getAdditionalRenderState().setBlendMode(convertBlend());
-        niftyMat.setColor("Color", convertColor(color, tempColor));
-        niftyMat.setTexture("Texture", jmeImage.getTexture());        
-        //setColor(color);
+        unshadedMat.getAdditionalRenderState().setBlendMode(convertBlend());
+        unshadedMat.setColor("Color", convertColor(color, tempColor));
+        unshadedMat.setTexture("ColorMap", jmeImage.getTexture());
+        unshadedMat.setBoolean("VertexColor", false);
         
         quad.clearBuffer(Type.TexCoord);
         quad.setBuffer(quadDefaultTC);
@@ -321,24 +320,25 @@ public class RenderDeviceJme implements RenderDevice {
         tempMat.setScale(width * imageScale, height * imageScale, 0);
         
         rm.setWorldMatrix(tempMat);
-        niftyMat.render(quadGeom, rm);
-//        
-//        System.out.println("renderImage");
+        unshadedMat.render(quadGeom, rm);
+        
+        //System.out.format("renderImage1(%s, %d, %d, %d, %d, %s, %f)\n", jmeImage.getTexture().getKey().toString(), x, y, width, height, color.toString(), imageScale);
     }
     
     public void renderQuad(int x, int y, int width, int height, Color color) {
-        if (color.getAlpha() > 0) {
-            niftyQuadMat.getAdditionalRenderState().setBlendMode(convertBlend());
-            niftyQuadMat.setColor("Color", convertColor(color, tempColor));                        
-            
-            tempMat.loadIdentity();
-            tempMat.setTranslation(x, getHeight() - y, 0);
-            tempMat.setScale(width, height, 0);
-            
-            rm.setWorldMatrix(tempMat);
-            niftyQuadMat.render(quadGeom, rm);
-        }
-//        System.out.println("renderQuad (Solid)");
+        unshadedMat.getAdditionalRenderState().setBlendMode(convertBlend());
+        unshadedMat.setColor("Color", convertColor(color, tempColor));                        
+        unshadedMat.setTexture("ColorMap", null);
+        unshadedMat.setBoolean("VertexColor", false);
+
+        tempMat.loadIdentity();
+        tempMat.setTranslation(x, getHeight() - y, 0);
+        tempMat.setScale(width, height, 0);
+
+        rm.setWorldMatrix(tempMat);
+        unshadedMat.render(quadGeom, rm);
+        
+        //System.out.format("renderQuad1(%d, %d, %d, %d, %s)\n", x, y, width, height, color.toString());
     }
     
     public void renderQuad(int x, int y, int width, int height,
@@ -356,26 +356,30 @@ public class RenderDeviceJme implements RenderDevice {
         buf.flip();
         quadColor.updateData(buf);
         
-        niftyQuadGradMat.getAdditionalRenderState().setBlendMode(convertBlend());      
+        unshadedMat.getAdditionalRenderState().setBlendMode(convertBlend()); 
+        unshadedMat.setColor("Color", ColorRGBA.White);                        
+        unshadedMat.setTexture("ColorMap", null);
+        unshadedMat.setBoolean("VertexColor", true);
         
         tempMat.loadIdentity();
         tempMat.setTranslation(x, getHeight() - y, 0);
         tempMat.setScale(width, height, 0);
         
         rm.setWorldMatrix(tempMat);
-        niftyQuadGradMat.render(quadGeom, rm);
-//        
-//        System.out.println("renderQuad (Grad)");
+        unshadedMat.render(quadGeom, rm);
+        
+        //System.out.format("renderQuad2(%d, %d, %d, %d, %s, %s, %s, %s)\n", x, y, width, height, topLeft.toString(),
+        //                                                                                        topRight.toString(),
+        //                                                                                        bottomRight.toString(),
+        //                                                                                        bottomLeft.toString());
     }
     
     public void enableClip(int x0, int y0, int x1, int y1) {
-//        System.out.println("enableClip");
         clipWasSet = true;
         r.setClipRect(x0, getHeight() - y1, x1 - x0, y1 - y0);
     }
     
     public void disableClip() {
-//        System.out.println("disableClip");
         if (clipWasSet) {
             r.clearClipRect();
             clipWasSet = false;

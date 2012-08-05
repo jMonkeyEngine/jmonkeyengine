@@ -361,17 +361,17 @@ public class BitmapText extends Node {
     private void assemble() {
         // first generate quadlist
         letters.update();
-
         for (int i = 0; i < textPages.length; i++) {
             textPages[i].assemble(letters);
         }
         needRefresh = false;
     }
 
-    public void render(RenderManager rm) {
+    public void render(RenderManager rm, ColorRGBA color) {
         for (BitmapTextPage page : textPages) {
             Material mat = page.getMaterial();
-            mat.setTexture("Texture", page.getTexture());
+            mat.setTexture("ColorMap", page.getTexture());
+            mat.setColor("Color", color);
             mat.render(page, rm);
         }
     }
