@@ -1169,11 +1169,11 @@ public class Camera implements Savable, Cloneable {
             float topSquared = frustumTop * frustumTop;
 
             float inverseLength = FastMath.invSqrt(nearSquared + leftSquared);
-            coeffLeft[0] = frustumNear * inverseLength;
+            coeffLeft[0] = -frustumNear * inverseLength;
             coeffLeft[1] = -frustumLeft * inverseLength;
 
             inverseLength = FastMath.invSqrt(nearSquared + rightSquared);
-            coeffRight[0] = -frustumNear * inverseLength;
+            coeffRight[0] = frustumNear * inverseLength;
             coeffRight[1] = frustumRight * inverseLength;
 
             inverseLength = FastMath.invSqrt(nearSquared + bottomSquared);
