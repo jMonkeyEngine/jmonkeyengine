@@ -1,27 +1,15 @@
-uniform vec4 m_Color;
-
 #if defined(HAS_GLOWMAP) || defined(HAS_COLORMAP) || (defined(HAS_LIGHTMAP) && !defined(SEPARATE_TEXCOORD))
     #define NEED_TEXCOORD1
 #endif
 
-#ifdef HAS_COLORMAP
-    uniform sampler2D m_ColorMap;
-#endif
+uniform vec4 m_Color;
+uniform sampler2D m_ColorMap;
+uniform sampler2D m_LightMap;
 
-#ifdef NEED_TEXCOORD1
-    varying vec2 texCoord1;
-#endif
+varying vec2 texCoord1;
+varying vec2 texCoord2;
 
-#ifdef HAS_LIGHTMAP
-    uniform sampler2D m_LightMap;
-    #ifdef SEPARATE_TEXCOORD
-        varying vec2 texCoord2;
-    #endif
-#endif
-
-#ifdef HAS_VERTEXCOLOR
-    varying vec4 vertColor;
-#endif
+varying vec4 vertColor;
 
 void main(){
     vec4 color = vec4(1.0);

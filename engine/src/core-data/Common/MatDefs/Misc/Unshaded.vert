@@ -5,20 +5,14 @@ attribute vec3 inPosition;
     #define NEED_TEXCOORD1
 #endif
 
-#ifdef NEED_TEXCOORD1
-    attribute vec2 inTexCoord;
-    varying vec2 texCoord1;
-#endif
+attribute vec2 inTexCoord;
+attribute vec2 inTexCoord2;
+attribute vec4 inColor;
 
-#ifdef SEPARATE_TEXCOORD
-    attribute vec2 inTexCoord2;
-    varying vec2 texCoord2;
-#endif
+varying vec2 texCoord1;
+varying vec2 texCoord2;
 
-#ifdef HAS_VERTEXCOLOR
-    attribute vec4 inColor;
-    varying vec4 vertColor;
-#endif
+varying vec4 vertColor;
 
 void main(){
     #ifdef NEED_TEXCOORD1
