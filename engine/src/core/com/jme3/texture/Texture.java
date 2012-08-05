@@ -339,6 +339,9 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
                     "minificationFilter can not be null.");
         }
         this.minificationFilter = minificationFilter;
+        if (minificationFilter.usesMipMapLevels() && image != null && !image.isGeneratedMipmapsRequired()) {
+            image.setNeedGeneratedMipmaps();
+        }
     }
 
     /**
@@ -393,6 +396,9 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
      */
     public void setImage(Image image) {
         this.image = image;
+        
+        // Test if mipmap generation required.
+        setMinFilter(getMinFilter());
     }
 
     /**
@@ -474,22 +480,23 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
      *            the anisotropic filtering level for this texture.
      */
     public void setAnisotropicFilter(int level) {
-        if (level < 1)
+        if (level < 1) {
             anisotropicFilter = 1;
-        else
+        } else {
             anisotropicFilter = level;
+        }
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());
         sb.append("[name=").append(name);
-        if (image != null)
+        if (image != null) {
             sb.append(", image=").append(image.toString());
+        }
 
         sb.append("]");
-
         return sb.toString();
     }
 
