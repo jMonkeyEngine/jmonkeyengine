@@ -40,6 +40,7 @@ import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.input.event.KeyInputEvent;
+import com.jme3.input.event.MotionSensorEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.input.event.TouchEvent;
@@ -447,6 +448,10 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
 
     public void onTouchEvent(TouchEvent evt) {
     }
+    
+    public void onMotionSensorEvent(MotionSensorEvent evt) {
+    }
+    
     /**
      * APPSTATE*
      */
