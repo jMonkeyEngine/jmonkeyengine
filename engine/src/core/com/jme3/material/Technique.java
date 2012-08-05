@@ -122,10 +122,10 @@ public class Technique /* implements Savable */ {
             
             if (value == null) {
                 // Clear the define.
-                needReload = defines.remove(defineName);
+                needReload = defines.remove(defineName) || needReload;
             } else {
                 // Set the define.
-                needReload = defines.set(defineName, type, value);
+                needReload = defines.set(defineName, type, value) || needReload;
             }
         }
     }
