@@ -36,6 +36,12 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.Spatial.CullHint;
+import com.jme3.scene.control.AbstractControl;
+import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 
@@ -64,19 +70,45 @@ public class EffectTrack implements Track {
     private float length = 0;
     private boolean emitted = false;
     private boolean initialized = false;
+    private boolean stopRequested = false;
+    
+    //control responsible for disable and cull the emitter once all particles are gone
+    private AbstractControl killParticles = new AbstractControl() {
+
+        @Override
+        protected void controlUpdate(float tpf) {
+            if (emitter.getNumVisibleParticles() == 0) {
+                emitter.setCullHint(CullHint.Always);
+                emitter.setEnabled(false);
+                emitter.removeControl(killParticles);
+                stopRequested = false;
+            }
+        }
+
+        @Override
+        protected void controlRender(RenderManager rm, ViewPort vp) {
+        }
+
+        public Control cloneForSpatial(Spatial spatial) {
+            return null;
+        }
+    };
 
     //Anim listener that stops the Emmitter when the animation is finished or changed.
     private class OnEndListener implements AnimEventListener {
 
         public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
-            stop();
+            if(!stopRequested){
+                stop();
+            }
         }
 
         public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
-            stop();
+            if(!stopRequested){
+                stop();
+            }
         }
     }
-    
 
     /**
      * default constructor only for serialization
@@ -84,7 +116,6 @@ public class EffectTrack implements Track {
     public EffectTrack() {
     }
 
-    
     /**
      * Creates and EffectTrack
      * @param emitter the emmitter of the track
@@ -125,20 +156,27 @@ public class EffectTrack implements Track {
         //checking fo time to trigger the effect
         if (!emitted && time >= startOffset) {
             emitted = true;
+            stopRequested = false;
+            emitter.setCullHint(CullHint.Dynamic);
+            emitter.setEnabled(true);
             //if the emitter has 0 particles per seconds emmit all particles in one shot
             if (particlesPerSeconds == 0) {
                 emitter.emitAllParticles();
+                emitter.addControl(killParticles);
+                stopRequested = true;
             } else {
                 //else reset its former particlePerSec value to let it emmit.
                 emitter.setParticlesPerSec(particlesPerSeconds);
             }
         }
     }
-    
+
     //stops the emmiter to emit.
     private void stop() {
         emitter.setParticlesPerSec(0);
         emitted = false;
+        emitter.addControl(killParticles);   
+        stopRequested = true;
     }
 
     /**
@@ -157,9 +195,9 @@ public class EffectTrack implements Track {
     public Track clone() {
         return new EffectTrack(emitter, length, startOffset);
 
-    }    
-    
-     /**
+    }
+
+    /**
      * 
      * @return the emitter used by this track
      */
@@ -208,7 +246,7 @@ public class EffectTrack implements Track {
      * Internal use only serialization
      * @param im importer
      * @throws IOException Exception
-     */   
+     */
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
         emitter = (ParticleEmitter) in.readSavable("emitter", null);
@@ -217,8 +255,4 @@ public class EffectTrack implements Track {
         length = in.readFloat("length", length);
         startOffset = in.readFloat("startOffset", 0);
     }
-
-   
-    
-    
 }
