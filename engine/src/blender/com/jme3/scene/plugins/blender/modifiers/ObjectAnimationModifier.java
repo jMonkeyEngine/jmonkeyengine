@@ -50,7 +50,7 @@ import java.util.logging.Logger;
 		// calculating track
 		SpatialTrack track = (SpatialTrack) ipo.calculateTrack(-1, 0, ipo.getLastFrame(), fps, true);
 
-		Animation animation = new Animation(objectAnimationName, ipo.getLastFrame() / fps);
+		Animation animation = new Animation(objectAnimationName, ipo.getLastFrame() / (float)fps);
 		animation.setTracks(new SpatialTrack[] { track });
 		ArrayList<Animation> animations = new ArrayList<Animation>(1);
 		animations.add(animation);
