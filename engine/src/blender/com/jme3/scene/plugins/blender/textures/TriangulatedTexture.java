@@ -577,6 +577,11 @@ import com.jme3.util.BufferUtils;
 			uvs[0] = (point.x - boundingBox.getCenter().x)/(boundingBox.getXExtent() == 0 ? 1 : boundingBox.getXExtent());
 			uvs[1] = (point.y - boundingBox.getCenter().y)/(boundingBox.getYExtent() == 0 ? 1 : boundingBox.getYExtent());
 			uvs[2] = (point.z - boundingBox.getCenter().z)/(boundingBox.getZExtent() == 0 ? 1 : boundingBox.getZExtent());
+			//UVS cannot go outside <0, 1> range, but since we are generating texture for triangle envelope it might happen that
+			//some points of the envelope will exceet the bounding box of the mesh thus generating uvs outside the range
+			for (int i = 0; i < 3; ++i) {
+				uvs[i] = FastMath.clamp(uvs[i], 0, 1);
+			}
 		}
 
 		/**
