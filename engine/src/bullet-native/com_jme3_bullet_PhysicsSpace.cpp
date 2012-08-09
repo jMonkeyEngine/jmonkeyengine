@@ -419,7 +419,7 @@ extern "C" {
     }
     
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_rayTest_1native
-    (JNIEnv * env, jobject object, jobject to, jobject from, jlong spaceId, jobject resultlist) {
+    (JNIEnv * env, jobject object, jobject from, jobject to, jlong spaceId, jobject resultlist) {
 
         jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
         if (space == NULL) {
