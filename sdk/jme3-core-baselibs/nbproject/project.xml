@@ -22,6 +22,7 @@
                 <package>com.jme3.app</package>
                 <package>com.jme3.app.state</package>
                 <package>com.jme3.asset</package>
+                <package>com.jme3.asset.cache</package>
                 <package>com.jme3.asset.plugins</package>
                 <package>com.jme3.audio</package>
                 <package>com.jme3.audio.lwjgl</package>
@@ -42,6 +43,7 @@
                 <package>com.jme3.cinematic.events</package>
                 <package>com.jme3.collision</package>
                 <package>com.jme3.collision.bih</package>
+                <package>com.jme3.cursors.plugins</package>
                 <package>com.jme3.effect</package>
                 <package>com.jme3.effect.influencers</package>
                 <package>com.jme3.effect.shapes</package>
@@ -95,6 +97,9 @@
                 <package>com.jme3.scene.plugins.blender.objects</package>
                 <package>com.jme3.scene.plugins.blender.particles</package>
                 <package>com.jme3.scene.plugins.blender.textures</package>
+                <package>com.jme3.scene.plugins.blender.textures.blending</package>
+                <package>com.jme3.scene.plugins.blender.textures.generating</package>
+                <package>com.jme3.scene.plugins.blender.textures.io</package>
                 <package>com.jme3.scene.plugins.ogre</package>
                 <package>com.jme3.scene.plugins.ogre.matext</package>
                 <package>com.jme3.scene.shape</package>
@@ -129,6 +134,8 @@
                 <package>jme3tools.navigation</package>
                 <package>jme3tools.optimize</package>
                 <package>jme3tools.savegame</package>
+                <package>jme3tools.shader</package>
+                <package>jme3tools.shadercheck</package>
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/jME3-niftygui.jar</runtime-relative-path>
