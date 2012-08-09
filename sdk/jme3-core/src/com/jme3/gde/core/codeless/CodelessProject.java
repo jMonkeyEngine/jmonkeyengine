@@ -105,6 +105,7 @@ class CodelessProject implements Project {
             lkp = Lookups.fixed(new Object[]{
                         this, //project spec requires a project be in its own lookup
                         state, //allow outside code to mark the project as needing saving
+                        projectAssetManager,
                         new ActionProviderImpl(), //Provides standard actions like Build and Clean
                         new DemoDeleteOperation(),
                         new DemoCopyOperation(this),
