@@ -63,6 +63,8 @@ import java.util.logging.Logger;
  */
 public class AudioNode extends Node {
 
+    //Version #1 : AudioKey is now stored into "audio_key" instead of "key"
+    public static final int SAVABLE_VERSION = 1;
     protected boolean loop = false;
     protected float volume = 1;
     protected float pitch = 1;
