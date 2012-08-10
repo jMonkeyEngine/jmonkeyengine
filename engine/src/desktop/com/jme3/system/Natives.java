@@ -121,6 +121,10 @@ public final class Natives {
         String fullname = System.mapLibraryName(name);
 
         String path = "native/" + sysName + "/" + fullname;
+        //XXX: Hack to extract jnilib to dylib on OSX Java 1.7+
+        if(sysName.equals("macosx")){
+            path = path.replaceAll("dylib","jnilib");
+        }
         URL url = Thread.currentThread().getContextClassLoader().getResource(path);
 
         if (url == null) {
