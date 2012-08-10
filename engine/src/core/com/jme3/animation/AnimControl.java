@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 /**
  * <code>AnimControl</code> is a Spatial control that allows manipulation
@@ -118,9 +119,12 @@ public final class AnimControl extends AbstractControl implements Cloneable {
                 clone.skeleton = new Skeleton(skeleton);
             }
 
-            // animationMap is reference-copied, animation data should be shared
-            // to reduce memory usage.
-
+            // animationMap is cloned, but only ClonableTracks will be cloned as they need a reference to a cloned spatial
+            clone.animationMap = new HashMap<String, Animation>();
+            for (Entry<String, Animation> animEntry : animationMap.entrySet()) {
+                clone.animationMap.put(animEntry.getKey(), animEntry.getValue().cloneForSpatial(spatial));
+            }
+            
             return clone;
         } catch (CloneNotSupportedException ex) {
             throw new AssertionError();

@@ -38,12 +38,15 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
 import com.jme3.util.TempVars;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * EffectTrack is a track to add to an existing animation, to emmit particles during animations
@@ -62,8 +65,9 @@ import java.io.IOException;
  *
  * @author Nehon
  */
-public class EffectTrack implements Track {
-
+public class EffectTrack implements ClonableTrack {
+    
+    private static final Logger logger = Logger.getLogger(EffectTrack.class.getName());
     private ParticleEmitter emitter;
     private float startOffset = 0;
     private float particlesPerSeconds = 0;
@@ -71,10 +75,9 @@ public class EffectTrack implements Track {
     private boolean emitted = false;
     private boolean initialized = false;
     private boolean stopRequested = false;
-    
     //control responsible for disable and cull the emitter once all particles are gone
     private AbstractControl killParticles = new AbstractControl() {
-
+        
         @Override
         protected void controlUpdate(float tpf) {
             if (emitter.getNumVisibleParticles() == 0) {
@@ -84,29 +87,26 @@ public class EffectTrack implements Track {
                 stopRequested = false;
             }
         }
-
+        
         @Override
         protected void controlRender(RenderManager rm, ViewPort vp) {
         }
-
+        
         public Control cloneForSpatial(Spatial spatial) {
             return null;
         }
     };
 
+   
     //Anim listener that stops the Emmitter when the animation is finished or changed.
     private class OnEndListener implements AnimEventListener {
-
+        
         public void onAnimCycleDone(AnimControl control, AnimChannel channel, String animName) {
-            if(!stopRequested){
-                stop();
-            }
+            stop();
         }
-
+        
         public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
-            if(!stopRequested){
-                stop();
-            }
+            stop();
         }
     }
 
@@ -128,7 +128,9 @@ public class EffectTrack implements Track {
         //setting the emmitter to not emmit.
         this.emitter.setParticlesPerSec(0);
         this.length = length;
-
+        //Marking the emitter with a reference to this track for further use in deserialization.
+        setUserData(this);
+        
     }
 
     /**
@@ -156,14 +158,15 @@ public class EffectTrack implements Track {
         //checking fo time to trigger the effect
         if (!emitted && time >= startOffset) {
             emitted = true;
-            stopRequested = false;
             emitter.setCullHint(CullHint.Dynamic);
             emitter.setEnabled(true);
             //if the emitter has 0 particles per seconds emmit all particles in one shot
             if (particlesPerSeconds == 0) {
                 emitter.emitAllParticles();
-                emitter.addControl(killParticles);
-                stopRequested = true;
+                if (!stopRequested) {
+                    emitter.addControl(killParticles);
+                    stopRequested = true;
+                }
             } else {
                 //else reset its former particlePerSec value to let it emmit.
                 emitter.setParticlesPerSec(particlesPerSeconds);
@@ -175,10 +178,15 @@ public class EffectTrack implements Track {
     private void stop() {
         emitter.setParticlesPerSec(0);
         emitted = false;
-        emitter.addControl(killParticles);   
-        stopRequested = true;
+        if (!stopRequested) {
+            emitter.addControl(killParticles);
+            stopRequested = true;
+        }
+        
     }
 
+
+    
     /**
      * Retruns the length of the track
      * @return length of the track
@@ -194,7 +202,67 @@ public class EffectTrack implements Track {
     @Override
     public Track clone() {
         return new EffectTrack(emitter, length, startOffset);
+    }
 
+    /**
+     * This method clone the Track and search for the cloned counterpart of the original emmitter in the given cloned spatial.
+     * The spatial is assumed to be the Spatial holding the AnimControl controling the animation using this Track.
+     * @param spatial the Spatial holding the AnimControl
+     * @return the cloned Track with proper reference
+     */
+    public Track cloneForSpatial(Spatial spatial) {
+        EffectTrack effectTrack = new EffectTrack();
+        effectTrack.particlesPerSeconds = this.particlesPerSeconds;
+        effectTrack.length = this.length;
+        effectTrack.startOffset = this.startOffset;
+
+        //searching for the newly cloned ParticleEmitter
+        effectTrack.emitter = findEmitter(spatial);
+        if (effectTrack.emitter == null) {
+            logger.log(Level.WARNING, "{0} was not found in {1} or is not bound to this track", new Object[]{emitter.getName(), spatial.getName()});
+            effectTrack.emitter = emitter;
+        }
+
+        //setting user data on the new emmitter and marking it with a reference to the cloned Track.
+        setUserData(effectTrack);
+        effectTrack.emitter.setParticlesPerSec(0);
+        return effectTrack;
+    }
+
+    /**
+     * recursive function responsible for finding the newly cloned Emitter
+     * @param spat
+     * @return 
+     */
+    private ParticleEmitter findEmitter(Spatial spat) {
+        if (spat instanceof ParticleEmitter) {
+            //spat is a PArticleEmitter
+            ParticleEmitter em = (ParticleEmitter) spat;
+            //getting the UserData TrackInfo so check if it should be attached to this Track
+            TrackInfo t = (TrackInfo) em.getUserData("TrackInfo");
+            if (t != null && t.getTracks().contains(this)) {
+                return em;
+            }
+            return null;
+            
+        } else if (spat instanceof Node) {
+            for (Spatial child : ((Node) spat).getChildren()) {
+                ParticleEmitter em = findEmitter(child);
+                if (em != null) {
+                    return em;
+                }
+            }
+        }
+        return null;
+    }
+    
+    
+    public void cleanUp() {
+       TrackInfo t = (TrackInfo) emitter.getUserData("TrackInfo");
+       t.getTracks().remove(this);
+       if(!t.getTracks().isEmpty()){
+           emitter.setUserData("TrackInfo", null);
+       }
     }
 
     /**
@@ -210,7 +278,12 @@ public class EffectTrack implements Track {
      * @param emitter 
      */
     public void setEmitter(ParticleEmitter emitter) {
+        if (this.emitter != null) {
+            TrackInfo data = (TrackInfo) emitter.getUserData("TrackInfo");
+            data.getTracks().remove(this);
+        }
         this.emitter = emitter;
+        setUserData(this);
     }
 
     /**
@@ -228,6 +301,22 @@ public class EffectTrack implements Track {
     public void setStartOffset(float startOffset) {
         this.startOffset = startOffset;
     }
+    
+    private void setUserData(EffectTrack effectTrack) {
+        //fetching the UserData TrackInfo.
+        TrackInfo data = (TrackInfo) effectTrack.emitter.getUserData("TrackInfo");
+
+        //if it does not exist, we create it and attach it to the emitter.
+        if (data == null) {
+            data = new TrackInfo();
+            effectTrack.emitter.setUserData("TrackInfo", data);
+        }
+
+        //adding the given Track to the TrackInfo.
+        data.addTrack(effectTrack);
+        
+        
+    }
 
     /**
      * Internal use only serialization
@@ -236,10 +325,16 @@ public class EffectTrack implements Track {
      */
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
+        //reseting the particle emission rate on the emitter before saving.
+        emitter.setParticlesPerSec(particlesPerSeconds);
+        //removing eventual unpersisted control off the emitter
+        emitter.removeControl(killParticles);
         out.write(emitter, "emitter", null);
+        out.write(particlesPerSeconds, "particlesPerSeconds", 0);
         out.write(length, "length", 0);
-
         out.write(startOffset, "startOffset", 0);
+        //Setting emission rate to 0 so that this track can go on being used.
+        emitter.setParticlesPerSec(0);
     }
 
     /**
@@ -249,8 +344,10 @@ public class EffectTrack implements Track {
      */
     public void read(JmeImporter im) throws IOException {
         InputCapsule in = im.getCapsule(this);
+        this.particlesPerSeconds = in.readFloat("particlesPerSeconds", 0);
+        //reading the emitter even if the track will then reference its cloned counter part if it's loaded with the assetManager.
+        //This also avoid null pointer exception if the model is not loaded via the AssetManager.
         emitter = (ParticleEmitter) in.readSavable("emitter", null);
-        this.particlesPerSeconds = emitter.getParticlesPerSec();
         emitter.setParticlesPerSec(0);
         length = in.readFloat("length", length);
         startOffset = in.readFloat("startOffset", 0);

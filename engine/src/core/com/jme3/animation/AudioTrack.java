@@ -36,8 +36,12 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * AudioTrack is a track to add to an existing animation, to paly a sound during an animations
@@ -55,8 +59,9 @@ import java.io.IOException;
  *
  * @author Nehon
  */
-public class AudioTrack implements Track {
+public class AudioTrack implements ClonableTrack {
 
+    private static final Logger logger = Logger.getLogger(AudioTrack.class.getName());
     private AudioNode audio;
     private float startOffset = 0;
     private float length = 0;
@@ -89,6 +94,7 @@ public class AudioTrack implements Track {
     public AudioTrack(AudioNode audio, float length) {
         this.audio = audio;
         this.length = length;
+        setUserData(this);
     }
 
     /**
@@ -142,6 +148,80 @@ public class AudioTrack implements Track {
     }
 
     /**
+     * This method clone the Track and search for the cloned counterpart of the original audio node in the given cloned spatial.
+     * The spatial is assumed to be the Spatial holding the AnimControl controling the animation using this Track.
+     * @param spatial the Spatial holding the AnimControl
+     * @return the cloned Track with proper reference
+     */
+    public Track cloneForSpatial(Spatial spatial) {
+        AudioTrack audioTrack = new AudioTrack();
+        audioTrack.length = this.length;
+        audioTrack.startOffset = this.startOffset;
+
+        //searching for the newly cloned AudioNode
+        audioTrack.audio = findAudio(spatial);
+        if (audioTrack.audio == null) {
+            logger.log(Level.WARNING, "{0} was not found in {1} or is not bound to this track", new Object[]{audio.getName(), spatial.getName()});
+            audioTrack.audio = audio;
+        }
+
+        //setting user data on the new AudioNode and marking it with a reference to the cloned Track.
+        setUserData(audioTrack);
+      
+        return audioTrack;
+    }
+
+    /**
+     * recursive function responsible for finding the newly cloned AudioNode
+     * @param spat
+     * @return 
+     */
+    private AudioNode findAudio(Spatial spat) {
+        if (spat instanceof AudioNode) {
+            //spat is an AudioNode
+            AudioNode em = (AudioNode) spat;
+            //getting the UserData TrackInfo so check if it should be attached to this Track
+            TrackInfo t = (TrackInfo) em.getUserData("TrackInfo");
+            if (t != null && t.getTracks().contains(this)) {
+                return em;
+            }
+            return null;
+
+        } else if (spat instanceof Node) {
+            for (Spatial child : ((Node) spat).getChildren()) {
+                AudioNode em = findAudio(child);
+                if (em != null) {
+                    return em;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void setUserData(AudioTrack audioTrack) {
+        //fetching the UserData TrackInfo.
+        TrackInfo data = (TrackInfo) audioTrack.audio.getUserData("TrackInfo");
+
+        //if it does not exist, we create it and attach it to the AudioNode.
+        if (data == null) {
+            data = new TrackInfo();
+            audioTrack.audio.setUserData("TrackInfo", data);
+        }
+
+        //adding the given Track to the TrackInfo.
+        data.addTrack(audioTrack);
+    }
+
+    public void cleanUp() {
+       TrackInfo t = (TrackInfo) audio.getUserData("TrackInfo");
+       t.getTracks().remove(this);
+       if(!t.getTracks().isEmpty()){
+           audio.setUserData("TrackInfo", null);
+       }
+    }
+    
+    
+    /**
      * 
      * @return the audio node used by this track
      */
@@ -154,7 +234,12 @@ public class AudioTrack implements Track {
      * @param audio 
      */
     public void setAudio(AudioNode audio) {
+        if (this.audio != null) {
+            TrackInfo data = (TrackInfo) audio.getUserData("TrackInfo");
+            data.getTracks().remove(this);
+        }
         this.audio = audio;
+        setUserData(this);
     }
 
     /**
