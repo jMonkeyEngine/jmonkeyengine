@@ -634,6 +634,7 @@
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"/>
+            <arg value="-DCMAKE_SKIP_RPATH=ON"/>
             <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
             <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
@@ -645,6 +646,7 @@
             <arg value="-DBUILD_EXTRAS=OFF"/>
             <arg value="-DBUILD_DEMOS=OFF"/>
             <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw.folder.resolved}'"/>
+            <arg value="-DCMAKE_SKIP_RPATH=ON"/>
             <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
             <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
