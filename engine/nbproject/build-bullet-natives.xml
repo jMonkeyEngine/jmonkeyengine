@@ -572,6 +572,8 @@
             <arg value="-DCMAKE_CXX_COMPILER=g++"/>
             <arg value="-DCMAKE_RC_COMPILER=windres"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH=/usr"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DLIBRARY_OUTPUT_PATH='${build.folder.resolved}'"/>
@@ -585,6 +587,8 @@
             <arg value="-DBUILD_EXTRAS=off"/>
             <arg value="-DBUILD_DEMOS=off"/>
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
         <exec executable="ranlib">
@@ -610,6 +614,8 @@
             <arg value="-DCMAKE_CXX_COMPILER=g++"/>
             <arg value="-DCMAKE_RC_COMPILER=windres"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH=/usr"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DLIBRARY_OUTPUT_PATH='${build64.folder.resolved}'"/>
@@ -620,6 +626,8 @@
             <arg value="-DBUILD_EXTRAS=off"/>
             <arg value="-DBUILD_DEMOS=off"/>
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
     </target>
@@ -634,6 +642,8 @@
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <mkdir dir="build/bullet-base-mingw"/>
         <property location="build/bullet-base-mingw" name="build-mingw.folder.resolved"/>
@@ -643,6 +653,8 @@
             <arg value="-DBUILD_EXTRAS=OFF"/>
             <arg value="-DBUILD_DEMOS=OFF"/>
             <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw.folder.resolved}'"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
         <exec executable="${cross.compile.target}-ranlib">
@@ -669,6 +681,8 @@
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <mkdir dir="build/bullet-base-mingw-64"/>
         <property location="build/bullet-base-mingw-64" name="build-mingw64.folder.resolved"/>
