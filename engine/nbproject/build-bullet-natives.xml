@@ -634,6 +634,8 @@
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <mkdir dir="build/bullet-base-mingw"/>
         <property location="build/bullet-base-mingw" name="build-mingw.folder.resolved"/>
@@ -643,6 +645,8 @@
             <arg value="-DBUILD_EXTRAS=OFF"/>
             <arg value="-DBUILD_DEMOS=OFF"/>
             <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw.folder.resolved}'"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
         <exec executable="${cross.compile.target}-ranlib">
@@ -669,6 +673,9 @@
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"/>
+            <arg value="-DCMAKE_SKIP_RPATH=ON"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <mkdir dir="build/bullet-base-mingw-64"/>
         <property location="build/bullet-base-mingw-64" name="build-mingw64.folder.resolved"/>
@@ -679,6 +686,9 @@
             <arg value="-DBUILD_DEMOS=OFF"/>
             <arg value="-DCMAKE_CXX_FLAGS=-fpermissive"/>
             <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw64.folder.resolved}'"/>
+            <arg value="-DCMAKE_SKIP_RPATH=ON"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
+            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
         <exec executable="${cross.compile.target64}-ranlib">
