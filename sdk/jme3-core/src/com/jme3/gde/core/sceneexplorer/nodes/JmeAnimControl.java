@@ -32,10 +32,9 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.animation.AnimControl;
-import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.gde.core.properties.AnimationProperty;
+import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.TrackVisibilityPopup;
 import com.jme3.scene.Spatial;
 import java.awt.Image;
 import java.io.IOException;
@@ -44,33 +43,41 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
+import org.openide.util.HelpCtx;
 import org.openide.util.ImageUtilities;
+import org.openide.util.actions.BooleanStateAction;
 import org.openide.util.actions.SystemAction;
 
 /**
  *
  * @author normenhansen
  */
-@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
-public class JmeAnimControl extends AbstractSceneExplorerNode{
+@org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
+public class JmeAnimControl extends AbstractSceneExplorerNode {
 
     private AnimControl animControl;
+    private JmeAnimation playingAnimation = null;
+    private boolean displayBoneTracks = false;
+    private boolean displayEffectTracks = true;
+    private boolean displayAudioTracks = true;
     private static Image smallImage =
             ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/animationcontrol.gif");
 
     public JmeAnimControl() {
     }
 
-    public JmeAnimControl(AnimControl animControl) {
-        super(Children.LEAF);
+    public JmeAnimControl(AnimControl animControl, JmeAnimChildren children, DataObject obj) {
+        super(children);
+        dataObject = obj;
+        children.setDataObject(dataObject);
         this.animControl = animControl;
         lookupContents.add(this);
         lookupContents.add(animControl);
         setName("AnimControl");
+        children.setAnimControl(this);
     }
 
     @Override
@@ -101,12 +108,23 @@ public class JmeAnimControl extends AbstractSceneExplorerNode{
 
     }
 
+    public boolean isPlaying() {
+        return playingAnimation != null;
+    }
+
+    public void setAnim(JmeAnimation anim) {
+        if (playingAnimation != null) {
+            playingAnimation.stop();
+        }
+        playingAnimation = anim;
+    }
+
     @Override
     public Action[] getActions(boolean context) {
-        return new SystemAction[]{
-                    //                    SystemAction.get(CopyAction.class),
-                    //                    SystemAction.get(CutAction.class),
-                    //                    SystemAction.get(PasteAction.class),
+
+
+        return new Action[]{
+                    new TrackVisibilityPopup(this),
                     SystemAction.get(DeleteAction.class)
                 };
     }
@@ -119,7 +137,7 @@ public class JmeAnimControl extends AbstractSceneExplorerNode{
     @Override
     public void destroy() throws IOException {
         super.destroy();
-        final Spatial spat=getParentNode().getLookup().lookup(Spatial.class);
+        final Spatial spat = getParentNode().getLookup().lookup(Spatial.class);
         try {
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
@@ -128,7 +146,7 @@ public class JmeAnimControl extends AbstractSceneExplorerNode{
                     return null;
                 }
             }).get();
-            ((AbstractSceneExplorerNode)getParentNode()).refresh(true);
+            ((AbstractSceneExplorerNode) getParentNode()).refresh(true);
         } catch (InterruptedException ex) {
             Exceptions.printStackTrace(ex);
         } catch (ExecutionException ex) {
@@ -146,7 +164,125 @@ public class JmeAnimControl extends AbstractSceneExplorerNode{
 
     @Override
     public Node[] createNodes(Object key, DataObject key2, boolean cookie) {
-        return new Node[]{new JmeAnimControl((AnimControl)key)};
+        JmeAnimChildren children = new JmeAnimChildren(this);
+        return new Node[]{new JmeAnimControl((AnimControl) key, children, key2)};
     }
 
+    public boolean isDisplayAudioTracks() {
+        return displayAudioTracks;
+    }
+
+    public boolean isDisplayBoneTracks() {
+        return displayBoneTracks;
+    }
+
+    public boolean isDisplayEffectTracks() {
+        return displayEffectTracks;
+    }
+
+    public void setDisplayAudioTracks(boolean displayAudioTracks) {
+        this.displayAudioTracks = displayAudioTracks;
+        refreshChildren();
+    }
+
+    public void setDisplayBoneTracks(boolean displayBoneTracks) {
+        this.displayBoneTracks = displayBoneTracks;
+        refreshChildren();
+    }
+
+    public void setDisplayEffectTracks(boolean displayEffectTracks) {
+        this.displayEffectTracks = displayEffectTracks;
+        refreshChildren();
+    }
+
+    public void refreshChildren() {
+        for (Object node : getChildren().getNodes()) {
+            JmeAnimation anim = (JmeAnimation) node;
+            ((JmeTrackChildren) anim.getChildren()).refreshChildren(true);
+        }
+    }
+
+    class ToggleBoneTrackAction extends BooleanStateAction {
+
+        @Override
+        public String getName() {
+            return "Display bone tracks";
+        }
+
+        @Override
+        public void setBooleanState(boolean value) {
+            super.setBooleanState(value);
+            displayBoneTracks = value;
+            for (Object node : getChildren().getNodes()) {
+                JmeAnimation anim = (JmeAnimation) node;
+                ((JmeTrackChildren) anim.getChildren()).refreshChildren(true);
+            }
+        }
+
+        @Override
+        public boolean getBooleanState() {
+            return displayBoneTracks;
+        }
+
+        @Override
+        public HelpCtx getHelpCtx() {
+            return JmeAnimControl.this.getHelpCtx();
+        }
+    };
+
+    class ToggleEffectTrackAction extends BooleanStateAction {
+
+        @Override
+        public String getName() {
+            return "Display effect tracks";
+        }
+
+        @Override
+        public void setBooleanState(boolean value) {
+            super.setBooleanState(value);
+            displayEffectTracks = value;
+            for (Object node : getChildren().getNodes()) {
+                JmeAnimation anim = (JmeAnimation) node;
+                ((JmeTrackChildren) anim.getChildren()).refreshChildren(true);
+            }
+        }
+
+        @Override
+        public boolean getBooleanState() {
+            return displayEffectTracks;
+        }
+
+        @Override
+        public HelpCtx getHelpCtx() {
+            return JmeAnimControl.this.getHelpCtx();
+        }
+    };
+
+    class ToggleAudioTrackAction extends BooleanStateAction {
+
+        @Override
+        public String getName() {
+            return "Display audio tracks";
+        }
+
+        @Override
+        public void setBooleanState(boolean value) {
+            super.setBooleanState(value);
+            displayAudioTracks = value;
+            for (Object node : getChildren().getNodes()) {
+                JmeAnimation anim = (JmeAnimation) node;
+                ((JmeTrackChildren) anim.getChildren()).refreshChildren(true);
+            }
+        }
+
+        @Override
+        public boolean getBooleanState() {
+            return displayAudioTracks;
+        }
+
+        @Override
+        public HelpCtx getHelpCtx() {
+            return JmeAnimControl.this.getHelpCtx();
+        }
+    };
 }
