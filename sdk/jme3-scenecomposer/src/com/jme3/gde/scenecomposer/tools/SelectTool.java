@@ -43,8 +43,6 @@ import org.openide.util.Lookup;
  */
 public class SelectTool extends SceneEditTool {
 
-    protected Spatial selected;
-
     private enum State {
 
         translate, rotate, scale
@@ -89,6 +87,7 @@ public class SelectTool extends SceneEditTool {
     public void keyPressed(KeyInputEvent kie) {
 
         checkModificatorKeys(kie); // alt,shift,ctrl
+        Spatial selected = toolController.getSelectedSpatial();
 
         if (selected == null) {
             return; // only do anything if a spatial is selected
@@ -146,6 +145,7 @@ public class SelectTool extends SceneEditTool {
     }
 
     private void clearState(boolean resetSelected) {
+        Spatial selected = toolController.getSelectedSpatial();
         if (resetSelected && selected != null) {
             // reset the transforms
             if (startRot != null) {
@@ -267,6 +267,7 @@ public class SelectTool extends SceneEditTool {
     }
 
     private boolean checkStateKey(KeyInputEvent kie) {
+        Spatial selected = toolController.getSelectedSpatial();
         if (kie.getKeyCode() == KeyInput.KEY_G) {
             currentState = State.translate;
             MoveManager moveManager = Lookup.getDefault().lookup(MoveManager.class);
@@ -390,6 +391,7 @@ public class SelectTool extends SceneEditTool {
     @Override
     public void actionPrimary(Vector2f screenCoord, boolean pressed, final JmeNode rootNode, DataObject dataObject) {
         if (!pressed) {
+            Spatial selected = toolController.getSelectedSpatial();
             // left mouse released
             if (!wasDraggingL) {
                 // left mouse pressed
@@ -430,6 +432,7 @@ public class SelectTool extends SceneEditTool {
     @Override
     public void actionSecondary(final Vector2f screenCoord, boolean pressed, final JmeNode rootNode, DataObject dataObject) {
         if (pressed) {
+            Spatial selected = toolController.getSelectedSpatial();
             // mouse down
 
             if (moving != null) {
@@ -560,6 +563,7 @@ public class SelectTool extends SceneEditTool {
     }
 
     private void doMouseScale(Vector3f axis, Vector2f screenCoord, JmeNode rootNode, JmeSpatial selectedSpatial) {
+        Spatial selected = toolController.getSelectedSpatial();
         // scale based on the original mouse position and original model-to-screen position
         // and compare that to the distance from the new mouse position and the original distance
         if (startMouseCoord == null) {
@@ -593,6 +597,7 @@ public class SelectTool extends SceneEditTool {
     }
 
     private void doMouseRotate(Vector3f axis, Vector2f screenCoord, JmeNode rootNode, JmeSpatial selectedSpatial) {
+        Spatial selected = toolController.getSelectedSpatial();
         if (startMouseCoord == null) {
             startMouseCoord = screenCoord.clone();
         }
@@ -628,6 +633,7 @@ public class SelectTool extends SceneEditTool {
     }
 
     private void duplicateSelected() {
+        Spatial selected = toolController.getSelectedSpatial();
         if (selected == null) {
             return;
         }
@@ -659,6 +665,7 @@ public class SelectTool extends SceneEditTool {
     }
 
     private void deleteSelected() {
+        Spatial selected = toolController.getSelectedSpatial();
         if (selected == null) {
             return;
         }
