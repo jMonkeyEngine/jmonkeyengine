@@ -119,10 +119,10 @@ public class MoveManager {
             newPos.set(Math.round(newPos.x), Math.round(newPos.y), Math.round(newPos.z));
         }
 
-        //computing the inverse world transform to get the new localtranslation
+        //computing the inverse world transform to get the new localtranslation        
         newPos.subtractLocal(spatial.getParent().getWorldTranslation());
         newPos = spatial.getParent().getWorldRotation().inverse().normalizeLocal().multLocal(newPos);
-        newPos.divideLocal(spatial.getWorldScale());
+       
         lastLoc = newPos;
         spatial.setLocalTranslation(newPos);
 

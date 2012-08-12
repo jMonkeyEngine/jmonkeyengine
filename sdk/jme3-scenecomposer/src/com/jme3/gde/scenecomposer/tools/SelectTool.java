@@ -472,8 +472,12 @@ public class SelectTool extends SceneEditTool {
                         }
 
                         private void doSelect() {
-                            SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{rootNode.getChild(selec)});                            
-                            SceneExplorerTopComponent.findInstance().setSelectedNode(rootNode.getChild(selec));
+                            //in case of  linked assets the selected nod ein the viewer is not necessarily in the explorer.
+                            JmeSpatial n = rootNode.getChild(selec);
+                            if(n!= null){
+                                SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{n});                            
+                                SceneExplorerTopComponent.findInstance().setSelectedNode(n);
+                            }
                         }
                     });
                 }
