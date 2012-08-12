@@ -50,6 +50,7 @@ public class SceneComposerToolController extends SceneToolController {
     private boolean snapToGrid = false;
     private boolean snapToScene = false;
     private boolean selectTerrain = false;
+    private boolean selectGeometries = false;
 
     public SceneComposerToolController(final Node toolsNode, AssetManager manager, JmeNode rootNode) {
         super(toolsNode, manager);
@@ -325,6 +326,16 @@ public class SceneComposerToolController extends SceneToolController {
     public void setSelectTerrain(boolean selectTerrain) {
         this.selectTerrain = selectTerrain;
     }
+
+    public boolean isSelectGeometries() {
+        return selectGeometries;
+    }
+
+    public void setSelectGeometries(boolean selectGeometries) {
+        this.selectGeometries = selectGeometries;
+    }
+    
+    
     
     /**
      * A marker on the screen that shows where a point light or

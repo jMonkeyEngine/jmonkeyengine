@@ -117,6 +117,12 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jLabel6 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        jSeparator7 = new javax.swing.JToolBar.Separator();
+        jToggleScene = new javax.swing.JToggleButton();
+        jToggleGrid = new javax.swing.JToggleButton();
+        jSeparator8 = new javax.swing.JToolBar.Separator();
+        jToggleSelectGeom = new javax.swing.JToggleButton();
+        jToggleSelectTerrain = new javax.swing.JToggleButton();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jToolBar2 = new javax.swing.JToolBar();
@@ -132,9 +138,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jSeparator6 = new javax.swing.JSeparator();
         jLabel5 = new javax.swing.JLabel();
         emitButton = new javax.swing.JButton();
-        snapToSceneCheckbox = new javax.swing.JCheckBox();
-        snapToGridCheckbox = new javax.swing.JCheckBox();
-        selectTerrainCheckbox = new javax.swing.JCheckBox();
 
         setBackground(new java.awt.Color(204, 204, 204));
 
@@ -346,6 +349,60 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             }
         });
         jToolBar1.add(jButton3);
+        jToolBar1.add(jSeparator7);
+
+        jToggleScene.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/snapScene.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jToggleScene, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jToggleScene.text")); // NOI18N
+        jToggleScene.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jToggleScene.toolTipText")); // NOI18N
+        jToggleScene.setFocusable(false);
+        jToggleScene.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jToggleScene.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToggleScene.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleSceneActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jToggleScene);
+
+        jToggleGrid.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/snapGrid.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jToggleGrid, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jToggleGrid.text")); // NOI18N
+        jToggleGrid.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jToggleGrid.toolTipText")); // NOI18N
+        jToggleGrid.setFocusable(false);
+        jToggleGrid.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jToggleGrid.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToggleGrid.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleGridActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jToggleGrid);
+        jToolBar1.add(jSeparator8);
+
+        jToggleSelectGeom.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/selectGeometry.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jToggleSelectGeom, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jToggleSelectGeom.text")); // NOI18N
+        jToggleSelectGeom.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jToggleSelectGeom.toolTipText")); // NOI18N
+        jToggleSelectGeom.setFocusable(false);
+        jToggleSelectGeom.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jToggleSelectGeom.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToggleSelectGeom.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleSelectGeomActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jToggleSelectGeom);
+
+        jToggleSelectTerrain.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/selectTerrain.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jToggleSelectTerrain, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jToggleSelectTerrain.text")); // NOI18N
+        jToggleSelectTerrain.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jToggleSelectTerrain.toolTipText")); // NOI18N
+        jToggleSelectTerrain.setFocusable(false);
+        jToggleSelectTerrain.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jToggleSelectTerrain.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToggleSelectTerrain.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleSelectTerrainActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jToggleSelectTerrain);
 
         jPanel3.setBackground(new java.awt.Color(204, 204, 204));
 
@@ -353,7 +410,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 272, Short.MAX_VALUE)
+            .addGap(0, 168, Short.MAX_VALUE)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -424,33 +481,6 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
             }
         });
 
-        snapToSceneCheckbox.setBackground(new java.awt.Color(204, 204, 204));
-        org.openide.awt.Mnemonics.setLocalizedText(snapToSceneCheckbox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToSceneCheckbox.text")); // NOI18N
-        snapToSceneCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToSceneCheckbox.toolTipText")); // NOI18N
-        snapToSceneCheckbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                snapToSceneCheckboxActionPerformed(evt);
-            }
-        });
-
-        snapToGridCheckbox.setBackground(new java.awt.Color(204, 204, 204));
-        org.openide.awt.Mnemonics.setLocalizedText(snapToGridCheckbox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToGridCheckbox.text")); // NOI18N
-        snapToGridCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.snapToGridCheckbox.toolTipText")); // NOI18N
-        snapToGridCheckbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                snapToGridCheckboxActionPerformed(evt);
-            }
-        });
-
-        selectTerrainCheckbox.setBackground(new java.awt.Color(204, 204, 204));
-        org.openide.awt.Mnemonics.setLocalizedText(selectTerrainCheckbox, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.selectTerrainCheckbox.text")); // NOI18N
-        selectTerrainCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.selectTerrainCheckbox.toolTipText")); // NOI18N
-        selectTerrainCheckbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                selectTerrainCheckboxActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
@@ -463,17 +493,9 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                     .addComponent(jSeparator6, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(10, 10, 10)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(snapToSceneCheckbox)
-                                .addGap(18, 18, 18)
-                                .addComponent(snapToGridCheckbox)
-                                .addGap(18, 18, 18)
-                                .addComponent(selectTerrainCheckbox))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(emitButton, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)))))
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(emitButton, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -488,12 +510,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(emitButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(snapToSceneCheckbox)
-                    .addComponent(snapToGridCheckbox)
-                    .addComponent(selectTerrainCheckbox))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -615,18 +632,21 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         toolController.showEditTool(tool);
     }//GEN-LAST:event_rotateButtonActionPerformed
 
-    private void snapToSceneCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_snapToSceneCheckboxActionPerformed
-        toolController.setSnapToScene(snapToSceneCheckbox.isSelected());
-    }//GEN-LAST:event_snapToSceneCheckboxActionPerformed
+private void jToggleSceneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleSceneActionPerformed
+    toolController.setSnapToScene(jToggleScene.isSelected());
+}//GEN-LAST:event_jToggleSceneActionPerformed
 
-    private void snapToGridCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_snapToGridCheckboxActionPerformed
-        toolController.setSnapToGrid(snapToGridCheckbox.isSelected());
-    }//GEN-LAST:event_snapToGridCheckboxActionPerformed
+private void jToggleGridActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleGridActionPerformed
+    toolController.setSnapToGrid(jToggleGrid.isSelected());
+}//GEN-LAST:event_jToggleGridActionPerformed
 
-    private void selectTerrainCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectTerrainCheckboxActionPerformed
-        toolController.setSelectTerrain(selectTerrainCheckbox.isSelected());
-    }//GEN-LAST:event_selectTerrainCheckboxActionPerformed
+private void jToggleSelectTerrainActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleSelectTerrainActionPerformed
+    toolController.setSelectTerrain(jToggleSelectTerrain.isSelected());
+}//GEN-LAST:event_jToggleSelectTerrainActionPerformed
 
+private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleSelectGeomActionPerformed
+    toolController.setSelectGeometries(jToggleSelectGeom.isSelected());
+}//GEN-LAST:event_jToggleSelectGeomActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton camToCursorSelectionButton;
     private javax.swing.JButton createPhysicsMeshButton;
@@ -652,7 +672,13 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JToolBar.Separator jSeparator4;
     private javax.swing.JToolBar.Separator jSeparator5;
     private javax.swing.JSeparator jSeparator6;
+    private javax.swing.JToolBar.Separator jSeparator7;
+    private javax.swing.JToolBar.Separator jSeparator8;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JToggleButton jToggleGrid;
+    private javax.swing.JToggleButton jToggleScene;
+    private javax.swing.JToggleButton jToggleSelectGeom;
+    private javax.swing.JToggleButton jToggleSelectTerrain;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JToolBar jToolBar2;
     private javax.swing.JToolBar jToolBar3;
@@ -666,11 +692,8 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JLabel sceneInfoLabel2;
     private javax.swing.JPanel sceneInfoPanel;
     private javax.swing.JToggleButton selectButton;
-    private javax.swing.JCheckBox selectTerrainCheckbox;
     private javax.swing.JToggleButton showGridToggleButton;
     private javax.swing.JToggleButton showSelectionToggleButton;
-    private javax.swing.JCheckBox snapToGridCheckbox;
-    private javax.swing.JCheckBox snapToSceneCheckbox;
     private javax.swing.ButtonGroup spatialModButtonGroup;
     // End of variables declaration//GEN-END:variables
 
@@ -906,11 +929,11 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         }
         Collection<JmeSpatial> items = (Collection<JmeSpatial>) result.allInstances();
         for (JmeSpatial spatial : items) {
-            selectSpatial(spatial);       
+            selectSpatial(spatial);
             return;
         }
     }
-    
+
     private void selectSpatial(JmeSpatial spatial) {
         if (editorController != null) {
             editorController.setSelectedSpat(spatial);

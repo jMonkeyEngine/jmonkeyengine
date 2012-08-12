@@ -454,11 +454,13 @@ public class SelectTool extends SceneEditTool {
                 } else {
 
                     // climb up and find the Model Node (parent) and select that, don't select the geom
-                    Spatial linkNodeParent = findModelNodeParent(s);
-                    if (linkNodeParent != null) {
-                        s = linkNodeParent;
-                    } else {
-                        return;
+                    if (!toolController.isSelectGeometries()) {
+                        Spatial linkNodeParent = findModelNodeParent(s);
+                        if (linkNodeParent != null) {
+                            s = linkNodeParent;
+                        } else {
+                            return;
+                        }
                     }
                     final Spatial selec = s;
                     selected = selec;
@@ -474,8 +476,8 @@ public class SelectTool extends SceneEditTool {
                         private void doSelect() {
                             //in case of  linked assets the selected nod ein the viewer is not necessarily in the explorer.
                             JmeSpatial n = rootNode.getChild(selec);
-                            if(n!= null){
-                                SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{n});                            
+                            if (n != null) {
+                                SceneViewerTopComponent.findInstance().setActivatedNodes(new org.openide.nodes.Node[]{n});
                                 SceneExplorerTopComponent.findInstance().setSelectedNode(n);
                             }
                         }
