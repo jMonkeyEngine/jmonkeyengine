@@ -130,8 +130,6 @@ public class TestBitmapFont extends SimpleApplication {
         @Override
         public void onTouchEvent(TouchEvent evt) { }
 
-        @Override
-        public void onMotionSensorEvent(MotionSensorEvent evt) { }
     };
 
 }

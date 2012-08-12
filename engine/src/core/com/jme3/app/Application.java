@@ -90,7 +90,6 @@ public class Application implements SystemListener {
     protected KeyInput keyInput;
     protected JoyInput joyInput;
     protected TouchInput touchInput;
-    protected SensorInput sensorInput;
     protected InputManager inputManager;
     protected AppStateManager stateManager;
 
@@ -286,11 +285,7 @@ public class Application implements SystemListener {
                 joyInput.initialize();
         }
 
-        sensorInput = context.getSensorInput();
-        if (sensorInput != null)
-            sensorInput.initialize();
-
-        inputManager = new InputManager(mouseInput, keyInput, joyInput, touchInput, sensorInput);
+        inputManager = new InputManager(mouseInput, keyInput, joyInput, touchInput);
     }
 
     private void initStateManager(){
@@ -630,9 +625,6 @@ public class Application implements SystemListener {
 
         if (touchInput != null)
             touchInput.destroy();
-
-        if (sensorInput != null)
-            sensorInput.destroy();
 
         inputManager = null;
     }

@@ -75,8 +75,6 @@ public class TestSoftwareMouse extends SimpleApplication {
         }
         public void onTouchEvent(TouchEvent evt) {
         }
-        public void onMotionSensorEvent(MotionSensorEvent evt) {
-        }
     };
 
     public static void main(String[] args){

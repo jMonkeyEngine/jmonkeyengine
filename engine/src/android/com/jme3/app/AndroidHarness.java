@@ -15,9 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
-import com.jme3.input.SensorInput;
 import com.jme3.input.TouchInput;
-import com.jme3.input.android.AndroidSensorInput;
 import com.jme3.input.controls.TouchListener;
 import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.event.TouchEvent;
@@ -259,16 +257,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                     renderer.resumeAll();
                 }
             }
-            //resume the sensors
-            if (app.getInputManager() != null) {
-                SensorInput sensorInput = app.getInputManager().getSensorInput();
-                if (sensorInput != null) {
-                    logger.log(Level.INFO, "resume: {0}", sensorInput.getClass().getSimpleName());
-                    if (sensorInput instanceof AndroidSensorInput) {
-                        ((AndroidSensorInput)sensorInput).resumeSensors();
-                    }
-                }
-            }
         }
 
         isGLThreadPaused = false;
@@ -290,16 +278,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 if (result instanceof AndroidAudioRenderer) {
                     AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
                     renderer.pauseAll();
-                }
-            }
-            //pause the sensors
-            if (app.getInputManager() != null) {
-                SensorInput sensorInput = app.getInputManager().getSensorInput();
-                if (sensorInput != null) {
-                    logger.log(Level.INFO, "pause: {0}", sensorInput.getClass().getSimpleName());
-                    if (sensorInput instanceof AndroidSensorInput) {
-                        ((AndroidSensorInput)sensorInput).resumeSensors();
-                    }
                 }
             }
         }

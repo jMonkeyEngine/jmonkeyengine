@@ -3,7 +3,6 @@ package com.jme3.system.awt;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
-import com.jme3.input.SensorInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.awt.AwtMouseInput;
@@ -100,10 +99,6 @@ public class AwtPanelsContext implements JmeContext {
     }
 
     public TouchInput getTouchInput() {
-        return null;
-    }
-
-    public SensorInput getSensorInput() {
         return null;
     }
 

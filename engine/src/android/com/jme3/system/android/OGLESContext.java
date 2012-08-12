@@ -43,7 +43,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import com.jme3.input.*;
 import com.jme3.input.android.AndroidInput;
-import com.jme3.input.android.AndroidSensorInput;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
@@ -75,7 +74,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected SystemListener listener;
     protected boolean autoFlush = true;
     protected AndroidInput androidInput;
-    protected AndroidSensorInput androidSensorInput;
     protected AndroidGLSurfaceView view;
     protected int minFrameDuration = 0;                   // No FPS cap
     /**
@@ -114,13 +112,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             androidInput = new AndroidInput(view);
         } else {
             androidInput.setView(view);
-        }
-        if (androidSensorInput == null) {
-            logger.log(Level.INFO, "Creating New SensorInput");
-            androidSensorInput = new AndroidSensorInput();
-        } else {
-            logger.log(Level.INFO, "Resetting SensorInput");
-            androidSensorInput.resetSensorManager();
         }
         if (configType == ConfigType.LEGACY) {
             // Hardcoded egl setup
@@ -283,11 +274,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     @Override
     public TouchInput getTouchInput() {
         return androidInput;
-    }
-
-    @Override
-    public SensorInput getSensorInput() {
-        return androidSensorInput;
     }
 
     @Override

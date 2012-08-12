@@ -71,13 +71,13 @@ public class InputSystemJme implements InputSystem, RawInputListener {
 
     /**
      * Must be set in order for nifty events to be forwarded correctly.
-     * 
-     * @param nifty 
+     *
+     * @param nifty
      */
     public void setNifty(Nifty nifty) {
         this.nifty = nifty;
     }
-    
+
     /**
      * Reset internal state of the input system.
      * Must be called when the display is reinitialized
@@ -118,10 +118,10 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             // If nifty consumed the mouse down event, then
             // it now owns the next mouse up event which
             // won't be forwarded to jME3.
-            
+
             // processMouseEvent doesn't return true even if cursor is above
             // a nifty element (bug).
-            boolean consumed = nic.processMouseEvent(x, y, 0, button, true) 
+            boolean consumed = nic.processMouseEvent(x, y, 0, button, true)
                              | nifty.getCurrentScreen().isMouseOverElement();
             niftyOwnsDragging[button] = consumed;
             if (consumed) {
@@ -132,7 +132,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             // Forward the event if nifty owns it or if the cursor is visible.
             if (niftyOwnsDragging[button] || inputManager.isCursorVisible()){
                 boolean consumed = nic.processMouseEvent(x, y, 0, button, false);
-                
+
                 // Only consume event if it ORIGINATED in nifty!
                 if (niftyOwnsDragging[button] && consumed) {
                     evt.setConsumed();
@@ -143,7 +143,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             //System.out.format("niftyMouse(%d, %d, %d, false) = %b\n", x, y, button, consumed);
         }
     }
-    
+
     private void onTouchEventQueued(TouchEvent evt, NiftyInputConsumer nic) {
         if (inputManager.getSimulateMouse()) {
             return;
@@ -151,7 +151,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
 
         x = (int) evt.getX();
         y = (int) (height - evt.getY());
-        
+
         // Input manager will not convert touch events to mouse events,
         // thus we must do it ourselves..
         switch (evt.getType()) {
@@ -175,7 +175,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
 
                 inputPointerId = -1;
                 handleMouseEvent(0, false, nic, evt);
-                
+
                 break;
         }
     }
@@ -239,9 +239,6 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     public void onJoyButtonEvent(JoyButtonEvent evt) {
-    }
-
-    public void onMotionSensorEvent(MotionSensorEvent evt) {
     }
 
     public void onKeyEvent(KeyInputEvent evt) {

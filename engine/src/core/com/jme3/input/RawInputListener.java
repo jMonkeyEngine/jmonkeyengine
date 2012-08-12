@@ -97,10 +97,4 @@ public interface RawInputListener {
      */
     public void onTouchEvent(TouchEvent evt);
 
-    /**
-     * Invoked on motion sensor events.
-     *
-     * @param evt
-     */
-    public void onMotionSensorEvent(MotionSensorEvent evt);
 }

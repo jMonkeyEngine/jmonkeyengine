@@ -35,7 +35,6 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
-import com.jme3.input.SensorInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
@@ -256,10 +255,6 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
     }
 
     public TouchInput getTouchInput() {
-        return null;
-    }
-
-    public SensorInput getSensorInput() {
         return null;
     }
 

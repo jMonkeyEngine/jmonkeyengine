@@ -35,7 +35,6 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
-import com.jme3.input.SensorInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
@@ -187,10 +186,6 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     }
 
     public TouchInput getTouchInput() {
-        return null;
-    }
-
-    public SensorInput getSensorInput() {
         return null;
     }
 
