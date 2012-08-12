@@ -60,7 +60,7 @@ public class JmeAudioNode extends JmeNode {
         super(spatial, children);
         getLookupContents().add(spatial);
         this.node = spatial;
-        setName(spatial.getName());
+     //   setName(spatial.getName());
     }
 
     @Override

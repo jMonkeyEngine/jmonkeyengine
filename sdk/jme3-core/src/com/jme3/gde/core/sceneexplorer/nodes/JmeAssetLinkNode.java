@@ -79,7 +79,7 @@ public class JmeAssetLinkNode extends JmeNode {
         linkChildren = (AssetLinkChildren)getChildren();
         linkChildren.setReadOnly(children.readOnly);
         this.geom = spatial;
-        setName(spatial.getName());
+     //   setName(spatial.getName());
     }
 
     @Override

@@ -62,7 +62,7 @@ public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListene
         super(spatial, children);
         getLookupContents().add(spatial);
         this.geom = spatial;
-        setName(spatial.getName());
+      //  setName(spatial.getName());
         geom.addListener(this);
     }
 

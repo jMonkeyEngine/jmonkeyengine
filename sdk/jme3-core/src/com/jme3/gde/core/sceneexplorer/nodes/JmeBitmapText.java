@@ -58,7 +58,7 @@ public class JmeBitmapText extends JmeNode {
         super(spatial, children);
         getLookupContents().add(spatial);
         this.geom = spatial;
-        setName(spatial.getName());
+    //    setName(spatial.getName());
     }
 
     @Override

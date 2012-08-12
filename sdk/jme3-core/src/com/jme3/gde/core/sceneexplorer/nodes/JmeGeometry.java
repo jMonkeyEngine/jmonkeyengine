@@ -33,7 +33,6 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.SceneExplorerTopComponent;
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.MaterialChangeListener;
 import com.jme3.material.Material;
 import com.jme3.scene.Geometry;
@@ -42,6 +41,7 @@ import java.awt.Image;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Sheet;
 import org.openide.util.ImageUtilities;
 
@@ -75,7 +75,6 @@ public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
             }
         });
 
-        setName(spatial.getName());
     }
 
     @Override

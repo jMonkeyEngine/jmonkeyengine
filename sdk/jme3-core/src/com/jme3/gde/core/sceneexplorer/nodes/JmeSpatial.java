@@ -165,11 +165,16 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
         return !((JmeSpatialChildren) jmeChildren).readOnly;
     }
 
-    @Override
+    /**
+     * Warning this methods also changes the name of the spatial in the scene
+     * it will mark the file as changed and will activate save button.     
+     * @param s 
+     */
+    @Override    
     public void setName(final String s) {
         super.setName(s);
-        try {
-//            fireSave(true);
+        try {            
+            fireSave(true);
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
 
                 public Void call() throws Exception {
