@@ -4,7 +4,7 @@
 
 <p>
 
-The awesome SeaMonkey water Filter is highly configurable. It can render any type of water and also simulates the underwater part of the effect, including &quot;caustics&quot;. It is is based on <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gamedev.net/page/reference/index.html/_//feature/fprogramming/rendering-water-as-a-post-process-effect-r2642"><param name="text" value="<html><u>Wojciech Toman’s Rendering Water as a Post-process Effect</u></html>"><param name="textColor" value="blue"></object> published on gamedev.net. Here&#039;s a video:
+The awesome SeaMonkey WaterFilter is highly configurable. It can render any type of water and also simulates the underwater part of the effect, including light effects called caustics. The effect is based on <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gamedev.net/page/reference/index.html/_//feature/fprogramming/rendering-water-as-a-post-process-effect-r2642"><param name="text" value="<html><u>Wojciech Toman’s Rendering Water as a Post-process Effect</u></html>"><param name="textColor" value="blue"></object> published on gamedev.net. Here&#039;s a video:
 </p>
 
 <p>
@@ -12,11 +12,12 @@ The awesome SeaMonkey water Filter is highly configurable. It can render any typ
 </p>
 
 <p>
-Need simpler <a href="/com/jme3/gde/core/docs/jme3/advanced/water.html">water</a>?
+<p><div>The SeaMonkey WaterFilter is ideal for oceans and lakes, and expecially for under-water scenes. If you only need a small simple water surface, such as a water trough or a shallow fountain, the <a href="/com/jme3/gde/core/docs/jme3/advanced/water.html">SimpleWaterProcessor</a> may already be all you need.
+</div></p>
 </p>
 
 </div>
-<!-- EDIT1 SECTION "Rendering Water as Post-Process Effect" [1-590] -->
+<!-- EDIT1 SECTION "Rendering Water as Post-Process Effect" [1-855] -->
 <h2><a>The Theory</a></h2>
 <div>
 
@@ -34,7 +35,7 @@ The GameDev.net article describes how those effects are achieved, but the main i
 </p>
 
 </div>
-<!-- EDIT2 SECTION "The Theory" [591-1706] -->
+<!-- EDIT2 SECTION "The Theory" [856-1971] -->
 <h2><a>How Did We Implement it in jME3?</a></h2>
 <div>
 
@@ -56,7 +57,7 @@ Now we have the rendered scene in a texture, and we can reconstruct the position
 </p>
 
 </div>
-<!-- EDIT3 SECTION "How Did We Implement it in jME3?" [1707-2442] -->
+<!-- EDIT3 SECTION "How Did We Implement it in jME3?" [1972-2707] -->
 <h2><a>Sample Code</a></h2>
 <div>
 
@@ -68,20 +69,20 @@ There are two test cases in the jME3 repository:
 <ul>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestPostWater.java"><param name="text" value="<html><u>jme3/src/test/jme3test/water/TestPostWater.java</u></html>"><param name="textColor" value="blue"></object> (ocean island)</div>
 </li>
-</ul>
-<ul>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestPostWaterLake.java"><param name="text" value="<html><u>jme3/src/test/jme3test/water/TestPostWaterLake.java</u></html>"><param name="textColor" value="blue"></object> (calm and muddy water pond)</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestMultiPostWater.java"><param name="text" value="<html><u>jme3/src/test/jme3test/water/TestMultiPostWater.java</u></html>"><param name="textColor" value="blue"></object> (several ponds of different sizes at different heights etc)</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT4 SECTION "Sample Code" [2443-2901] -->
+<!-- EDIT4 SECTION "Sample Code" [2708-3399] -->
 <h3><a>Using the Water Filter</a></h3>
 <div>
 
 <p>
 
-In the <code>simpleInitApp()</code> method, you attach your scene to the rootNode, typically a terrain with a sky. Remember to add a directional light, since the water relies on the light direction vector. The WaterFilter constrcutor expects a node with the scene attached that should be reflected in the water, and vector information from the light source&#039;s direction.
+In the <code>simpleInitApp()</code> method, you attach your scene to the rootNode, typically a terrain with a sky. Remember to add a directional light, since the water relies on the light direction vector. The WaterFilter constructor expects a node with the scene attached that should be reflected in the water, and vector information from the light source&#039;s direction.
 </p>
 
 <p>
@@ -108,7 +109,7 @@ Usually you make the water reflect everything attached to the rootNode. But you 
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Using the Water Filter" [2902-4206] -->
+<!-- EDIT5 SECTION "Using the Water Filter" [3400-4704] -->
 <h3><a>Optional: Waves</a></h3>
 <div>
 
@@ -128,7 +129,7 @@ public void simpleUpdate&#40;float tpf&#41; &#123;
 &#125;</pre>
 
 </div>
-<!-- EDIT6 SECTION "Optional: Waves" [4207-4731] -->
+<!-- EDIT6 SECTION "Optional: Waves" [4705-5229] -->
 <h3><a>Optional: Water Wave and Color Effects</a></h3>
 <div>
 
@@ -175,7 +176,7 @@ manager.loadTexture(&quot;Textures/wavenormals.png&quot;) )</td><td>This normal 
 		<td>water.setNormalScale(0.5f)</td><td>Sets the normal scaling factors to apply to the normal map. The higher the value, the more small ripples will be visible on the waves.</td><td>1.0f</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [4898-6062] --><div><table>
+<!-- EDIT8 TABLE [5396-6560] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Color</th><th>Default</th>
 	</tr>
@@ -200,9 +201,13 @@ Vector3f(0.0f, 0.0f,0.2f,1.0f)</td>
 		<td>water.setColorExtinction(new Vector3f(10f,20f,30f));</td><td>Sets At what depth the refraction color extincts. The three values are RGB (red, green, blue) in this order. Play with these parameters to &quot;muddy&quot; the water.</td><td>Vector3f(5f,20f,30f)</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [6064-7068] --><div><table>
+<!-- EDIT9 TABLE [6562-7566] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Shore</th><th>Default</th>
+	</tr>
+	<tr>
+		<td>water.setCenter(Vector3f.ZERO); <br/>
+water.setRadius(260);</td><td>Limit the water filter to a semisphere with the given center and radius. Use this for lakes and smaller bodies of water. Skip this for oceans.</td><td>unused</td>
 	</tr>
 	<tr>
 		<td>water.setShoreHardness(1.0f);</td><td>Sets how soft the transition between shore and water should be. High values mean a harder transition between shore and water.</td><td>0.1f</td>
@@ -211,7 +216,7 @@ Vector3f(0.0f, 0.0f,0.2f,1.0f)</td>
 		<td>water.setUseHQShoreline(false);</td><td>Renders shoreline with better quality ?</td><td>true</td>
 	</tr>
 </table></div>
-<!-- EDIT10 TABLE [7070-7359] --><div><table>
+<!-- EDIT10 TABLE [7568-8066] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Foam</th><th>Default</th>
 	</tr>
@@ -229,7 +234,7 @@ Vector3f(0.0f, 0.0f,0.2f,1.0f)</td>
 manager.loadTexture(&quot;Textures/foam.png&quot;) )</td><td>This foam texture will be used with WrapMode.Repeat</td><td>&quot;Common/MatDefs/Water/Textures/foam.jpg&quot;</td>
 	</tr>
 </table></div>
-<!-- EDIT11 TABLE [7361-8006] --><div><table>
+<!-- EDIT11 TABLE [8068-8713] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Light</th><th>Default</th>
 	</tr>
@@ -255,9 +260,9 @@ manager.loadTexture(&quot;Textures/foam.png&quot;) )</td><td>This foam texture w
 		<td>water.setReflectionMapSize(256)</td><td>Sets the size of the reflection map. The higher, the better the quality, but the slower the effect.</td><td>512</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [8008-8923] -->
+<!-- EDIT12 TABLE [8715-9630] -->
 </div>
-<!-- EDIT7 SECTION "Optional: Water Wave and Color Effects" [4732-8925] -->
+<!-- EDIT7 SECTION "Optional: Water Wave and Color Effects" [5230-9632] -->
 <h3><a>Sound Effects</a></h3>
 <div>
 
@@ -268,6 +273,11 @@ You should also add audio nodes with water sounds to complete the effect.
 <pre>AudioNode waves = new AudioNode&#40;assetManager, &quot;Sound/Environment/Ocean Waves.ogg&quot;, false&#41;;
 waves.setLooping&#40;true&#41;;
 audioRenderer.playSource&#40;waves&#41;;</pre>
+
+<p>
+
+See also: <a href="/com/jme3/gde/core/docs/jme3/advanced/audio.html">audio</a>. 
+</p>
 <hr />
 
 <p>
@@ -281,5 +291,5 @@ See also:
 </ul>
 
 </div>
-<!-- EDIT13 SECTION "Sound Effects" [8926-] -->
+<!-- EDIT13 SECTION "Sound Effects" [9633-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:post-processor_water?do=export_xhtmlbody">view online version</a></em></p>

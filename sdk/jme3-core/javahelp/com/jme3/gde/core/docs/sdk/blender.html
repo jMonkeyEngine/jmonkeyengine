@@ -16,8 +16,13 @@ It was important to have always the lates version of the script that is compatib
 Now we have an opportunity to simplify the import process by loading data directly from blender binary files: *.blend.
 </p>
 
+<p>
+<p><div>Before you try to import models, make sure you <a href="/com/jme3/gde/core/docs/jme3/external/blender.html">created them properly</a>.
+</div></p>
+</p>
+
 </div>
-<!-- EDIT2 SECTION "Introduction" [53-791] -->
+<!-- EDIT2 SECTION "Introduction" [53-911] -->
 <h2><a>Usage</a></h2>
 <div>
 
@@ -27,7 +32,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Usage" [792-1108] -->
+<!-- EDIT3 SECTION "Usage" [912-1228] -->
 <h2><a>Currently supported features</a></h2>
 <div>
 <ol>
@@ -42,6 +47,8 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 <li><div> The mesh is &#039;Smooth&#039; aware.</div>
 </li>
 <li><div> User defined UV coordinates are read.</div>
+</li>
+<li><div> Loading BMesh is supported.</div>
 </li>
 </ul>
 </li>
@@ -72,6 +79,8 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 <li><div> Feel free to use colorbands.</div>
 </li>
 <li><div> Generated textures are &#039;baked&#039; into 2D textures and merged to create one flat texture. They can be freely merged with image textures.</div>
+</li>
+<li><div> Generated textures can be used as normal maps (but this looks poor when large amount of small triangles is used; incleasing generated texture ppu in blender key might help a little)</div>
 </li>
 </ul>
 </li>
@@ -152,12 +161,10 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </ol>
 
 </div>
-<!-- EDIT4 SECTION "Currently supported features" [1109-4057] -->
+<!-- EDIT4 SECTION "Currently supported features" [1229-4399] -->
 <h2><a>Planned features.</a></h2>
 <div>
 <ol>
-<li><div> Loading BMesh.</div>
-</li>
 <li><div> Loading sky.</div>
 </li>
 <li><div> Full support for scale and offset in texture input mapping.</div>
@@ -173,7 +180,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </ol>
 
 </div>
-<!-- EDIT5 SECTION "Planned features." [4058-4337] -->
+<!-- EDIT5 SECTION "Planned features." [4400-4660] -->
 <h2><a>Known bugs/problems.</a></h2>
 <div>
 <ol>
@@ -184,7 +191,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </ol>
 
 </div>
-<!-- EDIT6 SECTION "Known bugs/problems." [4338-4744] -->
+<!-- EDIT6 SECTION "Known bugs/problems." [4661-5067] -->
 <h2><a>Using BlenderLoader instead of BlenderModelLoader</a></h2>
 <div>
 
@@ -245,7 +252,7 @@ You can use ModelKey as well. This will give the same result as using default Bl
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Using BlenderLoader instead of BlenderModelLoader" [4745-6481] -->
+<!-- EDIT7 SECTION "Using BlenderLoader instead of BlenderModelLoader" [5068-6804] -->
 <h2><a>How does it work?</a></h2>
 <div>
 
@@ -291,7 +298,7 @@ Here is the list of how blender features are mapped into jme.
 		<td>Surface	</td><td>Node </td><td>The surface is transformed to the proper mesh</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [6955-7306] -->
+<!-- EDIT9 TABLE [7278-7629] -->
 <p>
 
 Using BlenderLoader can allow you to use blend file as your local assets repository.
@@ -301,7 +308,7 @@ Probably versions before 2.49 will work pretty well too, but I never checked tha
 </p>
 
 </div>
-<!-- EDIT8 SECTION "How does it work?" [6482-7641] -->
+<!-- EDIT8 SECTION "How does it work?" [6805-7964] -->
 <h2><a>Notes</a></h2>
 <div>
 
@@ -342,5 +349,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT10 SECTION "Notes" [7642-] -->
+<!-- EDIT10 SECTION "Notes" [7965-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:blender?do=export_xhtmlbody">view online version</a></em></p>

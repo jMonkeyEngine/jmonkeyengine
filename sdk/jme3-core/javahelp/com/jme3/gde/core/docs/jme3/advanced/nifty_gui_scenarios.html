@@ -275,6 +275,25 @@ guiViewPort.addProcessor&#40;niftyDisplay&#41;;</pre>
 
 </div>
 <!-- EDIT12 SECTION "Load Several XML Files" [7676-8724] -->
+<h2><a>Register additional explicit screen controllers</a></h2>
+<div>
+
+<p>
+
+In addition to the <code>nifty.addXml()</code> methods to attach many nifty <acronym title="Extensible Markup Language">XML</acronym> files, there exists a <code>nifty.registerScreenController()</code> method to explicitly attach more screen controllers. 
+</p>
+
+<p>
+The following code sample shows how you can explicitly attach several screen controllers before adding the <acronym title="Extensible Markup Language">XML</acronym> file to nifty, which would otherwise cause nifty to implicitly instantiate the screen controller class. 
+</p>
+<pre>NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay&#40;assetManager, inputManager, audioRenderer, viewPort&#41;;
+Nifty nifty = niftyDisplay.getNifty&#40;&#41;;
+&nbsp;
+nifty.registerScreenController&#40;new OptionsScreenController&#40;randomConstructorArgument&#41;&#41;;
+nifty.addXml&#40;&quot;Interface/Screens/OptionsScreen.xml&quot;&#41;;</pre>
+
+</div>
+<!-- EDIT13 SECTION "Register additional explicit screen controllers" [8725-9493] -->
 <h2><a>Design Your Own Styles</a></h2>
 <div>
 
@@ -326,5 +345,5 @@ Learn more from the NiftyGUI page:
 </span></div>
 
 </div>
-<!-- EDIT13 SECTION "Design Your Own Styles" [8725-] -->
+<!-- EDIT14 SECTION "Design Your Own Styles" [9494-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_scenarios?do=export_xhtmlbody">view online version</a></em></p>

@@ -91,39 +91,46 @@ E.g. models, terrains; materials, textures; noises, music, voices; video, cutsce
 Use an <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Issue_tracking_system"><param name="text" value="<html><u>issue and bug tracker</u></html>"><param name="textColor" value="blue"></object> to outline what features you want and what components are needed.
 </p>
 <ol>
-<li><div> Pre-Alpha</div>
+<li><div> Pre-Alpha Development</div>
 <ul>
 <li><div> Artwork: Test asset loading and saving with mock-ups and stock art.</div>
 </li>
 <li><div> Lay out the overall application flow, i.e. switching between intro / options / game screen, etc.</div>
 </li>
-<li><div> Get one typical level working. E.g. if the game is a &quot;Jump&#039;n&#039;Run&quot;, jumping and running must work before you can announce Alpha.</div>
+<li><div> Get one typical level working before you can announce the Alpha Release. <br/>
+E.g. if the game is a &quot;Jump&#039;n&#039;Run&quot;, jumping and running must work.</div>
 </li>
 </ul>
 </li>
 <li><div> Alpha Release</div>
+</li>
+<li><div> Pre-Beta Development</div>
 <ul>
 <li><div> Artwork: Replace all mock-ups with first drafts of real media and level maps.</div>
 </li>
-<li><div> Run alpha tests, track bugs, debug, optimize.</div>
+<li><div> Have your team members review and &quot;alpha test&quot; it on various systems, track bugs, debug, optimize.</div>
 </li>
-<li><div> Declare <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Feature_freeze"><param name="text" value="<html><u>Feature Freeze</u></html>"><param name="textColor" value="blue"></object> before you announce Beta. This prevents a bottomless pit of new bugs.</div>
+<li><div> Declare <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Feature_freeze"><param name="text" value="<html><u>Feature Freeze</u></html>"><param name="textColor" value="blue"></object> before you announce the Beta Release to prevent a bottomless pit of new bugs.</div>
 </li>
 </ul>
 </li>
 <li><div> Beta Release</div>
+</li>
+<li><div> Post-Beta Development</div>
 <ul>
 <li><div> Artwork: Fill in the final media and level maps.</div>
 </li>
-<li><div> Have external people review and &quot;beta test&quot; it (track bugs).</div>
+<li><div> Have external people review and &quot;beta test&quot; it, make it easy to report bugs.</div>
 </li>
-<li><div> Even out the kinks in code and gameplay – don&#039;t add any more new features.</div>
+<li><div> Fix high-priority bugs, even out the kinks in code and gameplay, don&#039;t add new features for now!</div>
 </li>
 </ul>
 </li>
-<li><div> Gamma, Delta = Release Candidates</div>
+<li><div> Gamma Release, Delta Release… = Release Candidates</div>
 <ul>
-<li><div> Test the heck out of it. Last chance to find a horrible bug.</div>
+<li><div> Think you&#039;re done? Make test runs incl. packaging and distribution. (Order form? download?)</div>
+</li>
+<li><div> Test the heck out of it. Last chance to find and fix a horrible bug.</div>
 </li>
 </ul>
 </li>
@@ -137,7 +144,7 @@ How you name or number these stages is fully up to your team. Development teams 
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Planning Development Milestones" [2001-3484] -->
+<!-- EDIT4 SECTION "Planning Development Milestones" [2001-3785] -->
 <h3><a>Use File Version Control</a></h3>
 <div>
 
@@ -156,7 +163,7 @@ If you don&#039;t know which to choose, Subversion is a good choice for starters
 </ul>
 
 </div>
-<!-- EDIT5 SECTION "Use File Version Control" [3485-4317] -->
+<!-- EDIT5 SECTION "Use File Version Control" [3786-4618] -->
 <h2><a>Multi-Media Asset Pipeline</a></h2>
 <div>
 <div><table>
@@ -182,14 +189,14 @@ If you don&#039;t know which to choose, Subversion is a good choice for starters
 		<td> Convert Models to j3o format. Move j3o files into <code>assets/Models</code>. </td><td>Don&#039;t reference Blender/Ogre/OBJ files in your load() code, because these unoptimized files are not packaged into the JAR.</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [4358-5244] -->
+<!-- EDIT7 TABLE [4659-5545] -->
 <p>
 
 Learn details about the <a href="/com/jme3/gde/core/docs/jme3/intermediate/multi-media_asset_pipeline.html">Multi-Media Asset Pipeline</a> here.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Multi-Media Asset Pipeline" [4318-5327] -->
+<!-- EDIT6 SECTION "Multi-Media Asset Pipeline" [4619-5628] -->
 <h2><a>Development Phase</a></h2>
 <div>
 
@@ -201,7 +208,7 @@ Even for large experienced game producers, the creation of such a complex game i
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Development Phase" [5328-5977] -->
+<!-- EDIT8 SECTION "Development Phase" [5629-6278] -->
 <h3><a>Extend SimpleApplication</a></h3>
 <div>
 
@@ -220,7 +227,7 @@ For your future game releases, you will want to rely on your own base framework:
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Extend SimpleApplication" [5978-7091] -->
+<!-- EDIT9 SECTION "Extend SimpleApplication" [6279-7392] -->
 <h3><a>Where to Start?</a></h3>
 <div>
 
@@ -229,26 +236,26 @@ For your future game releases, you will want to rely on your own base framework:
 You have a list of features that you want in game, but which one do you implement first? You will keep adding features to a project that grows more and more complex, how can you minimize the amount of rewriting required?
 </p>
 <ol>
-<li><div> Make sure the game&#039;s high-level frame (screen switching, networking, loading/saving) is sound and solid. </div>
+<li><div> Make sure the game&#039;s high-level frame (screen switching, network sync, loading/saving) is sound and solid. </div>
 </li>
-<li><div> Start with implementing the most complex game feature first – the one that imposes most constraints on the structure of your project (for example: networking or physics.)</div>
+<li><div> Start with implementing the most complex game feature first – the one that imposes most constraints on the structure of your project (for example: multi-player networking, or physics.)</div>
 </li>
-<li><div> Add only one larger feature at a time. If there are complex interactions (such as &quot;networking + physics&quot;), start with a small test case (&quot;one cube&quot;) and work your way up, don&#039;t start with a whole scene.</div>
+<li><div> Add only one larger feature at a time. If there are complex interactions (such as &quot;networking + physics&quot;), start with a small test case (&quot;one shared cube&quot;) and work your way up. Starting with a whole scene introduces too many extra soruces of error.</div>
 </li>
 <li><div> Implement low-complexity decorations (audio and visual effects) last.</div>
 </li>
-<li><div> Test for side-effects on existing code after you add a feature.</div>
+<li><div> Test for side-effects on existing code after you add a new feature (regression test).</div>
 </li>
 </ol>
 
 <p>
 
-<p><div>Acknowledge whether you want a feature because it is necessary for gameplay, or simply because &quot;everyone else has it&quot;. Your goal should be to bring out the essence of your game idea. Don&#039;t water down gameplay but attempting to make it &quot;do everything, but better&quot;. Successful high-performance games are the ones where someone made smart decisions what to keep and what to drop.
+<p><div>Acknowledge whether you want a feature because it is necessary for gameplay, or simply because &quot;everyone else has it&quot;. Your goal should be to bring out the essence of your game idea. Don&#039;t water down gameplay by attempting to make it &quot;do everything, but better&quot;. Successful high-performance games are the ones where someone made smart decisions what to keep and what to <em>drop</em>.
 </div></p>
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Where to Start?" [7092-8371] -->
+<!-- EDIT10 SECTION "Where to Start?" [7393-8760] -->
 <h3><a>The Smart Way to Add Custom Methods and Fields</a></h3>
 <div>
 
@@ -272,28 +279,25 @@ Game entities (<code>Nodes</code> and <code>Geometry</code>s) often carry custom
 </ul>
 
 </div>
-<!-- EDIT11 SECTION "The Smart Way to Add Custom Methods and Fields" [8372-9720] -->
+<!-- EDIT11 SECTION "The Smart Way to Add Custom Methods and Fields" [8761-10109] -->
 <h3><a>The Smart Way to Access Game Features</a></h3>
 <div>
 
 <p>
 
-<a href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a> gives you access to game features such as a the rootNode, assetManager, guiNode, inputManager, audioManager, physicsSpace, viewPort, and the camera. But what if you need access to the assetManager or rootNode etc from another class? Don&#039;t pass around lots of object references in constructors. This is a sign that this class should be designed as an <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">AppState</a> (read details there). 
+<a href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a> gives you access to game features such as a the rootNode, assetManager, guiNode, inputManager, audioManager, physicsSpace, viewPort, and the camera. But what if you need this access also from another class? Don&#039;t extend SimpleApplication a second time, and don&#039;t pass around tons of object references in constructors! Needing access to application level objects is a sign that this class should be designed as an <a href="/com/jme3/gde/core/docs/jme3/advanced/application_states.html">AppState</a> (read details there). 
 </p>
 
 <p>
-An AppState has access to all game features in the SimpleApplication via the <code>this.app</code> and <code>this.stateManager</code> objects. 
-</p>
-
-<p>
-Examples:
+An AppState has access to all game features in the SimpleApplication via the <code>this.app</code> and <code>this.stateManager</code> objects. Examples:
 
 </p>
 <pre>Spatial sky = SkyFactory.createSky&#40;this.app.getAssetManager&#40;&#41;, &quot;sky.dds&quot;, false&#41;;
+...
 this.app.getRootNode&#40;&#41;.attachChild&#40; sky &#41;;</pre>
 
 </div>
-<!-- EDIT12 SECTION "The Smart Way to Access Game Features" [9721-10493] -->
+<!-- EDIT12 SECTION "The Smart Way to Access Game Features" [10110-10947] -->
 <h3><a>The Smart Way to Implement Game Logic</a></h3>
 <div>
 
@@ -355,38 +359,38 @@ Read all about <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.ht
 </p>
 
 </div>
-<!-- EDIT13 SECTION "The Smart Way to Implement Game Logic" [10494-13296] -->
+<!-- EDIT13 SECTION "The Smart Way to Implement Game Logic" [10948-13750] -->
 <h3><a>Optimize Application Performance</a></h3>
 <div>
 <ul>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a> – how to avoid wasting cycles</div>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a> – How to avoid wasting cycles</div>
 </li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/multithreading.html">Multithreading</a> – use concurrency, and don&#039;t change the scene graph from outside the update loop.</div>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/multithreading.html">Multithreading</a> – Use concurrency for long-running backgroudn tasks, but don&#039;t manipulate the scene graph from outside the main thread (update loop)!</div>
 </li>
 <li><div> You can add a <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">Java Profiler</a> to the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> via Tools → Plugins → Available. The profiler presents statistics on the lifecycle of methods and objects. Performance problems may be caused by just a few methods that take long, or are called too often (try to cache values to avoid this). If object creation and garbage collection counts keep increasing, you are looking at a memory leak.</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT14 SECTION "Optimize Application Performance" [13297-13969] -->
+<!-- EDIT14 SECTION "Optimize Application Performance" [13751-14474] -->
 <h3><a>Don&#039;t Mess With Geometric State</a></h3>
 <div>
 
 <p>
 
-These tips are especially for users who already know jME2. Automatic handling of the Geometric State has improved in jME3, and it is now a best practice to <em>not</em> mess with it.
+<strong>These tips are especially important for users who already know jME2.</strong> Automatic handling of the Geometric State has improved in jME3, and it is now a best practice to <em>not</em> mess with it.
 </p>
 <ul>
-<li><div> Do not call updateGeometricState() on anything but the root node!</div>
+<li><div> Do not call <code>updateGeometricState()</code> on anything but the root node!</div>
 </li>
-<li><div> Do not override or mess with updateGeometricState() at all.</div>
+<li><div> Do not override or mess with <code>updateGeometricState()</code> at all.</div>
 </li>
-<li><div> Do not use getLocalTranslation().set() to move a spatial, always use setLocalTranslation().</div>
+<li><div> Do not use <code>getLocalTranslation().set()</code> to move a spatial in jME3, always use <code>setLocalTranslation()</code>.</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT15 SECTION "Don't Mess With Geometric State" [13970-14421] -->
+<!-- EDIT15 SECTION "Don't Mess With Geometric State" [14475-14964] -->
 <h3><a>Maintain Internal Documentation</a></h3>
 <div>
 
@@ -397,7 +401,7 @@ It&#039;s unlikely you will fully document <em>every</em> class you write, we he
 <ul>
 <li><div> What is this? How does it solve its task (input, algorithm used, output, side-effects)? </div>
 </li>
-<li><div> Write down limits (e.g. min/max values) and defaults while you still remember.</div>
+<li><div> Write down implicit limits (e.g. min/max values) and defaults while you still remember.</div>
 </li>
 <li><div> In which situation do I want to use this, is this part of a larger process? Is this step required, or what are the alternatives? </div>
 </li>
@@ -409,13 +413,13 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </p>
 
 </div>
-<!-- EDIT16 SECTION "Maintain Internal Documentation" [14422-15149] -->
+<!-- EDIT16 SECTION "Maintain Internal Documentation" [14965-15701] -->
 <h2><a>Debugging and Test Phase</a></h2>
 <div>
 
 <p>
 
-<strong>A <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">Java Debugger</a></strong> is included in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. It allows you to set a break point in your code near the point where an exception happens. Then you step through the execution line by line and watch object and variable states to detect where the bug starts.
+<strong>A <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">Java Debugger</a></strong> is included in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. It allows you to set a break point in your code near the line of code where an exception happens. Then you step through the execution line by line and watch object and variable states live, to detect where the bug starts.
 </p>
 
 <p>
@@ -423,7 +427,7 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </p>
 
 <p>
-<strong>Unit Testing (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/1.4.2/docs/guide/lang/assert.html"><param name="text" value="<html><u>Java Assertions</u></html>"><param name="textColor" value="blue"></object>)</strong> has a different status in 3D graphics development than in other types of software. You cannot write assertions that automatically test whether the rendered image <em>looks</em> correct, or whether interactions are <em>intuitive</em>. Still you should <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">create simple test cases</a> for individual game features such as loaders, content generators, effects. Run the test cases now and then to see whether they still work as intended – or whether they are suffering from side-effects. Keep the test classes in a test directory in the project, don&#039;t include them in the distribution.
+<strong>Unit Testing (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/1.4.2/docs/guide/lang/assert.html"><param name="text" value="<html><u>Java Assertions</u></html>"><param name="textColor" value="blue"></object>)</strong> has a different status in 3D graphics development than in other types of software. You cannot write assertions that automatically test whether the rendered image <em>looks</em> correct, or whether interactions are <em>intuitive</em>. Still you should <a href="/com/jme3/gde/core/docs/sdk/debugging_profiling_testing.html">create simple test cases</a> for individual game features such as loaders, content generators, effects. Run the test cases now and then to see whether they still work as intended – or whether they are suffering from regressions or side-effects. Keep the test classes in the <code>test</code> directory of your project, don&#039;t include them in the distribution.
 </p>
 
 <p>
@@ -431,20 +435,20 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </p>
 
 <p>
-<strong>Alpha and Beta Testing</strong> means that you ask someone to try to install and run your game. It should be a real user situation, where they are left to figure the gameplay out by themselves (you only can include the usual read-me and help docs). Provide the testers with an easy method to report back problems, or why they gave up. Evaluate whether these problems are exceptions or must be fixed for the game to be playable.
+<strong>Alpha and Beta Testing</strong> means that you ask someone to try to install and run your game. It should be a real user situation, where they are left to figure out the installation and gameplay by themselves–you only can include the usual read-me and help docs. Provide the testers with an easy method to report back what problems they encountered, what they liked best, or why they gave up. Evaluate whether reported problems are one-off glitches, or whether they must be fixed for the game to be playable for everyone.
 </p>
 
 </div>
-<!-- EDIT17 SECTION "Debugging and Test Phase" [15150-17635] -->
+<!-- EDIT17 SECTION "Debugging and Test Phase" [15702-18318] -->
 <h2><a>Release Phase</a></h2>
 <div>
 
 </div>
-<!-- EDIT18 SECTION "Release Phase" [17636-17662] -->
+<!-- EDIT18 SECTION "Release Phase" [18319-18345] -->
 <h3><a>Pre-Release To-Do List</a></h3>
 <div>
 <ul>
-<li><div> Prepare a web page, advertise, etc</div>
+<li><div> Prepare a web page, a cool slogan, advertisements, etc</div>
 </li>
 <li><div> Verify that all assets are up-to-date and converted to .j3o. </div>
 </li>
@@ -454,28 +458,28 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </li>
 <li><div> Switch off fine <a href="/com/jme3/gde/core/docs/jme3/advanced/logging.html">logging</a> output.</div>
 </li>
-<li><div> Prepare promotional art: Cool screenshots (in thumbnail, square, vertical, horizontal, and fullscreen formats) and video clips. Include name, contact info, slogan, etc., so future customers can find you.</div>
+<li><div> Prepare promotional art: The most awesome screenshots (in thumbnail, square, vertical, horizontal, and fullscreen formats) and video clips. Include name, contact info, slogan, etc., so future customers can find you.</div>
 </li>
 <li><div> Prepare a readme.txt file, or installation guide, or handbook – if applicable.</div>
 </li>
-<li><div> Get a certificate if it is required for your distribution method (see below).</div>
+<li><div> Get a certificate if one is required for your distribution method (see below).</div>
 </li>
-<li><div> Specify a classification rating.</div>
+<li><div> Specify a <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Video_game_content_rating_system#Comparison"><param name="text" value="<html><u>classification rating</u></html>"><param name="textColor" value="blue"></object> (needed for e.g. app stores).</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT19 SECTION "Pre-Release To-Do List" [17663-18475] -->
+<!-- EDIT19 SECTION "Pre-Release To-Do List" [18346-19297] -->
 <h3><a>Distributing the Executables</a></h3>
 <div>
 
 <p>
 
-The <a href="/com/jme3/gde/core/docs/sdk/application_deployment.html">jMonkeyEngine SDK helps you with deployment</a>: You specify your branding and deployment options in the Project Properties dialog, and then choose Clean and Build from the context menu. If you use another IDE, then consult the IDE&#039;s documentation. 
+The <a href="/com/jme3/gde/core/docs/sdk/application_deployment.html">jMonkeyEngine SDK helps you with deployment</a>: You specify your branding and deployment options in the Project Properties dialog, and then choose Clean and Build from the context menu. <strong>If you use another IDE, consult this IDE&#039;s documentation.</strong>
 </p>
 
 <p>
-Decide whether you want to release your game as WebStart, Desktop JAR, or Applet – Each has its pros and cons.
+Decide whether you want to release your game as WebStart, desktop JAR, mobile APK, or browser Applet – Each has its pros and cons.
 
 </p>
 <div><table>
@@ -503,7 +507,7 @@ Decide whether you want to release your game as WebStart, Desktop JAR, or Applet
 (.APK)</td><td>Game runs on Android devices.</td><td>Android devices do not support post-procesor effects.</td>
 	</tr>
 </table></div>
-<!-- EDIT21 TABLE [18909-20129] -->
+<!-- EDIT21 TABLE [19751-20971] -->
 <p>
 
 Which ever method you choose, a Java-Application works on the main operating systems: Windows, Mac <acronym title="Operating System">OS</acronym>, Linux, Android.
@@ -515,5 +519,5 @@ The distribution appears in a newly generated <code>dist</code> directory inside
 </p>
 
 </div>
-<!-- EDIT20 SECTION "Distributing the Executables" [18476-] -->
+<!-- EDIT20 SECTION "Distributing the Executables" [19298-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:best_practices?do=export_xhtmlbody">view online version</a></em></p>

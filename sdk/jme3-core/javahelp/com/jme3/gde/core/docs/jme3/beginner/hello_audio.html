@@ -10,8 +10,14 @@ Previous: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hel
 This tutorial explains how to add 3D sound to a game, and how make sounds play together with events, such as clicking. You learn how to use an Audio Listener and Audio Nodes. You also make use of an Action Listener and a MouseButtonTrigger from the previous <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_input_system.html">Hello Input</a> tutorial to make a mouse click trigger a gun shot sound.
 </p>
 
+<p>
+<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+</div></p>
+
+</p>
+
 </div>
-<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (11) - Hello Audio" [1-477] -->
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (11) - Hello Audio" [1-680] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -104,7 +110,7 @@ When you run the sample, you should see a blue cube. You should hear a nature-li
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [478-3313] -->
+<!-- EDIT2 SECTION "Sample Code" [681-3516] -->
 <h2><a>Understanding the Code Sample</a></h2>
 <div>
 
@@ -122,7 +128,7 @@ Let&#039;s have a closer look at <code>initAudio()</code> to learn how to use <c
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Understanding the Code Sample" [3314-3923] -->
+<!-- EDIT3 SECTION "Understanding the Code Sample" [3517-4126] -->
 <h2><a>AudioNodes</a></h2>
 <div>
 
@@ -178,7 +184,7 @@ Here you make audio_nature a positional sound that comes from a certain place. F
 </p>
 
 </div>
-<!-- EDIT4 SECTION "AudioNodes" [3924-6585] -->
+<!-- EDIT4 SECTION "AudioNodes" [4127-6788] -->
 <h2><a>Triggering Sound</a></h2>
 <div>
 
@@ -210,7 +216,7 @@ Since you want to be able to shoot fast repeatedly, so you do not want to wait f
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Triggering Sound" [6586-8050] -->
+<!-- EDIT5 SECTION "Triggering Sound" [6789-8253] -->
 <h2><a>Ambient or Situational?</a></h2>
 <div>
 
@@ -239,7 +245,7 @@ Now every sound knows whether it should loop or not.
 </p>
 
 <p>
-Apart from the looping boolean, another difference is where <code>play()</code> (<code>playInstace()</code>) is called on those nodes:
+Apart from the looping boolean, another difference is where <code>play().playInstance()</code> is called on those nodes:
 </p>
 <ul>
 <li><div> You start playing the background nature sound right after you have created it, in the initAudio() method.<pre>    audio_nature.play&#40;&#41;; // play continuously!</pre>
@@ -259,7 +265,7 @@ Apart from the looping boolean, another difference is where <code>play()</code> 
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Ambient or Situational?" [8051-9286] -->
+<!-- EDIT6 SECTION "Ambient or Situational?" [8254-9484] -->
 <h2><a>Buffered or Streaming?</a></h2>
 <div>
 
@@ -282,7 +288,7 @@ Note that streamed sounds can not loop (i.e. setLooping will not work as you exp
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Buffered or Streaming?" [9287-9868] -->
+<!-- EDIT7 SECTION "Buffered or Streaming?" [9485-10066] -->
 <h2><a>Play() or PlayInstance()?</a></h2>
 <div>
 <div><table>
@@ -299,9 +305,9 @@ Note that streamed sounds can not loop (i.e. setLooping will not work as you exp
 		<td>The same sound cannot play twice at the same time.</td><td>The same sounds can play multiple times and overlap.</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [9908-10152] -->
+<!-- EDIT9 TABLE [10106-10350] -->
 </div>
-<!-- EDIT8 SECTION "Play() or PlayInstance()?" [9869-10153] -->
+<!-- EDIT8 SECTION "Play() or PlayInstance()?" [10067-10351] -->
 <h2><a>Your Ear in the Scene</a></h2>
 <div>
 
@@ -323,7 +329,7 @@ If you don&#039;t do that, the results of 3D audio will be quite random.
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Your Ear in the Scene" [10154-10856] -->
+<!-- EDIT10 SECTION "Your Ear in the Scene" [10352-11054] -->
 <h2><a>Global, Directional, Positional?</a></h2>
 <div>
 
@@ -350,7 +356,7 @@ In short, you must choose in every situation whether it makes sense for a sound 
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Global, Directional, Positional?" [10857-12215] -->
+<!-- EDIT11 SECTION "Global, Directional, Positional?" [11055-12413] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -385,5 +391,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT12 SECTION "Conclusion" [12216-] -->
+<!-- EDIT12 SECTION "Conclusion" [12414-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_audio?do=export_xhtmlbody">view online version</a></em></p>

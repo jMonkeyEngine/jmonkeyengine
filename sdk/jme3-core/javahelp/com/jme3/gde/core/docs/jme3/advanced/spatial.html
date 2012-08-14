@@ -22,7 +22,7 @@ If you think you need to understand the scene graph concept better, please read 
 
 <p>
 
-In your Java code, a Spatial is either a <code>com.jme3.scene.Node</code> or a <code>com.jme3.scene.Geometry</code>. You use the two for different purposes:
+In your Java code, a Spatial is either a <code>com.jme3.scene.Node</code> or a <code>com.jme3.scene.Geometry</code> instance. You use the two types of Spatials for different purposes:
 </p>
 
 <p>
@@ -34,7 +34,7 @@ In your Java code, a Spatial is either a <code>com.jme3.scene.Node</code> or a <
 		<td> </td><th>com.jme3.scene.Spatial </th>
 	</tr>
 	<tr>
-		<th> Purpose: </th><td> A Spatial is an abstract data structure that stores transformations (translation, rotation, scale) of elements of the 3D scene graph. Spatials can be saved and loaded using the <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>. </td>
+		<th> Purpose: </th><td> A Spatial is an abstract data structure that stores transformations (= translation, rotation, scale) of elements of the 3D scene graph. Spatials can be saved and loaded using the <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>. </td>
 	</tr>
 	<tr>
 		<td>  </td><th> com.jme3.scene.Geometry </th><th> com.jme3.scene.Node </th>
@@ -44,27 +44,27 @@ In your Java code, a Spatial is either a <code>com.jme3.scene.Node</code> or a <
 	</tr>
 	<tr>
 		<th> Purpose:    </th><td> Use Geometries to represent an object&#039;s <strong>looks</strong>: Every Geometry contains a polygon mesh and a material, specifying its shape, color, texture, and opacity/transparency. <br/>
-You can attach a Geometry to a Node. </td><td> Use Nodes to <strong>structure and group</strong> Geometries and other Nodes. Every Node is attached to one parent node, and each node can have zero or more children attached to itself. <br/>
+You attach Geometries to Nodes. </td><td> Use Nodes to <strong>structure and group</strong> Geometries and other Nodes. Every Node is attached to one parent node, and each node can have zero or more children (Nodes or Geometries) attached to itself. <br/>
 <strong>When you transform (move, rotate, etc) a parent node, all its children are transformed (moved, rotated, etc).</strong> </td>
 	</tr>
 	<tr>
 		<th> Content:    </th><td> Transformations; custom user data; <br/>
-mesh, material;  </td><td> Transformations; custom user data; <br/>
+mesh and material;  </td><td> Transformations; custom user data; <br/>
 no mesh, no material.</td>
 	</tr>
 	<tr>
-		<th> Examples:   </th><td> Box, sphere, player, building, terrain, vehicle, missiles, NPCs, etc… </td><td> rootNode, guiNode, audioNode, a custom vehicleNode or shipNode with passengers attached, etc. </td>
+		<th> Examples:   </th><td> Box, sphere, player, building, terrain, vehicle, missiles, NPCs, etc… </td><td> rootNode, guiNode, audioNode, a custom grouping node such as vehicleNode or shipNode with passengers attached, etc. </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [1151-2451] -->
+<!-- EDIT3 TABLE [1178-2522] -->
 <p>
 
-<p><div>You never create a Spatial with <code><del>Spatial s = new Spatial();</del></code>! A Spatial is an abstract concept, like a mammal (there is no actual creature called &quot;mammal&quot; walking around here). You either create a Node or a Geometry object. Some methods however require a Spatial argument: This is because they are able to accept both Nodes and Geometries as arguments. In this case, you must <em>cast</em> a Node or Geometry to Spatial.
+<p><div>You never create a Spatial with <code><del>Spatial s = new Spatial();</del></code>! A Spatial is an abstract concept, like a mammal (there is no actual creature called &quot;mammal&quot; walking around here). You create either a com.jme3.scene.Node, or a com.jme3.scene.Geometry object. Some methods, however, require a spatial as argument: This is because they are able to accept both Nodes and Geometries as arguments. In this case, you simply <em>cast</em> a Node or Geometry to Spatial.
 </div></p>
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Node versus Geometry" [935-2905] -->
+<!-- EDIT2 SECTION "Node versus Geometry" [935-3014] -->
 <h3><a>Mesh</a></h3>
 <div>
 
@@ -83,7 +83,36 @@ The polygon <a href="/com/jme3/gde/core/docs/jme3/advanced/mesh.html">Mesh</a> i
 </ul>
 
 </div>
-<!-- EDIT4 SECTION "Mesh" [2906-3585] -->
+<!-- EDIT4 SECTION "Mesh" [3015-3694] -->
+<h2><a>What is a Clone?</a></h2>
+<div>
+
+<p>
+
+Cloned spatials share the same mesh, while each cloned spatial can have its own local transformation (translation, rotation, and scale) in the scene. This means you only use <code>clone()</code> on spatials whose meshes never change. The most common use case for cloning is when you use several Spatials that are based on the same <a href="/com/jme3/gde/core/docs/jme3/advanced/shape.html">Shape</a>s. 
+</p>
+
+<p>
+The second use case is: When you load a model using <code>loadModel()</code> from the AssetManager, you may get a <code>clone()</code>ed object. In particular:
+</p>
+<ul>
+<li><div> If the model is not animated (it has no <code><a href="/com/jme3/gde/core/docs/jme3/advanced/animation.html">AnimControl</a></code>), you get a clone. All clones share one mesh object. (Uses less memory)</div>
+</li>
+<li><div> If the model is animated (it has a <code><a href="/com/jme3/gde/core/docs/jme3/advanced/animation.html">AnimControl</a></code>), then <code>loadModel()</code> duplicates the mesh for each loaded instance. (Uses more memory)</div>
+</li>
+</ul>
+
+<p>
+Usually there is no need to manually use any of the <code>clone()</code> methods on models. Using the <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>&#039;s <code>loadModel()</code> method will automatically do the right thing for your models.
+</p>
+
+<p>
+<p><div>&quot;Box worlds&quot; are not made up of statically cloned <code>Box()</code> shapes, this would still be too slow for large worlds. To learn how to make real fast box worlds, search the web for <em>voxelization</em> techniques.
+</div></p>
+</p>
+
+</div>
+<!-- EDIT5 SECTION "What is a Clone?" [3695-4950] -->
 <h2><a>How to Add Fields and Methods to a Spatial</a></h2>
 <div>
 
@@ -93,24 +122,23 @@ You can include custom user data –that is, custom Java objects and methods– 
 </p>
 
 <p>
-<p><div>Neither do you need to ever extend Node to be able to add custom accessor methods to a spatial – use <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> instead. There is no need to create a custom class that extends Node or Geometry to be able to add custom fields – use the provided <code>setUserData()</code> method instead. Where ever the Spatial is accessible, you can easily access the object&#039;s game data and accessors this way.
+<p><div>You want to add custom accessor methods to a spatial? Do not extend <code>Node</code> or <code>Geometry</code>, use <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> instead. You want to add custom fields to a spatial? Do not extend <code>Node</code> or <code>Geometry</code>, use the built-in <code>setUserData()</code> method instead. Where ever the Spatial is accessible, you can easily access the object&#039;s class fields (user data) and accessors (control methods) this way. 
 </div></p>
 </p>
 
 <p>
-The following example adds an integer field named <code>health</code> to the Spatil <code>player_node</code>, and initializes it to 100.
+This first example adds an integer field named <code>health</code> to the Spatial <code>player_node</code>, and initializes it to 100.
 
 </p>
 <pre>player_node.setUserData&#40;&quot;health&quot;, 100&#41;;</pre>
 
 <p>
-To be able to add accessors to the player, you create a <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">custom PlayerControl</a> class and add it to the Spatial. 
-
+The second example adds a set of custom accessor methods to the player object. You create a <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">custom PlayerControl() class</a> and you add this control to the Spatial:
 </p>
-<pre>player_node.addControl&#40;PlayerControl.class&#41;;</pre>
+<pre>player_node.addControl&#40;new PlayerControl&#40;&#41;&#41;;</pre>
 
 <p>
-In PlayerControl you define methods that set and get your users data in the <code>spatial</code> object.  
+In your PlayerControl() class, you define custom methods that set and get your user data in the <code>spatial</code> object. For example, the control could add accessors that set and get the player&#039;s health:
 </p>
 <pre>public int getHealth&#40;&#41; &#123;
   return &#40;Integer&#41;spatial.getUserData&#40;&quot;health&quot;&#41;;
@@ -126,11 +154,11 @@ Elsewhere in your code, you can access this data wherever you have access to the
 ...
 player_node.getControl&#40;PlayerControl.class&#41;.setHealth&#40;99&#41;;</pre>
 <ul>
-<li><div> You can add as many data objects (including Strings, Integers, Floats, Arrays,) to a Spatial as you want. Just make sure to label them with unique Strings (<code>health</code>, <code>inventory</code>, <code>equipment</code>, etc). </div>
+<li><div> You can add as many data objects (of String, Boolean, Integer, Float, Array types) to a Spatial as you want. Just make sure to label them with unique case-sensitive strings (<code>health</code>, <code>Inventory</code>, <code>equipment</code>, etc). </div>
 </li>
-<li><div> The saved data can be custom Java objects if you make the custom Java class <a href="/com/jme3/gde/core/docs/jme3/advanced/save_and_load#custom_savable_class.html">implement the Savable interface</a>. </div>
+<li><div> The saved data can even be a custom Java object if you make the custom Java class <a href="/com/jme3/gde/core/docs/jme3/advanced/save_and_load#custom_savable_class.html">implement the Savable interface</a>! </div>
 </li>
-<li><div> When you save a Spatial as a .j3o file, the custom data is saved, too, and it will be restored the next time you load the .j3o!</div>
+<li><div> When you save a Spatial as a .j3o file, the custom data is saved, too, and all Savables are restored the next time you load the .j3o! </div>
 </li>
 </ul>
 
@@ -143,7 +171,7 @@ This is how you list all data keys that are already defined for one Spatial:
 &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "How to Add Fields and Methods to a Spatial" [3586-5973] -->
+<!-- EDIT6 SECTION "How to Add Fields and Methods to a Spatial" [4951-7527] -->
 <h2><a>How to Access a Named Sub-Mesh</a></h2>
 <div>
 
@@ -168,5 +196,15 @@ In the following example, the Node <code>house</code> is the loaded model. The s
 <pre>Geometry submesh = &#40;Geometry&#41; houseScene.getChild&#40;&quot;door 12&quot;&#41;;</pre>
 
 </div>
-<!-- EDIT6 SECTION "How to Access a Named Sub-Mesh" [5974-] -->
+<!-- EDIT7 SECTION "How to Access a Named Sub-Mesh" [7528-8331] -->
+<h2><a>See also</a></h2>
+<div>
+
+<p>
+
+* <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a> – The GeometryBatchFactory class batches several Geometries into meshes with each their own texture.
+</p>
+
+</div>
+<!-- EDIT8 SECTION "See also" [8332-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:spatial?do=export_xhtmlbody">view online version</a></em></p>

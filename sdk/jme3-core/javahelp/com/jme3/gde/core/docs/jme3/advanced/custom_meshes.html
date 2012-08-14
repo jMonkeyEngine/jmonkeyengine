@@ -284,7 +284,7 @@ In case that your use case requires the backfaces to be visible, you have two op
 </p>
 <ul>
 <li><div> If you have a very simple scene, you can just deactivate backface culling for this one mesh&#039;s material. <br/>
-<code>mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off));</code></div>
+<code>mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off);</code></div>
 </li>
 <li><div> The recommended solution is to specify each triangle twice, the second time with the opposite order of vertices. The second, reversed triangle makes up the backface. <br/>
 <code>int[] indexes = { 2,0,1, 1,3,2, 2,3,1, 1,0,2 }; </code></div>

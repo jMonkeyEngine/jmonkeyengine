@@ -14,7 +14,7 @@ This page is intended as a reference collection of optimization tricks that can 
 
 <p>
 The more Geometry objects are added to the scene, the harder it gets to handle them in a speedy fashion.
-The reason for this is, that for every object a render command must be done, here is a bottleneck between the CPU and the graphics card.
+The reason for this is that a render command must be done for every object, potentially creating a bottleneck between the CPU and the graphics card.
 </p>
 
 <p>
@@ -32,80 +32,65 @@ You can optimize nodes using the SceneComposer in the <acronym title="Software D
 <ul>
 <li><div> Using GeometryBatchFactory merges individual Geometries into a single mesh. Thereby it becomes hard to apply specific Materials or to remove a single Geometry. Therefore it should be used for static Geometry only that does not require frequent changes or individual materials/texturing. </div>
 </li>
-<li><div>Using Texture atlases might be a way to provide a limited individual texturing.</div>
+<li><div> Using a <a href="/com/jme3/gde/core/docs/jme3/advanced/texture_atlas.html">Texture Atlas</a> provides limited individual texturing of batched geometries.</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT2 SECTION "Maintain low Geometry count" [157-1156] -->
+<!-- EDIT2 SECTION "Maintain low Geometry count" [157-1193] -->
 <h2><a>Avoid creating new objects</a></h2>
 <div>
 
 <p>
-When you use math operations like vectorA.mult(vectorB); new objects are created that have to be garbage collected when you don&#039;t use them anymore. Check your math operations for opportunities to use the local version of the math operations, e.g. vectorA.multLocal(vectorB). This way the result is stored in vectorA and no new object needs to be created.
 
+When you use math operations like <code>vectorA.mult(vectorB);</code>, they create new objects for the result. These objects have to be garbage collected when you don&#039;t use them anymore. 
+</p>
+
+<p>
+Check your math operations for opportunities to use the <em>local</em> version of the math operations, e.g. <code>vectorA.multLocal(vectorB)</code>. Local methods store the result in vectorA and do not create a new object. Use local methods if you do not need to keep the previous vectorA.
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Avoid creating new objects" [1157-1550] -->
+<!-- EDIT3 SECTION "Avoid creating new objects" [1194-1690] -->
 <h2><a>Avoid large objects in physics</a></h2>
 <div>
 
 <p>
-To offload much computation to the less CPU intense physics broadphase collision check, avoid having large meshes that cover e.g. the whole map of your level. Instead separate the collision shapes into multiple smaller parts. Obviously this can also be overdone as excessive amounts of physics objects can bring other performance problems.
 
+To offload much computation to the less CPU intense physics broadphase collision check, avoid having large meshes that cover e.g. the whole map of your level. Instead, separate the collision shapes into multiple smaller chunks. Obviously, don&#039;t exaggerate the chunking, because having excessive amounts of physics objects similarly cause performance problems.
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Avoid large objects in physics" [1551-1933] -->
+<!-- EDIT4 SECTION "Avoid large objects in physics" [1691-2095] -->
 <h2><a>Check the Statistics</a></h2>
 <div>
 
 <p>
-SimpleApplication displays a HUD with statistics. Use <code>app.setDisplayStatView(true);</code> to activate it, and false to deactivate it.
-It counts how many FrameBuffers, Textures, or Shaders…
+
+SimpleApplication displays a HUD with statistics. Use <code>app.setDisplayStatView(true);</code> to activate it, and false to deactivate it. 
+The StatsView counts Objects,Uniforms,Triangles,Vertices are in the scene, and it counts how many FrameBuffers, Textures, or Shaders:
 </p>
 <ul>
 <li><div> … were switched in the last frame (S)</div>
 </li>
 <li><div> … were used during the last frame (F)</div>
 </li>
-<li><div> … exist in memory (M)</div>
+<li><div> … exist in OpenGL memory (M)</div>
 </li>
 </ul>
 
 <p>
-Example:
+
+For example, <code>Textures (M)</code> tells you how many textures are currently in OpenGL memory.
 </p>
-<ul>
-<li><div> Textures (M) = how many textures are currently in the OpenGL driver</div>
-</li>
-<li><div> Textures(F) = how many textures were used in the last frame</div>
-</li>
-<li><div> Textures(S) = how many texture switches were done in the last frame.</div>
-</li>
-</ul>
 
 <p>
-Genereally jME3 is well optimized and optimizes these things correctly. The normal state is that the (S/F/M) values should be in the same order of magnitude; (S) values can be lower than (F).
+Generally jME3 is well optimized and optimizes these things correctly. Read <a href="/com/jme3/gde/core/docs/jme3/advanced/statsview.html">statsview</a> to learn the details about how to interpret the statistics, how to tell whether your values are off, or whether they point out a problem.
 </p>
-<ul>
-<li><div> If the (S) values are significantly higher than the (F) values, that means there are a lot of extra switches happening which can cause a performance loss. Switches happen for instance if you have many transparent materials in your scene. In that case this tells you that you should use fewer transparent materials.</div>
-</li>
-<li><div> If the (M) values are much higher than the (F) values, that means a lot more GL objects are in memory than are actually used. This can happen in rare cases, such as extremely large scenes (&gt; 2000 wu) with lots of spatials or lots of different materials. In this case, you should can optimize performance by identifying spatials to cull or detach.</div>
-</li>
-<li><div> The Object Count (Batch Count) is a very important value that indicates how many geometries were rendered in the last frame. In general, try to keep the object count around 100-200 to keep your game fast and responsive. If the count is permanently higher, hand-code rules that detach remote objects, or optimize a complex multi-material scene using: <pre>GeometryBatchFactory.optimize(complexNode, true);</pre>
-</div>
-</li>
-<li><div> Same for Triangle Counts. If your game runs sluggishly and triangle (polygon) count is high, then you are rendering too many too detailed meshes. Tell your graphic designers to create models with lower polygon counts.</div>
-</li>
-<li><div> FrameBuffers: If you don&#039;t use any post-processing effects (FilterPostProcessor), this count should be zero. The more effects you use, the more FrameBuffers are in use. If this value is high while others are normal, you can speed up the application by using fewer post-processing effects.</div>
-</li>
-</ul>
 <div><span>
 	<a href="/wiki/doku.php/tag:performance?do=showtag&amp;tag=tag%3Aperformance">performance</a>
 </span></div>
 
 </div>
-<!-- EDIT5 SECTION "Check the Statistics" [1934-] -->
+<!-- EDIT5 SECTION "Check the Statistics" [2096-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:optimization?do=export_xhtmlbody">view online version</a></em></p>

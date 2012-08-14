@@ -16,8 +16,14 @@ This tutorial shows how to add an animation controller and channels, and how to 
 <img src="nbdocs:/com/jme3/gde/core/docs/jme3/beginner/beginner-animation.png">
 </p>
 
+<p>
+<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+</div></p>
+
+</p>
+
 </div>
-<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (7) - Hello Animation" [1-311] -->
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (7) - Hello Animation" [1-514] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -93,7 +99,7 @@ public class HelloAnimation extends SimpleApplication
 &#125;</pre>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [312-2738] -->
+<!-- EDIT2 SECTION "Sample Code" [515-2941] -->
 <h2><a>Creating and Loading Animated Models</a></h2>
 <div>
 
@@ -122,7 +128,7 @@ Don&#039;t forget to add a light source to make the material visible.
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Creating and Loading Animated Models" [2739-4159] -->
+<!-- EDIT3 SECTION "Creating and Loading Animated Models" [2942-4362] -->
 <h2><a>Animation Controler and Channel</a></h2>
 <div>
 
@@ -151,8 +157,27 @@ After you load the animated model, you register it to the Animation Controller.
     channel.setAnim&#40;&quot;stand&quot;&#41;;
     ...</pre>
 
+<p>
+<p><div>In response to a question about animations on different channels interefering with each other, <strong>Nehon on the jME forum <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/general-2/forum/topic/helloanimation-animations-seem-to-be-clashing/#post-180994"><param name="text" value="<html><u>wrote</u></html>"><param name="textColor" value="blue"></object>,</strong>
+</p>
+
+<p>
+&quot;You have to consider channels as part of the skeleton that are animated. The default behavior is to use the whole skeleton for a channel.
+In your example the first channel plays the walk anim, then the second channel plays the dodge animation.
+Arms and feet are probably not affected by the doge animation so you can see the walk anim for them, but the rest of the body plays the dodge animation.
+</p>
+
+<p>
+Usually multiple channels are used to animate different part of the body. For example you create one channel for the lower part of the body and one for the upper part. This allow you to play a walk animation with the lower part and for example a shoot animation with the upper part. This way your character can walk while shooting.
+</p>
+
+<p>
+In your case, where you want animations to chain for the whole skeleton, you just have to use one channel.&quot;
+</div></p>
+</p>
+
 </div>
-<!-- EDIT4 SECTION "Animation Controler and Channel" [4160-4997] -->
+<!-- EDIT4 SECTION "Animation Controler and Channel" [4363-6301] -->
 <h2><a>Responding to Animation Events</a></h2>
 <div>
 
@@ -177,7 +202,7 @@ Add <code>implements AnimEventListener</code> to the class declaration. This int
   &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "Responding to Animation Events" [4998-5885] -->
+<!-- EDIT5 SECTION "Responding to Animation Events" [6302-7189] -->
 <h2><a>Trigger Animations After User Input</a></h2>
 <div>
 
@@ -233,7 +258,7 @@ Test for each action by name, and set the channel to the corresponding animation
   &#125;;</pre>
 
 </div>
-<!-- EDIT6 SECTION "Trigger Animations After User Input" [5886-7774] -->
+<!-- EDIT6 SECTION "Trigger Animations After User Input" [7190-9078] -->
 <h2><a>Exercises</a></h2>
 <div>
 
@@ -302,7 +327,7 @@ Can you identify individual bones in the skeleton?
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Exercises" [7775-9642] -->
+<!-- EDIT7 SECTION "Exercises" [9079-10946] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -332,5 +357,5 @@ See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
 </span></div>
 
 </div>
-<!-- EDIT8 SECTION "Conclusion" [9643-] -->
+<!-- EDIT8 SECTION "Conclusion" [10947-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_animation?do=export_xhtmlbody">view online version</a></em></p>

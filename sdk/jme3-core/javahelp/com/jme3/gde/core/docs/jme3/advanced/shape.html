@@ -101,18 +101,25 @@ These maths objects are invisible and are used for collision testing (ray castin
 <div>
 
 <p>
+
 To add a shape to the scene:
 </p>
 <ol>
 <li><div> Create the base mesh shape.</div>
 </li>
-<li><div> Wrap it into a Geometry.</div>
+<li><div> Wrap the mesh into a Geometry.</div>
 </li>
 <li><div> Assign a Material to the Geometry.</div>
 </li>
 <li><div> Attach the Geometry to the rootNode to make it visible.</div>
 </li>
 </ol>
+
+<p>
+
+<p><div>Create one static shape as mesh and use it in several geometries, or clone() the geometries.
+</div></p>
+</p>
 
 </div>
 
@@ -141,7 +148,7 @@ The order is important: First arrange around origin, then transform. Otherwise, 
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Usage" [2636-4110] -->
+<!-- EDIT4 SECTION "Usage" [2636-4228] -->
 <h2><a>Code Examples</a></h2>
 <div>
 
@@ -171,5 +178,15 @@ geom.setMaterial&#40;mat&#41;;                         // assign material to geo
 rootNode.attachChild&#40;geom&#41;;                    // attach geometry to a node</pre>
 
 </div>
-<!-- EDIT5 SECTION "Code Examples" [4111-] -->
+<!-- EDIT5 SECTION "Code Examples" [4229-5359] -->
+<h2><a>See also</a></h2>
+<div>
+
+<p>
+
+* <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a> – The GeometryBatchFactory class combines several of your shapes with the same texture into one mesh with one texture.
+</p>
+
+</div>
+<!-- EDIT6 SECTION "See also" [5360-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:shape?do=export_xhtmlbody">view online version</a></em></p>

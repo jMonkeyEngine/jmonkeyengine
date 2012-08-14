@@ -1,19 +1,27 @@
 
-<h1><a>Saving and Loading Games</a></h1>
+<h1><a>Saving and Loading Games (.j3o)</a></h1>
 <div>
 
 <p>
 
-Spatials can contain Nodes, Geometries, and user data (player score, health, inventory, etc). You can save and load individual Nodes or Geometries, as well as whole scenes using <code>com.jme3.export.binary.BinaryExporter</code> and <code>com.jme3.export.binary.BinaryImporter</code>. The jMonkeyEngine&#039;s serialization system is the <code>com.jme3.export.Savable</code> interface; the jMonkeyEngine&#039;s binary file format is called <code>.j3o</code>. You can open, view, and edit .j3o files in the jMonkeyEngine <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a>.
+Spatials (that is Nodes and Geometries) can contain audio and light nodes, particle emitters, controls, and user data (player score, health, inventory, etc). For your game distribution, you must convert all original models to a faster binary format. You save individual Spatials as well as scenes using <code>com.jme3.export.binary.BinaryExporter</code>. 
 </p>
 
 <p>
-<p><div>JME&#039;s BinaryExporter/BinaryImporter can read and write standard Java objects, JME objects, and primitive data types that are included in a <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">spatial&#039;s user data</a>. See below how to make additional custom classes &quot;Savable&quot;.
+The jMonkeyEngine&#039;s binary file format is called <code>.j3o</code>. You can convert, view and edit .j3o files and their materials in the jMonkeyEngine <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> and compose scenes (this does not include editing meshes). For the conversion, you can either use the BinaryExporters, or a context menu in the <acronym title="Software Development Kit">SDK</acronym>.
+</p>
+
+<p>
+<p><div>The jMonkeyEngine&#039;s serialization system is the <code>com.jme3.export.Savable</code> interface. JME3&#039;s BinaryExporter can write standard Java objects, JME3 objects, and primitive data types that are included in a <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">spatial&#039;s user data</a>. If you use custom game data classes, see below how to make them &quot;Savable&quot;.
 </div></p>
 </p>
 
+<p>
+There is also a com.jme3.export.xml.XMLExporter and com.jme3.export.xml.XMLImporter that similarly converts jme3 spatials to an <acronym title="Extensible Markup Language">XML</acronym> format. But you wouldn&#039;t use that to load models at runtime (quite slow).
+</p>
+
 </div>
-<!-- EDIT1 SECTION "Saving and Loading Games" [1-781] -->
+<!-- EDIT1 SECTION "Saving and Loading Games (.j3o)" [1-1239] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <ul>
@@ -22,70 +30,50 @@ Spatials can contain Nodes, Geometries, and user data (player score, health, inv
 </ul>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [782-939] -->
+<!-- EDIT2 SECTION "Sample Code" [1240-1397] -->
 <h2><a>Saving a Node</a></h2>
 <div>
 
 <p>
 
-The following example overrides <code>destroy()</code> to save the rootNode to a file when the user quits the application. The saved rootNode is a normal .j3o binary file that you open in the <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a>.
+The following example overrides <code>stop()</code> in SimpleApplication to save the rootNode to a file when the user quits the application. The saved rootNode is a normal .j3o binary file that you can open in the <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a>.
 </p>
 
 <p>
-<p><div>Note that when you save a model that has textures the textures are references to those textures are stored as absolute paths, so when loading the j3o file they have to be accessible at the exact location (relative to the assetmanager root) they were loaded from. This is why the <acronym title="Software Development Kit">SDK</acronym> manages the conversion on the project level.
+<p><div>Note that when you save a model that has textures, the references to those textures are stored as absolute paths, so when loading the j3o file again, the textures have to be accessible at the exact location (relative to the assetmanager root, by default the <code>assets</code> directory) they were loaded from. This is why the <acronym title="Software Development Kit">SDK</acronym> manages the conversion on the project level.
 </div></p>
 </p>
 <pre>  /* This is called when the user quits the app. */
   @Override
-  public void destroy&#40;&#41; &#123;
+  public void stop&#40;&#41; &#123;
     String userHome = System.getProperty&#40;&quot;user.home&quot;&#41;;
     BinaryExporter exporter = BinaryExporter.getInstance&#40;&#41;;
-    File file = new File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;LastSavedGame.j3o&quot;&#41;;
+    File file = new File&#40;userHome+&quot;/Models/&quot;+&quot;MyModel.j3o&quot;&#41;;
     try &#123;
       exporter.save&#40;rootNode, file&#41;;
     &#125; catch &#40;IOException ex&#41; &#123;
       Logger.getLogger&#40;Main.class.getName&#40;&#41;&#41;.log&#40;Level.SEVERE, &quot;Error: Failed to save game!&quot;, ex&#41;;
     &#125;
-    super.destroy&#40;&#41;; // continue quitting the game
+    super.stop&#40;&#41;; // continue quitting the game
   &#125;</pre>
 
-<p>
-<p><div>You can add a timestamp to your saved files: 
-</p>
-<pre>long timestamp = System.currentTimeMillis&#40;&#41;/1000;
-File file = new File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;/SavedGame-&quot;+timestamp+&quot;.j3o&quot;&#41;;</pre>
-
-<p>
- 
-</div></p>
-</p>
-
 </div>
-<!-- EDIT3 SECTION "Saving a Node" [940-2256] -->
+<!-- EDIT3 SECTION "Saving a Node" [1398-2548] -->
 <h2><a>Loading a Node</a></h2>
 <div>
 
 <p>
 
-The following example uses simpleInitApp() to load the last saved game when the game is initialized.
+The following example overrides <code>simpleInitApp()</code> in SimpleApplication to load <code>Models/MyModel.j3o</code> when the game is initialized.
 </p>
 <pre>  @Override
   public void simpleInitApp&#40;&#41; &#123;
-    String userHome = System.getProperty&#40;&quot;user.home&quot;&#41;;
-    BinaryImporter importer = BinaryImporter.getInstance&#40;&#41;;
-    importer.setAssetManager&#40;assetManager&#41;;
-    File file = new File&#40;userHome+&quot;/MySuperGame/&quot;+&quot;LastSavedGame.j3o&quot;&#41;;
-    if&#40;file.exists&#40;&#41;&#41;&#123;
-      try &#123;
-        Node loadedNode = &#40;Node&#41;importer.load&#40;file&#41;;
-        loadedNode.setName&#40;&quot;loaded node&quot;&#41;;
-        rootNode.attachChild&#40;loadedNode&#41;;
-      &#125; catch &#40;IOException ex&#41; &#123;
-        Logger.getLogger&#40;Main.class.getName&#40;&#41;&#41;.log&#40;Level.SEVERE, &quot;Could not load saved game.&quot;, ex&#41;;
-      &#125;
-    else &#123;
-      // No previous game. Create new game, or let user browse to file, etc...    
-    &#125;
+     String userHome = System.getProperty&#40;&quot;user.home&quot;&#41;;
+     assetManager.registerLocator&#40;userHome, FileLocator.class&#41;;
+     Node loadedNode = &#40;Node&#41;assetManager.loadModel&#40;&quot;Models/MyModel.j3o&quot;&#41;;
+     loadedNode.setName&#40;&quot;loaded node&quot;&#41;;
+     rootNode.attachChild&#40;loadedNode&#41;;
+  &#125;
 &nbsp;</pre>
 
 <p>
@@ -94,13 +82,13 @@ The following example uses simpleInitApp() to load the last saved game when the 
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Loading a Node" [2257-3344] -->
+<!-- EDIT4 SECTION "Loading a Node" [2549-3302] -->
 <h2><a>Custom Savable Class</a></h2>
 <div>
 
 <p>
 
-JME&#039;s BinaryExporter/BinaryImporter can read and write standard Java objects (String, ArrayList, buffers, etc), JME objects (Savables, such as Material), and primitive data types (int, float, etc). If you are using any custom class together with a Spatial, then the custom class must implement the <code>com.jme3.export.Savable</code> interface. There are two common cases where this is relevant:
+JME&#039;s BinaryExporter can write standard Java objects (String, ArrayList, buffers, etc), JME objects (Savables, such as Material), and primitive data types (int, float, etc). If you are using any custom class together with a Spatial, then the custom class must implement the <code>com.jme3.export.Savable</code> interface. There are two common cases where this is relevant:
 
 </p>
 <ul>
@@ -182,7 +170,18 @@ To make a custom class savable:
 <p><div>As with all serialization, remember that if you ever change data types in custom classes, the updated read() methods will no longer be able to read your old files.
 </div></p>
 </p>
+<div><span>
+	<a href="/wiki/doku.php/tag:convert?do=showtag&amp;tag=tag%3Aconvert">convert</a>,
+	<a href="/wiki/doku.php/tag:j3o?do=showtag&amp;tag=tag%3Aj3o">j3o</a>,
+	<a href="/wiki/doku.php/tag:models?do=showtag&amp;tag=tag%3Amodels">models</a>,
+	<a href="/wiki/doku.php/tag:load?do=showtag&amp;tag=tag%3Aload">load</a>,
+	<a href="/wiki/doku.php/tag:save?do=showtag&amp;tag=tag%3Asave">save</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:serialization?do=showtag&amp;tag=tag%3Aserialization">serialization</a>,
+	<a href="/wiki/doku.php/tag:import?do=showtag&amp;tag=tag%3Aimport">import</a>,
+	<a href="/wiki/doku.php/tag:export?do=showtag&amp;tag=tag%3Aexport">export</a>
+</span></div>
 
 </div>
-<!-- EDIT5 SECTION "Custom Savable Class" [3345-] -->
+<!-- EDIT5 SECTION "Custom Savable Class" [3303-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:save_and_load?do=export_xhtmlbody">view online version</a></em></p>

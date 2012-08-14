@@ -39,14 +39,12 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 &nbsp;
@@ -75,7 +73,6 @@ public class HelloPicking extends SimpleApplication &#123;
     shootables.attachChild&#40;makeCube&#40;&quot;the Sheriff&quot;, 0f, 1f, -2f&#41;&#41;;
     shootables.attachChild&#40;makeCube&#40;&quot;the Deputy&quot;, 1f, 0f, -4f&#41;&#41;;
     shootables.attachChild&#40;makeFloor&#40;&#41;&#41;;
-    shootables.attachChild&#40;makeCharacter&#40;&#41;&#41;;
   &#125;
 &nbsp;
   /** Declaring the &quot;Shoot&quot; action and mapping to its triggers. */
@@ -162,19 +159,6 @@ public class HelloPicking extends SimpleApplication &#123;
       settings.getHeight&#40;&#41; / 2 + ch.getLineHeight&#40;&#41; / 2, 0&#41;;
     guiNode.attachChild&#40;ch&#41;;
   &#125;
-&nbsp;
-  protected Spatial makeCharacter&#40;&#41; &#123;
-    // load a character from jme3test-test-data
-    Spatial golem = assetManager.loadModel&#40;&quot;Models/Oto/Oto.mesh.xml&quot;&#41;;
-    golem.scale&#40;0.5f&#41;;
-    golem.setLocalTranslation&#40;-1.0f, -1.5f, -0.6f&#41;;
-&nbsp;
-    // We must add a light to make the model visible
-    DirectionalLight sun = new DirectionalLight&#40;&#41;;
-    sun.setDirection&#40;new Vector3f&#40;-0.1f, -0.7f, -1.0f&#41;&#41;;
-    golem.addLight&#40;sun&#41;;
-    return golem;
-  &#125;
 &#125;</pre>
 
 <p>
@@ -186,7 +170,7 @@ Keep an eye on the application&#039;s output stream, it will give you more detai
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [992-7391] -->
+<!-- EDIT2 SECTION "Sample Code" [992-6844] -->
 <h2><a>Understanding the Helper Methods</a></h2>
 <div>
 
@@ -220,7 +204,7 @@ In this example, we attached all &quot;shootable&quot; objects to one custom nod
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Understanding the Helper Methods" [7392-8432] -->
+<!-- EDIT3 SECTION "Understanding the Helper Methods" [6845-7885] -->
 <h2><a>Understanding Ray Casting for Hit Testing</a></h2>
 <div>
 
@@ -252,12 +236,12 @@ Here is our simple ray casting algorithm for picking objects:
 </ol>
 
 </div>
-<!-- EDIT4 SECTION "Understanding Ray Casting for Hit Testing" [8433-9275] -->
+<!-- EDIT4 SECTION "Understanding Ray Casting for Hit Testing" [7886-8728] -->
 <h2><a>Implementing Hit Testing</a></h2>
 <div>
 
 </div>
-<!-- EDIT5 SECTION "Implementing Hit Testing" [9276-9313] -->
+<!-- EDIT5 SECTION "Implementing Hit Testing" [8729-8766] -->
 <h3><a>Loading the scene</a></h3>
 <div>
 
@@ -285,7 +269,7 @@ First initialize some shootable nodes and attach them to the scene. You will use
   &#125;</pre>
 
 </div>
-<!-- EDIT6 SECTION "Loading the scene" [9314-10000] -->
+<!-- EDIT6 SECTION "Loading the scene" [8767-9453] -->
 <h3><a>Setting Up the Input Listener</a></h3>
 <div>
 
@@ -303,7 +287,7 @@ Next you declare the shooting action. It can be triggered either by clicking, or
   &#125;</pre>
 
 </div>
-<!-- EDIT7 SECTION "Setting Up the Input Listener" [10001-10621] -->
+<!-- EDIT7 SECTION "Setting Up the Input Listener" [9454-10074] -->
 <h3><a>Picking Action Using Crosshairs</a></h3>
 <div>
 
@@ -369,7 +353,7 @@ Note how it prints a lot of output to show you which hits were registered.
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Picking Action Using Crosshairs" [10622-13395] -->
+<!-- EDIT8 SECTION "Picking Action Using Crosshairs" [10075-12848] -->
 <h3><a>Picking Action Using Mouse Pointer</a></h3>
 <div>
 
@@ -410,7 +394,7 @@ Note that since you now use the mouse for picking, you can no longer use it to r
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Picking Action Using Mouse Pointer" [13396-14832] -->
+<!-- EDIT9 SECTION "Picking Action Using Mouse Pointer" [12849-14285] -->
 <h2><a>Exercises</a></h2>
 <div>
 
@@ -421,7 +405,7 @@ Modify the code sample to solve these exercises:
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Exercises" [14833-15004] -->
+<!-- EDIT10 SECTION "Exercises" [14286-14457] -->
 <h3><a>Exercise 1: Magic Spell</a></h3>
 <div>
 
@@ -448,7 +432,7 @@ Here are some tips:
 </ol>
 
 </div>
-<!-- EDIT11 SECTION "Exercise 1: Magic Spell" [15005-15536] -->
+<!-- EDIT11 SECTION "Exercise 1: Magic Spell" [14458-14990] -->
 <h3><a>Exercise 2: Shoot a Character</a></h3>
 <div>
 
@@ -459,10 +443,12 @@ Shooting boxes isn&#039;t very exciting – can you add code that loads and posi
 <ul>
 <li><div> Tip: You can use <code>Spatial golem = assetManager.loadModel(&quot;Models/Oto/Oto.mesh.xml&quot;);</code> from the engine&#039;s jme3-test-data.jar.</div>
 </li>
+<li><div> Tip: Models are shaded! You need some light!</div>
+</li>
 </ul>
 
 </div>
-<!-- EDIT12 SECTION "Exercise 2: Shoot a Character" [15537-15827] -->
+<!-- EDIT12 SECTION "Exercise 2: Shoot a Character" [14991-15329] -->
 <h3><a>Exercise 3: Pick up into Inventory</a></h3>
 <div>
 
@@ -487,8 +473,16 @@ Change the code as follows to simulate the player picking up objects into the in
 </li>
 </ol>
 
+<p>
+
+<p><div>Link to user-proposed solutions: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jm3:solutions"><param name="text" value="<html><u>http://jmonkeyengine.org/wiki/doku.php/jm3:solutions</u></html>"><param name="textColor" value="blue"></object>
+<em>Be sure to try to solve them for yourself first!</em>
+</div></p>
+
+</p>
+
 </div>
-<!-- EDIT13 SECTION "Exercise 3: Pick up into Inventory" [15828-16799] -->
+<!-- EDIT13 SECTION "Exercise 3: Pick up into Inventory" [15330-16463] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -539,5 +533,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT14 SECTION "Conclusion" [16800-] -->
+<!-- EDIT14 SECTION "Conclusion" [16464-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_picking?do=export_xhtmlbody">view online version</a></em></p>

@@ -196,7 +196,7 @@ All non-mesh CollisionShapes can be used for dynamic, kinematic, as well as stat
 <strong>Limitations:</strong> CPU intensive, use sparingly! We recommend using HullCollisionShape (or CompoundShape) instead to improve performance. Collisions between two mesh-accurate shapes cannot be detected, only non-mesh shapes can collide with this shape. </td><td> Complex dynamic objects (like spiders) in Virtual Reality or scientific simulations. </td>
 	</tr>
 	<tr>
-		<td> HeightFieldCollisionShape </td><td> A mesh-accurate shape optimized for static terrains. This shape is much faster than other mesh-accurate shapes. <br/>
+		<td> HeightfieldCollisionShape </td><td> A mesh-accurate shape optimized for static terrains. This shape is much faster than other mesh-accurate shapes. <br/>
 <strong>Limitations:</strong> Requires heightmap data. Collisions between two mesh-accurate shapes cannot be detected, only non-mesh shapes can collide with this shape.</td><td>Static terrains.</td>
 	</tr>
 </table></div>
@@ -380,23 +380,33 @@ myThing_geo.removeFromParent&#40;&#41;;</pre>
 
 <p>
 
-The PhysicsSpace also manages global physics settings. Typically, you can leave the defaults, and you don&#039;t need to change the following settings:
-</p>
-<ul>
-<li><div> Specify physics accuracy.<pre>bulletAppState.getPhysicsSpace&#40;&#41;.setAccuracy&#40;1f/60f;&#41;;</pre>
-</div>
-</li>
-<li><div> Specify global gravity. <pre>bulletAppState.getPhysicsSpace&#40;&#41;.setGravity&#40;new Vector3f&#40;0, -9.81f, 0&#41;&#41;;</pre>
-</div>
-</li>
-<li><div> Specify the size of the physics space as two opposite corners (only applies to AXIS_SWEEP broadphase).<pre>bulletAppState.getPhysicsSpace&#40;&#41;.setWorldMax&#40;new Vector3f&#40;10000f, 10000f, 10000f&#41;&#41;;
-bulletAppState.getPhysicsSpace&#40;&#41;.setWorldMin&#40;new Vector3f&#40;-10000f, -10000f, -10000f&#41;&#41;;</pre>
-</div>
-</li>
-</ul>
+The PhysicsSpace also manages global physics settings. Typically, you can leave the defaults, and you don&#039;t need to change the following settings, but it&#039;s good to know what they are for:
 
+</p>
+<div><table>
+	<tr>
+		<th>bulletAppState.getPhysicsSpace() Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>setGravity(new Vector3f(0, -9.81f, 0));</td><td>Specifies the global gravity.</td>
+	</tr>
+	<tr>
+		<td>setAccuracy(1f/60f);</td><td>Specifies physics accuracy. The higher the accuracy, the slower the game. Increase value if objects are passing through one another, or bounce oddly.</td>
+	</tr>
+	<tr>
+		<td>setMaxSubSteps(4);</td><td>Compensates low FPS: Specifies the maximum amount of extra steps that will be used to step the physics when the game fps is below the physics fps. This maintains determinism in physics in slow (low-fps) games. For example a maximum number of 2 can compensate for framerates as low as 30 fps (physics has a default accuracy of 60 fps). Note that setting this value too high can make the physics drive down its own fps in case its overloaded.</td>
+	</tr>
+	<tr>
+		<td>setWorldMax(new Vector3f(10000f, 10000f, 10000f)); <br/>
+setWorldMin(new Vector3f(-10000f, -10000f, -10000f));</td><td>Specifies the size of the physics space as two opposite corners (only applies to AXIS_SWEEP broadphase).</td>
+	</tr>
+	<tr>
+		<td>setCcdMotionThreshold()</td><td>The amount of motion in 1 physics tick to trigger the continuous motion detection in moving objects that push one another. Rarely used, but necessary if your moving objects get stuck or roll through one another.</td>
+	</tr>
+</table></div>
+<!-- EDIT16 TABLE [13887-15094] -->
 </div>
-<!-- EDIT15 SECTION "PhysicsSpace Code Samples" [13661-14361] -->
+<!-- EDIT15 SECTION "PhysicsSpace Code Samples" [13661-15095] -->
 <h2><a>Specify Physical Properties</a></h2>
 <div>
 
@@ -431,11 +441,12 @@ Soil, concrete, rock: 1.0f </td>
 	</tr>
 	<tr>
 		<td> setRestitution(0.0f) </td><td> Bounciness. By default objects are not bouncy (0.0f). For a bouncy rubber object set this &gt; 0.0f. <br/>
+Both the object and the surface must have non-zero restitution for bouncing to occur. <br/>
 This setting has an impact on performance, so use it sparingly. </td><td> Brick: 0.0f <br/>
 Rubber ball: 1.0f </td>
 	</tr>
 </table></div>
-<!-- EDIT17 TABLE [14586-16007] -->
+<!-- EDIT18 TABLE [15320-16830] -->
 <p>
 
 On a RigidBodyControl, you can apply the following physical forces:
@@ -452,16 +463,13 @@ On a RigidBodyControl, you can apply the following physical forces:
 		<td> setPhysicsRotation()</td><td>Rotates the object. Do not use setLocalRotate() for physical objects.</td>
 	</tr>
 	<tr>
-		<td> setCcdMotionThreshold(0.1f) </td><td> The amount of motion in 1 physics tick to trigger the continuous motion detection. Rarely used, but necessary if you need to fiddle with details. </td>
-	</tr>
-	<tr>
 		<td> setKinematic(true) </td><td> By default, RigidBodyControls are dynamic (kinematic=false) and are affected by forces. If you set kinematic=true, the object is no longer affected by forces, but it still affects others. A kinematic is solid, and must have a mass. <br/>
 (See detailed explanation below.) </td>
 	</tr>
 </table></div>
-<!-- EDIT18 TABLE [16078-16868] -->
+<!-- EDIT19 TABLE [16901-17511] -->
 </div>
-<!-- EDIT16 SECTION "Specify Physical Properties" [14362-16869] -->
+<!-- EDIT17 SECTION "Specify Physical Properties" [15096-17512] -->
 <h3><a>Kinematic vs Dynamic vs Static</a></h3>
 <div>
 
@@ -511,7 +519,7 @@ setKinematic(true);</td><td>setMass(1f); <br/>
 setKinematic(false);</td>
 	</tr>
 </table></div>
-<!-- EDIT20 TABLE [17106-18165] -->
+<!-- EDIT21 TABLE [17749-18808] -->
 </div>
 
 <h4><a>When Do I Use Kinematic Objects?</a></h4>
@@ -534,7 +542,7 @@ setKinematic(false);</td>
 </p>
 
 </div>
-<!-- EDIT19 SECTION "Kinematic vs Dynamic vs Static" [16870-19271] -->
+<!-- EDIT20 SECTION "Kinematic vs Dynamic vs Static" [17513-19914] -->
 <h2><a>Forces: Moving Dynamic Objects</a></h2>
 <div>
 
@@ -572,7 +580,7 @@ Use the following methods to move dynamic physical objects.
 		<td> clearForces()</td><td>Cancels out all forces (force, torque) etc and stops the motion.</td>
 	</tr>
 </table></div>
-<!-- EDIT22 TABLE [19377-20366] -->
+<!-- EDIT23 TABLE [20020-21009] -->
 <p>
 
 <p><div>It is technically possible to position PhysicsControls using setLocalTranslation(), e.g. to place them in their start position in the scene. However you must be very careful not to cause an &quot;impossible state&quot; where one physical object overlaps with another! Within the game, you typically use the setters shown here exclusively.
@@ -606,13 +614,13 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 		<td> setSleepingThreshold(float,float)</td><td>Sets the sleeping thresholds which define when the object gets deactivated to save resources. The first value is the linear threshold and the second the angular. Low values keep the object active when it barely moves (slow precise performance), high values put the object to sleep immediately (imprecise fast performance). (?) </td>
 	</tr>
 	<tr>
-		<td> setCcdMotionThreshold(0f) </td><td>Sets the amount of motion that has to happen in one physics tick to trigger the continuous motion detection. This avoids the problem of fast objects moving through other objects. Set to zero to disable (default).</td>
+		<td> setCcdMotionThreshold(0f) </td><td>Sets the amount of motion that has to happen in one physics tick to trigger the continuous motion detection in movign obejcts that push one another. This avoids the problem of fast objects moving through other objects. Set to zero to disable (default).</td>
 	</tr>
 	<tr>
-		<td> setCcdSweptSphereRadius(.5f)</td><td>Bullet does not use the full collision shape for continuous collision detection, insteadit uses a &quot;swept sphere&quot; shape to approximate a motion. Only relevant for fast moving dynamic bodies. (?) </td>
+		<td> setCcdSweptSphereRadius(.5f)</td><td>Bullet does not use the full collision shape for continuous collision detection, instead it uses a &quot;swept sphere&quot; shape to approximate a motion, which can be imprecise and cause strange behaviours such as objects passign through one another or getting stuck. Only relevant for fast moving dynamic bodies. </td>
 	</tr>
 </table></div>
-<!-- EDIT23 TABLE [20784-22589] -->
+<!-- EDIT24 TABLE [21427-23383] -->
 <p>
 
 <p><div> You can <code>setApplyPhysicsLocal(true)</code> for an object to make it move relatively to its local physics space. You would do that if you need a physics space that moves with a node (e.g. a spaceship with artificial gravity surrounded by zero-g space). By default, it&#039;s set to false, and all movement is relative to the world.
@@ -620,7 +628,7 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 </p>
 
 </div>
-<!-- EDIT21 SECTION "Forces: Moving Dynamic Objects" [19272-22931] -->
+<!-- EDIT22 SECTION "Forces: Moving Dynamic Objects" [19915-23725] -->
 <h2><a>Best Practices</a></h2>
 <div>
 <ul>
@@ -634,9 +642,14 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 </li>
 </ul>
 <ul>
-<li><div> <strong>Buggy?</strong> If you get weird behaviour, such as physical nodes jittering wildy and being ejected &quot;for no apparent reason&quot;, it means you have created an impossible state – solid objects overlapping. This can happen when you position solid spatials too close to other solid spatials, e.g. when moving them with setLocalTranslation(). <br/>
+<li><div> <strong>Eject?</strong> If you have physical nodes jittering wildy and being ejected &quot;for no apparent reason&quot;, it means you have created an impossible state – solid objects overlapping. This can happen when you position solid spatials too close to other solid spatials, e.g. when moving them with setLocalTranslation(). <br/>
 <strong>Solution:</strong> Use the debug mode to make CollisionShapes visible and verify that CollisionShapes do not overlap. <pre>bulletAppState.getPhysicsSpace&#40;&#41;.enableDebug&#40;assetManager&#41;;</pre>
 </div>
+</li>
+</ul>
+<ul>
+<li><div> <strong>Buggy?</strong> If you get weird behaviour, such as physical nodes passing through one another, or getting stuck for no reason. <br/>
+<strong>Solution:</strong> Look at the physics space accessors and change the acuracy and other parameters.</div>
 </li>
 </ul>
 <ul>
@@ -651,7 +664,7 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 </span></div>
 
 </div>
-<!-- EDIT24 SECTION "Best Practices" [22932-] --><div>
+<!-- EDIT25 SECTION "Best Practices" [23726-] --><div>
 <div><sup><a href="#fnt__1">1)</a></sup> 
 Inertia is calculated for kinematic objects, and you need mass to do that.</div>
 </div>

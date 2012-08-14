@@ -19,8 +19,13 @@ One way to create a 3D landscape is to sculpt a huge terrain model. This gives y
 Note: If you get an error when trying to create your ImageBasedHeightMap object, you may need to update the <acronym title="Software Development Kit">SDK</acronym>, click on &quot;Help&quot; / &quot;Check for updates&quot;
 </p>
 
+<p>
+<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+</div></p>
+</p>
+
 </div>
-<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (10) - Hello Terrain" [1-623] -->
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (10) - Hello Terrain" [1-827] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -39,6 +44,8 @@ import com.jme3.texture.Texture.WrapMode;
 import java.util.ArrayList;
 import java.util.List;
 &nbsp;
+<span>/** Sample 10 - How to create fast-rendering terrains from heightmaps,
+and how to use texture splatting to make the terrain look good.  */</span>
 public class HelloTerrain extends SimpleApplication &#123;
 &nbsp;
   private TerrainQuad terrain;
@@ -117,7 +124,7 @@ When you run this sample you should see a landscape with dirt mountains, grass p
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [624-4122] -->
+<!-- EDIT2 SECTION "Sample Code" [828-4465] -->
 <h2><a>What is a Heightmap?</a></h2>
 <div>
 
@@ -171,7 +178,7 @@ In a real game, you will want to use more complex and smoother terrains than the
 </p>
 
 </div>
-<!-- EDIT3 SECTION "What is a Heightmap?" [4123-5921] -->
+<!-- EDIT3 SECTION "What is a Heightmap?" [4466-6264] -->
 <h3><a>Looking at the Heightmap Code</a></h3>
 <div>
 
@@ -226,7 +233,7 @@ It requires an image from a JME Texture.</div>
     heightmap.load&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT4 SECTION "Looking at the Heightmap Code" [5922-7171] -->
+<!-- EDIT4 SECTION "Looking at the Heightmap Code" [6265-7514] -->
 <h2><a>What is Texture Splatting?</a></h2>
 <div>
 
@@ -294,7 +301,7 @@ Now you start painting the texture:
 </p>
 
 </div>
-<!-- EDIT5 SECTION "What is Texture Splatting?" [7172-10054] -->
+<!-- EDIT5 SECTION "What is Texture Splatting?" [7515-10397] -->
 <h3><a>Looking at the Texturing Code</a></h3>
 <div>
 
@@ -350,7 +357,7 @@ Use <code>setWrap(WrapMode.Repeat)</code> to make the small texture fill the wid
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Looking at the Texturing Code" [10055-12193] -->
+<!-- EDIT6 SECTION "Looking at the Texturing Code" [10398-12536] -->
 <h2><a>What is a Terrain?</a></h2>
 <div>
 
@@ -388,7 +395,7 @@ Create a TerrainQuad with the following arguments:
 </ol>
 
 </div>
-<!-- EDIT7 SECTION "What is a Terrain?" [12194-13277] -->
+<!-- EDIT7 SECTION "What is a Terrain?" [12537-13620] -->
 <h3><a>Looking at the Terrain Code</a></h3>
 <div>
 
@@ -423,7 +430,7 @@ You have created the terrain object.
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Looking at the Terrain Code" [13278-14040] -->
+<!-- EDIT8 SECTION "Looking at the Terrain Code" [13621-14383] -->
 <h2><a>What is LOD (Level of Detail)?</a></h2>
 <div>
 
@@ -439,12 +446,12 @@ Close parts of the terrain are rendered in full detail. Terrain parts that are f
 </p>
 
 </div>
-<!-- EDIT9 SECTION "What is LOD (Level of Detail)?" [14041-14633] -->
+<!-- EDIT9 SECTION "What is LOD (Level of Detail)?" [14384-14976] -->
 <h2><a>Exercises</a></h2>
 <div>
 
 </div>
-<!-- EDIT10 SECTION "Exercises" [14634-14656] -->
+<!-- EDIT10 SECTION "Exercises" [14977-14999] -->
 <h3><a>Exercise 1: Texture Layers</a></h3>
 <div>
 
@@ -463,7 +470,7 @@ You see it&#039;s easier to swap layers in the code, than to change the colors i
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Exercise 1: Texture Layers" [14657-14966] -->
+<!-- EDIT11 SECTION "Exercise 1: Texture Layers" [15000-15309] -->
 <h3><a>Exercise 2: Randomized Terrains</a></h3>
 <div>
 
@@ -480,14 +487,15 @@ Instead, you can also let JME3 generate a random landscape for you:
 </p>
 <ol>
 <li><div> What result do you get when you replace the above two heightmap lines by the following lines and run the sample?<pre>HillHeightMap heightmap = null;
+HillHeightMap.NORMALIZE_RANGE = 100; // optional
 try &#123;
-    heightmap = new HillHeightMap&#40;513, 1000, 50, 100, &#40;byte&#41; 3&#41;;
+    heightmap = new HillHeightMap&#40;513, 1000, 50, 100, &#40;byte&#41; 3&#41;; // byte 3 is a random seed
 &#125; catch &#40;Exception ex&#41; &#123;
     ex.printStackTrace&#40;&#41;;
 &#125;</pre>
 </div>
 </li>
-<li><div> Change one parameter at a time, and the run the sample again. Note the differences. Can you find out which of the values has which effect on the generated terrain?</div>
+<li><div> Change one parameter at a time, and the run the sample again. Note the differences. Can you find out which of the values has which effect on the generated terrain (look at the javadoc also)?</div>
 <ul>
 <li><div> Which value controls the size?</div>
 <ul>
@@ -497,15 +505,15 @@ try &#123;
 </li>
 <li><div> Which value controls the number of hills generated?</div>
 </li>
-<li><div> Which values control the minimum and maximum radius of the hills?</div>
+<li><div> Which values control the size and steepness of the hills?</div>
 <ul>
-<li><div> What happens if the minimum is bigger than the maximum?</div>
+<li><div> What happens if the min is bigger than or equal to max? </div>
 </li>
-</ul>
+<li><div> What happens if both min and max are small values (e.g. 10/20)?</div>
 </li>
-<li><div> Which value controls the flattening of the hills?</div>
-<ul>
-<li><div> What happens if this value is 1 ?</div>
+<li><div> What happens if both min and max are large values (e.g. 1000/1500)?</div>
+</li>
+<li><div> What happens if min and max are very close(e.g. 1000/1001, 20/21)? Very far apart (e.g. 10/1000)?</div>
 </li>
 </ul>
 </li>
@@ -514,12 +522,16 @@ try &#123;
 </ol>
 
 <p>
+You see the variety of hilly landscapes that can be generated using this method.
+</p>
 
-<strong>Tip:</strong> For this exercise, you can keep using the splat Material from the sample code above. Just don&#039;t be surprised that the Material does not match the shape of the newly randomized landscape. If you want to generate real matching splat textures for randomized heightmaps, you need to write a custom method that, for example, creates an alphamap from the heightmap by replacing certain grayscales with certain RGB values. 
+<p>
+<p><div>For this exercise, you can keep using the splat Material from the sample code above. Just don&#039;t be surprised that the Material does not match the shape of the newly randomized landscape. If you want to generate real matching splat textures for randomized heightmaps, you need to write a custom method that, for example, creates an alphamap from the heightmap by replacing certain grayscales with certain RGB values.
+</div></p>
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Exercise 2: Randomized Terrains" [14967-16639] -->
+<!-- EDIT12 SECTION "Exercise 2: Randomized Terrains" [15310-17323] -->
 <h3><a>Exercise 3: Solid Terrains</a></h3>
 <div>
 
@@ -529,13 +541,13 @@ Can you combine what you learned here and in <a href="/com/jme3/gde/core/docs/jm
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Exercise 3: Solid Terrains" [16640-16809] -->
+<!-- EDIT13 SECTION "Exercise 3: Solid Terrains" [17324-17493] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
 <p>
 
-You have learned how to create terrains that are more efficient as loading one giant model. You know how to create generate random or handmade heightmaps. You can add a LOD control to render large terrains faster. You are aware that you can combine what you learned about collison detection to make the terrain solid to a physical player. You are also able to texture a terrain &quot;like a boss&quot; using layered Materials and texture splatting. You are aware that the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> provides a TerrainEditor that helps with most of these manual tasks.
+You have learned how to create terrains that are more efficient than loading one giant model. You know how to create generate random or handmade heightmaps. You can add a LOD control to render large terrains faster. You are aware that you can combine what you learned about collison detection to make the terrain solid to a physical player. You are also able to texture a terrain &quot;like a boss&quot; using layered Materials and texture splatting. You are aware that the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> provides a TerrainEditor that helps with most of these manual tasks.
 </p>
 
 <p>
@@ -560,5 +572,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT14 SECTION "Conclusion" [16810-] -->
+<!-- EDIT14 SECTION "Conclusion" [17494-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_terrain?do=export_xhtmlbody">view online version</a></em></p>

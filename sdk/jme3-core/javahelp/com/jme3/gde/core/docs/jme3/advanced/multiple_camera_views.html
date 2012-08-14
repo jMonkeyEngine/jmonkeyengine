@@ -4,7 +4,7 @@
 
 <p>
 
-You can split the screen and look into the 3D scene from different camera angles at the same time. 
+You can split the screen and look into the 3D scene from different camera angles at the same time. E.g. you can have two rootnodes with different scene graphs, and two viewPorts, each of which can only see its own subset of the scene with its own subset of port-processing filters, so you get two very different views of the scene.
 </p>
 
 <p>
@@ -12,13 +12,13 @@ The packages used in this example are <code>com.jme3.renderer.Camera</code> and 
 </p>
 
 </div>
-<!-- EDIT1 SECTION "Multiple Camera Views" [1-418] -->
+<!-- EDIT1 SECTION "Multiple Camera Views" [1-650] -->
 <h2><a>How to resize and Position ViewPorts</a></h2>
 <div>
 
 <p>
 
-The default viewPort is as big as the window. If you have several, the must be of different sizes, either overlapping or adjacent to one another. How do you tell jME which of the ViewPorts should appear where on the screen, and how big it should be?
+The default viewPort is as big as the window. If you have several, they must be of different sizes, either overlapping or adjacent to one another. How do you tell jME which of the ViewPorts should appear where on the screen, and how big they should be?
 </p>
 
 <p>
@@ -74,7 +74,7 @@ Example: Cam2&#039;s rectangle is int he bottom right: It extends from mid (x1=0
 </p>
 
 </div>
-<!-- EDIT2 SECTION "How to resize and Position ViewPorts" [419-2059] -->
+<!-- EDIT2 SECTION "How to resize and Position ViewPorts" [651-2294] -->
 <h2><a>Four-Time Split Screen</a></h2>
 <div>
 
@@ -84,7 +84,7 @@ In this example, you create four views (2x2) with the same aspect ratio as the w
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Four-Time Split Screen" [2060-2228] -->
+<!-- EDIT3 SECTION "Four-Time Split Screen" [2295-2463] -->
 <h3><a>Set up the First View</a></h3>
 <div>
 
@@ -104,7 +104,7 @@ Optionally, place the main camera in the scene and rotate it in its start positi
 cam.setRotation&#40;new Quaternion &#40;-0.07f, 0.92f, -0.25f, -0.27f&#41;&#41;;</pre>
 
 </div>
-<!-- EDIT4 SECTION "Set up the First View" [2229-2725] -->
+<!-- EDIT4 SECTION "Set up the First View" [2464-2960] -->
 <h3><a>Set Up Three More Views</a></h3>
 <div>
 
@@ -169,7 +169,7 @@ cam3.setViewPort&#40; 0.0f , 0.5f  ,  0.5f , 1.0f&#41;;
 cam4.setViewPort&#40; 0.5f , 1.0f  ,  0.5f , 1.0f&#41;;</pre>
 
 </div>
-<!-- EDIT5 SECTION "Set Up Three More Views" [2726-4536] -->
+<!-- EDIT5 SECTION "Set Up Three More Views" [2961-4771] -->
 <h2><a>Picture in Picture</a></h2>
 <div>
 
@@ -199,8 +199,8 @@ viewPort2.setClearFlags&#40;true, true, true&#41;;
 viewPort2.attachScene&#40;rootNode&#41;;</pre>
 
 </div>
-<!-- EDIT6 SECTION "Picture in Picture" [4537-5417] -->
-<h2><a>Settings</a></h2>
+<!-- EDIT6 SECTION "Picture in Picture" [4772-5652] -->
+<h2><a>ViewPort Settings</a></h2>
 <div>
 
 <p>
@@ -229,5 +229,5 @@ You have full control to determine which Nodes the camera can see! It can see th
 </span></div>
 
 </div>
-<!-- EDIT7 SECTION "Settings" [5418-] -->
+<!-- EDIT7 SECTION "ViewPort Settings" [5653-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:multiple_camera_views?do=export_xhtmlbody">view online version</a></em></p>

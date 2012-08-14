@@ -257,8 +257,7 @@ public class TestLoadingScreen extends SimpleApplication implements ScreenContro
             &#125; else if &#40;frameCount == 5&#41; &#123;
                 AbstractHeightMap heightmap = null;
                 Texture heightMapImage = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/mountains512.png&quot;&#41;;
-                heightmap = new ImageBasedHeightMap&#40;
-                        ImageToAwt.convert&#40;heightMapImage.getImage&#40;&#41;, false, true, 0&#41;&#41;;
+                heightmap = new ImageBasedHeightMap&#40;heightMapImage.getImage&#40;&#41;&#41;;
 &nbsp;
                 heightmap.load&#40;&#41;;
                 terrain = new TerrainQuad&#40;&quot;my terrain&quot;, 65, 513, heightmap.getHeightMap&#40;&#41;&#41;;
@@ -479,8 +478,7 @@ public class TestLoadingScreen1 extends SimpleApplication implements ScreenContr
 &nbsp;
             AbstractHeightMap heightmap = null;
             Texture heightMapImage = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/mountains512.png&quot;&#41;;
-            heightmap = new ImageBasedHeightMap&#40;
-                    ImageToAwt.convert&#40;heightMapImage.getImage&#40;&#41;, false, true, 0&#41;&#41;;
+            heightmap = new ImageBasedHeightMap&#40;heightMapImage.getImage&#40;&#41;&#41;;
 &nbsp;
             heightmap.load&#40;&#41;;
             terrain = new TerrainQuad&#40;&quot;my terrain&quot;, 65, 513, heightmap.getHeightMap&#40;&#41;&#41;;

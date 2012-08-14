@@ -284,16 +284,22 @@ Mappings registered to the <strong>AnalogListener</strong> are triggered repeate
 <ol>
 <li><div> JME gives you access to the name of the triggered action.</div>
 </li>
-<li><div> JME gives you access to a gradual value how long the key has been pressed.</div>
+<li><div> JME gives you access to a gradual value showing the strength of that input. In the case of a keypress that will be the tpf value for which it was pressed since the last frame. For other inputs such as a joystick which give analogue control though then the value will also indicate the strength of the input premultiplied by tpf. For an example on this go to <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_input_system/timekeypressed.html">jMonkeyEngine 3 Tutorial (5) - Hello Input System - Variation over time key is pressed</a></div>
 </li>
 </ol>
-</li>
-<li><div> Example: Navigational events (e.g. Left, Right, Rotate, Run, Strafe), situations where you interact continuously. </div>
 </li>
 </ul>
 
 <p>
 
+In order to see the total time that a key has been pressed for then the incoming value can be accumulated. The analogue listener may also need to be combined with an action listener so that you are notified when they key is released.
+</p>
+<ul>
+<li><div> Example: Navigational events (e.g. Left, Right, Rotate, Run, Strafe), situations where you interact continuously. </div>
+</li>
+</ul>
+
+<p>
 Mappings registered to the <strong>ActionListener</strong> are digital either-or actions – &quot;Pressed or released? On or off?&quot;
 </p>
 <ul>
@@ -318,7 +324,7 @@ Mappings registered to the <strong>ActionListener</strong> are digital either-or
       &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "Analog, Pressed, or Released?" [9012-10381] -->
+<!-- EDIT5 SECTION "Analog, Pressed, or Released?" [9012-11037] -->
 <h2><a>Table of Triggers</a></h2>
 <div>
 
@@ -354,14 +360,14 @@ You can find the list of input constants in the files <code>src/core/com/jme3/in
 KeyTrigger(KeyInput.KEY_LEFT), KeyTrigger(KeyInput.KEY_RIGHT) </td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [10614-11210] -->
+<!-- EDIT7 TABLE [11270-11866] -->
 <p>
 
 <strong>Tip:</strong> If you don&#039;t recall an input constant during development, you benefit from an IDE&#039;s code completion functionality: Place the caret after e.g. <code>KeyInput.|</code> and trigger code completion to select possible input identifiers.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Table of Triggers" [10382-11444] -->
+<!-- EDIT6 SECTION "Table of Triggers" [11038-12100] -->
 <h2><a>Exercises</a></h2>
 <div>
 <ol>
@@ -380,8 +386,16 @@ inputManager.addMapping&#40;&quot;Pause&quot;,  new KeyTrigger&#40;usersPauseKey
 </li>
 </ol>
 
+<p>
+
+<p><div>Link to user-proposed solutions: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jm3:solutions"><param name="text" value="<html><u>http://jmonkeyengine.org/wiki/doku.php/jm3:solutions</u></html>"><param name="textColor" value="blue"></object>
+<em>Be sure to try to solve them for yourself first!</em>
+</div></p>
+
+</p>
+
 </div>
-<!-- EDIT8 SECTION "Exercises" [11445-11967] -->
+<!-- EDIT8 SECTION "Exercises" [12101-12785] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -403,5 +417,5 @@ Now you can already write a little interactive game! But wouldn&#039;t it be coo
 </span></div>
 
 </div>
-<!-- EDIT9 SECTION "Conclusion" [11968-] -->
+<!-- EDIT9 SECTION "Conclusion" [12786-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_input_system?do=export_xhtmlbody">view online version</a></em></p>

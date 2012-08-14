@@ -101,8 +101,7 @@ public class HelloTerrainCollision extends SimpleApplication
     AbstractHeightMap heightmap = null;
     Texture heightMapImage = assetManager.loadTexture&#40;
             &quot;Textures/Terrain/splat/mountains512.png&quot;&#41;;
-    heightmap = new ImageBasedHeightMap&#40;
-      ImageToAwt.convert&#40;heightMapImage.getImage&#40;&#41;, false, true, 0&#41;&#41;;
+    heightmap = new ImageBasedHeightMap&#40;heightMapImage.getImage&#40;&#41;&#41;;
     heightmap.load&#40;&#41;;
 &nbsp;
     <span>/** 3. We have prepared material and heightmap. 
@@ -145,7 +144,7 @@ public class HelloTerrainCollision extends SimpleApplication
     player.setJumpSpeed&#40;20&#41;;
     player.setFallSpeed&#40;30&#41;;
     player.setGravity&#40;30&#41;;
-    player.setPhysicsLocation&#40;new Vector3f&#40;0, 10, 0&#41;&#41;;
+    player.setPhysicsLocation&#40;new Vector3f&#40;-10, 10, 10&#41;&#41;;
 &nbsp;
     // We attach the scene and the player to the rootnode and the physics space,
     // to make them appear in the game world.
@@ -214,12 +213,12 @@ Compile and run the code. You should see a terrain. You can use the WASD keys an
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [402-8830] -->
+<!-- EDIT2 SECTION "Sample Code" [402-8791] -->
 <h2><a>Understanding the Code</a></h2>
 <div>
 
 </div>
-<!-- EDIT3 SECTION "Understanding the Code" [8831-8863] -->
+<!-- EDIT3 SECTION "Understanding the Code" [8792-8824] -->
 <h3><a>The Terrain Code</a></h3>
 <div>
 
@@ -237,7 +236,7 @@ Read <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_terrain.html">Hello Te
 </ol>
 
 </div>
-<!-- EDIT4 SECTION "The Terrain Code" [8864-9320] -->
+<!-- EDIT4 SECTION "The Terrain Code" [8825-9281] -->
 <h3><a>The Collision Detection Code</a></h3>
 <div>
 
@@ -261,7 +260,7 @@ Read <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_collision.html">Hello 
 </ol>
 
 </div>
-<!-- EDIT5 SECTION "The Collision Detection Code" [9321-10221] -->
+<!-- EDIT5 SECTION "The Collision Detection Code" [9282-10182] -->
 <h3><a>Combining the Two</a></h3>
 <div>
 
@@ -291,7 +290,7 @@ You attach the <code>terrain</code> and the first-person <code>player</code> to 
     bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;player&#41;;</pre>
 
 </div>
-<!-- EDIT6 SECTION "Combining the Two" [10222-11070] -->
+<!-- EDIT6 SECTION "Combining the Two" [10183-11031] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -321,5 +320,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT7 SECTION "Conclusion" [11071-] -->
+<!-- EDIT7 SECTION "Conclusion" [11032-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:terrain_collision?do=export_xhtmlbody">view online version</a></em></p>

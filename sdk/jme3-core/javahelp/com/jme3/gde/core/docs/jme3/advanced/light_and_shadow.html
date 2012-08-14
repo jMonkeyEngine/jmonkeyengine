@@ -366,7 +366,7 @@ Full sample code
 Ambient Occlusion refers to the shadows that nearby objects cast on each other under an ambient lighting. It‘s an approximation of how light radiates in a real life scene. To activate Ambient Occlusion shadows, add a jME SceneProcessor named <code>com.jme3.post.SSAOFilter</code> to the viewPort. SSAO stands for the Screen Space Ambient Occlusion technique.
 </p>
 <pre>FilterPostProcessor fpp = new FilterPostProcessor&#40;assetManager&#41;;
-SSAOFilter ssaoFilter = new SSAOFilter&#40;12.94f, 43.92f, 0.33f, 0.61&#41;;
+SSAOFilter ssaoFilter = new SSAOFilter&#40;12.94f, 43.92f, 0.33f, 0.61f&#41;;
 fpp.addFilter&#40;ssaoFilter&#41;;
 viewPort.addProcessor&#40;fpp&#41;;</pre>
 

@@ -26,7 +26,7 @@ You want to make the most of your 3D models by specifying good looking material 
 </p>
 
 <p>
-If you want more advanced background info: You can learn more about <a href="/com/jme3/gde/core/docs/jme3/advanced/material_definitions.html">Material Definitions</a> in general here. You can find the full list of Material Parameters in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Material Definitions Properties</a> overview. The following sections introduce you to the most commonly used cases. You typically initialize Material objects in the <code>initSimpleApp()</code> method, and configure them using the setters described here. Then load the Materials using <code>myGeometry.setMaterial(mat)</code>. 
+If you want more advanced background info: You can learn more about <a href="/com/jme3/gde/core/docs/jme3/advanced/material_definitions.html">Material Definitions</a> in general here. You can find the full list of Material Parameters in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Material Definitions Properties</a> overview. The following sections introduce you to the most commonly used cases. You typically initialize Material objects in the <code>simpleInitApp()</code> method, and configure them using the setters described here. Then load the Materials using <code>myGeometry.setMaterial(mat)</code>. 
 </p>
 
 </div>
@@ -230,7 +230,7 @@ viewPort.addProcessor&#40;fpp&#41;;</pre>
 </div>
 </li>
 <li><div> Specify a <code>Glow</code> color. <br/>
-A ColorRGBA value of your choice, e.g. choose a warm or cold color for different effects, or white for a neutral glow.<pre>mat.setColor&#40;&quot;Glow&quot;,ColorRGBA.White&#41;;</pre>
+A ColorRGBA value of your choice, e.g. choose a warm or cold color for different effects, or white for a neutral glow.<pre>mat.setColor&#40;&quot;GlowColor&quot;,ColorRGBA.White&#41;;</pre>
 </div>
 </li>
 <li><div> (Optional) Specify a <code>GlowMap</code> texture. <br/>
@@ -244,7 +244,7 @@ This texture outlines in detail where the DiffuseMap texture glows. If you don&#
 To deactivate glow:
 </p>
 <ul>
-<li><div> Set the <code>Glow</code> color to <code>ColorRGBA.Black</code>.<pre>mat.setFloat&#40;&quot;Glow&quot;, ColorRGBA.Black&#41;;</pre>
+<li><div> Set the <code>Glow</code> color to <code>ColorRGBA.Black</code>.<pre>mat.setColor&#40;&quot;GlowColor&quot;, ColorRGBA.Black&#41;;</pre>
 </div>
 </li>
 </ul>
@@ -255,7 +255,7 @@ Learn more about <a href="/com/jme3/gde/core/docs/jme3/advanced/bloom_and_glow.h
 </p>
 
 </div>
-<!-- EDIT8 SECTION "(Optional) Glow" [7328-8393] -->
+<!-- EDIT8 SECTION "(Optional) Glow" [7328-8403] -->
 <h2><a>(Optional) Transparent</a></h2>
 <div>
 
@@ -293,12 +293,13 @@ To make a Geometry transparent or translucent:
 <li><div> Specify BlendMode Alpha for the Material. <pre>mat.getAdditionalRenderState&#40;&#41;.setBlendMode&#40;BlendMode.Alpha&#41;;</pre>
 </div>
 </li>
-<li><div> Put the Geometry (not the Material!) in the appropriate render queue</div>
+<li><div> Put the Geometry (not the Material!) in the appropriate render queue bucket. <br/>
+Objects in the translucent bucket (e.g. particles) are not affected by SceneProcessors (e.g. shadows). Obejcts in the transparent bucket (e.g. foliage) are affected by SceneProcessors (e.g. shadows).</div>
 <ul>
-<li><div> <pre>geo.setQueueBucket&#40;Bucket.Translucent&#41;;</pre>
+<li><div> <pre>geo.setQueueBucket&#40;Bucket.Translucent&#41;; </pre>
 </div>
 </li>
-<li><div> <pre>geo.setQueueBucket&#40;Bucket.Transparent&#41;;</pre>
+<li><div> <pre>geo.setQueueBucket&#40;Bucket.Transparent&#41;; </pre>
 </div>
 </li>
 </ul>
@@ -325,7 +326,7 @@ getAdditionalRenderState().setAlphaFallOff(0.5f);</td><td>Enables Alpha Testing 
 Deactivate Alpha Testing for gradually <strong>translucent</strong> objects, such as colored glass, smoked glass, ghosts.</td>
 	</tr>
 </table></div>
-<!-- EDIT10 TABLE [9801-11189] -->
+<!-- EDIT10 TABLE [10024-11412] -->
 <p>
 
 <p><div>It is possible to load a DiffuseMap texture that has an Alpha channel, and combine it with an underlying Material Color. 
@@ -338,7 +339,7 @@ Deactivate Alpha Testing for gradually <strong>translucent</strong> objects, suc
 </p>
 
 </div>
-<!-- EDIT9 SECTION "(Optional) Transparent" [8394-11828] -->
+<!-- EDIT9 SECTION "(Optional) Transparent" [8404-12051] -->
 <h2><a>(Optional) Wireframe</a></h2>
 <div>
 
@@ -355,7 +356,7 @@ Additionally to the above settings, you can switch off and on a wireframe render
 		<td>getAdditionalRenderState().setWireframe(true);</td><td>Switch to showing the (textured) Material in wireframe mode. The wireframe optionally uses the Material&#039;s <code>Color</code> value.</td><td>Use wireframes to debug meshes, or for a &quot;matrix&quot; or &quot;holodeck&quot; effect.</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [12043-12328] --><div><span>
+<!-- EDIT12 TABLE [12266-12551] --><div><span>
 	<a href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>,
 	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>,
 	<a href="/wiki/doku.php/tag:effect?do=showtag&amp;tag=tag%3Aeffect">effect</a>,
@@ -365,5 +366,5 @@ Additionally to the above settings, you can switch off and on a wireframe render
 </span></div>
 
 </div>
-<!-- EDIT11 SECTION "(Optional) Wireframe" [11829-] -->
+<!-- EDIT11 SECTION "(Optional) Wireframe" [12052-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:how_to_use_materials?do=export_xhtmlbody">view online version</a></em></p>

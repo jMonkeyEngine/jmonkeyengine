@@ -151,18 +151,20 @@ Only localize messages and UI text!
 Typical problems include:
 </p>
 <ul>
-<li><div> Localized strings will be of vastly different lengths and will totally break your UI layout. ⇒ Test every localization</div>
+<li><div> Localized strings will be of vastly different lengths and will totally break your UI layout. ⇒ Test every localization.</div>
 </li>
-<li><div> Strings with variable text or numbers don&#039;t work the same in different languages. ⇒ Either work in grammatical cases/numbers/gender for each language, or find a work-around.</div>
+<li><div> Strings with variable text or numbers don&#039;t work the same in different languages. ⇒ Either work in grammatical cases/numbers/gender for each language, or use <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gnu.org/software/gettext/manual/gettext.html#Plural-forms"><param name="text" value="<html><u>gettext</u></html>"><param name="textColor" value="blue"></object> or <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://userguide.icu-project.org/formatparse/messages"><param name="text" value="<html><u>ICU4J</u></html>"><param name="textColor" value="blue"></object>.</div>
 </li>
-<li><div> The localizer only sees the strings, without any context. E.g. does &quot;Search History&quot; mean &quot;display the history of searches&quot;, or &quot;search through the history&quot;? ⇒ Use clear key labels and work closely with the localizers if they require extra info.</div>
+<li><div> The localizer only sees the strings, without any context. E.g. does &quot;Search History&quot; mean &quot;display the history of searches&quot;, or &quot;search through the history&quot;? ⇒ Use clear key labels. Work closely with the localizers if they require extra info, and add that info as comments to the translation file.</div>
 </li>
-<li><div> Broken international characters ⇒ Make sure the files are saved with the right character encoding for the language.</div>
+<li><div> Broken international characters ⇒ Make sure the files are saved with the same character encoding as the font file(s) you&#039;re using. Nowadays, that usually means UTF-8 since font files tend to come for Unicode.</div>
+</li>
+<li><div> Missing international characters ⇒ Make sure that there&#039;s a glyph for every needed character in your font, either by using more complete font files or by having the translation changed.</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Common Localization Problems" [3919-4662] -->
+<!-- EDIT6 SECTION "Common Localization Problems" [3919-5131] -->
 <h2><a>More Documentation</a></h2>
 <div>
 
@@ -177,5 +179,5 @@ Typical problems include:
 </p>
 
 </div>
-<!-- EDIT7 SECTION "More Documentation" [4663-] -->
+<!-- EDIT7 SECTION "More Documentation" [5132-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:localization?do=export_xhtmlbody">view online version</a></em></p>
