@@ -32,9 +32,7 @@
 package com.jme3.gde.core.properties;
 
 import com.jme3.animation.AudioTrack;
-import com.jme3.animation.EffectTrack;
 import com.jme3.audio.AudioNode;
-import com.jme3.effect.ParticleEmitter;
 import com.jme3.scene.Spatial;
 import java.beans.PropertyEditor;
 import java.lang.reflect.InvocationTargetException;
@@ -67,7 +65,7 @@ public class AudioTrackProperty extends PropertySupport.ReadWrite<AudioNode> {
     @Override
     public void setValue(final AudioNode val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         AudioNode au = getValue();
-        track.setAudio(au);
+        track.setAudio(val);
         notifyListeners(au, val);
     }
 
