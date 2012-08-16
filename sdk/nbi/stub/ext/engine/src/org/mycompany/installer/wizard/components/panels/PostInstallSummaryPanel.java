@@ -199,6 +199,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
                 }
                 final File executable = l != null ? new File(app.getInstallationLocation(), l.getExecutable()) : null;
 
+                /* normen: remove app start
                 if (executable != null && runAppNow.isSelected()) {
                     LogManager.log("... running: " + executable.getAbsolutePath());
                     ProcessBuilder pb = new ProcessBuilder(new String[]{executable.getAbsolutePath()});
@@ -209,6 +210,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
                     }
 
                 }
+                */
             }
             super.evaluateNextButtonClick();
         }
@@ -276,6 +278,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
             final List<Product> products = new LinkedList<Product>();
             products.addAll(successfulInstall);
             products.addAll(warningInstall);
+            /* normen: remove app start
             runAppNow.setSelected(false);
             if (!products.isEmpty()) {
                 runAppNow.setText(StringUtils.format(DEFAULT_MESSAGE_LAUNCH_APPLICATION_NOW,
@@ -285,6 +288,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
             } else {                
                 runAppNow.setVisible(false);
             }
+            */
 
 
         }
@@ -301,7 +305,8 @@ public class PostInstallSummaryPanel extends WizardPanel {
 
             messagePaneFinish = new NbiTextPane();
 
-            runAppNow = new NbiCheckBox();
+            //normen: remove checkbox to start
+            //runAppNow = new NbiCheckBox();
 
 
             // this /////////////////////////////////////////////////////////////////
@@ -340,6 +345,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
                     new Insets(0, 11, 0, 11), // padding
                     0, 0));                           // padx, pady - ???
             */
+            /* normen: remove app start
             add(runAppNow, new GridBagConstraints(
                     0, 4, // x, y
                     1, 1, // width, height
@@ -348,7 +354,7 @@ public class PostInstallSummaryPanel extends WizardPanel {
                     GridBagConstraints.HORIZONTAL, // fill
                     new Insets(11, 11, 0, 11), // padding
                     0, 0));                           // padx, pady - ???
-
+            */
 
 
             if (container instanceof SwingFrameContainer) {
