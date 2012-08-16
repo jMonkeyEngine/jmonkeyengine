@@ -115,7 +115,7 @@ public class NewtonianParticleInfluencer extends DefaultParticleInfluencer {
     public ParticleInfluencer clone() {
         NewtonianParticleInfluencer result = new NewtonianParticleInfluencer();
         result.normalVelocity = normalVelocity;
-        result.startVelocity = startVelocity;
+        result.initialVelocity = initialVelocity;
         result.velocityVariation = velocityVariation;
         result.surfaceTangentFactor = surfaceTangentFactor;
         result.surfaceTangentRotation = surfaceTangentRotation;

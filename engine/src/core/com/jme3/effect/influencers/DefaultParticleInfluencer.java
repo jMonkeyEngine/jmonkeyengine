@@ -18,10 +18,13 @@ import java.io.IOException;
  */
 public class DefaultParticleInfluencer implements ParticleInfluencer {
 
+    //Version #1 : changed startVelocity to initialvelocity for consistency with accessors 
+    //and also changed it in serialization
+    public static final int SAVABLE_VERSION = 1;
     /** Temporary variable used to help with calculations. */
     protected transient Vector3f temp = new Vector3f();
     /** The initial velocity of the particles. */
-    protected Vector3f startVelocity = new Vector3f();
+    protected Vector3f initialVelocity = new Vector3f();
     /** The velocity's variation of the particles. */
     protected float velocityVariation = 0.2f;
 
@@ -37,25 +40,30 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
      *        the particle to be affected
      */
     protected void applyVelocityVariation(Particle particle) {
-    	particle.velocity.set(startVelocity);
+    	particle.velocity.set(initialVelocity);
         temp.set(FastMath.nextRandomFloat(), FastMath.nextRandomFloat(), FastMath.nextRandomFloat());
         temp.multLocal(2f);
         temp.subtractLocal(1f, 1f, 1f);
-        temp.multLocal(startVelocity.length());
+        temp.multLocal(initialVelocity.length());
         particle.velocity.interpolate(temp, velocityVariation);
     }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(startVelocity, "startVelocity", Vector3f.ZERO);
+        oc.write(initialVelocity, "initialVelocity", Vector3f.ZERO);
         oc.write(velocityVariation, "variation", 0.2f);
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
-        startVelocity = (Vector3f) ic.readSavable("startVelocity", Vector3f.ZERO.clone());
+        // NOTE: In previous versions of jME3, initialVelocity was called startVelocity
+        if (ic.getSavableVersion(DefaultParticleInfluencer.class) == 0){
+            initialVelocity = (Vector3f) ic.readSavable("startVelocity", Vector3f.ZERO.clone());
+        }else{
+            initialVelocity = (Vector3f) ic.readSavable("initialVelocity", Vector3f.ZERO.clone());
+        }       
         velocityVariation = ic.readFloat("variation", 0.2f);
     }
 
@@ -63,7 +71,7 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
     public ParticleInfluencer clone() {
         try {
             DefaultParticleInfluencer clone = (DefaultParticleInfluencer) super.clone();
-            clone.startVelocity = startVelocity.clone();
+            clone.initialVelocity = initialVelocity.clone();
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
@@ -72,12 +80,12 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
 
     @Override
     public void setInitialVelocity(Vector3f initialVelocity) {
-        this.startVelocity.set(initialVelocity);
+        this.initialVelocity.set(initialVelocity);
     }
 
     @Override
     public Vector3f getInitialVelocity() {
-        return startVelocity;
+        return initialVelocity;
     }
 
     @Override
