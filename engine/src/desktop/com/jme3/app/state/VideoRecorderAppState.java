@@ -50,7 +50,7 @@ public class VideoRecorderAppState extends AbstractAppState {
 
     /**
      * Using this constructor the video files will be written sequentially to the user's home directory with
-     * a quality of 0.8
+     * a quality of 0.8 and a framerate of 30fps.
      */
     public VideoRecorderAppState() {
         this(null, 0.8f);
@@ -65,8 +65,17 @@ public class VideoRecorderAppState extends AbstractAppState {
     }
 
     /**
+     * Using this constructor the video files will be written sequentially to the user's home directory.
+     * @param quality the quality of the jpegs in the video stream (0.0 smallest file - 1.0 largest file)
+     * @param framerate the frame rate of the resulting video, the application will be locked to this framerate
+     */
+    public VideoRecorderAppState(float quality, int framerate) {
+        this(null, quality, framerate);
+    }
+    
+    /**
      * This constructor allows you to specify the output file of the video. The quality is set
-     * to 0.8
+     * to 0.8 and framerate to 30 fps.
      * @param file the video file
      */
     public VideoRecorderAppState(File file) {
@@ -77,10 +86,23 @@ public class VideoRecorderAppState extends AbstractAppState {
      * This constructor allows you to specify the output file of the video as well as the quality
      * @param file the video file
      * @param quality the quality of the jpegs in the video stream (0.0 smallest file - 1.0 largest file)
+     * @param framerate the frame rate of the resulting video, the application will be locked to this framerate
      */
     public VideoRecorderAppState(File file, float quality) {
         this.file = file;
         this.quality = quality;
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "JME3 VideoRecorder running on {0} CPU's", numCpus);
+    }
+
+    /**
+     * This constructor allows you to specify the output file of the video as well as the quality
+     * @param file the video file
+     * @param quality the quality of the jpegs in the video stream (0.0 smallest file - 1.0 largest file)
+     */
+    public VideoRecorderAppState(File file, float quality, int framerate) {
+        this.file = file;
+        this.quality = quality;
+        this.framerate = framerate;
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "JME3 VideoRecorder running on {0} CPU's", numCpus);
     }
 
