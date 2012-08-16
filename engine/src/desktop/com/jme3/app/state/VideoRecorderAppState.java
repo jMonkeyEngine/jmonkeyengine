@@ -7,7 +7,6 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.system.NanoTimer;
 import com.jme3.system.Timer;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.util.BufferUtils;
