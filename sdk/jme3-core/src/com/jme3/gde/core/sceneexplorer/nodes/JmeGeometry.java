@@ -145,10 +145,8 @@ public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
 
     @Override
     public void propertyChange(String name, final Object before, final Object after) {
-        super.propertyChange(name, before, after);
-          System.out.println(name);
-        if (name.equals("Material")) {
-            System.out.println(before.toString()+" "+after.toString());
+        super.propertyChange(name, before, after);        
+        if (name.equals("Material")) {           
             java.awt.EventQueue.invokeLater(new Runnable() {
 
                 public void run() {
