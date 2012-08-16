@@ -150,6 +150,19 @@ public class ViewPort {
         processors.remove(processor);
         processor.cleanup();
     }
+    
+    /**
+     * Removes all {@link SceneProcessor scene processors} from this
+     * ViewPort. 
+     * 
+     * @see SceneProcessor
+     */
+    public void clearProcessors() {
+        for (SceneProcessor proc : processors) {
+            proc.cleanup();
+        }
+        processors.clear();
+    }
 
     /**
      * Check if depth buffer clearing is enabled.

@@ -167,7 +167,7 @@ public class JmeSystem {
                     if (systemDelegate == null) {
                         // None of the system delegates were found ..
                         Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE,
-                                "Failed to find a JmeSystem delegate!"
+                                "Failed to find a JmeSystem delegate!\n"
                                 + "Ensure either desktop or android jME3 jar is in the classpath.");
                     }
                 }
