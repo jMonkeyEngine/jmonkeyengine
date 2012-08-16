@@ -8,6 +8,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.system.NanoTimer;
+import com.jme3.system.Timer;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.Screenshots;
@@ -47,6 +48,7 @@ public class VideoRecorderAppState extends AbstractAppState {
     private int numCpus = Runtime.getRuntime().availableProcessors();
     private ViewPort lastViewPort;
     private float quality;
+    private Timer oldTimer;
 
     /**
      * Using this constructor the video files will be written sequentially to the user's home directory with
@@ -137,6 +139,7 @@ public class VideoRecorderAppState extends AbstractAppState {
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
         this.app = app;
+        this.oldTimer = app.getTimer();
         app.setTimer(new IsoTimer(framerate));
         if (file == null) {
             String filename = System.getProperty("user.home") + File.separator + "jMonkey-" + System.currentTimeMillis() / 1000 + ".avi";
@@ -157,7 +160,7 @@ public class VideoRecorderAppState extends AbstractAppState {
     @Override
     public void cleanup() {
         lastViewPort.removeProcessor(processor);
-        app.setTimer(new NanoTimer());
+        app.setTimer(oldTimer);
         initialized = false;
         file = null;
         super.cleanup();
