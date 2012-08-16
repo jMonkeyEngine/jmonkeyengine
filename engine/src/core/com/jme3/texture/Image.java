@@ -100,7 +100,10 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          */
         Luminance16FAlpha16F(32,true),
 
+        @Deprecated
         Intensity8(8),
+        
+        @Deprecated
         Intensity16(16),
 
         /**
@@ -113,9 +116,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          */
         RGB8(24),
         
-        /**
-         * 10-bit red, green, and blue.
-         */
+        @Deprecated
         RGB10(30),
         
         /**

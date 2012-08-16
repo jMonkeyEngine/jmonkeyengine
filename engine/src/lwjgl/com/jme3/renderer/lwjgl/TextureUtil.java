@@ -64,24 +64,24 @@ class TextureUtil {
     static {
         // Alpha formats
         setFormat(Format.Alpha8,  GL11.GL_ALPHA8,  GL11.GL_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Alpha16, GL11.GL_ALPHA16, GL11.GL_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Alpha16, GL11.GL_ALPHA16, GL11.GL_ALPHA, GL11.GL_UNSIGNED_SHORT, false);
         
         // Luminance formats
         setFormat(Format.Luminance8,   GL11.GL_LUMINANCE8,  GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Luminance16,  GL11.GL_LUMINANCE16, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Luminance16F, ARBTextureFloat.GL_LUMINANCE16F_ARB, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Luminance32F, ARBTextureFloat.GL_LUMINANCE32F_ARB, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Luminance16,  GL11.GL_LUMINANCE16, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_SHORT, false);
+        setFormat(Format.Luminance16F, ARBTextureFloat.GL_LUMINANCE16F_ARB, GL11.GL_LUMINANCE, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
+        setFormat(Format.Luminance32F, ARBTextureFloat.GL_LUMINANCE32F_ARB, GL11.GL_LUMINANCE, GL11.GL_FLOAT, false);
         
         // Luminance alpha formats
         setFormat(Format.Luminance8Alpha8, GL11.GL_LUMINANCE8_ALPHA8,  GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Luminance16Alpha16, GL11.GL_LUMINANCE16_ALPHA16, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Luminance16FAlpha16F, ARBTextureFloat.GL_LUMINANCE_ALPHA16F_ARB, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Luminance16Alpha16, GL11.GL_LUMINANCE16_ALPHA16, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_SHORT, false);
+        setFormat(Format.Luminance16FAlpha16F, ARBTextureFloat.GL_LUMINANCE_ALPHA16F_ARB, GL11.GL_LUMINANCE_ALPHA, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
         
         // Depth formats
         setFormat(Format.Depth,    GL11.GL_DEPTH_COMPONENT,    GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Depth16,  GL14.GL_DEPTH_COMPONENT16,  GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Depth24,  GL14.GL_DEPTH_COMPONENT24,  GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Depth32,  GL14.GL_DEPTH_COMPONENT32,  GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.Depth16,  GL14.GL_DEPTH_COMPONENT16,  GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_SHORT, false);
+        setFormat(Format.Depth24,  GL14.GL_DEPTH_COMPONENT24,  GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_INT, false);
+        setFormat(Format.Depth32,  GL14.GL_DEPTH_COMPONENT32,  GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_INT, false);
         setFormat(Format.Depth32F, GL30.GL_DEPTH_COMPONENT32F, GL11.GL_DEPTH_COMPONENT, GL11.GL_FLOAT,         false);
         
         // Depth stencil formats
@@ -90,8 +90,8 @@ class TextureUtil {
         // RGB formats
         setFormat(Format.BGR8,       GL11.GL_RGB8,  EXTBgra.GL_BGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
         setFormat(Format.RGB8,       GL11.GL_RGB8,  GL11.GL_RGB,        GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.RGB10,      GL11.GL_RGB10, GL11.GL_RGB,        GL12.GL_UNSIGNED_INT_10_10_10_2, false); 
-        setFormat(Format.RGB16,      GL11.GL_RGB16, GL11.GL_RGB,        GL11.GL_UNSIGNED_BYTE, false); // might be incorrect
+//        setFormat(Format.RGB10,      GL11.GL_RGB10, GL11.GL_RGB,        GL12.GL_UNSIGNED_INT_10_10_10_2, false); 
+        setFormat(Format.RGB16,      GL11.GL_RGB16, GL11.GL_RGB,        GL11.GL_UNSIGNED_SHORT, false); 
         setFormat(Format.RGB16F,     ARBTextureFloat.GL_RGB16F_ARB, GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
         setFormat(Format.RGB32F,     ARBTextureFloat.GL_RGB32F_ARB, GL11.GL_RGB, GL11.GL_FLOAT, false);
         
@@ -99,13 +99,14 @@ class TextureUtil {
         setFormat(Format.RGB111110F, EXTPackedFloat.GL_R11F_G11F_B10F_EXT,    GL11.GL_RGB, EXTPackedFloat.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT, false);
         setFormat(Format.RGB9E5,     EXTTextureSharedExponent.GL_RGB9_E5_EXT, GL11.GL_RGB, EXTTextureSharedExponent.GL_UNSIGNED_INT_5_9_9_9_REV_EXT, false);
         setFormat(Format.RGB16F_to_RGB111110F, EXTPackedFloat.GL_R11F_G11F_B10F_EXT,    GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
-        setFormat(Format.RGB16F_to_RGB111110F, EXTTextureSharedExponent.GL_RGB9_E5_EXT, GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
+        setFormat(Format.RGB16F_to_RGB9E5, EXTTextureSharedExponent.GL_RGB9_E5_EXT, GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
         
         // RGBA formats
         setFormat(Format.ABGR8,   GL11.GL_RGBA8,       EXTAbgr.GL_ABGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.RGB5A1,  GL11.GL_RGB5_A1,     GL11.GL_RGBA,        GL12.GL_UNSIGNED_SHORT_5_5_5_1, false);
+        setFormat(Format.RGB5A1,    GL11.GL_RGB5_A1,   GL11.GL_RGBA,        GL12.GL_UNSIGNED_SHORT_5_5_5_1, false);
+        setFormat(Format.ARGB4444,  GL11.GL_RGBA4,     EXTAbgr.GL_ABGR_EXT, GL12.GL_UNSIGNED_SHORT_4_4_4_4, false);
         setFormat(Format.RGBA8,   GL11.GL_RGBA8,       GL11.GL_RGBA,        GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.RGBA16,  GL11.GL_RGBA16,      GL11.GL_RGBA,        GL11.GL_UNSIGNED_BYTE, false); // might be incorrect
+        setFormat(Format.RGBA16,  GL11.GL_RGBA16,      GL11.GL_RGBA,        GL11.GL_UNSIGNED_SHORT, false); // might be incorrect
         setFormat(Format.RGBA16F, ARBTextureFloat.GL_RGBA16F_ARB, GL11.GL_RGBA, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
         setFormat(Format.RGBA32F, ARBTextureFloat.GL_RGBA32F_ARB, GL11.GL_RGBA, GL11.GL_FLOAT, false);
         
