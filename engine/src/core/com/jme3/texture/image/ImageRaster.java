@@ -26,9 +26,9 @@ import java.nio.ByteBuffer;
  * Usage example:<br>
  * <code>
  * Image myImage = ...
- * ImageReadWrite imageRW = new ImageReadWrite(myImage);
- * imageRW.setPixel(1, 5, ColorRGBA.Green);
- * System.out.println( imageRW.getPixel(1, 5) ); // Will print [0.0, 1.0, 0.0, 1.0].
+ * ImageRaster raster = new ImageRaster(myImage);
+ * raster.setPixel(1, 5, ColorRGBA.Green);
+ * System.out.println( raster.getPixel(1, 5) ); // Will print [0.0, 1.0, 0.0, 1.0].
  * </code>
  * 
  * @author Kirill Vainer
