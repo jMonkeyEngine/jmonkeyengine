@@ -34,11 +34,17 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
+import com.jme3.effect.influencers.DefaultParticleInfluencer;
 import com.jme3.effect.influencers.ParticleInfluencer;
+import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.properties.ParticleInfluencerProperty;
+import com.jme3.gde.core.util.PropertyUtils;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import java.awt.Image;
+import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
@@ -74,11 +80,12 @@ public class JmeParticleEmitter extends JmeGeometry {
     public Image getOpenedIcon(int type) {
         return smallImage;
     }
+    Sheet sheet;
 
     @Override
     protected Sheet createSheet() {
         //TODO: multithreading..
-        Sheet sheet = super.createSheet();
+        sheet = super.createSheet();
         Sheet.Set set = Sheet.createPropertiesSet();
         set.setDisplayName("ParticleEmitter");
         set.setName(ParticleEmitter.class.getName());
@@ -101,8 +108,6 @@ public class JmeParticleEmitter extends JmeGeometry {
         set.put(makeProperty(obj, float.class, "getHighLife", "setHighLife", "High Life"));
         set.put(makeProperty(obj, float.class, "getLowLife", "setLowLife", "Low Life"));
         set.put(makeProperty(obj, Vector3f.class, "getGravity", "setGravity", "Gravity"));
-        set.put(makeEmbedProperty(obj.getParticleInfluencer(), ParticleInfluencer.class, Vector3f.class, "getInitialVelocity", "setInitialVelocity", "Initial Velocity"));
-        set.put(makeEmbedProperty(obj.getParticleInfluencer(), ParticleInfluencer.class, float.class, "getVelocityVariation", "setVelocityVariation", "Velocity Variation"));
         set.put(makeProperty(obj, Vector3f.class, "getFaceNormal", "setFaceNormal", "Face Normal"));
         set.put(makeProperty(obj, boolean.class, "isFacingVelocity", "setFacingVelocity", "Facing Velocity"));
         set.put(makeProperty(obj, boolean.class, "isRandomAngle", "setRandomAngle", "Random Angle"));
@@ -112,9 +117,40 @@ public class JmeParticleEmitter extends JmeGeometry {
         set.put(makeProperty(obj, int.class, "getImagesX", "setImagesX", "Images X"));
         set.put(makeProperty(obj, int.class, "getImagesY", "setImagesY", "Images Y"));
         sheet.put(set);
+        set2 = Sheet.createPropertiesSet();
+        createParticleInfluencerSet(sheet, obj);
 
         return sheet;
 
+    }
+    Sheet.Set set2;
+
+    private void createParticleInfluencerSet(Sheet sheet, ParticleEmitter obj) {
+        for (Property<?> property : set2.getProperties()) {
+            set2.remove(property.getName());
+        }
+
+        set2.setDisplayName("Particle Influencer" + " - " + obj.getParticleInfluencer().getClass().getSimpleName());
+        set2.setName(obj.getParticleInfluencer().getClass().getName());
+        ParticleInfluencerProperty prop = new ParticleInfluencerProperty(obj, this.getLookup().lookup(ProjectAssetManager.class).getProject());
+        prop.addPropertyChangeListener(this);
+        set2.put(prop);
+
+        if (obj.getParticleInfluencer().getClass().getSuperclass() == DefaultParticleInfluencer.class) {
+            createEmbedFields(DefaultParticleInfluencer.class, set2, obj.getParticleInfluencer());
+        }
+
+        createEmbedFields(obj.getParticleInfluencer().getClass(), set2, obj.getParticleInfluencer());
+        sheet.put(set2);
+    }
+
+    protected void createEmbedFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
+        for (Field field : c.getDeclaredFields()) {
+            PropertyDescriptor prop = PropertyUtils.getPropertyDescriptor(c, field);
+            if (prop != null) {
+                set.put(makeEmbedProperty(obj, obj.getClass(), prop.getPropertyType(), prop.getReadMethod().getName(), prop.getWriteMethod().getName(), prop.getDisplayName()));
+            }
+        }
     }
 
     @Override
@@ -123,6 +159,10 @@ public class JmeParticleEmitter extends JmeGeometry {
         if (!name.equals("Emit all particles")) {
             fireSave(true);
             firePropertyChange(name, before, after);
+        }
+        if (name.equals("ParticleInfluencer")) {
+            geom.setParticleInfluencer((ParticleInfluencer) after);
+            createParticleInfluencerSet(sheet, geom);
         }
 
     }

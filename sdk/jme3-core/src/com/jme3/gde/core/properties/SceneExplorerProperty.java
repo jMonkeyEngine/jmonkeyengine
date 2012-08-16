@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.properties;
 
+import com.jme3.effect.influencers.ParticleInfluencer;
 import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
@@ -79,6 +80,8 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
             setPropertyEditorClass(EmitterShapePropertyEditor.class);
         } else if (valueType == Vector2f.class) {
             setPropertyEditorClass(Vector2fPropertyEditor.class);
+        } else if (valueType == ParticleInfluencer.class) {
+            setPropertyEditorClass(ParticleInfluencerPropertyEditor.class);
         }
 
         for (SceneExplorerPropertyEditor di : Lookup.getDefault().lookupAll(SceneExplorerPropertyEditor.class)) {
