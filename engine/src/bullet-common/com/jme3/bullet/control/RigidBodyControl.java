@@ -91,16 +91,9 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
     }
 
     public void setSpatial(Spatial spatial) {
-        if (getUserObject() == null || getUserObject() == this.spatial) {
-            setUserObject(spatial);
-        }
         this.spatial = spatial;
+        setUserObject(spatial);
         if (spatial == null) {
-            if (getUserObject() == spatial) {
-                setUserObject(null);
-            }
-            spatial = null;
-            collisionShape = null;
             return;
         }
         if (collisionShape == null) {

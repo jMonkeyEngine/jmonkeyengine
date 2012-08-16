@@ -133,16 +133,9 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl {
     }
 
     public void setSpatial(Spatial spatial) {
-        if (getUserObject() == null || getUserObject() == this.spatial) {
-            setUserObject(spatial);
-        }
         this.spatial = spatial;
+        setUserObject(spatial);
         if (spatial == null) {
-            if (getUserObject() == spatial) {
-                setUserObject(null);
-            }
-            this.spatial = null;
-            this.collisionShape = null;
             return;
         }
         setPhysicsLocation(getSpatialTranslation());

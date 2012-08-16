@@ -13,6 +13,10 @@ import com.jme3.scene.control.Control;
  */
 public interface PhysicsControl extends Control {
 
+    /**
+     * Only used internally, do not call.
+     * @param space 
+     */
     public void setPhysicsSpace(PhysicsSpace space);
 
     public PhysicsSpace getPhysicsSpace();
