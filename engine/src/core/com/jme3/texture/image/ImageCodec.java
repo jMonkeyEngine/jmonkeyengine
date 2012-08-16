@@ -1,0 +1,140 @@
+package com.jme3.texture.image;
+
+import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
+import java.nio.ByteBuffer;
+import java.util.EnumMap;
+
+abstract class ImageCodec {
+    
+    public static final int FLAG_F16 = 1, FLAG_F32 = 2, FLAG_GRAY = 4, FLAG_ALPHAONLY = 8, FLAG_SHAREDEXP = 16;
+    private static final EnumMap<Image.Format, ImageCodec> params = new EnumMap<Image.Format, ImageCodec>(Image.Format.class);
+    
+    protected final int bpp, flags, maxAlpha, maxRed, maxGreen, maxBlue;
+
+    public ImageCodec(int bpp, int flags, int maxAlpha, int maxRed, int maxGreen, int maxBlue) {
+        this.bpp = bpp;
+        this.flags = flags;
+        this.maxAlpha = maxAlpha;
+        this.maxRed = maxRed;
+        this.maxGreen = maxGreen;
+        this.maxBlue = maxBlue;
+    }
+
+    static {       
+        // == ALPHA ==
+        params.put(Format.Alpha8,   new BitMaskImageCodec(1, 0, 8, 0, 0, 0,
+                                                                0, 0, 0, 0));
+        
+        params.put(Format.Alpha16,  new BitMaskImageCodec(2, 0, 16, 0, 0, 0,
+                                                                0,  0, 0, 0));
+        
+        // == LUMINANCE ==
+        params.put(Format.Luminance8, new BitMaskImageCodec(1, FLAG_GRAY, 0, 8, 0, 0,
+                                                                          0, 0, 0, 0));
+        params.put(Format.Luminance16, new BitMaskImageCodec(2, FLAG_GRAY, 0, 16, 0, 0,
+                                                                           0, 0, 0, 0));
+        params.put(Format.Luminance16F, new BitMaskImageCodec(2, FLAG_GRAY | FLAG_F16, 0, 16, 0, 0,
+                                                                                        0, 0, 0, 0));
+        params.put(Format.Luminance32F, new BitMaskImageCodec(4, FLAG_GRAY | FLAG_F32, 0, 32, 0, 0,
+                                                                                        0, 0, 0, 0));
+        
+        // == INTENSITY ==
+        // ??
+        
+        // == LUMINANCA ALPHA ==
+        params.put(Format.Luminance8Alpha8, new BitMaskImageCodec(2, FLAG_GRAY, 
+                                                                  8, 8, 0, 0,
+                                                                  8, 0, 0, 0));
+        
+        params.put(Format.Luminance16Alpha16, new BitMaskImageCodec(4, FLAG_GRAY, 
+                                                                  16, 16, 0, 0,
+                                                                  16, 0, 0, 0));
+        
+        params.put(Format.Luminance16FAlpha16F, new BitMaskImageCodec(4, FLAG_GRAY | FLAG_F16, 
+                                                                   16, 16, 0, 0,
+                                                                   16, 0, 0, 0));
+        
+        // == RGB ==
+        params.put(Format.BGR8,     new BitMaskImageCodec(3, 0, 
+                                                          0, 8,  8,  8,
+                                                          0, 16, 8,  0));
+        
+        params.put(Format.RGB565,       new BitMaskImageCodec(2, 0,
+                                                            0, 5,  6, 5,
+                                                            0, 11, 5, 0));
+        
+        params.put(Format.RGB8,         new BitMaskImageCodec(3, 0,
+                                                            0, 8, 8, 8,
+                                                            0, 0, 8, 16));
+        
+        params.put(Format.RGB16,        new ByteAlignedImageCodec(6, 0,
+                                                                  0, 2, 2, 2,
+                                                                  0, 0, 2, 4));
+       
+        params.put(Format.RGB32F,        new ByteAlignedImageCodec(12, FLAG_F32,
+                                                                   0,  4, 4, 4,
+                                                                   0,  0, 4, 8));
+        
+        ByteAlignedImageCodec rgb16f = new ByteAlignedImageCodec(6, FLAG_F16,
+                                                            0, 2, 2, 2,
+                                                            0, 0, 2, 4); 
+        params.put(Format.RGB16F, rgb16f);
+        params.put(Format.RGB16F_to_RGB111110F, rgb16f);
+        params.put(Format.RGB16F_to_RGB9E5, rgb16f);
+        
+        
+        // == RGBA ==
+        params.put(Format.ABGR8,    new BitMaskImageCodec(4, 0,
+                                                          0, 8, 8, 8,
+                                                          0, 24, 16, 8));
+        
+        params.put(Format.ARGB4444, new BitMaskImageCodec(2, 0,
+                                                          4, 4, 4, 4,
+                                                          12, 0, 4, 8));
+
+        params.put(Format.RGB5A1,   new BitMaskImageCodec(2, 0, 
+                                                          1, 5, 5, 5,
+                                                          0, 11, 6, 1));
+        ((BitMaskImageCodec)params.get(Format.RGB5A1)).be = true;
+       
+        params.put(Format.RGBA8,    new ByteAlignedImageCodec(4, 0,
+                                                              0, 1, 1, 1,
+                                                              0, 0, 1, 2));
+                
+                //new BitMaskImageCodec(4, 0,
+                                    //                      8,  8, 8, 8,
+                                    //                      24,  0, 8, 16));
+        
+        params.put(Format.RGBA16,        new ByteAlignedImageCodec(8, 0,
+                                                                   2, 2, 2, 2,
+                                                                   6, 0, 2, 4));
+        
+        params.put(Format.RGBA16F,        new ByteAlignedImageCodec(8, FLAG_F16,
+                                                            2, 2, 2,  2,
+                                                            6, 0, 2,  4));
+        
+        params.put(Format.RGBA32F,        new ByteAlignedImageCodec(16, FLAG_F32,
+                                                            4, 4, 4, 4,
+                                                            12, 0, 4, 8));
+    }
+    
+    public abstract void readComponents(ByteBuffer buf, int x, int y, int width, int[] components, byte[] tmp);
+    
+    public abstract void writeComponents(ByteBuffer buf, int x, int y, int width, int[] components, byte[] tmp);
+    
+    /**
+     * Looks up the format in the codec registry.
+     * The codec will be able to decode the given format.
+     * 
+     * @param format The format to lookup.
+     * @return The codec capable of decoding it, or null if not found.
+     */
+    public static ImageCodec lookup(Format format) {
+        ImageCodec codec = params.get(format);
+        if (codec == null) {
+            throw new UnsupportedOperationException("The format " + format + " is not supported");
+        }
+        return codec;
+    }
+}
