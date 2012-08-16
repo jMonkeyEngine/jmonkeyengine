@@ -40,6 +40,7 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.TempVars;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -207,6 +208,14 @@ public class ParticleTriMesh extends ParticleMesh {
                 faceNormal.cross(up, left);
                 up.multLocal(p.size);
                 left.multLocal(p.size);
+                if (p.angle != 0) {
+                    TempVars vars = TempVars.get();
+                    vars.vect1.set(faceNormal).normalizeLocal();
+                    vars.quat1.fromAngleNormalAxis(p.angle, vars.vect1);
+                    vars.quat1.multLocal(left);
+                    vars.quat1.multLocal(up);
+                    vars.release();
+                }
             }else if (p.angle != 0){
                 float cos = FastMath.cos(p.angle) * p.size;
                 float sin = FastMath.sin(p.angle) * p.size;
