@@ -31,52 +31,55 @@
  */
 package com.jme3.util;
 
-import com.jme3.math.*;
+import java.lang.ref.PhantomReference;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
+
 /**
  * <code>BufferUtils</code> is a helper class for generating nio buffers from
  * jME data classes such as Vectors and ColorRGBA.
- *
+ * 
  * @author Joshua Slack
  * @version $Id: BufferUtils.java,v 1.16 2007/10/29 16:56:18 nca Exp $
  */
 public final class BufferUtils {
 
-    private static final Map<Buffer, Object> trackingHash = Collections.synchronizedMap(new WeakHashMap<Buffer, Object>());
-    private static final Object ref = new Object();
-    
-    // Note: a WeakHashMap is really bad here since the hashCode() and
-    //       equals() behavior of buffers will vary based on their contents.
-    //       As it stands, put()'ing an empty buffer will wipe out the last
-    //       empty buffer with the same size.  So any tracked memory calculations
-    //       could be lying.
-    //       Besides, the hashmap behavior isn't even being used here and
-    //       yet the expense is still incurred.  For example, a newly allocated
-    //       10,000 byte buffer will iterate through the whole buffer of 0's
-    //       to calculate the hashCode and then potentially do it again to
-    //       calculate the equals()... which by the way is guaranteed for
-    //       every empty buffer of an existing size since they will always produce 
-    //       the same hashCode().
-    //       It would be better to just keep a straight list of weak references
-    //       and clean out the dead every time a new buffer is allocated.
-    //       WeakHashMap is doing that anyway... so there is no extra expense 
-    //       incurred.
-    //       Recommend a ConcurrentLinkedQueue of WeakReferences since it
-    //       supports the threading semantics required with little extra overhead. 
-    private static final boolean trackDirectMemory = false;
+    private static boolean trackDirectMemory = false;
+    private static ReferenceQueue<Buffer> removeCollected = new ReferenceQueue<Buffer>();
+    private static ConcurrentHashMap<BufferInfo, BufferInfo> trackedBuffers = new ConcurrentHashMap<BufferInfo, BufferInfo>();
+    static ClearReferences cleanupthread;
 
     /**
-     * Creates a clone of the given buffer. The clone's capacity is
+     * Set it to true if you want to enable direct memory tracking for debugging purpose.
+     * Default is false.
+     * To print direct memory usage use BufferUtils.printCurrentDirectMemory(StringBuilder store);
+     * @param enabled 
+     */
+    public static void setTrackDirectMemoryEnabled(boolean enabled) {
+        trackDirectMemory = enabled;
+    }
+ 
+    /**
+     * Creates a clone of the given buffer. The clone's capacity is 
      * equal to the given buffer's limit.
      * 
      * @param buf The buffer to clone
@@ -97,63 +100,68 @@ public final class BufferUtils {
             throw new UnsupportedOperationException();
         }
     }
-    
-    private static void onBufferAllocated(Buffer buffer){
-        /*
-        StackTraceElement[] stackTrace = new Throwable().getStackTrace();
-        int initialIndex = 0;
-        
-        for (int i = 0; i < stackTrace.length; i++){
-            if (!stackTrace[i].getClassName().equals(BufferUtils.class.getName())){
-                initialIndex = i;
-                break;
+
+    private static void onBufferAllocated(Buffer buffer) {
+        /**
+         * StackTraceElement[] stackTrace = new Throwable().getStackTrace(); int
+         * initialIndex = 0;
+         * 
+         * for (int i = 0; i < stackTrace.length; i++){ if
+         * (!stackTrace[i].getClassName().equals(BufferUtils.class.getName())){
+         * initialIndex = i; break; } }
+         * 
+         * int allocated = buffer.capacity(); int size = 0;
+         * 
+         * if (buffer instanceof FloatBuffer){ size = 4; }else if (buffer
+         * instanceof ShortBuffer){ size = 2; }else if (buffer instanceof
+         * ByteBuffer){ size = 1; }else if (buffer instanceof IntBuffer){ size =
+         * 4; }else if (buffer instanceof DoubleBuffer){ size = 8; }
+         * 
+         * allocated *= size;
+         * 
+         * for (int i = initialIndex; i < stackTrace.length; i++){
+         * StackTraceElement element = stackTrace[i]; if
+         * (element.getClassName().startsWith("java")){ break; }
+         * 
+         * try { Class clazz = Class.forName(element.getClassName()); if (i ==
+         * initialIndex){
+         * System.out.println(clazz.getSimpleName()+"."+element.getMethodName
+         * ()+"():" + element.getLineNumber() + " allocated " + allocated);
+         * }else{ System.out.println(" at " +
+         * clazz.getSimpleName()+"."+element.getMethodName()+"()"); } } catch
+         * (ClassNotFoundException ex) { } }
+         */
+        if (BufferUtils.trackDirectMemory) {
+
+            if (BufferUtils.cleanupthread == null) {
+                BufferUtils.cleanupthread = new ClearReferences();
+                BufferUtils.cleanupthread.start();
             }
-        }
-        
-        int allocated = buffer.capacity();
-        int size = 0;
-    
-        if (buffer instanceof FloatBuffer){
-            size = 4;
-        }else if (buffer instanceof ShortBuffer){
-            size = 2;
-        }else if (buffer instanceof ByteBuffer){
-            size = 1;
-        }else if (buffer instanceof IntBuffer){
-            size = 4;
-        }else if (buffer instanceof DoubleBuffer){
-            size = 8;
-        }
-        
-        allocated *= size;
-        
-        for (int i = initialIndex; i < stackTrace.length; i++){
-            StackTraceElement element = stackTrace[i];
-            if (element.getClassName().startsWith("java")){
-                break;
+            if (buffer instanceof ByteBuffer) {
+                BufferInfo info = new BufferInfo(ByteBuffer.class, buffer.capacity(), buffer, BufferUtils.removeCollected);
+                BufferUtils.trackedBuffers.put(info, info);
+            } else if (buffer instanceof FloatBuffer) {
+                BufferInfo info = new BufferInfo(FloatBuffer.class, buffer.capacity() * 4, buffer, BufferUtils.removeCollected);
+                BufferUtils.trackedBuffers.put(info, info);
+            } else if (buffer instanceof IntBuffer) {
+                BufferInfo info = new BufferInfo(IntBuffer.class, buffer.capacity() * 4, buffer, BufferUtils.removeCollected);
+                BufferUtils.trackedBuffers.put(info, info);
+            } else if (buffer instanceof ShortBuffer) {
+                BufferInfo info = new BufferInfo(ShortBuffer.class, buffer.capacity() * 2, buffer, BufferUtils.removeCollected);
+                BufferUtils.trackedBuffers.put(info, info);
+            } else if (buffer instanceof DoubleBuffer) {
+                BufferInfo info = new BufferInfo(DoubleBuffer.class, buffer.capacity() * 8, buffer, BufferUtils.removeCollected);
+                BufferUtils.trackedBuffers.put(info, info);
             }
-            
-            try {
-                Class clazz = Class.forName(element.getClassName());
-                if (i == initialIndex){
-                    System.out.println(clazz.getSimpleName()+"."+element.getMethodName()+"():" + element.getLineNumber() + " allocated " + allocated);
-                }else{
-                    System.out.println(" at " + clazz.getSimpleName()+"."+element.getMethodName()+"()");
-                }
-            } catch (ClassNotFoundException ex) {
-            }
-        }*/
-        
-        if (trackDirectMemory){
-            trackingHash.put(buffer, ref);
+
         }
     }
 
     /**
-     * Generate a new FloatBuffer using the given array of Vector3f objects.
-     * The FloatBuffer will be 3 * data.length long and contain the vector data
+     * Generate a new FloatBuffer using the given array of Vector3f objects. 
+     * The FloatBuffer will be 3 * data.length long and contain the vector data 
      * as data[0].x, data[0].y, data[0].z, data[1].x... etc.
-     *
+     * 
      * @param data array of Vector3f objects to place into a new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(Vector3f... data) {
@@ -161,9 +169,9 @@ public final class BufferUtils {
             return null;
         }
         FloatBuffer buff = createFloatBuffer(3 * data.length);
-        for (int x = 0; x < data.length; x++) {
-            if (data[x] != null) {
-                buff.put(data[x].x).put(data[x].y).put(data[x].z);
+        for (Vector3f element : data) {
+            if (element != null) {
+                buff.put(element.x).put(element.y).put(element.z);
             } else {
                 buff.put(0).put(0).put(0);
             }
@@ -175,7 +183,7 @@ public final class BufferUtils {
     /**
      * Generate a new FloatBuffer using the given array of Quaternion objects.
      * The FloatBuffer will be 4 * data.length long and contain the vector data.
-     *
+     * 
      * @param data array of Quaternion objects to place into a new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(Quaternion... data) {
@@ -183,9 +191,9 @@ public final class BufferUtils {
             return null;
         }
         FloatBuffer buff = createFloatBuffer(4 * data.length);
-        for (int x = 0; x < data.length; x++) {
-            if (data[x] != null) {
-                buff.put(data[x].getX()).put(data[x].getY()).put(data[x].getZ()).put(data[x].getW());
+        for (Quaternion element : data) {
+            if (element != null) {
+                buff.put(element.getX()).put(element.getY()).put(element.getZ()).put(element.getW());
             } else {
                 buff.put(0).put(0).put(0);
             }
@@ -193,7 +201,7 @@ public final class BufferUtils {
         buff.flip();
         return buff;
     }
-    
+
     /**
      * Generate a new FloatBuffer using the given array of Vector4 objects.
      * The FloatBuffer will be 4 * data.length long and contain the vector data.
@@ -234,7 +242,7 @@ public final class BufferUtils {
     /**
      * Create a new FloatBuffer of an appropriate size to hold the specified
      * number of Vector3f object data.
-     *
+     * 
      * @param vertices
      *            number of vertices that need to be held by the newly created
      *            buffer
@@ -249,7 +257,7 @@ public final class BufferUtils {
      * Create a new FloatBuffer of an appropriate size to hold the specified
      * number of Vector3f object data only if the given buffer if not already
      * the right size.
-     *
+     * 
      * @param buf
      *            the buffer to first check and rewind
      * @param vertices
@@ -269,7 +277,7 @@ public final class BufferUtils {
     /**
      * Sets the data contained in the given color into the FloatBuffer at the
      * specified index.
-     *
+     * 
      * @param color
      *            the data to insert
      * @param buf
@@ -287,9 +295,9 @@ public final class BufferUtils {
     }
 
     /**
-     * Sets the data contained in the given quaternion into the FloatBuffer at the
+     * Sets the data contained in the given quaternion into the FloatBuffer at the 
      * specified index.
-     *
+     * 
      * @param quat
      *            the {@link Quaternion} to insert
      * @param buf
@@ -297,7 +305,7 @@ public final class BufferUtils {
      * @param index
      *            the postion to place the data; in terms of quaternions not floats
      */
-    public static void setInBuffer(Quaternion quat, FloatBuffer buf,
+    public static void setInBuffer(Quaternion quat, FloatBuffer buf, 
             int index) {
         buf.position(index * 4);
         buf.put(quat.getX());
@@ -329,7 +337,7 @@ public final class BufferUtils {
     /**
      * Sets the data contained in the given Vector3F into the FloatBuffer at the
      * specified index.
-     *
+     * 
      * @param vector
      *            the data to insert
      * @param buf
@@ -351,11 +359,11 @@ public final class BufferUtils {
             buf.put((index * 3) + 2, vector.z);
         }
     }
-
+    
     /**
      * Updates the values of the given vector from the specified buffer at the
      * index provided.
-     *
+     * 
      * @param vector
      *            the vector to set data on
      * @param buf
@@ -369,10 +377,10 @@ public final class BufferUtils {
         vector.y = buf.get(index * 3 + 1);
         vector.z = buf.get(index * 3 + 2);
     }
-
-    /**
+    
+     /**
      * Generates a Vector3f array from the given FloatBuffer.
-     *
+     * 
      * @param buff
      *            the FloatBuffer to read from
      * @return a newly generated array of Vector3f objects
@@ -391,7 +399,7 @@ public final class BufferUtils {
      * Copies a Vector3f from one position in the buffer to another. The index
      * values are in terms of vector number (eg, vector number 0 is postions 0-2
      * in the FloatBuffer.)
-     *
+     * 
      * @param buf
      *            the buffer to copy from/to
      * @param fromPos
@@ -405,7 +413,7 @@ public final class BufferUtils {
 
     /**
      * Normalize a Vector3f in-buffer.
-     *
+     * 
      * @param buf
      *            the buffer to find the Vector3f within
      * @param index
@@ -423,7 +431,7 @@ public final class BufferUtils {
 
     /**
      * Add to a Vector3f in-buffer.
-     *
+     * 
      * @param toAdd
      *            the vector to add from
      * @param buf
@@ -443,7 +451,7 @@ public final class BufferUtils {
 
     /**
      * Multiply and store a Vector3f in-buffer.
-     *
+     * 
      * @param toMult
      *            the vector to multiply against
      * @param buf
@@ -464,7 +472,7 @@ public final class BufferUtils {
     /**
      * Checks to see if the given Vector3f is equals to the data stored in the
      * buffer at the given data index.
-     *
+     * 
      * @param check
      *            the vector to check against - null will return false.
      * @param buf
@@ -488,7 +496,7 @@ public final class BufferUtils {
      * Generate a new FloatBuffer using the given array of Vector2f objects.
      * The FloatBuffer will be 2 * data.length long and contain the vector data
      * as data[0].x, data[0].y, data[1].x... etc.
-     *
+     * 
      * @param data array of Vector2f objects to place into a new FloatBuffer
      */
     public static FloatBuffer createFloatBuffer(Vector2f... data) {
@@ -496,9 +504,9 @@ public final class BufferUtils {
             return null;
         }
         FloatBuffer buff = createFloatBuffer(2 * data.length);
-        for (int x = 0; x < data.length; x++) {
-            if (data[x] != null) {
-                buff.put(data[x].x).put(data[x].y);
+        for (Vector2f element : data) {
+            if (element != null) {
+                buff.put(element.x).put(element.y);
             } else {
                 buff.put(0).put(0);
             }
@@ -510,7 +518,7 @@ public final class BufferUtils {
     /**
      * Create a new FloatBuffer of an appropriate size to hold the specified
      * number of Vector2f object data.
-     *
+     * 
      * @param vertices
      *            number of vertices that need to be held by the newly created
      *            buffer
@@ -525,7 +533,7 @@ public final class BufferUtils {
      * Create a new FloatBuffer of an appropriate size to hold the specified
      * number of Vector2f object data only if the given buffer if not already
      * the right size.
-     *
+     * 
      * @param buf
      *            the buffer to first check and rewind
      * @param vertices
@@ -545,7 +553,7 @@ public final class BufferUtils {
     /**
      * Sets the data contained in the given Vector2F into the FloatBuffer at the
      * specified index.
-     *
+     * 
      * @param vector
      *            the data to insert
      * @param buf
@@ -561,7 +569,7 @@ public final class BufferUtils {
     /**
      * Updates the values of the given vector from the specified buffer at the
      * index provided.
-     *
+     * 
      * @param vector
      *            the vector to set data on
      * @param buf
@@ -577,7 +585,7 @@ public final class BufferUtils {
 
     /**
      * Generates a Vector2f array from the given FloatBuffer.
-     *
+     * 
      * @param buff
      *            the FloatBuffer to read from
      * @return a newly generated array of Vector2f objects
@@ -596,7 +604,7 @@ public final class BufferUtils {
      * Copies a Vector2f from one position in the buffer to another. The index
      * values are in terms of vector number (eg, vector number 0 is postions 0-1
      * in the FloatBuffer.)
-     *
+     * 
      * @param buf
      *            the buffer to copy from/to
      * @param fromPos
@@ -610,7 +618,7 @@ public final class BufferUtils {
 
     /**
      * Normalize a Vector2f in-buffer.
-     *
+     * 
      * @param buf
      *            the buffer to find the Vector2f within
      * @param index
@@ -628,7 +636,7 @@ public final class BufferUtils {
 
     /**
      * Add to a Vector2f in-buffer.
-     *
+     * 
      * @param toAdd
      *            the vector to add from
      * @param buf
@@ -648,7 +656,7 @@ public final class BufferUtils {
 
     /**
      * Multiply and store a Vector2f in-buffer.
-     *
+     * 
      * @param toMult
      *            the vector to multiply against
      * @param buf
@@ -669,7 +677,7 @@ public final class BufferUtils {
     /**
      * Checks to see if the given Vector2f is equals to the data stored in the
      * buffer at the given data index.
-     *
+     * 
      * @param check
      *            the vector to check against - null will return false.
      * @param buf
@@ -693,7 +701,7 @@ public final class BufferUtils {
      * Generate a new IntBuffer using the given array of ints. The IntBuffer
      * will be data.length long and contain the int data as data[0], data[1]...
      * etc.
-     *
+     * 
      * @param data
      *            array of ints to place into a new IntBuffer
      */
@@ -711,7 +719,7 @@ public final class BufferUtils {
     /**
      * Create a new int[] array and populate it with the given IntBuffer's
      * contents.
-     *
+     * 
      * @param buff
      *            the IntBuffer to read from
      * @return a new int array populated from the IntBuffer
@@ -731,7 +739,7 @@ public final class BufferUtils {
     /**
      * Create a new float[] array and populate it with the given FloatBuffer's
      * contents.
-     *
+     * 
      * @param buff
      *            the FloatBuffer to read from
      * @return a new float array populated from the FloatBuffer
@@ -751,7 +759,7 @@ public final class BufferUtils {
     //// -- GENERAL DOUBLE ROUTINES -- ////
     /**
      * Create a new DoubleBuffer of the specified size.
-     *
+     * 
      * @param size
      *            required number of double to store.
      * @return the new DoubleBuffer
@@ -766,7 +774,7 @@ public final class BufferUtils {
     /**
      * Create a new DoubleBuffer of an appropriate size to hold the specified
      * number of doubles only if the given buffer if not already the right size.
-     *
+     * 
      * @param buf
      *            the buffer to first check and rewind
      * @param size
@@ -789,7 +797,7 @@ public final class BufferUtils {
      * DoubleBuffer. The new DoubleBuffer is seperate from the old one and
      * changes are not reflected across. If you want to reflect changes,
      * consider using Buffer.duplicate().
-     *
+     * 
      * @param buf
      *            the DoubleBuffer to copy
      * @return the copy
@@ -814,7 +822,7 @@ public final class BufferUtils {
     //// -- GENERAL FLOAT ROUTINES -- ////
     /**
      * Create a new FloatBuffer of the specified size.
-     *
+     * 
      * @param size
      *            required number of floats to store.
      * @return the new FloatBuffer
@@ -828,7 +836,7 @@ public final class BufferUtils {
 
     /**
      * Copies floats from one position in the buffer to another.
-     *
+     * 
      * @param buf
      *            the buffer to copy from/to
      * @param fromPos
@@ -851,7 +859,7 @@ public final class BufferUtils {
      * FloatBuffer. The new FloatBuffer is seperate from the old one and changes
      * are not reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
-     *
+     * 
      * @param buf
      *            the FloatBuffer to copy
      * @return the copy
@@ -876,7 +884,7 @@ public final class BufferUtils {
     //// -- GENERAL INT ROUTINES -- ////
     /**
      * Create a new IntBuffer of the specified size.
-     *
+     * 
      * @param size
      *            required number of ints to store.
      * @return the new IntBuffer
@@ -891,7 +899,7 @@ public final class BufferUtils {
     /**
      * Create a new IntBuffer of an appropriate size to hold the specified
      * number of ints only if the given buffer if not already the right size.
-     *
+     * 
      * @param buf
      *            the buffer to first check and rewind
      * @param size
@@ -914,7 +922,7 @@ public final class BufferUtils {
      * The new IntBuffer is seperate from the old one and changes are not
      * reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
-     *
+     * 
      * @param buf
      *            the IntBuffer to copy
      * @return the copy
@@ -939,7 +947,7 @@ public final class BufferUtils {
     //// -- GENERAL BYTE ROUTINES -- ////
     /**
      * Create a new ByteBuffer of the specified size.
-     *
+     * 
      * @param size
      *            required number of ints to store.
      * @return the new IntBuffer
@@ -954,7 +962,7 @@ public final class BufferUtils {
     /**
      * Create a new ByteBuffer of an appropriate size to hold the specified
      * number of ints only if the given buffer if not already the right size.
-     *
+     * 
      * @param buf
      *            the buffer to first check and rewind
      * @param size
@@ -992,7 +1000,7 @@ public final class BufferUtils {
      * The new ByteBuffer is seperate from the old one and changes are not
      * reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
-     *
+     * 
      * @param buf
      *            the ByteBuffer to copy
      * @return the copy
@@ -1017,7 +1025,7 @@ public final class BufferUtils {
     //// -- GENERAL SHORT ROUTINES -- ////
     /**
      * Create a new ShortBuffer of the specified size.
-     *
+     * 
      * @param size
      *            required number of shorts to store.
      * @return the new ShortBuffer
@@ -1032,7 +1040,7 @@ public final class BufferUtils {
     /**
      * Create a new ShortBuffer of an appropriate size to hold the specified
      * number of shorts only if the given buffer if not already the right size.
-     *
+     * 
      * @param buf
      *            the buffer to first check and rewind
      * @param size
@@ -1066,7 +1074,7 @@ public final class BufferUtils {
      * The new ShortBuffer is seperate from the old one and changes are not
      * reflected across. If you want to reflect changes, consider using
      * Buffer.duplicate().
-     *
+     * 
      * @param buf
      *            the ShortBuffer to copy
      * @return the copy
@@ -1140,55 +1148,59 @@ public final class BufferUtils {
 
     public static void printCurrentDirectMemory(StringBuilder store) {
         long totalHeld = 0;
-        // make a new set to hold the keys to prevent concurrency issues.
-        ArrayList<Buffer> bufs = new ArrayList<Buffer>(trackingHash.keySet());
-        int fBufs = 0, bBufs = 0, iBufs = 0, sBufs = 0, dBufs = 0;
-        int fBufsM = 0, bBufsM = 0, iBufsM = 0, sBufsM = 0, dBufsM = 0;
-        for (Buffer b : bufs) {
-            if (b instanceof ByteBuffer) {
-                totalHeld += b.capacity();
-                bBufsM += b.capacity();
-                bBufs++;
-            } else if (b instanceof FloatBuffer) {
-                totalHeld += b.capacity() * 4;
-                fBufsM += b.capacity() * 4;
-                fBufs++;
-            } else if (b instanceof IntBuffer) {
-                totalHeld += b.capacity() * 4;
-                iBufsM += b.capacity() * 4;
-                iBufs++;
-            } else if (b instanceof ShortBuffer) {
-                totalHeld += b.capacity() * 2;
-                sBufsM += b.capacity() * 2;
-                sBufs++;
-            } else if (b instanceof DoubleBuffer) {
-                totalHeld += b.capacity() * 8;
-                dBufsM += b.capacity() * 8;
-                dBufs++;
-            }
-        }
-        long heapMem = Runtime.getRuntime().totalMemory()
-                - Runtime.getRuntime().freeMemory();
-
+        long heapMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        
         boolean printStout = store == null;
         if (store == null) {
             store = new StringBuilder();
         }
-        store.append("Existing buffers: ").append(bufs.size()).append("\n");
-        store.append("(b: ").append(bBufs).append("  f: ").append(fBufs).append("  i: ").append(iBufs).append("  s: ").append(sBufs).append("  d: ").append(dBufs).append(")").append("\n");
-        store.append("Total   heap memory held: ").append(heapMem / 1024).append("kb\n");
-        store.append("Total direct memory held: ").append(totalHeld / 1024).append("kb\n");
-        store.append("(b: ").append(bBufsM / 1024).append("kb  f: ").append(fBufsM / 1024).append("kb  i: ").append(iBufsM / 1024).append("kb  s: ").append(sBufsM / 1024).append("kb  d: ").append(dBufsM / 1024).append("kb)").append("\n");
+        if (trackDirectMemory) {
+            // make a new set to hold the keys to prevent concurrency issues.
+            int fBufs = 0, bBufs = 0, iBufs = 0, sBufs = 0, dBufs = 0;
+            int fBufsM = 0, bBufsM = 0, iBufsM = 0, sBufsM = 0, dBufsM = 0;
+            for (BufferInfo b : BufferUtils.trackedBuffers.values()) {
+                if (b.type == ByteBuffer.class) {
+                    totalHeld += b.size;
+                    bBufsM += b.size;
+                    bBufs++;
+                } else if (b.type == FloatBuffer.class) {
+                    totalHeld += b.size;
+                    fBufsM += b.size;
+                    fBufs++;
+                } else if (b.type == IntBuffer.class) {
+                    totalHeld += b.size;
+                    iBufsM += b.size;
+                    iBufs++;
+                } else if (b.type == ShortBuffer.class) {
+                    totalHeld += b.size;
+                    sBufsM += b.size;
+                    sBufs++;
+                } else if (b.type == DoubleBuffer.class) {
+                    totalHeld += b.size;
+                    dBufsM += b.size;
+                    dBufs++;
+                }
+            }
+
+            store.append("Existing buffers: ").append(BufferUtils.trackedBuffers.size()).append("\n");
+            store.append("(b: ").append(bBufs).append("  f: ").append(fBufs).append("  i: ").append(iBufs).append("  s: ").append(sBufs).append("  d: ").append(dBufs).append(")").append("\n");
+            store.append("Total   heap memory held: ").append(heapMem / 1024).append("kb\n");
+            store.append("Total direct memory held: ").append(totalHeld / 1024).append("kb\n");
+            store.append("(b: ").append(bBufsM / 1024).append("kb  f: ").append(fBufsM / 1024).append("kb  i: ").append(iBufsM / 1024).append("kb  s: ").append(sBufsM / 1024).append("kb  d: ").append(dBufsM / 1024).append("kb)").append("\n");
+        } else {
+            store.append("Total   heap memory held: ").append(heapMem / 1024).append("kb\n");
+            store.append("Only heap memory available, if you want to monitor direct memory use BufferUtils.setTrackDirectMemoryEnabled(true) during initialization.").append("\n");
+        }
         if (printStout) {
             System.out.println(store.toString());
         }
     }
-    
+    private static final AtomicBoolean loadedMethods = new AtomicBoolean(false);
     private static Method cleanerMethod = null;
     private static Method cleanMethod = null;
     private static Method viewedBufferMethod = null;
     private static Method freeMethod = null;
-    
+
     private static Method loadMethod(String className, String methodName){
         try {
             Method method = Class.forName(className).getMethod(methodName);
@@ -1202,44 +1214,54 @@ public final class BufferUtils {
             return null; // the direct buffer implementation was not found
         }
     }
-    
-    static {
-        // Oracle JRE / OpenJDK
+
+    private static void loadCleanerMethods() {
+        // If its already true, exit, if not, set it to true.
+        if (BufferUtils.loadedMethods.getAndSet(true)) {
+            return;
+        }
+        // This could potentially be called many times if used from multiple
+        // threads
+        synchronized (BufferUtils.loadedMethods) {
+            // Oracle JRE / OpenJDK
         cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
         cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
         viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
         if (viewedBufferMethod == null){
-            // They changed the name in Java 7 (???)
+                // They changed the name in Java 7 (???)
             viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
-        }
-            
-        // Apache Harmony
-        ByteBuffer bb = BufferUtils.createByteBuffer(1);
-        Class<?> clazz = bb.getClass();
-        try {
+            }
+
+            // Apache Harmony
+            ByteBuffer bb = BufferUtils.createByteBuffer(1);
+            Class<?> clazz = bb.getClass();
+            try {
             freeMethod = clazz.getMethod("free");
-        } catch (NoSuchMethodException ex) {
-        } catch (SecurityException ex) {
+            } catch (NoSuchMethodException ex) {
+            } catch (SecurityException ex) {
+            }
         }
     }
-    
+
     /**
-    * Direct buffers are garbage collected by using a phantom reference and a
+     * Direct buffers are garbage collected by using a phantom reference and a
     * reference queue. Every once a while, the JVM checks the reference queue and
     * cleans the direct buffers. However, as this doesn't happen
     * immediately after discarding all references to a direct buffer, it's
     * easy to OutOfMemoryError yourself using direct buffers. This function
-    * explicitly calls the Cleaner method of a direct buffer.
-    * 
-    * @param toBeDestroyed
+     * explicitly calls the Cleaner method of a direct buffer.
+     * 
+     * @param toBeDestroyed
     *          The direct buffer that will be "cleaned". Utilizes reflection.
-    *          
-    */
+     * 
+     */
     public static void destroyDirectBuffer(Buffer toBeDestroyed) {
         if (!toBeDestroyed.isDirect()) {
             return;
         }
-        
+
+        BufferUtils.loadCleanerMethods();
+
         try {
             if (freeMethod != null) {
                 freeMethod.invoke(toBeDestroyed);
@@ -1265,6 +1287,38 @@ public final class BufferUtils {
             Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
         } catch (SecurityException ex) {
             Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
+        }
+    }
+
+    private static class BufferInfo extends PhantomReference<Buffer> {
+
+        private Class type;
+        private int size;
+
+        public BufferInfo(Class type, int size, Buffer referent, ReferenceQueue<? super Buffer> q) {
+            super(referent, q);
+            this.type = type;
+            this.size = size;
+        }
+    }
+
+    private static class ClearReferences extends Thread {
+
+        ClearReferences() {
+            this.setDaemon(true);
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (true) {
+                    Reference<? extends Buffer> toclean = BufferUtils.removeCollected.remove();
+                    BufferUtils.trackedBuffers.remove(toclean);
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
