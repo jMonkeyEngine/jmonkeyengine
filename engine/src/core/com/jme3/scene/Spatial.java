@@ -1215,7 +1215,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             userData = new HashMap<String, Savable>();
         }
 
-        if (data instanceof Savable) {
+        if(data == null){
+            userData.remove(key);            
+        }else if (data instanceof Savable) {
             userData.put(key, (Savable) data);
         } else {
             userData.put(key, new UserData(UserData.getObjectType(data), data));
