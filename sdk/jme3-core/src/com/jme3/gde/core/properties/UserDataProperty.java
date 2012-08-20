@@ -32,8 +32,12 @@
 package com.jme3.gde.core.properties;
 
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.UserDataDialog;
 import com.jme3.scene.Spatial;
+import java.awt.Component;
 import java.beans.PropertyEditor;
+import java.beans.PropertyEditorSupport;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -42,6 +46,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.Exceptions;
 
@@ -52,15 +57,17 @@ import org.openide.util.Exceptions;
 public class UserDataProperty extends PropertySupport.ReadWrite<String> {
 
     private Spatial spatial;
+    private JmeSpatial node;
     private String name = "null";
     private int type = 0;
     private List<ScenePropertyChangeListener> listeners = new LinkedList<ScenePropertyChangeListener>();
 
-    public UserDataProperty(Spatial node, String name) {
+    public UserDataProperty(JmeSpatial node, String name) {
         super(name, String.class, name, "");
-        this.spatial = node;
+        this.spatial = node.getLookup().lookup(Spatial.class);
+        this.node = node;
         this.name = name;
-        this.type = getObjectType(node.getUserData(name));
+        this.type = getObjectType(spatial.getUserData(name));
     }
 
     public static int getObjectType(Object type) {
@@ -126,7 +133,18 @@ public class UserDataProperty extends PropertySupport.ReadWrite<String> {
 
     @Override
     public PropertyEditor getPropertyEditor() {
-        return null;
+        return new PropertyEditorSupport(spatial.getUserData(name)) {
+
+            @Override
+            public boolean supportsCustomEditor() {
+                return true;
+            }
+
+            @Override
+            public Component getCustomEditor() {
+                return new UserDataDialog(new JFrame(), true, node, name);
+            }
+        };
 //        return new AnimationPropertyEditor(control);
     }
 

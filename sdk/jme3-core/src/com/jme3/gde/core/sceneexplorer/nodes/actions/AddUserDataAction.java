@@ -43,7 +43,7 @@ public final class AddUserDataAction implements ActionListener {
 
     public AddUserDataAction(JmeSpatial context) {
         this.context = context;
-        dialog=new UserDataDialog(new JFrame(), true, context);
+        dialog=new UserDataDialog(new JFrame(), true, context,null);
     }
 
     public void actionPerformed(ActionEvent ev) {

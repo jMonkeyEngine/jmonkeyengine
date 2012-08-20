@@ -304,7 +304,7 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
             set.setName(Spatial.class.getName() + "_UserData");
             for (Iterator<String> it = dataKeys.iterator(); it.hasNext();) {
                 String string = it.next();
-                UserDataProperty prop = new UserDataProperty(spatial, string);
+                UserDataProperty prop = new UserDataProperty(this, string);
                 prop.addPropertyChangeListener(this);
                 set.put(prop);
             }
