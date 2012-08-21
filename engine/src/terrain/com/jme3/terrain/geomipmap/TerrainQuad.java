@@ -135,6 +135,7 @@ public class TerrainQuad extends Node implements Terrain {
      * @param heightMap The height map to generate the terrain from (a flat
      * height map will be generated if this is null)
      */
+    @Deprecated
     public TerrainQuad(String name, int patchSize, int quadSize, int totalSize, float[] heightMap) {
         this(name, patchSize, totalSize, quadSize, Vector3f.UNIT_XYZ, heightMap);
     }
@@ -149,6 +150,7 @@ public class TerrainQuad extends Node implements Terrain {
      * @param heightMap The height map to generate the terrain from (a flat
      * height map will be generated if this is null)
      */
+    @Deprecated
     public TerrainQuad(String name, int patchSize, int size, Vector3f scale, float[] heightMap) {
         this(name, patchSize, size, scale, heightMap, size, new Vector2f(), 0);
         affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), size*2, Float.MAX_VALUE, size*2);
@@ -167,6 +169,7 @@ public class TerrainQuad extends Node implements Terrain {
      * @param heightMap The height map to generate the terrain from (a flat
      * height map will be generated if this is null)
      */
+    @Deprecated
     public TerrainQuad(String name, int patchSize, int totalSize, int quadSize, Vector3f scale, float[] heightMap) {
         this(name, patchSize, quadSize, scale, heightMap, totalSize, new Vector2f(), 0);
         affectedAreaBBox = new BoundingBox(new Vector3f(0,0,0), totalSize*2, Float.MAX_VALUE, totalSize*2);

@@ -45,7 +45,6 @@ import java.util.List;
 
 public class PerspectiveLodCalculator implements LodCalculator {
 
-    private TerrainPatch patch;
     private Camera cam;
     private float[] entropyDistances;
     private float pixelError;
@@ -74,11 +73,7 @@ public class PerspectiveLodCalculator implements LodCalculator {
         return A / T;
     }
     
-    public boolean calculateLod(List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
-        return calculateLod(patch, locations, updates);
-    }
-
-    public boolean calculateLod(TerrainPatch terrainPatch, List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
+    public boolean calculateLod(TerrainPatch patch, List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
         if (entropyDistances == null){
             // compute entropy distances
             float[] lodEntropies = patch.getLodEntropies();
