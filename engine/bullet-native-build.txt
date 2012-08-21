@@ -24,6 +24,7 @@ WINDOWS
 
 Mac OSX
 - Install XCode: http://developer.apple.com/ (or via the App Store)
+- Install the "Command Line Tools" from inside XCode
 - Install http://www.macports.org
 - Install cmake via macports, in the Terminal type:
 > sudo port install cmake
