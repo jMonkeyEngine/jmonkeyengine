@@ -105,7 +105,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
     protected float weightThreshold = -1.0f;
     protected Spatial targetModel;
     protected Vector3f initScale;
-    protected Mode mode = Mode.Kinetmatic;
+    protected Mode mode = Mode.Kinematic;
     protected boolean blendedControl = false;
     protected float blendTime = 1.0f;
     protected float blendStart = 0.0f;
@@ -121,7 +121,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
 
     public static enum Mode {
 
-        Kinetmatic,
+        Kinematic,
         Ragdoll
     }
 
@@ -364,7 +364,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
             if (childBone.getParent() == null) {
                 logger.log(Level.INFO, "Found root bone in skeleton {0}", skeleton);
                 baseRigidBody = new PhysicsRigidBody(new BoxCollisionShape(Vector3f.UNIT_XYZ.mult(0.1f)), 1);
-                baseRigidBody.setKinematic(mode == Mode.Kinetmatic);
+                baseRigidBody.setKinematic(mode == Mode.Kinematic);
                 boneRecursion(model, childBone, baseRigidBody, 1, pointsMap);
             }
         }
@@ -389,7 +389,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
 
             PhysicsRigidBody shapeNode = new PhysicsRigidBody(shape, rootMass / (float) reccount);
 
-            shapeNode.setKinematic(mode == Mode.Kinetmatic);
+            shapeNode.setKinematic(mode == Mode.Kinematic);
             totalMass += rootMass / (float) reccount;
 
             link.rigidBody = shapeNode;
@@ -672,13 +672,13 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
     protected void setMode(Mode mode) {
         this.mode = mode;
         AnimControl animControl = targetModel.getControl(AnimControl.class);
-        animControl.setEnabled(mode == Mode.Kinetmatic);
+        animControl.setEnabled(mode == Mode.Kinematic);
 
-        baseRigidBody.setKinematic(mode == Mode.Kinetmatic);
+        baseRigidBody.setKinematic(mode == Mode.Kinematic);
         TempVars vars = TempVars.get();
         
         for (PhysicsBoneLink link : boneLinks.values()) {
-            link.rigidBody.setKinematic(mode == Mode.Kinetmatic);
+            link.rigidBody.setKinematic(mode == Mode.Kinematic);
             if (mode == Mode.Ragdoll) {
                 Quaternion tmpRot1 = vars.quat1;
                 Vector3f position = vars.vect1;
@@ -700,12 +700,12 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
      * @param blendTime the blending time between ragdoll to anim.
      */
     public void blendToKinematicMode(float blendTime) {
-        if (mode == Mode.Kinetmatic) {
+        if (mode == Mode.Kinematic) {
             return;
         }
         blendedControl = true;
         this.blendTime = blendTime;
-        mode = Mode.Kinetmatic;
+        mode = Mode.Kinematic;
         AnimControl animControl = targetModel.getControl(AnimControl.class);
         animControl.setEnabled(true);
 
@@ -744,8 +744,8 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
      * and can interact with physical environement
      */
     public void setKinematicMode() {
-        if (mode != Mode.Kinetmatic) {
-            setMode(Mode.Kinetmatic);
+        if (mode != Mode.Kinematic) {
+            setMode(Mode.Kinematic);
         }
     }
 
