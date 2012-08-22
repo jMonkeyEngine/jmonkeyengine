@@ -32,10 +32,15 @@
 package com.jme3.post.filters;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import java.io.IOException;
 
 /**
  *  A post-processing filter that performs a depth range
@@ -154,5 +159,23 @@ public class DepthOfFieldFilter extends Filter {
      */
     public float getBlurScale() {
         return blurScale;
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(blurScale, "blurScale", 1f);
+        oc.write(focusDistance, "focusDistance", 50f);
+        oc.write(focusRange, "focusRange", 10f);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+        blurScale = ic.readFloat("blurScale", 1f);
+        focusDistance = ic.readFloat("focusDistance", 50f);
+        focusRange = ic.readFloat("focusRange", 10f);
     }
 }
