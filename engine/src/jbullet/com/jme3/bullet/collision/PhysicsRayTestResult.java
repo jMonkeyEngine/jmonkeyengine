@@ -34,7 +34,8 @@ package com.jme3.bullet.collision;
 import com.jme3.math.Vector3f;
 
 /**
- * Contains the results of a PhysicsSpace rayTest
+ * Contains the results of a PhysicsSpace rayTest.
+ * <b>Read data only in callback method, object is reused</b>
  * @author normenhansen
  */
 public class PhysicsRayTestResult {
@@ -55,20 +56,22 @@ public class PhysicsRayTestResult {
     }
 
     /**
-     * @return the collisionObject
+     * @return the PhysicsObject the ray collided with
      */
     public PhysicsCollisionObject getCollisionObject() {
         return collisionObject;
     }
 
     /**
-     * @return the hitNormalLocal
+     * @return the normal of the collision in the objects local space
      */
     public Vector3f getHitNormalLocal() {
         return hitNormalLocal;
     }
 
     /**
+     * The hitFraction is the fraction of the ray length (yeah, I know) at which the collision occurred.
+     * If e.g. the raytest was from 0,0,0 to 0,6,0 and the hitFraction is 0.5 then the collision occurred at 0,3,0
      * @return the hitFraction
      */
     public float getHitFraction() {
