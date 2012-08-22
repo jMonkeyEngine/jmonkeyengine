@@ -125,14 +125,22 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         Ragdoll
     }
 
-    protected class PhysicsBoneLink {
+    public class PhysicsBoneLink {
 
         protected Bone bone;
+        protected PhysicsRigidBody rigidBody;
         protected Quaternion initalWorldRotation;
         protected SixDofJoint joint;
-        protected PhysicsRigidBody rigidBody;
         protected Quaternion startBlendingRot = new Quaternion();
         protected Vector3f startBlendingPos = new Vector3f();
+
+        public Bone getBone() {
+            return bone;
+        }
+
+        public PhysicsRigidBody getRigidBody() {
+            return rigidBody;
+        }
     }
 
     /**
@@ -820,34 +828,6 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
      */
     public void setCcdSweptSphereRadius(float value) {
         for (PhysicsBoneLink link : boneLinks.values()) {
-            link.rigidBody.setCcdSweptSphereRadius(value);
-        }
-    }
-
-    /**
-     * Set the CcdMotionThreshold of the given bone's rigidBodies of the ragdoll
-     * @see PhysicsRigidBody#setCcdMotionThreshold(float) 
-     * @param value 
-     * @deprecated use getBoneRigidBody(String BoneName).setCcdMotionThreshold(float) instead
-     */
-    @Deprecated
-    public void setBoneCcdMotionThreshold(String boneName, float value) {
-        PhysicsBoneLink link = boneLinks.get(boneName);
-        if (link != null) {
-            link.rigidBody.setCcdMotionThreshold(value);
-        }
-    }
-
-    /**
-     * Set the CcdSweptSphereRadius of the given bone's rigidBodies of the ragdoll
-     * @see PhysicsRigidBody#setCcdSweptSphereRadius(float) 
-     * @param value 
-     * @deprecated use getBoneRigidBody(String BoneName).setCcdSweptSphereRadius(float) instead
-     */
-    @Deprecated
-    public void setBoneCcdSweptSphereRadius(String boneName, float value) {
-        PhysicsBoneLink link = boneLinks.get(boneName);
-        if (link != null) {
             link.rigidBody.setCcdSweptSphereRadius(value);
         }
     }
