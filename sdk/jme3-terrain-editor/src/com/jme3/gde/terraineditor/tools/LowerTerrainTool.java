@@ -48,7 +48,7 @@ public class LowerTerrainTool extends TerrainTool {
     public void actionPrimary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject) {
         if (radius == 0 || weight == 0)
             return;
-        RaiseTerrainToolAction action = new RaiseTerrainToolAction(point, radius, -weight); // negative weight
+        RaiseTerrainToolAction action = new RaiseTerrainToolAction(point, radius, -weight, getMesh()); // negative weight
         action.doActionPerformed(rootNode, dataObject);
     }
 

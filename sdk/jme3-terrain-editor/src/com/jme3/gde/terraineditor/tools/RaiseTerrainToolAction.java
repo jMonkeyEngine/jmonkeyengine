@@ -33,6 +33,7 @@
 package com.jme3.gde.terraineditor.tools;
 
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.terraineditor.tools.TerrainTool.Meshes;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
@@ -50,11 +51,13 @@ public class RaiseTerrainToolAction extends AbstractTerrainToolAction {
     private Vector3f worldLoc;
     private float radius;
     private float height;
+    private Meshes mesh;
 
-    public RaiseTerrainToolAction(Vector3f markerLocation, float radius, float height) {
+    public RaiseTerrainToolAction(Vector3f markerLocation, float radius, float height, Meshes mesh) {
         this.worldLoc = markerLocation.clone();
         this.radius = radius;
         this.height = height;
+        this.mesh = mesh;
         name = "Raise terrain";
     }
 
@@ -63,7 +66,7 @@ public class RaiseTerrainToolAction extends AbstractTerrainToolAction {
         Terrain terrain = getTerrain(rootNode.getLookup().lookup(Node.class));
         if (terrain == null)
             return null;
-        modifyHeight(terrain, radius, height);
+        modifyHeight(terrain, worldLoc, radius, height, mesh);
         return terrain;
     }
     
@@ -71,10 +74,10 @@ public class RaiseTerrainToolAction extends AbstractTerrainToolAction {
     protected void doUndoTool(AbstractSceneExplorerNode rootNode, Object undoObject) {
         if (undoObject == null)
             return;
-        modifyHeight((Terrain)undoObject, radius, -height);
+        modifyHeight((Terrain)undoObject, worldLoc, radius, -height, mesh);
     }
 
-    private void modifyHeight(Terrain terrain, float radius, float heightDir) {
+    private void modifyHeight(Terrain terrain, Vector3f worldLoc, float radius, float heightDir, Meshes mesh) {
 
         int radiusStepsX = (int) (radius / ((Node)terrain).getWorldScale().x);
         int radiusStepsZ = (int) (radius / ((Node)terrain).getWorldScale().z);
@@ -86,13 +89,13 @@ public class RaiseTerrainToolAction extends AbstractTerrainToolAction {
         List<Float> heights = new ArrayList<Float>();
         
         for (int z=-radiusStepsZ; z<radiusStepsZ; z++) {
-            for (int x=-radiusStepsZ; x<radiusStepsX; x++) {
+            for (int x=-radiusStepsX; x<radiusStepsX; x++) {
 
                 float locX = worldLoc.x + (x*xStepAmount);
                 float locZ = worldLoc.z + (z*zStepAmount);
 
                 // see if it is in the radius of the tool
-                if (ToolUtils.isInRadius(locX-worldLoc.x,locZ-worldLoc.z,radius)) {
+                if (ToolUtils.isInMesh(locX-worldLoc.x,locZ-worldLoc.z,radius,mesh)) {
                     // adjust height based on radius of the tool
                     float h = ToolUtils.calculateHeight(radius, heightDir, locX-worldLoc.x, locZ-worldLoc.z);
                     // increase the height

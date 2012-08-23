@@ -62,6 +62,7 @@ public class TerrainToolController extends SceneToolController {
     private float toolRadius;
     private float toolWeight;
     private int selectedTextureIndex = -1;
+    private boolean mesh = false;
     
 
     public TerrainToolController(Node toolsNode, AssetManager manager, JmeNode rootNode) {
@@ -96,6 +97,11 @@ public class TerrainToolController extends SceneToolController {
     public void setHeightToolRadius(float radius) {
         this.toolRadius = radius;
         setEditToolSize(radius);
+    }
+    
+    public void setToolMesh(boolean mesh) {
+        this.mesh = mesh;
+        setEditToolMesh(this.mesh);
     }
 
     public void setSelectedTextureIndex(int index) {
@@ -144,6 +150,26 @@ public class TerrainToolController extends SceneToolController {
                 return null;
             }
         });
+    }
+    
+    public void setEditToolMesh(final boolean mesh) {
+        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+            public Object call() throws Exception {
+                doSetEditToolMesh(mesh);
+                return null;
+            }
+        });
+        
+    }
+    
+    public void doSetEditToolMesh(boolean mesh) {
+        if (terrainTool != null) {
+            if(mesh)
+                terrainTool.setMesh(TerrainTool.Meshes.Box);
+            else
+                terrainTool.setMesh(TerrainTool.Meshes.Sphere);
+        }
     }
 
     private void doSetEditToolSize(float size) {

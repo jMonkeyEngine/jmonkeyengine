@@ -48,7 +48,7 @@ public class SmoothTerrainTool extends TerrainTool {
     public void actionPrimary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject) {
         if (radius == 0 || weight == 0)
             return;
-        SmoothTerrainToolAction action = new SmoothTerrainToolAction(point, radius, weight);
+        SmoothTerrainToolAction action = new SmoothTerrainToolAction(point, radius, weight, getMesh());
         action.doActionPerformed(rootNode, dataObject);
     }
 

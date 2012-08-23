@@ -240,6 +240,13 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         slopeBrushPanel = new javax.swing.JPanel();
         slopePrecisionCheckbox = new javax.swing.JCheckBox();
         slopeLockCheckbox = new javax.swing.JCheckBox();
+        borderBrushPanel = new javax.swing.JPanel();
+        borderPrecisionCheckbox = new javax.swing.JCheckBox();
+        jLabel7 = new javax.swing.JLabel();
+        borderDistanceLabel = new javax.swing.JLabel();
+        borderDistanceField = new javax.swing.JFormattedTextField(NumberFormat.getInstance());
+        borderHeightLAbel = new javax.swing.JLabel();
+        borderHeightField = new javax.swing.JFormattedTextField(NumberFormat.getInstance());
         jToolBar1 = new javax.swing.JToolBar();
         createTerrainButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
@@ -259,7 +266,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         radiusSlider = new javax.swing.JSlider();
         heightLabel = new javax.swing.JLabel();
         heightSlider = new javax.swing.JSlider();
-        jPanel3 = new javax.swing.JPanel();
         toolSettingsPanel = new javax.swing.JPanel();
         paintingPanel = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -284,7 +290,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         levelBrushPanel.setOpaque(false);
         levelBrushPanel.setLayout(new java.awt.GridLayout(3, 2));
 
-        org.openide.awt.Mnemonics.setLocalizedText(levelPrecisionCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.levelPrecisionCheckbox.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(levelPrecisionCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.PrecisionCheckbox.text")); // NOI18N
+        levelPrecisionCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.PrecisionCheckbox.tooltip")); // NOI18N
         levelPrecisionCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 levelPrecisionCheckboxActionPerformed(evt);
@@ -295,7 +302,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel6.text")); // NOI18N
         levelBrushPanel.add(jLabel6);
 
-        org.openide.awt.Mnemonics.setLocalizedText(levelAbsoluteCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.levelAbsoluteCheckbox.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(levelAbsoluteCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.AbsoluteCheckbox.text")); // NOI18N
+        levelAbsoluteCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.AbsoluteCheckbox.tooltip")); // NOI18N
         levelAbsoluteCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 levelAbsoluteCheckboxActionPerformed(evt);
@@ -373,7 +381,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         slopeBrushPanel.setOpaque(false);
         slopeBrushPanel.setLayout(new java.awt.GridLayout(3, 2));
 
-        org.openide.awt.Mnemonics.setLocalizedText(slopePrecisionCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.slopePrecisionCheckbox.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(slopePrecisionCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.PrecisionCheckbox.text")); // NOI18N
+        slopePrecisionCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.PrecisionCheckbox.tooltip")); // NOI18N
         slopePrecisionCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 slopePrecisionCheckboxActionPerformed(evt);
@@ -382,12 +391,55 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         slopeBrushPanel.add(slopePrecisionCheckbox);
 
         org.openide.awt.Mnemonics.setLocalizedText(slopeLockCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.slopeLockCheckbox.text")); // NOI18N
+        slopeLockCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.slopeLockCheckbox.tooltip")); // NOI18N
         slopeLockCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 slopeLockCheckboxActionPerformed(evt);
             }
         });
         slopeBrushPanel.add(slopeLockCheckbox);
+
+        borderBrushPanel.setBackground(new java.awt.Color(204, 204, 204));
+        borderBrushPanel.setOpaque(false);
+        borderBrushPanel.setLayout(new java.awt.GridLayout(3, 2));
+
+        org.openide.awt.Mnemonics.setLocalizedText(borderPrecisionCheckbox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.PrecisionCheckbox.text")); // NOI18N
+        borderPrecisionCheckbox.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.PrecisionCheckbox.tooltip")); // NOI18N
+        borderPrecisionCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                borderPrecisionCheckboxActionPerformed(evt);
+            }
+        });
+        borderBrushPanel.add(borderPrecisionCheckbox);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jLabel7.text")); // NOI18N
+        borderBrushPanel.add(jLabel7);
+
+        org.openide.awt.Mnemonics.setLocalizedText(borderDistanceLabel, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.borderDistanceLabel.text")); // NOI18N
+        borderDistanceLabel.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.borderDistanceLabel.tooltip")); // NOI18N
+        borderBrushPanel.add(borderDistanceLabel);
+
+        borderDistanceField.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.borderDistanceField.text")); // NOI18N
+        borderDistanceField.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.borderDistanceLabel.tooltip")); // NOI18N
+        borderDistanceField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                borderDistanceFieldKeyTyped(evt);
+            }
+        });
+        borderBrushPanel.add(borderDistanceField);
+
+        org.openide.awt.Mnemonics.setLocalizedText(borderHeightLAbel, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.borderHeightLAbel.text")); // NOI18N
+        borderHeightLAbel.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.borderHeightLAbel.tooltip")); // NOI18N
+        borderBrushPanel.add(borderHeightLAbel);
+
+        borderHeightField.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.borderHeightField.text")); // NOI18N
+        borderHeightField.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.borderHeightLAbel.tooltip")); // NOI18N
+        borderHeightField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                borderHeightFieldKeyTyped(evt);
+            }
+        });
+        borderBrushPanel.add(borderHeightField);
 
         setBackground(java.awt.Color.gray);
 
@@ -569,23 +621,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         });
         jToolBar1.add(heightSlider);
 
-        jPanel3.setBackground(new java.awt.Color(204, 204, 204));
-        jPanel3.setForeground(new java.awt.Color(240, 240, 240));
-        jPanel3.setOpaque(false);
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 148, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 25, Short.MAX_VALUE)
-        );
-
-        jToolBar1.add(jPanel3);
-
         toolSettingsPanel.setBackground(new java.awt.Color(204, 204, 204));
         toolSettingsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.toolSettingsPanel.border.title"))); // NOI18N
         toolSettingsPanel.setOpaque(false);
@@ -622,7 +657,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         paintingPanelLayout.setVerticalGroup(
             paintingPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, paintingPanelLayout.createSequentialGroup()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(paintingPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(remainingTexTitleLabel)
@@ -710,7 +745,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         );
         hintPanelLayout.setVerticalGroup(
             hintPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -735,8 +770,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(hintPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(paintingPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(toolSettingsPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 128, Short.MAX_VALUE)))
+                    .addComponent(toolSettingsPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -950,10 +985,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         updateLevelToolParams();
     }//GEN-LAST:event_levelAbsoluteHeightFieldKeyTyped
 
-    private void levelAbsoluteCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_levelAbsoluteCheckboxActionPerformed
-        updateLevelToolParams();
-    }//GEN-LAST:event_levelAbsoluteCheckboxActionPerformed
-
     private void slopePrecisionCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_slopePrecisionCheckboxActionPerformed
         updateSlopeToolParams();
     }//GEN-LAST:event_slopePrecisionCheckboxActionPerformed
@@ -962,8 +993,31 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         updateSlopeToolParams();
     }//GEN-LAST:event_slopeLockCheckboxActionPerformed
 
+    private void levelAbsoluteCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_levelAbsoluteCheckboxActionPerformed
+        updateLevelToolParams();
+        levelAbsoluteHeightField.setEnabled(levelAbsoluteCheckbox.isEnabled());
+    }//GEN-LAST:event_levelAbsoluteCheckboxActionPerformed
+
+    private void borderPrecisionCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_borderPrecisionCheckboxActionPerformed
+        updateBorderToolParams();
+    }//GEN-LAST:event_borderPrecisionCheckboxActionPerformed
+
+    private void borderDistanceFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_borderDistanceFieldKeyTyped
+        updateBorderToolParams();
+    }//GEN-LAST:event_borderDistanceFieldKeyTyped
+
+    private void borderHeightFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_borderHeightFieldKeyTyped
+        updateBorderToolParams();
+    }//GEN-LAST:event_borderHeightFieldKeyTyped
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTextureButton;
+    private javax.swing.JPanel borderBrushPanel;
+    private javax.swing.JFormattedTextField borderDistanceField;
+    private javax.swing.JLabel borderDistanceLabel;
+    private javax.swing.JFormattedTextField borderHeightField;
+    private javax.swing.JLabel borderHeightLAbel;
+    private javax.swing.JCheckBox borderPrecisionCheckbox;
     private javax.swing.JButton createTerrainButton;
     private javax.swing.JToggleButton eraseButton;
     private javax.swing.JPanel fractalBrushPanel;
@@ -975,8 +1029,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JToolBar.Separator jSeparator1;
@@ -1062,11 +1116,23 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     }
     
     private void updateLevelToolParams() {
-        LevelExtraToolParams params = new LevelExtraToolParams();
-        params.absolute = levelAbsoluteCheckbox.isSelected();
-        params.precision = levelPrecisionCheckbox.isSelected();
-        params.height = new Float(levelAbsoluteHeightField.getText());
-        toolController.setExtraToolParams(params);
+        try {
+            LevelExtraToolParams params = new LevelExtraToolParams();
+            params.absolute = levelAbsoluteCheckbox.isSelected();
+            params.precision = levelPrecisionCheckbox.isSelected();
+            params.height = new Float(levelAbsoluteHeightField.getText());
+            toolController.setExtraToolParams(params);
+        } catch (NumberFormatException e) {}
+    }
+    
+    private void updateBorderToolParams() {
+        try {
+            BorderExtraToolParams params = new BorderExtraToolParams();
+            params.precision = borderPrecisionCheckbox.isSelected();
+            params.height = new Float(borderHeightField.getText());
+            params.distance = new Float(borderDistanceField.getText());
+            toolController.setExtraToolParams(params);
+        } catch (NumberFormatException e) {}
     }
     
     private void updateRoughenFractalToolParams() {
@@ -1091,6 +1157,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                 updateLevelToolParams();
             else if (toolController.getCurrentTerrainTool().getClass() == SlopeTerrainTool.class)
                 updateSlopeToolParams();
+            else if (toolController.getCurrentTerrainTool().getClass() == BorderTerrainTool.class)
+                updateBorderToolParams();
         }
     }
     
@@ -1424,6 +1492,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
             toolController.setHeightToolRadius((float) radiusSlider.getValue() / (float) radiusSlider.getMaximum());
             toolController.setHeightToolHeight((float) heightSlider.getValue() / (float) heightSlider.getMaximum());
+            //toolController.setToolMesh(meshForm.isSelected()); // future for adding brush shape
 
             editorController.setTerrainLodCamera();
 

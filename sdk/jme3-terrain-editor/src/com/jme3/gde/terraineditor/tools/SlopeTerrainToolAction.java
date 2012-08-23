@@ -32,6 +32,7 @@
 package com.jme3.gde.terraineditor.tools;
 
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.terraineditor.tools.TerrainTool.Meshes;
 import com.jme3.math.Plane;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
@@ -55,8 +56,9 @@ public class SlopeTerrainToolAction extends AbstractTerrainToolAction {
     private List<Float> undoHeights;
     private final boolean precise;
     private final boolean lock;
+    private final Meshes mesh;
 
-    public SlopeTerrainToolAction(Vector3f current, Vector3f point1, Vector3f point2, float radius, float weight, boolean precise, boolean lock) {
+    public SlopeTerrainToolAction(Vector3f current, Vector3f point1, Vector3f point2, float radius, float weight, boolean precise, boolean lock, Meshes mesh) {
         this.current = current.clone();
         this.point1 = point1;
         this.point2 = point2;
@@ -64,6 +66,7 @@ public class SlopeTerrainToolAction extends AbstractTerrainToolAction {
         this.weight = weight;
         this.precise = precise;
         this.lock = lock;
+        this.mesh = mesh;
         name = "Slope terrain";
     }
 
@@ -73,7 +76,7 @@ public class SlopeTerrainToolAction extends AbstractTerrainToolAction {
         if (terrain == null)
             return null;
 
-        modifyHeight(terrain, point1, point2, current, radius, weight, precise, lock);
+        modifyHeight(terrain, point1, point2, current, radius, weight, precise, lock, mesh);
 
         return terrain;
     }
@@ -89,7 +92,7 @@ public class SlopeTerrainToolAction extends AbstractTerrainToolAction {
         resetHeight((Terrain) undoObject, undoLocs, undoHeights, precise);
     }
 
-    private void modifyHeight(Terrain terrain, Vector3f point1, Vector3f point2, Vector3f current, float radius, float weight, boolean precise, boolean lock) {
+    private void modifyHeight(Terrain terrain, Vector3f point1, Vector3f point2, Vector3f current, float radius, float weight, boolean precise, boolean lock, Meshes mesh) {
         // Make sure we go for the right direction, or we could be creating a slope to the oposite side
         if (point1.y > point2.y) {
             Vector3f temp = point1;
@@ -97,7 +100,7 @@ public class SlopeTerrainToolAction extends AbstractTerrainToolAction {
             point2 = temp;
         }
 
-        float totaldistance = point1.distance(point2);
+        Vector3f subtract = point2.subtract(point1);
 
         int radiusStepsX = (int) (radius / ((Node) terrain).getLocalScale().x);
         int radiusStepsZ = (int) (radius / ((Node) terrain).getLocalScale().z);
@@ -115,18 +118,18 @@ public class SlopeTerrainToolAction extends AbstractTerrainToolAction {
         p2.setOriginNormal(point2, point1.subtract(point2).normalize());
 
         for (int z = -radiusStepsZ; z < radiusStepsZ; z++)
-            for (int x = -radiusStepsZ; x < radiusStepsX; x++) {
+            for (int x = -radiusStepsX; x < radiusStepsX; x++) {
 
                 float locX = current.x + (x * xStepAmount);
                 float locZ = current.z + (z * zStepAmount);
 
-                if (ToolUtils.isInRadius(locX - current.x, locZ - current.z, radius)) { // see if it is in the radius of the tool
+                if (ToolUtils.isInMesh(locX - current.x, locZ - current.z, radius, mesh)) { // see if it is in the radius of the tool
                     Vector2f terrainLoc = new Vector2f(locX, locZ);
 
                     // adjust height based on radius of the tool
                     float terrainHeightAtLoc = terrain.getHeightmapHeight(terrainLoc) * ((Node) terrain).getWorldScale().y;
-                    float point1Distance = point1.distance(new Vector3f(locX, terrainHeightAtLoc, locZ));
-                    float desiredHeight = point1.y + (point2.y - point1.y) * (point1Distance / totaldistance);
+                    float distance = point1.distance(new Vector3f(locX, terrainHeightAtLoc, locZ).subtractLocal(point1).project(subtract).addLocal(point1));
+                    float desiredHeight = point1.y + (point2.y - point1.y) * distance;
                     if (!lock || (lock && p1.whichSide(new Vector3f(locX, 0f, locZ)) != p2.whichSide(new Vector3f(locX, 0f, locZ))))
                         if (!precise) {
                             float epsilon = 0.1f * weight; // rounding error for snapping
@@ -134,14 +137,14 @@ public class SlopeTerrainToolAction extends AbstractTerrainToolAction {
                             float adj = 0;
                             if (terrainHeightAtLoc < desiredHeight)
                                 adj = 1;
-                            else
-                                if (terrainHeightAtLoc > desiredHeight)
-                                    adj = -1;
+                            else if (terrainHeightAtLoc > desiredHeight)
+                                adj = -1;
 
-                            float radiusWeight = ToolUtils.calculateRadiusPercent(radius, locX - current.x, locZ - current.z);
-
-                            adj *= radiusWeight * weight;
-
+                            adj *= weight;
+                            
+                            if (mesh.equals(Meshes.Sphere))
+                                adj *= ToolUtils.calculateRadiusPercent(radius, locX - current.x, locZ - current.z);
+                            
                             // test if adjusting too far and then cap it
                             if (adj > 0 && ToolUtils.floatGreaterThan((terrainHeightAtLoc + adj), desiredHeight, epsilon))
                                 adj = desiredHeight - terrainHeightAtLoc;
@@ -155,8 +158,8 @@ public class SlopeTerrainToolAction extends AbstractTerrainToolAction {
                             }
                         } else {
                             locs.add(terrainLoc);
-                            heights.add(desiredHeight);
-                            undoHeights.add(terrainHeightAtLoc);
+                            heights.add(desiredHeight / ((Node) terrain).getLocalScale().y);
+                            undoHeights.add(terrainHeightAtLoc / ((Node) terrain).getLocalScale().y);
                         }
 
 

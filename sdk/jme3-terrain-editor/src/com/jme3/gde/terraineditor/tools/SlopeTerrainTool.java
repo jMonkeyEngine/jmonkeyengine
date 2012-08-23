@@ -116,7 +116,7 @@ public class SlopeTerrainTool extends TerrainTool {
     @Override
     public void actionPrimary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject) {
         if (point1 != null && point2 != null && point1.distance(point2) > 0.01f) { // Preventing unexpected behavior, like destroying the terrain
-            SlopeTerrainToolAction action = new SlopeTerrainToolAction(point, point1, point2, radius, weight, toolParams.precision, toolParams.lock);
+            SlopeTerrainToolAction action = new SlopeTerrainToolAction(point, point1, point2, radius, weight, toolParams.precision, toolParams.lock, getMesh());
             action.actionPerformed(rootNode, dataObject);
         }
     }

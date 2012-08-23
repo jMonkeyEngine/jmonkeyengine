@@ -42,6 +42,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.IntMap.Entry;
 import org.openide.loaders.DataObject;
@@ -61,6 +62,11 @@ public abstract class TerrainTool {
     protected float radius;
     protected float weight;
     protected float maxToolSize = 20; // override in sub classes
+    private Meshes mesh;
+    
+    public static enum Meshes {
+        Box, Sphere
+    }
     
     // the key to load the tool hint text from the resource bundle
     protected String toolHintTextKey = "TerrainEditorTopComponent.toolHint.default";
@@ -119,10 +125,33 @@ public abstract class TerrainTool {
         if (markerPrimary != null) {
             for (Entry e: markerPrimary.getMesh().getBuffers())
                 ((VertexBuffer)e.getValue()).resetObject();
-            ((Sphere)markerPrimary.getMesh()).updateGeometry(8, 8, this.radius);
+            if (markerPrimary.getMesh() instanceof Sphere)
+                ((Sphere)markerPrimary.getMesh()).updateGeometry(8, 8, this.radius);
+            else if (markerPrimary.getMesh() instanceof Box)
+                ((Box)markerPrimary.getMesh()).updateGeometry(Vector3f.ZERO, this.radius, this.radius, this.radius);
         }
     }
     
+    /**
+     * Changes the appearence of the markers according to the {@code mesh} param.
+     * @param mesh possible values are: {@code sphere, box}.
+     */
+    public void setMesh(Meshes mesh) {
+        switch (mesh) {
+            case Box:
+                markerPrimary.setMesh(new Box(radius, radius, radius));
+                break;
+            case Sphere:
+                markerPrimary.setMesh(new Sphere(8, 8, radius));
+                break;
+        }
+        this.mesh = mesh;
+    }
+
+    public Meshes getMesh() {
+        return mesh;
+    }
+
     /**
      * The weight of the tool has changed. Optionally change
      * the marker look.
@@ -139,8 +168,7 @@ public abstract class TerrainTool {
     public void addMarkerPrimary(Node parent) {
         if (markerPrimary == null) {
             markerPrimary = new Geometry("edit marker primary");
-            Mesh m = new Sphere(8, 8, radius);
-            markerPrimary.setMesh(m);
+            setMesh(Meshes.Sphere);
             Material mat = new Material(manager, "Common/MatDefs/Misc/Unshaded.j3md");
             mat.getAdditionalRenderState().setWireframe(true);
             markerPrimary.setMaterial(mat);

@@ -69,7 +69,7 @@ public class LevelTerrainTool extends TerrainTool {
             desiredHeight = point.clone();
         if (toolParams.absolute)
             desiredHeight.y = toolParams.height;
-        LevelTerrainToolAction action = new LevelTerrainToolAction(point, radius, weight, desiredHeight, toolParams.precision);
+        LevelTerrainToolAction action = new LevelTerrainToolAction(point, radius, weight, desiredHeight, toolParams.precision, getMesh());
         action.doActionPerformed(rootNode, dataObject);
     }
 

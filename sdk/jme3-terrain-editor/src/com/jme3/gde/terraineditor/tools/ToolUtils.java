@@ -55,6 +55,39 @@ public class ToolUtils {
     }
 
     /**
+     * See if the X,Y coordinate is inside the box. It is assumed
+     * that the "grid" being tested is located at 0,0 and its dimensions are 2*radius.
+     * @param x
+     * @param z
+     * @param radius
+     * @return
+     */
+    public static boolean isInBox(final float x, final float y, final float radius) {
+        return Math.abs(x) <= Math.abs(radius) && Math.abs(y) <= Math.abs(radius);
+    }
+    
+    /**
+     * Based on the mesh type, chooses the proper way to see if the point is
+     * inside the marker mesh.It is assumed that the "grid" being tested is 
+     * located at 0,0 and its dimensions are 2*radius.
+     * @param x
+     * @param y
+     * @param radius
+     * @param mesh
+     * @return 
+     */
+    public static boolean isInMesh(float x, float y, float radius, TerrainTool.Meshes mesh) {
+        switch (mesh) {
+            case Box:
+                return isInBox(x, y, radius);
+            case Sphere:
+                return isInRadius(x, y, radius);
+            default:
+                throw new IllegalArgumentException("Unkown mesh type " + mesh);
+        }
+    }
+
+    /**
      * Interpolate the height value based on its distance from the center (how far along
      * the radius it is).
      * The farther from the center, the less the height will be.
