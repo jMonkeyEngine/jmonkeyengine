@@ -134,7 +134,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
      * Constructs the chase camera, and registers inputs
      * if you use this constructor you have to attach the cam later to a spatial
      * doing spatial.addControl(chaseCamera);
-     * @param cam the application camera     
+     * @param cam the application camera
      * @param inputManager the inputManager of the application to register inputs
      */
     public ChaseCamera(Camera cam, InputManager inputManager) {
@@ -167,7 +167,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
         }
 
     }
-    
+
 
     public void onAnalog(String name, float value, float tpf) {
         if (name.equals(ChaseCamMoveLeft)) {
@@ -370,7 +370,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
                 if (canRotate) {
                     //reseting the trailing lerp factor
                     trailingLerpFactor = 0;
-                    //stop trailing user has the control                  
+                    //stop trailing user has the control
                     trailing = false;
                 }
 
@@ -466,7 +466,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
             //keeping track on the previous position of the target
             prevPos.set(targetLocation);
 
-            //the cam looks at the target            
+            //the cam looks at the target
             cam.lookAt(targetLocation, initialUpVec);
 
         }
@@ -505,6 +505,9 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
      */
     public void setMaxDistance(float maxDistance) {
         this.maxDistance = maxDistance;
+        if (maxDistance < distance) {
+            zoomCamera(maxDistance - distance);
+        }
     }
 
     /**
@@ -521,6 +524,9 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
      */
     public void setMinDistance(float minDistance) {
         this.minDistance = minDistance;
+        if (minDistance > distance) {
+            zoomCamera(distance - minDistance);
+        }
     }
 
     /**
@@ -604,7 +610,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * 
+     *
      * @return The minimal vertical rotation angle in radian of the camera around the target
      */
     public float getMinVerticalRotation() {
@@ -643,7 +649,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * 
+     *
      * Sets the chasing sensitivity, the lower the value the slower the camera will follow the target when it moves
      * default is 5
      * Only has an effect if smoothMotion is set to true and trailing is enabled
@@ -665,7 +671,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
      * Sets the rotation sensitivity, the lower the value the slower the camera will rotates around the target when draging with the mouse
      * default is 5, values over 5 should have no effect.
      * If you want a significant slow down try values below 1.
-     * Only has an effect if smoothMotion is set to true 
+     * Only has an effect if smoothMotion is set to true
      * @param rotationSensitivity
      */
     public void setRotationSensitivity(float rotationSensitivity) {
@@ -682,7 +688,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
 
     /**
      * Enable the camera trailing : The camera smoothly go in the targets trail when it moves.
-     * Only has an effect if smoothMotion is set to true 
+     * Only has an effect if smoothMotion is set to true
      * @param trailingEnabled
      */
     public void setTrailingEnabled(boolean trailingEnabled) {
@@ -690,7 +696,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * 
+     *
      * returns the trailing rotation inertia
      * @return
      */
@@ -793,7 +799,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * @param rotateOnlyWhenClose When this flag is set to false the chase 
+     * @param rotateOnlyWhenClose When this flag is set to false the chase
      * camera will always rotate around its spatial independently of their
      * distance to one another. If set to true, the chase camera will only
      * be allowed to rotated below the "horizon" when the distance is smaller
@@ -804,8 +810,8 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     }
 
     /**
-     * @return True if rotation below the vertical plane of the spatial tied 
-     * to the camera is allowed only when zoomed in at minDistance + 1.0f. 
+     * @return True if rotation below the vertical plane of the spatial tied
+     * to the camera is allowed only when zoomed in at minDistance + 1.0f.
      * False if vertical rotation is always allowed.
      */
     public boolean getDownRotateOnCloseViewOnly() {
@@ -851,18 +857,18 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     public void setLookAtOffset(Vector3f lookAtOffset) {
         this.lookAtOffset = lookAtOffset;
     }
-    
+
     /**
      * Sets the up vector of the camera used for the lookAt on the target
-     * @param up 
+     * @param up
      */
     public void setUpVector(Vector3f up){
         initialUpVec=up;
     }
-    
+
     /**
      * Returns the up vector of the camera used for the lookAt on the target
-     * @return 
+     * @return
      */
     public Vector3f getUpVector(){
         return initialUpVec;
