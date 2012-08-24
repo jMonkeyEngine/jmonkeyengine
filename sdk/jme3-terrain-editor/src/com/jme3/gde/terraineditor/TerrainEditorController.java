@@ -53,7 +53,6 @@ import com.jme3.terrain.Terrain;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
-import com.sun.imageio.plugins.common.ImageUtil;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
