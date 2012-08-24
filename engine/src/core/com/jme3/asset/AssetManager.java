@@ -38,6 +38,7 @@ import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioKey;
 import com.jme3.font.BitmapFont;
 import com.jme3.material.Material;
+import com.jme3.post.FilterPostProcessor;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.OBJLoader;
 import com.jme3.shader.Shader;
@@ -346,4 +347,22 @@ public interface AssetManager {
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey) 
      */
     public BitmapFont loadFont(String name);
+    
+    /**
+     * Loads a filter *.j3f file with a FilterKey.
+     * @param key Asset key of the filter file to load
+     * @return The filter that was loaded
+     *
+     * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
+     */
+    public FilterPostProcessor loadFilter(FilterKey key);
+
+    /**
+     * Loads a filter *.j3f file with a FilterKey.
+     * @param name Asset name of the filter file to load
+     * @return The filter that was loaded
+     *
+     * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
+     */
+    public FilterPostProcessor loadFilter(String name);
 }
