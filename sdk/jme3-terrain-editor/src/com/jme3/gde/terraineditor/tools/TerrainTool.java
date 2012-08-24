@@ -34,6 +34,7 @@ package com.jme3.gde.terraineditor.tools;
 import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.terraineditor.ExtraToolParams;
+import com.jme3.input.KeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -62,6 +63,9 @@ public abstract class TerrainTool {
     protected float radius;
     protected float weight;
     protected float maxToolSize = 20; // override in sub classes
+    private boolean doStraightline = false;
+    private Vector3f startPress;
+    private Vector3f axis;
     private Meshes mesh;
     
     public static enum Meshes {
@@ -92,9 +96,24 @@ public abstract class TerrainTool {
     public abstract void actionSecondary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject);
     
     /**
+     * Signals that this tool will or will not snap to fixed axis angles
+     */
+    protected boolean useStraightLine() {
+        return false;
+    }
+    
+    /**
      * Key was pressed.
      */
-    public void keyPressed(KeyInputEvent kie) {}
+    public void keyPressed(KeyInputEvent kie) {
+        if (useStraightLine() && (kie.getKeyCode() == KeyInput.KEY_LCONTROL || kie.getKeyCode() == KeyInput.KEY_RCONTROL)) {
+            doStraightline = kie.isPressed();
+            if (!doStraightline) { // Clean the values
+                startPress = null;
+                axis = null;
+            }
+        }
+    }
     
     /**
      * Location of the primary editor marker
@@ -111,8 +130,36 @@ public abstract class TerrainTool {
      * @param newLoc 
      */
     public void markerMoved(Vector3f newLoc) {
-        if (markerPrimary != null)
-            markerPrimary.setLocalTranslation(newLoc);
+        if (markerPrimary != null) {
+            if (!useStraightLine() || (!doStraightline && useStraightLine()))
+                markerPrimary.setLocalTranslation(newLoc); // if we're not using the straight line feature or the key isn't pressed
+            else {
+                if (startPress == null)
+                    startPress = newLoc.clone(); // the user just started presseing
+                else {
+                    Vector3f sub = newLoc.subtract(startPress);
+                    if (axis == null) {
+                        // grab the axis that the user is moving
+                        Vector3f closest = Vector3f.UNIT_X;
+                        float dist = sub.distance(closest);
+                        float ddist;
+                        if ((ddist = sub.distance(Vector3f.UNIT_Z)) < dist) {
+                            closest = Vector3f.UNIT_Z;
+                            dist = ddist;
+                        }
+                        if ((ddist = sub.distance(Vector3f.UNIT_Z.negate())) < dist) {
+                            closest = Vector3f.UNIT_Z;
+                            dist = ddist;
+                        }
+                        if (sub.distance(Vector3f.UNIT_X.negate()) < dist) {
+                            closest = Vector3f.UNIT_X;
+                        }
+                        axis = closest;
+                    }
+                    markerPrimary.setLocalTranslation(sub.mult(axis).add(startPress)); // move the marker in straight line
+                }
+            }
+        }
     }
     
     /**

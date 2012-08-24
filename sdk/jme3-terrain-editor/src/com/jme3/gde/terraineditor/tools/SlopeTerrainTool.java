@@ -47,6 +47,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.BillboardControl;
 import com.jme3.scene.shape.Line;
+import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import org.openide.loaders.DataObject;
 
@@ -67,6 +68,11 @@ public class SlopeTerrainTool extends TerrainTool {
         toolHintTextKey = "TerrainEditorTopComponent.toolHint.slope";
     }
 
+    @Override
+    protected boolean useStraightLine() {
+        return true;
+    }
+    
     @Override
     public void activate(AssetManager manager, Node parent) {
         super.activate(manager, parent);
@@ -123,6 +129,7 @@ public class SlopeTerrainTool extends TerrainTool {
 
     @Override
     public void keyPressed(KeyInputEvent kie) {
+        super.keyPressed(kie);
         switch (kie.getKeyCode()) {
             case KeyInput.KEY_LCONTROL:
                 leftCtrl = kie.isPressed();
