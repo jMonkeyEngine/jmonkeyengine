@@ -118,13 +118,27 @@ public final class Natives {
     }
 
     public static void extractNativeLib(String sysName, String name, boolean load, boolean warning) throws IOException {
-        String fullname = System.mapLibraryName(name);
-
-        String path = "native/" + sysName + "/" + fullname;
-        //XXX: Hack to extract jnilib to dylib on OSX Java 1.7+
-        if(sysName.equals("macosx")){
-            path = path.replaceAll("dylib","jnilib");
+        String fullname;
+        String path;
+        //XXX: hack to allow specifying the extension via supplying an extension in the name (e.g. "blah.dylib")
+        //     this is needed on osx where the openal.dylib always needs to be extracted as dylib
+        //     and never as jnilib, even if that is the platform JNI lib suffix (OpenAL is no JNI library)
+        if(!name.contains(".")){
+            // automatic name mapping
+            fullname = System.mapLibraryName(name);
+            path = "native/" + sysName + "/" + fullname;
+            //XXX: Hack to extract jnilib to dylib on OSX Java 1.7+
+            //     This assumes all jni libs for osx are stored as "jnilib" in the jar file.
+            //     It will be extracted with the name required for the platform.
+            //     At a later stage this should probably inverted so that dylib is the default name.
+            if(sysName.equals("macosx")){
+                path = path.replaceAll("dylib","jnilib");
+            }
+        } else{
+            fullname = name;
+            path = "native/" + sysName + "/" + fullname;
         }
+
         URL url = Thread.currentThread().getContextClassLoader().getResource(path);
 
         if (url == null) {
@@ -296,8 +310,9 @@ public final class Natives {
                 if (needLWJGL) {
                     extractNativeLib("macosx", "lwjgl");
                 }
-//                if (needOAL)
-//                    extractNativeLib("macosx", "openal");
+                if (needOAL){
+                    extractNativeLib("macosx", "openal.dylib");
+                }
                 if (needJInput) {
                     extractNativeLib("macosx", "jinput-osx");
                 }
