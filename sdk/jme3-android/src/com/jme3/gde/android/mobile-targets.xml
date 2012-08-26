@@ -2,28 +2,20 @@
         <os family="windows" />
     </condition>
     
-        <target name="run-android" depends="-flag-no-android, jar, -test-android-enabled, -copy-android-libs" if="is.android.enabled">
+    <target name="run-android" depends="-flag-no-android, jar, -test-android-enabled, -copy-android-libs" if="is.android.enabled">
         <echo>Building debug android application version.</echo>
-        <ant dir="mobile" target="debug">
-            <property name="manifest.abs.file" location="mobile/AndroidManifest.xml"/>
-        </ant>
+        <ant dir="mobile" target="debug" inheritall="false"/>
         <antcall target="-start-android-device"/>
-        <ant dir="mobile" target="installd">
-            <property name="manifest.abs.file" location="mobile/AndroidManifest.xml"/>
-        </ant>
+        <ant dir="mobile" target="installd" inheritall="false"/>
         <antcall target="-run-android-device"/>
     </target>
     
     <target name="clean-android">
-        <ant dir="mobile" target="clean">
-            <property name="manifest.abs.file" location="mobile/AndroidManifest.xml"/>
-        </ant>
+        <ant dir="mobile" target="clean" inheritall="false"/>
     </target>
     
     <target name="-mobile-deployment" depends="-test-android-enabled, -copy-android-libs" if="is.android.enabled" unless="no.android.build">
-        <ant dir="mobile" target="release">
-            <property name="manifest.abs.file" location="mobile/AndroidManifest.xml"/>
-        </ant>
+        <ant dir="mobile" target="release" inheritall="false"/>
         <copy todir="dist" verbose="false" flatten="true">
             <fileset dir="mobile/bin/">
                 <include name="**/*.apk"/>
