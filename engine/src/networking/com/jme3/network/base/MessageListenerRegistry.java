@@ -96,6 +96,8 @@ public class MessageListenerRegistry<S> implements MessageListener<S>
     
     public void addMessageListener( MessageListener<? super S> listener )
     {
+        if( listener == null )
+            throw new IllegalArgumentException( "Listener cannot be null." );
         listeners.add(listener);
     } 
 
@@ -106,6 +108,8 @@ public class MessageListenerRegistry<S> implements MessageListener<S>
 
     public void addMessageListener( MessageListener<? super S> listener, Class... classes )
     {
+        if( listener == null )
+            throw new IllegalArgumentException( "Listener cannot be null." );
         for( Class c : classes ) {
             getListeners(c, true).add(listener);
         }
