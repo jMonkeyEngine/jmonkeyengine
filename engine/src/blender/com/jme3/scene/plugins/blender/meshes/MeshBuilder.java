@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
@@ -12,6 +13,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 
 /*package*/ class MeshBuilder {
+	private static final Logger LOGGER = Logger.getLogger(MeshBuilder.class.getName());
+	
 	/** An array of reference vertices. */
 	private Vector3f[][] verticesAndNormals;
 	/** An list of vertices colors. */
@@ -48,6 +51,26 @@ import com.jme3.util.BufferUtils;
 		this.verticesColors = verticesColors;
 		this.usesGeneratedTextures = usesGeneratedTextures;
 		globalVertexReferenceMap = new HashMap<Integer, Map<Integer, List<Integer>>>(verticesAndNormals.length);
+	}
+	
+	/**
+	 * This method adds a point to the mesh.
+	 * @param coordinates the coordinates of the point
+	 * @param normal the point's normal vector
+	 * @param materialNumber the material number for this point
+	 */
+	public void appendPoint(Vector3f coordinates, Vector3f normal, int materialNumber) {
+		LOGGER.warning("Appending single point not yet supported!");//TODO
+	}
+	
+	/**
+	 * This method adds a line to the mesh.
+	 * @param v1 index of the 1'st vertex from the reference vertex table
+	 * @param v2 index of the 2'nd vertex from the reference vertex table
+	 * @param smooth indicates if this face should have smooth shading or flat shading
+	 */
+	public void appendEdge(int v1, int v2, boolean smooth) {
+		LOGGER.warning("Appending single line not yet supported!");//TODO
 	}
 	
 	/**

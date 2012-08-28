@@ -111,12 +111,12 @@ public class MeshHelper extends AbstractBlenderHelper {
         
         MeshBuilder meshBuilder = new MeshBuilder(verticesAndNormals, verticesColors, this.areGeneratedTexturesPresent(materials));
 
-        Pointer pMFace = (Pointer) structure.getFieldValue("mface");
-        if(pMFace.isNotNull()) {
-        	this.readTraditionalFaces(meshBuilder, structure, blenderContext);
-        } else {
+        if(this.isBMeshCompatible(structure)) {
         	this.readBMesh(meshBuilder, structure, blenderContext);
+        } else {
+        	this.readTraditionalFaces(meshBuilder, structure, blenderContext);
         }
+
         if(meshBuilder.isEmpty()) {
         	geometries = new ArrayList<Geometry>(0);
         	blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, geometries);
@@ -236,6 +236,19 @@ public class MeshHelper extends AbstractBlenderHelper {
     }
     
 	/**
+	 * Tells if the given mesh structure supports BMesh.
+	 * 
+	 * @param meshStructure
+	 *            the mesh structure
+	 * @return <b>true</b> if BMesh is supported and <b>false</b> otherwise
+	 */
+    private boolean isBMeshCompatible(Structure meshStructure) {
+    	Pointer pMLoop = (Pointer) meshStructure.getFieldValue("mloop");
+		Pointer pMPoly = (Pointer) meshStructure.getFieldValue("mpoly");
+		return pMLoop != null && pMPoly != null;
+    }
+    
+	/**
 	 * This method reads the mesh from the new BMesh system.
 	 * 
 	 * @param meshBuilder
@@ -316,7 +329,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 	@SuppressWarnings("unchecked")
 	private void readTraditionalFaces(MeshBuilder meshBuilder, Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
 		Pointer pMFace = (Pointer) meshStructure.getFieldValue("mface");
-		List<Structure> mFaces = pMFace.fetchData(blenderContext.getInputStream());
+		List<Structure> mFaces = pMFace.isNotNull() ? pMFace.fetchData(blenderContext.getInputStream()) : null;
 		if (mFaces != null && mFaces.size() > 0) {
 			Pointer pMTFace = (Pointer) meshStructure.getFieldValue("mtface");
 			List<Structure> mtFaces = null;
@@ -360,6 +373,20 @@ public class MeshHelper extends AbstractBlenderHelper {
 						uvCoordinatesForFace[2] = new Vector2f(uvs.get(3, 0).floatValue(), uvs.get(3, 1).floatValue());
 					}
 					meshBuilder.appendFace(v1, v3, v4, smooth, materialNumber, uvs == null ? null : uvCoordinatesForFace, true, i);
+				}
+			}
+		} else {
+			Pointer pMEdge = (Pointer) meshStructure.getFieldValue("medge");
+			List<Structure> mEdges = pMEdge.isNotNull() ? pMEdge.fetchData(blenderContext.getInputStream()) : null;
+			if (mEdges != null && mEdges.size() > 0) {
+				for (int i = 0; i < mEdges.size(); ++i) {
+					Structure mEdge = mEdges.get(i);
+					boolean smooth = (((Number) mEdge.getFieldValue("flag")).byteValue() & 0x01) != 0x00;
+
+					int v1 = ((Number) mEdge.getFieldValue("v1")).intValue();
+					int v2 = ((Number) mEdge.getFieldValue("v2")).intValue();
+
+					meshBuilder.appendEdge(v1, v2, smooth);
 				}
 			}
 		}
