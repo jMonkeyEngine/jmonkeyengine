@@ -236,6 +236,39 @@ public class UVCoordinatesGenerator {
 		}
 		return result;
 	}
+	
+	/**
+	 * This method should be used to determine if the texture will ever be
+	 * computed. If the texture coordinates are not supported then the try of
+	 * flattening the texture might result in runtime exceptions occurence.
+	 * 
+	 * @param texco
+	 *            the texture coordinates type
+	 * @return <b>true</b> if the type is supported and false otherwise
+	 */
+	public static boolean isTextureCoordinateTypeSupported(UVCoordinatesType texco) {
+		switch (texco) {
+			case TEXCO_ORCO:
+			case TEXCO_UV:
+			case TEXCO_NORM:
+				return true;
+			case TEXCO_REFL:
+			case TEXCO_GLOB:
+			case TEXCO_TANGENT:
+			case TEXCO_STRESS:
+			case TEXCO_LAVECTOR:
+			case TEXCO_OBJECT:
+			case TEXCO_OSA:
+			case TEXCO_PARTICLE_OR_STRAND:
+			case TEXCO_SPEED:
+			case TEXCO_STICKY:
+			case TEXCO_VIEW:
+			case TEXCO_WINDOW:
+				return false;
+			default:
+				throw new IllegalStateException("Unknown texture coordinates value: " + texco);
+		}
+	}
 
 	/**
 	 * This method returns the bounding box of the given geometries.
