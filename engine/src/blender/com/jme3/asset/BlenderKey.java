@@ -100,6 +100,8 @@ public class BlenderKey extends ModelKey {
 	protected boolean							loadObjectProperties	= true;
 	/** Maximum texture size. Might be dependant on the graphic card.*/
 	protected int								maxTextureSize = -1;
+	/** Allows to toggle generated textures loading. Disabled by default because it very often takes too much memory and needs to be used wisely. */
+	protected boolean							loadGeneratedTextures;
 	
 	/**
 	 * Constructor used by serialization mechanisms.
@@ -203,6 +205,21 @@ public class BlenderKey extends ModelKey {
 	 */
 	public void setMaxTextureSize(int maxTextureSize) {
 		this.maxTextureSize = maxTextureSize;
+	}
+	
+	/**
+	 * This method sets the flag that toggles the generated textures loading.
+	 * @param loadGeneratedTextures <b>true</b> if generated textures should be loaded and <b>false</b> otherwise
+	 */
+	public void setLoadGeneratedTextures(boolean loadGeneratedTextures) {
+		this.loadGeneratedTextures = loadGeneratedTextures;
+	}
+	
+	/**
+	 * @return tells if the generated textures should be loaded (<b>false</b> is the default value)
+	 */
+	public boolean isLoadGeneratedTextures() {
+		return loadGeneratedTextures;
 	}
 	
 	/**

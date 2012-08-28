@@ -84,21 +84,23 @@ public class CombinedTexture {
 		if (!(texture instanceof GeneratedTexture) && !(texture instanceof Texture2D)) {
 			throw new IllegalArgumentException("Unsupported texture type: " + (texture == null ? "null" : texture.getClass()));
 		}
-		if(UVCoordinatesGenerator.isTextureCoordinateTypeSupported(UVCoordinatesType.valueOf(uvCoordinatesType))) {
-			TextureData textureData = new TextureData();
-			textureData.texture = texture;
-			textureData.textureBlender = textureBlender;
-			textureData.uvCoordinatesType = UVCoordinatesType.valueOf(uvCoordinatesType);
-			textureData.projectionType = UVProjectionType.valueOf(projectionType);
-			textureData.textureStructure = textureStructure;
-
-			if (this.isWithoutAlpha(textureData, blenderContext)) {
-				textureDatas.clear();// clear previous textures, they will be covered anyway
+		if(!(texture instanceof GeneratedTexture) || blenderContext.getBlenderKey().isLoadGeneratedTextures()) {
+			if(UVCoordinatesGenerator.isTextureCoordinateTypeSupported(UVCoordinatesType.valueOf(uvCoordinatesType))) {
+				TextureData textureData = new TextureData();
+				textureData.texture = texture;
+				textureData.textureBlender = textureBlender;
+				textureData.uvCoordinatesType = UVCoordinatesType.valueOf(uvCoordinatesType);
+				textureData.projectionType = UVProjectionType.valueOf(projectionType);
+				textureData.textureStructure = textureStructure;
+	
+				if (this.isWithoutAlpha(textureData, blenderContext)) {
+					textureDatas.clear();// clear previous textures, they will be covered anyway
+				}
+				textureDatas.add(textureData);
+			} else {
+				LOGGER.warning("The texture coordinates type is not supported: " + UVCoordinatesType.valueOf(uvCoordinatesType) + ". The texture '" + textureStructure.getName() + "'.");
 			}
-			textureDatas.add(textureData);
-		} else {
-			LOGGER.warning("The texture coordinates type is not supported: " + UVCoordinatesType.valueOf(uvCoordinatesType) + ". The texture '" + textureStructure.getName() + "'.");
-		}		
+		}
 	}
 
 	/**
