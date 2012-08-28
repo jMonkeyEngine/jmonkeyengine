@@ -34,6 +34,7 @@ package com.jme3.scene.plugins.blender.meshes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.math.Vector2f;
@@ -62,6 +63,8 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski (Kaelthas)
  */
 public class MeshHelper extends AbstractBlenderHelper {
+	private static final Logger LOGGER = Logger.getLogger(MeshHelper.class.getName());
+	
     /**
      * This constructor parses the given blender version and stores the result. Some functionalities may differ in different blender
      * versions.
@@ -213,6 +216,11 @@ public class MeshHelper extends AbstractBlenderHelper {
                 	List<Vector2f> uvCoordinates = meshBuilder.getUVCoordinates(materialNumber);
 	                MaterialContext materialContext = materials[materialNumber];
 	                materialContext.applyMaterial(geometry, structure.getOldMemoryAddress(), uvCoordinates, blenderContext);
+                } else {
+                	geometry.setMaterial(blenderContext.getDefaultMaterial());
+                	LOGGER.warning("The importer came accross mesh that points to a null material. Default material is used to prevent loader from crashing, " +
+                				   "but the model might look not the way it should. Sometimes blender does not assign materials properly. " + 
+                				   "Enter the edit mode and assign materials once more to your faces.");
                 }
         	}
         } else {
