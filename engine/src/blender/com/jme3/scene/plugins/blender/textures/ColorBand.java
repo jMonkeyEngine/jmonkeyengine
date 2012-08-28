@@ -154,10 +154,10 @@ public class ColorBand {
 						float[] ipoFactors = new float[4];
 						float f;
 
-						ColorBandData data0 = cbDataMap.get(currentCursor - 2);
-						ColorBandData data1 = cbDataMap.get(currentCursor - 1);
-						ColorBandData data2 = cbDataMap.get(currentCursor);
-						ColorBandData data3 = cbDataMap.get(currentCursor + 1);
+						ColorBandData data0 = this.getColorbandData(currentCursor - 2, cbDataMap);
+						ColorBandData data1 = this.getColorbandData(currentCursor - 1, cbDataMap);
+						ColorBandData data2 = this.getColorbandData(currentCursor, cbDataMap);
+						ColorBandData data3 = this.getColorbandData(currentCursor + 1, cbDataMap);
 
 						for (int i = 0; i < result.length; ++i) {
 							if (data2.pos != data1.pos) {
@@ -234,6 +234,14 @@ public class ColorBand {
 		}
 		return result;
 	}
+	
+	private ColorBandData getColorbandData(int index, Map<Integer, ColorBandData> cbDataMap) {
+		ColorBandData result = cbDataMap.get(index);
+		if(result == null) {
+			result = new ColorBandData();
+		}
+		return result;
+	}
 
 	/**
 	 * This method returns the data for either B-spline of Cardinal
@@ -272,6 +280,11 @@ public class ColorBand {
 		public final float	r, g, b, a;
 		public int			pos;
 
+		public ColorBandData() {
+			r = g = b = 0;
+			a = 1;
+		}
+		
 		/**
 		 * Copy constructor.
 		 */
