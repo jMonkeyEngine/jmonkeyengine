@@ -78,7 +78,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
     @Override
     public void showErrorDialog(String message) {
         final String msg = message;
-        final String title = "Error in jMonkeyEngine app";
+        final String title = "Error in application";
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 JOptionPane.showMessageDialog(null, msg, title, JOptionPane.ERROR_MESSAGE);
