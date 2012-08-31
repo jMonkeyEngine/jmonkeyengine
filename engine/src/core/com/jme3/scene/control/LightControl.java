@@ -36,6 +36,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -128,12 +129,12 @@ public class LightControl extends AbstractControl {
         if (light instanceof DirectionalLight) {
             ((DirectionalLight) light).setDirection(vars.vect1.set(spatial.getWorldTranslation()).multLocal(-1.0f));
         }
+
+        if (light instanceof SpotLight) {
+            ((SpotLight) light).setPosition(spatial.getWorldTranslation());            
+            ((SpotLight) light).setDirection(spatial.getWorldRotation().multLocal(vars.vect1.set(Vector3f.UNIT_Y).multLocal(-1)));
+        }
         vars.release();
-        //TODO add code for Spot light here when it's done
-//        if( light instanceof SpotLight){
-//            ((SpotLight)light).setPosition(spatial.getWorldTranslation());                
-//            ((SpotLight)light).setRotation(spatial.getWorldRotation());
-//        }
 
     }
 
