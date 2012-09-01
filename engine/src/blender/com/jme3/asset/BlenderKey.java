@@ -49,7 +49,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.light.AmbientLight;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.FaceCullMode;
-import com.jme3.renderer.Camera;
+import com.jme3.scene.CameraNode;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.SceneGraphVisitor;
@@ -513,7 +513,7 @@ public class BlenderKey extends ModelKey {
 		/** Animations of all objects. */
 		private List<AnimData>	animations;
 		/** All cameras from the file. */
-		private List<Camera>	cameras;
+		private List<CameraNode>cameras;
 		/** All lights from the file. */
 		private List<LightNode>	lights;
 
@@ -541,7 +541,7 @@ public class BlenderKey extends ModelKey {
 				}
 			}
 			if ((featuresToLoad & FeaturesToLoad.CAMERAS) != 0) {
-				cameras = new ArrayList<Camera>();
+				cameras = new ArrayList<CameraNode>();
 			}
 			if ((featuresToLoad & FeaturesToLoad.LIGHTS) != 0) {
 				lights = new ArrayList<LightNode>();
@@ -606,7 +606,7 @@ public class BlenderKey extends ModelKey {
 		 * @param camera
 		 *        camera to be added to the result set
 		 */
-		public void addCamera(Camera camera) {
+		public void addCamera(CameraNode camera) {
 			if (cameras != null) {
 				cameras.add(camera);
 			}
@@ -667,7 +667,7 @@ public class BlenderKey extends ModelKey {
 		 * This method returns all loaded cameras.
 		 * @return all loaded cameras
 		 */
-		public List<Camera> getCameras() {
+		public List<CameraNode> getCameras() {
 			return cameras;
 		}
 

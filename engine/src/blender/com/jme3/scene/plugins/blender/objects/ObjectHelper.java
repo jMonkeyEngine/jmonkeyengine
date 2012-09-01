@@ -41,7 +41,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.Camera;
+import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
@@ -207,9 +207,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					if(pCamera.isNotNull()) {
 						CameraHelper cameraHelper = blenderContext.getHelper(CameraHelper.class);
 						List<Structure> camerasArray = pCamera.fetchData(blenderContext.getInputStream());
-						Camera camera = cameraHelper.toCamera(camerasArray.get(0));
-						camera.setLocation(t.getTranslation());
-						camera.setRotation(t.getRotation());
+						CameraNode camera = cameraHelper.toCamera(camerasArray.get(0));
+						camera.setName(name);
+						camera.setLocalTransform(t);
 						result = camera;
 					}
 					break;

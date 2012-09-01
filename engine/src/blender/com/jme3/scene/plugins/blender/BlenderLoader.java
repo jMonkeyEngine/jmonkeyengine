@@ -43,7 +43,7 @@ import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.LoadingResults;
 import com.jme3.asset.BlenderKey.WorldData;
 import com.jme3.asset.ModelKey;
-import com.jme3.renderer.Camera;
+import com.jme3.scene.CameraNode;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -86,20 +86,14 @@ public class BlenderLoader extends AbstractBlenderLoader {
 				switch (block.getCode()) {
 					case FileBlockHeader.BLOCK_OB00:// Object
 						Object object = this.toObject(block.getStructure(blenderContext));
-						if(object instanceof LightNode) {
-							if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
-								loadingResults.addLight((LightNode) object);
-							}
-						} else if (object instanceof Node) {
-							if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
-								LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
-								if (this.isRootObject(loadingResults, (Node)object)) {
-									loadingResults.addObject((Node) object);
-								}
-							}
-						} else if (object instanceof Camera) {
-							if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.CAMERAS) != 0) {
-								loadingResults.addCamera((Camera) object);
+						if(object instanceof LightNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
+							loadingResults.addLight((LightNode) object);
+						} else if (object instanceof CameraNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.CAMERAS) != 0) {
+							loadingResults.addCamera((CameraNode) object);
+						} else if (object instanceof Node && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
+							LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+							if (this.isRootObject(loadingResults, (Node)object)) {
+								loadingResults.addObject((Node) object);
 							}
 						}
 						break;

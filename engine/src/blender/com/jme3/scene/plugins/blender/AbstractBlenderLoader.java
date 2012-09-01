@@ -31,13 +31,17 @@
  */
 package com.jme3.scene.plugins.blender;
 
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.WorldData;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.Light;
 import com.jme3.math.ColorRGBA;
-import com.jme3.renderer.Camera;
+import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
@@ -49,9 +53,6 @@ import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.lights.LightHelper;
 import com.jme3.scene.plugins.blender.meshes.MeshHelper;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This class converts blender file blocks into jMonkeyEngine data structures.
@@ -99,7 +100,7 @@ import java.util.logging.Logger;
 	 *        structure of a camera
 	 * @return camera's node
 	 */
-	public Camera toCamera(Structure structure) throws BlenderFileException {
+	public CameraNode toCamera(Structure structure) throws BlenderFileException {
 		CameraHelper cameraHelper = blenderContext.getHelper(CameraHelper.class);
 		if (cameraHelper.shouldBeLoaded(structure, blenderContext)) {
 			return cameraHelper.toCamera(structure);
