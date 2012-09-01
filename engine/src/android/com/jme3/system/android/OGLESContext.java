@@ -43,6 +43,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import com.jme3.input.*;
 import com.jme3.input.android.AndroidInput;
+import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
@@ -76,6 +77,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected AndroidInput androidInput;
     protected AndroidGLSurfaceView view;
     protected int minFrameDuration = 0;                   // No FPS cap
+    protected JoyInput androidSensorJoyInput = null;
     /**
      * EGL_RENDERABLE_TYPE: EGL_OPENGL_ES_BIT = OpenGL ES 1.0 |
      * EGL_OPENGL_ES2_BIT = OpenGL ES 2.0
@@ -106,6 +108,12 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      * @return GLSurfaceView The newly created view
      */
     public GLSurfaceView createView(ConfigType configType, boolean eglConfigVerboseLogging) {
+        // if simulated joysticks are used, init the window to update the activity used to
+        // get the window orientation
+        if (androidSensorJoyInput != null && androidSensorJoyInput instanceof AndroidSensorJoyInput) {
+            ((AndroidSensorJoyInput)androidSensorJoyInput).initWindow();
+        }
+
         // Start to set up the view
         view = new AndroidGLSurfaceView(JmeAndroidSystem.getActivity());
         if (androidInput == null) {
@@ -268,7 +276,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
     @Override
     public JoyInput getJoyInput() {
-        return null;
+        if (androidSensorJoyInput == null) {
+            androidSensorJoyInput = new AndroidSensorJoyInput();
+        }
+        return androidSensorJoyInput;
     }
 
     @Override

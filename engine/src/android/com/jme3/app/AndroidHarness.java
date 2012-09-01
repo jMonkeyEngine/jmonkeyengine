@@ -15,7 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
+import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.controls.TouchListener;
 import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.event.TouchEvent;
@@ -60,6 +62,13 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * If true all valid and not valid egl configs are logged
      */
     protected boolean eglConfigVerboseLogging = false;
+
+    /**
+     * If true Android Sensors are used as simulated Joysticks
+     * Users can use the Android sensor feedback through the RawInputListener
+     * or by registering JoyAxisTriggers.
+     */
+    protected boolean joystickEventsEnabled = false;
 
     /**
      * If true MouseEvents are generated from TouchEvents
@@ -215,6 +224,9 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 logger.log(Level.WARNING, "Resolution from Window: {0}, {1}", new Object[]{disp.getWidth(), disp.getHeight()});
                 ctx.getSettings().setResolution(disp.getWidth(), disp.getHeight());
 
+                settings.setUseJoysticks(joystickEventsEnabled);
+                ctx.getSettings().setUseJoysticks(joystickEventsEnabled);
+
                 // AndroidHarness wraps the app as a SystemListener.
                 ctx.setSystemListener(this);
                 layoutDisplay();
@@ -257,6 +269,16 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                     renderer.resumeAll();
                 }
             }
+            //resume the sensors (aka joysticks)
+            if (app.getContext() != null) {
+                JoyInput joyInput = app.getContext().getJoyInput();
+                if (joyInput != null) {
+                    if (joyInput instanceof AndroidSensorJoyInput) {
+                        AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
+                        androidJoyInput.resumeSensors();
+                    }
+                }
+            }
         }
 
         isGLThreadPaused = false;
@@ -278,6 +300,16 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 if (result instanceof AndroidAudioRenderer) {
                     AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
                     renderer.pauseAll();
+                }
+            }
+            //pause the sensors (aka joysticks)
+            if (app.getContext() != null) {
+                JoyInput joyInput = app.getContext().getJoyInput();
+                if (joyInput != null) {
+                    if (joyInput instanceof AndroidSensorJoyInput) {
+                        AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
+                        androidJoyInput.pauseSensors();
+                    }
                 }
             }
         }

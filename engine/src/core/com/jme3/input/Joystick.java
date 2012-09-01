@@ -5,7 +5,7 @@ import com.jme3.input.controls.JoyButtonTrigger;
 
 /**
  * A joystick represents a single joystick that is installed in the system.
- * 
+ *
  * @author Kirill Vainer
  */
 public final class Joystick {
@@ -37,7 +37,7 @@ public final class Joystick {
 
     /**
      * Rumbles the joystick for the given amount/magnitude.
-     * 
+     *
      * @param amount The amount to rumble. Should be between 0 and 1.
      */
     public void rumble(float amount){
@@ -47,11 +47,11 @@ public final class Joystick {
     /**
      * Assign the mapping name to receive events from the given button index
      * on the joystick.
-     * 
+     *
      * @param mappingName The mapping to receive joystick button events.
      * @param buttonId The button index.
-     * 
-     * @see Joystick#getButtonCount() 
+     *
+     * @see Joystick#getButtonCount()
      */
     public void assignButton(String mappingName, int buttonId){
         if (buttonId < 0 || buttonId >= buttonCount)
@@ -62,12 +62,12 @@ public final class Joystick {
 
     /**
      * Assign the mappings to receive events from the given joystick axis.
-     * 
+     *
      * @param positiveMapping The mapping to receive events when the axis is negative
      * @param negativeMapping The mapping to receive events when the axis is positive
      * @param axisId The axis index.
-     * 
-     * @see Joystick#getAxisCount() 
+     *
+     * @see Joystick#getAxisCount()
      */
     public void assignAxis(String positiveMapping, String negativeMapping, int axisId){
         inputManager.addMapping(positiveMapping, new JoyAxisTrigger(joyId, axisId, false));
@@ -76,12 +76,12 @@ public final class Joystick {
 
     /**
      * Gets the index number for the X axis on the joystick.
-     * 
+     *
      * <p>E.g. for most gamepads, the left control stick X axis will be returned.
-     * 
+     *
      * @return The axis index for the X axis for this joystick.
-     * 
-     * @see Joystick#assignAxis(java.lang.String, java.lang.String, int) 
+     *
+     * @see Joystick#assignAxis(java.lang.String, java.lang.String, int)
      */
     public int getXAxisIndex(){
         return axisXIndex;
@@ -89,12 +89,12 @@ public final class Joystick {
 
     /**
      * Gets the index number for the Y axis on the joystick.
-     * 
+     *
      * <p>E.g. for most gamepads, the left control stick Y axis will be returned.
-     * 
+     *
      * @return The axis index for the Y axis for this joystick.
-     * 
-     * @see Joystick#assignAxis(java.lang.String, java.lang.String, int) 
+     *
+     * @see Joystick#assignAxis(java.lang.String, java.lang.String, int)
      */
     public int getYAxisIndex(){
         return axisYIndex;
@@ -102,7 +102,7 @@ public final class Joystick {
 
     /**
      * Returns the number of axes on this joystick.
-     * 
+     *
      * @return the number of axes on this joystick.
      */
     public int getAxisCount() {
@@ -111,7 +111,7 @@ public final class Joystick {
 
     /**
      * Returns the number of buttons on this joystick.
-     * 
+     *
      * @return the number of buttons on this joystick.
      */
     public int getButtonCount() {
@@ -120,11 +120,20 @@ public final class Joystick {
 
     /**
      * Returns the name of this joystick.
-     * 
+     *
      * @return the name of this joystick.
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Returns the joyId of this joystick.
+     *
+     * @return the joyId of this joystick.
+     */
+    public int getJoyId() {
+        return joyId;
     }
 
     @Override
