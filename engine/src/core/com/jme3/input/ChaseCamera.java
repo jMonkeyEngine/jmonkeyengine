@@ -108,6 +108,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     protected final static String ChaseCamMoveRight = "ChaseCamMoveRight";
     protected final static String ChaseCamToggleRotate = "ChaseCamToggleRotate";
     protected boolean zoomin;
+    protected boolean hideCursorOnRotate = true;
 
     /**
      * Constructs the chase camera
@@ -158,10 +159,14 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
             if (name.equals(ChaseCamToggleRotate) && enabled) {
                 if (keyPressed) {
                     canRotate = true;
-                    inputManager.setCursorVisible(false);
+                    if (hideCursorOnRotate) {
+                        inputManager.setCursorVisible(false);
+                    }
                 } else {
                     canRotate = false;
-                    inputManager.setCursorVisible(true);
+                    if (hideCursorOnRotate) {
+                        inputManager.setCursorVisible(true);
+                    }
                 }
             }
         }
@@ -217,10 +222,10 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
         }
         inputManager.addMapping(ChaseCamZoomIn, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
         inputManager.addMapping(ChaseCamZoomOut, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
-        if(!invertXaxis){
+        if (!invertXaxis) {
             inputManager.addMapping(ChaseCamMoveLeft, new MouseAxisTrigger(MouseInput.AXIS_X, true));
             inputManager.addMapping(ChaseCamMoveRight, new MouseAxisTrigger(MouseInput.AXIS_X, false));
-        }else{
+        } else {
             inputManager.addMapping(ChaseCamMoveLeft, new MouseAxisTrigger(MouseInput.AXIS_X, false));
             inputManager.addMapping(ChaseCamMoveRight, new MouseAxisTrigger(MouseInput.AXIS_X, true));
         }
@@ -862,16 +867,24 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
      * Sets the up vector of the camera used for the lookAt on the target
      * @param up
      */
-    public void setUpVector(Vector3f up){
-        initialUpVec=up;
+    public void setUpVector(Vector3f up) {
+        initialUpVec = up;
     }
 
     /**
      * Returns the up vector of the camera used for the lookAt on the target
      * @return
      */
-    public Vector3f getUpVector(){
+    public Vector3f getUpVector() {
         return initialUpVec;
+    }
+
+    public boolean isHideCursorOnRotate() {
+        return hideCursorOnRotate;
+    }
+
+    public void setHideCursorOnRotate(boolean hideCursorOnRotate) {
+        this.hideCursorOnRotate = hideCursorOnRotate;
     }
 
     /**
@@ -900,10 +913,10 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
         this.invertXaxis = invertXaxis;
         inputManager.deleteMapping(ChaseCamMoveLeft);
         inputManager.deleteMapping(ChaseCamMoveRight);
-        if(!invertXaxis){
+        if (!invertXaxis) {
             inputManager.addMapping(ChaseCamMoveLeft, new MouseAxisTrigger(MouseInput.AXIS_X, true));
             inputManager.addMapping(ChaseCamMoveRight, new MouseAxisTrigger(MouseInput.AXIS_X, false));
-        }else{
+        } else {
             inputManager.addMapping(ChaseCamMoveLeft, new MouseAxisTrigger(MouseInput.AXIS_X, false));
             inputManager.addMapping(ChaseCamMoveRight, new MouseAxisTrigger(MouseInput.AXIS_X, true));
         }
