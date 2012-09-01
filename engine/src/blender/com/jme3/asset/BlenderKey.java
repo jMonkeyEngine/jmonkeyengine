@@ -31,6 +31,13 @@
  */
 package com.jme3.asset;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+
+import org.lwjgl.opengl.GL11;
+
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.collision.Collidable;
 import com.jme3.collision.CollisionResults;
@@ -40,20 +47,15 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.light.AmbientLight;
-import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.renderer.Camera;
+import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.ogre.AnimData;
 import com.jme3.texture.Texture;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-import org.lwjgl.opengl.GL11;
 
 /**
  * Blender key. Contains path of the blender file and its loading properties.
@@ -513,7 +515,7 @@ public class BlenderKey extends ModelKey {
 		/** All cameras from the file. */
 		private List<Camera>	cameras;
 		/** All lights from the file. */
-		private List<Light>		lights;
+		private List<LightNode>	lights;
 
 		/**
 		 * Private constructor prevents users to create an instance of this class from outside the
@@ -542,7 +544,7 @@ public class BlenderKey extends ModelKey {
 				cameras = new ArrayList<Camera>();
 			}
 			if ((featuresToLoad & FeaturesToLoad.LIGHTS) != 0) {
-				lights = new ArrayList<Light>();
+				lights = new ArrayList<LightNode>();
 			}
 		}
 
@@ -615,8 +617,7 @@ public class BlenderKey extends ModelKey {
 		 * @param light
 		 *        light to be added to the result set
 		 */
-		@Override
-		public void addLight(Light light) {
+		public void addLight(LightNode light) {
 			if (lights != null) {
 				lights.add(light);
 			}
@@ -674,7 +675,7 @@ public class BlenderKey extends ModelKey {
 		 * This method returns all loaded lights.
 		 * @return all loaded lights
 		 */
-		public List<Light> getLights() {
+		public List<LightNode> getLights() {
 			return lights;
 		}
 

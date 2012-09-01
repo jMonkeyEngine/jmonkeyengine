@@ -37,16 +37,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
-import com.jme3.light.DirectionalLight;
-import com.jme3.light.Light;
-import com.jme3.light.PointLight;
-import com.jme3.light.SpotLight;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
@@ -197,34 +194,10 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					if(pLamp.isNotNull()) {
 						LightHelper lightHelper = blenderContext.getHelper(LightHelper.class);
 						List<Structure> lampsArray = pLamp.fetchData(blenderContext.getInputStream());
-						Light light = lightHelper.toLight(lampsArray.get(0), blenderContext);
+						LightNode light = lightHelper.toLight(lampsArray.get(0), blenderContext);
 						if(light!=null) {
 							light.setName(name);
-						}
-						if(light instanceof PointLight) {
-							((PointLight)light).setPosition(t.getTranslation());
-						} else if(light instanceof DirectionalLight) {
-							Quaternion quaternion = t.getRotation();
-							Vector3f[] axes = new Vector3f[3];
-							quaternion.toAxes(axes);
-							if(fixUpAxis) {
-								((DirectionalLight)light).setDirection(axes[1].negate());//-Z is the direction axis of area lamp in blender
-							} else {
-								((DirectionalLight)light).setDirection(axes[2].negate());
-							}
-						} else if(light instanceof SpotLight) {
-							((SpotLight)light).setPosition(t.getTranslation());
-							
-							Quaternion quaternion = t.getRotation();
-							Vector3f[] axes = new Vector3f[3];
-							quaternion.toAxes(axes);
-							if(fixUpAxis) {
-								((SpotLight)light).setDirection(axes[1].negate());//-Z is the direction axis of area lamp in blender
-							} else {
-								((SpotLight)light).setDirection(axes[2].negate());
-							}
-						} else {
-							LOGGER.log(Level.WARNING, "Unknown type of light: {0}", light);
+							light.setLocalTransform(t);
 						}
 						result = light;
 					}

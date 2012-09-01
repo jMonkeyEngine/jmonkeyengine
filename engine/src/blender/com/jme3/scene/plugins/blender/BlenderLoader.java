@@ -31,14 +31,20 @@
  */
 package com.jme3.scene.plugins.blender;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.LoadingResults;
 import com.jme3.asset.BlenderKey.WorldData;
 import com.jme3.asset.ModelKey;
-import com.jme3.light.Light;
 import com.jme3.renderer.Camera;
+import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
@@ -57,11 +63,6 @@ import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This is the main loading class. Have in notice that asset manager needs to have loaders for resources like textures.
@@ -85,7 +86,11 @@ public class BlenderLoader extends AbstractBlenderLoader {
 				switch (block.getCode()) {
 					case FileBlockHeader.BLOCK_OB00:// Object
 						Object object = this.toObject(block.getStructure(blenderContext));
-						if (object instanceof Node) {
+						if(object instanceof LightNode) {
+							if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
+								loadingResults.addLight((LightNode) object);
+							}
+						} else if (object instanceof Node) {
 							if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
 								LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
 								if (this.isRootObject(loadingResults, (Node)object)) {
@@ -95,10 +100,6 @@ public class BlenderLoader extends AbstractBlenderLoader {
 						} else if (object instanceof Camera) {
 							if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.CAMERAS) != 0) {
 								loadingResults.addCamera((Camera) object);
-							}
-						} else if (object instanceof Light) {
-							if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
-								loadingResults.addLight((Light) object);
 							}
 						}
 						break;

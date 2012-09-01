@@ -39,6 +39,7 @@ import com.jme3.light.Light;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
@@ -112,7 +113,7 @@ import java.util.logging.Logger;
 	 *        structure of a light
 	 * @return light's node
 	 */
-	public Light toLight(Structure structure) throws BlenderFileException {
+	public LightNode toLight(Structure structure) throws BlenderFileException {
 		LightHelper lightHelper = blenderContext.getHelper(LightHelper.class);
 		if (lightHelper.shouldBeLoaded(structure, blenderContext)) {
 			return lightHelper.toLight(structure, blenderContext);
