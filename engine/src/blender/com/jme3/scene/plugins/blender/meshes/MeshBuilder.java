@@ -168,7 +168,7 @@ import com.jme3.util.BufferUtils;
             			index[i] = vertexList.size() - 1;
             		}
             	} else {
-            		index[i] = vertexList.indexOf(verticesAndNormals[index[i]]);
+            		index[i] = vertexList.indexOf(verticesAndNormals[index[i]][0]);
             	}
         		indexList.add(index[i]);
         	}
