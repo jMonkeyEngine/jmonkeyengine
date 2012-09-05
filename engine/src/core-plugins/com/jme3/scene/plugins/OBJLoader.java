@@ -299,7 +299,7 @@ public final class OBJLoader implements AssetLoader {
         Vector2f v = new Vector2f();
 
         String line = scan.nextLine().trim();
-        String[] split = line.split("\\s");
+        String[] split = line.split("\\s++");
         v.setX( Float.parseFloat(split[0].trim()) );
         v.setY( Float.parseFloat(split[1].trim()) );
 
