@@ -433,6 +433,9 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
         if (mipMapSizes != null && mipMapSizes.length <= 1) {
             mipMapSizes = null;
+        } else {
+            needGeneratedMips = false;
+            mipsWereGenerated = true;
         }
 
         setFormat(format);
@@ -465,6 +468,9 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
         if (mipMapSizes != null && mipMapSizes.length <= 1) {
             mipMapSizes = null;
+        } else {
+            needGeneratedMips = false;
+            mipsWereGenerated = true;
         }
 
         setFormat(format);
@@ -616,6 +622,15 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
             mipMapSizes = null;
 
         this.mipMapSizes = mipMapSizes;
+
+        if (mipMapSizes != null) {
+             needGeneratedMips = false;
+             mipsWereGenerated = false;
+        } else {
+             needGeneratedMips = false;
+             mipsWereGenerated = true;
+        }
+
         setUpdateNeeded();
     }
 
@@ -837,6 +852,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         mipMapSizes = capsule.readIntArray("mipMapSizes", null);
         multiSamples = capsule.readInt("multiSamples", 1);
         data = (ArrayList<ByteBuffer>) capsule.readByteBufferArrayList("data", null);
+
+        if (mipMapSizes != null) {
+            needGeneratedMips = false;
+            mipsWereGenerated = true;
+        }
     }
 
 }
