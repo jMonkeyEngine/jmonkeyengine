@@ -87,7 +87,11 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                                          0,
                                          settings.getDepthBits(),
                                          settings.getStencilBits(),
-                                         samples);
+                                         samples, 
+                                         0, 
+                                         0, 
+                                         0, 
+                                         settings.useStereo3D());
 
         frameRate = settings.getFrameRate();
         logger.log(Level.INFO, "Selected display mode: {0}", displayMode);
