@@ -224,8 +224,8 @@ public class BoundingBox extends BoundingVolume {
         
         float[] tmpArray = vars.skinPositions;
 
-        float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE, minZ = Float.MAX_VALUE;
-        float maxX = Float.MIN_VALUE, maxY = Float.MIN_VALUE, maxZ = Float.MIN_VALUE;
+        float minX = Float.POSITIVE_INFINITY, minY = Float.POSITIVE_INFINITY, minZ = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY, maxY = Float.NEGATIVE_INFINITY, maxZ = Float.NEGATIVE_INFINITY;
         
         int iterations = (int) FastMath.ceil(points.limit() / ((float) tmpArray.length));
         for (int i = iterations - 1; i >= 0; i--) {
