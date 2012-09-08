@@ -73,8 +73,11 @@ import java.util.logging.Logger;
  * Rumble needs the following line in the Manifest File
  *     <uses-permission android:name="android.permission.VIBRATE"/>
  * Because Andorid does not allow for the user to define the intensity of the
- * vibration, the rumble amount (ie strength) is converted into the number of
- * milliseconds the vibration lasts.
+ * vibration, the rumble amount (ie strength) is converted into vibration pulses
+ * The stronger the strength amount, the shorter the delay between pulses.  If
+ * amount is 1, then the vibration stays on the whole time.  If amount is 0.5,
+ * the vibration will a pulse of equal parts vibration and delay.
+ * To turn off vibration, set rumble amount to 0.
  *
  * @author iwgeric
  */
@@ -84,6 +87,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     private InputManager inputManager = null;
     private SensorManager sensorManager = null;
     private Vibrator vibrator = null;
+    private long maxRumbleTime = 250;  // 250ms
     private RawInputListener listener = null;
     private IntMap<SensorData> sensors = new IntMap<SensorData>();
     private Joystick[] joysticks;
@@ -523,9 +527,25 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     // Start of JoyInput methods
 
     public void setJoyRumble(int joyId, float amount) {
-        // convert amount to milliseconds since Android doesn't allow intensity
+        // convert amount to pulses since Android doesn't allow intensity
         if (vibrator != null) {
-            vibrator.vibrate((long)(amount*1000));
+            final long rumbleOnDur = (long)(amount * maxRumbleTime); // ms to pulse vibration on
+            final long rumbleOffDur = maxRumbleTime - rumbleOnDur; // ms to delay between pulses
+            final long[] rumblePattern = {
+                0, // start immediately
+                rumbleOnDur, // time to leave vibration on
+                rumbleOffDur // time to delay between vibrations
+            };
+            final int rumbleRepeatFrom = 0; // index into rumble pattern to repeat from
+
+            logger.log(Level.INFO, "Rumble amount: {0}, rumbleOnDur: {1}, rumbleOffDur: {2}",
+                    new Object[]{amount, rumbleOnDur, rumbleOffDur});
+
+            if (rumbleOnDur > 0) {
+                vibrator.vibrate(rumblePattern, rumbleRepeatFrom);
+            } else {
+                vibrator.cancel();
+            }
         }
 
     }
