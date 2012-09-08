@@ -37,6 +37,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Vibrator;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -55,6 +56,25 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * AndroidSensorJoyInput converts the Android Sensor system into Joystick events.
+ * Each sensor type is a seperate joystick that can be used with RawInputListener
+ * or the onAnalog listener.
+ *
+ * Device Orientation is not a physicsal sensor, but rather a calculation based
+ * on the current accelerometer and magnetic sensor.  Orientation is configured
+ * as joystick[0], while physical sensors are configured with the joyId set to
+ * the Android constant for the sensor type.
+ *
+ * Right now, only the Orientation is exposed as a Joystick.
+ *
+ * MainActivity needs the following line to enable Joysticks
+ *    joystickEventsEnabled = true;
+ *
+ * Rumble needs the following line in the Manifest File
+ *     <uses-permission android:name="android.permission.VIBRATE"/>
+ * Because Andorid does not allow for the user to define the intensity of the
+ * vibration, the rumble amount (ie strength) is converted into the number of
+ * milliseconds the vibration lasts.
  *
  * @author iwgeric
  */
@@ -63,6 +83,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
     private InputManager inputManager = null;
     private SensorManager sensorManager = null;
+    private Vibrator vibrator = null;
     private RawInputListener listener = null;
     private IntMap<SensorData> sensors = new IntMap<SensorData>();
     private Joystick[] joysticks;
@@ -101,7 +122,10 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
     private void initSensorManager() {
         initWindow();
+        // Get instance of the SensorManager from the current Context
         sensorManager = (SensorManager) JmeAndroidSystem.getActivity().getSystemService(Context.SENSOR_SERVICE);
+        // Get instance of Vibrator from current Context
+        vibrator = (Vibrator) JmeAndroidSystem.getActivity().getSystemService(Context.VIBRATOR_SERVICE);
         initSensors();
     }
 
@@ -267,6 +291,9 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     public void pauseSensors() {
         for (Entry entry: sensors) {
             unRegisterListener(entry.getKey());
+        }
+        if (vibrator != null) {
+            vibrator.cancel();
         }
     }
 
@@ -457,6 +484,10 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
                 deltaOrientation[1] = orientValues[2] - orientationLastValues[2];
                 deltaOrientation[2] = orientValues[0] - orientationLastValues[0];
 
+//                logger.log(Level.INFO, "Sensor Values x:{0}, y:{1}, z:{2}, deg x:{3}, y:{4}, z:{5}",
+//                        new Object[]{orientValues[1], orientValues[2], orientValues[0],
+//                        orientValues[1]*FastMath.RAD_TO_DEG, orientValues[2]*FastMath.RAD_TO_DEG, orientValues[0]*FastMath.RAD_TO_DEG});
+
                 synchronized (eventQueue){
                     // only send data to inputManager if it is different than last time
                     // orientValues[1] is the X axis -> JoyAxisEvent Axis 0
@@ -492,7 +523,11 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     // Start of JoyInput methods
 
     public void setJoyRumble(int joyId, float amount) {
-        return;
+        // convert amount to milliseconds since Android doesn't allow intensity
+        if (vibrator != null) {
+            vibrator.vibrate((long)(amount*1000));
+        }
+
     }
 
     public Joystick[] loadJoysticks(InputManager inputManager) {
