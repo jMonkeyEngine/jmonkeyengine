@@ -8,8 +8,6 @@ import com.jme3.font.Rectangle;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Quad;
@@ -31,8 +29,8 @@ public class TestImageRaster extends SimpleApplication {
         ByteBuffer data = BufferUtils.createByteBuffer( (int)Math.ceil(newFormat.getBitsPerPixel() / 8.0) * width * height);
         Image convertedImage = new Image(newFormat, width, height, data);
         
-        ImageRaster sourceReader = new ImageRaster(image);
-        ImageRaster targetWriter = new ImageRaster(convertedImage);
+        ImageRaster sourceReader = ImageRaster.create(image);
+        ImageRaster targetWriter = ImageRaster.create(convertedImage);
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 ColorRGBA color = sourceReader.getPixel(x, y);
@@ -70,7 +68,7 @@ public class TestImageRaster extends SimpleApplication {
     private Image createTestImage() {
         Image testImage = new Image(Format.BGR8, 4, 3, BufferUtils.createByteBuffer(4 * 4 * 3));
         
-        ImageRaster io = new ImageRaster(testImage);
+        ImageRaster io = ImageRaster.create(testImage);
         io.setPixel(0, 0, ColorRGBA.Black);
         io.setPixel(1, 0, ColorRGBA.Gray);
         io.setPixel(2, 0, ColorRGBA.White);
@@ -88,7 +86,7 @@ public class TestImageRaster extends SimpleApplication {
         
         return testImage;
     }
-    
+   
     @Override
     public void simpleInitApp() {
         cam.setLocation(new Vector3f(16, 6, 36));
@@ -101,64 +99,64 @@ public class TestImageRaster extends SimpleApplication {
         Image image = convertImage(originalImage, Format.RGBA32F);
         convertAndPutImage(image, 0, 0);
         
-        image = convertImage(originalImage, Format.RGB32F);
+        image = convertImage(image, Format.RGB32F);
         convertAndPutImage(image, 5, 0);
         
-        image = convertImage(originalImage, Format.RGBA16F);
+        image = convertImage(image, Format.RGBA16F);
         convertAndPutImage(image, 10, 0);
         
-        image = convertImage(originalImage, Format.RGB16F);
+        image = convertImage(image, Format.RGB16F);
         convertAndPutImage(image, 15, 0);
         
-        image = convertImage(originalImage, Format.RGB16F_to_RGB9E5);
+        image = convertImage(image, Format.RGB16F_to_RGB9E5);
         convertAndPutImage(image, 20, 0);
         
-        image = convertImage(originalImage, Format.RGB16F_to_RGB111110F);
+        image = convertImage(image, Format.RGB16F_to_RGB111110F);
         convertAndPutImage(image, 25, 0);
         
-        image = convertImage(originalImage, Format.RGBA16);
+        image = convertImage(image, Format.RGBA16);
         convertAndPutImage(image, 0, 5);
         
-        image = convertImage(originalImage, Format.RGB16);
+        image = convertImage(image, Format.RGB16);
         convertAndPutImage(image, 5, 5);
         
-        image = convertImage(originalImage, Format.RGBA8);
+        image = convertImage(image, Format.RGBA8);
         convertAndPutImage(image, 10, 5);
         
-        image = convertImage(originalImage, Format.RGB8);
+        image = convertImage(image, Format.RGB8);
         convertAndPutImage(image, 15, 5);
         
-        image = convertImage(originalImage, Format.ABGR8);
+        image = convertImage(image, Format.ABGR8);
         convertAndPutImage(image, 20, 5);
         
-        image = convertImage(originalImage, Format.BGR8);
+        image = convertImage(image, Format.BGR8);
         convertAndPutImage(image, 25, 5);
         
-        image = convertImage(originalImage, Format.RGB5A1);
+        image = convertImage(image, Format.RGB5A1);
         convertAndPutImage(image, 0, 10);
         
-        image = convertImage(originalImage, Format.ARGB4444);
+        image = convertImage(image, Format.ARGB4444);
         convertAndPutImage(image, 5, 10);
         
-        image = convertImage(originalImage, Format.Luminance32F);
+        image = convertImage(image, Format.Luminance32F);
         convertAndPutImage(image, 0, 15);
         
-        image = convertImage(originalImage, Format.Luminance16FAlpha16F);
+        image = convertImage(image, Format.Luminance16FAlpha16F);
         convertAndPutImage(image, 5, 15);
         
-        image = convertImage(originalImage, Format.Luminance16F);
+        image = convertImage(image, Format.Luminance16F);
         convertAndPutImage(image, 10, 15);
         
-        image = convertImage(originalImage, Format.Luminance16Alpha16);
+        image = convertImage(image, Format.Luminance16Alpha16);
         convertAndPutImage(image, 15, 15);
         
-        image = convertImage(originalImage, Format.Luminance16);
+        image = convertImage(image, Format.Luminance16);
         convertAndPutImage(image, 20, 15);
         
-        image = convertImage(originalImage, Format.Luminance8Alpha8);
+        image = convertImage(image, Format.Luminance8Alpha8);
         convertAndPutImage(image, 25, 15);
         
-        image = convertImage(originalImage, Format.Luminance8);
+        image = convertImage(image, Format.Luminance8);
         convertAndPutImage(image, 30, 15);
     }
     

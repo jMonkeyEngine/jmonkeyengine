@@ -3,8 +3,10 @@ package com.jme3.asset;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import com.jme3.math.ColorRGBA;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ImageRaster;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
@@ -18,7 +20,7 @@ import java.util.logging.Logger;
   *
   * @author Kirill Vainer
   */
-public class AndroidImageInfo {
+public class AndroidImageInfo extends ImageRaster {
     
     private static final Logger logger = Logger.getLogger(AndroidImageInfo.class.getName());
     
@@ -55,6 +57,20 @@ public class AndroidImageInfo {
     
     public Format getFormat(){
         return format;
+    }
+    
+    @Override
+    public void setPixel(int x, int y, ColorRGBA color) {
+        getBitmap().setPixel(x, y, color.asIntARGB());
+    }
+
+    @Override
+    public ColorRGBA getPixel(int x, int y, ColorRGBA store) {
+        if (store == null) {
+            store = new ColorRGBA();
+        }
+        store.fromIntARGB(getBitmap().getPixel(x, y));
+        return store;
     }
     
     /**

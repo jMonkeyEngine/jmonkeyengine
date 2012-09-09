@@ -5,11 +5,15 @@ import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import com.jme3.asset.AndroidAssetManager;
+import com.jme3.asset.AndroidImageInfo;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
 import com.jme3.system.*;
 import com.jme3.system.JmeContext.Type;
+import com.jme3.texture.Image;
+import com.jme3.texture.image.DefaultImageRaster;
+import com.jme3.texture.image.ImageRaster;
 import com.jme3.util.AndroidScreenshots;
 import com.jme3.util.JmeFormatter;
 import java.io.File;
@@ -25,6 +29,13 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     private static Activity activity;
 
+    static {
+        try {
+            System.loadLibrary("bulletjme");
+        } catch (UnsatisfiedLinkError e) {
+        }
+    }
+    
     @Override
     public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
         Bitmap bitmapImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -41,10 +52,12 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         bitmapImage.recycle();
     }
     
-    static {
-        try {
-            System.loadLibrary("bulletjme");
-        } catch (UnsatisfiedLinkError e) {
+    @Override
+    public ImageRaster createImageRaster(Image image, int slice) {
+        if (image.getEfficentData() != null) {
+            return (AndroidImageInfo) image.getEfficentData();
+        } else {
+            return new DefaultImageRaster(image, slice);
         }
     }
     

@@ -34,6 +34,8 @@ package com.jme3.system;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.SoftTextDialogInput;
+import com.jme3.texture.Image;
+import com.jme3.texture.image.ImageRaster;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -153,4 +155,6 @@ public abstract class JmeSystemDelegate {
     public abstract AudioRenderer newAudioRenderer(AppSettings settings);
 
     public abstract void initialize(AppSettings settings);
+
+    public abstract ImageRaster createImageRaster(Image image, int slice);
 }

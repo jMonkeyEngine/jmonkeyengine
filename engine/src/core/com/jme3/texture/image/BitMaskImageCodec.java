@@ -26,27 +26,41 @@ class BitMaskImageCodec extends ImageCodec {
     }
     
     private static int readPixelRaw(ByteBuffer buf, int idx, int bpp) {
-        idx += bpp;
-        int original = buf.get(--idx) & 0xff;
-        while ((--bpp) > 0) {
-            original = (original << 8) | (buf.get(--idx) & 0xff);
+        //idx += bpp;
+        //int original = buf.get(--idx) & 0xff;
+        //while ((--bpp) > 0) {
+        //    original = (original << 8) | (buf.get(--idx) & 0xff);
+        //}
+        //return original;
+        //return buf.getInt(idx) & (0xFFFFFFFF >>> (32 - bpp));
+        int pixel = 0;
+        buf.position(idx);
+        for (int i = 0; i < bpp; i++) {
+            pixel = pixel | (buf.get() & 0xff) << (i * 8);
         }
-        return original;
+        return pixel;
     }
     
     private void writePixelRaw(ByteBuffer buf, int idx, int pixel, int bpp){
 //        buf.position(idx);
 //        if (!be){
-            while ((--bpp) >= 0){
-                byte bt = (byte) ((pixel >> (bpp * 8)) & 0xff);
-                buf.put(idx + bpp, bt);
-            }
+        // This works:
+//            while ((--bpp) >= 0){
+//                byte bt = (byte) ((pixel >> (bpp * 8)) & 0xff);
+//                buf.put(idx + bpp, bt);
+//            }
+        // ==
 //        } else {
 //            for (int i = bpp - 1; i >= 0; i--) {
 //                byte bt = (byte) ((pixel >> (i * 8)) & 0xff);
 //                buf.put(idx + i, bt);
 //            }
 //        }
+        
+        buf.position(idx);
+        for (int i = 0; i < bpp; i++) {
+            buf.put( (byte)((pixel >> (8 * i)) & 0xff) );
+        }
     }
 
     @Override
