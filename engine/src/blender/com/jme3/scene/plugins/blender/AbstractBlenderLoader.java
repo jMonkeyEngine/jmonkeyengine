@@ -39,7 +39,6 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.WorldData;
 import com.jme3.light.AmbientLight;
-import com.jme3.light.Light;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
@@ -81,10 +80,14 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 				if(pObject.isNotNull()) {
 					Structure objectStructure = pObject.fetchData(blenderContext.getInputStream()).get(0);
 					Object object = this.toObject(objectStructure);
-					if(object instanceof Spatial && ((Spatial) object).getParent()==null) {
-						result.attachChild((Spatial) object);
-					} else if(object instanceof Light) {
-						result.addLight((Light)object);
+					if(object instanceof LightNode && (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
+                    	result.addLight(((LightNode)object).getLight());
+                    	result.attachChild((LightNode) object);
+					} else if (object instanceof Node && (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
+						LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+						if (((Node) object).getParent() == null) {
+							result.attachChild((Spatial) object);
+                        }
 					}
 				}
 			}

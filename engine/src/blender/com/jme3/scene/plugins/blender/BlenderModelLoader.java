@@ -31,16 +31,18 @@
  */
 package com.jme3.scene.plugins.blender;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.BlenderKey;
-import com.jme3.light.Light;
+import com.jme3.asset.BlenderKey.FeaturesToLoad;
+import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This is the main loading class. Have in notice that asset manager needs to have loaders for resources like textures.
@@ -61,14 +63,16 @@ public class BlenderModelLoader extends BlenderLoader {
             for (FileBlockHeader block : blocks) {
                 if (block.getCode() == FileBlockHeader.BLOCK_OB00) {
                     Object object = this.toObject(block.getStructure(blenderContext));
-                    if (object instanceof Node) {
-                        LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[]{((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName()});
-                        if (((Node) object).getParent() == null) {
-                            modelRoot.attachChild( (Node) object );
+                    
+                    if(object instanceof LightNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
+                    	modelRoot.addLight(((LightNode)object).getLight());
+                    	modelRoot.attachChild((LightNode)object);
+					} else if (object instanceof Node && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
+						LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+						if (((Node) object).getParent() == null) {
+                            modelRoot.attachChild((Node)object);
                         }
-                    }else if (object instanceof Light){
-                        modelRoot.addLight( (Light) object );
-                    }
+					}
                 }
             }
             blenderContext.dispose();
