@@ -718,8 +718,9 @@ public class ParticleEmitter extends Geometry {
      */
     public void setParticlesPerSec(float particlesPerSec) {
         this.particlesPerSec = particlesPerSec;
+        timeDifference = 0;
     }
-
+    
     /**
      * Get the start color of the particles spawned.
      * 
