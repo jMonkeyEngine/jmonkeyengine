@@ -99,6 +99,7 @@ public class GeometryBatchFactory {
         int totalVerts = 0;
         int totalTris = 0;
         int totalLodLevels = 0;
+        int maxWeights = -1;
 
         Mode mode = null;
         for (Geometry geom : geometries) {
@@ -133,6 +134,8 @@ public class GeometryBatchFactory {
                 compsForBuf[vb.getBufferType().ordinal()] = vb.getNumComponents();
                 formatForBuf[vb.getBufferType().ordinal()] = vb.getFormat();
             }
+            
+            maxWeights = Math.max(maxWeights, geom.getMesh().getMaxNumWeights());
 
             if (mode != null && mode != listMode) {
                 throw new UnsupportedOperationException("Cannot combine different"
@@ -142,6 +145,7 @@ public class GeometryBatchFactory {
             compsForBuf[Type.Index.ordinal()] = components;
         }
 
+        outMesh.setMaxNumWeights(maxWeights);
         outMesh.setMode(mode);
         if (totalVerts >= 65536) {
             // make sure we create an UnsignedInt buffer so
