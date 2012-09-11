@@ -130,6 +130,9 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         sensorManager = (SensorManager) JmeAndroidSystem.getActivity().getSystemService(Context.SENSOR_SERVICE);
         // Get instance of Vibrator from current Context
         vibrator = (Vibrator) JmeAndroidSystem.getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator == null) {
+            logger.log(Level.INFO, "Vibrator Service not found.");
+        }
         initSensors();
     }
 
