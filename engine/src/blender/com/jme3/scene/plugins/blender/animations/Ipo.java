@@ -40,16 +40,23 @@ public class Ipo {
 	private Track			calculatedTrack;
 	/** This variable indicates if the Y asxis is the UP axis or not. */
 	protected boolean		fixUpAxis;
+	/** Depending on the blender version rotations are stored in degrees or radians so we need to know the version that is used. */
+	protected final int		blenderVersion;
 
 	/**
 	 * Constructor. Stores the bezier curves.
 	 * 
 	 * @param bezierCurves
 	 *            a table of bezier curves
+	 * @param fixUpAxis
+	 * 			  indicates if the Y is the up axis or not
+	 * @param blenderVersion
+	 * 			  the blender version that is currently used
 	 */
-	public Ipo(BezierCurve[] bezierCurves, boolean fixUpAxis) {
+	public Ipo(BezierCurve[] bezierCurves, boolean fixUpAxis, int blenderVersion) {
 		this.bezierCurves = bezierCurves;
 		this.fixUpAxis = fixUpAxis;
+		this.blenderVersion = blenderVersion;
 	}
 
 	/**
@@ -141,8 +148,11 @@ public class Ipo {
 			float[] objectRotation = new float[3];
 			Vector3f[] scales = new Vector3f[framesAmount + 1];
 			float[] scale = new float[] { 1.0f, 1.0f, 1.0f };
-			float degreeToRadiansFactor = FastMath.DEG_TO_RAD * 10;// the values in blender are divided by 10, so we need to mult it here
-
+			float degreeToRadiansFactor = 1;
+			if(blenderVersion < 250) {//in blender earlier than 2.50 the values are stored in degrees
+				degreeToRadiansFactor *= FastMath.DEG_TO_RAD * 10;// the values in blender are divided by 10, so we need to mult it here
+			}
+			
 			// calculating track data
 			for (int frame = startFrame; frame <= stopFrame; ++frame) {
 				int index = frame - startFrame;
@@ -150,7 +160,7 @@ public class Ipo {
 				for (int j = 0; j < bezierCurves.length; ++j) {
 					double value = bezierCurves[j].evaluate(frame, BezierCurve.Y_VALUE);
 					switch (bezierCurves[j].getType()) {
-					// LOCATION
+						// LOCATION
 						case AC_LOC_X:
 							translation[0] = (float) value;
 							break;

@@ -63,7 +63,7 @@ public class IpoHelper extends AbstractBlenderHelper {
 				bezierCurves[frame++] = new BezierCurve(type, bezTriples, 2);
 			}
 			curves.clear();
-			result = new Ipo(bezierCurves, fixUpAxis);
+			result = new Ipo(bezierCurves, fixUpAxis, blenderContext.getBlenderVersion());
 			blenderContext.addLoadedFeatures(ipoStructure.getOldMemoryAddress(), ipoStructure.getName(), ipoStructure, result);
 		}
 		return result;
@@ -95,7 +95,7 @@ public class IpoHelper extends AbstractBlenderHelper {
 				bezierCurves[frame++] = new BezierCurve(type, bezTriples, 2);
 			}
 			curves.clear();
-			result = new Ipo(bezierCurves, fixUpAxis);
+			result = new Ipo(bezierCurves, fixUpAxis, blenderContext.getBlenderVersion());
 		}
 		return result;
 	}
@@ -174,7 +174,7 @@ public class IpoHelper extends AbstractBlenderHelper {
 		 *            the constant value of this ipo
 		 */
 		public ConstIpo(float constValue) {
-			super(null, false);
+			super(null, false, 0);//the version is not important here
 			this.constValue = constValue;
 		}
 

@@ -199,7 +199,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 					bezierCurves[channelCounter++] = new BezierCurve(type, bezTriples, 2);
 				}
 
-				Ipo ipo = new Ipo(bezierCurves, fixUpAxis);
+				Ipo ipo = new Ipo(bezierCurves, fixUpAxis, blenderContext.getBlenderVersion());
 				tracks.add((BoneTrack) ipo.calculateTrack(boneIndex, 0, ipo.getLastFrame(), fps, false));
 			}
 		}
