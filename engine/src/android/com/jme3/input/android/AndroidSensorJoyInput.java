@@ -87,6 +87,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     private InputManager inputManager = null;
     private SensorManager sensorManager = null;
     private Vibrator vibrator = null;
+    private boolean vibratorActive = false;
     private long maxRumbleTime = 250;  // 250ms
     private RawInputListener listener = null;
     private IntMap<SensorData> sensors = new IntMap<SensorData>();
@@ -299,7 +300,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         for (Entry entry: sensors) {
             unRegisterListener(entry.getKey());
         }
-        if (vibrator != null) {
+        if (vibrator != null && vibratorActive) {
             vibrator.cancel();
         }
     }
@@ -546,8 +547,10 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
             if (rumbleOnDur > 0) {
                 vibrator.vibrate(rumblePattern, rumbleRepeatFrom);
+                vibratorActive = true;
             } else {
                 vibrator.cancel();
+                vibratorActive = false;
             }
         }
 
