@@ -2,7 +2,6 @@ package com.jme3.system.android;
 
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView.EGLConfigChooser;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -116,7 +115,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         //Android Pixel format is not very well documented.
         //From what i gathered, the format is chosen automatically except for the alpha channel
         //if the alpha channel has 8 bit or more, e set the pixel format to Transluscent, as it allow transparent view background
-        //if it's 0 bit, the format is OPAQUE otherwise it's TRANSPARENT        
+        //if it's 0 bit, the format is OPAQUE otherwise it's TRANSPARENT
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
         if (value[0] >= 8) {
             return PixelFormat.TRANSLUCENT;
@@ -217,6 +216,19 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                     num_config)) {
                 throw new IllegalArgumentException("eglChooseConfig#2 failed");
             }
+//            logger.log(Level.INFO, "num_config: {0}", num_config[0]);
+//
+//            logger.log(Level.INFO, "There are {0} configurations that match the configAttrs", num_config[0]);
+//            logger.log(Level.INFO, "All Matching Configs:");
+//            for (int i=0; i<configs.length; i++) {
+//                if (configs[i] != null) {
+//                    logger.log(Level.INFO, "configs{0} is not null", i);
+//                    logEGLConfig(configs[i], display, egl);
+//                } else {
+//                    logger.log(Level.INFO, "configs{0} is null", i);
+//                }
+//            }
+
             EGLConfig config = chooseConfig(egl, display, configs);
             //if (config == null) {
             //    throw new IllegalArgumentException("No config chosen");
@@ -287,6 +299,32 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
         @Override
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs) {
+
+            // first pass through config list.  Try to find an exact match.
+            for (EGLConfig config : configs) {
+                int r = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_RED_SIZE, 0);
+                int g = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_GREEN_SIZE, 0);
+                int b = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_BLUE_SIZE, 0);
+                int a = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_ALPHA_SIZE, 0);
+                int d = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_DEPTH_SIZE, 0);
+                int s = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_STENCIL_SIZE, 0);
+
+                if ((
+                            r == mRedSize) && (g == mGreenSize)
+                        && (b == mBlueSize) && (a == mAlphaSize)
+                        && (d == mDepthSize) && (s == mStencilSize)
+                        ) {
+                    return config;
+                }
+            }
+
+            // second pass through config list.  Try to find an RGBA match.
             for (EGLConfig config : configs) {
                 int d = findConfigAttrib(egl, display, config,
                         EGL10.EGL_DEPTH_SIZE, 0);
@@ -307,7 +345,14 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                     }
                 }
             }
-            return null;
+
+            // failsafe. pick the 1st config.
+            if (configs.length > 0) {
+                return configs[0];
+            } else {
+                return null;
+            }
+
         }
 
         private int findConfigAttrib(EGL10 egl, EGLDisplay display,
