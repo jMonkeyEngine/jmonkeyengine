@@ -1,18 +1,17 @@
 package com.jme3.scene.plugins.blender.constraints;
 
-import com.jme3.animation.Animation;
-import com.jme3.animation.Bone;
-import com.jme3.animation.BoneTrack;
-import com.jme3.animation.Skeleton;
-import com.jme3.animation.SpatialTrack;
-import com.jme3.animation.Track;
-import com.jme3.scene.Spatial;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
+import com.jme3.scene.plugins.blender.constraints.definitions.ConstraintDefinition;
+import com.jme3.scene.plugins.blender.constraints.definitions.ConstraintDefinitionFactory;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 
 /**
  * The implementation of a constraint.
@@ -20,18 +19,28 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
  * @author Marcin Roguski (Kaelthas)
  */
 public abstract class Constraint {
+	private static final Logger LOGGER = Logger.getLogger(Constraint.class.getName());
+	
+	/** Indicates if the constraint is invalid. */
+	protected boolean invalid;
 	/** The name of this constraint. */
 	protected final String name;
-	/** The constraint's owner. */
-	protected final Feature owner;
-	/** The constraint's target. */
-	protected final Feature target;
-	/** The structure with constraint's data. */
-	protected final Structure data;
+	/** Indicates if the constraint is already baked or not. */
+	protected boolean baked;
+	
+	protected Space ownerSpace;
+	protected final ConstraintDefinition constraintDefinition;
+	protected Long ownerOMA;
+	
+	protected Long targetOMA;
+	protected Space targetSpace;
+	protected String subtargetName;
+	
 	/** The ipo object defining influence. */
 	protected final Ipo ipo;
 	/** The blender context. */
 	protected final BlenderContext blenderContext;
+	protected final ConstraintHelper constraintHelper;
 	
 	/**
 	 * This constructor creates the constraint instance.
@@ -48,100 +57,64 @@ public abstract class Constraint {
 	 *             this exception is thrown when the blender file is somehow
 	 *             corrupted
 	 */
-	public Constraint(Structure constraintStructure, Long ownerOMA,
-			Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
+	public Constraint(Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
 		this.blenderContext = blenderContext;
 		this.name = constraintStructure.getFieldValue("name").toString();
 		Pointer pData = (Pointer) constraintStructure.getFieldValue("data");
 		if (pData.isNotNull()) {
-			data = pData.fetchData(blenderContext.getInputStream()).get(0);
+			Structure data = pData.fetchData(blenderContext.getInputStream()).get(0);
+			constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(data, blenderContext);
 			Pointer pTar = (Pointer)data.getFieldValue("tar");
 			if(pTar!= null && pTar.isNotNull()) {
-				Structure targetStructure = pTar.fetchData(blenderContext.getInputStream()).get(0);
-				Long targetOMA = pTar.getOldMemoryAddress();
-				Space targetSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("tarspace")).byteValue());
-				ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-				Spatial target = (Spatial) objectHelper.toObject(targetStructure, blenderContext);
-				this.target = new Feature(target, targetSpace, targetOMA, blenderContext);
-			} else {
-				this.target = null;
+				this.targetOMA = pTar.getOldMemoryAddress();
+				this.targetSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("tarspace")).byteValue());
+				subtargetName = data.getFieldValue("subtarget").toString();
 			}
 		} else {
-			throw new BlenderFileException("The constraint has no data specified!");
+			//Null constraint has no data, so create it here
+			constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(null, blenderContext);
 		}
-		Space ownerSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("ownspace")).byteValue());
-		this.owner = new Feature(ownerSpace, ownerOMA, blenderContext);
+		this.ownerSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("ownspace")).byteValue());
 		this.ipo = influenceIpo;
+		this.ownerOMA = ownerOMA;
+		this.constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
 	}
-
+	
 	/**
-	 * This method bakes the required sontraints into its owner.
+	 * This method bakes the required sontraints into its owner. It checks if the constraint is invalid
+	 * or if it isn't yet baked. It also performs baking of its target constraints so that the proper baking
+	 * order is kept.
 	 */
 	public void bake() {
-		this.owner.update();
-		if(this.target != null) {
-			this.target.update();
-		}
-		this.bakeConstraint();
-	}
-	
-	/**
-	 * Bake the animation's constraints into its owner.
-	 */
-	protected abstract void bakeConstraint();
-	
-    /**
-     * This method returns the bone traces for the bone that is affected by the given constraint.
-     * @param skeleton
-     *        the skeleton containing bones
-     * @param boneAnimation
-     *        the bone animation that affects the skeleton
-     * @return the bone track for the bone that is being affected by the constraint
-     */
-    protected BlenderTrack getTrack(Object owner, Skeleton skeleton, Animation animation) {
-    	if(owner instanceof Bone) {
-    		int boneIndex = skeleton.getBoneIndex((Bone) owner);
-    		for (Track track : animation.getTracks()) {
-                if (((BoneTrack) track).getTargetBoneIndex() == boneIndex) {
-                    return new BlenderTrack(((BoneTrack) track));
-                }
-            }
-    		throw new IllegalStateException("Cannot find track for: " + owner);
-    	} else {
-    		return new BlenderTrack((SpatialTrack)animation.getTracks()[0]);
-    	}
-    }
-    
-	/**
-	 * The space of target or owner transformation.
-	 * 
-	 * @author Marcin Roguski (Kaelthas)
-	 */
-	public static enum Space {
-
-		CONSTRAINT_SPACE_WORLD, CONSTRAINT_SPACE_LOCAL, CONSTRAINT_SPACE_POSE, CONSTRAINT_SPACE_PARLOCAL, CONSTRAINT_SPACE_INVALID;
-
-		/**
-		 * This method returns the enum instance when given the appropriate
-		 * value from the blend file.
-		 * 
-		 * @param c
-		 *            the blender's value of the space modifier
-		 * @return the scape enum instance
-		 */
-		public static Space valueOf(byte c) {
-			switch (c) {
-				case 0:
-					return CONSTRAINT_SPACE_WORLD;
-				case 1:
-					return CONSTRAINT_SPACE_LOCAL;
-				case 2:
-					return CONSTRAINT_SPACE_POSE;
-				case 3:
-					return CONSTRAINT_SPACE_PARLOCAL;
-				default:
-					return CONSTRAINT_SPACE_INVALID;
+		if(invalid) {
+			LOGGER.warning("The constraint " + name + " is invalid and will not be applied.");
+		} else if(!baked) {
+			if(targetOMA != null) {
+				List<Constraint> targetConstraints = blenderContext.getConstraints(targetOMA);
+				if(targetConstraints != null && targetConstraints.size() > 0) {
+					LOGGER.log(Level.FINE, "Baking target constraints of constraint: {0}", name);
+					for(Constraint targetConstraint : targetConstraints) {
+						targetConstraint.bake();
+					}
+				}
 			}
+			
+			LOGGER.log(Level.FINE, "Performing baking of constraint: {0}", name);
+			this.performBakingOperation();
+			baked = true;
 		}
 	}
+	
+	/**
+	 * This method should be overwridden and perform the baking opertion.
+	 */
+	protected abstract void performBakingOperation();
+	
+	/**
+	 * This method prepares the tracks for both owner and parent. If either owner or parent have no track while its parent has - 
+	 * the tracks are created. The tracks will not modify the owner/target movement but will be there ready for applying constraints.
+	 * For example if the owner is a spatial and has no animation but its parent is moving then the track is created for the owner
+	 * that will have non modifying values for translation, rotation and scale and will have the same amount of frames as its parent has.
+	 */
+	protected abstract void prepareTracksForApplyingConstraints();
 }

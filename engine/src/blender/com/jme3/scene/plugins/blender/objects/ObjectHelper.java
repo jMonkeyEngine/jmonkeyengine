@@ -51,7 +51,6 @@ import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
-import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.curves.CurvesHelper;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -237,14 +236,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			//loading constraints connected with this object
 			ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
 			constraintHelper.loadConstraints(objectStructure, blenderContext);
-			
-			//baking constraints
-			List<Constraint> objectConstraints = blenderContext.getConstraints(objectStructure.getOldMemoryAddress());
-			if(objectConstraints!=null) {
-				for(Constraint objectConstraint : objectConstraints) {
-					objectConstraint.bake();
-				}
-			}
 			
 			//reading custom properties
 			if(blenderContext.getBlenderKey().isLoadObjectProperties()) {

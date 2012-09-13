@@ -41,6 +41,7 @@ import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 
@@ -75,6 +76,11 @@ public class BlenderModelLoader extends BlenderLoader {
 					}
                 }
             }
+            
+            //bake constraints after everything is loaded
+			ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+			constraintHelper.bakeConstraints(blenderContext);
+            
             blenderContext.dispose();
             return modelRoot;
         } catch (BlenderFileException e) {

@@ -1,52 +1,23 @@
-package com.jme3.scene.plugins.blender.constraints;
+package com.jme3.scene.plugins.blender.constraints.definitions;
 
-import com.jme3.animation.Animation;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.animations.Ipo;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.ogre.AnimData;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class represents 'Shrink wrap' constraint type in blender.
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class ConstraintShrinkWrap extends Constraint {
+/*package*/ class ConstraintDefinitionShrinkWrap extends ConstraintDefinition {
 	
-	/**
-	 * This constructor creates the constraint instance.
-	 * 
-	 * @param constraintStructure
-	 *            the constraint's structure (bConstraint clss in blender 2.49).
-	 * @param ownerOMA
-	 *            the old memory address of the constraint owner
-	 * @param influenceIpo
-	 *            the ipo curve of the influence factor
-	 * @param blenderContext
-	 *            the blender context
-	 * @throws BlenderFileException
-	 *             this exception is thrown when the blender file is somehow
-	 *             corrupted
-	 */
-	public ConstraintShrinkWrap(Structure constraintStructure, Long ownerOMA,
-			Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
-		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
+	public ConstraintDefinitionShrinkWrap(Structure constraintData, BlenderContext blenderContext) {
+		super(constraintData, blenderContext);
 	}
 
 	@Override
-	protected void bakeConstraint() {
+	public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
 		//loading mesh points (blender ensures that the target is a mesh-object)
-		List<Vector3f> pts = new ArrayList<Vector3f>();
+		/*List<Vector3f> pts = new ArrayList<Vector3f>();
 		Node target = (Node) this.target.getObject();
 		for(Spatial spatial : target.getChildren()) {
 			if(spatial instanceof Geometry) {
@@ -84,7 +55,7 @@ import java.util.List;
 				
 				track.setKeyframes(track.getTimes(), translations, rotations, track.getScales());
 			}
-		}
+		}*/
 		
 		//TODO: static constraint for spatials
 	}

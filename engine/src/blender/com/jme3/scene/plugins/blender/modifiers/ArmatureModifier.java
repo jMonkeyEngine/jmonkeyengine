@@ -26,7 +26,6 @@ import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
-import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -221,18 +220,6 @@ import com.jme3.util.BufferUtils;
 				LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
 				this.invalid = true;
 				return node;
-			}
-		}
-
-		// applying constraints to Bones
-		ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
-		for (int i = 0; i < animData.skeleton.getBoneCount(); ++i) {
-			Long boneOMA = armatureHelper.getBoneOMA(animData.skeleton.getBone(i));
-			List<Constraint> constraints = blenderContext.getConstraints(boneOMA);
-			if (constraints != null && constraints.size() > 0) {
-				for (Constraint constraint : constraints) {
-					constraint.bake();
-				}
 			}
 		}
 

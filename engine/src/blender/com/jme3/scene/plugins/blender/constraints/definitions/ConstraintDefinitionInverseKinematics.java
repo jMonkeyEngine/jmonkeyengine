@@ -1,44 +1,26 @@
-package com.jme3.scene.plugins.blender.constraints;
+package com.jme3.scene.plugins.blender.constraints.definitions;
 
 import com.jme3.animation.Animation;
 import com.jme3.animation.Skeleton;
+import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.CalculationBone;
-import com.jme3.scene.plugins.blender.animations.Ipo;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
-import java.util.logging.Logger;
 
 /**
  * This class represents 'Inverse kinematics' constraint type in blender.
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class ConstraintInverseKinematics extends Constraint {
-	private static final Logger LOGGER = Logger.getLogger(ConstraintInverseKinematics.class.getName());
-	private static final float IK_SOLVER_ERROR = 0.5f;
+/*package*/ class ConstraintDefinitionInverseKinematics extends ConstraintDefinition {
+	//private static final Logger LOGGER = Logger.getLogger(ConstraintDefinitionInverseKinematics.class.getName());
+	//private static final float IK_SOLVER_ERROR = 0.5f;
 	
-	/**
-	 * This constructor creates the constraint instance.
-	 * 
-	 * @param constraintStructure
-	 *            the constraint's structure (bConstraint clss in blender 2.49).
-	 * @param ownerOMA
-	 *            the old memory address of the constraint owner
-	 * @param influenceIpo
-	 *            the ipo curve of the influence factor
-	 * @param blenderContext
-	 *            the blender context
-	 * @throws BlenderFileException
-	 *             this exception is thrown when the blender file is somehow
-	 *             corrupted
-	 */
-	public ConstraintInverseKinematics(Structure constraintStructure,
-			Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
-		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
+	public ConstraintDefinitionInverseKinematics(Structure constraintData, BlenderContext blenderContext) {
+		super(constraintData, blenderContext);
 	}
 
 	@Override
-	protected void bakeConstraint() {
+	public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
 //		try {
 			// IK solver is only attached to bones
 //			Bone ownerBone = (Bone) blenderContext.getLoadedFeature(ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);

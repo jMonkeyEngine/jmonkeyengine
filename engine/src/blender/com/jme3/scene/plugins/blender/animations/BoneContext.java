@@ -200,4 +200,11 @@ public class BoneContext {
 	public Bone getBone() {
 		return bone;
 	}
+	
+	/**
+	 * @return the old memory address of the bone
+	 */
+	public Long getBoneOma() {
+		return boneStructure.getOldMemoryAddress();	
+	}
 }

@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.blender;
 
+import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.BlenderKey;
@@ -52,6 +53,7 @@ import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -488,6 +490,17 @@ public class BlenderContext {
 	public List<Constraint> getConstraints(Long objectOMA) {
 		return objectOMA == null ? null : constraints.get(objectOMA);
 	}
+	
+	/**
+	 * @return all available constraints
+	 */
+	public List<Constraint> getAllConstraints() {
+		List<Constraint> result = new ArrayList<Constraint>();
+		for(Entry<Long, List<Constraint>> entry : constraints.entrySet()) {
+			result.addAll(entry.getValue());
+		}
+		return result;
+	}
 
 	/**
 	 * This method sets the anim data for the specified OMA of its owner.
@@ -584,7 +597,24 @@ public class BlenderContext {
 	public BoneContext getBoneContext(Long boneOMA) {
 		return boneContexts.get(boneOMA);
 	}
-
+	
+	/**
+	 * Returns bone by given name.
+	 * 
+	 * @param name
+	 *            the name of the bone
+	 * @return found bone or null if none bone of a given name exists
+	 */
+	public BoneContext getBoneByName(String name) {
+		for(Entry<Long, BoneContext> entry : boneContexts.entrySet()) {
+			Bone bone = entry.getValue().getBone();
+			if(bone != null && name.equals(bone.getName())) {
+				return entry.getValue();
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * This metod returns the default material.
 	 * 

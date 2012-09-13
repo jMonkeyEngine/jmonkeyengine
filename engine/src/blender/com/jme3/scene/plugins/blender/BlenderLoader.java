@@ -79,6 +79,7 @@ public class BlenderLoader extends AbstractBlenderLoader {
 		try {
 			this.setup(assetInfo);
 
+			List<FileBlockHeader> sceneBlocks = new ArrayList<FileBlockHeader>();
 			BlenderKey blenderKey = blenderContext.getBlenderKey();
 			LoadingResults loadingResults = blenderKey.prepareLoadingResults();
 			WorldData worldData = null;// a set of data used in different scene aspects
@@ -104,7 +105,7 @@ public class BlenderLoader extends AbstractBlenderLoader {
 //						break;
 					case FileBlockHeader.BLOCK_SC00:// Scene
 						if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.SCENES) != 0) {
-							loadingResults.addScene(this.toScene(block.getStructure(blenderContext)));
+							sceneBlocks.add(block);
 						}
 						break;
 					case FileBlockHeader.BLOCK_WO00:// World
@@ -121,6 +122,16 @@ public class BlenderLoader extends AbstractBlenderLoader {
 						break;
 				}
 			}
+			
+			//bake constraints after everything is loaded
+			ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+			constraintHelper.bakeConstraints(blenderContext);
+			
+			//load the scene at the very end so that the root nodes have no parent during loading or constraints applying
+			for(FileBlockHeader sceneBlock : sceneBlocks) {
+				loadingResults.addScene(this.toScene(sceneBlock.getStructure(blenderContext)));
+			}
+			
 			blenderContext.dispose();
 			return loadingResults;
 		} catch (BlenderFileException e) {
