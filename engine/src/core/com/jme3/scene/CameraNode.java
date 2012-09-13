@@ -31,6 +31,10 @@
  */
 package com.jme3.scene;
 
+import java.io.IOException;
+
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.control.CameraControl.ControlDirection;
@@ -90,4 +94,16 @@ public class CameraNode extends Node {
 //        this.lookAt(position, upVector);
 //        camControl.getCamera().lookAt(position, upVector);
 //    }
+    
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        camControl = (CameraControl)im.getCapsule(this).readSavable("camControl", null);
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        ex.getCapsule(this).write(camControl, "camControl", null);
+    }
 }

@@ -31,8 +31,12 @@
  */
 package com.jme3.scene.control;
 
+import java.io.IOException;
+
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
@@ -42,7 +46,6 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
-import java.io.IOException;
 
 /**
  * This Control maintains a reference to a Camera,
@@ -173,18 +176,21 @@ public class LightControl extends AbstractControl {
         return control;
     }
     private static final String CONTROL_DIR_NAME = "controlDir";
-
+    private static final String LIGHT_NAME = "light";
+    
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
-        im.getCapsule(this).readEnum(CONTROL_DIR_NAME,
-                ControlDirection.class, ControlDirection.SpatialToLight);
+        InputCapsule ic = im.getCapsule(this);
+        controlDir = ic.readEnum(CONTROL_DIR_NAME, ControlDirection.class, ControlDirection.SpatialToLight);
+        light = (Light)ic.readSavable(LIGHT_NAME, null);
     }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
-        ex.getCapsule(this).write(controlDir, CONTROL_DIR_NAME,
-                ControlDirection.SpatialToLight);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(controlDir, CONTROL_DIR_NAME, ControlDirection.SpatialToLight);
+        oc.write(light, LIGHT_NAME, null);
     }
 }

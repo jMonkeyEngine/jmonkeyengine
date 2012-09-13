@@ -31,8 +31,12 @@
  */
 package com.jme3.scene.control;
 
+import java.io.IOException;
+
+import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -40,7 +44,6 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
-import java.io.IOException;
 
 /**
  * This Control maintains a reference to a Camera,
@@ -142,18 +145,21 @@ public class CameraControl extends AbstractControl {
         return control;
     }
     private static final String CONTROL_DIR_NAME = "controlDir";
-
+    private static final String CAMERA_NAME = "camera";
+    
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
-        im.getCapsule(this).readEnum(CONTROL_DIR_NAME,
-                ControlDirection.class, ControlDirection.SpatialToCamera);
+        InputCapsule ic = im.getCapsule(this);
+        controlDir = ic.readEnum(CONTROL_DIR_NAME, ControlDirection.class, ControlDirection.SpatialToCamera);
+        camera = (Camera)ic.readSavable(CAMERA_NAME, null);
     }
 
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
-        ex.getCapsule(this).write(controlDir, CONTROL_DIR_NAME,
-                ControlDirection.SpatialToCamera);
+        OutputCapsule oc = ex.getCapsule(this);
+        oc.write(controlDir, CONTROL_DIR_NAME, ControlDirection.SpatialToCamera);
+        oc.write(camera, CAMERA_NAME, null);
     }
 }

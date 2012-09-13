@@ -31,6 +31,10 @@
  */
 package com.jme3.scene;
 
+import java.io.IOException;
+
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
 import com.jme3.light.Light;
 import com.jme3.scene.control.LightControl;
 import com.jme3.scene.control.LightControl.ControlDirection;
@@ -89,5 +93,17 @@ public class LightNode extends Node {
 
     public Light getLight() {
         return lightControl.getLight();
+    }
+    
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        lightControl = (LightControl)im.getCapsule(this).readSavable("lightControl", null);
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        ex.getCapsule(this).write(lightControl, "lightControl", null);
     }
 }
