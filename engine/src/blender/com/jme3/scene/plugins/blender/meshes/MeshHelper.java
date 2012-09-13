@@ -253,7 +253,7 @@ public class MeshHelper extends AbstractBlenderHelper {
     private boolean isBMeshCompatible(Structure meshStructure) {
     	Pointer pMLoop = (Pointer) meshStructure.getFieldValue("mloop");
 		Pointer pMPoly = (Pointer) meshStructure.getFieldValue("mpoly");
-		return pMLoop != null && pMPoly != null;
+		return pMLoop != null && pMPoly != null && pMLoop.isNotNull() && pMPoly.isNotNull();
     }
     
 	/**
