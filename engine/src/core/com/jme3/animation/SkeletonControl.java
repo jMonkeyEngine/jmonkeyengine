@@ -340,6 +340,13 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
 
             // iterate vertices and apply skinning transform for each effecting bone
             for (int vert = verts - 1; vert >= 0; vert--) {
+                // Skip this vertex if the first weight is zero.
+                if (weights[idxWeights] == 0) {
+                    idxPositions += 3;
+                    idxWeights += 4;
+                    continue;
+                }
+                
                 float nmx = normBuf[idxPositions];
                 float vtx = posBuf[idxPositions++];
                 float nmy = normBuf[idxPositions];
@@ -455,6 +462,14 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
 
             // iterate vertices and apply skinning transform for each effecting bone
             for (int vert = verts - 1; vert >= 0; vert--) {
+                // Skip this vertex if the first weight is zero.
+                if (weights[idxWeights] == 0) {
+                    idxTangents += 4;
+                    idxPositions += 3;
+                    idxWeights += 4;
+                    continue;
+                }
+                
                 float nmx = normBuf[idxPositions];
                 float vtx = posBuf[idxPositions++];
                 float nmy = normBuf[idxPositions];
@@ -466,7 +481,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
                 float tny = tanBuf[idxTangents++];
                 float tnz = tanBuf[idxTangents++];
 
-                //skipping the 4th component of the tangent since it doesn't have to be transformed
+                // skipping the 4th component of the tangent since it doesn't have to be transformed
                 idxTangents++;
 
                 float rx = 0, ry = 0, rz = 0, rnx = 0, rny = 0, rnz = 0, rtx = 0, rty = 0, rtz = 0;
