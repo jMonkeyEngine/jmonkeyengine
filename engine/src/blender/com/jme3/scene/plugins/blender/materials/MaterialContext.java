@@ -268,7 +268,11 @@ public final class MaterialContext {
 				material.setTexture(MaterialHelper.TEXTURE_TYPE_GLOW, texture);
 				break;
 			case MTEX_ALPHA:
-				material.setTexture(MaterialHelper.TEXTURE_TYPE_ALPHA, texture);
+				if(!shadeless) {
+					material.setTexture(MaterialHelper.TEXTURE_TYPE_ALPHA, texture);
+				} else {
+					LOGGER.warning("JME does not support alpha map on unshaded material. Material name is " + name);
+				}
 				break;
 			default:
 				LOGGER.severe("Unknown mapping type: " + mapTo);
