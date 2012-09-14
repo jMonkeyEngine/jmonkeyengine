@@ -93,7 +93,7 @@ public class CombinedTexture {
 				textureData.projectionType = UVProjectionType.valueOf(projectionType);
 				textureData.textureStructure = textureStructure;
 	
-				if (this.isWithoutAlpha(textureData, blenderContext)) {
+				if (textureDatas.size() > 0 && this.isWithoutAlpha(textureData, blenderContext)) {
 					textureDatas.clear();// clear previous textures, they will be covered anyway
 				}
 				textureDatas.add(textureData);
@@ -238,18 +238,18 @@ public class CombinedTexture {
 	 *            the blender context
 	 */
 	public void castToUVS(CombinedTexture basicUVSOwner, BlenderContext blenderContext) {
-		if (!basicUVSOwner.wasTriangulated) {
-			throw new IllegalStateException("The given texture must be triangulated!");
-		}
-		if (!this.wasTriangulated) {
-			resultTexture = new TriangulatedTexture((Texture2D) resultTexture, resultUVS, blenderContext);
-			resultUVS = ((TriangulatedTexture) resultTexture).getResultUVS();
-			resultTexture = ((TriangulatedTexture) resultTexture).getResultTexture();
-		}
 		if (resultUVS.size() != basicUVSOwner.resultUVS.size()) {
-			throw new IllegalStateException("The amount of UV coordinates must be equal in order to cas one UV's onto another!");
+			throw new IllegalStateException("The amount of UV coordinates must be equal in order to cast one UV's onto another!");
 		}
 		if (!resultUVS.equals(basicUVSOwner.resultUVS)) {
+			if (!basicUVSOwner.wasTriangulated) {
+				throw new IllegalStateException("The given texture must be triangulated!");
+			}
+			if (!this.wasTriangulated) {
+				resultTexture = new TriangulatedTexture((Texture2D) resultTexture, resultUVS, blenderContext);
+				resultUVS = ((TriangulatedTexture) resultTexture).getResultUVS();
+				resultTexture = ((TriangulatedTexture) resultTexture).getResultTexture();
+			}
 			// casting algorithm
 			TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
 			ImageLoader imageLoader = new ImageLoader();
