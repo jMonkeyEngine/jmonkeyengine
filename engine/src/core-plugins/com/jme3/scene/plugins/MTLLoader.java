@@ -219,8 +219,11 @@ public class MTLLoader implements AssetLoader {
             }
             
         }else if (cmd.equals("d") || cmd.equals("tr")){
-            alpha = scan.nextFloat();
-            transparent = true;
+            float tempAlpha = scan.nextFloat();
+            if (tempAlpha != 0){
+                alpha = tempAlpha;
+                transparent = true;
+            }
         }else if (cmd.equals("map_ka")){
             // ignore it for now
             return skipLine();
