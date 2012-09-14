@@ -344,7 +344,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             if (sum != 1f) {
                 weightsFloatData.position(weightsFloatData.position() - 4);
                 // compute new vals based on sum
-                float sumToB = 1f / sum;
+                float sumToB = sum == 0 ? 0 : 1f / sum;
                 weightsFloatData.put(w0 * sumToB);
                 weightsFloatData.put(w1 * sumToB);
                 weightsFloatData.put(w2 * sumToB);
