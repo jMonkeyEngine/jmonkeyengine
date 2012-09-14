@@ -77,7 +77,7 @@ public final class AnimControl extends AbstractControl implements Cloneable {
     /**
      * List of animations
      */
-    HashMap<String, Animation> animationMap;
+    HashMap<String, Animation> animationMap = new HashMap<String, Animation>();
     /**
      * Animation channels
      */
@@ -120,7 +120,6 @@ public final class AnimControl extends AbstractControl implements Cloneable {
             }
 
             // animationMap is cloned, but only ClonableTracks will be cloned as they need a reference to a cloned spatial
-            clone.animationMap = new HashMap<String, Animation>();
             for (Entry<String, Animation> animEntry : animationMap.entrySet()) {
                 clone.animationMap.put(animEntry.getKey(), animEntry.getValue().cloneForSpatial(spatial));
             }
@@ -147,9 +146,6 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * such named animation exists.
      */
     public Animation getAnim(String name) {
-        if (animationMap == null) {
-            animationMap = new HashMap<String, Animation>();
-        }
         return animationMap.get(name);
     }
 
@@ -159,9 +155,6 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * @param anim The animation to add.
      */
     public void addAnim(Animation anim) {
-        if (animationMap == null) {
-            animationMap = new HashMap<String, Animation>();
-        }
         animationMap.put(anim.getName(), anim);
     }
 
@@ -360,7 +353,10 @@ public final class AnimControl extends AbstractControl implements Cloneable {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
         skeleton = (Skeleton) in.readSavable("skeleton", null);
-        animationMap = (HashMap<String, Animation>) in.readStringSavableMap("animations", null);
+        HashMap<String, Animation> loadedAnimationMap = (HashMap<String, Animation>) in.readStringSavableMap("animations", null);
+        if (loadedAnimationMap != null) {
+            animationMap = loadedAnimationMap;
+        }
 
         if (im.getFormatVersion() == 0) {
             // Changed for backward compatibility with j3o files generated 
