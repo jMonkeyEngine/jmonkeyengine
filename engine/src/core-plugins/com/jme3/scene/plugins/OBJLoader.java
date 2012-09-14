@@ -255,6 +255,16 @@ public final class OBJLoader implements AssetLoader {
                 v = Integer.parseInt(split[0].trim());
                 vn = Integer.parseInt(split[2].trim());
             }
+            
+            if (v < 0) {
+                v = verts.size() + v + 1;
+            }
+            if (vt < 0) {
+                vt = texCoords.size() + vt + 1;
+            }
+            if (vn < 0) {
+                vn = norms.size() + vn + 1;
+            }
 
             Vertex vx = new Vertex();
             vx.v = verts.get(v - 1);
