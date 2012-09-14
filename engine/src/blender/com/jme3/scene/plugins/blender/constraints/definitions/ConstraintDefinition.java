@@ -34,7 +34,7 @@ public abstract class ConstraintDefinition {
 		TrackWrapper ownerWrapperTrack = ownerTrack != null ? new TrackWrapper(ownerTrack) : null;
 		TrackWrapper targetWrapperTrack = targetTrack != null ? new TrackWrapper(targetTrack) : null;
 		
-		//uruchamiamy bake dla transformat zale¿nie od tego, które argumenty s¹ nullami, a które - nie
+		//uruchamiamy bake dla transformat zalenie od tego, ktre argumenty s nullami, a ktre - nie
 		this.bake(ownerTransform, targetTransform, influenceIpo.calculateValue(0));
 		if(ownerWrapperTrack != null) {
 			float[] ownerTimes = ownerWrapperTrack.getTimes();
