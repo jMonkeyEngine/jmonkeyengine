@@ -338,8 +338,9 @@ import com.jme3.util.BufferUtils;
 						}
 						bonesGroups[0] = Math.max(bonesGroups[0], weightIndex);
 					} else {
+						// 0.0 weight indicates, do not transform this vertex, but keep it in bind pose.
 						for (Integer index : vertexIndices) {
-							weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, 1.0f);
+							weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, 0.0f);
 							indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, (byte) 0);
 						}
 					}
