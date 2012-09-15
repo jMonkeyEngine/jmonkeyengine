@@ -77,7 +77,7 @@ public final class BufferUtils {
     public static void setTrackDirectMemoryEnabled(boolean enabled) {
         trackDirectMemory = enabled;
     }
- 
+
     /**
      * Creates a clone of the given buffer. The clone's capacity is 
      * equal to the given buffer's limit.
@@ -305,7 +305,7 @@ public final class BufferUtils {
      * @param index
      *            the postion to place the data; in terms of quaternions not floats
      */
-    public static void setInBuffer(Quaternion quat, FloatBuffer buf, 
+    public static void setInBuffer(Quaternion quat, FloatBuffer buf,
             int index) {
         buf.position(index * 4);
         buf.put(quat.getX());
@@ -313,7 +313,7 @@ public final class BufferUtils {
         buf.put(quat.getZ());
         buf.put(quat.getW());
     }
-    
+
     /**
      * Sets the data contained in the given vector4 into the FloatBuffer at the
      * specified index.
@@ -359,7 +359,7 @@ public final class BufferUtils {
             buf.put((index * 3) + 2, vector.z);
         }
     }
-    
+
     /**
      * Updates the values of the given vector from the specified buffer at the
      * index provided.
@@ -377,8 +377,8 @@ public final class BufferUtils {
         vector.y = buf.get(index * 3 + 1);
         vector.z = buf.get(index * 3 + 2);
     }
-    
-     /**
+
+    /**
      * Generates a Vector3f array from the given FloatBuffer.
      * 
      * @param buff
@@ -1105,6 +1105,9 @@ public final class BufferUtils {
      * the input buffer, not null
      */
     public static FloatBuffer ensureLargeEnough(FloatBuffer buffer, int required) {
+        if (buffer != null) {
+            buffer.limit(buffer.capacity());
+        }
         if (buffer == null || (buffer.remaining() < required)) {
             int position = (buffer != null ? buffer.position() : 0);
             FloatBuffer newVerts = createFloatBuffer(position + required);
@@ -1119,6 +1122,9 @@ public final class BufferUtils {
     }
 
     public static ShortBuffer ensureLargeEnough(ShortBuffer buffer, int required) {
+        if (buffer != null) {
+            buffer.limit(buffer.capacity());
+        }
         if (buffer == null || (buffer.remaining() < required)) {
             int position = (buffer != null ? buffer.position() : 0);
             ShortBuffer newVerts = createShortBuffer(position + required);
@@ -1133,6 +1139,9 @@ public final class BufferUtils {
     }
 
     public static ByteBuffer ensureLargeEnough(ByteBuffer buffer, int required) {
+        if (buffer != null) {
+            buffer.limit(buffer.capacity());
+        }
         if (buffer == null || (buffer.remaining() < required)) {
             int position = (buffer != null ? buffer.position() : 0);
             ByteBuffer newVerts = createByteBuffer(position + required);
@@ -1149,7 +1158,7 @@ public final class BufferUtils {
     public static void printCurrentDirectMemory(StringBuilder store) {
         long totalHeld = 0;
         long heapMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-        
+
         boolean printStout = store == null;
         if (store == null) {
             store = new StringBuilder();
@@ -1201,7 +1210,7 @@ public final class BufferUtils {
     private static Method viewedBufferMethod = null;
     private static Method freeMethod = null;
 
-    private static Method loadMethod(String className, String methodName){
+    private static Method loadMethod(String className, String methodName) {
         try {
             Method method = Class.forName(className).getMethod(methodName);
             method.setAccessible(true);
@@ -1224,19 +1233,19 @@ public final class BufferUtils {
         // threads
         synchronized (BufferUtils.loadedMethods) {
             // Oracle JRE / OpenJDK
-        cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
-        cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
-        viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
-        if (viewedBufferMethod == null){
+            cleanerMethod = loadMethod("sun.nio.ch.DirectBuffer", "cleaner");
+            cleanMethod = loadMethod("sun.misc.Cleaner", "clean");
+            viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "viewedBuffer");
+            if (viewedBufferMethod == null) {
                 // They changed the name in Java 7 (???)
-            viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
+                viewedBufferMethod = loadMethod("sun.nio.ch.DirectBuffer", "attachment");
             }
 
             // Apache Harmony
             ByteBuffer bb = BufferUtils.createByteBuffer(1);
             Class<?> clazz = bb.getClass();
             try {
-            freeMethod = clazz.getMethod("free");
+                freeMethod = clazz.getMethod("free");
             } catch (NoSuchMethodException ex) {
             } catch (SecurityException ex) {
             }
@@ -1245,14 +1254,14 @@ public final class BufferUtils {
 
     /**
      * Direct buffers are garbage collected by using a phantom reference and a
-    * reference queue. Every once a while, the JVM checks the reference queue and
-    * cleans the direct buffers. However, as this doesn't happen
-    * immediately after discarding all references to a direct buffer, it's
-    * easy to OutOfMemoryError yourself using direct buffers. This function
+     * reference queue. Every once a while, the JVM checks the reference queue and
+     * cleans the direct buffers. However, as this doesn't happen
+     * immediately after discarding all references to a direct buffer, it's
+     * easy to OutOfMemoryError yourself using direct buffers. This function
      * explicitly calls the Cleaner method of a direct buffer.
      * 
      * @param toBeDestroyed
-    *          The direct buffer that will be "cleaned". Utilizes reflection.
+     *          The direct buffer that will be "cleaned". Utilizes reflection.
      * 
      */
     public static void destroyDirectBuffer(Buffer toBeDestroyed) {
