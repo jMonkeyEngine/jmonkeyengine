@@ -62,7 +62,6 @@ public class Geometry extends Spatial {
     // Version #1: removed shared meshes. 
     // models loaded with shared mesh will be automatically fixed.
     public static final int SAVABLE_VERSION = 1;
-    
     private static final Logger logger = Logger.getLogger(Geometry.class.getName());
     protected Mesh mesh;
     protected transient int lodLevel = 0;
@@ -323,25 +322,27 @@ public class Geometry extends Spatial {
         prevBatchTransforms = null;
         cachedOffsetMat = null;
         //once the geometry is removed from the screnegraph the batchNode needs to be rebatched.
-        this.batchNode.setNeedsFullRebatch(true);
-        this.batchNode = null;
+        if (batchNode != null) {
+            this.batchNode.setNeedsFullRebatch(true);
+            this.batchNode = null;
+        }
         setCullHint(CullHint.Dynamic);
     }
 
     @Override
-    public boolean removeFromParent() {       
+    public boolean removeFromParent() {
         return super.removeFromParent();
     }
 
     @Override
     protected void setParent(Node parent) {
         super.setParent(parent);
-         //if the geometry is batched we also have to unbatch it
-        if(parent==null && isBatched()){
-             unBatch();
+        //if the geometry is batched we also have to unbatch it
+        if (parent == null && isBatched()) {
+            unBatch();
         }
     }
-    
+
     /**
      * Recomputes the cached offset matrix used when the geometry is batched     * 
      */
@@ -384,7 +385,6 @@ public class Geometry extends Spatial {
 //        refreshFlags |= RF_TRANSFORM;
 //        setBoundRefresh();
 //    }
-
     /**
      * Recomputes the matrix returned by {@link Geometry#getWorldMatrix() }.
      * This will require a localized transform update for this geometry.
@@ -484,6 +484,11 @@ public class Geometry extends Spatial {
     @Override
     public Geometry clone(boolean cloneMaterial) {
         Geometry geomClone = (Geometry) super.clone(cloneMaterial);
+        //this geometry is batched but the clonned one should not be
+        if (isBatched()) {
+            geomClone.batchNode = null;
+            geomClone.unBatch();
+        }
         geomClone.cachedWorldMat = cachedWorldMat.clone();
         if (material != null) {
             if (cloneMaterial) {
@@ -559,11 +564,11 @@ public class Geometry extends Spatial {
             material = (Material) ic.readSavable("material", null);
         }
         ignoreTransform = ic.readBoolean("ignoreTransform", false);
-        
-        if (ic.getSavableVersion(Geometry.class) == 0){
+
+        if (ic.getSavableVersion(Geometry.class) == 0) {
             // Fix shared mesh (if set)
             Mesh sharedMesh = getUserData(UserData.JME_SHAREDMESH);
-            if (sharedMesh != null){
+            if (sharedMesh != null) {
                 getMesh().extractVertexData(sharedMesh);
             }
         }
