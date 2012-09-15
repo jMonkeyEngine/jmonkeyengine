@@ -239,19 +239,22 @@ public class BoundingBox extends BoundingVolume {
                 
                 if (vars.vect1.x < minX) {
                     minX = vars.vect1.x;
-                } else if (vars.vect1.x > maxX) {
+                }
+                if (vars.vect1.x > maxX) {
                     maxX = vars.vect1.x;
                 }
 
                 if (vars.vect1.y < minY) {
                     minY = vars.vect1.y;
-                } else if (vars.vect1.y > maxY) {
+                }
+                if (vars.vect1.y > maxY) {
                     maxY = vars.vect1.y;
                 }
 
                 if (vars.vect1.z < minZ) {
                     minZ = vars.vect1.z;
-                } else if (vars.vect1.z > maxZ) {
+                }
+                if (vars.vect1.z > maxZ) {
                     maxZ = vars.vect1.z;
                 }
             }
