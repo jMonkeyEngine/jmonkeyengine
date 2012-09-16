@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.*;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
@@ -158,11 +159,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         final DataObject data = new DataObject();
         data.app = this.app;
         inConfigChange = true;
-        logger.log(Level.INFO, "app: {0}", app.hashCode());
-        logger.log(Level.INFO, "ctx: {0}", ctx.hashCode());
-        logger.log(Level.INFO, "view: {0}", view.hashCode());
-        logger.log(Level.INFO, "isGLThreadPaused: {0}", isGLThreadPaused);
-        logger.log(Level.INFO, "inConfigChange: {0}", inConfigChange);
+
         return data;
     }
 
@@ -185,7 +182,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
         final DataObject data = (DataObject) getLastNonConfigurationInstance();
         if (data != null) {
-            logger.log(Level.INFO, "onCreate: onRetainNonConfigurationInstance is not null");
+            logger.log(Level.INFO, "Using Retained App");
             this.app = data.app;
 
             ctx = (OGLESContext) app.getContext();
@@ -193,16 +190,20 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             ctx.setSystemListener(this);
             layoutDisplay();
 
-            logger.log(Level.INFO, "app: {0}", app.hashCode());
-            logger.log(Level.INFO, "ctx: {0}", ctx.hashCode());
-            logger.log(Level.INFO, "view: {0}", view.hashCode());
         } else {
-            logger.log(Level.INFO, "onCreate: onRetainNonConfigurationInstance is null");
-
+            // Discover the screen reolution
+            //TODO try to find a better way to get a hand on the resolution
+            WindowManager wind = this.getWindowManager();
+            Display disp = wind.getDefaultDisplay();
+            Log.d("AndroidHarness", "Resolution from Window, width:" + disp.getWidth() + ", height: " + disp.getHeight());
+                
             // Create Settings
+            logger.log(Level.INFO, "Creating settings");
             AppSettings settings = new AppSettings(true);
             settings.setEmulateMouse(mouseEventsEnabled);
             settings.setEmulateMouseFlipAxis(mouseEventsInvertX, mouseEventsInvertY);
+            settings.setUseJoysticks(joystickEventsEnabled);
+            settings.setResolution(disp.getWidth(), disp.getHeight());
 
             // Create application instance
             try {
@@ -217,19 +218,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 ctx = (OGLESContext) app.getContext();
                 view = ctx.createView(eglConfigType, eglConfigVerboseLogging);
 
-                // Set the screen reolution
-                //TODO try to find a better way to get a hand on the resolution
-                WindowManager wind = this.getWindowManager();
-                Display disp = wind.getDefaultDisplay();
-                logger.log(Level.WARNING, "Resolution from Window: {0}, {1}", new Object[]{disp.getWidth(), disp.getHeight()});
-                ctx.getSettings().setResolution(disp.getWidth(), disp.getHeight());
-
-                settings.setUseJoysticks(joystickEventsEnabled);
-                ctx.getSettings().setUseJoysticks(joystickEventsEnabled);
-
                 // AndroidHarness wraps the app as a SystemListener.
                 ctx.setSystemListener(this);
                 layoutDisplay();
+
             } catch (Exception ex) {
                 handleError("Class " + appClass + " init failed", ex);
                 setContentView(new TextView(this));
@@ -328,7 +320,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected void onDestroy() {
         final DataObject data = (DataObject) getLastNonConfigurationInstance();
         if (data != null || inConfigChange) {
-            logger.info("onDestroy: found DataObject or inConfigChange");
+            logger.info("In Config Change, not stopping app.");
         } else {
             if (app != null) {
                 app.stop(!isGLThreadPaused);
@@ -418,6 +410,9 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     public void layoutDisplay() {
         logger.log(Level.INFO, "Splash Screen Picture Resource ID: {0}", splashPicID);
+        if (view == null) {
+            logger.log(Level.INFO, "view is null!");
+        }
         if (splashPicID != 0) {
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                     LayoutParams.FILL_PARENT,

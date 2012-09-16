@@ -35,7 +35,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         } catch (UnsatisfiedLinkError e) {
         }
     }
-    
+
     @Override
     public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
         Bitmap bitmapImage = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -51,7 +51,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         bitmapImage.compress(compressFormat, 95, outStream);
         bitmapImage.recycle();
     }
-    
+
     @Override
     public ImageRaster createImageRaster(Image image, int slice) {
         if (image.getEfficentData() != null) {
@@ -60,7 +60,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
             return new DefaultImageRaster(image, slice);
         }
     }
-    
+
     @Override
     public AssetManager newAssetManager(URL configFile) {
         logger.log(Level.INFO, "Creating asset manager with config {0}", configFile);
@@ -78,7 +78,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         final String finalMsg = message;
         final String finalTitle = "Error in application";
         final Activity context = JmeAndroidSystem.getActivity();
-        
+
         context.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -88,7 +88,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
             }
         });
     }
-    
+
     @Override
     public boolean showSettingsDialog(AppSettings sourceSettings, boolean loadFromRegistry) {
         return true;
@@ -97,7 +97,9 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     @Override
     public JmeContext newContext(AppSettings settings, Type contextType) {
         initialize(settings);
-        return new OGLESContext();
+        JmeContext ctx = new OGLESContext();
+        ctx.setSettings(settings);
+        return ctx;
     }
 
     @Override
@@ -116,7 +118,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 //            JmeFormatter formatter = new JmeFormatter();
 //            Handler consoleHandler = new AndroidLogHandler();
 //            consoleHandler.setFormatter(formatter);
-//            
+//
 //            Logger log = Logger.getLogger("");
 //            for (Handler h : log.getHandlers()) {
 //                log.removeHandler(h);
