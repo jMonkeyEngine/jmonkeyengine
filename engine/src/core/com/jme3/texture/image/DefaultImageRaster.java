@@ -27,7 +27,7 @@ public class DefaultImageRaster extends ImageRaster {
         this.codec = ImageCodec.lookup(image.getFormat());
         this.width = image.getWidth();
         this.height = image.getHeight();
-        if (codec instanceof ByteAlignedImageCodec) {
+        if (codec instanceof ByteAlignedImageCodec || codec instanceof ByteOffsetImageCodec) {
             this.temp = new byte[codec.bpp];
         } else {
             this.temp = null;
