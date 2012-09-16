@@ -302,9 +302,13 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             Spatial ogreMesh = assetManager.loadModel(meshKey);
             entityNode.attachChild(ogreMesh);
         } catch (AssetNotFoundException ex) {
-            logger.log(Level.WARNING, "Cannot locate {0} for scene {1}", new Object[]{meshKey, key});
-            // Attach placeholder asset.
-            entityNode.attachChild(PlaceholderAssets.getPlaceholderModel(assetManager));
+            if (ex.getMessage().equals(meshFile)) {
+                logger.log(Level.WARNING, "Cannot locate {0} for scene {1}", new Object[]{meshKey, key});
+                // Attach placeholder asset.
+                entityNode.attachChild(PlaceholderAssets.getPlaceholderModel(assetManager));
+            } else {
+                throw ex;
+            }
         }
 
         node.attachChild(entityNode);
