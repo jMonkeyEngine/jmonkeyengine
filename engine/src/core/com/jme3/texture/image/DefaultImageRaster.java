@@ -36,7 +36,7 @@ public class DefaultImageRaster extends ImageRaster {
     
     @Override
     public void setPixel(int x, int y, ColorRGBA color) {
-//        rangeCheck(x, y);
+        rangeCheck(x, y);
         
         // Check flags for grayscale
         if (codec.isGray) {
@@ -71,7 +71,7 @@ public class DefaultImageRaster extends ImageRaster {
     
     @Override
     public ColorRGBA getPixel(int x, int y, ColorRGBA store) {
-//        rangeCheck(x, y);
+        rangeCheck(x, y);
         
         codec.readComponents(buffer, x, y, width, components, temp);
         if (store == null) {
