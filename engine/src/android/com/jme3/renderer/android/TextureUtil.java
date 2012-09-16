@@ -253,7 +253,7 @@ public class TextureUtil {
         
         if (!NPOT) {
             // Check if texture is POT
-            if (!FastMath.isPowerOfTwo(width) || width != height) {
+            if (!FastMath.isPowerOfTwo(width) || !FastMath.isPowerOfTwo(height)) {
                 throw new RendererException("Non-power-of-2 textures "
                         + "are not supported by the video hardware "
                         + "and no scaling path available for image: " + img);
