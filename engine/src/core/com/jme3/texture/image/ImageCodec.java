@@ -7,14 +7,16 @@ import java.util.EnumMap;
 
 abstract class ImageCodec {
     
-    public static final int FLAG_F16 = 1, FLAG_F32 = 2, FLAG_GRAY = 4, FLAG_ALPHAONLY = 8, FLAG_SHAREDEXP = 16;
+    public static final int FLAG_F16 = 1, FLAG_F32 = 2, FLAG_GRAY = 4; //, FLAG_ALPHAONLY = 8, FLAG_SHAREDEXP = 16;
     private static final EnumMap<Image.Format, ImageCodec> params = new EnumMap<Image.Format, ImageCodec>(Image.Format.class);
     
-    protected final int bpp, flags, maxAlpha, maxRed, maxGreen, maxBlue;
+    protected final int bpp, type, maxAlpha, maxRed, maxGreen, maxBlue;
+    protected final boolean isGray;
 
     public ImageCodec(int bpp, int flags, int maxAlpha, int maxRed, int maxGreen, int maxBlue) {
         this.bpp = bpp;
-        this.flags = flags;
+        this.isGray = (flags & FLAG_GRAY) != 0;
+        this.type = flags & ~FLAG_GRAY;
         this.maxAlpha = maxAlpha;
         this.maxRed = maxRed;
         this.maxGreen = maxGreen;
