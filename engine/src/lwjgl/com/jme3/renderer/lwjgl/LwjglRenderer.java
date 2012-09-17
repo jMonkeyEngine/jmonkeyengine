@@ -363,7 +363,7 @@ public class LwjglRenderer implements Renderer {
                 caps.add(Caps.FrameBufferMRT);
                 logger.log(Level.FINER, "FBO Max MRT renderbuffers: {0}", maxMRTFBOAttachs);
             }
-            
+
 //            if (ctxCaps.GL_ARB_draw_buffers) {
 //                caps.add(Caps.FrameBufferMRT);
 //                glGetInteger(ARBDrawBuffers.GL_MAX_DRAW_BUFFERS_ARB, intBuf16);
@@ -387,7 +387,7 @@ public class LwjglRenderer implements Renderer {
 
         logger.log(Level.INFO, "Caps: {0}", caps);
     }
-    
+
     public void invalidateState() {
         context.reset();
         boundShader = null;
@@ -486,13 +486,13 @@ public class LwjglRenderer implements Renderer {
             context.depthTestEnabled = false;
         }
 
-        if (state.isAlphaTest() && !context.alphaTestEnabled) {
+        if (state.isAlphaTest() && context.alphaTestFallOff == 0) {
             glEnable(GL_ALPHA_TEST);
             glAlphaFunc(GL_GREATER, state.getAlphaFallOff());
-            context.alphaTestEnabled = true;
-        } else if (!state.isAlphaTest() && context.alphaTestEnabled) {
+            context.alphaTestFallOff = state.getAlphaFallOff();
+        } else if (!state.isAlphaTest() && context.alphaTestFallOff != 0) {
             glDisable(GL_ALPHA_TEST);
-            context.alphaTestEnabled = false;
+            context.alphaTestFallOff = 0;
         }
 
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
@@ -1038,14 +1038,14 @@ public class LwjglRenderer implements Renderer {
             // Check if GLSL version is 1.5 for shader
             GL30.glBindFragDataLocation(id, 0, "outFragColor");
             // For MRT
-            for(int i = 0 ; i < maxMRTFBOAttachs ; i++) {
+            for (int i = 0; i < maxMRTFBOAttachs; i++) {
                 GL30.glBindFragDataLocation(id, i, "outFragData[" + i + "]");
             }
         }
 
         // Link shaders to program
         glLinkProgram(id);
-        
+
         // Check link status
         glGetProgram(id, GL_LINK_STATUS, intBuf1);
         boolean linkOK = intBuf1.get(0) == GL_TRUE;
@@ -1097,7 +1097,7 @@ public class LwjglRenderer implements Renderer {
             if (shader.isUpdateNeeded()) {
                 updateShaderData(shader);
             }
-            
+
             // NOTE: might want to check if any of the
             // sources need an update?
 
@@ -1149,14 +1149,14 @@ public class LwjglRenderer implements Renderer {
             int srcY0 = 0;
             int srcX1 = 0;
             int srcY1 = 0;
-            
+
             int dstX0 = 0;
             int dstY0 = 0;
             int dstX1 = 0;
             int dstY1 = 0;
-            
+
             int prevFBO = context.boundFBO;
-            
+
             if (mainFbOverride != null) {
                 if (src == null) {
                     src = mainFbOverride;
@@ -1201,8 +1201,8 @@ public class LwjglRenderer implements Renderer {
                 mask |= GL_DEPTH_BUFFER_BIT;
             }
             glBlitFramebufferEXT(srcX0, srcY0, srcX1, srcY1,
-                                 dstX0, dstY0, dstX1, dstY1, mask,
-                                 GL_NEAREST);
+                    dstX0, dstY0, dstX1, dstY1, mask,
+                    GL_NEAREST);
 
 
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prevFBO);
@@ -1892,10 +1892,10 @@ public class LwjglRenderer implements Renderer {
 
         img.clearUpdateNeeded();
     }
-    
+
     public void setTexture(int unit, Texture tex) {
         Image image = tex.getImage();
-        if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated()) ) {
+        if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
             updateTexImageData(image, tex.getType(), unit);
         }
 

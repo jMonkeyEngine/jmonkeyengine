@@ -76,5 +76,11 @@ public enum FixedFuncBinding {
      * If lighting is disabled, vertex color is modulated with
      * {@link #Color material color}.
      */
-    UseVertexColor
+    UseVertexColor,
+    
+    /**
+     * Set the alpha threshold to discard pixels.
+     * @see RenderState#setAlphaFallOff
+     */
+    AlphaTestFallOff
 }

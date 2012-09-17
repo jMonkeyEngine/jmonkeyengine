@@ -225,8 +225,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         context.useVertexColor = false;
     }
     
-    public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val) {
-        float falloff;
+        public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val) {        
         switch (ffBinding) {
             case Color:
                 context.color = (ColorRGBA) val;

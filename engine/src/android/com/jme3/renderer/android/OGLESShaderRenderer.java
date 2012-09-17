@@ -400,14 +400,7 @@ public class OGLESShaderRenderer implements Renderer {
             GLES20.glDisable(GLES20.GL_DEPTH_TEST);
             context.depthTestEnabled = false;
         }
-        if (state.isAlphaTest() && !context.alphaTestEnabled) {
-//            GLES20.glEnable(GLES20.GL_ALPHA_TEST);
-//           GLES20.glAlphaFunc(GLES20.GL_GREATER, state.getAlphaFallOff());
-            context.alphaTestEnabled = true;
-        } else if (!state.isAlphaTest() && context.alphaTestEnabled) {
-//            GLES20.glDisable(GLES20.GL_ALPHA_TEST);
-            context.alphaTestEnabled = false;
-        }
+        
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             GLES20.glDepthMask(true);
             context.depthWriteEnabled = true;
@@ -422,14 +415,14 @@ public class OGLESShaderRenderer implements Renderer {
             GLES20.glColorMask(false, false, false, false);
             context.colorWriteEnabled = false;
         }
-        if (state.isPointSprite() && !context.pointSprite) {
-//            GLES20.glEnable(GLES20.GL_POINT_SPRITE);
-//            GLES20.glTexEnvi(GLES20.GL_POINT_SPRITE, GLES20.GL_COORD_REPLACE, GLES20.GL_TRUE);
-//            GLES20.glEnable(GLES20.GL_VERTEX_PROGRAM_POINT_SIZE);
-//            GLES20.glPointParameterf(GLES20.GL_POINT_SIZE_MIN, 1.0f);
-        } else if (!state.isPointSprite() && context.pointSprite) {
-//            GLES20.glDisable(GLES20.GL_POINT_SPRITE);
-        }
+//        if (state.isPointSprite() && !context.pointSprite) {
+////            GLES20.glEnable(GLES20.GL_POINT_SPRITE);
+////            GLES20.glTexEnvi(GLES20.GL_POINT_SPRITE, GLES20.GL_COORD_REPLACE, GLES20.GL_TRUE);
+////            GLES20.glEnable(GLES20.GL_VERTEX_PROGRAM_POINT_SIZE);
+////            GLES20.glPointParameterf(GLES20.GL_POINT_SIZE_MIN, 1.0f);
+//        } else if (!state.isPointSprite() && context.pointSprite) {
+////            GLES20.glDisable(GLES20.GL_POINT_SPRITE);
+//        }
 
         if (state.isPolyOffset()) {
             if (!context.polyOffsetEnabled) {

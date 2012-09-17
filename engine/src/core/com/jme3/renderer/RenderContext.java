@@ -58,7 +58,7 @@ public class RenderContext {
     /**
      * @see RenderState#setAlphaTest(boolean) 
      */
-    public boolean alphaTestEnabled = false;
+    public float alphaTestFallOff = 0f;
 
     /**
      * @see RenderState#setDepthWrite(boolean) 
@@ -271,7 +271,7 @@ public class RenderContext {
     public void reset(){
         cullMode = RenderState.FaceCullMode.Off;
         depthTestEnabled = false;
-        alphaTestEnabled = false;
+        alphaTestFallOff = 0f;
         depthWriteEnabled = false;
         colorWriteEnabled = false;
         clipRectEnabled = false;
