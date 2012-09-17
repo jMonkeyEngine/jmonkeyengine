@@ -204,12 +204,19 @@ public class LwjglGL1Renderer implements GL1Renderer {
                 glColor4f(1, 1, 1, 1);
             }
         }
+        if (context.alphaTestFallOff > 0f) {
+            glEnable(GL_ALPHA_TEST);
+            glAlphaFunc(GL_GREATER, context.alphaTestFallOff);
+        } else {
+            glDisable(GL_ALPHA_TEST);
+        }
     }
     
     /**
      * Reset fixed function bindings to default values.
      */
     private void resetFixedFuncBindings(){
+        context.alphaTestFallOff = 0f; // zero means disable alpha test!
         context.color = null;
         context.ambient = null;
         context.diffuse = null;
@@ -219,6 +226,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
     
     public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val) {
+        float falloff;
         switch (ffBinding) {
             case Color:
                 context.color = (ColorRGBA) val;
@@ -237,6 +245,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
                 break;
             case UseVertexColor:
                 context.useVertexColor = (Boolean) val;
+                break;
+            case AlphaTestFallOff:
+                context.alphaTestFallOff = (Float) val;
                 break;
         }
     }
@@ -259,15 +270,12 @@ public class LwjglGL1Renderer implements GL1Renderer {
             context.depthTestEnabled = false;
         }
 
-        if (state.isAlphaTest() && !context.alphaTestEnabled) {
-            glEnable(GL_ALPHA_TEST);
-            glAlphaFunc(GL_GREATER, state.getAlphaFallOff());
-            context.alphaTestEnabled = true;
-        } else if (!state.isAlphaTest() && context.alphaTestEnabled) {
-            glDisable(GL_ALPHA_TEST);
-            context.alphaTestEnabled = false;
+        if (state.isAlphaTest()) {
+            setFixedFuncBinding(FixedFuncBinding.AlphaTestFallOff, state.getAlphaFallOff());
+        } else {
+            setFixedFuncBinding(FixedFuncBinding.AlphaTestFallOff, 0f); // disable it
         }
-
+        
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             glDepthMask(true);
             context.depthWriteEnabled = true;
