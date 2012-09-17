@@ -113,6 +113,8 @@ public class TechniqueDef implements Savable {
     private boolean usesShaders;
 
     private RenderState renderState;
+    private RenderState forcedRenderState;
+    
     private LightMode lightMode   = LightMode.Disable;
     private ShadowMode shadowMode = ShadowMode.Disable;
 
@@ -376,6 +378,14 @@ public class TechniqueDef implements Savable {
         }
     }
 
+    public RenderState getForcedRenderState() {
+        return forcedRenderState;
+    }
+
+    public void setForcedRenderState(RenderState forcedRenderState) {
+        this.forcedRenderState = forcedRenderState;
+    }
+    
     /**
      * Returns a list of world parameters that are used by this
      * technique definition.

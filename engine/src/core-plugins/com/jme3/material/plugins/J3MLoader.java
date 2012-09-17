@@ -353,6 +353,15 @@ public class J3MLoader implements AssetLoader {
         renderState = null;
     }
     
+    private void readForcedRenderState(List<Statement> renderStates) throws IOException{
+        renderState = new RenderState();
+        for (Statement statement : renderStates){
+            readRenderStateStatement(statement.getLine());
+        }
+        technique.setForcedRenderState(renderState);
+        renderState = null;
+    }
+    
     // <DEFINENAME> [ ":" <PARAMNAME> ]
     private void readDefine(String statement) throws IOException{
         String[] split = statement.split(":");
@@ -384,8 +393,10 @@ public class J3MLoader implements AssetLoader {
             readShadowMode(statement.getLine());
         }else if (split[0].equals("WorldParameters")){
             readWorldParams(statement.getContents());
-        }else if (split[0].equals("RenderState")){
+        }else if (split[0].equals("RenderState")){  
             readRenderState(statement.getContents());
+        }else if (split[0].equals("ForcedRenderState")){  
+            readForcedRenderState(statement.getContents());
         }else if (split[0].equals("Defines")){
             readDefines(statement.getContents());
         }else{

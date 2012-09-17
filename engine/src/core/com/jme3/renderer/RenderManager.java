@@ -67,10 +67,8 @@ import java.util.logging.Logger;
 public class RenderManager {
 
     private static final Logger logger = Logger.getLogger(RenderManager.class.getName());
-    
     private Renderer renderer;
     private UniformBindingManager uniformBindingManager = new UniformBindingManager();
-    
     private ArrayList<ViewPort> preViewPorts = new ArrayList<ViewPort>();
     private ArrayList<ViewPort> viewPorts = new ArrayList<ViewPort>();
     private ArrayList<ViewPort> postViewPorts = new ArrayList<ViewPort>();
@@ -81,7 +79,6 @@ public class RenderManager {
     private boolean shader;
     private int viewX, viewY, viewWidth, viewHeight;
     private Matrix4f orthoMatrix = new Matrix4f();
-    
     private String tmpTech;
     private boolean handleTranlucentBucket = true;
 
@@ -447,7 +444,7 @@ public class RenderManager {
             renderer.setWorldMatrix(mat);
         }
     }
-    
+
     /**
      * Internal use only.
      * Updates the given list of uniforms with {@link UniformBinding uniform bindings}
@@ -502,9 +499,19 @@ public class RenderManager {
             if (g.getMaterial().getMaterialDef().getTechniqueDef(forcedTechnique) != null) {
                 tmpTech = g.getMaterial().getActiveTechnique() != null ? g.getMaterial().getActiveTechnique().getDef().getName() : "Default";
                 g.getMaterial().selectTechnique(forcedTechnique, this);
+                //saving forcedRenderState for future calls
+                RenderState tmpRs = forcedRenderState;
+                if (g.getMaterial().getActiveTechnique().getDef().getForcedRenderState() != null) {
+                    //forcing forced technique renderState
+                    forcedRenderState = g.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
+                }
                 // use geometry's material
                 g.getMaterial().render(g, this);
                 g.getMaterial().selectTechnique(tmpTech, this);
+
+                //restoring forcedRenderState
+                forcedRenderState = tmpRs;
+
                 //Reverted this part from revision 6197
                 //If forcedTechnique does not exists, and frocedMaterial is not set, the geom MUST NOT be rendered
             } else if (forcedMaterial != null) {
@@ -635,7 +642,7 @@ public class RenderManager {
         // check culling first.
         if (!scene.checkCulling(vp.getCamera())) {
             // move on to shadow-only render
-            if ((scene.getShadowMode() != RenderQueue.ShadowMode.Off || scene instanceof Node) && scene.getCullHint()!=Spatial.CullHint.Always) {
+            if ((scene.getShadowMode() != RenderQueue.ShadowMode.Off || scene instanceof Node) && scene.getCullHint() != Spatial.CullHint.Always) {
                 renderShadow(scene, vp.getQueue());
             }
             return;
@@ -1006,19 +1013,19 @@ public class RenderManager {
 
         for (int i = 0; i < preViewPorts.size(); i++) {
             ViewPort vp = preViewPorts.get(i);
-            if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive){
+            if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
                 renderViewPort(vp, tpf);
             }
         }
         for (int i = 0; i < viewPorts.size(); i++) {
             ViewPort vp = viewPorts.get(i);
-            if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive){
+            if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
                 renderViewPort(vp, tpf);
             }
         }
         for (int i = 0; i < postViewPorts.size(); i++) {
             ViewPort vp = postViewPorts.get(i);
-            if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive){
+            if (vp.getOutputFrameBuffer() != null || mainFrameBufferActive) {
                 renderViewPort(vp, tpf);
             }
         }
