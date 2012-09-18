@@ -31,6 +31,7 @@ package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
@@ -47,6 +48,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
+import com.jme3.shader.VarType;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.MagFilter;
@@ -97,7 +99,13 @@ public class PssmShadowRenderer implements SceneProcessor {
          * 8x8 percentage-closer  filtering is used. Shadows will be smoother
          * at the cost of performance
          */
+        PCFPOISSON,        
+        /**
+         * 8x8 percentage-closer  filtering is used. Shadows will be smoother
+         * at the cost of performance
+         */
         PCF8
+        
     }
 
     /**
@@ -116,6 +124,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         Hardware;
     }
     private int nbSplits = 3;
+    private float shadowMapSize;
     private float lambda = 0.65f;
     private float shadowIntensity = 0.7f;
     private float zFarOverride = 0;
@@ -172,6 +181,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         assetManager = manager;
         nbSplits = Math.max(Math.min(nbSplits, 4), 1);
         this.nbSplits = nbSplits;
+        shadowMapSize = size;
 
         shadowFB = new FrameBuffer[nbSplits];
         shadowMaps = new Texture2D[nbSplits];
@@ -185,7 +195,8 @@ public class PssmShadowRenderer implements SceneProcessor {
 
         preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
         this.postshadowMat = postShadowMat;
-
+        postshadowMat.setFloat("ShadowMapSize", size);       
+        
         for (int i = 0; i < nbSplits; i++) {
             lightViewProjectionsMatrices[i] = new Matrix4f();
             shadowFB[i] = new FrameBuffer(size, size, 1);
@@ -213,7 +224,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }
-       
+
     }
 
     /**
@@ -315,7 +326,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         //checking for caps to chosse the appropriate post material technique
         if (renderManager.getRenderer().getCaps().contains(Caps.GLSL150)) {
             postTechniqueName = "PostShadow15";
-        }else{
+        } else {
             postTechniqueName = "PostShadow";
         }
     }
@@ -423,7 +434,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         renderManager.setCamera(cam, true);
         int h = cam.getHeight();
         for (int i = 0; i < dispPic.length; i++) {
-            dispPic[i].setPosition(64 * (i + 1) + 128 * i, h / 20f);
+            dispPic[i].setPosition((128 * i) +(150 + 64 * (i + 1) ), h / 20f);
             dispPic[i].setWidth(128);
             dispPic[i].setHeight(128);
             dispPic[i].updateGeometricState();
@@ -448,16 +459,16 @@ public class PssmShadowRenderer implements SceneProcessor {
             if (needsfallBackMaterial) {
                 renderManager.setForcedMaterial(postshadowMat);
             }
-            
-            //forcing the post shadow technique
+
+            //forcing the post shadow technique and render state
             renderManager.setForcedTechnique(postTechniqueName);
-            
+
             //rendering the post shadow pass
             viewPort.getQueue().renderShadowQueue(ShadowMode.Receive, renderManager, cam, flushQueues);
 
             //resetting renderManager settings
             renderManager.setForcedTechnique(null);
-            renderManager.setForcedMaterial(null);       
+            renderManager.setForcedMaterial(null);
             renderManager.setCamera(cam, false);
 
         }
@@ -469,7 +480,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     private void setMatParams() {
 
         GeometryList l = viewPort.getQueue().getShadowQueueContent(ShadowMode.Receive);
-        
+
         //iteratin throught all the geometries of the list to set the material params
         for (int i = 0; i < l.size(); i++) {
             Material mat = l.get(i).getMaterial();
@@ -485,7 +496,10 @@ public class PssmShadowRenderer implements SceneProcessor {
                 mat.setInt("FilterMode", filterMode.ordinal());
                 mat.setFloat("PCFEdge", edgesThickness);
                 mat.setFloat("ShadowIntensity", shadowIntensity);
-            } else {                
+                if(mat.getParam("ShadowMapSize") == null){
+                    mat.setFloat("ShadowMapSize", shadowMapSize);
+                }
+            } else {
                 needsfallBackMaterial = true;
             }
         }

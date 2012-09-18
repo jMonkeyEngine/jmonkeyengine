@@ -15,6 +15,9 @@ MaterialDef Phong Lighting {
         // Output alpha from the diffuse map
         Boolean UseAlpha
 
+        // Apha threshold for fragment discarding
+        Float AlphaDiscardThreshold (AlphaTestFallOff)
+
         // Normal map is in BC5/ATI2n/LATC/3Dc compression format
         Boolean LATC
 
@@ -115,6 +118,7 @@ MaterialDef Phong Lighting {
         Matrix4 LightViewProjectionMatrix3
 
         Float PCFEdge
+        Float ShadowMapSize
     }
 
     Technique {
@@ -157,7 +161,7 @@ MaterialDef Phong Lighting {
             SEPARATE_TEXCOORD : SeparateTexCoord
 
             USE_REFLECTION : EnvMap
-            SPHERE_MAP : EnvMapAsSphereMap            
+            SPHERE_MAP : SphereMap            
         }
     }
 
@@ -171,8 +175,9 @@ MaterialDef Phong Lighting {
             WorldViewMatrix
         }
 
-        Defines {           
-            DIFFUSEMAP : DiffuseMap
+        Defines {
+            COLOR_MAP : ColorMap
+            DISCARD_ALPHA : AlphaDiscardThreshold
         }
 
         RenderState {
@@ -199,11 +204,15 @@ MaterialDef Phong Lighting {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DIFFUSEMAP : DiffuseMap         
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            COLOR_MAP : ColorMap
+            SHADOWMAP_SIZE : ShadowMapSize
         }
 
-        RenderState {
-            Blend Alpha
+        ForcedRenderState {
+            Blend Modulate
+            DepthWrite Off                 
+            PolyOffset -0.1 0
         }
     }
 
@@ -220,11 +229,15 @@ MaterialDef Phong Lighting {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DIFFUSEMAP : DiffuseMap     
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            COLOR_MAP : ColorMap
+            SHADOWMAP_SIZE : ShadowMapSize
         }
 
-        RenderState {
-            Blend Alpha
+        ForcedRenderState {
+            Blend Modulate
+            DepthWrite Off   
+            PolyOffset -0.1 0  
         }
     }
 

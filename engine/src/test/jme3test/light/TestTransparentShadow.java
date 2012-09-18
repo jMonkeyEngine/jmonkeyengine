@@ -72,7 +72,7 @@ public class TestTransparentShadow extends SimpleApplication {
         
         geom.rotate(-FastMath.HALF_PI, 0, 0);
         geom.center();
-        geom.setShadowMode(ShadowMode.Receive);
+        geom.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(geom);
 
         // create the geometry and attach it
@@ -132,6 +132,6 @@ public class TestTransparentShadow extends SimpleApplication {
         pssmRenderer.setCompareMode(CompareMode.Software);
         pssmRenderer.setFilterMode(FilterMode.PCF4);
         //pssmRenderer.displayDebug();
-        viewPort.addProcessor(pssmRenderer);
+         viewPort.addProcessor(pssmRenderer);
     }
 }
