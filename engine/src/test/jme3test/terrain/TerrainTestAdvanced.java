@@ -102,21 +102,22 @@ public class TerrainTestAdvanced extends SimpleApplication {
         // ALPHA map (for splat textures)
         matTerrain.setTexture("AlphaMap", assetManager.loadTexture("Textures/Terrain/splat/alpha1.png"));
         matTerrain.setTexture("AlphaMap_1", assetManager.loadTexture("Textures/Terrain/splat/alpha2.png"));
-
+        // this material also supports 'AlphaMap_2', so you can get up to 12 diffuse textures
+        
         // HEIGHTMAP image (for the terrain heightmap)
         Texture heightMapImage = assetManager.loadTexture("Textures/Terrain/splat/mountains512.png");
-
+        
+        // DIRT texture, Diffuse textures 0 to 3 use the first AlphaMap
+        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
+        dirt.setWrap(WrapMode.Repeat);
+        matTerrain.setTexture("DiffuseMap", dirt);
+        matTerrain.setFloat("DiffuseMap_0_scale", dirtScale);
+        
         // GRASS texture
         Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_1", grass);
         matTerrain.setFloat("DiffuseMap_1_scale", grassScale);
-
-        // DIRT texture
-        Texture dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
-        dirt.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("DiffuseMap", dirt);
-        matTerrain.setFloat("DiffuseMap_0_scale", dirtScale);
 
         // ROCK texture
         Texture rock = assetManager.loadTexture("Textures/Terrain/splat/road.jpg");
@@ -130,12 +131,14 @@ public class TerrainTestAdvanced extends SimpleApplication {
         matTerrain.setTexture("DiffuseMap_3", brick);
         matTerrain.setFloat("DiffuseMap_3_scale", rockScale);
 
-        // RIVER ROCK texture
+        // RIVER ROCK texture, this texture will use the next alphaMap: AlphaMap_1
         Texture riverRock = assetManager.loadTexture("Textures/Terrain/Pond/Pond.jpg");
         riverRock.setWrap(WrapMode.Repeat);
         matTerrain.setTexture("DiffuseMap_4", riverRock);
         matTerrain.setFloat("DiffuseMap_4_scale", rockScale);
-
+        
+        // diffuse textures 4 to 7 use AlphaMap_1
+        // diffuse textures 8 to 11 use AlphaMap_2
 
         Texture normalMap0 = assetManager.loadTexture("Textures/Terrain/splat/grass_normal.jpg");
         normalMap0.setWrap(WrapMode.Repeat);
@@ -143,15 +146,10 @@ public class TerrainTestAdvanced extends SimpleApplication {
         normalMap1.setWrap(WrapMode.Repeat);
         Texture normalMap2 = assetManager.loadTexture("Textures/Terrain/splat/road_normal.png");
         normalMap2.setWrap(WrapMode.Repeat);
-        matTerrain.setTexture("NormalMap", normalMap0);
+        //matTerrain.setTexture("NormalMap", normalMap0);
         matTerrain.setTexture("NormalMap_1", normalMap2);
         matTerrain.setTexture("NormalMap_2", normalMap2);
         matTerrain.setTexture("NormalMap_4", normalMap2);
-
-        // WIREFRAME material
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        matWire.getAdditionalRenderState().setWireframe(true);
-        matWire.setColor("Color", ColorRGBA.Green);
 
         createSky();
 
@@ -190,7 +188,7 @@ public class TerrainTestAdvanced extends SimpleApplication {
         //terrain.generateDebugTangents(debugMat);
 
         DirectionalLight light = new DirectionalLight();
-        light.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalize());
+        light.setDirection((new Vector3f(-0.1f, -0.1f, -0.1f)).normalize());
         rootNode.addLight(light);
 
         cam.setLocation(new Vector3f(0, 10, -10));

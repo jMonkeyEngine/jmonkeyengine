@@ -274,21 +274,29 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
     #ifdef NORMALMAP
       n = texture2D(m_NormalMap, texCoord * m_DiffuseMap_0_scale).xyz;
       normal += n * alphaBlend.r;
+    #else
+      normal += vec3(0.5,0.5,1) * alphaBlend.r;
     #endif
 
     #ifdef NORMALMAP_1
       n = texture2D(m_NormalMap_1, texCoord * m_DiffuseMap_1_scale).xyz;
       normal += n * alphaBlend.g;
+    #else
+      normal += vec3(0.5,0.5,1) * alphaBlend.g;
     #endif
 
     #ifdef NORMALMAP_2
       n = texture2D(m_NormalMap_2, texCoord * m_DiffuseMap_2_scale).xyz;
       normal += n * alphaBlend.b;
+    #else
+      normal += vec3(0.5,0.5,1) * alphaBlend.b;
     #endif
 
     #ifdef NORMALMAP_3
       n = texture2D(m_NormalMap_3, texCoord * m_DiffuseMap_3_scale).xyz;
       normal += n * alphaBlend.a;
+    #else
+      normal += vec3(0.5,0.5,1) * alphaBlend.a;
     #endif
 
     #ifdef ALPHAMAP_1
@@ -472,12 +480,12 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
       vec4 coords = wVert;
       vec4 alphaBlend = texture2D( m_AlphaMap, texCoord.xy );
 
-    #ifdef ALPHAMAP_1
-      vec4 alphaBlend1 = texture2D( m_AlphaMap_1, texCoord.xy );
-    #endif
-    #ifdef ALPHAMAP_2
-      vec4 alphaBlend2 = texture2D( m_AlphaMap_2, texCoord.xy );
-    #endif
+      #ifdef ALPHAMAP_1
+        vec4 alphaBlend1 = texture2D( m_AlphaMap_1, texCoord.xy );
+      #endif
+      #ifdef ALPHAMAP_2
+        vec4 alphaBlend2 = texture2D( m_AlphaMap_2, texCoord.xy );
+      #endif
 
       vec3 normal = vec3(0,0,1);
       vec3 n = vec3(0,0,0);
@@ -485,42 +493,58 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
       #ifdef NORMALMAP
           n = getTriPlanarBlend(coords, blending, m_NormalMap, m_DiffuseMap_0_scale).xyz;
           normal += n * alphaBlend.r;
+      #else
+          normal += vec3(0.5,0.5,1) * alphaBlend.r;
       #endif
 
       #ifdef NORMALMAP_1
           n = getTriPlanarBlend(coords, blending, m_NormalMap_1, m_DiffuseMap_1_scale).xyz;
           normal += n * alphaBlend.g;
+      #else
+          normal += vec3(0.5,0.5,1) * alphaBlend.g;
       #endif
 
       #ifdef NORMALMAP_2
           n = getTriPlanarBlend(coords, blending, m_NormalMap_2, m_DiffuseMap_2_scale).xyz;
           normal += n * alphaBlend.b;
+      #else
+          normal += vec3(0.5,0.5,1) * alphaBlend.b;
       #endif
 
       #ifdef NORMALMAP_3
           n = getTriPlanarBlend(coords, blending, m_NormalMap_3, m_DiffuseMap_3_scale).xyz;
           normal += n * alphaBlend.a;
+      #else
+          normal += vec3(0.5,0.5,1) * alphaBlend.a;
       #endif
 
       #ifdef ALPHAMAP_1
           #ifdef NORMALMAP_4
               n = getTriPlanarBlend(coords, blending, m_NormalMap_4, m_DiffuseMap_4_scale).xyz;
               normal += n * alphaBlend1.r;
+          #else
+              normal += vec3(0.5,0.5,1) * alphaBlend.r;
           #endif
 
           #ifdef NORMALMAP_5
               n = getTriPlanarBlend(coords, blending, m_NormalMap_5, m_DiffuseMap_5_scale).xyz;
               normal += n * alphaBlend1.g;
+          #else
+              normal += vec3(0.5,0.5,1) * alphaBlend.g;
           #endif
 
           #ifdef NORMALMAP_6
               n = getTriPlanarBlend(coords, blending, m_NormalMap_6, m_DiffuseMap_6_scale).xyz;
               normal += n * alphaBlend1.b;
+          #else
+              normal += vec3(0.5,0.5,1) * alphaBlend.b;
           #endif
 
           #ifdef NORMALMAP_7
               n = getTriPlanarBlend(coords, blending, m_NormalMap_7, m_DiffuseMap_7_scale).xyz;
               normal += n * alphaBlend1.a;
+          #else
+              normal += vec3(0.5,0.5,1) * alphaBlend.a;
           #endif
       #endif
 
@@ -528,21 +552,29 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
           #ifdef NORMALMAP_8
               n = getTriPlanarBlend(coords, blending, m_NormalMap_8, m_DiffuseMap_8_scale).xyz;
               normal += n * alphaBlend2.r;
+          #else
+              normal += vec3(0.5,0.5,1) * alphaBlend.r;
           #endif
 
           #ifdef NORMALMAP_9
               n = getTriPlanarBlend(coords, blending, m_NormalMap_9, m_DiffuseMap_9_scale).xyz;
               normal += n * alphaBlend2.g;
+          #else
+              normal += vec3(0.5,0.5,1) * alphaBlend.g;
           #endif
 
           #ifdef NORMALMAP_10
               n = getTriPlanarBlend(coords, blending, m_NormalMap_10, m_DiffuseMap_10_scale).xyz;
               normal += n * alphaBlend2.b;
+          #else
+              normal += vec3(0.5,0.5,1) * alphaBlend.b;
           #endif
 
           #ifdef NORMALMAP_11
               n = getTriPlanarBlend(coords, blending, m_NormalMap_11, m_DiffuseMap_11_scale).xyz;
               normal += n * alphaBlend2.a;
+          #else
+              normal += vec3(0.5,0.5,1) * alphaBlend.a;
           #endif
       #endif
 
