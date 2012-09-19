@@ -34,13 +34,17 @@ package com.jme3.shader.plugins;
 
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.cache.AssetCache;
+import com.jme3.asset.plugins.ClasspathLocator;
+import com.jme3.system.JmeSystem;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.*;
 
 /**
@@ -48,39 +52,16 @@ import java.util.*;
  */
 public class GLSLLoader implements AssetLoader {
 
-    private AssetManager owner;
-    private Map<String, DependencyNode> dependCache = new HashMap<String, DependencyNode>();
+    private AssetManager assetManager;
+    private Map<String, ShaderDependencyNode> dependCache = new HashMap<String, ShaderDependencyNode>();
 
-    private class DependencyNode {
+    /**
+     * Used to load {@link ShaderDependencyNode}s.
+     * Asset caching is disabled.
+     */
+    private class ShaderDependencyKey extends AssetKey<Reader> {
 
-        private String shaderSource;
-        private String shaderName;
-
-        private final Set<DependencyNode> dependsOn = new HashSet<DependencyNode>();
-        private final Set<DependencyNode> dependOnMe = new HashSet<DependencyNode>();
-
-        public DependencyNode(String shaderName){
-            this.shaderName = shaderName;
-        }
-
-        public void setSource(String source){
-            this.shaderSource = source;
-        }
-
-        public void addDependency(DependencyNode node){
-            if (this.dependsOn.contains(node))
-                return; // already contains dependency
-
-//            System.out.println(shaderName + " depend on "+node.shaderName);
-            this.dependsOn.add(node);
-            node.dependOnMe.add(this);
-        }
-
-    }
-
-    private class GlslDependKey extends AssetKey<InputStream> {
-
-        public GlslDependKey(String name) {
+        public ShaderDependencyKey(String name) {
             super(name);
         }
 
@@ -91,124 +72,119 @@ public class GLSLLoader implements AssetLoader {
         }
     }
 
-    private DependencyNode loadNode(InputStream in, String nodeName) throws IOException{
-        DependencyNode node = new DependencyNode(nodeName);
-        if (in == null)
-            throw new IOException("Dependency "+nodeName+" cannot be found.");
+    /**
+     * Creates a {@link ShaderDependencyNode} from a stream representing shader code.
+     * 
+     * @param in The input stream containing shader code
+     * @param nodeName
+     * @return
+     * @throws IOException 
+     */
+    private ShaderDependencyNode loadNode(Reader reader, String nodeName) {
+        ShaderDependencyNode node = new ShaderDependencyNode(nodeName);
 
         StringBuilder sb = new StringBuilder();
-        BufferedReader r = new BufferedReader(new InputStreamReader(in));
-        while (r.ready()){
-            String ln = r.readLine();
-            if (ln.startsWith("#import ")){
-                ln = ln.substring(8).trim();
-                if (ln.startsWith("\"") && ln.endsWith("\"") && ln.length() > 3){
-                    // import user code
-                    // remove quotes to get filename
-                    ln = ln.substring(1, ln.length()-1);
-                    if (ln.equals(nodeName))
-                        throw new IOException("Node depends on itself.");
+        BufferedReader bufReader = new BufferedReader(reader);
+        try {
+            while (bufReader.ready()) {
+                String ln = bufReader.readLine();
+                if (ln.trim().startsWith("#import ")) {
+                    ln = ln.trim().substring(8).trim();
+                    if (ln.startsWith("\"") && ln.endsWith("\"") && ln.length() > 3) {
+                        // import user code
+                        // remove quotes to get filename
+                        ln = ln.substring(1, ln.length() - 1);
+                        if (ln.equals(nodeName)) {
+                            throw new IOException("Node depends on itself.");
+                        }
 
-                    // check cache first
-                    DependencyNode dependNode = dependCache.get(ln);
-                    if (dependNode == null){
-                        GlslDependKey key = new GlslDependKey(ln);
-                        // make sure not to register an input stream with
-                        // the cache..
-                        InputStream stream = (InputStream) owner.loadAsset(key);
-                        dependNode = loadNode(stream, ln);
+                        // check cache first
+                        ShaderDependencyNode dependNode = dependCache.get(ln);
+
+                        if (dependNode == null) {
+                            Reader dependNodeReader = assetManager.loadAsset(new ShaderDependencyKey(ln));
+                            dependNode = loadNode(dependNodeReader, ln);
+                        }
+
+                        node.addDependency(sb.length(), dependNode);
                     }
-                    node.addDependency(dependNode);
+                } else {
+                    sb.append(ln).append('\n');
                 }
-//            }else if (ln.startsWith("uniform") || ln.startsWith("varying") || ln.startsWith("attribute")){
-//                // these variables are included as dependencies as well
-//                DependencyNode dependNode = dependCache.get(ln);
-//                if (dependNode == null){
-//                    // the source and name are the same for variable dependencies
-//                    dependNode = new DependencyNode(ln);
-//                    dependNode.setSource(ln);
-//                    dependCache.put(ln, dependNode);
-//                }
-//                node.addDependency(dependNode);
-            }else{
-                sb.append(ln).append('\n');
             }
+        } catch (IOException ex) {
+            if (bufReader != null) {
+                try {
+                    bufReader.close();
+                } catch (IOException ex1) {
+                }
+            }
+            throw new AssetLoadException("Failed to load shader node: " + nodeName, ex);
         }
-        r.close();
 
         node.setSource(sb.toString());
         dependCache.put(nodeName, node);
         return node;
     }
 
-    private DependencyNode nextIndependentNode(List<DependencyNode> checkedNodes){
-        Collection<DependencyNode> allNodes = dependCache.values();
-        if (allNodes == null || allNodes.isEmpty())
-            return null;
+    private ShaderDependencyNode nextIndependentNode() throws IOException {
+        Collection<ShaderDependencyNode> allNodes = dependCache.values();
         
-        for (DependencyNode node : allNodes){
-            if (node.dependsOn.isEmpty()){
+        if (allNodes == null || allNodes.isEmpty()) {
+            return null;
+        }
+        
+        for (ShaderDependencyNode node : allNodes) {
+            if (node.getDependOnMe().isEmpty()) {
                 return node;
             }
         }
 
-        // circular dependency found..
-        for (DependencyNode node : allNodes){
-            System.out.println(node.shaderName);
+        // Circular dependency found..
+        for (ShaderDependencyNode node : allNodes){
+            System.out.println(node.getName());
         }
-        throw new RuntimeException("Circular dependency.");
-    }
-
-    private String resolveDependencies(DependencyNode root){
-        StringBuilder sb = new StringBuilder();
-
-        List<DependencyNode> checkedNodes = new ArrayList<DependencyNode>();
-        checkedNodes.add(root);
-        while (true){
-            DependencyNode indepnNode = nextIndependentNode(checkedNodes);
-            if (indepnNode == null)
-                break;
-
-            sb.append(indepnNode.shaderSource).append('\n');
-            dependCache.remove(indepnNode.shaderName);
-            
-            // take out this dependency
-            for (Iterator<DependencyNode> iter = indepnNode.dependOnMe.iterator();
-                 iter.hasNext();){
-                DependencyNode dependNode = iter.next();
-                iter.remove();
-                dependNode.dependsOn.remove(indepnNode);
-            }
-        }
-
-//        System.out.println(sb.toString());
-//        System.out.println("--------------------------------------------------");
         
-        return sb.toString();
+        throw new IOException("Circular dependency.");
+    }
+    
+    private String resolveDependencies(ShaderDependencyNode node, Set<ShaderDependencyNode> alreadyInjectedSet) {
+        if (alreadyInjectedSet.contains(node)) {
+            return "// " + node.getName() + " was already injected at the top.\n";
+        } else {
+            alreadyInjectedSet.add(node);
+        }
+        if (node.getDependencies().isEmpty()) {
+            return node.getSource();
+        } else {
+            StringBuilder sb = new StringBuilder(node.getSource());
+            List<String> resolvedShaderNodes = new ArrayList<String>();
+            for (ShaderDependencyNode dependencyNode : node.getDependencies()) {
+                resolvedShaderNodes.add( resolveDependencies(dependencyNode, alreadyInjectedSet) );
+            }
+            List<Integer> injectIndices = node.getDependencyInjectIndices();
+            for (int i = resolvedShaderNodes.size() - 1; i >= 0; i--) {
+                // Must insert them backwards ..
+                sb.insert(injectIndices.get(i), resolvedShaderNodes.get(i));
+            }
+            return sb.toString();
+        }
     }
 
-    /**
-     *
-     * @param info
-     * @return String of GLSL code
-     * @throws java.io.IOException
-     */
     public Object load(AssetInfo info) throws IOException {
         // The input stream provided is for the vertex shader, 
         // to retrieve the fragment shader, use the content manager
-        this.owner = info.getManager();
-        if (info.getKey().getExtension().equals("glsllib")){
+        this.assetManager = info.getManager();
+        Reader reader = new InputStreamReader(info.openStream());
+        if (info.getKey().getExtension().equals("glsllib")) {
             // NOTE: Loopback, GLSLLIB is loaded by this loader
             // and needs data as InputStream
-            return info.openStream();
-        }else{
-            // GLSLLoader wants result as String for
-            // fragment shader
-            DependencyNode rootNode = loadNode(info.openStream(), "[main]");
-            String code = resolveDependencies(rootNode);
+            return reader;
+        } else {
+            ShaderDependencyNode rootNode = loadNode(reader, "[main]");
+            String code = resolveDependencies(rootNode, new HashSet<ShaderDependencyNode>());
             dependCache.clear();
             return code;
         }
     }
-
 }
