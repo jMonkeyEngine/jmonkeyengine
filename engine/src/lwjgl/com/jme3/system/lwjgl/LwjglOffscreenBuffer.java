@@ -118,7 +118,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         }
 
         listener.update();
-        assert checkGLError();
+        checkGLError();
 
         renderer.onFrame();
 
@@ -135,6 +135,8 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         renderer.cleanup();
         pbuffer.destroy();
         logger.info("Offscreen buffer destroyed.");
+        
+        super.internalDestroy();
     }
 
     public void run(){

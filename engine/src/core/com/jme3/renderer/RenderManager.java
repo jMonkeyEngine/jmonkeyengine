@@ -650,19 +650,17 @@ public class RenderManager {
 
         scene.runControlRender(this, vp);
         if (scene instanceof Node) {
-            // recurse for all children
+            // Recurse for all children
             Node n = (Node) scene;
             List<Spatial> children = n.getChildren();
-            //saving cam state for culling
+            // Saving cam state for culling
             int camState = vp.getCamera().getPlaneState();
             for (int i = 0; i < children.size(); i++) {
-                //restoring cam state before proceeding children recusively
+                // Restoring cam state before proceeding children recusively
                 vp.getCamera().setPlaneState(camState);
                 renderScene(children.get(i), vp);
-
             }
         } else if (scene instanceof Geometry) {
-
             // add to the render queue
             Geometry gm = (Geometry) scene;
             if (gm.getMaterial() == null) {
@@ -991,6 +989,10 @@ public class RenderManager {
         clearQueue(vp);
     }
 
+    public void setUsingShaders(boolean usingShaders) { 
+        this.shader = usingShaders;
+    }
+    
     /**
      * Called by the application to render any ViewPorts
      * added to this RenderManager.
