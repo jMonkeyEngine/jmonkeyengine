@@ -119,7 +119,7 @@ float Shadow_DoPCF(in SHADOWMAP tex, in vec4 projCoord){
 
 
 //12 tap poisson disk
-const vec2 poissonDisk[12] =vec2[12]( vec2(-0.1711046, -0.425016),
+vec2 poissonDisk[12] =vec2[12]( vec2(-0.1711046, -0.425016),
  vec2(-0.7829809, 0.2162201),
  vec2(-0.2380269, -0.8835521),
  vec2(0.4198045, 0.1687819),
