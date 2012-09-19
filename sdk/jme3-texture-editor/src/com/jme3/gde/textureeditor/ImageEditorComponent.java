@@ -36,6 +36,7 @@ import org.openide.windows.TopComponent;
 import com.jme3.gde.textureeditor.filters.BrightFilter;
 import com.jme3.gde.textureeditor.filters.BumpMapFilter;
 import com.jme3.gde.textureeditor.filters.GrayscaleFilter;
+import com.jme3.gde.textureeditor.filters.InvertFilter;
 import com.jme3.gde.textureeditor.filters.MirrorFilter;
 import com.jme3.gde.textureeditor.filters.ResizeFilter;
 import com.jme3.gde.textureeditor.filters.RotateLeftFilter;
@@ -47,7 +48,6 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.NotifyDescriptor.Message;
-import org.openide.awt.UndoRedo;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileObject;
@@ -369,6 +369,13 @@ public class ImageEditorComponent implements EditorToolTarget {
         final JMenuItem gray = filters.add("Grayscale");
         final JMenuItem bright = filters.add("Brightness");
         final JMenuItem spheremap = filters.add("SphereMapped");
+        final JMenu invertMenu = new JMenu("Invert") ;
+        final JMenuItem invertAll = invertMenu.add("All") ;
+        final JMenuItem invertAlpha = invertMenu.add("Alpha") ;
+        final JMenuItem invertRed = invertMenu.add("Red") ;
+        final JMenuItem invertGreen = invertMenu.add("Green") ;
+        final JMenuItem invertBlue = invertMenu.add("Blue") ;
+        filters.add(invertMenu) ;
 
         ActionListener al = new ActionListener() {
 
@@ -386,8 +393,17 @@ public class ImageEditorComponent implements EditorToolTarget {
                     spawnEditor(BrightFilter.create().filter(editedImage, ImageEditorComponent.this));
                 } else if (source == spheremap) {
                     spawnEditor(SphereMappedFilter.create().filter(editedImage));
+                } else if (source == invertAll) {
+                    spawnEditor(new InvertFilter().filter(editedImage, InvertFilter.Channel.All));
+                } else if (source == invertAlpha) {
+                    spawnEditor(new InvertFilter().filter(editedImage, InvertFilter.Channel.Alpha));
+                } else if (source == invertRed) {
+                    spawnEditor(new InvertFilter().filter(editedImage, InvertFilter.Channel.Red));
+                } else if (source == invertGreen) {
+                    spawnEditor(new InvertFilter().filter(editedImage, InvertFilter.Channel.Green));
+                } else if (source == invertBlue) {
+                    spawnEditor(new InvertFilter().filter(editedImage, InvertFilter.Channel.Blue));
                 }
-
             }
         };
 
