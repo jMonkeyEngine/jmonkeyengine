@@ -122,7 +122,7 @@ public class BatchNode extends Node implements Savable {
 
             for (Batch batch : batches.getArray()) {
                 if (batch.needMeshUpdate) {
-                    batch.geometry.getMesh().updateBound();
+                    batch.geometry.updateModelBound();
                     batch.geometry.updateWorldBound();
                     batch.needMeshUpdate = false;
 
