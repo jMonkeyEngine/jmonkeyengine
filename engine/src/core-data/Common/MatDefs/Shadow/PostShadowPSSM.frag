@@ -119,6 +119,7 @@ float Shadow_DoPCF(in SHADOWMAP tex, in vec4 projCoord){
 
 
 //12 tap poisson disk
+/*
 vec2 poissonDisk[12] =vec2[12]( vec2(-0.1711046, -0.425016),
  vec2(-0.7829809, 0.2162201),
  vec2(-0.2380269, -0.8835521),
@@ -131,6 +132,19 @@ vec2 poissonDisk[12] =vec2[12]( vec2(-0.1711046, -0.425016),
  vec2(-0.5238616, 0.802707),
  vec2(0.5653144, 0.60262),
  vec2(0.0123658, 0.8627419));
+*/
+    const vec2 poissonDisk0 =  vec2(-0.1711046, -0.425016);
+    const vec2 poissonDisk1 =  vec2(-0.7829809, 0.2162201);
+    const vec2 poissonDisk2 =  vec2(-0.2380269, -0.8835521);
+    const vec2 poissonDisk3 =  vec2(0.4198045, 0.1687819);
+    const vec2 poissonDisk4 =  vec2(-0.684418, -0.3186957);
+    const vec2 poissonDisk5 =  vec2(0.6026866, -0.2587841);
+    const vec2 poissonDisk6 =  vec2(-0.2412762, 0.3913516);
+    const vec2 poissonDisk7 =  vec2(0.4720655, -0.7664126);
+    const vec2 poissonDisk8 =  vec2(0.9571564, 0.2680693);
+    const vec2 poissonDisk9 =  vec2(-0.5238616, 0.802707);
+    const vec2 poissonDisk10 = vec2(0.5653144, 0.60262);
+    const vec2 poissonDisk11 = vec2(0.0123658, 0.8627419);
 
 float Shadow_DoPCFPoisson(in SHADOWMAP tex, in vec4 projCoord){   
     float shadow = 0.0;
@@ -140,18 +154,18 @@ float Shadow_DoPCFPoisson(in SHADOWMAP tex, in vec4 projCoord){
 
     vec2 texelSize = vec2( 4.0 * PCFEDGE * scale);        
     
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[0] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[1] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[2] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[3] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[4] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[5] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[6] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[7] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[8] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[9] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[10] * texelSize);
-     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk[11] * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk0 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk1 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk2 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk3 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk4 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk5 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk6 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk7 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk8 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk9 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk10 * texelSize);
+     shadow += Shadow_DoShadowCompareOffset(tex, projCoord , poissonDisk11 * texelSize);
 
     shadow = shadow * 0.08333333333;//this is divided by 12
     return shadow;

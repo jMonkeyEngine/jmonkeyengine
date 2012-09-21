@@ -125,18 +125,18 @@ float Shadow_DoPCF(in SHADOWMAP tex, in vec4 projCoord){
 
 
 //12 tap poisson disk
-vec2 poissonDisk[12] =vec2[12]( vec2(-0.1711046, -0.425016),
- vec2(-0.7829809, 0.2162201),
- vec2(-0.2380269, -0.8835521),
- vec2(0.4198045, 0.1687819),
- vec2(-0.684418, -0.3186957),
- vec2(0.6026866, -0.2587841),
- vec2(-0.2412762, 0.3913516),
- vec2(0.4720655, -0.7664126),
- vec2(0.9571564, 0.2680693),
- vec2(-0.5238616, 0.802707),
- vec2(0.5653144, 0.60262),
- vec2(0.0123658, 0.8627419));
+    const vec2 poissonDisk0 =  vec2(-0.1711046, -0.425016);
+    const vec2 poissonDisk1 =  vec2(-0.7829809, 0.2162201);
+    const vec2 poissonDisk2 =  vec2(-0.2380269, -0.8835521);
+    const vec2 poissonDisk3 =  vec2(0.4198045, 0.1687819);
+    const vec2 poissonDisk4 =  vec2(-0.684418, -0.3186957);
+    const vec2 poissonDisk5 =  vec2(0.6026866, -0.2587841);
+    const vec2 poissonDisk6 =  vec2(-0.2412762, 0.3913516);
+    const vec2 poissonDisk7 =  vec2(0.4720655, -0.7664126);
+    const vec2 poissonDisk8 =  vec2(0.9571564, 0.2680693);
+    const vec2 poissonDisk9 =  vec2(-0.5238616, 0.802707);
+    const vec2 poissonDisk10 = vec2(0.5653144, 0.60262);
+    const vec2 poissonDisk11 = vec2(0.0123658, 0.8627419);
 
 
 float Shadow_DoPCFPoisson(in SHADOWMAP tex, in vec4 projCoord){
@@ -151,18 +151,18 @@ float Shadow_DoPCFPoisson(in SHADOWMAP tex, in vec4 projCoord){
      
     vec2 texelSize = pixSize2 * 4.0 * PCFEDGE * scale;        
     
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[0] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[1] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[2] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[3] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[4] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[5] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[6] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[7] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[8] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[9] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[10] * texelSize, projCoord.zw));
-    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk[11] * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk0 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk1 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk2 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk3 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk4 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk5 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk6 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk7 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk8 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk9 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk10 * texelSize, projCoord.zw));
+    shadow += SHADOWCOMPARE(tex, vec4(projCoord.xy + poissonDisk11 * texelSize, projCoord.zw));
 
     shadow = shadow * 0.08333333333;//this is divided by 12
     return shadow;
