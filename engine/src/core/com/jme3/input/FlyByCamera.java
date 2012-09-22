@@ -76,6 +76,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
     protected Vector3f initialUpVec;
     protected float rotationSpeed = 1f;
     protected float moveSpeed = 3f;
+    protected float zoomSpeed = 1f;
     protected MotionAllowedListener motionAllowed = null;
     protected boolean enabled = true;
     protected boolean dragToRotate = false;
@@ -133,6 +134,23 @@ public class FlyByCamera implements AnalogListener, ActionListener {
      */
     public float getRotationSpeed(){
         return rotationSpeed;
+    }
+    
+    /**
+     * Sets the zoom speed.
+     * @param zoomSpeed 
+     */
+    public void setZoomSpeed(float zoomSpeed) {
+        this.zoomSpeed = zoomSpeed;
+    }
+    
+    /**
+     * Gets the zoom speed.  The speed is a multiplier to increase/decrease
+     * the zoom rate.
+     * @return zoomSpeed
+     */
+    public float getZoomSpeed() {
+        return zoomSpeed;
     }
 
     /**
@@ -294,7 +312,7 @@ public class FlyByCamera implements AnalogListener, ActionListener {
 
         float fovY = FastMath.atan(h / near)
                   / (FastMath.DEG_TO_RAD * .5f);
-        fovY += value * 0.1f;
+        fovY += value * 0.1f * zoomSpeed;
 
         h = FastMath.tan( fovY * FastMath.DEG_TO_RAD * .5f) * near;
         w = h * aspect;
