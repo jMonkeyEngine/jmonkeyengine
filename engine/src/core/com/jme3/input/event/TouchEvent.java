@@ -103,6 +103,8 @@ public class TouchEvent extends InputEvent {
     // Used only with SCALE* events
     private float scaleFactor;
     private float scaleSpan;
+    private float deltaScaleSpan;
+    private boolean scaleSpanInProgress;
 
     public TouchEvent() {
         set(Type.IDLE, 0f, 0f, 0f, 0f);
@@ -127,6 +129,8 @@ public class TouchEvent extends InputEvent {
         keyCode = 0;
         scaleFactor = 0;
         scaleSpan = 0;
+        deltaScaleSpan = 0;
+        scaleSpanInProgress = false;
         characters = "";
         consumed = false;
     }
@@ -206,4 +210,21 @@ public class TouchEvent extends InputEvent {
     public void setScaleSpan(float scaleSpan) {
         this.scaleSpan = scaleSpan;
     }
+    
+    public float getDeltaScaleSpan() {
+        return deltaScaleSpan;
+    }
+    
+    public void setDeltaScaleSpan(float deltaScaleSpan) {
+        this.deltaScaleSpan = deltaScaleSpan;
+    }
+    
+    public boolean isScaleSpanInProgress() {
+        return scaleSpanInProgress;
+    }
+    
+    public void setScaleSpanInProgress(boolean scaleSpanInProgress) {
+        this.scaleSpanInProgress = scaleSpanInProgress;
+    }
+    
 }

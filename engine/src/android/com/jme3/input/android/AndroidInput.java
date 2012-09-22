@@ -12,6 +12,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
 import com.jme3.util.RingBuffer;
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -42,6 +43,7 @@ public class AndroidInput implements
     // Internal
     private View view;
     private ScaleGestureDetector scaledetector;
+    private boolean scaleInProgress = false;
     private GestureDetector detector;
     private int lastX;
     private int lastY;
@@ -276,6 +278,7 @@ public class AndroidInput implements
                         touch.setPointerId(event.getPointerId(p));
                         touch.setTime(event.getEventTime());
                         touch.setPressure(event.getPressure(p));
+                        touch.setScaleSpanInProgress(scaleInProgress);
                         processEvent(touch);
                         lastPos.set(event.getX(p), view.getHeight() - event.getY(p));
                     }
@@ -404,6 +407,7 @@ public class AndroidInput implements
         if (listener != null) {
             TouchEvent event;
             MouseButtonEvent btn;
+            MouseMotionEvent mot;
             int newX;
             int newY;
 
@@ -448,7 +452,26 @@ public class AndroidInput implements
                                 lastY = -1;
                                 break;
 
+                            case SCALE_MOVE:
+                                if (lastX != -1 && lastY != -1) {
+                                    newX = lastX;
+                                    newY = lastY;
+                                }
+                                int wheel = (int) (event.getScaleSpan() / 4f); // scale to match mouse wheel
+                                int dwheel = (int) (event.getDeltaScaleSpan() / 4f); // scale to match mouse wheel
+                                mot = new MouseMotionEvent(newX, newX, 0, 0, wheel, dwheel);
+                                mot.setTime(event.getTime());
+                                listener.onMouseMotionEvent(mot);
+                                lastX = newX;
+                                lastY = newY;
+                                
+                                break;
+                                
                             case MOVE:
+                                if (event.isScaleSpanInProgress()) {
+                                    break;
+                                }
+                                
                                 int dx;
                                 int dy;
                                 if (lastX != -1) {
@@ -458,11 +481,13 @@ public class AndroidInput implements
                                     dx = 0;
                                     dy = 0;
                                 }
-                                MouseMotionEvent mot = new MouseMotionEvent(newX, newY, dx, dy, 0, 0);
+                                
+                                mot = new MouseMotionEvent(newX, newY, dx, dy, (int)event.getScaleSpan(), (int)event.getDeltaScaleSpan());
                                 mot.setTime(event.getTime());
                                 listener.onMouseMotionEvent(mot);
                                 lastX = newX;
                                 lastY = newY;
+                                
                                 break;
                         }
                     }
@@ -526,12 +551,15 @@ public class AndroidInput implements
     }
 
     public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+        scaleInProgress = true;
         TouchEvent touch = getNextFreeTouchEvent();
         touch.set(Type.SCALE_START, scaleGestureDetector.getFocusX(), scaleGestureDetector.getFocusY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(scaleGestureDetector.getEventTime());
         touch.setScaleSpan(scaleGestureDetector.getCurrentSpan());
+        touch.setDeltaScaleSpan(scaleGestureDetector.getCurrentSpan() - scaleGestureDetector.getPreviousSpan());
         touch.setScaleFactor(scaleGestureDetector.getScaleFactor());
+        touch.setScaleSpanInProgress(scaleInProgress);
         processEvent(touch);
         //    System.out.println("scaleBegin");
 
@@ -544,7 +572,9 @@ public class AndroidInput implements
         touch.setPointerId(0);
         touch.setTime(scaleGestureDetector.getEventTime());
         touch.setScaleSpan(scaleGestureDetector.getCurrentSpan());
+        touch.setDeltaScaleSpan(scaleGestureDetector.getCurrentSpan() - scaleGestureDetector.getPreviousSpan());
         touch.setScaleFactor(scaleGestureDetector.getScaleFactor());
+        touch.setScaleSpanInProgress(scaleInProgress);
         processEvent(touch);
         //   System.out.println("scale");
 
@@ -552,12 +582,15 @@ public class AndroidInput implements
     }
 
     public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+        scaleInProgress = false;
         TouchEvent touch = getNextFreeTouchEvent();
         touch.set(Type.SCALE_END, scaleGestureDetector.getFocusX(), view.getHeight() - scaleGestureDetector.getFocusY(), 0f, 0f);
         touch.setPointerId(0);
         touch.setTime(scaleGestureDetector.getEventTime());
         touch.setScaleSpan(scaleGestureDetector.getCurrentSpan());
+        touch.setDeltaScaleSpan(scaleGestureDetector.getCurrentSpan() - scaleGestureDetector.getPreviousSpan());
         touch.setScaleFactor(scaleGestureDetector.getScaleFactor());
+        touch.setScaleSpanInProgress(scaleInProgress);
         processEvent(touch);
     }
 
