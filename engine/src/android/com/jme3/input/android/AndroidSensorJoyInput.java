@@ -41,9 +41,12 @@ import android.os.Vibrator;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
+import com.jme3.input.AbstractJoystick;
 import com.jme3.input.InputManager;
 import com.jme3.input.JoyInput;
 import com.jme3.input.Joystick;
+import com.jme3.input.JoystickAxis;
+import com.jme3.input.JoystickButton;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.math.FastMath;
@@ -502,13 +505,16 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
                     // orientValues[2] is the Y axis -> JoyAxisEvent Axis 1
                     // orientValues[0] is the Z axis -> JoyAxisEvent Axis 2
                     if (Math.abs(deltaOrientation[0]) > FastMath.ZERO_TOLERANCE) {
-                        eventQueue.add(new JoyAxisEvent(0, 0, orientValues[1] / maxOrientationValues[1]));
+                        // FIXME: need to be able to pass the axis instead of raw IDs here
+                        //eventQueue.add(new JoyAxisEvent(0, 0, orientValues[1] / maxOrientationValues[1]));
                     }
                     if (Math.abs(deltaOrientation[1]) > FastMath.ZERO_TOLERANCE) {
-                        eventQueue.add(new JoyAxisEvent(0, 1, orientValues[2] / maxOrientationValues[2]));
+                        // FIXME: need to be able to pass the axis instead of raw IDs here
+                        //eventQueue.add(new JoyAxisEvent(0, 1, orientValues[2] / maxOrientationValues[2]));
                     }
                     if (Math.abs(deltaOrientation[2]) > FastMath.ZERO_TOLERANCE) {
-                        eventQueue.add(new JoyAxisEvent(0, 2, orientValues[0] / maxOrientationValues[0]));
+                        // FIXME: need to be able to pass the axis instead of raw IDs here
+                        //eventQueue.add(new JoyAxisEvent(0, 2, orientValues[0] / maxOrientationValues[0]));
                     }
                 }
 
@@ -578,13 +584,13 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         // is not an actual physical sensor
         // Do the orientation joystick first so it is compatible with PC systems
         // that only have a single joystick configured.
-        joystick = new Joystick(inputManager,
+        joystick = new AndroidJoystick(inputManager,
                                     this,
                                     joyIndex,
-                                    "Device Orientation",
-                                    0, // button count
-                                    3, // axis count
-                                    0, 1); // xAxis, yAxis
+                                    "Device Orientation" ); //,
+                                    //0, // button count
+                                    //3, // axis count
+                                    //0, 1); // xAxis, yAxis
         joysticks[joyIndex] = joystick;
         joyIndex++;
 
@@ -594,13 +600,13 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             if (sensorData != null) {
                 if (sensorData.sensor != null && sensorData.createJoystick) {
                     sensorData.joyID = joyIndex;
-                    joystick = new Joystick(inputManager,
+                    joystick = new AndroidJoystick(inputManager,
                                                 this,
                                                 joyIndex,
-                                                sensorData.joyName,
-                                                0, // button count
-                                                sensorData.lastValues.length, // axis count
-                                                0, 1); // xAxis, yAxis
+                                                sensorData.joyName );//,
+                                                //0, // button count
+                                                //sensorData.lastValues.length, // axis count
+                                                //0, 1); // xAxis, yAxis
                     joysticks[joyIndex] = joystick;
                     joyIndex++;
 
@@ -682,7 +688,9 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
                     synchronized (eventQueue){
                         for (int i=0; i<deltaValues.length; i++) {
                             if (FastMath.abs(deltaValues[i]) > sensorData.lastValues[i] + FastMath.ZERO_TOLERANCE) {
-                                eventQueue.add(new JoyAxisEvent(sensorData.joyID, i, se.values[i]));
+                            
+                                // FIXME: need to be able to pass the axis instead of raw IDs here
+                                //eventQueue.add(new JoyAxisEvent(sensorData.joyID, i, se.values[i]));
                             }
                         }
                     }
@@ -716,4 +724,31 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
     // End of SensorEventListener methods
 
+    protected class AndroidJoystick extends AbstractJoystick {
+ 
+        public AndroidJoystick( InputManager inputManager, JoyInput joyInput,
+                               int joyId, String name){
+            super( inputManager, joyInput, joyId, name );                                
+        }
+ 
+        @Override
+        public JoystickAxis getXAxis() {
+            throw new UnsupportedOperationException();
+        }     
+
+        @Override
+        public JoystickAxis getYAxis() {
+            throw new UnsupportedOperationException();
+        }     
+
+        @Override
+        public JoystickAxis getPovXAxis() {
+            throw new UnsupportedOperationException();
+        }     
+
+        @Override
+        public JoystickAxis getPovYAxis() {
+            throw new UnsupportedOperationException();
+        }     
+    }
 }
