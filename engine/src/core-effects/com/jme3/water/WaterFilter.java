@@ -720,6 +720,9 @@ public class WaterFilter extends Filter {
     public void setHeightTexture(Texture2D heightTexture) {
         this.heightTexture = heightTexture;
         heightTexture.setWrap(WrapMode.Repeat);
+        if (material != null) {
+            material.setTexture("HeightMap", heightTexture);
+        }
     }
 
     /**
@@ -729,6 +732,9 @@ public class WaterFilter extends Filter {
     public void setNormalTexture(Texture2D normalTexture) {
         this.normalTexture = normalTexture;
         normalTexture.setWrap(WrapMode.Repeat);
+        if (material != null) {
+            material.setTexture("NormalMap", normalTexture);
+        }
     }
 
     /**
