@@ -33,22 +33,30 @@
 package com.jme3.input.event;
 
 import com.jme3.input.Joystick;
+import com.jme3.input.JoystickButton;
 
 /**
  * Joystick button event.
  * 
- * @author Kirill Vainer
+ * @author Kirill Vainer, Paul Speed
  */
 public class JoyButtonEvent extends InputEvent {
 
-    private int joyIdx;
-    private int btnIdx;
+    private JoystickButton button;
     private boolean pressed;
 
-    public JoyButtonEvent(int joyIdx, int btnIdx, boolean pressed) {
-        this.joyIdx = joyIdx;
-        this.btnIdx = btnIdx;
+    public JoyButtonEvent(JoystickButton button, boolean pressed) {
+        this.button = button;
         this.pressed = pressed;
+    }
+
+    /**
+     * Returns the JoystickButton that triggered this event.
+     *
+     * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String, int) 
+     */
+    public JoystickButton getButton() {
+        return button;
     }
 
     /**
@@ -59,7 +67,7 @@ public class JoyButtonEvent extends InputEvent {
      * @see Joystick#assignButton(java.lang.String, int) 
      */
     public int getButtonIndex() {
-        return btnIdx;
+        return button.getButtonId();
     }
 
     /**
@@ -70,7 +78,7 @@ public class JoyButtonEvent extends InputEvent {
      * @see com.jme3.input.InputManager#getJoysticks() 
      */
     public int getJoyIndex() {
-        return joyIdx;
+        return button.getJoystick().getJoyId();
     }
 
     /**

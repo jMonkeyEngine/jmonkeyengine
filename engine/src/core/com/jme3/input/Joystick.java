@@ -1,48 +1,20 @@
 package com.jme3.input;
 
-import com.jme3.input.controls.JoyAxisTrigger;
-import com.jme3.input.controls.JoyButtonTrigger;
+import java.util.List;
 
 /**
  * A joystick represents a single joystick that is installed in the system.
  *
- * @author Kirill Vainer
+ * @author Paul Speed, Kirill Vainer
  */
-public final class Joystick {
-
-    private InputManager inputManager;
-    private JoyInput joyInput;
-    private int joyId;
-    private int buttonCount;
-    private int axisCount;
-    private int axisXIndex, axisYIndex;
-    private String name;
-
-    /**
-     * Creates a new joystick instance. Only used internally.
-     */
-    public Joystick(InputManager inputManager, JoyInput joyInput,
-                    int joyId, String name, int buttonCount, int axisCount,
-                    int xAxis, int yAxis){
-        this.inputManager = inputManager;
-        this.joyInput = joyInput;
-        this.joyId = joyId;
-        this.name = name;
-        this.buttonCount = buttonCount;
-        this.axisCount = axisCount;
-
-        this.axisXIndex = xAxis;
-        this.axisYIndex = yAxis;
-    }
+public interface Joystick {
 
     /**
      * Rumbles the joystick for the given amount/magnitude.
      *
      * @param amount The amount to rumble. Should be between 0 and 1.
      */
-    public void rumble(float amount){
-        joyInput.setJoyRumble(joyId, amount);
-    }
+    public void rumble(float amount);
 
     /**
      * Assign the mapping name to receive events from the given button index
@@ -52,13 +24,9 @@ public final class Joystick {
      * @param buttonId The button index.
      *
      * @see Joystick#getButtonCount()
+     * @deprecated Use JoystickButton.assignButton() instead.
      */
-    public void assignButton(String mappingName, int buttonId){
-        if (buttonId < 0 || buttonId >= buttonCount)
-            throw new IllegalArgumentException();
-
-        inputManager.addMapping(mappingName, new JoyButtonTrigger(joyId, buttonId));
-    }
+    public void assignButton(String mappingName, int buttonId);
 
     /**
      * Assign the mappings to receive events from the given joystick axis.
@@ -68,11 +36,67 @@ public final class Joystick {
      * @param axisId The axis index.
      *
      * @see Joystick#getAxisCount()
+     * @deprecated Use JoystickAxis.assignAxis() instead.
      */
-    public void assignAxis(String positiveMapping, String negativeMapping, int axisId){
-        inputManager.addMapping(positiveMapping, new JoyAxisTrigger(joyId, axisId, false));
-        inputManager.addMapping(negativeMapping, new JoyAxisTrigger(joyId, axisId, true));
-    }
+    public void assignAxis(String positiveMapping, String negativeMapping, int axisId); 
+
+    /**
+     * Returns the JoystickAxis with the specified name.
+     *
+     * @param name The name of the axis to search for as returned by JoystickAxis.getName().
+     */
+    public JoystickAxis getAxis(String name);
+
+    /**
+     * Returns a read-only list of all joystick axes for this Joystick.
+     */
+    public List<JoystickAxis> getAxes();
+
+    /**
+     * Returns the JoystickButton with the specified name.
+     *
+     * @param name The name of the button to search for as returned by JoystickButton.getName().
+     */
+    public JoystickButton getButton(String name);
+
+    /**
+     * Returns a read-only list of all joystick buttons for this Joystick.
+     */
+    public List<JoystickButton> getButtons();
+
+    /**
+     * Returns the X axis for this joystick.
+     *
+     * <p>E.g. for most gamepads, the left control stick X axis will be returned.
+     *
+     * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String)
+     */
+    public JoystickAxis getXAxis();     
+
+    /**
+     * Returns the Y axis for this joystick.
+     *
+     * <p>E.g. for most gamepads, the left control stick Y axis will be returned.
+     *
+     * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String)
+     */
+    public JoystickAxis getYAxis();     
+
+    /**
+     * Returns the POV X axis for this joystick.  This is a convenience axis 
+     * providing an x-axis subview of the HAT axis.
+     *
+     * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String)
+     */
+    public JoystickAxis getPovXAxis();     
+
+    /**
+     * Returns the POV Y axis for this joystick.  This is a convenience axis 
+     * providing an y-axis subview of the HAT axis.
+     *
+     * @see JoystickAxis#assignAxis(java.lang.String, java.lang.String)
+     */
+    public JoystickAxis getPovYAxis();     
 
     /**
      * Gets the index number for the X axis on the joystick.
@@ -83,9 +107,7 @@ public final class Joystick {
      *
      * @see Joystick#assignAxis(java.lang.String, java.lang.String, int)
      */
-    public int getXAxisIndex(){
-        return axisXIndex;
-    }
+    public int getXAxisIndex();
 
     /**
      * Gets the index number for the Y axis on the joystick.
@@ -96,50 +118,34 @@ public final class Joystick {
      *
      * @see Joystick#assignAxis(java.lang.String, java.lang.String, int)
      */
-    public int getYAxisIndex(){
-        return axisYIndex;
-    }
+    public int getYAxisIndex();
 
     /**
      * Returns the number of axes on this joystick.
      *
      * @return the number of axes on this joystick.
      */
-    public int getAxisCount() {
-        return axisCount;
-    }
+    public int getAxisCount(); 
 
     /**
      * Returns the number of buttons on this joystick.
      *
      * @return the number of buttons on this joystick.
      */
-    public int getButtonCount() {
-        return buttonCount;
-    }
+    public int getButtonCount();
 
     /**
      * Returns the name of this joystick.
      *
      * @return the name of this joystick.
      */
-    public String getName() {
-        return name;
-    }
+    public String getName();
 
     /**
      * Returns the joyId of this joystick.
      *
      * @return the joyId of this joystick.
      */
-    public int getJoyId() {
-        return joyId;
-    }
-
-    @Override
-    public String toString(){
-        return "Joystick[name=" + name + ", id=" + joyId + ", buttons=" + buttonCount
-                                + ", axes=" + axisCount + "]";
-    }
+    public int getJoyId();
 
 }
