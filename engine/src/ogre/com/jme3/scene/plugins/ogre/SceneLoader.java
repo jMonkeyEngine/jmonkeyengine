@@ -496,7 +496,7 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             // == Run 1st pass over XML file to determine material list ==
             materialList = materialLoader.load(assetManager, folderName, info.openStream());
 
-            if (materialList.isEmpty()) {
+            if (materialList == null || materialList.isEmpty()) {
                 // NOTE: No materials were found by searching the externals section.
                 // Try finding a similarly named material file in the same folder.
                 // (Backward compatibility only!)
