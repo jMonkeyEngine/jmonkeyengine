@@ -146,7 +146,7 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
         loadScene();
 
         pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 3);
-        pssmRenderer.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
+        pssmRenderer.setDirection(new Vector3f(0.5973172f, -0.16583486f, 0.7846725f).normalizeLocal());
         pssmRenderer.setLambda(0.55f);
         pssmRenderer.setShadowIntensity(0.6f);
         pssmRenderer.setCompareMode(CompareMode.Software);
