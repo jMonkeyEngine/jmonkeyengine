@@ -33,6 +33,7 @@ package com.jme3.font;
 
 import com.jme3.font.BitmapFont.Align;
 import com.jme3.font.BitmapFont.VAlign;
+import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.renderer.RenderManager;
@@ -110,7 +111,7 @@ public class BitmapText extends Node {
      *
      * @param text String to change text to
      */
-    public void setText(String text) {
+    public void setText(String text) {            
         text = text == null ? "" : text;
 
         if (text == block.getText() || block.getText().equals(text)) { 	
@@ -387,12 +388,28 @@ public class BitmapText extends Node {
         needRefresh = false;
     }
 
+    private ColorRGBA getColor( Material mat, String name ) {
+        MatParam mp = mat.getParam(name);
+        if( mp == null ) {
+            return null;
+        }
+        return (ColorRGBA)mp.getValue(); 
+    }
+
     public void render(RenderManager rm, ColorRGBA color) {
+
         for (BitmapTextPage page : textPages) {
             Material mat = page.getMaterial();
             mat.setTexture("ColorMap", page.getTexture());
+            ColorRGBA original = getColor(mat, "Color");            
             mat.setColor("Color", color);
             mat.render(page, rm);
+            
+            if( original == null ) {
+                mat.clearParam("Color");
+            } else {
+                mat.setColor("Color", original);
+            }
         }
     }
 }
