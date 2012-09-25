@@ -658,9 +658,13 @@ public class RenderState implements Cloneable, Savable {
      **/
     public void setPolyOffset(float factor, float units) {
         applyPolyOffset = true;
-        offsetEnabled = true;
-        offsetFactor = factor;
-        offsetUnits = units;
+        if (factor == 0 && units == 0) {
+            offsetEnabled = false;
+        } else {
+            offsetEnabled = true;
+            offsetFactor = factor;
+            offsetUnits = units;
+        }
         cachedHashCode = -1;
     }
 

@@ -186,7 +186,6 @@ public class HDRRenderer implements SceneProcessor {
                        blockSize.y / pixelSize.y);
             numPixels = blocks.x * blocks.y;
         }
-        System.out.println(numPixels);
 
         mat.setBoolean("Blocks", true);
         if (mode == LUMMODE_ENCODE_LUM)
