@@ -77,7 +77,11 @@ public class TestJoystick extends SimpleApplication {
         for( Joystick j : joysticks ) {
             out.println( "Joystick[" + j.getJoyId() + "]:" + j.getName() );
             out.println( "  buttons:" + j.getButtonCount() );
+            for( JoystickButton b : j.getButtons() ) {
+                out.println( "   " + b );
+            }
             
+            out.println( "  axes:" + j.getAxisCount() );
             for( JoystickAxis axis : j.getAxes() ) {
                 out.println( "   " + axis );
             }
