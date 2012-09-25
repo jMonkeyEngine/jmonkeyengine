@@ -35,13 +35,15 @@ package com.jme3.shader;
 import com.jme3.export.*;
 import java.io.IOException;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class DefineList implements Savable {
+public class DefineList implements Savable, Cloneable {
 
-    private final SortedMap<String, String> defines = new TreeMap<String, String>();
+    private static final String ONE = "1";
+    
+    private TreeMap<String, String> defines = new TreeMap<String, String>();
     private String compiled = null;
+    private int cachedHashCode = 0;
 
     public void write(JmeExporter ex) throws IOException{
         OutputCapsule oc = ex.getCapsule(this);
@@ -73,46 +75,66 @@ public class DefineList implements Savable {
     public void clear() {
         defines.clear();
         compiled = "";
+        cachedHashCode = 0;
     }
 
     public String get(String key){
         return defines.get(key);
+    }
+    
+    @Override
+    public DefineList clone() {
+        try {
+            DefineList clone = (DefineList) super.clone();
+            clone.cachedHashCode = 0;
+            clone.compiled = null;
+            clone.defines = (TreeMap<String, String>) defines.clone();
+            return clone;
+        } catch (CloneNotSupportedException ex) {
+            throw new AssertionError();
+        }
     }
 
     public boolean set(String key, VarType type, Object val){    
         if (val == null){
             defines.remove(key);
             compiled = null;
+            cachedHashCode = 0;
             return true;
         }
 
         switch (type){
             case Boolean:
-                if ( ((Boolean) val).booleanValue() ) {
-                    // same literal, != should work
-                    if (defines.put(key, "1") != "1") {
+                if (((Boolean) val).booleanValue()) {
+                    // same literal, != will work
+                    if (defines.put(key, ONE) != ONE) {
                         compiled = null;
+                        cachedHashCode = 0;
                         return true;
                     }
                 } else if (defines.containsKey(key)) {
                     defines.remove(key);
                     compiled = null;
+                    cachedHashCode = 0;
                     return true;
                 }
                 
                 break;
             case Float:
             case Int:
-                String original = defines.put(key, val.toString());
+                String newValue = val.toString();
+                String original = defines.put(key, newValue);
                 if (!val.equals(original)) {
                     compiled = null;
+                    cachedHashCode = 0;
                     return true;            
                 }
                 break;
             default:
-                // same literal, != should work
-                if (defines.put(key, "1") != "1") {  
+                // same literal, != will work
+                if (defines.put(key, ONE) != ONE) {  
                     compiled = null;
+                    cachedHashCode = 0;
                     return true;            
                 }
                 break;
@@ -124,17 +146,18 @@ public class DefineList implements Savable {
     public boolean remove(String key){   
         if (defines.remove(key) != null) {
             compiled = null;
+            cachedHashCode = 0;
             return true;
         }
-        
         return false;
     }
 
     public void addFrom(DefineList other){    
-        if (other == null)
+        if (other == null) {
             return;
-        
+        }
         compiled = null;
+        cachedHashCode = 0;
         defines.putAll(other.defines);
     }
 
@@ -151,14 +174,28 @@ public class DefineList implements Savable {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        final DefineList other = (DefineList) obj;
+        return defines.equals(other.defines);
+    }
+    
+    @Override
+    public int hashCode() {
+        if (cachedHashCode == 0) {
+            cachedHashCode = defines.hashCode();
+        }
+        return cachedHashCode;
+    }
+
+    @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for (Map.Entry<String, String> entry : defines.entrySet()) {
-            sb.append(entry.getKey());
-            if (i != defines.size() - 1)
+            sb.append(entry.getKey()).append("=").append(entry.getValue());
+            if (i != defines.size() - 1) {
                 sb.append(", ");
-
+            }
             i++;
         }
         return sb.toString();
