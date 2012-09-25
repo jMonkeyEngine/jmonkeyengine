@@ -42,6 +42,7 @@ import com.jme3.post.Filter;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue;
 import java.io.IOException;
 
 /**
@@ -62,6 +63,7 @@ public class LightScatteringFilter extends Filter {
     Vector3f viewLightPos = new Vector3f();
     private boolean display = true;
     private float innerLightDensity;
+    private ViewPort viewPort;
 
     /**
      * creates a lightScaterring filter
@@ -96,7 +98,7 @@ public class LightScatteringFilter extends Filter {
     }
 
     @Override
-    protected void postQueue(RenderManager renderManager, ViewPort viewPort) {
+    protected void postQueue(RenderQueue queue) {
         getClipCoordinates(lightPosition, screenLightPos, viewPort.getCamera());
         //  screenLightPos.x = screenLightPos.x / viewPort.getCamera().getWidth();
         //  screenLightPos.y = screenLightPos.y / viewPort.getCamera().getHeight();
@@ -128,6 +130,7 @@ public class LightScatteringFilter extends Filter {
 
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+        this.viewPort = vp;
         material = new Material(manager, "Common/MatDefs/Post/LightScattering.j3md");
     }
 

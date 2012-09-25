@@ -211,7 +211,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         for (Iterator<Filter> it = filters.iterator(); it.hasNext();) {
             Filter filter = it.next();
             if (filter.isEnabled()) {
-                filter.postQueue(renderManager, viewPort);
+                filter.postQueue(rq);
             }
         }
 

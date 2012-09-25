@@ -44,6 +44,7 @@ import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
@@ -75,6 +76,8 @@ public class SSAOFilter extends Filter {
 //    private Material downSampleMat;
 //    private Pass downSamplePass;
     private float downSampleFactor = 1f;
+    private RenderManager renderManager;
+    private ViewPort viewPort;
 
     /**
      * Create a Screen Space Ambient Occlusion Filter
@@ -104,7 +107,7 @@ public class SSAOFilter extends Filter {
     }
 
     @Override
-    protected void postQueue(RenderManager renderManager, ViewPort viewPort) {
+    protected void postQueue(RenderQueue queue) {
         Renderer r = renderManager.getRenderer();
         r.setFrameBuffer(normalPass.getRenderFrameBuffer());
         renderManager.getRenderer().clearBuffers(true, true, true);
@@ -121,6 +124,8 @@ public class SSAOFilter extends Filter {
 
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+        this.renderManager = renderManager;
+        this.viewPort = vp;
         int screenWidth = w;
         int screenHeight = h;
         postRenderPasses = new ArrayList<Pass>();

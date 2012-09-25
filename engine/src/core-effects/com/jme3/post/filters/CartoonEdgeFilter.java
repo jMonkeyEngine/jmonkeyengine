@@ -39,6 +39,7 @@ import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.Image.Format;
 
 /**
@@ -56,6 +57,8 @@ public class CartoonEdgeFilter extends Filter {
     private float normalSensitivity = 1.0f;
     private float depthSensitivity = 10.0f;
     private ColorRGBA edgeColor = new ColorRGBA(0, 0, 0, 1);
+    private RenderManager renderManager;
+    private ViewPort viewPort;
 
     /**
      * Creates a CartoonEdgeFilter
@@ -70,7 +73,7 @@ public class CartoonEdgeFilter extends Filter {
     }
 
     @Override
-    protected void postQueue(RenderManager renderManager, ViewPort viewPort) {
+    protected void postQueue(RenderQueue queue) {
         Renderer r = renderManager.getRenderer();
         r.setFrameBuffer(normalPass.getRenderFrameBuffer());
         renderManager.getRenderer().clearBuffers(true, true, true);
@@ -88,6 +91,8 @@ public class CartoonEdgeFilter extends Filter {
 
     @Override
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
+        this.renderManager = renderManager;
+        this.viewPort = vp;
         normalPass = new Pass();
         normalPass.init(renderManager.getRenderer(), w, h, Format.RGBA8, Format.Depth);
         material = new Material(manager, "Common/MatDefs/Post/CartoonEdge.j3md");
