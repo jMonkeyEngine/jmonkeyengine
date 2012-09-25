@@ -46,13 +46,20 @@ import com.jme3.terrain.Terrain;
 import com.jme3.terrain.heightmap.HeightMap;
 import com.jme3.terrain.heightmap.HeightMapGrid;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -458,15 +465,42 @@ public class TerrainGrid extends TerrainQuad {
         return terrain.getMaterial(worldLocation);
     }
 
+    /**
+     * This will print out any exceptions from the thread
+     */
     protected ExecutorService createExecutorService() {
-        return Executors.newSingleThreadExecutor(new ThreadFactory() {
+        final ThreadFactory threadFactory = new ThreadFactory() {
             public Thread newThread(Runnable r) {
                 Thread th = new Thread(r);
-                th.setName("jME Terrain Thread");
+                th.setName("jME TerrainGrid Thread");
                 th.setDaemon(true);
                 return th;
             }
-        });
+        };
+        ThreadPoolExecutor ex = new ThreadPoolExecutor(1, 1,
+                                    0L, TimeUnit.MILLISECONDS,
+                                    new LinkedBlockingQueue<Runnable>(), 
+                                    threadFactory) {
+            protected void afterExecute(Runnable r, Throwable t) {
+                super.afterExecute(r, t);
+                if (t == null && r instanceof Future<?>) {
+                    try {
+                        Future<?> future = (Future<?>) r;
+                        if (future.isDone())
+                            future.get();
+                    } catch (CancellationException ce) {
+                        t = ce;
+                    } catch (ExecutionException ee) {
+                        t = ee.getCause();
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt(); // ignore/reset
+                    }
+                }
+                if (t != null)
+                    t.printStackTrace();
+            }
+        };
+        return ex;
     }
     
     @Override
