@@ -118,7 +118,7 @@ public class JInputJoyInput implements JoyInput {
                     }else if (v == POV.DOWN_LEFT){
                         x = -1f; y = -1f;
                     }else if (v == POV.DOWN_RIGHT){
-                        x = -1f; y = 1f;
+                        x = 1f; y = -1f;
                     }else if (v == POV.LEFT){
                         x = -1f; y = 0;
                     }else if (v == POV.RIGHT){
