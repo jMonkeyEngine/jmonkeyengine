@@ -114,7 +114,8 @@ public class TerrainGrid extends TerrainQuad {
     protected Vector3f[] quadIndex;
     protected Set<TerrainGridListener> listeners = new HashSet<TerrainGridListener>();
     protected Material material;
-    protected LRUCache<Vector3f, TerrainQuad> cache = new LRUCache<Vector3f, TerrainQuad>(16);
+    //cache  needs to be 1 row (4 cells) larger than what we care is cached
+    protected LRUCache<Vector3f, TerrainQuad> cache = new LRUCache<Vector3f, TerrainQuad>(20);
     protected int cellsLoaded = 0;
     protected int[] gridOffset;
     protected boolean runOnce = false;
@@ -159,16 +160,28 @@ public class TerrainGrid extends TerrainQuad {
                     }
                     cache.put(quadCell, q);
 
+                    
+                    final int quadrant = getQuadrant(quadIdx);
+                    final TerrainQuad newQuad = q;
+                    
                     if (isCenter(quadIdx)) {
                         // if it should be attached as a child right now, attach it
-                        final int quadrant = getQuadrant(quadIdx);
-                        final TerrainQuad newQuad = q;
-                        // back on the OpenGL thread:
                         getControl(UpdateControl.class).enqueue(new Callable() {
-
+                            // back on the OpenGL thread:
                             public Object call() throws Exception {
-                                attachQuadAt(newQuad, quadrant, quadCell);
-                                //newQuad.resetCachedNeighbours();
+                                if (newQuad.getParent() != null) {
+                                    attachQuadAt(newQuad, quadrant, quadCell, true);
+                                }
+                                else {
+                                    attachQuadAt(newQuad, quadrant, quadCell, false);
+                                }
+                                return null;
+                            }
+                        });
+                    } else {
+                        getControl(UpdateControl.class).enqueue(new Callable() {
+                            public Object call() throws Exception {
+                                removeQuad(newQuad);
                                 return null;
                             }
                         });
@@ -292,30 +305,34 @@ public class TerrainGrid extends TerrainQuad {
         return gridTileLoader;
     }
     
-    protected void removeQuad(int idx) {
-        if (this.getQuad(idx) != null) {
+    protected void removeQuad(TerrainQuad q) {
+        if (q != null && ( (q.getQuadrant() > 0 && q.getQuadrant()<5) || q.getParent() != null) ) {
             for (TerrainGridListener l : listeners) {
-                l.tileDetached(getTileCell(this.getQuad(idx).getWorldTranslation()), this.getQuad(idx));
+                l.tileDetached(getTileCell(q.getWorldTranslation()), q);
             }
-            this.detachChild(this.getQuad(idx));
+            q.setQuadrant((short)0);
+            this.detachChild(q);
             cellsLoaded++; // For gridoffset calc., maybe the run() method is a better location for this.
         }
     }
 
     /**
      * Runs on the rendering thread
+     * @param shifted quads are still attached to the parent and don't need to re-load
      */
-    protected void attachQuadAt(TerrainQuad q, int quadrant, Vector3f quadCell) {
-        this.removeQuad(quadrant);
-
+    protected void attachQuadAt(TerrainQuad q, int quadrant, Vector3f quadCell, boolean shifted) {
+        
         q.setQuadrant((short) quadrant);
-        this.attachChild(q);
+        if (!shifted)
+            this.attachChild(q);
 
         Vector3f loc = quadCell.mult(this.quadSize - 1).subtract(quarterSize, 0, quarterSize);// quadrant location handled TerrainQuad automatically now
         q.setLocalTranslation(loc);
 
-        for (TerrainGridListener l : listeners) {
-            l.tileAttached(quadCell, q);
+        if (!shifted) {
+            for (TerrainGridListener l : listeners) {
+                l.tileAttached(quadCell, q);
+            }
         }
         updateModelBound();
         
@@ -374,6 +391,7 @@ public class TerrainGrid extends TerrainQuad {
                 cache.get(camCell.add(quadIndex[i * 4 + j]));
             }
         }
+        
         // ---------------------------------------------------
         // ---------------------------------------------------
 

@@ -78,10 +78,6 @@ public class TerrainGridSerializationTest extends SimpleApplication {
                 public void gridMoved(Vector3f newCenter) {
                 }
 
-                public Material tileLoaded(Material material, Vector3f cell) {
-                    return material;
-                }
-
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {
                     //workaround for bugged test j3o's
                     while(quad.getControl(RigidBodyControl.class)!=null){

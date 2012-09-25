@@ -115,8 +115,9 @@ public class TerrainGridTest extends SimpleApplication {
         final BulletAppState bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
-        this.getCamera().setLocation(new Vector3f(0, 200, 0));
-
+        this.getCamera().setLocation(new Vector3f(0, 400, 0));
+        this.getCamera().lookAt(new Vector3f(0,0,0), Vector3f.UNIT_Y);
+        
         this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 
         DirectionalLight light = new DirectionalLight();
@@ -137,10 +138,6 @@ public class TerrainGridTest extends SimpleApplication {
             terrain.addListener(new TerrainGridListener() {
 
                 public void gridMoved(Vector3f newCenter) {
-                }
-
-                public Material tileLoaded(Material material, Vector3f cell) {
-                    return material;
                 }
 
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {

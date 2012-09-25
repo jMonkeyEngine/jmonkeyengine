@@ -136,10 +136,6 @@ public class TerrainGridTileLoaderTest extends SimpleApplication {
                 public void gridMoved(Vector3f newCenter) {
                 }
 
-                public Material tileLoaded(Material material, Vector3f cell) {
-                    return material;
-                }
-
                 public void tileAttached(Vector3f cell, TerrainQuad quad) {
                     while(quad.getControl(RigidBodyControl.class)!=null){
                         quad.removeControl(RigidBodyControl.class);
