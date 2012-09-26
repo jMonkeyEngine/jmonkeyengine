@@ -38,6 +38,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.input.InputManager;
+import com.jme3.input.event.KeyInputEvent;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -124,6 +125,10 @@ public class NiftyJmeDisplay implements SceneProcessor {
 
     public Nifty getNifty() {
         return nifty;
+    }
+
+    public void simulateKeyEvent( KeyInputEvent event ) {
+        inputSys.onKeyEvent(event);        
     }
 
     RenderDeviceJme getRenderDevice() {
