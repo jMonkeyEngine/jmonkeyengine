@@ -84,9 +84,9 @@ public class Line extends Mesh {
      */
     public void updatePoints(Vector3f start, Vector3f end) {
         VertexBuffer posBuf = getBuffer(Type.Position);
-
+        
         FloatBuffer fb = (FloatBuffer) posBuf.getData();
-
+        fb.rewind();
         fb.put(start.x).put(start.y).put(start.z);
         fb.put(end.x).put(end.y).put(end.z);
         
