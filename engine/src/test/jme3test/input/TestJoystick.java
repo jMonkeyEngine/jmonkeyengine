@@ -204,24 +204,24 @@ public class TestJoystick extends SimpleApplication {
             attachChild(rightStick);
 
             // A "standard" mapping... fits a majority of my game pads
-            addButton( "Button 0", 371, 512 - 176, 42, 42 );
-            addButton( "Button 1", 407, 512 - 212, 42, 42 );
-            addButton( "Button 2", 371, 512 - 248, 42, 42 );
-            addButton( "Button 3", 334, 512 - 212, 42, 42 );
+            addButton( JoystickButton.BUTTON_0, 371, 512 - 176, 42, 42 );
+            addButton( JoystickButton.BUTTON_1, 407, 512 - 212, 42, 42 );
+            addButton( JoystickButton.BUTTON_2, 371, 512 - 248, 42, 42 );
+            addButton( JoystickButton.BUTTON_3, 334, 512 - 212, 42, 42 );
  
             // Front buttons  Some of these have the top ones and the bottoms ones flipped.           
-            addButton( "Button 4", 67, 512 - 111, 95, 21 );
-            addButton( "Button 5", 348, 512 - 111, 95, 21 );
-            addButton( "Button 6", 67, 512 - 89, 95, 21 );
-            addButton( "Button 7", 348, 512 - 89, 95, 21 );
+            addButton( JoystickButton.BUTTON_4, 67, 512 - 111, 95, 21 );
+            addButton( JoystickButton.BUTTON_5, 348, 512 - 111, 95, 21 );
+            addButton( JoystickButton.BUTTON_6, 67, 512 - 89, 95, 21 );
+            addButton( JoystickButton.BUTTON_7, 348, 512 - 89, 95, 21 );
  
             // Select and start buttons           
-            addButton( "Button 8", 206, 512 - 198, 48, 30 );
-            addButton( "Button 9", 262, 512 - 198, 48, 30 );
+            addButton( JoystickButton.BUTTON_8, 206, 512 - 198, 48, 30 );
+            addButton( JoystickButton.BUTTON_9, 262, 512 - 198, 48, 30 );
             
             // Joystick push buttons
-            addButton( "Button 10", 147, 512 - 300, 75, 70 );
-            addButton( "Button 11", 285, 512 - 300, 75, 70 );
+            addButton( JoystickButton.BUTTON_10, 147, 512 - 300, 75, 70 );
+            addButton( JoystickButton.BUTTON_11, 285, 512 - 300, 75, 70 );
 
             // Fake button highlights for the POV axes
             //
@@ -249,14 +249,14 @@ public class TestJoystick extends SimpleApplication {
                 setXAxis(value);
             } else if( axis == axis.getJoystick().getYAxis() ) {
                 setYAxis(-value);
-            } else if( axis == axis.getJoystick().getAxis("Z Axis") ) {
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.Z_AXIS) ) {
                 // Note: in the above condition, we could check the axis name but
                 //       I have at least one joystick that reports 2 "Z Axis" axes.
                 //       In this particular case, the first one is the right one so
                 //       a name based lookup will find the proper one.  It's a problem
                 //       because the erroneous axis sends a constant stream of values.
                 setZAxis(value);
-            } else if( axis == axis.getJoystick().getAxis("Z Rotation") ) {
+            } else if( axis == axis.getJoystick().getAxis(JoystickAxis.Z_ROTATION) ) {
                 setZRotation(-value);
             } else if( axis == axis.getJoystick().getPovXAxis() ) {
                 if( lastPovX < 0 ) {
@@ -287,7 +287,7 @@ public class TestJoystick extends SimpleApplication {
   
         public void setButtonValue( JoystickButton button, boolean isPressed ) {
             System.out.println( "Button:" + button.getName() + "=" + (isPressed ? "Down" : "Up") );
-            setButtonValue( button.getName(), isPressed );
+            setButtonValue( button.getLogicalId(), isPressed );
         }
 
         protected void setButtonValue( String name, boolean isPressed ) {
@@ -355,7 +355,7 @@ public class TestJoystick extends SimpleApplication {
         private ColorRGBA hilite = new ColorRGBA( 0.0f, 0.75f, 0.75f, 0.5f );
         
         public ButtonView( String name, float x, float y, float width, float height ) {
-            super(name);
+            super( "Button:" + name );
             setLocalTranslation( x, y, -0.5f );
             
             material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
