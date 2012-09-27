@@ -41,11 +41,11 @@ public interface Joystick {
     public void assignAxis(String positiveMapping, String negativeMapping, int axisId); 
 
     /**
-     * Returns the JoystickAxis with the specified name.
+     * Returns the JoystickAxis with the specified logical ID.
      *
-     * @param name The name of the axis to search for as returned by JoystickAxis.getName().
+     * @param logicalId The id of the axis to search for as returned by JoystickAxis.getLogicalId().
      */
-    public JoystickAxis getAxis(String name);
+    public JoystickAxis getAxis(String logicalId);
 
     /**
      * Returns a read-only list of all joystick axes for this Joystick.
@@ -53,11 +53,11 @@ public interface Joystick {
     public List<JoystickAxis> getAxes();
 
     /**
-     * Returns the JoystickButton with the specified name.
+     * Returns the JoystickButton with the specified logical ID.
      *
-     * @param name The name of the button to search for as returned by JoystickButton.getName().
+     * @param logicalId The id of the axis to search for as returned by JoystickButton.getLogicalId().
      */
-    public JoystickButton getButton(String name);
+    public JoystickButton getButton(String logicalId);
 
     /**
      * Returns a read-only list of all joystick buttons for this Joystick.

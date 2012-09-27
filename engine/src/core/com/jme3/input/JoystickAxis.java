@@ -10,13 +10,13 @@ import com.jme3.input.controls.JoyButtonTrigger;
  */
 public interface JoystickAxis {
 
-    public static final String X_AXIS = "X Axis";
-    public static final String Y_AXIS = "Y Axis";
-    public static final String Z_AXIS = "Z Axis";
-    public static final String Z_ROTATION = "Z Rotation";
+    public static final String X_AXIS = "x";
+    public static final String Y_AXIS = "y";
+    public static final String Z_AXIS = "z";
+    public static final String Z_ROTATION = "rz";
 
-    public static final String POV_X = "JME:POV_X";
-    public static final String POV_Y = "JME:POV_Y";
+    public static final String POV_X = "pov_x";
+    public static final String POV_Y = "pov_y";
 
     /**
      *  Assign the mappings to receive events from the given joystick axis.

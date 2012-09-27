@@ -10,6 +10,19 @@ import com.jme3.input.controls.JoyButtonTrigger;
  */
 public interface JoystickButton {
 
+    public static final String BUTTON_0 = "0";
+    public static final String BUTTON_1 = "1";
+    public static final String BUTTON_2 = "2";
+    public static final String BUTTON_3 = "3";
+    public static final String BUTTON_4 = "4";
+    public static final String BUTTON_5 = "5";
+    public static final String BUTTON_6 = "6";
+    public static final String BUTTON_7 = "7";
+    public static final String BUTTON_8 = "8";
+    public static final String BUTTON_9 = "9";
+    public static final String BUTTON_10 = "10";
+    public static final String BUTTON_11 = "11";
+
     /**
      * Assign the mapping name to receive events from the given button index
      * on the joystick.

@@ -99,15 +99,10 @@ public abstract class AbstractJoystick implements Joystick {
         inputManager.addMapping(negativeMapping, new JoyAxisTrigger(joyId, axisId, true));
     }
 
-    /**
-     * Returns the JoystickAxis with the specified name.
-     *
-     * @param name The name of the axis to search for as returned by JoystickAxis.getName().
-     */
     @Override
-    public JoystickAxis getAxis(String name) {
+    public JoystickAxis getAxis(String logicalId) {
         for( JoystickAxis axis : axes ) {
-            if( axis.getName().equals(name) )
+            if( axis.getLogicalId().equals(logicalId) )
                 return axis;
         }
         return null;
@@ -131,15 +126,10 @@ public abstract class AbstractJoystick implements Joystick {
         return axes.size();
     } 
 
-    /**
-     * Returns the JoystickButton with the specified name.
-     *
-     * @param name The name of the button to search for as returned by JoystickButton.getName().
-     */
     @Override
-    public JoystickButton getButton(String name) {
+    public JoystickButton getButton(String logicalId) {
         for( JoystickButton b : buttons ) {
-            if( b.getName().equals(name) )
+            if( b.getLogicalId().equals(logicalId) )
                 return b;
         }
         return null;

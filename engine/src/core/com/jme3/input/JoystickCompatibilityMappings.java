@@ -81,13 +81,13 @@ public class JoystickCompatibilityMappings {
      *  Returns the remapped version of the axis/button name if there
      *  is a mapping for it otherwise it returns the original name.
      */
-    public static String remapComponent( String joystickName, String componentName ) {
+    public static String remapComponent( String joystickName, String componentId ) {
         Map<String,String> map = getMappings(joystickName.trim(), false);   
         if( map == null )
-            return componentName;
-        if( !map.containsKey(componentName) )
-            return componentName;
-        return map.get(componentName); 
+            return componentId;
+        if( !map.containsKey(componentId) )
+            return componentId;
+        return map.get(componentId); 
     }       
  
     /**
@@ -106,9 +106,9 @@ public class JoystickCompatibilityMappings {
      *  joystick's name and axis/button name.  The "remap" value will be
      *  used instead.
      */
-    public static void addMapping( String stickName, String sourceComponent, String remap ) {
-        logger.log(Level.INFO, "addMapping(" + stickName + ", " + sourceComponent + ", " + remap + ")" );        
-        getMappings(stickName, true).put( sourceComponent, remap );
+    public static void addMapping( String stickName, String sourceComponentId, String remapId ) {
+        logger.log(Level.INFO, "addMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")" );        
+        getMappings(stickName, true).put( sourceComponentId, remapId );
     } 
  
     /**
