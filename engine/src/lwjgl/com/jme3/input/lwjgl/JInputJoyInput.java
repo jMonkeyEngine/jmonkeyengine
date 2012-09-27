@@ -213,14 +213,15 @@ public class JInputJoyInput implements JoyInput {
                 throw new IllegalArgumentException( "Component is not an axis:" + comp );
             }
 
-            String original = comp.getName();
-            String name = JoystickCompatibilityMappings.remapComponent( controller.getName(), original );
+            String name = comp.getName();
+            String original = id.getName();
+            String logicalId = JoystickCompatibilityMappings.remapComponent( controller.getName(), original );
             if( name != original ) {
-                logger.log(Level.INFO, "Remapped:" + original + " to:" + name);
+                logger.log(Level.INFO, "Remapped:" + original + " to:" + logicalId);
             }
  
             JoystickButton button = new DefaultJoystickButton( getInputManager(), this, getButtonCount(),
-                                                               name, id.getName() );
+                                                               name, logicalId );
             addButton(button);                                                               
             buttonIndex.put( comp, button );
         }
@@ -234,14 +235,15 @@ public class JInputJoyInput implements JoyInput {
                 throw new IllegalArgumentException( "Component is not an axis:" + comp );
             }
             
-            String original = comp.getName();
-            String name = JoystickCompatibilityMappings.remapComponent( controller.getName(), original );
+            String name = comp.getName();
+            String original = id.getName();
+            String logicalId = JoystickCompatibilityMappings.remapComponent( controller.getName(), original );
             if( name != original ) {
-                logger.log(Level.INFO, "Remapped:" + original + " to:" + name);
+                logger.log(Level.INFO, "Remapped:" + original + " to:" + logicalId);
             }
             
             JoystickAxis axis = new DefaultJoystickAxis( getInputManager(), 
-                                                         this, getAxisCount(), name, id.getName(),
+                                                         this, getAxisCount(), name, logicalId,
                                                          comp.isAnalog(), comp.isRelative(), 
                                                          comp.getDeadZone() );
             addAxis(axis);                                                          
