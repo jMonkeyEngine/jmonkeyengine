@@ -31,7 +31,6 @@ package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Vector3f;
@@ -48,7 +47,6 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
-import com.jme3.shader.VarType;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.MagFilter;
@@ -56,6 +54,8 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * PssmShadow renderer use Parrallel Split Shadow Mapping technique (pssm)<br>
@@ -99,13 +99,12 @@ public class PssmShadowRenderer implements SceneProcessor {
          * 8x8 percentage-closer  filtering is used. Shadows will be smoother
          * at the cost of performance
          */
-        PCFPOISSON,        
+        PCFPOISSON,
         /**
          * 8x8 percentage-closer  filtering is used. Shadows will be smoother
          * at the cost of performance
          */
         PCF8
-        
     }
 
     /**
@@ -151,9 +150,16 @@ public class PssmShadowRenderer implements SceneProcessor {
     private Vector3f[] points = new Vector3f[8];
     private boolean flushQueues = true;
     // define if the fallback material should be used.
-    private boolean needsfallBackMaterial = false;
+    protected boolean needsfallBackMaterial = false;
     //Name of the post material technique
     private String postTechniqueName = "PostShadow";
+    //flags to know when to change params in the materials
+    private boolean applyHWShadows = true;
+    private boolean applyFilterMode = true;
+    private boolean applyPCFEdge = true;
+    private boolean applyShadowIntensity = true;
+    //a list of material of the post shadow queue geometries.
+    private List<Material> matCache = new ArrayList<Material>();
 
     /**
      * Create a PSSM Shadow Renderer 
@@ -165,7 +171,6 @@ public class PssmShadowRenderer implements SceneProcessor {
      */
     public PssmShadowRenderer(AssetManager manager, int size, int nbSplits) {
         this(manager, size, nbSplits, new Material(manager, "Common/MatDefs/Shadow/PostShadowPSSM.j3md"));
-
     }
 
     /**
@@ -174,10 +179,12 @@ public class PssmShadowRenderer implements SceneProcessor {
      * @param manager the application asset manager
      * @param size the size of the rendered shadowmaps (512,1024,2048, etc...)
      * @param nbSplits the number of shadow maps rendered (the more shadow maps the more quality, the less fps). 
-     * @param postShadowMat the material used for post shadows if you need to override it      * 
+     * @param filterPass set this to true if you want the post shadow pass to be done in a Filter un screen space.
+     *  @param postShadowMat the material used for post shadows if you need to override it          
      */
-    //TODO remove the postShadowMat when we have shader injection....or remove this todo if we are in 2020.
-    public PssmShadowRenderer(AssetManager manager, int size, int nbSplits, Material postShadowMat) {
+    protected PssmShadowRenderer(AssetManager manager, int size, int nbSplits, Material postShadowMat) {
+
+        this.postshadowMat = postShadowMat;
         assetManager = manager;
         nbSplits = Math.max(Math.min(nbSplits, 4), 1);
         this.nbSplits = nbSplits;
@@ -194,9 +201,8 @@ public class PssmShadowRenderer implements SceneProcessor {
         dummyTex = new Texture2D(size, size, Format.RGBA8);
 
         preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
-        this.postshadowMat = postShadowMat;
-        postshadowMat.setFloat("ShadowMapSize", size);       
-        
+        postshadowMat.setFloat("ShadowMapSize", size);
+
         for (int i = 0; i < nbSplits; i++) {
             lightViewProjectionsMatrices[i] = new Matrix4f();
             shadowFB[i] = new FrameBuffer(size, size, 1);
@@ -254,6 +260,7 @@ public class PssmShadowRenderer implements SceneProcessor {
                 }
             }
         }
+        applyFilterMode = true;
     }
 
     /**
@@ -287,6 +294,7 @@ public class PssmShadowRenderer implements SceneProcessor {
             }
         }
         postshadowMat.setBoolean("HardwareShadows", compareMode == CompareMode.Hardware);
+        applyHWShadows = true;
     }
 
     //debug function that create a displayable frustrum
@@ -429,12 +437,12 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     //debug only : displays depth shadow maps
-    private void displayShadowMap(Renderer r) {
+    protected void displayShadowMap(Renderer r) {
         Camera cam = viewPort.getCamera();
         renderManager.setCamera(cam, true);
         int h = cam.getHeight();
         for (int i = 0; i < dispPic.length; i++) {
-            dispPic[i].setPosition((128 * i) +(150 + 64 * (i + 1) ), h / 20f);
+            dispPic[i].setPosition((128 * i) + (150 + 64 * (i + 1)), h / 20f);
             dispPic[i].setWidth(128);
             dispPic[i].setHeight(128);
             dispPic[i].updateGeometricState();
@@ -451,10 +459,15 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     public void postFrame(FrameBuffer out) {
-        Camera cam = viewPort.getCamera();
+
+        if (debug) {
+            displayShadowMap(renderManager.getRenderer());
+        }
         if (!noOccluders) {
             //setting params to recieving geometry list
             setMatParams();
+
+            Camera cam = viewPort.getCamera();
             //some materials in the scene does not have a post shadow technique so we're using the fall back material
             if (needsfallBackMaterial) {
                 renderManager.setForcedMaterial(postshadowMat);
@@ -472,48 +485,77 @@ public class PssmShadowRenderer implements SceneProcessor {
             renderManager.setCamera(cam, false);
 
         }
-        if (debug) {
-            displayShadowMap(renderManager.getRenderer());
-        }
+
     }
 
     private void setMatParams() {
 
         GeometryList l = viewPort.getQueue().getShadowQueueContent(ShadowMode.Receive);
 
-        //iteratin throught all the geometries of the list to set the material params
+        //iteration throught all the geometries of the list to gather the materials
+
+        matCache.clear();
         for (int i = 0; i < l.size(); i++) {
             Material mat = l.get(i).getMaterial();
-            //checking if the material has the post technique and setting the params.
+            //checking if the material has the post technique and adding it to the material cache
             if (mat.getMaterialDef().getTechniqueDef(postTechniqueName) != null) {
-                mat.setColor("Splits", splits);
-                postshadowMat.setColor("Splits", splits);
-                for (int j = 0; j < nbSplits; j++) {
-                    mat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
-                    mat.setTexture("ShadowMap" + j, shadowMaps[j]);
-                }
-                mat.setBoolean("HardwareShadows", compareMode == CompareMode.Hardware);
-                mat.setInt("FilterMode", filterMode.ordinal());
-                mat.setFloat("PCFEdge", edgesThickness);
-                mat.setFloat("ShadowIntensity", shadowIntensity);
-                if(mat.getParam("ShadowMapSize") == null){
-                    mat.setFloat("ShadowMapSize", shadowMapSize);
+                if (!matCache.contains(mat)) {
+                    matCache.add(mat);
                 }
             } else {
                 needsfallBackMaterial = true;
             }
         }
 
+        //iterating through the mat cache and setting the parameters
+        for (Material mat : matCache) {
+            if (mat.getParam("Splits") == null) {
+                mat.setColor("Splits", splits);
+            }
+            if (mat.getParam("ShadowMapSize") == null) {
+                mat.setFloat("ShadowMapSize", shadowMapSize);
+            }
+            for (int j = 0; j < nbSplits; j++) {
+                mat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
+            }
+            if (mat.getParam("ShadowMap0") == null) {
+                for (int j = 0; j < nbSplits; j++) {
+                    mat.setTexture("ShadowMap" + j, shadowMaps[j]);
+                }
+            }
+            if (applyHWShadows || mat.getParam("HardwareShadows") == null) {
+                mat.setBoolean("HardwareShadows", compareMode == CompareMode.Hardware);
+                applyHWShadows = false;
+            }
+            if (applyFilterMode || mat.getParam("FilterMode") == null) {
+                mat.setInt("FilterMode", filterMode.ordinal());
+                applyFilterMode = false;
+            }
+            if (mat.getParam("PCFEdge") == null || applyPCFEdge) {
+                mat.setFloat("PCFEdge", edgesThickness);
+                applyPCFEdge = false;
+            }
+
+            if (mat.getParam("ShadowIntensity") == null || applyShadowIntensity) {
+                mat.setFloat("ShadowIntensity", shadowIntensity);
+                applyShadowIntensity = false;
+            }
+
+        }
 
         //At least one material of the receiving geoms does not support the post shadow techniques
         //so we fall back to the forced material solution (transparent shadows won't be supported for these objects)
         if (needsfallBackMaterial) {
-            postshadowMat.setColor("Splits", splits);
-            for (int j = 0; j < nbSplits; j++) {
-                postshadowMat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
-            }
+            setPostShadowParams();
         }
 
+    }
+
+    protected void setPostShadowParams() {
+        postshadowMat.setColor("Splits", splits);
+        for (int j = 0; j < nbSplits; j++) {
+            postshadowMat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
+        }
     }
 
     public void preFrame(float tpf) {
@@ -583,6 +625,7 @@ public class PssmShadowRenderer implements SceneProcessor {
     final public void setShadowIntensity(float shadowIntensity) {
         this.shadowIntensity = shadowIntensity;
         postshadowMat.setFloat("ShadowIntensity", shadowIntensity);
+        applyShadowIntensity = true;
     }
 
     /**
@@ -602,6 +645,7 @@ public class PssmShadowRenderer implements SceneProcessor {
         this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
         this.edgesThickness *= 0.1f;
         postshadowMat.setFloat("PCFEdge", edgesThickness);
+        applyPCFEdge = true;
     }
 
     /**

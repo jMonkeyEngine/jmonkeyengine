@@ -1,0 +1,73 @@
+MaterialDef Post Shadow {
+
+    MaterialParameters {
+        Int FilterMode
+        Boolean HardwareShadows
+
+        Texture2D ShadowMap0
+        Texture2D ShadowMap1
+        Texture2D ShadowMap2
+        Texture2D ShadowMap3
+        
+        Float ShadowIntensity
+        Vector4 Splits
+
+        Matrix4 LightViewProjectionMatrix0
+        Matrix4 LightViewProjectionMatrix1
+        Matrix4 LightViewProjectionMatrix2
+        Matrix4 LightViewProjectionMatrix3     
+
+        Float PCFEdge
+
+        Float ShadowMapSize
+
+        Matrix4 ViewProjectionMatrixInverse
+        Vector4 ViewProjectionMatrixRow2
+        
+        Int NumSamples
+        Int NumSamplesDepth
+        Texture2D Texture        
+        Texture2D DepthTexture
+
+    }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadowFilter15.vert
+        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadowFilter15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix            
+        }
+
+        Defines {
+            RESOLVE_MS : NumSamples
+            RESOLVE_DEPTH_MS : NumSamplesDepth
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            SHADOWMAP_SIZE : ShadowMapSize
+        }
+      
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadowFilter.vert
+        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadowFilter.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix            
+        }
+
+        Defines {
+            HARDWARE_SHADOWS : HardwareShadows
+            FILTER_MODE : FilterMode
+            PCFEDGE : PCFEdge
+            SHADOWMAP_SIZE : ShadowMapSize
+        }
+      
+    }
+
+    
+
+
+}

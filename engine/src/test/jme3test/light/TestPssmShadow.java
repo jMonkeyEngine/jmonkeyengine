@@ -44,6 +44,8 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.FXAAFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
@@ -53,6 +55,7 @@ import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.shadow.PssmShadowFilter;
 import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.shadow.PssmShadowRenderer.CompareMode;
 import com.jme3.shadow.PssmShadowRenderer.FilterMode;
@@ -65,13 +68,12 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
 
     private Spatial[] obj;
     private Material[] mat;
-    private boolean renderShadows = true;
     private boolean hardwareShadows = false;
     private PssmShadowRenderer pssmRenderer;
+    private PssmShadowFilter pssmFilter;
     private Geometry ground;
-    private Material matGroundU; 
-    private Material matGroundL; 
-    
+    private Material matGroundU;
+    private Material matGroundL;
 
     public static void main(String[] args) {
         TestPssmShadow app = new TestPssmShadow();
@@ -109,15 +111,15 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
         ground = new Geometry("soil", b);
         matGroundU = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         matGroundU.setColor("Color", ColorRGBA.Green);
-       
-        
+
+
         matGroundL = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         Texture grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg");
         grass.setWrap(WrapMode.Repeat);
         matGroundL.setTexture("DiffuseMap", grass);
-        
+
         ground.setMaterial(matGroundL);
-       
+
         ground.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(ground);
 
@@ -146,16 +148,35 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
         loadScene();
 
         pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 3);
+      //  pssmRenderer.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
         pssmRenderer.setDirection(new Vector3f(0.5973172f, -0.16583486f, 0.7846725f).normalizeLocal());
         pssmRenderer.setLambda(0.55f);
         pssmRenderer.setShadowIntensity(0.6f);
         pssmRenderer.setCompareMode(CompareMode.Software);
         pssmRenderer.setFilterMode(FilterMode.Dither);
-        pssmRenderer.displayDebug();
+        //     pssmRenderer.displayDebug();
         viewPort.addProcessor(pssmRenderer);
+
+
+
+        pssmFilter = new PssmShadowFilter(assetManager, 1024, 3);
+        //pssmFilter.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
+        pssmRenderer.setDirection(new Vector3f(0.5973172f, -0.16583486f, 0.7846725f).normalizeLocal());
+        pssmFilter.setLambda(0.55f);
+        pssmFilter.setShadowIntensity(0.6f);
+        pssmFilter.setCompareMode(CompareMode.Software);
+        pssmFilter.setFilterMode(FilterMode.Dither);
+        pssmFilter.setEnabled(false);
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        //  fpp.setNumSamples(4);
+        fpp.addFilter(pssmFilter);
+       
+        viewPort.addProcessor(fpp);
+
+
         initInputs();
     }
-    BitmapText infoText;
+    BitmapText infoText;  
 
     private void initInputs() {
         /** Write text on the screen (HUD) */
@@ -174,7 +195,7 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
         inputManager.addMapping("lambdaDown", new KeyTrigger(KeyInput.KEY_J));
         inputManager.addMapping("toggleHW", new KeyTrigger(KeyInput.KEY_RETURN));
         inputManager.addMapping("switchGroundMat", new KeyTrigger(KeyInput.KEY_M));
-        inputManager.addListener(this, "lambdaUp", "lambdaDown", "toggleHW", "toggle", "ShadowUp", "ShadowDown", "ThicknessUp", "ThicknessDown","changeFiltering","switchGroundMat");
+        inputManager.addListener(this, "lambdaUp", "lambdaDown", "toggleHW", "toggle", "ShadowUp", "ShadowDown", "ThicknessUp", "ThicknessDown", "changeFiltering", "switchGroundMat");
     }
 
     private void print(String str) {
@@ -212,60 +233,83 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
         }
     };
     int filteringIndex = 2;
+    int renderModeIndex = 0;
 
     public void onAction(String name, boolean keyPressed, float tpf) {
         if (name.equals("toggle") && keyPressed) {
-            if (renderShadows) {
-                renderShadows = false;
-                viewPort.removeProcessor(pssmRenderer);
-            } else {
-                renderShadows = true;
-                viewPort.addProcessor(pssmRenderer);
+            renderModeIndex += 1;
+            renderModeIndex %= 3;
+
+            switch (renderModeIndex) {
+                case 0:
+                    viewPort.addProcessor(pssmRenderer);
+                    break;
+                case 1:
+                    viewPort.removeProcessor(pssmRenderer);
+                    pssmFilter.setEnabled(true);                  
+                    break;
+                case 2:
+                    pssmFilter.setEnabled(false);                   
+                    break;
             }
+
+
+
         } else if (name.equals("toggleHW") && keyPressed) {
             hardwareShadows = !hardwareShadows;
             pssmRenderer.setCompareMode(hardwareShadows ? CompareMode.Hardware : CompareMode.Software);
+            pssmFilter.setCompareMode(hardwareShadows ? CompareMode.Hardware : CompareMode.Software);
             System.out.println("HW Shadows: " + hardwareShadows);
         }
+//
+//          renderShadows = true;
+//                viewPort.addProcessor(pssmRenderer);
 
         if (name.equals("changeFiltering") && keyPressed) {
             filteringIndex = (filteringIndex + 1) % FilterMode.values().length;
             FilterMode m = FilterMode.values()[filteringIndex];
             pssmRenderer.setFilterMode(m);
+            pssmFilter.setFilterMode(m);
             print("Filter mode : " + m.toString());
         }
 
         if (name.equals("lambdaUp") && keyPressed) {
             pssmRenderer.setLambda(pssmRenderer.getLambda() + 0.01f);
+            pssmFilter.setLambda(pssmRenderer.getLambda() + 0.01f);
             System.out.println("Lambda : " + pssmRenderer.getLambda());
         } else if (name.equals("lambdaDown") && keyPressed) {
             pssmRenderer.setLambda(pssmRenderer.getLambda() - 0.01f);
+            pssmFilter.setLambda(pssmRenderer.getLambda() - 0.01f);
             System.out.println("Lambda : " + pssmRenderer.getLambda());
         }
 
         if (name.equals("ShadowUp") && keyPressed) {
             pssmRenderer.setShadowIntensity(pssmRenderer.getShadowIntensity() + 0.1f);
+            pssmFilter.setShadowIntensity(pssmRenderer.getShadowIntensity() + 0.1f);
             System.out.println("Shadow intensity : " + pssmRenderer.getShadowIntensity());
         }
         if (name.equals("ShadowDown") && keyPressed) {
             pssmRenderer.setShadowIntensity(pssmRenderer.getShadowIntensity() - 0.1f);
+            pssmFilter.setShadowIntensity(pssmRenderer.getShadowIntensity() - 0.1f);
             System.out.println("Shadow intensity : " + pssmRenderer.getShadowIntensity());
         }
         if (name.equals("ThicknessUp") && keyPressed) {
             pssmRenderer.setEdgesThickness(pssmRenderer.getEdgesThickness() + 1);
+            pssmFilter.setEdgesThickness(pssmRenderer.getEdgesThickness() + 1);
             System.out.println("Shadow thickness : " + pssmRenderer.getEdgesThickness());
         }
         if (name.equals("ThicknessDown") && keyPressed) {
             pssmRenderer.setEdgesThickness(pssmRenderer.getEdgesThickness() - 1);
+            pssmFilter.setEdgesThickness(pssmRenderer.getEdgesThickness() - 1);
             System.out.println("Shadow thickness : " + pssmRenderer.getEdgesThickness());
         }
         if (name.equals("switchGroundMat") && keyPressed) {
-            if(ground.getMaterial() == matGroundL){
+            if (ground.getMaterial() == matGroundL) {
                 ground.setMaterial(matGroundU);
-            }else{
+            } else {
                 ground.setMaterial(matGroundL);
-            }            
+            }
         }
-        
+
     }
 }
