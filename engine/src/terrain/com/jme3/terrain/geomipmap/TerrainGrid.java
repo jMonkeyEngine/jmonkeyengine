@@ -196,6 +196,22 @@ public class TerrainGrid extends TerrainQuad {
                 }
             }
 
+            getControl(UpdateControl.class).enqueue(new Callable() {
+                    // back on the OpenGL thread:
+                    public Object call() throws Exception {
+                        for (Spatial s : getChildren()) {
+                            if (s instanceof TerrainQuad) {
+                                TerrainQuad tq = (TerrainQuad)s;
+                                tq.resetCachedNeighbours();
+                            }
+                        }
+                        System.out.println("fixed normals "+location.clone().mult(size));
+                        setNeedToRecalculateNormals();
+                        //fixNormalEdges(new BoundingBox(location.clone().mult(size), size*2, Float.MAX_VALUE, size*2));
+                        // the edges are fixed once, but not with lod change
+                        return null;
+                    }
+            });
         }
     }
 
@@ -229,6 +245,9 @@ public class TerrainGrid extends TerrainQuad {
         terrainQuadGrid.setPatchSize(this.patchSize);
         terrainQuadGrid.setQuadSize(this.quadSize);
         addControl(new UpdateControl());
+        
+        fixNormalEdges(new BoundingBox(new Vector3f(0,0,0), size*2, Float.MAX_VALUE, size*2));
+        addControl(new NormalRecalcControl(this));
     }
 
     public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, TerrainGridTileLoader terrainQuadGrid) {
@@ -252,6 +271,9 @@ public class TerrainGrid extends TerrainQuad {
         this.heightMapGrid = heightMapGrid;
         heightMapGrid.setSize(this.quadSize);
         addControl(new UpdateControl());
+        
+        fixNormalEdges(new BoundingBox(new Vector3f(0,0,0), size*2, Float.MAX_VALUE, size*2));
+        addControl(new NormalRecalcControl(this));
     }
 
     @Deprecated
@@ -343,13 +365,16 @@ public class TerrainGrid extends TerrainQuad {
         }
         updateModelBound();
         
-        for (Spatial s : getChildren()) {
+        /*for (Spatial s : getChildren()) {
             if (s instanceof TerrainQuad) {
                 TerrainQuad tq = (TerrainQuad)s;
                 tq.resetCachedNeighbours();
-                tq.fixNormalEdges(new BoundingBox(tq.getWorldTranslation(), totalSize*2, Float.MAX_VALUE, totalSize*2));
             }
         }
+        
+        System.out.println("fix normals "+loc);
+        fixNormalEdges(new BoundingBox(loc, totalSize*6, Float.MAX_VALUE, totalSize*6));
+        */
     }
 
     
