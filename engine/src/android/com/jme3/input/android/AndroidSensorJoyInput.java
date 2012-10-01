@@ -121,6 +121,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         int androidSensorType = -1;
         int androidSensorSpeed = SensorManager.SENSOR_DELAY_GAME;
         Sensor sensor = null;
+        int sensorAccuracy = 0;
         float[] lastValues;
         final Object valuesLock = new Object();
         ArrayList<AndroidJoystickAxis> axes = new ArrayList<AndroidJoystickAxis>();
@@ -360,6 +361,10 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             return false;
         }
 
+        if (sensorData.sensorAccuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
+            return false;
+        }
+        
         synchronized(sensorData.valuesLock) {
             accValues[0] = sensorData.lastValues[0];
             accValues[1] = sensorData.lastValues[1];
@@ -371,6 +376,10 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             return false;
         }
 
+        if (sensorData.sensorAccuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
+            return false;
+        }
+        
         synchronized(sensorData.valuesLock) {
             magValues[0] = sensorData.lastValues[0];
             magValues[1] = sensorData.lastValues[1];
@@ -619,6 +628,9 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         SensorData sensorData = sensors.get(sensorType);
         if (sensorData != null && sensorData.sensor.equals(se.sensor) && sensorData.enabled) {
 
+            if (sensorData.sensorAccuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
+                return;
+            }
             synchronized(sensorData.valuesLock) {
                 for (int i=0; i<sensorData.lastValues.length; i++) {
                     sensorData.lastValues[i] = se.values[i];
@@ -656,9 +668,10 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         SensorData sensorData = sensors.get(sensorType);
         if (sensorData != null) {
             logger.log(Level.INFO, "onAccuracyChanged for {0}: accuracy: {1}",
-                    new Object[]{sensor.toString(), i});
+                    new Object[]{sensor.getName(), i});
             logger.log(Level.INFO, "MaxRange: {0}, Resolution: {1}",
                     new Object[]{sensor.getMaximumRange(), sensor.getResolution()});
+            sensorData.sensorAccuracy = i;
         }
     }
 
@@ -781,6 +794,8 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         
         public void calibrateCenter() {
             zeroRawValue = lastRawValue;
+            logger.log(Level.INFO, "Calibrating axis {0} to {1}", 
+                    new Object[]{getName(), zeroRawValue});
         }
 
     }
