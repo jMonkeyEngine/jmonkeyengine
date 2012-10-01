@@ -636,9 +636,15 @@ public class RenderManager {
      * contain the flattened scene graph.
      */
     public void renderScene(Spatial scene, ViewPort vp) {
-        if (scene.getParent() == null) {
-            vp.getCamera().setPlaneState(0);
-        }
+        //reset of the camera plane state for proper culling (must be 0 for the first note of the scene to be rendered)
+        vp.getCamera().setPlaneState(0);
+        //rendering the scene
+        renderSubScene(scene, vp);
+    }
+    
+    // recursively renders the scene
+    private void renderSubScene(Spatial scene, ViewPort vp) {
+
         // check culling first.
         if (!scene.checkCulling(vp.getCamera())) {
             // move on to shadow-only render
@@ -658,7 +664,7 @@ public class RenderManager {
             for (int i = 0; i < children.size(); i++) {
                 // Restoring cam state before proceeding children recusively
                 vp.getCamera().setPlaneState(camState);
-                renderScene(children.get(i), vp);
+                renderSubScene(children.get(i), vp);
             }
         } else if (scene instanceof Geometry) {
             // add to the render queue
@@ -889,7 +895,7 @@ public class RenderManager {
     public void renderViewPortRaw(ViewPort vp) {
         setCamera(vp.getCamera(), false);
         List<Spatial> scenes = vp.getScenes();
-        for (int i = scenes.size() - 1; i >= 0; i--) {
+        for (int i = scenes.size() - 1; i >= 0; i--) {           
             renderScene(scenes.get(i), vp);
         }
         flushQueue(vp);
@@ -966,7 +972,7 @@ public class RenderManager {
         }
 
         List<Spatial> scenes = vp.getScenes();
-        for (int i = scenes.size() - 1; i >= 0; i--) {
+        for (int i = scenes.size() - 1; i >= 0; i--) {            
             renderScene(scenes.get(i), vp);
         }
 
