@@ -51,13 +51,17 @@
     </target>
 
     <target name="-check-platform-present">
-        <available file="netbeans" property="platform.present"/>
+        <available file="sdk/nbproject/private/platform-private.properties" property="platform.present"/>
     </target>
 
     <target name="-remove-platform">
         <delete dir="netbeans" failonerror="false"/>
+        <delete file="sdk/nbproject/private/platform-private.properties" failonerror="false"/>
     </target>
 
+    <target name="create-platform-config" depends="-update-sdk-platform-config">
+    </target>
+    
     <target name="-update-sdk-platform-config">
         <property name="nbplatform.dir" location="netbeans"/>
         <mkdir dir="sdk/nbproject/private"/>
