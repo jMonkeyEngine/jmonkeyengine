@@ -72,8 +72,19 @@ ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor&#40;4&#41
 Pool size means the executor will keep four threads alive at any time. Having more threads in the pool means that more tasks can run concurrently. But a bigger pool only results in a speed gain if the PC can handle it! Allocating a pool  that is uselessly large just wastes memory, so you need to find a good compromise: About the same to double the size of the number of cores in the computer makes sense. 
 </p>
 
+<p>
+!!! Executor needs to be shut down when the application ends, in order to make the process die properly
+In your simple application you can override the stop method and shutdown the executor : 
+
+</p>
+<pre>    @Override
+    public void stop&#40;&#41; &#123;
+        super.stop&#40;&#41;;
+        executor.shutdown&#40;&#41;;
+    &#125;</pre>
+
 </div>
-<!-- EDIT4 SECTION "Executor" [2879-3637] -->
+<!-- EDIT4 SECTION "Executor" [2879-3946] -->
 <h3><a>Control Class Fields</a></h3>
 <div>
 
@@ -93,7 +104,7 @@ Here we also created the Future variable to track the state of this task.
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Control Class Fields" [3638-4228] -->
+<!-- EDIT5 SECTION "Control Class Fields" [3947-4537] -->
 <h3><a>Control Update() Method</a></h3>
 <div>
 
@@ -141,7 +152,7 @@ Remember not to mess with the class fields after starting the thread, because th
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Control Update() Method" [4229-6099] -->
+<!-- EDIT6 SECTION "Control Update() Method" [4538-6408] -->
 <h3><a>The Callable</a></h3>
 <div>
 
@@ -193,7 +204,7 @@ private Callable&lt;MyWayList&gt; findWay = new Callable&lt;MyWayList&gt;&#40;&#
 &#125;;</pre>
 
 </div>
-<!-- EDIT7 SECTION "The Callable" [6100-8467] -->
+<!-- EDIT7 SECTION "The Callable" [6409-8776] -->
 <h3><a>The jME3 Threading Model</a></h3>
 <div>
 
@@ -220,7 +231,7 @@ If the processing thread needs to wait or needs the return value then <code>get(
 </p>
 
 </div>
-<!-- EDIT8 SECTION "The jME3 Threading Model" [8468-9583] -->
+<!-- EDIT8 SECTION "The jME3 Threading Model" [8777-9892] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -239,5 +250,5 @@ The cool thing about this approach is that every entity creates one self-contain
 </span></div>
 
 </div>
-<!-- EDIT9 SECTION "Conclusion" [9584-] -->
+<!-- EDIT9 SECTION "Conclusion" [9893-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:multithreading?do=export_xhtmlbody">view online version</a></em></p>

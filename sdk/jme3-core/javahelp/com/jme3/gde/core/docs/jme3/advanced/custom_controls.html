@@ -145,7 +145,7 @@ For example, you disable your IdleBehaviourControl when you enable your Defensiv
 Usage: Your custom subclass implements the three methods <code>controlUpdate()</code>, <code>controlRender()</code>, <code>setSpatial()</code>, and <code>cloneForSpatial()</code> as shown here:
 </p>
 <pre>public class MyControl extends AbstractControl implements Savable, Cloneable &#123;
-  privat int index; // can have custom fields -- example 
+  private int index; // can have custom fields -- example 
 &nbsp;
   public MyControl&#40;&#41;&#123;&#125; // empty serialization constructor
 &nbsp;
@@ -214,7 +214,7 @@ See also:
 </ul>
 
 </div>
-<!-- EDIT4 SECTION "AbstractControl Class" [4501-7446] -->
+<!-- EDIT4 SECTION "AbstractControl Class" [4501-7447] -->
 <h2><a>The Control Interface</a></h2>
 <div>
 
@@ -321,7 +321,7 @@ Usage example:
 &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "The Control Interface" [7447-10698] -->
+<!-- EDIT5 SECTION "The Control Interface" [7448-10699] -->
 <h2><a>Best Practices</a></h2>
 <div>
 
@@ -387,5 +387,5 @@ vehicleSpatial.addControl&#40;new ManualVehicleControl&#40;&#41;&#41;;
 c.steerX&#40;steerX&#41;;</pre>
 
 </div>
-<!-- EDIT6 SECTION "Best Practices" [10699-] -->
+<!-- EDIT6 SECTION "Best Practices" [10700-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:custom_controls?do=export_xhtmlbody">view online version</a></em></p>

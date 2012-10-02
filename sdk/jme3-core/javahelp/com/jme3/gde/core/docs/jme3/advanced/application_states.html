@@ -236,22 +236,18 @@ Definition:
       &#125;
     &#125;
 &nbsp;
+    // Note that update is only called while the state is both attached and enabled.
     @Override
     public void update&#40;float tpf&#41; &#123;
-      if&#40;isEnabled&#40;&#41;&#41;&#123;
-        // do the following while game is RUNNING
-        this.app.getRootNode&#40;&#41;.getChild&#40;&quot;blah&quot;&#41;.scale&#40;tpf&#41;; // modify scene graph...
-        x.setUserData&#40;...&#41;;                                 // call some methods...
-      &#125; else &#123;
-        // do the following while game is PAUSED, e.g. play an idle animation.
-        ...        
-      &#125;
+      // do the following while game is RUNNING
+      this.app.getRootNode&#40;&#41;.getChild&#40;&quot;blah&quot;&#41;.scale&#40;tpf&#41;; // modify scene graph...
+      x.setUserData&#40;...&#41;;                                 // call some methods...
     &#125;
 &nbsp;
 &#125;</pre>
 
 </div>
-<!-- EDIT9 SECTION "AbstractAppState" [6857-9095] -->
+<!-- EDIT9 SECTION "AbstractAppState" [6857-9029] -->
 <h2><a>Pausing and Unpausing</a></h2>
 <div>
 
@@ -261,7 +257,7 @@ You define what an AppState does when Paused or Unpaused, in the <code>setEnable
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Pausing and Unpausing" [9096-9386] -->
+<!-- EDIT10 SECTION "Pausing and Unpausing" [9030-9320] -->
 <h2><a>AppStateManager</a></h2>
 <div>
 
@@ -281,19 +277,19 @@ The com.jme3.app.state.AppStateManager holds the list of AppStates for an applic
 		<td>getState(MyAppState.class)</td><td>Returns the first attached state that is an instance of a subclass of <code>MyAppState.class</code>.</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [9796-10006] -->
+<!-- EDIT12 TABLE [9730-9940] -->
 <p>
 
 The AppStateManager&#039;s <code>render(), postRender(), cleanUp()</code> methods are internal, ignore them, users never call them directly.
 </p>
 
 </div>
-<!-- EDIT11 SECTION "AppStateManager" [9387-10135] -->
+<!-- EDIT11 SECTION "AppStateManager" [9321-10069] -->
 <h2><a>Best Practices</a></h2>
 <div>
 
 </div>
-<!-- EDIT13 SECTION "Best Practices" [10136-10163] -->
+<!-- EDIT13 SECTION "Best Practices" [10070-10097] -->
 <h3><a>Communication Among AppStates</a></h3>
 <div>
 
@@ -309,7 +305,7 @@ You can use custom accessors to get data from AppStates, to set data in AppState
 <pre>this.app.getStateManager&#40;&#41;.getState&#40;MyAppState.class&#41;.doSomeCustomStuffInThisState&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT14 SECTION "Communication Among AppStates" [10164-10919] -->
+<!-- EDIT14 SECTION "Communication Among AppStates" [10098-10853] -->
 <h3><a>Initialize Familiar Class Fields</a></h3>
 <div>
 
@@ -337,5 +333,5 @@ public void initialize&#40;AppStateManager stateManager, Application app&#41; &#
 &#125;</pre>
 
 </div>
-<!-- EDIT15 SECTION "Initialize Familiar Class Fields" [10920-] -->
+<!-- EDIT15 SECTION "Initialize Familiar Class Fields" [10854-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states?do=export_xhtmlbody">view online version</a></em></p>

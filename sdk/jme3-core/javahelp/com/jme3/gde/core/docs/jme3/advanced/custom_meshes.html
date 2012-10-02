@@ -154,6 +154,15 @@ Ta-daa!
 
 </div>
 <!-- EDIT8 SECTION "Using the Mesh in a Scene" [4321-4740] -->
+<h2><a>Dynamic Meshes</a></h2>
+<div>
+
+<p>
+If modifying a mesh dynamically in a way which would change the model&#039;s bounds then you need to call updateModelBound() on the Geometry object containing the mesh after calling updateBounds() on the mesh object. There is a warning on updateModelBounds about not usually needing to use it but that can be ignored in this special case.
+</p>
+
+</div>
+<!-- EDIT9 SECTION "Dynamic Meshes" [4741-5102] -->
 <h2><a>Optional Mesh Features</a></h2>
 <div>
 
@@ -163,7 +172,7 @@ There are more vertex buffers in a Mesh than the three shown above. For an overv
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Optional Mesh Features" [4741-4879] -->
+<!-- EDIT10 SECTION "Optional Mesh Features" [5103-5241] -->
 <h3><a>Example: Vertex Colors</a></h3>
 <div>
 
@@ -229,7 +238,7 @@ Now you see a gradient color extending from each vertex.
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Example: Vertex Colors" [4880-7029] -->
+<!-- EDIT11 SECTION "Example: Vertex Colors" [5242-7391] -->
 <h3><a>Example: Shaded Mesh with Normals</a></h3>
 <div>
 
@@ -247,7 +256,7 @@ You need as many normals as the polygon has vertices. For a flat quad, they poin
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Example: Shaded Mesh with Normals" [7030-7801] -->
+<!-- EDIT12 SECTION "Example: Shaded Mesh with Normals" [7392-8163] -->
 <h3><a>Example: Point Mode</a></h3>
 <div>
 
@@ -273,7 +282,7 @@ This will result in a 10 px dot being rendered for each of the four vertices. Th
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Example: Point Mode" [7802-8456] -->
+<!-- EDIT13 SECTION "Example: Point Mode" [8164-8818] -->
 <h2><a>Tip: Front and Back Faces</a></h2>
 <div>
 
@@ -290,7 +299,14 @@ In case that your use case requires the backfaces to be visible, you have two op
 <code>int[] indexes = { 2,0,1, 1,3,2, 2,3,1, 1,0,2 }; </code></div>
 </li>
 </ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:spatial?do=showtag&amp;tag=tag%3Aspatial">spatial</a>,
+	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
+	<a href="/wiki/doku.php/tag:mesh?do=showtag&amp;tag=tag%3Amesh">mesh</a>,
+	<a href="/wiki/doku.php/tag:geometry?do=showtag&amp;tag=tag%3Ageometry">geometry</a>,
+	<a href="/wiki/doku.php/tag:scenegraph?do=showtag&amp;tag=tag%3Ascenegraph">scenegraph</a>
+</span></div>
 
 </div>
-<!-- EDIT13 SECTION "Tip: Front and Back Faces" [8457-] -->
+<!-- EDIT14 SECTION "Tip: Front and Back Faces" [8819-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:custom_meshes?do=export_xhtmlbody">view online version</a></em></p>

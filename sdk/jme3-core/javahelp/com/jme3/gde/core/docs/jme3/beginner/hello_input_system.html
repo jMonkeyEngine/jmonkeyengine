@@ -259,15 +259,16 @@ You can also combine both listeners into one, the engine will send the appropria
     &#125;
   &#125;
 // ...
-inputManager.addListener&#40;analogListener, new String&#91;&#93;&#123;&quot;Pause&quot;, &quot;Left&quot;, &quot;Right&quot;, &quot;Rotate&quot;&#125;&#41;;
+inputManager.addListener&#40;combinedListener, new String&#91;&#93;&#123;&quot;Pause&quot;, &quot;Left&quot;, &quot;Right&quot;, &quot;Rotate&quot;&#125;&#41;;
 &nbsp;</pre>
 
 <p>
 It&#039;s okay to use only one of the two Listeners, and not implement the other one, if you are not using this type of interaction. In the following, we have a closer look how to decide which of the two listeners is best suited for which situation.
+
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Implementing the Actions" [5894-9011] -->
+<!-- EDIT4 SECTION "Implementing the Actions" [5894-9012] -->
 <h2><a>Analog, Pressed, or Released?</a></h2>
 <div>
 
@@ -324,7 +325,7 @@ Mappings registered to the <strong>ActionListener</strong> are digital either-or
       &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "Analog, Pressed, or Released?" [9012-11037] -->
+<!-- EDIT5 SECTION "Analog, Pressed, or Released?" [9013-11038] -->
 <h2><a>Table of Triggers</a></h2>
 <div>
 
@@ -360,14 +361,14 @@ You can find the list of input constants in the files <code>src/core/com/jme3/in
 KeyTrigger(KeyInput.KEY_LEFT), KeyTrigger(KeyInput.KEY_RIGHT) </td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [11270-11866] -->
+<!-- EDIT7 TABLE [11271-11867] -->
 <p>
 
 <strong>Tip:</strong> If you don&#039;t recall an input constant during development, you benefit from an IDE&#039;s code completion functionality: Place the caret after e.g. <code>KeyInput.|</code> and trigger code completion to select possible input identifiers.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Table of Triggers" [11038-12100] -->
+<!-- EDIT6 SECTION "Table of Triggers" [11039-12101] -->
 <h2><a>Exercises</a></h2>
 <div>
 <ol>
@@ -395,7 +396,7 @@ inputManager.addMapping&#40;&quot;Pause&quot;,  new KeyTrigger&#40;usersPauseKey
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Exercises" [12101-12785] -->
+<!-- EDIT8 SECTION "Exercises" [12102-12786] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -417,5 +418,5 @@ Now you can already write a little interactive game! But wouldn&#039;t it be coo
 </span></div>
 
 </div>
-<!-- EDIT9 SECTION "Conclusion" [12786-] -->
+<!-- EDIT9 SECTION "Conclusion" [12787-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_input_system?do=export_xhtmlbody">view online version</a></em></p>

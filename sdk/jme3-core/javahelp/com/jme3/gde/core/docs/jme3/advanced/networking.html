@@ -69,7 +69,7 @@ You can register several types of listeners to be notified of changes.
 
 The game server is a &quot;headless&quot; com.jme3.app.SimpleApplication:
 </p>
-<pre>public class MyGameServer extends SimpleApplication &#123;
+<pre>public class ServerMain extends SimpleApplication &#123;
   public static void main&#40;String&#91;&#93; args&#41; &#123;
     ServerMain app = new ServerMain&#40;&#41;;
     app.start&#40;JmeContext.Type.Headless&#41;; // headless type for servers!
@@ -96,7 +96,7 @@ When you run this app on a host, the server is ready to accept clients. Let&#039
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Creating a Server" [2418-3370] -->
+<!-- EDIT5 SECTION "Creating a Server" [2418-3368] -->
 <h3><a>Creating a Client</a></h3>
 <div>
 
@@ -104,7 +104,7 @@ When you run this app on a host, the server is ready to accept clients. Let&#039
 
 A game client is a standard com.jme3.app.SimpleApplication.
 </p>
-<pre>public class MyGameClient extends SimpleApplication &#123;
+<pre>public class ClientMain extends SimpleApplication &#123;
   public static void main&#40;String&#91;&#93; args&#41; &#123;
     ClientMain app = new ClientMain&#40;&#41;;
     app.start&#40;JmeContext.Type.Display&#41;; // standard display type
@@ -135,7 +135,7 @@ When you run this client, it connects to the server.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Creating a Client" [3371-4538] -->
+<!-- EDIT6 SECTION "Creating a Client" [3369-4534] -->
 <h3><a>Getting Info About a Client</a></h3>
 <div>
 
@@ -158,7 +158,7 @@ The server refers to a connected client as com.jme3.network.HostedConnection obj
 		<td>myServer.getConnection(0)</td><td>Server gets the first (0), second (1), etc, connected HostedConnection object (one client).</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [4715-5094] -->
+<!-- EDIT8 TABLE [4711-5090] -->
 <p>
 
 Your game can define its own game data based on whatever criteria you want, typically these include player ID and state. If the server needs to look up player/client-specific information, you can store this information directly on the HostedConnection object. The following examples read and write a custom Java object <code>MyState</code> in the HostedConnection object <code>conn</code>:
@@ -175,14 +175,14 @@ Your game can define its own game data based on whatever criteria you want, typi
 		<td> MyState state = conn.getAttribute(&quot;MyState&quot;)</td><td> Server can read an attribute of the HostedConnection. </td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [5469-5698] -->
+<!-- EDIT9 TABLE [5465-5694] -->
 </div>
-<!-- EDIT7 SECTION "Getting Info About a Client" [4539-5699] -->
+<!-- EDIT7 SECTION "Getting Info About a Client" [4535-5695] -->
 <h2><a>Messaging</a></h2>
 <div>
 
 </div>
-<!-- EDIT10 SECTION "Messaging" [5700-5722] -->
+<!-- EDIT10 SECTION "Messaging" [5696-5718] -->
 <h3><a>Creating Message Types</a></h3>
 <div>
 
@@ -203,7 +203,7 @@ You must register each message type to the com.jme3.network.serializing.Serializ
 <pre>Serializer.registerClass&#40;HelloMessage.class&#41;;</pre>
 
 </div>
-<!-- EDIT11 SECTION "Creating Message Types" [5723-6675] -->
+<!-- EDIT11 SECTION "Creating Message Types" [5719-6671] -->
 <h3><a>Responding to Messages</a></h3>
 <div>
 
@@ -260,7 +260,7 @@ For each message type, register a server listener to the server:
 <pre>myServer.addMessageListener&#40;new ServerListener&#40;&#41;, HelloMessage.class&#41;;</pre>
 
 </div>
-<!-- EDIT12 SECTION "Responding to Messages" [6676-8420] -->
+<!-- EDIT12 SECTION "Responding to Messages" [6672-8416] -->
 <h3><a>Creating and Sending Messages</a></h3>
 <div>
 
@@ -297,7 +297,7 @@ The last two broadcasting methods use com.jme3.network.Filters to select a subse
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Creating and Sending Messages" [8421-9510] -->
+<!-- EDIT13 SECTION "Creating and Sending Messages" [8417-9506] -->
 <h2><a>Identification and Rejection</a></h2>
 <div>
 
@@ -328,7 +328,7 @@ A server has a game version and game name property. Each client expects to commu
 		<td> myClient.getVersion()  </td><td> Client queries the version of the server it is connected to. </td>
 	</tr>
 </table></div>
-<!-- EDIT15 TABLE [10102-10471] -->
+<!-- EDIT15 TABLE [10098-10467] -->
 <p>
 
 <p><div>Typically, your networked game defines its own attributes (such as player ID) based on whatever criteria you want. If you want to look up player/client-specific information beyond the game version, you can set this information directly on the Client/HostedConnection object (see Getting Info About a Client).
@@ -336,12 +336,12 @@ A server has a game version and game name property. Each client expects to commu
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Identification and Rejection" [9511-10799] -->
+<!-- EDIT14 SECTION "Identification and Rejection" [9507-10795] -->
 <h2><a>Closing Clients and Server Cleanly</a></h2>
 <div>
 
 </div>
-<!-- EDIT16 SECTION "Closing Clients and Server Cleanly" [10800-10846] -->
+<!-- EDIT16 SECTION "Closing Clients and Server Cleanly" [10796-10842] -->
 <h3><a>Closing a Client</a></h3>
 <div>
 
@@ -357,7 +357,7 @@ You must override the client&#039;s destroy() method to close the connection cle
   &#125;</pre>
 
 </div>
-<!-- EDIT17 SECTION "Closing a Client" [10847-11122] -->
+<!-- EDIT17 SECTION "Closing a Client" [10843-11118] -->
 <h3><a>Closing a Server</a></h3>
 <div>
 
@@ -373,7 +373,7 @@ You must override the server&#039;s destroy() method to close the connection whe
   &#125;</pre>
 
 </div>
-<!-- EDIT18 SECTION "Closing a Server" [11123-11379] -->
+<!-- EDIT18 SECTION "Closing a Server" [11119-11375] -->
 <h3><a>Kicking a Client</a></h3>
 <div>
 
@@ -384,7 +384,7 @@ The server can kick a HostedConnection to make it disconnect. You should provide
 <pre>conn.close&#40;&quot;We kick cheaters.&quot;&#41;;</pre>
 
 </div>
-<!-- EDIT19 SECTION "Kicking a Client" [11380-11770] -->
+<!-- EDIT19 SECTION "Kicking a Client" [11376-11766] -->
 <h2><a>Listening to Connection Notification</a></h2>
 <div>
 
@@ -394,7 +394,7 @@ The server and clients are notified about connection changes.
 </p>
 
 </div>
-<!-- EDIT20 SECTION "Listening to Connection Notification" [11771-11882] -->
+<!-- EDIT20 SECTION "Listening to Connection Notification" [11767-11878] -->
 <h3><a>ClientStateListener</a></h3>
 <div>
 
@@ -414,7 +414,7 @@ The com.jme3.network.ClientStateListener notifies the Client when the Client has
 		<td> public void clientDisconnected(Client c, DisconnectInfo info){} </td><td> Implement here what happens after the server kicks this client. For example, display the DisconnectInfo to the user. </td>
 	</tr>
 </table></div>
-<!-- EDIT22 TABLE [12125-12494] -->
+<!-- EDIT22 TABLE [12121-12490] -->
 <p>
 
 First implement the ClientStateListener interface in the Client class. Then register it to myClient in MyGameClient&#039;s simpleInitApp() method:
@@ -422,7 +422,7 @@ First implement the ClientStateListener interface in the Client class. Then regi
 <pre>myClient.addClientStateListener&#40;this&#41;;</pre>
 
 </div>
-<!-- EDIT21 SECTION "ClientStateListener" [11883-12696] -->
+<!-- EDIT21 SECTION "ClientStateListener" [11879-12692] -->
 <h3><a>ConnectionListener</a></h3>
 <div>
 
@@ -442,7 +442,7 @@ The com.jme3.network.ConnectionListener notifies the Server whenever new HostedC
 		<td> public void connectionRemoved(Server s, HostedConnection c){} </td><td> Implement here what happens after a HostedConnection has left. E.g. a player has quit the game and the server removes his character. </td>
 	</tr>
 </table></div>
-<!-- EDIT24 TABLE [12962-13360] -->
+<!-- EDIT24 TABLE [12958-13356] -->
 <p>
 
 First implement the ConnectionListener interface in the Server class. Then register it to myServer in MyGameServer&#039;s simpleInitApp() method. 
@@ -451,7 +451,7 @@ First implement the ConnectionListener interface in the Server class. Then regis
 <pre>myServer.addConnectionListener&#40;this&#41;;</pre>
 
 </div>
-<!-- EDIT23 SECTION "ConnectionListener" [12697-13560] -->
+<!-- EDIT23 SECTION "ConnectionListener" [12693-13556] -->
 <h2><a>UDP versus TCP</a></h2>
 <div>
 
@@ -469,7 +469,7 @@ message2.setReliable&#40;false&#41;; // UDP</pre>
 </ul>
 
 </div>
-<!-- EDIT25 SECTION "UDP versus TCP" [13561-14231] -->
+<!-- EDIT25 SECTION "UDP versus TCP" [13557-14227] -->
 <h2><a>Important: Use Multi-Threading</a></h2>
 <div>
 
@@ -493,7 +493,7 @@ For general advice, see the articles <object classid="java:org.netbeans.modules.
 </p>
 
 </div>
-<!-- EDIT26 SECTION "Important: Use Multi-Threading" [14232-15378] -->
+<!-- EDIT26 SECTION "Important: Use Multi-Threading" [14228-15374] -->
 <h2><a>Troubleshooting</a></h2>
 <div>
 
@@ -508,5 +508,5 @@ If you have set up a server in your home network, and the game clients cannot re
 </span></div>
 
 </div>
-<!-- EDIT27 SECTION "Troubleshooting" [15379-] -->
+<!-- EDIT27 SECTION "Troubleshooting" [15375-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:networking?do=export_xhtmlbody">view online version</a></em></p>

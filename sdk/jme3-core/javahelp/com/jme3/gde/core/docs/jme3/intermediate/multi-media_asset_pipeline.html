@@ -26,26 +26,26 @@ Assets are files that are not code. Your multi-media assets includes, for exampl
 		<td> Save sounds into <code>assets/Sounds</code>. </td><td> Don&#039;t leave audio files in a folder outside your JME project: The game cannot load or reference them from there. </td>
 	</tr>
 	<tr>
-		<td> Create simple, low-polygon models. </td><td> Don&#039;t create high-polygon models, they render too slow to be useful in games. </td>
+		<td> Create low-polygon models. </td><td> Don&#039;t create high-polygon models, they render too slow to be useful in games. </td>
 	</tr>
 	<tr>
-		<td> Only use Diffuse Map, Normal Map, Glow Map, Specular Map in your models. </td><td> Don&#039;t use unsupported material properties that are not listed in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a>.</td>
+		<td> Only use Diffuse Map, Normal Map, Glow Map, Specular Map in your models&#039; materials. </td><td> Don&#039;t use unsupported material properties that are not listed in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a>.</td>
 	</tr>
 	<tr>
 		<td> Use UV texture / texture atlases / baking for each texture map. </td><td> Don&#039;t create models based on multiple separate textures, it will break the model into separate meshes.</td>
 	</tr>
 	<tr>
-		<td> Convert original models to .j3o format. Move .j3o files into <code>assets/Models</code>. </td><td>Don&#039;t reference original Blender/Ogre/OBJ files in your load() code, because these unoptimized files are not packaged into the final JAR.</td>
+		<td> Convert original models to JME3&#039;s .j3o format. Move .j3o files into <code>assets/Models</code>. </td><td>Don&#039;t reference original Blender/Ogre/OBJ files in your load() code, because these unoptimized files are not automatically packaged into the final JAR.</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [542-1593] -->
+<!-- EDIT2 TABLE [542-1617] -->
 <p>
 
 Read on for details.
 </p>
 
 </div>
-<!-- EDIT1 SECTION "Multi-Media Asset Pipeline" [1-1616] -->
+<!-- EDIT1 SECTION "Multi-Media Asset Pipeline" [1-1640] -->
 <h3><a>Use The Assets Folder</a></h3>
 <div>
 
@@ -102,7 +102,7 @@ See also:
 </ul>
 
 </div>
-<!-- EDIT3 SECTION "Use The Assets Folder" [1617-3506] -->
+<!-- EDIT3 SECTION "Use The Assets Folder" [1641-3530] -->
 <h3><a>Create Textures and Materials</a></h3>
 <div>
 
@@ -128,12 +128,13 @@ Install a graphic editor such as Gimp or Photoshop. <strong>Consult the graphic 
 
 <p>
 
-<p><div>Storing the textures inside your project directory is necessary for the paths in JME&#039;s binary model files (.j3o) to work. Treat the paths of your assets like class names of java classes, they define a specific asset. When you later generate .j3o files, compile class files, and distribute the project, paths and files need to be available in their final absolute form. It is imperative to keep the same directory structure from beginning to end. If you ever change the assets directory structure, you have to re-export all affected models, regenerate all affected .j3o files, and manually update all affected paths in your code.
+<p><div>Storing the textures inside your project directory is necessary for the paths in JME&#039;s binary model files (.j3o) to work. Treat the paths of your assets like class names of java classes, they define a specific asset. When you later generate .j3o files, compile class files, and distribute the project, paths and files need to be available in their final absolute form. It is imperative to keep the same directory structure from beginning to end. <br/>
+If you ever change the assets directory structure, you will have to do manual refactoring (just as for Java package name changes): You will need to re-export all affected models, regenerate all affected .j3o files, and manually update all affected paths in your code.
 </div></p>
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Create Textures and Materials" [3507-4681] -->
+<!-- EDIT4 SECTION "Create Textures and Materials" [3531-4793] -->
 <h3><a>Create 3D Models</a></h3>
 <div>
 
@@ -145,13 +146,13 @@ Install a mesh editor such as <a href="/com/jme3/gde/core/docs/jme3/external/ble
 <ol>
 <li><div> Create 3D models in a mesh editor. </div>
 <ol>
-<li><div> Create simple <strong>low-polygon models</strong>. High-polygon models slow down the game.</div>
+<li><div> Create simple <strong>low-polygon models</strong>. High-polygon models may look pretty in static 3D art contests, but they unnecessarily slow down dynamic games.</div>
 </li>
-<li><div> Unwrap the model and generate a <strong>UV texture</strong> (i.e. one texture file that contains all the pieces of one model from different angles). <br/>
+<li><div> Create materials for your models either in the 3D editor, or in the jME3 <acronym title="Software Development Kit">SDK</acronym>. Only use <strong>Diffuse Map (minimum), Normal Map, Glow Map, and Specular Map.</strong> <br/>
+Every material feature not listed in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a> is unsupported and ignored by JME3.</div>
+</li>
+<li><div> Unwrap the model in the 3D editor and generate a <strong>UV texture</strong> (i.e. one texture file that contains all the pieces of one model from different angles). <br/>
 Don&#039;t use multiple separate texture files with one model, it will break the model into several meshes.</div>
-</li>
-<li><div> Create textures for the model: Only use <strong>Diffuse Map (minimum), Normal Map, Glow Map, and Specular Map.</strong> <br/>
-Everything not listed in the <a href="/com/jme3/gde/core/docs/jme3/advanced/materials_overview.html">Materials Overview</a> is ignored by JME.</div>
 </li>
 </ol>
 </li>
@@ -177,7 +178,7 @@ See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Create 3D Models" [4682-6478] -->
+<!-- EDIT5 SECTION "Create 3D Models" [4794-6754] -->
 <h3><a>Convert 3D Models to .j3o Format</a></h3>
 <div>
 
@@ -226,11 +227,25 @@ Use the jMonkeyEngine SceneComposer to add these properties.</div>
 </div></p>
 </p>
 
-<p>
-See also: <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">Model Loader and Viewer</a>
-
-</p>
+</div>
+<!-- EDIT6 SECTION "Convert 3D Models to .j3o Format" [6755-8816] -->
+<h2><a>See Also</a></h2>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/save_and_load.html">Save and Load</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">Model Loader and Viewer</a></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:spatial?do=showtag&amp;tag=tag%3Aspatial">spatial</a>,
+	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
+	<a href="/wiki/doku.php/tag:mesh?do=showtag&amp;tag=tag%3Amesh">mesh</a>,
+	<a href="/wiki/doku.php/tag:geometry?do=showtag&amp;tag=tag%3Ageometry">geometry</a>,
+	<a href="/wiki/doku.php/tag:scenegraph?do=showtag&amp;tag=tag%3Ascenegraph">scenegraph</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>
+</span></div>
 
 </div>
-<!-- EDIT6 SECTION "Convert 3D Models to .j3o Format" [6479-] -->
+<!-- EDIT7 SECTION "See Also" [8817-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:multi-media_asset_pipeline?do=export_xhtmlbody">view online version</a></em></p>

@@ -72,12 +72,12 @@ A CollisionResult object contains information about the second party of the coll
 		<td>getTriangle(t)</td><td>Binds t to the triangle t on the second party&#039;s mesh that was hit.</td>
 	</tr>
 	<tr>
-		<td>getTriangleIndex()</td><td>Returns the index of the triangle on the second party&#039;s mesh that was hit. (?)</td>
+		<td>getTriangleIndex()</td><td>Returns the index of the triangle on the second party&#039;s mesh that was hit.</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [2503-3040] -->
+<!-- EDIT4 TABLE [2503-3036] -->
 </div>
-<!-- EDIT2 SECTION "Collidable" [1439-3041] -->
+<!-- EDIT2 SECTION "Collidable" [1439-3037] -->
 <h3><a>Code Sample</a></h3>
 <div>
 
@@ -132,13 +132,17 @@ Knowing the distance of the collisions is useful for example when you intersect 
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Code Sample" [3042-5359] -->
+<!-- EDIT5 SECTION "Code Sample" [3038-5355] -->
 <h2><a>Bounding Volumes</a></h2>
 <div>
 
 <p>
 
-A com.jme3.bounding.BoundingVolume is an interface for dealing with containment of a collection of points. All BoundingVolumes are <code>Collidable</code> and are used as optimization to calculate non-physical collisions more quickly: It&#039;s always faster to calculate an intersection between simple shapes like spheres and boxes than between complex shapes like models. 
+A <code>com.jme3.bounding.BoundingVolume</code> is an interface for dealing with containment of a collection of points. All BoundingVolumes are <code>Collidable</code> and are used as optimization to calculate non-physical collisions more quickly: It&#039;s always faster to calculate an intersection between simple shapes like spheres and boxes than between complex shapes like models. 
+</p>
+
+<p>
+jME3 computes bounding volumes for all objects. These bounding volumes are later used for frustum culling, which is making sure only objects visible on-screen are actually sent for rendering. 
 </p>
 
 <p>
@@ -150,24 +154,25 @@ Supported types:
 <img src="/wiki/lib/exe/fetch.php">
 </p>
 <ul>
-<li><div> Type.Sphere: com.jme3.bounding.BoundingSphere is a sphere used as a container for a group of vertices of a piece of geometry. A BoundingSphere has a center and a radius.</div>
+<li><div> Type.AABB = Axis-aligned bounding box, that means it doesn&#039;t rotate, which makes it less precise. A <code>com.jme3.bounding.BoundingBox</code> is an axis-aligned cuboid used as a container for a group of vertices of a piece of geometry. A BoundingBox has a center and extents from that center along the x, y and z axis. This is the default bounding volume, since it is fairly fast to generate and gives better accuracy than the bounding sphere.</div>
 </li>
-<li><div> Type.AABB = Axis-aligned bounding box, that means it doesn&#039;t rotatewhich makes it less precise. A com.jme3.bounding.BoundingBox is an axis-aligned cuboid used as a container for a group of vertices of a piece of geometry. A BoundingBox has a center and extents from that center along the x, y and z axis.</div>
+<li><div> Type.Sphere: <code>com.jme3.bounding.BoundingSphere</code> is a sphere used as a container for a group of vertices of a piece of geometry. A BoundingSphere has a center and a radius.</div>
 </li>
 <li><div> Type.OBB = Oriented bounding box. This bounding box is more precise because it can rotate with its content, but is computationally more expensive. (Currently not supported.)</div>
 </li>
-<li><div> Type.Capsule = Cylinder with rounded ends, also called &quot;swept sphere&quot;. Typically used for mobile characters.</div>
+<li><div> Type.Capsule = Cylinder with rounded ends, also called &quot;swept sphere&quot;. Typically used for mobile characters. (Currently not supported.)</div>
 </li>
 </ul>
 
 <p>
 
-<p><div>Note: If you are looking for BoundingVolumes for physical objects, use <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">CollisionShapes</a>.
+<p><div>Note: If you are looking for bounding volumes for physical objects, use <a href="/com/jme3/gde/core/docs/jme3/advanced/physics.html">CollisionShapes</a>.
 </div></p>
+
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Bounding Volumes" [5360-7041] -->
+<!-- EDIT6 SECTION "Bounding Volumes" [5356-7399] -->
 <h3><a>Usage</a></h3>
 <div>
 
@@ -180,13 +185,23 @@ For example you can use Bounding Volumes on custom meshes, or complex non-physic
 mesh.updateBound&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT7 SECTION "Usage" [7042-7223] -->
+<!-- EDIT7 SECTION "Usage" [7400-7581] -->
+<h2><a>Mesh and Scene Graph Collision</a></h2>
+<div>
+
+<p>
+
+One of the supported <code>Collidable</code>s are meshes and scene graph objects. To execute a collision detection query against a scene graph, use <code>Spatial.collideWith()</code>. This will traverse the scene graph and return any mesh collisions that were detected. Note that the first collision against a particular scene graph may take a long time, this is because a special data structure called <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Bounding_interval_hierarchy"><param name="text" value="<html><u>|Bounding Interval Hierarchy (BIH)</u></html>"><param name="textColor" value="blue"></object> needs to be generated for the meshes. At a later point, the mesh could change and the BIH tree would become out of date, in that case, call <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/javadoc/com/jme3/scene/Mesh.html#createCollisionData()"><param name="text" value="<html><u>Mesh.createCollisionData()</u></html>"><param name="textColor" value="blue"></object> on the changed mesh to update the BIH tree.
+</p>
+
+</div>
+<!-- EDIT8 SECTION "Mesh and Scene Graph Collision" [7582-8402] -->
 <h2><a>Intersection</a></h2>
 <div>
 
 <p>
 
-A com.jme3.math.Ray is an infinite line with a beginning, a direction, and no end; whereas a com.jme3.math.Line is an infinite line with only a direction (no beginning, no end).
+A <code>com.jme3.math.Ray</code> is an infinite line with a beginning, a direction, and no end; whereas a <code>com.jme3.math.Line</code> is an infinite line with only a direction (no beginning, no end).
 </p>
 
 <p>
@@ -214,14 +229,12 @@ Learn the details of how to implement <a href="/com/jme3/gde/core/docs/jme3/adva
 TODO:
 </p>
 <ul>
-<li><div> Bounding Interval Hierarchy com.jme3.collision.bih.BIHNode</div>
+<li><div> Bounding Interval Hierarchy (<code>com.jme3.collision.bih.BIHNode</code>)</div>
 </li>
 <li><div> com.jme3.scene.CollisionData</div>
-</li>
-<li><div> A com.jme3.collision.SweepSphere implements a collidable &quot;stretched&quot; sphere that is shaped like a capsule (an upright cylinder with half a sphere on top and the second half at the bottom). This shape is usually used to simulate simple non-physcial collisions for character entities in games. The sweep sphere can be used to check collision against a triangle or another sweep sphere.</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT8 SECTION "Intersection" [7224-] -->
+<!-- EDIT9 SECTION "Intersection" [8403-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:collision_and_intersection?do=export_xhtmlbody">view online version</a></em></p>

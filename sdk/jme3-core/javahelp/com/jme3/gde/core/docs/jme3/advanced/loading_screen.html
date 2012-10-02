@@ -552,6 +552,14 @@ public class TestLoadingScreen1 extends SimpleApplication implements ScreenContr
 &nbsp;
     public void onFocus&#40;boolean getFocus&#41; &#123;
     &#125;
+&nbsp;
+&nbsp;
+    @Override
+    public void stop&#40;&#41; &#123;
+        super.stop&#40;&#41;;
+        //the pool executor needs to be shut down so the application properly exits.
+        exec.shutdown&#40;&#41;;
+    &#125;
 &#125;</pre>
 
 </div>

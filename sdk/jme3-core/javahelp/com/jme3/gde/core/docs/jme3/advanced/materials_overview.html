@@ -340,21 +340,21 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 		<th>Material Option</th><th>Usage</th><th>Example</th>
 	</tr>
 	<tr>
-		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.Back); </td><td>Activate back-face culling. Mesh faces that are not facing the camera are not rendered, which saves time. Backface culling is activated by default as a major optimization.</td><td>The backside of mesh polygons (and the inside of models) is invisible. </td>
+		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.Back); </td><td>Activates back-face culling. Mesh faces that are facing away from the camera are not rendered, which saves time. *Backface culling is activated by default as a major optimization.* </td><td>The invisible backsides and insides of models are not calculated. </td>
 	</tr>
 	<tr>
-		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off); </td><td>Nothing is culled. Both mesh faces are rendered, even if they face away from the camera. Slow.</td><td>Sometimes used to debug custom meshes if you messed up some of the polygon sides, or for special shadow effects.</td>
+		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off); </td><td>No meshes are culled. Both mesh faces are rendered, even if they face away from the camera. Slow.</td><td>Sometimes used to debug custom meshes if you messed up some of the polygon sides, or for special shadow effects.</td>
 	</tr>
 	<tr>
-		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.Front); </td><td>Activate front-face culling. Mesh faces facing the camera are not rendered.</td><td>Typically not used because you wouldn&#039;t see anything.</td>
+		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.Front); </td><td>Activates front-face culling. Mesh faces facing the camera are not rendered.</td><td>No example – Typically not used because you wouldn&#039;t see anything meaningful.</td>
 	</tr>
 	<tr>
-		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.FrontAndBack)</td><td>Cull both backfaces and frontfaces.</td><td>Use this as an efficient way to make an object temporarily invisible, while keeping all its other in-game properties (node attachment, collision shapes, interactions, etc) active.</td>
+		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.FrontAndBack)</td><td>Culls both backfaces and frontfaces.</td><td>Use this as an efficient way to make an object temporarily invisible, while keeping all its other in-game properties (such as node attachment, collision shapes, interactions, etc) active.</td>
 	</tr>
 </table></div>
-<!-- EDIT15 TABLE [13385-14484] -->
+<!-- EDIT15 TABLE [13385-14527] -->
 </div>
-<!-- EDIT14 SECTION "Culling" [13366-14485] -->
+<!-- EDIT14 SECTION "Culling" [13366-14528] -->
 <h3><a>Miscellaneous</a></h3>
 <div>
 <div><table>
@@ -368,7 +368,7 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 		<td>getAdditionalRenderState().setPolyOffset();</td><td>Enable polygon offset.</td><td>Use this when you have meshes that have triangles really close to each over (e.g. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Coplanarity"><param name="text" value="<html><u>Coplanar</u></html>"><param name="textColor" value="blue"></object>), it will shift the depth values to prevent <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Z-fighting"><param name="text" value="<html><u>Z-fighting</u></html>"><param name="textColor" value="blue"></object>.</td>
 	</tr>
 </table></div>
-<!-- EDIT17 TABLE [14511-15277] -->
+<!-- EDIT17 TABLE [14554-15320] -->
 <p>
 
 <strong>Related Links</strong>
@@ -389,7 +389,7 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 </span></div>
 
 </div>
-<!-- EDIT16 SECTION "Miscellaneous" [14486-] --><div>
+<!-- EDIT16 SECTION "Miscellaneous" [14529-] --><div>
 <div><sup><a href="#fnt__1">1)</a></sup> 
 UseAlpha specifies whether DiffuseMap uses the alpha channel</div>
 <div><sup><a href="#fnt__2">2)</a></sup> 

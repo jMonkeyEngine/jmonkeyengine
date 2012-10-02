@@ -2,13 +2,8 @@
 <h1><a>Math Cheat Sheet</a></h1>
 <div>
 
-<p>
-Just some math notes to myself…
-
-</p>
-
 </div>
-<!-- EDIT1 SECTION "Math Cheat Sheet" [1-64] -->
+<!-- EDIT1 SECTION "Math Cheat Sheet" [1-31] -->
 <h2><a>Formulas</a></h2>
 <div>
 
@@ -57,7 +52,7 @@ new Quaternion q</td><td>Quaternion q = new Quaternion(); <br/>
 q.lookAt(v,up)</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [420-1340] --><div><table>
+<!-- EDIT3 TABLE [387-1307] --><div><table>
 	<tr>
 		<th>I have…</th><th>I want…</th><th>Formula</th>
 	</tr>
@@ -105,28 +100,20 @@ x and z coordinates</td><td>float x = FastMath.cos(phi)*r; <br/>
 float z = FastMath.sin(phi)*r;</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [1342-2436] -->
+<!-- EDIT4 TABLE [1309-2403] -->
 </div>
-<!-- EDIT2 SECTION "Formulas" [65-2438] -->
+<!-- EDIT2 SECTION "Formulas" [32-2405] -->
 <h2><a>Local vs Non-local methods?</a></h2>
 <div>
-
-<p>
-<code>v2 = v.mult(); v2 = v.add(); v2 = v.subtract(); etc</code>
-</p>
 <ul>
-<li><div> Creates new object as return value, v is unchanged.</div>
+<li><div> Non-local method creates new object as return value, v remains unchanged. <br/>
+<code>v2 = v.mult(); v2 = v.add(); v2 = v.subtract();</code> etc</div>
 </li>
-</ul>
-
-<p>
-<code>v.multLocal(); v.addLocal(); v.subtractLocal(); etc</code>
-</p>
-<ul>
-<li><div> Changes v.</div>
+<li><div> Local method changes v directly! <br/>
+<code>v.multLocal(); v.addLocal(); v.subtractLocal();</code> etc</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT5 SECTION "Local vs Non-local methods?" [2439-] -->
+<!-- EDIT5 SECTION "Local vs Non-local methods?" [2406-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:math?do=export_xhtmlbody">view online version</a></em></p>

@@ -22,7 +22,7 @@ If you think you need to understand the scene graph concept better, please read 
 
 <p>
 
-In your Java code, a Spatial is either a <code>com.jme3.scene.Node</code> or a <code>com.jme3.scene.Geometry</code> instance. You use the two types of Spatials for different purposes:
+In your Java code, a Spatial is either an instance of <code>com.jme3.scene.Node</code> or a <code>com.jme3.scene.Geometry</code> instance. You use the two types of Spatials for different purposes:
 </p>
 
 <p>
@@ -34,7 +34,7 @@ In your Java code, a Spatial is either a <code>com.jme3.scene.Node</code> or a <
 		<td> </td><th>com.jme3.scene.Spatial </th>
 	</tr>
 	<tr>
-		<th> Purpose: </th><td> A Spatial is an abstract data structure that stores transformations (= translation, rotation, scale) of elements of the 3D scene graph. Spatials can be saved and loaded using the <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>. </td>
+		<th> Purpose: </th><td> A Spatial is an abstract data structure that stores user data and transformations (= translation, rotation, scale) of elements of the 3D scene graph. Spatials can be saved and loaded using the <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>. </td>
 	</tr>
 	<tr>
 		<td>  </td><th> com.jme3.scene.Geometry </th><th> com.jme3.scene.Node </th>
@@ -56,15 +56,15 @@ no mesh, no material.</td>
 		<th> Examples:   </th><td> Box, sphere, player, building, terrain, vehicle, missiles, NPCs, etc… </td><td> rootNode, guiNode, audioNode, a custom grouping node such as vehicleNode or shipNode with passengers attached, etc. </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [1178-2522] -->
+<!-- EDIT3 TABLE [1191-2549] -->
 <p>
 
-<p><div>You never create a Spatial with <code><del>Spatial s = new Spatial();</del></code>! A Spatial is an abstract concept, like a mammal (there is no actual creature called &quot;mammal&quot; walking around here). You create either a com.jme3.scene.Node, or a com.jme3.scene.Geometry object. Some methods, however, require a spatial as argument: This is because they are able to accept both Nodes and Geometries as arguments. In this case, you simply <em>cast</em> a Node or Geometry to Spatial.
+<p><div>You never create a Spatial with <code><del>Spatial s = new Spatial();</del></code>! A Spatial is an abstract concept, like a mammal (there is no actual creature called &quot;mammal&quot; walking around here). You create either a com.jme3.scene.Node or com.jme3.scene.Geometry instance. Some methods, however, require a <code>Spatial</code> type as argument: This is because they are able to accept both Nodes and Geometries as arguments. In this case, you simply <em>cast</em> a Node or Geometry to Spatial.
 </div></p>
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Node versus Geometry" [935-3014] -->
+<!-- EDIT2 SECTION "Node versus Geometry" [935-3049] -->
 <h3><a>Mesh</a></h3>
 <div>
 
@@ -83,7 +83,7 @@ The polygon <a href="/com/jme3/gde/core/docs/jme3/advanced/mesh.html">Mesh</a> i
 </ul>
 
 </div>
-<!-- EDIT4 SECTION "Mesh" [3015-3694] -->
+<!-- EDIT4 SECTION "Mesh" [3050-3729] -->
 <h2><a>What is a Clone?</a></h2>
 <div>
 
@@ -112,7 +112,7 @@ Usually there is no need to manually use any of the <code>clone()</code> methods
 </p>
 
 </div>
-<!-- EDIT5 SECTION "What is a Clone?" [3695-4950] -->
+<!-- EDIT5 SECTION "What is a Clone?" [3730-4985] -->
 <h2><a>How to Add Fields and Methods to a Spatial</a></h2>
 <div>
 
@@ -171,7 +171,7 @@ This is how you list all data keys that are already defined for one Spatial:
 &#125;</pre>
 
 </div>
-<!-- EDIT6 SECTION "How to Add Fields and Methods to a Spatial" [4951-7527] -->
+<!-- EDIT6 SECTION "How to Add Fields and Methods to a Spatial" [4986-7562] -->
 <h2><a>How to Access a Named Sub-Mesh</a></h2>
 <div>
 
@@ -196,15 +196,23 @@ In the following example, the Node <code>house</code> is the loaded model. The s
 <pre>Geometry submesh = &#40;Geometry&#41; houseScene.getChild&#40;&quot;door 12&quot;&#41;;</pre>
 
 </div>
-<!-- EDIT7 SECTION "How to Access a Named Sub-Mesh" [7528-8331] -->
+<!-- EDIT7 SECTION "How to Access a Named Sub-Mesh" [7563-8366] -->
 <h2><a>See also</a></h2>
 <div>
-
-<p>
-
-* <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a> – The GeometryBatchFactory class batches several Geometries into meshes with each their own texture.
-</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a> – The GeometryBatchFactory class batches several Geometries into meshes with each their own texture.</div>
+</li>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/traverse_scenegraph.html">Traverse SceneGraph</a> – Find any Node or Geometry in the scenegraph.</div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:spatial?do=showtag&amp;tag=tag%3Aspatial">spatial</a>,
+	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
+	<a href="/wiki/doku.php/tag:mesh?do=showtag&amp;tag=tag%3Amesh">mesh</a>,
+	<a href="/wiki/doku.php/tag:geometry?do=showtag&amp;tag=tag%3Ageometry">geometry</a>,
+	<a href="/wiki/doku.php/tag:scenegraph?do=showtag&amp;tag=tag%3Ascenegraph">scenegraph</a>
+</span></div>
 
 </div>
-<!-- EDIT8 SECTION "See also" [8332-] -->
+<!-- EDIT8 SECTION "See also" [8367-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:spatial?do=export_xhtmlbody">view online version</a></em></p>

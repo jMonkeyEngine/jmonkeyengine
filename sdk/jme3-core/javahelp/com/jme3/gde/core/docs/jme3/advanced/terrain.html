@@ -163,9 +163,9 @@ Here are the names of TerrainLighting.j3md&#039;s material properties:
 </li>
 <li><div> <code>DiffuseMap_4</code>, <code>DiffuseMap_4_scale</code>, <code>NormalMap_4</code></div>
 </li>
-<li><div> <code>DiffuseMap_5</code>, <code>DiffuseMap_5_scale</code>, <code>NormalMap_5</code></div>
+<li><div> … </div>
 </li>
-<li><div> <code>DiffuseMap_6</code>, <code>DiffuseMap_6_scale</code>, …, <code>DiffuseMap_11</code></div>
+<li><div> <code>DiffuseMap_11</code>, <code>DiffuseMap_11_scale</code>, <code>NormalMap_11</code></div>
 </li>
 </ul>
 </li>
@@ -193,11 +193,11 @@ Adhere to the following constraints:
 <img src="/wiki/lib/exe/fetch.php">
 </p>
 <ul>
-<li><div> 1-12 Diffuse Maps (one Diffuse Map is the minimum)</div>
+<li><div> 1-12 Diffuse Maps. One Diffuse Map is the minimum!</div>
 </li>
-<li><div> 1-3 Alpha Maps (for each 4 Diffuse Maps, you need 1 more Alpha Map!)</div>
+<li><div> 1-3 Alpha Maps. For each 4 Diffuse Maps, you need 1 more Alpha Map!</div>
 </li>
-<li><div> 0-6 Normal Maps (Diffuse Maps &amp; Normal Maps come in pairs!)</div>
+<li><div> 0-6 Normal Maps. Diffuse Maps &amp; Normal Maps always come in pairs!</div>
 </li>
 <li><div> 0 or 1 Glow Map</div>
 </li>
@@ -213,11 +213,11 @@ Here are some common examples what this means:
 <img src="/wiki/lib/exe/fetch.php">
 </p>
 <ul>
-<li><div> 3 Alpha + 12 Diffuse + 1 Normal. </div>
+<li><div> 3 Alpha + 11 Diffuse + 1 Normal. </div>
 </li>
-<li><div> 3 Alpha + 12 Diffuse + 1 Glow. </div>
+<li><div> 3 Alpha + 11 Diffuse + 1 Glow. </div>
 </li>
-<li><div> 3 Alpha + 12 Diffuse + 1 Specular. </div>
+<li><div> 3 Alpha + 11 Diffuse + 1 Specular. </div>
 </li>
 <li><div> 3 Alpha + 10 Diffuse + 3 Normal. </div>
 </li>
@@ -237,7 +237,7 @@ You can hand-paint Alpha, Diffuse, Glow, and Specular maps in a drawing program,
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Texture Splatting" [5218-9488] -->
+<!-- EDIT8 SECTION "Texture Splatting" [5218-9435] -->
 <h2><a>Code Sample: Terrain.j3md</a></h2>
 <div>
 
@@ -252,24 +252,24 @@ First, we load our textures and the heightmap texture for the terrain
 <pre>// Create material from Terrain Material Definition
 matRock = new Material&#40;assetManager, &quot;Common/MatDefs/Terrain/Terrain.j3md&quot;&#41;;
 // Load alpha map (for splat textures)
-matRock.setTexture&#40;&quot;m_Alpha&quot;, assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/alphamap.png&quot;&#41;&#41;;
+matRock.setTexture&#40;&quot;Alpha&quot;, assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/alphamap.png&quot;&#41;&#41;;
 // load heightmap image (for the terrain heightmap)
 Texture heightMapImage = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/mountains512.png&quot;&#41;;
 // load grass texture
 Texture grass = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/grass.jpg&quot;&#41;;
 grass.setWrap&#40;WrapMode.Repeat&#41;;
-matRock.setTexture&#40;&quot;m_Tex1&quot;, grass&#41;;
-matRock.setFloat&#40;&quot;m_Tex1Scale&quot;, 64f&#41;;
+matRock.setTexture&#40;&quot;Tex1&quot;, grass&#41;;
+matRock.setFloat&#40;&quot;Tex1Scale&quot;, 64f&#41;;
 // load dirt texture
 Texture dirt = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/dirt.jpg&quot;&#41;;
 dirt.setWrap&#40;WrapMode.Repeat&#41;;
-matRock.setTexture&#40;&quot;m_Tex2&quot;, dirt&#41;;
-matRock.setFloat&#40;&quot;m_Tex2Scale&quot;, 32f&#41;;
+matRock.setTexture&#40;&quot;Tex2&quot;, dirt&#41;;
+matRock.setFloat&#40;&quot;Tex2Scale&quot;, 32f&#41;;
 // load rock texture
 Texture rock = assetManager.loadTexture&#40;&quot;Textures/Terrain/splat/road.jpg&quot;&#41;;
 rock.setWrap&#40;WrapMode.Repeat&#41;;
-matRock.setTexture&#40;&quot;m_Tex3&quot;, rock&#41;;
-matRock.setFloat&#40;&quot;m_Tex3Scale&quot;, 128f&#41;;</pre>
+matRock.setTexture&#40;&quot;Tex3&quot;, rock&#41;;
+matRock.setFloat&#40;&quot;Tex3Scale&quot;, 128f&#41;;</pre>
 
 <p>
 We create the heightmap from the <code>heightMapImage</code>.
@@ -291,8 +291,6 @@ Next we create the actual terrain.
 </ul>
 <pre>terrain = new TerrainQuad&#40;&quot;terrain&quot;, 65, 513, heightmap.getHeightMap&#40;&#41;&#41;;
 terrain.setMaterial&#40;matRock&#41;;
-terrain.setModelBound&#40;new BoundingBox&#40;&#41;&#41;;
-terrain.updateModelBound&#40;&#41;;
 terrain.setLocalScale&#40;2f, 1f, 2f&#41;; // scale to make it less steep
 List&lt;Camera&gt; cameras = new ArrayList&lt;Camera&gt;&#40;&#41;;
 cameras.add&#40;getCamera&#40;&#41;&#41;;
@@ -306,5 +304,5 @@ PS: As an alternative to an image-based height map, you can also generate a Hill
 <pre>heightmap = new HillHeightMap&#40;1025, 1000, 50, 100, &#40;byte&#41; 3&#41;;</pre>
 
 </div>
-<!-- EDIT9 SECTION "Code Sample: Terrain.j3md" [9489-] -->
+<!-- EDIT9 SECTION "Code Sample: Terrain.j3md" [9436-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:terrain?do=export_xhtmlbody">view online version</a></em></p>
