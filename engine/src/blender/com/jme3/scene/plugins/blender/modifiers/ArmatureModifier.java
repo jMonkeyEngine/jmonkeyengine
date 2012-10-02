@@ -187,7 +187,7 @@ import com.jme3.util.BufferUtils;
 		if (invalid) {
 			LOGGER.log(Level.WARNING, "Armature modifier is invalid! Cannot be applied to: {0}", node.getName());
 		}// if invalid, animData will be null
-		if (animData == null) {
+		if (animData == null || skeleton == null) {
 			return node;
 		}
 
