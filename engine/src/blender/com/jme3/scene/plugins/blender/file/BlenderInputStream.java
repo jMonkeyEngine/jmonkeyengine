@@ -31,14 +31,15 @@
  */
 package com.jme3.scene.plugins.blender.file;
 
-import com.jme3.asset.AssetManager;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
+
+import com.jme3.asset.AssetManager;
+import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 
 /**
  * An input stream with random access to data.
@@ -67,8 +68,6 @@ public class BlenderInputStream extends InputStream {
     protected int size;
     /** The current position of the read cursor. */
     protected int position;
-	/** The input stream we read the data from. */
-	protected InputStream		inputStream;
 
     /**
      * Constructor. The input stream is stored and used to read data.
@@ -81,7 +80,6 @@ public class BlenderInputStream extends InputStream {
      */
     public BlenderInputStream(InputStream inputStream, AssetManager assetManager) throws BlenderFileException {
         this.assetManager = assetManager;
-        this.inputStream = inputStream;
         //the size value will canche while reading the file; the available() method cannot be counted on
         try {
             size = inputStream.available();
@@ -104,6 +102,12 @@ public class BlenderInputStream extends InputStream {
             this.readStreamToCache(bufferedInputStream);
         } catch (IOException e) {
             throw new BlenderFileException("Problems occured while caching the file!", e);
+        } finally {
+        	try {
+				inputStream.close();
+			} catch (IOException e) {
+				LOGGER.warning("Unable to close stream with blender file.");
+			}
         }
 
         try {
@@ -128,12 +132,12 @@ public class BlenderInputStream extends InputStream {
         cachedBuffer = new byte[size];
         size = 0;//this will count the actual size
         while (data != -1) {
-            cachedBuffer[size++] = (byte) data;
-            if (size >= cachedBuffer.length) {//widen the cached array
+        	if (size >= cachedBuffer.length) {//widen the cached array
                 byte[] newBuffer = new byte[cachedBuffer.length + (cachedBuffer.length >> 1)];
                 System.arraycopy(cachedBuffer, 0, newBuffer, 0, cachedBuffer.length);
                 cachedBuffer = newBuffer;
             }
+        	cachedBuffer[size++] = (byte) data;
             data = inputStream.read();
         }
     }
@@ -375,9 +379,12 @@ public class BlenderInputStream extends InputStream {
     }
 
     @Override
-    public void close() throws IOException {
-		inputStream.close();
-//		cachedBuffer = null;
-//		size = position = 0;
+    public void close() throws IOException { }
+    
+    /**
+     * This method should be used to close the stream because some loaders may close the stream while reading resources from it.
+     */
+    public void forceClose() {
+    	cachedBuffer = null;
     }
 }
