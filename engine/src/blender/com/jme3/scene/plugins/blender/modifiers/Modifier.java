@@ -14,7 +14,6 @@ import com.jme3.scene.plugins.blender.file.Structure;
  * @author Marcin Roguski (Kaelthas)
  */
 public abstract class Modifier {
-
 	public static final String ARRAY_MODIFIER_DATA = "ArrayModifierData";
 	public static final String ARMATURE_MODIFIER_DATA = "ArmatureModifierData";
 	public static final String PARTICLE_MODIFIER_DATA = "ParticleSystemModifierData";
@@ -42,6 +41,20 @@ public abstract class Modifier {
 	 * @return blender's type of modifier
 	 */
 	public abstract String getType();
+	
+	/**
+	 * Determines if the modifier can be applied multiple times over one mesh.
+	 * At this moment only armature and object animation modifiers cannot be
+	 * applied multiple times.
+	 * 
+	 * @param modifierType
+	 *            the type name of the modifier
+	 * @return <b>true</b> if the modifier can be applied many times and
+	 *         <b>false</b> otherwise
+	 */
+	public static boolean canBeAppliedMultipleTimes(String modifierType) {
+		return !(ARMATURE_MODIFIER_DATA.equals(modifierType) || OBJECT_ANIMATION_MODIFIER_DATA.equals(modifierType));
+	}
 	
 	protected boolean validate(Structure modifierStructure, BlenderContext blenderContext) {
 		Structure modifierData = (Structure)modifierStructure.getFieldValue("modifier");

@@ -40,7 +40,9 @@ import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,26 +80,33 @@ public class ModifierHelper extends AbstractBlenderHelper {
 	 *             corrupted
 	 */
 	public Collection<Modifier> readModifiers(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
+		Set<String> alreadyReadModifiers = new HashSet<String>();
 		Collection<Modifier> result = new ArrayList<Modifier>();
 		Structure modifiersListBase = (Structure) objectStructure.getFieldValue("modifiers");
 		List<Structure> modifiers = modifiersListBase.evaluateListBase(blenderContext);
 		for (Structure modifierStructure : modifiers) {
-			Modifier modifier = null;
-			if (Modifier.ARRAY_MODIFIER_DATA.equals(modifierStructure.getType())) {
-				modifier = new ArrayModifier(modifierStructure, blenderContext);
-			} else if (Modifier.MIRROR_MODIFIER_DATA.equals(modifierStructure.getType())) {
-				modifier = new MirrorModifier(modifierStructure, blenderContext);
-			} else if (Modifier.ARMATURE_MODIFIER_DATA.equals(modifierStructure.getType())) {
-				modifier = new ArmatureModifier(objectStructure, modifierStructure, blenderContext);
-			} else if (Modifier.PARTICLE_MODIFIER_DATA.equals(modifierStructure.getType())) {
-				modifier = new ParticlesModifier(modifierStructure, blenderContext);
-			}
-
-			if (modifier != null) {
-				result.add(modifier);
-				blenderContext.addModifier(objectStructure.getOldMemoryAddress(), modifier);
+			String modifierType = modifierStructure.getType();
+			if(!Modifier.canBeAppliedMultipleTimes(modifierType) && alreadyReadModifiers.contains(modifierType)) {
+				LOGGER.log(Level.WARNING, "Modifier {0} can only be applied once to object: {1}", new Object[] { modifierType, objectStructure.getName() });
 			} else {
-				LOGGER.log(Level.WARNING, "Unsupported modifier type: {0}", modifierStructure.getType());
+				Modifier modifier = null;
+				if (Modifier.ARRAY_MODIFIER_DATA.equals(modifierStructure.getType())) {
+					modifier = new ArrayModifier(modifierStructure, blenderContext);
+				} else if (Modifier.MIRROR_MODIFIER_DATA.equals(modifierStructure.getType())) {
+					modifier = new MirrorModifier(modifierStructure, blenderContext);
+				} else if (Modifier.ARMATURE_MODIFIER_DATA.equals(modifierStructure.getType())) {
+					modifier = new ArmatureModifier(objectStructure, modifierStructure, blenderContext);
+				} else if (Modifier.PARTICLE_MODIFIER_DATA.equals(modifierStructure.getType())) {
+					modifier = new ParticlesModifier(modifierStructure, blenderContext);
+				}
+
+				if (modifier != null) {
+					result.add(modifier);
+					blenderContext.addModifier(objectStructure.getOldMemoryAddress(), modifier);
+					alreadyReadModifiers.add(modifierType);
+				} else {
+					LOGGER.log(Level.WARNING, "Unsupported modifier type: {0}", modifierStructure.getType());
+				}
 			}
 		}
 
