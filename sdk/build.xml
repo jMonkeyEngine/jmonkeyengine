@@ -125,11 +125,11 @@
     </target>
 
     <!--to be used after release, sets version number sans svn revision-->
-    <!--target name="hudson-stable" depends="suite.clean, set-spec-version, suite.nbms, unset-spec-version">
-    </target-->
-    
-    <target name="hudson-stable" depends="suite.clean, set-impl-version, suite.nbms, unset-impl-version">
+    <target name="hudson-stable" depends="suite.clean, set-spec-version, suite.nbms, unset-spec-version">
     </target>
+    
+    <!--target name="hudson-stable" depends="suite.clean, set-impl-version, suite.nbms, unset-impl-version">
+    </target-->
     
     <target name="hudson-release" depends="suite.clean, set-spec-version, build-installers, unset-spec-version, -upload-googlecode">
     </target>

@@ -57,6 +57,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.shadow.PssmShadowRenderer;
 import com.jme3.shadow.PssmShadowRenderer.CompareMode;
 import com.jme3.shadow.PssmShadowRenderer.FilterMode;
+import com.jme3.system.AppSettings;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
@@ -83,6 +84,8 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
 
     public static void main(String[] args) {
         TestHoveringTank app = new TestHoveringTank();
+        AppSettings settings = new AppSettings(true);
+        settings.setRenderer(AppSettings.LWJGL_OPENGL3);
         app.start();
     }
 

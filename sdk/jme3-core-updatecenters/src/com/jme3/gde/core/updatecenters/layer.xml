@@ -3,29 +3,37 @@
 <filesystem>
     <folder name="Services">
         <folder name="AutoupdateType">
+            <file name="org_netbeans_update_center.instance">
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#Services/AutoupdateType/org_netbeans_update_center.instance"/>
+                <attr name="enabled" boolvalue="true"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
+                <attr name="url" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#org_netbeans_update_center"/>
+                <attr name="category" stringvalue="STANDARD"/>
+            </file>
             <file name="com_jme3_gde_core_update_center.instance">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.jme3.gde.core.updatecenters.Bundle"/>
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#Services/AutoupdateType/com_jme3_gde_core_update_center_nightly.instance"/>
                 <attr name="enabled" boolvalue="false"/>
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
-                <attr name="url_key" stringvalue="com_jme3_gde_core_update_center_nightly"/>
+                <attr name="url" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#com_jme3_gde_core_update_center_nightly"/>
+                <attr name="category" stringvalue="BETA"/>
             </file>
             <file name="com_jme3_gde_core_update_center_stable.instance">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.jme3.gde.core.updatecenters.Bundle"/>
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#Services/AutoupdateType/com_jme3_gde_core_update_center_stable.instance"/>
                 <attr name="enabled" boolvalue="true"/>
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
-                <attr name="url_key" stringvalue="com_jme3_gde_core_update_center_stable"/>
+                <attr name="url" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#com_jme3_gde_core_update_center_stable"/>
+                <attr name="category" stringvalue="STANDARD"/>
             </file>
             <file name="com_jme3_jmp_contributions_update_center.instance">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.jme3.gde.core.updatecenters.Bundle"/>
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#Services/AutoupdateType/com_jme3_jmp_contributions_update_center.instance"/>
                 <attr name="enabled" boolvalue="true"/>
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
-                <attr name="url_key" stringvalue="com_jme3_jmp_contributions_update_center"/>
+                <attr name="url" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#com_jme3_jmp_contributions_update_center"/>
+                <attr name="category" stringvalue="COMMUNITY"/>
             </file>
         </folder>
     </folder>

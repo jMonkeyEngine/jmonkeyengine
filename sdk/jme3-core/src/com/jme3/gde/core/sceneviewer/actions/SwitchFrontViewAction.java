@@ -16,7 +16,9 @@ import org.openide.util.NbBundle.Messages;
 id = "com.jme3.gde.core.sceneviewer.actions.SwitchFrontViewAction")
 @ActionRegistration(displayName = "#CTL_SwitchFrontViewAction")
 @ActionReferences({
-    @ActionReference(path = "Shortcuts", name = "NUMPAD1")
+    //for later toolbars:
+//    @ActionReference(path = "Shortcuts", name = "NUMPAD1"),
+//    @ActionReference(path = "CameraTools", name = "Switch Front View")
 })
 @Messages("CTL_SwitchFrontViewAction=Switch to front view")
 public final class SwitchFrontViewAction implements ActionListener {

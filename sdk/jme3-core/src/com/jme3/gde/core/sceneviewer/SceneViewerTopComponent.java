@@ -34,8 +34,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
+import javax.swing.Action;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -48,6 +51,7 @@ import org.openide.awt.UndoRedo;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 /**
  * Top component which displays something.
@@ -88,6 +92,12 @@ public final class SceneViewerTopComponent extends TopComponent {
             Exceptions.printStackTrace(err);
             showOpenGLError(err.toString());
         }
+        //TODO: camera tools (see SwitchFrontViewAction)
+//        Collection<? extends Action> result = Lookups.forPath("CameraTools").lookupAll(Action.class);
+//        for (Iterator<? extends Action> it = result.iterator(); it.hasNext();) {
+//            Action object = it.next();
+//            //System.out.println("lookup object! / " + object);
+//        }
 
         //We add a mouse wheel listener to the top conmponent in order to correctly dispatch the event ot the cam controller
         //the oGLPanel may naver have the focus.

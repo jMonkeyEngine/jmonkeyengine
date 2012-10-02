@@ -5,6 +5,7 @@
 package com.jme3.gde.welcome;
 
 import org.openide.modules.ModuleInstall;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbPreferences;
 
 /**
@@ -15,8 +16,5 @@ public class Installer extends ModuleInstall {
 
     @Override
     public void restored() {
-        if(!"true".equals(NbPreferences.forModule(Installer.class).get("NO_WELCOME_SCREEN", null))){
-//            new WelcomeScreen().startScreen();
-        }
     }
 }

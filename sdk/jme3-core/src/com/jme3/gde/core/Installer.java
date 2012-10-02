@@ -78,6 +78,7 @@ public class Installer extends ModuleInstall {
                 NbPreferences.forModule(Installer.class).put("projects_path", projectDir);
             }
         }
+        //netbeans.default_userdir_root
         System.setProperty("netbeans.projects.dir", projectDir);
 
         //set extraction dir for platform natives
