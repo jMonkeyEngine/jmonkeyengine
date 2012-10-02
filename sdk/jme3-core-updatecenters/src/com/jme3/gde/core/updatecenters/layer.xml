@@ -5,11 +5,11 @@
         <folder name="AutoupdateType">
             <file name="org_netbeans_update_center.instance">
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#Services/AutoupdateType/org_netbeans_update_center.instance"/>
-                <attr name="enabled" boolvalue="false"/>
+                <attr name="enabled" boolvalue="true"/>
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
                 <attr name="url" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#org_netbeans_update_center"/>
-                <attr name="category" stringvalue="STANDARD"/>
+                <attr name="category" stringvalue="COMMUNITY"/>
             </file>
             <file name="com_jme3_gde_core_update_center.instance">
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#Services/AutoupdateType/com_jme3_gde_core_update_center_nightly.instance"/>
@@ -33,7 +33,7 @@
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
                 <attr name="url" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#com_jme3_jmp_contributions_update_center"/>
-                <attr name="category" stringvalue="COMMUNITY"/>
+                <attr name="category" stringvalue="STANDARD"/>
             </file>
         </folder>
     </folder>
