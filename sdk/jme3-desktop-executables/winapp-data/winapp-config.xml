@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<launch4jConfig>
+  <headerType>gui</headerType>
+  <outfile>${dist.dir}/${application.title}.exe</outfile>
+  <jar>${dist.jar}</jar>
+  <errTitle>${application.title}</errTitle>
+  <icon>resources/launch4j/win-icon.ico</icon>
+  <chdir>.</chdir>
+  <customProcName>true</customProcName>
+  <singleInstance>
+    <mutexName>${main.class}</mutexName>
+    <windowTitle>${application.title}</windowTitle>
+  </singleInstance> 
+  <jre>
+    <!-- Specify one of the following or both -->
+    <path>bundled JRE path</path>
+    <minVersion>1.5.0</minVersion>
+    <opt>${run.jvmargs}</opt>
+  </jre>
+  <!--splash>
+    <file>file</file>
+    <waitForWindow>true|false</waitForWindow>
+    <timeout>seconds [60]</timeout>
+    <timeoutErr>true|false</timeoutErr>
+  </splash-->
+  <!--versionInfo>
+    <fileVersion>x.x.x.x</fileVersion>
+    <txtFileVersion>text</txtFileVersion>
+    <fileDescription>text</fileDescription>
+    <copyright>text</copyright>
+    <productVersion>x.x.x.x</productVersion>
+    <txtProductVersion>text</txtProductVersion>
+    <productName>text</productName>
+    <companyName>text</companyName>
+    <internalName>filename</internalName>
+    <originalFilename>filename.exe</originalFilename>
+  </versionInfo-->
+  <!--messages>
+    <startupErr>text</startupErr>
+    <bundledJreErr>text</bundledJreErr>
+    <jreVersionErr>text</jreVersionErr>
+    <launcherErr>text</launcherErr>
+  </messages-->
+</launch4jConfig>
