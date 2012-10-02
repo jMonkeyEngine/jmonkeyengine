@@ -52,6 +52,7 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
 
 /**
  * Top component which displays something.
@@ -148,6 +149,11 @@ public final class FilterExplorerTopComponent extends TopComponent implements Ex
         // TODO read your settings according to their version
     }
 
+    @Override
+    public HelpCtx getHelpCtx() {
+        return new HelpCtx("sdk.filters");
+    }
+    
     public void loadFile(FilterDataObject object) {
         currentFile = object;
         node = object.getLookup().lookup(FilterPostProcessorNode.class);
