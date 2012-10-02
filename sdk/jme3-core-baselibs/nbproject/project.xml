@@ -87,6 +87,7 @@
                 <package>com.jme3.scene.plugins.blender.animations</package>
                 <package>com.jme3.scene.plugins.blender.cameras</package>
                 <package>com.jme3.scene.plugins.blender.constraints</package>
+                <package>com.jme3.scene.plugins.blender.constraints.definitions</package>
                 <package>com.jme3.scene.plugins.blender.curves</package>
                 <package>com.jme3.scene.plugins.blender.exceptions</package>
                 <package>com.jme3.scene.plugins.blender.file</package>
@@ -122,6 +123,7 @@
                 <package>com.jme3.terrain.noise.fractal</package>
                 <package>com.jme3.terrain.noise.modulator</package>
                 <package>com.jme3.texture</package>
+                <package>com.jme3.texture.image</package>
                 <package>com.jme3.texture.plugins</package>
                 <package>com.jme3.ui</package>
                 <package>com.jme3.util</package>
