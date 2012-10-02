@@ -33,7 +33,7 @@
 <!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 <toc version="2.0">
     <tocitem text="jMonkeyEngine SDK" mergetype="javax.help.UniteAppendMerge">
-        <tocitem text="About jMonkeyPlatform" target="com.jme3.gde.core.about"/>
+        <tocitem text="About jMonkeyEngine SDK" target="com.jme3.gde.core.about"/>
         <tocitem text="Introduction">
             <tocitem text="Creating a Project" target="sdk.project_creation"/>
             <tocitem text="The OpenGL Window" target="com.jme3.gde.core.sceneviewer"/>
