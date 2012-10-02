@@ -5,7 +5,7 @@
         <folder name="AutoupdateType">
             <file name="org_netbeans_update_center.instance">
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#Services/AutoupdateType/org_netbeans_update_center.instance"/>
-                <attr name="enabled" boolvalue="true"/>
+                <attr name="enabled" boolvalue="false"/>
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.autoupdate.updateprovider.AutoupdateCatalogFactory.createUpdateProvider"/>
                 <attr name="instanceOf" stringvalue="org.netbeans.spi.autoupdate.UpdateProvider"/>
                 <attr name="url" bundlevalue="com.jme3.gde.core.updatecenters.Bundle#org_netbeans_update_center"/>
