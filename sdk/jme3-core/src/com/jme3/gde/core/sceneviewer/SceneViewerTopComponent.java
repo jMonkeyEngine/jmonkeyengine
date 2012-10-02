@@ -34,11 +34,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
-import javax.swing.Action;
+import org.netbeans.api.javahelp.Help;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -51,7 +49,7 @@ import org.openide.awt.UndoRedo;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import org.openide.util.lookup.Lookups;
+import org.openide.util.NbPreferences;
 
 /**
  * Top component which displays something.
@@ -327,6 +325,15 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentOpened() {
         super.componentOpened();
+        if(!NbPreferences.forModule(SceneViewerTopComponent.class).getBoolean("HELP_SHOWN", false)){
+            java.awt.EventQueue.invokeLater(new Runnable() {
+
+                public void run() {
+                    Lookup.getDefault().lookup(Help.class).showHelp(new HelpCtx("com.jme3.gde.core.about"));
+                }
+            });
+            NbPreferences.forModule(SceneViewerTopComponent.class).put("HELP_SHOWN", "true");
+        }
 //        oglCanvas.setActiveUpdates(true);
     }
 
