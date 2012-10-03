@@ -63,14 +63,12 @@ public final class ImportModel implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent ev) {
+        Project context = OpenProjects.getDefault().getMainProject();
         if (context == null) {
-            this.context = OpenProjects.getDefault().getMainProject();
-            if (context == null) {
-                context = ProjectSelection.showProjectSelection();
-            }
-            if (context == null) {
-                return;
-            }
+            context = ProjectSelection.showProjectSelection();
+        }
+        if (context == null) {
+            return;
         }
         if (context.getLookup().lookup(ProjectAssetManager.class) == null) {
             return;
