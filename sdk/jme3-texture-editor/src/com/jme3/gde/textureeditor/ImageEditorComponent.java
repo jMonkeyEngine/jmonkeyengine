@@ -407,7 +407,7 @@ public class ImageEditorComponent implements EditorToolTarget {
             }
         };
 
-        for (AbstractButton b : Arrays.asList(bumpSoft, bumpMedium, bumpStrong, gray, bright, spheremap)) {
+         for (AbstractButton b : Arrays.asList(bumpSoft, bumpMedium, bumpStrong, gray, bright, spheremap, invertAll, invertAlpha, invertRed, invertGreen, invertBlue)) {
             b.addActionListener(al);
         }
     }
