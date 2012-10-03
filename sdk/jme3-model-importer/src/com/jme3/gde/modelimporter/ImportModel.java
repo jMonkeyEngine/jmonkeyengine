@@ -72,6 +72,9 @@ public final class ImportModel implements ActionListener {
                 return;
             }
         }
+        if (context.getLookup().lookup(ProjectAssetManager.class) == null) {
+            return;
+        }
         final WizardDescriptor wiz = new WizardDescriptor(getPanels());
         // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
         wiz.setTitleFormat(new MessageFormat("{0}"));
