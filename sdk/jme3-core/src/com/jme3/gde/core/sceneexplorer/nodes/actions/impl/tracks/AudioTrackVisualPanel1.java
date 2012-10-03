@@ -62,7 +62,11 @@ public final class AudioTrackVisualPanel1 extends JPanel {
         jComboBox1.setRenderer(new ListCellRenderer() {
 
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                return new JLabel(((Spatial)value).getName());
+                if (value instanceof Spatial) {
+                    return new JLabel(((Spatial) value).getName());
+                } else{
+                    return new JLabel("?");
+                }
             }
         }); 
         jSlider1.setMaximum((int) (animation.getLookup().lookup(Animation.class).getLength() * 100));
