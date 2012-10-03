@@ -158,6 +158,10 @@ public class TerrainLodControl extends AbstractControl {
 
     // do all of the LOD calculations
     protected void updateLOD(List<Vector3f> locations, LodCalculator lodCalculator) {
+        if(getSpatial() == null){
+            return;
+        }
+        
         // update any existing ones that need updating
         updateQuadLODs();
 
@@ -201,9 +205,6 @@ public class TerrainLodControl extends AbstractControl {
     
     protected void prepareTerrain() {
         TerrainQuad terrain = (TerrainQuad)getSpatial();
-        if(terrain == null){
-            return;
-        }
         terrain.cacheTerrainTransforms();// cache the terrain's world transforms so they can be accessed on the separate thread safely
     }
     
