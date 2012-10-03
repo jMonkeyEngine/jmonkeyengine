@@ -338,7 +338,7 @@ for coding and for managing and creating game assets.
         <property file="../../../googlecode.properties" prefix="googlecode"/>
         <echo>Upload windows installer to googlecode..</echo>
         <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer OpSys-Windows jMonkeyEngine3 Featured"
+                  labels="Type-Installer, OpSys-Windows, jMonkeyEngine3, Featured"
                   summary="jMonkeyEngine3 SDK ${app.version} for Windows"
                   filename="${basedir}/dist/${app.name}-windows.exe"
                   targetfilename="jME3_SDK_${app.version}-windows.exe"
@@ -347,7 +347,7 @@ for coding and for managing and creating game assets.
                   />
         <echo>Upload linux installer to googlecode..</echo>
         <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer OpSys-Linux jMonkeyEngine3 Featured"
+                  labels="Type-Installer, OpSys-Linux, jMonkeyEngine3, Featured"
                   summary="jMonkeyEngine3 SDK ${app.version} for Linux"
                   filename="${basedir}/dist/${app.name}-linux.sh"
                   targetfilename="jME3_SDK_${app.version}-linux.sh"
@@ -356,7 +356,7 @@ for coding and for managing and creating game assets.
                   />
         <echo>Upload mac installer to googlecode..</echo>
         <gcupload projectname="jmonkeyengine"
-                  labels="Type-Installer OpSys-OSX jMonkeyEngine3 Featured"
+                  labels="Type-Installer, OpSys-OSX, jMonkeyEngine3, Featured"
                   summary="jMonkeyEngine3 SDK ${app.version} for MacOS X"
                   filename="${basedir}/dist/${app.name}-macosx.tgz"
                   targetfilename="jME3_SDK_${app.version}-macosx.tgz"
