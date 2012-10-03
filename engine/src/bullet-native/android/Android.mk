@@ -230,8 +230,6 @@ LOCAL_SRC_FILES := $(JME3_PATH)/com_jme3_bullet_collision_PhysicsCollisionEvent.
     $(BULLET_PATH)/BulletMultiThreaded/SpuLibspe2Support.cpp\
     $(BULLET_PATH)/BulletMultiThreaded/SpuSampleTaskProcess.cpp\
     $(BULLET_PATH)/BulletMultiThreaded/Win32ThreadSupport.cpp\
-    $(BULLET_PATH)/BulletMultiThreaded/GpuSoftBodySolvers/CPU/btSoftBodySolver_CPU.cpp\
-    $(BULLET_PATH)/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/MiniCL/MiniCLTaskWrap.cpp\
     $(BULLET_PATH)/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/boxBoxDistance.cpp\
     $(BULLET_PATH)/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuCollisionShapes.cpp\
     $(BULLET_PATH)/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuContactResult.cpp\
@@ -255,5 +253,7 @@ LOCAL_SRC_FILES := $(JME3_PATH)/com_jme3_bullet_collision_PhysicsCollisionEvent.
     $(BULLET_PATH)/MiniCL/MiniCL.cpp\
     $(BULLET_PATH)/MiniCL/MiniCLTaskScheduler.cpp\
     $(BULLET_PATH)/MiniCL/MiniCLTask/MiniCLTask.cpp
+#    $(BULLET_PATH)/BulletMultiThreaded/GpuSoftBodySolvers/CPU/btSoftBodySolver_CPU.cpp\
+#    $(BULLET_PATH)/BulletMultiThreaded/GpuSoftBodySolvers/OpenCL/MiniCL/MiniCLTaskWrap.cpp\
  
 include $(BUILD_SHARED_LIBRARY)
