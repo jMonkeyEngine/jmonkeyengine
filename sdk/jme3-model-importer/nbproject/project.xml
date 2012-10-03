@@ -11,7 +11,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>3.0</specification-version>
+                        <specification-version>3.0.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
