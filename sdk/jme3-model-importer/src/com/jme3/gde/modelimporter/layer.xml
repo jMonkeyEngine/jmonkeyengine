@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
-    <folder name="Actions">
+    <!--folder name="Actions">
         <folder name="Import">
             <file name="com-jme3-gde-modelimporter-ImportModel.instance">
                 <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
@@ -30,5 +30,5 @@
                 <attr name="originalFile" stringvalue="Actions/Import/com-jme3-gde-modelimporter-ImportModel.instance"/>
             </file>
         </folder>
-    </folder>
+    </folder-->
 </filesystem>

@@ -14,7 +14,6 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Iterator;
@@ -24,29 +23,59 @@ import javax.swing.JComponent;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.ProjectInformation;
+import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
 
+@ActionID(
+    category = "File",
+id = "com.jme3.gde.modelimporter.ImportModel")
+@ActionRegistration(
+    iconBase = "com/jme3/gde/modelimporter/103_.png",
+displayName = "#CTL_ImportModel")
+@ActionReferences({
+    @ActionReference(path = "Menu/File", position = 1413),
+    @ActionReference(path = "Toolbars/File", position = 310)
+})
+@NbBundle.Messages("CTL_SomeAction=test")
 @SuppressWarnings("unchecked")
 public final class ImportModel implements ActionListener {
 
-    private final Project context;
+    private Project context;
     private WizardDescriptor.Panel[] panels;
+
+    public ImportModel() {
+    }
 
     public ImportModel(Project context) {
         this.context = context;
     }
 
     public void actionPerformed(ActionEvent ev) {
+        if (context == null) {
+            this.context = OpenProjects.getDefault().getMainProject();
+            if (context == null) {
+                context = ProjectSelection.showProjectSelection();
+            }
+            if (context == null) {
+                return;
+            }
+        }
         final WizardDescriptor wiz = new WizardDescriptor(getPanels());
         // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
         wiz.setTitleFormat(new MessageFormat("{0}"));
-        wiz.setTitle("Import Model to Project");
+        wiz.setTitle("Import Model to Project " + context.getLookup().lookup(ProjectInformation.class).getDisplayName());
         wiz.putProperty("project", context);
         Dialog dialog = DialogDisplayer.getDefault().createDialog(wiz);
         dialog.setVisible(true);
