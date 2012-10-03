@@ -122,8 +122,8 @@ public final class ModelImporterVisualPanel1 extends JPanel {
         jPanel1.setPreferredSize(new java.awt.Dimension(320, 320));
         jPanel1.setLayout(new javax.swing.BoxLayout(jPanel1, javax.swing.BoxLayout.LINE_AXIS));
 
-        jTextArea1.setColumns(20);
         jTextArea1.setEditable(false);
+        jTextArea1.setColumns(20);
         jTextArea1.setLineWrap(true);
         jTextArea1.setRows(5);
         jTextArea1.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel1.class, "ModelImporterVisualPanel1.jTextArea1.text")); // NOI18N
