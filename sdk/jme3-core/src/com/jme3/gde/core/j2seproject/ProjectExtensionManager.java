@@ -59,7 +59,9 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
- * A ProjectExtensionManager allows extending jMonkeyPlatform projects with ant tasks.
+ * A ProjectExtensionManager allows extending jMonkeyPlatform projects with ant
+ * tasks.
+ *
  * @author normenhansen
  */
 public class ProjectExtensionManager {
@@ -74,11 +76,17 @@ public class ProjectExtensionManager {
 
     /**
      * Allows extending ant based projects
+     *
      * @param extensionName Name of the extension
-     * @param extensionVersion Version of the extension (impl file is recreated when this changes)
-     * @param extensionTargets String that contains the whole target part of the xxx-impl.xml
-     * @param extensionDependencies String array with targets and dependencies, has to be multiple of two. First item target, second item dependency third target etc.
-     * @param antTaskLibrary Name of a library that is added to the project for loading in the ant task, accessible via ${libs.MyLibraryName.classpath}.
+     * @param extensionVersion Version of the extension (impl file is recreated
+     * when this changes)
+     * @param extensionTargets String that contains the whole target part of the
+     * xxx-impl.xml
+     * @param extensionDependencies String array with targets and dependencies,
+     * has to be multiple of two. First item target, second item dependency
+     * third target etc.
+     * @param antTaskLibrary Name of a library that is added to the project for
+     * loading in the ant task, accessible via ${libs.MyLibraryName.classpath}.
      */
     public ProjectExtensionManager(String extensionName, String extensionVersion, String extensionTargets, String[] extensionDependencies, String antTaskLibrary) {
         this.extensionName = extensionName;
@@ -113,6 +121,7 @@ public class ProjectExtensionManager {
 
     /**
      * Checks if the extension exists and creates it if not
+     *
      * @param proj
      */
     public void checkExtension(Project proj) {
@@ -161,6 +170,7 @@ public class ProjectExtensionManager {
 
     /**
      * Removes the extension including all files and libraries
+     *
      * @param proj
      */
     public void removeExtension(Project proj) {
@@ -212,8 +222,9 @@ public class ProjectExtensionManager {
     }
 
     /**
-     * Sets the name of a library that will be added for loading with the ant task.
-     * If set to null no library is added (default).
+     * Sets the name of a library that will be added for loading with the ant
+     * task. If set to null no library is added (default).
+     *
      * @param antTaskLibrary
      */
     public void setAntTaskLibrary(String antTaskLibrary) {
@@ -234,6 +245,7 @@ public class ProjectExtensionManager {
 
     /**
      * Loads ant targets from a file in the classpath
+     *
      * @param path
      */
     public void loadTargets(String path) {
@@ -256,6 +268,7 @@ public class ProjectExtensionManager {
 
     /**
      * Adds a run configuration (works direct, no removing)
+     *
      * @param project
      * @param name
      * @param properties
@@ -272,6 +285,7 @@ public class ProjectExtensionManager {
 
     /**
      * Adds a run configuration (works direct, no removing)
+     *
      * @param project
      * @param name File name of the configuration
      * @param label Label in the dropdown box
@@ -295,6 +309,7 @@ public class ProjectExtensionManager {
 
     /**
      * Adds a run configuration (works direct, no removing)
+     *
      * @param project
      * @param name File name of the configuration
      * @param label Label in the dropdown box
@@ -317,6 +332,7 @@ public class ProjectExtensionManager {
 
     /**
      * Adds a run configuration (works direct, no removing)
+     *
      * @param project
      * @param name File name of the configuration
      * @param label Label in the dropdown box
@@ -443,9 +459,12 @@ public class ProjectExtensionManager {
                         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting old file " + fo.getNameExt());
                         fo.delete();
                     }
-                    fo = FileUtil.createData(projectRoot, fileName);
-                    if (entry.getSize() != fo.getSize()) {
+                    fo = projectRoot.getFileObject(fileName);
+                    if (fo == null) {
+                        fo = FileUtil.createData(projectRoot, fileName);
                         writeFile(str, fo);
+                    } else {
+                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Not overwriting existing file " + fo.getNameExt());
                     }
                 }
             }
@@ -477,7 +496,7 @@ public class ProjectExtensionManager {
                     Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting file " + obj.getNameExt());
                     if (entry.getSize() != -1 && entry.getSize() == obj.getSize()) {
                         obj.delete();
-                    } else{
+                    } else {
                         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Keeping file " + obj.getNameExt());
                     }
                 }
