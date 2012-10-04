@@ -85,7 +85,6 @@ public class ProjectAssetManager extends DesktopAssetManager {
         }
         addFolderLocator(folderName);
         ProjectManager.mutex().postWriteRequest(new Runnable() {
-
             public void run() {
                 updateClassLoader();
             }
@@ -144,7 +143,6 @@ public class ProjectAssetManager extends DesktopAssetManager {
                         for (FileObject fileObject : roots) {
                             if (!fileObject.equals(getAssetFolder())) {
                                 FileChangeListener listener = new FileChangeListener() {
-
                                     public void fileFolderCreated(FileEvent fe) {
 //                                    notifyClassPathListeners();
                                     }
@@ -200,7 +198,6 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     private void prepAssetEventListeners() {
         super.setAssetEventListener(new AssetEventListener() {
-
             public void assetLoaded(AssetKey ak) {
                 synchronized (assetEventListeners) {
                     for (AssetEventListener assetEventListener : assetEventListeners) {
@@ -312,18 +309,45 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     public String[] getMatDefs() {
-        FileObject assetsFolder = getAssetFolder();
-        if (assetsFolder == null) {
-            return new String[]{};
-        }
-        Enumeration<FileObject> assets = (Enumeration<FileObject>) assetsFolder.getChildren(true);
+        return collectFilesWithSuffix("j3md");
+    }
+
+    /**
+     * Collects files over the asset folder(s) and classpath
+     * @param suffix
+     * @return 
+     */
+    private String[] collectFilesWithSuffix(String suffix) {
         ArrayList<String> list = new ArrayList<String>();
-        while (assets.hasMoreElements()) {
-            FileObject asset = assets.nextElement();
-            if (asset.getExt().equalsIgnoreCase("j3md")) {
-                list.add(getRelativeAssetPath(asset.getPath()));
+        FileObject assetsFolder = getAssetFolder();
+        if (assetsFolder != null) {
+            Enumeration<FileObject> assets = (Enumeration<FileObject>) assetsFolder.getChildren(true);
+            while (assets.hasMoreElements()) {
+                FileObject asset = assets.nextElement();
+                if (asset.getExt().equalsIgnoreCase(suffix)) {
+                    list.add(getRelativeAssetPath(asset.getPath()));
+                }
             }
         }
+
+        if (classPathItems != null) {
+            // TODO I need to find out if classPathItems contains all jars added to a project
+            Iterator<ClassPathItem> classPathItemsIter = classPathItems.iterator();
+            while (classPathItemsIter.hasNext()) {
+                ClassPathItem classPathItem = classPathItemsIter.next();
+                FileObject jarFile = classPathItem.object;
+
+                Enumeration<FileObject> jarEntry = (Enumeration<FileObject>) jarFile.getChildren(true);
+                while (jarEntry.hasMoreElements()) {
+                    FileObject jarEntryAsset = jarEntry.nextElement();
+                    if (jarEntryAsset.getExt().equalsIgnoreCase(suffix)) {
+                        list.add(jarEntryAsset.getPath());
+                    }
+                }
+
+            }
+        }
+
         return list.toArray(new String[list.size()]);
     }
 
@@ -400,7 +424,6 @@ public class ProjectAssetManager extends DesktopAssetManager {
         updateClassLoader();
         final ProjectAssetManager pm = this;
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             public void run() {
                 synchronized (classPathListeners) {
                     for (ClassPathChangeListener classPathChangeListener : classPathListeners) {
