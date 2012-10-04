@@ -112,11 +112,11 @@ public class ProjectAssetManager extends DesktopAssetManager {
         this(null);
     }
 
-    private synchronized void updateClassLoader() {
+    private void clearClassLoader() {
         for (FileObject fileObject : jarItems) {
             try {
                 Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Remove locator:{0}", fileObject.getURL());
-                unregisterLocator(fileObject.getURL().toExternalForm(),
+                unregisterLocator(fileObject.toURL().toExternalForm(),
                         com.jme3.asset.plugins.UrlLocator.class);
             } catch (FileStateInvalidException ex) {
                 Exceptions.printStackTrace(ex);
@@ -128,6 +128,9 @@ public class ProjectAssetManager extends DesktopAssetManager {
             fileObject.object.removeRecursiveListener(fileObject.listener);
         }
         classPathItems.clear();
+    }
+
+    private synchronized void loadClassLoader() {
         Sources sources = project.getLookup().lookup(Sources.class);
         if (sources != null) {
             if (loader != null) {
@@ -148,7 +151,9 @@ public class ProjectAssetManager extends DesktopAssetManager {
                                     }
 
                                     public void fileDataCreated(FileEvent fe) {
-//                                    notifyClassPathListeners();
+                                        if (!fe.isExpected()) {
+                                            notifyClassPathListeners();
+                                        }
                                     }
 
                                     public void fileChanged(FileEvent fe) {
@@ -172,12 +177,12 @@ public class ProjectAssetManager extends DesktopAssetManager {
                                 fileObject.addRecursiveListener(listener);
                                 Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add classpath:{0}", fileObject);
                                 classPathItems.add(new ClassPathItem(fileObject, listener));
-                                urls.add(fileObject.getURL());
+                                urls.add(fileObject.toURL());
                             }
-                            if (fileObject.getURL().toExternalForm().startsWith("jar")) {
+                            if (fileObject.toURL().toExternalForm().startsWith("jar")) {
                                 Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add locator:{0}", fileObject.getURL());
                                 jarItems.add(fileObject);
-                                registerLocator(fileObject.getURL().toExternalForm(),
+                                registerLocator(fileObject.toURL().toExternalForm(),
                                         "com.jme3.asset.plugins.UrlLocator");
                             }
                         }
@@ -191,6 +196,11 @@ public class ProjectAssetManager extends DesktopAssetManager {
         }
     }
 
+    private synchronized void updateClassLoader() {
+        clearClassLoader();
+        loadClassLoader();
+    }
+    
     @Override
     public void setAssetEventListener(AssetEventListener listener) {
         throw new UnsupportedOperationException("Setting the asset event listener is not allowed for ProjectAssetManager, use addAssetEventListener instead");
