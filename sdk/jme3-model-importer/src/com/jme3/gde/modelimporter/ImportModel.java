@@ -106,6 +106,7 @@ public final class ImportModel implements ActionListener {
         boolean keepFiles = (Boolean) wiz.getProperty("keepfiles");
         List<FileObject> assetList = (List<FileObject>) wiz.getProperty("assetfiles");
         String importPath = (String) wiz.getProperty("destpath");
+        Project context = (Project) wiz.getProperty("project");
         ProjectAssetManager importManager = (ProjectAssetManager) wiz.getProperty("manager");
         ProjectAssetManager manager = context.getLookup().lookup(ProjectAssetManager.class);
         if (manager == null) {
