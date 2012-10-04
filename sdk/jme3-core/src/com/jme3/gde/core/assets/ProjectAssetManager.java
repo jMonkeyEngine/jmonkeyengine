@@ -314,8 +314,9 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     /**
      * Collects files over the asset folder(s) and classpath
+     *
      * @param suffix
-     * @return 
+     * @return
      */
     private String[] collectFilesWithSuffix(String suffix) {
         ArrayList<String> list = new ArrayList<String>();
@@ -341,7 +342,9 @@ public class ProjectAssetManager extends DesktopAssetManager {
                 while (jarEntry.hasMoreElements()) {
                     FileObject jarEntryAsset = jarEntry.nextElement();
                     if (jarEntryAsset.getExt().equalsIgnoreCase(suffix)) {
-                        list.add(jarEntryAsset.getPath());
+                        if (!jarEntryAsset.getPath().startsWith("/")) {
+                            list.add(jarEntryAsset.getPath());
+                        }
                     }
                 }
 
