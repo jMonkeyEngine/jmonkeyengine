@@ -74,16 +74,35 @@ public class EffectTrack implements ClonableTrack {
     private float length = 0;
     private boolean emitted = false;
     private boolean initialized = false;
-    private boolean stopRequested = false;
+    
     //control responsible for disable and cull the emitter once all particles are gone
-    private AbstractControl killParticles = new AbstractControl() {
+    private KillParticleControl killParticles = new KillParticleControl();
+    public static class KillParticleControl extends AbstractControl  {
+        
+        ParticleEmitter emitter;
+        boolean stopRequested = false;
+
+        public KillParticleControl() {
+        }
+
+        @Override
+        public void setSpatial(Spatial spatial) {
+           super.setSpatial(spatial);
+           if(spatial instanceof ParticleEmitter){
+               emitter = (ParticleEmitter)spatial;
+           }else{
+               throw new IllegalArgumentException("KillParticleEmitter can only ba attached to ParticleEmitter");
+           }
+            
+        }
         
         @Override
         protected void controlUpdate(float tpf) {
+            
             if (emitter.getNumVisibleParticles() == 0) {
                 emitter.setCullHint(CullHint.Always);
                 emitter.setEnabled(false);
-                emitter.removeControl(killParticles);
+                emitter.removeControl(this);
                 stopRequested = false;
             }
         }
@@ -163,9 +182,9 @@ public class EffectTrack implements ClonableTrack {
             //if the emitter has 0 particles per seconds emmit all particles in one shot
             if (particlesPerSeconds == 0) {
                 emitter.emitAllParticles();
-                if (!stopRequested) {
+                if (!killParticles.stopRequested) {
                     emitter.addControl(killParticles);
-                    stopRequested = true;
+                    killParticles.stopRequested = true;
                 }
             } else {
                 //else reset its former particlePerSec value to let it emmit.
@@ -178,9 +197,9 @@ public class EffectTrack implements ClonableTrack {
     private void stop() {
         emitter.setParticlesPerSec(0);
         emitted = false;
-        if (!stopRequested) {
+        if (!killParticles.stopRequested) {
             emitter.addControl(killParticles);
-            stopRequested = true;
+            killParticles.stopRequested = true;
         }
         
     }
@@ -283,6 +302,10 @@ public class EffectTrack implements ClonableTrack {
             data.getTracks().remove(this);
         }
         this.emitter = emitter;
+         //saving particles per second value
+        this.particlesPerSeconds = emitter.getParticlesPerSec();
+        //setting the emmitter to not emmit.
+        this.emitter.setParticlesPerSec(0);
         setUserData(this);
     }
 
@@ -327,8 +350,6 @@ public class EffectTrack implements ClonableTrack {
         OutputCapsule out = ex.getCapsule(this);
         //reseting the particle emission rate on the emitter before saving.
         emitter.setParticlesPerSec(particlesPerSeconds);
-        //removing eventual unpersisted control off the emitter
-        emitter.removeControl(killParticles);
         out.write(emitter, "emitter", null);
         out.write(particlesPerSeconds, "particlesPerSeconds", 0);
         out.write(length, "length", 0);
@@ -349,6 +370,8 @@ public class EffectTrack implements ClonableTrack {
         //This also avoid null pointer exception if the model is not loaded via the AssetManager.
         emitter = (ParticleEmitter) in.readSavable("emitter", null);
         emitter.setParticlesPerSec(0);
+        //if the emitter was saved with a KillParticleControl we remove it.
+        emitter.removeControl(KillParticleControl.class);
         length = in.readFloat("length", length);
         startOffset = in.readFloat("startOffset", 0);
     }
