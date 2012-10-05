@@ -88,11 +88,14 @@ public class EffectTrack implements ClonableTrack {
         @Override
         public void setSpatial(Spatial spatial) {
            super.setSpatial(spatial);
-           if(spatial instanceof ParticleEmitter){
-               emitter = (ParticleEmitter)spatial;
-           }else{
-               throw new IllegalArgumentException("KillParticleEmitter can only ba attached to ParticleEmitter");
-           }
+            if (spatial != null) {
+                if (spatial instanceof ParticleEmitter) {
+                    emitter = (ParticleEmitter) spatial;
+                } else {
+                    throw new IllegalArgumentException("KillParticleEmitter can only ba attached to ParticleEmitter");
+                }
+            }
+           
             
         }
         
@@ -371,7 +374,7 @@ public class EffectTrack implements ClonableTrack {
         emitter = (ParticleEmitter) in.readSavable("emitter", null);
         emitter.setParticlesPerSec(0);
         //if the emitter was saved with a KillParticleControl we remove it.
-        emitter.removeControl(KillParticleControl.class);
+//        emitter.removeControl(KillParticleControl.class);
         length = in.readFloat("length", length);
         startOffset = in.readFloat("startOffset", 0);
     }
