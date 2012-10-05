@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1460,10 +1460,9 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     /**
-     * <code>updateTexImageData</code> activates and binds the texture
+     * activates and binds the texture
      * @param img
      * @param type
-     * @param needMips
      */
     public void updateTexImageData(Image img, Texture.Type type) {
         int texId = img.getId();

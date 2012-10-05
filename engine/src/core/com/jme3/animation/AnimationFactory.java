@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2011 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -221,7 +221,7 @@ public class AnimationFactory {
     /**
      * Adds a key frame for the given rotation at the given time<br>
      * This can't be used if the interpolated angle is higher than PI (180°)<br>
-     * Use {@link addTimeRotationAngles(float time, float x, float y, float z)}  instead that uses Euler angles rotations.<br>     * 
+     * Use {@link #addTimeRotationAngles(float time, float x, float y, float z)}  instead that uses Euler angles rotations.<br>     * 
      * @param time the time at which the keyFrame must be inserted
      * @param rotation the rotation Quaternion to use for this keyFrame
      * @see #addTimeRotationAngles(float time, float x, float y, float z) 
@@ -233,7 +233,7 @@ public class AnimationFactory {
     /**
      * Adds a key frame for the given rotation at the given keyFrame index<br>
      * This can't be used if the interpolated angle is higher than PI (180°)<br>
-     * Use {@link addKeyFrameRotationAngles(int keyFrameIndex, float x, float y, float z)} instead that uses Euler angles rotations.
+     * Use {@link #addKeyFrameRotationAngles(int keyFrameIndex, float x, float y, float z)} instead that uses Euler angles rotations.
      * @param keyFrameIndex the index at which the keyFrame must be inserted
      * @param rotation the rotation Quaternion to use for this keyFrame
      * @see #addKeyFrameRotationAngles(int keyFrameIndex, float x, float y, float z) 

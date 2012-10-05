@@ -157,7 +157,6 @@ public class SavableClassUtil {
      * are checked to handle special cases, if the modules do not handle the class name, the
      * class is instantiated directly. 
      * @param className the class name to create.
-     * @param inputCapsule the InputCapsule that will be used for loading the Savable (to look up ctor parameters)
      * @return the Savable instance of the class.
      * @throws InstantiationException thrown if the class does not have an empty constructor.
      * @throws IllegalAccessException thrown if the class is not accessable.

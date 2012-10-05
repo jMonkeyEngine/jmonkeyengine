@@ -31,10 +31,9 @@ public class ColorBand {
 
 	/**
 	 * Constructor. Loads the data from the given structure.
-	 * 
-	 * @param cbdataStructure
-	 *            the colorband structure
-	 */
+         * @param tex
+         * @param blenderContext 
+         */
 	@SuppressWarnings("unchecked")
 	public ColorBand(Structure tex, BlenderContext blenderContext) {
 		int flag = ((Number) tex.getFieldValue("flag")).intValue();

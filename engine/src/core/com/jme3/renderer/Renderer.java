@@ -285,7 +285,7 @@ public interface Renderer {
      * then resets the native objects.
      * 
      * @see #resetGLObjects() 
-     * @see NativeObject#deleteObject(com.jme3.renderer.Renderer) 
+     * @see NativeObject#deleteObject(java.lang.Object) 
      */
     public void cleanup();
     

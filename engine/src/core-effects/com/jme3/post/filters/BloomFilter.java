@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -237,7 +237,7 @@ public class BloomFilter extends Filter {
 
     /**
      * returns the exposure cutoff<br>
-     * for more details see {@link setExposureCutOff(float exposureCutOff)}
+     * for more details see {@link #setExposureCutOff(float exposureCutOff)}
      * @return 
      */    
     public float getExposureCutOff() {
@@ -254,7 +254,7 @@ public class BloomFilter extends Filter {
 
     /**
      * returns the exposure power<br>
-     * form more details see {@link setExposurePower(float exposurePower)}
+     * form more details see {@link #setExposurePower(float exposurePower)}
      * @return 
      */
     public float getExposurePower() {
@@ -272,7 +272,7 @@ public class BloomFilter extends Filter {
 
     /**
      * returns the downSampling factor<br>
-     * form more details see {@link setDownSamplingFactor(float downSamplingFactor)}
+     * form more details see {@link #setDownSamplingFactor(float downSamplingFactor)}
      * @return
      */
     public float getDownSamplingFactor() {

@@ -46,10 +46,6 @@ public class ConstraintDefinitionFactory {
 	 * 
 	 * @param constraintStructure
 	 *            the constraint's structure (bConstraint clss in blender 2.49). If the value is null the NullConstraint is created.
-	 * @param ownerOMA
-	 *            the old memory address of the constraint's owner
-	 * @param influenceIpo
-	 *            the ipo curve of the influence factor
 	 * @param blenderContext
 	 *            the blender context
 	 * @throws BlenderFileException

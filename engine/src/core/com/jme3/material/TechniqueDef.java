@@ -234,7 +234,8 @@ public class TechniqueDef implements Savable {
      * 
      * @param vertexShader The name of the vertex shader
      * @param fragmentShader The name of the fragment shader
-     * @param shaderLanguage The shader language
+     * @param vertLanguage The vertex shader language
+     * @param fragLanguage The fragment shader language
      */
     public void setShaderFile(String vertexShader, String fragmentShader, String vertLanguage, String fragLanguage){
         this.vertName = vertexShader;

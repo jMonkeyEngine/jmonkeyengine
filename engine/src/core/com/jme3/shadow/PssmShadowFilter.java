@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -138,8 +138,8 @@ public class PssmShadowFilter extends Filter {
     }
 
     /**
-     * returns the labda parameter<br>
-     * see {@link setLambda(float lambda)}
+     * returns the labda parameter
+     * @see #setLambda(float lambda)
      * @return lambda
      */
     public float getLambda() {
@@ -160,7 +160,7 @@ public class PssmShadowFilter extends Filter {
 
     /**
      * How far the shadows are rendered in the view
-     * see {@link setShadowZExtend(float zFar)}
+     * @see setShadowZExtend(float zFar)
      * @return shadowZExtend
      */
     public float getShadowZExtend() {
@@ -177,8 +177,8 @@ public class PssmShadowFilter extends Filter {
     }
 
     /**
-     * returns the shdaow intensity<br>
-     * see {@link setShadowIntensity(float shadowIntensity)}
+     * returns the shdaow intensity
+     * @see #setShadowIntensity(float shadowIntensity)
      * @return shadowIntensity
      */
     public float getShadowIntensity() {
@@ -198,7 +198,7 @@ public class PssmShadowFilter extends Filter {
 
     /**
      * returns the edges thickness <br>
-     * see {@link setEdgesThickness(int edgesThickness)}
+     * @see #setEdgesThickness(int edgesThickness)
      * @return edgesThickness
      */
     public int getEdgesThickness() {

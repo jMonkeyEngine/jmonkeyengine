@@ -434,8 +434,6 @@ public class Mesh implements Savable, Cloneable {
 
     /**
      * Get the mode start indices for {@link Mode#Hybrid} mesh mode.
-     * 
-     * @return mode start indices
      */
     public void setModeStart(int[] modeStart) {
         this.modeStart = modeStart;

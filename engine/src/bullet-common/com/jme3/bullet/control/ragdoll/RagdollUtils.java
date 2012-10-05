@@ -97,8 +97,11 @@ public class RagdollUtils {
     /**
      * Create a hull collision shape from linked vertices to this bone.
      * Vertices have to be previoulsly gathered in a map using buildPointMap method
-     * @param link
-     * @param model
+     * 
+     * @param pointsMap
+     * @param boneIndices
+     * @param initialScale
+     * @param initialPosition
      * @return 
      */
     public static HullCollisionShape makeShapeFromPointMap(Map<Integer, List<Float>> pointsMap, List<Integer> boneIndices, Vector3f initialScale, Vector3f initialPosition) {
@@ -149,8 +152,11 @@ public class RagdollUtils {
     /**
      * Create a hull collision shape from linked vertices to this bone.
      * 
-     * @param link
      * @param model
+     * @param boneIndices
+     * @param initialScale
+     * @param initialPosition
+     * @param weightThreshold
      * @return 
      */
     public static HullCollisionShape makeShapeFromVerticeWeights(Spatial model, List<Integer> boneIndices, Vector3f initialScale, Vector3f initialPosition, float weightThreshold) {

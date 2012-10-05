@@ -1,10 +1,8 @@
 package com.jme3.texture.image;
 
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
 import com.jme3.system.JmeSystem;
 import com.jme3.texture.Image;
-import java.nio.ByteBuffer;
 
 /**
  * Utility class for reading and writing from jME3 {@link Image images}.

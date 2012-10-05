@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1047,8 +1047,6 @@ public class LODGeomap extends GeoMap {
      *
      * @param x local x coordinate
      * @param z local z coordinate
-     * @param scale
-     * @param translation
      * @return
      */
     protected Triangle[] getGridTrianglesAtPoint(float x, float z) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2011 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -113,9 +113,8 @@ public class Animation implements Savable, Cloneable {
 
     /**
      * Set the {@link Track}s to be used by this animation.
-     * <p>
      * 
-     * @param tracks The tracks to set.
+     * @param tracksArray The tracks to set.
      */
     public void setTracks(Track[] tracksArray) {
         for (Track track : tracksArray) {

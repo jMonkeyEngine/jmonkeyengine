@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1780,7 +1780,6 @@ public class LwjglRenderer implements Renderer {
      * 
      * @param img The image to upload
      * @param type How the data in the image argument should be interpreted.
-     * @param updateMipsOnly If true, then texture data is already updated for this image, only 
      * @param unit The texture slot to be used to upload the image, not important
      */
     public void updateTexImageData(Image img, Texture.Type type, int unit) {

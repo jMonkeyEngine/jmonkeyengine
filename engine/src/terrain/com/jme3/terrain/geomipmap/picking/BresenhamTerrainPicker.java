@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -189,8 +189,8 @@ public class BresenhamTerrainPicker implements TerrainPicker {
      *            grid row
      * @param gridY
      *            grid column
-     * @param block
-     *            the TerrainBlock we are working with
+     * @param patch
+     *            the TerrainPatch we are working with
      * @return true if the grid point is valid for the given block, false if it
      *         is off the block.
      */
@@ -222,8 +222,8 @@ public class BresenhamTerrainPicker implements TerrainPicker {
      *
      * @param position
      *            the position to check at
-     * @param block
-     *            the block to get height values from
+     * @param patch
+     *            the patch to get height values from
      * @return an index to the height position of the given block.
      */
     protected int findClosestHeightIndex(Vector3f position, TerrainPatch patch) {

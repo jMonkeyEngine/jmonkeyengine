@@ -366,8 +366,6 @@ public class CurvesHelper extends AbstractBlenderHelper {
      *            the taper curve length
      * @param percent
      *            the percent of way along the whole taper curve
-     * @param store
-     *            the vector where the result will be stored
      */
     protected float getTaperScale(float[] taperPoints, float taperLength, float percent) {
         float length = taperLength * percent;

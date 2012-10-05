@@ -289,8 +289,7 @@ public abstract class Filter implements Savable {
 
     /**
      * Override this method if you want to make a pre pass, before the actual rendering of the frame
-     * @param renderManager
-     * @param viewPort
+     * @param queue
      */
     protected void postQueue(RenderQueue queue) {
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,7 +107,7 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * Return the depth sensitivity<br>
-     * for more details see {@link setDepthSensitivity(float depthSensitivity)}
+     * for more details see {@link #setDepthSensitivity(float depthSensitivity)}
      * @return 
      */
     public float getDepthSensitivity() {
@@ -128,7 +128,7 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * returns the depth threshold<br>
-     * for more details see {@link setDepthThreshold(float depthThreshold)}
+     * for more details see {@link #setDepthThreshold(float depthThreshold)}
      * @return 
      */
     public float getDepthThreshold() {
@@ -149,7 +149,7 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * returns the edge intensity<br>
-     * for more details see {@link setEdgeIntensity(float edgeIntensity) }
+     * for more details see {@link #setEdgeIntensity(float edgeIntensity) }
      * @return 
      */
     public float getEdgeIntensity() {
@@ -190,7 +190,7 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * returns the normals sensitivity<br>
-     * form more details see {@link setNormalSensitivity(float normalSensitivity)}
+     * form more details see {@link #setNormalSensitivity(float normalSensitivity)}
      * @return 
      */
     public float getNormalSensitivity() {
@@ -210,7 +210,7 @@ public class CartoonEdgeFilter extends Filter {
 
     /**
      * returns the normal threshold<br>
-     * for more details see {@link setNormalThreshold(float normalThreshold)}
+     * for more details see {@link #setNormalThreshold(float normalThreshold)}
      * 
      * @return 
      */

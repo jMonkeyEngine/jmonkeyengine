@@ -525,7 +525,6 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
 
     /**
      * Sets the min zoom distance of the camera (default is 1)
-     * @return minDistance
      */
     public void setMinDistance(float minDistance) {
         this.minDistance = minDistance;

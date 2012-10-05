@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine
+ * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -136,7 +136,7 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * returns the blur start of the scattering 
-     * see {@link  setBlurStart(float blurStart)}
+     * see {@link #setBlurStart(float blurStart)}
      * @return 
      */
     public float getBlurStart() {
@@ -154,7 +154,7 @@ public class LightScatteringFilter extends Filter {
 
     /**
      * returns the blur width<br>
-     * see {@link setBlurWidth(float blurWidth)}
+     * see {@link #setBlurWidth(float blurWidth)}
      * @return 
      */
     public float getBlurWidth() {
@@ -170,8 +170,8 @@ public class LightScatteringFilter extends Filter {
     }
 
     /**
-     * retiurns the light density<br>
-     * see {@link setLightDensity(float lightDensity)}
+     * returns the light density
+     * see {@link #setLightDensity(float lightDensity)}
      * 
      * @return 
      */

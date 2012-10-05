@@ -114,10 +114,6 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
 	 *            the material color
 	 * @param pixelColor
 	 *            the pixel color
-	 * @param blendFactor
-	 *            the blending factor
-	 * @param blendtype
-	 *            the blending type
 	 * @param blenderContext
 	 *            the blender context
 	 */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 jMonkeyEngine All rights reserved.
+ * Copyright (c) 2009-2012 jMonkeyEngine All rights reserved.
  * <p/>
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -179,8 +179,7 @@ public class PssmShadowRenderer implements SceneProcessor {
      * @param manager the application asset manager
      * @param size the size of the rendered shadowmaps (512,1024,2048, etc...)
      * @param nbSplits the number of shadow maps rendered (the more shadow maps the more quality, the less fps). 
-     * @param filterPass set this to true if you want the post shadow pass to be done in a Filter un screen space.
-     *  @param postShadowMat the material used for post shadows if you need to override it          
+     * @param postShadowMat the material used for post shadows if you need to override it          
      */
     protected PssmShadowRenderer(AssetManager manager, int size, int nbSplits, Material postShadowMat) {
 
@@ -568,8 +567,8 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * returns the labda parameter<br>
-     * see {@link setLambda(float lambda)}
+     * returns the labda parameter
+     * see #setLambda(float lambda)
      * @return lambda
      */
     public float getLambda() {
@@ -590,7 +589,7 @@ public class PssmShadowRenderer implements SceneProcessor {
 
     /**
      * How far the shadows are rendered in the view
-     * see {@link setShadowZExtend(float zFar)}
+     * @see #setShadowZExtend(float zFar)
      * @return shadowZExtend
      */
     public float getShadowZExtend() {
@@ -607,8 +606,8 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * returns the shdaow intensity<br>
-     * see {@link setShadowIntensity(float shadowIntensity)}
+     * returns the shdaow intensity
+     * @see #setShadowIntensity(float shadowIntensity)
      * @return shadowIntensity
      */
     public float getShadowIntensity() {
@@ -629,8 +628,8 @@ public class PssmShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * returns the edges thickness <br>
-     * see {@link setEdgesThickness(int edgesThickness)}
+     * returns the edges thickness
+     * @see #setEdgesThickness(int edgesThickness)
      * @return edgesThickness
      */
     public int getEdgesThickness() {
