@@ -31,8 +31,6 @@
  */
 package com.jme3.scene.control;
 
-import java.io.IOException;
-
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
@@ -46,6 +44,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.util.TempVars;
+import java.io.IOException;
 
 /**
  * This Control maintains a reference to a Camera,

@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.shader.plugins;
 
 import com.jme3.asset.AssetInfo;
@@ -38,11 +37,8 @@ import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.cache.AssetCache;
-import com.jme3.asset.plugins.ClasspathLocator;
-import com.jme3.system.JmeSystem;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.*;

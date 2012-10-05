@@ -31,10 +31,7 @@
  */
 package com.jme3.cinematic.events;
 
-import com.jme3.animation.AnimChannel;
-import com.jme3.animation.AnimControl;
 import com.jme3.animation.LoopMode;
-import com.jme3.animation.Track;
 import com.jme3.app.Application;
 import com.jme3.cinematic.Cinematic;
 import com.jme3.cinematic.MotionPath;
@@ -49,7 +46,6 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**

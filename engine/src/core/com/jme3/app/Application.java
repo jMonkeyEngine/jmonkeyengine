@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.app;
 
 import com.jme3.app.state.AppStateManager;
@@ -43,8 +42,8 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.system.JmeContext.Type;
 import com.jme3.system.*;
+import com.jme3.system.JmeContext.Type;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
