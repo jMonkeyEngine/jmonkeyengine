@@ -1,5 +1,18 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
+import java.nio.Buffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -11,17 +24,6 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
-
-import java.nio.Buffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This modifier allows to array modifier to the object.
@@ -102,6 +104,7 @@ import java.util.logging.Logger;
         boolean mirrorV = (flag & 0x02) != 0;
 //		boolean mirrorVGroup = (flag & 0x20) != 0;
 
+        Set<Integer> modifiedIndexes = new HashSet<Integer>();
         List<Geometry> geometriesToAdd = new ArrayList<Geometry>();
         for (int mirrorIndex = 0; mirrorIndex < 3; ++mirrorIndex) {
             if (mirrorFactor[mirrorIndex] == -1.0f) {
@@ -119,45 +122,50 @@ import java.util.logging.Logger;
                         FloatBuffer cloneNormals = clone.getFloatBuffer(Type.Normal);
                         FloatBuffer cloneBindPoseNormals = clone.getFloatBuffer(Type.BindPoseNormal);
                         Buffer cloneIndexes = clone.getBuffer(Type.Index).getData();
+                        
+						for (int i = 0; i < cloneIndexes.limit(); ++i) {
+                        	int index = cloneIndexes instanceof ShortBuffer ?  ((ShortBuffer)cloneIndexes).get(i) : ((IntBuffer)cloneIndexes).get(i);
+                        	if(!modifiedIndexes.contains((int)index)) {
+                        		modifiedIndexes.add((int)index);
+                        		int valueIndex = index * 3 + mirrorIndex;
+                            	
+                            	float value = clonePosition.get(valueIndex);
+                                float d = center[mirrorIndex] - value;
 
-                        // modyfying data
-                        for (int i = mirrorIndex; i < clonePosition.limit(); i += 3) {
-                            float value = clonePosition.get(i);
-                            float d = center[mirrorIndex] - value;
-
-                            if (Math.abs(d) <= tolerance) {
-                                clonePosition.put(i, center[mirrorIndex]);
-                                if(cloneBindPosePosition != null) {
-                                	cloneBindPosePosition.put(i, center[mirrorIndex]);
+                                if (Math.abs(d) <= tolerance) {
+                                    clonePosition.put(valueIndex, center[mirrorIndex]);
+                                    if(cloneBindPosePosition != null) {
+                                    	cloneBindPosePosition.put(valueIndex, center[mirrorIndex]);
+                                    }
+                                    position.put(valueIndex, center[mirrorIndex]);
+                                    if(bindPosePosition != null) {
+                                    	bindPosePosition.put(valueIndex, center[mirrorIndex]);
+                                    }
+                                } else {
+                                    clonePosition.put(valueIndex, value + 2.0f * d);
+                                    if(cloneBindPosePosition != null) {
+                                    	cloneBindPosePosition.put(valueIndex, value + 2.0f * d);
+                                    }
                                 }
-                                position.put(i, center[mirrorIndex]);
-                                if(bindPosePosition != null) {
-                                	bindPosePosition.put(i, center[mirrorIndex]);
+                                cloneNormals.put(valueIndex, -cloneNormals.get(valueIndex));
+                                if(cloneBindPoseNormals != null) {
+                                	cloneBindPoseNormals.put(valueIndex, -cloneNormals.get(valueIndex));
                                 }
-                            } else {
-                                clonePosition.put(i, value + 2.0f * d);
-                                if(cloneBindPosePosition != null) {
-                                	cloneBindPosePosition.put(i, value + 2.0f * d);
-                                }
-                            }
-                            cloneNormals.put(i, -cloneNormals.get(i));
-                            if(cloneBindPoseNormals != null) {
-                            	cloneBindPoseNormals.put(i, -cloneNormals.get(i));
-                            }
-                            
-                            //modifying clone indexes
-                            int vertexIndex = (i - mirrorIndex) / 3;
-                            if (vertexIndex % 3 == 0 && vertexIndex<cloneIndexes.limit()) {
-                            	if(cloneIndexes instanceof ShortBuffer) {
-                            		short index = ((ShortBuffer)cloneIndexes).get(vertexIndex + 2);
-                            		((ShortBuffer)cloneIndexes).put(vertexIndex + 2, ((ShortBuffer)cloneIndexes).get(vertexIndex + 1));
-                            		((ShortBuffer)cloneIndexes).put(vertexIndex + 1, index);
-                            	} else {
-                            		int index = ((IntBuffer)cloneIndexes).get(vertexIndex + 2);
-                            		((IntBuffer)cloneIndexes).put(vertexIndex + 2, ((IntBuffer)cloneIndexes).get(vertexIndex + 1));
-                            		((IntBuffer)cloneIndexes).put(vertexIndex + 1, index);
-                            	}
-                            }
+                        	}
+                        }
+                        modifiedIndexes.clear();
+                        
+                        //flipping index order
+						for (int i = 0; i < cloneIndexes.limit(); i += 3) {
+                        	if(cloneIndexes instanceof ShortBuffer) {
+                        		short index = ((ShortBuffer)cloneIndexes).get(i + 2);
+                        		((ShortBuffer)cloneIndexes).put(i + 2, ((ShortBuffer)cloneIndexes).get(i + 1));
+                        		((ShortBuffer)cloneIndexes).put(i + 1, index);
+                        	} else {
+                        		int index = ((IntBuffer)cloneIndexes).get(i + 2);
+                        		((IntBuffer)cloneIndexes).put(i + 2, ((IntBuffer)cloneIndexes).get(i + 1));
+                        		((IntBuffer)cloneIndexes).put(i + 1, index);
+                        	}
                         }
 
                         if (mirrorU && clone.getBuffer(Type.TexCoord) != null) {
