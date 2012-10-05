@@ -1,11 +1,4 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-package jme3test.batching;
-
-/*
  * Copyright (c) 2009-2012 jMonkeyEngine
  * All rights reserved.
  *
@@ -36,6 +29,7 @@ package jme3test.batching;
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package jme3test.batching;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
