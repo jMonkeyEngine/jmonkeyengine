@@ -74,6 +74,7 @@ public class UserDataPicker extends javax.swing.JDialog {
 
     UserDataDialog parentDialog;
     JmeSpatial spat;
+    ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
 
     /** Creates new form UserDataPicker */
     public UserDataPicker(java.awt.Frame parent, boolean modal, UserDataDialog parentDialog, JmeSpatial spat) {
@@ -83,7 +84,7 @@ public class UserDataPicker extends javax.swing.JDialog {
         initComponents();
 
         setLocationRelativeTo(null);
-        ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
+        
 
         jList1.setEnabled(false);
         //loading savable list in a new Thread
@@ -152,6 +153,14 @@ public class UserDataPicker extends javax.swing.JDialog {
         }
         return model;
     }
+
+    @Override
+    public void setVisible(boolean b) {
+        super.setVisible(b);
+        exec.shutdown();
+    }
+    
+    
 
     /** This method is called from within the constructor to
      * initialize the form.

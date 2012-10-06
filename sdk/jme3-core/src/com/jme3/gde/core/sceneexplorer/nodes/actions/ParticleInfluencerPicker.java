@@ -71,6 +71,7 @@ public class ParticleInfluencerPicker extends javax.swing.JDialog {
 
     JmeParticleEmitter jmePE;
     ParticleInfluencerPropertyEditor editor;
+    ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
 
     /**
      * Creates new form UserDataPicker
@@ -82,8 +83,7 @@ public class ParticleInfluencerPicker extends javax.swing.JDialog {
         this.editor = editor;
 
         setLocationRelativeTo(null);
-        ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
-
+      
         jList1.setEnabled(false);
         //loading savable list in a new Thread
         exec.execute(new Runnable() {
@@ -102,6 +102,13 @@ public class ParticleInfluencerPicker extends javax.swing.JDialog {
 
 
     }
+
+    @Override
+    public void setVisible(boolean b) {
+        super.setVisible(b);
+        exec.shutdown();
+    }
+        
 
     private DefaultListModel getSources() {
         final DefaultListModel model = new DefaultListModel();
