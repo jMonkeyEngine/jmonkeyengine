@@ -132,7 +132,7 @@ public class JmeParticleEmitter extends JmeGeometry {
 
         set2.setDisplayName("Particle Influencer" + " - " + obj.getParticleInfluencer().getClass().getSimpleName());
         set2.setName(obj.getParticleInfluencer().getClass().getName());
-        ParticleInfluencerProperty prop = new ParticleInfluencerProperty(obj, this.getLookup().lookup(ProjectAssetManager.class).getProject());
+        ParticleInfluencerProperty prop = new ParticleInfluencerProperty(obj,this, this.getLookup().lookup(ProjectAssetManager.class).getProject());
         prop.addPropertyChangeListener(this);
         set2.put(prop);
 

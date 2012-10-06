@@ -33,6 +33,7 @@ package com.jme3.gde.core.properties;
 
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.influencers.ParticleInfluencer;
+import com.jme3.gde.core.sceneexplorer.nodes.JmeParticleEmitter;
 import java.beans.PropertyEditor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -48,12 +49,14 @@ public class ParticleInfluencerProperty extends PropertySupport.ReadWrite<Partic
 
     private LinkedList<ScenePropertyChangeListener> listeners = new LinkedList<ScenePropertyChangeListener>();
     private ParticleEmitter emitter;
+    private JmeParticleEmitter jmePE;
     private Project project;
 
-    public ParticleInfluencerProperty(ParticleEmitter emitter, Project project) {
+    public ParticleInfluencerProperty(ParticleEmitter emitter,JmeParticleEmitter jmePE, Project project) {
         super("ParticleInfluencer", ParticleInfluencer.class, "Particle Influencer", " ");
         this.project = project;
         this.emitter = emitter;
+        this.jmePE = jmePE;
 
     }
 
@@ -71,7 +74,7 @@ public class ParticleInfluencerProperty extends PropertySupport.ReadWrite<Partic
 
     @Override
     public PropertyEditor getPropertyEditor() {
-        return new ParticleInfluencerPropertyEditor(emitter.getParticleInfluencer(), project);
+        return new ParticleInfluencerPropertyEditor(jmePE, project);
     }
 
     public void addPropertyChangeListener(ScenePropertyChangeListener listener) {
