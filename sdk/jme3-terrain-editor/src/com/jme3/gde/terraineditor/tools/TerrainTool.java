@@ -46,6 +46,8 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.util.IntMap.Entry;
+import java.util.HashMap;
+import java.util.Map;
 import org.openide.loaders.DataObject;
 
 /**
@@ -53,9 +55,20 @@ import org.openide.loaders.DataObject;
  * It has a primary and secondary action, activated from left and right mouse button respectively.
  * It will also attach tool geometries to the scene so the user can see where they are editing.
  * 
- * @author Brent Owens
+ * @author Brent Owens, Shirkit
  */
 public abstract class TerrainTool {
+    
+    private static final Vector3f[] axisVectors = {
+        Vector3f.UNIT_X,
+        Vector3f.UNIT_Z,
+        Vector3f.UNIT_X.negate(),
+        Vector3f.UNIT_Z.negate(),
+        Vector3f.UNIT_X.add(Vector3f.UNIT_Z).normalize(),
+        Vector3f.UNIT_X.add(Vector3f.UNIT_Z.negate()).normalize(),
+        Vector3f.UNIT_X.negate().addLocal(Vector3f.UNIT_Z.negate()).normalize(),
+        Vector3f.UNIT_X.negate().addLocal(Vector3f.UNIT_Z).normalize()
+    };
     
     protected AssetManager manager;
     protected Geometry markerPrimary;
@@ -67,6 +80,7 @@ public abstract class TerrainTool {
     private Vector3f startPress;
     private Vector3f axis;
     private Meshes mesh;
+    private final Map<Vector3f, Float> cachedMap = new HashMap<Vector3f, Float>(); // caching only
     
     public static enum Meshes {
         Box, Sphere
@@ -74,6 +88,11 @@ public abstract class TerrainTool {
     
     // the key to load the tool hint text from the resource bundle
     protected String toolHintTextKey = "TerrainEditorTopComponent.toolHint.default";
+    
+    public TerrainTool() {
+        for (Vector3f v : axisVectors)
+            cachedMap.put(v, Float.MAX_VALUE);
+    }
     
     /**
      * The tool was selected, start showing the marker.
@@ -138,25 +157,23 @@ public abstract class TerrainTool {
                     startPress = newLoc.clone(); // the user just started presseing
                 else {
                     Vector3f sub = newLoc.subtract(startPress);
-                    if (axis == null) {
+                    if (axis == null && newLoc.distance(startPress) > 3f) {
                         // grab the axis that the user is moving
-                        Vector3f closest = Vector3f.UNIT_X;
-                        float dist = sub.distance(closest);
-                        float ddist;
-                        if ((ddist = sub.distance(Vector3f.UNIT_Z)) < dist) {
-                            closest = Vector3f.UNIT_Z;
-                            dist = ddist;
+                        for (Vector3f v : cachedMap.keySet()) {
+                            cachedMap.put(v, sub.distance(v));
                         }
-                        if ((ddist = sub.distance(Vector3f.UNIT_Z.negate())) < dist) {
-                            closest = Vector3f.UNIT_Z;
-                            dist = ddist;
+                        Vector3f closest = null;
+                        float dist = Float.MAX_VALUE;
+                        for (Map.Entry<Vector3f,Float> entry : cachedMap.entrySet()) {
+                            if (entry.getValue() < dist) {
+                                dist = entry.getValue();
+                                closest = entry.getKey();
+                            }
                         }
-                        if (sub.distance(Vector3f.UNIT_X.negate()) < dist) {
-                            closest = Vector3f.UNIT_X;
-                        }
-                        axis = closest;
+                        axis = closest.clone();
                     }
-                    markerPrimary.setLocalTranslation(sub.mult(axis).add(startPress)); // move the marker in straight line
+                    if (axis != null)
+                        markerPrimary.setLocalTranslation(startPress.add(sub.project(axis))); // move the marker in straight line
                 }
             }
         }
