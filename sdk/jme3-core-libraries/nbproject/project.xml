@@ -66,6 +66,9 @@
                 <package>de.lessvoid.nifty.controls.tabs.builder</package>
                 <package>de.lessvoid.nifty.controls.textfield</package>
                 <package>de.lessvoid.nifty.controls.textfield.builder</package>
+                <package>de.lessvoid.nifty.controls.textfield.filter.delete</package>
+                <package>de.lessvoid.nifty.controls.textfield.filter.input</package>
+                <package>de.lessvoid.nifty.controls.textfield.format</package>
                 <package>de.lessvoid.nifty.controls.treebox</package>
                 <package>de.lessvoid.nifty.controls.treebox.builder</package>
                 <package>de.lessvoid.nifty.controls.window</package>
@@ -87,7 +90,6 @@
                 <package>de.lessvoid.nifty.loaderv2.types</package>
                 <package>de.lessvoid.nifty.loaderv2.types.apply</package>
                 <package>de.lessvoid.nifty.loaderv2.types.helper</package>
-                <package>de.lessvoid.nifty.loaderv2.types.resolver.parameter</package>
                 <package>de.lessvoid.nifty.loaderv2.types.resolver.style</package>
                 <package>de.lessvoid.nifty.nulldevice</package>
                 <package>de.lessvoid.nifty.render</package>
@@ -99,6 +101,8 @@
                 <package>de.lessvoid.nifty.spi.input</package>
                 <package>de.lessvoid.nifty.spi.render</package>
                 <package>de.lessvoid.nifty.spi.sound</package>
+                <package>de.lessvoid.nifty.spi.time</package>
+                <package>de.lessvoid.nifty.spi.time.impl</package>
                 <package>de.lessvoid.nifty.tools</package>
                 <package>de.lessvoid.nifty.tools.pulsate</package>
                 <package>de.lessvoid.nifty.tools.pulsate.provider</package>
