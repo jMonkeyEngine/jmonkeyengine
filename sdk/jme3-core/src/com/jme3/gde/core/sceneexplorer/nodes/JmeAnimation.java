@@ -31,9 +31,14 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.Animation;
+import com.jme3.animation.LoopMode;
+import com.jme3.gde.core.properties.AnimationProperty;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.ChannelDialog;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.impl.tracks.AudioTrackWizardAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.impl.tracks.EffectTrackWizardAction;
 import java.awt.Image;
@@ -56,17 +61,20 @@ import org.openide.util.ImageUtilities;
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeAnimation extends AbstractSceneExplorerNode {
-    
+
     private Animation animation;
     private static final String ICON = "com/jme3/gde/core/sceneexplorer/nodes/icons/anim.png";
     private static final String ICON_PLAY = "com/jme3/gde/core/sceneexplorer/nodes/icons/animPlay.png";
     private Image icon;
     private JmeAnimControl jmeControl;
     private boolean playing = false;
-    
+    private LoopMode animLoopMode = LoopMode.Loop;
+    private float animSpeed = 1.0f;
+    private AnimChannel channel = null;
+
     public JmeAnimation() {
     }
-    
+
     public JmeAnimation(JmeAnimControl control, Animation animation, JmeTrackChildren children, DataObject dataObject) {
         super(children);
         this.dataObject = dataObject;
@@ -79,44 +87,44 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
         children.setAnimation(this);
         children.setAnimControl(jmeControl);
         icon = ImageUtilities.loadImage(ICON);
-        
+
     }
-    
+
     @Override
     public Image getIcon(int type) {
         return icon;
     }
-    
+
     @Override
     public Image getOpenedIcon(int type) {
-        
+
         return icon;
-        
+
     }
-    
+
     public void toggleIcon(boolean enabled) {
         if (!playing) {
             icon = ImageUtilities.loadImage(ICON);
-            
+
         } else {
             icon = ImageUtilities.loadImage(ICON_PLAY);
-            
+
         }
         fireIconChange();
     }
-    
+
     @Override
     public Action getPreferredAction() {
         return Actions.alwaysEnabled(new PlayAction(), "Play", "", false);
-        
+
     }
-    
+
     private void play() {
         playing = !playing;
         toggleIcon(playing);
         jmeControl.setAnim(this);
     }
-    
+
     @Override
     protected Sheet createSheet() {
         //TODO: multithreading..
@@ -128,36 +136,37 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
             return sheet;
         }
 
-        //  set.put(new AnimationProperty(animControl));
+        set.put(new AnimationProperty(jmeControl.getLookup().lookup(AnimControl.class)));
 
         sheet.put(set);
         return sheet;
-        
+
     }
-    
+
     public void setChanged() {
         fireSave(true);
     }
-    
+
     @Override
     public Action[] getActions(boolean context) {
-        
+
         return new Action[]{Actions.alwaysEnabled(new PlayAction(), playing ? "Stop" : "Play", "", false),
+                    Actions.alwaysEnabled(new PlayBackParamsAction(), "Playback parameters", "", false),
                     Actions.alwaysEnabled(new EffectTrackWizardAction(jmeControl.getLookup().lookup(AnimControl.class).getSpatial(), this), "Add Effect Track", "", false),
                     Actions.alwaysEnabled(new AudioTrackWizardAction(jmeControl.getLookup().lookup(AnimControl.class).getSpatial(), this), "Add Audio Track", "", false)
                 };
     }
-    
+
     @Override
     public boolean canDestroy() {
         return false;
     }
-    
+
     public void stop() {
         playing = false;
-        toggleIcon(playing);        
+        toggleIcon(playing);
     }
-    
+
     @Override
     public void destroy() throws IOException {
 //        super.destroy();
@@ -177,61 +186,166 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
 //            Exceptions.printStackTrace(ex);
 //        }
     }
-    
+
     @Override
     public void refresh(boolean immediate) {
         super.refresh(immediate);
         ((JmeTrackChildren) getChildren()).refreshChildren(false);
     }
-    
+
     public Class getExplorerObjectClass() {
         return Animation.class;
     }
-    
+
     @Override
     public Class getExplorerNodeClass() {
         return JmeAnimation.class;
     }
-    
+
     @Override
     public Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         JmeTrackChildren children = new JmeTrackChildren(this, jmeControl);
         JmeAnimation jsc = new JmeAnimation(jmeControl, (Animation) key, children, key2);
         return new Node[]{jsc};
     }
-    
+
     class PlayAction implements ActionListener {
-        
+
         public void actionPerformed(ActionEvent e) {
             final AnimControl control = jmeControl.getLookup().lookup(AnimControl.class);
             if (control == null) {
                 return;
             }
+
             try {
                 SceneApplication.getApplication().enqueue(new Callable<Void>() {
-                    
                     public Void call() throws Exception {
                         if (playing) {
                             control.clearChannels();
+                            channel = null;
                             jmeControl.setAnim(null);
                             return null;
                         }
                         control.clearChannels();
-                        control.createChannel().setAnim(animation.getName());
-                        play();
-                        
+                        channel = control.createChannel();
+                        channel.setAnim(animation.getName());
+                        innerSetLoopMode();
+                        channel.setSpeed(animSpeed);
+                        java.awt.EventQueue.invokeLater(new Runnable() {
+                            public void run() {
+                                play();
+                            }
+                        });
                         return null;
+
                     }
                 }).get();
             } catch (InterruptedException ex) {
                 Exceptions.printStackTrace(ex);
+                return;
             } catch (ExecutionException ex) {
                 Exceptions.printStackTrace(ex);
+                return;
             }
-            
+
         }
     }
+
+    private void innerSetLoopMode() {
+        final AnimControl control = jmeControl.getLookup().lookup(AnimControl.class);
+        channel.setLoopMode(animLoopMode);
+        if (animLoopMode == LoopMode.DontLoop) {
+            control.addListener(new AnimEventListener() {
+                public void onAnimCycleDone(AnimControl ac, AnimChannel ac1, String animName) {
+                    if (animName.equals(animation.getName())) {
+                        if (playing) {
+                            control.clearChannels();
+                            channel = null;
+                            jmeControl.setAnim(null);
+                            java.awt.EventQueue.invokeLater(new Runnable() {
+                                public void run() {
+                                    stop();
+                                }
+                            });                           
+                        }
+
+                        ac.removeListener(this);
+                    }
+                }
+
+                public void onAnimChange(AnimControl ac, AnimChannel ac1, String animName) {
+//                    if (animation.getName().equals(ac1.getAnimationName())) {
+//                         java.awt.EventQueue.invokeLater(new Runnable() {
 //
+//                            public void run() {
+//                                 stop();
+//                            }
+//                        });
+//                    }
+                }
+            });
+        }
+    }
+
+    class PlayBackParamsAction implements ActionListener {
+
+        ChannelDialog dialog = new ChannelDialog(null, false, JmeAnimation.this);
+
+        public void actionPerformed(ActionEvent e) {
+            dialog.setLocationRelativeTo(null);
+            dialog.setVisible(true);
+
+        }
+    }
+
+    public LoopMode getAnimLoopMode() {
+        return animLoopMode;
+    }
+
+    public void setAnimLoopMode(LoopMode loopMode) {
+        this.animLoopMode = loopMode;
+
+        try {
+            SceneApplication.getApplication().enqueue(new Callable<Void>() {
+                public Void call() throws Exception {
+                    if (channel != null) {
+                        innerSetLoopMode();
+                    }
+
+                    return null;
+                }
+            }).get();
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+
+    }
+
+    public float getAnimSpeed() {
+        return animSpeed;
+    }
+
+    public void setAnimSpeed(float speed) {
+        this.animSpeed = speed;
+        try {
+            SceneApplication.getApplication().enqueue(new Callable<Void>() {
+                public Void call() throws Exception {
+                    if (channel != null) {
+                        channel.setSpeed(animSpeed);
+                    }
+                    return null;
+                }
+            }).get();
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+    }
 //    class AddTrackAction implements ActionListener {
 //
 //        public void actionPerformed(ActionEvent e) {
