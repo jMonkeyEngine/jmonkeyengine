@@ -82,6 +82,29 @@ public abstract class AbstractControl implements Control {
      */
     protected abstract void controlRender(RenderManager rm, ViewPort vp);
 
+    /**
+     *  Default implementation of cloneForSpatial() that
+     *  simply clones the control and sets the spatial.
+     *  <pre>
+     *  AbstractControl c = clone();
+     *  c.spatial = null;
+     *  c.setSpatial(spatial);
+     *  </pre>
+     *
+     *  Controls that wish to be persisted must be Cloneable.
+     */
+    @Override
+    public Control cloneForSpatial(Spatial spatial) {
+        try {
+            AbstractControl c = (AbstractControl)clone();
+            c.spatial = null; // to keep setSpatial() from throwing an exception
+            c.setSpatial(spatial);
+            return c;
+        } catch(CloneNotSupportedException e) {
+            throw new RuntimeException( "Can't clone control for spatial", e );
+        } 
+    }
+
     public void update(float tpf) {
         if (!enabled)
             return;
