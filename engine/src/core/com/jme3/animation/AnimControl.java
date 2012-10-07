@@ -211,6 +211,11 @@ public final class AnimControl extends AbstractControl implements Cloneable {
      * @see AnimControl#createChannel()
      */
     public void clearChannels() {
+        for (AnimChannel animChannel : channels) {
+            for (AnimEventListener list : listeners) {
+                list.onAnimCycleDone(this, animChannel, animChannel.getAnimationName());
+            }
+        }
         channels.clear();
     }
 
