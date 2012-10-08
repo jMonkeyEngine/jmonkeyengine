@@ -106,7 +106,7 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 	public CameraNode toCamera(Structure structure) throws BlenderFileException {
 		CameraHelper cameraHelper = blenderContext.getHelper(CameraHelper.class);
 		if (cameraHelper.shouldBeLoaded(structure, blenderContext)) {
-			return cameraHelper.toCamera(structure);
+			return cameraHelper.toCamera(structure, blenderContext);
 		}
 		return null;
 	}

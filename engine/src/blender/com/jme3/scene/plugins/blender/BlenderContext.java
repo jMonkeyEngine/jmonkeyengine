@@ -73,6 +73,8 @@ public class BlenderContext {
 	private BlenderKey							blenderKey;
 	/** The header of the file block. */
 	private DnaBlockData						dnaBlockData;
+	/** The scene structure. */
+	private Structure						sceneStructure;
 	/** The input stream of the blend file. */
 	private BlenderInputStream					inputStream;
 	/** The asset manager. */
@@ -172,6 +174,24 @@ public class BlenderContext {
 	 */
 	public DnaBlockData getDnaBlockData() {
 		return dnaBlockData;
+	}
+	/**
+	 * This method sets the scene structure data.
+	 * 
+	 * @param sceneStructure
+	 *            the scene structure data
+	 */
+	public void setSceneStructure(Structure sceneStructure) {
+		this.sceneStructure = sceneStructure;
+	}
+
+	/**
+	 * This method returns the scene structure data.
+	 * 
+	 * @return the scene structure data
+	 */
+	public Structure getSceneStructure() {
+		return sceneStructure;
 	}
 
 	/**

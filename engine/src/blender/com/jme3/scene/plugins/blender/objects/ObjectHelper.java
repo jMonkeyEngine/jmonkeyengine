@@ -207,7 +207,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					if(pCamera.isNotNull()) {
 						CameraHelper cameraHelper = blenderContext.getHelper(CameraHelper.class);
 						List<Structure> camerasArray = pCamera.fetchData(blenderContext.getInputStream());
-						CameraNode camera = cameraHelper.toCamera(camerasArray.get(0));
+						CameraNode camera = cameraHelper.toCamera(camerasArray.get(0), blenderContext);
 						camera.setName(name);
 						camera.setLocalTransform(t);
 						result = camera;
