@@ -209,21 +209,11 @@ public class BlenderLoader extends AbstractBlenderLoader {
 		blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
 
 		// reading the blocks (dna block is automatically saved in the blender context when found)
-		FileBlockHeader sceneFileBlock = null;
 		do {
 			fileBlock = new FileBlockHeader(inputStream, blenderContext);
 			if (!fileBlock.isDnaBlock()) {
 				blocks.add(fileBlock);
-				// save the scene's file block
-				if (fileBlock.getCode() == FileBlockHeader.BLOCK_SC00 && blenderKey.getLayersToLoad() < 0) {
-					sceneFileBlock = fileBlock;
-				}
 			}
 		} while (!fileBlock.isLastBlock());
-		// VERIFY LAYERS TO BE LOADED BEFORE LOADING FEATURES
-		if (sceneFileBlock != null) {
-			int lay = ((Number) sceneFileBlock.getStructure(blenderContext).getFieldValue("lay")).intValue();
-			blenderContext.getBlenderKey().setLayersToLoad(lay);// load only current layer
-		}
 	}
 }
