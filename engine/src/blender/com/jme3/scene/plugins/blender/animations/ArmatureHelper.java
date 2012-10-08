@@ -57,6 +57,8 @@ import java.util.logging.Logger;
 public class ArmatureHelper extends AbstractBlenderHelper {
 	private static final Logger	LOGGER		= Logger.getLogger(ArmatureHelper.class.getName());
 
+	public static final String ARMETURE_NODE_MARKER = "armeture-node";
+	
 	/** A map of bones and their old memory addresses. */
 	private Map<Bone, Long>		bonesOMAs	= new HashMap<Bone, Long>();
 

@@ -50,6 +50,7 @@ import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.curves.CurvesHelper;
@@ -216,6 +217,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					//need to create an empty node to properly create parent-children relationships between nodes
 					Node armature = new Node(name);
 					armature.setLocalTransform(t);
+					armature.setUserData(ArmatureHelper.ARMETURE_NODE_MARKER, Boolean.TRUE);
 					//TODO: modifiers for armature ????
 					if(parent instanceof Node) {
 						((Node)parent).attachChild(armature);

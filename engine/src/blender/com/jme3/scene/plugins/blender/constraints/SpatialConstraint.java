@@ -3,9 +3,11 @@ package com.jme3.scene.plugins.blender.constraints;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
+import com.jme3.animation.Bone;
 import com.jme3.animation.SpatialTrack;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
@@ -13,6 +15,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -24,7 +28,9 @@ import com.jme3.scene.plugins.ogre.AnimData;
  * This includes: nodes, cameras nodes and light nodes.
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class SpatialConstraint extends Constraint {
+/*package*/ class SpatialConstraint extends BoneConstraint {
+	private static final Logger LOGGER = Logger.getLogger(SpatialConstraint.class.getName());
+	
 	/** The owner of the constraint. */
 	private Spatial owner;
 	/** The target of the constraint. */
@@ -33,6 +39,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	public SpatialConstraint(Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext)
 			throws BlenderFileException {
 		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
+		targetOMA = targetArmatureOMA;//spatial constraint uses only targetOMA and not armatureTargetOMA which is set by BoneConstraint
 	}
 	
 	@Override
@@ -76,20 +83,41 @@ import com.jme3.scene.plugins.ogre.AnimData;
 				AnimData animData = blenderContext.getAnimData(oma);
 				if(animData == null) {
 					Spatial currentSpatial = (Spatial)blenderContext.getLoadedFeature(oma, LoadedFeatureDataType.LOADED_FEATURE);
-					Spatial parent = currentSpatial.getParent();
-					while(parent != null && animData == null) {
-						Structure parentStructure = (Structure)blenderContext.getLoadedFeature(parent.getName(), LoadedFeatureDataType.LOADED_STRUCTURE);
-						if(parentStructure == null) {
-							parent = null;
+					if(currentSpatial != null) {
+						if(currentSpatial.getUserData(ArmatureHelper.ARMETURE_NODE_MARKER) == Boolean.TRUE) {//look for it among bones
+							BoneContext currentBoneContext = blenderContext.getBoneByName(subtargetName);
+							Bone currentBone = currentBoneContext.getBone();
+							Bone parent = currentBone.getParent();
+							boolean foundAnimation = false;
+							while(parent != null && !foundAnimation) {
+								BoneContext boneContext = blenderContext.getBoneByName(parent.getName());
+								foundAnimation = this.hasAnimation(boneContext.getBoneOma());
+								animData = blenderContext.getAnimData(boneContext.getBoneOma());
+								parent = parent.getParent();
+							}
+							if(foundAnimation) {
+								this.applyAnimData(currentBoneContext, spaces[i], animData);
+							}
 						} else {
-							Long parentOma = parentStructure.getOldMemoryAddress();
-							animData = blenderContext.getAnimData(parentOma);
-							parent = parent.getParent();
+							Spatial parent = currentSpatial.getParent();
+							while(parent != null && animData == null) {
+								Structure parentStructure = (Structure)blenderContext.getLoadedFeature(parent.getName(), LoadedFeatureDataType.LOADED_STRUCTURE);
+								if(parentStructure == null) {
+									parent = null;
+								} else {
+									Long parentOma = parentStructure.getOldMemoryAddress();
+									animData = blenderContext.getAnimData(parentOma);
+									parent = parent.getParent();
+								}
+							}
+							
+							if(animData != null) {//create anim data for the current object
+								this.applyAnimData(currentSpatial, oma, spaces[i], animData.anims.get(0));
+							}
 						}
-					}
-					
-					if(animData != null) {//create anim data for the current object
-						this.applyAnimData(currentSpatial, oma, spaces[i], animData.anims.get(0));
+					} else {
+						LOGGER.warning("Couldn't find target object for constraint: " + name + 
+									   ". Make sure that the target is on layer that is defined to be loaded in blender key!");
 					}
 				}
 			}

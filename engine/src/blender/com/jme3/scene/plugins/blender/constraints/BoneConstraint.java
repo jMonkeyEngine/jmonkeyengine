@@ -27,7 +27,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 /*package*/ class BoneConstraint extends Constraint {
 	private static final Logger LOGGER = Logger.getLogger(BoneConstraint.class.getName());
 	/** The OMA of the target armature. */
-	private Long targetArmatureOMA;
+	protected Long targetArmatureOMA;
 	
 	public BoneConstraint(Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext)
 			throws BlenderFileException {
@@ -82,7 +82,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 		Space[] spaces = new Space[] { ownerSpace, targetSpace };
 		
 		//creating animations for current objects if at least on of their parents have an animation
-		for(int i=0;i<bonesOMAs.length;++i) {
+		for (int i = 0; i < bonesOMAs.length; ++i) {
 			Long oma = bonesOMAs[i];
 			if(this.hasAnimation(oma)) {
 				Bone currentBone = blenderContext.getBoneContext(oma).getBone();
@@ -116,7 +116,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	 *            OMA of the bone
 	 * @return <b>true</b> if the bone has animations and <b>false</b> otherwise
 	 */
-	private boolean hasAnimation(Long boneOMA) {
+	protected boolean hasAnimation(Long boneOMA) {
 		AnimData animData = blenderContext.getAnimData(boneOMA);
 		if(animData != null) {
 			Bone bone = blenderContext.getBoneContext(boneOMA).getBone();
@@ -143,7 +143,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	 * @param referenceAnimData
 	 *            the object containing the animations
 	 */
-	private void applyAnimData(BoneContext boneContext, Space space, AnimData referenceAnimData) {
+	protected void applyAnimData(BoneContext boneContext, Space space, AnimData referenceAnimData) {
 		ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
 		Transform transform = constraintHelper.getBoneTransform(space, boneContext.getBone());
 		
