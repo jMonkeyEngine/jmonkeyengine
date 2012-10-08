@@ -87,7 +87,7 @@ public class EffectTrack implements ClonableTrack {
 
         public KillParticleControl() {
         }
-        
+
         @Override
         public void setSpatial(Spatial spatial) {
             super.setSpatial(spatial);
@@ -104,7 +104,7 @@ public class EffectTrack implements ClonableTrack {
 
         @Override
         protected void controlUpdate(float tpf) {
-            if(remove){
+            if (remove) {
                 emitter.removeControl(this);
                 return;
             }
@@ -132,8 +132,6 @@ public class EffectTrack implements ClonableTrack {
             return c;
 
         }
-
-
     };
 
     //Anim listener that stops the Emmitter when the animation is finished or changed.
@@ -144,7 +142,6 @@ public class EffectTrack implements ClonableTrack {
         }
 
         public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
-            stop();
         }
     }
 
