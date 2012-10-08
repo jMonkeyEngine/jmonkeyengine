@@ -29,7 +29,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.jme3.network.serializing;
 
 import com.jme3.math.Vector3f;
@@ -39,8 +38,6 @@ import com.jme3.network.message.DisconnectMessage;
 import com.jme3.network.message.GZIPCompressedMessage;
 import com.jme3.network.message.ZIPCompressedMessage;
 import com.jme3.network.serializing.serializers.*;
-import java.beans.beancontext.BeanContextServicesSupport;
-import java.beans.beancontext.BeanContextSupport;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
