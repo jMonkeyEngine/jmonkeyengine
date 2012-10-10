@@ -35,14 +35,18 @@ import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -200,7 +204,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
         clearClassLoader();
         loadClassLoader();
     }
-    
+
     @Override
     public void setAssetEventListener(AssetEventListener listener) {
         throw new UnsupportedOperationException("Setting the asset event listener is not allowed for ProjectAssetManager, use addAssetEventListener instead");
@@ -329,7 +333,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
      * @return
      */
     private String[] collectFilesWithSuffix(String suffix) {
-        ArrayList<String> list = new ArrayList<String>();
+        Set<String> list = new HashSet<String>();
         FileObject assetsFolder = getAssetFolder();
         if (assetsFolder != null) {
             Enumeration<FileObject> assets = (Enumeration<FileObject>) assetsFolder.getChildren(true);
@@ -362,6 +366,34 @@ public class ProjectAssetManager extends DesktopAssetManager {
         }
 
         return list.toArray(new String[list.size()]);
+    }
+
+    public InputStream getResourceAsStream(String name) {
+        InputStream in = this.getClass().getResourceAsStream(name);
+
+        if (in == null && classPathItems != null) {
+            // TODO I need to find out if classPathItems contains all jars added to a project
+            Iterator<ClassPathItem> classPathItemsIter = classPathItems.iterator();
+            while (classPathItemsIter.hasNext()) {
+                ClassPathItem classPathItem = classPathItemsIter.next();
+                FileObject jarFile = classPathItem.object;
+
+                Enumeration<FileObject> jarEntry = (Enumeration<FileObject>) jarFile.getChildren(true);
+                while (jarEntry.hasMoreElements()) {
+                    FileObject jarEntryAsset = jarEntry.nextElement();
+                    if (jarEntryAsset.getPath().equalsIgnoreCase(name)) {
+                        try {
+                            in = jarEntryAsset.getInputStream();
+                        } catch (FileNotFoundException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        return in;
     }
 
     /**

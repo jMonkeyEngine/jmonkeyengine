@@ -177,7 +177,7 @@ public class EditableMaterialFile {
                 fs = FileUtil.createMemoryFileSystem();
                 matDef = fs.getRoot().createData(name, "j3md");
                 OutputStream out = matDef.getOutputStream();
-                InputStream in = JmeSystem.getResourceAsStream("/" + getMatDefName());
+                InputStream in = manager.getResourceAsStream(getMatDefName());
                 if (in != null) {
                     int input = in.read();
                     while (input != -1) {
