@@ -30,7 +30,7 @@
             <property name="suite.location" value="${basedir}"/>
             <property name="suite.nbi.product.uid" value="${app.name}"/>
             <!--TODO: this is .0.1 because of the pre-release static 3.0.0, else the RCs could not be installed next to a beta-->
-            <property name="suite.nbi.product.version" value="${plugins.version}.0.1"/>
+            <property name="suite.nbi.product.version" value="${plugins.version}.0.2"/>
             <property name="nbi.stub.location" value="${basedir}/nbi/stub"/>
             <property name="nbi.stub.common.location" value="${basedir}/nbi/.common"/>
             <property name="nbi.ant.tasks.jar" value="${basedir}/nbi/antlib/nbi-ant-tasks.jar"/>
