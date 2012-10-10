@@ -33,9 +33,13 @@ package com.jme3.gde.core;
 
 import com.jme3.gde.core.scene.SceneApplication;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.prefs.BackingStoreException;
 import javax.swing.JPopupMenu;
+import org.netbeans.upgrade.AutoUpgrade;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.modules.ModuleInstall;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 
@@ -64,6 +68,15 @@ public class Installer extends ModuleInstall {
 
         //select project folder
         String projectDir = NbPreferences.forModule(Installer.class).get("projects_path", null);
+        if (projectDir == null) {
+            try {
+                AutoUpgrade.main(new String[]{});
+                NbPreferences.root().sync();
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            projectDir = NbPreferences.forModule(Installer.class).get("projects_path", null);
+        }
         if (projectDir == null) {
             javax.swing.JFileChooser fr = new javax.swing.JFileChooser();
             javax.swing.filechooser.FileSystemView fw = fr.getFileSystemView();

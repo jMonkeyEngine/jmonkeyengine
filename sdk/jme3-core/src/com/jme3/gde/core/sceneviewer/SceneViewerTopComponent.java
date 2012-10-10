@@ -325,15 +325,15 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentOpened() {
         super.componentOpened();
-        if(!NbPreferences.forModule(SceneViewerTopComponent.class).getBoolean("HELP_SHOWN", false)){
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                public void run() {
-                    Lookup.getDefault().lookup(Help.class).showHelp(new HelpCtx("com.jme3.gde.core.about"));
-                }
-            });
-            NbPreferences.forModule(SceneViewerTopComponent.class).put("HELP_SHOWN", "true");
-        }
+//        if(!NbPreferences.forModule(SceneViewerTopComponent.class).getBoolean("HELP_SHOWN", false)){
+//            java.awt.EventQueue.invokeLater(new Runnable() {
+//
+//                public void run() {
+//                    Lookup.getDefault().lookup(Help.class).showHelp(new HelpCtx("com.jme3.gde.core.about"));
+//                }
+//            });
+//            NbPreferences.forModule(SceneViewerTopComponent.class).put("HELP_SHOWN", "true");
+//        }
 //        oglCanvas.setActiveUpdates(true);
     }
 
