@@ -35,6 +35,7 @@ import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
+import com.jme3.system.JmeSystem;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
@@ -369,7 +370,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     public InputStream getResourceAsStream(String name) {
-        InputStream in = this.getClass().getResourceAsStream(name);
+        InputStream in = null;//JmeSystem.getResourceAsStream(name);
 
         if (in == null && classPathItems != null) {
             // TODO I need to find out if classPathItems contains all jars added to a project
