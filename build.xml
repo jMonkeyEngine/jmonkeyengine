@@ -135,8 +135,8 @@
     </target>
 
     <target name="-hudson-build-engine">
-        <!--ant dir="engine" target="build-bullet-natives"/-->
-        <ant dir="engine" target="jar"/>
+        <ant dir="engine" target="build-bullet-natives"/>
+        <!--ant dir="engine" target="jar"/-->
         <ant dir="engine" target="javadoc"/>
         <ant dir="engine" target="update-sdk-nobuild"/>
     </target>
