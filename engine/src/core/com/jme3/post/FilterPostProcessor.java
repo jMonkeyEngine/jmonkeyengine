@@ -43,6 +43,7 @@ import com.jme3.ui.Picture;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -518,5 +519,28 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      */
     public Texture2D getFilterTexture() {
         return filterTexture;
+    }
+    
+    /**
+     * returns the first filter in the list assignable form the given type 
+     * @param <T> 
+     * @param filterType the filter type
+     * @return a filter assignable form the given type 
+     */
+    public <T extends Filter> T getFilter(Class<T> filterType) {
+        for (Filter c : filters) {
+            if (filterType.isAssignableFrom(c.getClass())) {
+                return (T) c;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * returns an unmodifiable version of the filter list.
+     * @return the filters list
+     */
+    public List<Filter> getFilterList(){
+        return Collections.unmodifiableList(filters);
     }
 }
