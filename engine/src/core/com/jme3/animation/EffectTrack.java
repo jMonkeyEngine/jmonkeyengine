@@ -192,6 +192,9 @@ public class EffectTrack implements ClonableTrack {
      */
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
 
+        if (time == length) {
+            return;
+        }
         //first time adding the Animation listener to stop the track at the end of the animation
         if (!initialized) {
             control.addListener(new OnEndListener());
