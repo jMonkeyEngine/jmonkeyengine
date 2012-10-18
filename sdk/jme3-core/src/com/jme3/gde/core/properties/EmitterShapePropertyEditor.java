@@ -92,9 +92,9 @@ public class EmitterShapePropertyEditor implements PropertyEditor {
                     + ", "
                     + (shape.getMin().x + shape.getLen().x)
                     + ", "
-                    + (shape.getMin().x + shape.getLen().y)
+                    + (shape.getMin().y + shape.getLen().y)
                     + ", "
-                    + (shape.getMin().x + shape.getLen().z)
+                    + (shape.getMin().z + shape.getLen().z)
                     + "]";
         } else if (emitter instanceof EmitterPointShape) {
             EmitterPointShape shape = (EmitterPointShape) emitter;
