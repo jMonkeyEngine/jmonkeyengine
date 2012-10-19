@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * A class that helps to calculate the bezier curves calues. It uses doubles for performing calculations to minimize
  * floating point operations errors.
- * @author Marcin Roguski
+ * @author Marcin Roguski (Kaelthas)
  */
 public class BezierCurve {
 
@@ -25,6 +25,8 @@ public class BezierCurve {
     private int dimension;
     /** A table of the bezier points. */
     private float[][][] bezierPoints;
+    /** Array that stores a radius for each bezier triple. */
+    private float[] radiuses;
 
     @SuppressWarnings("unchecked")
     public BezierCurve(final int type, final List<Structure> bezTriples, final int dimension) {
@@ -37,6 +39,7 @@ public class BezierCurve {
         //the second index points to a table od three points of a bezier triple (handle, point, handle)
         //the third index specifies the coordinates of the specific point in a bezier triple
         bezierPoints = new float[bezTriples.size()][3][dimension];
+        radiuses = new float[bezTriples.size()];
         int i = 0, j, k;
         for (Structure bezTriple : bezTriples) {
             DynamicArray<Number> vec = (DynamicArray<Number>) bezTriple.getFieldValue("vec");
@@ -45,7 +48,7 @@ public class BezierCurve {
                     bezierPoints[i][j][k] = vec.get(j, k).floatValue();
                 }
             }
-            ++i;
+            radiuses[i++] = ((Number)bezTriple.getFieldValue("radius")).floatValue();
         }
     }
 
@@ -93,6 +96,17 @@ public class BezierCurve {
         return type;
     }
 
+	/**
+	 * The method returns the radius for the required bezier triple.
+	 * 
+	 * @param bezierTripleIndex
+	 *            index of the bezier triple
+	 * @return radius of the required bezier triple
+	 */
+	public float getRadius(int bezierTripleIndex) {
+		return radiuses[bezierTripleIndex];
+	}
+    
     /**
      * This method returns a list of control points for this curve.
      * @return a list of control points for this curve.
