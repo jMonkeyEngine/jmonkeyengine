@@ -32,6 +32,8 @@
 package com.jme3.scene.plugins.blender.curves;
 
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +54,7 @@ import com.jme3.math.Vector4f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -535,10 +538,10 @@ public class CurvesHelper extends AbstractBlenderHelper {
         for (int i = 0; i < vertexBuffers.length; ++i) {
             Mesh mesh = new Mesh();
             mesh.setBuffer(Type.Position, 3, vertexBuffers[i]);
-            if(indexBuffers[i].getIntBuffer() != null) {
-            	mesh.setBuffer(Type.Index, 3, indexBuffers[i].getIntBuffer());
+            if(indexBuffers[i].getBuffer() instanceof IntBuffer) {
+            	mesh.setBuffer(Type.Index, 3, (IntBuffer)indexBuffers[i].getBuffer());
             } else {
-            	mesh.setBuffer(Type.Index, 3, indexBuffers[i].getShortBuffer());
+            	mesh.setBuffer(Type.Index, 3, (ShortBuffer)indexBuffers[i].getBuffer());
             }
             mesh.setBuffer(Type.Normal, 3, normalBuffers[i]);
             Geometry g = new Geometry("g" + i, mesh);
@@ -583,7 +586,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
 		Map<Integer, Vector3f> normalMap = new TreeMap<Integer, Vector3f>();
 		Vector3f[] allVerts = BufferUtils.getVector3Array(points);
 
-		for (int i = 0; i < indexes.limit(); i += 3) {
+		for (int i = 0; i < indexes.size(); i += 3) {
 			int index1 = indexes.get(i);
 			int index2 = indexes.get(i + 1);
 			int index3 = indexes.get(i + 2);
@@ -620,19 +623,20 @@ public class CurvesHelper extends AbstractBlenderHelper {
 	 * @return index buffer for the mesh
 	 */
     private IndexBuffer generateIndexes(int bevelShapeVertexCount, int bevelRepeats, boolean smooth) {
+    	int putIndex = 0;
     	if(smooth) {
     		int indexBufferSize = (bevelRepeats - 1) * (bevelShapeVertexCount - 1) * 6;
-    		IndexBuffer result = new IndexBuffer(indexBufferSize);
+    		IndexBuffer result = IndexBuffer.createIndexBuffer(indexBufferSize, indexBufferSize);
             
     		for (int i = 0; i < bevelRepeats - 1; ++i) {
     			for (int j = 0; j < bevelShapeVertexCount - 1; ++j) {
-    				result.put(i * bevelShapeVertexCount + j);
-    				result.put(i * bevelShapeVertexCount + j + 1);
-    				result.put((i + 1) * bevelShapeVertexCount + j);
+    				result.put(putIndex++, i * bevelShapeVertexCount + j);
+    				result.put(putIndex++, i * bevelShapeVertexCount + j + 1);
+    				result.put(putIndex++, (i + 1) * bevelShapeVertexCount + j);
     				
-    				result.put(i * bevelShapeVertexCount + j + 1);
-    				result.put((i + 1) * bevelShapeVertexCount + j + 1);
-    				result.put((i + 1) * bevelShapeVertexCount + j);
+    				result.put(putIndex++, i * bevelShapeVertexCount + j + 1);
+    				result.put(putIndex++, (i + 1) * bevelShapeVertexCount + j + 1);
+    				result.put(putIndex++, (i + 1) * bevelShapeVertexCount + j);
     			}
     		}
             return result;
@@ -642,9 +646,9 @@ public class CurvesHelper extends AbstractBlenderHelper {
     		//so the amount of triangles is: bevelShapeVertexCount * 2 * (bevelRepeats - 1)
     		//and this gives the amount of vertices in non smooth shape as below ...
     		int indexBufferSize = bevelShapeVertexCount * bevelRepeats * 6;//6 = 2 * 3 where 2 is stated above and 3 is the count of vertices for each triangle
-    		IndexBuffer result = new IndexBuffer(indexBufferSize);
+    		IndexBuffer result = IndexBuffer.createIndexBuffer(indexBufferSize, indexBufferSize);
     		for (int i = 0; i < indexBufferSize; ++i) {
-    			result.put(i);
+    			result.put(putIndex++, i);
     		}
             return result;
     	}
