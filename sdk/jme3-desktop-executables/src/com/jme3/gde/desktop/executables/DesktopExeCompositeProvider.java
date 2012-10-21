@@ -62,7 +62,7 @@ public class DesktopExeCompositeProvider implements ProjectCustomizer.CompositeC
         public SavePropsListener(ProjectExtensionProperties props, Project project) {
             this.properties = props;
             this.project = project;
-            launch4j = new ProjectExtensionManager("launch4j", "v1.3", new String[]{"jar", "-launch4j-exe"});
+            launch4j = new ProjectExtensionManager("launch4j", "v1.4", new String[]{"jar", "-launch4j-exe"});
             launch4j.setAntTaskLibrary("launch4j");
             launch4j.setDataZip("nbres:/com/jme3/gde/desktop/executables/winapp-data.zip");
             macapp = new ProjectExtensionManager("macapp", "v1.2", new String[]{"jar", "-mac-app"});

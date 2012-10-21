@@ -18,9 +18,9 @@ and open the template in the editor.
   </singleInstance> 
   <jre>
     <!-- Specify one of the following or both -->
-    <path>bundled JRE path</path>
+    <!--path>bundled JRE path</path-->
     <minVersion>1.5.0</minVersion>
-    <opt>${run.jvmargs}</opt>
+    <opt>${run.jvmargs} -Xnoagent</opt>
   </jre>
   <!--splash>
     <file>file</file>
