@@ -60,6 +60,16 @@ public class AndroidImageInfo extends ImageRaster {
     }
     
     @Override
+    public int getWidth() {
+        return getBitmap().getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return getBitmap().getHeight();
+    }
+    
+    @Override
     public void setPixel(int x, int y, ColorRGBA color) {
         getBitmap().setPixel(x, y, color.asIntARGB());
     }

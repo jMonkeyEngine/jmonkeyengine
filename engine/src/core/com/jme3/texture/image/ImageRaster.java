@@ -92,6 +92,20 @@ public abstract class ImageRaster {
     }
     
     /**
+     * Returns the pixel width of the underlying image.
+     * 
+     * @return the pixel width of the underlying image.
+     */
+    public abstract int getWidth();
+    
+    /**
+     * Returns the pixel height of the underlying image.
+     * 
+     * @return the pixel height of the underlying image.
+     */
+    public abstract int getHeight();
+    
+    /**
      * Sets the pixel at the given coordinate to the given color.
      * <p>
      * For all integer based formats (those not ending in "F"), the 

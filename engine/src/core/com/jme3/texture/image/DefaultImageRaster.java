@@ -66,6 +66,16 @@ public class DefaultImageRaster extends ImageRaster {
     }
     
     @Override
+    public int getWidth() {
+        return width;
+    }
+
+    @Override
+    public int getHeight() {
+        return height;
+    }
+    
+    @Override
     public void setPixel(int x, int y, ColorRGBA color) {
         rangeCheck(x, y);
         
