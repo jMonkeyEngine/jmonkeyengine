@@ -76,11 +76,12 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Use LWJGL as the display system and force using the core OpenGL3.3 renderer.
      * <p>
-     * If the underlying system does not support OpenGL3.3, then the context
+     * If the underlying system does not support OpenGL3.2, then the context
      * initialization will throw an exception. Note that currently jMonkeyEngine
-     * does not have any shaders that support OpenGL3.3 therefore this 
+     * does not have any shaders that support OpenGL3.2 therefore this 
      * option is not useful.
-     * 
+     * <p>
+     * Note: OpenGL 3.2 is used to give 3.x support to Mac users.
      * 
      * @see AppSettings#setRenderer(java.lang.String) 
      */

@@ -93,20 +93,20 @@ public abstract class LwjglContext implements JmeContext {
         }
     }
 
-    protected ContextAttribs createContextAttribs(){
-        if (settings.getBoolean("GraphicsDebug") || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)){
+    protected ContextAttribs createContextAttribs() {
+        if (settings.getBoolean("GraphicsDebug") || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
             ContextAttribs attr;
-            if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)){
-                attr = new ContextAttribs(3, 3);
+            if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
+                attr = new ContextAttribs(3, 2);
                 attr = attr.withProfileCore(true).withForwardCompatible(true).withProfileCompatibility(false);
-            }else{
+            } else {
                 attr = new ContextAttribs();
             }
-            if (settings.getBoolean("GraphicsDebug")){
+            if (settings.getBoolean("GraphicsDebug")) {
                 attr = attr.withDebug(true);
             }
             return attr;
-        }else{
+        } else {
             return null;
         }
     }
