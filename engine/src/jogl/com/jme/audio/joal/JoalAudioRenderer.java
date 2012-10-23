@@ -49,7 +49,7 @@ import java.util.logging.Logger;
 
 public class JoalAudioRenderer implements AudioRenderer, Runnable {
 
-    private static final Logger logger = Logger.getLogger(com.jme3.audio.lwjgl.LwjglAudioRenderer.class.getName());
+    private static final Logger logger = Logger.getLogger(JoalAudioRenderer.class.getName());
     private final NativeObjectManager objManager = new NativeObjectManager();
     // When multiplied by STREAMING_BUFFER_COUNT, will equal 44100 * 2 * 2
     // which is exactly 1 second of audio.
