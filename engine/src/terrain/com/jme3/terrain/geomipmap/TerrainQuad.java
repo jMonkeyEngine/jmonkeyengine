@@ -65,6 +65,26 @@ import java.util.logging.Logger;
 
 /**
  * <p>
+ * TerrainQuad is a heightfield-based terrain system. Heightfield terrain is fast and can
+ * render large areas, and allows for easy Level of Detail control. However it does not
+ * permit caves easily.
+ * TerrainQuad is a quad tree, meaning that the root quad has four children, and each of
+ * those children have four children. All the way down until you reach the bottom, the actual
+ * geometry, the TerrainPatches.
+ * If you look at a TerrainQuad in wireframe mode with the TerrainLODControl attached, you will
+ * see blocks that change their LOD level together; these are the TerrainPatches. The TerrainQuad
+ * is just an organizational structure for the TerrainPatches so patches that are not in the
+ * view frustum get culled quickly.
+ * TerrainQuads size are a power of 2, plus 1. So 513x513, or 1025x1025 etc.
+ * Each point in the terrain is one unit apart from its neighbour. So a 513x513 terrain
+ * will be 513 units wide and 513 units long.
+ * Patch size can be specified on the terrain. This sets how large each geometry (TerrainPatch)
+ * is. It also must be a power of 2 plus 1 so the terrain can be subdivided equally.
+ * </p>
+ * <p>
+ * The height of the terrain can be modified at runtime using setHeight()
+ * </p>
+ * <p>
  * A terrain quad is a node in the quad tree of the terrain system.
  * The root terrain quad will be the only one that receives the update() call every frame
  * and it will determine if there has been any LOD change.
@@ -112,13 +132,25 @@ public class TerrainQuad extends Node implements Terrain {
     }
 
     /**
-     * 
+     * Creates a terrain with:
+     * <ul>
+     * <li>the total, real-world, size of the terrain</li>
+     * <li>the patchSize, or the size of each geometry tile of the terrain</li>
+     * <li>the heightmap that defines the height of the terrain</li>
+     * </ul>
+     * <p>
+     * A TerrainQuad of totalSize 513x513 will be 513 units wide and 513 units long.
+     * PatchSize is just used to subdivide the terrain into tiles that can be culled.
+     * </p>
      * @param name the name of the scene element. This is required for
      * identification and comparison purposes.
-     * @param patchSize size of the individual patches
-     * @param totalSize the size of this entire terrain tree (on one side)
+     * @param patchSize size of the individual patches (geometry). Power of 2 plus 1, 
+     * must be smaller than totalSize. (eg. 33, 65...)
+     * @param totalSize the size of this entire terrain (on one side). Power of 2 plus 1 
+     * (eg. 513, 1025, 2049...)
      * @param heightMap The height map to generate the terrain from (a flat
-     * height map will be generated if this is null)
+     * height map will be generated if this is null). The size of one side of the heightmap 
+     * must match the totalSize. So a 513x513 heightmap is needed for a terrain with totalSize of 513.
      */
     public TerrainQuad(String name, int patchSize, int totalSize, float[] heightMap) {
         this(name, patchSize, totalSize, Vector3f.UNIT_XYZ, heightMap);
