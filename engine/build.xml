@@ -31,6 +31,7 @@
         <mkdir dir="${build.dir}/jbullet"/>
         <mkdir dir="${build.dir}/bullet"/>
         <mkdir dir="${build.dir}/niftygui"/>
+        <mkdir dir="${build.dir}/jogl"/>
         <mkdir dir="${build.dir}/lwjgl"/>
         <mkdir dir="${build.dir}/android"/>
         
@@ -159,6 +160,16 @@
             <fileset dir="${src.lwjgl.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
         </copy>
 
+        <echo>Compile JOGL</echo>
+        <j2seproject3:javac 
+            destdir="${build.dir}/jogl"
+            srcdir="${src.jogl.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/desktop"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/jogl">
+            <fileset dir="${src.jogl.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+        
         <echo>Compile Android</echo>
         <j2seproject3:javac 
             destdir="${build.dir}/android"
@@ -196,6 +207,7 @@
         <jar jarfile="${build.dir}/jME3-bullet.jar" basedir="${build.dir}/bullet" compress="true"/>
         <jar jarfile="${build.dir}/jME3-niftygui.jar" basedir="${build.dir}/niftygui" compress="true"/>
         <jar jarfile="${build.dir}/jME3-lwjgl.jar" basedir="${build.dir}/lwjgl" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-jogl.jar" basedir="${build.dir}/jogl" compress="true"/>
         <jar jarfile="${build.dir}/jME3-android.jar" basedir="${build.dir}/android" compress="true"/>
         
         <echo>Building TestData JAR file..</echo>
@@ -223,6 +235,7 @@
             <map from="${build.dir.resolved}/bullet" to="${build.dir}/jME3-bullet.jar"/>
             <map from="${build.dir.resolved}/niftygui" to="${build.dir}/jME3-niftygui.jar"/>
             <map from="${build.dir.resolved}/lwjgl" to="${build.dir}/jME3-lwjgl.jar"/>
+            <map from="${build.dir.resolved}/jogl" to="${build.dir}/jME3-jogl.jar"/>
             <map from="${build.dir.resolved}/android" to=""/>
             <map from="${testdata.dir.resolved}" to="${build.dir.resolved}/jME3-testdata.jar"/>
             <map from="${android.jar.resolved}" to=""/>
@@ -234,11 +247,13 @@
         <echo>Moving optional packages</echo>
         <mkdir dir="${dist.dir}/opt"/>
         <mkdir dir="${dist.dir}/opt/native-bullet"/>
+        <mkdir dir="${dist.dir}/opt/jogl"/>
         <!--ant antfile="nbproject/build-bullet-natives.xml" target="bullet-api-diff"/-->
         <!--move file="bullet-api-diff.html" todir="${dist.dir}/opt/native-bullet" overwrite="true"/-->
         <move file="${dist.dir}/lib/jME3-bullet.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
         <move file="${dist.dir}/lib/jME3-bullet-natives.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
         <copy file="lib/bullet/jME3-bullet-natives-android.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
+        <move file="${dist.dir}/lib/jME3-jogl.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
 
         <mkdir dir="${dist.dir}/opt/android"/>
         <copy file="${build.dir}/jME3-android.jar" todir="${dist.dir}/opt/android" overwrite="true"/>
