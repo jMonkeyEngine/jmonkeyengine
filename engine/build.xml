@@ -253,7 +253,11 @@
         <move file="${dist.dir}/lib/jME3-bullet.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
         <move file="${dist.dir}/lib/jME3-bullet-natives.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
         <copy file="lib/bullet/jME3-bullet-natives-android.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
+
         <move file="${dist.dir}/lib/jME3-jogl.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <move file="${dist.dir}/lib/joal.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <move file="${dist.dir}/lib/gluegen-rt.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <move file="${dist.dir}/lib/jogl-all.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
 
         <mkdir dir="${dist.dir}/opt/android"/>
         <copy file="${build.dir}/jME3-android.jar" todir="${dist.dir}/opt/android" overwrite="true"/>
