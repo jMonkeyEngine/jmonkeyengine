@@ -279,7 +279,9 @@ public class JoglRenderer implements Renderer {
             caps.add(Caps.FloatDepthBuffer);
         }
         
-        
+        if (caps.contains(Caps.OpenGL30)) {
+            caps.add(Caps.PackedDepthStencilBuffer);
+        }
 
         if (gl.isExtensionAvailable("GL_ARB_draw_instanced")) {
             caps.add(Caps.MeshInstancing);
@@ -301,6 +303,15 @@ public class JoglRenderer implements Renderer {
 
         if (gl.isExtensionAvailable("GL_ARB_vertex_array_object")) {
             caps.add(Caps.VertexBufferArray);
+        }
+        
+        if (gl.isExtensionAvailable("GL_ARB_texture_non_power_of_two")) {
+            caps.add(Caps.NonPowerOfTwoTextures);
+        }
+        else {
+            logger.log(Level.WARNING, "Your graphics card does not "
+                    + "support non-power-of-2 textures. "
+                    + "Some features might not work.");
         }
 
         boolean latc = gl.isExtensionAvailable("GL_EXT_texture_compression_latc");
