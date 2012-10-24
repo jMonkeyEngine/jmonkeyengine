@@ -36,6 +36,10 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.IDList;
 import com.jme3.renderer.RenderContext;
@@ -49,6 +53,7 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
+import com.jme3.shader.Uniform;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
@@ -57,6 +62,7 @@ import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.IntMap;
 import com.jme3.util.IntMap.Entry;
+import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -71,6 +77,7 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES1;
 import javax.media.opengl.GL2ES2;
 import javax.media.opengl.GL2GL3;
+import javax.media.opengl.GL3;
 import javax.media.opengl.GLContext;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 import javax.media.opengl.fixedfunc.GLMatrixFunc;
@@ -81,8 +88,8 @@ public class JoglRenderer implements Renderer {
 
     private static final Logger logger = Logger.getLogger(JoglRenderer.class.getName());
     private static final boolean VALIDATE_SHADER = false;
-    private final ByteBuffer nameBuf = BufferUtils.createByteBuffer(250);
-    private final StringBuilder stringBuf = new StringBuilder(250);
+    //private final ByteBuffer nameBuf = BufferUtils.createByteBuffer(250);
+    //private final StringBuilder stringBuf = new StringBuilder(250);
     private final IntBuffer intBuf1 = BufferUtils.createIntBuffer(1);
     private final IntBuffer intBuf16 = BufferUtils.createIntBuffer(16);
     private RenderContext context = new RenderContext();
@@ -121,7 +128,7 @@ public class JoglRenderer implements Renderer {
     public JoglRenderer() {
     }
 
-    protected void updateNameBuffer() {
+    /*protected void updateNameBuffer() {
         int len = stringBuf.length();
 
         nameBuf.position(0);
@@ -131,10 +138,14 @@ public class JoglRenderer implements Renderer {
         }
 
         nameBuf.rewind();
-    }
+    }*/
 
     public Statistics getStatistics() {
         return statistics;
+    }
+    
+    public EnumSet<Caps> getCaps() {
+        return caps;
     }
 
     public void initialize() {
@@ -396,10 +407,57 @@ public class JoglRenderer implements Renderer {
             }
             caps.add(Caps.Multisample);
         }
+        
+        logger.log(Level.INFO, "Caps: {0}", caps);
     }
+    
+    public void invalidateState() {
+        context.reset();
+        boundShader = null;
+        lastFb = null;
 
-    public EnumSet<Caps> getCaps() {
-        return caps;
+        GL gl = GLContext.getCurrentGL();
+        gl.glGetIntegerv(GL2.GL_DRAW_BUFFER, intBuf16);
+        initialDrawBuf = intBuf16.get(0);
+        gl.glGetIntegerv(GL2.GL_READ_BUFFER, intBuf16);
+        initialReadBuf = intBuf16.get(0);
+    }
+    
+    public void resetGLObjects() {
+        objManager.resetObjects();
+        statistics.clearMemory();
+        boundShader = null;
+        lastFb = null;
+        context.reset();
+    }
+    
+    public void cleanup() {
+        objManager.deleteAllObjects(this);
+    }
+    
+    /*********************************************************************\
+    |* Render State                                                      *|
+    \*********************************************************************/
+    public void setDepthRange(float start, float end) {
+        GL gl = GLContext.getCurrentGL();
+        gl.glDepthRange(start, end);
+    }
+    
+    public void clearBuffers(boolean color, boolean depth, boolean stencil) {
+        GL gl = GLContext.getCurrentGL();
+        int bits = 0;
+        if (color) {
+            bits = GL.GL_COLOR_BUFFER_BIT;
+        }
+        if (depth) {
+            bits |= GL.GL_DEPTH_BUFFER_BIT;
+        }
+        if (stencil) {
+            bits |= GL.GL_STENCIL_BUFFER_BIT;
+        }
+        if (bits != 0) {
+            gl.glClear(bits);
+        }
     }
 
     public void setBackgroundColor(ColorRGBA color) {
@@ -418,36 +476,8 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void cleanup() {
-        objManager.deleteAllObjects(this);
-    }
-
-    public void resetGLObjects() {
-        objManager.resetObjects();
-        statistics.clearMemory();
-        boundShader = null;
-        lastFb = null;
-        context.reset();
-    }
-
-    public void clearBuffers(boolean color, boolean depth, boolean stencil) {
-        GL gl = GLContext.getCurrentGL();
-        int bits = 0;
-        if (color) {
-            bits = GL.GL_COLOR_BUFFER_BIT;
-        }
-        if (depth) {
-            bits |= GL.GL_DEPTH_BUFFER_BIT;
-        }
-        if (stencil) {
-            bits |= GL.GL_STENCIL_BUFFER_BIT;
-        }
-        if (bits != 0) {
-            gl.glClear(bits);
-        }
-    }
-
     public void applyRenderState(RenderState state) {
+        //FIXME implement missing features
         GL gl = GLContext.getCurrentGL();
         if (state.isWireframe() && !context.wireframe) {
             gl.getGL2().glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_LINE);
@@ -575,16 +605,56 @@ public class JoglRenderer implements Renderer {
             context.blendMode = state.getBlendMode();
         }
     }
-
-    public void onFrame() {
-        objManager.deleteUnused(this);
+    
+    private int convertStencilOperation(RenderState.StencilOperation stencilOp) {
+        switch (stencilOp) {
+            case Keep:
+                return GL.GL_KEEP;
+            case Zero:
+                return GL.GL_ZERO;
+            case Replace:
+                return GL.GL_REPLACE;
+            case Increment:
+                return GL.GL_INCR;
+            case IncrementWrap:
+                return GL.GL_INCR_WRAP;
+            case Decrement:
+                return GL.GL_DECR;
+            case DecrementWrap:
+                return GL.GL_DECR_WRAP;
+            case Invert:
+                return GL.GL_INVERT;
+            default:
+                throw new UnsupportedOperationException("Unrecognized stencil operation: " + stencilOp);
+        }
     }
 
-    public void setDepthRange(float start, float end) {
-        GL gl = GLContext.getCurrentGL();
-        gl.glDepthRange(start, end);
+    private int convertTestFunction(RenderState.TestFunction testFunc) {
+        switch (testFunc) {
+            case Never:
+                return GL.GL_NEVER;
+            case Less:
+                return GL.GL_LESS;
+            case LessOrEqual:
+                return GL.GL_LEQUAL;
+            case Greater:
+                return GL.GL_GREATER;
+            case GreaterOrEqual:
+                return GL.GL_GEQUAL;
+            case Equal:
+                return GL.GL_EQUAL;
+            case NotEqual:
+                return GL.GL_NOTEQUAL;
+            case Always:
+                return GL.GL_ALWAYS;
+            default:
+                throw new UnsupportedOperationException("Unrecognized test function: " + testFunc);
+        }
     }
-
+    
+    /*********************************************************************\
+    |* Camera and World transforms                                       *|
+    \*********************************************************************/
     public void setViewPort(int x, int y, int width, int height) {
         GL gl = GLContext.getCurrentGL();
         gl.glViewport(x, y, width, height);
@@ -611,104 +681,184 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    private FloatBuffer storeMatrix(Matrix4f matrix, FloatBuffer store) {
-        store.rewind();
-        matrix.fillFloatBuffer(store, true);
-        store.rewind();
-        return store;
+    public void onFrame() {
+        objManager.deleteUnused(this);
     }
-
+    
     public void setViewProjectionMatrices(Matrix4f viewMatrix, Matrix4f projMatrix) {
-        this.viewMatrix.set(viewMatrix);
-        this.projMatrix.set(projMatrix);
-        GL gl = GLContext.getCurrentGL();
-        if (context.matrixMode != GLMatrixFunc.GL_PROJECTION) {
-            gl.getGL2().glMatrixMode(GLMatrixFunc.GL_PROJECTION);
-            context.matrixMode = GLMatrixFunc.GL_PROJECTION;
-        }
-
-        gl.getGL2().glLoadMatrixf(storeMatrix(projMatrix, fb16));
     }
 
     public void setWorldMatrix(Matrix4f worldMatrix) {
-        this.worldMatrix.set(worldMatrix);
-        GL gl = GLContext.getCurrentGL();
-        if (context.matrixMode != GLMatrixFunc.GL_MODELVIEW) {
-            gl.getGL2().glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
-            context.matrixMode = GLMatrixFunc.GL_MODELVIEW;
-        }
-
-        gl.getGL2().glLoadMatrixf(storeMatrix(viewMatrix, fb16));
-        gl.getGL2().glMultMatrixf(storeMatrix(worldMatrix, fb16));
     }
 
+    /*********************************************************************\
+    |* Shaders                                                           *|
+    \*********************************************************************/
+    protected void updateUniformLocation(Shader shader, Uniform uniform) {
+        //stringBuf.setLength(0);
+        //stringBuf.append(uniform.getName()).append('\0');
+        //updateNameBuffer();
+        GL gl = GLContext.getCurrentGL();
+        int loc = gl.getGL2().glGetUniformLocation(shader.getId(), uniform.getName());
+        if (loc < 0) {
+            uniform.setLocation(-1);
+            // uniform is not declared in shader
+            logger.log(Level.INFO, "Uniform {0} is not declared in shader {1}.", new Object[]{uniform.getName(), shader.getSources()});
+        } else {
+            uniform.setLocation(loc);
+        }
+    }
+
+    protected void bindProgram(Shader shader) {
+        int shaderId = shader.getId();
+        if (context.boundShaderProgram != shaderId) {
+            GL gl = GLContext.getCurrentGL();
+            gl.getGL2().glUseProgram(shaderId);
+            statistics.onShaderUse(shader, true);
+            boundShader = shader;
+            context.boundShaderProgram = shaderId;
+        } else {
+            statistics.onShaderUse(shader, false);
+        }
+    }
+
+    protected void updateUniform(Shader shader, Uniform uniform) {
+        int shaderId = shader.getId();
+
+        assert uniform.getName() != null;
+        assert shaderId > 0;
+
+        bindProgram(shader);
+
+        int loc = uniform.getLocation();
+        if (loc == -1) {
+            return;
+        }
+
+        if (loc == -2) {
+            // get uniform location
+            updateUniformLocation(shader, uniform);
+            if (uniform.getLocation() == -1) {
+                // not declared, ignore
+                uniform.clearUpdateNeeded();
+                return;
+            }
+            loc = uniform.getLocation();
+        }
+
+        if (uniform.getVarType() == null) {
+            return; // value not set yet..
+        }
+        statistics.onUniformSet();
+
+        uniform.clearUpdateNeeded();
+        FloatBuffer fb;
+        GL gl = GLContext.getCurrentGL();
+        switch (uniform.getVarType()) {
+            case Float:
+                Float f = (Float) uniform.getValue();
+                gl.getGL2().glUniform1f(loc, f.floatValue());
+                break;
+            case Vector2:
+                Vector2f v2 = (Vector2f) uniform.getValue();
+                gl.getGL2().glUniform2f(loc, v2.getX(), v2.getY());
+                break;
+            case Vector3:
+                Vector3f v3 = (Vector3f) uniform.getValue();
+                gl.getGL2().glUniform3f(loc, v3.getX(), v3.getY(), v3.getZ());
+                break;
+            case Vector4:
+                Object val = uniform.getValue();
+                if (val instanceof ColorRGBA) {
+                    ColorRGBA c = (ColorRGBA) val;
+                    gl.getGL2().glUniform4f(loc, c.r, c.g, c.b, c.a);
+                } else if (val instanceof Vector4f) {
+                    Vector4f c = (Vector4f) val;
+                    gl.getGL2().glUniform4f(loc, c.x, c.y, c.z, c.w);
+                } else {
+                    Quaternion c = (Quaternion) uniform.getValue();
+                    gl.getGL2().glUniform4f(loc, c.getX(), c.getY(), c.getZ(), c.getW());
+                }
+                break;
+            case Boolean:
+                Boolean b = (Boolean) uniform.getValue();
+                gl.getGL2().glUniform1i(loc, b.booleanValue() ? GL.GL_TRUE : GL.GL_FALSE);
+                break;
+            case Matrix3:
+                fb = (FloatBuffer) uniform.getValue();
+                assert fb.remaining() == 9;
+                gl.getGL2().glUniformMatrix3fv(loc, 1, false, fb);
+                break;
+            case Matrix4:
+                fb = (FloatBuffer) uniform.getValue();
+                assert fb.remaining() == 16;
+                gl.getGL2().glUniformMatrix4fv(loc, 1, false, fb);
+                break;
+            case FloatArray:
+                fb = (FloatBuffer) uniform.getValue();
+                gl.getGL2().glUniform1fv(loc, fb.remaining(), fb);
+                break;
+            case Vector2Array:
+                fb = (FloatBuffer) uniform.getValue();
+                gl.getGL2().glUniform2fv(loc, fb.remaining(), fb);
+                break;
+            case Vector3Array:
+                fb = (FloatBuffer) uniform.getValue();
+                gl.getGL2().glUniform3fv(loc, fb.remaining(), fb);
+                break;
+            case Vector4Array:
+                fb = (FloatBuffer) uniform.getValue();
+                gl.getGL2().glUniform4fv(loc, fb.remaining(), fb);
+                break;
+            case Matrix4Array:
+                fb = (FloatBuffer) uniform.getValue();
+                gl.getGL2().glUniformMatrix4fv(loc, 1, false, fb);
+                break;
+            case Int:
+                Integer i = (Integer) uniform.getValue();
+                gl.getGL2().glUniform1i(loc, i.intValue());
+                break;
+            default:
+                throw new UnsupportedOperationException("Unsupported uniform type: " + uniform.getVarType());
+        }
+    }
+
+    protected void updateShaderUniforms(Shader shader) {
+        ListMap<String, Uniform> uniforms = shader.getUniformMap();
+        for (int i = 0; i < uniforms.size(); i++) {
+            Uniform uniform = uniforms.getValue(i);
+            if (uniform.isUpdateNeeded()) {
+                updateUniform(shader, uniform);
+            }
+        }
+    }
+
+    protected void resetUniformLocations(Shader shader) {
+        ListMap<String, Uniform> uniforms = shader.getUniformMap();
+        for (int i = 0; i < uniforms.size(); i++) {
+            Uniform uniform = uniforms.getValue(i);
+            uniform.reset(); // e.g check location again
+        }
+    }
+
+    /*
+     * (Non-javadoc)
+     * Only used for fixed-function. Ignored.
+     */
     public void setLighting(LightList list) {
-        /*GL gl = GLContext.getCurrentGL();
-         if (list == null || list.size() == 0) {
-         // turn off lighting
-         gl.glDisable(GLLightingFunc.GL_LIGHTING);
-         return;
-         }
-
-         gl.glEnable(GLLightingFunc.GL_LIGHTING);
-         gl.getGL2().glShadeModel(GLLightingFunc.GL_SMOOTH);
-
-         float[] temp = new float[4];
-
-         // reset model view to specify
-         // light positions in world space
-         // instead of model space
-         // gl.glPushMatrix();
-         // gl.glLoadIdentity();
-
-         for (int i = 0; i < list.size() + 1; i++) {
-
-         int lightId = GLLightingFunc.GL_LIGHT0 + i;
-
-         if (list.size() <= i) {
-         // goes beyond the num lights we need
-         // disable it
-         gl.glDisable(lightId);
-         break;
-         }
-
-         Light l = list.get(i);
-
-         if (!l.isEnabled()) {
-         gl.glDisable(lightId);
-         continue;
-         }
-
-         ColorRGBA color = l.getColor();
-         color.toArray(temp);
-
-         gl.glEnable(lightId);
-         gl.getGL2().glLightfv(lightId, GLLightingFunc.GL_DIFFUSE, temp, 0);
-         gl.getGL2().glLightfv(lightId, GLLightingFunc.GL_SPECULAR, temp, 0);
-
-         ColorRGBA.Black.toArray(temp);
-         gl.getGL2().glLightfv(lightId, GLLightingFunc.GL_AMBIENT, temp, 0);
-
-         switch (l.getType()) {
-         case Directional:
-         DirectionalLight dl = (DirectionalLight) l;
-         dl.getDirection().toArray(temp);
-         temp[3] = 0f; // marks to GL its a directional light
-         gl.getGL2().glLightfv(lightId, GLLightingFunc.GL_POSITION, temp, 0);
-         break;
-         case Point:
-         PointLight pl = (PointLight) l;
-         pl.getPosition().toArray(temp);
-         temp[3] = 1f; // marks to GL its a point light
-         gl.getGL2().glLightfv(lightId, GLLightingFunc.GL_POSITION, temp, 0);
-         break;
-         }
-
-         }
-
-         // restore modelview to original value
-         // gl.glPopMatrix();
-         * */
+    }
+    
+    public int convertShaderType(Shader.ShaderType type) {
+        switch (type) {
+            case Fragment:
+                return GL2.GL_FRAGMENT_SHADER;
+            case Vertex:
+                return GL2.GL_VERTEX_SHADER;
+//            case Geometry:
+//                return ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB;
+            default:
+                throw new UnsupportedOperationException("Unrecognized shader type.");
+        }
     }
 
     public void deleteShaderSource(ShaderSource source) {
@@ -1756,19 +1906,6 @@ public class JoglRenderer implements Renderer {
                 renderMeshDefault(mesh, lod, count);
             }
         }*/
-    }
-
-    public void invalidateState() {
-        context.reset();
-        boundShader = null;
-        lastFb = null;
-
-        GL gl = GLContext.getCurrentGL();
-        gl.glGetIntegerv(GL2.GL_DRAW_BUFFER, intBuf16);
-        initialDrawBuf = intBuf16.get(0);
-        gl.glGetIntegerv(GL2.GL_READ_BUFFER, intBuf16);
-        initialReadBuf = intBuf16.get(0);
-
     }
 
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
