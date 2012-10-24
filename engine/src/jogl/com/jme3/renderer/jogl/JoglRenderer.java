@@ -77,19 +77,18 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES1;
 import javax.media.opengl.GL2ES2;
 import javax.media.opengl.GL2GL3;
-import javax.media.opengl.GL3;
 import javax.media.opengl.GLContext;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
-import javax.media.opengl.fixedfunc.GLMatrixFunc;
 import javax.media.opengl.fixedfunc.GLPointerFunc;
 import jme3tools.converters.MipMapGenerator;
+import jme3tools.shader.ShaderDebug;
 
 public class JoglRenderer implements Renderer {
 
     private static final Logger logger = Logger.getLogger(JoglRenderer.class.getName());
     private static final boolean VALIDATE_SHADER = false;
-    //private final ByteBuffer nameBuf = BufferUtils.createByteBuffer(250);
-    //private final StringBuilder stringBuf = new StringBuilder(250);
+    private final ByteBuffer nameBuf = BufferUtils.createByteBuffer(250);
+    private final StringBuilder stringBuf = new StringBuilder(250);
     private final IntBuffer intBuf1 = BufferUtils.createIntBuffer(1);
     private final IntBuffer intBuf16 = BufferUtils.createIntBuffer(16);
     private RenderContext context = new RenderContext();
@@ -128,7 +127,7 @@ public class JoglRenderer implements Renderer {
     public JoglRenderer() {
     }
 
-    /*protected void updateNameBuffer() {
+    protected void updateNameBuffer() {
         int len = stringBuf.length();
 
         nameBuf.position(0);
@@ -138,7 +137,7 @@ public class JoglRenderer implements Renderer {
         }
 
         nameBuf.rewind();
-    }*/
+    }
 
     public Statistics getStatistics() {
         return statistics;
@@ -860,20 +859,569 @@ public class JoglRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unrecognized shader type.");
         }
     }
+    
+    public void updateShaderSourceData(ShaderSource source) {
+        int id = source.getId();
+        GL gl = GLContext.getCurrentGL();
+        if (id == -1) {
+            // Create id
+            id = gl.getGL2().glCreateShader(convertShaderType(source.getType()));
+            if (id <= 0) {
+                throw new RendererException("Invalid ID received when trying to create shader.");
+            }
 
-    public void deleteShaderSource(ShaderSource source) {
+            source.setId(id);
+        } else {
+            throw new RendererException("Cannot recompile shader source");
+        }
+
+        // Upload shader source.
+        // Merge the defines and source code.
+        String language = source.getLanguage();
+        stringBuf.setLength(0);
+        if (language.startsWith("GLSL")) {
+            int version = Integer.parseInt(language.substring(4));
+            if (version > 100) {
+                stringBuf.append("#version ");
+                stringBuf.append(language.substring(4));
+                if (version >= 150) {
+                    stringBuf.append(" core");
+                }
+                stringBuf.append("\n");
+            }
+        }
+        updateNameBuffer();
+
+        byte[] definesCodeData = source.getDefines().getBytes();
+        byte[] sourceCodeData = source.getSource().getBytes();
+        ByteBuffer codeBuf = BufferUtils.createByteBuffer(nameBuf.limit()
+                + definesCodeData.length
+                + sourceCodeData.length);
+        codeBuf.put(nameBuf);
+        codeBuf.put(definesCodeData);
+        codeBuf.put(sourceCodeData);
+        codeBuf.flip();
+        
+        byte[] array = new byte[codeBuf.limit()];
+        codeBuf.rewind();
+        codeBuf.get(array);
+        codeBuf.rewind();
+
+        gl.getGL2ES2().glShaderSource(id, 1, new String[]{new String(array)}, new int[]{array.length}, 0);
+        gl.getGL2().glCompileShader(id);
+
+        gl.getGL2().glGetShaderiv(id, GL2.GL_COMPILE_STATUS, intBuf1);
+
+        boolean compiledOK = intBuf1.get(0) == GL.GL_TRUE;
+        String infoLog = null;
+
+        if (VALIDATE_SHADER || !compiledOK) {
+            // even if compile succeeded, check
+            // log for warnings
+            gl.getGL2().glGetShaderiv(id, GL2.GL_INFO_LOG_LENGTH, intBuf1);
+            int length = intBuf1.get(0);
+            if (length > 3) {
+                // get infos
+                ByteBuffer logBuf = BufferUtils.createByteBuffer(length);
+                gl.getGL2().glGetShaderInfoLog(id, length, null, logBuf);
+                byte[] logBytes = new byte[length];
+                logBuf.get(logBytes, 0, length);
+                // convert to string, etc
+                infoLog = new String(logBytes);
+            }
+        }
+
+        if (compiledOK) {
+            if (infoLog != null) {
+                logger.log(Level.INFO, "{0} compile success\n{1}",
+                        new Object[]{source.getName(), infoLog});
+            } else {
+                logger.log(Level.FINE, "{0} compile success", source.getName());
+            }
+            source.clearUpdateNeeded();
+        } else {
+            logger.log(Level.WARNING, "Bad compile of:\n{0}",
+                    new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource(), stringBuf.toString())});
+            if (infoLog != null) {
+                throw new RendererException("compile error in:" + source + " error:" + infoLog);
+            } else {
+                throw new RendererException("compile error in:" + source + " error: <not provided>");
+            }
+        }
+    }
+
+    public void updateShaderData(Shader shader) {
+        GL gl = GLContext.getCurrentGL();
+        int id = shader.getId();
+        boolean needRegister = false;
+        if (id == -1) {
+            // create program
+            id = gl.getGL2().glCreateProgram();
+            if (id == 0) {
+                throw new RendererException("Invalid ID (" + id + ") received when trying to create shader program.");
+            }
+
+            shader.setId(id);
+            needRegister = true;
+        }
+
+        for (ShaderSource source : shader.getSources()) {
+            if (source.isUpdateNeeded()) {
+                updateShaderSourceData(source);
+            }
+            gl.getGL2().glAttachShader(id, source.getId());
+        }
+
+        if (caps.contains(Caps.OpenGL30)) {
+            // Check if GLSL version is 1.5 for shader
+            gl.getGL2().glBindFragDataLocation(id, 0, "outFragColor");
+            // For MRT
+            for (int i = 0; i < maxMRTFBOAttachs; i++) {
+                gl.getGL2().glBindFragDataLocation(id, i, "outFragData[" + i + "]");
+            }
+        }
+
+        // Link shaders to program
+        gl.getGL2().glLinkProgram(id);
+
+        // Check link status
+        gl.getGL2().glGetProgramiv(id, GL2.GL_LINK_STATUS, intBuf1);
+        boolean linkOK = intBuf1.get(0) == GL.GL_TRUE;
+        String infoLog = null;
+
+        if (VALIDATE_SHADER || !linkOK) {
+            gl.getGL2().glGetProgramiv(id, GL2.GL_INFO_LOG_LENGTH, intBuf1);
+            int length = intBuf1.get(0);
+            if (length > 3) {
+                // get infos
+                ByteBuffer logBuf = BufferUtils.createByteBuffer(length);
+                gl.getGL2().glGetProgramInfoLog(id, length, null, logBuf);
+
+                // convert to string, etc
+                byte[] logBytes = new byte[length];
+                logBuf.get(logBytes, 0, length);
+                infoLog = new String(logBytes);
+            }
+        }
+
+        if (linkOK) {
+            if (infoLog != null) {
+                logger.log(Level.INFO, "shader link success. \n{0}", infoLog);
+            } else {
+                logger.fine("shader link success");
+            }
+            shader.clearUpdateNeeded();
+            if (needRegister) {
+                // Register shader for clean up if it was created in this method.
+                objManager.registerForCleanup(shader);
+                statistics.onNewShader();
+            } else {
+                // OpenGL spec: uniform locations may change after re-link
+                resetUniformLocations(shader);
+            }
+        } else {
+            if (infoLog != null) {
+                throw new RendererException("Shader link failure, shader:" + shader + " info:" + infoLog);
+            } else {
+                throw new RendererException("Shader link failure, shader:" + shader + " info: <not provided>");
+            }
+        }
     }
 
     public void setShader(Shader shader) {
+        if (shader == null) {
+            throw new IllegalArgumentException("Shader cannot be null");
+        } else {
+            if (shader.isUpdateNeeded()) {
+                updateShaderData(shader);
+            }
+
+            // NOTE: might want to check if any of the
+            // sources need an update?
+
+            assert shader.getId() > 0;
+
+            updateShaderUniforms(shader);
+            bindProgram(shader);
+        }
+    }
+
+    public void deleteShaderSource(ShaderSource source) {
+        if (source.getId() < 0) {
+            logger.warning("Shader source is not uploaded to GPU, cannot delete.");
+            return;
+        }
+        source.clearUpdateNeeded();
+        GL gl = GLContext.getCurrentGL();
+        gl.getGL2().glDeleteShader(source.getId());
+        source.resetObject();
     }
 
     public void deleteShader(Shader shader) {
+        if (shader.getId() == -1) {
+            logger.warning("Shader is not uploaded to GPU, cannot delete.");
+            return;
+        }
+
+        GL gl = GLContext.getCurrentGL();
+        for (ShaderSource source : shader.getSources()) {
+            if (source.getId() != -1) {
+                gl.getGL2().glDetachShader(shader.getId(), source.getId());
+                deleteShaderSource(source);
+            }
+        }
+
+        gl.getGL2().glDeleteProgram(shader.getId());
+        statistics.onDeleteShader();
+        shader.resetObject();
     }
 
+    /*********************************************************************\
+    |* Framebuffers                                                      *|
+    \*********************************************************************/
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
         copyFrameBuffer(src, dst, true);
     }
 
+    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
+        GL gl = GLContext.getCurrentGL();
+        if (gl.isExtensionAvailable("GL_EXT_framebuffer_blit")) {
+            int srcX0 = 0;
+            int srcY0 = 0;
+            int srcX1 = 0;
+            int srcY1 = 0;
+
+            int dstX0 = 0;
+            int dstY0 = 0;
+            int dstX1 = 0;
+            int dstY1 = 0;
+
+            int prevFBO = context.boundFBO;
+
+            if (mainFbOverride != null) {
+                if (src == null) {
+                    src = mainFbOverride;
+                }
+                if (dst == null) {
+                    dst = mainFbOverride;
+                }
+            }
+
+            if (src != null && src.isUpdateNeeded()) {
+                updateFrameBuffer(src);
+            }
+
+            if (dst != null && dst.isUpdateNeeded()) {
+                updateFrameBuffer(dst);
+            }
+
+            if (src == null) {
+                gl.glBindFramebuffer(GL2.GL_READ_FRAMEBUFFER, 0);
+                srcX0 = vpX;
+                srcY0 = vpY;
+                srcX1 = vpX + vpW;
+                srcY1 = vpY + vpH;
+            } else {
+                gl.glBindFramebuffer(GL2.GL_READ_FRAMEBUFFER, src.getId());
+                srcX1 = src.getWidth();
+                srcY1 = src.getHeight();
+            }
+            if (dst == null) {
+                gl.glBindFramebuffer(GL2.GL_DRAW_FRAMEBUFFER, 0);
+                dstX0 = vpX;
+                dstY0 = vpY;
+                dstX1 = vpX + vpW;
+                dstY1 = vpY + vpH;
+            } else {
+                gl.glBindFramebuffer(GL2.GL_DRAW_FRAMEBUFFER, dst.getId());
+                dstX1 = dst.getWidth();
+                dstY1 = dst.getHeight();
+            }
+            int mask = GL.GL_COLOR_BUFFER_BIT;
+            if (copyDepth) {
+                mask |= GL.GL_DEPTH_BUFFER_BIT;
+            }
+            gl.getGL2().glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1,
+                    dstX0, dstY0, dstX1, dstY1, mask,
+                    GL.GL_NEAREST);
+
+
+            gl.glBindFramebuffer(GL2.GL_FRAMEBUFFER, prevFBO);
+            try {
+                checkFrameBufferError();
+            } catch (IllegalStateException ex) {
+                logger.log(Level.SEVERE, "Source FBO:\n{0}", src);
+                logger.log(Level.SEVERE, "Dest FBO:\n{0}", dst);
+                throw ex;
+            }
+        } else {
+            throw new RendererException("EXT_framebuffer_blit required.");
+            // TODO: support non-blit copies?
+        }
+    }
+    
+    private String getTargetBufferName(int buffer) {
+        switch (buffer) {
+            case GL.GL_NONE:
+                return "NONE";
+            case GL.GL_FRONT:
+                return "GL_FRONT";
+            case GL.GL_BACK:
+                return "GL_BACK";
+            default:
+                if (buffer >= GL.GL_COLOR_ATTACHMENT0
+                        && buffer <= GL2.GL_COLOR_ATTACHMENT15) {
+                    return "GL_COLOR_ATTACHMENT"
+                            + (buffer - GL.GL_COLOR_ATTACHMENT0);
+                } else {
+                    return "UNKNOWN? " + buffer;
+                }
+        }
+    }
+
+    private void printRealRenderBufferInfo(FrameBuffer fb, RenderBuffer rb, String name) {
+        GL gl = GLContext.getCurrentGL();
+        System.out.println("== Renderbuffer " + name + " ==");
+        System.out.println("RB ID: " + rb.getId());
+        System.out.println("Is proper? " + gl.glIsRenderbuffer(rb.getId()));
+
+        int attachment = convertAttachmentSlot(rb.getSlot());
+
+        gl.glGetFramebufferAttachmentParameteriv(GL2.GL_DRAW_FRAMEBUFFER,
+                attachment,
+                GL.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE, intBuf16);
+        int type = intBuf16.get(0);
+        gl.glGetFramebufferAttachmentParameteriv(GL2.GL_DRAW_FRAMEBUFFER,
+                attachment,
+                GL.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, intBuf16);
+        int rbName  = intBuf16.get(0);
+
+        switch (type) {
+            case GL.GL_NONE:
+                System.out.println("Type: None");
+                break;
+            case GL.GL_TEXTURE:
+                System.out.println("Type: Texture");
+                break;
+            case GL2.GL_RENDERBUFFER:
+                System.out.println("Type: Buffer");
+                System.out.println("RB ID: " + rbName);
+                break;
+        }
+
+
+
+    }
+
+    private void printRealFrameBufferInfo(FrameBuffer fb) {
+        GL gl = GLContext.getCurrentGL();
+        final byte[] param = new byte[1];
+        gl.glGetBooleanv(GL2.GL_DOUBLEBUFFER, param, 0);
+        boolean doubleBuffer = param[0] != (byte) 0x00;
+        gl.glGetIntegerv(GL2.GL_DRAW_BUFFER, intBuf16);
+        String drawBuf = getTargetBufferName(intBuf16.get(0));
+        gl.glGetIntegerv(GL2.GL_READ_BUFFER, intBuf16);
+        String readBuf = getTargetBufferName(intBuf16.get(0));
+
+        int fbId = fb.getId();
+        gl.glGetIntegerv(GL2.GL_DRAW_FRAMEBUFFER_BINDING, intBuf16);
+        int curDrawBinding = intBuf16.get(0);
+        gl.glGetIntegerv(GL2.GL_READ_FRAMEBUFFER_BINDING, intBuf16);
+        int curReadBinding = intBuf16.get(0);
+
+        System.out.println("=== OpenGL FBO State ===");
+        System.out.println("Context doublebuffered? " + doubleBuffer);
+        System.out.println("FBO ID: " + fbId);
+        System.out.println("Is proper? " + gl.glIsFramebuffer(fbId));
+        System.out.println("Is bound to draw? " + (fbId == curDrawBinding));
+        System.out.println("Is bound to read? " + (fbId == curReadBinding));
+        System.out.println("Draw buffer: " + drawBuf);
+        System.out.println("Read buffer: " + readBuf);
+
+        if (context.boundFBO != fbId) {
+            gl.glBindFramebuffer(GL2.GL_DRAW_FRAMEBUFFER, fbId);
+            context.boundFBO = fbId;
+        }
+
+        if (fb.getDepthBuffer() != null) {
+            printRealRenderBufferInfo(fb, fb.getDepthBuffer(), "Depth");
+        }
+        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
+            printRealRenderBufferInfo(fb, fb.getColorBuffer(i), "Color" + i);
+        }
+    }
+    
+    private void checkFrameBufferError() {
+        GL gl = GLContext.getCurrentGL();
+        int status = gl.glCheckFramebufferStatus(GL.GL_FRAMEBUFFER);
+        switch (status) {
+            case GL.GL_FRAMEBUFFER_COMPLETE:
+                break;
+            case GL.GL_FRAMEBUFFER_UNSUPPORTED:
+                // Choose different formats
+                throw new IllegalStateException("Framebuffer object format is "
+                        + "unsupported by the video hardware.");
+            case GL.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                throw new IllegalStateException("Framebuffer has erronous attachment.");
+            case GL.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                throw new IllegalStateException("Framebuffer is missing required attachment.");
+            case GL.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+                throw new IllegalStateException(
+                        "Framebuffer attachments must have same dimensions.");
+            case GL.GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
+                throw new IllegalStateException("Framebuffer attachments must have same formats.");
+            case GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+                throw new IllegalStateException("Incomplete draw buffer.");
+            case GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+                throw new IllegalStateException("Incomplete read buffer.");
+            case GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+                throw new IllegalStateException("Incomplete multisample buffer.");
+            default:
+                // Programming error; will fail on all hardware
+                throw new IllegalStateException("Some video driver error "
+                        + "or programming error occured. "
+                        + "Framebuffer object status is invalid. ");
+        }
+    }
+    
+    private void updateRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
+        GL gl = GLContext.getCurrentGL();
+        int id = rb.getId();
+        if (id == -1) {
+            gl.glGenRenderbuffers(1, intBuf1);
+            id = intBuf1.get(0);
+            rb.setId(id);
+        }
+
+        if (context.boundRB != id) {
+            gl.glBindRenderbuffer(GL.GL_RENDERBUFFER, id);
+            context.boundRB = id;
+        }
+
+        if (fb.getWidth() > maxRBSize || fb.getHeight() > maxRBSize) {
+            throw new UnsupportedOperationException("Resolution " + fb.getWidth() + ":"
+                    + fb.getHeight() + " is not supported.");
+        }
+
+        if (fb.getSamples() > 0 && gl.isExtensionAvailable("GL_EXT_framebuffer_multisample")
+                && gl.isFunctionAvailable("glRenderbufferStorageMultisample")) {
+            int samples = fb.getSamples();
+            if (maxFBOSamples < samples) {
+                samples = maxFBOSamples;
+            }
+            gl.getGL2()
+                    .glRenderbufferStorageMultisample(GL.GL_RENDERBUFFER, samples,
+                    TextureUtil.convertTextureFormat(rb.getFormat()), fb.getWidth(),
+                    fb.getHeight());
+        } else {
+            gl.glRenderbufferStorage(GL.GL_RENDERBUFFER,
+                    TextureUtil.convertTextureFormat(rb.getFormat()), fb.getWidth(), fb.getHeight());
+        }
+    }
+    
+    private int convertAttachmentSlot(int attachmentSlot) {
+        // can also add support for stencil here
+        if (attachmentSlot == -100) {
+            return GL.GL_DEPTH_ATTACHMENT;
+        } else if (attachmentSlot < 0 || attachmentSlot >= 16) {
+            throw new UnsupportedOperationException("Invalid FBO attachment slot: "
+                    + attachmentSlot);
+        }
+
+        return GL.GL_COLOR_ATTACHMENT0 + attachmentSlot;
+    }
+    
+    public void updateRenderTexture(FrameBuffer fb, RenderBuffer rb) {
+        GL gl = GLContext.getCurrentGL();
+        Texture tex = rb.getTexture();
+        Image image = tex.getImage();
+        if (image.isUpdateNeeded()) {
+            updateTexImageData(image, tex.getType(), 0);
+
+            // NOTE: For depth textures, sets nearest/no-mips mode
+            // Required to fix "framebuffer unsupported"
+            // for old NVIDIA drivers!
+            setupTextureParams(tex);
+        }
+
+        gl.glFramebufferTexture2D(GL.GL_FRAMEBUFFER, convertAttachmentSlot(rb.getSlot()),
+                convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
+                image.getId(), 0);
+    }
+    
+    public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
+        boolean needAttach;
+        if (rb.getTexture() == null) {
+            // if it hasn't been created yet, then attach is required.
+            needAttach = rb.getId() == -1;
+            updateRenderBuffer(fb, rb);
+        } else {
+            needAttach = false;
+            updateRenderTexture(fb, rb);
+        }
+        if (needAttach) {
+            GL gl = GLContext.getCurrentGL();
+            gl.glFramebufferRenderbuffer(GL.GL_FRAMEBUFFER, convertAttachmentSlot(rb.getSlot()),
+                    GL.GL_RENDERBUFFER, rb.getId());
+        }
+    }
+    
+    public void updateFrameBuffer(FrameBuffer fb) {
+        GL gl = GLContext.getCurrentGL();
+        int id = fb.getId();
+        if (id == -1) {
+            // create FBO
+            gl.glGenFramebuffers(1, intBuf1);
+            id = intBuf1.get(0);
+            fb.setId(id);
+            objManager.registerForCleanup(fb);
+
+            statistics.onNewFrameBuffer();
+        }
+
+        if (context.boundFBO != id) {
+            gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, id);
+            // binding an FBO automatically sets draw buf to GL_COLOR_ATTACHMENT0
+            context.boundDrawBuf = 0;
+            context.boundFBO = id;
+        }
+
+        FrameBuffer.RenderBuffer depthBuf = fb.getDepthBuffer();
+        if (depthBuf != null) {
+            updateFrameBufferAttachment(fb, depthBuf);
+        }
+
+        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
+            FrameBuffer.RenderBuffer colorBuf = fb.getColorBuffer(i);
+            updateFrameBufferAttachment(fb, colorBuf);
+        }
+
+        fb.clearUpdateNeeded();
+    }
+    
+    public Vector2f[] getFrameBufferSamplePositions(FrameBuffer fb) {
+        if (fb.getSamples() <= 1) {
+            throw new IllegalArgumentException("Framebuffer must be multisampled");
+        }
+
+        setFrameBuffer(fb);
+
+        Vector2f[] samplePositions = new Vector2f[fb.getSamples()];
+        FloatBuffer samplePos = BufferUtils.createFloatBuffer(2);
+        GL gl = GLContext.getCurrentGL();
+        for (int i = 0; i < samplePositions.length; i++) {
+            gl.getGL2().glGetMultisamplefv(GL2.GL_SAMPLE_POSITION, i, samplePos);
+            samplePos.clear();
+            samplePositions[i] = new Vector2f(samplePos.get(0) - 0.5f,
+                    samplePos.get(1) - 0.5f);
+        }
+        return samplePositions;
+    }
+
+    public void setMainFrameBufferOverride(FrameBuffer fb) {
+        mainFbOverride = fb;
+    }
+    
     public void setFrameBuffer(FrameBuffer fb) {
         if (lastFb == fb) {
             return;
@@ -966,157 +1514,6 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void updateFrameBuffer(FrameBuffer fb) {
-        GL gl = GLContext.getCurrentGL();
-        int id = fb.getId();
-        if (id == -1) {
-            // create FBO
-            gl.glGenFramebuffers(1, intBuf1);
-            id = intBuf1.get(0);
-            fb.setId(id);
-            objManager.registerForCleanup(fb);
-
-            statistics.onNewFrameBuffer();
-        }
-
-        if (context.boundFBO != id) {
-            gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, id);
-            // binding an FBO automatically sets draw buf to GL_COLOR_ATTACHMENT0
-            context.boundDrawBuf = 0;
-            context.boundFBO = id;
-        }
-
-        FrameBuffer.RenderBuffer depthBuf = fb.getDepthBuffer();
-        if (depthBuf != null) {
-            updateFrameBufferAttachment(fb, depthBuf);
-        }
-
-        for (int i = 0; i < fb.getNumColorBuffers(); i++) {
-            FrameBuffer.RenderBuffer colorBuf = fb.getColorBuffer(i);
-            updateFrameBufferAttachment(fb, colorBuf);
-        }
-
-        fb.clearUpdateNeeded();
-    }
-
-    private int convertAttachmentSlot(int attachmentSlot) {
-        // can also add support for stencil here
-        if (attachmentSlot == -100) {
-            return GL.GL_DEPTH_ATTACHMENT;
-        } else if (attachmentSlot < 0 || attachmentSlot >= 16) {
-            throw new UnsupportedOperationException("Invalid FBO attachment slot: "
-                    + attachmentSlot);
-        }
-
-        return GL.GL_COLOR_ATTACHMENT0 + attachmentSlot;
-    }
-
-    public void updateRenderTexture(FrameBuffer fb, RenderBuffer rb) {
-        GL gl = GLContext.getCurrentGL();
-        Texture tex = rb.getTexture();
-        Image image = tex.getImage();
-        if (image.isUpdateNeeded()) {
-            updateTexImageData(image, tex.getType(), 0);
-
-            // NOTE: For depth textures, sets nearest/no-mips mode
-            // Required to fix "framebuffer unsupported"
-            // for old NVIDIA drivers!
-            setupTextureParams(tex);
-        }
-
-        gl.glFramebufferTexture2D(GL.GL_FRAMEBUFFER, convertAttachmentSlot(rb.getSlot()),
-                convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
-                image.getId(), 0);
-    }
-
-    public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
-        boolean needAttach;
-        if (rb.getTexture() == null) {
-            // if it hasn't been created yet, then attach is required.
-            needAttach = rb.getId() == -1;
-            updateRenderBuffer(fb, rb);
-        } else {
-            needAttach = false;
-            updateRenderTexture(fb, rb);
-        }
-        if (needAttach) {
-            GL gl = GLContext.getCurrentGL();
-            gl.glFramebufferRenderbuffer(GL.GL_FRAMEBUFFER, convertAttachmentSlot(rb.getSlot()),
-                    GL.GL_RENDERBUFFER, rb.getId());
-        }
-    }
-
-    private void checkFrameBufferError() {
-        GL gl = GLContext.getCurrentGL();
-        int status = gl.glCheckFramebufferStatus(GL.GL_FRAMEBUFFER);
-        switch (status) {
-            case GL.GL_FRAMEBUFFER_COMPLETE:
-                break;
-            case GL.GL_FRAMEBUFFER_UNSUPPORTED:
-                // Choose different formats
-                throw new IllegalStateException("Framebuffer object format is "
-                        + "unsupported by the video hardware.");
-            case GL.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-                throw new IllegalStateException("Framebuffer has erronous attachment.");
-            case GL.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-                throw new IllegalStateException("Framebuffer is missing required attachment.");
-            case GL.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-                throw new IllegalStateException(
-                        "Framebuffer attachments must have same dimensions.");
-            case GL.GL_FRAMEBUFFER_INCOMPLETE_FORMATS:
-                throw new IllegalStateException("Framebuffer attachments must have same formats.");
-            case GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
-                throw new IllegalStateException("Incomplete draw buffer.");
-            case GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
-                throw new IllegalStateException("Incomplete read buffer.");
-            case GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
-                throw new IllegalStateException("Incomplete multisample buffer.");
-            default:
-                // Programming error; will fail on all hardware
-                throw new IllegalStateException("Some video driver error "
-                        + "or programming error occured. "
-                        + "Framebuffer object status is invalid. ");
-        }
-    }
-
-    private void updateRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
-        GL gl = GLContext.getCurrentGL();
-        int id = rb.getId();
-        if (id == -1) {
-            gl.glGenRenderbuffers(1, intBuf1);
-            id = intBuf1.get(0);
-            rb.setId(id);
-        }
-
-        if (context.boundRB != id) {
-            gl.glBindRenderbuffer(GL.GL_RENDERBUFFER, id);
-            context.boundRB = id;
-        }
-
-        if (fb.getWidth() > maxRBSize || fb.getHeight() > maxRBSize) {
-            throw new UnsupportedOperationException("Resolution " + fb.getWidth() + ":"
-                    + fb.getHeight() + " is not supported.");
-        }
-
-        if (fb.getSamples() > 0 && gl.isExtensionAvailable("GL_EXT_framebuffer_multisample")
-                && gl.isFunctionAvailable("glRenderbufferStorageMultisample")) {
-            int samples = fb.getSamples();
-            if (maxFBOSamples < samples) {
-                samples = maxFBOSamples;
-            }
-            gl.getGL2()
-                    .glRenderbufferStorageMultisample(GL.GL_RENDERBUFFER, samples,
-                    TextureUtil.convertTextureFormat(rb.getFormat()), fb.getWidth(),
-                    fb.getHeight());
-        } else {
-            gl.glRenderbufferStorage(GL.GL_RENDERBUFFER,
-                    TextureUtil.convertTextureFormat(rb.getFormat()), fb.getWidth(), fb.getHeight());
-        }
-    }
-
-    public void deleteFrameBuffer(FrameBuffer fb) {
-    }
-
     public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
         if (fb != null) {
             return;
@@ -1124,7 +1521,39 @@ public class JoglRenderer implements Renderer {
         GL gl = GLContext.getCurrentGL();
         gl.glReadPixels(vpX, vpY, vpW, vpH, GL2GL3.GL_BGRA, GL.GL_UNSIGNED_BYTE, byteBuf);
     }
+    
+    private void deleteRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
+        intBuf1.put(0, rb.getId());
+        GL gl = GLContext.getCurrentGL();
+        gl.glDeleteRenderbuffers(1, intBuf1);
+    }
+    
+    public void deleteFrameBuffer(FrameBuffer fb) {
+        if (fb.getId() != -1) {
+            GL gl = GLContext.getCurrentGL();
+            if (context.boundFBO == fb.getId()) {
+                gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0);
+                context.boundFBO = 0;
+            }
 
+            if (fb.getDepthBuffer() != null) {
+                deleteRenderBuffer(fb, fb.getDepthBuffer());
+            }
+            if (fb.getColorBuffer() != null) {
+                deleteRenderBuffer(fb, fb.getColorBuffer());
+            }
+
+            intBuf1.put(0, fb.getId());
+            gl.glDeleteFramebuffers(1, intBuf1);
+            fb.resetObject();
+
+            statistics.onDeleteFrameBuffer();
+        }
+    }
+
+    /*********************************************************************\
+    |* Textures                                                          *|
+    \*********************************************************************/
     private int convertTextureType(Texture.Type type, int samples, int face) {
         switch (type) {
             case TwoDimensional:
@@ -1908,84 +2337,5 @@ public class JoglRenderer implements Renderer {
         }*/
     }
 
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
-        GL gl = GLContext.getCurrentGL();
-        if (gl.isExtensionAvailable("GL_EXT_framebuffer_blit")) {
-            int srcX0 = 0;
-            int srcY0 = 0;
-            int srcX1 = 0;
-            int srcY1 = 0;
-
-            int dstX0 = 0;
-            int dstY0 = 0;
-            int dstX1 = 0;
-            int dstY1 = 0;
-
-            int prevFBO = context.boundFBO;
-
-            if (mainFbOverride != null) {
-                if (src == null) {
-                    src = mainFbOverride;
-                }
-                if (dst == null) {
-                    dst = mainFbOverride;
-                }
-            }
-
-            if (src != null && src.isUpdateNeeded()) {
-                updateFrameBuffer(src);
-            }
-
-            if (dst != null && dst.isUpdateNeeded()) {
-                updateFrameBuffer(dst);
-            }
-
-            if (src == null) {
-                gl.glBindFramebuffer(GL2.GL_READ_FRAMEBUFFER, 0);
-                srcX0 = vpX;
-                srcY0 = vpY;
-                srcX1 = vpX + vpW;
-                srcY1 = vpY + vpH;
-            } else {
-                gl.glBindFramebuffer(GL2.GL_READ_FRAMEBUFFER, src.getId());
-                srcX1 = src.getWidth();
-                srcY1 = src.getHeight();
-            }
-            if (dst == null) {
-                gl.glBindFramebuffer(GL2.GL_DRAW_FRAMEBUFFER, 0);
-                dstX0 = vpX;
-                dstY0 = vpY;
-                dstX1 = vpX + vpW;
-                dstY1 = vpY + vpH;
-            } else {
-                gl.glBindFramebuffer(GL2.GL_DRAW_FRAMEBUFFER, dst.getId());
-                dstX1 = dst.getWidth();
-                dstY1 = dst.getHeight();
-            }
-            int mask = GL.GL_COLOR_BUFFER_BIT;
-            if (copyDepth) {
-                mask |= GL.GL_DEPTH_BUFFER_BIT;
-            }
-            gl.getGL2().glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1,
-                    dstX0, dstY0, dstX1, dstY1, mask,
-                    GL.GL_NEAREST);
-
-
-            gl.glBindFramebuffer(GL2.GL_FRAMEBUFFER, prevFBO);
-            try {
-                checkFrameBufferError();
-            } catch (IllegalStateException ex) {
-                logger.log(Level.SEVERE, "Source FBO:\n{0}", src);
-                logger.log(Level.SEVERE, "Dest FBO:\n{0}", dst);
-                throw ex;
-            }
-        } else {
-            throw new RendererException("EXT_framebuffer_blit required.");
-            // TODO: support non-blit copies?
-        }
-    }
-
-    public void setMainFrameBufferOverride(FrameBuffer fb) {
-        mainFbOverride = fb;
-    }
+    
 }
