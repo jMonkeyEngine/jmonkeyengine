@@ -2411,7 +2411,7 @@ public class JoglRenderer implements Renderer {
         }
 
         statistics.onMeshDrawn(mesh, lod);
-//        if (GLContext.getCapabilities().GL_ARB_vertex_array_object){
+//        if (gl.isExtensionAvailable("GL_ARB_vertex_array_object")){
 //            renderMeshVertexArray(mesh, lod, count);
 //        }else{
         renderMeshDefault(mesh, lod, count);
