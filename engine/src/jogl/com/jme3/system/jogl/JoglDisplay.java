@@ -259,6 +259,8 @@ public class JoglDisplay extends JoglAbstractDisplay {
     public void init(GLAutoDrawable drawable){
         // prevent initializing twice on restart
         if (!wasInited){
+            wasInited = true;
+            
             canvas.requestFocus();
 
             super.internalCreate();
@@ -266,8 +268,6 @@ public class JoglDisplay extends JoglAbstractDisplay {
 
             renderer.initialize();
             listener.initialize();
-
-            wasInited = true;
         }
     }
 
