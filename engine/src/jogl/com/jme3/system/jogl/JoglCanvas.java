@@ -97,11 +97,14 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
             return;
         }
 
-        if (width != canvas.getWidth() || height != canvas.getHeight()){
-            width = canvas.getWidth();
-            height = canvas.getHeight();
-            if (listener != null)
+        int newWidth = Math.max(canvas.getWidth(), 1);
+        int newHeight = Math.max(canvas.getHeight(), 1);
+        if (width != newWidth || height != newHeight) {
+            width = newWidth;
+            height = newHeight;
+            if (listener != null) {
                 listener.reshape(width, height);
+            }
         }
 
         boolean flush = autoFlush.get();

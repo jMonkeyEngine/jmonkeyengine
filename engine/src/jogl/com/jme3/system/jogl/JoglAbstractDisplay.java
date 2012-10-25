@@ -77,7 +77,7 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
         device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 
         GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-        caps.setHardwareAccelerated(true);
+        /*caps.setHardwareAccelerated(true);
         caps.setDoubleBuffered(true);
         caps.setStencilBits(settings.getStencilBits());
         caps.setDepthBits(settings.getDepthBits());
@@ -85,7 +85,7 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
         if (settings.getSamples() > 1) {
             caps.setSampleBuffers(true);
             caps.setNumSamples(settings.getSamples());
-        }
+        }*/
 
         canvas = new GLCanvas(caps) {
             @Override
@@ -105,8 +105,13 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
             canvas.getGL().setSwapInterval(1);
         }
         canvas.setFocusable(true);
+        canvas.requestFocus();
+        canvas.setSize(settings.getWidth(), settings.getHeight());
         canvas.setIgnoreRepaint(true);
+        //canvas.setAutoSwapBufferMode(false);
         canvas.addGLEventListener(this);
+
+        
 
         // N.B: it is too early to get the GL instance from the canvas
         // if (false){
@@ -128,8 +133,9 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
             // ((FPSAnimator)animator).setRunAsFastAsPossible(true);
         }
         else {
-            animator = new Animator(canvas);
-            ((Animator) animator).setRunAsFastAsPossible(true);
+            animator = new Animator();
+            animator.add(canvas);
+            //((Animator) animator).setRunAsFastAsPossible(true);
         }
 
         animator.start();
@@ -144,12 +150,16 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
 
     @Override
     public KeyInput getKeyInput() {
-        return new AwtKeyInput(/*canvas*/);
+        AwtKeyInput awtKeyInput = new AwtKeyInput();
+        awtKeyInput.setInputSource(canvas);
+        return awtKeyInput;
     }
 
     @Override
     public MouseInput getMouseInput() {
-        return new AwtMouseInput(/*canvas*/);
+        AwtMouseInput awtMouseInput = new AwtMouseInput();
+        awtMouseInput.setInputSource(canvas);
+        return awtMouseInput;
     }
     
     public TouchInput getTouchInput() {

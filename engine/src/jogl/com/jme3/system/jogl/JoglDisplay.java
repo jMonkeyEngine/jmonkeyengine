@@ -33,11 +33,11 @@
 package com.jme3.system.jogl;
 
 import com.jme3.system.AppSettings;
-import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.Frame;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.media.opengl.GLAutoDrawable;
+import javax.media.opengl.GLContext;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -56,14 +57,14 @@ public class JoglDisplay extends JoglAbstractDisplay {
     protected AtomicBoolean windowCloseRequest = new AtomicBoolean(false);
     protected AtomicBoolean needClose = new AtomicBoolean(false);
     protected AtomicBoolean needRestart = new AtomicBoolean(false);
-    protected boolean wasInited = false;
+    protected volatile boolean wasInited = false;
     protected Frame frame;
 
     public Type getType() {
         return Type.Display;
     }
 
-    protected DisplayMode getFullscreenDisplayMode(DisplayMode[] modes, int width, int height, int bpp, int freq){
+    /*protected DisplayMode getFullscreenDisplayMode(DisplayMode[] modes, int width, int height, int bpp, int freq){
         for (DisplayMode mode : modes){
             if (mode.getWidth() == width
              && mode.getHeight() == height
@@ -75,43 +76,34 @@ public class JoglDisplay extends JoglAbstractDisplay {
             }
         }
         return null;
-    }
+    }*/
 
     protected void createGLFrame(){
-        Container contentPane;
+        //Container contentPane;
         if (useAwt){
             frame = new Frame(settings.getTitle());
-            contentPane = frame;
+            //contentPane = frame;
         }else{
             frame = new JFrame(settings.getTitle());
-            contentPane = ((JFrame)frame).getContentPane();
+            //contentPane = ((JFrame)frame).getContentPane();
         }
-
-        contentPane.setLayout(new BorderLayout());
-
-        applySettings(settings);
-
         frame.setResizable(false);
-        frame.setFocusable(true);
-
-        // only add canvas after frame is visible
-        contentPane.add(canvas, BorderLayout.CENTER);
-        //frame.pack();
-//        frame.setSize(contentPane.getPreferredSize());
-        frame.setSize(settings.getWidth(),settings.getHeight());
-
-        if (device.getFullScreenWindow() == null){
-            // now that canvas is attached,
-            // determine optimal size to contain it
-           
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            frame.setLocation((screenSize.width - frame.getWidth()) / 2,
-                              (screenSize.height - frame.getHeight()) / 2);
-        }
-
+        frame.add(canvas);
+        //frame.validate();
+        
+        applySettings(settings);
+        
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent evt) {
+                // If required, restore the previous display mode
+                /*if (isDisplayModeModified) {
+                    gd.setDisplayMode(previousDisplayMode);
+                }
+                // If required, get back to the windowed mode
+                if (gd.getFullScreenWindow() == frame) {
+                    gd.setFullScreenWindow(null);
+                }*/
                 windowCloseRequest.set(true);
             }
             @Override
@@ -124,65 +116,136 @@ public class JoglDisplay extends JoglAbstractDisplay {
                 active.set(false);
             }
         });
+        
+        // Make the window visible to realize the OpenGL surface.
+        frame.setVisible(true);
+        
+        canvas.setVisible(true);
+        
+        final GLContext context = canvas.getContext();
+        
+        /*canvas.invoke(true, new GLRunnable() {
+            @Override
+            public boolean run(GLAutoDrawable glAutoDrawable) {     
+                context.makeCurrent();
+                try {
+                    startGLCanvas();
+                }
+                finally {
+                    context.release();
+                }
+                return true;
+            }
+        });*/
     }
 
     protected void applySettings(AppSettings settings){
-        DisplayMode displayMode;
-        if (settings.getWidth() <= 0 || settings.getHeight() <= 0){
-            displayMode = device.getDisplayMode();
-            settings.setResolution(displayMode.getWidth(), displayMode.getHeight());
-        }else if (settings.isFullscreen()){
-            displayMode = getFullscreenDisplayMode(device.getDisplayModes(),
-                                                   settings.getWidth(), settings.getHeight(),
-                                                   settings.getBitsPerPixel(), settings.getFrequency());
-            if (displayMode == null)
-                throw new RuntimeException("Unable to find fullscreen display mode matching settings");
-        }else{
-            displayMode = new DisplayMode(settings.getWidth(), settings.getHeight(), DisplayMode.BIT_DEPTH_MULTI, DisplayMode.REFRESH_RATE_UNKNOWN);
-        }
-
-        // FIXME: seems to return false even though
-        // it is supported..
-//        if (!device.isDisplayChangeSupported()){
-//            // must use current device mode if display mode change not supported
-//            displayMode = device.getDisplayMode();
-//            settings.setResolution(displayMode.getWidth(), displayMode.getHeight());
-//        }
-
-        frameRate = settings.getFrameRate();
-        logger.log(Level.INFO, "Selected display mode: {0}x{1}x{2} @{3}",
-                new Object[]{displayMode.getWidth(),
-                             displayMode.getHeight(),
-                             displayMode.getBitDepth(),
-                             displayMode.getRefreshRate()});
-        
-        canvas.setSize(displayMode.getWidth(), displayMode.getHeight());
-
-        DisplayMode prevDisplayMode = device.getDisplayMode();
-
-        if (settings.isFullscreen() && device.isFullScreenSupported()){
+        final boolean isDisplayModeModified;
+        final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        // Get the current display mode
+        final DisplayMode previousDisplayMode = gd.getDisplayMode();
+        // Handle full screen mode if requested.
+        if (settings.isFullscreen()) {
             frame.setUndecorated(true);
-
-            try{
-                device.setFullScreenWindow(frame);
-                if (!prevDisplayMode.equals(displayMode)
-                  && device.isDisplayChangeSupported()){
-                    device.setDisplayMode(displayMode);
+            // Check if the full-screen mode is supported by the OS
+            boolean isFullScreenSupported = gd.isFullScreenSupported();
+            if (isFullScreenSupported) {
+                gd.setFullScreenWindow(frame);
+                // Check if display mode changes are supported by the OS
+                if (gd.isDisplayChangeSupported()) {
+                    // Get all available display modes
+                    final DisplayMode[] displayModes = gd.getDisplayModes();
+                    DisplayMode multiBitsDepthSupportedDisplayMode = null;
+                    DisplayMode refreshRateUnknownDisplayMode = null;
+                    DisplayMode multiBitsDepthSupportedAndRefreshRateUnknownDisplayMode = null;
+                    DisplayMode matchingDisplayMode = null;
+                    DisplayMode currentDisplayMode;
+                    // Look for the display mode that matches with our parameters
+                    // Look for some display modes that are close to these parameters
+                    // and that could be used as substitutes
+                    // On some machines, the refresh rate is unknown and/or multi bit
+                    // depths are supported. If you try to force a particular refresh
+                    // rate or a bit depth, you might find no available display mode
+                    // that matches exactly with your parameters
+                    for (int i = 0; i < displayModes.length && matchingDisplayMode == null; i++) {
+                        currentDisplayMode = displayModes[i];
+                        if (currentDisplayMode.getWidth() == settings.getWidth()
+                                && currentDisplayMode.getHeight() == settings.getHeight()) {
+                            if (currentDisplayMode.getBitDepth() == settings.getBitsPerPixel()) {
+                                if (currentDisplayMode.getRefreshRate() == settings.getFrequency()) {
+                                    matchingDisplayMode = currentDisplayMode;
+                                } else if (currentDisplayMode.getRefreshRate() == DisplayMode.REFRESH_RATE_UNKNOWN) {
+                                    refreshRateUnknownDisplayMode = currentDisplayMode;
+                                }
+                            } else if (currentDisplayMode.getBitDepth() == DisplayMode.BIT_DEPTH_MULTI) {
+                                if (currentDisplayMode.getRefreshRate() == settings.getFrequency()) {
+                                    multiBitsDepthSupportedDisplayMode = currentDisplayMode;
+                                } else if (currentDisplayMode.getRefreshRate() == DisplayMode.REFRESH_RATE_UNKNOWN) {
+                                    multiBitsDepthSupportedAndRefreshRateUnknownDisplayMode = currentDisplayMode;
+                                }
+                            }
+                        }
+                    }
+                    DisplayMode nextDisplayMode = null;
+                    if (matchingDisplayMode != null) {
+                        nextDisplayMode = matchingDisplayMode;
+                    } else if (multiBitsDepthSupportedDisplayMode != null) {
+                        nextDisplayMode = multiBitsDepthSupportedDisplayMode;
+                    } else if (refreshRateUnknownDisplayMode != null) {
+                        nextDisplayMode = refreshRateUnknownDisplayMode;
+                    } else if (multiBitsDepthSupportedAndRefreshRateUnknownDisplayMode != null) {
+                        nextDisplayMode = multiBitsDepthSupportedAndRefreshRateUnknownDisplayMode;
+                    } else {
+                        isFullScreenSupported = false;
+                    }
+                    // If we have found a display mode that approximatively matches
+                    // with the input parameters, use it
+                    if (nextDisplayMode != null) {
+                        gd.setDisplayMode(nextDisplayMode);
+                        isDisplayModeModified = true;
+                    } else {
+                        isDisplayModeModified = false;
+                    }
+                } else {
+                    isDisplayModeModified = false;
+                    // Resize the canvas if the display mode cannot be changed
+                    // and the screen size is not equal to the canvas size
+                    final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                    if (screenSize.width != settings.getWidth() || screenSize.height != settings.getHeight()) {
+                        canvas.setSize(screenSize);
+                    }
                 }
-            } catch (Throwable t){
-                logger.log(Level.SEVERE, "Failed to enter fullscreen mode", t);
-                device.setFullScreenWindow(null);
-            }
-        }else{
-            if (!device.isFullScreenSupported()){
-                logger.warning("Fullscreen not supported.");
-            }else{
-                frame.setUndecorated(false);
-                device.setFullScreenWindow(null);
+            } else {
+                isDisplayModeModified = false;
             }
 
-            frame.setVisible(true);
+            // Software windowed full-screen mode
+            if (!isFullScreenSupported) {
+                final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                // Resize the canvas
+                canvas.setSize(screenSize);
+                // Resize the frame so that it occupies the whole screen
+                frame.setSize(screenSize);
+                // Set its location at the top left corner
+                frame.setLocation(0, 0);
+            }
         }
+        // Otherwise, center the window on the screen.
+        else {
+            isDisplayModeModified = false;
+            frame.pack();
+
+            int x, y;
+            x = (Toolkit.getDefaultToolkit().getScreenSize().width - settings.getWidth()) / 2;
+            y = (Toolkit.getDefaultToolkit().getScreenSize().height - settings.getHeight()) / 2;
+            frame.setLocation(x, y);
+        }
+
+        logger.log(Level.INFO, "Selected display mode: {0}x{1}x{2} @{3}",
+                new Object[]{frame.getWidth(),
+                             frame.getHeight(),
+                             0,
+                             0});
     }
 
     private void initInEDT(){
