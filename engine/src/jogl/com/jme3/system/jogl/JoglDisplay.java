@@ -46,7 +46,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLContext;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
@@ -64,28 +63,11 @@ public class JoglDisplay extends JoglAbstractDisplay {
         return Type.Display;
     }
 
-    /*protected DisplayMode getFullscreenDisplayMode(DisplayMode[] modes, int width, int height, int bpp, int freq){
-        for (DisplayMode mode : modes){
-            if (mode.getWidth() == width
-             && mode.getHeight() == height
-             && (mode.getBitDepth() == DisplayMode.BIT_DEPTH_MULTI 
-                || mode.getBitDepth() == bpp
-                || (mode.getBitDepth() == 32 && bpp==24))
-             && mode.getRefreshRate() == freq){
-                return mode;
-            }
-        }
-        return null;
-    }*/
-
     protected void createGLFrame(){
-        //Container contentPane;
         if (useAwt){
             frame = new Frame(settings.getTitle());
-            //contentPane = frame;
         }else{
             frame = new JFrame(settings.getTitle());
-            //contentPane = ((JFrame)frame).getContentPane();
         }
         frame.setResizable(false);
         frame.add(canvas);
@@ -122,7 +104,8 @@ public class JoglDisplay extends JoglAbstractDisplay {
         
         canvas.setVisible(true);
         
-        final GLContext context = canvas.getContext();
+        //this is the earliest safe opportunity to get the context
+        //final GLContext context = canvas.getContext();
         
         /*canvas.invoke(true, new GLRunnable() {
             @Override
@@ -242,10 +225,10 @@ public class JoglDisplay extends JoglAbstractDisplay {
         }
 
         logger.log(Level.INFO, "Selected display mode: {0}x{1}x{2} @{3}",
-                new Object[]{frame.getWidth(),
-                             frame.getHeight(),
-                             0,
-                             0});
+                new Object[]{gd.getDisplayMode().getWidth(),
+                             gd.getDisplayMode().getHeight(),
+                             gd.getDisplayMode().getBitDepth(),
+                             gd.getDisplayMode().getRefreshRate()});
     }
 
     private void initInEDT(){
