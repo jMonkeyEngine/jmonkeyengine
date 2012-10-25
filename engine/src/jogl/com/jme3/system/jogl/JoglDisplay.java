@@ -272,26 +272,30 @@ public class JoglDisplay extends JoglAbstractDisplay {
     }
 
     public void create(boolean waitFor){
-        try {
-            if (waitFor){
-                try{
-                    SwingUtilities.invokeAndWait(new Runnable() {
+        if (SwingUtilities.isEventDispatchThread()) {
+            initInEDT();
+        } else {
+            try {
+                if (waitFor) {
+                    try {
+                        SwingUtilities.invokeAndWait(new Runnable() {
+                            public void run() {
+                                initInEDT();
+                            }
+                        });
+                    } catch (InterruptedException ex) {
+                        listener.handleError("Interrupted", ex);
+                    }
+                } else {
+                    SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             initInEDT();
                         }
                     });
-                } catch (InterruptedException ex) {
-                    listener.handleError("Interrupted", ex);
                 }
-            }else{
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        initInEDT();
-                    }
-                });
+            } catch (InvocationTargetException ex) {
+                throw new AssertionError(); // can never happen
             }
-        } catch (InvocationTargetException ex) {
-            throw new AssertionError(); // can never happen
         }
     }
 
