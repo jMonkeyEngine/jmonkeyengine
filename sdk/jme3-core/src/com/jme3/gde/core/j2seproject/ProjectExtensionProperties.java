@@ -54,6 +54,7 @@ public class ProjectExtensionProperties {
     private String[] keyList;
     private Project project;
     private EditableProperties properties;
+    private String propertyFileName;
 
     /**
      * Allows accessing a defined set of properties of a jMonkeyPlatform project
@@ -61,14 +62,29 @@ public class ProjectExtensionProperties {
      * @param keyList A list of all property keys this list should use
      */
     public ProjectExtensionProperties(Project project, String[] keyList) {
+        this(project, keyList, false);
+    }
+
+    /**
+     * Allows accessing a defined set of properties of a jMonkeyPlatform project
+     * @param project The project to which the properties are stored
+     * @param keyList A list of all property keys this list should use
+     * @param privateProps If true, saves settings to private (local) properties file
+     */
+    public ProjectExtensionProperties(Project project, String[] keyList, boolean privateProps) {
         this.project = project;
         this.keyList = keyList;
         properties = new EditableProperties(true);
         if (project instanceof J2SEProject) {
             load();
         }
+        if(privateProps){
+            propertyFileName = AntProjectHelper.PRIVATE_PROPERTIES_PATH;
+        }else{
+            propertyFileName = AntProjectHelper.PROJECT_PROPERTIES_PATH;
+        }
     }
-
+    
     public EditableProperties getProperties() {
         return properties;
     }
@@ -101,7 +117,7 @@ public class ProjectExtensionProperties {
     }
 
     public void store() throws IOException {
-        final FileObject projPropsFO = project.getProjectDirectory().getFileObject(AntProjectHelper.PROJECT_PROPERTIES_PATH);
+        final FileObject projPropsFO = project.getProjectDirectory().getFileObject(propertyFileName);
         if (projPropsFO == null) {
             return;
         }
