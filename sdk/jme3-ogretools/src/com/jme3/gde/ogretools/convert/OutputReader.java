@@ -7,6 +7,8 @@ package com.jme3.gde.ogretools.convert;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.progress.ProgressHandle;
 
 /**
@@ -40,7 +42,7 @@ public class OutputReader implements Runnable {
                     if (progress != null) {
                         progress.progress(line);
                     } else {
-                        System.out.println(line);
+                        Logger.getLogger(OutputReader.class.getName()).log(Level.INFO, "{0}",line);
                     }
                 }
             }
