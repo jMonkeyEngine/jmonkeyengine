@@ -125,12 +125,6 @@ public abstract class JoglContext implements JmeContext {
             created.set(true);
             createdLock.notifyAll();
         }
-        // renderer initialization must happen in subclass.
-        /*if (renderable.get()){
-            initContextFirstTime();
-        }else{
-            assert getType() == Type.Canvas;
-        }*/
     }
 
     protected void internalDestroy() {
@@ -142,5 +136,4 @@ public abstract class JoglContext implements JmeContext {
             createdLock.notifyAll();
         }
     }
-
 }

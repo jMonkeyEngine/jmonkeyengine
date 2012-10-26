@@ -49,6 +49,7 @@ import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLProfile;
+import javax.media.opengl.GLRunnable;
 import javax.media.opengl.awt.GLCanvas;
 
 public abstract class JoglAbstractDisplay extends JoglContext implements GLEventListener {
@@ -75,9 +76,11 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
 
     protected void initGLCanvas() {
         device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-
-        GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
-        /*caps.setHardwareAccelerated(true);
+        
+        //FIXME use the settings to know whether to use the max programmable profile
+        //then call GLProfile.getMaxProgrammable(true);
+        GLCapabilities caps = new GLCapabilities(GLProfile.getMaxFixedFunc(true));
+        caps.setHardwareAccelerated(true);
         caps.setDoubleBuffered(true);
         caps.setStencilBits(settings.getStencilBits());
         caps.setDepthBits(settings.getDepthBits());
@@ -85,7 +88,7 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
         if (settings.getSamples() > 1) {
             caps.setSampleBuffers(true);
             caps.setNumSamples(settings.getSamples());
-        }*/
+        }
 
         canvas = new GLCanvas(caps) {
             @Override
@@ -101,14 +104,18 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
             }
         };
         if (settings.isVSync()) {
-            // FIXME: it is too early to get the GL instance from the canvas
-            canvas.getGL().setSwapInterval(1);
+            canvas.invoke(false, new GLRunnable() {
+
+                public boolean run(GLAutoDrawable glad) {
+                    canvas.getGL().setSwapInterval(1);
+                    return true;
+                }
+            });
         }
         canvas.setFocusable(true);
         canvas.requestFocus();
         canvas.setSize(settings.getWidth(), settings.getHeight());
         canvas.setIgnoreRepaint(true);
-        //canvas.setAutoSwapBufferMode(false);
         canvas.addGLEventListener(this);
 
         
@@ -130,12 +137,11 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
     protected void startGLCanvas() {
         if (frameRate > 0) {
             animator = new FPSAnimator(canvas, frameRate);
-            // ((FPSAnimator)animator).setRunAsFastAsPossible(true);
         }
         else {
             animator = new Animator();
             animator.add(canvas);
-            //((Animator) animator).setRunAsFastAsPossible(true);
+            ((Animator) animator).setRunAsFastAsPossible(true);
         }
 
         animator.start();
