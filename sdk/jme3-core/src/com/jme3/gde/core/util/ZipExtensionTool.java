@@ -77,11 +77,11 @@ public class ZipExtensionTool {
     }
 
     public void install() {
-        ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Installing " + extensionName + " data");
-        progressHandle.start();
         if (new File(settingsFolder + File.separator + extensionName).exists()) {
             return;
         }
+        ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Installing " + extensionName + " data");
+        progressHandle.start();
         if (Utilities.isWindows()) {
             extractToolsJava(packageName + "/" + extensionName + "-" + SUFFIX_WIN + ".zip", settingsFolder + File.separator + extensionName);
         } else if (Utilities.isMac()) {
