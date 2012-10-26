@@ -44,6 +44,8 @@ void main(){
     }else if( shadowPosition <  m_Splits.w){
         shadowBorderScale = 0.125;
         shadow = GETSHADOW(m_ShadowMap3, projCoord3);
+    }else{
+        shadow = 1.0;
     }
     
     shadow= shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity);
