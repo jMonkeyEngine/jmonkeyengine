@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
@@ -62,6 +63,7 @@ import org.openide.util.Utilities;
  */
 public class ZipExtensionTool {
 
+    static final ConcurrentHashMap<String, Boolean> installMap = new ConcurrentHashMap<String, Boolean>();
     static final int BUFFER = 2048;
     private final String settingsFolder = System.getProperty("netbeans.user");
     public String SUFFIX_WIN = "windows";
@@ -76,7 +78,7 @@ public class ZipExtensionTool {
         this.extensionName = extensionName;
     }
 
-    public void install() {
+    private void install() {
         if (new File(settingsFolder + File.separator + extensionName).exists()) {
             return;
         }
@@ -92,6 +94,21 @@ public class ZipExtensionTool {
         progressHandle.finish();
     }
 
+    public void install(boolean async) {
+        if (async && installMap.putIfAbsent(extensionName, true) == null) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    install();
+                    installMap.remove(extensionName);
+                }
+            }).start();
+        } else if (!async && installMap.putIfAbsent(extensionName, true) == null) {
+            install();
+            installMap.remove(extensionName);
+        }
+    }
+
     private boolean extractToolsShell(String zipPath, String extractionPath) {
         File path = new File(extractionPath);
         if (!path.exists()) {
@@ -102,7 +119,6 @@ public class ZipExtensionTool {
         URL url = null;
         try {
             String tempFileName = extractionPath + "_tmp.zip";
-            System.out.println("ZipPath: " + zipPath);
             url = new URL("nbres:" + zipPath);
             in = new BufferedInputStream(url.openStream());
             out = new BufferedOutputStream(new FileOutputStream(tempFileName));
