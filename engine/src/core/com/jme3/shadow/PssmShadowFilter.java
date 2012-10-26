@@ -146,7 +146,7 @@ public class PssmShadowFilter extends Filter {
         return pssmRenderer.getLambda();
     }
 
-    /*
+    /**
      * Adjust the repartition of the different shadow maps in the shadow extend
      * usualy goes from 0.0 to 1.0
      * a low value give a more linear repartition resulting in a constant quality in the shadow over the extends, but near shadows could look very jagged
