@@ -140,6 +140,9 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
 
         animator.start();
         wasAnimating = true;
+        
+        //FIXME not sure it is the best place to do that
+        renderable.set(true);
     }
 
     protected void onCanvasAdded() {
