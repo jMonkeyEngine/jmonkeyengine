@@ -71,7 +71,12 @@ public class MobileCustomizerPanel extends javax.swing.JPanel implements ActionL
             properties.setProperty("mobile.android.enabled", "");
         }
         //TODO: check properties
-        properties.setProperty("mobile.android.target", ((AndroidTarget) jComboBox1.getSelectedItem()).getName());
+        AndroidTarget target = ((AndroidTarget) jComboBox1.getSelectedItem());
+        if (target != null) {
+            properties.setProperty("mobile.android.target", target.getName());
+        } else {
+            properties.setProperty("mobile.android.target", "");
+        }
         properties.setProperty("mobile.android.package", jTextField1.getText());
     }
     

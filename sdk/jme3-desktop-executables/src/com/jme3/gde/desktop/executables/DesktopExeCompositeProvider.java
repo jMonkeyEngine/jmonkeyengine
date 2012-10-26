@@ -22,7 +22,7 @@ import org.openide.util.NbBundle;
  *
  * @author normenhansen
  */
-@ProjectCustomizer.CompositeCategoryProvider.Registration(projectType = "org-netbeans-modules-java-j2seproject", category = "Application", position = 400)
+@ProjectCustomizer.CompositeCategoryProvider.Registration(projectType = "org-netbeans-modules-java-j2seproject", category = "Application", position = 420)
 public class DesktopExeCompositeProvider implements ProjectCustomizer.CompositeCategoryProvider {
 
     private static final String CAT_LWJGL_APPLET = "DesktopExe"; // NOI18N
