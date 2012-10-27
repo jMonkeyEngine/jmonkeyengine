@@ -2139,8 +2139,8 @@ public class JoglRenderer implements Renderer {
             }
             if (loc == -2) {
                 stringBuf.setLength(0);
-                stringBuf.append("in").append(vb.getBufferType().name()).append('\0');
-                updateNameBuffer();
+                // JOGL 2.0 doesn't need a null terminated string
+                stringBuf.append("in").append(vb.getBufferType().name());
                 loc = gl.getGL2().glGetAttribLocation(programId, stringBuf.toString());
 
                 // not really the name of it in the shader (inPosition\0) but
