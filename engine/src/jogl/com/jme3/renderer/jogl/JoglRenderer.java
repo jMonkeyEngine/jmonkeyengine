@@ -64,6 +64,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
 import com.jme3.util.SafeArrayList;
+import com.jogamp.common.nio.Buffers;
 import java.nio.*;
 import java.util.EnumSet;
 import java.util.List;
@@ -792,11 +793,53 @@ public class JoglRenderer implements Renderer {
         //stringBuf.append(uniform.getName()).append('\0');
         //updateNameBuffer();
         GL gl = GLContext.getCurrentGL();
+        // passing a null terminated string is not necessary with JOGL 2.0
         int loc = gl.getGL2().glGetUniformLocation(shader.getId(), uniform.getName());
         if (loc < 0) {
+//            logger.log(Level.INFO, "JOGL wrong location for {0}: {1}", new Object[]{uniform.getName(), Integer.valueOf(loc)});
             uniform.setLocation(-1);
             // uniform is not declared in shader
             logger.log(Level.INFO, "Uniform {0} is not declared in shader {1}.", new Object[]{uniform.getName(), shader.getSources()});
+//            IntBuffer numVarsBuffer = Buffers.newDirectIntBuffer(1);
+//            gl.getGL2().glGetProgramiv(shader.getId(), GL2.GL_ACTIVE_UNIFORMS, numVarsBuffer);
+//            int numVars = numVarsBuffer.get(0);
+//                
+//            IntBuffer bufLenBuffer = Buffers.newDirectIntBuffer(1);
+//            gl.getGL2().glGetProgramiv(shader.getId(), GL2.GL_ACTIVE_UNIFORM_MAX_LENGTH, bufLenBuffer);
+//            int bufLen = bufLenBuffer.get(0);
+//                
+//            IntBuffer lenBuffer = null;
+//                
+//            ByteBuffer byteBuffer = null;
+//            byte [] bytes = null;
+//                
+//            
+//            IntBuffer [] variableTypes = new IntBuffer[numVars];
+//            IntBuffer [] variableSizes = new IntBuffer[numVars];
+//            String [] variableNames = new String[numVars];
+//            int [] variableIds = new int[numVars];
+//
+//            for (int i = 0; i < numVars; i++) {
+//                variableIds[i] = i;
+//
+//                lenBuffer = Buffers.newDirectIntBuffer(1);
+//                variableSizes[i] = Buffers.newDirectIntBuffer(1);
+//                variableTypes[i] = Buffers.newDirectIntBuffer(1);
+//                byteBuffer = Buffers.newDirectByteBuffer(bufLen);
+//                gl.getGL2().glGetActiveUniform(shader.getId(), i, bufLen, lenBuffer, variableSizes[i], variableTypes[i], byteBuffer);
+//
+//                int len = lenBuffer.get(0);
+//                bytes = new byte[len];
+//                byteBuffer.get(bytes, 0, len);
+//
+//                variableNames[i] = new String(bytes);
+//                
+//                int altLoc = gl.getGL2().glGetUniformLocation(shader.getId(), variableNames[i]);
+//                if (variableNames[i].contains(uniform.getName())) {
+//                    logger.log(Level.INFO, "JOGL alternative location for {0}: {1}", new Object[]{variableNames[i], Integer.valueOf(altLoc)});
+//                }
+//            }
+            
         } else {
             uniform.setLocation(loc);
         }
