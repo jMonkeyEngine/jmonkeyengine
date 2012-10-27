@@ -45,6 +45,8 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
+import javax.media.opengl.DebugGL4bc;
+import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
@@ -118,19 +120,19 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
         canvas.setIgnoreRepaint(true);
         canvas.addGLEventListener(this);
 
-        
+        if (settings.getBoolean("GraphicsDebug")) {
+            canvas.invoke(false, new GLRunnable() {
 
-        // N.B: it is too early to get the GL instance from the canvas
-        // if (false){
-        // trace mode
-        // jME already uses err stream, use out instead
-        // gl = new TraceGL(gl, System.out);
-        // }else if (false){
-        // debug mode
-        // gl = new DebugGL(gl);
-        // }else{
-        // production mode
-        // }
+                public boolean run(GLAutoDrawable glad) {
+                    GL gl = glad.getGL();
+                    if (gl.isGL4bc()) {
+                        canvas.setGL(new DebugGL4bc(gl.getGL4bc()));
+                    }
+                    return true;
+                }
+            });
+        }
+        
         renderer = new JoglRenderer();
     }
 
