@@ -59,6 +59,7 @@ Java_com_jme3_system_ios_IosImageLoader_loadImageData(JNIEnv* e, jclass obj, job
     UIImage* inputImage = [UIImage imageWithData:inData];
     if(inputImage == nil){
         [inData release];
+        [pool release];
         return nil;
     }
     CGImageRef inImage = [inputImage CGImage];
@@ -68,6 +69,7 @@ Java_com_jme3_system_ios_IosImageLoader_loadImageData(JNIEnv* e, jclass obj, job
     jobject nativeBuffer = (*e)->CallStaticObjectMethod(e, bufferUtilsClass, newBufferMethod, ht*wdth*4);
     if (checkJNIException(e)) {
         [inData release];
+        [pool release];
         return nil;
     }
     void *rawData = (*e)->GetDirectBufferAddress(e, nativeBuffer);
