@@ -482,6 +482,26 @@ public class CurvesHelper extends AbstractBlenderHelper {
 			bevelPoints = this.transformBevel(bevelPoints, curvePoints[curvePoints.length - 2], curvePoints[curvePoints.length - 1], null);
 			bevels.add(bevelPoints);
 			
+			if(bevels.size() > 2) {
+				//changing the first and last bevel so that they are parallel to their neighbours (blender works this way)
+				//notice this implicates that the distances of every corresponding point in th two bevels must be identical and
+				//equal to the distance between the points on curve that define the bevel position
+				//so instead doing complicated rotations on each point we will simply properly translate each of them
+				
+				Vector3f subtractResult = new Vector3f();
+				int[][] pointIndexes = new int[][] { { 0, 1 }, { curvePoints.length - 1, curvePoints.length - 2 } };
+				for(int[] indexes : pointIndexes) {
+					float distance = curvePoints[indexes[1]].subtract(curvePoints[indexes[0]], subtractResult).length();
+					Vector3f[] bevel = bevels.get(indexes[0]);
+					Vector3f[] nextBevel = bevels.get(indexes[1]);
+					for (int i = 0; i < bevel.length; ++i) {
+						float d = bevel[i].subtract(nextBevel[i], subtractResult).length();
+						subtractResult.normalizeLocal().multLocal(distance - d);
+						bevel[i].addLocal(subtractResult);
+					}
+				}
+			}
+			
 			//apply scales to the bevels
 			float lengthAlongCurve = 0;
 			for(int i=0;i<curvePoints.length; ++i) {
