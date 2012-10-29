@@ -35,11 +35,14 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URL;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,28 +72,38 @@ public class ZipExtensionTool {
     public String SUFFIX_WIN = "windows";
     public String SUFFIX_LINUX = "linux";
     public String SUFFIX_OSX = "mac";
-    private final String packageName;
+    private final String packageFolder;
     private final String extensionName;
-    private ProgressHandle progress;
+    private final String version;
 
-    public ZipExtensionTool(String packageName, String extensionName) {
-        this.packageName = "/" + packageName.replace('.', '/');
+    public ZipExtensionTool(String packageName, String extensionName, String version) {
+        this.packageFolder = "/" + packageName.replace('.', '/');
         this.extensionName = extensionName;
+        this.version = version;
     }
 
     private void install() {
-        if (new File(settingsFolder + File.separator + extensionName).exists()) {
-            return;
+        File folder = new File(settingsFolder + File.separator + extensionName);
+        File versionFile = new File(settingsFolder + File.separator + extensionName + File.separator + ".zipextversion");
+        if (folder.exists()) {
+            if (versionFile.exists()) {
+                if (version.equals(getVersion(versionFile))) {
+                    return;
+                } else {
+                    folder.delete();
+                }
+            }
         }
         ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Installing " + extensionName + " data");
         progressHandle.start();
         if (Utilities.isWindows()) {
-            extractToolsJava(packageName + "/" + extensionName + "-" + SUFFIX_WIN + ".zip", settingsFolder + File.separator + extensionName);
+            extractToolsJava(packageFolder + "/" + extensionName + "-" + SUFFIX_WIN + ".zip", settingsFolder + File.separator + extensionName);
         } else if (Utilities.isMac()) {
-            extractToolsShell(packageName + "/" + extensionName + "-" + SUFFIX_OSX + ".zip", settingsFolder + File.separator + extensionName);
+            extractToolsShell(packageFolder + "/" + extensionName + "-" + SUFFIX_OSX + ".zip", settingsFolder + File.separator + extensionName);
         } else if (Utilities.isUnix()) {
-            extractToolsShell(packageName + "/" + extensionName + "-" + SUFFIX_LINUX + ".zip", settingsFolder + File.separator + extensionName);
+            extractToolsShell(packageFolder + "/" + extensionName + "-" + SUFFIX_LINUX + ".zip", settingsFolder + File.separator + extensionName);
         }
+        setVersion(versionFile, version);
         progressHandle.finish();
     }
 
@@ -106,6 +119,46 @@ public class ZipExtensionTool {
         } else if (!async && installMap.putIfAbsent(extensionName, true) == null) {
             install();
             installMap.remove(extensionName);
+        }
+    }
+
+    private String getVersion(File path) {
+        Properties props = new Properties();
+        InputStream in = null;
+        try {
+            in = new BufferedInputStream(new FileInputStream(path));
+            props.load(in);
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+        return props.getProperty("version");
+    }
+
+    private void setVersion(File path, String version) {
+        Properties props = new Properties();
+        props.setProperty("version", version);
+        OutputStream out = null;
+        try {
+            out = new BufferedOutputStream(new FileOutputStream(path));
+            props.store(out, "extension properties");
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
         }
     }
 
@@ -229,13 +282,6 @@ public class ZipExtensionTool {
         return true;
     }
 
-    /**
-     * @param progress the progress to set
-     */
-    public void setProgress(ProgressHandle progress) {
-        this.progress = progress;
-    }
-
     public class OutputReader implements Runnable {
 
         private Thread thread;
@@ -259,11 +305,7 @@ public class ZipExtensionTool {
                 String line;
                 while ((line = in.readLine()) != null) {
                     if (line.trim().length() > 0) {
-                        if (progress != null) {
-                            progress.progress(line);
-                        } else {
-                            Logger.getLogger(this.getClass().getName()).log(Level.INFO, line);
-                        }
+                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, line);
                     }
                 }
             } catch (Exception e) {
