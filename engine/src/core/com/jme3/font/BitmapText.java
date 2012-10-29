@@ -181,6 +181,22 @@ public class BitmapText extends Node {
         letters.invalidate(); // TODO: Don't have to align.
         needRefresh = true;
     }
+    
+    /**
+     *  Sets an overall alpha that will be applied to all
+     *  letters.  If the alpha passed is -1 then alpha reverts
+     *  to default... which will be 1 for anything unspecified
+     *  and color tags will be reset to 1 or their encoded
+     *  alpha.
+     */
+    public void setAlpha(float alpha) {
+        letters.setBaseAlpha(alpha);
+        needRefresh = true;
+    }    
+
+    public float getAlpha() {
+        return letters.getBaseAlpha();
+    }
 
     /**
      * Define area where bitmaptext will be rendered

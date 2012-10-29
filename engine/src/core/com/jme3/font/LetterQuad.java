@@ -249,6 +249,12 @@ class LetterQuad {
         invalidate();
     }
 
+    void setAlpha(float alpha) {
+        int i = (int)(alpha * 255) & 0xFF;
+        colorInt = (colorInt & 0xffffff00) | i; 
+        invalidate();
+    }
+
     void setBitmapChar(char c) {
         BitmapCharacterSet charSet = font.getCharSet();
         BitmapCharacter bm = charSet.getCharacter(c, style);

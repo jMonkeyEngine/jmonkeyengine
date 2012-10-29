@@ -49,6 +49,8 @@ class ColorTags {
     		                                                    "\\\\#([0-9a-fA-F]{4})#|\\\\#([0-9a-fA-F]{3})#");
     private LinkedList<Range> colors = new LinkedList<Range>();
     private String text;
+    private String original;
+    private float baseAlpha = -1;
 
     ColorTags() { }
 
@@ -68,6 +70,7 @@ class ColorTags {
     }
 
     void setText(final String charSeq) {
+        original = charSeq;
         colors.clear();
         if (charSeq == null) {
             return;
@@ -92,6 +95,34 @@ class ColorTags {
             text = charSeq;
         }
     }
+
+    void setBaseAlpha( float alpha ) {
+        this.baseAlpha = alpha;
+        if( alpha == -1 ) {
+            // Need to reinitialize from the original text
+            setText(original);
+            return;
+        }
+        
+        // Else set the alpha for all of them            
+        for( Range r : colors ) {
+            r.color.a = alpha;
+        }
+    }
+ 
+    /**
+     *  Sets the colors of all ranges, overriding any color tags
+     *  that were in the original text.
+     */   
+    void setBaseColor( ColorRGBA color ) {
+        // There are times when the alpha is directly modified
+        // and the caller may have passed a constant... so we
+        // should clone it.
+        color = color.clone();
+        for( Range r : colors ) {
+            r.color = color;
+        }
+    }
     
     class Range {
         int start;
@@ -104,19 +135,23 @@ class ColorTags {
                           Integer.parseInt(colorStr.subSequence(2,4).toString(), 16) / 255f,
                           Integer.parseInt(colorStr.subSequence(4,6).toString(), 16) / 255f,
                           1);
-                if (colorStr.length() == 8) {
-                    color.a = Integer.parseInt(colorStr.subSequence(6,8).toString(), 16) / 255f;
+                if (baseAlpha != -1) {
+                    color.a = baseAlpha;
                 }
+                else if (colorStr.length() == 8) {
+                    color.a = Integer.parseInt(colorStr.subSequence(6,8).toString(), 16) / 255f;
+                } 
             } else {
                 color.set(Integer.parseInt(Character.toString(colorStr.charAt(0)), 16) / 15f,
                           Integer.parseInt(Character.toString(colorStr.charAt(1)), 16) / 15f,
                           Integer.parseInt(Character.toString(colorStr.charAt(2)), 16) / 15f,
                           1);
-                if (colorStr.length() == 4) {
+                if (baseAlpha != -1) {
+                    color.a = baseAlpha;
+                } else if (colorStr.length() == 4) {
                     color.a = Integer.parseInt(Character.toString(colorStr.charAt(3)), 16) / 15f;
                 }
             }
-            
         }
     }
 }
