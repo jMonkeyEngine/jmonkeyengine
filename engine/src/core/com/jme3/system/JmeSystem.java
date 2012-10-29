@@ -172,10 +172,13 @@ public class JmeSystem {
                 if (systemDelegate == null) {
                     systemDelegate = tryLoadDelegate("com.jme3.system.android.JmeAndroidSystem");
                     if (systemDelegate == null) {
-                        // None of the system delegates were found ..
-                        Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE,
-                                "Failed to find a JmeSystem delegate!\n"
-                                + "Ensure either desktop or android jME3 jar is in the classpath.");
+                        systemDelegate = tryLoadDelegate("com.jme3.system.ios.JmeIosSystem");
+                        if (systemDelegate == null) {
+                            // None of the system delegates were found ..
+                            Logger.getLogger(JmeSystem.class.getName()).log(Level.SEVERE,
+                                    "Failed to find a JmeSystem delegate!\n"
+                                    + "Ensure either desktop or android jME3 jar is in the classpath.");
+                        }
                     }
                 }
             } catch (InstantiationException ex) {

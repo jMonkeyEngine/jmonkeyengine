@@ -34,6 +34,7 @@
         <mkdir dir="${build.dir}/jogl"/>
         <mkdir dir="${build.dir}/lwjgl"/>
         <mkdir dir="${build.dir}/android"/>
+        <mkdir dir="${build.dir}/ios"/>
         
         <echo>Compile Core</echo>
         <j2seproject3:javac 
@@ -182,6 +183,16 @@
             <fileset dir="${src.android.dir}" excludes="${build.classes.excludes},${excludes},**/jme3test/**,**/res/**" includes="${includes}"/>
         </copy>
         
+        <echo>Compile iOS</echo>
+        <j2seproject3:javac 
+            destdir="${build.dir}/ios"
+            srcdir="${src.ios.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/plugins"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/ios">
+            <fileset dir="${src.ios.dir}" excludes="${build.classes.excludes},${excludes},**/jme3test/**,**/res/**" includes="${includes}"/>
+        </copy>
+        
         <echo>Compile Tests</echo>
         <j2seproject3:javac 
             destdir="${build.classes.dir}"
@@ -209,6 +220,7 @@
         <jar jarfile="${build.dir}/jME3-lwjgl.jar" basedir="${build.dir}/lwjgl" compress="true"/>
         <jar jarfile="${build.dir}/jME3-jogl.jar" basedir="${build.dir}/jogl" compress="true"/>
         <jar jarfile="${build.dir}/jME3-android.jar" basedir="${build.dir}/android" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-ios.jar" basedir="${build.dir}/ios" compress="true"/>
         
         <echo>Building TestData JAR file..</echo>
         <jar jarfile="${build.dir}/jME3-testdata.jar" basedir="test-data" compress="true"/>
@@ -237,6 +249,7 @@
             <map from="${build.dir.resolved}/lwjgl" to="${build.dir}/jME3-lwjgl.jar"/>
             <map from="${build.dir.resolved}/jogl" to="${build.dir}/jME3-jogl.jar"/>
             <map from="${build.dir.resolved}/android" to=""/>
+            <map from="${build.dir.resolved}/ios" to=""/>
             <map from="${testdata.dir.resolved}" to="${build.dir.resolved}/jME3-testdata.jar"/>
             <map from="${android.jar.resolved}" to=""/>
 
@@ -261,6 +274,8 @@
 
         <mkdir dir="${dist.dir}/opt/android"/>
         <copy file="${build.dir}/jME3-android.jar" todir="${dist.dir}/opt/android" overwrite="true"/>
+        <mkdir dir="${dist.dir}/opt/ios"/>
+        <copy file="${build.dir}/jME3-ios.jar" todir="${dist.dir}/opt/ios" overwrite="true"/>
     </target>
     
     <!--
