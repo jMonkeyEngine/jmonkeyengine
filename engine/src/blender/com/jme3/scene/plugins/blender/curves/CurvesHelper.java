@@ -461,6 +461,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
     protected List<Geometry> applyBevelAndTaper(Curve curve, List<Geometry> bevelObject, Spline taperObject,
             boolean smooth, BlenderContext blenderContext) {
     	Vector3f[] curvePoints = BufferUtils.getVector3Array(curve.getFloatBuffer(Type.Position));
+    	Vector3f subtractResult = new Vector3f();
         float curveLength = curve.getLength();
         
         FloatBuffer[] vertexBuffers = new FloatBuffer[bevelObject.size()];
@@ -488,7 +489,6 @@ public class CurvesHelper extends AbstractBlenderHelper {
 				//equal to the distance between the points on curve that define the bevel position
 				//so instead doing complicated rotations on each point we will simply properly translate each of them
 				
-				Vector3f subtractResult = new Vector3f();
 				int[][] pointIndexes = new int[][] { { 0, 1 }, { curvePoints.length - 1, curvePoints.length - 2 } };
 				for(int[] indexes : pointIndexes) {
 					float distance = curvePoints[indexes[1]].subtract(curvePoints[indexes[0]], subtractResult).length();
@@ -506,7 +506,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
 			float lengthAlongCurve = 0;
 			for(int i=0;i<curvePoints.length; ++i) {
 				if(i > 0) {
-					lengthAlongCurve += curvePoints[i].subtract(curvePoints[i - 1]).length();
+					lengthAlongCurve += curvePoints[i].subtract(curvePoints[i - 1], subtractResult).length();
 				}
 				float taperScale = this.getTaperScale(taperObject, i == 0 ? 0 : lengthAlongCurve / curveLength);
 				this.applyScale(bevels.get(i), curvePoints[i], taperScale);

@@ -43,6 +43,7 @@ public class BlenderFileException extends Exception {
      * Constructor. Creates an exception with no description.
      */
     public BlenderFileException() {
+    	//this constructor has no message
     }
 
     /**

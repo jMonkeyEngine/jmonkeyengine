@@ -379,7 +379,12 @@ public class BlenderInputStream extends InputStream {
     }
 
     @Override
-    public void close() throws IOException { }
+    public void close() throws IOException { 
+    	//this method is unimplemented because some loaders (ie. TGALoader) have flaws that close the stream given from the outside
+    	//because the images can be stored directly in the blender file then this stream is properly positioned and given to the loader
+    	//to read the image file, that is why we do not want it to be closed before the reading is done
+    	//to properly close the stream use forceClose() method
+    }
     
     /**
      * This method should be used to close the stream because some loaders may close the stream while reading resources from it.

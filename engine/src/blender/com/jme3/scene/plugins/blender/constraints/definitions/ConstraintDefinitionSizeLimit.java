@@ -17,7 +17,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	private static final int LIMIT_ZMIN = 0x10;
 	private static final int LIMIT_ZMAX = 0x20;
 	
-	protected float[][] limits = new float[3][2];
+	protected transient float[][] limits = new float[3][2];
 	
 	public ConstraintDefinitionSizeLimit(Structure constraintData, BlenderContext blenderContext) {
 		super(constraintData, blenderContext);

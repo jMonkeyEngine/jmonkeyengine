@@ -53,35 +53,23 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
 		Vector3f translation = ownerTransform.getTranslation();
 		
-		if ((flag & LIMIT_XMIN) != 0) {
-			if (translation.x < limits[0][0]) {
-				translation.x -= (translation.x - limits[0][0]) * influence;
-			}
+		if ((flag & LIMIT_XMIN) != 0 && translation.x < limits[0][0]) {
+			translation.x -= (translation.x - limits[0][0]) * influence;
 		}
-		if ((flag & LIMIT_XMAX) != 0) {
-			if (translation.x > limits[0][1]) {
-				translation.x -= (translation.x - limits[0][1]) * influence;
-			}
+		if ((flag & LIMIT_XMAX) != 0 && translation.x > limits[0][1]) {
+			translation.x -= (translation.x - limits[0][1]) * influence;
 		}
-		if ((flag & LIMIT_YMIN) != 0) {
-			if (translation.y < limits[1][0]) {
-				translation.y -= (translation.y - limits[1][0]) * influence;
-			}
+		if ((flag & LIMIT_YMIN) != 0 && translation.y < limits[1][0]) {
+			translation.y -= (translation.y - limits[1][0]) * influence;
 		}
-		if ((flag & LIMIT_YMAX) != 0) {
-			if (translation.y > limits[1][1]) {
-				translation.y -= (translation.y - limits[1][1]) * influence;
-			}
+		if ((flag & LIMIT_YMAX) != 0 && translation.y > limits[1][1]) {
+			translation.y -= (translation.y - limits[1][1]) * influence;
 		}
-		if ((flag & LIMIT_ZMIN) != 0) {
-			if (translation.z < limits[2][0]) {
-				translation.z -= (translation.z - limits[2][0]) * influence;
-			}
+		if ((flag & LIMIT_ZMIN) != 0 && translation.z < limits[2][0]) {
+			translation.z -= (translation.z - limits[2][0]) * influence;
 		}
-		if ((flag & LIMIT_ZMAX) != 0) {
-			if (translation.z > limits[2][1]) {
-				translation.z -= (translation.z - limits[2][1]) * influence;
-			}
+		if ((flag & LIMIT_ZMAX) != 0 && translation.z > limits[2][1]) {
+			translation.z -= (translation.z - limits[2][1]) * influence;
 		}
 	}
 }

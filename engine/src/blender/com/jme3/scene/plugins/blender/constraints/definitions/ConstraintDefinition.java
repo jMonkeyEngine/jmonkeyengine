@@ -215,9 +215,13 @@ public abstract class ConstraintDefinition {
 			}
 		}
 
-		public void write(JmeExporter ex) throws IOException { }
+		public void write(JmeExporter ex) throws IOException { 
+			//no need to implement this one (the TrackWrapper is used internally and never serialized)
+		}
 
-		public void read(JmeImporter im) throws IOException { }
+		public void read(JmeImporter im) throws IOException {
+			//no need to implement this one (the TrackWrapper is used internally and never serialized)
+		}
 
 		public void setTime(float time, float weight, AnimControl control,
 				AnimChannel channel, TempVars vars) {

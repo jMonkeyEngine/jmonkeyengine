@@ -15,5 +15,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	}
 	
 	@Override
-	public void bake(Transform ownerTransform, Transform targetTransform, float influence) { }
+	public void bake(Transform ownerTransform, Transform targetTransform, float influence) { 
+		//null constraint does nothing so no need to implement this one
+	}
 }

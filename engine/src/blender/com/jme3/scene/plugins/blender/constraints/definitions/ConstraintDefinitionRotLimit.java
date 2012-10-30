@@ -15,7 +15,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	private static final int	LIMIT_YROT	= 0x02;
 	private static final int	LIMIT_ZROT	= 0x04;
 
-	private float[][]			limits		= new float[3][2];
+	private transient float[][]	limits		= new float[3][2];
 	private transient float[]	angles 		= new float[3];
 	
 	public ConstraintDefinitionRotLimit(Structure constraintData, BlenderContext blenderContext) {
