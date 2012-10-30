@@ -82,6 +82,10 @@ public class ZipExtensionTool {
         this.version = version;
     }
 
+    public String getPath() {
+        return settingsFolder + File.separator + extensionName;
+    }
+
     private void install() {
         File folder = new File(settingsFolder + File.separator + extensionName);
         File versionFile = new File(settingsFolder + File.separator + extensionName + File.separator + ".zipextversion");
