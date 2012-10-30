@@ -5,6 +5,7 @@
         <folder name="Libraries">
             <file name="jme3.xml" url="jme3.xml"/>
             <file name="android-base.xml" url="android-base.xml"/>
+            <file name="ios-base.xml" url="ios-base.xml"/>
         </folder>
     </folder>
 </filesystem>
