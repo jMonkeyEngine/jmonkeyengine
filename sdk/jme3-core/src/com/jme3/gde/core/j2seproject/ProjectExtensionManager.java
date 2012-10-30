@@ -46,7 +46,6 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ant.AntBuildExtender;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.java.j2seproject.J2SEProject;
@@ -478,6 +477,7 @@ public class ProjectExtensionManager {
             return;
         }
         InputStream in = zipFile.openStream();
+        boolean kept = false;
         try {
             ZipInputStream str = new ZipInputStream(in);
             ZipEntry entry;
@@ -492,11 +492,12 @@ public class ProjectExtensionManager {
                 }
                 String fileName = resourcesFolder + "/" + extensionName + "/" + entry.getName();
                 FileObject obj = projectRoot.getFileObject(fileName);
-                if (obj != null && !obj.equals(projectRoot)) {
-                    Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting file " + obj.getNameExt());
+                if (obj != null && !obj.equals(projectRoot) && !obj.isFolder()) {
                     if (entry.getSize() != -1 && entry.getSize() == obj.getSize()) {
+                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting file " + obj.getNameExt());
                         obj.delete();
                     } else {
+                        kept = true;
                         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Keeping file " + obj.getNameExt());
                     }
                 }
@@ -505,7 +506,7 @@ public class ProjectExtensionManager {
             in.close();
         }
         FileObject folder = projectRoot.getFileObject(resourcesFolder + "/" + extensionName);
-        if (folder != null && folder.getChildren().length == 0) {
+        if (folder != null && !kept) {
             folder.delete();
         }
         FileObject resourceFolder = projectRoot.getFileObject(resourcesFolder);
