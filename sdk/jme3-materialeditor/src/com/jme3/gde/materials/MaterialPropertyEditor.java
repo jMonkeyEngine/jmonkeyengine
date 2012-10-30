@@ -36,7 +36,6 @@ import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.core.sceneexplorer.SceneExplorerTopComponent;
-import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.SceneExplorerPropertyEditor;
 import com.jme3.material.Material;
@@ -53,6 +52,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 
 /**
@@ -99,7 +99,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
     public void setAsText(final String text) throws IllegalArgumentException {
         if ("create j3m file".equals(text)) {            
             try {
-                AbstractSceneExplorerNode geom = SceneExplorerTopComponent.findInstance().getLastSelected();
+                Node geom = SceneExplorerTopComponent.findInstance().getLastSelected();
                 assert (geom != null);
                 ProjectAssetManager pm = geom.getLookup().lookup(ProjectAssetManager.class);
                 assert (pm != null);
