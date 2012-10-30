@@ -28,8 +28,17 @@ public class ObfuscateCompositeProvider implements ProjectCustomizer.CompositeCa
     private static final String CAT_OBFUSCATION = "Obfuscation"; // NOI18N
     private static ProjectExtensionProperties jwsProps = null;
     private String[] keyList = new String[]{
-        "obfuscate"
+        "obfuscate",
+        "obfuscate.options"
     };
+    private static String defaultOpts = "-keep public class * extends com.jme3.app.Application{public *;}\n"
+            + "-keep public class * extends com.jme3.system.JmeSystemDelegate{public *;}\n"
+            + "-keep public class * implements com.jme3.renderer.Renderer{public *;}\n"
+            + "-keep public class * implements com.jme3.asset.AssetLoader{public *;}\n"
+            + "-keep public class * implements com.jme3.asset.AssetLocator{public *;}\n"
+            + "-keep public class * implements de.lessvoid.nifty.screen.ScreenController{public *;}\n"
+            + "-dontwarn\n"
+            + "-dontnote\n";
 
     public ObfuscateCompositeProvider() {
     }
@@ -43,6 +52,9 @@ public class ObfuscateCompositeProvider implements ProjectCustomizer.CompositeCa
     @Override
     public JComponent createComponent(ProjectCustomizer.Category category, Lookup context) {
         jwsProps = new ProjectExtensionProperties(context.lookup(Project.class), keyList);
+        if(jwsProps.getProperty("obfuscate.options")==null){
+            jwsProps.setProperty("obfuscate.options", defaultOpts);
+        }
         ObfuscateCustomizerPanel panel = new ObfuscateCustomizerPanel(jwsProps);
         category.setStoreListener(new SavePropsListener(jwsProps, context.lookup(Project.class)));
         category.setOkButtonListener(panel);
@@ -52,7 +64,7 @@ public class ObfuscateCompositeProvider implements ProjectCustomizer.CompositeCa
     private class SavePropsListener implements ActionListener {
 
         private String extensionName = "obfuscate";
-        private String extensionVersion = "v0.9";
+        private String extensionVersion = "v0.10";
         private String[] extensionDependencies = new String[]{"-post-jar", "-obfuscate"};
         private ProjectExtensionManager manager = new ProjectExtensionManager(extensionName, extensionVersion, extensionDependencies);
         private ProjectExtensionProperties properties;
@@ -77,31 +89,5 @@ public class ObfuscateCompositeProvider implements ProjectCustomizer.CompositeCa
                 Exceptions.printStackTrace(ioe);
             }
         }
-
-//        private void unZipFile(InputStream source, FileObject projectRoot) throws IOException {
-//            try {
-//                ZipInputStream str = new ZipInputStream(source);
-//                ZipEntry entry;
-//                while ((entry = str.getNextEntry()) != null) {
-//                    if (entry.isDirectory()) {
-//                        FileUtil.createFolder(projectRoot, entry.getName());
-//                    } else {
-//                        FileObject fo = FileUtil.createData(projectRoot, entry.getName());
-//                        writeFile(str, fo);
-//                    }
-//                }
-//            } finally {
-//                source.close();
-//            }
-//        }
-//
-//        private void writeFile(ZipInputStream str, FileObject fo) throws IOException {
-//            OutputStream out = fo.getOutputStream();
-//            try {
-//                FileUtil.copy(str, out);
-//            } finally {
-//                out.close();
-//            }
-//        }
     }
 }
