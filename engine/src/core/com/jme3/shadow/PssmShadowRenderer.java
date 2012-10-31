@@ -125,48 +125,48 @@ public class PssmShadowRenderer implements SceneProcessor {
          */
         Hardware;
     }
-    private int nbSplits = 3;
-    private float shadowMapSize;
-    private float lambda = 0.65f;
-    private float shadowIntensity = 0.7f;
-    private float zFarOverride = 0;
-    private RenderManager renderManager;
-    private ViewPort viewPort;
-    private FrameBuffer[] shadowFB;
-    private Texture2D[] shadowMaps;
-    private Texture2D dummyTex;
-    private Camera shadowCam;
-    private Material preshadowMat;
-    private Material postshadowMat;
-    private GeometryList splitOccluders = new GeometryList(new OpaqueComparator());
-    private Matrix4f[] lightViewProjectionsMatrices;
-    private ColorRGBA splits;
-    private float[] splitsArray;
-    private boolean noOccluders = false;
-    private Vector3f direction = new Vector3f();
-    private AssetManager assetManager;
-    private boolean debug = false;
-    private float edgesThickness = 1.0f;
-    private FilterMode filterMode;
-    private CompareMode compareMode;
-    private Picture[] dispPic;
-    private Vector3f[] points = new Vector3f[8];
-    private boolean flushQueues = true;
+    protected int nbSplits = 3;
+    protected float shadowMapSize;
+    protected float lambda = 0.65f;
+    protected float shadowIntensity = 0.7f;
+    protected float zFarOverride = 0;
+    protected RenderManager renderManager;
+    protected ViewPort viewPort;
+    protected FrameBuffer[] shadowFB;
+    protected Texture2D[] shadowMaps;
+    protected Texture2D dummyTex;
+    protected Camera shadowCam;
+    protected Material preshadowMat;
+    protected Material postshadowMat;
+    protected GeometryList splitOccluders = new GeometryList(new OpaqueComparator());
+    protected Matrix4f[] lightViewProjectionsMatrices;
+    protected ColorRGBA splits;
+    protected float[] splitsArray;
+    protected boolean noOccluders = false;
+    protected Vector3f direction = new Vector3f();
+    protected AssetManager assetManager;
+    protected boolean debug = false;
+    protected float edgesThickness = 1.0f;
+    protected FilterMode filterMode;
+    protected CompareMode compareMode;
+    protected Picture[] dispPic;
+    protected Vector3f[] points = new Vector3f[8];
+    protected boolean flushQueues = true;
     // define if the fallback material should be used.
     protected boolean needsfallBackMaterial = false;
     //Name of the post material technique
-    private String postTechniqueName = "PostShadow";
+    protected String postTechniqueName = "PostShadow";
     //flags to know when to change params in the materials
-    private boolean applyHWShadows = true;
-    private boolean applyFilterMode = true;
-    private boolean applyPCFEdge = true;
-    private boolean applyShadowIntensity = true;
+    protected boolean applyHWShadows = true;
+    protected boolean applyFilterMode = true;
+    protected boolean applyPCFEdge = true;
+    protected boolean applyShadowIntensity = true;
     //a list of material of the post shadow queue geometries.
-    private List<Material> matCache = new ArrayList<Material>();
+    protected List<Material> matCache = new ArrayList<Material>();
     //Holding the info for fading shadows in the far distance 
-    private Vector2f fadeInfo;
-    private float fadeLength;
-    private boolean applyFadeInfo = true;
+    protected Vector2f fadeInfo;
+    protected float fadeLength;
+    protected boolean applyFadeInfo = false;
 
     /**
      * Create a PSSM Shadow Renderer 
