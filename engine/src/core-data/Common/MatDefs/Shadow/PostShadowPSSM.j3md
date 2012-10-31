@@ -11,6 +11,7 @@ MaterialDef Post Shadow {
         
         Float ShadowIntensity
         Vector4 Splits
+        Vector2 FadeInfo
 
         Matrix4 LightViewProjectionMatrix0
         Matrix4 LightViewProjectionMatrix1
@@ -36,6 +37,7 @@ MaterialDef Post Shadow {
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
             SHADOWMAP_SIZE : ShadowMapSize
+            FADE : FadeInfo
         }
 
         RenderState {
@@ -59,6 +61,7 @@ MaterialDef Post Shadow {
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
             SHADOWMAP_SIZE : ShadowMapSize
+            FADE : FadeInfo
         }
 
         RenderState {

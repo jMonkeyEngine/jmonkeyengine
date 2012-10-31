@@ -245,6 +245,22 @@ public class PssmShadowFilter extends Filter {
     final public void setFilterMode(FilterMode filterMode) {
         pssmRenderer.setFilterMode(filterMode);
     }
+    
+     /**
+     * Define the length over which the shadow will fade out when using a shadowZextend
+     * @param length the fade length in world units
+     */
+    public void setShadowZFadeLength(float length){
+       pssmRenderer.setShadowZFadeLength(length);        
+    }
+    
+     /**
+     * get the length over which the shadow will fade out when using a shadowZextend
+     * @return the fade length in world units
+     */
+    public float getShadowZFadeLength(){       
+        return pssmRenderer.getShadowZFadeLength();        
+    }
 
     @Override
     public void write(JmeExporter ex) throws IOException {

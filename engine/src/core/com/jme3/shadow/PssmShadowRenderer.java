@@ -35,6 +35,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
@@ -162,6 +163,10 @@ public class PssmShadowRenderer implements SceneProcessor {
     private boolean applyShadowIntensity = true;
     //a list of material of the post shadow queue geometries.
     private List<Material> matCache = new ArrayList<Material>();
+    //Holding the info for fading shadows in the far distance 
+    private Vector2f fadeInfo;
+    private float fadeLength;
+    private boolean applyFadeInfo = true;
 
     /**
      * Create a PSSM Shadow Renderer 
@@ -214,7 +219,7 @@ public class PssmShadowRenderer implements SceneProcessor {
             //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
             shadowFB[i].setColorTexture(dummyTex);
 
-            postshadowMat.setTexture("ShadowMap" + i, shadowMaps[i]);
+            postshadowMat.setTexture("ShadowMap" + i, shadowMaps[i]);            
 
             //quads for debuging purpose
             dispPic[i] = new Picture("Picture" + i);
@@ -541,6 +546,11 @@ public class PssmShadowRenderer implements SceneProcessor {
                 mat.setFloat("ShadowIntensity", shadowIntensity);
                 applyShadowIntensity = false;
             }
+            
+            if (fadeInfo != null && mat.getParam("FadeInfo") == null || applyFadeInfo) {
+                mat.setVector2("FadeInfo", fadeInfo);
+                applyFadeInfo = false;
+            }
 
         }
 
@@ -604,7 +614,11 @@ public class PssmShadowRenderer implements SceneProcessor {
      * @param zFar the zFar values that override the computed one
      */
     public void setShadowZExtend(float zFar) {
+        if(fadeInfo!=null){
+            fadeInfo.set(zFar - fadeLength, 1f / fadeLength);
+        }
         this.zFarOverride = zFar;
+        
     }
 
     /**
@@ -664,5 +678,38 @@ public class PssmShadowRenderer implements SceneProcessor {
      */
     public void setFlushQueues(boolean flushQueues) {
         this.flushQueues = flushQueues;
+    }
+    
+    /**
+     * Define the length over which the shadow will fade out when using a
+     * shadowZextend
+     * This is useful to make dynamic shadows fade into baked shadows in the distance.
+     * @param length the fade length in world units
+     */
+    public void setShadowZFadeLength(float length) {
+        if (length == 0) {
+            fadeInfo = null;
+            fadeLength = 0;
+            postshadowMat.clearParam("FadeInfo");
+        } else {
+            if (zFarOverride == 0) {
+                fadeInfo = new Vector2f(0, 0);
+            } else {
+                fadeInfo = new Vector2f(zFarOverride - length, 1.0f / length);
+            }
+            fadeLength = length;
+            postshadowMat.setVector2("FadeInfo", fadeInfo);
+        }
+    }
+    
+     /**
+     * get the length over which the shadow will fade out when using a shadowZextend
+     * @return the fade length in world units
+     */
+    public float getShadowZFadeLength(){
+        if(fadeInfo!=null){
+            return zFarOverride - fadeInfo.x;
+        }
+        return 0f;        
     }
 }

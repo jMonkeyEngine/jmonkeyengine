@@ -111,6 +111,7 @@ MaterialDef Phong Lighting {
         
         Float ShadowIntensity
         Vector4 Splits
+        Vector2 FadeInfo
 
         Matrix4 LightViewProjectionMatrix0
         Matrix4 LightViewProjectionMatrix1
@@ -207,6 +208,7 @@ MaterialDef Phong Lighting {
             DISCARD_ALPHA : AlphaDiscardThreshold
             COLOR_MAP : ColorMap
             SHADOWMAP_SIZE : ShadowMapSize
+            FADE : FadeInfo
         }
 
         ForcedRenderState {
@@ -232,6 +234,7 @@ MaterialDef Phong Lighting {
             DISCARD_ALPHA : AlphaDiscardThreshold
             COLOR_MAP : ColorMap
             SHADOWMAP_SIZE : ShadowMapSize
+            FADE : FadeInfo
         }
 
         ForcedRenderState {

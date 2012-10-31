@@ -18,6 +18,10 @@ uniform mat4 m_LightViewProjectionMatrix1;
 uniform mat4 m_LightViewProjectionMatrix2;
 uniform mat4 m_LightViewProjectionMatrix3;
 
+#ifdef FADE
+uniform vec2 m_FadeInfo;
+#endif
+
 vec3 getPosition(in float depth, in vec2 uv){
     vec4 pos = vec4(uv, depth, 1.0) * 2.0 - 1.0;
     pos = m_ViewProjectionMatrixInverse * pos;
@@ -47,7 +51,7 @@ void main(){
 
     float shadowPosition = m_ViewProjectionMatrixRow2.x * worldPos.x +  m_ViewProjectionMatrixRow2.y * worldPos.y +  m_ViewProjectionMatrixRow2.z * worldPos.z +  m_ViewProjectionMatrixRow2.w;
     
-    float shadow = 0.0;
+    float shadow = 1.0;
     if(shadowPosition < m_Splits.x){
         shadow = GETSHADOW(m_ShadowMap0, projCoord0);
     }else if( shadowPosition <  m_Splits.y){
@@ -59,10 +63,11 @@ void main(){
     }else if( shadowPosition <  m_Splits.w){
         shadowBorderScale = 0.125;
         shadow = GETSHADOW(m_ShadowMap3, projCoord3);
-    }else{
-        shadow = 1.0;
     }
-    
+
+    #ifdef FADE
+      shadow = max(0.0,mix(shadow,1.0,(shadowPosition - m_FadeInfo.x) * m_FadeInfo.y));    
+    #endif    
     shadow= shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity);
     gl_FragColor = color * vec4(shadow, shadow, shadow, 1.0);
 

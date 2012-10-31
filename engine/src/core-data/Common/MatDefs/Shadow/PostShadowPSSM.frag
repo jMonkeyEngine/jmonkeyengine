@@ -16,6 +16,10 @@ varying vec4 projCoord3;
     varying vec2 texCoord;
 #endif
 
+#ifdef FADE
+uniform vec2 m_FadeInfo;
+#endif
+
 void main(){   
  
     #ifdef DISCARD_ALPHA
@@ -30,7 +34,7 @@ void main(){
 
     #endif
      
-   float shadow = 0.0;
+   float shadow = 1.0;
     if(shadowPosition < m_Splits.x){
         shadow = GETSHADOW(m_ShadowMap0, projCoord0);
     }else if( shadowPosition <  m_Splits.y){
@@ -42,10 +46,11 @@ void main(){
     }else if( shadowPosition <  m_Splits.w){
         shadowBorderScale = 0.125;
         shadow = GETSHADOW(m_ShadowMap3, projCoord3);
-    }else{
-        shadow = 1.0;
     }
     
+    #ifdef FADE
+      shadow = max(0.0,mix(shadow,1.0,(shadowPosition - m_FadeInfo.x) * m_FadeInfo.y));    
+    #endif
     shadow = shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity);
 
   gl_FragColor = vec4(shadow, shadow, shadow, 1.0);
