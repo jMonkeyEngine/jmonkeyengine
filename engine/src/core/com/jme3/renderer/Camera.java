@@ -382,7 +382,7 @@ public class Camera implements Savable, Cloneable {
      * @param clipPlane the plane
      * @param side the side the camera stands from the plane
      */
-    public void setClipPlane(Plane clipPlane, Plane.Side side) {
+    public void setClipPlane(Plane clipPlane, Plane.Side side) {     
         float sideFactor = 1;
         if (side == Plane.Side.Negative) {
             sideFactor = -1;
@@ -1296,30 +1296,56 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * @see Camera#getWorldCoordinates
+     * Computes the z value in projection space from the z value in view space 
+     * Note that the returned value is going non linearly from 0 to 1.
+     * for more explanations on non linear z buffer see
+     * http://www.sjbaker.org/steve/omniv/love_your_z_buffer.html
+     * @param viewZPos the z value in view space.
+     * @return the z value in projection space.
      */
-    public Vector3f getWorldCoordinates(Vector2f screenPos, float zPos) {
-        return getWorldCoordinates(screenPos, zPos, null);
+    public float getViewToProjectionZ(float viewZPos) {
+        float far = getFrustumFar();
+        float near = getFrustumNear();
+        float a = far / (far - near);
+        float b = far * near / (near - far);
+        return a + b / viewZPos;
+    }
+
+    /**
+     * Computes a position in World space given a screen position in screen space (0,0 to width, height)
+     * and a z position in projection space ( 0 to 1 non linear).
+     * This former value is also known as the Z buffer value or non linear depth buffer.
+     * for more explanations on non linear z buffer see
+     * http://www.sjbaker.org/steve/omniv/love_your_z_buffer.html
+     * 
+     * To compute the projection space z from the view space z (distance from cam to object) @see Camera#getViewToProjectionZ
+     * 
+     * @param screenPos 2d coordinate in screen space
+     * @param projectionZPos non linear z value in projection space
+     * @return the position in world space.
+     */
+    public Vector3f getWorldCoordinates(Vector2f screenPos, float projectionZPos) {
+        return getWorldCoordinates(screenPos, projectionZPos, null);
     }
 
     /**
      * @see Camera#getWorldCoordinates
      */
     public Vector3f getWorldCoordinates(Vector2f screenPosition,
-            float zPos, Vector3f store) {
+            float projectionZPos, Vector3f store) {
         if (store == null) {
             store = new Vector3f();
         }
-
+ 
         Matrix4f inverseMat = new Matrix4f(viewProjectionMatrix);
         inverseMat.invertLocal();
 
         store.set(
                 (screenPosition.x / getWidth() - viewPortLeft) / (viewPortRight - viewPortLeft) * 2 - 1,
                 (screenPosition.y / getHeight() - viewPortBottom) / (viewPortTop - viewPortBottom) * 2 - 1,
-                zPos * 2 - 1);
+                projectionZPos * 2 - 1);
 
-        float w = inverseMat.multProj(store, store);
+        float w = inverseMat.multProj(store, store);      
         store.multLocal(1f / w);
 
         return store;
