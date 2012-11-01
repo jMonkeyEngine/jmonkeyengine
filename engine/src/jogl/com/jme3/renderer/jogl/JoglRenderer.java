@@ -1560,11 +1560,34 @@ public class JoglRenderer implements Renderer {
     }
     
     public void setFrameBuffer(FrameBuffer fb) {
+        if (fb == null && mainFbOverride != null) {
+            fb = mainFbOverride;
+        }
+
         if (lastFb == fb) {
-            return;
+            if (fb == null || !fb.isUpdateNeeded()) {
+                return;
+            }
         }
 
         GL gl = GLContext.getCurrentGL();
+        // generate mipmaps for last FB if needed
+        if (lastFb != null) {
+            for (int i = 0; i < lastFb.getNumColorBuffers(); i++) {
+                RenderBuffer rb = lastFb.getColorBuffer(i);
+                Texture tex = rb.getTexture();
+                if (tex != null
+                        && tex.getMinFilter().usesMipMapLevels()) {
+                    setTexture(0, rb.getTexture());
+
+                    int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
+                    gl.glEnable(textureType);
+                    gl.glGenerateMipmap(textureType);
+                    gl.glDisable(textureType);
+                }
+            }
+        }
+        
         if (fb == null) {
             // unbind any fbos
             if (context.boundFBO != 0) {
@@ -1585,6 +1608,11 @@ public class JoglRenderer implements Renderer {
 
             lastFb = null;
         } else {
+            if (fb.getNumColorBuffers() == 0 && fb.getDepthBuffer() == null) {
+                throw new IllegalArgumentException("The framebuffer: " + fb
+                        + "\nDoesn't have any color/depth buffers");
+            }
+            
             if (fb.isUpdateNeeded()) {
                 updateFrameBuffer(fb);
             }
@@ -1612,10 +1640,16 @@ public class JoglRenderer implements Renderer {
                     context.boundReadBuf = -2;
                 }
             } else {
+                if (fb.getNumColorBuffers() > maxFBOAttachs) {
+                    throw new RendererException("Framebuffer has more color "
+                            + "attachments than are supported"
+                            + " by the video hardware!");
+                }
                 if (fb.isMultiTarget()) {
                     if (fb.getNumColorBuffers() > maxMRTFBOAttachs) {
-                        throw new UnsupportedOperationException("Framebuffer has more"
-                                + " targets than are supported" + " on the system!");
+                        throw new RendererException("Framebuffer has more"
+                                + " multi targets than are supported"
+                                + " by the video hardware!");
                     }
 
                     if (context.boundDrawBuf != 100 + fb.getNumColorBuffers()) {
@@ -1641,13 +1675,14 @@ public class JoglRenderer implements Renderer {
             assert fb.getId() >= 0;
             assert context.boundFBO == fb.getId();
             lastFb = fb;
-        }
-
-        try {
-            checkFrameBufferError();
-        } catch (IllegalStateException ex) {
-            logger.log(Level.SEVERE, "Problem FBO:\n{0}", fb);
-            throw ex;
+            
+            try {
+                checkFrameBufferError();
+            } catch (IllegalStateException ex) {
+                logger.log(Level.SEVERE, "=== jMonkeyEngine FBO State ===\n{0}", fb);
+                printRealFrameBufferInfo(fb);
+                throw ex;
+            }
         }
     }
 
