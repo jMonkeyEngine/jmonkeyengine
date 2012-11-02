@@ -37,7 +37,9 @@ import com.jogamp.newt.awt.NewtCanvasAWT;
 import java.util.logging.Logger;
 import javax.media.opengl.GLAutoDrawable;
 
-public class JoglNewtCanvas extends JoglNewtAbstractDisplay implements JmeCanvasContext {private static final Logger logger = Logger.getLogger(JoglCanvas.class.getName());
+public class JoglNewtCanvas extends JoglNewtAbstractDisplay implements JmeCanvasContext {
+    
+    private static final Logger logger = Logger.getLogger(JoglNewtCanvas.class.getName());
     private int width, height;
     
     private NewtCanvasAWT newtAwtCanvas;
