@@ -71,33 +71,8 @@ public class JoglDisplay extends JoglAbstractDisplay {
         }
         frame.setResizable(false);
         frame.add(canvas);
-        //frame.validate();
         
         applySettings(settings);
-        
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent evt) {
-                // If required, restore the previous display mode
-                /*if (isDisplayModeModified) {
-                    gd.setDisplayMode(previousDisplayMode);
-                }
-                // If required, get back to the windowed mode
-                if (gd.getFullScreenWindow() == frame) {
-                    gd.setFullScreenWindow(null);
-                }*/
-                windowCloseRequest.set(true);
-            }
-            @Override
-            public void windowActivated(WindowEvent evt) {
-                active.set(true);
-            }
-
-            @Override
-            public void windowDeactivated(WindowEvent evt) {
-                active.set(false);
-            }
-        });
         
         // Make the window visible to realize the OpenGL surface.
         frame.setVisible(true);
@@ -223,6 +198,30 @@ public class JoglDisplay extends JoglAbstractDisplay {
             y = (Toolkit.getDefaultToolkit().getScreenSize().height - settings.getHeight()) / 2;
             frame.setLocation(x, y);
         }
+        
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent evt) {
+                // If required, restore the previous display mode
+                if (isDisplayModeModified) {
+                    gd.setDisplayMode(previousDisplayMode);
+                }
+                // If required, get back to the windowed mode
+                if (gd.getFullScreenWindow() == frame) {
+                    gd.setFullScreenWindow(null);
+                }
+                windowCloseRequest.set(true);
+            }
+            @Override
+            public void windowActivated(WindowEvent evt) {
+                active.set(true);
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent evt) {
+                active.set(false);
+            }
+        });
 
         logger.log(Level.INFO, "Selected display mode: {0}x{1}x{2} @{3}",
                 new Object[]{gd.getDisplayMode().getWidth(),
