@@ -123,7 +123,7 @@ public class EmitterShapePropertyEditor implements PropertyEditor {
     public void setAsText(String text) throws IllegalArgumentException {
         text = text.replace('[', ' ').trim();
         text = text.replace(']', ' ').trim();
-        String[] strings = text.split(",");
+        String[] strings = text.split("\\s*(,|\\s)\\s*");
         EmitterShape old=emitter;
         if (strings.length == 0) {
             return;

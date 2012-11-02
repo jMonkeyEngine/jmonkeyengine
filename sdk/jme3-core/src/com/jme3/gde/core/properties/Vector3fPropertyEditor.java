@@ -75,22 +75,33 @@ public class Vector3fPropertyEditor implements PropertyEditor {
     public String getAsText() {
         return "[" + vector.x + ", " + vector.y + ", " + vector.z + "]";
     }
-
-    public void setAsText(String text) throws IllegalArgumentException {
+    
+    private void parseInto(String text, Vector3f res) throws IllegalArgumentException {
         text = text.replace('[', ' ');
-        text = text.replace(']', ' ');
-        String[] values = text.split(",");
-        if (values.length != 3) {
-            throw (new IllegalArgumentException("String not correct"));
+        text = text.replace(']', ' ').trim();
+        String[] a = text.split("\\s*(,|\\s)\\s*");
+
+        if (a.length == 1) {
+            if(text.trim().toLowerCase().equals("nan")) {
+                res.set(Vector3f.NAN);
+                return;
+            }
+            float f = Float.parseFloat(text);           
+            res.set(f, f, f);
+            return;
         }
-        float[] floats = new float[3];
-        for (int i = 0; i < values.length; i++) {
-            String string = values[i];
-            floats[i] = Float.parseFloat(string);
+
+        if (a.length == 3) {
+            res.set(Float.parseFloat(a[0]), Float.parseFloat(a[1]), Float.parseFloat(a[2]));
+            return;
         }
+        throw new IllegalArgumentException("String not correct");
+    }
+    
+    public void setAsText(String text) throws IllegalArgumentException {
         Vector3f old = new Vector3f();
         old.set(vector);
-        vector.set(floats[0], floats[1], floats[2]);
+        parseInto(text, vector);
         notifyListeners(old, vector);
     }
 

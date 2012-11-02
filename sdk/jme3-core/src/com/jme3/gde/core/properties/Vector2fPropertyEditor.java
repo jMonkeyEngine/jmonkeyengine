@@ -75,22 +75,33 @@ public class Vector2fPropertyEditor implements PropertyEditor {
     public String getAsText() {
         return "[" + vector.x + ", " + vector.y + "]";
     }
-
-    public void setAsText(String text) throws IllegalArgumentException {
+    
+    private void parseInto(String text, Vector2f res) throws IllegalArgumentException {
         text = text.replace('[', ' ');
-        text = text.replace(']', ' ');
-        String[] values = text.split(",");
-        if (values.length != 2) {
-            throw (new IllegalArgumentException("String not correct"));
+        text = text.replace(']', ' ').trim();
+        String[] a = text.split("\\s*(,|\\s)\\s*");
+
+        if (a.length == 1) {
+            if(text.trim().toLowerCase().equals("nan")) {
+                res.set(new Vector2f(Float.NaN, Float.NaN));
+                return;
+            }
+            float f = Float.parseFloat(text);            
+            res.set(f, f);
+            return;
         }
-        float[] floats = new float[2];
-        for (int i = 0; i < values.length; i++) {
-            String string = values[i];
-            floats[i] = Float.parseFloat(string);
+
+        if (a.length == 2) {
+            res.set(Float.parseFloat(a[0]), Float.parseFloat(a[1]));
+            return;
         }
+        throw new IllegalArgumentException("String not correct");
+    }
+    
+    public void setAsText(String text) throws IllegalArgumentException {
         Vector2f old = new Vector2f();
         old.set(vector);
-        vector.set(floats[0], floats[1]);
+        parseInto(text, vector);
         notifyListeners(old, vector);
     }
 

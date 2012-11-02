@@ -73,26 +73,43 @@ public class QuaternionPropertyEditor implements PropertyEditor {
     }
 
     public String getAsText() {
-        float[] angles=quaternion.toAngles(new float[3]);
-        return "[" + (float)Math.toDegrees(angles[0]) + ", " + (float)Math.toDegrees(angles[1]) + ", " + (float)Math.toDegrees(angles[2]) + "]";
+        float[] angles = quaternion.toAngles(new float[3]);
+        return "[" + (float) Math.toDegrees(angles[0]) + ", " + (float) Math.toDegrees(angles[1]) + ", " + (float) Math.toDegrees(angles[2]) + "]";
+    }
+
+    private void parseInto(String text, Quaternion res) throws IllegalArgumentException {
+        text = text.replace('[', ' ');
+        text = text.replace(']', ' ').trim();
+        String[] a = text.split("\\s*(,|\\s)\\s*");
+
+
+        if (a.length == 1) {
+            if (text.trim().toLowerCase().equals("nan")) {
+                res.set(Float.NaN, Float.NaN, Float.NaN, Float.NaN);
+                return;
+            }
+            float f = Float.parseFloat(text);
+            f = (float) Math.toRadians(f);
+            res.fromAngles(f, f, f);
+            return;
+        }
+
+        if (a.length == 3) {
+            float[] floats = new float[3];
+            for (int i = 0; i < a.length; i++) {
+                floats[i] = (float) Math.toRadians(Float.parseFloat(a[i]));
+            }
+            res.fromAngles(floats);
+            return;
+        }
+        throw new IllegalArgumentException("String not correct");
     }
 
     public void setAsText(String text) throws IllegalArgumentException {
-        text = text.replace('[', ' ');
-        text = text.replace(']', ' ');
-        String[] values = text.split(",");
-        if (values.length != 3) {
-            throw (new IllegalArgumentException("String not correct"));
-        }
-        float[] floats = new float[3];
-        for (int i = 0; i < values.length; i++) {
-            String string = values[i];
-            floats[i] = (float)Math.toRadians(Float.parseFloat(string));
-        }
-        Quaternion old=new Quaternion();
+        Quaternion old = new Quaternion();
         old.set(quaternion);
-        quaternion.fromAngles(floats);
-        notifyListeners(old,quaternion);
+        parseInto(text, quaternion);
+        notifyListeners(old, quaternion);
     }
 
     public String[] getTags() {
