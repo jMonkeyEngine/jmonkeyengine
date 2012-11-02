@@ -530,29 +530,30 @@ public class PssmShadowRenderer implements SceneProcessor {
                 }
             }
             if (applyHWShadows || mat.getParam("HardwareShadows") == null) {
-                mat.setBoolean("HardwareShadows", compareMode == CompareMode.Hardware);
-                applyHWShadows = false;
+                mat.setBoolean("HardwareShadows", compareMode == CompareMode.Hardware);              
             }
             if (applyFilterMode || mat.getParam("FilterMode") == null) {
-                mat.setInt("FilterMode", filterMode.ordinal());
-                applyFilterMode = false;
+                mat.setInt("FilterMode", filterMode.ordinal());                
             }
             if (mat.getParam("PCFEdge") == null || applyPCFEdge) {
-                mat.setFloat("PCFEdge", edgesThickness);
-                applyPCFEdge = false;
+                mat.setFloat("PCFEdge", edgesThickness);                
             }
 
             if (mat.getParam("ShadowIntensity") == null || applyShadowIntensity) {
-                mat.setFloat("ShadowIntensity", shadowIntensity);
-                applyShadowIntensity = false;
+                mat.setFloat("ShadowIntensity", shadowIntensity);                
             }
             
             if (fadeInfo != null && mat.getParam("FadeInfo") == null || applyFadeInfo) {
-                mat.setVector2("FadeInfo", fadeInfo);
-                applyFadeInfo = false;
+                mat.setVector2("FadeInfo", fadeInfo);             
             }
 
         }
+
+        applyHWShadows = false;
+        applyFilterMode = false;
+        applyPCFEdge = false;
+        applyShadowIntensity = false;
+        applyFadeInfo = false;
 
         //At least one material of the receiving geoms does not support the post shadow techniques
         //so we fall back to the forced material solution (transparent shadows won't be supported for these objects)
