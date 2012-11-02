@@ -407,10 +407,10 @@ public class JoglRenderer implements Renderer {
         lastFb = null;
 
         GL gl = GLContext.getCurrentGL();
-        gl.glGetIntegerv(GL2.GL_DRAW_BUFFER, intBuf16);
-        initialDrawBuf = intBuf16.get(0);
-        gl.glGetIntegerv(GL2.GL_READ_BUFFER, intBuf16);
-        initialReadBuf = intBuf16.get(0);
+        gl.glGetIntegerv(GL2.GL_DRAW_BUFFER, intBuf1);
+        initialDrawBuf = intBuf1.get(0);
+        gl.glGetIntegerv(GL2.GL_READ_BUFFER, intBuf1);
+        initialReadBuf = intBuf1.get(0);
     }
     
     public void resetGLObjects() {
@@ -1687,11 +1687,24 @@ public class JoglRenderer implements Renderer {
     }
 
     public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
-        if (fb != null) {
-            return;
-        }
         GL gl = GLContext.getCurrentGL();
-        gl.glReadPixels(vpX, vpY, vpW, vpH, GL2GL3.GL_BGRA, GL.GL_UNSIGNED_BYTE, byteBuf);
+        if (fb != null) {
+            RenderBuffer rb = fb.getColorBuffer();
+            if (rb == null) {
+                throw new IllegalArgumentException("Specified framebuffer"
+                        + " does not have a colorbuffer");
+            }
+
+            setFrameBuffer(fb);
+            if (context.boundReadBuf != rb.getSlot()) {
+                gl.getGL2().glReadBuffer(GL.GL_COLOR_ATTACHMENT0 + rb.getSlot());
+                context.boundReadBuf = rb.getSlot();
+            }
+        } else {
+            setFrameBuffer(null);
+        }
+
+        gl.glReadPixels(vpX, vpY, vpW, vpH, /*GL.GL_RGBA*/ GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, byteBuf);
     }
     
     private void deleteRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
