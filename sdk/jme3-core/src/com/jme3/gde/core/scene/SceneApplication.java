@@ -124,7 +124,7 @@ public class SceneApplication extends Application implements LookupProvider {
             AppSettings newSetting = new AppSettings(true);
             newSetting.setFrameRate(30);
             if ("true".equals(NbPreferences.forModule(Installer.class).get("use_opengl_1", "false"))) {
-                newSetting.setRenderer(AppSettings.LWJGL_OPENGL_ANY);
+                newSetting.setRenderer(AppSettings.LWJGL_OPENGL1);
             }
             if (!useCanvas) {
                 newSetting.setCustomRenderer(AwtPanelsContext.class);
