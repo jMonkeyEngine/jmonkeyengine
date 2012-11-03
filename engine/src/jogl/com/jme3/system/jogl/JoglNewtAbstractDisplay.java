@@ -35,6 +35,8 @@ package com.jme3.system.jogl;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
 import com.jme3.input.TouchInput;
+import com.jme3.input.jogl.NewtKeyInput;
+import com.jme3.input.jogl.NewtMouseInput;
 import com.jme3.renderer.jogl.JoglRenderer;
 import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.util.Animator;
@@ -138,14 +140,20 @@ public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLE
 
     @Override
     public KeyInput getKeyInput() {
-        //TODO
-        return null;
+        if (keyInput == null) {
+            keyInput = new NewtKeyInput();
+            ((NewtKeyInput)keyInput).setInputSource(canvas);
+        }
+        return keyInput;
     }
 
     @Override
     public MouseInput getMouseInput() {
-        //TODO
-        return null;
+        if (mouseInput == null) {
+            mouseInput = new NewtMouseInput();
+            ((NewtMouseInput)mouseInput).setInputSource(canvas);
+        }
+        return mouseInput;
     }
     
     public TouchInput getTouchInput() {
