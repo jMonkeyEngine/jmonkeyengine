@@ -3,7 +3,7 @@
     #define SHADOWCOMPARE(tex,coord) shadow2DProj(tex, coord).r 
 #else
     #define SHADOWMAP sampler2D
-    #define SHADOWCOMPARE(tex,coord) step(coord.z, texture2DProj(tex, coord).r)
+    #define SHADOWCOMPARE(tex,coord) step(coord.z / coord.w, texture2DProj(tex, coord).r)
 #endif
 
 #if FILTER_MODE == 0
@@ -35,8 +35,14 @@ uniform SHADOWMAP m_ShadowMap0;
 uniform SHADOWMAP m_ShadowMap1;
 uniform SHADOWMAP m_ShadowMap2;
 uniform SHADOWMAP m_ShadowMap3;
+#ifdef POINTLIGHT
+uniform SHADOWMAP m_ShadowMap4;
+uniform SHADOWMAP m_ShadowMap5;
+#endif
 
+#ifdef PSSM
 uniform vec4 m_Splits;
+#endif
 
 uniform float m_ShadowIntensity;
 
@@ -53,10 +59,16 @@ float Shadow_DoShadowCompare(in SHADOWMAP tex, vec4 projCoord){
 }
 
 float Shadow_BorderCheck(in vec2 coord){
+#ifdef PSSM
     // Fastest, "hack" method (uses 4-5 instructions)
     vec4 t = vec4(coord.xy, 0.0, 1.0);
     t = step(t.wwxy, t.xyzz);
     return dot(t,t);
+#else
+//fix me this is a big fat hack to avoid issues whith point lights, 
+//this function fail to return correct values, but it works with PSSM
+    return 0.0;
+#endif
 }
 
 float Shadow_DoDither_2x2(in SHADOWMAP tex, in vec4 projCoord){

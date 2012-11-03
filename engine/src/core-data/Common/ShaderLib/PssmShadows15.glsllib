@@ -9,8 +9,8 @@
     #define SHADOWGATHER(tex,coord) textureGather(tex, coord.xy, coord.z)
 #else
     #define SHADOWMAP sampler2D
-    #define SHADOWCOMPAREOFFSET(tex,coord,offset) step(coord.z, textureProjOffset(tex, coord, offset).r)
-    #define SHADOWCOMPARE(tex,coord) step(coord.z, textureProj(tex, coord).r)
+    #define SHADOWCOMPAREOFFSET(tex,coord,offset) step(coord.z / coord.w, textureProjOffset(tex, coord, offset).r)
+    #define SHADOWCOMPARE(tex,coord) step(coord.z / coord.w, textureProj(tex, coord).r) 
     #define SHADOWGATHER(tex,coord) step(coord.z, textureGather(tex, coord.xy))
 #endif
 
@@ -45,18 +45,30 @@ uniform SHADOWMAP m_ShadowMap0;
 uniform SHADOWMAP m_ShadowMap1;
 uniform SHADOWMAP m_ShadowMap2;
 uniform SHADOWMAP m_ShadowMap3;
+#ifdef POINTLIGHT
+uniform SHADOWMAP m_ShadowMap4;
+uniform SHADOWMAP m_ShadowMap5;
+#endif
 
+#ifdef PSSM
 uniform vec4 m_Splits;
+#endif
 uniform float m_ShadowIntensity;
 
 const vec2 pixSize2 = vec2(1.0 / SHADOWMAP_SIZE);
 float shadowBorderScale = 1.0;
 
 float Shadow_BorderCheck(in vec2 coord){
+#ifdef PSSM    
     // Fastest, "hack" method (uses 4-5 instructions)
     vec4 t = vec4(coord.xy, 0.0, 1.0);
     t = step(t.wwxy, t.xyzz);
     return dot(t,t);
+#else
+//fix me this is a big fat hack to avoid issues whith point lights, 
+//this function fail to return correct values, but it works with PSSM
+    return 0.0;
+#endif
 }
 
 float Shadow_DoDither_2x2(in SHADOWMAP tex, in vec4 projCoord){
@@ -90,7 +102,7 @@ float Shadow_DoBilinear_2x2(in SHADOWMAP tex, in vec4 projCoord){
         gather.y = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(1, 0));
         gather.z = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(0, 1));
         gather.w = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(1, 1));
-   #endif
+    #endif
 
    vec2 f = fract( projCoord.xy * SHADOWMAP_SIZE );
    vec2 mx = mix( gather.xz, gather.yw, f.x );

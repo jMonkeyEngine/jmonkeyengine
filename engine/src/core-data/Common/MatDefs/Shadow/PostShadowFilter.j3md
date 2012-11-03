@@ -8,6 +8,10 @@ MaterialDef Post Shadow {
         Texture2D ShadowMap1
         Texture2D ShadowMap2
         Texture2D ShadowMap3
+        //pointLights
+        Texture2D ShadowMap4
+        Texture2D ShadowMap5
+        Vector3 LightPos
         
         Float ShadowIntensity
         Vector4 Splits
@@ -16,7 +20,10 @@ MaterialDef Post Shadow {
         Matrix4 LightViewProjectionMatrix0
         Matrix4 LightViewProjectionMatrix1
         Matrix4 LightViewProjectionMatrix2
-        Matrix4 LightViewProjectionMatrix3     
+        Matrix4 LightViewProjectionMatrix3  
+        //pointLight
+        Matrix4 LightViewProjectionMatrix4
+        Matrix4 LightViewProjectionMatrix5   
 
         Float PCFEdge
 
@@ -48,6 +55,8 @@ MaterialDef Post Shadow {
             PCFEDGE : PCFEdge
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
+            PSSM : Splits
+            POINTLIGHT : LightViewProjectionMatrix5
         }
       
     }
@@ -66,6 +75,8 @@ MaterialDef Post Shadow {
             PCFEDGE : PCFEdge
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
+            PSSM : Splits
+            POINTLIGHT : LightViewProjectionMatrix5
         }
       
     }

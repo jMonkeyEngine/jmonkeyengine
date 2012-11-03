@@ -44,6 +44,7 @@ import com.jme3.util.TempVars;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -65,19 +66,17 @@ public class ShadowUtil {
      */
     public static void updateFrustumPoints2(Camera viewCam, Vector3f[] points) {
         int w = viewCam.getWidth();
-        int h = viewCam.getHeight();
-        float n = viewCam.getFrustumNear();
-        float f = viewCam.getFrustumFar();
+        int h = viewCam.getHeight();    
 
-        points[0].set(viewCam.getWorldCoordinates(new Vector2f(0, 0), n));
-        points[1].set(viewCam.getWorldCoordinates(new Vector2f(0, h), n));
-        points[2].set(viewCam.getWorldCoordinates(new Vector2f(w, h), n));
-        points[3].set(viewCam.getWorldCoordinates(new Vector2f(w, 0), n));
+        points[0].set(viewCam.getWorldCoordinates(new Vector2f(0, 0), 0));
+        points[1].set(viewCam.getWorldCoordinates(new Vector2f(0, h), 0));
+        points[2].set(viewCam.getWorldCoordinates(new Vector2f(w, h), 0));
+        points[3].set(viewCam.getWorldCoordinates(new Vector2f(w, 0), 0));
 
-        points[4].set(viewCam.getWorldCoordinates(new Vector2f(0, 0), f));
-        points[5].set(viewCam.getWorldCoordinates(new Vector2f(0, h), f));
-        points[6].set(viewCam.getWorldCoordinates(new Vector2f(w, h), f));
-        points[7].set(viewCam.getWorldCoordinates(new Vector2f(w, 0), f));
+        points[4].set(viewCam.getWorldCoordinates(new Vector2f(0, 0), 1));
+        points[5].set(viewCam.getWorldCoordinates(new Vector2f(0, h), 1));
+        points[6].set(viewCam.getWorldCoordinates(new Vector2f(w, h), 1));
+        points[7].set(viewCam.getWorldCoordinates(new Vector2f(w, 0), 1));
     }
 
     /**
@@ -492,6 +491,30 @@ public class ShadowUtil {
         vars.release();
 
         shadowCam.setProjectionMatrix(result);
+
+    }
+    
+     /**
+     * Updates the shadow camera to properly contain the given
+     * points (which contain the eye camera frustum corners) and the
+     * shadow occluder objects.
+     * 
+     * @param occluders
+     * @param shadowCam
+     * @param points
+     */
+    public static void getOccludersInCamFrustum(GeometryList occluders,
+            Camera shadowCam,
+            GeometryList splitOccluders) {
+        for (int i = 0; i < occluders.size(); i++) {
+            Geometry g = occluders.get(i);
+            int planeState = shadowCam.getPlaneState();
+            shadowCam.setPlaneState(0);
+            if (shadowCam.contains(g.getWorldBound()) != Camera.FrustumIntersect.Outside) {
+                splitOccluders.add(g);
+            }
+            shadowCam.setPlaneState(planeState);
+        }
 
     }
 }
