@@ -126,11 +126,10 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
         }
         
         ScreenMode currentScreenMode = screen.getCurrentScreenMode();
-        //FIXME get "bits per pixel"
         logger.log(Level.INFO, "Selected display mode: {0}x{1}x{2} @{3}",
                 new Object[]{currentScreenMode.getRotatedWidth(),
                              currentScreenMode.getRotatedHeight(),
-                             -1,
+                             currentScreenMode.getMonitorMode().getSurfaceSize().getBitsPerPixel(),
                              currentScreenMode.getMonitorMode().getRefreshRate()});
     }
 

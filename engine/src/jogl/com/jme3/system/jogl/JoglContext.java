@@ -35,8 +35,6 @@ package com.jme3.system.jogl;
 import com.jme3.input.JoyInput;
 import com.jme3.input.KeyInput;
 import com.jme3.input.MouseInput;
-import com.jme3.input.awt.AwtKeyInput;
-import com.jme3.input.awt.AwtMouseInput;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.jogl.JoglRenderer;
 import com.jme3.system.AppSettings;
@@ -57,8 +55,8 @@ public abstract class JoglContext implements JmeContext {
     protected Timer timer;
     protected SystemListener listener;
 
-    protected AwtKeyInput keyInput;
-    protected AwtMouseInput mouseInput;
+    protected KeyInput keyInput;
+    protected MouseInput mouseInput;
 
     public void setSystemListener(SystemListener listener){
         this.listener = listener;

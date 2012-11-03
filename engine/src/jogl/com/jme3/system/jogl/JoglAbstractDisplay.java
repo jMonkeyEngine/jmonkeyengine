@@ -161,16 +161,20 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
 
     @Override
     public KeyInput getKeyInput() {
-        AwtKeyInput awtKeyInput = new AwtKeyInput();
-        awtKeyInput.setInputSource(canvas);
-        return awtKeyInput;
+        if (keyInput == null) {
+            keyInput = new AwtKeyInput();
+            ((AwtKeyInput)keyInput).setInputSource(canvas);
+        }
+        return keyInput;
     }
 
     @Override
     public MouseInput getMouseInput() {
-        AwtMouseInput awtMouseInput = new AwtMouseInput();
-        awtMouseInput.setInputSource(canvas);
-        return awtMouseInput;
+        if (mouseInput == null) {
+            mouseInput = new AwtMouseInput();
+            ((AwtMouseInput)mouseInput).setInputSource(canvas);
+        }
+        return mouseInput;
     }
     
     public TouchInput getTouchInput() {
