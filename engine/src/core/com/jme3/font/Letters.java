@@ -144,8 +144,7 @@ class Letters {
                             }
                         }
                         break;
-                    case NoWrap:
-                        // search last blank character before this word
+                    case NoWrap: 
                         LetterQuad cursor = l.getPrevious();
                         while (cursor.isInvalid(block, ellipsisWidth) && !cursor.isLineStart()) {
                             cursor = cursor.getPrevious();
@@ -157,6 +156,16 @@ class Letters {
                             cursor.setBitmapChar(null);
                             cursor.update(block);
                             cursor = cursor.getNext();
+                        }
+                        break;
+                    case Clip: 
+                        // Clip the character that falls out of bounds
+                        l.clip(block);
+                        
+                        // Clear the rest up to the next line feed.
+                        for( LetterQuad q = l.getNext(); !q.isTail() && !q.isLineFeed(); q = q.getNext() ) {
+                            q.setBitmapChar(null);
+                            q.update(block);
                         }
                         break;
                     }

@@ -382,6 +382,7 @@ public class BitmapText extends Node {
      * @param wrap NoWrap   : Letters over the text bound is not shown. the last character is set to '...'(0x2026)
      *             Character: Character is split at the end of the line.
      *             Word     : Word is split at the end of the line.
+     *             Clip     : The text is hard-clipped at the border including showing only a partial letter if it goes beyond the text bound.
      */
     public void setLineWrapMode(LineWrapMode wrap) {
         if (block.getLineWrapMode() != wrap) {
