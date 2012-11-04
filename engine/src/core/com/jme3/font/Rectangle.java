@@ -61,4 +61,8 @@ public class Rectangle implements Cloneable {
             throw new AssertionError();
         }
     }
+    
+    public String toString() {
+        return getClass().getSimpleName() + "[x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]"; 
+    }
 }
