@@ -1436,11 +1436,13 @@ public class JoglRenderer implements Renderer {
         }
 
         if (fb.getWidth() > maxRBSize || fb.getHeight() > maxRBSize) {
-            throw new UnsupportedOperationException("Resolution " + fb.getWidth() + ":"
-                    + fb.getHeight() + " is not supported.");
+            throw new RendererException("Resolution " + fb.getWidth()
+                    + ":" + fb.getHeight() + " is not supported.");
         }
 
-        if (fb.getSamples() > 0 && gl.isExtensionAvailable("GL_EXT_framebuffer_multisample")
+        TextureUtil.GLImageFormat glFmt = TextureUtil.getImageFormatWithError(rb.getFormat());
+        
+        if (fb.getSamples() > 1 && gl.isExtensionAvailable("GL_EXT_framebuffer_multisample")
                 && gl.isFunctionAvailable("glRenderbufferStorageMultisample")) {
             int samples = fb.getSamples();
             if (maxFBOSamples < samples) {
@@ -1448,11 +1450,11 @@ public class JoglRenderer implements Renderer {
             }
             gl.getGL2()
                     .glRenderbufferStorageMultisample(GL.GL_RENDERBUFFER, samples,
-                    TextureUtil.convertTextureFormat(rb.getFormat()), fb.getWidth(),
+                    glFmt.internalFormat, fb.getWidth(),
                     fb.getHeight());
         } else {
             gl.glRenderbufferStorage(GL.GL_RENDERBUFFER,
-                    TextureUtil.convertTextureFormat(rb.getFormat()), fb.getWidth(), fb.getHeight());
+                    glFmt.internalFormat, fb.getWidth(), fb.getHeight());
         }
     }
     
