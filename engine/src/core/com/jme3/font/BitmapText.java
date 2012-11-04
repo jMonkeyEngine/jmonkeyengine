@@ -98,6 +98,10 @@ public class BitmapText extends Node {
         letters.invalidate();
     }
 
+    public float getSize() {
+        return block.getSize();
+    }
+
     /**
      *
      * @param text charsequence to change text to
