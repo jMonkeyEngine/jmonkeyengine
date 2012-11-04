@@ -167,7 +167,7 @@ public class BitmapFont implements Savable {
     }
 
     public float getLineWidth(CharSequence text){
-    
+
         // This method will probably always be a bit of a maintenance
         // nightmare since it basis its calculation on a different 
         // routine than the Letters class.  The ideal situation would
@@ -243,8 +243,8 @@ public class BitmapFont implements Savable {
                 // that we don't care about.
                 if (i == text.length() - 1) {
                     lineWidth += c.getWidth() * sizeScale;
-                    
-                    // Since theh width includes the xOffset then we need
+ 
+                    // Since the width includes the xOffset then we need
                     // to take it out again by adding it, ie: offset the width
                     // we just added by the appropriate amount.
                     lineWidth += c.getXOffset() * sizeScale;                      
