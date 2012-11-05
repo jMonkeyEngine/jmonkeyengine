@@ -321,6 +321,17 @@ public class TerrainGrid extends TerrainQuad {
         return cache.get(tileCell);
     }
     
+    /**
+     * Get the terrain tile at the specified XZ cell coordinate (not world coordinate).
+     * @param cellCoordinate integer cell coordinates
+     * @return the terrain tile at that location
+     */
+    public Terrain getTerrainAtCell(Vector3f cellCoordinate) {
+        Vector3f gridLocation = cellCoordinate.mult(getLocalScale()).multLocal(quadSize - 1);
+        Vector3f tileCell = getTileCell(gridLocation);
+        return cache.get(tileCell);
+    }
+    
     protected void removeQuad(TerrainQuad q) {
         if (q != null && ( (q.getQuadrant() > 0 && q.getQuadrant()<5) || q.getParent() != null) ) {
             for (TerrainGridListener l : listeners) {
