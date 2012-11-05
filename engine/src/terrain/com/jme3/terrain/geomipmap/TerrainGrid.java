@@ -83,11 +83,11 @@ import java.util.logging.Logger;
  * and is half way inside each one.
  * </p><pre>
  * +-------+-------+
- * | 1     |     4 |    Four terrainQuads that make up the grid
+ * | 1     |     3 |    Four terrainQuads that make up the grid
  * |    *..|..*    |    with the cameraCell in the middle, covering
  * |----|--|--|----|    all four quads.
  * |    *..|..*    |
- * | 2     |     3 |
+ * | 2     |     4 |
  * +-------+-------+
  * </pre><p>
  * This results in the effect of when the camera gets half way across one of the sides of a quad to
@@ -205,8 +205,6 @@ public class TerrainGrid extends TerrainQuad {
                         }
                         System.out.println("fixed normals "+location.clone().mult(size));
                         setNeedToRecalculateNormals();
-                        //fixNormalEdges(new BoundingBox(location.clone().mult(size), size*2, Float.MAX_VALUE, size*2));
-                        // the edges are fixed once, but not with lod change
                         return null;
                     }
             });
@@ -256,34 +254,6 @@ public class TerrainGrid extends TerrainQuad {
         this(name, patchSize, maxVisibleSize, Vector3f.UNIT_XYZ, terrainQuadGrid);
     }
 
-    @Deprecated
-    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid,
-            Vector2f offset, float offsetAmount) {
-        this.name = name;
-        this.patchSize = patchSize;
-        this.size = maxVisibleSize;
-        this.stepScale = scale;
-        this.offset = offset;
-        this.offsetAmount = offsetAmount;
-        initData();
-        this.heightMapGrid = heightMapGrid;
-        heightMapGrid.setSize(this.quadSize);
-        addControl(new UpdateControl());
-        
-        fixNormalEdges(new BoundingBox(new Vector3f(0,0,0), size*2, Float.MAX_VALUE, size*2));
-        addControl(new NormalRecalcControl(this));
-    }
-
-    @Deprecated
-    public TerrainGrid(String name, int patchSize, int maxVisibleSize, Vector3f scale, HeightMapGrid heightMapGrid) {
-        this(name, patchSize, maxVisibleSize, scale, heightMapGrid, new Vector2f(), 0);
-    }
-
-    @Deprecated
-    public TerrainGrid(String name, int patchSize, int maxVisibleSize, HeightMapGrid heightMapGrid) {
-        this(name, patchSize, maxVisibleSize, Vector3f.UNIT_XYZ, heightMapGrid);
-    }
-
     public TerrainGrid() {
     }
 
@@ -311,6 +281,15 @@ public class TerrainGrid extends TerrainQuad {
 
     }
 
+    /**
+     * Get the location in cell-coordinates of the specified location.
+     * Cell coordinates are integer corrdinates, usually with y=0, each 
+     * representing a cell in the world.
+     * For example, moving right in the +X direction:
+     * (0,0,0) (1,0,0) (2,0,0), (3,0,0)
+     * and then down the -Z direction:
+     * (3,0,-1) (3,0,-2) (3,0,-3)
+     */
     public Vector3f getCamCell(Vector3f location) {
         Vector3f tile = getTileCell(location);
         Vector3f offsetHalf = new Vector3f(-0.5f, 0, -0.5f);
@@ -330,6 +309,16 @@ public class TerrainGrid extends TerrainQuad {
 
     public TerrainGridTileLoader getGridTileLoader() {
         return gridTileLoader;
+    }
+    
+    /**
+     * Get the terrain tile at the specified world location, in XZ coordinates.
+     */
+    public Terrain getTerrainAt(Vector3f worldLocation) {
+        if (worldLocation == null)
+            return null;
+        Vector3f tileCell = getTileCell(worldLocation);
+        return cache.get(tileCell);
     }
     
     protected void removeQuad(TerrainQuad q) {
@@ -363,16 +352,6 @@ public class TerrainGrid extends TerrainQuad {
         }
         updateModelBound();
         
-        /*for (Spatial s : getChildren()) {
-            if (s instanceof TerrainQuad) {
-                TerrainQuad tq = (TerrainQuad)s;
-                tq.resetCachedNeighbours();
-            }
-        }
-        
-        System.out.println("fix normals "+loc);
-        fixNormalEdges(new BoundingBox(loc, totalSize*6, Float.MAX_VALUE, totalSize*6));
-        */
     }
 
     
