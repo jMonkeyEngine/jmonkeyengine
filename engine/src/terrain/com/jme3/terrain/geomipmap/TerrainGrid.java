@@ -332,6 +332,20 @@ public class TerrainGrid extends TerrainQuad {
         return cache.get(tileCell);
     }
     
+    /**
+     * Convert the world location into a cell location (integer coordinates)
+     */
+    public Vector3f toCellSpace(Vector3f worldLocation) {
+        return getTileCell(worldLocation);
+    }
+    
+    /**
+     * Convert the cell coordinate (integer coordinates) into world coordinates.
+     */
+    public Vector3f toWorldSpace(Vector3f cellLocation) {
+        return cellLocation.mult(getLocalScale()).multLocal(quadSize - 1);
+    }
+    
     protected void removeQuad(TerrainQuad q) {
         if (q != null && ( (q.getQuadrant() > 0 && q.getQuadrant()<5) || q.getParent() != null) ) {
             for (TerrainGridListener l : listeners) {
