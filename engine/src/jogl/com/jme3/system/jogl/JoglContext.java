@@ -43,6 +43,8 @@ import com.jme3.system.NanoTimer;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.media.opengl.GL;
+import javax.media.opengl.GLContext;
 
 public abstract class JoglContext implements JmeContext {
 
@@ -133,5 +135,26 @@ public abstract class JoglContext implements JmeContext {
             created.set(false);
             createdLock.notifyAll();
         }
+    }
+    
+    protected int determineMaxSamples(int requestedSamples) {
+        GL gl = GLContext.getCurrentGL();
+        if (gl.hasFullFBOSupport()) {
+            return gl.getMaxRenderbufferSamples();
+        } else {
+            return Integer.MAX_VALUE;
+        }
+    }
+    
+    protected int getNumSamplesToUse() {
+        int samples = 0;
+        if (settings.getSamples() > 1){
+            samples = settings.getSamples();
+            int supportedSamples = determineMaxSamples(samples);
+            if (supportedSamples < samples) {
+                samples = supportedSamples;
+            }
+        }
+        return samples;
     }
 }
