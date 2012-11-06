@@ -194,7 +194,7 @@ public class Camera implements Savable, Cloneable {
     /**
      * store the value for field parallelProjection
      */
-    private boolean parallelProjection;
+    private boolean parallelProjection = true;
     protected Matrix4f projectionMatrixOverride;
     protected Matrix4f viewMatrix = new Matrix4f();
     protected Matrix4f projectionMatrix = new Matrix4f();
@@ -777,6 +777,9 @@ public class Camera implements Savable, Cloneable {
         frustumTop = h;
         frustumNear = near;
         frustumFar = far;
+
+        // Camera is no longer parallel projection even if it was before
+        parallelProjection = false;
 
         onFrustumChange();
     }
