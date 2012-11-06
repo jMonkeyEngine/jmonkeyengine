@@ -56,7 +56,7 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
         jTextPane1.setEditorKit(parser.getEditorKit());
         jTextPane1.setDocument(parser.getDocument());
         jTextPane1.addHyperlinkListener(this);
-//        jEditorPane2.addHyperlinkListener(this);
+        jEditorPane1.addHyperlinkListener(this);
 
 //        StyleSheet sheet = new StyleSheet();
 //        sheet.addRule("background-color: transparent;");
