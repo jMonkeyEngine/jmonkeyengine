@@ -16,5 +16,7 @@ public class Installer extends ModuleInstall {
 
     @Override
     public void restored() {
+        System.setProperty("awt.useSystemAAFontSettings", "on");
+        System.setProperty("swing.aatext", "true");
     }
 }
