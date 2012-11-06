@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.URL;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
-import javax.swing.text.html.StyleSheet;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -41,7 +40,7 @@ preferredID = "WelcomeScreenTopComponent")
 })
 public final class WelcomeScreenTopComponent extends TopComponent implements HyperlinkListener {
 
-    private final RssFeedParser parser = new RssFeedParser("http://jmonkeyengine.org/feed/rdf/");//"http://www.chip.de/rss/rss_tests.xml");
+    private final RssFeedParser parser = new RssFeedParser(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.rss.link"));//"http://www.chip.de/rss/rss_tests.xml");
 
     public WelcomeScreenTopComponent() {
         initComponents();
@@ -49,7 +48,7 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
         jScrollPane2.getViewport().setOpaque(false);
         jScrollPane3.setOpaque(false);
         jScrollPane3.getViewport().setOpaque(false);
-        
+
         setName(Bundle.CTL_WelcomeScreenTopComponent());
         setToolTipText(Bundle.HINT_WelcomeScreenTopComponent());
 
@@ -58,23 +57,6 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
         jTextPane1.addHyperlinkListener(this);
         jEditorPane1.addHyperlinkListener(this);
 
-//        StyleSheet sheet = new StyleSheet();
-//        sheet.addRule("background-color: transparent;");
-//        parser.getEditorKit().setStyleSheet(sheet);
-        
-        try {
-            jEditorPane1.setPage(new URL("http://jmonkeyengine.org/wiki/doku.php/sdk:welcome?do=export_xhtmlbody"));
-//                jEditorPane1.setPage(new URL("nbres:/com/jme3/gde/core/docs/core-about.html"));
-        } catch (IOException ex) {
-            try {
-                jEditorPane1.setPage(new URL("nbres:/com/jme3/gde/core/docs/core-about.html"));
-            } catch (IOException ex1) {
-                Exceptions.printStackTrace(ex1);
-            }
-        }
-//        jEditorPane2.setBackground(new Color(0, 0, 0, 128));
-//        jTextPane1.setBackground(new Color(0, 0, 0, 128));
-        parser.updateFeed();
     }
 
     /**
@@ -99,7 +81,7 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
         jScrollPane3.setOpaque(false);
 
         jTextPane1.setEditable(false);
-        jTextPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.jTextPane1.border.title"))); // NOI18N
+        jTextPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.jTextPane1.border.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 1, 13))); // NOI18N
         jTextPane1.setFont(new java.awt.Font("Lucida Grande", 2, 12)); // NOI18N
         jTextPane1.setForeground(new java.awt.Color(0, 0, 204));
         jTextPane1.setCaretColor(new java.awt.Color(255, 255, 255));
@@ -146,7 +128,6 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JPanel jPanel1;
@@ -157,7 +138,16 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
 
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
+        try {
+            jEditorPane1.setPage(new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.http.link")));
+        } catch (IOException ex) {
+            try {
+                jEditorPane1.setPage(new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link")));
+            } catch (IOException ex1) {
+                Exceptions.printStackTrace(ex1);
+            }
+        }
+        parser.updateFeed();
     }
 
     @Override

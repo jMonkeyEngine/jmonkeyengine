@@ -62,24 +62,24 @@ public class RssFeedParser {
                         public void run() {
                             List<FeedMessage> msgs = feed.getMessages();
                             try {
+                                doc.remove(0, doc.getLength());
                                 for (FeedMessage feedMessage : msgs) {
-                                    //AttributeSet set = new SimpleAttributeSet();
                                     ekit.insertHTML(doc, doc.getLength(),
                                             "<h3><a href='"
                                             + feedMessage.getLink()
                                             + "'>"
                                             + feedMessage.getTitle()
-                                            + "</a>",
+                                            + "</a></h3>",
                                             0,
                                             0,
-                                            HTML.Tag.H3);
+                                            null);
 //                                    ekit.insertHTML(doc, doc.getLength(),
 //                                            "<p>"
 //                                            + feedMessage.getDescription()
-//                                            + "",
+//                                            + "</p>",
 //                                            0,
 //                                            0,
-//                                            HTML.Tag.P);
+//                                            null);
                                     ekit.insertHTML(doc, doc.getLength(),
                                             "<br/>",
                                             0,
