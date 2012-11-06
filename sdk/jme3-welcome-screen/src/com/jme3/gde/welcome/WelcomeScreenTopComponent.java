@@ -102,7 +102,6 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
         jTextPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.jTextPane1.border.title"))); // NOI18N
         jTextPane1.setFont(new java.awt.Font("Lucida Grande", 2, 12)); // NOI18N
         jTextPane1.setForeground(new java.awt.Color(0, 0, 204));
-        jTextPane1.setCaret(null);
         jTextPane1.setCaretColor(new java.awt.Color(255, 255, 255));
         jTextPane1.setDisabledTextColor(new java.awt.Color(0, 0, 204));
         jTextPane1.setOpaque(false);
