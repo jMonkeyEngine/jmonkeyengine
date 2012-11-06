@@ -42,8 +42,10 @@ import com.jme3.system.JmeContext;
 import com.jme3.system.NanoTimer;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
+import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.media.opengl.GL;
+import javax.media.opengl.GL2GL3;
 import javax.media.opengl.GLContext;
 
 public abstract class JoglContext implements JmeContext {
@@ -142,7 +144,14 @@ public abstract class JoglContext implements JmeContext {
         if (gl.hasFullFBOSupport()) {
             return gl.getMaxRenderbufferSamples();
         } else {
-            return Integer.MAX_VALUE;
+            if (gl.isExtensionAvailable("GL_ARB_framebuffer_object")
+                    || gl.isExtensionAvailable("GL_EXT_framebuffer_multisample")) {
+                IntBuffer intBuf1 = IntBuffer.allocate(1);
+                gl.glGetIntegerv(GL2GL3.GL_MAX_SAMPLES, intBuf1);
+                return intBuf1.get(0);
+            } else {
+                return Integer.MAX_VALUE;
+            }
         }
     }
     
