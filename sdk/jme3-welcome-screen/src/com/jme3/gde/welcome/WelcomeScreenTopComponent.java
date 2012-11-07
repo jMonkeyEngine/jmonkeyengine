@@ -16,6 +16,7 @@ import org.openide.awt.HtmlBrowser.URLDisplayer;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import sun.swing.SwingUtilities2;
 
 /**
  * Top component which displays something.
@@ -26,7 +27,7 @@ autostore = false)
 @TopComponent.Description(
     preferredID = "WelcomeScreenTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = "Window", id = "com.jme3.gde.welcome.WelcomeScreenTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
@@ -34,29 +35,45 @@ persistenceType = TopComponent.PERSISTENCE_ALWAYS)
     displayName = "#CTL_WelcomeScreenAction",
 preferredID = "WelcomeScreenTopComponent")
 @Messages({
-    "CTL_WelcomeScreenAction=WelcomeScreen",
-    "CTL_WelcomeScreenTopComponent=WelcomeScreen Window",
-    "HINT_WelcomeScreenTopComponent=This is a WelcomeScreen window"
+    "CTL_WelcomeScreenAction=Info Screen",
+    "CTL_WelcomeScreenTopComponent=Info Screen",
+    "HINT_WelcomeScreenTopComponent=Shows news and information about your SDK"
 })
 public final class WelcomeScreenTopComponent extends TopComponent implements HyperlinkListener {
 
-    private final RssFeedParser parser = new RssFeedParser(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.rss.link"));//"http://www.chip.de/rss/rss_tests.xml");
+    private final RssFeedParser parser = new RssFeedParser(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.rss.link"));
 
     public WelcomeScreenTopComponent() {
         initComponents();
+        setName(Bundle.CTL_WelcomeScreenTopComponent());
+        setToolTipText(Bundle.HINT_WelcomeScreenTopComponent());
+
         jScrollPane2.setOpaque(false);
         jScrollPane2.getViewport().setOpaque(false);
         jScrollPane3.setOpaque(false);
         jScrollPane3.getViewport().setOpaque(false);
 
-        setName(Bundle.CTL_WelcomeScreenTopComponent());
-        setToolTipText(Bundle.HINT_WelcomeScreenTopComponent());
+        jTextPane1.putClientProperty(SwingUtilities2.AA_TEXT_PROPERTY_KEY, null);
+        jEditorPane1.putClientProperty(SwingUtilities2.AA_TEXT_PROPERTY_KEY, null);
 
         jTextPane1.setEditorKit(parser.getEditorKit());
         jTextPane1.setDocument(parser.getDocument());
         jTextPane1.addHyperlinkListener(this);
-        jEditorPane1.addHyperlinkListener(this);
-
+        jEditorPane1.addHyperlinkListener(new HyperlinkListener() {
+            public void hyperlinkUpdate(HyperlinkEvent he) {
+                if (he.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    try {
+                        jEditorPane1.setPage(he.getURL());
+                    } catch (IOException ex) {
+                        try {
+                            jEditorPane1.setPage(new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link")));
+                        } catch (IOException ex1) {
+                            Exceptions.printStackTrace(ex1);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -72,16 +89,18 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
         jTextPane1 = new javax.swing.JTextPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         jEditorPane1 = new javax.swing.JEditorPane();
+        jLabel1 = new javax.swing.JLabel();
 
         setBackground(java.awt.Color.white);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
-        jScrollPane3.setBorder(null);
+        jScrollPane3.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jScrollPane3.setOpaque(false);
 
         jTextPane1.setEditable(false);
-        jTextPane1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.jTextPane1.border.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Lucida Grande", 1, 13))); // NOI18N
+        jTextPane1.setBorder(null);
+        jTextPane1.setContentType("text/html"); // NOI18N
         jTextPane1.setFont(new java.awt.Font("Lucida Grande", 2, 12)); // NOI18N
         jTextPane1.setForeground(new java.awt.Color(0, 0, 204));
         jTextPane1.setCaretColor(new java.awt.Color(255, 255, 255));
@@ -89,12 +108,18 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
         jTextPane1.setOpaque(false);
         jScrollPane3.setViewportView(jTextPane1);
 
+        jScrollPane2.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jScrollPane2.setOpaque(false);
 
         jEditorPane1.setEditable(false);
+        jEditorPane1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        jEditorPane1.setContentType("text/html"); // NOI18N
         jEditorPane1.setCaretColor(new java.awt.Color(255, 255, 255));
         jEditorPane1.setOpaque(false);
         jScrollPane2.setViewportView(jEditorPane1);
+
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.jLabel1.text")); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -102,18 +127,23 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane2)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 436, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 409, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2))
                 .addContainerGap())
         );
 
@@ -130,6 +160,7 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JEditorPane jEditorPane1;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;

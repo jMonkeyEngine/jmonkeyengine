@@ -8,11 +8,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
+import javax.swing.text.Element;
+import javax.swing.text.ElementIterator;
+import javax.swing.text.StyleConstants;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -63,6 +67,21 @@ public class RssFeedParser {
                             List<FeedMessage> msgs = feed.getMessages();
                             try {
                                 doc.remove(0, doc.getLength());
+                                ekit.insertHTML(doc, doc.getLength(),
+                                        "<html>"
+                                        + "<head>"
+                                        + "</head>"
+                                        + "<body>",
+                                        0,
+                                        0,
+                                        null);
+//                                ekit.insertHTML(doc, doc.getLength(),
+//                                        "<h1>"
+//                                        + "Latest News"
+//                                        + "</h1>",
+//                                        0,
+//                                        0,
+//                                        null);
                                 for (FeedMessage feedMessage : msgs) {
                                     ekit.insertHTML(doc, doc.getLength(),
                                             "<h3><a href='"
@@ -86,6 +105,12 @@ public class RssFeedParser {
                                             0,
                                             null);
                                 }
+                                ekit.insertHTML(doc, doc.getLength(),
+                                        "</body>"
+                                        + "</html>",
+                                        0,
+                                        0,
+                                        null);
                                 doc.insertString(0, "", null);
                             } catch (BadLocationException ex) {
                                 Exceptions.printStackTrace(ex);
