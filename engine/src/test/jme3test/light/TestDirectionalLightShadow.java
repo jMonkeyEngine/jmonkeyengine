@@ -32,13 +32,9 @@
 package jme3test.light;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.export.JmeExporter;
-import com.jme3.export.JmeImporter;
-import com.jme3.export.Savable;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
@@ -49,7 +45,6 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.FXAAFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
@@ -59,29 +54,29 @@ import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.shadow.PssmShadowFilter;
-import com.jme3.shadow.PssmShadowRenderer;
-import com.jme3.shadow.PssmShadowRenderer.CompareMode;
+import com.jme3.shadow.CompareMode;
+import com.jme3.shadow.DirectionalLightShadowFilter;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.shadow.PssmShadowRenderer.FilterMode;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
-import java.io.IOException;
 
-public class TestPssmShadow extends SimpleApplication implements ActionListener {
+public class TestDirectionalLightShadow extends SimpleApplication implements ActionListener {
 
     private Spatial[] obj;
     private Material[] mat;
     private boolean hardwareShadows = false;
-    private PssmShadowRenderer pssmRenderer;
-    private PssmShadowFilter pssmFilter;
+    private DirectionalLightShadowRenderer dlsr;
+    private DirectionalLightShadowFilter dlsf;
     private Geometry ground;
     private Material matGroundU;
     private Material matGroundL;
 
     public static void main(String[] args) {
-        TestPssmShadow app = new TestPssmShadow();
+        TestDirectionalLightShadow app = new TestDirectionalLightShadow();
         app.start();
     }
 
@@ -129,8 +124,10 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
         rootNode.attachChild(ground);
 
         l = new DirectionalLight();
+        //new Vector3f(-0.5973172f, -0.56583486f, 0.8846725f).normalizeLocal()
         l.setDirection(new Vector3f(-1, -1, -1));
         rootNode.addLight(l);
+
 
         AmbientLight al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(0.5f));
@@ -153,59 +150,35 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
 
         loadScene();
 
-        pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 3);
-        //pssmRenderer.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        pssmRenderer.setDirection(new Vector3f(-0.5973172f, -0.56583486f, 0.8846725f).normalizeLocal());
-        pssmRenderer.setLambda(0.55f);
-        pssmRenderer.setShadowIntensity(0.6f);
-        pssmRenderer.setCompareMode(CompareMode.Software);
-        pssmRenderer.setFilterMode(FilterMode.Dither);
-                
-        pssmRenderer.displayFrustum();
-        viewPort.addProcessor(pssmRenderer);
+        dlsr = new DirectionalLightShadowRenderer(assetManager, 1024, 3);
+        dlsr.setLight(l);
+        dlsr.setLambda(0.55f);
+        dlsr.setShadowIntensity(0.6f);        
+        dlsr.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
+        //dlsr.displayFrustum();
+        viewPort.addProcessor(dlsr);
 
+        dlsf = new DirectionalLightShadowFilter(assetManager, 1024, 3);
+        dlsf.setLight(l);
+        dlsf.setLambda(0.55f);
+        dlsf.setShadowIntensity(0.6f);        
+        dlsf.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
+        dlsf.setEnabled(false);
 
-
-        pssmFilter = new PssmShadowFilter(assetManager, 1024, 3);
-        //pssmFilter.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        pssmRenderer.setDirection(new Vector3f(-0.5973172f, -0.56583486f, 0.8846725f).normalizeLocal());
-        pssmFilter.setLambda(0.55f);
-        pssmFilter.setShadowIntensity(0.6f);
-        pssmFilter.setCompareMode(CompareMode.Software);
-        pssmFilter.setFilterMode(FilterMode.Dither);
-        pssmFilter.setEnabled(false);
-        
-
-//        pssmFilter.setShadowZFadeLength(300);
-//        pssmFilter.setShadowZExtend(500);
-        
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
-        //  fpp.setNumSamples(4);
-        fpp.addFilter(pssmFilter);
+        fpp.addFilter(dlsf);
 
         viewPort.addProcessor(fpp);
 
-
         initInputs();
     }
-    BitmapText infoText;
-    
+
     private void initInputs() {
-        /** Write text on the screen (HUD) */
-        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        infoText = new BitmapText(guiFont, false);
-        infoText.setSize(guiFont.getCharSet().getRenderedSize());
-
-
-        inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
-        inputManager.addMapping("changeFiltering", new KeyTrigger(KeyInput.KEY_F));
-        inputManager.addMapping("ShadowUp", new KeyTrigger(KeyInput.KEY_T));
-        inputManager.addMapping("ShadowDown", new KeyTrigger(KeyInput.KEY_G));
+       
         inputManager.addMapping("ThicknessUp", new KeyTrigger(KeyInput.KEY_Y));
         inputManager.addMapping("ThicknessDown", new KeyTrigger(KeyInput.KEY_H));
         inputManager.addMapping("lambdaUp", new KeyTrigger(KeyInput.KEY_U));
         inputManager.addMapping("lambdaDown", new KeyTrigger(KeyInput.KEY_J));
-        inputManager.addMapping("toggleHW", new KeyTrigger(KeyInput.KEY_RETURN));
         inputManager.addMapping("switchGroundMat", new KeyTrigger(KeyInput.KEY_M));
         inputManager.addMapping("splits", new KeyTrigger(KeyInput.KEY_X));
 
@@ -217,116 +190,48 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
         inputManager.addMapping("back", new KeyTrigger(KeyInput.KEY_PGDN));
 
 
-
-        inputManager.addListener(this, "lambdaUp", "lambdaDown", "toggleHW", "toggle", "ShadowUp", "ShadowDown", "ThicknessUp", "ThicknessDown", "changeFiltering",
+        inputManager.addListener(this, "lambdaUp", "lambdaDown",   "ThicknessUp", "ThicknessDown", 
                 "switchGroundMat", "splits", "up", "down", "right", "left", "fwd", "back");
 
+        ShadowTestUIManager uiMan = new ShadowTestUIManager(assetManager, dlsr, dlsf, guiNode, inputManager, viewPort);
     }
 
-    private void print(String str) {
-        infoText.setText(str);
-        infoText.setLocalTranslation(cam.getWidth() * 0.5f - infoText.getLineWidth() * 0.5f, infoText.getLineHeight(), 0);
-        guiNode.attachChild(infoText);
-        infoText.removeControl(ctrl);
-        infoText.addControl(ctrl);
-    }
-    AbstractControl ctrl = new AbstractControl() {
-
-        float time;
-
-        @Override
-        protected void controlUpdate(float tpf) {
-            time += tpf;
-            if (time > 3) {
-                spatial.removeFromParent();
-                spatial.removeControl(this);
-            }
-        }
-
-        @Override
-        public void setSpatial(Spatial spatial) {
-            super.setSpatial(spatial);
-            time = 0;
-        }
-
-        @Override
-        protected void controlRender(RenderManager rm, ViewPort vp) {
-        }
-
-        public Control cloneForSpatial(Spatial spatial) {
-            return null;
-        }
-    };
-    int filteringIndex = 2;
-    int renderModeIndex = 0;
+   
+   
 
     public void onAction(String name, boolean keyPressed, float tpf) {
-        if (name.equals("toggle") && keyPressed) {
-            renderModeIndex += 1;
-            renderModeIndex %= 3;
+       
 
-            switch (renderModeIndex) {
-                case 0:
-                    viewPort.addProcessor(pssmRenderer);
-                    break;
-                case 1:
-                    viewPort.removeProcessor(pssmRenderer);
-                    pssmFilter.setEnabled(true);
-                    break;
-                case 2:
-                    pssmFilter.setEnabled(false);
-                    break;
-            }
-
-
-
-        } else if (name.equals("toggleHW") && keyPressed) {
-            hardwareShadows = !hardwareShadows;
-            pssmRenderer.setCompareMode(hardwareShadows ? CompareMode.Hardware : CompareMode.Software);
-            pssmFilter.setCompareMode(hardwareShadows ? CompareMode.Hardware : CompareMode.Software);
-            System.out.println("HW Shadows: " + hardwareShadows);
-        }
-//
-//          renderShadows = true;
-//                viewPort.addProcessor(pssmRenderer);
-
-        if (name.equals("changeFiltering") && keyPressed) {
-            filteringIndex = (filteringIndex + 1) % FilterMode.values().length;
-            FilterMode m = FilterMode.values()[filteringIndex];
-            pssmRenderer.setFilterMode(m);
-            pssmFilter.setFilterMode(m);
-            print("Filter mode : " + m.toString());
-        }
-
+    
         if (name.equals("lambdaUp") && keyPressed) {
-            pssmRenderer.setLambda(pssmRenderer.getLambda() + 0.01f);
-            pssmFilter.setLambda(pssmRenderer.getLambda() + 0.01f);
-            System.out.println("Lambda : " + pssmRenderer.getLambda());
+            dlsr.setLambda(dlsr.getLambda() + 0.01f);
+            dlsf.setLambda(dlsr.getLambda() + 0.01f);
+            System.out.println("Lambda : " + dlsr.getLambda());
         } else if (name.equals("lambdaDown") && keyPressed) {
-            pssmRenderer.setLambda(pssmRenderer.getLambda() - 0.01f);
-            pssmFilter.setLambda(pssmRenderer.getLambda() - 0.01f);
-            System.out.println("Lambda : " + pssmRenderer.getLambda());
+            dlsr.setLambda(dlsr.getLambda() - 0.01f);
+            dlsf.setLambda(dlsr.getLambda() - 0.01f);
+            System.out.println("Lambda : " + dlsr.getLambda());
         }
 
         if (name.equals("ShadowUp") && keyPressed) {
-            pssmRenderer.setShadowIntensity(pssmRenderer.getShadowIntensity() + 0.1f);
-            pssmFilter.setShadowIntensity(pssmRenderer.getShadowIntensity() + 0.1f);
-            System.out.println("Shadow intensity : " + pssmRenderer.getShadowIntensity());
+            dlsr.setShadowIntensity(dlsr.getShadowIntensity() + 0.1f);
+            dlsf.setShadowIntensity(dlsr.getShadowIntensity() + 0.1f);
+            System.out.println("Shadow intensity : " + dlsr.getShadowIntensity());
         }
         if (name.equals("ShadowDown") && keyPressed) {
-            pssmRenderer.setShadowIntensity(pssmRenderer.getShadowIntensity() - 0.1f);
-            pssmFilter.setShadowIntensity(pssmRenderer.getShadowIntensity() - 0.1f);
-            System.out.println("Shadow intensity : " + pssmRenderer.getShadowIntensity());
+            dlsr.setShadowIntensity(dlsr.getShadowIntensity() - 0.1f);
+            dlsf.setShadowIntensity(dlsr.getShadowIntensity() - 0.1f);
+            System.out.println("Shadow intensity : " + dlsr.getShadowIntensity());
         }
         if (name.equals("ThicknessUp") && keyPressed) {
-            pssmRenderer.setEdgesThickness(pssmRenderer.getEdgesThickness() + 1);
-            pssmFilter.setEdgesThickness(pssmRenderer.getEdgesThickness() + 1);
-            System.out.println("Shadow thickness : " + pssmRenderer.getEdgesThickness());
+            dlsr.setEdgesThickness(dlsr.getEdgesThickness() + 1);
+            dlsf.setEdgesThickness(dlsr.getEdgesThickness() + 1);
+            System.out.println("Shadow thickness : " + dlsr.getEdgesThickness());
         }
         if (name.equals("ThicknessDown") && keyPressed) {
-            pssmRenderer.setEdgesThickness(pssmRenderer.getEdgesThickness() - 1);
-            pssmFilter.setEdgesThickness(pssmRenderer.getEdgesThickness() - 1);
-            System.out.println("Shadow thickness : " + pssmRenderer.getEdgesThickness());
+            dlsr.setEdgesThickness(dlsr.getEdgesThickness() - 1);
+            dlsf.setEdgesThickness(dlsr.getEdgesThickness() - 1);
+            System.out.println("Shadow thickness : " + dlsr.getEdgesThickness());
         }
         if (name.equals("switchGroundMat") && keyPressed) {
             if (ground.getMaterial() == matGroundL) {
@@ -335,11 +240,6 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
                 ground.setMaterial(matGroundL);
             }
         }
-
-//        if (name.equals("splits") && keyPressed) {
-//            pssmRenderer.displayFrustum();
-//        }
-
 
         if (name.equals("up")) {
             up = keyPressed;
@@ -350,7 +250,7 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
         if (name.equals("right")) {
             right = keyPressed;
         }
-        if (name.equals("left") ) {
+        if (name.equals("left")) {
             left = keyPressed;
         }
         if (name.equals("fwd")) {
@@ -407,7 +307,5 @@ public class TestPssmShadow extends SimpleApplication implements ActionListener 
 
     private void setDir(Vector3f v) {
         l.setDirection(v);
-        pssmFilter.setDirection(v);
-        pssmRenderer.setDirection(v);
     }
 }

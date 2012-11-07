@@ -52,7 +52,9 @@ import com.jme3.ui.Picture;
  * it's useful to render shadows in a small scene, but edges might look a bit jagged.
  * 
  * @author Kirill Vainer
+ * @deprecated use {@link DirectionalLightShadowRenderer} with one split.
  */
+@Deprecated
 public class BasicShadowRenderer implements SceneProcessor {
 
     private RenderManager renderManager;
@@ -79,7 +81,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         shadowCam = new Camera(size, size);
 
         preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
-        postshadowMat = new Material(manager, "Common/MatDefs/Shadow/PostShadow.j3md");
+        postshadowMat = new Material(manager, "Common/MatDefs/Shadow/BasicPostShadow.j3md");
         postshadowMat.setTexture("ShadowMap", shadowMap);
 
         dispPic.setTexture(manager, shadowMap, false);

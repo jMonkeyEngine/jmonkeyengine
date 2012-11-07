@@ -11,8 +11,7 @@ MaterialDef Post Shadow {
         //pointLights
         Texture2D ShadowMap4
         Texture2D ShadowMap5
-        Vector3 LightPos
-        
+
         Float ShadowIntensity
         Vector4 Splits
         Vector2 FadeInfo
@@ -23,7 +22,8 @@ MaterialDef Post Shadow {
         Matrix4 LightViewProjectionMatrix3  
         //pointLight
         Matrix4 LightViewProjectionMatrix4
-        Matrix4 LightViewProjectionMatrix5   
+        Matrix4 LightViewProjectionMatrix5  
+        Vector3 LightPos 
 
         Float PCFEdge
 
@@ -44,7 +44,7 @@ MaterialDef Post Shadow {
         FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadowFilter15.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix            
+            WorldViewProjectionMatrix          
         }
 
         Defines {

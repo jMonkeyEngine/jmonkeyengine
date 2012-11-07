@@ -34,451 +34,47 @@ package com.jme3.shadow;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
-import com.jme3.renderer.Caps;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
-import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.renderer.queue.OpaqueComparator;
-import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.debug.WireFrustum;
-import com.jme3.texture.FrameBuffer;
-import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture.MagFilter;
-import com.jme3.texture.Texture.MinFilter;
-import com.jme3.texture.Texture.ShadowCompareMode;
-import com.jme3.texture.Texture2D;
-import com.jme3.ui.Picture;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * PssmShadow renderer use Parrallel Split Shadow Mapping technique (pssm)<br>
- * It splits the view frustum in several parts and compute a shadow map for each
- * one.<br> splits are distributed so that the closer they are from the camera,
- * the smaller they are to maximize the resolution used of the shadow map.<br>
- * This result in a better quality shadow than standard shadow mapping.<br> for
- * more informations on this read this <a
- * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a><br>
- * <p/>
+ * PointLightShadowRenderer renders shadows for a point light
+ *
  * @author Rémy Bouquet aka Nehon
  */
-public class PointLightShadowRenderer implements SceneProcessor {
+public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
-    /**
-     * <code>FilterMode</code> specifies how shadows are filtered
-     */
-    public enum FilterMode {
-
-        /**
-         * Shadows are not filtered. Nearest sample is used, causing in blocky
-         * shadows.
-         */
-        Nearest,
-        /**
-         * Bilinear filtering is used. Has the potential of being hardware
-         * accelerated on some GPUs
-         */
-        Bilinear,
-        /**
-         * Dither-based sampling is used, very cheap but can look bad at low
-         * resolutions.
-         */
-        Dither,
-        /**
-         * 4x4 percentage-closer filtering is used. Shadows will be smoother at
-         * the cost of performance
-         */
-        PCF4,
-        /**
-         * 8x8 percentage-closer filtering is used. Shadows will be smoother at
-         * the cost of performance
-         */
-        PCFPOISSON,
-        /**
-         * 8x8 percentage-closer filtering is used. Shadows will be smoother at
-         * the cost of performance
-         */
-        PCF8
-    }
-
-    /**
-     * Specifies the shadow comparison mode
-     */
-    public enum CompareMode {
-
-        /**
-         * Shadow depth comparisons are done by using shader code
-         */
-        Software,
-        /**
-         * Shadow depth comparisons are done by using the GPU's dedicated
-         * shadowing pipeline.
-         */
-        Hardware;
-    }
-    protected final int CAM_NUMBER = 6;
+    public static final int CAM_NUMBER = 6;
     protected PointLight light;
-    //common  
-    protected float shadowMapSize;
-    protected float shadowIntensity = 0.7f;
-    protected float zFarOverride = 0;
-    protected RenderManager renderManager;
-    protected ViewPort viewPort;
-    protected FrameBuffer[] shadowFB;
-    protected Texture2D[] shadowMaps;
-    protected Texture2D dummyTex;
     protected Camera[] shadowCams;
-    protected Material preshadowMat;
-    protected Material postshadowMat;
-    protected GeometryList splitOccluders = new GeometryList(new OpaqueComparator());
-    protected Matrix4f[] lightViewProjectionsMatrices;
-    protected boolean noOccluders = false;
-    protected AssetManager assetManager;
-    protected boolean debug = false;
-    protected float edgesThickness = 1.0f;
-    protected FilterMode filterMode;
-    protected CompareMode compareMode;
-    protected Picture[] dispPic;
-    protected boolean flushQueues = true;
-    // define if the fallback material should be used.
-    protected boolean needsfallBackMaterial = false;
-    //Name of the post material technique
-    protected String postTechniqueName = "PostShadow";
-    //flags to know when to change params in the materials
-    protected boolean applyHWShadows = true;
-    protected boolean applyFilterMode = true;
-    protected boolean applyPCFEdge = true;
-    protected boolean applyShadowIntensity = true;
-    //a list of material of the post shadow queue geometries.
-    protected List<Material> matCache = new ArrayList<Material>();
-    //Holding the info for fading shadows in the far distance 
-    protected Vector2f fadeInfo;
-    protected float fadeLength;
-    protected boolean applyFadeInfo = false;
+    protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
+    private Geometry[] frustums = null;
 
     /**
-     * Create a PSSM Shadow Renderer More info on the technique at <a
-     * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
+     * Creates a PointLightShadowRenderer
      *
-     * @param manager the application asset manager
-     * @param size the size of the rendered shadowmaps (512,1024,2048, etc...)
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps
-     * the more quality, the less fps).
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps
-     * the more quality, the less fps).
+     * @param assetManager the application asset manager
+     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
+     * etc...)
      */
-    public PointLightShadowRenderer(AssetManager manager, int size) {
-        this(manager, size, new Material(manager, "Common/MatDefs/Shadow/PostShadowPSSM.j3md"));
-    }
-
-    /**
-     * Create a PSSM Shadow Renderer More info on the technique at <a
-     * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
-     *
-     * @param manager the application asset manager
-     * @param size the size of the rendered shadowmaps (512,1024,2048, etc...)
-     * @param nbSplits the number of shadow maps rendered (the more shadow maps
-     * the more quality, the less fps).
-     * @param postShadowMat the material used for post shadows if you need to
-     * override it
-     */
-    protected PointLightShadowRenderer(AssetManager manager, int size, Material postShadowMat) {
-
-        this.postshadowMat = postShadowMat;
-        assetManager = manager;
-        shadowMapSize = size;
-
-        shadowFB = new FrameBuffer[CAM_NUMBER];
-        shadowMaps = new Texture2D[CAM_NUMBER];
-        dispPic = new Picture[CAM_NUMBER];
-        lightViewProjectionsMatrices = new Matrix4f[CAM_NUMBER];
-
-        //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
-        dummyTex = new Texture2D(size, size, Format.RGBA8);
-
-        preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
-        postshadowMat.setFloat("ShadowMapSize", size);
-
+    public PointLightShadowRenderer(AssetManager assetManager, int shadowMapSize) {
+        super(assetManager, shadowMapSize, CAM_NUMBER);
         shadowCams = new Camera[CAM_NUMBER];
-
         for (int i = 0; i < CAM_NUMBER; i++) {
-            lightViewProjectionsMatrices[i] = new Matrix4f();
-            shadowFB[i] = new FrameBuffer(size, size, 1);
-            shadowMaps[i] = new Texture2D(size, size, Format.Depth);
-
-            shadowFB[i].setDepthTexture(shadowMaps[i]);
-
-            //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
-            shadowFB[i].setColorTexture(dummyTex);
-
-            postshadowMat.setTexture("ShadowMap" + i, shadowMaps[i]);
-
-            //quads for debuging purpose
-            dispPic[i] = new Picture("Picture" + i);
-            dispPic[i].setTexture(manager, shadowMaps[i], false);
-
-            shadowCams[i] = new Camera(size, size);
-        }
-
-        setCompareMode(CompareMode.Hardware);
-        setFilterMode(FilterMode.Bilinear);
-        setShadowIntensity(0.7f);
-
-    }
-
-    /**
-     * Sets the filtering mode for shadow edges see {@link FilterMode} for more
-     * info
-     *
-     * @param filterMode
-     */
-    final public void setFilterMode(FilterMode filterMode) {
-        if (filterMode == null) {
-            throw new NullPointerException();
-        }
-
-        if (this.filterMode == filterMode) {
-            return;
-        }
-
-        this.filterMode = filterMode;
-        postshadowMat.setInt("FilterMode", filterMode.ordinal());
-        postshadowMat.setFloat("PCFEdge", edgesThickness);
-        if (compareMode == CompareMode.Hardware) {
-            for (Texture2D shadowMap : shadowMaps) {
-                if (filterMode == FilterMode.Bilinear) {
-                    shadowMap.setMagFilter(MagFilter.Bilinear);
-                    shadowMap.setMinFilter(MinFilter.BilinearNoMipMaps);
-                } else {
-                    shadowMap.setMagFilter(MagFilter.Nearest);
-                    shadowMap.setMinFilter(MinFilter.NearestNoMipMaps);
-                }
-            }
-        }
-        applyFilterMode = true;
-    }
-
-    public FilterMode getFilterMode() {
-        return filterMode;
-    }
-       
-    /**
-     * sets the shadow compare mode see {@link CompareMode} for more info
-     *
-     * @param compareMode
-     */
-    final public void setCompareMode(CompareMode compareMode) {
-        if (compareMode == null) {
-            throw new NullPointerException();
-        }
-
-        if (this.compareMode == compareMode) {
-            return;
-        }
-
-        this.compareMode = compareMode;
-        for (Texture2D shadowMap : shadowMaps) {
-            if (compareMode == CompareMode.Hardware) {
-                shadowMap.setShadowCompareMode(ShadowCompareMode.LessOrEqual);
-                if (filterMode == FilterMode.Bilinear) {
-                    shadowMap.setMagFilter(MagFilter.Bilinear);
-                    shadowMap.setMinFilter(MinFilter.BilinearNoMipMaps);
-                } else {
-                    shadowMap.setMagFilter(MagFilter.Nearest);
-                    shadowMap.setMinFilter(MinFilter.NearestNoMipMaps);
-                }
-            } else {
-                shadowMap.setShadowCompareMode(ShadowCompareMode.Off);
-                shadowMap.setMagFilter(MagFilter.Nearest);
-                shadowMap.setMinFilter(MinFilter.NearestNoMipMaps);
-            }
-        }
-        postshadowMat.setBoolean("HardwareShadows", compareMode == CompareMode.Hardware);
-        applyHWShadows = true;
-    }
-
-    //debug function that create a displayable frustrum
-    private Geometry createFrustum(Vector3f[] pts, int i) {
-        WireFrustum frustum = new WireFrustum(pts);
-        Geometry frustumMdl = new Geometry("f", frustum);
-        frustumMdl.setCullHint(Spatial.CullHint.Never);
-        frustumMdl.setShadowMode(ShadowMode.Off);
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.getAdditionalRenderState().setWireframe(true);
-        frustumMdl.setMaterial(mat);
-        switch (i) {
-            case 0:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Pink);
-                break;
-            case 1:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Red);
-                break;
-            case 2:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Green);
-                break;
-            case 3:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Blue);
-                break;
-            case 4:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Yellow);
-                break;
-            case 5:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.Gray);
-                break;
-            default:
-                frustumMdl.getMaterial().setColor("Color", ColorRGBA.White);
-                break;
-        }
-
-        frustumMdl.updateGeometricState();
-        return frustumMdl;
-    }
-
-    public void initialize(RenderManager rm, ViewPort vp) {
-        renderManager = rm;
-        viewPort = vp;
-        //checking for caps to chosse the appropriate post material technique
-        if (renderManager.getRenderer().getCaps().contains(Caps.GLSL150)) {
-            postTechniqueName = "PostShadow15";
-        } else {
-            postTechniqueName = "PostShadow";
+            shadowCams[i] = new Camera(shadowMapSize, shadowMapSize);
         }
     }
 
-    public boolean isInitialized() {
-        return viewPort != null;
-    }
+    @Override
+    protected void updateShadowCams(Camera viewCam) {
 
-    @SuppressWarnings("fallthrough")
-    public void postQueue(RenderQueue rq) {
         if (light == null) {
             throw new IllegalStateException("The light can't be null for a " + this.getClass().getName());
         }
-        GeometryList occluders = rq.getShadowQueueContent(ShadowMode.Cast);
-        if (occluders.size() == 0) {
-            return;
-        }
-
-        GeometryList receivers = rq.getShadowQueueContent(ShadowMode.Receive);
-        if (receivers.size() == 0) {
-            return;
-        }
-
-        Camera viewCam = viewPort.getCamera();
-
-        float zFar = zFarOverride;
-        if (zFar == 0) {
-            zFar = viewCam.getFrustumFar();
-        }
-
-        //We prevent computing the frustum points and splits with zeroed or negative near clip value
-        //float frustumNear = Math.max(viewCam.getFrustumNear(), 0.001f);
-        // ShadowUtil.updateFrustumPoints(viewCam, frustumNear, zFar, 1.0f, points);
-
-        updateShadowCams();
-
-        Renderer r = renderManager.getRenderer();
-        renderManager.setForcedMaterial(preshadowMat);
-        renderManager.setForcedTechnique("PreShadow");
-
-        for (int i = 0; i < CAM_NUMBER; i++) {
-
-            //Updating shadow cam with curent split frustra
-
-            ShadowUtil.getOccludersInCamFrustum(occluders, shadowCams[i], splitOccluders);
-
-            //saving light view projection matrix for this split
-            lightViewProjectionsMatrices[i].set(shadowCams[i].getViewProjectionMatrix());
-            renderManager.setCamera(shadowCams[i], false);
-
-            if (debug && frustums[i].getParent() == null) {
-                ((Node) viewPort.getScenes().get(0)).attachChild(frustums[i]);
-            }
-
-            r.setFrameBuffer(shadowFB[i]);
-            r.clearBuffers(false, true, false);
-
-            //      System.out.println("Face " + i + " nb occl " + splitOccluders.size());
-            // render shadow casters to shadow map
-            viewPort.getQueue().renderShadowQueue(splitOccluders, renderManager, shadowCams[i], true);
-        }
-        if (flushQueues) {
-            occluders.clear();
-        }
-        //restore setting for future rendering
-        r.setFrameBuffer(viewPort.getOutputFrameBuffer());
-        renderManager.setForcedMaterial(null);
-        renderManager.setForcedTechnique(null);
-        renderManager.setCamera(viewCam, false);
-
-    }
-
-    //debug only : displays depth shadow maps
-    protected void displayShadowMap(Renderer r) {
-        Camera cam = viewPort.getCamera();
-        renderManager.setCamera(cam, true);
-        int h = cam.getHeight();
-        for (int i = 0; i < dispPic.length; i++) {
-            dispPic[i].setPosition((128 * i) + (150 + 64 * (i + 1)), h / 20f);
-            dispPic[i].setWidth(128);
-            dispPic[i].setHeight(128);
-            dispPic[i].updateGeometricState();
-            renderManager.renderGeometry(dispPic[i]);
-        }
-        renderManager.setCamera(cam, false);
-    }
-
-    /**
-     * For dubuging purpose Allow to "snapshot" the current frustrum to the
-     * scene
-     */
-    public void displayDebug() {
-        debug = true;
-    }
-
-    public void postFrame(FrameBuffer out) {
-
-        if (debug) {
-            displayShadowMap(renderManager.getRenderer());
-        }
-        if (!noOccluders) {
-            //setting params to recieving geometry list
-            setMatParams();
-
-            Camera cam = viewPort.getCamera();
-            //some materials in the scene does not have a post shadow technique so we're using the fall back material
-            if (needsfallBackMaterial) {
-                renderManager.setForcedMaterial(postshadowMat);
-            }
-
-            //forcing the post shadow technique and render state
-            renderManager.setForcedTechnique(postTechniqueName);
-
-            //rendering the post shadow pass
-            viewPort.getQueue().renderShadowQueue(ShadowMode.Receive, renderManager, cam, flushQueues);
-
-            //resetting renderManager settings
-            renderManager.setForcedTechnique(null);
-            renderManager.setForcedMaterial(null);
-            renderManager.setCamera(cam, false);
-
-        }
-
-    }
-
-    private void updateShadowCams() {
-
 
         //bottom
         shadowCams[0].setAxes(Vector3f.UNIT_X.mult(-1f), Vector3f.UNIT_Z.mult(-1f), Vector3f.UNIT_Y.mult(-1f));
@@ -505,7 +101,22 @@ public class PointLightShadowRenderer implements SceneProcessor {
             shadowCams[i].updateViewProjection();
         }
 
-        if (debug && frustums == null) {
+    }
+
+    @Override
+    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers) {
+        ShadowUtil.getOccludersInCamFrustum(sceneOccluders, shadowCams[shadowMapIndex], shadowMapOccluders);
+        return shadowMapOccluders;
+    }
+
+    @Override
+    protected Camera getShadowCam(int shadowMapIndex) {
+        return shadowCams[shadowMapIndex];
+    }
+
+    @Override
+    protected void doDisplayFrustumDebug(int shadowMapIndex) {
+        if (frustums == null) {
             frustums = new Geometry[CAM_NUMBER];
             Vector3f[] points = new Vector3f[8];
             for (int i = 0; i < 8; i++) {
@@ -516,220 +127,14 @@ public class PointLightShadowRenderer implements SceneProcessor {
                 frustums[i] = createFrustum(points, i);
             }
         }
-
-
-    }
-    private Geometry[] frustums = null;
-
-    private void setMatParams() {
-
-        GeometryList l = viewPort.getQueue().getShadowQueueContent(ShadowMode.Receive);
-
-        //iteration throught all the geometries of the list to gather the materials
-
-        matCache.clear();
-        for (int i = 0; i < l.size(); i++) {
-            Material mat = l.get(i).getMaterial();
-            //checking if the material has the post technique and adding it to the material cache
-            if (mat.getMaterialDef().getTechniqueDef(postTechniqueName) != null) {
-                if (!matCache.contains(mat)) {
-                    matCache.add(mat);
-                }
-            } else {
-                needsfallBackMaterial = true;
-            }
-        }
-
-        //iterating through the mat cache and setting the parameters
-        for (Material mat : matCache) {
-
-            if (mat.getParam("ShadowMapSize") == null) {
-                mat.setFloat("ShadowMapSize", shadowMapSize);
-            }
-            for (int j = 0; j < CAM_NUMBER; j++) {
-                mat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
-            }
-            mat.setVector3("LightPos", light.getPosition());
-            if (mat.getParam("ShadowMap0") == null) {
-                for (int j = 0; j < CAM_NUMBER; j++) {
-                    mat.setTexture("ShadowMap" + j, shadowMaps[j]);
-                }
-            }
-            if (applyHWShadows || mat.getParam("HardwareShadows") == null) {
-                mat.setBoolean("HardwareShadows", compareMode == CompareMode.Hardware);
-            }
-            if (applyFilterMode || mat.getParam("FilterMode") == null) {
-                mat.setInt("FilterMode", filterMode.ordinal());
-            }
-            if (mat.getParam("PCFEdge") == null || applyPCFEdge) {
-                mat.setFloat("PCFEdge", edgesThickness);
-            }
-
-            if (mat.getParam("ShadowIntensity") == null || applyShadowIntensity) {
-                mat.setFloat("ShadowIntensity", shadowIntensity);
-            }
-
-            if (fadeInfo != null && mat.getParam("FadeInfo") == null || applyFadeInfo) {
-                mat.setVector2("FadeInfo", fadeInfo);
-            }
-
-        }
-        
-        applyHWShadows = false;
-        applyFilterMode = false;
-        applyPCFEdge = false;
-        applyShadowIntensity = false;
-        applyFadeInfo = false;
-        
-        //At least one material of the receiving geoms does not support the post shadow techniques
-        //so we fall back to the forced material solution (transparent shadows won't be supported for these objects)
-        if (needsfallBackMaterial) {
-            setPostShadowParams();
-        }
-
-    }
-
-    protected void setPostShadowParams() {
-        for (int j = 0; j < CAM_NUMBER; j++) {
-            postshadowMat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
-        }
-        postshadowMat.setVector3("LightPos", light.getPosition());
-    }
-
-    public void preFrame(float tpf) {
-    }
-
-    public void cleanup() {
-    }
-
-    public void reshape(ViewPort vp, int w, int h) {
-    }
-
-    /**
-     * returns the shdaow intensity
-     *
-     * @see #setShadowIntensity(float shadowIntensity)
-     * @return shadowIntensity
-     */
-    public float getShadowIntensity() {
-        return shadowIntensity;
-    }
-
-    /**
-     * Set the shadowIntensity, the value should be between 0 and 1, a 0 value
-     * gives a bright and invisilble shadow, a 1 value gives a pitch black
-     * shadow, default is 0.7
-     *
-     * @param shadowIntensity the darkness of the shadow
-     */
-    final public void setShadowIntensity(float shadowIntensity) {
-        this.shadowIntensity = shadowIntensity;
-        postshadowMat.setFloat("ShadowIntensity", shadowIntensity);
-        applyShadowIntensity = true;
-    }
-
-    /**
-     * How far the shadows are rendered in the view
-     *
-     * @see #setShadowZExtend(float zFar)
-     * @return shadowZExtend
-     */
-    public float getShadowZExtend() {
-        return zFarOverride;
-    }
-
-    /**
-     * Set the distance from the eye where the shadows will be rendered default
-     * value is dynamicaly computed to the shadow casters/receivers union bound
-     * zFar, capped to view frustum far value.
-     *
-     * @param zFar the zFar values that override the computed one
-     */
-    public void setShadowZExtend(float zFar) {
-        if (fadeInfo != null) {
-            fadeInfo.set(zFar - fadeLength, 1f / fadeLength);
-        }
-        this.zFarOverride = zFar;
-
-    }
-
-    /**
-     * returns the edges thickness
-     *
-     * @see #setEdgesThickness(int edgesThickness)
-     * @return edgesThickness
-     */
-    public int getEdgesThickness() {
-        return (int) (edgesThickness * 10);
-    }
-
-    /**
-     * Sets the shadow edges thickness. default is 1, setting it to lower values
-     * can help to reduce the jagged effect of the shadow edges
-     *
-     * @param edgesThickness
-     */
-    public void setEdgesThickness(int edgesThickness) {
-        this.edgesThickness = Math.max(1, Math.min(edgesThickness, 10));
-        this.edgesThickness *= 0.1f;
-        postshadowMat.setFloat("PCFEdge", edgesThickness);
-        applyPCFEdge = true;
-    }
-
-    /**
-     * returns true if the PssmRenderer flushed the shadow queues
-     *
-     * @return flushQueues
-     */
-    public boolean isFlushQueues() {
-        return flushQueues;
-    }
-
-    /**
-     * Set this to false if you want to use several PssmRederers to have
-     * multiple shadows cast by multiple light sources. Make sure the last
-     * PssmRenderer in the stack DO flush the queues, but not the others
-     *
-     * @param flushQueues
-     */
-    public void setFlushQueues(boolean flushQueues) {
-        this.flushQueues = flushQueues;
-    }
-
-    /**
-     * Define the length over which the shadow will fade out when using a
-     * shadowZextend This is useful to make dynamic shadows fade into baked
-     * shadows in the distance.
-     *
-     * @param length the fade length in world units
-     */
-    public void setShadowZFadeLength(float length) {
-        if (length == 0) {
-            fadeInfo = null;
-            fadeLength = 0;
-            postshadowMat.clearParam("FadeInfo");
-        } else {
-            if (zFarOverride == 0) {
-                fadeInfo = new Vector2f(0, 0);
-            } else {
-                fadeInfo = new Vector2f(zFarOverride - length, 1.0f / length);
-            }
-            fadeLength = length;
-            postshadowMat.setVector2("FadeInfo", fadeInfo);
+        if (frustums[shadowMapIndex].getParent() == null) {
+            ((Node) viewPort.getScenes().get(0)).attachChild(frustums[shadowMapIndex]);
         }
     }
 
-    /**
-     * get the length over which the shadow will fade out when using a
-     * shadowZextend
-     *
-     * @return the fade length in world units
-     */
-    public float getShadowZFadeLength() {
-        if (fadeInfo != null) {
-            return zFarOverride - fadeInfo.x;
-        }
-        return 0f;
+    @Override
+    protected void setMaterialParameters(Material material) {
+        material.setVector3("LightPos", light.getPosition());
     }
 
     /**
@@ -748,6 +153,5 @@ public class PointLightShadowRenderer implements SceneProcessor {
      */
     public void setLight(PointLight light) {
         this.light = light;
-        updateShadowCams();
     }
 }

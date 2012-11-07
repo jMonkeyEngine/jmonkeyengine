@@ -61,7 +61,9 @@ import java.io.IOException;
  * API is basically the same as the PssmShadowRenderer;
  * 
  * @author Rémy Bouquet aka Nehon
+ * @deprecated use {@link DirectionalLightShadowFilter}
  */
+@Deprecated
 public class PssmShadowFilter extends Filter {
 
     private PssmShadowRenderer pssmRenderer;

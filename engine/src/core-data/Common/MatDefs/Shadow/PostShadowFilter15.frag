@@ -1,5 +1,5 @@
 #import "Common/ShaderLib/MultiSample.glsllib"
-#import "Common/ShaderLib/PssmShadows15.glsllib"
+#import "Common/ShaderLib/Shadows15.glsllib"
 
 
 uniform COLORTEXTURE m_Texture;
@@ -59,53 +59,29 @@ vec4 main_multiSample(in int numSample){
     #endif
 
     float shadow = 1.0;
-    #ifdef PSSM
-        float shadowPosition = m_ViewProjectionMatrixRow2.x * worldPos.x +  m_ViewProjectionMatrixRow2.y * worldPos.y +  m_ViewProjectionMatrixRow2.z * worldPos.z +  m_ViewProjectionMatrixRow2.w;
-      
-        if(shadowPosition < m_Splits.x){
-            shadow = GETSHADOW(m_ShadowMap0, projCoord0);
-        }else if( shadowPosition <  m_Splits.y){
-            shadowBorderScale = 0.5;
-            shadow = GETSHADOW(m_ShadowMap1, projCoord1);
-        }else if( shadowPosition <  m_Splits.z){
-            shadowBorderScale = 0.25;
-            shadow = GETSHADOW(m_ShadowMap2, projCoord2);
-        }else if( shadowPosition <  m_Splits.w){
-            shadowBorderScale = 0.125;
-            shadow = GETSHADOW(m_ShadowMap3, projCoord3);
-        }
-    #endif
-
+  
     #ifdef POINTLIGHT         
-         vec3 vect = worldPos.xyz - m_LightPos;
-         vec3 absv= abs(vect);
-         float maxComp = max(absv.x,max(absv.y,absv.z));
-         if(maxComp == absv.y){
-            if(vect.y < 0.0){
-                shadow = GETSHADOW(m_ShadowMap0, projCoord0);             
-            }else{
-                shadow = GETSHADOW(m_ShadowMap1, projCoord1);
-            }
-         }else if(maxComp == absv.z){
-            if(vect.z < 0.0){
-                shadow = GETSHADOW(m_ShadowMap2, projCoord2);
-            }else{
-                shadow = GETSHADOW(m_ShadowMap3, projCoord3);
-            }
-         }else if(maxComp == absv.x){
-            if(vect.x < 0.0){
-                shadow = GETSHADOW(m_ShadowMap4, projCoord4);
-            }else{
-                shadow = GETSHADOW(m_ShadowMap5, projCoord5);
-            }
-         }                  
+            shadow = getPointLightShadows(worldPos, m_LightPos,
+                           m_ShadowMap0,m_ShadowMap1,m_ShadowMap2,m_ShadowMap3,m_ShadowMap4,m_ShadowMap5,
+                           projCoord0, projCoord1, projCoord2, projCoord3, projCoord4, projCoord5);
+    #else
+       #ifdef PSSM
+            float shadowPosition = m_ViewProjectionMatrixRow2.x * worldPos.x +  m_ViewProjectionMatrixRow2.y * worldPos.y +  m_ViewProjectionMatrixRow2.z * worldPos.z +  m_ViewProjectionMatrixRow2.w;
+            shadow = getDirectionalLightShadows(m_Splits, shadowPosition,
+                           m_ShadowMap0,m_ShadowMap1,m_ShadowMap2,m_ShadowMap3,
+                           projCoord0, projCoord1, projCoord2, projCoord3);
+       #else 
+            //spotlight
+            shadow = getSpotLightShadows(m_ShadowMap0,projCoord0);
+       #endif
     #endif   
+  
 
     #ifdef FADE
       shadow = max(0.0,mix(shadow,1.0,(shadowPosition - m_FadeInfo.x) * m_FadeInfo.y));    
     #endif
+
     shadow= shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity);
-  
     return color * vec4(shadow, shadow, shadow, 1.0);
 }
 

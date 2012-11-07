@@ -361,9 +361,7 @@ public class ShadowUtil {
 
         if (ortho) {
             shadowCam.setFrustum(-1, 1, -1, 1, 1, -1);
-        } else {
-            shadowCam.setFrustumPerspective(45, 1, 1, 150);
-        }
+        } 
 
         // create transform to rotate points to viewspace        
         Matrix4f viewProjMatrix = shadowCam.getViewProjectionMatrix();
@@ -442,9 +440,9 @@ public class ShadowUtil {
 
         splitMin.z = 0;
 
-        if (!ortho) {
-            shadowCam.setFrustumPerspective(45, 1, 1, splitMax.z);
-        }
+//        if (!ortho) {
+//            shadowCam.setFrustumPerspective(45, 1, 1, splitMax.z);
+//        }
 
         Matrix4f projMatrix = shadowCam.getProjectionMatrix();
 

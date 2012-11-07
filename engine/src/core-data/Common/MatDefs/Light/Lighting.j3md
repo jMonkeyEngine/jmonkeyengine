@@ -200,8 +200,8 @@ MaterialDef Phong Lighting {
 
 
     Technique PostShadow15{
-        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadowPSSM.vert
-        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadowPSSM15.frag
+        VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadow15.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
@@ -228,8 +228,8 @@ MaterialDef Phong Lighting {
     }
 
     Technique PostShadow{
-        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadowPSSM.vert
-        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadowPSSM.frag
+        VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadow.vert
+        FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadow.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

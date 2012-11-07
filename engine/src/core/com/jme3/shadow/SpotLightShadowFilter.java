@@ -36,22 +36,14 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
-import com.jme3.light.PointLight;
-import com.jme3.material.Material;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Vector4f;
-import com.jme3.post.Filter;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.FrameBuffer;
+import com.jme3.light.SpotLight;
 import java.io.IOException;
 
 /**
  *
- * This Filter does basically the same as a PointLightShadowRenderer except it
- * renders the post shadow pass as a fulscreen quad pass instead of a geometry
- * pass. It's mostly faster than PointLightShadowRenderer as long as you have
+ * This Filter does basically the same as a SpotLightShadowRenderer
+ * except it renders the post shadow pass as a fulscreen quad pass instead of a
+ * geometry pass. It's mostly faster than PssmShadowRenderer as long as you have
  * more than a about ten shadow recieving objects. The expense is the draw back
  * that the shadow Recieve mode set on spatial is ignored. So basically all and
  * only objects that render depth in the scene receive shadows. See this post
@@ -62,35 +54,77 @@ import java.io.IOException;
  *
  * @author Rémy Bouquet aka Nehon
  */
-public class PointLightShadowFilter extends AbstractShadowFilter<PointLightShadowRenderer> {
+public class SpotLightShadowFilter extends AbstractShadowFilter<SpotLightShadowRenderer> {
+
 
     /**
-     * Creates a PointLightShadowFilter
-     *
+     * Creates a SpotLight Shadow Filter    
      * @param assetManager the application asset manager
      * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
      * etc...)
+     * the more quality, the less fps).
      */
-    public PointLightShadowFilter(AssetManager assetManager, int shadowMapSize) {
-        super(assetManager, shadowMapSize,new PointLightShadowRenderer(assetManager, shadowMapSize));
+    public SpotLightShadowFilter(AssetManager assetManager, int shadowMapSize) {
+        super(assetManager, shadowMapSize, new SpotLightShadowRenderer(assetManager, shadowMapSize));     
     }
 
     /**
-     * gets the point light used to cast shadows with this processor
+     * return the light used to cast shadows
      *
-     * @return the point light
+     * @return the SpotLight
      */
-    public PointLight getLight() {
+    public SpotLight getLight() {
         return shadowRenderer.getLight();
     }
 
     /**
-     * sets the light to use for casting shadows with this processor
+     * Sets the light to use to cast shadows
      *
-     * @param light the point light
+     * @param light a SpotLight
      */
-    public void setLight(PointLight light) {
+    public void setLight(SpotLight light) {
         shadowRenderer.setLight(light);
+    }
+
+    /**
+     * How far the shadows are rendered in the view
+     *
+     * @see setShadowZExtend(float zFar)
+     * @return shadowZExtend
+     */
+    public float getShadowZExtend() {
+        return shadowRenderer.getShadowZExtend();
+    }
+
+    /**
+     * Set the distance from the eye where the shadows will be rendered default
+     * value is dynamicaly computed to the shadow casters/receivers union bound
+     * zFar, capped to view frustum far value.
+     *
+     * @param zFar the zFar values that override the computed one
+     */
+    public void setShadowZExtend(float zFar) {
+        shadowRenderer.setShadowZExtend(zFar);
+    }
+
+    /**
+     * Define the length over which the shadow will fade out when using a
+     * shadowZextend
+     *
+     * @param length the fade length in world units
+     */
+    public void setShadowZFadeLength(float length) {
+        shadowRenderer.setShadowZFadeLength(length);
+    }
+
+    /**
+     * get the length over which the shadow will fade out when using a
+     * shadowZextend
+     *
+     * @return the fade length in world units
+     */
+    public float getShadowZFadeLength() {
+        return shadowRenderer.getShadowZFadeLength();
     }
 
     @Override
