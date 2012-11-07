@@ -119,7 +119,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 
 		int restrictflag = ((Number)objectStructure.getFieldValue("restrictflag")).intValue();
 		boolean visible = (restrictflag & 0x01) != 0;
-		Object result = null;
+		Node result = null;
 
 		Pointer pParent = (Pointer)objectStructure.getFieldValue("parent");
 		Object parent = blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
@@ -139,7 +139,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					if(parent instanceof Node) {
 						((Node) parent).attachChild(empty);
 					}
-					empty.updateModelBound();
 					result = empty;
 					break;
 				case OBJECT_TYPE_MESH:
@@ -170,7 +169,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					if(parent instanceof Node) {
 						((Node)parent).attachChild(node);
 					}
-					node.updateModelBound();//I prefer do calculate bounding box here than read it from the file
 					result = node;
 					break;
 				case OBJECT_TYPE_SURF:
@@ -222,7 +220,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					if(parent instanceof Node) {
 						((Node)parent).attachChild(armature);
 					}
-					armature.updateModelBound();//I prefer do calculate bounding box here than read it from the file
 					result = armature;
 					break;
 				default:
@@ -233,6 +230,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		}
 		
 		if(result != null) {
+			result.updateModelBound();//I prefer do compute bounding box here than read it from the file
+			
 			blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
 			
 			//loading constraints connected with this object
