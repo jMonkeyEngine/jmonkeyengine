@@ -199,6 +199,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
                 sceneCam.getFrustumRight(),
                 sceneCam.getFrustumTop(),
                 sceneCam.getFrustumBottom());
+        refractionCam.setParallelProjection(false);
 
         //update reflection cam
         boolean inv = false;
@@ -215,6 +216,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
                 sceneCam.getFrustumRight(),
                 sceneCam.getFrustumTop(),
                 sceneCam.getFrustumBottom());
+        reflectionCam.setParallelProjection(false);
         // tempVec and calcVect are just temporary vector3f objects
         vect1.set(sceneCam.getLocation()).addLocal(sceneCam.getUp());
         float planeDistance = plane.pseudoDistance(vect1);
@@ -226,6 +228,11 @@ public class SimpleWaterProcessor implements SceneProcessor {
             reflectionCam.setAxes(reflectionCam.getLeft().negateLocal(), reflectionCam.getUp(), reflectionCam.getDirection().negateLocal());
         }
 
+        //we are rendering a sub part of the scene so the camera planeState may never be reseted to 0.
+//        reflectionCam.setPlaneState(0);        
+//        refractionCam.setPlaneState(0);
+        
+        
         //Rendering reflection and refraction
         rm.renderViewPort(reflectionView, savedTpf);
         rm.renderViewPort(refractionView, savedTpf);

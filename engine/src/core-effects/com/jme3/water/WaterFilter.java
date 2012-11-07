@@ -174,6 +174,7 @@ public class WaterFilter extends Filter {
                 sceneCam.getFrustumRight(),
                 sceneCam.getFrustumTop(),
                 sceneCam.getFrustumBottom());
+        reflectionCam.setParallelProjection(false);
         TempVars vars = TempVars.get();
 
 
