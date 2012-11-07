@@ -4,15 +4,15 @@
 
 <p>
 
-When you deal with complex game engine features like animations or physics it is handy to get feedback from the engine how it interpreted the current state. Is the physical object&#039;s collision shape really where you think it is? Is the skeleton of the animated character moveing like you think it should? This document shows you how to activate visual debug aides.
+When you deal with complex game engine features like animations or physics it is handy to get feedback from the engine how it interpreted the current state. Is the physical object&#039;s collision shape really where you think it is? Is the skeleton of the animated character moving like you think it should? This document shows you how to activate visual debug aides.
 </p>
 
 <p>
-What if you just want to quickly write code that loads models and brings them in their start position? You may not want to hunt for a sample model, convert it, add lights, and load materials. Instead you use &quot;hasslefree&quot; simple shapes a wireframe material: No model, no light source, no materials are needed to see them in the scene. 
+What if you just want to quickly write code that loads models and brings them in their start position? You may not want to hunt for a sample model, convert it, add lights, and load materials. Instead you use &quot;hasslefree&quot; simple shapes, and a &quot;hasslefree&quot; unshaded material or wireframe: No model, no light source, no materials are needed to see them in your test scene. 
 </p>
 
 <p>
-If you ever have problems with objects appearing in the wrong spot, with the wrong scale, or wrong orientation, simply attach debug shapes to your scene to have a point of reference in 3D space – just like a giant ruler. If your code positions the debug shapes correctly, but models remain invisible when you apply the same code to them, you know that the problem must be the model or the light or its material – and not the positioning code.
+If you ever have problems with objects appearing in the wrong spot, with the wrong scale, or wrong orientation, simply attach debug shapes to your scene to have a point of reference in 3D space – just like a giant ruler. If your code positions the debug shapes correctly, but models remain invisible when you apply the same code to them, you know that the problem must be either the model (where is its origin coordinate?), or the light (too dark? too bright? missing?), or the model&#039;s material (missing?) – and not the positioning code.
 </p>
 
 <p>
@@ -24,12 +24,12 @@ Here are some different debug shapes:
 </p>
 
 </div>
-<!-- EDIT1 SECTION "Debugging" [1-1259] -->
+<!-- EDIT1 SECTION "Debugging" [1-1389] -->
 <h2><a>Debug Shapes</a></h2>
 <div>
 
 </div>
-<!-- EDIT2 SECTION "Debug Shapes" [1260-1285] -->
+<!-- EDIT2 SECTION "Debug Shapes" [1390-1415] -->
 <h3><a>Coordinate Axes</a></h3>
 <div>
 
@@ -62,7 +62,7 @@ private Geometry putShape&#40;Mesh shape, ColorRGBA color&#41;&#123;
 &#125;</pre>
 
 </div>
-<!-- EDIT3 SECTION "Coordinate Axes" [1286-2353] -->
+<!-- EDIT3 SECTION "Coordinate Axes" [1416-2483] -->
 <h3><a>Wireframe Grid</a></h3>
 <div>
 
@@ -82,7 +82,7 @@ Use a wireframe grid (com.jme3.scene.debug.Grid) as a ruler or simple floor.
 &#125;</pre>
 
 </div>
-<!-- EDIT4 SECTION "Wireframe Grid" [2354-2875] -->
+<!-- EDIT4 SECTION "Wireframe Grid" [2484-3005] -->
 <h3><a>Wireframe Cube</a></h3>
 <div>
 
@@ -102,7 +102,7 @@ Use a wireframe cube (com.jme3.scene.debug.WireBox) as a stand-in object to see 
 &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "Wireframe Cube" [2876-3481] -->
+<!-- EDIT5 SECTION "Wireframe Cube" [3006-3611] -->
 <h3><a>Wireframe Sphere</a></h3>
 <div>
 
@@ -122,7 +122,7 @@ Use a wireframe sphere (com.jme3.scene.debug.WireSphere) as a stand-in object to
 &#125;</pre>
 
 </div>
-<!-- EDIT6 SECTION "Wireframe Sphere" [3482-4090] -->
+<!-- EDIT6 SECTION "Wireframe Sphere" [3612-4220] -->
 <h2><a>Wireframe for Physics</a></h2>
 <div>
 
@@ -133,7 +133,7 @@ You can display a wireframe of the (usually invisible) collision shape around al
 <pre>physicsSpace.enableDebug&#40;assetManager&#41;;</pre>
 
 </div>
-<!-- EDIT7 SECTION "Wireframe for Physics" [4091-4437] -->
+<!-- EDIT7 SECTION "Wireframe for Physics" [4221-4567] -->
 <h2><a>Wireframe for Animations</a></h2>
 <div>
 
@@ -150,7 +150,7 @@ Making the skeleton visible inside animated models can be handy for debugging an
      player.attachChild&#40;skeletonDebug&#41;;</pre>
 
 </div>
-<!-- EDIT8 SECTION "Wireframe for Animations" [4438-5029] -->
+<!-- EDIT8 SECTION "Wireframe for Animations" [4568-5159] -->
 <h2><a>Example: Toggle Wireframe on Model</a></h2>
 <div>
 
@@ -189,7 +189,7 @@ TIP :: To set the line width of wireframe display, use mesh.setLineWidth(lineWid
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Example: Toggle Wireframe on Model" [5030-6089] -->
+<!-- EDIT9 SECTION "Example: Toggle Wireframe on Model" [5160-6219] -->
 <h2><a>Example: Toggle Wireframe on the scene</a></h2>
 <div>
 
@@ -243,5 +243,14 @@ Then attach the scene processor to the <acronym title="Graphical User Interface"
 <pre>getViewPort&#40;&#41;.addProcessor&#40;new WireProcessor&#40;&#41;&#41;;</pre>
 
 </div>
-<!-- EDIT10 SECTION "Example: Toggle Wireframe on the scene" [6090-] -->
+<!-- EDIT10 SECTION "Example: Toggle Wireframe on the scene" [6220-7593] -->
+<h2><a>See also</a></h2>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a> – if you can&#039;t see certain spatials, you can modify the culling behaviour to identify problems (such as inside-out custom meshes)</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT11 SECTION "See also" [7594-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:debugging?do=export_xhtmlbody">view online version</a></em></p>

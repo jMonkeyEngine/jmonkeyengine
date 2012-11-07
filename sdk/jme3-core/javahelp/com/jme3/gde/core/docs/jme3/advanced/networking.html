@@ -309,39 +309,20 @@ The ID of the Client and HostedConnection are the same at both ends of a connect
 
 <p>
 A server has a game version and game name property. Each client expects to communicate with a server with a certain game name and version. Test first whether the game name matches, and then whether game version matches, before sending any messages! If they do not match, you should refuse to connect, because unmatched clients and servers will likely miscommunicate.
-
 </p>
-<div><table>
-	<tr>
-		<th>Accessor</th><th>Purpose</th>
-	</tr>
-	<tr>
-		<td> myServer.setName()     </td><td> Specify the game name of the Server (a free-form String) </td>
-	</tr>
-	<tr>
-		<td> myServer.setVersion()  </td><td> Specify the game version of the Server (an integer number) </td>
-	</tr>
-	<tr>
-		<td> myClient.getGameName() </td><td> Client queries the name of the server it is connected to. </td>
-	</tr>
-	<tr>
-		<td> myClient.getVersion()  </td><td> Client queries the version of the server it is connected to. </td>
-	</tr>
-</table></div>
-<!-- EDIT15 TABLE [10098-10467] -->
-<p>
 
+<p>
 <p><div>Typically, your networked game defines its own attributes (such as player ID) based on whatever criteria you want. If you want to look up player/client-specific information beyond the game version, you can set this information directly on the Client/HostedConnection object (see Getting Info About a Client).
 </div></p>
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Identification and Rejection" [9507-10795] -->
+<!-- EDIT14 SECTION "Identification and Rejection" [9507-10424] -->
 <h2><a>Closing Clients and Server Cleanly</a></h2>
 <div>
 
 </div>
-<!-- EDIT16 SECTION "Closing Clients and Server Cleanly" [10796-10842] -->
+<!-- EDIT15 SECTION "Closing Clients and Server Cleanly" [10425-10471] -->
 <h3><a>Closing a Client</a></h3>
 <div>
 
@@ -357,7 +338,7 @@ You must override the client&#039;s destroy() method to close the connection cle
   &#125;</pre>
 
 </div>
-<!-- EDIT17 SECTION "Closing a Client" [10843-11118] -->
+<!-- EDIT16 SECTION "Closing a Client" [10472-10747] -->
 <h3><a>Closing a Server</a></h3>
 <div>
 
@@ -373,7 +354,7 @@ You must override the server&#039;s destroy() method to close the connection whe
   &#125;</pre>
 
 </div>
-<!-- EDIT18 SECTION "Closing a Server" [11119-11375] -->
+<!-- EDIT17 SECTION "Closing a Server" [10748-11004] -->
 <h3><a>Kicking a Client</a></h3>
 <div>
 
@@ -384,7 +365,7 @@ The server can kick a HostedConnection to make it disconnect. You should provide
 <pre>conn.close&#40;&quot;We kick cheaters.&quot;&#41;;</pre>
 
 </div>
-<!-- EDIT19 SECTION "Kicking a Client" [11376-11766] -->
+<!-- EDIT18 SECTION "Kicking a Client" [11005-11395] -->
 <h2><a>Listening to Connection Notification</a></h2>
 <div>
 
@@ -394,7 +375,7 @@ The server and clients are notified about connection changes.
 </p>
 
 </div>
-<!-- EDIT20 SECTION "Listening to Connection Notification" [11767-11878] -->
+<!-- EDIT19 SECTION "Listening to Connection Notification" [11396-11507] -->
 <h3><a>ClientStateListener</a></h3>
 <div>
 
@@ -414,7 +395,7 @@ The com.jme3.network.ClientStateListener notifies the Client when the Client has
 		<td> public void clientDisconnected(Client c, DisconnectInfo info){} </td><td> Implement here what happens after the server kicks this client. For example, display the DisconnectInfo to the user. </td>
 	</tr>
 </table></div>
-<!-- EDIT22 TABLE [12121-12490] -->
+<!-- EDIT21 TABLE [11750-12119] -->
 <p>
 
 First implement the ClientStateListener interface in the Client class. Then register it to myClient in MyGameClient&#039;s simpleInitApp() method:
@@ -422,7 +403,7 @@ First implement the ClientStateListener interface in the Client class. Then regi
 <pre>myClient.addClientStateListener&#40;this&#41;;</pre>
 
 </div>
-<!-- EDIT21 SECTION "ClientStateListener" [11879-12692] -->
+<!-- EDIT20 SECTION "ClientStateListener" [11508-12321] -->
 <h3><a>ConnectionListener</a></h3>
 <div>
 
@@ -442,7 +423,7 @@ The com.jme3.network.ConnectionListener notifies the Server whenever new HostedC
 		<td> public void connectionRemoved(Server s, HostedConnection c){} </td><td> Implement here what happens after a HostedConnection has left. E.g. a player has quit the game and the server removes his character. </td>
 	</tr>
 </table></div>
-<!-- EDIT24 TABLE [12958-13356] -->
+<!-- EDIT23 TABLE [12587-12985] -->
 <p>
 
 First implement the ConnectionListener interface in the Server class. Then register it to myServer in MyGameServer&#039;s simpleInitApp() method. 
@@ -451,7 +432,7 @@ First implement the ConnectionListener interface in the Server class. Then regis
 <pre>myServer.addConnectionListener&#40;this&#41;;</pre>
 
 </div>
-<!-- EDIT23 SECTION "ConnectionListener" [12693-13556] -->
+<!-- EDIT22 SECTION "ConnectionListener" [12322-13185] -->
 <h2><a>UDP versus TCP</a></h2>
 <div>
 
@@ -469,7 +450,7 @@ message2.setReliable&#40;false&#41;; // UDP</pre>
 </ul>
 
 </div>
-<!-- EDIT25 SECTION "UDP versus TCP" [13557-14227] -->
+<!-- EDIT24 SECTION "UDP versus TCP" [13186-13856] -->
 <h2><a>Important: Use Multi-Threading</a></h2>
 <div>
 
@@ -493,7 +474,7 @@ For general advice, see the articles <object classid="java:org.netbeans.modules.
 </p>
 
 </div>
-<!-- EDIT26 SECTION "Important: Use Multi-Threading" [14228-15374] -->
+<!-- EDIT25 SECTION "Important: Use Multi-Threading" [13857-15003] -->
 <h2><a>Troubleshooting</a></h2>
 <div>
 
@@ -508,5 +489,5 @@ If you have set up a server in your home network, and the game clients cannot re
 </span></div>
 
 </div>
-<!-- EDIT27 SECTION "Troubleshooting" [15375-] -->
+<!-- EDIT26 SECTION "Troubleshooting" [15004-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:networking?do=export_xhtmlbody">view online version</a></em></p>

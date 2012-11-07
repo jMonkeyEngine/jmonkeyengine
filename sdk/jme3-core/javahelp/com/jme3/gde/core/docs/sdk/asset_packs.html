@@ -1,13 +1,14 @@
 
-<h1><a>jMonkeyEngine SDK: AssetPacks</a></h1>
+<h1><a>jMonkeyEngine SDK: AssetPacks and AssetPack Browser</a></h1>
 <div>
 
 <p>
-AssetPacks are a way to package jME3 compatible assets like models, textures, sounds and whole scenes into a package that contains publisher info, license info, descriptions etc. for all of the assets. An AssetPack basically consists of an <code>assetpack.xml</code> file that describes the content and an <code>assets</code> folder that contains the content. The integrated browser in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> allows you to add the assets of installed AssetPacks to any project you are doing. 
+
+AssetPacks are a way to package jME3 compatible assets (like models, textures, sounds and whole scenes!) into a package that contains publisher info, license info, descriptions etc. for all of the assets. An AssetPack basically consists of an <code>assetpack.xml</code> file that describes the content and an <code>assets</code> folder that contains the content. The integrated browser in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> allows you to add the assets from installed AssetPacks to any jme3 project scene you are working on. 
 </p>
 
 </div>
-<!-- EDIT1 SECTION "jMonkeyEngine SDK: AssetPacks" [1-519] -->
+<!-- EDIT1 SECTION "jMonkeyEngine SDK: AssetPacks and AssetPack Browser" [1-563] -->
 <h2><a>The AssetPack Browser</a></h2>
 <div>
 
@@ -15,12 +16,19 @@ AssetPacks are a way to package jME3 compatible assets like models, textures, so
 <img src="nbdocs:/com/jme3/gde/core/docs/sdk/assetpackbrowser-300x166.jpg">
 </p>
 
+</div>
+<!-- EDIT2 SECTION "The AssetPack Browser" [564-638] -->
+<h3><a>Browsing Assets</a></h3>
+<div>
+
 <p>
+
 The AssetPack browser in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> makes browsing the installed AssetPacks easy. Browse categories, search for tags and find the right asset for your project. When you have found it, you can add it with one click to your current scene. The AssetPack manager will automagically copy all needed textures, sounds etc. to your projects assets folder.
 </p>
 
 <p>
-You can also browse a selection of online assetpacks that are available on jMonkeyEngine.org for download and install them to your jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s AssetPack browser.
+<p><div>You can also browse a selection of online assetpacks that are available on jMonkeyEngine.org for download and install them to your jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s AssetPack browser.
+</div></p>
 </p>
 
 <p>
@@ -28,11 +36,12 @@ The AssetPack browser uses a predefined directory to store the AssetPacks which 
 </p>
 
 </div>
-<!-- EDIT2 SECTION "The AssetPack Browser" [520-1342] -->
-<h3><a>Using the browser</a></h3>
+<!-- EDIT3 SECTION "Browsing Assets" [639-1430] -->
+<h3><a>Adding Assets to Your Scene</a></h3>
 <div>
 
 <p>
+
 To preview a model from the browser, right-click it and select &quot;Preview Asset&quot;
 </p>
 
@@ -55,8 +64,8 @@ The model will be added to your scene and all needed texture files will be copie
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Using the browser" [1343-1948] -->
-<h2><a>AssetPack Projects</a></h2>
+<!-- EDIT4 SECTION "Adding Assets to Your Scene" [1431-2047] -->
+<h2><a>Create Your Own AssetPack Project</a></h2>
 <div>
 
 <p>
@@ -66,9 +75,9 @@ Editing of asset and project info, adding of new assets and setting their proper
 
 </p>
 <ol>
-<li><div> Select &quot;File → New Project&quot;</div>
+<li><div> Choose &quot;File → New Project&quot; from the menu</div>
 </li>
-<li><div> Select &quot;AssetPack Project&quot;</div>
+<li><div> Choose &quot;AssetPack Project&quot;</div>
 </li>
 <li><div> Fill in the project info and press &quot;finish&quot;</div>
 </li>
@@ -77,12 +86,11 @@ Editing of asset and project info, adding of new assets and setting their proper
 <p>
 
 You can access and change the project properties by right-clicking the project and selecting &quot;Properties&quot;.
-
 </p>
 
 </div>
-<!-- EDIT4 SECTION "AssetPack Projects" [1949-2622] -->
-<h3><a>Adding Assets</a></h3>
+<!-- EDIT5 SECTION "Create Your Own AssetPack Project" [2048-2751] -->
+<h3><a>Add Your Own Assets</a></h3>
 <div>
 
 <p>
@@ -137,7 +145,8 @@ If the material file is an Ogre material file (.material) it will be used for lo
 </p>
 
 <p>
-In your AssetPack Project, if you right-click your asset and select &quot;preview asset&quot; you should be able to see your model. If you do, it should work for the user as well.
+<p><div>In your AssetPack Project, right-click each asset and select &quot;preview asset&quot; to see your model. Verify hat it looks correctly, because then it should work for other users as well.
+</div></p>
 </p>
 
 <p>
@@ -159,7 +168,7 @@ Supported formats for models (main files) are:
 </ol>
 
 </div>
-<!-- EDIT5 SECTION "Adding Assets" [2623-5521] -->
+<!-- EDIT6 SECTION "Add Your Own Assets" [2752-5683] -->
 <h3><a>AssetPack Publishing</a></h3>
 <div>
 
@@ -168,19 +177,20 @@ Supported formats for models (main files) are:
 </p>
 
 <p>
-You can publish your AssetPacks either as a zip file or directly to jmonkeyengine.org, using your website user name and login. This means other jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> users can download your AssetPacks and install them to their local database right off the AssetPack online packages browser.
+You can publish your AssetPacks either as a zip file or directly to jmonkeyengine.org, using your website user name and login. <strong>This means other jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> users can download your AssetPacks and install them to their local database right off the AssetPack online packages browser.</strong>
 </p>
 
 <p>
-To make sure you can upload, you have to be registered on jmonkeyengine.org and have to enter your login info in the AssetPack preferences (jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>→Settings).
+<p><div>To make sure you can upload, you have to be registered on jmonkeyengine.org, and have to enter your login info in the AssetPack preferences: jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>→Options→Asset Packs first.
+</div></p>
 
 </p>
 <ol>
-<li><div> Right-Click your AssetPack project and select &quot;Publish AssetPack..&quot;</div>
+<li><div> Right-Click your AssetPack project in the <acronym title="Software Development Kit">SDK</acronym> and select &quot;Publish AssetPack…&quot;</div>
 </li>
-<li><div> Check the description etc. settings and press &quot;Next&quot;</div>
+<li><div> Check the description etc. settings, and press &quot;Next&quot;.</div>
 </li>
-<li><div> Select the checkbox for online and/or local publishing and press &quot;finish&quot;</div>
+<li><div> Select the checkbox for online and/or local publishing and press &quot;finish&quot;.</div>
 </li>
 </ol>
 <div><span>
@@ -190,5 +200,5 @@ To make sure you can upload, you have to be registered on jmonkeyengine.org and 
 </span></div>
 
 </div>
-<!-- EDIT6 SECTION "AssetPack Publishing" [5522-] -->
+<!-- EDIT7 SECTION "AssetPack Publishing" [5684-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:asset_packs?do=export_xhtmlbody">view online version</a></em></p>

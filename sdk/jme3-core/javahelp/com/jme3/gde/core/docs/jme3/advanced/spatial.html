@@ -196,7 +196,66 @@ In the following example, the Node <code>house</code> is the loaded model. The s
 <pre>Geometry submesh = &#40;Geometry&#41; houseScene.getChild&#40;&quot;door 12&quot;&#41;;</pre>
 
 </div>
-<!-- EDIT7 SECTION "How to Access a Named Sub-Mesh" [7563-8366] -->
+<!-- EDIT7 SECTION "How to Access a Named Sub-Mesh" [7563-8365] -->
+<h2><a>What is Culling?</a></h2>
+<div>
+
+<p>
+There are two types of colling: Face culling, and view frustrum culling.
+</p>
+
+<p>
+<strong>Face culling</strong> refers to not drawing certain polygons of a mesh. The &quot;inside&quot; of the mesh (the so called backface) is never visible to the player, and as an optimization, game engines skip calculating backfaces by default.  You may want to deactivate Face Culling while debugging custom meshes, so you can see them in case you turned them inside-out by accident.
+</p>
+
+<p>
+You can switch the com.jme3.material.RenderState.FaceCullMode to
+</p>
+<ul>
+<li><div> <code>FaceCullMode.Back</code> (default) – only the frontsides of a mesh are drawn. This is the normal behaviour. </div>
+</li>
+<li><div> <code>FaceCullMode.Front</code> – only the backsides of meshes are drawn. The mesh will probably turn invisible. Useful if you are debugging a hand-made mesh and try to identify accidental inside-out faces.</div>
+</li>
+<li><div> <code>FaceCullMode.FrontAndBack</code> – The mesh becomes invisible. </div>
+</li>
+<li><div> <code>FaceCullMode.Off</code> – Every side of the mesh is drawn. Looks normal, but slows down large scenes.</div>
+</li>
+</ul>
+
+<p>
+
+Example: 
+
+</p>
+<pre>material.getAdditionalRenderState&#40;&#41;.setFaceCullMode&#40;FaceCullMode.FrontAndBack&#41;;</pre>
+
+<p>
+<strong>View frustum culling</strong> refers to not drawing (and not even calculating) certain whole models in the scene. At any given moment, half of the scene is behind the player and out of sight anyway. View frustum culling is an optimization to not calculate scene elements that are not visible – elements that are &quot;outside the view frustrum&quot;.
+</p>
+
+<p>
+The decision what is visible and what not, is done automatically by the engine (<code>CullHint.Dynamic</code>). Optionally, you can manually control whether the engine culls individual spatials (and children) from the scene graph:
+</p>
+<ul>
+<li><div> <code>CullHint.Dynamic</code> – Default, faster because it doesn&#039;t waste time with objects that are out of view.</div>
+</li>
+<li><div> <code>CullHint.Never</code> – Calculate and draw everything always (even if it does not end up on the user&#039;s screen because it&#039;s out of sight). Slower, but can be used while debugging custom meshes.</div>
+</li>
+<li><div> <code>CullHint.Always</code> – The whole spatial is culled and is not visible. A fast way to hide a Spatial temporarily. Culling a Spatial is faster then detaching it, but it uses more memory.</div>
+</li>
+<li><div> <code>CullHint.Inherit</code> – Inherit culling behaviour from parent node. </div>
+</li>
+</ul>
+
+<p>
+
+Example:
+
+</p>
+<pre>spatial.setCullHint&#40;CullHint.Never&#41;; // always drawn</pre>
+
+</div>
+<!-- EDIT8 SECTION "What is Culling?" [8366-10702] -->
 <h2><a>See also</a></h2>
 <div>
 <ul>
@@ -214,5 +273,5 @@ In the following example, the Node <code>house</code> is the loaded model. The s
 </span></div>
 
 </div>
-<!-- EDIT8 SECTION "See also" [8367-] -->
+<!-- EDIT9 SECTION "See also" [10703-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:spatial?do=export_xhtmlbody">view online version</a></em></p>

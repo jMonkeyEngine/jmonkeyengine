@@ -248,17 +248,17 @@ these uniforms are passed to the shader without having to declare them in the j3
 <p>
 Those are different attributes that are always passed to your shader.<br/>
 
-you can find a complete list of those attribute in the Type enum of the VertexBuffer <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/scene/VertexBuffer.java"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>.<br/>
+You can find a complete list of those attribute in the Type enum of the VertexBuffer <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/scene/VertexBuffer.java"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>.<br/>
 
-Note that in the shader the attributes names will be prefixed by a “in”.<br/>
+Note that in the shader the attributes names will be prefixed by an “in”.<br/>
 
 <br/>
 
-
+When the enumeration lists some usual types for each attribute (for example texCoord specifies two floats) then that is the format expected by all standard JME3 shaders that use that attribute. When writing your own shaders though you can use alternative formats such as placing three floats in texCoord simply by declaring the attribute as vec3 in the shader and passing 3 as the component count into the mesh setBuffer call.
 </p>
 
 </div>
-<!-- EDIT10 SECTION "JME3 attributes" [6890-7272] -->
+<!-- EDIT10 SECTION "JME3 attributes" [6890-7701] -->
 <h3><a>User&#039;s uniforms</a></h3>
 <div>
 
@@ -320,7 +320,7 @@ The uniforms will be populated at runtime with the value you sent.
 </p>
 
 </div>
-<!-- EDIT11 SECTION "User's uniforms" [7273-8875] -->
+<!-- EDIT11 SECTION "User's uniforms" [7702-9304] -->
 <h3><a>Example: Adding Color Keying to the Lighting.j3md Material Definition</a></h3>
 <div>
 
@@ -384,7 +384,7 @@ A result preview can be seen here: <object classid="java:org.netbeans.modules.ja
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Example: Adding Color Keying to the Lighting.j3md Material Definition" [8876-10366] -->
+<!-- EDIT12 SECTION "Example: Adding Color Keying to the Lighting.j3md Material Definition" [9305-10795] -->
 <h3><a>Step by step</a></h3>
 <div>
 <ul>
@@ -414,7 +414,7 @@ A result preview can be seen here: <object classid="java:org.netbeans.modules.ja
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Step by step" [10367-10986] -->
+<!-- EDIT13 SECTION "Step by step" [10796-11415] -->
 <h3><a>JME3 and OpenGL 3 &amp; 4 compatibility</a></h3>
 <div>
 
@@ -452,9 +452,9 @@ Those attributes are deprecated since GLSL 1.3 (opengl 3), hence JME3 global uni
 		<td>gl_NormalMatrix	</td><td>g_NormalMatrix</td>
 	</tr>
 </table></div>
-<!-- EDIT15 TABLE [11312-11623] -->
+<!-- EDIT15 TABLE [11741-12052] -->
 </div>
-<!-- EDIT14 SECTION "JME3 and OpenGL 3 & 4 compatibility" [10987-11623] -->
+<!-- EDIT14 SECTION "JME3 and OpenGL 3 & 4 compatibility" [11416-12052] -->
 <h3><a>Useful links</a></h3>
 <div>
 
@@ -463,5 +463,5 @@ Those attributes are deprecated since GLSL 1.3 (opengl 3), hence JME3 global uni
 </p>
 
 </div>
-<!-- EDIT16 SECTION "Useful links" [11624-] -->
+<!-- EDIT16 SECTION "Useful links" [12053-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:jme3_shaders?do=export_xhtmlbody">view online version</a></em></p>

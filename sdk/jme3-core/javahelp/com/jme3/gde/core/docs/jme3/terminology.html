@@ -492,14 +492,14 @@ Non-player (computer-controlled) characters (NPCs) are only fun in a game if the
 The domain of artificial intelligence deals, among other things, with:
 </p>
 <ul>
-<li><div> <strong>Knowledge</strong> – Knowledge is about the data to which the agent has access to base its decisions on. Realistic agents only &quot;know&quot; what they &quot;see and hear&quot;, this implies that information can be hidden from them (to keep the game fair). You can let some agents share information and others need to find out by themselves. <br/>
-Example: After tripping the wire, all guards with two-way radios start moving towards the player&#039;s position within 60 sec, while minor guards don&#039;t suspect anything yet.</div>
+<li><div> <strong>Knowledge</strong> – Knowledge is <em>the data</em> to which the AI agent has access, and on which the AI bases its decisions. Realistic agents only &quot;know&quot; what they &quot;see and hear&quot;. This implies that information can be hidden from the AI to keep the game fair. You can have an all-knowing AI, or you can let only some AI agents share information, or you let only AI agents who are close know the current state. <br/>
+Example: After the player trips the wire, only a few AI guards with two-way radios start moving towards the player&#039;s position, while many other guards don&#039;t suspect anything yet.</div>
 </li>
-<li><div> <strong>Goal Planning</strong> – Planning is about how the agent <em>takes action</em>. Each game agent has the priority to achieve a specific goal, to reach a future state. You split the agent&#039;s goal into subgoals, then the agent chooses from available tactics and strategies, and prioritizes them. The agent keeps testing whether the current state is closer to the (sub)goal. If unsuccessful, the agent changes the tactics/strategy and tries again. <br/>
-Example: An agent searches the best path to reach the player base in a changing environment; an agent chases the player with the goal of eliminating him; an agent hides from the player with the goal of murdering a VIP. </div>
+<li><div> <strong>Goal Planning</strong> – Planning is about how an AI agent <em>takes action</em>. Each agent has the priority to achieve a specific goal, to reach a future state. When programming, you split the agent&#039;s goal into several subgoals. The agent consults its knowledge about the current state, chooses from available tactics and strategies, and prioritizes them. The agent repeatedly tests whether the current state is closer to its goal. If unsuccessful, the agent must discard the current tactics/strategy and try another one. <br/>
+Example: An agent searches the best path to reach the player base in a changing environment, avoiding traps. An agent chases the player with the goal of eliminating him. An agent hides from the player with the goal of murdering a VIP. </div>
 </li>
-<li><div> <strong>Problem Solving</strong> – Problem solving is about how the agent <em>reacts to interruptions</em>, obstacles that stand between it and its goal. The agent uses a given set of facts and rules to deduct what state it is in – triggered by perceptions similar to pain, agony, boredom, or being trapped. In every state, only a specific subset of reactions makes sense. The actual reaction also depends on the agent&#039;s, goal since the agent&#039;s reaction must not block its own goal. <br/>
-Examples: If player approaches, then attack or retreat or raise alarm? If I am idle, do I lay traps or heal self or recharge runes? If danger to own life, then escape or kamikaze?</div>
+<li><div> <strong>Problem Solving</strong> – Problem solving is about how the agent <em>reacts to interruptions</em>, obstacles that stand between it and its goal. The agent uses a given set of facts and rules to deduct what state it is in – triggered by perceptions similar to pain, agony, boredom, or being trapped. In each state, only a specific subset of reactions makes sense. The actual reaction also depends on the agent&#039;s, goal since the agent&#039;s reaction must not block its own goal! <br/>
+Examples: If player approaches, does the agent attack or conceal himself or raise alarm? While agent is idle, does he lay traps or heal self or recharge magic runes? If danger to own life, does the agent try to escape or kamikaze?</div>
 </li>
 </ul>
 
@@ -527,7 +527,7 @@ There are lots of resources explaining interesting AI algorithms:
 </ul>
 
 </div>
-<!-- EDIT29 SECTION "Artificial Intelligence (AI)" [15998-19245] -->
+<!-- EDIT29 SECTION "Artificial Intelligence (AI)" [15998-19483] -->
 <h1><a>Math</a></h1>
 <div>
 
@@ -536,7 +536,7 @@ There are lots of resources explaining interesting AI algorithms:
 </p>
 
 </div>
-<!-- EDIT30 SECTION "Math" [19246-19319] -->
+<!-- EDIT30 SECTION "Math" [19484-19557] -->
 <h2><a>Coordinates</a></h2>
 <div>
 
@@ -547,7 +547,7 @@ In contrast to a vector (which looks similar), a coordinate is a location, not a
 </p>
 
 </div>
-<!-- EDIT31 SECTION "Coordinates" [19320-19709] -->
+<!-- EDIT31 SECTION "Coordinates" [19558-19947] -->
 <h3><a>The Origin</a></h3>
 <div>
 
@@ -561,7 +561,7 @@ The origin is the central point in the 3D world, where the three axes meet. It&#
 </p>
 
 </div>
-<!-- EDIT32 SECTION "The Origin" [19710-19914] -->
+<!-- EDIT32 SECTION "The Origin" [19948-20152] -->
 <h2><a>Vectors</a></h2>
 <div>
 
@@ -577,7 +577,7 @@ A vector has a length and a direction, like an arrow in 3D space. A vector start
 Vector3f v = new Vector3f&#40; 8f , 0f , 33f &#41;.add&#40;new Vector3f&#40; 0f , -2f , -2f &#41;&#41;; // starts at (8/0/33)</pre>
 
 </div>
-<!-- EDIT33 SECTION "Vectors" [19915-20364] -->
+<!-- EDIT33 SECTION "Vectors" [20153-20602] -->
 <h3><a>Unit Vectors</a></h3>
 <div>
 
@@ -601,7 +601,7 @@ Negate the vegator to change its direction, e.g. (-1, 0, 0) = left.
 </p>
 
 </div>
-<!-- EDIT34 SECTION "Unit Vectors" [20365-20863] -->
+<!-- EDIT34 SECTION "Unit Vectors" [20603-21101] -->
 <h3><a>Normalized Vectors</a></h3>
 <div>
 
@@ -616,7 +616,7 @@ When you normalize a vector, it still has the same direction, but you lose the i
 </p>
 
 </div>
-<!-- EDIT35 SECTION "Normalized Vectors" [20864-21207] -->
+<!-- EDIT35 SECTION "Normalized Vectors" [21102-21445] -->
 <h3><a>Surface Normal Vectors</a></h3>
 <div>
 
@@ -628,7 +628,7 @@ You calculate the Surface Normal by calculating the cross product.
 </p>
 
 </div>
-<!-- EDIT36 SECTION "Surface Normal Vectors" [21208-21420] -->
+<!-- EDIT36 SECTION "Surface Normal Vectors" [21446-21658] -->
 <h3><a>Cross Product</a></h3>
 <div>
 
@@ -645,7 +645,7 @@ In 3D space, speaking of an orthogonal only makes sense with respect to a plane.
 </p>
 
 </div>
-<!-- EDIT37 SECTION "Cross Product" [21421-22131] -->
+<!-- EDIT37 SECTION "Cross Product" [21659-22369] -->
 <h3><a>Transformation</a></h3>
 <div>
 
@@ -659,7 +659,7 @@ Examples: Falling and rotating bricks in 3D Tetris.
 </p>
 
 </div>
-<!-- EDIT38 SECTION "Transformation" [22132-22396] -->
+<!-- EDIT38 SECTION "Transformation" [22370-22634] -->
 <h3><a>Slerp</a></h3>
 <div>
 
@@ -677,7 +677,7 @@ Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1
 </p>
 
 </div>
-<!-- EDIT39 SECTION "Slerp" [22397-23166] -->
+<!-- EDIT39 SECTION "Slerp" [22635-23404] -->
 <h1><a>Game Developer Jargon</a></h1>
 <div>
 <ul>
@@ -686,7 +686,7 @@ Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1
 </ul>
 
 </div>
-<!-- EDIT40 SECTION "Game Developer Jargon" [23167-23330] -->
+<!-- EDIT40 SECTION "Game Developer Jargon" [23405-23568] -->
 <h1><a>3D graphics Terminology Wiki book</a></h1>
 <div>
 <ul>
@@ -695,5 +695,5 @@ Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1
 </ul>
 
 </div>
-<!-- EDIT41 SECTION "3D graphics Terminology Wiki book" [23331-] -->
+<!-- EDIT41 SECTION "3D graphics Terminology Wiki book" [23569-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:terminology?do=export_xhtmlbody">view online version</a></em></p>

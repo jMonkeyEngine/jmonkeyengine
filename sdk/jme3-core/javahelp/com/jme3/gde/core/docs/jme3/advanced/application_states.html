@@ -311,7 +311,7 @@ You can use custom accessors to get data from AppStates, to set data in AppState
 
 <p>
 
-To access class fields of the application the way you are used to, initialize them to local variables:
+To access class fields of the SimpleApplication the way you are used to, initialize them to local variables, as shown in the following AppState template:
 </p>
 <pre>private SimpleApplication app;
 private Node              rootNode;
@@ -319,17 +319,20 @@ private AssetManager      assetManager;
 private AppStateManager   stateManager;
 private InputManager      inputManager;
 private ViewPort          viewPort;
-private BulletAppState    bullet;
+private BulletAppState    physics;
 &nbsp;
-public void initialize&#40;AppStateManager stateManager, Application app&#41; &#123;
-  super.initialize&#40;stateManager, app&#41;;
-  this.app = &#40;SimpleApplication&#41; app; // can cast Application to something more specific
-  this.rootNode     = this.app.getRootNode&#40;&#41;;
-  this.assetManager = this.app.getAssetManager&#40;&#41;;
-  this.stateManager = this.app.getStateManager&#40;&#41;;
-  this.inputManager = this.app.getInputManager&#40;&#41;;
-  this.viewPort     = this.app.getViewPort&#40;&#41;;
-  this.bullet       = this.stateManager.getState&#40;BulletAppState.class&#41;;
+public class MyAppState extends AbstractAppState &#123;
+  @Override
+  public void initialize&#40;AppStateManager stateManager, Application app&#41; &#123;
+    super.initialize&#40;stateManager, app&#41;;
+    this.app = &#40;SimpleApplication&#41; app; // can cast Application to something more specific
+    this.rootNode     = this.app.getRootNode&#40;&#41;;
+    this.assetManager = this.app.getAssetManager&#40;&#41;;
+    this.stateManager = this.app.getStateManager&#40;&#41;;
+    this.inputManager = this.app.getInputManager&#40;&#41;;
+    this.viewPort     = this.app.getViewPort&#40;&#41;;
+    this.physics      = this.stateManager.getState&#40;BulletAppState.class&#41;;
+  &#125;
 &#125;</pre>
 
 </div>

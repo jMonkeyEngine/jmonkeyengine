@@ -278,27 +278,38 @@ rootNode.attachChild&#40;geo&#41;;</pre>
 <p>
 
 This will result in a 10 px dot being rendered for each of the four vertices. The dot has the vertex color you specified above. The Quad&#039;s faces are not rendered at all. This can be used for a special debugging or editing mode.
-
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Example: Point Mode" [8164-8818] -->
-<h2><a>Tip: Front and Back Faces</a></h2>
+<!-- EDIT13 SECTION "Example: Point Mode" [8164-8819] -->
+<h2><a>Debugging Tip: Culling</a></h2>
 <div>
 
 <p>
-By default, jME3 optimizes a scene by culling all backfaces. It determines which side the front or backface of a mesh is by the order of the vertices. The frontface is the one where the vertices are specified counter-clockwise.
-This means your mesh, as created above, is invisible when seen from &quot;behind&quot;. This may not be a problem and is often even intended. If you use the custom meshes to form a polyhedron, or flat wallpaper-like object, rendering the backfaces (the inside of the polyhedron) would indeed be a waste of resources.
-In case that your use case requires the backfaces to be visible, you have two options:
+
+By default, jME3 optimizes a mesh by culling (not drawing) its backfaces. It determines which side the front or backface of a mesh is by the order of the vertices: The frontface is the one where the vertices are specified counter-clockwise.
+</p>
+
+<p>
+This means for you that your custom mesh is invisible when seen from &quot;behind&quot; or from the inside. This may not be a problem, often this is even intended because it&#039;s faster. The player will not look at the inside of most things anyway. For example, if your custom mesh is a closed polyhedron, or a flat wallpaper-like object, then rendering the backfaces (the inside of the pillar, the back of the painting, etc) would indeed be a waste of resources.
+</p>
+
+<p>
+In case however that your usecase requires the backfaces to be visible, you have two options:
 </p>
 <ul>
 <li><div> If you have a very simple scene, you can just deactivate backface culling for this one mesh&#039;s material. <br/>
 <code>mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off);</code></div>
 </li>
-<li><div> The recommended solution is to specify each triangle twice, the second time with the opposite order of vertices. The second, reversed triangle makes up the backface. <br/>
+<li><div> The recommended solution is to specify each triangle twice, the second time with the opposite order of vertices. The second, reversed triangle is a second frontface that replaces the culled backface. <br/>
 <code>int[] indexes = { 2,0,1, 1,3,2, 2,3,1, 1,0,2 }; </code></div>
 </li>
 </ul>
+
+<p>
+
+See also: <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a> – contains more info about how to debug custom meshes (that do not render as expected) by changing the default culling behaviour.
+</p>
 <div><span>
 	<a href="/wiki/doku.php/tag:spatial?do=showtag&amp;tag=tag%3Aspatial">spatial</a>,
 	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
@@ -308,5 +319,5 @@ In case that your use case requires the backfaces to be visible, you have two op
 </span></div>
 
 </div>
-<!-- EDIT14 SECTION "Tip: Front and Back Faces" [8819-] -->
+<!-- EDIT14 SECTION "Debugging Tip: Culling" [8820-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:custom_meshes?do=export_xhtmlbody">view online version</a></em></p>

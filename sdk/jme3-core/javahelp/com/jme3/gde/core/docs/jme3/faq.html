@@ -31,14 +31,14 @@ Extend com.jme3.app.SimpleApplication.
 <div>
 
 <p>
-Yes! For your own games, you create a custom base class that extends <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/app/SimpleApplication.java"><param name="text" value="<html><u>com.jme3.app.SimpleApplication</u></html>"><param name="textColor" value="blue"></object> class, so it&#039;s no longer a &quot;simple&quot; application. Configure your <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">application settings</a>, and customize away.
+Yes! Actually, you MUST customize it! For your own games, you always create a custom base class that extends <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/app/SimpleApplication.java"><param name="text" value="<html><u>com.jme3.app.SimpleApplication</u></html>"><param name="textColor" value="blue"></object> class. From now on it&#039;s no longer a &quot;simple application&quot; – it&#039;s now your game. Configure your <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">application settings</a>, implement methods, and customize away!
 <br/>
 <strong>Learn more:</strong> <a href="/com/jme3/gde/core/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a>, <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">AppSettings</a>.
 
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Can I customize the SimpleApplication class?" [516-1022] -->
+<!-- EDIT5 SECTION "Can I customize the SimpleApplication class?" [516-1112] -->
 <h3><a>How can I switch between screens or states?</a></h3>
 <div>
 
@@ -50,7 +50,7 @@ You should break app your application logic into components by spreading it out 
 </p>
 
 </div>
-<!-- EDIT6 SECTION "How can I switch between screens or states?" [1023-1567] -->
+<!-- EDIT6 SECTION "How can I switch between screens or states?" [1113-1657] -->
 <h3><a>How do I pause/unpause a game?</a></h3>
 <div>
 
@@ -62,7 +62,7 @@ You split up your application into several AppStates and implement the setEnable
 </p>
 
 </div>
-<!-- EDIT7 SECTION "How do I pause/unpause a game?" [1568-2173] -->
+<!-- EDIT7 SECTION "How do I pause/unpause a game?" [1658-2263] -->
 <h3><a>How do I disable logger output to the console?</a></h3>
 <div>
 
@@ -86,7 +86,7 @@ For the release, switch the severity level of the default logger to print only S
 </p>
 
 </div>
-<!-- EDIT8 SECTION "How do I disable logger output to the console?" [2174-2660] -->
+<!-- EDIT8 SECTION "How do I disable logger output to the console?" [2264-2750] -->
 <h3><a>Why does the executable crash with &quot;Cannot locate resource&quot;?</a></h3>
 <div>
 
@@ -98,7 +98,7 @@ Make sure to only load() models converted to .j3o binary format, not the origina
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Why does the executable crash with Cannot locate resource?" [2661-2991] -->
+<!-- EDIT9 SECTION "Why does the executable crash with Cannot locate resource?" [2751-3081] -->
 <h3><a>What is java.lang.LinkageError: Version mismatch?</a></h3>
 <div>
 
@@ -110,29 +110,21 @@ To fix this, search for .dll (Windows), .jnilib (Mac), and .so (Linux) files for
 </p>
 
 </div>
-<!-- EDIT10 SECTION "What is java.lang.LinkageError: Version mismatch?" [2992-4375] -->
+<!-- EDIT10 SECTION "What is java.lang.LinkageError: Version mismatch?" [3082-4465] -->
 <h2><a>I want to load my scene</a></h2>
 <div>
 
 </div>
-<!-- EDIT11 SECTION "I want to load my scene" [4376-4411] -->
+<!-- EDIT11 SECTION "I want to load my scene" [4466-4501] -->
 <h3><a>How do I make objects appear / disappear in the 3D scene?</a></h3>
 <div>
 
 <p>
-To make a spatial appear in the scene, you attach it to the rootNode, To remove a spatial, you detach it.
+To make a spatial appear in the scene, you attach it to the rootNode (or to a node that is attached to the rootnode). To remove a spatial, you detach it from its parent node.
 
 </p>
-<pre>rootNode.attachChild&#40;spatial&#41;; // appear</pre>
-<pre>rootNode.detachChild&#40;spatial&#41;; // remove</pre>
-
-<p>
-
-Optionally, you can control whether the engine culls an object always or never.
-
-</p>
-<pre>spatial.setCullHint&#40;CullHint.Never&#41;; // always drawn</pre>
-<pre>spatial.setCullHint&#40;CullHint.Always&#41;; // never drawn</pre>
+<pre>rootNode.attachChild&#40;spatial&#41;; // appear in scene</pre>
+<pre>rootNode.detachChild&#40;spatial&#41;; // remove from scene</pre>
 
 <p>
 
@@ -140,7 +132,7 @@ Optionally, you can control whether the engine culls an object always or never.
 </p>
 
 </div>
-<!-- EDIT12 SECTION "How do I make objects appear / disappear in the 3D scene?" [4412-5321] -->
+<!-- EDIT12 SECTION "How do I make objects appear / disappear in the 3D scene?" [4502-5278] -->
 <h3><a>Why do I get AssetNotFoundException when loading X ?</a></h3>
 <div>
 
@@ -166,7 +158,7 @@ this.assetManager.registerLocator&#40;&quot;town.zip&quot;, ZipLocator.class&#41
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Why do I get AssetNotFoundException when loading X ?" [5322-6204] -->
+<!-- EDIT13 SECTION "Why do I get AssetNotFoundException when loading X ?" [5279-6161] -->
 <h3><a>How do I Create 3-D models, textures, sounds?</a></h3>
 <div>
 
@@ -182,7 +174,7 @@ You create sounds in an audio editor, for example, Audacity, and export them as 
 </p>
 
 </div>
-<!-- EDIT14 SECTION "How do I Create 3-D models, textures, sounds?" [6205-7202] -->
+<!-- EDIT14 SECTION "How do I Create 3-D models, textures, sounds?" [6162-7159] -->
 <h3><a>How do I load a 3-D model into the scene?</a></h3>
 <div>
 
@@ -202,7 +194,7 @@ Spatial ninja = assetManager.loadModel&#40;&quot;Models/Ninja/Ninja.j3o&quot;&#4
 </p>
 
 </div>
-<!-- EDIT15 SECTION "How do I load a 3-D model into the scene?" [7203-8408] -->
+<!-- EDIT15 SECTION "How do I load a 3-D model into the scene?" [7160-8365] -->
 <h3><a>How do initialize the scene?</a></h3>
 <div>
 
@@ -213,12 +205,12 @@ Use the simpleInitApp() method in SimpleApplication (or initApp() in Application
 </p>
 
 </div>
-<!-- EDIT16 SECTION "How do initialize the scene?" [8409-8741] -->
+<!-- EDIT16 SECTION "How do initialize the scene?" [8366-8698] -->
 <h2><a>I want to transform objects in the scene</a></h2>
 <div>
 
 </div>
-<!-- EDIT17 SECTION "I want to transform objects in the scene" [8742-8794] -->
+<!-- EDIT17 SECTION "I want to transform objects in the scene" [8699-8751] -->
 <h3><a>How do I move or turn or resize a spatial?</a></h3>
 <div>
 
@@ -234,7 +226,7 @@ To move or turn or resize a spatial you use transformations. You can concatenate
 </p>
 
 </div>
-<!-- EDIT18 SECTION "How do I move or turn or resize a spatial?" [8795-9376] -->
+<!-- EDIT18 SECTION "How do I move or turn or resize a spatial?" [8752-9333] -->
 <h3><a>How do I make a spatial move by itself?</a></h3>
 <div>
 
@@ -247,7 +239,7 @@ Change the geometry&#039;s translation (position) live in the update loop using 
 </p>
 
 </div>
-<!-- EDIT19 SECTION "How do I make a spatial move by itself?" [9377-10240] -->
+<!-- EDIT19 SECTION "How do I make a spatial move by itself?" [9334-10197] -->
 <h3><a>How do I access a named sub-mesh in Model?</a></h3>
 <div>
 <pre>Geometry result = spatial.getName&#40;&#41;.startsWith&#40;name&#41;;</pre>
@@ -258,7 +250,7 @@ Change the geometry&#039;s translation (position) live in the update loop using 
 </p>
 
 </div>
-<!-- EDIT20 SECTION "How do I access a named sub-mesh in Model?" [10241-10408] -->
+<!-- EDIT20 SECTION "How do I access a named sub-mesh in Model?" [10198-10365] -->
 <h3><a>How do I make procedural or custom shapes?</a></h3>
 <div>
 
@@ -269,12 +261,12 @@ You can programmatically create com.jme3.scene.Mesh&#039;es.
 </p>
 
 </div>
-<!-- EDIT21 SECTION "How do I make procedural or custom shapes?" [10409-10569] -->
+<!-- EDIT21 SECTION "How do I make procedural or custom shapes?" [10366-10526] -->
 <h2><a>I want to change the surface of objects in the scene</a></h2>
 <div>
 
 </div>
-<!-- EDIT22 SECTION "I want to change the surface of objects in the scene" [10570-10634] -->
+<!-- EDIT22 SECTION "I want to change the surface of objects in the scene" [10527-10591] -->
 <h3><a>Why is my UV wrapping / texture appearance all wrong?</a></h3>
 <div>
 
@@ -292,7 +284,7 @@ You can set the boolean value in the constructor of TextureKey to flipped or not
 <pre>  material.setTexture&#40;&quot;ColorMap&quot;, this.assetManager.loadTexture&#40;new TextureKey&#40;&quot;myTexture.jpg&quot;, false&#41;&#41;&#41;;</pre>
 
 </div>
-<!-- EDIT23 SECTION "Why is my UV wrapping / texture appearance all wrong?" [10635-11184] -->
+<!-- EDIT23 SECTION "Why is my UV wrapping / texture appearance all wrong?" [10592-11141] -->
 <h3><a>How do I scale, mirror, or wrap a texture?</a></h3>
 <div>
 
@@ -310,7 +302,7 @@ You can choose among various <code>com.jme3.texture.Texture.WrapMode</code>s for
 <pre>material.getTextureParam&#40;&quot;DiffuseMap&quot;&#41;.getTextureValue&#40;&#41;.setWrap&#40;WrapMode.Repeat&#41;;</pre>
 
 </div>
-<!-- EDIT24 SECTION "How do I scale, mirror, or wrap a texture?" [11185-11726] -->
+<!-- EDIT24 SECTION "How do I scale, mirror, or wrap a texture?" [11142-11683] -->
 <h3><a>How do I change color or shininess of an material?</a></h3>
 <div>
 
@@ -323,7 +315,7 @@ Use the AssetManager to load Materials, and change material settings.
 </p>
 
 </div>
-<!-- EDIT25 SECTION "How do I change color or shininess of an material?" [11727-12314] -->
+<!-- EDIT25 SECTION "How do I change color or shininess of an material?" [11684-12271] -->
 <h3><a>How do I make a surface wood, stone, metal, etc?</a></h3>
 <div>
 
@@ -336,7 +328,7 @@ Create Textures as image files. Use the AssetManager to load a Material and use 
 </p>
 
 </div>
-<!-- EDIT26 SECTION "How do I make a surface wood, stone, metal, etc?" [12315-13088] -->
+<!-- EDIT26 SECTION "How do I make a surface wood, stone, metal, etc?" [12272-13045] -->
 <h3><a>Why are materials too bright, too dark, or flickering?</a></h3>
 <div>
 
@@ -345,7 +337,7 @@ If you use a lit material (based on Lighting.j3md) then you must attach a light 
 </p>
 
 </div>
-<!-- EDIT27 SECTION "Why are materials too bright, too dark, or flickering?" [13089-13902] -->
+<!-- EDIT27 SECTION "Why are materials too bright, too dark, or flickering?" [13046-13859] -->
 <h3><a>How do I make geometries cast a shadow?</a></h3>
 <div>
 
@@ -358,7 +350,7 @@ Use com.jme3.shadow.BasicShadowRenderer together with com.jme3.light.Directional
 </p>
 
 </div>
-<!-- EDIT28 SECTION "How do I make geometries cast a shadow?" [13903-14411] -->
+<!-- EDIT28 SECTION "How do I make geometries cast a shadow?" [13860-14368] -->
 <h3><a>How do I make materials transparent?</a></h3>
 <div>
 
@@ -374,23 +366,36 @@ Assign a texture with an alpha channel to a Material and set the Material&#039;s
 </p>
 
 </div>
-<!-- EDIT29 SECTION "How do I make materials transparent?" [14412-14848] -->
-<h3><a>How do I force or disable backface culling?</a></h3>
+<!-- EDIT29 SECTION "How do I make materials transparent?" [14369-14805] -->
+<h3><a>How do I force or disable culling?</a></h3>
 <div>
 
 <p>
-You can switch the com.jme3.material.RenderState.FaceCullMode to Back, Front, FrontAndBack, or Off. This influences whether the front or backside of an object is being drawn. By default, backsides are culled (not drawn) because they are usually not visible anyway.
+While debugging custom meshes, you can switch the <code>com.jme3.material.RenderState.FaceCullMode</code> off to see the inside and outside of the mesh. 
 
 </p>
-<pre>material.getAdditionalRenderState&#40;&#41;.setFaceCullMode&#40;FaceCullMode.FrontAndBack&#41;;</pre>
+<pre>someMaterial.getAdditionalRenderState&#40;&#41;.setFaceCullMode&#40;FaceCullMode.Off&#41;;</pre>
+
+<p>
+
+You can also deactivate the <code>com.jme3.scene.Spatial.CullHint</code> of a whole spatial to force jme to calculate it even if it is behind the camera and outside of view. 
+
+</p>
+<pre>someNode.setCullHint&#40;CullHint.Never&#41;;</pre>
+
+<p>
+
+<strong>Learn more:</strong>  <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a>
+
+</p>
 
 </div>
-<!-- EDIT30 SECTION "How do I force or disable backface culling?" [14849-15265] -->
+<!-- EDIT30 SECTION "How do I force or disable culling?" [14806-15354] -->
 <h3><a>Can I draw only an outline of the scene?</a></h3>
 <div>
 
 <p>
-Create a material and switch its renders state to wireframe.
+Add a renders state to the material&#039;s and activate <code>Wireframe</code>.
 
 </p>
 <pre>material.getAdditionalRenderState&#40;&#41;.setWireframe&#40;true&#41;;</pre>
@@ -401,12 +406,12 @@ Create a material and switch its renders state to wireframe.
 </p>
 
 </div>
-<!-- EDIT31 SECTION "Can I draw only an outline of the scene?" [15266-15497] -->
+<!-- EDIT31 SECTION "Can I draw only an outline of the scene?" [15355-15591] -->
 <h2><a>I want to control the camera</a></h2>
 <div>
 
 </div>
-<!-- EDIT32 SECTION "I want to control the camera" [15498-15538] -->
+<!-- EDIT32 SECTION "I want to control the camera" [15592-15632] -->
 <h3><a>How do I switch between third-person and first-person view ?</a></h3>
 <div>
 
@@ -428,18 +433,18 @@ chaseCam = new ChaseCamera&#40;cam, spatial, inputManager&#41;;</pre>
 </ul>
 
 </div>
-<!-- EDIT33 SECTION "How do I switch between third-person and first-person view ?" [15539-16595] -->
+<!-- EDIT33 SECTION "How do I switch between third-person and first-person view ?" [15633-16689] -->
 <h3><a>How do I increase camera speed?</a></h3>
 <div>
 <pre>flyCam.setMoveSpeed&#40;50f&#41;;</pre>
 
 </div>
-<!-- EDIT34 SECTION "How do I increase camera speed?" [16596-16682] -->
+<!-- EDIT34 SECTION "How do I increase camera speed?" [16690-16776] -->
 <h2><a>Actions, Interactions, Physics</a></h2>
 <div>
 
 </div>
-<!-- EDIT35 SECTION "Actions, Interactions, Physics" [16683-16725] -->
+<!-- EDIT35 SECTION "Actions, Interactions, Physics" [16777-16819] -->
 <h3><a>How do I implement game logic / game mechanics?</a></h3>
 <div>
 
@@ -450,7 +455,7 @@ Use Controls to define the behaviour of types of Spatials. Use Application State
 </p>
 
 </div>
-<!-- EDIT36 SECTION "How do I implement game logic / game mechanics?" [16726-17287] -->
+<!-- EDIT36 SECTION "How do I implement game logic / game mechanics?" [16820-17381] -->
 <h3><a>How do I let players interact via keyboard?</a></h3>
 <div>
 
@@ -461,7 +466,7 @@ Use com.jme3.input.KeyInput and a Input Listener.
 </p>
 
 </div>
-<!-- EDIT37 SECTION "How do I let players interact via keyboard?" [17288-17495] -->
+<!-- EDIT37 SECTION "How do I let players interact via keyboard?" [17382-17589] -->
 <h3><a>How do I let players interact by clicking?</a></h3>
 <div>
 
@@ -474,7 +479,7 @@ Players typically click the mouse to pick up objects, to open doors, to shoot a 
 </p>
 
 </div>
-<!-- EDIT38 SECTION "How do I let players interact by clicking?" [17496-18320] -->
+<!-- EDIT38 SECTION "How do I let players interact by clicking?" [17590-18414] -->
 <h3><a>How do I animate characters?</a></h3>
 <div>
 
@@ -487,7 +492,7 @@ Create an animated OgreMesh model with bones in a 3-D mesh editor (e.g. Blender)
 </p>
 
 </div>
-<!-- EDIT39 SECTION "How do I animate characters?" [18321-18792] -->
+<!-- EDIT39 SECTION "How do I animate characters?" [18415-18886] -->
 <h3><a>How do I keep players from falling through walls and floors?</a></h3>
 <div>
 
@@ -498,7 +503,7 @@ Use collision detection. The most common solution is to use jme&#039;s physics i
 </p>
 
 </div>
-<!-- EDIT40 SECTION "How do I keep players from falling through walls and floors?" [18793-19155] -->
+<!-- EDIT40 SECTION "How do I keep players from falling through walls and floors?" [18887-19249] -->
 <h3><a>How do I make balls/wheels/etc bounce and roll?</a></h3>
 <div>
 
@@ -511,7 +516,7 @@ Add physics controls to Spatials and give them spherical or cylindrical bounding
 </p>
 
 </div>
-<!-- EDIT41 SECTION "How do I make balls/wheels/etc bounce and roll?" [19156-19753] -->
+<!-- EDIT41 SECTION "How do I make balls/wheels/etc bounce and roll?" [19250-19847] -->
 <h3><a>How do I debug weird Physics behaviour?</a></h3>
 <div>
 
@@ -521,7 +526,7 @@ Maybe your collision shapes overlap – or they are not where you think they are
 <pre>bulletAppState.getPhysicsSpace&#40;&#41;.enableDebug&#40;assetManager&#41;;</pre>
 
 </div>
-<!-- EDIT42 SECTION "How do I debug weird Physics behaviour?" [19754-20067] -->
+<!-- EDIT42 SECTION "How do I debug weird Physics behaviour?" [19848-20161] -->
 <h3><a>How do I make a walking character?</a></h3>
 <div>
 
@@ -534,7 +539,7 @@ Code samples: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplay
 </p>
 
 </div>
-<!-- EDIT43 SECTION "How do I make a walking character?" [20068-20626] -->
+<!-- EDIT43 SECTION "How do I make a walking character?" [20162-20720] -->
 <h3><a>How do I steer vehicles?</a></h3>
 <div>
 
@@ -547,7 +552,7 @@ Code samples: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplay
 </p>
 
 </div>
-<!-- EDIT44 SECTION "How do I steer vehicles?" [20627-20994] -->
+<!-- EDIT44 SECTION "How do I steer vehicles?" [20721-21088] -->
 <h3><a>Can objects swing like a pendulums, chains, ropebridges?</a></h3>
 <div>
 
@@ -559,12 +564,12 @@ Use a PhysicsControl&#039;s hinges and joints.
 </p>
 
 </div>
-<!-- EDIT45 SECTION "Can objects swing like a pendulums, chains, ropebridges?" [20995-21395] -->
+<!-- EDIT45 SECTION "Can objects swing like a pendulums, chains, ropebridges?" [21089-21489] -->
 <h2><a>Default GUI Display</a></h2>
 <div>
 
 </div>
-<!-- EDIT46 SECTION "Default GUI Display" [21396-21427] -->
+<!-- EDIT46 SECTION "Default GUI Display" [21490-21521] -->
 <h3><a>What are these FPS/Objects/Vertices/Triangles statistics?</a></h3>
 <div>
 
@@ -576,7 +581,7 @@ At the bottom left of every default SimpleGame, you see the <a href="/com/jme3/g
 </p>
 
 </div>
-<!-- EDIT47 SECTION "What are these FPS/Objects/Vertices/Triangles statistics?" [21428-21955] -->
+<!-- EDIT47 SECTION "What are these FPS/Objects/Vertices/Triangles statistics?" [21522-22049] -->
 <h3><a>How do I get rid of the FPS/Objects statistics?</a></h3>
 <div>
 
@@ -595,7 +600,7 @@ setDisplayStatView(false); // to hide the statistics </pre>
 </p>
 
 </div>
-<!-- EDIT48 SECTION "How do I get rid of the FPS/Objects statistics?" [21956-22220] -->
+<!-- EDIT48 SECTION "How do I get rid of the FPS/Objects statistics?" [22050-22314] -->
 <h3><a>How do I display score, health, mini-maps, status icons?</a></h3>
 <div>
 
@@ -608,7 +613,7 @@ Attach text and pictures to the orthogonal <code>guiNode</code> to create a head
 </p>
 
 </div>
-<!-- EDIT49 SECTION "How do I display score, health, mini-maps, status icons?" [22221-22813] -->
+<!-- EDIT49 SECTION "How do I display score, health, mini-maps, status icons?" [22315-22907] -->
 <h3><a>How do I display buttons and UI controls?</a></h3>
 <div>
 
@@ -621,7 +626,7 @@ Sample Code: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplaye
 </p>
 
 </div>
-<!-- EDIT50 SECTION "How do I display buttons and UI controls?" [22814-23258] -->
+<!-- EDIT50 SECTION "How do I display buttons and UI controls?" [22908-23352] -->
 <h3><a>How do i display a loading screen?</a></h3>
 <div>
 
@@ -632,12 +637,12 @@ Instead of having a frozen frame while your games loads, you can have a loading 
 </p>
 
 </div>
-<!-- EDIT51 SECTION "How do i display a loading screen?" [23259-23475] -->
+<!-- EDIT51 SECTION "How do i display a loading screen?" [23353-23569] -->
 <h2><a>Nifty GUI</a></h2>
 <div>
 
 </div>
-<!-- EDIT52 SECTION "Nifty GUI" [23476-23497] -->
+<!-- EDIT52 SECTION "Nifty GUI" [23570-23591] -->
 <h3><a>I get NoSuchElementException when adding controls (buttons etc)!</a></h3>
 <div>
 
@@ -648,7 +653,7 @@ Verify that you include a controls definition file link in your <acronym title="
 <pre><span>&lt;useControls filename=&quot;nifty-default-controls.xml&quot;/&gt;</span></pre>
 
 </div>
-<!-- EDIT53 SECTION "I get NoSuchElementException when adding controls (buttons etc)!" [23498-23733] -->
+<!-- EDIT53 SECTION "I get NoSuchElementException when adding controls (buttons etc)!" [23592-23827] -->
 <h3><a>Where can I find example code of Nifty GUI&#039;s XML and Java classes?</a></h3>
 <div>
 
@@ -657,7 +662,7 @@ Verify that you include a controls definition file link in your <acronym title="
 </p>
 
 </div>
-<!-- EDIT54 SECTION "Where can I find example code of Nifty GUI's XML and Java classes?" [23734-23896] -->
+<!-- EDIT54 SECTION "Where can I find example code of Nifty GUI's XML and Java classes?" [23828-23990] -->
 <h3><a>Is there Java Doc for Nifty GUI?</a></h3>
 <div>
 
@@ -666,12 +671,12 @@ Verify that you include a controls definition file link in your <acronym title="
 </p>
 
 </div>
-<!-- EDIT55 SECTION "Is there Java Doc for Nifty GUI?" [23897-24022] -->
+<!-- EDIT55 SECTION "Is there Java Doc for Nifty GUI?" [23991-24116] -->
 <h2><a>I want to create an environment with sounds, effects, and landscapes</a></h2>
 <div>
 
 </div>
-<!-- EDIT56 SECTION "I want to create an environment with sounds, effects, and landscapes" [24023-24103] -->
+<!-- EDIT56 SECTION "I want to create an environment with sounds, effects, and landscapes" [24117-24197] -->
 <h3><a>How do I play sounds and noises?</a></h3>
 <div>
 
@@ -684,7 +689,7 @@ Use AudioRenderer, Listener, and AudioNode from com.jme3.audio.*.
 </p>
 
 </div>
-<!-- EDIT57 SECTION "How do I play sounds and noises?" [24104-24407] -->
+<!-- EDIT57 SECTION "How do I play sounds and noises?" [24198-24501] -->
 <h3><a>How do I make fire, smoke, explosions, swarms, magic spells?</a></h3>
 <div>
 
@@ -697,7 +702,7 @@ For swarm like effects you use particle emitters.
 </p>
 
 </div>
-<!-- EDIT58 SECTION "How do I make fire, smoke, explosions, swarms, magic spells?" [24408-25063] -->
+<!-- EDIT58 SECTION "How do I make fire, smoke, explosions, swarms, magic spells?" [24502-25157] -->
 <h3><a>How do I make water, waves, reflections?</a></h3>
 <div>
 
@@ -710,7 +715,7 @@ Use a special post-processor renderer from com.jme3.water.*.
 </p>
 
 </div>
-<!-- EDIT59 SECTION "How do I make water, waves, reflections?" [25064-25824] -->
+<!-- EDIT59 SECTION "How do I make water, waves, reflections?" [25158-25918] -->
 <h3><a>How do I make fog, bloom, blur, light scrattering?</a></h3>
 <div>
 
@@ -721,7 +726,7 @@ Use special post-processor renderers from com.jme3.post.*.
 </p>
 
 </div>
-<!-- EDIT60 SECTION "How do I make fog, bloom, blur, light scrattering?" [25825-26000] -->
+<!-- EDIT60 SECTION "How do I make fog, bloom, blur, light scrattering?" [25919-26094] -->
 <h3><a>How do I generate a terrain?</a></h3>
 <div>
 
@@ -734,7 +739,7 @@ Use com.jme3.terrain.*. The JMonkeyEngine also provides you with a Terrain Edito
 </p>
 
 </div>
-<!-- EDIT61 SECTION "How do I generate a terrain?" [26001-26384] -->
+<!-- EDIT61 SECTION "How do I generate a terrain?" [26095-26478] -->
 <h3><a>How do I make a sky?</a></h3>
 <div>
 
@@ -752,69 +757,41 @@ skyGeo.setQueueBucket&#40;Bucket.Sky&#41; </pre>
 </p>
 
 </div>
-<!-- EDIT62 SECTION "How do I make a sky?" [26385-26764] -->
+<!-- EDIT62 SECTION "How do I make a sky?" [26479-26858] -->
 <h2><a>I want to access to back-end properties</a></h2>
 <div>
 
 </div>
-<!-- EDIT63 SECTION "I want to access to back-end properties" [26765-26816] -->
+<!-- EDIT63 SECTION "I want to access to back-end properties" [26859-26910] -->
 <h3><a>How do I read out graphic card capabilities?</a></h3>
 <div>
 
 <p>
-If your game is heavily using features that older cards do not support, you can add a check of the JME3 Renderer Caps.
+If your game is heavily using features that older cards do not support, you can <a href="/com/jme3/gde/core/docs/jme3/advanced/read_graphic_card_capabilites.html">Read Graphic Card Capabilites</a> in the beginning before starting the app, and then decide how to proceed.
 
 </p>
 <pre>Collection&lt;com.jme3.renderer.Caps&gt; caps = renderer.getCaps&#40;&#41;;
-Logger.getLogger&#40;HelloJME3.class.getName&#40;&#41;&#41;.log&#40;Level.INFO, &quot;Capabilities: {0}&quot; + caps.toString&#40;&#41;&#41;;</pre>
-
-<p>
-
-The following shortened example shows the capabilities of an older graphic card. In this case you decide whether to branch to a low-quality rendering of the unsupported features (if you still want to support this card), or print an error message explaining the user what capabilities the card is missing to play the game.
-</p>
-
-<p>
-Here is an example of the capabilities of an older graphic card:
-
-</p>
-<pre>INFO: Running on jMonkey Engine 3 
-INFO: Using LWJGL 2.7.1
-INFO: Selected display mode: 1024 x 768 x 0 @0Hz
-INFO: Adapter: null
-INFO: Driver Version: null
-INFO: Vendor: ATI Technologies Inc.
-INFO: OpenGL Version: 2.0 ATI-1.6.36
-INFO: Renderer: ATI Radeon X1600 OpenGL Engine
-INFO: GLSL Ver: 1.20
-INFO: Timer resolution: 1.000 ticks per second
-INFO: Capabilities: [FrameBuffer, FrameBufferMRT, FrameBufferMultisample,
-OpenGL20, ARBprogram, GLSL100, GLSL110, GLSL120, 
-VertexTextureFetch, FloatTexture, 
-TextureCompressionLATC, NonPowerOfTwoTextures]</pre>
-
-<p>
-
-A newer graphic card has better capabilities, for example: 
-
-</p>
-<pre>INFO: Running on jMonkeyEngine 3.0.0 
-INFO: Using LWJGL 2.8.2
-INFO: Selected display mode: 1280 x 720 x 0 @0Hz
-INFO: Adapter: null
-INFO: Driver Version: null
-INFO: Vendor: ATI Technologies Inc.
-INFO: OpenGL Version: 2.1 ATI-7.14.5
-INFO: Renderer: AMD Radeon HD 6770M OpenGL Engine
-INFO: GLSL Ver: 1.20
-INFO: Timer resolution: 1.000 ticks per second
-INFO: Capabilities: [FrameBuffer, FrameBufferMRT, FrameBufferMultisample, 
-OpenGL20, OpenGL21, ARBprogram, GLSL100, GLSL110, GLSL120, 
-VertexTextureFetch, TextureArray, FloatTexture, 
-FloatColorBuffer, FloatDepthBuffer, PackedFloatTexture, SharedExponentTexture, PackedFloatColorBuffer, 
-TextureCompressionLATC, NonPowerOfTwoTextures, MeshInstancing]</pre>
+Logger.getLogger&#40;HelloJME3.class.getName&#40;&#41;&#41;.log&#40;Level.INFO, &quot;Capabilities: {0}&quot;, caps.toString&#40;&#41;&#41;;</pre>
 
 </div>
-<!-- EDIT64 SECTION "How do I read out graphic card capabilities?" [26817-28897] -->
+<!-- EDIT64 SECTION "How do I read out graphic card capabilities?" [26911-27346] -->
+<h3><a>How do I Run jMonkeyEngine 3 with OpenGL1?</a></h3>
+<div>
+
+<p>
+In you game, add 
+</p>
+<pre>settings.setRenderer&#40;AppSettings.LWJGL_OPENGL1&#41;</pre>
+
+<p>
+ to the <a href="/com/jme3/gde/core/docs/jme3/intermediate/appsettings.html">AppSettings</a> (see details there). <br/>
+
+For the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> itself, choose Options &gt; OpenGL, and check OpenGL1.
+
+</p>
+
+</div>
+<!-- EDIT65 SECTION "How do I Run jMonkeyEngine 3 with OpenGL1?" [27347-27626] -->
 <h3><a>How do I optimize the heck out of the Scene Graph?</a></h3>
 <div>
 
@@ -831,7 +808,7 @@ Batching means that all Geometries with the same Material are combined into one 
 </p>
 
 </div>
-<!-- EDIT65 SECTION "How do I optimize the heck out of the Scene Graph?" [28898-29367] -->
+<!-- EDIT66 SECTION "How do I optimize the heck out of the Scene Graph?" [27627-28096] -->
 <h3><a>How do I prevent users from unzipping my JAR?</a></h3>
 <div>
 
@@ -841,12 +818,12 @@ Add an <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><pa
 </p>
 
 </div>
-<!-- EDIT66 SECTION "How do I prevent users from unzipping my JAR?" [29368-29617] -->
+<!-- EDIT67 SECTION "How do I prevent users from unzipping my JAR?" [28097-28346] -->
 <h2><a>I want to do maths</a></h2>
 <div>
 
 </div>
-<!-- EDIT67 SECTION "I want to do maths" [29618-29648] -->
+<!-- EDIT68 SECTION "I want to do maths" [28347-28377] -->
 <h3><a>What does addLocal() / multLocal() etc mean?</a></h3>
 <div>
 
@@ -864,7 +841,7 @@ Many maths functions (mult(), add(), subtract(), etc) come as local and a non-lo
 </li>
 </ul>
 </li>
-<li><div> Example 2: <code>v.mult(b).add(b);</code> <img src="/wiki/lib/images/smileys/icon_exclaim.gif" class="middle" alt=":!:" /></div>
+<li><div> Example 2: <code>v.mult(b).add(b);</code> <img src="/wiki/lib/images/smileys/icon_exclaim.gif" class="middle" alt=":!:"/></div>
 <ul>
 <li><div> <strong>Watch out:</strong> This calculates the expected result, but unless you actually use the return value, it is discarded!</div>
 </li>
@@ -899,7 +876,7 @@ Many maths functions (mult(), add(), subtract(), etc) come as local and a non-lo
 </ol>
 
 </div>
-<!-- EDIT68 SECTION "What does addLocal() / multLocal() etc mean?" [29649-31010] -->
+<!-- EDIT69 SECTION "What does addLocal() / multLocal() etc mean?" [28378-29739] -->
 <h3><a>What is the difference between World and Local coordinates?</a></h3>
 <div>
 
@@ -909,7 +886,7 @@ World coordinates of a Spatial are its absolute coordinates in the 3D scene (thi
 </p>
 
 </div>
-<!-- EDIT69 SECTION "What is the difference between World and Local coordinates?" [31011-31320] -->
+<!-- EDIT70 SECTION "What is the difference between World and Local coordinates?" [29740-30049] -->
 <h3><a>How do I convert Degrees to Radians?</a></h3>
 <div>
 
@@ -923,5 +900,5 @@ Multiply degree value by FastMath.DEG_TO_RAD to convert it to radians.
 </span></div>
 
 </div>
-<!-- EDIT70 SECTION "How do I convert Degrees to Radians?" [31321-] -->
+<!-- EDIT71 SECTION "How do I convert Degrees to Radians?" [30050-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:faq?do=export_xhtmlbody">view online version</a></em></p>
