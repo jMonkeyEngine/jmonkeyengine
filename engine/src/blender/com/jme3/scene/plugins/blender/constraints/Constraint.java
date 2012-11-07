@@ -68,7 +68,10 @@ public abstract class Constraint {
 			if(pTar!= null && pTar.isNotNull()) {
 				this.targetOMA = pTar.getOldMemoryAddress();
 				this.targetSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("tarspace")).byteValue());
-				subtargetName = data.getFieldValue("subtarget").toString();
+				Object subtargetValue = data.getFieldValue("subtarget");
+				if(subtargetValue != null) {//not all constraint data have the subtarget field
+					subtargetName = subtargetValue.toString();
+				}
 			}
 		} else {
 			//Null constraint has no data, so create it here
