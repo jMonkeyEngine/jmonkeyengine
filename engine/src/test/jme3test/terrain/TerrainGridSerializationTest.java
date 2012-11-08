@@ -88,8 +88,10 @@ public class TerrainGridSerializationTest extends SimpleApplication {
                 }
 
                 public void tileDetached(Vector3f cell, TerrainQuad quad) {
-                    bulletAppState.getPhysicsSpace().remove(quad);
-                    quad.removeControl(RigidBodyControl.class);
+                    if (quad.getControl(RigidBodyControl.class) != null) {
+                        bulletAppState.getPhysicsSpace().remove(quad);
+                        quad.removeControl(RigidBodyControl.class);
+                    }
                 }
 
             });
