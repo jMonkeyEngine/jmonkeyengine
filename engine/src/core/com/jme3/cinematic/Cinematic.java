@@ -242,6 +242,15 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         }
     }
 
+    /**
+     * Adds a cinematic event to this cinematic at the given timestamp. This
+     * operation returns a keyFrame
+     *
+     * @param timeStamp the time when the event will start after the begining of
+     * the cinematic
+     * @param cinematicEvent the cinematic event
+     * @return the keyFrame for that event.
+     */
     public KeyFrame addCinematicEvent(float timeStamp, CinematicEvent cinematicEvent) {
         KeyFrame keyFrame = timeLine.getKeyFrameAtTime(timeStamp);
         if (keyFrame == null) {
@@ -253,6 +262,49 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         return keyFrame;
     }
 
+    /**
+     * removes the first occurence found of the given cinematicEvent.
+     *
+     * @param cinematicEvent the cinematicEvent to remove
+     * @return true if the element has been removed
+     */
+    public boolean removeCinematicEvent(CinematicEvent cinematicEvent) {
+        cinematicEvents.remove(cinematicEvent);
+        for (KeyFrame keyFrame : timeLine.values()) {
+            if (keyFrame.cinematicEvents.remove(cinematicEvent)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * removes the first occurence found of the given cinematicEvent for the given time stamp.
+     * @param timeStamp the timestamp when the cinematicEvent has been added
+     * @param cinematicEvent the cinematicEvent to remove
+     * @return true if the element has been removed
+     */
+    public boolean removeCinematicEvent(float timeStamp, CinematicEvent cinematicEvent) {
+        KeyFrame keyFrame = timeLine.getKeyFrameAtTime(timeStamp);
+        return removeCinematicEvent(keyFrame, cinematicEvent);
+    }
+    
+    /**
+     * removes the first occurence found of the given cinematicEvent for the given keyFrame
+     * @param keyFrame the keyFrame returned by the addCinematicEvent method.
+     * @param cinematicEvent the cinematicEvent to remove
+     * @return true if the element has been removed
+     */
+    public boolean removeCinematicEvent(KeyFrame keyFrame, CinematicEvent cinematicEvent) {
+        boolean ret = keyFrame.cinematicEvents.remove(cinematicEvent);
+        cinematicEvents.remove(cinematicEvent);
+        if (keyFrame.isEmpty()) {
+           timeLine.removeKeyFrame(keyFrame.getIndex());
+        }
+        return ret;
+    }
+    
+
     public void render(RenderManager rm) {
     }
 
@@ -263,7 +315,8 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * fits the duration of the cinamatic to the duration of all its child cinematic events
+     * fits the duration of the cinamatic to the duration of all its child
+     * cinematic events
      */
     public void fitDuration() {
         KeyFrame kf = timeLine.getKeyFrameAtTime(timeLine.getLastKeyFrameIndex());
@@ -308,7 +361,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     public void activateCamera(final float timeStamp, final String cameraName) {
         addCinematicEvent(timeStamp, new AbstractCinematicEvent() {
-
             @Override
             public void play() {
                 super.play();

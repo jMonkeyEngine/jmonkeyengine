@@ -60,6 +60,10 @@ public class KeyFrame implements Savable {
         }
         return cinematicEvents;
     }
+    
+    public boolean isEmpty(){
+        return cinematicEvents.isEmpty();
+    }
 
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
