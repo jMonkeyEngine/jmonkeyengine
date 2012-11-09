@@ -68,6 +68,7 @@ public class BasicShadowRenderer implements SceneProcessor {
     private boolean noOccluders = false;
     private Vector3f[] points = new Vector3f[8];
     private Vector3f direction = new Vector3f();
+    protected Texture2D dummyTex;
 
     /**
      * Creates a BasicShadowRenderer
@@ -79,6 +80,10 @@ public class BasicShadowRenderer implements SceneProcessor {
         shadowMap = new Texture2D(size, size, Format.Depth);
         shadowFB.setDepthTexture(shadowMap);
         shadowCam = new Camera(size, size);
+        
+         //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
+        dummyTex = new Texture2D(size, size, Format.RGBA8);        
+        shadowFB.setColorTexture(dummyTex);
 
         preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
         postshadowMat = new Material(manager, "Common/MatDefs/Shadow/BasicPostShadow.j3md");
