@@ -45,8 +45,9 @@ public class SoundHandleJme implements SoundHandle {
     private float volume = 1;
 
     public SoundHandleJme(AudioRenderer ar, AudioNode node){
-        if (ar == null || node == null)
+        if (ar == null || node == null) {
             throw new NullPointerException();
+        }
 
         this.node = node;
     }
@@ -58,12 +59,14 @@ public class SoundHandleJme implements SoundHandle {
      * @param fileName
      */
     public SoundHandleJme(AudioRenderer ar, AssetManager am, String fileName){
-        if (ar == null || am == null)
+        if (ar == null || am == null) {
             throw new NullPointerException();
+        }
 
         this.am = am;
-        if (fileName == null)
+        if (fileName == null) {
             throw new NullPointerException();
+        }
         
         this.fileName = fileName;
     }
@@ -86,7 +89,11 @@ public class SoundHandleJme implements SoundHandle {
     public void stop() {
         if (node != null){
             node.stop();
-            node = null;
+            // Do not nullify the node for non-streaming nodes!
+            if (fileName != null) {
+                // Causes play() to reload the stream on the next playback
+                node = null;
+            }
         }
     }
 
