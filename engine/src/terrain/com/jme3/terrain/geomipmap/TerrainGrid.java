@@ -317,7 +317,8 @@ public class TerrainGrid extends TerrainQuad {
     public Terrain getTerrainAt(Vector3f worldLocation) {
         if (worldLocation == null)
             return null;
-        Vector3f tileCell = getTileCell(worldLocation);
+        Vector3f tileCell = getTileCell(worldLocation.setY(0));
+        tileCell = new Vector3f(Math.round(tileCell.x), tileCell.y, Math.round(tileCell.z));
         return cache.get(tileCell);
     }
     
@@ -327,16 +328,16 @@ public class TerrainGrid extends TerrainQuad {
      * @return the terrain tile at that location
      */
     public Terrain getTerrainAtCell(Vector3f cellCoordinate) {
-        Vector3f gridLocation = cellCoordinate.mult(getLocalScale()).multLocal(quadSize - 1);
-        Vector3f tileCell = getTileCell(gridLocation);
-        return cache.get(tileCell);
+        return cache.get(cellCoordinate);
     }
     
     /**
      * Convert the world location into a cell location (integer coordinates)
      */
     public Vector3f toCellSpace(Vector3f worldLocation) {
-        return getTileCell(worldLocation);
+        Vector3f tileCell = getTileCell(worldLocation);
+        tileCell = new Vector3f(Math.round(tileCell.x), tileCell.y, Math.round(tileCell.z));
+        return tileCell;
     }
     
     /**
