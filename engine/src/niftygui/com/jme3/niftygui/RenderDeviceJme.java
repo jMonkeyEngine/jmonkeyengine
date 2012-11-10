@@ -77,6 +77,13 @@ public class RenderDeviceJme implements RenderDevice {
     private Matrix4f tempMat = new Matrix4f();
     private ColorRGBA tempColor = new ColorRGBA();
     
+    private static final RenderState noZWriteState = new RenderState();
+    
+    static {
+        noZWriteState.setDepthTest(false);
+        noZWriteState.setDepthWrite(false);
+    }
+    
     private static class CachedTextKey {
         
         BitmapFont font;
@@ -156,6 +163,7 @@ public class RenderDeviceJme implements RenderDevice {
     }
     
     public void beginFrame() {
+        rm.setForcedRenderState(noZWriteState);
     }
     
     public void endFrame() {
@@ -163,6 +171,7 @@ public class RenderDeviceJme implements RenderDevice {
         textCacheLastFrame = textCacheCurrentFrame;
         textCacheCurrentFrame = temp;
         textCacheCurrentFrame.clear();
+        rm.setForcedRenderState(null);
     }
     
     public int getWidth() {
