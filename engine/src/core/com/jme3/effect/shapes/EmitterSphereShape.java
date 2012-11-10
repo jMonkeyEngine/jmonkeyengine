@@ -49,7 +49,7 @@ public class EmitterSphereShape implements EmitterShape {
 
     public EmitterSphereShape(Vector3f center, float radius) {
         if (center == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("center cannot be null");
         }
 
         if (radius <= 0) {

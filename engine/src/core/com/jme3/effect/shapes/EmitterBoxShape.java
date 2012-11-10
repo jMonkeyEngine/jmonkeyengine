@@ -48,7 +48,7 @@ public class EmitterBoxShape implements EmitterShape {
 
     public EmitterBoxShape(Vector3f min, Vector3f max) {
         if (min == null || max == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("min or max cannot be null");
         }
 
         this.min = min;

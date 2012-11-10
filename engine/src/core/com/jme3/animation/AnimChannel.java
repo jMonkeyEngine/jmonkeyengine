@@ -235,7 +235,7 @@ public final class AnimChannel {
      */
     public void setAnim(String name, float blendTime){
         if (name == null)
-            throw new NullPointerException();
+            throw new IllegalArgumentException("name cannot be null");
 
         if (blendTime < 0f)
             throw new IllegalArgumentException("blendTime cannot be less than zero");

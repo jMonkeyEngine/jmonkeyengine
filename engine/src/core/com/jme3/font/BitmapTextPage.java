@@ -61,7 +61,7 @@ class BitmapTextPage extends Geometry {
         super("BitmapFont", new Mesh());
 
         if (font == null) {
-            throw new NullPointerException("'font' cannot be null.");
+            throw new IllegalArgumentException("font cannot be null.");
         }
 
         this.page = page;
