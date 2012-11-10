@@ -752,6 +752,25 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     public void setZoomSensitivity(float zoomSensitivity) {
         this.zoomSensitivity = zoomSensitivity;
     }
+    
+    /**
+     * Returns the rotation speed when the mouse is moved.
+     *
+     * @return the rotation speed when the mouse is moved.
+     */
+    public float getRotationSpeed() {
+        return rotationSpeed;
+    }
+
+    /**
+     * Sets the rotate amount when user moves his mouse, the lower the value,
+     * the slower the camera will rotate. default is 1.
+     *
+     * @param rotationSpeed Rotation speed on mouse movement, default is 1.
+     */
+    public void setRotationSpeed(float rotationSpeed) {
+        this.rotationSpeed = rotationSpeed;
+    }
 
     /**
      * Sets the default distance at start of applicaiton
