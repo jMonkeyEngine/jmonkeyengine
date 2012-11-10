@@ -56,6 +56,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
     protected Nifty nifty;
     protected AssetManager assetManager;
     protected RenderManager renderManager;
+    protected InputManager inputManager;
     protected RenderDeviceJme renderDev;
     protected InputSystemJme inputSys;
     protected SoundDeviceJme soundDev;
@@ -92,6 +93,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
                            AudioRenderer audioRenderer,
                            ViewPort vp){
         this.assetManager = assetManager;
+        this.inputManager = inputManager;
 
         w = vp.getCamera().getWidth();
         h = vp.getCamera().getHeight();
@@ -184,6 +186,9 @@ public class NiftyJmeDisplay implements SceneProcessor {
     public void cleanup() {
         inited = false;
         inputSys.reset();
+        if (inputManager != null) {
+            inputManager.removeRawInputListener(inputSys);
+        }
 //        nifty.exit();
     }
 
