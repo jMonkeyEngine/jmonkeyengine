@@ -53,13 +53,13 @@ public class AppletHarness extends Applet {
     public static final HashMap<Application, Applet> appToApplet
                          = new HashMap<Application, Applet>();
 
-    private JmeCanvasContext context;
-    private Canvas canvas;
-    private Application app;
+    protected JmeCanvasContext context;
+    protected Canvas canvas;
+    protected Application app;
 
-    private String appClass;
-    private URL appCfg = null;
-    private URL assetCfg = null;
+    protected String appClass;
+    protected URL appCfg = null;
+    protected URL assetCfg = null;
 
     public static Applet getApplet(Application app){
         return appToApplet.get(app);
