@@ -186,6 +186,9 @@ public class AudioNode extends Node {
      * Start playing the audio.
      */
     public void play(){
+        if (positional && data.getChannels() > 1) {
+            throw new IllegalStateException("Only mono audio is supported for positional audio nodes");
+        }
         getRenderer().playSource(this);
     }
 
@@ -196,6 +199,9 @@ public class AudioNode extends Node {
      * instances already playing.
      */
     public void playInstance(){
+        if (positional && data.getChannels() > 1) {
+            throw new IllegalStateException("Only mono audio is supported for positional audio nodes");
+        }
         getRenderer().playSourceInstance(this);
     }
     
@@ -392,7 +398,6 @@ public class AudioNode extends Node {
 
         this.timeOffset = timeOffset;
         if (data instanceof AudioStream) {
-            System.out.println("request setTime");
             ((AudioStream) data).setTime(timeOffset);
         }else if(status == Status.Playing){
             stop();
