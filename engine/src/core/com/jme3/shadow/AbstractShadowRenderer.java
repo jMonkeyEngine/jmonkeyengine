@@ -43,6 +43,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.GeometryList;
+import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
@@ -75,8 +76,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     protected Texture2D dummyTex;
     protected Material preshadowMat;
     protected Material postshadowMat;
-    protected Matrix4f[] lightViewProjectionsMatrices;
-    protected boolean noOccluders = false;
+    protected Matrix4f[] lightViewProjectionsMatrices;    
     protected AssetManager assetManager;
     protected boolean debug = false;
     protected float edgesThickness = 1.0f;
@@ -91,6 +91,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     //flags to know when to change params in the materials
     //a list of material of the post shadow queue geometries.
     protected List<Material> matCache = new ArrayList<Material>();
+    protected GeometryList sceneReceivers;
+    protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
+    protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
 
     /**
      * Create an abstract shadow renderer, this is to be called in extending classes
@@ -300,7 +303,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
      * @param sceneReceivers the recievers of the whole scene
      * @return 
      */
-    protected abstract GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers);
+    protected abstract GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers,GeometryList shadowMapOccluders);
 
     /**
      * return the shadow camera to use for rendering the shadow map according the given index
@@ -319,8 +322,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     @SuppressWarnings("fallthrough")
     public void postQueue(RenderQueue rq) {
         GeometryList occluders = rq.getShadowQueueContent(ShadowMode.Cast);
-        GeometryList receivers = rq.getShadowQueueContent(ShadowMode.Receive);
-        if (receivers.size() == 0 || occluders.size() == 0) {
+        sceneReceivers = rq.getShadowQueueContent(ShadowMode.Receive);
+        if (sceneReceivers.size() == 0 || occluders.size() == 0) {
             return;
         }
 
@@ -335,7 +338,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
             if (debugfrustums) {
                 doDisplayFrustumDebug(shadowMapIndex);
             }
-            renderShadowMap(shadowMapIndex, occluders, receivers);
+            renderShadowMap(shadowMapIndex, occluders, sceneReceivers);
 
         }
 
@@ -352,7 +355,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     }
 
     protected void renderShadowMap(int shadowMapIndex, GeometryList occluders, GeometryList receivers) {
-        GeometryList mapOccluders = getOccludersToRender(shadowMapIndex, occluders, receivers);
+        shadowMapOccluders = getOccludersToRender(shadowMapIndex, occluders, receivers,shadowMapOccluders);
         Camera shadowCam = getShadowCam(shadowMapIndex);
 
         //saving light view projection matrix for this split            
@@ -363,7 +366,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
         renderManager.getRenderer().clearBuffers(false, true, false);
 
         // render shadow casters to shadow map
-        viewPort.getQueue().renderShadowQueue(mapOccluders, renderManager, shadowCam, true);
+        viewPort.getQueue().renderShadowQueue(shadowMapOccluders, renderManager, shadowCam, true);
     }
     boolean debugfrustums = false;
 
@@ -393,13 +396,18 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     public void displayDebug() {
         debug = true;
     }
+    
+    abstract GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers);
 
     public void postFrame(FrameBuffer out) {
 
         if (debug) {
             displayShadowMap(renderManager.getRenderer());
         }
-        if (!noOccluders) {
+        
+        lightReceivers = getReceivers(sceneReceivers, lightReceivers);
+        
+        if (lightReceivers.size()!=0) {
             //setting params to recieving geometry list
             setMatParams();
 
@@ -413,7 +421,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
             renderManager.setForcedTechnique(postTechniqueName);
 
             //rendering the post shadow pass
-            viewPort.getQueue().renderShadowQueue(ShadowMode.Receive, renderManager, cam, flushQueues);
+            viewPort.getQueue().renderShadowQueue(lightReceivers, renderManager, cam, true);
+            if(flushQueues){
+                sceneReceivers.clear();
+            }
 
             //resetting renderManager settings
             renderManager.setForcedTechnique(null);

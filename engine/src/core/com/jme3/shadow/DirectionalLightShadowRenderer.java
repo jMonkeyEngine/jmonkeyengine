@@ -58,8 +58,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     protected float lambda = 0.65f;
     protected float zFarOverride = 0;
     protected Camera shadowCam;
-    protected ColorRGBA splits;    
-    protected GeometryList splitOccluders = new GeometryList(new OpaqueComparator());
+    protected ColorRGBA splits;  
     protected float[] splitsArray;
     protected DirectionalLight light;
     protected Vector3f[] points = new Vector3f[8];
@@ -145,15 +144,20 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     @Override
-    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers) {
+    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders) {
 
         // update frustum points based on current camera and split
         ShadowUtil.updateFrustumPoints(viewPort.getCamera(), splitsArray[shadowMapIndex], splitsArray[shadowMapIndex + 1], 1.0f, points);
 
         //Updating shadow cam with curent split frustra
-        ShadowUtil.updateShadowCamera(sceneOccluders, sceneReceivers, shadowCam, points, splitOccluders);
+        ShadowUtil.updateShadowCamera(sceneOccluders, sceneReceivers, shadowCam, points, shadowMapOccluders);
 
-        return splitOccluders;
+        return shadowMapOccluders;
+    }
+        
+    @Override
+    GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
+        return sceneReceivers;
     }
 
     @Override

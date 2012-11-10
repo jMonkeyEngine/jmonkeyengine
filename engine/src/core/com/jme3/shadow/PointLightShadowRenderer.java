@@ -51,7 +51,6 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     public static final int CAM_NUMBER = 6;
     protected PointLight light;
     protected Camera[] shadowCams;
-    protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
     private Geometry[] frustums = null;
 
     /**
@@ -104,9 +103,15 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     @Override
-    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers) {
-        ShadowUtil.getOccludersInCamFrustum(sceneOccluders, shadowCams[shadowMapIndex], shadowMapOccluders);
+    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders) {
+        ShadowUtil.getGeometriesInCamFrustum(sceneOccluders, shadowCams[shadowMapIndex], shadowMapOccluders);
         return shadowMapOccluders;
+    }
+
+    @Override
+    GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
+        ShadowUtil.getGeometriesInLightRadius(sceneReceivers, shadowCams, lightReceivers);
+        return lightReceivers;
     }
 
     @Override

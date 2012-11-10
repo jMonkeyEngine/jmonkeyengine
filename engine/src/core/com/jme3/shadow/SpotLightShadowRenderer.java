@@ -59,8 +59,7 @@ import com.jme3.scene.Node;
 public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
     protected float zFarOverride = 0;
-    protected Camera shadowCam;
-    protected GeometryList mapOccluders = new GeometryList(new OpaqueComparator());
+    protected Camera shadowCam;    
     protected SpotLight light;
     protected Vector3f[] points = new Vector3f[8];
     //Holding the info for fading shadows in the far distance 
@@ -125,11 +124,17 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     }
 
     @Override
-    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers) {
-        ShadowUtil.getOccludersInCamFrustum(sceneOccluders, shadowCam, mapOccluders);
-        return mapOccluders;
+    protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders) {
+        ShadowUtil.getGeometriesInCamFrustum(sceneOccluders, shadowCam, shadowMapOccluders);
+        return shadowMapOccluders;
     }
 
+    @Override
+    GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
+        ShadowUtil.getGeometriesInCamFrustum(sceneReceivers, shadowCam, lightReceivers);
+        return lightReceivers;
+    }
+    
     @Override
     protected Camera getShadowCam(int shadowMapIndex) {
         return shadowCam;
