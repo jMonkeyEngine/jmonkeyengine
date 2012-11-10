@@ -1903,7 +1903,18 @@ public class JoglRenderer implements Renderer {
                 throw new RendererException("Multisample textures not supported by graphics hardware");
             }
         }
-
+        
+        if (target == GL.GL_TEXTURE_CUBE_MAP) {
+            // Check max texture size before upload
+            if (img.getWidth() > maxCubeTexSize || img.getHeight() > maxCubeTexSize) {
+                throw new RendererException("Cannot upload cubemap " + img + ". The maximum supported cubemap resolution is " + maxCubeTexSize);
+            }
+        } else {
+            if (img.getWidth() > maxTexSize || img.getHeight() > maxTexSize) {
+                throw new RendererException("Cannot upload texture " + img + ". The maximum supported texture resolution is " + maxTexSize);
+            }
+        }
+        
         if (target == GL.GL_TEXTURE_CUBE_MAP) {
             List<ByteBuffer> data = img.getData();
             if (data.size() != 6) {

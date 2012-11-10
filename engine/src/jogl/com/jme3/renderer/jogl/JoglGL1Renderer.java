@@ -41,6 +41,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.GL1Renderer;
 import com.jme3.renderer.RenderContext;
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.Statistics;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
@@ -142,6 +143,8 @@ public class JoglGL1Renderer implements GL1Renderer {
         gl.glGetIntegerv(GL2.GL_MAX_LIGHTS, ib1);
         maxLights = ib1.get(0);
         
+        gl.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE, ib1);
+        maxTexSize = ib1.get(0);
     }
     
     public void invalidateState() {
@@ -805,6 +808,10 @@ public class JoglGL1Renderer implements GL1Renderer {
         } else {
         }
 
+        if (img.getWidth() > maxTexSize || img.getHeight() > maxTexSize) {
+            throw new RendererException("Cannot upload texture " + img + ". The maximum supported texture resolution is " + maxTexSize);
+        }
+        
         /*
         if (target == GL_TEXTURE_CUBE_MAP) {
         List<ByteBuffer> data = img.getData();

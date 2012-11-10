@@ -1495,6 +1495,17 @@ public class OGLESShaderRenderer implements Renderer {
         }
 
         if (target == GLES20.GL_TEXTURE_CUBE_MAP) {
+            // Check max texture size before upload
+            if (img.getWidth() > maxCubeTexSize || img.getHeight() > maxCubeTexSize) {
+                throw new RendererException("Cannot upload cubemap " + img + ". The maximum supported cubemap resolution is " + maxCubeTexSize);
+            }
+        } else {
+            if (img.getWidth() > maxTexSize || img.getHeight() > maxTexSize) {
+                throw new RendererException("Cannot upload texture " + img + ". The maximum supported texture resolution is " + maxTexSize);
+            }
+        }
+        
+        if (target == GLES20.GL_TEXTURE_CUBE_MAP) {
             // Upload a cube map / sky box
             @SuppressWarnings("unchecked")
             List<AndroidImageInfo> bmps = (List<AndroidImageInfo>) img.getEfficentData();
