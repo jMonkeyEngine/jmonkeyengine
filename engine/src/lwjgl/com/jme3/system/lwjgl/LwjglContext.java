@@ -112,52 +112,83 @@ public abstract class LwjglContext implements JmeContext {
     }
     
     protected int determineMaxSamples(int requestedSamples) {
+        boolean displayWasCurrent = false;
+        try {
+            // If we already have a valid context, determine samples using current
+            // context.
+            if (Display.isCreated() && Display.isCurrent()) {
+                if (GLContext.getCapabilities().GL_ARB_framebuffer_object) {
+                    return GL11.glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
+                } else if (GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
+                    return GL11.glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
+                }
+                // Doesn't support any of the needed extensions .. continue down.
+                displayWasCurrent = true;
+            }
+        } catch (LWJGLException ex) {
+            listener.handleError("Failed to check if display is current", ex);
+        }
+        
         if ((Pbuffer.getCapabilities() & Pbuffer.PBUFFER_SUPPORTED) == 0) {
             // No pbuffer, assume everything is supported.
             return Integer.MAX_VALUE;
         } else {
             Pbuffer pb = null;
             
-            // OpenGL2 method: Create pbuffer and query samples
-            // from GL_ARB_framebuffer_object or GL_EXT_framebuffer_multisample.
-            try {
-                pb = new Pbuffer(1, 1, new PixelFormat(0, 0, 0), null);
-                pb.makeCurrent();
-                
-                if (GLContext.getCapabilities().GL_ARB_framebuffer_object) {
-                    return GL11.glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
-                } else if (GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
-                    return GL11.glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
-                }
-                
-                // OpenGL2 method failed.
-            } catch (LWJGLException ex) {
-                // Something else failed.
-                return Integer.MAX_VALUE;
-            } finally { 
-                if (pb != null) {
-                    pb.destroy();
-                    pb = null;
+            if (!displayWasCurrent) {
+                // OpenGL2 method: Create pbuffer and query samples
+                // from GL_ARB_framebuffer_object or GL_EXT_framebuffer_multisample.
+                try {
+                    pb = new Pbuffer(1, 1, new PixelFormat(0, 0, 0), null);
+                    pb.makeCurrent();
+
+                    if (GLContext.getCapabilities().GL_ARB_framebuffer_object) {
+                        return GL11.glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
+                    } else if (GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
+                        return GL11.glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
+                    }
+
+                    // OpenGL2 method failed.
+                } catch (LWJGLException ex) {
+                    // Something else failed.
+                    return Integer.MAX_VALUE;
+                } finally { 
+                    if (pb != null) {
+                        pb.destroy();
+                        pb = null;
+                    }
                 }
             }
             
-            // OpenGL1 method
+            // OpenGL1 method (DOESNT WORK RIGHT NOW ..)
             requestedSamples = FastMath.nearestPowerOfTwo(requestedSamples);
-            while (requestedSamples > 1) {
-                try {
-                    pb = new Pbuffer(1, 1, new PixelFormat(0, 0, 0, requestedSamples), null);
-                } catch (LWJGLException ex) {
-                    if (ex.getMessage().startsWith("Failed to find ARB pixel format")) {
-                        // Unsupported format, so continue.
-                        requestedSamples /= 2;
-                    } else {
-                        // Something else went wrong ..
-                        return Integer.MAX_VALUE;
+            try {
+                requestedSamples = Integer.MAX_VALUE;
+                /*
+                while (requestedSamples > 1) {
+                    try {
+                        pb = new Pbuffer(1, 1, new PixelFormat(16, 0, 8, 0, requestedSamples), null);
+                    } catch (LWJGLException ex) {
+                        if (ex.getMessage().startsWith("Failed to find ARB pixel format")) {
+                            // Unsupported format, so continue.
+                            requestedSamples = FastMath.nearestPowerOfTwo(requestedSamples / 2);
+                        } else {
+                            // Something else went wrong ..
+                            return Integer.MAX_VALUE;
+                        }
+                    } finally {
+                        if (pb != null){
+                            pb.destroy();
+                            pb = null;
+                        }
                     }
-                } finally {
-                    if (pb != null){
-                        pb.destroy();
-                        pb = null;
+                }*/
+            } finally {
+                if (displayWasCurrent) {
+                    try {
+                        Display.makeCurrent();
+                    } catch (LWJGLException ex) {
+                        listener.handleError("Failed to make display current after checking samples", ex);
                     }
                 }
             }
