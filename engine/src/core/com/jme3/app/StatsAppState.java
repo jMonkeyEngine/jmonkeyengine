@@ -107,6 +107,10 @@ public class StatsAppState extends AbstractAppState {
         showFps = show;
         if (fpsText != null) {
             fpsText.setCullHint(show ? CullHint.Never : CullHint.Always);
+            if (darkenFps != null) {
+                darkenFps.setCullHint(showFps && darkenBehind ? CullHint.Never : CullHint.Always);
+            }
+            
         }
     }
 
@@ -115,6 +119,9 @@ public class StatsAppState extends AbstractAppState {
         if (statsView != null ) {
             statsView.setEnabled(show);
             statsView.setCullHint(show ? CullHint.Never : CullHint.Always);
+            if (darkenStats != null) {
+                darkenStats.setCullHint(showStats && darkenBehind ? CullHint.Never : CullHint.Always);
+            }
         }
     }
 
@@ -134,10 +141,12 @@ public class StatsAppState extends AbstractAppState {
                
         if (app instanceof SimpleApplication) {
             SimpleApplication simpleApp = (SimpleApplication)app;
-            if (guiNode == null)
+            if (guiNode == null) {
                 guiNode = simpleApp.guiNode;
-            if (guiFont == null )
+            }
+            if (guiFont == null ) {
                 guiFont = simpleApp.guiFont;
+            }
         } 
         
         if (guiNode == null) {
