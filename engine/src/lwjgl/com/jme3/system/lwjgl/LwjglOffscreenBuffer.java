@@ -104,15 +104,20 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     }
 
     protected void runLoop(){
-        if (!created.get())
+        if (!created.get()) {
             throw new IllegalStateException();
+        }
 
-        if (pbuffer.isBufferLost()){
+        if (pbuffer.isBufferLost()) {
             pbuffer.destroy();
-            try{
+
+            try {
                 pbuffer = new Pbuffer(width, height, pixelFormat, null);
                 pbuffer.makeCurrent();
-            }catch (LWJGLException ex){
+                
+                // Context MUST be reset here to avoid invalid objects!
+                renderer.invalidateState();
+            } catch (LWJGLException ex) {
                 listener.handleError("Failed to restore pbuffer content", ex);
             }
         }
@@ -123,7 +128,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         renderer.onFrame();
 
         int frameRate = settings.getFrameRate();
-        if (frameRate >= 1){
+        if (frameRate >= 1) {
             Display.sync(frameRate);
         }
     }
