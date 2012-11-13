@@ -418,19 +418,18 @@ public class BitmapText extends Node {
     }
 
     public void render(RenderManager rm, ColorRGBA color) {
-
         for (BitmapTextPage page : textPages) {
             Material mat = page.getMaterial();
             mat.setTexture("ColorMap", page.getTexture());
-            ColorRGBA original = getColor(mat, "Color");            
-            mat.setColor("Color", color);
+            //ColorRGBA original = getColor(mat, "Color");            
+            //mat.setColor("Color", color);
             mat.render(page, rm);
             
-            if( original == null ) {
-                mat.clearParam("Color");
-            } else {
-                mat.setColor("Color", original);
-            }
+            //if( original == null ) {
+            //    mat.clearParam("Color");
+            //} else {
+            //    mat.setColor("Color", original);
+            //}
         }
     }
 }
