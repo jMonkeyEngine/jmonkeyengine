@@ -181,9 +181,10 @@ public class InputSystemJme implements InputSystem, RawInputListener {
     }
 
     private void onMouseMotionEventQueued(MouseMotionEvent evt, NiftyInputConsumer nic) {
+        int wheel = evt.getDeltaWheel() / 120;
         x = evt.getX();
         y = height - evt.getY();
-        nic.processMouseEvent(x, y, evt.getDeltaWheel(), -1, false);
+        nic.processMouseEvent(x, y, wheel, -1, false);
 //        if (nic.processMouseEvent(niftyEvt) /*|| nifty.getCurrentScreen().isMouseOverElement()*/){
         // Do not consume motion events
         //evt.setConsumed();
