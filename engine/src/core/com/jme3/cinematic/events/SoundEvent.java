@@ -109,6 +109,7 @@ public class SoundEvent extends AbstractCinematicEvent {
     public void initEvent(Application app, Cinematic cinematic) {
         super.initEvent(app, cinematic);
         audioNode = new AudioNode(app.getAssetManager(), path, stream);
+        audioNode.setPositional(false);
         setLoopMode(loopMode);
     }
 
