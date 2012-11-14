@@ -53,6 +53,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
@@ -239,10 +240,11 @@ public class CurvesHelper extends AbstractBlenderHelper {
         }
         
         //reading custom properties
-		Properties properties = this.loadProperties(curveStructure, blenderContext);
-		if(properties != null && properties.getValue() != null) {
-			for(Geometry geom : result) {
-				geom.setUserData("properties", properties);
+		if(blenderContext.getBlenderKey().isLoadObjectProperties()) {
+			Properties properties = this.loadProperties(curveStructure, blenderContext);
+			//the loaded property is a group property, so we need to get each value and set it to Spatial
+			if(result instanceof Spatial && properties != null && properties.getValue() != null) {
+				this.applyProperties((Spatial) result, properties);
 			}
 		}
         
