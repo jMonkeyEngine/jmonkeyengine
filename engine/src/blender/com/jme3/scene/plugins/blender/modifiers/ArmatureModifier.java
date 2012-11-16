@@ -325,7 +325,6 @@ import com.jme3.util.BufferUtils;
 							if (boneIndex != null) {
 								float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
 								if (weight == 0.0f) {
-									weight = 1;
 									boneIndex = Integer.valueOf(0);
 								}
 								// we apply the weight to all referenced vertices

@@ -236,7 +236,9 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 				if (!p.isNull()) {
 					Structure ipoStructure = p.fetchData(blenderContext.getInputStream()).get(0);
 					Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
-					tracks.add((BoneTrack) ipo.calculateTrack(boneIndex, 0, ipo.getLastFrame(), fps, false));
+					if(ipo != null) {
+						tracks.add((BoneTrack) ipo.calculateTrack(boneIndex, 0, ipo.getLastFrame(), fps, false));
+					}
 				}
 			}
 		}

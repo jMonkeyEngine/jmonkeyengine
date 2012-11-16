@@ -149,8 +149,10 @@ public class ModifierHelper extends AbstractBlenderHelper {
 			IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
 			Structure ipoStructure = pIpo.fetchData(blenderContext.getInputStream()).get(0);
 			Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
-			result = new ObjectAnimationModifier(ipo, objectStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
-			blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
+			if(ipo != null) {
+				result = new ObjectAnimationModifier(ipo, objectStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
+				blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
+			}
 		}
 		return result;
 	}
