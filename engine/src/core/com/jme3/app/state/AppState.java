@@ -35,24 +35,46 @@ import com.jme3.app.Application;
 import com.jme3.renderer.RenderManager;
 
 /**
- * AppState represents a continously executing code inside the main loop.
+ * AppState represents continously executing code inside the main loop.
+ * 
  * An <code>AppState</code> can track when it is attached to the 
- * {@link AppStateManager} or when it is detached. <br/><code>AppState</code>s
- * are initialized in the render thread, upon a call to {@link AppState#initialize(com.jme3.app.state.AppStateManager, com.jme3.app.Application) }
+ * {@link AppStateManager} or when it is detached. 
+ * 
+ * <br/><code>AppState</code>s are initialized in the render thread, upon a call to 
+ * {@link AppState#initialize(com.jme3.app.state.AppStateManager, com.jme3.app.Application) }
  * and are de-initialized upon a call to {@link AppState#cleanup()}. 
  * Implementations should return the correct value with a call to 
  * {@link AppState#isInitialized() } as specified above.<br/>
  * 
- *
+ * <ul>
+ * <li>If a detached AppState is attached then <code>initialize()</code> will be called
+ * on the following render pass.
+ * </li>
+ * <li>If an attached AppState is detached then <code>cleanup()</code> will be called
+ * on the following render pass.
+ * </li>
+ * <li>If you attach an already-attached <code>AppState</code> then the second attach
+ * is a no-op and will return false.
+ * </li>
+ * <li>If you both attach and detach an <code>AppState</code> within one frame then
+ * neither <code>initialize()</code> or <code>cleanup()</code> will be called,
+ * although if either is called both will be.
+ * </li>
+ * <li>If you both detach and then re-attach an <code>AppState</code> within one frame
+ * then on the next update pass its <code>cleanup()</code> and <code>initialize()</code>
+ * methods will be called in that order.
+ * </li>
+ * </ul>
  * @author Kirill Vainer
  */
 public interface AppState {
 
     /**
-     * Called to initialize the AppState.
+     * Called to initialize the <code>AppState</code>. This method is called 
+     * in the next render pass after the <code>AppState</code> is attached. 
      *
      * @param stateManager The state manager
-     * @param app
+     * @param app The application
      */
     public void initialize(AppStateManager stateManager, Application app);
 
@@ -77,22 +99,28 @@ public interface AppState {
      * @see AppState#setEnabled(boolean)
      */
     public boolean isEnabled();
+
     /**
-     * Called when the state was attached.
+     * Called when the state was attached. Most implementations should do little
+     * or nothing in this method. In particular any scene graph changes need to
+     * be made in <code>initialize()</code>.
      *
      * @param stateManager State manager to which the state was attached to.
      */
     public void stateAttached(AppStateManager stateManager);
 
    /**
-    * Called when the state was detached.
+    * Called when the state was detached. Most implementations should do little
+     * or nothing in this method. In particular any scene graph changes need to
+     * be made in <code>cleanup()</code>.
     *
     * @param stateManager The state manager from which the state was detached from.
     */
     public void stateDetached(AppStateManager stateManager);
 
     /**
-     * Called to update the state.
+     * Called to update the <code>AppState</code>. This method will be called 
+     * every render pass if the <code>AppState</code> is both attached and enabled.
      *
      * @param tpf Time per frame.
      */
@@ -111,7 +139,12 @@ public interface AppState {
     public void postRender();
 
     /**
-     * Cleanup the game state. 
+     * Called to clean up the <code>AppState</code> after it has been removed. This
+     * method is called the following render pass after the <code>AppState</code> has 
+     * been detached and is always called once and only once for each time
+     * <code>initialize()</code> is called. Either when the <code>AppState</code>
+     * is detached or when the application terminates (if it terminates normally).
+     * 
      */
     public void cleanup();
 
