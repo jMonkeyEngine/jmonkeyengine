@@ -75,7 +75,7 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
         caps.setSampleBuffers(true);
         caps.setNumSamples(samples);
 
-        offscreenDrawable = GLDrawableFactory.getFactory(GLProfile.getMaxFixedFunc(true)).createOffscreenAutoDrawable(null, caps, null, width, width, null);
+        offscreenDrawable = GLDrawableFactory.getFactory(GLProfile.getMaxFixedFunc(true)).createOffscreenAutoDrawable(null, caps, null, width, height, null);
         
         offscreenDrawable.display();
         
