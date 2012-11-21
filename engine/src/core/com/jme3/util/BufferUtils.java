@@ -47,6 +47,7 @@ import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -808,7 +809,7 @@ public final class BufferUtils {
         buf.rewind();
 
         DoubleBuffer copy;
-        if (buf.isDirect()) {
+        if (isDirect(buf)) {
             copy = createDoubleBuffer(buf.limit());
         } else {
             copy = DoubleBuffer.allocate(buf.limit());
@@ -870,7 +871,7 @@ public final class BufferUtils {
         buf.rewind();
 
         FloatBuffer copy;
-        if (buf.isDirect()) {
+        if (isDirect(buf)) {
             copy = createFloatBuffer(buf.limit());
         } else {
             copy = FloatBuffer.allocate(buf.limit());
@@ -933,7 +934,7 @@ public final class BufferUtils {
         buf.rewind();
 
         IntBuffer copy;
-        if (buf.isDirect()) {
+        if (isDirect(buf)) {
             copy = createIntBuffer(buf.limit());
         } else {
             copy = IntBuffer.allocate(buf.limit());
@@ -1011,7 +1012,7 @@ public final class BufferUtils {
         buf.rewind();
 
         ByteBuffer copy;
-        if (buf.isDirect()) {
+        if (isDirect(buf)) {
             copy = createByteBuffer(buf.limit());
         } else {
             copy = ByteBuffer.allocate(buf.limit());
@@ -1085,7 +1086,7 @@ public final class BufferUtils {
         buf.rewind();
 
         ShortBuffer copy;
-        if (buf.isDirect()) {
+        if (isDirect(buf)) {
             copy = createShortBuffer(buf.limit());
         } else {
             copy = ShortBuffer.allocate(buf.limit());
@@ -1264,7 +1265,7 @@ public final class BufferUtils {
      * 
      */
     public static void destroyDirectBuffer(Buffer toBeDestroyed) {
-        if (!toBeDestroyed.isDirect()) {
+        if (!isDirect(toBeDestroyed)) {
             return;
         }
 
@@ -1296,6 +1297,36 @@ public final class BufferUtils {
         } catch (SecurityException ex) {
             Logger.getLogger(BufferUtils.class.getName()).log(Level.SEVERE, "{0}", ex);
         }
+    }
+    
+    /*
+     * FIXME when java 1.5 supprt is dropped - replace calls to this method with Buffer.isDirect 
+     * 
+     * Buffer.isDirect() is only java 6. Java 5 only have this method on Buffer subclasses : 
+     * FloatBuffer, IntBuffer, ShortBuffer, ByteBuffer,DoubleBuffer, LongBuffer.   
+     * CharBuffer has been excluded as we don't use it.
+     * 
+     */
+    private static boolean isDirect(Buffer buf) {
+        if (buf instanceof FloatBuffer) {
+            return ((FloatBuffer) buf).isDirect();
+        }
+        if (buf instanceof IntBuffer) {
+            return ((IntBuffer) buf).isDirect();
+        }
+        if (buf instanceof ShortBuffer) {
+            return ((ShortBuffer) buf).isDirect();
+        }
+        if (buf instanceof ByteBuffer) {
+            return ((ByteBuffer) buf).isDirect();
+        }
+        if (buf instanceof DoubleBuffer) {
+            return ((DoubleBuffer) buf).isDirect();
+        }
+        if (buf instanceof LongBuffer) {
+            return ((LongBuffer) buf).isDirect();
+        }
+        throw new UnsupportedOperationException(" BufferUtils.isDirect was called on " + buf.getClass().getName());
     }
 
     private static class BufferInfo extends PhantomReference<Buffer> {
