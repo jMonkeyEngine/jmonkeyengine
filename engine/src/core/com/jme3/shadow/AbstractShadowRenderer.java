@@ -32,6 +32,11 @@
 package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
@@ -49,7 +54,6 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.debug.WireFrustum;
-import com.jme3.shadow.PssmShadowRenderer.FilterMode;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.MagFilter;
@@ -57,14 +61,17 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * abstract shadow renderer that holds commons feature to have for a shadow renderer
+ * abstract shadow renderer that holds commons feature to have for a shadow
+ * renderer
+ *
  * @author Rémy Bouquet aka Nehon
  */
-public abstract class AbstractShadowRenderer implements SceneProcessor {
+public abstract class AbstractShadowRenderer implements SceneProcessor, Savable {
 
     protected int nbShadowMaps = 1;
     protected float shadowMapSize;
@@ -76,12 +83,12 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     protected Texture2D dummyTex;
     protected Material preshadowMat;
     protected Material postshadowMat;
-    protected Matrix4f[] lightViewProjectionsMatrices;    
+    protected Matrix4f[] lightViewProjectionsMatrices;
     protected AssetManager assetManager;
     protected boolean debug = false;
     protected float edgesThickness = 1.0f;
-    protected EdgeFilteringMode edgeFilteringMode;
-    protected CompareMode shadowCompareMode;
+    protected EdgeFilteringMode edgeFilteringMode = EdgeFilteringMode.Bilinear;
+    protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
     protected boolean flushQueues = true;
     // define if the fallback material should be used.
@@ -95,8 +102,17 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
 
+    
     /**
-     * Create an abstract shadow renderer, this is to be called in extending classes
+     * used for serialization
+     */
+    protected AbstractShadowRenderer(){        
+    }    
+    
+    /**
+     * Create an abstract shadow renderer, this is to be called in extending
+     * classes
+     *
      * @param assetManager the application asset manager
      * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
      * etc...)
@@ -106,9 +122,14 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     protected AbstractShadowRenderer(AssetManager assetManager, int shadowMapSize, int nbShadowMaps) {
 
         this.assetManager = assetManager;
-        this.postshadowMat = new Material(assetManager, "Common/MatDefs/Shadow/PostShadow.j3md");
         this.nbShadowMaps = nbShadowMaps;
         this.shadowMapSize = shadowMapSize;
+        init(assetManager, nbShadowMaps, shadowMapSize);
+
+    }
+
+    private void init(AssetManager assetManager, int nbShadowMaps, int shadowMapSize) {
+        this.postshadowMat = new Material(assetManager, "Common/MatDefs/Shadow/PostShadow.j3md");
         shadowFB = new FrameBuffer[nbShadowMaps];
         shadowMaps = new Texture2D[nbShadowMaps];
         dispPic = new Picture[nbShadowMaps];
@@ -137,15 +158,15 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
             dispPic[i].setTexture(assetManager, shadowMaps[i], false);
         }
 
-        setShadowCompareMode(CompareMode.Hardware);
-        setEdgeFilteringMode(EdgeFilteringMode.Bilinear);
-        setShadowIntensity(0.7f);
-
+        setShadowCompareMode(shadowCompareMode);
+        setEdgeFilteringMode(edgeFilteringMode);
+        setShadowIntensity(shadowIntensity);
     }
 
     /**
      * set the post shadow material for this renderer
-     * @param postShadowMat 
+     *
+     * @param postShadowMat
      */
     protected final void setPostShadowMaterial(Material postShadowMat) {
         this.postshadowMat = postShadowMat;
@@ -159,10 +180,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * Sets the filtering mode for shadow edges see {@link FilterMode} for more
-     * info
+     * Sets the filtering mode for shadow edges see {@link EdgeFilteringMode}
+     * for more info
      *
-     * @param filterMode
+     * @param EdgeFilteringMode
      */
     final public void setEdgeFilteringMode(EdgeFilteringMode filterMode) {
         if (filterMode == null) {
@@ -206,11 +227,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
      */
     final public void setShadowCompareMode(CompareMode compareMode) {
         if (compareMode == null) {
-            throw new NullPointerException();
-        }
-
-        if (this.shadowCompareMode == compareMode) {
-            return;
+            throw new IllegalArgumentException("Shadow compare mode cannot be null");
         }
 
         this.shadowCompareMode = compareMode;
@@ -290,31 +307,38 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * This mehtod is called once per frame.
-     * it is responsible for updating the shadow cams according to the light view.
+     * This mehtod is called once per frame. it is responsible for updating the
+     * shadow cams according to the light view.
+     *
      * @param viewCam the scene cam
      */
     protected abstract void updateShadowCams(Camera viewCam);
 
     /**
-     * this method must return the geomtryList that contains the oclluders to be rendered in the shadow map
+     * this method must return the geomtryList that contains the oclluders to be
+     * rendered in the shadow map
+     *
      * @param shadowMapIndex the index of the shadow map being rendered
      * @param sceneOccluders the occluders of the whole scene
      * @param sceneReceivers the recievers of the whole scene
-     * @return 
+     * @return
      */
-    protected abstract GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers,GeometryList shadowMapOccluders);
+    protected abstract GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders);
 
     /**
-     * return the shadow camera to use for rendering the shadow map according the given index
+     * return the shadow camera to use for rendering the shadow map according
+     * the given index
+     *
      * @param shadowMapIndex the index of the shadow map being rendered
      * @return the shadowCam
      */
     protected abstract Camera getShadowCam(int shadowMapIndex);
 
     /**
-     * responsible for displaying the frustum of the shadow cam for debug purpose
-     * @param shadowMapIndex 
+     * responsible for displaying the frustum of the shadow cam for debug
+     * purpose
+     *
+     * @param shadowMapIndex
      */
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
     }
@@ -355,7 +379,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     }
 
     protected void renderShadowMap(int shadowMapIndex, GeometryList occluders, GeometryList receivers) {
-        shadowMapOccluders = getOccludersToRender(shadowMapIndex, occluders, receivers,shadowMapOccluders);
+        shadowMapOccluders = getOccludersToRender(shadowMapIndex, occluders, receivers, shadowMapOccluders);
         Camera shadowCam = getShadowCam(shadowMapIndex);
 
         //saving light view projection matrix for this split            
@@ -396,7 +420,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     public void displayDebug() {
         debug = true;
     }
-    
+
     abstract GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers);
 
     public void postFrame(FrameBuffer out) {
@@ -404,10 +428,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
         if (debug) {
             displayShadowMap(renderManager.getRenderer());
         }
-        
+
         lightReceivers = getReceivers(sceneReceivers, lightReceivers);
-        
-        if (lightReceivers.size()!=0) {
+
+        if (lightReceivers.size() != 0) {
             //setting params to recieving geometry list
             setMatParams();
 
@@ -422,7 +446,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
 
             //rendering the post shadow pass
             viewPort.getQueue().renderShadowQueue(lightReceivers, renderManager, cam, true);
-            if(flushQueues){
+            if (flushQueues) {
                 sceneReceivers.clear();
             }
 
@@ -436,8 +460,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
     }
 
     /**
-     * This method is called once per frame and is responsible of setting the material 
-     * parameters than sub class may need to set on the post material
+     * This method is called once per frame and is responsible of setting the
+     * material parameters than sub class may need to set on the post material
+     *
      * @param material the materail to use for the post shadow pass
      */
     protected abstract void setMaterialParameters(Material material);
@@ -570,5 +595,31 @@ public abstract class AbstractShadowRenderer implements SceneProcessor {
      */
     public void setFlushQueues(boolean flushQueues) {
         this.flushQueues = flushQueues;
+    }
+
+    public void read(JmeImporter im) throws IOException {
+        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        assetManager = im.getAssetManager();
+        nbShadowMaps = ic.readInt("nbShadowMaps", 1);
+        shadowMapSize = ic.readInt("shadowMapSize", 0);
+        shadowIntensity = ic.readFloat("shadowIntensity", 0.7f);
+        edgeFilteringMode = ic.readEnum("edgeFilteringMode", EdgeFilteringMode.class, EdgeFilteringMode.Bilinear);
+        shadowCompareMode = ic.readEnum("shadowCompareMode", CompareMode.class, CompareMode.Hardware);
+        flushQueues = ic.readBoolean("flushQueues", false);
+        init(assetManager, nbShadowMaps, (int) shadowMapSize);
+        edgesThickness = ic.readFloat("edgesThickness", 1.0f);
+        postshadowMat.setFloat("PCFEdge", edgesThickness);
+
+    }
+
+    public void write(JmeExporter ex) throws IOException {
+        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        oc.write(nbShadowMaps, "nbShadowMaps", 1);
+        oc.write(shadowMapSize, "shadowMapSize", 0);
+        oc.write(shadowIntensity, "shadowIntensity", 0.7f);
+        oc.write(edgeFilteringMode, "edgeFilteringMode", EdgeFilteringMode.Bilinear);
+        oc.write(shadowCompareMode, "shadowCompareMode", CompareMode.Hardware);
+        oc.write(flushQueues, "flushQueues", false);
+        oc.write(edgesThickness, "edgesThickness", 1.0f);
     }
 }

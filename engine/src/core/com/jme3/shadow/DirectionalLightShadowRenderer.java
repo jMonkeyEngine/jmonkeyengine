@@ -32,6 +32,10 @@
 package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -39,8 +43,8 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
-import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.scene.Node;
+import java.io.IOException;
 
 /**
  * DirectionalLightShadowRenderer renderer use Parrallel Split Shadow Mapping
@@ -58,7 +62,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     protected float lambda = 0.65f;
     protected float zFarOverride = 0;
     protected Camera shadowCam;
-    protected ColorRGBA splits;  
+    protected ColorRGBA splits;
     protected float[] splitsArray;
     protected DirectionalLight light;
     protected Vector3f[] points = new Vector3f[8];
@@ -66,25 +70,39 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     protected Vector2f fadeInfo;
     protected float fadeLength;
 
+    /**
+     * Used for serialzation use
+     * DirectionalLightShadowRenderer#DirectionalLightShadowRenderer(AssetManager
+     * assetManager, int shadowMapSize, int nbSplits)
+     */
+    public DirectionalLightShadowRenderer() {
+        super();
+    }
 
     /**
      * Create a DirectionalLightShadowRenderer More info on the technique at <a
      * href="http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html">http://http.developer.nvidia.com/GPUGems3/gpugems3_ch10.html</a>
      *
      * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048, etc...)
+     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
+     * etc...)
      * @param nbSplits the number of shadow maps rendered (the more shadow maps
      * the more quality, the less fps).
      */
     public DirectionalLightShadowRenderer(AssetManager assetManager, int shadowMapSize, int nbSplits) {
         super(assetManager, shadowMapSize, nbSplits);
+        init(nbSplits, shadowMapSize);
+    }
 
+    private void init(int nbSplits, int shadowMapSize) {
         nbShadowMaps = Math.max(Math.min(nbSplits, 4), 1);
+        if (nbShadowMaps != nbSplits) {
+            throw new IllegalArgumentException("Number of splits must be between 1 and 4. Given value : " + nbSplits);
+        }
         splits = new ColorRGBA();
         splitsArray = new float[nbSplits + 1];
         shadowCam = new Camera(shadowMapSize, shadowMapSize);
         shadowCam.setParallelProjection(true);
-
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }
@@ -154,7 +172,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
         return shadowMapOccluders;
     }
-        
+
     @Override
     GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
         return sceneReceivers;
@@ -163,7 +181,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected Camera getShadowCam(int shadowMapIndex) {
         return shadowCam;
-    }    
+    }
 
     @Override
     protected void doDisplayFrustumDebug(int shadowMapIndex) {
@@ -257,5 +275,28 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
             return zFarOverride - fadeInfo.x;
         }
         return 0f;
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        lambda = ic.readFloat("lambda", 0.65f);
+        zFarOverride = ic.readInt("zFarOverride", 0);
+        light = (DirectionalLight) ic.readSavable("light", null);
+        fadeInfo = (Vector2f) ic.readSavable("fadeInfo", null);
+        fadeLength = ic.readFloat("fadeLength", 0f);
+        init(nbShadowMaps, (int) shadowMapSize);
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        oc.write(lambda, "lambda", 0.65f);
+        oc.write(zFarOverride, "zFarOverride", 0);
+        oc.write(light, "light", null);
+        oc.write(fadeInfo, "fadeInfo", null);
+        oc.write(fadeLength, "fadeLength", 0f);
     }
 }

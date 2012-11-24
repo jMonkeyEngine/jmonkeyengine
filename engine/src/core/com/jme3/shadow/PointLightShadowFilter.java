@@ -37,14 +37,6 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.light.PointLight;
-import com.jme3.material.Material;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Vector4f;
-import com.jme3.post.Filter;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.texture.FrameBuffer;
 import java.io.IOException;
 
 /**
@@ -72,7 +64,7 @@ public class PointLightShadowFilter extends AbstractShadowFilter<PointLightShado
      * etc...)
      */
     public PointLightShadowFilter(AssetManager assetManager, int shadowMapSize) {
-        super(assetManager, shadowMapSize,new PointLightShadowRenderer(assetManager, shadowMapSize));
+        super(assetManager, shadowMapSize, new PointLightShadowRenderer(assetManager, shadowMapSize));
     }
 
     /**
@@ -97,6 +89,7 @@ public class PointLightShadowFilter extends AbstractShadowFilter<PointLightShado
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
+        oc.write(shadowRenderer, "shadowRenderer", null);
 
     }
 
@@ -104,6 +97,6 @@ public class PointLightShadowFilter extends AbstractShadowFilter<PointLightShado
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-
+        shadowRenderer = (PointLightShadowRenderer) ic.readSavable("shadowRenderer", null);
     }
 }

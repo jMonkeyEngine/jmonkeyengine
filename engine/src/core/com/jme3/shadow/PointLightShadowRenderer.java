@@ -32,14 +32,18 @@
 package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
-import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import java.io.IOException;
 
 /**
  * PointLightShadowRenderer renders shadows for a point light
@@ -54,6 +58,15 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
     private Geometry[] frustums = null;
 
     /**
+     * Used for serialization use
+     * PointLightShadowRenderer"PointLightShadowRenderer(AssetManager
+     * assetManager, int shadowMapSize)
+     */
+    public PointLightShadowRenderer() {
+        super();
+    }
+
+    /**
      * Creates a PointLightShadowRenderer
      *
      * @param assetManager the application asset manager
@@ -62,6 +75,10 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
      */
     public PointLightShadowRenderer(AssetManager assetManager, int shadowMapSize) {
         super(assetManager, shadowMapSize, CAM_NUMBER);
+        init(shadowMapSize);
+    }
+
+    private void init(int shadowMapSize) {
         shadowCams = new Camera[CAM_NUMBER];
         for (int i = 0; i < CAM_NUMBER; i++) {
             shadowCams[i] = new Camera(shadowMapSize, shadowMapSize);
@@ -158,5 +175,20 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
      */
     public void setLight(PointLight light) {
         this.light = light;
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        light = (PointLight) ic.readSavable("light", null);
+        init((int) shadowMapSize);
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
+        oc.write(light, "light", null);
     }
 }

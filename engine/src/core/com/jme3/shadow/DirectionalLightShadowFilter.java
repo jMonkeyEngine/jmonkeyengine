@@ -57,8 +57,6 @@ import java.io.IOException;
  */
 public class DirectionalLightShadowFilter extends AbstractShadowFilter<DirectionalLightShadowRenderer> {
 
-
-
     /**
      * Creates a DirectionalLightShadowFilter Shadow Filter More info on the
      * technique at <a
@@ -71,7 +69,7 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
      * the more quality, the less fps).
      */
     public DirectionalLightShadowFilter(AssetManager assetManager, int shadowMapSize, int nbSplits) {
-        super(assetManager, shadowMapSize, new DirectionalLightShadowRenderer(assetManager, shadowMapSize, nbSplits));  
+        super(assetManager, shadowMapSize, new DirectionalLightShadowRenderer(assetManager, shadowMapSize, nbSplits));
     }
 
     /**
@@ -162,6 +160,7 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
+        oc.write(shadowRenderer, "shadowRenderer", null);
 
     }
 
@@ -169,6 +168,6 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-
+        shadowRenderer = (DirectionalLightShadowRenderer) ic.readSavable("shadowRenderer", null);
     }
 }

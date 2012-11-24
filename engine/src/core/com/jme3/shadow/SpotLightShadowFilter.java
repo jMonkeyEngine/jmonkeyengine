@@ -41,13 +41,13 @@ import java.io.IOException;
 
 /**
  *
- * This Filter does basically the same as a SpotLightShadowRenderer
- * except it renders the post shadow pass as a fulscreen quad pass instead of a
- * geometry pass. It's mostly faster than PssmShadowRenderer as long as you have
- * more than a about ten shadow recieving objects. The expense is the draw back
- * that the shadow Recieve mode set on spatial is ignored. So basically all and
- * only objects that render depth in the scene receive shadows. See this post
- * for more details
+ * This Filter does basically the same as a SpotLightShadowRenderer except it
+ * renders the post shadow pass as a fulscreen quad pass instead of a geometry
+ * pass. It's mostly faster than PssmShadowRenderer as long as you have more
+ * than a about ten shadow recieving objects. The expense is the draw back that
+ * the shadow Recieve mode set on spatial is ignored. So basically all and only
+ * objects that render depth in the scene receive shadows. See this post for
+ * more details
  * http://jmonkeyengine.org/groups/general-2/forum/topic/silly-question-about-shadow-rendering/#post-191599
  *
  * API is basically the same as the PssmShadowRenderer;
@@ -56,16 +56,15 @@ import java.io.IOException;
  */
 public class SpotLightShadowFilter extends AbstractShadowFilter<SpotLightShadowRenderer> {
 
-
     /**
-     * Creates a SpotLight Shadow Filter    
+     * Creates a SpotLight Shadow Filter
+     *
      * @param assetManager the application asset manager
      * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
-     * etc...)
-     * the more quality, the less fps).
+     * etc...) the more quality, the less fps).
      */
     public SpotLightShadowFilter(AssetManager assetManager, int shadowMapSize) {
-        super(assetManager, shadowMapSize, new SpotLightShadowRenderer(assetManager, shadowMapSize));     
+        super(assetManager, shadowMapSize, new SpotLightShadowRenderer(assetManager, shadowMapSize));
     }
 
     /**
@@ -131,6 +130,7 @@ public class SpotLightShadowFilter extends AbstractShadowFilter<SpotLightShadowR
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
+        oc.write(shadowRenderer, "shadowRenderer", null);
 
     }
 
@@ -138,6 +138,6 @@ public class SpotLightShadowFilter extends AbstractShadowFilter<SpotLightShadowR
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
-
+        shadowRenderer = (SpotLightShadowRenderer) ic.readSavable("shadowRenderer", null);
     }
 }

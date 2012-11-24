@@ -32,18 +32,19 @@
 package com.jme3.shadow;
 
 import com.jme3.asset.AssetManager;
-import com.jme3.light.DirectionalLight;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
-import com.jme3.renderer.queue.OpaqueComparator;
 import com.jme3.scene.Node;
+import java.io.IOException;
 
 /**
  * SpotLightShadowRenderer renderer use Parrallel Split Shadow Mapping technique
@@ -66,6 +67,14 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
     protected Vector2f fadeInfo;
     protected float fadeLength;
 
+    
+    /**
+     * Used for serialization use SpotLightShadowRenderer#SpotLightShadowRenderer(AssetManager assetManager, int shadowMapSize)
+     */
+    public SpotLightShadowRenderer() {
+        super();
+    }
+    
     /**
      * Create a SpotLightShadowRenderer This use standard shadow mapping
      *
@@ -75,14 +84,17 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
      */
     public SpotLightShadowRenderer(AssetManager assetManager, int shadowMapSize) {
         super(assetManager, shadowMapSize, 1);
+        init(shadowMapSize);
+    }
 
+    
+    private void init(int shadowMapSize) {
         shadowCam = new Camera(shadowMapSize, shadowMapSize);
-
         for (int i = 0; i < points.length; i++) {
             points[i] = new Vector3f();
         }
     }
-
+    
     /**
      * return the light used to cast shadows
      *
@@ -213,4 +225,27 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         }
         return 0f;
     }
+    
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = (InputCapsule) im.getCapsule(this);
+        zFarOverride = ic.readInt("zFarOverride", 0);
+        light = (SpotLight) ic.readSavable("light", null);
+        fadeInfo = (Vector2f) ic.readSavable("fadeInfo", null);
+        fadeLength = ic.readFloat("fadeLength", 0f);
+        init((int) shadowMapSize);
+
+    }
+
+    @Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);        
+        oc.write(zFarOverride, "zFarOverride", 0);
+        oc.write(light, "light", null);
+        oc.write(fadeInfo, "fadeInfo", null);
+        oc.write(fadeLength, "fadeLength", 0f);
+    }
+
 }
