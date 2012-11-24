@@ -100,7 +100,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
 
         soundDev = new SoundDeviceJme(assetManager, audioRenderer);
         renderDev = new RenderDeviceJme(this);
-        inputSys = new InputSystemJme();
+        inputSys = new InputSystemJme(inputManager);
         
         nifty = new Nifty(renderDev, soundDev, inputSys, new TimeProvider());
         inputSys.setNifty(nifty);
@@ -114,7 +114,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
         this.renderManager = rm;
         renderDev.setRenderManager(rm);
         if (inputManager != null) {
-            inputSys.setInputManager(inputManager);
+//            inputSys.setInputManager(inputManager);
             inputManager.addRawInputListener(inputSys);
         }
         inited = true;
