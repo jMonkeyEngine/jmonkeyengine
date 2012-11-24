@@ -100,15 +100,8 @@ public class LightScatteringFilter extends Filter {
     @Override
     protected void postQueue(RenderQueue queue) {
         getClipCoordinates(lightPosition, screenLightPos, viewPort.getCamera());
-        //  screenLightPos.x = screenLightPos.x / viewPort.getCamera().getWidth();
-        //  screenLightPos.y = screenLightPos.y / viewPort.getCamera().getHeight();
-
-        viewPort.getCamera().getViewMatrix().mult(lightPosition, viewLightPos);
-        //System.err.println("viewLightPos "+viewLightPos);
-        display = screenLightPos.x < 1.6f && screenLightPos.x > -0.6f && screenLightPos.y < 1.6f && screenLightPos.y > -0.6f && viewLightPos.z < 0;
-//System.err.println("camdir "+viewPort.getCamera().getDirection());
-//System.err.println("lightPos "+lightPosition);
-//System.err.println("screenLightPos "+screenLightPos);
+        viewPort.getCamera().getViewMatrix().mult(lightPosition, viewLightPos);        
+        display = screenLightPos.x < 1.4f && screenLightPos.x > -0.6f && screenLightPos.y < 1.4f && screenLightPos.y > -0.6f && viewLightPos.z < 0;
         if (adaptative) {
             innerLightDensity = Math.max(lightDensity - Math.max(screenLightPos.x, screenLightPos.y), 0.0f);
         } else {
