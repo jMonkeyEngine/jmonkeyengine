@@ -71,7 +71,7 @@ public class ConeCollisionShape extends CollisionShape {
         this.height = height;
         this.axis = axis;
         if (axis < PhysicsSpace.AXIS_X || axis > PhysicsSpace.AXIS_Z) {
-            throw new InvalidArgumentException("axis must be one of the PhysicsSpace.AXIS_* constants!");
+            throw new UnsupportedOperationException("axis must be one of the PhysicsSpace.AXIS_* constants!");
         }
         createShape();
     }
