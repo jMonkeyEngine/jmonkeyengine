@@ -815,6 +815,9 @@ final public class FastMath {
      */
     public static Vector3f sphericalToCartesian(Vector3f sphereCoords,
             Vector3f store) {
+        if (store == null) {
+            store = new Vector3f();
+        }
         store.y = sphereCoords.x * FastMath.sin(sphereCoords.z);
         float a = sphereCoords.x * FastMath.cos(sphereCoords.z);
         store.x = a * FastMath.cos(sphereCoords.y);
@@ -830,6 +833,9 @@ final public class FastMath {
      */
     public static Vector3f cartesianToSpherical(Vector3f cartCoords,
             Vector3f store) {
+        if (store == null) {
+            store = new Vector3f();
+        }
         float x = cartCoords.x;
         if (x == 0) {
             x = FastMath.FLT_EPSILON;
@@ -851,6 +857,9 @@ final public class FastMath {
      */
     public static Vector3f sphericalToCartesianZ(Vector3f sphereCoords,
             Vector3f store) {
+        if (store == null) {
+            store = new Vector3f();
+        }
         store.z = sphereCoords.x * FastMath.sin(sphereCoords.z);
         float a = sphereCoords.x * FastMath.cos(sphereCoords.z);
         store.x = a * FastMath.cos(sphereCoords.y);
@@ -866,6 +875,9 @@ final public class FastMath {
      */
     public static Vector3f cartesianZToSpherical(Vector3f cartCoords,
             Vector3f store) {
+        if (store == null) {
+            store = new Vector3f();
+        }
         float x = cartCoords.x;
         if (x == 0) {
             x = FastMath.FLT_EPSILON;
