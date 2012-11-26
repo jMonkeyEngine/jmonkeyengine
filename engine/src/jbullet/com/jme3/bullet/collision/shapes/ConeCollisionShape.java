@@ -106,15 +106,15 @@ public class ConeCollisionShape extends CollisionShape {
         OutputCapsule capsule = ex.getCapsule(this);
         capsule.write(radius, "radius", 0.5f);
         capsule.write(height, "height", 0.5f);
-        capsule.write(axis, "axis", 0.5f);
+        capsule.write(axis, "axis", PhysicsSpace.AXIS_Y);
     }
 
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule capsule = im.getCapsule(this);
         radius = capsule.readFloat("radius", 0.5f);
-        radius = capsule.readFloat("height", 0.5f);
-        radius = capsule.readFloat("axis", 0.5f);
+        height = capsule.readFloat("height", 0.5f);
+        axis = capsule.readInt("axis", PhysicsSpace.AXIS_Y);
         createShape();
     }
 
