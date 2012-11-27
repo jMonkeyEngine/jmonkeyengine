@@ -174,10 +174,8 @@ public class NiftyJmeDisplay implements SceneProcessor {
     public void postQueue(RenderQueue rq) {
         // render nifty before anything else
         renderManager.setCamera(vp.getCamera(), true);
-        renderer.setDepthRange(0, 0);
         //nifty.update();
         nifty.render(false);
-        renderer.setDepthRange(0, 1);
         renderManager.setCamera(vp.getCamera(), false);
     }
 
