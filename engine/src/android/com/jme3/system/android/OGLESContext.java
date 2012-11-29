@@ -121,6 +121,8 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         } else {
             androidInput.setView(view);
         }
+        androidInput.loadSettings(settings);
+
         if (configType == ConfigType.LEGACY) {
             // Hardcoded egl setup
             clientOpenGLESVersion = 2;
@@ -247,6 +249,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     @Override
     public void setSettings(AppSettings settings) {
         this.settings.copyFrom(settings);
+        if (androidInput != null) {
+            androidInput.loadSettings(settings);
+        }
+
     }
 
     @Override
