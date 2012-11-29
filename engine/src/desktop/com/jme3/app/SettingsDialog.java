@@ -130,6 +130,7 @@ public final class SettingsDialog extends JDialog {
 
 //        setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         setModal(true);
+        setAlwaysOnTop(true);
 
         AppSettings registrySettings = new AppSettings(true);
 
