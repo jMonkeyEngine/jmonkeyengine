@@ -105,7 +105,10 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
         canvas.setSize(settings.getWidth(), settings.getHeight());
         canvas.setUndecorated(settings.isFullscreen());
         canvas.setFullscreen(settings.isFullscreen());
-        //FIXME Does JMonkeyEngine 3.0 allow to change the resolution?
+        
+        // the canvas must be visible to allow the modification of the screen
+        //FIXME it should not be necessary
+        canvas.setVisible(true);
         /**
          * uses the filtering relying on resolution with the size to fetch only
          * the screen mode matching with the current resolution
