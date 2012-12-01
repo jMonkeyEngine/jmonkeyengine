@@ -106,14 +106,19 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
         canvas.setUndecorated(settings.isFullscreen());
         canvas.setFullscreen(settings.isFullscreen());
         
-        // the canvas must be visible to allow the modification of the screen
-        //FIXME it should not be necessary
-        canvas.setVisible(true);
         /**
          * uses the filtering relying on resolution with the size to fetch only
          * the screen mode matching with the current resolution
          */
         Screen screen = canvas.getScreen();
+        /**
+         * The creation of native resources is lazy in JogAmp, i.e they are 
+         * created only when they are used for the first time. When the GLWindow
+         * is not yet visible, its screen might have been unused for now and 
+         * then its native counterpart has not yet been created. That's why 
+         * forcing the creation of this resource is necessary
+         */
+        screen.addReference();
         if (settings.isFullscreen()) {
             List<ScreenMode> screenModes = screen.getScreenModes();
             //the resolution is provided by the user
