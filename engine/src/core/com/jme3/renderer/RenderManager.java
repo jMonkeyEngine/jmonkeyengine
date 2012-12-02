@@ -596,7 +596,7 @@ public class RenderManager {
             Mesh mesh = gm.getMesh();
             if (mesh != null) {
                 for (VertexBuffer vb : mesh.getBufferList().getArray()) {
-                    if (vb.getData() != null) {
+                    if (vb.getData() != null && vb.getUsage() != VertexBuffer.Usage.CpuOnly) {
                         renderer.updateBufferData(vb);
                     }
                 }
