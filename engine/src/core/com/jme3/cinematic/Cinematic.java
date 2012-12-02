@@ -258,12 +258,15 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
             timeLine.addKeyFrameAtTime(timeStamp, keyFrame);
         }
         keyFrame.cinematicEvents.add(cinematicEvent);
-        cinematicEvents.add(cinematicEvent);
+        cinematicEvents.add(cinematicEvent);        
+        if(isInitialized()){
+            cinematicEvent.initEvent(null, this);
+        }
         return keyFrame;
     }
 
     /**
-     * removes the first occurence found of the given cinematicEvent.
+     * removes the first occurrence found of the given cinematicEvent.
      *
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
@@ -279,7 +282,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * removes the first occurence found of the given cinematicEvent for the given time stamp.
+     * removes the first occurrence found of the given cinematicEvent for the given time stamp.
      * @param timeStamp the timestamp when the cinematicEvent has been added
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
@@ -290,7 +293,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
     
     /**
-     * removes the first occurence found of the given cinematicEvent for the given keyFrame
+     * removes the first occurrence found of the given cinematicEvent for the given keyFrame
      * @param keyFrame the keyFrame returned by the addCinematicEvent method.
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
