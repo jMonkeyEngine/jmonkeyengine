@@ -1400,7 +1400,7 @@ public class JoglRenderer implements Renderer {
         TextureUtil.GLImageFormat glFmt = TextureUtil.getImageFormatWithError(rb.getFormat());
         
         if (fb.getSamples() > 1 && gl.isExtensionAvailable("GL_EXT_framebuffer_multisample")
-                && gl.isFunctionAvailable("glRenderbufferStorageMultisample")) {
+                /*&& gl.isFunctionAvailable("glRenderbufferStorageMultisample")*/) {
             int samples = fb.getSamples();
             if (maxFBOSamples < samples) {
                 samples = maxFBOSamples;
