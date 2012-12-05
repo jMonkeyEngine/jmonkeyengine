@@ -42,6 +42,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -53,23 +56,40 @@ public abstract class JmeSystemDelegate {
     protected final Logger logger = Logger.getLogger(JmeSystem.class.getName());
     protected boolean initialized = false;
     protected boolean lowPermissions = false;
-    protected File storageFolder = null;
+    protected Map<JmeSystem.StorageFolderType, File> storageFolders = new EnumMap<JmeSystem.StorageFolderType, File>(JmeSystem.StorageFolderType.class);
     protected SoftTextDialogInput softTextDialogInput = null;
 
-    public synchronized File getStorageFolder() {
-        if (lowPermissions) {
-            throw new UnsupportedOperationException("File system access restricted");
+    public synchronized File getStorageFolder(JmeSystem.StorageFolderType type) {
+        File storageFolder = null;
+
+        switch (type) {
+            // Internal and External are currently the same folder
+            case Internal:
+            case External:
+                if (lowPermissions) {
+                    throw new UnsupportedOperationException("File system access restricted");
+                }
+                storageFolder = storageFolders.get(type);
+                if (storageFolder == null) {
+                    // Initialize storage folder
+                    storageFolder = new File(System.getProperty("user.home"), ".jme3");
+                    if (!storageFolder.exists()) {
+                        storageFolder.mkdir();
+                    }
+                    storageFolders.put(type, storageFolder);
+                }
+                break;
+            default:
+                break;
         }
-        if (storageFolder == null) {
-            // Initialize storage folder
-            storageFolder = new File(System.getProperty("user.home"), ".jme3");
-            if (!storageFolder.exists()) {
-                storageFolder.mkdir();
-            }
+        if (storageFolder != null) {
+            logger.log(Level.INFO, "Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+        } else {
+            logger.log(Level.INFO, "Storage Folder not found!");
         }
         return storageFolder;
     }
-    
+
     public String getFullName() {
         return JmeVersion.FULL_NAME;
     }
@@ -100,7 +120,7 @@ public abstract class JmeSystemDelegate {
     public SoftTextDialogInput getSoftTextDialogInput() {
         return softTextDialogInput;
     }
-    
+
     public abstract void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException;
 
     public abstract AssetManager newAssetManager(URL configFile);
@@ -108,7 +128,7 @@ public abstract class JmeSystemDelegate {
     public abstract AssetManager newAssetManager();
 
     public abstract void showErrorDialog(String message);
-    
+
     public abstract boolean showSettingsDialog(AppSettings sourceSettings, boolean loadFromRegistry);
 
     private boolean is64Bit(String arch) {

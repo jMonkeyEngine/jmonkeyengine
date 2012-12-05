@@ -2,6 +2,7 @@ package com.jme3.system.android;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import com.jme3.asset.AndroidAssetManager;
@@ -164,24 +165,57 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     }
 
     @Override
-    public synchronized File getStorageFolder() {
-        //http://developer.android.com/reference/android/content/Context.html#getExternalFilesDir
-        //http://developer.android.com/guide/topics/data/data-storage.html
+    public synchronized File getStorageFolder(JmeSystem.StorageFolderType type) {
+        File storageFolder = null;
 
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            // getExternalFilesDir automatically creates the directory if necessary.
-            // directory structure should be: /mnt/sdcard/Android/data/<packagename>/files
-            // when created this way, the directory is automatically removed by the Android
-            //   system when the app is uninstalled
-            storageFolder = activity.getApplicationContext().getExternalFilesDir(null);
-            logger.log(Level.INFO, "Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+        switch (type) {
+            case Internal:
+                // http://developer.android.com/guide/topics/data/data-storage.html
+                // http://developer.android.com/guide/topics/data/data-storage.html#filesInternal
+                // http://developer.android.com/reference/android/content/Context.html#getFilesDir()
+                // http://developer.android.com/reference/android/content/Context.html#getDir(java.lang.String, int)
 
-            return storageFolder;
-        } else {
-            return null;
+                // getDir automatically creates the directory if necessary.
+                // Directory structure should be: /data/data/<packagename>/app_
+                // When created this way, the directory is automatically removed by the Android
+                //   system when the app is uninstalled.
+                // The directory is NOT accessible by a PC connected to the device
+                // The files can only be accessed by this application
+                storageFolder = storageFolders.get(type);
+                if (storageFolder == null) {
+                    storageFolder = activity.getApplicationContext().getDir("", Context.MODE_PRIVATE);
+                    storageFolders.put(type, storageFolder);
+                }
+                break;
+            case External:
+                //http://developer.android.com/reference/android/content/Context.html#getExternalFilesDir
+                //http://developer.android.com/guide/topics/data/data-storage.html
+
+                // getExternalFilesDir automatically creates the directory if necessary.
+                // Directory structure should be: /mnt/sdcard/Android/data/<packagename>/files
+                // When created this way, the directory is automatically removed by the Android
+                //   system when the app is uninstalled.
+                // The directory is also accessible by a PC connected to the device
+                //   so the files can be copied to the PC (ie. screenshots)
+                storageFolder = storageFolders.get(type);
+                if (storageFolder == null) {
+                    String state = Environment.getExternalStorageState();
+                    logger.log(Level.INFO, "ExternalStorageState: {0}", state);
+                    if (state.equals(Environment.MEDIA_MOUNTED)) {
+                        storageFolder = activity.getApplicationContext().getExternalFilesDir(null);
+                        storageFolders.put(type, storageFolder);
+                    }
+                }
+                break;
+            default:
+                break;
         }
-
+        if (storageFolder != null) {
+            logger.log(Level.INFO, "Base Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+        } else {
+            logger.log(Level.INFO, "Base Storage Folder not found!");
+        }
+        return storageFolder;
     }
 
     public static void setActivity(Activity activity) {

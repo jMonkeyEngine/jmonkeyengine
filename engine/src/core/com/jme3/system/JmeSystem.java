@@ -47,15 +47,24 @@ import java.util.logging.Logger;
 
 public class JmeSystem {
 
+    public static enum StorageFolderType {
+        Internal,
+        External,
+    }
+
     private static JmeSystemDelegate systemDelegate;
 
     public static void setSystemDelegate(JmeSystemDelegate systemDelegate) {
         JmeSystem.systemDelegate = systemDelegate;
     }
-    
+
     public static synchronized File getStorageFolder() {
+        return getStorageFolder(StorageFolderType.External);
+    }
+
+    public static synchronized File getStorageFolder(StorageFolderType type) {
         checkDelegate();
-        return systemDelegate.getStorageFolder();
+        return systemDelegate.getStorageFolder(type);
     }
 
     public static String getFullName() {
@@ -97,7 +106,7 @@ public class JmeSystem {
         checkDelegate();
         return systemDelegate.getSoftTextDialogInput();
     }
-    
+
     public static void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
         checkDelegate();
         systemDelegate.writeImageFile(outStream, format, imageData, width, height);
@@ -132,7 +141,7 @@ public class JmeSystem {
         checkDelegate();
         return systemDelegate.newAudioRenderer(settings);
     }
-    
+
     public static ImageRaster createImageRaster(Image image, int slice) {
         checkDelegate();
         return systemDelegate.createImageRaster(image, slice);
@@ -141,8 +150,8 @@ public class JmeSystem {
     /**
      * Displays an error message to the user in whichever way the context
      * feels is appropriate. If this is a headless or an offscreen surface
-     * context, this method should do nothing. 
-     * 
+     * context, this method should do nothing.
+     *
      * @param message The error message to display. May contain new line
      * characters.
      */
@@ -150,7 +159,7 @@ public class JmeSystem {
         checkDelegate();
         systemDelegate.showErrorDialog(message);
     }
-    
+
     public static void initialize(AppSettings settings) {
         checkDelegate();
         systemDelegate.initialize(settings);
@@ -163,7 +172,7 @@ public class JmeSystem {
             return null;
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private static void checkDelegate() {
         if (systemDelegate == null) {
