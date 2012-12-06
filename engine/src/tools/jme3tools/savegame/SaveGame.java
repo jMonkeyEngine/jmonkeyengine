@@ -62,10 +62,31 @@ public class SaveGame {
      * @param data The Savable to save
      */
     public static void saveGame(String gamePath, String dataName, Savable data) {
+        saveGame(gamePath, dataName, data, JmeSystem.StorageFolderType.External);
+    }
+
+    /**
+     * Saves a savable in a system-dependent way.
+     * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
+     * @param dataName A unique name for this savegame, e.g. "save_001"
+     * @param data The Savable to save
+     * @param storageType The specific type of folder to use to save the data
+     */
+    public static void saveGame(String gamePath, String dataName, Savable data, JmeSystem.StorageFolderType storageType) {
+        if (storageType == null) {
+            Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Base Storage Folder Type is null, using External!");
+            storageType = JmeSystem.StorageFolderType.External;
+        }
+
         BinaryExporter ex = BinaryExporter.getInstance();
         OutputStream os = null;
         try {
-            File daveFolder = new File(JmeSystem.getStorageFolder().getAbsolutePath() + File.separator + gamePath.replace('/', File.separatorChar));
+            File baseFolder = JmeSystem.getStorageFolder(storageType);
+            if (baseFolder == null) {
+                Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error creating save file!");
+                throw new IllegalStateException("SaveGame dataset cannot be created");
+            }
+            File daveFolder = new File(baseFolder.getAbsolutePath() + File.separator + gamePath.replace('/', File.separatorChar));
             if (!daveFolder.exists() && !daveFolder.mkdirs()) {
                 Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error creating save file!");
                 throw new IllegalStateException("SaveGame dataset cannot be created");
@@ -79,6 +100,7 @@ public class SaveGame {
             }
             os = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)));
             ex.save(data, os);
+            Logger.getLogger(SaveGame.class.getName()).log(Level.INFO, "Saving data to: {0}", saveFile.getAbsolutePath());
         } catch (IOException ex1) {
             Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error saving data: {0}", ex1);
             ex1.printStackTrace();
@@ -103,7 +125,18 @@ public class SaveGame {
      * @return The savable that was saved
      */
     public static Savable loadGame(String gamePath, String dataName) {
-        return loadGame(gamePath, dataName, null);
+        return loadGame(gamePath, dataName, null, JmeSystem.StorageFolderType.External);
+    }
+
+    /**
+     * Loads a savable that has been saved on this system with saveGame() before.
+     * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
+     * @param dataName A unique name for this savegame, e.g. "save_001"
+     * @param storageType The specific type of folder to use to save the data
+     * @return The savable that was saved
+     */
+    public static Savable loadGame(String gamePath, String dataName, JmeSystem.StorageFolderType storageType) {
+        return loadGame(gamePath, dataName, null, storageType);
     }
 
     /**
@@ -114,10 +147,32 @@ public class SaveGame {
      * @return The savable that was saved or null if none was found
      */
     public static Savable loadGame(String gamePath, String dataName, AssetManager manager) {
+        return loadGame(gamePath, dataName, manager, JmeSystem.StorageFolderType.External);
+    }
+
+    /**
+     * Loads a savable that has been saved on this system with saveGame() before.
+     * @param gamePath A unique path for this game, e.g. com/mycompany/mygame
+     * @param dataName A unique name for this savegame, e.g. "save_001"
+     * @param manager Link to an AssetManager if required for loading the data (e.g. models with textures)
+     * @param storageType The specific type of folder to use to save the data
+     * @return The savable that was saved or null if none was found
+     */
+    public static Savable loadGame(String gamePath, String dataName, AssetManager manager, JmeSystem.StorageFolderType storageType) {
+        if (storageType == null) {
+            Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Base Storage Folder Type is null, using External!");
+            storageType = JmeSystem.StorageFolderType.External;
+        }
+
         InputStream is = null;
         Savable sav = null;
         try {
-            File file = new File(JmeSystem.getStorageFolder().getAbsolutePath() + File.separator + gamePath.replace('/', File.separatorChar) + File.separator + dataName);
+            File baseFolder = JmeSystem.getStorageFolder(storageType);
+            if (baseFolder == null) {
+                Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error reading base storage folder!");
+                return null;
+            }
+            File file = new File(baseFolder.getAbsolutePath() + File.separator + gamePath.replace('/', File.separatorChar) + File.separator + dataName);
             if(!file.exists()){
                 return null;
             }
@@ -127,6 +182,7 @@ public class SaveGame {
                 imp.setAssetManager(manager);
             }
             sav = imp.load(is);
+            Logger.getLogger(SaveGame.class.getName()).log(Level.INFO, "Loading data from: {0}", file.getAbsolutePath());
         } catch (IOException ex) {
             Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error loading data: {0}", ex);
             ex.printStackTrace();
