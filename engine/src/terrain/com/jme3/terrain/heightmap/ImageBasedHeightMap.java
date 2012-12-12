@@ -32,6 +32,7 @@
 package com.jme3.terrain.heightmap;
 
 import com.jme3.math.ColorRGBA;
+import com.jme3.system.JmeSystem;
 import com.jme3.texture.Image;
 import com.jme3.texture.image.DefaultImageRaster;
 import com.jme3.texture.image.ImageRaster;
@@ -97,7 +98,7 @@ public class ImageBasedHeightMap extends AbstractHeightMap implements ImageHeigh
     }
     
     protected ImageRaster getImageRaster() {
-        return new DefaultImageRaster(colorImage, 0);
+        return JmeSystem.createImageRaster(colorImage, 0);
     }
     
     public boolean load(boolean flipX, boolean flipY) {
