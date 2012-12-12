@@ -98,7 +98,7 @@ public class ImageBasedHeightMap extends AbstractHeightMap implements ImageHeigh
     }
     
     protected ImageRaster getImageRaster() {
-        return JmeSystem.createImageRaster(colorImage, 0);
+        return ImageRaster.create(colorImage);
     }
     
     public boolean load(boolean flipX, boolean flipY) {
