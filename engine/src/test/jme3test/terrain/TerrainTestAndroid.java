@@ -142,7 +142,7 @@ public class TerrainTestAndroid extends SimpleApplication {
         terrain.addControl(control);
         terrain.setMaterial(matRock);
         terrain.setLocalTranslation(0, -100, 0);
-        terrain.setLocalScale(8f, 100f, 8f);
+        terrain.setLocalScale(8f, 0.5f, 8f);
         rootNode.attachChild(terrain);
 
         DirectionalLight light = new DirectionalLight();

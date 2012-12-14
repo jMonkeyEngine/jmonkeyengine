@@ -32,13 +32,8 @@
 package com.jme3.terrain.heightmap;
 
 import com.jme3.math.ColorRGBA;
-import com.jme3.system.JmeSystem;
 import com.jme3.texture.Image;
-import com.jme3.texture.image.DefaultImageRaster;
 import com.jme3.texture.image.ImageRaster;
-import com.jme3.util.NativeObject;
-import java.nio.ByteBuffer;
-import java.nio.ShortBuffer;
 
 /**
  * <code>ImageBasedHeightMap</code> is a height map created from the grayscale
@@ -53,6 +48,7 @@ public class ImageBasedHeightMap extends AbstractHeightMap implements ImageHeigh
     
     
     protected Image colorImage;
+    private float backwardsCompScale = 255f;
 
     
     public void setImage(Image image) {
@@ -124,13 +120,13 @@ public class ImageBasedHeightMap extends AbstractHeightMap implements ImageHeigh
                     for (int w = imageWidth - 1; w >= 0; --w) {
                         //int baseIndex = (h * imageWidth)+ w;
                         //heightData[index++] = getHeightAtPostion(raster, baseIndex, colorStore)*heightScale;
-                        heightData[index++] = calculateHeight(raster.getPixel(w, h, colorStore))*heightScale;
+                        heightData[index++] = calculateHeight(raster.getPixel(w, h, colorStore))*heightScale*backwardsCompScale;
                     }
                 } else {
                     for (int w = 0; w < imageWidth; ++w) {
                         //int baseIndex = (h * imageWidth)+ w;
                         //heightData[index++] = getHeightAtPostion(raster, baseIndex, colorStore)*heightScale;
-                        heightData[index++] = calculateHeight(raster.getPixel(w, h, colorStore))*heightScale;
+                        heightData[index++] = calculateHeight(raster.getPixel(w, h, colorStore))*heightScale*backwardsCompScale;
                     }
                 }
             }
@@ -140,13 +136,13 @@ public class ImageBasedHeightMap extends AbstractHeightMap implements ImageHeigh
                     for (int w = imageWidth - 1; w >= 0; --w) {
                         //int baseIndex = (h * imageWidth)+ w;
                         //heightData[index++] = getHeightAtPostion(raster, baseIndex, colorStore)*heightScale;
-                        heightData[index++] = calculateHeight(raster.getPixel(w, h, colorStore))*heightScale;
+                        heightData[index++] = calculateHeight(raster.getPixel(w, h, colorStore))*heightScale*backwardsCompScale;
                     }
                 } else {
                     for (int w = 0; w < imageWidth; ++w) {
                         //int baseIndex = (h * imageWidth)+ w;
                         //heightData[index++] = getHeightAtPostion(raster, baseIndex, colorStore)*heightScale;
-                        heightData[index++] = calculateHeight(raster.getPixel(w, h, colorStore))*heightScale;
+                        heightData[index++] = calculateHeight(raster.getPixel(w, h, colorStore))*heightScale*backwardsCompScale;
                     }
                 }
             }

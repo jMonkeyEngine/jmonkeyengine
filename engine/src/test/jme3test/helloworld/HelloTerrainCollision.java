@@ -162,7 +162,7 @@ public class HelloTerrainCollision extends SimpleApplication
     player.setJumpSpeed(20);
     player.setFallSpeed(30);
     player.setGravity(30);
-    player.setPhysicsLocation(new Vector3f(0, 10, 0));
+    player.setPhysicsLocation(new Vector3f(-10, 10, 10));
 
     // We attach the scene and the player to the rootnode and the physics space,
     // to make them appear in the game world.

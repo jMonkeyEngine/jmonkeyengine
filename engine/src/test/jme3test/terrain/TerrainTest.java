@@ -161,7 +161,7 @@ public class TerrainTest extends SimpleApplication {
         terrain.addControl(control);
         terrain.setMaterial(matRock);
         terrain.setLocalTranslation(0, -100, 0);
-        terrain.setLocalScale(2f, 1f, 2f);
+        terrain.setLocalScale(2f, 0.5f, 2f);
         rootNode.attachChild(terrain);
 
         DirectionalLight light = new DirectionalLight();
