@@ -91,13 +91,11 @@ public class FadeFilter extends Filter {
             if (direction > 0 && value > 1) {
                 value = 1;
                 playing = false;
-                setEnabled(false);
             }
             if (direction < 0 && value < 0) {
                 value = 0;
                 playing = false;
-                setEnabled(false);
-            }
+            }    
         }
     }
 
