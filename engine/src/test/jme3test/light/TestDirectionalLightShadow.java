@@ -32,9 +32,9 @@
 package jme3test.light;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
@@ -45,30 +45,23 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.control.Control;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.shadow.CompareMode;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
-import com.jme3.shadow.PssmShadowRenderer.FilterMode;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 
-public class TestDirectionalLightShadow extends SimpleApplication implements ActionListener {
+public class TestDirectionalLightShadow extends SimpleApplication implements ActionListener, AnalogListener {
 
     private Spatial[] obj;
     private Material[] mat;
-    private boolean hardwareShadows = false;
     private DirectionalLightShadowRenderer dlsr;
     private DirectionalLightShadowFilter dlsf;
     private Geometry ground;
@@ -79,9 +72,27 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         TestDirectionalLightShadow app = new TestDirectionalLightShadow();
         app.start();
     }
+    private float frustumSize = 100;
+
+    public void onAnalog(String name, float value, float tpf) {
+        if (cam.isParallelProjection()) {
+            // Instead of moving closer/farther to object, we zoom in/out.
+            if (name.equals("Size-")) {
+                frustumSize += 5f * tpf;
+            } else {
+                frustumSize -= 5f * tpf;
+            }
+
+            float aspect = (float) cam.getWidth() / cam.getHeight();
+            cam.setFrustum(-1000, 1000, -aspect * frustumSize, aspect * frustumSize, frustumSize, -frustumSize);
+        }
+    }
 
     public void loadScene() {
         obj = new Spatial[2];
+        // Setup first view
+
+
         mat = new Material[2];
         mat[0] = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
         mat[1] = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
@@ -124,7 +135,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         rootNode.attachChild(ground);
 
         l = new DirectionalLight();
-        //new Vector3f(-0.5973172f, -0.56583486f, 0.8846725f).normalizeLocal()
+        //   l.setDirection(new Vector3f(0.5973172f, -0.16583486f, 0.7846725f).normalizeLocal());
         l.setDirection(new Vector3f(-1, -1, -1));
         rootNode.addLight(l);
 
@@ -153,15 +164,15 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         dlsr = new DirectionalLightShadowRenderer(assetManager, 1024, 3);
         dlsr.setLight(l);
         dlsr.setLambda(0.55f);
-        dlsr.setShadowIntensity(0.6f);        
+        dlsr.setShadowIntensity(0.6f);
         dlsr.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
-        //dlsr.displayFrustum();
+        dlsr.displayDebug();
         viewPort.addProcessor(dlsr);
 
         dlsf = new DirectionalLightShadowFilter(assetManager, 1024, 3);
         dlsf.setLight(l);
         dlsf.setLambda(0.55f);
-        dlsf.setShadowIntensity(0.6f);        
+        dlsf.setShadowIntensity(0.6f);
         dlsf.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
         dlsf.setEnabled(false);
 
@@ -174,13 +185,14 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
     }
 
     private void initInputs() {
-       
+
         inputManager.addMapping("ThicknessUp", new KeyTrigger(KeyInput.KEY_Y));
         inputManager.addMapping("ThicknessDown", new KeyTrigger(KeyInput.KEY_H));
         inputManager.addMapping("lambdaUp", new KeyTrigger(KeyInput.KEY_U));
         inputManager.addMapping("lambdaDown", new KeyTrigger(KeyInput.KEY_J));
         inputManager.addMapping("switchGroundMat", new KeyTrigger(KeyInput.KEY_M));
-        inputManager.addMapping("splits", new KeyTrigger(KeyInput.KEY_X));
+        inputManager.addMapping("debug", new KeyTrigger(KeyInput.KEY_X));
+
 
         inputManager.addMapping("up", new KeyTrigger(KeyInput.KEY_NUMPAD8));
         inputManager.addMapping("down", new KeyTrigger(KeyInput.KEY_NUMPAD2));
@@ -188,21 +200,33 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         inputManager.addMapping("left", new KeyTrigger(KeyInput.KEY_NUMPAD4));
         inputManager.addMapping("fwd", new KeyTrigger(KeyInput.KEY_PGUP));
         inputManager.addMapping("back", new KeyTrigger(KeyInput.KEY_PGDN));
+        inputManager.addMapping("pp", new KeyTrigger(KeyInput.KEY_P));
 
 
-        inputManager.addListener(this, "lambdaUp", "lambdaDown",   "ThicknessUp", "ThicknessDown", 
-                "switchGroundMat", "splits", "up", "down", "right", "left", "fwd", "back");
+        inputManager.addListener(this, "lambdaUp", "lambdaDown", "ThicknessUp", "ThicknessDown",
+                "switchGroundMat", "debug", "up", "down", "right", "left", "fwd", "back","pp");
 
         ShadowTestUIManager uiMan = new ShadowTestUIManager(assetManager, dlsr, dlsf, guiNode, inputManager, viewPort);
+        
+        inputManager.addListener(this, "Size+", "Size-");
+                inputManager.addMapping("Size+", new KeyTrigger(KeyInput.KEY_W));
+                inputManager.addMapping("Size-", new KeyTrigger(KeyInput.KEY_S));
     }
 
-   
-   
-
     public void onAction(String name, boolean keyPressed, float tpf) {
-       
 
-    
+
+        if (name.equals("pp") && keyPressed) {
+            if (cam.isParallelProjection()) {
+                cam.setFrustumPerspective(45, (float) cam.getWidth() / cam.getHeight(), 1, 1000);
+            } else {
+                cam.setParallelProjection(true);
+                float aspect = (float) cam.getWidth() / cam.getHeight();
+                cam.setFrustum(-1000, 1000, -aspect * frustumSize, aspect * frustumSize, frustumSize, -frustumSize);
+                
+            }
+        }
+
         if (name.equals("lambdaUp") && keyPressed) {
             dlsr.setLambda(dlsr.getLambda() + 0.01f);
             dlsf.setLambda(dlsr.getLambda() + 0.01f);
@@ -213,26 +237,12 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
             System.out.println("Lambda : " + dlsr.getLambda());
         }
 
-        if (name.equals("ShadowUp") && keyPressed) {
-            dlsr.setShadowIntensity(dlsr.getShadowIntensity() + 0.1f);
-            dlsf.setShadowIntensity(dlsr.getShadowIntensity() + 0.1f);
-            System.out.println("Shadow intensity : " + dlsr.getShadowIntensity());
+
+        if (name.equals("debug") && keyPressed) {
+            dlsr.displayFrustum();
         }
-        if (name.equals("ShadowDown") && keyPressed) {
-            dlsr.setShadowIntensity(dlsr.getShadowIntensity() - 0.1f);
-            dlsf.setShadowIntensity(dlsr.getShadowIntensity() - 0.1f);
-            System.out.println("Shadow intensity : " + dlsr.getShadowIntensity());
-        }
-        if (name.equals("ThicknessUp") && keyPressed) {
-            dlsr.setEdgesThickness(dlsr.getEdgesThickness() + 1);
-            dlsf.setEdgesThickness(dlsr.getEdgesThickness() + 1);
-            System.out.println("Shadow thickness : " + dlsr.getEdgesThickness());
-        }
-        if (name.equals("ThicknessDown") && keyPressed) {
-            dlsr.setEdgesThickness(dlsr.getEdgesThickness() - 1);
-            dlsf.setEdgesThickness(dlsr.getEdgesThickness() - 1);
-            System.out.println("Shadow thickness : " + dlsr.getEdgesThickness());
-        }
+
+
         if (name.equals("switchGroundMat") && keyPressed) {
             if (ground.getMaterial() == matGroundL) {
                 ground.setMaterial(matGroundU);

@@ -145,6 +145,12 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
 
         PssmShadowUtil.updateFrustumSplits(splitsArray, frustumNear, zFar, lambda);
 
+        // in parallel projection shadow position goe from 0 to 1
+        if(viewCam.isParallelProjection()){
+            for (int i = 0; i < nbShadowMaps; i++) {
+                splitsArray[i] = splitsArray[i]/(zFar- frustumNear);
+            }
+        }
 
         switch (splitsArray.length) {
             case 5:
