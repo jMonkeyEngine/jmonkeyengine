@@ -456,10 +456,6 @@ public class InputManager implements RawInputListener {
         invokeTimedActions(hash, evt.getTime(), evt.isPressed());
     }
 
-    public void simulateEvent( InputEvent evt ) {
-        inputQueue.add(evt);
-    }
-
     /**
      * Callback from RawInputListener. Do not use.
      */
