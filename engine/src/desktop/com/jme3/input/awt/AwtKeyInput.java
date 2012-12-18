@@ -119,8 +119,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
             keyEvent.setTime(evt.getWhen());
             synchronized (eventQueue){
                 eventQueue.add(keyEvent);
-            }
-            System.out.println(evt);
+            }            
         }
     }
 
@@ -134,8 +133,7 @@ public class AwtKeyInput implements KeyInput, KeyListener {
             keyEvent.setTime(evt.getWhen());
             synchronized (eventQueue){
                 eventQueue.add(keyEvent);
-            }
-            System.out.println(evt);
+            }                        
         }
     }
 
