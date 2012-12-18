@@ -163,7 +163,7 @@ public class RenderQueue {
 
     /**
      *  Sets a different geometry comparator for the specified bucket, one
-     *  of Gui, Opaque, Sky, or Transparent.  The GeometryComparators are
+     *  of Gui, Opaque, Sky, Transparent, or Translucent.  The GeometryComparators are
      *  used to sort the accumulated list of geometries before actual rendering
      *  occurs.
      *
@@ -203,6 +203,27 @@ public class RenderQueue {
             case Translucent:
                 translucentList = new GeometryList(c);
                 break;
+            default:
+                throw new UnsupportedOperationException("Unknown bucket type: " + bucket);
+        }
+    }
+
+    /**
+     *  Returns the current GeometryComparator used by the specified bucket,
+     *  one of Gui, Opaque, Sky, Transparent, or Translucent.
+     */
+    public GeometryComparator getGeometryComparator(Bucket bucket) {
+        switch (bucket) {
+            case Gui:
+                return guiList.getComparator();
+            case Opaque:
+                return opaqueList.getComparator();
+            case Sky:
+                return skyList.getComparator();
+            case Transparent:
+                return transparentList.getComparator();
+            case Translucent:
+                return translucentList.getComparator();
             default:
                 throw new UnsupportedOperationException("Unknown bucket type: " + bucket);
         }
