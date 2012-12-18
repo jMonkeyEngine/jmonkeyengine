@@ -66,6 +66,14 @@ public class GeometryList {
     }
 
     /**
+     * Returns the GeometryComparator that this Geometry list uses
+     * for sorting.
+     */
+    public GeometryComparator getComparator() {
+        return comparator;
+    }     
+
+    /**
      * Set the camera that will be set on the geometry comparators 
      * via {@link GeometryComparator#setCamera(com.jme3.renderer.Camera)}.
      * 
