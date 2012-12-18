@@ -826,7 +826,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * quaternion multiplication is not commutative so q * p != p * q.
      *
      * It IS safe for q and res to be the same object.
-     * It IS safe for this and res to be the same object.
+     * It IS NOT safe for this and res to be the same object.
      *
      * @param q
      *            the quaternion to multiply this quaternion by.
