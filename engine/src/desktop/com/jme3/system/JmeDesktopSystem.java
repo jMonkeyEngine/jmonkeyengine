@@ -103,7 +103,10 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
         final AppSettings settings = new AppSettings(false);
         settings.copyFrom(sourceSettings);
-        String iconPath = sourceSettings.getSettingsDialogImage();
+        String iconPath = sourceSettings.getSettingsDialogImage();        
+        if(iconPath == null){
+            iconPath = "";
+        }
         final URL iconUrl = JmeSystem.class.getResource(iconPath.startsWith("/") ? iconPath : "/" + iconPath);
         if (iconUrl == null) {
             throw new AssetNotFoundException(sourceSettings.getSettingsDialogImage());
