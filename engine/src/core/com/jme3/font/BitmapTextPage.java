@@ -59,7 +59,7 @@ class BitmapTextPage extends Geometry {
 
     BitmapTextPage(BitmapFont font, boolean arrayBased, int page) {
         super("BitmapFont", new Mesh());
-
+        setBatchHint(BatchHint.Never);
         if (font == null) {
             throw new IllegalArgumentException("font cannot be null.");
         }

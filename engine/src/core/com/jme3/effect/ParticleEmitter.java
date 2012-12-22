@@ -194,7 +194,7 @@ public class ParticleEmitter extends Geometry {
 
     public ParticleEmitter(String name, Type type, int numParticles) {
         super(name);
-
+        setBatchHint(BatchHint.Never);
         // ignore world transform, unless user sets inLocalSpace
         this.setIgnoreTransform(true);
 
@@ -235,6 +235,7 @@ public class ParticleEmitter extends Geometry {
      */
     public ParticleEmitter() {
         super();
+        setBatchHint(BatchHint.Never);
     }
 
     public void setShape(EmitterShape shape) {

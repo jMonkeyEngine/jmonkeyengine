@@ -247,7 +247,7 @@ public class BatchNode extends Node implements Savable {
 
     private void gatherGeomerties(Map<Material, List<Geometry>> map, Spatial n, boolean rebatch) {
 
-        if (n.getClass() == Geometry.class) {
+        if (n instanceof Geometry) {
 
             if (!isBatch(n) && n.getBatchHint() != BatchHint.Never) {
                 Geometry g = (Geometry) n;

@@ -113,10 +113,12 @@ public class TerrainPatch extends Geometry {
 
     public TerrainPatch() {
         super("TerrainPatch");
+        setBatchHint(BatchHint.Never);
     }
     
     public TerrainPatch(String name) {
         super(name);
+        setBatchHint(BatchHint.Never);
     }
 
     public TerrainPatch(String name, int size) {
@@ -171,6 +173,7 @@ public class TerrainPatch extends Geometry {
                     float[] heightMap, Vector3f origin, int totalSize,
                     Vector2f offset, float offsetAmount) {
         super(name);
+        setBatchHint(BatchHint.Never);
         this.size = size;
         this.stepScale = stepScale;
         this.totalSize = totalSize;
