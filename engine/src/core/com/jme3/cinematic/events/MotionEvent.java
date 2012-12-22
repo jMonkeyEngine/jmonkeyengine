@@ -234,7 +234,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
         switch (directionType) {
             case Path:
                 Quaternion q = new Quaternion();
-                q.lookAt(direction, Vector3f.UNIT_Y);
+                q.lookAt(direction, upVector);
                 spatial.setLocalRotation(q);
                 break;
             case LookAt:
@@ -245,7 +245,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
             case PathAndRotation:
                 if (rotation != null) {
                     Quaternion q2 = new Quaternion();
-                    q2.lookAt(direction, Vector3f.UNIT_Y);
+                    q2.lookAt(direction, upVector);
                     q2.multLocal(rotation);
                     spatial.setLocalRotation(q2);
                 }
@@ -339,12 +339,25 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
     }
 
     /**
-     * Sets the direction of the spatial
+     * Sets the direction of the spatial, using the Y axis as the up vector
+     * Use MotionEvent#setDirection((Vector3f direction,Vector3f upVector) if 
+     * you want a custum up vector.
      * This method is used by the motion path.
      * @param direction
      */
     public void setDirection(Vector3f direction) {
+        setDirection(direction, Vector3f.UNIT_Y); 
+   }
+    
+    /**
+     * Sets the direction of the spatial witht ht egiven up vector
+     * This method is used by the motion path.
+     * @param direction
+     * @param upVector the up vector to consider for this direction
+     */
+    public void setDirection(Vector3f direction,Vector3f upVector) {
         this.direction.set(direction);
+        this.upVector.set(upVector);
     }
 
     /**
