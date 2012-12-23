@@ -12,7 +12,7 @@ MaterialDef Pre Shadow {
             FaceCull Off
             DepthTest On
             DepthWrite On
-            PolyOffset 5 0
+            PolyOffset 5 3
             ColorWrite Off
         }
     }

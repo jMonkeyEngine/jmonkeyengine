@@ -1813,15 +1813,21 @@ public class JoglRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unknown texture type: " + tex.getType());
         }
 
-        // R to Texture compare mode
-        if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
-            gl.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_R_TO_TEXTURE);
-            gl.glTexParameteri(target, GL2.GL_DEPTH_TEXTURE_MODE, GL2.GL_INTENSITY);
-            if (tex.getShadowCompareMode() == Texture.ShadowCompareMode.GreaterOrEqual) {
-                gl.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_FUNC, GL.GL_GEQUAL);
+        if (tex.isNeedCompareModeUpdate()) {
+            // R to Texture compare mode
+            if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
+                gl.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_R_TO_TEXTURE);
+                gl.glTexParameteri(target, GL2.GL_DEPTH_TEXTURE_MODE, GL2.GL_INTENSITY);
+                if (tex.getShadowCompareMode() == Texture.ShadowCompareMode.GreaterOrEqual) {
+                    gl.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_FUNC, GL.GL_GEQUAL);
+                } else {
+                    gl.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_FUNC, GL.GL_LEQUAL);
+                }
             } else {
-                gl.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_FUNC, GL.GL_LEQUAL);
+                //restoring default value
+                gl.glTexParameteri(target, GL2.GL_TEXTURE_COMPARE_MODE, GL2.GL_NONE);
             }
+            tex.compareModeUpdated();
         }
     }
 

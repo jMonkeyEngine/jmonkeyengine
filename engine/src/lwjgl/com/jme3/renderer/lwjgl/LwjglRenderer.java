@@ -1764,15 +1764,21 @@ public class LwjglRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unknown texture type: " + tex.getType());
         }
 
-        // R to Texture compare mode
-        if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
-            glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-            glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
-            if (tex.getShadowCompareMode() == Texture.ShadowCompareMode.GreaterOrEqual) {
-                glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_GEQUAL);
-            } else {
-                glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+        if(tex.isNeedCompareModeUpdate()){
+            // R to Texture compare mode
+            if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
+                glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+                glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);            
+                if (tex.getShadowCompareMode() == Texture.ShadowCompareMode.GreaterOrEqual) {
+                    glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_GEQUAL);
+                } else {
+                    glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+                }
+            }else{
+                 //restoring default value
+                 glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_NONE);          
             }
+            tex.compareModeUpdated();
         }
     }
 
