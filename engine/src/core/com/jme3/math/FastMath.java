@@ -483,58 +483,6 @@ final public class FastMath {
     }
 
     /**
-     * Fast Trig functions for x86. This forces the trig functiosn to stay
-     * within the safe area on the x86 processor (-45 degrees to +45 degrees)
-     * The results may be very slightly off from what the Math and StrictMath
-     * trig functions give due to rounding in the angle reduction but it will be
-     * very very close. 
-     * 
-     * note: code from wiki posting on java.net by jeffpk
-     */
-    public static float reduceSinAngle(float radians) {
-        radians %= TWO_PI; // put us in -2PI to +2PI space
-        if (Math.abs(radians) > PI) { // put us in -PI to +PI space
-            radians = radians - (TWO_PI);
-        }
-        if (Math.abs(radians) > HALF_PI) {// put us in -PI/2 to +PI/2 space
-            radians = PI - radians;
-        }
-
-        return radians;
-    }
-
-    /**
-     * Returns sine of an angle. 
-     * 
-     * note: code from wiki posting on java.net by jeffpk
-     * 
-     * @param fValue
-     *            The angle to sine, in radians.
-     * @return The sine of fValue.
-     * @see java.lang.Math#sin(double)
-     */
-    public static float sin2(float fValue) {
-        fValue = reduceSinAngle(fValue); // limits angle to between -PI/2 and +PI/2
-        if (Math.abs(fValue) <= Math.PI / 4) {
-            return (float) Math.sin(fValue);
-        }
-
-        return (float) Math.cos(Math.PI / 2 - fValue);
-    }
-
-    /**
-     * Returns cos of an angle.
-     * 
-     * @param fValue
-     *            The angle to cosine, in radians.
-     * @return The cosine of fValue.
-     * @see java.lang.Math#cos(double)
-     */
-    public static float cos2(float fValue) {
-        return sin2(fValue + HALF_PI);
-    }
-
-    /**
      * Returns cosine of an angle. Direct call to java.lang.Math
      * @see Math#cos(double) 
      * @param v The angle to cosine.
