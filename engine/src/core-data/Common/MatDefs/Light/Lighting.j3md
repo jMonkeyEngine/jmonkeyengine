@@ -188,7 +188,7 @@ MaterialDef Phong Lighting {
             DISCARD_ALPHA : AlphaDiscardThreshold
         }
 
-        RenderState {
+        ForcedRenderState {
             FaceCull Off
             DepthTest On
             DepthWrite On
