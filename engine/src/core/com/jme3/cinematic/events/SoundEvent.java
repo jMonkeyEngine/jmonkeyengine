@@ -69,39 +69,82 @@ public class SoundEvent extends AbstractCinematicEvent {
         this.stream = stream;
     }
 
+    /**
+     * creates a sound track from the given resource path
+     * @param path the path to an audi file (ie : "Sounds/mySound.wav")
+     * @param stream true to make the audio data streamed
+     * @param initialDuration the nitial duration of the event
+     */
     public SoundEvent(String path, boolean stream, float initialDuration) {
         super(initialDuration);
         this.path = path;
         this.stream = stream;
     }
 
+    /**
+     * creates a sound track from the given resource path
+     * @param path the path to an audi file (ie : "Sounds/mySound.wav")
+     * @param stream true to make the audio data streamed
+     * @param loopMode the loopMode 
+     * @see LoopMode
+     */
     public SoundEvent(String path, boolean stream, LoopMode loopMode) {
         super(loopMode);
         this.path = path;
         this.stream = stream;
     }
 
+     /**
+     * creates a sound track from the given resource path
+     * @param path the path to an audi file (ie : "Sounds/mySound.wav")
+     * @param stream true to make the audio data streamed
+     * @param initialDuration the nitial duration of the event
+     * @param loopMode the loopMode 
+     * @see LoopMode
+     */
     public SoundEvent(String path, boolean stream, float initialDuration, LoopMode loopMode) {
         super(initialDuration, loopMode);
         this.path = path;
         this.stream = stream;
     }
 
+     /**
+     * creates a sound track from the given resource path
+     * @param path the path to an audi file (ie : "Sounds/mySound.wav")    
+     * @param initialDuration the nitial duration of the event
+     */
     public SoundEvent(String path, float initialDuration) {
         super(initialDuration);
         this.path = path;
     }
 
+     /**
+     * creates a sound track from the given resource path
+     * @param path the path to an audi file (ie : "Sounds/mySound.wav")   
+     * @param loopMode the loopMode 
+     * @see LoopMode
+     */
     public SoundEvent(String path, LoopMode loopMode) {
         super(loopMode);
         this.path = path;
     }
 
+     /**
+     * creates a sound track from the given resource path
+     * @param path the path to an audi file (ie : "Sounds/mySound.wav")    
+     * @param initialDuration the nitial duration of the event
+     * @param loopMode the loopMode 
+     * @see LoopMode
+     */
     public SoundEvent(String path, float initialDuration, LoopMode loopMode) {
         super(initialDuration, loopMode);
         this.path = path;
     }
 
+    /**
+     * creates a sound event
+     * used for serialization
+     */
     public SoundEvent() {
     }
 

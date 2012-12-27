@@ -95,6 +95,16 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         this.initialDuration = initialDuration;
         this.loopMode = loopMode;
     }
+    
+    /**
+     * this method can be implemented if the event needs different handling when 
+     * stopped naturally (when the event reach its end)
+     * or when it was forced stopped during playback
+     * otherwise it just call regular stop()
+     */
+    public void forceStop(){
+        stop();
+    }
 
     /**
      * Play this event
@@ -123,8 +133,10 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
         if (playState == PlayState.Playing) {
             time = time + (tpf * speed);         
             onUpdate(tpf);
-            if (time >= initialDuration && loopMode == loopMode.DontLoop) {
+            if (time >= initialDuration && loopMode == LoopMode.DontLoop) {
                 stop();
+            }else if(time >= initialDuration && loopMode == LoopMode.Loop){
+                setTime(0);
             }
         }
 
@@ -315,4 +327,9 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     public float getTime() {
         return time;
     }
+
+    public void dispose() {    
+    }
+    
+    
 }

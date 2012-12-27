@@ -52,6 +52,14 @@ public interface CinematicEvent extends Savable {
      * Stops the animation
      */
     public void stop();
+    
+    /**
+     * this method can be implemented if the event needs different handling when 
+     * stopped naturally (when the event reach its end)
+     * or when it was forced stopped during playback
+     * otherwise it just call regular stop()
+     */
+    public void forceStop();
 
     /**
      * Pauses the animation
@@ -138,6 +146,11 @@ public interface CinematicEvent extends Savable {
      * @return the time
      */
     public float getTime();
-        
+    
+    /**
+     * method called when an event is removed from a cinematic
+     * this method should remove any reference to any external objects.
+     */
+    public void dispose();
     
 }

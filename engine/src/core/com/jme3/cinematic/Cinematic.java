@@ -53,6 +53,36 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * An appstate for composing and playing cut scenes in a game. The cineamtic
+ * schedules CinematicEvents over a timeline. Once the Cinematic created it has
+ * to be attched to the stateManager.
+ *
+ * You can add various CinematicEvents to a Cinematic, see package
+ * com.jme3.cinematic.events
+ *
+ * Two main methods can be used to add an event :
+ *
+ * @see Cinematic#addCinematicEvent(float,
+ * com.jme3.cinematic.events.CinematicEvent) , that adds an event at the given
+ * time form the cinematic start.
+ *
+ * @see
+ * Cinematic#enqueueCinematicEvent(com.jme3.cinematic.events.CinematicEvent)
+ * that enqueue events one after the other according to their initialDuration
+ *
+ * a cinematic has convenient mathods to handle the playback :
+ * @see Cinematic#play()
+ * @see Cinematic#pause()
+ * @see Cinematic#stop()
+ *
+ * A cinematic is itself a CinematicEvent, meaning you can embed several
+ * Cinematics Embed cinematics must not be added to the stateManager though.
+ *
+ * Cinematic has a way to handle several point of view by creating CameraNode
+ * over a cam and activating them on schedule.
+ * @see Cinematic#bindCamera(java.lang.String, com.jme3.renderer.Camera)
+ * @see Cinematic#activateCamera(float, java.lang.String)
+ * @see Cinematic#setActiveCamera(java.lang.String)
  *
  * @author Nehon
  */
@@ -66,30 +96,64 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     private Map<String, CameraNode> cameras = new HashMap<String, CameraNode>();
     private CameraNode currentCam;
     private boolean initialized = false;
-    private Map<String, Map<String, Object>> eventsData;
+    private Map<String, Map<Object, Object>> eventsData;
+    private float nextEnqueue = 0;
 
+    /**
+     * Used for serialization creates a cinematic, don't use this constructor
+     * directly
+     */
     public Cinematic() {
     }
 
+    /**
+     * creates a cinematic
+     *
+     * @param scene the scene in which the cinematic should take place
+     */
     public Cinematic(Node scene) {
         this.scene = scene;
     }
 
+    /**
+     * creates a cinematic
+     *
+     * @param scene the scene in which the cinematic should take place
+     * @param initialDuration the duration of the cinematic (without considering
+     * the speed)
+     */
     public Cinematic(Node scene, float initialDuration) {
         super(initialDuration);
         this.scene = scene;
     }
 
+    /**
+     * creates a cinematic
+     *
+     * @param scene the scene in which the cinematic should take place
+     * @param loopMode tells if this cinematic should be looped or not
+     */
     public Cinematic(Node scene, LoopMode loopMode) {
         super(loopMode);
         this.scene = scene;
     }
 
+    /**
+     * creates a cinematic
+     *
+     * @param scene the scene in which the cinematic should take place
+     * @param initialDuration the duration of the cinematic (without considering
+     * the speed)
+     * @param loopMode tells if this cinematic should be looped or not
+     */
     public Cinematic(Node scene, float initialDuration, LoopMode loopMode) {
         super(initialDuration, loopMode);
         this.scene = scene;
     }
 
+    /**
+     * called internally
+     */
     @Override
     public void onPlay() {
         if (isInitialized()) {
@@ -104,6 +168,9 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         }
     }
 
+    /**
+     * called internally
+     */
     @Override
     public void onStop() {
         time = 0;
@@ -111,11 +178,14 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         for (int i = 0; i < cinematicEvents.size(); i++) {
             CinematicEvent ce = cinematicEvents.get(i);
             ce.setTime(0);
-            ce.stop();
+            ce.forceStop();
         }
-        enableCurrentCam(false);
+        setEnableCurrentCam(false);
     }
 
+    /**
+     * called internally
+     */
     @Override
     public void onPause() {
         for (int i = 0; i < cinematicEvents.size(); i++) {
@@ -126,6 +196,12 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         }
     }
 
+    /**
+     * used internally for serialization
+     *
+     * @param ex
+     * @throws IOException
+     */
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -137,6 +213,12 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     }
 
+    /**
+     * used internally for srialization
+     *
+     * @param im
+     * @throws IOException
+     */
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
@@ -147,6 +229,13 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         timeLine = (TimeLine) ic.readSavable("timeLine", null);
     }
 
+    /**
+     * sets the speed of the cinematic. Note that it will set the speed of all
+     * events in the cinematic. 1 is normal speed. use 0.5f to make the
+     * cinematic twice slower, use 2 to make it twice faster
+     *
+     * @param speed the speed
+     */
     @Override
     public void setSpeed(float speed) {
         super.setSpeed(speed);
@@ -158,6 +247,12 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
 
     }
 
+    /**
+     * used internally
+     *
+     * @param stateManager the state manager
+     * @param app the application
+     */
     public void initialize(AppStateManager stateManager, Application app) {
         initEvent(app, this);
         for (CinematicEvent cinematicEvent : cinematicEvents) {
@@ -167,33 +262,70 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         initialized = true;
     }
 
+    /**
+     * used internally
+     *
+     * @return
+     */
     public boolean isInitialized() {
         return initialized;
     }
 
+    /**
+     * passing true has the same effect as play() you should use play(),
+     * pause(), stop() to handle the cinemaic playing state.
+     *
+     * @param enabled true or false
+     */
     public void setEnabled(boolean enabled) {
         if (enabled) {
             play();
         }
     }
 
+    /**
+     * return true if the cinematic appstate is enabled (the cinematic is
+     * playing)
+     *
+     * @return true if enabled
+     */
     public boolean isEnabled() {
         return playState == PlayState.Playing;
     }
 
+    /**
+     * called internally
+     *
+     * @param stateManager the state manager
+     */
     public void stateAttached(AppStateManager stateManager) {
     }
 
+    /**
+     * called internally
+     *
+     * @param stateManager the state manager
+     */
     public void stateDetached(AppStateManager stateManager) {
         stop();
     }
 
+    /**
+     * called internally don't call it directly.
+     *
+     * @param tpf
+     */
     public void update(float tpf) {
         if (isInitialized()) {
             internalUpdate(tpf);
         }
     }
 
+    /**
+     * used internally, don't call this directly.
+     *
+     * @param tpf
+     */
     @Override
     public void onUpdate(float tpf) {
         for (int i = 0; i < cinematicEvents.size(); i++) {
@@ -214,6 +346,12 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         lastFetchedKeyFrame = keyFrameIndex;
     }
 
+    /**
+     * This is used internally but can be alled to shuffle through the
+     * cinematic.
+     *
+     * @param time the time to shuffle to.
+     */
     @Override
     public void setTime(float time) {
 
@@ -258,11 +396,26 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
             timeLine.addKeyFrameAtTime(timeStamp, keyFrame);
         }
         keyFrame.cinematicEvents.add(cinematicEvent);
-        cinematicEvents.add(cinematicEvent);        
-        if(isInitialized()){
+        cinematicEvents.add(cinematicEvent);
+        if (isInitialized()) {
             cinematicEvent.initEvent(null, this);
         }
         return keyFrame;
+    }
+
+    /**
+     * enqueue a cinematic event to a cinematic. This is a handy method when you
+     * want to chain event of a given duration without knowing their initial
+     * duration
+     *
+     * @param cinematicEvent the cinematic event to enqueue
+     * @return the timestamp the evnt was scheduled.
+     */
+    public float enqueueCinematicEvent(CinematicEvent cinematicEvent) {
+        float scheduleTime = nextEnqueue;
+        addCinematicEvent(scheduleTime, cinematicEvent);
+        nextEnqueue += cinematicEvent.getInitialDuration();
+        return scheduleTime;
     }
 
     /**
@@ -272,6 +425,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * @return true if the element has been removed
      */
     public boolean removeCinematicEvent(CinematicEvent cinematicEvent) {
+        cinematicEvent.dispose();
         cinematicEvents.remove(cinematicEvent);
         for (KeyFrame keyFrame : timeLine.values()) {
             if (keyFrame.cinematicEvents.remove(cinematicEvent)) {
@@ -282,38 +436,58 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     }
 
     /**
-     * removes the first occurrence found of the given cinematicEvent for the given time stamp.
+     * removes the first occurrence found of the given cinematicEvent for the
+     * given time stamp.
+     *
      * @param timeStamp the timestamp when the cinematicEvent has been added
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
      */
     public boolean removeCinematicEvent(float timeStamp, CinematicEvent cinematicEvent) {
+        cinematicEvent.dispose();
         KeyFrame keyFrame = timeLine.getKeyFrameAtTime(timeStamp);
         return removeCinematicEvent(keyFrame, cinematicEvent);
     }
-    
+
     /**
-     * removes the first occurrence found of the given cinematicEvent for the given keyFrame
+     * removes the first occurrence found of the given cinematicEvent for the
+     * given keyFrame
+     *
      * @param keyFrame the keyFrame returned by the addCinematicEvent method.
      * @param cinematicEvent the cinematicEvent to remove
      * @return true if the element has been removed
      */
     public boolean removeCinematicEvent(KeyFrame keyFrame, CinematicEvent cinematicEvent) {
+        cinematicEvent.dispose();
         boolean ret = keyFrame.cinematicEvents.remove(cinematicEvent);
         cinematicEvents.remove(cinematicEvent);
         if (keyFrame.isEmpty()) {
-           timeLine.removeKeyFrame(keyFrame.getIndex());
+            timeLine.removeKeyFrame(keyFrame.getIndex());
         }
         return ret;
     }
-    
 
+    /**
+     * called internally
+     *
+     * @see AppState#render()
+     */
     public void render(RenderManager rm) {
     }
 
+    /**
+     * called internally
+     *
+     * @see AppState#postRender()
+     */
     public void postRender() {
     }
 
+    /**
+     * called internally
+     *
+     * @see AppState#cleanup()
+     */
     public void cleanup() {
     }
 
@@ -322,19 +496,34 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      * cinematic events
      */
     public void fitDuration() {
-        KeyFrame kf = timeLine.getKeyFrameAtTime(timeLine.getLastKeyFrameIndex());
+        KeyFrame kf = timeLine.getKeyFrameAtIndex(timeLine.getLastKeyFrameIndex());
         float d = 0;
         for (int i = 0; i < kf.getCinematicEvents().size(); i++) {
             CinematicEvent ce = kf.getCinematicEvents().get(i);
-            if (d < (ce.getDuration() * ce.getSpeed())) {
-                d = (ce.getDuration() * ce.getSpeed());
+            float dur = timeLine.getKeyFrameTime(kf) + ce.getDuration() * ce.getSpeed();
+            if (d < dur) {
+                d = dur;
             }
         }
 
         initialDuration = d;
     }
 
+    /**
+     * Binds a camera to this cinematic, tagged by a unique name. This methods
+     * creates and returns a CameraNode for the cam and attach it to the scene.
+     * The control direction is set to SpatialToCamera. This camera Node can
+     * then be used in other events to handle the camera movements during the
+     * playback
+     *
+     * @param cameraName the unique tag the camera should have
+     * @param cam the scene camera.
+     * @return the created CameraNode.
+     */
     public CameraNode bindCamera(String cameraName, Camera cam) {
+        if (cameras.containsKey(cameraName)) {
+            throw new IllegalArgumentException("Camera " + cameraName + " is already binded to this cinematic");
+        }
         CameraNode node = new CameraNode(cameraName, cam);
         node.setControlDir(ControlDirection.SpatialToCamera);
         node.getControl(CameraControl.class).setEnabled(false);
@@ -343,25 +532,51 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
         return node;
     }
 
+    /**
+     * returns a cameraNode given its name
+     *
+     * @param cameraName the camera name (as registerd in
+     * Cinematic#bindCamera())
+     * @return the cameraNode for this name
+     */
     public CameraNode getCamera(String cameraName) {
         return cameras.get(cameraName);
     }
 
-    private void enableCurrentCam(boolean enabled) {
+    /**
+     * enable/disable the camera control of the cameraNode of the current cam
+     *
+     * @param enabled
+     */
+    private void setEnableCurrentCam(boolean enabled) {
         if (currentCam != null) {
             currentCam.getControl(CameraControl.class).setEnabled(enabled);
         }
     }
 
+    /**
+     * Sets the active camera instantly (use activateCamera if you want to
+     * schedule that event)
+     *
+     * @param cameraName the camera name (as registerd in
+     * Cinematic#bindCamera())
+     */
     public void setActiveCamera(String cameraName) {
-        enableCurrentCam(false);
+        setEnableCurrentCam(false);
         currentCam = cameras.get(cameraName);
         if (currentCam == null) {
             logger.log(Level.WARNING, "{0} is not a camera bond to the cinematic, cannot activate", cameraName);
         }
-        enableCurrentCam(true);
+        setEnableCurrentCam(true);
     }
 
+    /**
+     * schedule an event that will activate the camera at the given time
+     *
+     * @param timeStamp the time to activate the cam
+     * @param cameraName the camera name (as registerd in
+     * Cinematic#bindCamera())
+     */
     public void activateCamera(final float timeStamp, final String cameraName) {
         addCinematicEvent(timeStamp, new AbstractCinematicEvent() {
             @Override
@@ -388,53 +603,114 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
             }
 
             @Override
+            public void forceStop() {
+            }
+
+            @Override
             public void setTime(float time) {
                 play();
             }
         });
     }
 
-    public void setScene(Node scene) {
-        this.scene = scene;
-    }
-
-    private Map<String, Map<String, Object>> getEventsData() {
+    /**
+     * returns the complete eventdata map
+     *
+     * @return the eventdata map
+     */
+    private Map<String, Map<Object, Object>> getEventsData() {
         if (eventsData == null) {
-            eventsData = new HashMap<String, Map<String, Object>>();
+            eventsData = new HashMap<String, Map<Object, Object>>();
         }
         return eventsData;
     }
 
-    public void putEventData(String type, String name, Object object) {
-        Map<String, Map<String, Object>> data = getEventsData();
-        Map<String, Object> row = data.get(type);
+    /**
+     * used internally put an eventdata in the cinematic
+     *
+     * @param type the type of data
+     * @param key the key
+     * @param object the data
+     */
+    public void putEventData(String type, Object key, Object object) {
+        Map<String, Map<Object, Object>> data = getEventsData();
+        Map<Object, Object> row = data.get(type);
         if (row == null) {
-            row = new HashMap<String, Object>();
+            row = new HashMap<Object, Object>();
         }
-        row.put(name, object);
+        row.put(key, object);
+        data.put(type, row);
     }
 
-    public Object getEventData(String type, String name) {
+    /**
+     * used internally return and event data
+     *
+     * @param type the type of data
+     * @param key the key
+     * @return
+     */
+    public Object getEventData(String type, Object key) {
         if (eventsData != null) {
-            Map<String, Object> row = eventsData.get(type);
+            Map<Object, Object> row = eventsData.get(type);
             if (row != null) {
-                return row.get(name);
+                return row.get(key);
             }
         }
         return null;
     }
 
-    public Savable removeEventData(String type, String name) {
+    /**
+     * Used internally remove an eventData
+     *
+     * @param type the type of data
+     * @param key the key of the data
+     */
+    public void removeEventData(String type, Object key) {
         if (eventsData != null) {
-            Map<String, Object> row = eventsData.get(type);
+            Map<Object, Object> row = eventsData.get(type);
             if (row != null) {
-                row.remove(name);
+                row.remove(key);
             }
         }
-        return null;
     }
 
+    /**
+     * sets the scene to use for this cinematic it is expected that the scene is
+     * added before adding events to the cinematic
+     *
+     * @param scene the scene where the cinematic should ttake place.
+     */
+    public void setScene(Node scene) {
+        this.scene = scene;
+    }
+
+    /**
+     * return the scene where the cinematic occur
+     *
+     * @return the scene
+     */
     public Node getScene() {
         return scene;
+    }
+
+    /**
+     * clear the cinematic of its events.
+     */
+    public void clear() {
+        dispose();
+        cinematicEvents.clear();
+        timeLine.clear();
+        eventsData.clear();
+    }
+
+    /**
+     * used internally to cleanup the cinematic. Called when the clear() method
+     * is called
+     */
+    @Override
+    public void dispose() {
+        for (CinematicEvent event : cinematicEvents) {
+            event.dispose();
+        }
     }
 }
