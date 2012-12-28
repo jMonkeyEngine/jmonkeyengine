@@ -274,10 +274,14 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
 
         isGLThreadPaused = false;
+
+        gainFocus();
     }
 
     @Override
     protected void onPause() {
+        loseFocus();
+
         logger.info("onPause");
         super.onPause();
         if (view != null) {
