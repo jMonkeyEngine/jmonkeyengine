@@ -32,15 +32,15 @@
 
 package com.jme3.input.android;
 
+import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Vibrator;
-import android.view.Display;
 import android.view.Surface;
-import android.view.WindowManager;
+import android.view.View;
 import com.jme3.input.AbstractJoystick;
 import com.jme3.input.DefaultJoystickAxis;
 import com.jme3.input.InputManager;
@@ -63,20 +63,20 @@ import java.util.logging.Logger;
  * AndroidSensorJoyInput converts the Android Sensor system into Joystick events.
  * A single joystick is configured and includes data for all configured sensors
  * as seperate axes of the joystick.
- * 
+ *
  * Each axis is named accounting to the static strings in SensorJoystickAxis.
  * Refer to the strings defined in SensorJoystickAxis for a list of supported
  * sensors and their axis data.  Each sensor type defined in SensorJoystickAxis
  * will be attempted to be configured.  If the device does not support a particular
  * sensor, the axis will return null if joystick.getAxis(String name) is called.
- * 
+ *
  * The joystick.getXAxis and getYAxis methods of the joystick are configured to
  * return the device orientation values in the device's X and Y directions.
- * 
+ *
  * This joystick also supports the joystick.rumble(rumbleAmount) method.  In this
  * case, when joystick.rumble(rumbleAmount) is called, the Android device will vibrate
  * if the device has a built in vibrate motor.
- * 
+ *
  * Because Andorid does not allow for the user to define the intensity of the
  * vibration, the rumble amount (ie strength) is converted into vibration pulses
  * The stronger the strength amount, the shorter the delay between pulses.  If
@@ -92,12 +92,13 @@ import java.util.logging.Logger;
  * To use the joystick rumble feature, the following line needs to be
  * added to the Android Manifest File
  *     <uses-permission android:name="android.permission.VIBRATE"/>
- * 
+ *
  * @author iwgeric
  */
 public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     private final static Logger logger = Logger.getLogger(AndroidSensorJoyInput.class.getName());
 
+    private Activity activity = null;
     private InputManager inputManager = null;
     private SensorManager sensorManager = null;
     private Vibrator vibrator = null;
@@ -106,8 +107,6 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     private RawInputListener listener = null;
     private IntMap<SensorData> sensors = new IntMap<SensorData>();
     private AndroidJoystick[] joysticks;
-    private WindowManager window;
-    private Display disp;
     private int lastRotation = 0;
     private boolean initialized = false;
     private boolean loaded = false;
@@ -136,23 +135,14 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     }
 
     private void initSensorManager() {
-        initWindow();
+        this.activity = JmeAndroidSystem.getActivity();
         // Get instance of the SensorManager from the current Context
-        sensorManager = (SensorManager) JmeAndroidSystem.getActivity().getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
         // Get instance of Vibrator from current Context
-        vibrator = (Vibrator) JmeAndroidSystem.getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator == null) {
             logger.log(Level.INFO, "Vibrator Service not found.");
         }
-    }
-
-    /**
-     * Used internally.  Do not use.
-     * Allows the context to reset the current activity for getting device rotation
-     */
-    public void initWindow() {
-        window = JmeAndroidSystem.getActivity().getWindowManager();
-        disp = window.getDefaultDisplay();
     }
 
     private SensorData initSensor(int sensorType) {
@@ -316,7 +306,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
      * @return Current device rotation amount
      */
     private int getScreenRotation() {
-        return disp.getRotation();
+        return activity.getWindowManager().getDefaultDisplay().getRotation();
     }
 
     /**
@@ -364,7 +354,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         if (sensorData.sensorAccuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
             return false;
         }
-        
+
         synchronized(sensorData.valuesLock) {
             accValues[0] = sensorData.lastValues[0];
             accValues[1] = sensorData.lastValues[1];
@@ -379,7 +369,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         if (sensorData.sensorAccuracy == SensorManager.SENSOR_STATUS_UNRELIABLE) {
             return false;
         }
-        
+
         synchronized(sensorData.valuesLock) {
             magValues[0] = sensorData.lastValues[0];
             magValues[1] = sensorData.lastValues[1];
@@ -464,9 +454,9 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
     public Joystick[] loadJoysticks(InputManager inputManager) {
         this.inputManager = inputManager;
-        
+
         initSensorManager();
-        
+
         SensorData sensorData;
         List<Joystick> list = new ArrayList<Joystick>();
         AndroidJoystick joystick;
@@ -477,7 +467,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
                                     list.size(),
                                     "AndroidSensorsJoystick");
         list.add(joystick);
-        
+
         List<Sensor> availSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
         for (Sensor sensor: availSensors) {
             logger.log(Level.INFO, "{0} Sensor is available, Type: {1}, Vendor: {2}, Version: {3}",
@@ -561,8 +551,8 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 //        if (sensorData != null) {
 //            sensorData.lastValues = new float[1];
 //        }
-        
-    
+
+
         joysticks = list.toArray( new AndroidJoystick[list.size()] );
         loaded = true;
         return joysticks;
@@ -600,6 +590,9 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         initialized = false;
         loaded = false;
         joysticks = null;
+        sensorManager = null;
+        vibrator = null;
+        activity = null;
     }
 
     public boolean isInitialized() {
@@ -636,7 +629,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
                     sensorData.lastValues[i] = se.values[i];
                 }
             }
-            
+
             if (sensorData != null && sensorData.axes.size() > 0) {
                 AndroidJoystickAxis axis;
                 for (int i=0; i<se.values.length; i++) {
@@ -686,21 +679,21 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
         public AndroidJoystick( InputManager inputManager, JoyInput joyInput,
                                 int joyId, String name){
-            
-            super( inputManager, joyInput, joyId, name );                                
-            
-            this.nullAxis = new DefaultJoystickAxis( getInputManager(), this, -1, 
+
+            super( inputManager, joyInput, joyId, name );
+
+            this.nullAxis = new DefaultJoystickAxis( getInputManager(), this, -1,
                                                      "Null", "null", false, false, 0 );
-            this.xAxis = nullAxis;                                                     
-            this.yAxis = nullAxis;                                                     
+            this.xAxis = nullAxis;
+            this.yAxis = nullAxis;
             this.povX = nullAxis;
-            this.povY = nullAxis;                                                     
-            
+            this.povY = nullAxis;
+
         }
-        
+
         protected AndroidJoystickAxis addAxis(String axisName, String logicalName, int axisNum, float maxRawValue) {
             AndroidJoystickAxis axis;
-            
+
             axis = new AndroidJoystickAxis(
                     inputManager,               // InputManager (InputManager)
                     this,                       // parent Joystick (Joystick)
@@ -711,33 +704,33 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
                     false,                      // isRelative (boolean)
                     0.01f,                      // Axis Deadzone (float)
                     maxRawValue);               // Axis Max Raw Value (float)
-            
+
             super.addAxis(axis);
-            
+
             return axis;
         }
-        
+
         protected void setXAxis(JoystickAxis axis) {
             xAxis = axis;
         }
         protected void setYAxis(JoystickAxis axis) {
             yAxis = axis;
         }
-        
+
         @Override
         public JoystickAxis getXAxis() {
             return xAxis;
-        }     
+        }
 
         @Override
         public JoystickAxis getYAxis() {
             return yAxis;
-        }     
+        }
 
         @Override
         public JoystickAxis getPovXAxis() {
             return povX;
-        }     
+        }
 
         @Override
         public JoystickAxis getPovYAxis() {
@@ -745,7 +738,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         }
 
     }
-    
+
     public class AndroidJoystickAxis extends DefaultJoystickAxis implements SensorJoystickAxis {
         float zeroRawValue = 0f;
         float curRawValue = 0f;
@@ -756,10 +749,10 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
         public AndroidJoystickAxis(InputManager inputManager, Joystick parent,
                            int axisIndex, String name, String logicalId,
-                           boolean isAnalog, boolean isRelative, float deadZone, 
+                           boolean isAnalog, boolean isRelative, float deadZone,
                            float maxRawValue) {
             super(inputManager, parent, axisIndex, name, logicalId, isAnalog, isRelative, deadZone);
-            
+
             this.maxRawValue = maxRawValue;
         }
 
@@ -770,7 +763,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         public void setMaxRawValue(float maxRawValue) {
             this.maxRawValue = maxRawValue;
         }
-        
+
         protected float getLastRawValue() {
             return lastRawValue;
         }
@@ -783,18 +776,18 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
                 hasChanged = false;
             }
         }
-        
+
         protected float getJoystickAxisValue() {
             return (lastRawValue-zeroRawValue) / maxRawValue;
         }
-        
+
         protected boolean isChanged() {
             return hasChanged;
         }
-        
+
         public void calibrateCenter() {
             zeroRawValue = lastRawValue;
-            logger.log(Level.INFO, "Calibrating axis {0} to {1}", 
+            logger.log(Level.INFO, "Calibrating axis {0} to {1}",
                     new Object[]{getName(), zeroRawValue});
         }
 

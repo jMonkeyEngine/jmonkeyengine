@@ -12,7 +12,6 @@ import com.jme3.math.Vector2f;
 import com.jme3.system.AppSettings;
 import com.jme3.util.RingBuffer;
 import java.util.HashMap;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -148,16 +147,17 @@ public class AndroidInput implements
         0x0,//mute
     };
 
-    public AndroidInput(View view) {
-        setView(view);
-        detector = new GestureDetector(null, this, null, false);
-        scaledetector = new ScaleGestureDetector(view.getContext(), this);
+    public AndroidInput() {
     }
 
     public void setView(View view) {
         this.view = view;
-        this.view.setOnTouchListener(this);
-        this.view.setOnKeyListener(this);
+        if (view != null) {
+            detector = new GestureDetector(null, this, null, false);
+            scaledetector = new ScaleGestureDetector(view.getContext(), this);
+            view.setOnTouchListener(this);
+            view.setOnKeyListener(this);
+        }
     }
 
     private TouchEvent getNextFreeTouchEvent() {
@@ -373,6 +373,9 @@ public class AndroidInput implements
         while (!eventQueue.isEmpty()) {
             eventQueue.pop();
         }
+
+
+        this.view = null;
     }
 
     @Override
@@ -464,14 +467,14 @@ public class AndroidInput implements
                                 listener.onMouseMotionEvent(mot);
                                 lastX = newX;
                                 lastY = newY;
-                                
+
                                 break;
-                                
+
                             case MOVE:
                                 if (event.isScaleSpanInProgress()) {
                                     break;
                                 }
-                                
+
                                 int dx;
                                 int dy;
                                 if (lastX != -1) {
@@ -481,13 +484,13 @@ public class AndroidInput implements
                                     dx = 0;
                                     dy = 0;
                                 }
-                                
+
                                 mot = new MouseMotionEvent(newX, newY, dx, dy, (int)event.getScaleSpan(), (int)event.getDeltaScaleSpan());
                                 mot.setTime(event.getTime());
                                 listener.onMouseMotionEvent(mot);
                                 lastX = newX;
                                 lastY = newY;
-                                
+
                                 break;
                         }
                     }

@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
@@ -14,6 +13,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
 import com.jme3.input.JoyInput;
@@ -22,6 +22,7 @@ import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.controls.TouchListener;
 import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.event.TouchEvent;
+import com.jme3.renderer.android.AndroidGLSurfaceView;
 import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
@@ -141,7 +142,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      */
     protected int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
     protected OGLESContext ctx;
-    protected GLSurfaceView view = null;
+    protected AndroidGLSurfaceView view = null;
     protected boolean isGLThreadPaused = true;
     protected ImageView splashImageView = null;
     protected FrameLayout frameLayout = null;
@@ -155,7 +156,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        logger.log(Level.INFO, "onRetainNonConfigurationInstance called");
+        logger.log(Level.INFO, "onRetainNonConfigurationInstance");
         final DataObject data = new DataObject();
         data.app = this.app;
         inConfigChange = true;
@@ -165,6 +166,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        logger.info("onCreate");
         super.onCreate(savedInstanceState);
 
         JmeAndroidSystem.setActivity(this);
@@ -185,18 +187,13 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             logger.log(Level.INFO, "Using Retained App");
             this.app = data.app;
 
-            ctx = (OGLESContext) app.getContext();
-            view = ctx.createView(eglConfigType, eglConfigVerboseLogging);
-            ctx.setSystemListener(this);
-            layoutDisplay();
-
         } else {
             // Discover the screen reolution
             //TODO try to find a better way to get a hand on the resolution
             WindowManager wind = this.getWindowManager();
             Display disp = wind.getDefaultDisplay();
             Log.d("AndroidHarness", "Resolution from Window, width:" + disp.getWidth() + ", height: " + disp.getHeight());
-                
+
             // Create Settings
             logger.log(Level.INFO, "Creating settings");
             AppSettings settings = new AppSettings(true);
@@ -215,38 +212,41 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
                 app.setSettings(settings);
                 app.start();
-                ctx = (OGLESContext) app.getContext();
-                view = ctx.createView(eglConfigType, eglConfigVerboseLogging);
 
-                // AndroidHarness wraps the app as a SystemListener.
-                ctx.setSystemListener(this);
-                layoutDisplay();
 
             } catch (Exception ex) {
                 handleError("Class " + appClass + " init failed", ex);
                 setContentView(new TextView(this));
             }
         }
+
+        ctx = (OGLESContext) app.getContext();
+        view = ctx.createView(eglConfigType, eglConfigVerboseLogging);
+        // AndroidHarness wraps the app as a SystemListener.
+        ctx.setSystemListener(this);
+        layoutDisplay();
+
     }
 
     @Override
     protected void onRestart() {
+        logger.info("onRestart");
         super.onRestart();
         if (app != null) {
             app.restart();
         }
 
-        logger.info("onRestart");
     }
 
     @Override
     protected void onStart() {
-        super.onStart();
         logger.info("onStart");
+        super.onStart();
     }
 
     @Override
     protected void onResume() {
+        logger.info("onResume");
         super.onResume();
         if (view != null) {
             view.onResume();
@@ -274,11 +274,11 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
 
         isGLThreadPaused = false;
-        logger.info("onResume");
     }
 
     @Override
     protected void onPause() {
+        logger.info("onPause");
         super.onPause();
         if (view != null) {
             view.onPause();
@@ -306,18 +306,18 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             }
         }
         isGLThreadPaused = true;
-        logger.info("onPause");
 
     }
 
     @Override
     protected void onStop() {
-        super.onStop();
         logger.info("onStop");
+        super.onStop();
     }
 
     @Override
     protected void onDestroy() {
+        logger.info("onDestroy");
         final DataObject data = (DataObject) getLastNonConfigurationInstance();
         if (data != null || inConfigChange) {
             logger.info("In Config Change, not stopping app.");
@@ -326,7 +326,11 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 app.stop(!isGLThreadPaused);
             }
         }
-        logger.info("onDestroy");
+        JmeAndroidSystem.setActivity(null);
+        ctx = null;
+        app = null;
+        view = null;
+
         super.onDestroy();
     }
 

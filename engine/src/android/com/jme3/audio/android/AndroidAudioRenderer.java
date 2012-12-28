@@ -50,7 +50,7 @@ import java.util.logging.Logger;
 
 /**
  * This class is the android implementation for {@link AudioRenderer}
- * 
+ *
  * @author larynx
  * @author plan_rich
  */
@@ -64,7 +64,6 @@ public class AndroidAudioRenderer implements AudioRenderer,
     private final Vector3f listenerPosition = new Vector3f();
     // For temp use
     private final Vector3f distanceVector = new Vector3f();
-    private final Context context;
     private final AssetManager assetManager;
     private HashMap<Integer, AudioNode> soundpoolStillLoading = new HashMap<Integer, AudioNode>();
     private Listener listener;
@@ -72,7 +71,6 @@ public class AndroidAudioRenderer implements AudioRenderer,
     private final AudioManager manager;
 
     public AndroidAudioRenderer(Activity context) {
-        this.context = context;
         manager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         context.setVolumeControlStream(AudioManager.STREAM_MUSIC);
         assetManager = context.getAssets();
@@ -302,14 +300,14 @@ public class AndroidAudioRenderer implements AudioRenderer,
                     break;
                 }
             }
-        
+
     }
 
     /**
      * Plays using the {@link SoundPool} of Android. Due to hard limitation of
      * the SoundPool: After playing more instances of the sound you only have
      * the channel of the last played instance.
-     * 
+     *
      * It is not possible to get information about the state of the soundpool of
      * a specific streamid, so removing is not possilbe -> noone knows when
      * sound finished.
@@ -329,7 +327,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
 
         try {
 
-            if (audioData.getId() < 0) { // found something to load                                
+            if (audioData.getId() < 0) { // found something to load
                 int soundId = soundPool.load(
                         assetManager.openFd(assetKey.getName()), 1);
                 audioData.setId(soundId);

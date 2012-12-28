@@ -31,6 +31,7 @@
  */
 package com.jme3.system.android;
 
+import android.app.Activity;
 import com.jme3.renderer.android.AndroidGLSurfaceView;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -75,7 +76,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected SystemListener listener;
     protected boolean autoFlush = true;
     protected AndroidInput androidInput;
-    protected AndroidGLSurfaceView view;
     protected int minFrameDuration = 0;                   // No FPS cap
     protected JoyInput androidSensorJoyInput = null;
     /**
@@ -107,20 +107,15 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      * @param eglConfigVerboseLogging if true show all found configs
      * @return GLSurfaceView The newly created view
      */
-    public GLSurfaceView createView(ConfigType configType, boolean eglConfigVerboseLogging) {
-        // if simulated joysticks are used, init the window to update the activity used to
-        // get the window orientation
-        if (androidSensorJoyInput != null && androidSensorJoyInput instanceof AndroidSensorJoyInput) {
-            ((AndroidSensorJoyInput)androidSensorJoyInput).initWindow();
-        }
+    public AndroidGLSurfaceView createView(ConfigType configType, boolean eglConfigVerboseLogging) {
+        AndroidGLSurfaceView view;
 
         // Start to set up the view
-        view = new AndroidGLSurfaceView(JmeAndroidSystem.getActivity());
+        view = new AndroidGLSurfaceView(JmeAndroidSystem.getActivity().getApplication());
         if (androidInput == null) {
-            androidInput = new AndroidInput(view);
-        } else {
-            androidInput.setView(view);
+            androidInput = new AndroidInput();
         }
+        androidInput.setView(view);
         androidInput.loadSettings(settings);
 
         if (configType == ConfigType.LEGACY) {
@@ -402,13 +397,14 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         logger.log(Level.INFO, "requestDialog: title: {0}, initialValue: {1}",
                 new Object[]{title, initialValue});
 
-        JmeAndroidSystem.getActivity().runOnUiThread(new Runnable() {
+        final Activity activity = JmeAndroidSystem.getActivity();
+        activity.runOnUiThread(new Runnable() {
 
             @Override
             public void run() {
 
-                final FrameLayout layoutTextDialogInput = new FrameLayout(JmeAndroidSystem.getActivity());
-                final EditText editTextDialogInput = new EditText(JmeAndroidSystem.getActivity());
+                final FrameLayout layoutTextDialogInput = new FrameLayout(activity);
+                final EditText editTextDialogInput = new EditText(activity);
                 editTextDialogInput.setWidth(LayoutParams.FILL_PARENT);
                 editTextDialogInput.setHeight(LayoutParams.FILL_PARENT);
                 editTextDialogInput.setPadding(20, 20, 20, 20);
@@ -438,7 +434,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
                 layoutTextDialogInput.addView(editTextDialogInput);
 
-                AlertDialog dialogTextInput = new AlertDialog.Builder(JmeAndroidSystem.getActivity()).setTitle(title).setView(layoutTextDialogInput).setPositiveButton("OK",
+                AlertDialog dialogTextInput = new AlertDialog.Builder(activity).setTitle(title).setView(layoutTextDialogInput).setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface dialog, int whichButton) {
