@@ -94,6 +94,13 @@ public class AppStateManager {
         this.app = app;
     }
 
+    /**
+     *  Returns the Application to which this AppStateManager belongs.
+     */
+    public Application getApplication() {
+        return app;
+    }
+
     protected AppState[] getInitializing() { 
         synchronized (states){
             return initializing.getArray();
