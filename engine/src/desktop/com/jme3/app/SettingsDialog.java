@@ -38,10 +38,12 @@ import java.awt.image.BufferedImage;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -68,27 +70,32 @@ public final class SettingsDialog extends JDialog {
     public static final int NO_SELECTION = 0,
             APPROVE_SELECTION = 1,
             CANCEL_SELECTION = 2;
+    
+    // Resource bundle for i18n.
+    ResourceBundle resourceBundle = ResourceBundle.getBundle("com.jme3.app/SettingsDialog");
+    
     // connection to properties file.
     private final AppSettings source;
+    
     // Title Image
     private URL imageFile = null;
     // Array of supported display modes
     private DisplayMode[] modes = null;
-    // Array of windowed resolutions
-    private String[] windowedResolutions = {"320 x 240", "640 x 480", "800 x 600",
-        "1024 x 768", "1152 x 864", "1280 x 720"};
+
     // UI components
     private JCheckBox vsyncBox = null;
     private JCheckBox fullscreenBox = null;
     private JComboBox displayResCombo = null;
     private JComboBox colorDepthCombo = null;
     private JComboBox displayFreqCombo = null;
-//    private JComboBox rendererCombo = null;
     private JComboBox antialiasCombo = null;
     private JLabel icon = null;
     private int selection = 0;
     private SelectionListener selectionListener = null;
 
+    private int minWidth = 0;
+    private int minHeight = 0;
+    
     /**
      * Constructor for the <code>PropertiesDialog</code>. Creates a
      * properties dialog initialized for the primary display.
@@ -128,9 +135,9 @@ public final class SettingsDialog extends JDialog {
         this.source = source;
         this.imageFile = imageFile;
 
-//        setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         setModal(true);
         setAlwaysOnTop(true);
+        setResizable(false);
 
         AppSettings registrySettings = new AppSettings(true);
 
@@ -140,6 +147,10 @@ public final class SettingsDialog extends JDialog {
         }else{
            appTitle = registrySettings.getTitle();
         }
+        
+        minWidth = source.getMinWidth();
+        minHeight = source.getMinHeight();
+        
         try {
             registrySettings.load(appTitle);
         } catch (BackingStoreException ex) {
@@ -157,7 +168,7 @@ public final class SettingsDialog extends JDialog {
 
         modes = device.getDisplayModes();
         Arrays.sort(modes, new DisplayModeSorter());
-
+        
         createUI();
     }
 
@@ -174,6 +185,25 @@ public final class SettingsDialog extends JDialog {
         selectionListener.onSelection(selection);
     }
 
+    public int getMinWidth() {
+        return minWidth;
+    }
+
+    public void setMinWidth(int minWidth) {
+        this.minWidth = minWidth;
+    }
+
+    public int getMinHeight() {
+        return minHeight;
+    }
+
+    public void setMinHeight(int minHeight) {
+        this.minHeight = minHeight;
+    }
+
+    
+    
+    
     /**
      * <code>setImage</code> sets the background image of the dialog.
      * 
@@ -216,6 +246,10 @@ public final class SettingsDialog extends JDialog {
      * <code>init</code> creates the components to use the dialog.
      */
     private void createUI() {
+        GridBagConstraints gbc;
+        
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
@@ -224,6 +258,7 @@ public final class SettingsDialog extends JDialog {
 
         addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosing(WindowEvent e) {
                 setUserSelection(CANCEL_SELECTION);
                 dispose();
@@ -234,25 +269,17 @@ public final class SettingsDialog extends JDialog {
             safeSetIconImages( (List<BufferedImage>) Arrays.asList((BufferedImage[]) source.getIcons()) );
         }
 
-        setTitle("Select Display Settings");
-
-        // The panels...
-        JPanel mainPanel = new JPanel();
-        JPanel centerPanel = new JPanel();
-        JPanel optionsPanel = new JPanel();
-        JPanel buttonPanel = new JPanel();
+        setTitle(MessageFormat.format(resourceBundle.getString("frame.title"), source.getTitle()));
+        
         // The buttons...
-        JButton ok = new JButton("Ok");
-        JButton cancel = new JButton("Cancel");
+        JButton ok = new JButton(resourceBundle.getString("button.ok"));
+        JButton cancel = new JButton(resourceBundle.getString("button.cancel"));
 
         icon = new JLabel(imageFile != null ? new ImageIcon(imageFile) : null);
 
-        mainPanel.setLayout(new BorderLayout());
-
-        centerPanel.setLayout(new BorderLayout());
-
         KeyListener aListener = new KeyAdapter() {
 
+            @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     if (verifyAndSaveCurrentSelection()) {
@@ -275,7 +302,7 @@ public final class SettingsDialog extends JDialog {
         displayFreqCombo.addKeyListener(aListener);
         antialiasCombo = new JComboBox();
         antialiasCombo.addKeyListener(aListener);
-        fullscreenBox = new JCheckBox("Fullscreen?");
+        fullscreenBox = new JCheckBox(resourceBundle.getString("checkbox.fullscreen"));
         fullscreenBox.setSelected(source.isFullscreen());
         fullscreenBox.addActionListener(new ActionListener() {
 
@@ -283,25 +310,73 @@ public final class SettingsDialog extends JDialog {
                 updateResolutionChoices();
             }
         });
-        vsyncBox = new JCheckBox("VSync?");
+        vsyncBox = new JCheckBox(resourceBundle.getString("checkbox.vsync"));
         vsyncBox.setSelected(source.isVSync());
-//        rendererCombo = setUpRendererChooser();
-//        rendererCombo.addKeyListener(aListener);
 
-       
-
-        updateResolutionChoices();
-        updateAntialiasChoices();
-        displayResCombo.setSelectedItem(source.getWidth() + " x " + source.getHeight());
-        colorDepthCombo.setSelectedItem(source.getBitsPerPixel() + " bpp");
-
-        optionsPanel.add(displayResCombo);
-        optionsPanel.add(colorDepthCombo);
-        optionsPanel.add(displayFreqCombo);
-        optionsPanel.add(antialiasCombo);
-        optionsPanel.add(fullscreenBox);
-        optionsPanel.add(vsyncBox);
-//        optionsPanel.add(rendererCombo);
+        gbc = new GridBagConstraints();
+        gbc.weightx = 0.5;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        mainPanel.add(fullscreenBox, gbc);
+        gbc = new GridBagConstraints();
+        gbc.weightx = 0.5;
+        gbc.insets = new Insets(4, 16, 0, 4);
+        gbc.gridx = 2;
+        gbc.gridwidth = 2;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(vsyncBox, gbc);
+        
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.weightx = 0.5;
+        mainPanel.add(new JLabel(resourceBundle.getString("label.resolutions")), gbc);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(displayResCombo, gbc);
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 16, 4, 4);
+        gbc.gridx = 2;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.EAST;
+        mainPanel.add(new JLabel(resourceBundle.getString("label.colordepth")), gbc);
+        gbc = new GridBagConstraints();
+        gbc.weightx = 0.5;
+        gbc.gridx = 3;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(colorDepthCombo, gbc);
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 4, 4, 4);
+        gbc.weightx = 0.5;
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.EAST;
+        mainPanel.add(new JLabel(resourceBundle.getString("label.refresh")), gbc);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(displayFreqCombo, gbc);
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 16, 4, 4);
+        gbc.gridx = 2;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.EAST;
+        mainPanel.add(new JLabel(resourceBundle.getString("label.antialias")), gbc);
+        gbc = new GridBagConstraints();
+        gbc.weightx = 0.5;
+        gbc.gridx = 3;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(antialiasCombo, gbc);
 
         // Set the button action listeners. Cancel disposes without saving, OK
         // saves.
@@ -323,20 +398,50 @@ public final class SettingsDialog extends JDialog {
             }
         });
 
-        buttonPanel.add(ok);
-        buttonPanel.add(cancel);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.EAST;
+        mainPanel.add(ok, gbc);
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(4, 16, 4, 4);
+        gbc.gridx = 2;
+        gbc.gridwidth = 2;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(cancel, gbc);
 
         if (icon != null) {
-            centerPanel.add(icon, BorderLayout.NORTH);
+            gbc = new GridBagConstraints();
+            gbc.gridwidth = 4;
+            mainPanel.add(icon, gbc);
         }
-        centerPanel.add(optionsPanel, BorderLayout.SOUTH);
-
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         this.getContentPane().add(mainPanel);
 
         pack();
+        
+
+        SwingUtilities.invokeLater(new Runnable() {
+
+            public void run() {
+                // Fill in the combos once the window has opened so that the insets can be read.
+                // The assumption is made that the settings window and the display window will have the
+                // same insets as that is used to resize the "full screen windowed" mode appropriately.
+                updateResolutionChoices();
+                if (source.getWidth() != 0 && source.getHeight() != 0) {
+                    displayResCombo.setSelectedItem(source.getWidth() + " x "
+                            + source.getHeight());
+                } else {
+                    displayResCombo.setSelectedIndex(displayResCombo.getItemCount()-1);
+                }
+
+                updateAntialiasChoices();
+                colorDepthCombo.setSelectedItem(source.getBitsPerPixel() + " bpp");
+            }
+        });
+        
     }
 
     /* Access JDialog.setIconImages by reflection in case we're running on JRE < 1.6 */
@@ -394,7 +499,7 @@ public final class SettingsDialog extends JDialog {
 
         String aaString = (String) antialiasCombo.getSelectedItem();
         int multisample = -1;
-        if (aaString.equals("Disabled")) {
+        if (aaString.equals(resourceBundle.getString("antialias.disabled"))) {
             multisample = 0;
         } else {
             multisample = Integer.parseInt(aaString.substring(0, aaString.indexOf('x')));
@@ -409,8 +514,6 @@ public final class SettingsDialog extends JDialog {
          * windowed " + "mode than your current desktop bit depth"); return
          * false; } }
          */
-
-        String renderer = "LWJGL-OpenGL2";//(String) rendererCombo.getSelectedItem();
 
         boolean valid = false;
 
@@ -444,8 +547,7 @@ public final class SettingsDialog extends JDialog {
         } else {
             showError(
                     this,
-                    "Your monitor claims to not support the display mode you've selected.\n"
-                    + "The combination of bit depth and refresh rate is not supported.");
+                    resourceBundle.getString("error.unsupportedmode"));
         }
 
         return valid;
@@ -459,11 +561,8 @@ public final class SettingsDialog extends JDialog {
      * @return the combo box of display modes.
      */
     private JComboBox setUpResolutionChooser() {
-        String[] res = getResolutions(modes);
-        JComboBox resolutionBox = new JComboBox(res);
+        JComboBox resolutionBox = new JComboBox();
 
-        resolutionBox.setSelectedItem(source.getWidth() + " x "
-                + source.getHeight());
         resolutionBox.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -472,20 +571,6 @@ public final class SettingsDialog extends JDialog {
         });
 
         return resolutionBox;
-    }
-
-    /**
-     * <code>setUpRendererChooser</code> sets the list of available renderers.
-     * Data is obtained from the <code>DisplaySystem</code> class. The
-     * renderer specified by GameSettings is used as the default value.
-     * 
-     * @return the list of renderers.
-     */
-    private JComboBox setUpRendererChooser() {
-        String modes[] = {"NULL", "JOGL-OpenGL1", "LWJGL-OpenGL2", "LWJGL-OpenGL3", "LWJGL-OpenGL3.1"};
-        JComboBox nameBox = new JComboBox(modes);
-        nameBox.setSelectedItem(source.getRenderer());
-        return nameBox;
     }
 
     /**
@@ -527,15 +612,15 @@ public final class SettingsDialog extends JDialog {
     private void updateResolutionChoices() {
         if (!fullscreenBox.isSelected()) {
             displayResCombo.setModel(new DefaultComboBoxModel(
-                    windowedResolutions));
+                    getWindowedResolutions(modes)));
             colorDepthCombo.setModel(new DefaultComboBoxModel(new String[]{
                         "24 bpp", "16 bpp"}));
             displayFreqCombo.setModel(new DefaultComboBoxModel(
-                    new String[]{"n/a"}));
+                    new String[]{resourceBundle.getString("refresh.na")}));
             displayFreqCombo.setEnabled(false);
         } else {
             displayResCombo.setModel(new DefaultComboBoxModel(
-                    getResolutions(modes)));
+                    getResolutions(modes, Integer.MAX_VALUE)));
             displayFreqCombo.setEnabled(true);
             updateDisplayChoices();
         }
@@ -544,7 +629,7 @@ public final class SettingsDialog extends JDialog {
     private void updateAntialiasChoices() {
         // maybe in the future will add support for determining this info
         // through pbuffer
-        String[] choices = new String[]{"Disabled", "2x", "4x", "6x", "8x", "16x"};
+        String[] choices = new String[]{resourceBundle.getString("antialias.disabled"), "2x", "4x", "6x", "8x", "16x"};
         antialiasCombo.setModel(new DefaultComboBoxModel(choices));
         antialiasCombo.setSelectedItem(choices[Math.min(source.getSamples()/2,5)]);
     }
@@ -572,20 +657,48 @@ public final class SettingsDialog extends JDialog {
     }
 
     /**
-     * Returns every unique resolution from an array of <code>DisplayMode</code>s.
+     * Returns every unique resolution from an array of <code>DisplayMode</code>s
+     * where the resolution is greater than the configured minimums.
      */
-    private static String[] getResolutions(DisplayMode[] modes) {
+    private String[] getResolutions(DisplayMode[] modes, int heightLimit) {
         ArrayList<String> resolutions = new ArrayList<String>(modes.length);
         for (int i = 0; i < modes.length; i++) {
-            String res = modes[i].getWidth() + " x " + modes[i].getHeight();
-            if (!resolutions.contains(res)) {
-                resolutions.add(res);
+            int height = modes[i].getHeight();
+            int width = modes[i].getWidth();
+            if (width >= minWidth && height >= minHeight && height <= heightLimit) {
+                if (height == heightLimit) {
+                    // If height is equal to height limit then subtract the size of the window frame and use that
+                    Insets insets = getInsets();
+                    height -= insets.top + insets.bottom;
+                    width -= insets.left + insets.right;
+                }
+                
+                String res = width + " x " + height;
+                if (!resolutions.contains(res)) {
+                    resolutions.add(res);
+                }
             }
         }
 
         String[] res = new String[resolutions.size()];
         resolutions.toArray(res);
         return res;
+    }
+    
+    /**
+     * Returns every unique resolution from an array of <code>DisplayMode</code>s
+     * where the resolution is greater than the configured minimums and the height
+     * is less than the current screen resolution.
+     */
+    private String[] getWindowedResolutions(DisplayMode[] modes) {
+        int maxHeight = 0;
+        for (int i = 0; i < modes.length; i++) {
+            if (maxHeight < modes[i].getHeight()) {
+                maxHeight = modes[i].getHeight();
+            }
+        }
+
+        return getResolutions(modes, maxHeight);
     }
 
     /**

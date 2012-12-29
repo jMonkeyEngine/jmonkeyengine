@@ -122,6 +122,8 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("VSync", false);
         defaults.put("FrameRate", -1);
         defaults.put("SettingsDialogImage", "/com/jme3/app/Monkey.png");
+        defaults.put("MinHeight", 0);
+        defaults.put("MinWidth", 0);
       //  defaults.put("Icons", null);
     }
 
@@ -543,6 +545,36 @@ public final class AppSettings extends HashMap<String, Object> {
         setHeight(height);
     }
 
+
+    /**
+     * @param value the minimum width the settings window will allow for the rendering display.
+     * (Default: 0)
+     */
+    public void setMinWidth(int value) {
+        putInteger("MinWidth", value);
+    }
+
+    /**
+     * @param value the minimum height the settings window will allow for the rendering display.
+     * (Default: 0)
+     */
+    public void setMinHeight(int value) {
+        putInteger("MinHeight", value);
+    }
+
+    /**
+     * Set the minimum resolution the settings window will allow for the rendering display
+     * @param width The minimum width
+     * @param height The minimum height
+     * (Default: 0x0)
+     */
+    public void setMinResolution(int width, int height) {
+        setMinWidth(width);
+        setMinHeight(height);
+    }
+
+    
+    
     /**
      * Set the frequency, also known as refresh rate, for the 
      * rendering display.
@@ -714,6 +746,22 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public int getHeight() {
         return getInteger("Height");
+    }
+
+    /**
+     * Get the width
+     * @see #setWidth(int) 
+     */
+    public int getMinWidth() {
+        return getInteger("MinWidth");
+    }
+
+    /**
+     * Get the height
+     * @see #setHeight(int) 
+     */
+    public int getMinHeight() {
+        return getInteger("MinHeight");
     }
 
     /**
