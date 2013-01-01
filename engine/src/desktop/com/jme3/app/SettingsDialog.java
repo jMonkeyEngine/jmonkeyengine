@@ -238,10 +238,10 @@ public final class SettingsDialog extends JDialog {
      */
     public void showDialog() {
         setLocationRelativeTo(null);
-        setVisible(true);
+        setVisible(true);       
         toFront();
     }
-
+   
     /**
      * <code>init</code> creates the components to use the dialog.
      */
@@ -272,7 +272,7 @@ public final class SettingsDialog extends JDialog {
         setTitle(MessageFormat.format(resourceBundle.getString("frame.title"), source.getTitle()));
         
         // The buttons...
-        JButton ok = new JButton(resourceBundle.getString("button.ok"));
+        JButton ok = new JButton(resourceBundle.getString("button.ok"));               
         JButton cancel = new JButton(resourceBundle.getString("button.cancel"));
 
         icon = new JLabel(imageFile != null ? new ImageIcon(imageFile) : null);
@@ -403,7 +403,7 @@ public final class SettingsDialog extends JDialog {
         gbc.gridwidth = 2;
         gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.EAST;
-        mainPanel.add(ok, gbc);
+        mainPanel.add(ok, gbc);        
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 16, 4, 4);
         gbc.gridx = 2;
@@ -422,7 +422,7 @@ public final class SettingsDialog extends JDialog {
 
         pack();
         
-
+        mainPanel.getRootPane().setDefaultButton(ok);
         SwingUtilities.invokeLater(new Runnable() {
 
             public void run() {
@@ -440,7 +440,7 @@ public final class SettingsDialog extends JDialog {
                 updateAntialiasChoices();
                 colorDepthCombo.setSelectedItem(source.getBitsPerPixel() + " bpp");
             }
-        });
+        });      
         
     }
 
