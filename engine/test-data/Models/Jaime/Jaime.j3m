@@ -1,0 +1,22 @@
+Material MyMaterial : Common/MatDefs/Light/Lighting.j3md {
+    MaterialParameters {
+        DiffuseMap : Models/Jaime/diffuseMap.jpg
+        NormalMap : Models/Jaime/NormalMap.png
+        UseMaterialColors : true
+        Diffuse : 1.0 1.0 1.0 1.0
+        Ambient : 0.7058824 0.6509804 0.6 1.0
+        Specular : 0.87058824 0.8117647 0.7921569 1.0
+        Shininess : 1.0
+    }
+    AdditionalRenderState {
+      FaceCull Back
+      Wireframe Off
+      DepthWrite On
+      PolyOffset 0.0 0.0
+      AlphaTestFalloff 0.0
+      Blend Off
+      PointSprite Off
+      ColorWrite On
+      DepthTest On
+    }
+}
