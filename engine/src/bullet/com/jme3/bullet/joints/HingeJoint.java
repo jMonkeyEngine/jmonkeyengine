@@ -73,6 +73,12 @@ public class HingeJoint extends PhysicsJoint {
         createJoint();
     }
 
+    /**
+     * Enables the motor.
+     * @param enable if true, motor is enabled.
+     * @param targetVelocity the target velocity of the rotation.
+     * @param maxMotorImpulse the max force applied to the hinge to rotate it.
+     */
     public void enableMotor(boolean enable, float targetVelocity, float maxMotorImpulse) {
         enableMotor(objectId, enable, targetVelocity, maxMotorImpulse);
     }
@@ -97,12 +103,26 @@ public class HingeJoint extends PhysicsJoint {
 
     private native float getMaxMotorImpulse(long objectId);
 
+    /**
+     * Sets the limits of this joint.
+     * @param low the low limit in radians.
+     * @param high the high limit in radians.
+     */
     public void setLimit(float low, float high) {
         setLimit(objectId, low, high);
     }
 
     private native void setLimit(long objectId, float low, float high);
 
+    /**
+     * Sets the limits of this joint.
+     * If you're above the softness, velocities that would shoot through the actual limit are slowed down. The bias be in the range of 0.2 - 0.5.
+     * @param low the low limit in radians.
+     * @param high the high limit in radians.
+     * @param _softness the factor at which the velocity error correction starts operating,i.e a softness of 0.9 means that the vel. corr starts at 90% of the limit range.
+     * @param _biasFactor the magnitude of the position correction. It tells you how strictly the position error (drift ) is corrected.
+     * @param _relaxationFactor the rate at which velocity errors are corrected. This can be seen as the strength of the limits. A low value will make the the limits more spongy.
+     */
     public void setLimit(float low, float high, float _softness, float _biasFactor, float _relaxationFactor) {
         biasFactor = _biasFactor;
         relaxationFactor = _relaxationFactor;
