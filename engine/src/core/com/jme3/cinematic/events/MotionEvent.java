@@ -62,7 +62,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
     protected float currentValue;
     protected Vector3f direction = new Vector3f();
     protected Vector3f lookAt;
-    protected Vector3f upVector;
+    protected Vector3f upVector = Vector3f.UNIT_Y;
     protected Quaternion rotation;
     protected Direction directionType = Direction.None;
     protected MotionPath path;
