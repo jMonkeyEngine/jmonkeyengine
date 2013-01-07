@@ -63,9 +63,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.microedition.khronos.egl.EGLContext;
-import javax.microedition.khronos.opengles.GL10;
-import javax.microedition.khronos.opengles.GL11;
 import jme3tools.shader.ShaderDebug;
 
 public class OGLESShaderRenderer implements Renderer {
@@ -335,12 +332,11 @@ public class OGLESShaderRenderer implements Renderer {
         
         logger.log(Level.INFO, "Caps: {0}", caps);        
     }
-    
+
     /**
      * <code>resetGLObjects</code> should be called when die GLView gets recreated to reset all GPU objects
      */
     public void resetGLObjects() {
-     
         objManager.resetObjects();
         statistics.clearMemory();
         boundShader = null;
@@ -420,18 +416,12 @@ public class OGLESShaderRenderer implements Renderer {
             context.colorWriteEnabled = false;
         }
 //        if (state.isPointSprite() && !context.pointSprite) {
-//           GL11.glEnable(GL11.GL_POINT_SPRITE_OES);
-//            gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
-//            gl.glEnableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);       
-//            gl.glEnableClientState(GL11.GL_POINT_SPRITE_OES);
-//            gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-//            gl.glTexEnvf(GL11.GL_POINT_SPRITE_OES, GL11.GL_COORD_REPLACE_OES, GL11.GL_TRUE);
+////            GLES20.glEnable(GLES20.GL_POINT_SPRITE);
+////            GLES20.glTexEnvi(GLES20.GL_POINT_SPRITE, GLES20.GL_COORD_REPLACE, GLES20.GL_TRUE);
+////            GLES20.glEnable(GLES20.GL_VERTEX_PROGRAM_POINT_SIZE);
+////            GLES20.glPointParameterf(GLES20.GL_POINT_SIZE_MIN, 1.0f);
 //        } else if (!state.isPointSprite() && context.pointSprite) {
-//             gl.glDisableClientState(GL11.GL_VERTEX_ARRAY);
-//             gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);
-//             gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_BUFFER_BINDING_OES);
-//             gl.glDisableClientState(GL11.GL_POINT_SIZE_ARRAY_OES);      
-//             gl.glDisable(GL10.GL_TEXTURE);
+////            GLES20.glDisable(GLES20.GL_POINT_SPRITE);
 //        }
 
         if (state.isPolyOffset()) {
@@ -563,10 +553,6 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
-       private GL10 gl;
-    public void setGL(GL10 gl){
-        this.gl = gl;
-    }
     public void onFrame() {
         int error = GLES20.glGetError();
         if (error != GLES20.GL_NO_ERROR){
@@ -2106,13 +2092,9 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     public void renderMesh(Mesh mesh, int lod, int count) {
-//        if (context.pointSize != mesh.getPointSize()) {
-//            GLES10.glPointSize(mesh.getPointSize());
-//            context.pointSize = mesh.getPointSize();
-//        }
-        if (context.pointSize !=64) {
-            GLES10.glPointSize(64);
-            context.pointSize = 64;
+        if (context.pointSize != mesh.getPointSize()) {
+            GLES10.glPointSize(mesh.getPointSize());
+            context.pointSize = mesh.getPointSize();
         }
         if (context.lineWidth != mesh.getLineWidth()) {
             GLES20.glLineWidth(mesh.getLineWidth());
