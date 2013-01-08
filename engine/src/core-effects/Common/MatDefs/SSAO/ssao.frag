@@ -45,19 +45,6 @@ float doAmbientOcclusion(in vec2 tc, in vec3 pos, in vec3 norm){
    return max(0.0, dot(norm, v) - m_Bias) * ( 1.0/(1.0 + d) ) * m_Intensity;
 }
 
-vec4 getColor(in float result){
-
- if(m_UseOnlyAo){
-     return vec4(result,result,result, 1.0);
- }
- if(m_UseAo){
-      return texture2D(m_Texture,texCoord)* vec4(result,result,result, 1.0);
-  }else{
-      return texture2D(m_Texture,texCoord);
-  }
-
-}
-
 vec2 reflection(in vec2 v1,in vec2 v2){
     vec2 result= 2.0 * dot(v2, v1) * v2;
     result=v1-result;
@@ -74,7 +61,7 @@ void main(){
    vec3 position = getPosition(texCoord);
     //optimization, do not calculate AO if depth is 1
    if(depthv==1.0){
-        gl_FragColor=getColor(1.0);
+        gl_FragColor=vec4(1.0);
         return;
    }
    vec3 normal = getNormal(texCoord);
@@ -93,12 +80,9 @@ void main(){
       ao += doAmbientOcclusion(texCoord + coord2 * 0.50, position, normal);
       ao += doAmbientOcclusion(texCoord + coord1.xy * 0.75, position, normal);
       ao += doAmbientOcclusion(texCoord + coord2 * 1.00, position, normal);
-
    }
    ao /= float(iterations) * 4.0;
-   result = 1.0-ao;
+   result = 1.0 - ao;
 
-  //gl_FragColor=getColor(result);
-
-    gl_FragColor=vec4(result);
+   gl_FragColor=vec4(result);
 }
