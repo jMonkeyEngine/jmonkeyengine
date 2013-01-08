@@ -98,7 +98,7 @@ void main(){
    ao /= float(iterations) * 4.0;
    result = 1.0-ao;
 
-   gl_FragColor=getColor(result);
+  //gl_FragColor=getColor(result);
 
-//gl_FragColor=vec4(normal,1.0);
+    gl_FragColor=vec4(result);
 }
