@@ -264,7 +264,7 @@ public class AndroidInput implements
             case MotionEvent.ACTION_MOVE:
                 // Convert all pointers into events
                 for (int p = 0; p < event.getPointerCount(); p++) {
-                    lastPos = lastPositions.get(p);
+                    lastPos = lastPositions.get(event.getPointerId(p));
                     if (lastPos == null) {
                         lastPos = new Vector2f(event.getX(p), view.getHeight() - event.getY(p));
                         lastPositions.put(event.getPointerId(p), lastPos);
