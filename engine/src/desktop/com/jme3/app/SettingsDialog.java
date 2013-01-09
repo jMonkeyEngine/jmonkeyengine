@@ -81,6 +81,12 @@ public final class SettingsDialog extends JDialog {
     private URL imageFile = null;
     // Array of supported display modes
     private DisplayMode[] modes = null;
+    private static final DisplayMode[] windowDefaults = new DisplayMode[] {
+        new DisplayMode(1024, 768, 24, 60),
+        new DisplayMode(1280, 720, 24, 60),
+        new DisplayMode(1280, 1024, 24, 60),
+    };
+    private DisplayMode[] windowModes = null;
 
     // UI components
     private JCheckBox vsyncBox = null;
@@ -168,6 +174,44 @@ public final class SettingsDialog extends JDialog {
 
         modes = device.getDisplayModes();
         Arrays.sort(modes, new DisplayModeSorter());
+
+        DisplayMode[] merged = new DisplayMode[modes.length + windowDefaults.length];
+        
+        int wdIndex = 0;
+        int dmIndex = 0;
+        int mergedIndex;
+        
+        for (mergedIndex = 0;
+                mergedIndex<merged.length 
+                && (wdIndex < windowDefaults.length
+                    || dmIndex < modes.length);
+                mergedIndex++) {
+            
+            if (dmIndex >= modes.length) {
+                merged[mergedIndex] = windowDefaults[wdIndex++];
+            } else if (wdIndex >= windowDefaults.length) {
+                merged[mergedIndex] = modes[dmIndex++];
+            } else if (modes[dmIndex].getWidth() < windowDefaults[wdIndex].getWidth()) {
+                merged[mergedIndex] = modes[dmIndex++];
+            } else if (modes[dmIndex].getWidth() == windowDefaults[wdIndex].getWidth()) {
+                if (modes[dmIndex].getHeight() < windowDefaults[wdIndex].getHeight()) {
+                    merged[mergedIndex] = modes[dmIndex++];
+                } else if (modes[dmIndex].getHeight() == windowDefaults[wdIndex].getHeight()) {
+                    merged[mergedIndex] = modes[dmIndex++];
+                    wdIndex++;
+                } else {
+                    merged[mergedIndex] = windowDefaults[wdIndex++];
+                }
+            } else {
+                merged[mergedIndex] = windowDefaults[wdIndex++];
+            }
+        }
+        
+        if (merged.length == mergedIndex) {
+            windowModes = merged;
+        } else {
+            windowModes = Arrays.copyOfRange(merged, 0, mergedIndex);
+        }
         
         createUI();
     }
@@ -612,7 +656,7 @@ public final class SettingsDialog extends JDialog {
     private void updateResolutionChoices() {
         if (!fullscreenBox.isSelected()) {
             displayResCombo.setModel(new DefaultComboBoxModel(
-                    getWindowedResolutions(modes)));
+                    getWindowedResolutions(windowModes)));
             colorDepthCombo.setModel(new DefaultComboBoxModel(new String[]{
                         "24 bpp", "16 bpp"}));
             displayFreqCombo.setModel(new DefaultComboBoxModel(
