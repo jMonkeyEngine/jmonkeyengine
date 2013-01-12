@@ -101,7 +101,7 @@ public final class Shader extends NativeObject {
             super(ShaderSource.class);
             this.sourceType = type;
             if (type == null) {
-                throw new NullPointerException("The shader type must be specified");
+                throw new IllegalArgumentException("The shader type must be specified");
             }
         }
         
@@ -133,7 +133,7 @@ public final class Shader extends NativeObject {
 
         public void setLanguage(String language) {
             if (language == null) {
-                throw new NullPointerException("Shader language cannot be null");
+                throw new IllegalArgumentException("Shader language cannot be null");
             }
             this.language = language;
             setUpdateNeeded();
@@ -141,7 +141,7 @@ public final class Shader extends NativeObject {
 
         public void setSource(String source){
             if (source == null) {
-                throw new NullPointerException("Shader source cannot be null");
+                throw new IllegalArgumentException("Shader source cannot be null");
             }
             this.source = source;
             setUpdateNeeded();
@@ -149,7 +149,7 @@ public final class Shader extends NativeObject {
 
         public void setDefines(String defines){
             if (defines == null) {
-                throw new NullPointerException("Shader defines cannot be null");
+                throw new IllegalArgumentException("Shader defines cannot be null");
             }
             this.defines = defines;
             setUpdateNeeded();
