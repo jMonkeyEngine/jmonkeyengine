@@ -40,14 +40,18 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.terrain.GeoMap;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.TempVars;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import org.bushe.swing.event.Logger;
 
 /**
  * Produces the mesh for the TerrainPatch.
@@ -84,7 +88,12 @@ public class LODGeomap extends GeoMap {
         FloatBuffer pb = writeVertexArray(null, scale, center);
         FloatBuffer texb = writeTexCoordArray(null, tcOffset, tcScale, offsetAmount, totalSize);
         FloatBuffer nb = writeNormalArray(null, scale);
-        IntBuffer ib = writeIndexArrayLodDiff(null, lod, rightLod, topLod, leftLod, bottomLod);
+        Buffer ib;
+        IndexBuffer idxB = writeIndexArrayLodDiff(lod, rightLod, topLod, leftLod, bottomLod, totalSize);
+        if (idxB.getBuffer() instanceof IntBuffer)
+            ib = (IntBuffer)idxB.getBuffer();
+        else
+            ib = (ShortBuffer)idxB.getBuffer();
         FloatBuffer bb = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
         FloatBuffer tanb = BufferUtils.createFloatBuffer(getWidth() * getHeight() * 3);
         writeTangentArray(nb, tanb, bb, texb, scale);
@@ -95,7 +104,10 @@ public class LODGeomap extends GeoMap {
         m.setBuffer(Type.Tangent, 3, tanb);
         m.setBuffer(Type.Binormal, 3, bb);
         m.setBuffer(Type.TexCoord, 2, texb);
-        m.setBuffer(Type.Index, 3, ib);
+        if (ib instanceof IntBuffer)
+            m.setBuffer(Type.Index, 3, (IntBuffer)ib);
+        else if (ib instanceof ShortBuffer)
+            m.setBuffer(Type.Index, 3, (ShortBuffer)ib);
         m.setStatic();
         m.updateBound();
         return m;
@@ -151,17 +163,13 @@ public class LODGeomap extends GeoMap {
      * @param bottomLod LOD of the bottom neighbour
      * @return the LOD-ified index buffer
      */
-    public IntBuffer writeIndexArrayLodDiff(IntBuffer store, int lod, boolean rightLod, boolean topLod, boolean leftLod, boolean bottomLod) {
+    public IndexBuffer writeIndexArrayLodDiff(int lod, boolean rightLod, boolean topLod, boolean leftLod, boolean bottomLod, int totalSize) {
 
-        //if (true)
-        //return writeIndexArrayLodVariable(store, lod, height, lod, lod, lod);
         
-        IntBuffer buffer2 = store;
         int numIndexes = calculateNumIndexesLodDiff(lod);
-        if (store == null) {
-            buffer2 = BufferUtils.createIntBuffer(numIndexes);
-        }
-        VerboseIntBuffer buffer = new VerboseIntBuffer(buffer2);
+        
+        IndexBuffer ib = IndexBuffer.createIndexBuffer(numIndexes, numIndexes);
+        VerboseBuffer buffer = new VerboseBuffer(ib);
 
 
         // generate center squares minus the edges
@@ -357,14 +365,12 @@ public class LODGeomap extends GeoMap {
         return buffer.delegate;
     }
 
-    public IntBuffer writeIndexArrayLodVariable(IntBuffer store, int lod, int rightLod, int topLod, int leftLod, int bottomLod) {
+    public IndexBuffer writeIndexArrayLodVariable(int lod, int rightLod, int topLod, int leftLod, int bottomLod, int totalSize) {
 
-        IntBuffer buffer2 = store;
         int numIndexes = calculateNumIndexesLodDiff(lod);
-        if (store == null) {
-            buffer2 = BufferUtils.createIntBuffer(numIndexes);
-        }
-        VerboseIntBuffer buffer = new VerboseIntBuffer(buffer2);
+        
+        IndexBuffer ib = IndexBuffer.createIndexBuffer(numIndexes, numIndexes);
+        VerboseBuffer buffer = new VerboseBuffer(ib);
 
 
         // generate center squares minus the edges
@@ -908,25 +914,47 @@ public class LODGeomap extends GeoMap {
     /**
      * Keeps a count of the number of indexes, good for debugging
      */
-    public class VerboseIntBuffer {
+    public class VerboseBuffer {
 
-        private IntBuffer delegate;
+        private IndexBuffer delegate;
+        //private IntBuffer delegateInt;
+        //private ShortBuffer delegateShort;
         int count = 0;
+        //private boolean intb = true;
 
-        public VerboseIntBuffer(IntBuffer d) {
-            delegate = d;
+        public VerboseBuffer(IndexBuffer d) {
+            this.delegate = d;
         }
+        
+        /*public VerboseBuffer(Buffer d) {
+            if (d instanceof IntBuffer)
+                delegateInt = (IntBuffer)d;
+            else if (d instanceof ShortBuffer) {
+                delegateShort = (ShortBuffer)d;
+                intb = false;
+            }
+        }*/
 
         public void put(int value) {
+            delegate.put(count, value);
+            count++;
+        }
+        /*public void put(int value) {
             try {
                 count++;
-                if (count > delegate.limit())
+                int limit = intb? delegateInt.limit() : delegateShort.limit();
+                if (count > limit)
                     throw new BufferOverflowException();
-                delegate.put(value);
+                if (intb)
+                    delegateInt.put(value);
+                else {
+                    System.out.println(Integer.toString(value)+" "+Short.toString((short)value));
+                    delegateShort.put((short)value);
+                }
             } catch (BufferOverflowException e) {
-                System.out.println("err buffer size: "+delegate.capacity());
+                Logger.getLogger(this.getClass().getName()).log(Logger.Level.ERROR, "err buffer size: "+delegateInt.capacity());
             }
-        }
+        }*/
 
         public int getCount() {
             return count;

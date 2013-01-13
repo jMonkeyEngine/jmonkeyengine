@@ -46,12 +46,15 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
+import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.terrain.geomipmap.TerrainQuad.LocationHeight;
 import com.jme3.terrain.geomipmap.lodcalc.util.EntropyComputeUtil;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.List;
 
@@ -195,8 +198,13 @@ public class TerrainPatch extends Geometry {
         float[] entropies = new float[getMaxLod()+1];
         for (int i = 0; i <= getMaxLod(); i++){
             int curLod = (int) Math.pow(2, i);
-            IntBuffer buf = geomap.writeIndexArrayLodDiff(null, curLod, false, false, false, false);
-            entropies[i] = EntropyComputeUtil.computeLodEntropy(mesh, buf);
+            IndexBuffer idxB = geomap.writeIndexArrayLodDiff(curLod, false, false, false, false, totalSize);
+            Buffer ib;
+            if (idxB.getBuffer() instanceof IntBuffer)
+                ib = (IntBuffer)idxB.getBuffer();
+            else
+                ib = (ShortBuffer)idxB.getBuffer();
+            entropies[i] = EntropyComputeUtil.computeLodEntropy(mesh, ib);
         }
 
         lodEntropy = entropies;
@@ -243,12 +251,18 @@ public class TerrainPatch extends Geometry {
             boolean right = utp.getRightLod() > utp.getNewLod();
             boolean bottom = utp.getBottomLod() > utp.getNewLod();
 
-            IntBuffer ib = null;
+            IndexBuffer idxB;
             if (useVariableLod)
-                ib = geomap.writeIndexArrayLodVariable(null, pow, (int) Math.pow(2, utp.getRightLod()), (int) Math.pow(2, utp.getTopLod()), (int) Math.pow(2, utp.getLeftLod()), (int) Math.pow(2, utp.getBottomLod()));
+                idxB = geomap.writeIndexArrayLodVariable(pow, (int) Math.pow(2, utp.getRightLod()), (int) Math.pow(2, utp.getTopLod()), (int) Math.pow(2, utp.getLeftLod()), (int) Math.pow(2, utp.getBottomLod()), totalSize);
             else
-                ib = geomap.writeIndexArrayLodDiff(null, pow, right, top, left, bottom);
-            utp.setNewIndexBuffer(ib);
+                idxB = geomap.writeIndexArrayLodDiff(pow, right, top, left, bottom, totalSize);
+            
+            Buffer b;
+            if (idxB.getBuffer() instanceof IntBuffer)
+                b = (IntBuffer)idxB.getBuffer();
+            else
+                b = (ShortBuffer)idxB.getBuffer();
+            utp.setNewIndexBuffer(b);
         }
 
     }

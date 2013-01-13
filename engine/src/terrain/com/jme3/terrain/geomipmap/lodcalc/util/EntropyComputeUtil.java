@@ -40,8 +40,10 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.BufferUtils;
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 
 /**
  * Computes the entropy value δ (delta) for a given terrain block and
@@ -53,7 +55,7 @@ import java.nio.IntBuffer;
  */
 public class EntropyComputeUtil {
 
-    public static float computeLodEntropy(Mesh terrainBlock, IntBuffer lodIndices){
+    public static float computeLodEntropy(Mesh terrainBlock, Buffer lodIndices){
         // Bounding box for the terrain block
         BoundingBox bbox = (BoundingBox) terrainBlock.getBound();
 
@@ -72,7 +74,11 @@ public class EntropyComputeUtil {
         VertexBuffer originalIndices = terrainBlock.getBuffer(Type.Index);
 
         terrainBlock.clearBuffer(Type.Index);
-        terrainBlock.setBuffer(Type.Index, 3, lodIndices);
+        if (lodIndices instanceof IntBuffer)
+            terrainBlock.setBuffer(Type.Index, 3, (IntBuffer)lodIndices);
+        else if (lodIndices instanceof ShortBuffer) {
+            terrainBlock.setBuffer(Type.Index, 3, (ShortBuffer) lodIndices);
+        }
 
         // Recalculate collision mesh
         terrainBlock.createCollisionData();

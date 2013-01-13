@@ -32,7 +32,9 @@
 package com.jme3.terrain.geomipmap;
 
 import com.jme3.scene.VertexBuffer.Type;
+import java.nio.Buffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 
 /**
  * Stores a terrain patch's details so the LOD background thread can update
@@ -47,7 +49,7 @@ public class UpdatedTerrainPatch {
     private int newLod;
     private int previousLod;
     private int rightLod,topLod,leftLod,bottomLod;
-    private IntBuffer newIndexBuffer;
+    private Buffer newIndexBuffer;
     //private boolean reIndexNeeded = false;
     private boolean fixEdges = false;
 
@@ -93,7 +95,7 @@ public class UpdatedTerrainPatch {
         return newIndexBuffer;
     }*/
 
-    protected void setNewIndexBuffer(IntBuffer newIndexBuffer) {
+    protected void setNewIndexBuffer(Buffer newIndexBuffer) {
         this.newIndexBuffer = newIndexBuffer;
     }
 
@@ -174,7 +176,10 @@ public class UpdatedTerrainPatch {
         if (newIndexBuffer != null && isReIndexNeeded()) {
             updatedPatch.setPreviousLod(previousLod);
             updatedPatch.getMesh().clearBuffer(Type.Index);
-            updatedPatch.getMesh().setBuffer(Type.Index, 3, newIndexBuffer);
+            if (newIndexBuffer instanceof IntBuffer)
+                updatedPatch.getMesh().setBuffer(Type.Index, 3, (IntBuffer)newIndexBuffer);
+            else if (newIndexBuffer instanceof ShortBuffer)
+                updatedPatch.getMesh().setBuffer(Type.Index, 3, (ShortBuffer)newIndexBuffer);
         }
     }
     
