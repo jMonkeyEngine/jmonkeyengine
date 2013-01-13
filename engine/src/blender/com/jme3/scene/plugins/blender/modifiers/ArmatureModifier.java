@@ -206,11 +206,13 @@ import com.jme3.util.BufferUtils;
 					mesh.setBuffer(buffers[0]);
 					mesh.setBuffer(buffers[1]);
 					
-					if(meshContext.getBindNormalBuffer() != null) {
-						mesh.setBuffer(meshContext.getBindNormalBuffer());
+					VertexBuffer bindNormalBuffer = (meshContext.getBindNormalBuffer(materialIndex));
+					if(bindNormalBuffer != null) {
+						mesh.setBuffer(bindNormalBuffer);
 					}
-					if(meshContext.getBindPoseBuffer() != null) {
-						mesh.setBuffer(meshContext.getBindPoseBuffer());
+					VertexBuffer bindPoseBuffer = (meshContext.getBindPoseBuffer(materialIndex));
+					if(bindPoseBuffer != null) {
+						mesh.setBuffer(bindPoseBuffer);
 					}
 					//change the usage type of vertex and normal buffers from Static to Stream
 					mesh.getBuffer(Type.Position).setUsage(Usage.Stream);

@@ -173,17 +173,17 @@ public class MeshHelper extends AbstractBlenderHelper {
 
             // initial vertex position (used with animation)
             VertexBuffer verticesBind = new VertexBuffer(Type.BindPosePosition);
-            verticesBind.setupData(Usage.CpuOnly, 3, Format.Float, BufferUtils.clone(verticesBuffer.getData()));
+            verticesBind.setupData(Usage.CpuOnly, 3, Format.Float, BufferUtils.createFloatBuffer(meshBuilder.getVertices(materialIndex)));
 
             VertexBuffer normalsBuffer = new VertexBuffer(Type.Normal);
             normalsBuffer.setupData(Usage.Static, 3, Format.Float, BufferUtils.createFloatBuffer(meshBuilder.getNormals(materialIndex)));
 
             // initial normals position (used with animation)
             VertexBuffer normalsBind = new VertexBuffer(Type.BindPoseNormal);
-            normalsBind.setupData(Usage.CpuOnly, 3, Format.Float, BufferUtils.clone(normalsBuffer.getData()));
+            normalsBind.setupData(Usage.CpuOnly, 3, Format.Float, BufferUtils.createFloatBuffer(meshBuilder.getNormals(materialIndex)));
             
             mesh.setBuffer(verticesBuffer);
-            meshContext.setBindPoseBuffer(verticesBind);//this is stored in the context and applied when needed (when animation is applied to the mesh)
+            meshContext.setBindPoseBuffer(materialIndex, verticesBind);//this is stored in the context and applied when needed (when animation is applied to the mesh)
 
             // setting vertices colors
             if (verticesColors != null) {
@@ -193,7 +193,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 
             // setting faces' normals
             mesh.setBuffer(normalsBuffer);
-            meshContext.setBindNormalBuffer(normalsBind);//this is stored in the context and applied when needed (when animation is applied to the mesh)
+            meshContext.setBindNormalBuffer(materialIndex, normalsBind);//this is stored in the context and applied when needed (when animation is applied to the mesh)
 
             // creating the result
             Geometry geometry = new Geometry(name + (geometries.size() + 1), mesh);

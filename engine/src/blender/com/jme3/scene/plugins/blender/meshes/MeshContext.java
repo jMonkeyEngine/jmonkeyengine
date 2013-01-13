@@ -21,9 +21,9 @@ public class MeshContext {
 	/** The UV-coordinates for each of the geometries. */
 	private Map<Geometry, VertexBuffer>	uvCoordinates	= new HashMap<Geometry, VertexBuffer>();
 	/** Bind buffer for vertices is stored here and applied when required. */
-	private VertexBuffer				bindPoseBuffer;
+	private Map<Integer, VertexBuffer>				bindPoseBuffer = new HashMap<Integer, VertexBuffer>();
 	/** Bind buffer for normals is stored here and applied when required. */
-	private VertexBuffer				bindNormalBuffer;
+	private Map<Integer, VertexBuffer>				bindNormalBuffer = new HashMap<Integer, VertexBuffer>();
 
 	/**
 	 * Adds a geometry for the specified material index.
@@ -102,34 +102,43 @@ public class MeshContext {
 	/**
 	 * This method sets the bind buffer for vertices.
 	 * 
+	 * @param materialIndex
+	 *            the index of the mesh's material
 	 * @param bindNormalBuffer
 	 *            the bind buffer for vertices
 	 */
-	public void setBindNormalBuffer(VertexBuffer bindNormalBuffer) {
-		this.bindNormalBuffer = bindNormalBuffer;
+	public void setBindNormalBuffer(int materialIndex,
+			VertexBuffer bindNormalBuffer) {
+		this.bindNormalBuffer.put(materialIndex, bindNormalBuffer);
 	}
 
 	/**
+	 * @param materialIndex
+	 *            the index of the mesh's material
 	 * @return the bind buffer for vertices
 	 */
-	public VertexBuffer getBindNormalBuffer() {
-		return bindNormalBuffer;
+	public VertexBuffer getBindNormalBuffer(int materialIndex) {
+		return bindNormalBuffer.get(materialIndex);
 	}
 
 	/**
 	 * This method sets the bind buffer for normals.
 	 * 
+	 * @param materialIndex
+	 *            the index of the mesh's material
 	 * @param bindNormalBuffer
 	 *            the bind buffer for normals
 	 */
-	public void setBindPoseBuffer(VertexBuffer bindPoseBuffer) {
-		this.bindPoseBuffer = bindPoseBuffer;
+	public void setBindPoseBuffer(int materialIndex, VertexBuffer bindPoseBuffer) {
+		this.bindPoseBuffer.put(materialIndex, bindPoseBuffer);
 	}
 
 	/**
+	 * @param materialIndex
+	 *            the index of the mesh's material
 	 * @return the bind buffer for normals
 	 */
-	public VertexBuffer getBindPoseBuffer() {
-		return bindPoseBuffer;
+	public VertexBuffer getBindPoseBuffer(int materialIndex) {
+		return bindPoseBuffer.get(materialIndex);
 	}
 }
