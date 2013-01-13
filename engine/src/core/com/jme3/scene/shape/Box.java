@@ -95,11 +95,15 @@ public class Box extends AbstractBox {
      * the given amount in <em>each</em> direction. So, for example, a box
      * with extent of 0.5 would be the unit cube.
      * 
+     * @Deprecated: Due to constant confusion of geometry centers and the center
+     * of the box mesh this method has been deprecated.
+     * 
      * @param center the center of the box.
      * @param x the size of the box along the x axis, in both directions.
      * @param y the size of the box along the y axis, in both directions.
      * @param z the size of the box along the z axis, in both directions.
      */
+    @Deprecated
     public Box(Vector3f center, float x, float y, float z) {
         super();
         updateGeometry(center, x, y, z);
