@@ -34,6 +34,8 @@ package com.jme3.gde.core.util;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -43,11 +45,44 @@ public class PropertyUtils {
 
     public static PropertyDescriptor getPropertyDescriptor(Class c, Field field) {
         try {
-
-
+            try {
+                try {
+                    PropertyDescriptor p = (PropertyDescriptor)c.getClassLoader().loadClass("java.beans.PropertyDescriptor").newInstance();
+                    
+                } catch (InstantiationException ex) {
+                    Exceptions.printStackTrace(ex);
+                } catch (IllegalAccessException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            } catch (ClassNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
             PropertyDescriptor prop = new PropertyDescriptor(field.getName(), c);
 
             prop.setDisplayName(splitCamelCase(field.getName()));
+
+            return prop;
+        } catch (IntrospectionException ex) {
+            //System.out.println(ex.getMessage());
+            return null;
+        }
+    }
+
+    public static PropertyDescriptor getPropertyDescriptor(Class c, Method meth) {
+        try {
+
+            String name = meth.getName();
+            if (name.startsWith("get") || name.startsWith("set")) {
+                name = name.substring(3);
+                if (name.length() > 0) {
+                    name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+                }
+            } else {
+                return null;
+            }
+            PropertyDescriptor prop = new PropertyDescriptor(name, c);
+
+            prop.setDisplayName(splitCamelCase(meth.getName()));
 
             return prop;
         } catch (IntrospectionException ex) {

@@ -24,6 +24,7 @@
  */
 package com.jme3.gde.core.scene;
 
+import com.jme3.gde.core.appstates.FakeApplication;
 import com.jme3.app.Application;
 import com.jme3.app.StatsView;
 import com.jme3.bullet.BulletAppState;
@@ -116,6 +117,7 @@ public class SceneApplication extends Application implements LookupProvider {
     boolean useCanvas = false;
     private BulletAppState physicsState;
     private Thread thread;
+    private FakeApplication fakeApp;
 
     public SceneApplication() {
         progressHandle.start(7);
@@ -265,6 +267,7 @@ public class SceneApplication extends Application implements LookupProvider {
         }
         try {
             super.update();
+            FakeApplication fakap=fakeApp;
             float tpf = timer.getTimePerFrame();
             camLight.setPosition(cam.getLocation());
             secondCounter += tpf;
@@ -274,12 +277,18 @@ public class SceneApplication extends Application implements LookupProvider {
                 secondCounter = 0.0f;
             }
             getStateManager().update(tpf);
+            if(fakap!=null){
+                fakap.updateFake(tpf);
+            }
             rootNode.updateLogicalState(tpf);
             guiNode.updateLogicalState(tpf);
             toolsNode.updateLogicalState(tpf);
             rootNode.updateGeometricState();
             guiNode.updateGeometricState();
             toolsNode.updateGeometricState();
+            if(fakap!=null){
+                fakap.renderFake();
+            }
             getStateManager().render(renderManager);
             renderManager.render(tpf, context.isRenderable());
             getStateManager().postRender();
@@ -618,5 +627,13 @@ public class SceneApplication extends Application implements LookupProvider {
 
     public boolean isAwt() {
         return java.awt.EventQueue.isDispatchThread();
+    }
+
+    public FakeApplication getFakeApp() {
+        return fakeApp;
+    }
+
+    public void setFakeApp(FakeApplication fakeApp) {
+        this.fakeApp = fakeApp;
     }
 }
