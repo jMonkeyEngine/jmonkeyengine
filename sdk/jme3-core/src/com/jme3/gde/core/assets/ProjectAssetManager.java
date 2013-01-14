@@ -35,7 +35,6 @@ import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
-import com.jme3.system.JmeSystem;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
@@ -54,6 +53,7 @@ import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.openide.filesystems.FileAttributeEvent;
@@ -61,7 +61,6 @@ import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
-import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.XMLFileSystem;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
@@ -76,8 +75,8 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     private Project project;
     private List<String> folderNames = new LinkedList<String>();
-    private List<AssetEventListener> assetEventListeners = Collections.synchronizedList(new LinkedList<AssetEventListener>());
-    private List<ClassPathChangeListener> classPathListeners = Collections.synchronizedList(new LinkedList<ClassPathChangeListener>());
+    private final List<AssetEventListener> assetEventListeners = Collections.synchronizedList(new LinkedList<AssetEventListener>());
+    private final List<ClassPathChangeListener> classPathListeners = Collections.synchronizedList(new LinkedList<ClassPathChangeListener>());
     private URLClassLoader loader;
     private LinkedList<FileObject> jarItems = new LinkedList<FileObject>();
     private LinkedList<ClassPathItem> classPathItems = new LinkedList<ClassPathItem>();
@@ -119,13 +118,9 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     private void clearClassLoader() {
         for (FileObject fileObject : jarItems) {
-            try {
-                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Remove locator:{0}", fileObject.getURL());
-                unregisterLocator(fileObject.toURL().toExternalForm(),
-                        com.jme3.asset.plugins.UrlLocator.class);
-            } catch (FileStateInvalidException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Remove locator:{0}", fileObject.toURL());
+            unregisterLocator(fileObject.toURL().toExternalForm(),
+                    com.jme3.asset.plugins.UrlLocator.class);
         }
         jarItems.clear();
         for (ClassPathItem fileObject : classPathItems) {
@@ -136,7 +131,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     private synchronized void loadClassLoader() {
-        Sources sources = project.getLookup().lookup(Sources.class);
+        Sources sources = ProjectUtils.getSources(project);
         if (sources != null) {
             if (loader != null) {
                 removeClassLoader(loader);
@@ -146,53 +141,49 @@ public class ProjectAssetManager extends DesktopAssetManager {
             for (SourceGroup sourceGroup : groups) {
                 ClassPath path = ClassPath.getClassPath(sourceGroup.getRootFolder(), ClassPath.EXECUTE);
                 if (path != null) {
-                    try {
-                        FileObject[] roots = path.getRoots();
-                        for (FileObject fileObject : roots) {
-                            if (!fileObject.equals(getAssetFolder())) {
-                                FileChangeListener listener = new FileChangeListener() {
-                                    public void fileFolderCreated(FileEvent fe) {
+                    FileObject[] roots = path.getRoots();
+                    for (FileObject fileObject : roots) {
+                        if (!fileObject.equals(getAssetFolder())) {
+                            FileChangeListener listener = new FileChangeListener() {
+                                public void fileFolderCreated(FileEvent fe) {
 //                                    notifyClassPathListeners();
-                                    }
+                                }
 
-                                    public void fileDataCreated(FileEvent fe) {
-                                        if (!fe.isExpected()) {
-                                            notifyClassPathListeners();
-                                        }
+                                public void fileDataCreated(FileEvent fe) {
+                                    if (!fe.isExpected()) {
+                                        notifyClassPathListeners();
                                     }
+                                }
 
-                                    public void fileChanged(FileEvent fe) {
-                                        if (!fe.isExpected()) {
-                                            notifyClassPathListeners();
-                                        }
+                                public void fileChanged(FileEvent fe) {
+                                    if (!fe.isExpected()) {
+                                        notifyClassPathListeners();
                                     }
+                                }
 
-                                    public void fileDeleted(FileEvent fe) {
+                                public void fileDeleted(FileEvent fe) {
 //                                    notifyClassPathListeners();
-                                    }
+                                }
 
-                                    public void fileRenamed(FileRenameEvent fre) {
+                                public void fileRenamed(FileRenameEvent fre) {
 //                                    notifyClassPathListeners();
-                                    }
+                                }
 
-                                    public void fileAttributeChanged(FileAttributeEvent fae) {
+                                public void fileAttributeChanged(FileAttributeEvent fae) {
 //                                    notifyClassPathListeners();
-                                    }
-                                };
-                                fileObject.addRecursiveListener(listener);
-                                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add classpath:{0}", fileObject);
-                                classPathItems.add(new ClassPathItem(fileObject, listener));
-                                urls.add(fileObject.toURL());
-                            }
-                            if (fileObject.toURL().toExternalForm().startsWith("jar")) {
-                                Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add locator:{0}", fileObject.getURL());
-                                jarItems.add(fileObject);
-                                registerLocator(fileObject.toURL().toExternalForm(),
-                                        "com.jme3.asset.plugins.UrlLocator");
-                            }
+                                }
+                            };
+                            fileObject.addRecursiveListener(listener);
+                            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add classpath:{0}", fileObject);
+                            classPathItems.add(new ClassPathItem(fileObject, listener));
+                            urls.add(fileObject.toURL());
                         }
-                    } catch (FileStateInvalidException ex) {
-                        Exceptions.printStackTrace(ex);
+                        if (fileObject.toURL().toExternalForm().startsWith("jar")) {
+                            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add locator:{0}", fileObject.toURL());
+                            jarItems.add(fileObject);
+                            registerLocator(fileObject.toURL().toExternalForm(),
+                                    "com.jme3.asset.plugins.UrlLocator");
+                        }
                     }
                 }
             }
@@ -450,10 +441,12 @@ public class ProjectAssetManager extends DesktopAssetManager {
         this.folderNames.add(0, folderName);
     }
 
+    @Override
     public void addAssetEventListener(AssetEventListener listener) {
         assetEventListeners.add(listener);
     }
 
+    @Override
     public void removeAssetEventListener(AssetEventListener listener) {
         assetEventListeners.remove(listener);
     }
