@@ -421,6 +421,9 @@ public class CurvesHelper extends AbstractBlenderHelper {
 	 * @return scale on the pointed place along the curve
 	 */
 	protected float getTaperScale(Spline taper, float percent) {
+		if(taper == null) {
+			return 1;//return scale = 1 if no taper is applied
+		}
 		percent = FastMath.clamp(percent, 0, 1);
 		List<Float> segmentLengths = taper.getSegmentsLength();
 		float percentLength = taper.getTotalLength() * percent;
