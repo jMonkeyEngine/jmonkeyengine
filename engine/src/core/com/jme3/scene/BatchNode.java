@@ -181,6 +181,7 @@ public class BatchNode extends Node implements Savable {
             batch.geometry.setIgnoreTransform(true);
             batch.geometry.setUserData(UserData.JME_PHYSICSIGNORE, true);
         }
+        updateGeometricState();
     }
 
     protected void doBatch() {
