@@ -179,6 +179,7 @@ public class BatchNode extends Node implements Savable {
         //we set the batch geometries to ignore transforms to avoid transforms of parent nodes to be applied twice        
         for (Batch batch : batches.getArray()) {
             batch.geometry.setIgnoreTransform(true);
+            batch.geometry.setUserData(UserData.JME_PHYSICSIGNORE, true);
         }
     }
 

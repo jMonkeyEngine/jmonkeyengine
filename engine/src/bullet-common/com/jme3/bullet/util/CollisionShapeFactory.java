@@ -102,7 +102,7 @@ public class CollisionShapeFactory {
                 shape.addChildShape(new HeightfieldCollisionShape(terrain.getHeightMap(), terrain.getLocalScale()),
                         trans.getTranslation(),
                         trans.getRotation().toRotationMatrix());
-            } else if (spatial instanceof Geometry && !((Geometry)spatial).isBatched()) {
+            } else if (spatial instanceof Geometry) {
                 Boolean bool = spatial.getUserData(UserData.JME_PHYSICSIGNORE);
                 if (bool != null && bool.booleanValue()) {
                     continue; // go to the next child in the loop
