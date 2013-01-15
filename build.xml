@@ -94,7 +94,7 @@
     </target>
     
     <target name="-hudson-revert-changes">
-        <exec executable="svn" dir="engine">
+        <exec executable="svn" dir="engine" failonerror="true">
             <arg value="cleanup" />
         </exec>
         <exec executable="svn" dir="engine">
