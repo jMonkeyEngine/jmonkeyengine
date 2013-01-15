@@ -46,7 +46,7 @@ import jme3tools.optimize.GeometryBatchFactory;
 public class OptimizeGeometry extends AbstractToolAction {
 
     public OptimizeGeometry() {
-        name = "Optimize Geometry";
+        name = "Batch Geometry";
     }
 
     @Override
