@@ -35,6 +35,8 @@ import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.DesktopAssetManager;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
@@ -64,6 +66,7 @@ import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.XMLFileSystem;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.Mutex;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -78,8 +81,10 @@ public class ProjectAssetManager extends DesktopAssetManager {
     private final List<AssetEventListener> assetEventListeners = Collections.synchronizedList(new LinkedList<AssetEventListener>());
     private final List<ClassPathChangeListener> classPathListeners = Collections.synchronizedList(new LinkedList<ClassPathChangeListener>());
     private URLClassLoader loader;
+    private final List<ClassPath> classPaths = Collections.synchronizedList(new LinkedList<ClassPath>());
+    private final List<ClassPathItem> classPathItems = Collections.synchronizedList(new LinkedList<ClassPathItem>());
     private LinkedList<FileObject> jarItems = new LinkedList<FileObject>();
-    private LinkedList<ClassPathItem> classPathItems = new LinkedList<ClassPathItem>();
+    private final Mutex mutex = new Mutex();
 
     public ProjectAssetManager(Project prj, String folderName) {
         super(true);
@@ -88,11 +93,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
             di.prepareManager(this);
         }
         addFolderLocator(folderName);
-        ProjectManager.mutex().postWriteRequest(new Runnable() {
-            public void run() {
-                updateClassLoader();
-            }
-        });
+        updateClassLoader();
         prepAssetEventListeners();
     }
 
@@ -117,17 +118,25 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     private void clearClassLoader() {
+        if (jarItems.isEmpty() && classPathItems.isEmpty()) {
+            return;
+        }
+        Logger.getLogger(ProjectAssetManager.class.getName()).log(Level.INFO, "Clear {0} classpath entries and {1} url locators for project {2}", new Object[]{classPathItems.size(), jarItems.size(), project.toString()});
         for (FileObject fileObject : jarItems) {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Remove locator:{0}", fileObject.toURL());
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Remove locator:{0}", fileObject.toURL());
             unregisterLocator(fileObject.toURL().toExternalForm(),
                     com.jme3.asset.plugins.UrlLocator.class);
         }
         jarItems.clear();
         for (ClassPathItem fileObject : classPathItems) {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Remove classpath:{0}", fileObject.object);
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Remove classpath:{0}", fileObject.object);
             fileObject.object.removeRecursiveListener(fileObject.listener);
         }
         classPathItems.clear();
+        for (ClassPath classPath : classPaths) {
+            classPath.removePropertyChangeListener(classPathListener);
+        }
+        classPaths.clear();
     }
 
     private synchronized void loadClassLoader() {
@@ -141,45 +150,18 @@ public class ProjectAssetManager extends DesktopAssetManager {
             for (SourceGroup sourceGroup : groups) {
                 ClassPath path = ClassPath.getClassPath(sourceGroup.getRootFolder(), ClassPath.EXECUTE);
                 if (path != null) {
+                    classPaths.add(path);
+                    path.addPropertyChangeListener(classPathListener);
                     FileObject[] roots = path.getRoots();
                     for (FileObject fileObject : roots) {
                         if (!fileObject.equals(getAssetFolder())) {
-                            FileChangeListener listener = new FileChangeListener() {
-                                public void fileFolderCreated(FileEvent fe) {
-//                                    notifyClassPathListeners();
-                                }
-
-                                public void fileDataCreated(FileEvent fe) {
-                                    if (!fe.isExpected()) {
-                                        notifyClassPathListeners();
-                                    }
-                                }
-
-                                public void fileChanged(FileEvent fe) {
-                                    if (!fe.isExpected()) {
-                                        notifyClassPathListeners();
-                                    }
-                                }
-
-                                public void fileDeleted(FileEvent fe) {
-//                                    notifyClassPathListeners();
-                                }
-
-                                public void fileRenamed(FileRenameEvent fre) {
-//                                    notifyClassPathListeners();
-                                }
-
-                                public void fileAttributeChanged(FileAttributeEvent fae) {
-//                                    notifyClassPathListeners();
-                                }
-                            };
                             fileObject.addRecursiveListener(listener);
-                            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add classpath:{0}", fileObject);
+                            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Add classpath:{0}", fileObject);
                             classPathItems.add(new ClassPathItem(fileObject, listener));
                             urls.add(fileObject.toURL());
                         }
                         if (fileObject.toURL().toExternalForm().startsWith("jar")) {
-                            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Add locator:{0}", fileObject.toURL());
+                            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Add locator:{0}", fileObject.toURL());
                             jarItems.add(fileObject);
                             registerLocator(fileObject.toURL().toExternalForm(),
                                     "com.jme3.asset.plugins.UrlLocator");
@@ -189,12 +171,62 @@ public class ProjectAssetManager extends DesktopAssetManager {
             }
             loader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
             addClassLoader(loader);
+            Logger.getLogger(ProjectAssetManager.class.getName()).log(Level.INFO, "Updated {0} classpath entries and {1} url locators for project {2}", new Object[]{classPathItems.size(), jarItems.size(), project.toString()});
         }
     }
+    FileChangeListener listener = new FileChangeListener() {
+        public void fileFolderCreated(FileEvent fe) {
+            fireChange(fe);
+        }
+
+        public void fileDataCreated(FileEvent fe) {
+            fireChange(fe);
+        }
+
+        public void fileChanged(FileEvent fe) {
+            fireChange(fe);
+        }
+
+        public void fileDeleted(FileEvent fe) {
+        }
+
+        public void fileRenamed(FileRenameEvent fe) {
+            fireChange(fe);
+        }
+
+        public void fileAttributeChanged(FileAttributeEvent fae) {
+        }
+
+        private void fireChange(FileEvent fe) {
+            Logger.getLogger(ProjectAssetManager.class.getName()).log(Level.FINE, "Classpath item changed: {0}", fe);
+//            if (!fe.isExpected()) {
+            updateClassLoader();
+//            }
+        }
+    };
+    private PropertyChangeListener classPathListener = new PropertyChangeListener() {
+        public void propertyChange(PropertyChangeEvent evt) {
+            Logger.getLogger(ProjectAssetManager.class.getName()).log(Level.FINE, "Classpath event: {0}", evt);
+            if (ClassPath.PROP_ROOTS.equals(evt.getPropertyName())) {
+                updateClassLoader();
+            } else if (ClassPath.PROP_ENTRIES.equals(evt.getPropertyName())) {
+                updateClassLoader();
+            } else if (ClassPath.PROP_INCLUDES.equals(evt.getPropertyName())) {
+                updateClassLoader();
+            }
+        }
+    };
 
     private synchronized void updateClassLoader() {
-        clearClassLoader();
-        loadClassLoader();
+        ProjectManager.mutex().postWriteRequest(new Runnable() {
+            public void run() {
+                synchronized (classPathItems) {
+                    clearClassLoader();
+                    loadClassLoader();
+                }
+            }
+        });
+        notifyClassPathListeners();
     }
 
     @Override
@@ -338,22 +370,24 @@ public class ProjectAssetManager extends DesktopAssetManager {
         }
 
         if (classPathItems != null) {
-            // TODO I need to find out if classPathItems contains all jars added to a project
-            Iterator<ClassPathItem> classPathItemsIter = classPathItems.iterator();
-            while (classPathItemsIter.hasNext()) {
-                ClassPathItem classPathItem = classPathItemsIter.next();
-                FileObject jarFile = classPathItem.object;
+            synchronized (classPathItems) {
+                // TODO I need to find out if classPathItems contains all jars added to a project
+                Iterator<ClassPathItem> classPathItemsIter = classPathItems.iterator();
+                while (classPathItemsIter.hasNext()) {
+                    ClassPathItem classPathItem = classPathItemsIter.next();
+                    FileObject jarFile = classPathItem.object;
 
-                Enumeration<FileObject> jarEntry = (Enumeration<FileObject>) jarFile.getChildren(true);
-                while (jarEntry.hasMoreElements()) {
-                    FileObject jarEntryAsset = jarEntry.nextElement();
-                    if (jarEntryAsset.getExt().equalsIgnoreCase(suffix)) {
-                        if (!jarEntryAsset.getPath().startsWith("/")) {
-                            list.add(jarEntryAsset.getPath());
+                    Enumeration<FileObject> jarEntry = (Enumeration<FileObject>) jarFile.getChildren(true);
+                    while (jarEntry.hasMoreElements()) {
+                        FileObject jarEntryAsset = jarEntry.nextElement();
+                        if (jarEntryAsset.getExt().equalsIgnoreCase(suffix)) {
+                            if (!jarEntryAsset.getPath().startsWith("/")) {
+                                list.add(jarEntryAsset.getPath());
+                            }
                         }
                     }
-                }
 
+                }
             }
         }
 
@@ -362,29 +396,29 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     public InputStream getResourceAsStream(String name) {
         InputStream in = null;//JmeSystem.getResourceAsStream(name);
+        synchronized (classPathItems) {
+            if (in == null && classPathItems != null) {
+                // TODO I need to find out if classPathItems contains all jars added to a project
+                Iterator<ClassPathItem> classPathItemsIter = classPathItems.iterator();
+                while (classPathItemsIter.hasNext()) {
+                    ClassPathItem classPathItem = classPathItemsIter.next();
+                    FileObject jarFile = classPathItem.object;
 
-        if (in == null && classPathItems != null) {
-            // TODO I need to find out if classPathItems contains all jars added to a project
-            Iterator<ClassPathItem> classPathItemsIter = classPathItems.iterator();
-            while (classPathItemsIter.hasNext()) {
-                ClassPathItem classPathItem = classPathItemsIter.next();
-                FileObject jarFile = classPathItem.object;
-
-                Enumeration<FileObject> jarEntry = (Enumeration<FileObject>) jarFile.getChildren(true);
-                while (jarEntry.hasMoreElements()) {
-                    FileObject jarEntryAsset = jarEntry.nextElement();
-                    if (jarEntryAsset.getPath().equalsIgnoreCase(name)) {
-                        try {
-                            in = jarEntryAsset.getInputStream();
-                        } catch (FileNotFoundException ex) {
-                            Exceptions.printStackTrace(ex);
+                    Enumeration<FileObject> jarEntry = (Enumeration<FileObject>) jarFile.getChildren(true);
+                    while (jarEntry.hasMoreElements()) {
+                        FileObject jarEntryAsset = jarEntry.nextElement();
+                        if (jarEntryAsset.getPath().equalsIgnoreCase(name)) {
+                            try {
+                                in = jarEntryAsset.getInputStream();
+                            } catch (FileNotFoundException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
         }
-
         return in;
     }
 
@@ -443,24 +477,31 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     @Override
     public void addAssetEventListener(AssetEventListener listener) {
-        assetEventListeners.add(listener);
+        synchronized (assetEventListeners) {
+            assetEventListeners.add(listener);
+        }
     }
 
     @Override
     public void removeAssetEventListener(AssetEventListener listener) {
-        assetEventListeners.remove(listener);
+        synchronized (assetEventListeners) {
+            assetEventListeners.remove(listener);
+        }
     }
 
     public void addClassPathEventListener(ClassPathChangeListener listener) {
-        classPathListeners.add(listener);
+        synchronized (classPathListeners) {
+            classPathListeners.add(listener);
+        }
     }
 
     public void removeClassPathEventListener(ClassPathChangeListener listener) {
-        classPathListeners.remove(listener);
+        synchronized (classPathListeners) {
+            classPathListeners.remove(listener);
+        }
     }
 
     private void notifyClassPathListeners() {
-        updateClassLoader();
         final ProjectAssetManager pm = this;
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -471,6 +512,10 @@ public class ProjectAssetManager extends DesktopAssetManager {
                 }
             }
         });
+    }
+
+    public Mutex mutex() {
+        return mutex;
     }
 
     /**
@@ -505,6 +550,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     private static class ClassPathItem {
 
+        ClassPath path;
         FileObject object;
         FileChangeListener listener;
 
