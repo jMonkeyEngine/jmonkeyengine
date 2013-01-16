@@ -383,11 +383,7 @@ public class FakeApplication extends SimpleApplication {
     /*
      * Internal
      */
-    private ScheduledThreadPoolExecutor fakeAppThread;
-
-    public void startFakeApp() {
-        fakeAppThread = new ScheduledThreadPoolExecutor(1);
-    }
+    private ScheduledThreadPoolExecutor fakeAppThread = new ScheduledThreadPoolExecutor(1);
 
     public void stopFakeApp() {
         fakeAppThread.shutdown();

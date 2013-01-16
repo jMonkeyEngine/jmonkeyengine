@@ -376,7 +376,6 @@ public class SceneApplication extends Application implements LookupProvider {
                     camController.disable();
                 }
                 fakeApp = new FakeApplication(rootNode, guiNode, request.getManager(), cam);
-                fakeApp.startFakeApp();
                 request.setFakeApp(fakeApp);
                 enqueue(new Callable() {
                     public Object call() throws Exception {
