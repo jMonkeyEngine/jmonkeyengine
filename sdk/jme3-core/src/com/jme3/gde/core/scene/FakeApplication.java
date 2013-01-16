@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.gde.core.appstates;
+package com.jme3.gde.core.scene;
 
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
@@ -38,6 +38,7 @@ import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Listener;
+import com.jme3.gde.core.appstates.AppStateManagerNode;
 import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
 import com.jme3.renderer.Camera;
@@ -45,6 +46,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
+import com.jme3.scene.control.Control;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeContext.Type;
@@ -54,9 +56,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Exceptions;
@@ -332,9 +339,60 @@ public class FakeApplication extends SimpleApplication {
         //TODO: also nice messages
     }
 
+    public static class FakeAppStateManager extends AppStateManager {
+
+        private AppStateManagerNode node;
+        ArrayList<AppState> states = new ArrayList<AppState>();
+
+        public FakeAppStateManager(Application app) {
+            super(app);
+        }
+
+        public List<AppState> getAddedStates() {
+            return states;
+        }
+
+        @Override
+        public boolean attach(AppState state) {
+            boolean ret = super.attach(state);
+            if (ret) {
+                states.add(state);
+            }
+            if (node != null) {
+                node.refresh();
+            }
+            return ret;
+        }
+
+        @Override
+        public boolean detach(AppState state) {
+            boolean ret = super.detach(state);
+            if (ret) {
+                states.remove(state);
+            }
+            if (node != null) {
+                node.refresh();
+            }
+            return ret;
+        }
+
+        public void setNode(AppStateManagerNode node) {
+            this.node = node;
+        }
+    }
     /*
      * Internal
      */
+    private ScheduledThreadPoolExecutor fakeAppThread;
+
+    public void startFakeApp() {
+        fakeAppThread = new ScheduledThreadPoolExecutor(1);
+    }
+
+    public void stopFakeApp() {
+        fakeAppThread.shutdown();
+    }
+
     private void defaultFakeError() {
         defaultFakeError(false);
     }
@@ -366,60 +424,129 @@ public class FakeApplication extends SimpleApplication {
                 NotifyDescriptor.WARNING_MESSAGE));
     }
 
-    public void updateFake(float tpf) {
-//        System.out.println("UPDATE");
-        appStateManager.update(tpf);
+    private void removeAllStates() {
+        for (Iterator<AppState> it = new ArrayList(appStateManager.getAddedStates()).iterator(); it.hasNext();) {
+            AppState appState = it.next();
+            appStateManager.detach(appState);
+        }
     }
 
-    public void renderFake() {
-        appStateManager.render(renderManager);
+    public boolean updateFake(final float tpf) {
+        Future fut = fakeAppThread.submit(new Callable<Void>() {
+            public Void call() throws Exception {
+                appStateManager.update(tpf);
+                return null;
+            }
+        });
+        try {
+            fut.get(1, TimeUnit.MINUTES);
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            removeAllStates();
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Exception in AppState, all AppStates removed."));
+            return false;
+        } catch (TimeoutException ex) {
+            fut.cancel(true);
+            removeAllStates();
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Update loop was blocked for too long, all AppStates removed."));
+            return false;
+        }
+        return true;
     }
 
-    public static class FakeAppStateManager extends AppStateManager {
-
-        private AppStateManagerNode node;
-        ArrayList<AppState> states = new ArrayList<AppState>();
-
-        public FakeAppStateManager(Application app) {
-            super(app);
+    public boolean renderFake() {
+        Future fut = fakeAppThread.submit(new Callable<Void>() {
+            public Void call() throws Exception {
+                appStateManager.render(renderManager);
+                return null;
+            }
+        });
+        try {
+            fut.get(1, TimeUnit.MINUTES);
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            removeAllStates();
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Exception in AppState, all AppStates removed."));
+            return false;
+        } catch (TimeoutException ex) {
+            fut.cancel(true);
+            removeAllStates();
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Render loop was blocked for too long, all AppStates removed."));
+            return false;
         }
+        return true;
+    }
 
-        public List<AppState> getAddedStates() {
-            return states;
+    public boolean updateExternalLogicalState(final Node externalNode, final float tpf) {
+        Future fut = fakeAppThread.submit(new Callable<Void>() {
+            public Void call() throws Exception {
+                externalNode.updateLogicalState(tpf);
+                return null;
+            }
+        });
+        try {
+            fut.get(1, TimeUnit.MINUTES);
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            clearNode(externalNode);
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Exception in Control, scene content removed.\n" + ex.getMessage()));
+            return false;
+        } catch (TimeoutException ex) {
+            fut.cancel(true);
+            clearNode(externalNode);
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Render loop was blocked for too long, scene content removed."));
+            return false;
         }
+        return true;
+    }
 
-        @Override
-        public boolean attach(AppState state) {
-            boolean ret = super.attach(state);
+    public boolean updateExternalGeometricState(final Node externalNode) {
+        Future fut = fakeAppThread.submit(new Callable<Void>() {
+            public Void call() throws Exception {
+                externalNode.updateGeometricState();
+                return null;
+            }
+        });
+        try {
+            fut.get(1, TimeUnit.MINUTES);
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            clearNode(externalNode);
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Exception in Control, scene content removed.\n" + ex.getMessage()));
+            return false;
+        } catch (TimeoutException ex) {
+            fut.cancel(true);
+            clearNode(externalNode);
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Render loop was blocked for too long, scene content removed."));
+            return false;
+        }
+        return true;
+    }
+
+    private void clearNode(final Node externalNode) {
+        while (!externalNode.getChildren().isEmpty()) {
             try {
-                states.add(state);
+                externalNode.detachAllChildren();
             } catch (Exception e) {
                 Exceptions.printStackTrace(e);
-            }
-//            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(
-//                    "attach state",
-//                    NotifyDescriptor.WARNING_MESSAGE));
-            if (node != null) {
-//                DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(
-//                        "refresh node",
-//                        NotifyDescriptor.WARNING_MESSAGE));
-                node.refresh();
-            }
-            return ret;
-        }
-
-        @Override
-        public boolean detach(AppState state) {
-            try {
-                states.remove(state);
-            } catch (Exception e) {
+            } catch (Error e) {
                 Exceptions.printStackTrace(e);
             }
-            return super.detach(state);
         }
-
-        public void setNode(AppStateManagerNode node) {
-            this.node = node;
+        Control control = externalNode.getControl(Control.class);
+        while (control != null) {
+            try {
+                externalNode.removeControl(control);
+            } catch (Exception e) {
+                Exceptions.printStackTrace(e);
+            } catch (Error e) {
+                Exceptions.printStackTrace(e);
+            }
+            control = externalNode.getControl(Control.class);
         }
     }
 }

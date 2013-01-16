@@ -54,6 +54,7 @@ public class SceneRequest {
     private boolean displayed = false;
     private DataObject dataObject;
     private HelpCtx helpCtx;
+    private FakeApplication fakeApp;
 
     public SceneRequest(Object requester, JmeNode rootNode, ProjectAssetManager manager) {
         this.requester = requester;
@@ -175,4 +176,13 @@ public class SceneRequest {
     public void setHelpCtx(HelpCtx helpCtx) {
         this.helpCtx = helpCtx;
     }
+
+    public void setFakeApp(FakeApplication fakeApp) {
+        this.fakeApp = fakeApp;
+    }
+
+    public FakeApplication getFakeApp() {
+        return fakeApp;
+    }
+    
 }

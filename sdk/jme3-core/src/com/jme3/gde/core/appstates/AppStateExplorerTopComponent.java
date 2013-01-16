@@ -74,31 +74,27 @@ preferredID = "AppStateExplorerTopComponent")
 public final class AppStateExplorerTopComponent extends TopComponent implements ExplorerManager.Provider {
 
     private transient ExplorerManager explorerManager = new ExplorerManager();
-    private FakeApplication fakeApp;
     private ProjectAssetManager mgr;
+    private SceneRequest currentRequest;
+    //TODO: move to global place
     private SceneListener listener = new SceneListener() {
         public void sceneOpened(SceneRequest request) {
+            currentRequest = request;
             Spatial rootNode = request.getRootNode();
             if (!(rootNode instanceof com.jme3.scene.Node)) {
                 return;
             }
             mgr = request.getManager();
-            AssetManager assetManager = request.getManager();
-            Camera cam = SceneApplication.getApplication().getCamera();
-            com.jme3.scene.Node guiNode = SceneApplication.getApplication().getGuiNode();
-            fakeApp = new FakeApplication((com.jme3.scene.Node) rootNode, guiNode, assetManager, cam);
-            //TODO: ermagherd, hackish
-            SceneApplication.getApplication().setFakeApp(fakeApp);
-            final AppStateManagerNode nod = new AppStateManagerNode(fakeApp.getStateManager());
+            final AppStateManagerNode nod = new AppStateManagerNode(request.getFakeApp().getStateManager());
             jButton1.setEnabled(true);
             explorerManager.setRootContext(nod);
             setActivatedNodes(new Node[]{nod});
         }
 
         public void sceneClosed(SceneRequest request) {
+            currentRequest = null;
             SceneApplication.getApplication().setFakeApp(null);
             mgr = null;
-            fakeApp = null;
             jButton1.setEnabled(false);
             explorerManager.setRootContext(Node.EMPTY);
             setActivatedNodes(new Node[]{Node.EMPTY});
@@ -117,6 +113,11 @@ public final class AppStateExplorerTopComponent extends TopComponent implements 
 //        map.put("moveup", new MoveUpAction());
 //        map.put("movedown", new MoveDownAction());
         associateLookup(ExplorerUtils.createLookup(explorerManager, map));
+        //TODO: move to scene listener notify in scene?
+        SceneRequest request = SceneApplication.getApplication().getCurrentSceneRequest();
+        if (request != null) {
+            listener.sceneOpened(request);
+        }
         SceneApplication.getApplication().addSceneListener(listener);
     }
 
@@ -165,9 +166,9 @@ public final class AppStateExplorerTopComponent extends TopComponent implements 
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         ProjectAssetManager projectAssetManager = mgr;
-        FakeApplication fakeApp = this.fakeApp;
-        if (fakeApp != null && mgr != null) {
-            new NewAppStateWizardAction(projectAssetManager, fakeApp).showWizard();
+        SceneRequest currentRequest = this.currentRequest;
+        if (currentRequest != null && mgr != null && currentRequest.getFakeApp() != null) {
+            new NewAppStateWizardAction(projectAssetManager, currentRequest.getFakeApp()).showWizard();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables

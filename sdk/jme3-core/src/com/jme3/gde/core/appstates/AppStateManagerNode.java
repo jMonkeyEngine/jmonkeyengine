@@ -32,7 +32,7 @@
 package com.jme3.gde.core.appstates;
 
 import com.jme3.app.state.AppState;
-import com.jme3.gde.core.appstates.FakeApplication.FakeAppStateManager;
+import com.jme3.gde.core.scene.FakeApplication.FakeAppStateManager;
 import java.util.LinkedList;
 import java.util.List;
 import org.openide.nodes.AbstractNode;

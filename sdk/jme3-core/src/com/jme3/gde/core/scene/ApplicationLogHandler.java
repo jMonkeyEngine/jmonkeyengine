@@ -48,17 +48,18 @@ public class ApplicationLogHandler extends Handler {
     JmeFormatter formatter = new JmeFormatter();
 
     public ApplicationLogHandler() {
+        io.setErrSeparated(true);
     }
 
     @Override
     public void publish(LogRecord record) {
         if (record.getLevel().equals(Level.SEVERE)) {
             io.getErr().println(formatter.formatMessage(record));
-        }
-        else if (record.getLevel().equals(Level.WARNING)) {
+        } else if (record.getLevel().equals(Level.WARNING)) {
             io.getErr().println(formatter.formatMessage(record));
-        }
-        else {
+        } else if (record.getLevel().equals(Level.INFO)) {
+            io.getOut().println(formatter.formatMessage(record));
+        } else {
             io.getOut().println(formatter.formatMessage(record));
         }
     }

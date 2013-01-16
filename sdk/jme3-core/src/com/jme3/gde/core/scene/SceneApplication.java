@@ -24,7 +24,6 @@
  */
 package com.jme3.gde.core.scene;
 
-import com.jme3.gde.core.appstates.FakeApplication;
 import com.jme3.app.Application;
 import com.jme3.app.StatsView;
 import com.jme3.bullet.BulletAppState;
@@ -77,7 +76,7 @@ import org.openide.util.NbPreferences;
 import org.openide.util.lookup.Lookups;
 
 /**
- * 
+ *
  * @author normenhansen
  */
 @SuppressWarnings("unchecked")
@@ -171,7 +170,6 @@ public class SceneApplication extends Application implements LookupProvider {
 
     private void attachPanel() {
         enqueue(new Callable() {
-
             public Object call() throws Exception {
                 panel.attachTo(true, viewPort, overlayView, guiViewPort);
                 return null;
@@ -267,7 +265,7 @@ public class SceneApplication extends Application implements LookupProvider {
         }
         try {
             super.update();
-            FakeApplication fakap=fakeApp;
+            FakeApplication fakap = fakeApp;
             float tpf = timer.getTimePerFrame();
             camLight.setPosition(cam.getLocation());
             secondCounter += tpf;
@@ -277,16 +275,21 @@ public class SceneApplication extends Application implements LookupProvider {
                 secondCounter = 0.0f;
             }
             getStateManager().update(tpf);
-            if(fakap!=null){
-                fakap.updateFake(tpf);
-            }
-            rootNode.updateLogicalState(tpf);
-            guiNode.updateLogicalState(tpf);
             toolsNode.updateLogicalState(tpf);
-            rootNode.updateGeometricState();
-            guiNode.updateGeometricState();
+            if (fakap != null) {
+                fakap.updateFake(tpf);
+                fakap.updateExternalLogicalState(rootNode, tpf);
+                fakap.updateExternalLogicalState(guiNode, tpf);
+                fakap.updateExternalGeometricState(rootNode);
+                fakap.updateExternalGeometricState(guiNode);
+            } else {
+                rootNode.updateLogicalState(tpf);
+                guiNode.updateLogicalState(tpf);
+                rootNode.updateGeometricState();
+                guiNode.updateGeometricState();
+            }
             toolsNode.updateGeometricState();
-            if(fakap!=null){
+            if (fakap != null) {
                 fakap.renderFake();
             }
             getStateManager().render(renderManager);
@@ -331,7 +334,6 @@ public class SceneApplication extends Application implements LookupProvider {
 
     public void notifyPreview(final PreviewRequest request) {
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             public void run() {
                 for (Iterator<SceneListener> it = listeners.iterator(); it.hasNext();) {
                     SceneListener sceneViewerListener = it.next();
@@ -347,12 +349,12 @@ public class SceneApplication extends Application implements LookupProvider {
 
     /**
      * method to display the node tree of a plugin (threadsafe)
+     *
      * @param request
      */
     public void openScene(final SceneRequest request) {
         closeScene(currentSceneRequest, request);
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             public void run() {
                 if (request == null) {
                     return;
@@ -370,8 +372,10 @@ public class SceneApplication extends Application implements LookupProvider {
                 } else {
                     camController.disable();
                 }
+                fakeApp = new FakeApplication(rootNode, guiNode, request.getManager(), cam);
+                fakeApp.startFakeApp();
+                request.setFakeApp(fakeApp);
                 enqueue(new Callable() {
-
                     public Object call() throws Exception {
                         if (request.getManager() != null) {
                             assetManager = request.getManager();
@@ -396,6 +400,7 @@ public class SceneApplication extends Application implements LookupProvider {
 
     /**
      * method to close a scene displayed by a scene request (threadsafe)
+     *
      * @param request
      */
     public void closeScene(final SceneRequest request) {
@@ -404,7 +409,6 @@ public class SceneApplication extends Application implements LookupProvider {
 
     private void closeScene(final SceneRequest oldRequest, final SceneRequest newRequest) {
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             public void run() {
                 if (oldRequest == null) {
                     return;
@@ -425,8 +429,11 @@ public class SceneApplication extends Application implements LookupProvider {
                 if (oldRequest.getRequester() instanceof SceneApplication) {
                     camController.disable();
                 }
+                if (fakeApp != null) {
+                    fakeApp.stopFakeApp();
+                }
+                fakeApp = null;
                 enqueue(new Callable() {
-
                     public Object call() throws Exception {
                         if (physicsState != null) {
                             physicsState.getPhysicsSpace().removeAll(rootNode);
@@ -465,7 +472,7 @@ public class SceneApplication extends Application implements LookupProvider {
                 req.setModified(false);
             }
         }
-        if ((request != null) && (request.getDataObject()instanceof AssetDataObject)){
+        if ((request != null) && (request.getDataObject() instanceof AssetDataObject)) {
             AssetDataObject obj = (AssetDataObject) request.getDataObject();
             obj.closeAsset();
         }
@@ -501,7 +508,6 @@ public class SceneApplication extends Application implements LookupProvider {
 
     public void enableCamLight(final boolean enabled) {
         enqueue(new Callable() {
-
             public Object call() throws Exception {
                 if (enabled) {
                     rootNode.removeLight(camLight);
@@ -516,7 +522,6 @@ public class SceneApplication extends Application implements LookupProvider {
 
     public void enableStats(final boolean enabled) {
         enqueue(new Callable() {
-
             public Object call() throws Exception {
                 if (enabled) {
                     guiNode.attachChild(statsGuiNode);
@@ -530,7 +535,6 @@ public class SceneApplication extends Application implements LookupProvider {
 
     public void enableWireFrame(final boolean selected) {
         enqueue(new Callable() {
-
             public Object call() throws Exception {
                 if (selected) {
                     viewPort.addProcessor(wireProcessor);
@@ -544,7 +548,6 @@ public class SceneApplication extends Application implements LookupProvider {
 
     public void setPhysicsEnabled(final boolean enabled) {
         enqueue(new Callable() {
-
             public Object call() throws Exception {
                 if (enabled) {
                     if (physicsState == null) {
