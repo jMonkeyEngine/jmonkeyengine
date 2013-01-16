@@ -266,6 +266,9 @@ public class SceneApplication extends Application implements LookupProvider {
         try {
             super.update();
             FakeApplication fakap = fakeApp;
+            if (fakap != null) {
+                fakap.runQueuedFake();
+            }
             float tpf = timer.getTimePerFrame();
             camLight.setPosition(cam.getLocation());
             secondCounter += tpf;

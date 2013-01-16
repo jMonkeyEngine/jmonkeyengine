@@ -431,6 +431,28 @@ public class FakeApplication extends SimpleApplication {
         }
     }
 
+    public boolean runQueuedFake() {
+        Future fut = fakeAppThread.submit(new Callable<Void>() {
+            public Void call() throws Exception {
+                runQueuedTasks();
+                return null;
+            }
+        });
+        try {
+            fut.get(1, TimeUnit.MINUTES);
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Exception in queued Tasks."));
+            return false;
+        } catch (TimeoutException ex) {
+            fut.cancel(true);
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Update loop was blocked for too long, task execution halted."));
+            return false;
+        }
+        return true;
+    }
+
     public boolean updateFake(final float tpf) {
         Future fut = fakeAppThread.submit(new Callable<Void>() {
             public Void call() throws Exception {
