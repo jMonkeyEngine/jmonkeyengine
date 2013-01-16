@@ -299,55 +299,36 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     public String[] getMaterials() {
-        FileObject assetsFolder = getAssetFolder();
-        if (assetsFolder == null) {
-            return new String[]{};
-        }
-        Enumeration<FileObject> assets = (Enumeration<FileObject>) assetsFolder.getChildren(true);
-        ArrayList<String> list = new ArrayList<String>();
-        while (assets.hasMoreElements()) {
-            FileObject asset = assets.nextElement();
-            if (asset.getExt().equalsIgnoreCase("j3m")) {
-                list.add(getRelativeAssetPath(asset.getPath()));
-            }
-        }
-        return list.toArray(new String[list.size()]);
+        return filesWithSuffix("j3m");
     }
 
     public String[] getSounds() {
-        FileObject assetsFolder = getAssetFolder();
-        if (assetsFolder == null) {
-            return new String[]{};
-        }
-        Enumeration<FileObject> assets = (Enumeration<FileObject>) assetsFolder.getChildren(true);
         ArrayList<String> list = new ArrayList<String>();
-        while (assets.hasMoreElements()) {
-            FileObject asset = assets.nextElement();
-            if (asset.getExt().equalsIgnoreCase("wav") || asset.getExt().equalsIgnoreCase("ogg")) {
-                list.add(getRelativeAssetPath(asset.getPath()));
-            }
-        }
+        list.addAll(collectFilesWithSuffix("wav"));
+        list.addAll(collectFilesWithSuffix("ogg"));
         return list.toArray(new String[list.size()]);
     }
 
     public String[] getTextures() {
-        FileObject assetsFolder = getAssetFolder();
-        if (assetsFolder == null) {
-            return new String[]{};
-        }
-        Enumeration<FileObject> assets = (Enumeration<FileObject>) assetsFolder.getChildren(true);
         ArrayList<String> list = new ArrayList<String>();
-        while (assets.hasMoreElements()) {
-            FileObject asset = assets.nextElement();
-            if (asset.getExt().equalsIgnoreCase("jpg") || asset.getExt().equalsIgnoreCase("jpeg") || asset.getExt().equalsIgnoreCase("gif") || asset.getExt().equalsIgnoreCase("png") || asset.getExt().equalsIgnoreCase("dds") || asset.getExt().equalsIgnoreCase("pfm") || asset.getExt().equalsIgnoreCase("hdr") || asset.getExt().equalsIgnoreCase("tga")) {
-                list.add(getRelativeAssetPath(asset.getPath()));
-            }
-        }
+        list.addAll(collectFilesWithSuffix("jpg"));
+        list.addAll(collectFilesWithSuffix("jpeg"));
+        list.addAll(collectFilesWithSuffix("gif"));
+        list.addAll(collectFilesWithSuffix("png"));
+        list.addAll(collectFilesWithSuffix("dds"));
+        list.addAll(collectFilesWithSuffix("pfm"));
+        list.addAll(collectFilesWithSuffix("hdr"));
+        list.addAll(collectFilesWithSuffix("tga"));
         return list.toArray(new String[list.size()]);
     }
 
     public String[] getMatDefs() {
-        return collectFilesWithSuffix("j3md");
+        return filesWithSuffix("j3md");
+    }
+    
+    private String[] filesWithSuffix(String string){
+        List<String> list=collectFilesWithSuffix(string);
+        return list.toArray(new String[list.size()]);
     }
 
     /**
@@ -356,8 +337,8 @@ public class ProjectAssetManager extends DesktopAssetManager {
      * @param suffix
      * @return
      */
-    private String[] collectFilesWithSuffix(String suffix) {
-        Set<String> list = new HashSet<String>();
+    private List<String> collectFilesWithSuffix(String suffix) {
+        List<String> list = new LinkedList<String>();
         FileObject assetsFolder = getAssetFolder();
         if (assetsFolder != null) {
             Enumeration<FileObject> assets = (Enumeration<FileObject>) assetsFolder.getChildren(true);
@@ -391,7 +372,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
             }
         }
 
-        return list.toArray(new String[list.size()]);
+        return list;
     }
 
     public InputStream getResourceAsStream(String name) {
