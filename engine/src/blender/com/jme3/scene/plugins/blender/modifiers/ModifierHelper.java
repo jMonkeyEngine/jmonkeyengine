@@ -101,9 +101,13 @@ public class ModifierHelper extends AbstractBlenderHelper {
 				}
 
 				if (modifier != null) {
-					result.add(modifier);
-					blenderContext.addModifier(objectStructure.getOldMemoryAddress(), modifier);
-					alreadyReadModifiers.add(modifierType);
+					if(modifier.isModifying()) {
+						result.add(modifier);
+						blenderContext.addModifier(objectStructure.getOldMemoryAddress(), modifier);
+						alreadyReadModifiers.add(modifierType);
+					} else {
+						LOGGER.log(Level.WARNING, "The modifier {0} will cause no changes in the model. It will be ignored!", modifierStructure.getName());
+					}
 				} else {
 					LOGGER.log(Level.WARNING, "Unsupported modifier type: {0}", modifierStructure.getType());
 				}

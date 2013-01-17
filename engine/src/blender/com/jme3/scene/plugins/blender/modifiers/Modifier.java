@@ -23,6 +23,12 @@ public abstract class Modifier {
 
 	/** This variable indicates if the modifier is invalid (<b>true</b>) or not (<b>false</b>). */
 	protected boolean invalid;
+	/** 
+	 * A variable that tells if the modifier causes modification. Some modifiers like ArmatureModifier might have no
+	 * Armature object attached and thus not really modifying the feature. In such cases it is good to know if it is
+	 * sense to add the modifier to the list of object's modifiers.
+	 */
+	protected boolean modifying = true;
 	
 	/**
 	 * This method applies the modifier to the given node.
@@ -61,5 +67,12 @@ public abstract class Modifier {
 		Pointer pError = (Pointer) modifierData.getFieldValue("error");
 		invalid = pError.isNotNull();
 		return !invalid;
+	}
+	
+	/**
+	 * @return <b>true</b> if the modifier causes feature's modification or <b>false</b> if not
+	 */
+	public boolean isModifying() {
+		return modifying;
 	}
 }

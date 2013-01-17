@@ -177,6 +177,8 @@ import com.jme3.util.BufferUtils;
 						blenderContext.setAnimData(boneOma, animData);
 					}
 				}
+			} else {
+				modifying = false;
 			}
 		}
 	}
