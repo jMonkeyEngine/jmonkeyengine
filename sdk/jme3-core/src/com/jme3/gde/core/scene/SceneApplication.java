@@ -116,6 +116,7 @@ public class SceneApplication extends Application implements LookupProvider {
     boolean useCanvas = false;
     private BulletAppState physicsState;
     private Thread thread;
+    private NodeSyncAppState nodeSync;
     private FakeApplication fakeApp;
 
     public SceneApplication() {
@@ -140,6 +141,8 @@ public class SceneApplication extends Application implements LookupProvider {
                 createCanvas();
                 startCanvas(true);
             }
+            nodeSync = new NodeSyncAppState();
+            stateManager.attach(nodeSync);
             progressHandle.progress("initialize Base Application", 1);
         } catch (Exception e) {
             getProgressHandle().finish();
@@ -375,6 +378,7 @@ public class SceneApplication extends Application implements LookupProvider {
                 } else {
                     camController.disable();
                 }
+                //TODO: reuse fakeapp
                 fakeApp = new FakeApplication(rootNode, guiNode, request.getManager(), cam);
                 request.setFakeApp(fakeApp);
                 enqueue(new Callable() {
@@ -386,6 +390,13 @@ public class SceneApplication extends Application implements LookupProvider {
                         if (model == null) {
                             StatusDisplayer.getDefault().setStatusText("could not load Spatial from request: " + getCurrentSceneRequest().getWindowTitle());
                             return null;
+                        }
+                        //TODO: bit dangerous, setting rootNode late
+                        //      still it should only be accessed from the
+                        //      update loop and be set until then.
+                                
+                        if (model instanceof Node) {
+                            fakeApp.setRootNode((Node) model);
                         }
                         rootNode.attachChild(model);
                         if (request.getToolNode() != null) {

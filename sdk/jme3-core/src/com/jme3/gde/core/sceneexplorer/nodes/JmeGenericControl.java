@@ -130,7 +130,6 @@ public class JmeGenericControl extends AbstractNode implements ScenePropertyChan
         final Spatial spat = getParentNode().getLookup().lookup(Spatial.class);
         try {
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
-
                 public Void call() throws Exception {
                     spat.removeControl(control);
                     return null;
@@ -161,7 +160,7 @@ public class JmeGenericControl extends AbstractNode implements ScenePropertyChan
 //            if (readOnly) {
 //                prop = new SceneExplorerProperty(control.getClass().cast(obj), returntype, method, null);
 //            } else {
-                prop = new SceneExplorerProperty(control.getClass().cast(obj), returntype, method, setter, this);
+            prop = new SceneExplorerProperty(control.getClass().cast(obj), returntype, method, setter, this);
 //            }
             prop.setName(name);
 
@@ -180,8 +179,10 @@ public class JmeGenericControl extends AbstractNode implements ScenePropertyChan
         }
     }
 
-    public void propertyChange(String property, Object oldValue, Object newValue) {
-        dobject.setModified(true);
+    public void propertyChange(String type, String name, Object oldValue, Object newValue) {
+        if (type.equals("PROP_USER_CHANGE")) {
+            dobject.setModified(true);
+        }
 //        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

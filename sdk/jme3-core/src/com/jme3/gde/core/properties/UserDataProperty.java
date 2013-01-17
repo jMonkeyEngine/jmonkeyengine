@@ -159,7 +159,7 @@ public class UserDataProperty extends PropertySupport.ReadWrite<String> {
     private void notifyListeners(Object before, Object after) {
         for (Iterator<ScenePropertyChangeListener> it = listeners.iterator(); it.hasNext();) {
             ScenePropertyChangeListener propertyChangeListener = it.next();
-            propertyChangeListener.propertyChange(getName(), before, after);
+            propertyChangeListener.propertyChange("PROP_USER_CHANGE", getName(), before, after);
         }
     }
 }

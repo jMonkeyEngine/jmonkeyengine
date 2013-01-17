@@ -113,10 +113,13 @@ public class AppStateNode extends AbstractNode implements ScenePropertyChangeLis
 
     @Override
     public void destroy() throws IOException {
+        AppStateManagerNode parentNode = (AppStateManagerNode) getParentNode();
         super.destroy();
         parent.detach(appState);
         //TODO:hack
-        ((AppStateManagerNode) getParentNode()).refresh();
+        if (parentNode != null) {
+            parentNode.refresh();
+        }
     }
 
     @Override
@@ -130,12 +133,6 @@ public class AppStateNode extends AbstractNode implements ScenePropertyChangeLis
             return sheet;
         }
 
-//        Sheet.Set set2 = Sheet.createPropertiesSet();
-//        set2.setDisplayName("AppStateMethods");
-//        set2.setName(appState.getClass().getName() + ".hack");
-//        createMethods(appState.getClass(), set2, obj);
-//        sheet.put(set2);
-
         Sheet.Set set = Sheet.createPropertiesSet();
         set.setDisplayName("AppState");
         set.setName(appState.getClass().getName());
@@ -148,7 +145,6 @@ public class AppStateNode extends AbstractNode implements ScenePropertyChangeLis
     protected Property<?> makeProperty(Object obj, Class returntype, String method, String name) {
         Property<?> prop = null;
         try {
-            //getExplorerObjectClass().cast(obj)
             prop = new SceneExplorerProperty(appState.getClass().cast(obj), returntype, method, null, this);
             prop.setName(name);
         } catch (NoSuchMethodException ex) {
@@ -186,6 +182,13 @@ public class AppStateNode extends AbstractNode implements ScenePropertyChangeLis
         }
     }
 
-    public void propertyChange(String property, Object oldValue, Object newValue) {
+    public void propertyChange(final String type, final String name, final Object before, final Object after) {
+        if (SceneExplorerProperty.PROP_USER_CHANGE.equals(type)) {
+            firePropertyChange(name, before, after);
+        } else if (SceneExplorerProperty.PROP_SCENE_CHANGE.equals(type)) {
+            firePropertyChange(name, before, after);
+        } else if (SceneExplorerProperty.PROP_INIT_CHANGE.equals(type)) {
+            firePropertyChange(name, before, after);
+        }
     }
 }

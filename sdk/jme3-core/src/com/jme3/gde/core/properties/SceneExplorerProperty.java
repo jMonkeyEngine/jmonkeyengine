@@ -41,16 +41,18 @@ import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.nodes.PropertySupport;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.Mutex;
 
 /**
  *
@@ -59,6 +61,16 @@ import org.openide.util.Lookup;
 @SuppressWarnings("unchecked")
 public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
 
+    public static final String PROP_SCENE_CHANGE = "PROP_SCENE_CHANGE";
+    public static final String PROP_USER_CHANGE = "PROP_USER_CHANGE";
+    public static final String PROP_INIT_CHANGE = "PROP_INIT_CHANGE";
+    private T objectLocal;
+    private final boolean cloneable;
+    private final boolean instantiable;
+    private final boolean primitive;
+    private final Mutex mutex = new Mutex();
+    private boolean inited = false;
+    private final boolean editable;
     protected LinkedList<ScenePropertyChangeListener> listeners = new LinkedList<ScenePropertyChangeListener>();
 
     public SceneExplorerProperty(T instance, Class valueType, String getter, String setter) throws NoSuchMethodException {
@@ -67,7 +79,14 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
 
     public SceneExplorerProperty(T instance, Class valueType, String getter, String setter, ScenePropertyChangeListener listener) throws NoSuchMethodException {
         super(instance, valueType, getter, setter);
-        addPropertyChangeListener(listener);
+        primitive = isPrimitive(instance, getter);
+        if (!primitive) {
+            cloneable = canClone(instance, getter);
+            instantiable = canRecreate(instance, getter);
+        } else {
+            cloneable = false;
+            instantiable = false;
+        }
         if (valueType == Vector3f.class) {
             setPropertyEditorClass(Vector3fPropertyEditor.class);
         } else if (valueType == Quaternion.class) {
@@ -87,24 +106,152 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         for (SceneExplorerPropertyEditor di : Lookup.getDefault().lookupAll(SceneExplorerPropertyEditor.class)) {
             di.setEditor(valueType, this);
         }
+        //TODO: instantiates editor?
+        editable = getPropertyEditor() != null;
+        addPropertyChangeListener(listener);
+    }
+
+    /**
+     * synchronizes the local and scene value
+     */
+    public void syncValue() {
+        if (!editable) {
+            return;
+        }
+        mutex.postWriteRequest(new Runnable() {
+            public void run() {
+                T realValue = getSuperValue();
+                if (objectLocal == null && !inited) {
+                    inited = true;
+                    objectLocal = duplicateObject(realValue);
+                    notifyListeners(PROP_INIT_CHANGE, null, objectLocal);
+                } else if (objectLocal != null && !objectLocal.equals(realValue)) {
+                    T oldObject = objectLocal;
+                    T newObject = duplicateObject(realValue);
+                    notifyListeners(PROP_SCENE_CHANGE, oldObject, newObject);
+                    objectLocal = newObject;
+                }
+            }
+        });
     }
 
     @Override
     public T getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        return super.getValue();
-//        try {
-//            return SceneApplication.getApplication().enqueue(new Callable<T>() {
-//
-//                public T call() throws Exception {
-//                    return getSuperValue();
-//                }
-//            }).get();
-//        } catch (InterruptedException ex) {
-//            Exceptions.printStackTrace(ex);
-//        } catch (ExecutionException ex) {
-//            Exceptions.printStackTrace(ex);
-//        }
-//        return null;
+        return objectLocal;
+    }
+
+    @Override
+    public void setValue(final T val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        mutex.postWriteRequest(new Runnable() {
+            public void run() {
+                final T oldObject = (T) objectLocal;
+                objectLocal = val;
+                final T sceneObject = (T) duplicateObject(val);
+                notifyListeners(PROP_USER_CHANGE, oldObject, objectLocal);
+                SceneApplication.getApplication().enqueue(new Callable<Void>() {
+                    public Void call() throws Exception {
+                        setSuperValue(sceneObject);
+                        return null;
+                    }
+                });
+            }
+        });
+    }
+
+    private boolean isPrimitive(Object obj, String getter) {
+        try {
+            Class objClass = obj.getClass().getMethod(getter).getReturnType();
+            if (objClass.isPrimitive()) {
+                return true;
+            }
+        } catch (NoSuchMethodException ex) {
+        } catch (SecurityException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return false;
+    }
+
+    private boolean canClone(Object obj, String getter) {
+        try {
+            Class objClass = obj.getClass().getMethod(getter).getReturnType();
+            if (Enum.class.isAssignableFrom(objClass)) {
+                return false;
+            }
+            Method meth = objClass.getMethod("clone");
+            if (meth != null) {
+                if (meth.getParameterTypes().length == 0
+                        && meth.getReturnType().equals(obj.getClass())) {
+                    return true;
+                }
+            }
+        } catch (NoSuchMethodException ex) {
+        } catch (SecurityException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return false;
+    }
+
+    private boolean canRecreate(Object obj, String getter) {
+        try {
+            Class objClass = obj.getClass().getMethod(getter).getReturnType();
+            if (Enum.class.isAssignableFrom(objClass)) {
+                return false;
+            }
+            Constructor[] constructors = objClass.getConstructors();
+            for (Constructor constructor : constructors) {
+                Class[] types = constructor.getParameterTypes();
+                if (types.length == 1 && types[0].equals(obj.getClass())) {
+                    return true;
+                }
+            }
+        } catch (NoSuchMethodException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (SecurityException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return false;
+    }
+
+    private T duplicateObject(T a) {
+        T obj = a;
+        if (primitive) {
+            return obj;
+        } else if (cloneable) {
+            try {
+                obj = (T) a.getClass().getMethod("clone").invoke(a);
+            } catch (IllegalAccessException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (IllegalArgumentException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (InvocationTargetException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (NoSuchMethodException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (SecurityException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        } else if (instantiable) {
+            try {
+                obj = (T) a.getClass().getConstructor(a.getClass()).newInstance(a);
+            } catch (InstantiationException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (IllegalAccessException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (IllegalArgumentException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (InvocationTargetException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (NoSuchMethodException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (SecurityException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        return obj;
+    }
+
+    private void setSuperValue(T val) {
+        setSuperValue(val, true);
     }
 
     private T getSuperValue() {
@@ -120,37 +267,10 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         return null;
     }
 
-    @Override
-    public void setValue(final T val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        try {
-            notifyListeners(getSuperValue(), val);
-            SceneApplication.getApplication().enqueue(new Callable<Void>() {
-
-                public Void call() throws Exception {
-                    setSuperValue(val);
-                    return null;
-                }
-            }).get();
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (ExecutionException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
-
     private void setSuperValue(T val, boolean undo) {
         try {
             if (undo) {
-                try {
-                    Object oldValue = getSuperValue();
-                    if (oldValue.getClass().getMethod("clone") != null) {
-                        addUndo(oldValue.getClass().getMethod("clone").invoke(oldValue), val);
-                        Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.INFO, "Add cloned undo {0}", oldValue.getClass().getMethod("clone").invoke(oldValue));
-                    }
-                } catch (Exception e) {
-                    addUndo(getSuperValue(), val);
-                    Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.INFO, "Add undo {0}", getSuperValue());
-                }
+                addUndo(duplicateObject(getSuperValue()), val);
             }
             super.setValue(val);
         } catch (IllegalAccessException ex) {
@@ -162,10 +282,6 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         }
     }
 
-    private void setSuperValue(T val) {
-        setSuperValue(val, true);
-    }
-
     protected void addUndo(final Object before, final Object after) {
         SceneUndoRedoManager undoRedo = Lookup.getDefault().lookup(SceneUndoRedoManager.class);
         if (undoRedo == null) {
@@ -173,15 +289,17 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
             return;
         }
         undoRedo.addEdit(this, new AbstractUndoableSceneEdit() {
-
             @Override
             public void sceneUndo() {
-                Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.INFO, "Do undo {0}", before);
+                Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.FINE, "Do undo {0}", before);
+                notifyListeners(PROP_USER_CHANGE, after, before);
                 setSuperValue((T) before, false);
             }
 
             @Override
             public void sceneRedo() {
+                Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.FINE, "Do redo {0}", before);
+                notifyListeners(PROP_USER_CHANGE, before, after);
                 setSuperValue((T) after, false);
             }
 
@@ -196,17 +314,25 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     }
 
     public void addPropertyChangeListener(ScenePropertyChangeListener listener) {
-        listeners.add(listener);
+        if (listener != null) {
+            listeners.add(listener);
+        }
     }
 
     public void removePropertyChangeListener(ScenePropertyChangeListener listener) {
-        listeners.remove(listener);
+        if (listener != null) {
+            listeners.remove(listener);
+        }
     }
 
-    private void notifyListeners(Object before, Object after) {
-        for (Iterator<ScenePropertyChangeListener> it = listeners.iterator(); it.hasNext();) {
-            ScenePropertyChangeListener propertyChangeListener = it.next();
-            propertyChangeListener.propertyChange(getName(), before, after);
-        }
+    private void notifyListeners(final String type, final Object before, final Object after) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                for (Iterator<ScenePropertyChangeListener> it = listeners.iterator(); it.hasNext();) {
+                    ScenePropertyChangeListener propertyChangeListener = it.next();
+                    propertyChangeListener.propertyChange(type, getName(), before, after);
+                }
+            }
+        });
     }
 }

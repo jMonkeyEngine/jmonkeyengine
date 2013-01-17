@@ -118,6 +118,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
         jToolBar1 = new javax.swing.JToolBar();
         jButton1 = new javax.swing.JButton();
 
+        jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
         org.openide.awt.Mnemonics.setLocalizedText(jButton1, org.openide.util.NbBundle.getMessage(SceneExplorerTopComponent.class, "SceneExplorerTopComponent.jButton1.text")); // NOI18N

@@ -294,7 +294,7 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
 
     @Override
     protected Sheet createSheet() {
-        Sheet sheet = Sheet.createDefault();
+        Sheet sheet = super.createSheet();        
 
         //TODO: multithreading.. but we only read
         Collection<String> dataKeys = spatial.getUserDataKeys();

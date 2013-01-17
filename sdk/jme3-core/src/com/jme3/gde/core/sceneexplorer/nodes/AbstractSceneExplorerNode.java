@@ -31,18 +31,19 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.gde.core.util.DynamicLookup;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.ScenePropertyChangeListener;
+import com.jme3.gde.core.util.DynamicLookup;
 import com.jme3.gde.core.util.PropertyUtils;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.nodes.NodeAdapter;
-import org.openide.nodes.NodeListener;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
@@ -60,6 +61,7 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
     protected final InstanceContent lookupContents;
     protected boolean readOnly = false;
     protected DataObject dataObject;
+    private final List<Property> sceneProperties = Collections.synchronizedList(new LinkedList<Property>());
 
     public AbstractSceneExplorerNode() {
         super(Children.LEAF, new DynamicLookup(new InstanceContent()));
@@ -69,7 +71,7 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
     public AbstractSceneExplorerNode(Children children, DataObject dataObject) {
         super(children, new ProxyLookup(dataObject.getLookup(), new DynamicLookup(new InstanceContent())));
         this.dataObject = dataObject;
-        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();        
+        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();
     }
 
     public AbstractSceneExplorerNode(DataObject dataObject) {
@@ -106,9 +108,9 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
             dataObject.setModified(true);
         }
     }
-
+    
     /**
-     * returns the PropertySet with the given name (mostly Class.name)
+     * returns the PropertySet with the given name
      * @param name
      * @return The PropertySet or null if no PropertySet by that name exists
      */
@@ -167,8 +169,8 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         }
         return prop;
     }
-    
-     protected Property makeEmbedProperty(Object obj,Class objectClass, Class returntype, String method, String setter, String name) {
+
+    protected Property makeEmbedProperty(Object obj, Class objectClass, Class returntype, String method, String setter, String name) {
         Property prop = null;
         try {
             if (readOnly) {
@@ -184,7 +186,6 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         return prop;
     }
 
-
     protected void createFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
         for (Field field : c.getDeclaredFields()) {
             PropertyDescriptor prop = PropertyUtils.getPropertyDescriptor(c, field);
@@ -194,9 +195,32 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         }
     }
 
-    public void propertyChange(final String name, final Object before, final Object after) {
-        fireSave(true);
-        firePropertyChange(name, before, after);
+    @Override
+    protected Sheet createSheet() {
+        return Sheet.createDefault();
+    }
+    
+    public void syncSceneData() {
+        //TODO: precache structure to avoid locks?
+        for (PropertySet propertySet : getPropertySets()) {
+            for (Property<?> property : propertySet.getProperties()) {
+                if(property instanceof SceneExplorerProperty){
+                    SceneExplorerProperty prop = (SceneExplorerProperty)property;
+                    prop.syncValue();
+                }
+            }
+        }
+    }
+
+    public void propertyChange(final String type, final String name, final Object before, final Object after) {
+        if (SceneExplorerProperty.PROP_USER_CHANGE.equals(type)) {
+            fireSave(true);
+            firePropertyChange(name, before, after);
+        } else if (SceneExplorerProperty.PROP_SCENE_CHANGE.equals(type)) {
+            firePropertyChange(name, before, after);
+        } else if (SceneExplorerProperty.PROP_INIT_CHANGE.equals(type)) {
+            firePropertyChange(name, before, after);
+        }
     }
 
     public Class getExplorerNodeClass() {
@@ -208,5 +232,4 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
     public Node[] createNodes(Object key, DataObject dataObject, boolean readOnly) {
         return new Node[]{Node.EMPTY};
     }
-    
 }

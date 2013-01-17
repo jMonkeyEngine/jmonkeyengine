@@ -37,11 +37,9 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.actions;
 
-import com.jme3.effect.influencers.ParticleInfluencer;
 import com.jme3.export.Savable;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
-import com.jme3.gde.core.properties.ScenePropertyChangeListener;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.util.PropertyUtils;
@@ -65,7 +63,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
-public class UserDataDialog extends javax.swing.JDialog implements ScenePropertyChangeListener {
+public class UserDataDialog extends javax.swing.JDialog {
 
     JmeSpatial spat;
     boolean initialized = false;
@@ -134,15 +132,11 @@ public class UserDataDialog extends javax.swing.JDialog implements SceneProperty
 
     }
 
-    public void propertyChange(String property, Object oldValue, Object newValue) {
-        //System.out.println(property + " changed");
-    }
-
     protected Property makeProperty(Object obj, Class returntype, String method, String setter, String name) {
         Property prop = null;
         try {
 
-            prop = new SceneExplorerProperty(obj.getClass().cast(obj), returntype, method, setter, this);
+            prop = new SceneExplorerProperty(obj.getClass().cast(obj), returntype, method, setter);
 
             prop.setName(name);
 
@@ -408,4 +402,5 @@ private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     // End of variables declaration//GEN-END:variables
+
 }

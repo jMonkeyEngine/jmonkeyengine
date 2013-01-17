@@ -35,7 +35,6 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -45,18 +44,6 @@ public class PropertyUtils {
 
     public static PropertyDescriptor getPropertyDescriptor(Class c, Field field) {
         try {
-            try {
-                try {
-                    PropertyDescriptor p = (PropertyDescriptor)c.getClassLoader().loadClass("java.beans.PropertyDescriptor").newInstance();
-                    
-                } catch (InstantiationException ex) {
-                    Exceptions.printStackTrace(ex);
-                } catch (IllegalAccessException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-            } catch (ClassNotFoundException ex) {
-                Exceptions.printStackTrace(ex);
-            }
             PropertyDescriptor prop = new PropertyDescriptor(field.getName(), c);
 
             prop.setDisplayName(splitCamelCase(field.getName()));

@@ -83,6 +83,13 @@ public class FakeApplication extends SimpleApplication {
     private FakeAppStateManager appStateManager;
     private FakeRenderManager renderManager;
 
+    public FakeApplication(Node guiNode, AssetManager assetManager, Camera cam) {
+        this.guiNode = guiNode;
+        this.assetManager = assetManager;
+        this.cam = cam;
+        this.appStateManager = new FakeAppStateManager(this);
+    }
+    
     public FakeApplication(Node rootNode, Node guiNode, AssetManager assetManager, Camera cam) {
         this.rootNode = rootNode;
         this.guiNode = guiNode;
@@ -385,6 +392,10 @@ public class FakeApplication extends SimpleApplication {
      */
     private ScheduledThreadPoolExecutor fakeAppThread = new ScheduledThreadPoolExecutor(1);
 
+    public void setRootNode(Node rootNode) {
+        this.rootNode = rootNode;
+    }
+    
     public void stopFakeApp() {
         fakeAppThread.shutdown();
     }

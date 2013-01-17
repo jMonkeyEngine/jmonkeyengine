@@ -253,8 +253,8 @@ public class JmeTrack extends AbstractSceneExplorerNode {
     }
 
     @Override
-    public void propertyChange(String name, Object before, Object after) {
-        super.propertyChange(name, before, after);
+    public void propertyChange(String type, String name, Object before, Object after) {
+        super.propertyChange(type, name, before, after);
         setName();
     }
     

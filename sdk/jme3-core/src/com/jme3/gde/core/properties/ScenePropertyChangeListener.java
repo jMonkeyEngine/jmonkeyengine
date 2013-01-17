@@ -37,5 +37,5 @@ package com.jme3.gde.core.properties;
  * @author normenhansen
  */
 public interface ScenePropertyChangeListener {
-    public void propertyChange(String property, Object oldValue, Object newValue);
+    public void propertyChange(String type, String name, Object oldValue, Object newValue);
 }

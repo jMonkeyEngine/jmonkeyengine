@@ -59,7 +59,7 @@ public class EnableFiterAction implements ActionListener {
                 Filter filter=context.getFilter();
                 filter.setEnabled(!filter.isEnabled());                        
                 Logger.getLogger(EnableFiterAction.class.getName()).info( (filter.isEnabled()?"Enabled":"Disabled")+" "+filter.getName());
-                context.propertyChange("Enabled", !filter.isEnabled(), filter.isEnabled());
+                context.propertyChange("PROP_USER_CHANGE", "Enabled", !filter.isEnabled(), filter.isEnabled());
               
                 return null;
             }

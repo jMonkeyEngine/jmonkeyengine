@@ -41,7 +41,6 @@ import java.awt.Image;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Sheet;
 import org.openide.util.ImageUtilities;
 
@@ -144,8 +143,8 @@ public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
     }
 
     @Override
-    public void propertyChange(String name, final Object before, final Object after) {
-        super.propertyChange(name, before, after);        
+    public void propertyChange(String type, String name, final Object before, final Object after) {
+        super.propertyChange(type, name, before, after);        
         if (name.equals("Material")) {           
             java.awt.EventQueue.invokeLater(new Runnable() {
 
