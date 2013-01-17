@@ -219,7 +219,7 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         }
     }
 
-    public void propertyChange(final String name, final Object before, final Object after) {
+    public void propertyChange(final String type, final String name, final Object before, final Object after) {
         if (name.equals("Enabled")) {
             toggleIcon((Boolean) after);
         }
