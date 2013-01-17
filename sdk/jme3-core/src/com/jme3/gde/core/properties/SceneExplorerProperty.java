@@ -118,31 +118,43 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         if (!editable) {
             return;
         }
-        mutex.postWriteRequest(new Runnable() {
-            public void run() {
-                T realValue = getSuperValue();
-                if ((objectLocal == null) && !inited) {
+        final T realValue = getSuperValue();
+        if ((objectLocal == null) && !inited) {
+            mutex.postWriteRequest(new Runnable() {
+                public void run() {
                     inited = true;
                     T newObject = duplicateObject(realValue);
                     notifyListeners(PROP_INIT_CHANGE, null, newObject);
                     objectLocal = duplicateObject(realValue);
-                } else if ((objectLocal != null) && !objectLocal.equals(realValue)) {
+                }
+            });
+        } else if ((objectLocal != null) && !objectLocal.equals(realValue)) {
+            mutex.postWriteRequest(new Runnable() {
+                public void run() {
                     T oldObject = objectLocal;
                     T newObject = duplicateObject(realValue);
                     notifyListeners(PROP_SCENE_CHANGE, oldObject, newObject);
                     objectLocal = newObject;
-                } else if ((objectLocal == null) && (realValue != null)) {
+                }
+            });
+        } else if ((objectLocal == null) && (realValue != null)) {
+            mutex.postWriteRequest(new Runnable() {
+                public void run() {
                     T newObject = duplicateObject(realValue);
                     notifyListeners(PROP_SCENE_CHANGE, null, newObject);
                     objectLocal = duplicateObject(realValue);
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
     public T getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        return objectLocal;
+        return mutex.readAccess(new Mutex.Action<T>() {
+            public T run() {
+                return objectLocal;
+            }
+        });
     }
 
     @Override
@@ -218,10 +230,11 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     }
 
     private T duplicateObject(T a) {
-        T obj = a;
         if (primitive) {
-            return obj;
-        } else if (cloneable) {
+            return a;
+        }
+        T obj = null;
+        if (cloneable) {
             try {
                 obj = (T) a.getClass().getMethod("clone").invoke(a);
             } catch (IllegalAccessException ex) {
@@ -251,6 +264,9 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
             } catch (SecurityException ex) {
                 Exceptions.printStackTrace(ex);
             }
+        }
+        if (obj == null) {
+            return a;
         }
         return obj;
     }
