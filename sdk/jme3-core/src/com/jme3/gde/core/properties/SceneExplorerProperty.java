@@ -121,15 +121,20 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         mutex.postWriteRequest(new Runnable() {
             public void run() {
                 T realValue = getSuperValue();
-                if (objectLocal == null && !inited) {
+                if ((objectLocal == null) && !inited) {
                     inited = true;
+                    T newObject = duplicateObject(realValue);
+                    notifyListeners(PROP_INIT_CHANGE, null, newObject);
                     objectLocal = duplicateObject(realValue);
-                    notifyListeners(PROP_INIT_CHANGE, null, objectLocal);
-                } else if (objectLocal != null && !objectLocal.equals(realValue)) {
+                } else if ((objectLocal != null) && !objectLocal.equals(realValue)) {
                     T oldObject = objectLocal;
                     T newObject = duplicateObject(realValue);
                     notifyListeners(PROP_SCENE_CHANGE, oldObject, newObject);
                     objectLocal = newObject;
+                } else if ((objectLocal == null) && (realValue != null)) {
+                    T newObject = duplicateObject(realValue);
+                    notifyListeners(PROP_SCENE_CHANGE, null, newObject);
+                    objectLocal = duplicateObject(realValue);
                 }
             }
         });
@@ -144,9 +149,9 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     public void setValue(final T val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         mutex.postWriteRequest(new Runnable() {
             public void run() {
-                final T oldObject = (T) objectLocal;
+                final T oldObject = objectLocal;
                 objectLocal = val;
-                final T sceneObject = (T) duplicateObject(val);
+                final T sceneObject = duplicateObject(val);
                 notifyListeners(PROP_USER_CHANGE, oldObject, objectLocal);
                 SceneApplication.getApplication().enqueue(new Callable<Void>() {
                     public Void call() throws Exception {
