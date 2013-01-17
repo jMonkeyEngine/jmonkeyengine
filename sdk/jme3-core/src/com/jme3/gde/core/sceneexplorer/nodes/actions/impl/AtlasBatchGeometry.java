@@ -31,47 +31,57 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.actions.impl;
 
+import com.jme3.asset.AssetManager;
+import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractToolAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.ToolAction;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import jme3tools.optimize.GeometryBatchFactory;
+import jme3tools.optimize.TextureAtlas;
 
 /**
  *
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = ToolAction.class)
-public class OptimizeGeometry extends AbstractToolAction {
+public class AtlasBatchGeometry extends AbstractToolAction {
 
     private class OldNew {
 
-        public OldNew(List<Spatial> newChildren, List<Spatial> oldChildren) {
-            this.newChildren = newChildren;
+        public OldNew(Spatial newSpat, List<Spatial> oldChildren) {
+            this.newSpat = newSpat;
             this.oldChildren = oldChildren;
         }
-        List<Spatial> newChildren;
+        Spatial newSpat;
         List<Spatial> oldChildren;
     }
 
-    public OptimizeGeometry() {
-        name = "Batch Geometry";
+    public AtlasBatchGeometry() {
+        name = "Batch Geometry with TextureAtlas";
     }
 
     @Override
     protected Object doApplyTool(AbstractSceneExplorerNode rootNode) {
-        Node node = rootNode.getLookup().lookup(Node.class);
+        Node parent = rootNode.getLookup().lookup(Node.class);
+        AssetManager mgr = rootNode.getLookup().lookup(ProjectAssetManager.class);
+        if (parent == null || mgr == null) {
+            return null;
+        }
+        Geometry batch = TextureAtlas.makeAtlasBatch(parent, mgr, 4096);
+        batch.setName(parent.getName() + " - batched");
         List<Spatial> currentChildren = new ArrayList<Spatial>();
-        currentChildren.addAll(node.getChildren());
-        GeometryBatchFactory.optimize(node);
-        List<Spatial> newChildren = new ArrayList<Spatial>();
-        newChildren.addAll(node.getChildren());
-        return new OldNew(newChildren, currentChildren);
+        if (parent != null && batch != null) {
+            currentChildren.addAll(parent.getChildren());
+            parent.detachAllChildren();
+            parent.attachChild(batch);
+        }
+        return new OldNew(batch, currentChildren);
     }
 
     @Override
@@ -81,10 +91,7 @@ public class OptimizeGeometry extends AbstractToolAction {
         if (parent == null || undo == null) {
             return;
         }
-        for (Iterator<Spatial> it = undo.newChildren.iterator(); it.hasNext();) {
-            Spatial spatial = it.next();
-            spatial.removeFromParent();
-        }
+        parent.detachChild(undo.newSpat);
         for (Iterator<Spatial> it = undo.oldChildren.iterator(); it.hasNext();) {
             Spatial spatial = it.next();
             parent.attachChild(spatial);
