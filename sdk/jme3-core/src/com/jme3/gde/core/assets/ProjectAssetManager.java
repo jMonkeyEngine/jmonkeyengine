@@ -298,6 +298,10 @@ public class ProjectAssetManager extends DesktopAssetManager {
         return this;
     }
 
+    public String[] getModels() {
+        return filesWithSuffix("j3o");
+    }
+    
     public String[] getMaterials() {
         return filesWithSuffix("j3m");
     }
