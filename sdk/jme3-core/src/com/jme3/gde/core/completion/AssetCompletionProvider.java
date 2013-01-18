@@ -71,6 +71,8 @@ public class AssetCompletionProvider implements CompletionProvider {
             new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/assets.gif"));
     private static ImageIcon modelIcon =
             new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/model.gif"));
+    private static ImageIcon soundIcon =
+            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/sound.gif"));
     private static ImageIcon materialIcon =
             new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/material.gif"));
     private static ImageIcon matDefIcon =
@@ -80,7 +82,7 @@ public class AssetCompletionProvider implements CompletionProvider {
 
     private enum AssetType {
 
-        Invalid, Model, Material, MatDef, Texture, Asset
+        Invalid, Model, Material, MatDef, Texture, Sound, Xml, Asset
     }
 
     public AssetCompletionProvider() {
@@ -124,7 +126,6 @@ public class AssetCompletionProvider implements CompletionProvider {
                         for (String string : manager.getModels()) {
                             if (string.startsWith(filter)) {
                                 completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
-                                Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "Added item {0}", string);
                             }
                         }
                         break;
@@ -132,7 +133,6 @@ public class AssetCompletionProvider implements CompletionProvider {
                         for (String string : manager.getMaterials()) {
                             if (string.startsWith(filter)) {
                                 completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
-                                Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "Added item {0}", string);
                             }
                         }
                         break;
@@ -140,7 +140,6 @@ public class AssetCompletionProvider implements CompletionProvider {
                         for (String string : manager.getMatDefs()) {
                             if (string.startsWith(filter)) {
                                 completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
-                                Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "Added item {0}", string);
                             }
                         }
                         break;
@@ -148,7 +147,20 @@ public class AssetCompletionProvider implements CompletionProvider {
                         for (String string : manager.getTextures()) {
                             if (string.startsWith(filter)) {
                                 completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
-                                Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "Added item {0}", string);
+                            }
+                        }
+                        break;
+                    case Sound:
+                        for (String string : manager.getSounds()) {
+                            if (string.startsWith(filter)) {
+                                completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
+                            }
+                        }
+                        break;
+                    case Xml:
+                        for (String string : manager.getFilesWithSuffix("xml")) {
+                            if (string.startsWith(filter)) {
+                                completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
                             }
                         }
                         break;
@@ -178,8 +190,16 @@ public class AssetCompletionProvider implements CompletionProvider {
                 return AssetType.Material;
             } else if (hasLastCommand(line, ".loadTexture(\"")) {
                 return AssetType.Texture;
+            } else if (hasLastCommand(line, ".addXml(\"")) {
+                return AssetType.Xml;
+            } else if (hasLastCommand(line, ".fromXml(\"")) {
+                return AssetType.Xml;
+            } else if (hasLastCommand(line, ".loadSound(\"")) {
+                return AssetType.Sound;
             } else if (hasLastCommand(line, "new Material(")) {
                 return AssetType.MatDef;
+            } else if (hasLastCommand(line, "new AudioNode(")) {
+                return AssetType.Sound;
             }
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
@@ -301,11 +321,16 @@ public class AssetCompletionProvider implements CompletionProvider {
                 case Texture:
                     icon = textureIcon;
                     break;
+                case Sound:
+                    icon = soundIcon;
+                    break;
                 case Asset:
                     icon = assetIcon;
                     break;
                 case Invalid:
                     break;
+                default:
+                    //icon = assetIcon;
             }
             CompletionUtilities.renderHtml(icon, text, null, g, defaultFont,
                     (selected ? Color.white : fieldColor), width, height, selected);

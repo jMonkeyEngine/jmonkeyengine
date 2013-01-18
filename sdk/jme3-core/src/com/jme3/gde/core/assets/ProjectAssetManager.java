@@ -330,6 +330,10 @@ public class ProjectAssetManager extends DesktopAssetManager {
         return filesWithSuffix("j3md");
     }
     
+    public String[] getFilesWithSuffix(String string){
+        return filesWithSuffix(string);
+    }
+    
     private String[] filesWithSuffix(String string){
         List<String> list=collectFilesWithSuffix(string);
         return list.toArray(new String[list.size()]);
