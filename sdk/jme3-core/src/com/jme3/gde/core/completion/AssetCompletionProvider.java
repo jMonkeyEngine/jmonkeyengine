@@ -172,7 +172,7 @@ public class AssetCompletionProvider implements CompletionProvider {
             final int lineStartOffset = getRowFirstNonWhite(bDoc, caretOffset);
             final String line = bDoc.getText(lineStartOffset, caretOffset - lineStartOffset).trim();
             //TODO: more intelligence! :)
-            if (line.endsWith(".loadModel(\"")) {
+            if (hasLastCommand(line, ".loadModel(\"")) {
                 return AssetType.Model;
             } else if (hasLastCommand(line, ".loadMaterial(\"")) {
                 return AssetType.Material;
