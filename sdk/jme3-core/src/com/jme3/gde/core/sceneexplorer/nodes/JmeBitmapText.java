@@ -33,7 +33,6 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.math.ColorRGBA;
 import java.awt.Image;
 import org.openide.loaders.DataObject;
@@ -92,14 +91,17 @@ public class JmeBitmapText extends JmeNode {
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return BitmapText.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeBitmapText.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         JmeSpatialChildren children=new JmeSpatialChildren((com.jme3.scene.Spatial)key);
         children.setReadOnly(cookie);

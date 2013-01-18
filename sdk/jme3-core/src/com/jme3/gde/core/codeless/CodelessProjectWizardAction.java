@@ -31,7 +31,6 @@
  */
 package com.jme3.gde.core.codeless;
 
-import com.jme3.gde.core.codeless.CodelessProjectFactory;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.io.File;

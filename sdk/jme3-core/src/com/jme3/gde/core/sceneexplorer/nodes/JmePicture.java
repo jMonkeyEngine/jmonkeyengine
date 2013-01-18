@@ -31,7 +31,6 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.ui.Picture;
 import java.awt.Image;
 import org.openide.loaders.DataObject;
@@ -87,14 +86,17 @@ public class JmePicture extends JmeGeometry {
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return Picture.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmePicture.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         JmeSpatialChildren children=new JmeSpatialChildren((com.jme3.scene.Spatial)key);
         children.setReadOnly(cookie);

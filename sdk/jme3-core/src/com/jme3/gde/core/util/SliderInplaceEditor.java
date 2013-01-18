@@ -1,10 +1,7 @@
 package com.jme3.gde.core.util;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.beans.PropertyEditor;
 import javax.swing.JComponent;
 import javax.swing.KeyStroke;

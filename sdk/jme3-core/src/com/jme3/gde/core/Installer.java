@@ -33,8 +33,6 @@ package com.jme3.gde.core;
 
 import com.jme3.gde.core.scene.SceneApplication;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.util.prefs.BackingStoreException;
 import javax.swing.JPopupMenu;
 import org.netbeans.upgrade.AutoUpgrade;
 import org.openide.filesystems.FileChooserBuilder;

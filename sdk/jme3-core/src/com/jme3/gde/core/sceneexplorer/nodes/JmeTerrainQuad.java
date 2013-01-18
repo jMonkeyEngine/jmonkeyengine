@@ -31,7 +31,6 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import java.awt.Image;
 import org.openide.loaders.DataObject;
@@ -88,14 +87,17 @@ public class JmeTerrainQuad extends JmeNode {
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return TerrainQuad.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeTerrainQuad.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         JmeSpatialChildren children=new JmeSpatialChildren((com.jme3.scene.Spatial)key);
         children.setReadOnly(cookie);

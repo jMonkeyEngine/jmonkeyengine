@@ -34,7 +34,6 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 import com.jme3.audio.AudioNode;
 import com.jme3.audio.AudioNode.Status;
 import com.jme3.audio.Filter;
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.gde.core.properties.AudioDataProperty;
 import com.jme3.math.Vector3f;
 import java.awt.Image;
@@ -111,14 +110,17 @@ public class JmeAudioNode extends JmeNode {
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return AudioNode.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeAudioNode.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         JmeSpatialChildren children=new JmeSpatialChildren((com.jme3.scene.Spatial)key);
         children.setReadOnly(cookie);

@@ -32,7 +32,6 @@
 package com.jme3.gde.core.filters.actions;
 
 import com.jme3.gde.core.filters.FilterPostProcessorNode;
-import com.jme3.gde.core.filters.actions.NewFilterAction;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
 import com.jme3.post.Filter;

@@ -47,11 +47,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.openide.util.Exceptions;
-import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
-import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
@@ -62,9 +57,14 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  * Top component which displays something.
@@ -327,7 +327,6 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
 
     public void removeMaterialChangeProvider(MaterialChangeProvider provider) {
         Logger.getLogger(SceneExplorerTopComponent.class.getName()).log(Level.INFO, "Removing material provider for :  {0}", provider.getKey());
-        System.out.println("Removing provider : " + provider.getKey());
         materialChangeProviders.remove(provider.getKey());
     }
 

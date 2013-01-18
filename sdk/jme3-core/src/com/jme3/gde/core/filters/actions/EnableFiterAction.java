@@ -38,8 +38,8 @@ package com.jme3.gde.core.filters.actions;
 import com.jme3.gde.core.filters.AbstractFilterNode;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.post.Filter;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 

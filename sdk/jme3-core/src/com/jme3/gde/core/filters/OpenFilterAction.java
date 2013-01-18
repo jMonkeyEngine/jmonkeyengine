@@ -32,13 +32,12 @@
 package com.jme3.gde.core.filters;
 
 import com.jme3.gde.core.assets.FilterDataObject;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-
-import org.openide.awt.ActionRegistration;
+import java.awt.event.ActionListener;
+import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionID;
+import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle.Messages;
 
 @ActionID(category = "Filters",

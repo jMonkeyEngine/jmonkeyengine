@@ -4,7 +4,6 @@
  */
 package com.jme3.gde.core.sceneexplorer;
 
-import com.jme3.gde.core.sceneexplorer.MaterialChangeListener;
 import java.util.List;
 
 /**

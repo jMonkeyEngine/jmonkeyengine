@@ -34,11 +34,9 @@ package com.jme3.gde.core.sceneexplorer.nodes.actions;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeAnimControl;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import org.openide.loaders.DataObject;
 import org.openide.util.actions.Presenter;
 
 /**

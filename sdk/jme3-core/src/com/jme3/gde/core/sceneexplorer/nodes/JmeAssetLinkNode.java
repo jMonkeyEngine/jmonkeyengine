@@ -126,14 +126,17 @@ public class JmeAssetLinkNode extends JmeNode {
         }
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return AssetLinkNode.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeAssetLinkNode.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         JmeSpatialChildren children = new JmeSpatialChildren((com.jme3.scene.Spatial) key);
         children.setReadOnly(cookie);
@@ -147,11 +150,13 @@ public class JmeAssetLinkNode extends JmeNode {
             super(spatial);
         }
 
+        @Override
         public void refreshChildren(boolean immediate) {
             setKeys(createKeys());
             refresh();
         }
 
+        @Override
         protected List<Object> createKeys() {
             try {
                 return SceneApplication.getApplication().enqueue(new Callable<List<Object>>() {
@@ -173,6 +178,7 @@ public class JmeAssetLinkNode extends JmeNode {
             return null;
         }
 
+        @Override
         public void setReadOnly(boolean cookie) {
             this.readOnly = cookie;
         }

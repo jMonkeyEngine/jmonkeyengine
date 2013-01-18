@@ -620,14 +620,17 @@ public class SceneApplication extends Application implements LookupProvider {
         }
     }
 
+    @Override
     public RenderManager getRenderManager() {
         return renderManager;
     }
 
+    @Override
     public ViewPort getViewPort() {
         return viewPort;
     }
 
+    @Override
     public ViewPort getGuiViewPort() {
         return guiViewPort;
     }

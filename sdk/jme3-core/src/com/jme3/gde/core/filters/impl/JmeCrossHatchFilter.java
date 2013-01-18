@@ -33,7 +33,6 @@ package com.jme3.gde.core.filters.impl;
 
 import com.jme3.gde.core.filters.AbstractFilterNode;
 import com.jme3.gde.core.filters.FilterNode;
-import com.jme3.math.ColorRGBA;
 import com.jme3.post.filters.CrossHatchFilter;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;

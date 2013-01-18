@@ -31,11 +31,11 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
 import com.jme3.effect.influencers.DefaultParticleInfluencer;
 import com.jme3.effect.influencers.ParticleInfluencer;
+import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.ParticleInfluencerProperty;
 import com.jme3.gde.core.util.PropertyUtils;

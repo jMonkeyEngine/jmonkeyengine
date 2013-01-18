@@ -31,12 +31,9 @@
  */
 package com.jme3.gde.core.codeless;
 
-import java.awt.Component;
 import java.awt.event.ActionListener;
-import java.io.File;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
-import org.openide.awt.StatusDisplayer;
 import org.openide.util.HelpCtx;
 
 public class CodelessProjectWizardWizardPanel1 implements WizardDescriptor.Panel {

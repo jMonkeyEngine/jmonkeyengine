@@ -35,7 +35,6 @@ import com.jme3.gde.core.filters.actions.AbstractNewFilterAction;
 import com.jme3.gde.core.filters.actions.NewFilterAction;
 import com.jme3.post.Filter;
 import com.jme3.post.ssao.SSAOFilter;
-import com.jme3.water.WaterFilter;
 
 /**
  *

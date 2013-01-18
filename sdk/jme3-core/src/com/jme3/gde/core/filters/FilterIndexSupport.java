@@ -51,7 +51,6 @@ public class FilterIndexSupport extends Index.Support {
                     Filter f = it.next();
                     filters.add(f);
                 }
-                System.err.println("reordering");
                 fppNode.getFilterPostProcessor().removeAllFilters();
                 for (int i = 0; i < perm.length; i++) {
                     fppNode.getFilterPostProcessor().addFilter(filters.get(perm[i]));

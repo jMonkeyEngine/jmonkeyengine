@@ -33,8 +33,6 @@ package com.jme3.gde.core.sceneexplorer.nodes.actions.impl;
 
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractNewControlAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewControlAction;
 import com.jme3.scene.Node;

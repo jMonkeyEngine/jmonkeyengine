@@ -32,7 +32,6 @@
 package com.jme3.gde.core.sceneexplorer.nodes.actions;
 
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
-import com.jme3.scene.Spatial;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;

@@ -75,10 +75,12 @@ public class JmePointLight extends JmeLight{
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return PointLight.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmePointLight.class;
     }

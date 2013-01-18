@@ -31,7 +31,6 @@
  */
 package com.jme3.gde.core.appstates;
 
-import com.jme3.gde.core.sceneexplorer.nodes.actions.impl.*;
 import java.awt.Component;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;

@@ -31,13 +31,11 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import java.awt.Image;
-import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.loaders.DataObject;
@@ -94,14 +92,17 @@ public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListene
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return TerrainGrid.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeTerrainGrid.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         JmeSpatialChildren children = new JmeSpatialChildren((com.jme3.scene.Spatial) key);
         children.setReadOnly(cookie);

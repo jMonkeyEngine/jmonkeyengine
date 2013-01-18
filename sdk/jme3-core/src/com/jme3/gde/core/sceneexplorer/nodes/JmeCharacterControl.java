@@ -34,8 +34,6 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import java.awt.Image;
@@ -149,10 +147,12 @@ public class JmeCharacterControl extends AbstractSceneExplorerNode {
         return CharacterControl.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeCharacterControl.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         return new org.openide.nodes.Node[]{new JmeCharacterControl((CharacterControl) key, key2).setReadOnly(cookie)};
     }

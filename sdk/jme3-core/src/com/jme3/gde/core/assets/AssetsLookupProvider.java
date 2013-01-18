@@ -32,7 +32,6 @@
 package com.jme3.gde.core.assets;
 
 import com.jme3.gde.core.j2seproject.ProjectExtensionManager;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

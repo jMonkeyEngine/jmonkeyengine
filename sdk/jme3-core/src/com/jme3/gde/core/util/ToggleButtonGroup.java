@@ -45,6 +45,7 @@ import javax.swing.ButtonModel;
 public class ToggleButtonGroup extends ButtonGroup {
     private ButtonModel modifiedSelection;
 
+    @Override
     public void add(AbstractButton b) {
         if (b == null) {
             return;
@@ -62,6 +63,7 @@ public class ToggleButtonGroup extends ButtonGroup {
         b.getModel().setGroup(this);
     }
 
+    @Override
     public void remove(AbstractButton b) {
         if (b == null) {
             return;
@@ -73,10 +75,12 @@ public class ToggleButtonGroup extends ButtonGroup {
         b.getModel().setGroup(null);
     }
 
+    @Override
     public ButtonModel getSelection() {
         return modifiedSelection;
     }
 
+    @Override
     public void setSelected(ButtonModel m, boolean b) {
         if (!b && m == modifiedSelection) {
             modifiedSelection = null;
@@ -92,6 +96,7 @@ public class ToggleButtonGroup extends ButtonGroup {
         }
     }
 
+    @Override
     public boolean isSelected(ButtonModel m) {
         return (m == modifiedSelection);
     }

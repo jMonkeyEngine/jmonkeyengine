@@ -32,9 +32,9 @@
 package com.jme3.gde.core.sceneexplorer.nodes.actions;
 
 import com.jme3.audio.AudioNode;
-import com.jme3.effect.shapes.EmitterSphereShape;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
+import com.jme3.effect.shapes.EmitterSphereShape;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;

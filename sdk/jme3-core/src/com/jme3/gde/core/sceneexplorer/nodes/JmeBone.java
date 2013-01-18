@@ -131,10 +131,12 @@ public class JmeBone extends AbstractSceneExplorerNode {
         return Bone.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeBone.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         JmeBoneChildren children = new JmeBoneChildren(jmeSkeletonControl, (Bone) key);
         children.setReadOnly(cookie);

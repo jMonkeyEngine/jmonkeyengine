@@ -76,10 +76,12 @@ public class JmeSpotLight extends JmeLight{
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return SpotLight.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeSpotLight.class;
     }

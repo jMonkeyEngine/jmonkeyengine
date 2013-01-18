@@ -32,12 +32,10 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.ClipboardSpatial;
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.AddUserDataAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewControlPopup;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewLightPopup;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewSpatialPopup;
-import com.jme3.gde.core.sceneexplorer.nodes.actions.AddUserDataAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.ToolPopup;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -179,14 +177,17 @@ public class JmeNode extends JmeSpatial {
         }
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return Node.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeNode.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         JmeSpatialChildren children = new JmeSpatialChildren((com.jme3.scene.Spatial) key);
         children.setReadOnly(cookie);

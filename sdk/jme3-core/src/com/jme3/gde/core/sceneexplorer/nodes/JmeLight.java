@@ -41,7 +41,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
-import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
@@ -73,6 +72,7 @@ public class JmeLight extends AbstractSceneExplorerNode {
         setName("Light");
     }
 
+    @Override
     protected void fireSave(boolean modified) {
         Node parent = getParentNode();
         if (parent instanceof AbstractSceneExplorerNode) {
@@ -154,6 +154,7 @@ public class JmeLight extends AbstractSceneExplorerNode {
         return Light.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeLight.class;
     }

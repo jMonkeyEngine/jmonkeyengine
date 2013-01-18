@@ -32,7 +32,6 @@
 package com.jme3.gde.core.properties;
 
 import com.jme3.effect.ParticleEmitter;
-import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.awt.Component;

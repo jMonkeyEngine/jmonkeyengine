@@ -32,7 +32,6 @@
 
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.light.Light;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 

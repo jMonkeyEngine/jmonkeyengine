@@ -35,8 +35,6 @@ import com.jme3.asset.AssetKey;
 import com.jme3.gde.core.util.PropertyUtils;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;

@@ -55,6 +55,10 @@ public class SpatialAssetDataObject extends AssetDataObject {
     public SpatialAssetDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         saveExtension = "j3o";
+//        CookieSet cookies = getCookieSet();
+//        cookies.add((Node.Cookie) new SpatialAssetOpenSupport(this));
+//        cookies.assign(OpenCookie.class, new SpatialAssetOpenSupport(this));
+//        cookies.assign(CloseCookie.class, new SpatialAssetCloseSupport(this));
     }
 
     @Override
@@ -102,6 +106,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
         return null;
     }
 
+    @Override
     public synchronized void saveAsset() throws IOException {
         super.saveAsset();
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);

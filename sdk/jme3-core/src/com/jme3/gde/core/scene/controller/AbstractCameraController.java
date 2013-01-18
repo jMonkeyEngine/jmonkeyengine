@@ -128,7 +128,6 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
     public void removeAdditionnalToolbar() {
 
         SceneViewerTopComponent svtc = SceneViewerTopComponent.findInstance();
-        System.out.println("test remove" + svtc);
         if (svtc != null) {
             svtc.remove(CameraToolbar.getInstance());
         }

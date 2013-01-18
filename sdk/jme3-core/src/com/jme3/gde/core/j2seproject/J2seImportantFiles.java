@@ -5,7 +5,6 @@
 package com.jme3.gde.core.j2seproject;
 
 import com.jme3.gde.core.importantfiles.ImportantFiles;
-import java.util.ArrayList;
 import org.netbeans.api.project.Project;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;

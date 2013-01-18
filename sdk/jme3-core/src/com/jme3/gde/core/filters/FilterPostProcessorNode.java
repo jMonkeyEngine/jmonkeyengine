@@ -31,8 +31,8 @@
  */
 package com.jme3.gde.core.filters;
 
-import com.jme3.gde.core.filters.actions.NewFilterPopup;
 import com.jme3.gde.core.assets.FilterDataObject;
+import com.jme3.gde.core.filters.actions.NewFilterPopup;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.post.Filter;
 import com.jme3.post.FilterPostProcessor;

@@ -201,7 +201,7 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
     }
     
     public void syncSceneData() {
-        //TODO: precache structure to avoid locks?
+        //TODO: precache structure to avoid locks? Do it backwards, sending the actual bean value?
         for (PropertySet propertySet : getPropertySets()) {
             for (Property<?> property : propertySet.getProperties()) {
                 if(property instanceof SceneExplorerProperty){

@@ -37,7 +37,6 @@
  */
 package com.jme3.gde.core.scene;
 
-import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;

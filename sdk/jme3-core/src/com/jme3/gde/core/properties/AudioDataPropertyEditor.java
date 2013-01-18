@@ -31,7 +31,6 @@
  */
 package com.jme3.gde.core.properties;
 
-import com.jme3.audio.AudioData;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneRequest;
 import java.awt.Component;

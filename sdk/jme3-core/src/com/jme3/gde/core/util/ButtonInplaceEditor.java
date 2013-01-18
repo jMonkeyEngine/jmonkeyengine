@@ -3,7 +3,6 @@ package com.jme3.gde.core.util;
 import java.awt.Color;
 import java.awt.Component;
 import java.beans.PropertyEditor;
-import javax.swing.DefaultButtonModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;

@@ -158,6 +158,7 @@ public class JmeAnimControl extends AbstractSceneExplorerNode {
         return AnimControl.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeAnimControl.class;
     }

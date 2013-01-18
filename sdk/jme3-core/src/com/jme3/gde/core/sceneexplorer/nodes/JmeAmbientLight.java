@@ -32,9 +32,7 @@
 
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.light.AmbientLight;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import org.openide.cookies.SaveCookie;
 import org.openide.loaders.DataObject;
@@ -75,10 +73,12 @@ public class JmeAmbientLight extends JmeLight{
 
     }
 
+    @Override
     public Class getExplorerObjectClass() {
         return AmbientLight.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeAmbientLight.class;
     }

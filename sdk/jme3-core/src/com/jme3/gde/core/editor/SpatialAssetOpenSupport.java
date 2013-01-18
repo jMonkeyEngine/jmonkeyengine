@@ -12,7 +12,6 @@ import com.jme3.system.awt.AwtPanel;
 import java.util.concurrent.Callable;
 import org.openide.cookies.CloseCookie;
 import org.openide.cookies.OpenCookie;
-import org.openide.loaders.Environment;
 import org.openide.loaders.OpenSupport;
 import org.openide.windows.CloneableTopComponent;
 
@@ -44,11 +43,6 @@ public class SpatialAssetOpenSupport extends OpenSupport implements OpenCookie, 
         if (app == null) {
             app = new SceneApplication();
             tc.setDataObject(dataObject);
-//            dataObject.setModified(true);
-//            final ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Opening Scene..");
-//            progressHandle.start();
-            //runs new thread, needed?
-            System.out.println("Judge Thread: " + Thread.currentThread().getName());
             Thread t = new Thread(new Runnable() {
                 public void run() {
                     app.start();
@@ -81,7 +75,6 @@ public class SpatialAssetOpenSupport extends OpenSupport implements OpenCookie, 
 
     @Override
     public boolean close() {
-        System.out.println("CLOSING");
         boolean close = super.close();
         if (close && app != null) {
             app.stop();
@@ -98,7 +91,6 @@ public class SpatialAssetOpenSupport extends OpenSupport implements OpenCookie, 
 
     @Override
     protected boolean canClose() {
-        System.out.println("CANCLOSE");
         return super.canClose();
     }
     

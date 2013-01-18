@@ -35,8 +35,6 @@ import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.VehicleControl;
 import com.jme3.bullet.objects.VehicleWheel;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
-import com.jme3.gde.core.sceneexplorer.nodes.SceneExplorerNode;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
@@ -168,10 +166,12 @@ public class JmeVehicleControl extends AbstractSceneExplorerNode {
         return VehicleControl.class;
     }
 
+    @Override
     public Class getExplorerNodeClass() {
         return JmeVehicleControl.class;
     }
 
+    @Override
     public org.openide.nodes.Node[] createNodes(Object key, DataObject key2, boolean cookie) {
         PhysicsVehicleChildren children = new PhysicsVehicleChildren((VehicleControl) key);
         children.setReadOnly(cookie);
@@ -187,11 +187,13 @@ public class JmeVehicleControl extends AbstractSceneExplorerNode {
             this.control = control;
         }
 
+        @Override
         public void refreshChildren(boolean immediate) {
             setKeys(createKeys());
             refresh();
         }
 
+        @Override
         protected List<Object> createKeys() {
             try {
                 return SceneApplication.getApplication().enqueue(new Callable<List<Object>>() {
@@ -212,6 +214,7 @@ public class JmeVehicleControl extends AbstractSceneExplorerNode {
             return null;
         }
 
+        @Override
         public void setReadOnly(boolean cookie) {
             this.readOnly = cookie;
         }

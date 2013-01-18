@@ -24,7 +24,6 @@ public class NavigatorNode extends AbstractNode{
 
     @Override
     public void destroy() throws IOException {
-        System.out.println("call destroy");
         super.destroy();
     }
     

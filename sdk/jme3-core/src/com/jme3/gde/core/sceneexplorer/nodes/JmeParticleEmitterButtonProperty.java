@@ -1,10 +1,7 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
-import com.jme3.effect.ParticleEmitter;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.util.ButtonInplaceEditor;
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
