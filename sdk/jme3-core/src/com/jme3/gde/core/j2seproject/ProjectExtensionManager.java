@@ -447,7 +447,7 @@ public class ProjectExtensionManager {
                     //XXX: deleting old (beta) files here
                     FileObject fo = projectRoot.getFileObject(entry.getName());
                     if (fo != null && entry.getSize() != -1 && entry.getSize() == fo.getSize()) {
-                        logger.log(Level.INFO, "Deleting old folder " + fo.getNameExt());
+                        logger.log(Level.INFO, "Deleting old folder {0}", fo.getNameExt());
                         fo.delete();
                     }
                     FileUtil.createFolder(projectRoot, fileName);
@@ -455,7 +455,7 @@ public class ProjectExtensionManager {
                     //XXX: deleting old (beta) files here
                     FileObject fo = projectRoot.getFileObject(entry.getName());
                     if (fo != null && !fo.equals(projectRoot)) {
-                        logger.log(Level.INFO, "Deleting old file " + fo.getNameExt());
+                        logger.log(Level.INFO, "Deleting old file {0}", fo.getNameExt());
                         fo.delete();
                     }
                     fo = projectRoot.getFileObject(fileName);
@@ -463,7 +463,7 @@ public class ProjectExtensionManager {
                         fo = FileUtil.createData(projectRoot, fileName);
                         writeFile(str, fo);
                     } else {
-                        logger.log(Level.INFO, "Not overwriting existing file " + fo.getNameExt());
+                        logger.log(Level.INFO, "Not overwriting existing file {0}", fo.getNameExt());
                     }
                 }
             }
@@ -485,7 +485,7 @@ public class ProjectExtensionManager {
                 //XXX: deleting old (beta) files here
                 FileObject old = projectRoot.getFileObject(entry.getName());
                 if (old != null && !old.equals(projectRoot)) {
-                    logger.log(Level.INFO, "Deleting old file " + old.getNameExt());
+                    logger.log(Level.INFO, "Deleting old file {0}", old.getNameExt());
                     if (entry.getSize() != -1 && entry.getSize() == old.getSize()) {
                         old.delete();
                     }
@@ -494,11 +494,11 @@ public class ProjectExtensionManager {
                 FileObject obj = projectRoot.getFileObject(fileName);
                 if (obj != null && !obj.equals(projectRoot) && !obj.isFolder()) {
                     if (entry.getSize() != -1 && entry.getSize() == obj.getSize()) {
-                        logger.log(Level.INFO, "Deleting file " + obj.getNameExt());
+                        logger.log(Level.INFO, "Deleting file {0}", obj.getNameExt());
                         obj.delete();
                     } else {
                         kept = true;
-                        logger.log(Level.INFO, "Keeping file " + obj.getNameExt());
+                        logger.log(Level.INFO, "Keeping file {0}", obj.getNameExt());
                     }
                 }
             }
