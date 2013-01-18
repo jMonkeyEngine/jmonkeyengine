@@ -67,6 +67,8 @@ import org.openide.util.ImageUtilities;
 @MimeRegistration(mimeType = "text/x-java", service = CompletionProvider.class)
 public class AssetCompletionProvider implements CompletionProvider {
 
+    private static final Logger logger = Logger.getLogger(AssetCompletionProvider.class.getName());
+    
     private static ImageIcon assetIcon =
             new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/assets.gif"));
     private static ImageIcon modelIcon =
@@ -88,7 +90,7 @@ public class AssetCompletionProvider implements CompletionProvider {
 
         Invalid, Model, Material, Filter, MatDef, Texture, Sound, Font, Xml, Asset
     }
-
+    
     public AssetCompletionProvider() {
     }
 
@@ -103,7 +105,7 @@ public class AssetCompletionProvider implements CompletionProvider {
 
                 ProjectAssetManager manager = getProjectAssetManager(document);
                 if (manager == null) {
-                    Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "No assetManager found");
+                    logger.log(Level.FINE, "No assetManager found");
                     completionResultSet.finish();
                     return;
                 }
@@ -124,7 +126,7 @@ public class AssetCompletionProvider implements CompletionProvider {
                 } catch (BadLocationException ex) {
                     Exceptions.printStackTrace(ex);
                 }
-                Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "Searching with filter {0}", filter);
+                logger.log(Level.FINE, "Searching with filter {0}", filter);
                 switch (type) {
                     case Model:
                         for (String string : manager.getModels()) {
@@ -183,7 +185,7 @@ public class AssetCompletionProvider implements CompletionProvider {
                         }
                         break;
                     case Invalid:
-                        Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "Not a valid code line for assets");
+                        logger.log(Level.FINE, "Not a valid code line for assets");
                         break;
                 }
                 completionResultSet.finish();
@@ -243,25 +245,25 @@ public class AssetCompletionProvider implements CompletionProvider {
     private ProjectAssetManager getProjectAssetManager(Document doc) {
         Object sdp = doc.getProperty(Document.StreamDescriptionProperty);
         if (sdp instanceof FileObject) {
-            Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "Check FileObject for Project..");
+            logger.log(Level.FINE, "Check FileObject for Project..");
             FileObject fobj = (FileObject) sdp;
             Project proj = FileOwnerQuery.getOwner(fobj);
             if (proj != null) {
-                Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "Project found, return ProjectAssetManager");
+                logger.log(Level.FINE, "Project found, return ProjectAssetManager");
                 return proj.getLookup().lookup(ProjectAssetManager.class);
             }
         }
         if (sdp instanceof DataObject) {
-            Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "Check DataObject for Project..");
+            logger.log(Level.FINE, "Check DataObject for Project..");
             DataObject dobj = (DataObject) sdp;
             FileObject fobj = dobj.getPrimaryFile();
             Project proj = FileOwnerQuery.getOwner(fobj);
             if (proj != null) {
-                Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "Project found, return ProjectAssetManager");
+                logger.log(Level.FINE, "Project found, return ProjectAssetManager");
                 return proj.getLookup().lookup(ProjectAssetManager.class);
             }
         }
-        Logger.getLogger(AssetCompletionProvider.class.getName()).log(Level.FINE, "No Project found");
+        logger.log(Level.FINE, "No Project found");
         return null;
     }
 
