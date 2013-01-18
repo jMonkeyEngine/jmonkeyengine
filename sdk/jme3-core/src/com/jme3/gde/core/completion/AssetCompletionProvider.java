@@ -162,21 +162,21 @@ public class AssetCompletionProvider implements CompletionProvider {
                         }
                         break;
                     case Font:
-                        for (String string : manager.getFilesWithSuffix("fnt")) {
+                        for (String string : manager.getAssetsWithSuffix("fnt")) {
                             if (string.startsWith(filter)) {
                                 completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
                             }
                         }
                         break;
                     case Filter:
-                        for (String string : manager.getFilesWithSuffix("j3f")) {
+                        for (String string : manager.getAssetsWithSuffix("j3f")) {
                             if (string.startsWith(filter)) {
                                 completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
                             }
                         }
                         break;
                     case Xml:
-                        for (String string : manager.getFilesWithSuffix("xml")) {
+                        for (String string : manager.getAssetsWithSuffix("xml")) {
                             if (string.startsWith(filter)) {
                                 completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
                             }
