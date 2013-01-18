@@ -64,7 +64,7 @@ import org.openide.util.Exceptions;
  * @author normenhansen
  */
 public class ProjectExtensionManager {
-
+    private static final Logger logger = Logger.getLogger(ProjectExtensionManager.class.getName());
     private String extensionName;
     private String extensionVersion;
     private String extensionTargets;
@@ -447,7 +447,7 @@ public class ProjectExtensionManager {
                     //XXX: deleting old (beta) files here
                     FileObject fo = projectRoot.getFileObject(entry.getName());
                     if (fo != null && entry.getSize() != -1 && entry.getSize() == fo.getSize()) {
-                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting old folder " + fo.getNameExt());
+                        logger.log(Level.INFO, "Deleting old folder " + fo.getNameExt());
                         fo.delete();
                     }
                     FileUtil.createFolder(projectRoot, fileName);
@@ -455,7 +455,7 @@ public class ProjectExtensionManager {
                     //XXX: deleting old (beta) files here
                     FileObject fo = projectRoot.getFileObject(entry.getName());
                     if (fo != null && !fo.equals(projectRoot)) {
-                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting old file " + fo.getNameExt());
+                        logger.log(Level.INFO, "Deleting old file " + fo.getNameExt());
                         fo.delete();
                     }
                     fo = projectRoot.getFileObject(fileName);
@@ -463,7 +463,7 @@ public class ProjectExtensionManager {
                         fo = FileUtil.createData(projectRoot, fileName);
                         writeFile(str, fo);
                     } else {
-                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Not overwriting existing file " + fo.getNameExt());
+                        logger.log(Level.INFO, "Not overwriting existing file " + fo.getNameExt());
                     }
                 }
             }
@@ -485,7 +485,7 @@ public class ProjectExtensionManager {
                 //XXX: deleting old (beta) files here
                 FileObject old = projectRoot.getFileObject(entry.getName());
                 if (old != null && !old.equals(projectRoot)) {
-                    Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting old file " + old.getNameExt());
+                    logger.log(Level.INFO, "Deleting old file " + old.getNameExt());
                     if (entry.getSize() != -1 && entry.getSize() == old.getSize()) {
                         old.delete();
                     }
@@ -494,11 +494,11 @@ public class ProjectExtensionManager {
                 FileObject obj = projectRoot.getFileObject(fileName);
                 if (obj != null && !obj.equals(projectRoot) && !obj.isFolder()) {
                     if (entry.getSize() != -1 && entry.getSize() == obj.getSize()) {
-                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Deleting file " + obj.getNameExt());
+                        logger.log(Level.INFO, "Deleting file " + obj.getNameExt());
                         obj.delete();
                     } else {
                         kept = true;
-                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Keeping file " + obj.getNameExt());
+                        logger.log(Level.INFO, "Keeping file " + obj.getNameExt());
                     }
                 }
             }
@@ -518,7 +518,7 @@ public class ProjectExtensionManager {
     private void writeFile(ZipInputStream str, FileObject fo) throws IOException {
         OutputStream out = fo.getOutputStream();
         try {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Creating file " + fo.getNameExt());
+            logger.log(Level.INFO, "Creating file " + fo.getNameExt());
             FileUtil.copy(str, out);
         } finally {
             out.close();
