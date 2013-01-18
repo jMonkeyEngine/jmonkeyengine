@@ -61,6 +61,7 @@ import org.openide.util.Mutex;
 @SuppressWarnings("unchecked")
 public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
 
+    private static final Logger logger = Logger.getLogger(SceneExplorerProperty.class.getName());
     public static final String PROP_SCENE_CHANGE = "PROP_SCENE_CHANGE";
     public static final String PROP_USER_CHANGE = "PROP_USER_CHANGE";
     public static final String PROP_INIT_CHANGE = "PROP_INIT_CHANGE";
@@ -108,6 +109,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         }
         //TODO: instantiates editor?
         editable = getPropertyEditor() != null;
+        logger.log(Level.FINE, "Created SceneExplorerProperty for {0}, cloneable = {1}, instantiatable = {2}, primitive = {3}, editable = {4}", new Object[]{valueType, cloneable, instantiable, primitive, editable});
         addPropertyChangeListener(listener);
     }
 
@@ -123,9 +125,9 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
             mutex.postWriteRequest(new Runnable() {
                 public void run() {
                     inited = true;
-                    T newObject = duplicateObject(realValue);
-                    notifyListeners(PROP_INIT_CHANGE, null, newObject);
                     objectLocal = duplicateObject(realValue);
+                    notifyListeners(PROP_INIT_CHANGE, null, objectLocal);
+                    logger.log(Level.FINE, "Get first sync duplicate for {0}", this);
                 }
             });
         } else if ((objectLocal != null) && !objectLocal.equals(realValue)) {
@@ -133,16 +135,17 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
                 public void run() {
                     T oldObject = objectLocal;
                     T newObject = duplicateObject(realValue);
-                    notifyListeners(PROP_SCENE_CHANGE, oldObject, newObject);
                     objectLocal = newObject;
+                    notifyListeners(PROP_SCENE_CHANGE, oldObject, objectLocal);
+                    logger.log(Level.FINE, "Get update for {0} due to equals check", this);
                 }
             });
         } else if ((objectLocal == null) && (realValue != null)) {
             mutex.postWriteRequest(new Runnable() {
                 public void run() {
-                    T newObject = duplicateObject(realValue);
-                    notifyListeners(PROP_SCENE_CHANGE, null, newObject);
                     objectLocal = duplicateObject(realValue);
+                    notifyListeners(PROP_SCENE_CHANGE, null, objectLocal);
+                    logger.log(Level.FINE, "Get update for {0} due to change from null", this);
                 }
             });
         }
@@ -152,6 +155,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     public T getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         return mutex.readAccess(new Mutex.Action<T>() {
             public T run() {
+                logger.log(Level.FINE, "Return local value of {0}", this);
                 return objectLocal;
             }
         });
@@ -161,6 +165,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     public void setValue(final T val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         mutex.postWriteRequest(new Runnable() {
             public void run() {
+                logger.log(Level.FINE, "Set local value of {0}", this);
                 final T oldObject = objectLocal;
                 objectLocal = val;
                 final T sceneObject = duplicateObject(val);
@@ -192,13 +197,17 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         try {
             Class objClass = obj.getClass().getMethod(getter).getReturnType();
             if (Enum.class.isAssignableFrom(objClass)) {
+                logger.log(Level.FINE, "Found enum, not cloneable");
                 return false;
             }
             Method meth = objClass.getMethod("clone");
             if (meth != null) {
+                logger.log(Level.FINE, "Found clone method");
                 if (meth.getParameterTypes().length == 0
-                        && meth.getReturnType().equals(obj.getClass())) {
+                        && meth.getReturnType().isAssignableFrom(objClass)) {
                     return true;
+                } else {
+                    logger.log(Level.FINE, "Wrong kind of clone method, parameter size {0}, returnType {1}", new Object[]{meth.getParameterTypes().length, meth.getReturnType()});
                 }
             }
         } catch (NoSuchMethodException ex) {
@@ -212,12 +221,13 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         try {
             Class objClass = obj.getClass().getMethod(getter).getReturnType();
             if (Enum.class.isAssignableFrom(objClass)) {
+                logger.log(Level.FINE, "Found enum, not recreatable");
                 return false;
             }
             Constructor[] constructors = objClass.getConstructors();
             for (Constructor constructor : constructors) {
                 Class[] types = constructor.getParameterTypes();
-                if (types.length == 1 && types[0].equals(obj.getClass())) {
+                if (types.length == 1 && types[0].isAssignableFrom(objClass)) {
                     return true;
                 }
             }
@@ -230,13 +240,18 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     }
 
     private T duplicateObject(T a) {
+        if (a == null) {
+            return null;
+        }
         if (primitive) {
+            logger.log(Level.FINE, "Returning primitive as duplicate");
             return a;
         }
         T obj = null;
         if (cloneable) {
             try {
                 obj = (T) a.getClass().getMethod("clone").invoke(a);
+                logger.log(Level.FINE, "Cloned object {0} to {1}", new Object[]{a, obj});
             } catch (IllegalAccessException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (IllegalArgumentException ex) {
@@ -251,6 +266,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         } else if (instantiable) {
             try {
                 obj = (T) a.getClass().getConstructor(a.getClass()).newInstance(a);
+                logger.log(Level.FINE, "Instantiated new object from {0} to {1}", new Object[]{a, obj});
             } catch (InstantiationException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (IllegalAccessException ex) {
@@ -266,6 +282,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
             }
         }
         if (obj == null) {
+            logger.log(Level.FINE, "Simply returning non-primitive {0} as duplicate", new Object[]{a});
             return a;
         }
         return obj;
@@ -277,6 +294,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
 
     private T getSuperValue() {
         try {
+            logger.log(Level.FINE, "Get super value of {0} on thread {1}", new Object[]{this, Thread.currentThread().getName()});
             return super.getValue();
         } catch (IllegalAccessException ex) {
             Exceptions.printStackTrace(ex);
@@ -291,8 +309,10 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     private void setSuperValue(T val, boolean undo) {
         try {
             if (undo) {
+                logger.log(Level.FINE, "Add undo for {0} on thread {1}");
                 addUndo(duplicateObject(getSuperValue()), val);
             }
+            logger.log(Level.FINE, "Set super value of {0} on thread {1}", new Object[]{this, Thread.currentThread().getName()});
             super.setValue(val);
         } catch (IllegalAccessException ex) {
             Exceptions.printStackTrace(ex);
@@ -306,20 +326,20 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     protected void addUndo(final Object before, final Object after) {
         SceneUndoRedoManager undoRedo = Lookup.getDefault().lookup(SceneUndoRedoManager.class);
         if (undoRedo == null) {
-            Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.WARNING, "Cannot access SceneUndoRedoManager");
+            logger.log(Level.WARNING, "Cannot access SceneUndoRedoManager");
             return;
         }
         undoRedo.addEdit(this, new AbstractUndoableSceneEdit() {
             @Override
             public void sceneUndo() {
-                Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.FINE, "Do undo {0}", before);
+                logger.log(Level.FINE, "Do undo {0}", before);
                 notifyListeners(PROP_USER_CHANGE, after, before);
                 setSuperValue((T) before, false);
             }
 
             @Override
             public void sceneRedo() {
-                Logger.getLogger(SceneExplorerProperty.class.getName()).log(Level.FINE, "Do redo {0}", before);
+                logger.log(Level.FINE, "Do redo {0}", before);
                 notifyListeners(PROP_USER_CHANGE, before, after);
                 setSuperValue((T) after, false);
             }
@@ -336,12 +356,14 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
 
     public void addPropertyChangeListener(ScenePropertyChangeListener listener) {
         if (listener != null) {
+            logger.log(Level.FINE, "Add property listener {0}", listener);
             listeners.add(listener);
         }
     }
 
     public void removePropertyChangeListener(ScenePropertyChangeListener listener) {
         if (listener != null) {
+            logger.log(Level.FINE, "Remove property listener {0}", listener);
             listeners.remove(listener);
         }
     }
@@ -349,6 +371,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     private void notifyListeners(final String type, final Object before, final Object after) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+                logger.log(Level.FINE, "Notify SceneExplorer listeners of {0}", this);
                 for (Iterator<ScenePropertyChangeListener> it = listeners.iterator(); it.hasNext();) {
                     ScenePropertyChangeListener propertyChangeListener = it.next();
                     propertyChangeListener.propertyChange(type, getName(), before, after);
