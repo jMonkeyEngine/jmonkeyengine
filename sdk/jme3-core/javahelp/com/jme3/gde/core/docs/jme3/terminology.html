@@ -17,7 +17,7 @@ Before you start, make certain you are familiar with the following concepts and 
 <strong>OpenGL</strong> is the Open Graphics Library, a platform-independent specification for rendering 2D/3D computer graphics. For Java, there are two implementations of OpenGL-based renderers:
 </p>
 <ol>
-<li><div> Lightweight Java Game Library (LWJGL) – jme3 uses lwjgl.</div>
+<li><div> Lightweight Java Game Library (LWJGL) ??? jme3 uses lwjgl.</div>
 </li>
 <li><div> Java OpenGL (JOGL)</div>
 </li>
@@ -65,7 +65,7 @@ The <strong>jME Context</strong> makes settings, renderer, timer, input and even
 </p>
 
 <p>
-Most visible objects in a 3D scene are made up of polygon meshes – characters, terrains, buildings, etc. A mesh is a grid-like structure that represents a complex shape. The advantage of a mesh is that it is mathematically simple enough to render in real time, and detailed enough to be recognizable.
+Most visible objects in a 3D scene are made up of polygon meshes ??? characters, terrains, buildings, etc. A mesh is a grid-like structure that represents a complex shape. The advantage of a mesh is that it is mathematically simple enough to render in real time, and detailed enough to be recognizable.
 </p>
 
 <p>
@@ -96,7 +96,7 @@ What we call &quot;color&quot; is merely part of an object&#039;s light reflecti
 <h3><a>Ambient color</a></h3>
 <div>
 <ul>
-<li><div>  The uniform base color of the mesh – what it looks like when not influenced by any light source.</div>
+<li><div>  The uniform base color of the mesh ??? what it looks like when not influenced by any light source.</div>
 </li>
 <li><div> Usually similar to the Diffuse color.</div>
 </li>
@@ -260,7 +260,7 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 <img src="/wiki/lib/exe/fetch.php">
 </p>
 <ul>
-<li><div> A well-done Normal Map makes a shape more detailed – without the need to add costly polygons to the mesh. It contains shading information that makes the object appear smoother and more fine-grained.</div>
+<li><div> A well-done Normal Map makes a shape more detailed ??? without the need to add costly polygons to the mesh. It contains shading information that makes the object appear smoother and more fine-grained.</div>
 </li>
 <li><div> When you open a Normal Map in an image editor, it looks like a false-color version of the Color Map. Normal maps however are never used for coloring, instead, each the color values encode displacement data of bumps and cracks on the surface. Displacement data is represented by the Surface Normals of the slopes, hence the name.</div>
 </li>
@@ -294,7 +294,7 @@ Bump maps are used to describe detailed shapes that would be too hard or simply 
 <p>
 
 <img src="/wiki/lib/exe/fetch.php">
-Tiles are a very simple, commonly used type of texture. When texturing a wide area (e.g. walls, floors), you don&#039;t create one huge texture – instead you tile a small texture repeatedly to fill the area.
+Tiles are a very simple, commonly used type of texture. When texturing a wide area (e.g. walls, floors), you don&#039;t create one huge texture ??? instead you tile a small texture repeatedly to fill the area.
 </p>
 
 <p>
@@ -316,7 +316,7 @@ See also this tutorial on <object classid="java:org.netbeans.modules.javahelp.Br
 </p>
 
 <p>
-Creating a texture for a cube is easy – but what about a character with a face and extremities? For more complex objects, you design the texture in the same ways as a flat sewing pattern: One image file contains the outline of the front, back, and side of the object, next to one another. Specific areas of the flat texture (UV coordinates) map onto certain areas of your 3D model (XYZ coordinates), hence the name UV map. Using UV Maps (also known as Texture Atlas), one model can have different textures on each side. You create one corresponding UV map for each texture.
+Creating a texture for a cube is easy ??? but what about a character with a face and extremities? For more complex objects, you design the texture in the same ways as a flat sewing pattern: One image file contains the outline of the front, back, and side of the object, next to one another. Specific areas of the flat texture (UV coordinates) map onto certain areas of your 3D model (XYZ coordinates), hence the name UV map. Using UV Maps (also known as Texture Atlas), one model can have different textures on each side. You create one corresponding UV map for each texture.
 </p>
 
 <p>
@@ -338,7 +338,7 @@ Environment Mapping or Reflection Mapping is used to create the impression of re
 </p>
 
 <p>
-You create a Cube Map to represent your environment; Sphere Maps are also possible, but often look distorted. Basically you give the environment map a set of images showing a &quot;360° view&quot; of the background scene – very similar to a skybox. The renderer maps the environment on the texture of the reflective surface, which results in an acceptable &quot;glass/mirror/water&quot; effect. Just like a skybox, the reflection map is static, so dynamic things (such as the player walking) are not part of the reflection. (!) 
+You create a Cube Map to represent your environment; Sphere Maps are also possible, but often look distorted. Basically you give the environment map a set of images showing a &quot;360?? view&quot; of the background scene ??? very similar to a skybox. The renderer maps the environment on the texture of the reflective surface, which results in an acceptable &quot;glass/mirror/water&quot; effect. Just like a skybox, the reflection map is static, so dynamic things (such as the player walking) are not part of the reflection. (!) 
 </p>
 
 <p>
@@ -481,7 +481,7 @@ In the JME3 application, you register animated models to the Animation Controlle
 <div>
 
 <p>
-Non-player (computer-controlled) characters (NPCs) are only fun in a game if they do not stupidly bump into walls, or blindly run into the line of fire. You want to make NPCs &quot;aware&quot; of their surroundings and let them make decisions based on the game state – otherwise the player can just ignore them. The most common use case is that you want to make enemies interact in a way so they offer a more interesting challenge for the player.
+Non-player (computer-controlled) characters (NPCs) are only fun in a game if they do not stupidly bump into walls, or blindly run into the line of fire. You want to make NPCs &quot;aware&quot; of their surroundings and let them make decisions based on the game state ??? otherwise the player can just ignore them. The most common use case is that you want to make enemies interact in a way so they offer a more interesting challenge for the player.
 </p>
 
 <p>
@@ -492,13 +492,13 @@ Non-player (computer-controlled) characters (NPCs) are only fun in a game if the
 The domain of artificial intelligence deals, among other things, with:
 </p>
 <ul>
-<li><div> <strong>Knowledge</strong> – Knowledge is <em>the data</em> to which the AI agent has access, and on which the AI bases its decisions. Realistic agents only &quot;know&quot; what they &quot;see and hear&quot;. This implies that information can be hidden from the AI to keep the game fair. You can have an all-knowing AI, or you can let only some AI agents share information, or you let only AI agents who are close know the current state. <br/>
+<li><div> <strong>Knowledge</strong> ??? Knowledge is <em>the data</em> to which the AI agent has access, and on which the AI bases its decisions. Realistic agents only &quot;know&quot; what they &quot;see and hear&quot;. This implies that information can be hidden from the AI to keep the game fair. You can have an all-knowing AI, or you can let only some AI agents share information, or you let only AI agents who are close know the current state. <br/>
 Example: After the player trips the wire, only a few AI guards with two-way radios start moving towards the player&#039;s position, while many other guards don&#039;t suspect anything yet.</div>
 </li>
-<li><div> <strong>Goal Planning</strong> – Planning is about how an AI agent <em>takes action</em>. Each agent has the priority to achieve a specific goal, to reach a future state. When programming, you split the agent&#039;s goal into several subgoals. The agent consults its knowledge about the current state, chooses from available tactics and strategies, and prioritizes them. The agent repeatedly tests whether the current state is closer to its goal. If unsuccessful, the agent must discard the current tactics/strategy and try another one. <br/>
+<li><div> <strong>Goal Planning</strong> ??? Planning is about how an AI agent <em>takes action</em>. Each agent has the priority to achieve a specific goal, to reach a future state. When programming, you split the agent&#039;s goal into several subgoals. The agent consults its knowledge about the current state, chooses from available tactics and strategies, and prioritizes them. The agent repeatedly tests whether the current state is closer to its goal. If unsuccessful, the agent must discard the current tactics/strategy and try another one. <br/>
 Example: An agent searches the best path to reach the player base in a changing environment, avoiding traps. An agent chases the player with the goal of eliminating him. An agent hides from the player with the goal of murdering a VIP. </div>
 </li>
-<li><div> <strong>Problem Solving</strong> – Problem solving is about how the agent <em>reacts to interruptions</em>, obstacles that stand between it and its goal. The agent uses a given set of facts and rules to deduct what state it is in – triggered by perceptions similar to pain, agony, boredom, or being trapped. In each state, only a specific subset of reactions makes sense. The actual reaction also depends on the agent&#039;s, goal since the agent&#039;s reaction must not block its own goal! <br/>
+<li><div> <strong>Problem Solving</strong> ??? Problem solving is about how the agent <em>reacts to interruptions</em>, obstacles that stand between it and its goal. The agent uses a given set of facts and rules to deduct what state it is in ??? triggered by perceptions similar to pain, agony, boredom, or being trapped. In each state, only a specific subset of reactions makes sense. The actual reaction also depends on the agent&#039;s, goal since the agent&#039;s reaction must not block its own goal! <br/>
 Examples: If player approaches, does the agent attack or conceal himself or raise alarm? While agent is idle, does he lay traps or heal self or recharge magic runes? If danger to own life, does the agent try to escape or kamikaze?</div>
 </li>
 </ul>
@@ -522,7 +522,7 @@ There are lots of resources explaining interesting AI algorithms:
 </li>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://neuroph.sourceforge.net/"><param name="text" value="<html><u>Neuroph -- Java Neural Networks</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
-<li><div> …</div>
+<li><div> ???</div>
 </li>
 </ul>
 
@@ -634,8 +634,8 @@ You calculate the Surface Normal by calculating the cross product.
 
 <p>
 
-The cross product is a calculation that you use to find a perpendicular vector (an orthogonal, a &quot;right angle&quot; at 90°).
-In 3D space, speaking of an orthogonal only makes sense with respect to a plane. You need two vectors to uniquely define a plane. The cross product of the two vectors, <code>v1 × v2</code>, is a new vector that is perpendicular to this plane. A vector perpendicular to a plane is a called <em>Surface Normal</em>.
+The cross product is a calculation that you use to find a perpendicular vector (an orthogonal, a &quot;right angle&quot; at 90??).
+In 3D space, speaking of an orthogonal only makes sense with respect to a plane. You need two vectors to uniquely define a plane. The cross product of the two vectors, <code>v1 ?? v2</code>, is a new vector that is perpendicular to this plane. A vector perpendicular to a plane is a called <em>Surface Normal</em>.
 </p>
 
 <p>

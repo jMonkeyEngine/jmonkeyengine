@@ -278,10 +278,10 @@ setBoolean(&quot;WardIso&quot;,true); <br/>
 		<th>Material Option</th><th>Description</th><th>Example</th>
 	</tr>
 	<tr>
-		<td>getAdditionalRenderState().setBlendMode(BlendMode.Off);</td><td>This is the default, no transparency.</td><td>Use for all opaque objects like walls, floors, people…</td>
+		<td>getAdditionalRenderState().setBlendMode(BlendMode.Off);</td><td>This is the default, no transparency.</td><td>Use for all opaque objects like walls, floors, people???</td>
 	</tr>
 	<tr>
-		<td>getAdditionalRenderState().setBlendMode(BlendMode.Alpha);</td><td>Interpolates the background pixel with the current pixel by using the current pixel&#039;s alpha.</td><td>Use this for normal every-day translucency: Frosted window panes, ice, glass, alpha-blended vegetation textures… </td>
+		<td>getAdditionalRenderState().setBlendMode(BlendMode.Alpha);</td><td>Interpolates the background pixel with the current pixel by using the current pixel&#039;s alpha.</td><td>Use this for normal every-day translucency: Frosted window panes, ice, glass, alpha-blended vegetation textures??? </td>
 	</tr>
 	<tr>
 		<td>getAdditionalRenderState().setDepthWrite(false);</td><td>Disables writing of the pixel&#039;s depth value to the depth buffer.</td><td>Use this on Materials if you have several transparent/translucent objects obscuring one another, but you want to see through both.</td>
@@ -346,7 +346,7 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off); </td><td>No meshes are culled. Both mesh faces are rendered, even if they face away from the camera. Slow.</td><td>Sometimes used to debug custom meshes if you messed up some of the polygon sides, or for special shadow effects.</td>
 	</tr>
 	<tr>
-		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.Front); </td><td>Activates front-face culling. Mesh faces facing the camera are not rendered.</td><td>No example – Typically not used because you wouldn&#039;t see anything meaningful.</td>
+		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.Front); </td><td>Activates front-face culling. Mesh faces facing the camera are not rendered.</td><td>No example ??? Typically not used because you wouldn&#039;t see anything meaningful.</td>
 	</tr>
 	<tr>
 		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.FrontAndBack)</td><td>Culls both backfaces and frontfaces.</td><td>Use this as an efficient way to make an object temporarily invisible, while keeping all its other in-game properties (such as node attachment, collision shapes, interactions, etc) active.</td>

@@ -109,11 +109,11 @@ public class HelloMaterial extends SimpleApplication &#123;
 You should see
 </p>
 <ul>
-<li><div> Left – A cube with a brown monkey texture.</div>
+<li><div> Left ??? A cube with a brown monkey texture.</div>
 </li>
-<li><div> Middle – A translucent monkey picture in front of a shiny rock.</div>
+<li><div> Middle ??? A translucent monkey picture in front of a shiny rock.</div>
 </li>
-<li><div> Right – A cube with a purple monkey texture.</div>
+<li><div> Right ??? A cube with a purple monkey texture.</div>
 </li>
 </ul>
 
@@ -128,7 +128,7 @@ Move around with the WASD keys to have a closer look at the translucency, and th
 
 <p>
 
-Typically you want to give objects in your scene textures: It can be rock, grass, brick, wood, water, metal, paper… A texture is a normal image file in <acronym title="Joint Photographics Experts Group">JPG</acronym> or <acronym title="Portable Network Graphics">PNG</acronym> format. In this example, you create a box with a simple unshaded Monkey texture as material.
+Typically you want to give objects in your scene textures: It can be rock, grass, brick, wood, water, metal, paper??? A texture is a normal image file in <acronym title="Joint Photographics Experts Group">JPG</acronym> or <acronym title="Portable Network Graphics">PNG</acronym> format. In this example, you create a box with a simple unshaded Monkey texture as material.
 </p>
 <pre>    /** A simple textured cube. */
     Box boxshape1 = new Box&#40;new Vector3f&#40;-3f,1.1f,0f&#41;, 1f,1f,1f&#41;;
@@ -219,7 +219,7 @@ The ColorMap is the material layer where textures go. This <acronym title="Porta
 
 <p>
 
-But textures are not all. Have a close look at the shiny sphere – you cannot get such a nice bumpy material with just a texture. JME3 also supports so-called Phong-illuminated materials:
+But textures are not all. Have a close look at the shiny sphere ??? you cannot get such a nice bumpy material with just a texture. JME3 also supports so-called Phong-illuminated materials:
 </p>
 
 <p>
@@ -286,7 +286,7 @@ Remember that any Lighting.j3md-based material requires a light source, as shown
 
 <p>
 
-As you have seen, you can find the following default materials in <code>jme/core-data/Common/…</code>.
+As you have seen, you can find the following default materials in <code>jme/core-data/Common/???</code>.
 
 </p>
 <div><table>
@@ -308,7 +308,7 @@ Shininess : Float </td>
 <!-- EDIT7 TABLE [11400-11870] -->
 <p>
 
-For a game, you create custom Materials based on these existing MaterialDefintions – as you have just seen in the example with the shiny rock&#039;s material.
+For a game, you create custom Materials based on these existing MaterialDefintions ??? as you have just seen in the example with the shiny rock&#039;s material.
 </p>
 
 </div>
@@ -339,7 +339,7 @@ If you want to use one custom material for several models, you can store it in a
 You create a j3m file as follows:
 </p>
 <ol>
-<li><div> Create a file <code>assets/Materials/LeakThrough.j3m</code> with the following content:<pre>Material Leak Through : Common/MatDefs/Misc/Unshaded.j3md {
+<li><div> Create a file <code>assets/Materials/LeakThrough.j3m</code> in your project directory, with the following content:<pre>Material Leak Through : Common/MatDefs/Misc/Unshaded.j3md {
      MaterialParameters {
          Color : 1 0 1 1
          ColorMap : Flip Textures/ColoredTex/Monkey.png
@@ -370,7 +370,7 @@ Using this new custom material <code>LeakThrough.j3m</code> only takes one line.
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Exercise 1: Custom .j3m Material" [12051-13610] -->
+<!-- EDIT9 SECTION "Exercise 1: Custom .j3m Material" [12051-13637] -->
 <h3><a>Exercise 2: Bumpiness and Shininess</a></h3>
 <div>
 
@@ -400,7 +400,7 @@ Go back to the bumpy rock sample above:
 </ol>
 
 </div>
-<!-- EDIT10 SECTION "Exercise 2: Bumpiness and Shininess" [13611-14038] -->
+<!-- EDIT10 SECTION "Exercise 2: Bumpiness and Shininess" [13638-14065] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -450,5 +450,5 @@ See also
 </span></div>
 
 </div>
-<!-- EDIT11 SECTION "Conclusion" [14039-] -->
+<!-- EDIT11 SECTION "Conclusion" [14066-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_material?do=export_xhtmlbody">view online version</a></em></p>

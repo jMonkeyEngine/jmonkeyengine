@@ -77,7 +77,7 @@ The following example overrides <code>simpleInitApp()</code> in SimpleApplicatio
 &nbsp;</pre>
 
 <p>
-<p><div>Here you see why we save user data inside spatials – so it can be saved and loaded together with the .j3o file. If you have game data outside Spatials, you have to remember to save() and load(), and get() and set() it yourself.
+<p><div>Here you see why we save user data inside spatials ??? so it can be saved and loaded together with the .j3o file. If you have game data outside Spatials, you have to remember to save() and load(), and get() and set() it yourself.
 </div></p>
 </p>
 
@@ -153,11 +153,11 @@ To make a custom class savable:
 </li>
 </ul>
 </li>
-<li><div> Add one line that <code>read…()</code>s the data to the JmeImport input capsule. </div>
+<li><div> Add one line that <code>read???()</code>s the data to the JmeImport input capsule. </div>
 <ul>
 <li><div> On the left side of the assignment, specify the class field that you are restoring</div>
 </li>
-<li><div> On the right side, use the appropriate <code>capsule.read…()</code> method for the data type. Specify the String name of the variable (must be the same as you used in the <code>write() method</code>), and again specify a default value.</div>
+<li><div> On the right side, use the appropriate <code>capsule.read???()</code> method for the data type. Specify the String name of the variable (must be the same as you used in the <code>write() method</code>), and again specify a default value.</div>
 </li>
 </ul>
 </li>

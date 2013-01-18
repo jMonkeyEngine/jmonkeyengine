@@ -116,7 +116,7 @@ When you run the sample, you should see a blue cube. You should hear a nature-li
 
 <p>
 
-In the <code>initSimpleApp()</code> method, you create a simple blue cube geometry called <code>player</code> and attach it to the scene – this just arbitrary sample content, so you see something when running the audio sample.
+In the <code>initSimpleApp()</code> method, you create a simple blue cube geometry called <code>player</code> and attach it to the scene ??? this just arbitrary sample content, so you see something when running the audio sample.
 </p>
 
 <p>
@@ -176,11 +176,15 @@ Here you make audio_nature a positional sound that comes from a certain place. F
     ...</pre>
 
 <p>
-<strong>Tip:</strong> Attach AudioNodes to the rootNode like all nodes, to make certain moving nodes stay up-to-date. If you don&#039;t attach them, they are still audible and you don&#039;t get an error message. But 3D sound will not work as expected if the nodes are not updated regularly.
+<strong>Tip:</strong> Attach AudioNodes into the scene graph like all nodes, to make certain moving nodes stay up-to-date. If you don&#039;t attach them, they are still audible and you don&#039;t get an error message but 3D sound will not work as expected. AudioNodes can be attached directly to the root node or they can be attached inside a node that is moving through the scene and both the AudioNode and the 3d position of the sound it is generating will move accordingly.
+</p>
+
+<p>
+<strong>Tip:</strong> playInstance always plays the sound from the position of the AudioNode so multiple gunshots from one gun (for example) can be generated this way, however if multiple guns are firing at once then an AudioNode is needed for each one.
 </p>
 
 </div>
-<!-- EDIT4 SECTION "AudioNodes" [3852-6513] -->
+<!-- EDIT4 SECTION "AudioNodes" [3852-6941] -->
 <h2><a>Triggering Sound</a></h2>
 <div>
 
@@ -212,7 +216,7 @@ Since you want to be able to shoot fast repeatedly, so you do not want to wait f
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Triggering Sound" [6514-7978] -->
+<!-- EDIT5 SECTION "Triggering Sound" [6942-8406] -->
 <h2><a>Ambient or Situational?</a></h2>
 <div>
 
@@ -261,7 +265,7 @@ Apart from the looping boolean, another difference is where <code>play().playIns
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Ambient or Situational?" [7979-9209] -->
+<!-- EDIT6 SECTION "Ambient or Situational?" [8407-9637] -->
 <h2><a>Buffered or Streaming?</a></h2>
 <div>
 
@@ -284,7 +288,7 @@ Note that streamed sounds can not loop (i.e. setLooping will not work as you exp
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Buffered or Streaming?" [9210-9791] -->
+<!-- EDIT7 SECTION "Buffered or Streaming?" [9638-10219] -->
 <h2><a>Play() or PlayInstance()?</a></h2>
 <div>
 <div><table>
@@ -301,9 +305,9 @@ Note that streamed sounds can not loop (i.e. setLooping will not work as you exp
 		<td>The same sound cannot play twice at the same time.</td><td>The same sounds can play multiple times and overlap.</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [9831-10075] -->
+<!-- EDIT9 TABLE [10259-10503] -->
 </div>
-<!-- EDIT8 SECTION "Play() or PlayInstance()?" [9792-10076] -->
+<!-- EDIT8 SECTION "Play() or PlayInstance()?" [10220-10504] -->
 <h2><a>Your Ear in the Scene</a></h2>
 <div>
 
@@ -325,7 +329,7 @@ If you don&#039;t do that, the results of 3D audio will be quite random.
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Your Ear in the Scene" [10077-10779] -->
+<!-- EDIT10 SECTION "Your Ear in the Scene" [10505-11207] -->
 <h2><a>Global, Directional, Positional?</a></h2>
 <div>
 
@@ -352,7 +356,7 @@ In short, you must choose in every situation whether it makes sense for a sound 
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Global, Directional, Positional?" [10780-12138] -->
+<!-- EDIT11 SECTION "Global, Directional, Positional?" [11208-12566] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -387,5 +391,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT12 SECTION "Conclusion" [12139-] -->
+<!-- EDIT12 SECTION "Conclusion" [12567-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_audio?do=export_xhtmlbody">view online version</a></em></p>

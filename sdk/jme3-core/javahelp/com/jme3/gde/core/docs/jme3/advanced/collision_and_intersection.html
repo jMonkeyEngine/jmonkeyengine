@@ -12,7 +12,7 @@ Non-physical collision detection is interesting because it uses less computing r
 </p>
 
 <p>
-<strong>Example:</strong> One example for an optimization is a physical vehicle&#039;s wheels. You could make the wheels fully physical disks, and have jME calculate every tiny force – sounds very accurate? It&#039;s total overkill and too slow for a racing game. A more performant solution is to cast four invisible rays down from the vehicle and calculate the intersections with the floor. These non-physical wheels require (in the simplest case) only four calculations per tick to achieve an effect that players can hardly distinguish from the real thing.
+<strong>Example:</strong> One example for an optimization is a physical vehicle&#039;s wheels. You could make the wheels fully physical disks, and have jME calculate every tiny force ??? sounds very accurate? It&#039;s total overkill and too slow for a racing game. A more performant solution is to cast four invisible rays down from the vehicle and calculate the intersections with the floor. These non-physical wheels require (in the simplest case) only four calculations per tick to achieve an effect that players can hardly distinguish from the real thing.
 </p>
 
 </div>
@@ -93,7 +93,7 @@ The following code snippet can be triggered by listeners (e.g. after an input ac
   CollisionResults results = new CollisionResults&#40;&#41;;
   a.collideWith&#40;b, results&#41;;
   System.out.println&#40;&quot;Number of Collisions between&quot; + 
-      a.getName&#40;&#41;+ &quot; and &quot; + b.getName&#40;&#41; &quot;: &quot; + results.size&#40;&#41;&#41;;
+      a.getName&#40;&#41;+ &quot; and &quot; + b.getName&#40;&#41; + &quot;: &quot; + results.size&#40;&#41;&#41;;
   // Use the results
   if &#40;results.size&#40;&#41; &gt; 0&#41; &#123;
     // how to react when a collision was detected
@@ -133,7 +133,7 @@ Knowing the distance of the collisions is useful for example when you intersect 
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Code Sample" [3038-5573] -->
+<!-- EDIT5 SECTION "Code Sample" [3038-5575] -->
 <h2><a>Bounding Volumes</a></h2>
 <div>
 
@@ -147,7 +147,7 @@ jME3 computes bounding volumes for all objects. These bounding volumes are later
 </p>
 
 <p>
-All fast-paced action and shooter games use BoundingVolumes as an optimization. Wrap all complex models into simpler shapes – in the end, you get equally useful collision detection results, but faster. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Bounding_volume"><param name="text" value="<html><u>More about bounding volumes...</u></html>"><param name="textColor" value="blue"></object>
+All fast-paced action and shooter games use BoundingVolumes as an optimization. Wrap all complex models into simpler shapes ??? in the end, you get equally useful collision detection results, but faster. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Bounding_volume"><param name="text" value="<html><u>More about bounding volumes...</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 <p>
@@ -173,7 +173,7 @@ Supported types:
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Bounding Volumes" [5574-7617] -->
+<!-- EDIT6 SECTION "Bounding Volumes" [5576-7619] -->
 <h3><a>Usage</a></h3>
 <div>
 
@@ -186,7 +186,7 @@ For example you can use Bounding Volumes on custom meshes, or complex non-physic
 mesh.updateBound&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT7 SECTION "Usage" [7618-7799] -->
+<!-- EDIT7 SECTION "Usage" [7620-7801] -->
 <h2><a>Mesh and Scene Graph Collision</a></h2>
 <div>
 
@@ -196,7 +196,7 @@ One of the supported <code>Collidable</code>s are meshes and scene graph objects
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Mesh and Scene Graph Collision" [7800-8620] -->
+<!-- EDIT8 SECTION "Mesh and Scene Graph Collision" [7802-8622] -->
 <h2><a>Intersection</a></h2>
 <div>
 
@@ -217,7 +217,7 @@ Rays are used to perform line-of-sight calculations. This means you can detect w
 
 <p>
 
-<p><div>These simple but powerful ray-surface intersection tests are called Ray Casting. As opposed to the more advanced Ray Tracing technique, Ray Casting does not follow the ray&#039;s reflection after the first hit – the ray just goes straight on.
+<p><div>These simple but powerful ray-surface intersection tests are called Ray Casting. As opposed to the more advanced Ray Tracing technique, Ray Casting does not follow the ray&#039;s reflection after the first hit ??? the ray just goes straight on.
 </div></p>
 </p>
 
@@ -237,5 +237,5 @@ TODO:
 </ul>
 
 </div>
-<!-- EDIT9 SECTION "Intersection" [8621-] -->
+<!-- EDIT9 SECTION "Intersection" [8623-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:collision_and_intersection?do=export_xhtmlbody">view online version</a></em></p>

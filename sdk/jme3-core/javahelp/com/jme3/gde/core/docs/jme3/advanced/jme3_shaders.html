@@ -16,7 +16,7 @@
 <p>
 Shaders are sets of instructions that are executed on the GPU. They are used to take advantage of hardware acceleration available on the GPU for rendering purposes.<br/>
 
-This paper only covers Vertex and Fragment shaders because they are the only ones supported by JME3 for the moment. But be aware that there are some other types of shaders (geometry, tessellation,…).<br/>
+This paper only covers Vertex and Fragment shaders because they are the only ones supported by JME3 for the moment. But be aware that there are some other types of shaders (geometry, tessellation,???).<br/>
 
 There are multiple frequently used languages that you may encounter to code shaders but as JME3 is based on OpenGL, shaders in JME use GLSL and any example in this paper will be written in GLSL.<br/>
 
@@ -143,13 +143,13 @@ For example applying this shader to a sphere would render a solid blue sphere on
 <div>
 
 <p>
-You probably heard that JME3 is “shader oriented”, but what does that mean?<br/>
+You probably heard that JME3 is ???shader oriented???, but what does that mean?<br/>
 
 Usually to use shaders you must create what is called a program. This program specify the vertex shader and the fragment shader to use.<br/>
 
 JME3 encloses this in the material system. Every material in JME3 uses shaders.<br/>
 
-For example let’s have a look at the SolidColor.j3md file : <br/>
+For example let???s have a look at the SolidColor.j3md file : <br/>
 
 
 </p>
@@ -191,7 +191,7 @@ For more information on JME3 material system, i suggest you read this <object cl
 <p>
 JME3 can expose pre-computed global uniforms to your shaders. You must specify the one that are required for your shader in the WorldParameters section of the material definition file (.j3md).<br/>
 
-Note that in the shader the uniform names will be prefixed by a “g_”.<br/>
+Note that in the shader the uniform names will be prefixed by a ???g_???.<br/>
 
 In the example above, WorldViewProjectionMatrix is declared as uniform mat4 g_WorldViewProjectionMatrix in the shader.<br/>
 
@@ -225,7 +225,7 @@ JME3 uses some global uniforms for lighting :
 </li>
 <li><div> use for PointLight : x,y,z contain the world position of the light, the w component contains 1/lightRadius</div>
 </li>
-<li><div> use for DirectionalLight : strangely enough it&#039;s used for the direction of the light…this might change though. The fourth component contains -1 and it&#039;s used in the lighting shader to know if it&#039;s a directionalLight or not.</div>
+<li><div> use for DirectionalLight : strangely enough it&#039;s used for the direction of the light???this might change though. The fourth component contains -1 and it&#039;s used in the lighting shader to know if it&#039;s a directionalLight or not.</div>
 </li>
 </ul>
 </li>
@@ -250,7 +250,7 @@ Those are different attributes that are always passed to your shader.<br/>
 
 You can find a complete list of those attribute in the Type enum of the VertexBuffer <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/scene/VertexBuffer.java"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>.<br/>
 
-Note that in the shader the attributes names will be prefixed by an “in”.<br/>
+Note that in the shader the attributes names will be prefixed by an ???in???.<br/>
 
 <br/>
 
@@ -396,7 +396,7 @@ A result preview can be seen here: <object classid="java:org.netbeans.modules.ja
 </li>
 <li><div> In your initSimpleApplication, create a material using this definition, apply it to a geometry</div>
 </li>
-<li><div> That’s it!!</div>
+<li><div> That???s it!!</div>
 </li>
 </ul>
 <pre>    // A cube
@@ -419,7 +419,7 @@ A result preview can be seen here: <object classid="java:org.netbeans.modules.ja
 <div>
 
 <p>
-GLSL 1.0 to 1.2 comes with built in attributes and uniforms (ie, gl_Vertex, gl_ModelViewMatrix, etc…).<br/>
+GLSL 1.0 to 1.2 comes with built in attributes and uniforms (ie, gl_Vertex, gl_ModelViewMatrix, etc???).<br/>
 Those attributes are deprecated since GLSL 1.3 (opengl 3), hence JME3 global uniforms and attributes. Here is a list of deprecated attributes and their equivalent in JME3<br/>
 
 </p>

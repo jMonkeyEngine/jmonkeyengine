@@ -168,7 +168,7 @@ Now you need to register your trigger mappings.
     inputManager.addListener&#40;analogListener, new String&#91;&#93;&#123;&quot;Left&quot;, &quot;Right&quot;, &quot;Rotate&quot;&#125;&#41;;</pre>
 
 <p>
-This code goes into the <code>simpleInitApp()</code> method. But since we will likely add many keybindings, we extract these lines and wrap them in an auxiliary method, <code>initKeys()</code>. The <code>initKeys()</code> method is not part of the Input Controls interface – you can name it whatever you like. Just don&#039;t forget to call your method from the <code>initSimpleApp()</code> method.
+This code goes into the <code>simpleInitApp()</code> method. But since we will likely add many keybindings, we extract these lines and wrap them in an auxiliary method, <code>initKeys()</code>. The <code>initKeys()</code> method is not part of the Input Controls interface ??? you can name it whatever you like. Just don&#039;t forget to call your method from the <code>initSimpleApp()</code> method.
 </p>
 
 </div>
@@ -301,7 +301,7 @@ In order to see the total time that a key has been pressed for then the incoming
 </ul>
 
 <p>
-Mappings registered to the <strong>ActionListener</strong> are digital either-or actions – &quot;Pressed or released? On or off?&quot;
+Mappings registered to the <strong>ActionListener</strong> are digital either-or actions ??? &quot;Pressed or released? On or off?&quot;
 </p>
 <ul>
 <li><div> Parameters: </div>
@@ -318,7 +318,7 @@ Mappings registered to the <strong>ActionListener</strong> are digital either-or
 
 <p>
 
-<strong>Tip:</strong> It&#039;s very common that you want an action to be only triggered once, in the moment when the key is <em>released</em>. For instance when opening a door, flipping a boolean state, or picking up an item. To achieve that, you use an <code>ActionListener</code> and test for <code>… &amp;&amp; !keyPressed</code>. For an example, look at the Pause button code:
+<strong>Tip:</strong> It&#039;s very common that you want an action to be only triggered once, in the moment when the key is <em>released</em>. For instance when opening a door, flipping a boolean state, or picking up an item. To achieve that, you use an <code>ActionListener</code> and test for <code>??? &amp;&amp; !keyPressed</code>. For an example, look at the Pause button code:
 </p>
 <pre>      if &#40;name.equals&#40;&quot;Pause&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
         isRunning = !isRunning;

@@ -8,7 +8,7 @@ Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_audio.html">Hello Aud
 </p>
 
 <p>
-One way to create a 3D landscape is to sculpt a huge terrain model. This gives you a lot of artistic freedom – but rendering such a huge model can be quite slow. This tutorial explains how to create fast-rendering terrains from heightmaps, and how to use texture splatting to make the terrain look good.
+One way to create a 3D landscape is to sculpt a huge terrain model. This gives you a lot of artistic freedom ??? but rendering such a huge model can be quite slow. This tutorial explains how to create fast-rendering terrains from heightmaps, and how to use texture splatting to make the terrain look good.
 </p>
 
 <p>
@@ -158,9 +158,9 @@ Important things to note:
 When looking at Java data types to hold an array of floats between 0 and 255, the Image class comes to mind. Storing a terrain&#039;s height values as a grayscale image has one big advantage: The outcome is a very userfriendly, like a topographical map:
 </p>
 <ul>
-<li><div> Low values (e.g. 0 or 50) are dark gray – these are valleys.</div>
+<li><div> Low values (e.g. 0 or 50) are dark gray ??? these are valleys.</div>
 </li>
-<li><div> High values (e.g. 200, 255) are light grays – these are hills.</div>
+<li><div> High values (e.g. 200, 255) are light grays ??? these are hills.</div>
 </li>
 </ul>
 
@@ -261,13 +261,13 @@ Before you can start painting, you have to make a few decisions:
 <ol>
 <li><div> Choose three textures. For example grass.jpg, dirt.jpg, and road.jpg. <img src="/wiki/lib/exe/fetch.php">  <img src="/wiki/lib/exe/fetch.php"> <img src="/wiki/lib/exe/fetch.php"></div>
 </li>
-<li><div> You &quot;paint&quot; three texture layers by using three colors: Red, blue and, green. You arbitrarily decide that…</div>
+<li><div> You &quot;paint&quot; three texture layers by using three colors: Red, blue and, green. You arbitrarily decide that???</div>
 <ol>
-<li><div> Red   is grass – red   is layer <code>Tex1</code>, so put the grass texture into Tex1.</div>
+<li><div> Red   is grass ??? red   is layer <code>Tex1</code>, so put the grass texture into Tex1.</div>
 </li>
-<li><div> Green is dirt  – green is layer <code>Tex2</code>, so put the dirt  texture into Tex2.</div>
+<li><div> Green is dirt  ??? green is layer <code>Tex2</code>, so put the dirt  texture into Tex2.</div>
 </li>
-<li><div> Blue  is roads – blue  is layer <code>Tex3</code>, so put the roads texture into Tex3.</div>
+<li><div> Blue  is roads ??? blue  is layer <code>Tex3</code>, so put the roads texture into Tex3.</div>
 </li>
 </ol>
 </li>
@@ -284,9 +284,9 @@ Now you start painting the texture:
 </li>
 <li><div> Open <code>alphamap.png</code> in a graphic editor and switch the image mode to color image.</div>
 <ol>
-<li><div> Paint the black valleys red – this will be the grass.</div>
+<li><div> Paint the black valleys red ??? this will be the grass.</div>
 </li>
-<li><div> Paint the white hills green – this will be the dirt of the mountains.</div>
+<li><div> Paint the white hills green ??? this will be the dirt of the mountains.</div>
 </li>
 <li><div> Paint blue lines where you want roads to criss-cross the landscape.</div>
 </li>
@@ -297,7 +297,7 @@ Now you start painting the texture:
 </ol>
 
 <p>
-<img src="/wiki/lib/exe/fetch.php"> ⇒ <img src="/wiki/lib/exe/fetch.php">
+<img src="/wiki/lib/exe/fetch.php"> ??? <img src="/wiki/lib/exe/fetch.php">
 </p>
 
 </div>
@@ -363,7 +363,7 @@ Use <code>setWrap(WrapMode.Repeat)</code> to make the small texture fill the wid
 
 <p>
 
-Internally, the generated terrain mesh is broken down into tiles and blocks. This is an optimization to make culling easier. You do not need to worry about &quot;tiles and blocks&quot; too much, just use recommended values for now – 64 is a good start.
+Internally, the generated terrain mesh is broken down into tiles and blocks. This is an optimization to make culling easier. You do not need to worry about &quot;tiles and blocks&quot; too much, just use recommended values for now ??? 64 is a good start.
 </p>
 
 <p>

@@ -4,7 +4,7 @@
 
 <p>
 
-The <code>com.jme3.app.state.AppState</code> class is a customizable jME3 interface that allows you to control the global game logic – the overall game mechanics. (To control the behaviour of a Spatial, see <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> instead. Controls and AppStates can be used together.)
+The <code>com.jme3.app.state.AppState</code> class is a customizable jME3 interface that allows you to control the global game logic ??? the overall game mechanics. (To control the behaviour of a Spatial, see <a href="/com/jme3/gde/core/docs/jme3/advanced/custom_controls.html">Custom Controls</a> instead. Controls and AppStates can be used together.)
 </p>
 
 </div>
@@ -51,7 +51,7 @@ You can! This is what AppStates are there for. An AppState class is subset of (o
 </li>
 <li><div> a subset of other AppStates and Controls</div>
 </li>
-<li><div> … or combinations thereof. </div>
+<li><div> ??? or combinations thereof. </div>
 </li>
 </ul>
 
@@ -190,7 +190,7 @@ stateDetached(asm)</td><td>The AppState knows when it is attached to, or detache
 
 <p>
 
-The AbstractAppState class already implements some common methods (<code>isInitialized(), setActive(), isActive()</code>) and makes creation of custom AppStates a bit easier. We recommend you extend AbstractAppState and override the remaining AppState methods: <code>initialize(), setEnabled(), cleanUp()</code>.
+The AbstractAppState class already implements some common methods (<code>isInitialized(), setActive(), isActive()</code>) and makes creation of custom AppStates a bit easier. We recommend you extend AbstractAppState and override the remaining AppState methods: <code>initialize(), setEnabled(), cleanup()</code>.
 </p>
 
 <p>
@@ -263,7 +263,7 @@ You define what an AppState does when Paused or Unpaused, in the <code>setEnable
 
 <p>
 
-The com.jme3.app.state.AppStateManager holds the list of AppStates for an application. AppStateManager ensures that activate AppStates can modify the scene graph, and that the update() loops of active AppStates is executed. There is one AppStateManager per application. You typically attach several AppStates to one AppStateManager, but the same state can only be attached once.
+The com.jme3.app.state.AppStateManager holds the list of AppStates for an application. AppStateManager ensures that active AppStates can modify the scene graph, and that the update() loops of active AppStates is executed. There is one AppStateManager per application. You typically attach several AppStates to one AppStateManager, but the same state can only be attached once.
 
 </p>
 <div><table>
@@ -277,19 +277,32 @@ The com.jme3.app.state.AppStateManager holds the list of AppStates for an applic
 		<td>getState(MyAppState.class)</td><td>Returns the first attached state that is an instance of a subclass of <code>MyAppState.class</code>.</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [9730-9940] -->
+<!-- EDIT12 TABLE [9728-9938] -->
 <p>
 
-The AppStateManager&#039;s <code>render(), postRender(), cleanUp()</code> methods are internal, ignore them, users never call them directly.
+The AppStateManager&#039;s <code>render(), postRender(), cleanup()</code> methods are internal, ignore them, users never call them directly.
+
 </p>
+<ul>
+<li><div> If a detached AppState is attached then initialize() will be called on the following render pass.</div>
+</li>
+<li><div> If an attached AppState is detached then cleanup() will be called on the following render pass.</div>
+</li>
+<li><div> If you attach an already-attached AppState then the second attach is a no-op and will return false.</div>
+</li>
+<li><div> If you both attach and detach an AppState within one frame then neither initialize() or cleanup() will be called, although if either is called both will be.</div>
+</li>
+<li><div> If you both detach and then re-attach an AppState within one frame then on the next update pass its cleanup() and initialize() methods will be called in that order.</div>
+</li>
+</ul>
 
 </div>
-<!-- EDIT11 SECTION "AppStateManager" [9321-10069] -->
+<!-- EDIT11 SECTION "AppStateManager" [9321-10704] -->
 <h2><a>Best Practices</a></h2>
 <div>
 
 </div>
-<!-- EDIT13 SECTION "Best Practices" [10070-10097] -->
+<!-- EDIT13 SECTION "Best Practices" [10705-10732] -->
 <h3><a>Communication Among AppStates</a></h3>
 <div>
 
@@ -305,7 +318,7 @@ You can use custom accessors to get data from AppStates, to set data in AppState
 <pre>this.app.getStateManager&#40;&#41;.getState&#40;MyAppState.class&#41;.doSomeCustomStuffInThisState&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT14 SECTION "Communication Among AppStates" [10098-10853] -->
+<!-- EDIT14 SECTION "Communication Among AppStates" [10733-11488] -->
 <h3><a>Initialize Familiar Class Fields</a></h3>
 <div>
 
@@ -336,5 +349,5 @@ public class MyAppState extends AbstractAppState &#123;
 &#125;</pre>
 
 </div>
-<!-- EDIT15 SECTION "Initialize Familiar Class Fields" [10854-] -->
+<!-- EDIT15 SECTION "Initialize Familiar Class Fields" [11489-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states?do=export_xhtmlbody">view online version</a></em></p>

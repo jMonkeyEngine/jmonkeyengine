@@ -312,10 +312,10 @@ Objects in the translucent bucket (e.g. particles) are not affected by SceneProc
 		<th>Standard Material Transparency</th><th>Description</th><th>Example</th>
 	</tr>
 	<tr>
-		<td>getAdditionalRenderState().setBlendMode(BlendMode.Off);</td><td>This is the default, no transparency.</td><td>Use for all opaque objects like walls, floors, people…</td>
+		<td>getAdditionalRenderState().setBlendMode(BlendMode.Off);</td><td>This is the default, no transparency.</td><td>Use for all opaque objects like walls, floors, people???</td>
 	</tr>
 	<tr>
-		<td>getAdditionalRenderState().setBlendMode(BlendMode.Alpha);</td><td>Interpolates the background pixel with the current pixel by using the current pixel&#039;s alpha.</td><td>This is the most commonly used BlendMode for transparency and translucency: Frosted window panes, ice, glass, alpha-blended vegetation textures… </td>
+		<td>getAdditionalRenderState().setBlendMode(BlendMode.Alpha);</td><td>Interpolates the background pixel with the current pixel by using the current pixel&#039;s alpha.</td><td>This is the most commonly used BlendMode for transparency and translucency: Frosted window panes, ice, glass, alpha-blended vegetation textures??? </td>
 	</tr>
 	<tr>
 		<td>getAdditionalRenderState().setDepthWrite(false);</td><td>Disables writing of the pixel&#039;s depth value to the depth buffer.</td><td>Deactivate this on Materials if you expect two or more transparent/translucent objects to be obscuring one another, but you want to see through both.</td>
@@ -334,7 +334,7 @@ Deactivate Alpha Testing for gradually <strong>translucent</strong> objects, suc
 <pre>mat.setBoolean&#40;&quot;UseAlpha&quot;,true&#41;;</pre>
 
 <p>
- The Material Color bleeds through the transparent areas of the top-layer DiffuseMap texture. In this case you do not need BlendMode Alpha – because it&#039;s not the whole Material that is transparent, but only one of the texture layers. You use this bleed-through effect, for example, to generate differently colored uniforms, animals, or plants, where each Material uses the same &quot;template&quot; DiffuseMap texture but combines it with a different color.
+ The Material Color bleeds through the transparent areas of the top-layer DiffuseMap texture. In this case you do not need BlendMode Alpha ??? because it&#039;s not the whole Material that is transparent, but only one of the texture layers. You use this bleed-through effect, for example, to generate differently colored uniforms, animals, or plants, where each Material uses the same &quot;template&quot; DiffuseMap texture but combines it with a different color.
 </div></p>
 </p>
 

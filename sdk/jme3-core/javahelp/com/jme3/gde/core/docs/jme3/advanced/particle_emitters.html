@@ -82,8 +82,8 @@ Set both to different colors for a gradient effect (e.g. fire). </td>
 	</tr>
 	<tr>
 		<td> fanning out         </td><td> <code>getParticleInfluencer(). setVelocityVariation(variation)</code> </td><td> 0.2f </td><td> How much the direction (<code>setInitialVelocity()</code>) can vary among particles. Use a value between 1 and 0 to create a directed swarm-like cloud of particles. <br/>
-1 = Maximum variation, particles emit in random 360° directions (e.g. explosion, butterflies). <br/>
-0.5f = particles are emitted within 180° of the initial direction. <br/>
+1 = Maximum variation, particles emit in random 360?? directions (e.g. explosion, butterflies). <br/>
+0.5f = particles are emitted within 180?? of the initial direction. <br/>
 0 = No variation, particles fly in a straight line in direction of start velocity (e.g. lasergun blasts). </td>
 	</tr>
 	<tr>
@@ -131,7 +131,7 @@ Build up you effect by specifying one parameter after the other. If you change s
 </p>
 
 <p>
-Use the common Particle.j3md Material Definition and a texture to specify the shape of the particles. The shape is defined by the texture you provide and can be anything – debris, flames, smoke, mosquitoes, leaves, butterflies… be creative.
+Use the common Particle.j3md Material Definition and a texture to specify the shape of the particles. The shape is defined by the texture you provide and can be anything ??? debris, flames, smoke, mosquitoes, leaves, butterflies??? be creative.
 </p>
 <pre>    Material flash_mat = new Material&#40;
         assetManager, &quot;Common/MatDefs/Misc/Particle.j3md&quot;&#41;;
@@ -143,7 +143,7 @@ Use the common Particle.j3md Material Definition and a texture to specify the sh
     flash.setSelectRandomImage&#40;true&#41;;</pre>
 
 <p>
-The effect texture can be one image, or contain a sprite animation – a series of slightly different pictures in equally spaced rows and columns. If you choose the sprite animation:
+The effect texture can be one image, or contain a sprite animation ??? a series of slightly different pictures in equally spaced rows and columns. If you choose the sprite animation:
 </p>
 <ul>
 <li><div> Specify the number of rows and columns using setImagesX(2) and setImagesY().</div>

@@ -9,7 +9,7 @@ Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_main_event_loop.html"
 </p>
 
 <p>
-In this tutorial we will learn to load 3-D models and text into the scene graph, using the jME asset manager. You also learn how to arrive at the correct paths, and which file formats to use.
+In this tutorial we will learn to load 3D models and text into the scene graph, using the jME <a href="/com/jme3/gde/core/docs/jme3/advanced/asset_manager.html">Asset Manager</a>. You will also learn how to determine the correct paths, and which file formats to use.
 </p>
 
 <p>
@@ -17,12 +17,12 @@ In this tutorial we will learn to load 3-D models and text into the scene graph,
 </p>
 
 <p>
-<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+<p><div><a href="/com/jme3/gde/core/docs/sdk/sample_code.html">Trouble finding the files to run this sample?</a> To get the assets (3D models) used in this example, add the included <code>jme3-test-data.jar</code> to your classpath. In project created with the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> (recommended), simply right-click your project, choose &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the preconfigured &quot;jme3-test-data&quot; library. 
 </div></p>
 </p>
 
 </div>
-<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (3) - Hello Assets" [1-616] -->
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (3) - Hello Assets" [1-838] -->
 <h2><a>Code Sample</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -93,27 +93,27 @@ Build and run the code sample. You should see a green Ninja with a colorful teap
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Code Sample" [617-3227] -->
+<!-- EDIT2 SECTION "Code Sample" [839-3449] -->
 <h2><a>The Asset Manager</a></h2>
 <div>
 
 <p>
 
-JME3 comes with a handy asset manager that helps you keep your assets organized. Project assets are media files such as models, materials, textures, scenes, shaders, sounds, and fonts. 
-The Asset manager can load files from:
+<strong>By game assets we mean all multi-media files, such as models, materials, textures, whole scenes, custom shaders, music and sound files, and custom fonts.</strong> JME3 comes with a handy AssetManager object that helps you access your assets. 
+The AssetManager can load files from:
 </p>
 <ul>
 <li><div> the current classpath (the top level of your project directory), </div>
 </li>
 <li><div> the <code>assets</code> directory of your project, and</div>
 </li>
-<li><div> optionally, custom paths.</div>
+<li><div> optionally, custom paths that you register.</div>
 </li>
 </ul>
 
 <p>
 
-This is our recommended directory structure for storing assets:
+The following is the recommended directory structure for storing assets in your project directoy: 
 </p>
 <pre>MyGame/assets/Interface/
 MyGame/assets/MatDefs/
@@ -123,16 +123,16 @@ MyGame/assets/Scenes/
 MyGame/assets/Shaders/
 MyGame/assets/Sounds/
 MyGame/assets/Textures/
-MyGame/build.xml
-MyGame/src/...
+MyGame/build.xml            &lt;-- Ant build script
+MyGame/src/...              &lt;-- Java sources go here
 MyGame/...</pre>
 
 <p>
-This is just a suggested best practice, you can name the directories in the assets directory what ever you like.
+This is just a suggested best practice, and it&#039;s what you get by default when creating a new Java project in the jMokeyEngine <a href="/com/jme3/gde/core/docs/jme3/beginner/sdk.html">SDK</a>. You can create an <code>assets</code> directory and technically name the subdirectories whatever you like.
 </p>
 
 </div>
-<!-- EDIT3 SECTION "The Asset Manager" [3228-4057] -->
+<!-- EDIT3 SECTION "The Asset Manager" [3450-4573] -->
 <h3><a>Loading Textures</a></h3>
 <div>
 
@@ -156,13 +156,13 @@ In this case, you <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_material.
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Loading Textures" [4058-4974] -->
+<!-- EDIT4 SECTION "Loading Textures" [4574-5490] -->
 <h3><a>Loading Text and Fonts</a></h3>
 <div>
 
 <p>
 
-This example displays the text &quot;Hello World&quot; in the default font at the bottom edge of the window. You attach text to the <code>guiNode</code> – this is a special node for flat (orthogonal) display elements. You display text to show the game score, player health, etc.
+This example displays the text &quot;Hello World&quot; in the default font at the bottom edge of the window. You attach text to the <code>guiNode</code> ??? this is a special node for flat (orthogonal) display elements. You display text to show the game score, player health, etc.
 The following code sample goes into the <code>simpleInitApp()</code> method.
 </p>
 <pre>// Display a line of text with a default font
@@ -179,7 +179,7 @@ guiNode.attachChild&#40;helloText&#41;;</pre>
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Loading Text and Fonts" [4975-5820] -->
+<!-- EDIT5 SECTION "Loading Text and Fonts" [5491-6336] -->
 <h3><a>Loading a Model</a></h3>
 <div>
 
@@ -199,11 +199,11 @@ sun.setDirection&#40;new Vector3f&#40;-0.1f, -0.7f, -1.0f&#41;.normalizeLocal&#4
 rootNode.addLight&#40;sun&#41;;</pre>
 
 <p>
-Note that you do no need to create a Material if you exported the model with a material. Remember to add a light source, as shown, otherwise the material (and the whole model) is not visible!
+Note that you do not need to create a Material if you exported the model with a material. Remember to add a light source, as shown, otherwise the material (and the whole model) is not visible!
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Loading a Model" [5821-6749] -->
+<!-- EDIT6 SECTION "Loading a Model" [6337-7266] -->
 <h3><a>Loading Assets From Custom Paths</a></h3>
 <div>
 
@@ -233,7 +233,7 @@ JME3 offers ClasspathLocator, ZipLocator, FileLocator, HttpZipLocator, and UrlLo
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Loading Assets From Custom Paths" [6750-7767] -->
+<!-- EDIT7 SECTION "Loading Assets From Custom Paths" [7267-8284] -->
 <h2><a>Creating Models and Scenes</a></h2>
 <div>
 
@@ -272,7 +272,7 @@ If you use Blender, export your models as Ogre <acronym title="Extensible Markup
 </ol>
 
 </div>
-<!-- EDIT8 SECTION "Creating Models and Scenes" [7768-8927] -->
+<!-- EDIT8 SECTION "Creating Models and Scenes" [8285-9444] -->
 <h3><a>Model File Formats</a></h3>
 <div>
 
@@ -317,7 +317,7 @@ If your executable gets a runtime exception, make sure you have converted all mo
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Model File Formats" [8928-10780] -->
+<!-- EDIT9 SECTION "Model File Formats" [9445-11297] -->
 <h3><a>Loading Models and Scenes</a></h3>
 <div>
 <div><table>
@@ -346,9 +346,9 @@ rootNode.attachChild&#40;scene&#41;;</pre>
 </td>
 	</tr>
 </table></div>
-<!-- EDIT11 TABLE [10818-11872] -->
+<!-- EDIT11 TABLE [11335-12389] -->
 </div>
-<!-- EDIT10 SECTION "Loading Models and Scenes" [10781-11873] -->
+<!-- EDIT10 SECTION "Loading Models and Scenes" [11298-12390] -->
 <h2><a>Excercise - How to Load Assets</a></h2>
 <div>
 
@@ -415,7 +415,7 @@ Earlier in this tutorial, you loaded scenes and models from the asset directory.
     rootNode.attachChild&#40;gameLevel&#41;;</pre>
 
 <p>
- Note that the path is relative to the <code>assets/…</code> directory.
+ Note that the path is relative to the <code>assets/???</code> directory.
 </p>
 </div>
 </li>
@@ -443,7 +443,7 @@ Here is a third method you must know, loading a scene/model from a .j3o file:
     rootNode.attachChild&#40;gameLevel&#41;;</pre>
 
 <p>
- Again, note that the path is relative to the <code>assets/…</code> directory.
+ Again, note that the path is relative to the <code>assets/???</code> directory.
 </p>
 </div>
 </li>
@@ -453,7 +453,7 @@ Again, you should see the Ninja+wall+teapot standing in a town. </div>
 </ol>
 
 </div>
-<!-- EDIT12 SECTION "Excercise - How to Load Assets" [11874-15208] -->
+<!-- EDIT12 SECTION "Excercise - How to Load Assets" [12391-15725] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -497,5 +497,5 @@ Let&#039;s add some action to the scene and continue with the <a href="/com/jme3
 </span></div>
 
 </div>
-<!-- EDIT13 SECTION "Conclusion" [15209-] -->
+<!-- EDIT13 SECTION "Conclusion" [15726-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_asset?do=export_xhtmlbody">view online version</a></em></p>

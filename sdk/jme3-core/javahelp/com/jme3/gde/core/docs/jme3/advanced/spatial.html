@@ -43,7 +43,7 @@ In your Java code, a Spatial is either an instance of <code>com.jme3.scene.Node<
 		<th> Visibility: </th><td> A Geometry represents a <strong>visible</strong> 3D object in the scene graph. </td><td> A Node is an <strong>invisible &quot;handle&quot;</strong> for a group of Spatials in the scene graph. </td>
 	</tr>
 	<tr>
-		<th> Purpose:    </th><td> Use Geometries to represent an object&#039;s <strong>looks</strong>: Every Geometry contains a polygon mesh and a material, specifying its shape, color, texture, and opacity/transparency. <br/>
+		<th> Purpose:    </th><td> Use Geometries to represent an object&#039;s <strong>look</strong>: Every Geometry contains a polygon mesh and a material, specifying its shape, color, texture, and opacity/transparency. <br/>
 You attach Geometries to Nodes. </td><td> Use Nodes to <strong>structure and group</strong> Geometries and other Nodes. Every Node is attached to one parent node, and each node can have zero or more children (Nodes or Geometries) attached to itself. <br/>
 <strong>When you transform (move, rotate, etc) a parent node, all its children are transformed (moved, rotated, etc).</strong> </td>
 	</tr>
@@ -53,10 +53,10 @@ mesh and material;  </td><td> Transformations; custom user data; <br/>
 no mesh, no material.</td>
 	</tr>
 	<tr>
-		<th> Examples:   </th><td> Box, sphere, player, building, terrain, vehicle, missiles, NPCs, etc… </td><td> rootNode, guiNode, audioNode, a custom grouping node such as vehicleNode or shipNode with passengers attached, etc. </td>
+		<th> Examples:   </th><td> Box, sphere, player, building, terrain, vehicle, missiles, NPCs, etc??? </td><td> rootNode, guiNode, audioNode, a custom grouping node such as vehicleNode or shipNode with passengers attached, etc. </td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [1191-2549] -->
+<!-- EDIT3 TABLE [1191-2548] -->
 <p>
 
 <p><div>You never create a Spatial with <code><del>Spatial s = new Spatial();</del></code>! A Spatial is an abstract concept, like a mammal (there is no actual creature called &quot;mammal&quot; walking around here). You create either a com.jme3.scene.Node or com.jme3.scene.Geometry instance. Some methods, however, require a <code>Spatial</code> type as argument: This is because they are able to accept both Nodes and Geometries as arguments. In this case, you simply <em>cast</em> a Node or Geometry to Spatial.
@@ -64,7 +64,7 @@ no mesh, no material.</td>
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Node versus Geometry" [935-3049] -->
+<!-- EDIT2 SECTION "Node versus Geometry" [935-3048] -->
 <h3><a>Mesh</a></h3>
 <div>
 
@@ -83,7 +83,7 @@ The polygon <a href="/com/jme3/gde/core/docs/jme3/advanced/mesh.html">Mesh</a> i
 </ul>
 
 </div>
-<!-- EDIT4 SECTION "Mesh" [3050-3729] -->
+<!-- EDIT4 SECTION "Mesh" [3049-3728] -->
 <h2><a>What is a Clone?</a></h2>
 <div>
 
@@ -112,13 +112,13 @@ Usually there is no need to manually use any of the <code>clone()</code> methods
 </p>
 
 </div>
-<!-- EDIT5 SECTION "What is a Clone?" [3730-4985] -->
+<!-- EDIT5 SECTION "What is a Clone?" [3729-4984] -->
 <h2><a>How to Add Fields and Methods to a Spatial</a></h2>
 <div>
 
 <p>
 
-You can include custom user data –that is, custom Java objects and methods– in Nodes and Geometries. This is very useful for maintaining information about a game element, such as health, budget, ammunition, inventory, equipment, etc for players, or landmark locations for terrains, and much more. 
+You can include custom user data ???that is, custom Java objects and methods??? in Nodes and Geometries. This is very useful for maintaining information about a game element, such as health, budget, ammunition, inventory, equipment, etc for players, or landmark locations for terrains, and much more. 
 </p>
 
 <p>
@@ -171,7 +171,7 @@ This is how you list all data keys that are already defined for one Spatial:
 &#125;</pre>
 
 </div>
-<!-- EDIT6 SECTION "How to Add Fields and Methods to a Spatial" [4986-7562] -->
+<!-- EDIT6 SECTION "How to Add Fields and Methods to a Spatial" [4985-7561] -->
 <h2><a>How to Access a Named Sub-Mesh</a></h2>
 <div>
 
@@ -196,12 +196,12 @@ In the following example, the Node <code>house</code> is the loaded model. The s
 <pre>Geometry submesh = &#40;Geometry&#41; houseScene.getChild&#40;&quot;door 12&quot;&#41;;</pre>
 
 </div>
-<!-- EDIT7 SECTION "How to Access a Named Sub-Mesh" [7563-8365] -->
+<!-- EDIT7 SECTION "How to Access a Named Sub-Mesh" [7562-8364] -->
 <h2><a>What is Culling?</a></h2>
 <div>
 
 <p>
-There are two types of colling: Face culling, and view frustrum culling.
+There are two types of culling: Face culling, and view frustrum culling.
 </p>
 
 <p>
@@ -212,13 +212,13 @@ There are two types of colling: Face culling, and view frustrum culling.
 You can switch the com.jme3.material.RenderState.FaceCullMode to
 </p>
 <ul>
-<li><div> <code>FaceCullMode.Back</code> (default) – only the frontsides of a mesh are drawn. This is the normal behaviour. </div>
+<li><div> <code>FaceCullMode.Back</code> (default) ??? only the frontsides of a mesh are drawn. This is the normal behaviour. </div>
 </li>
-<li><div> <code>FaceCullMode.Front</code> – only the backsides of meshes are drawn. The mesh will probably turn invisible. Useful if you are debugging a hand-made mesh and try to identify accidental inside-out faces.</div>
+<li><div> <code>FaceCullMode.Front</code> ??? only the backsides of meshes are drawn. The mesh will probably turn invisible. Useful if you are debugging a hand-made mesh and try to identify accidental inside-out faces.</div>
 </li>
-<li><div> <code>FaceCullMode.FrontAndBack</code> – The mesh becomes invisible. </div>
+<li><div> <code>FaceCullMode.FrontAndBack</code> ??? The mesh becomes invisible. </div>
 </li>
-<li><div> <code>FaceCullMode.Off</code> – Every side of the mesh is drawn. Looks normal, but slows down large scenes.</div>
+<li><div> <code>FaceCullMode.Off</code> ??? Every side of the mesh is drawn. Looks normal, but slows down large scenes.</div>
 </li>
 </ul>
 
@@ -230,20 +230,20 @@ Example:
 <pre>material.getAdditionalRenderState&#40;&#41;.setFaceCullMode&#40;FaceCullMode.FrontAndBack&#41;;</pre>
 
 <p>
-<strong>View frustum culling</strong> refers to not drawing (and not even calculating) certain whole models in the scene. At any given moment, half of the scene is behind the player and out of sight anyway. View frustum culling is an optimization to not calculate scene elements that are not visible – elements that are &quot;outside the view frustrum&quot;.
+<strong>View frustum culling</strong> refers to not drawing (and not even calculating) certain whole models in the scene. At any given moment, half of the scene is behind the player and out of sight anyway. View frustum culling is an optimization to not calculate scene elements that are not visible ??? elements that are &quot;outside the view frustrum&quot;.
 </p>
 
 <p>
 The decision what is visible and what not, is done automatically by the engine (<code>CullHint.Dynamic</code>). Optionally, you can manually control whether the engine culls individual spatials (and children) from the scene graph:
 </p>
 <ul>
-<li><div> <code>CullHint.Dynamic</code> – Default, faster because it doesn&#039;t waste time with objects that are out of view.</div>
+<li><div> <code>CullHint.Dynamic</code> ??? Default, faster because it doesn&#039;t waste time with objects that are out of view.</div>
 </li>
-<li><div> <code>CullHint.Never</code> – Calculate and draw everything always (even if it does not end up on the user&#039;s screen because it&#039;s out of sight). Slower, but can be used while debugging custom meshes.</div>
+<li><div> <code>CullHint.Never</code> ??? Calculate and draw everything always (even if it does not end up on the user&#039;s screen because it&#039;s out of sight). Slower, but can be used while debugging custom meshes.</div>
 </li>
-<li><div> <code>CullHint.Always</code> – The whole spatial is culled and is not visible. A fast way to hide a Spatial temporarily. Culling a Spatial is faster then detaching it, but it uses more memory.</div>
+<li><div> <code>CullHint.Always</code> ??? The whole spatial is culled and is not visible. A fast way to hide a Spatial temporarily. Culling a Spatial is faster then detaching it, but it uses more memory.</div>
 </li>
-<li><div> <code>CullHint.Inherit</code> – Inherit culling behaviour from parent node. </div>
+<li><div> <code>CullHint.Inherit</code> ??? Inherit culling behaviour from parent node. </div>
 </li>
 </ul>
 
@@ -255,13 +255,13 @@ Example:
 <pre>spatial.setCullHint&#40;CullHint.Never&#41;; // always drawn</pre>
 
 </div>
-<!-- EDIT8 SECTION "What is Culling?" [8366-10702] -->
+<!-- EDIT8 SECTION "What is Culling?" [8365-10701] -->
 <h2><a>See also</a></h2>
 <div>
 <ul>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a> – The GeometryBatchFactory class batches several Geometries into meshes with each their own texture.</div>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/intermediate/optimization.html">Optimization</a> ??? The GeometryBatchFactory class batches several Geometries into meshes with each their own texture.</div>
 </li>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/traverse_scenegraph.html">Traverse SceneGraph</a> – Find any Node or Geometry in the scenegraph.</div>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/traverse_scenegraph.html">Traverse SceneGraph</a> ??? Find any Node or Geometry in the scenegraph.</div>
 </li>
 </ul>
 <div><span>
@@ -273,5 +273,5 @@ Example:
 </span></div>
 
 </div>
-<!-- EDIT9 SECTION "See also" [10703-] -->
+<!-- EDIT9 SECTION "See also" [10702-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:spatial?do=export_xhtmlbody">view online version</a></em></p>

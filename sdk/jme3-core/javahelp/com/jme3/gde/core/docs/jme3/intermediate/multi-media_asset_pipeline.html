@@ -128,19 +128,26 @@ Install a graphic editor such as Gimp or Photoshop. <strong>Consult the graphic 
 
 <p>
 
-<p><div>Storing the textures inside your project directory is necessary for the paths in JME&#039;s binary model files (.j3o) to work. Treat the paths of your assets like class names of java classes, they define a specific asset. When you later generate .j3o files, compile class files, and distribute the project, paths and files need to be available in their final absolute form. It is imperative to keep the same directory structure from beginning to end. <br/>
+Storing the textures inside your project directory is necessary for the paths in JME&#039;s binary model files (.j3o) to work. Treat the paths of your assets like class names of java classes, they define a specific asset. When you later generate .j3o files, compile class files, and distribute the project, paths and files need to be available in their final absolute form. It is imperative to keep the same directory structure from beginning to end.
+</p>
+
+<p>
 If you ever change the assets directory structure, you will have to do manual refactoring (just as for Java package name changes): You will need to re-export all affected models, regenerate all affected .j3o files, and manually update all affected paths in your code.
-</div></p>
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Create Textures and Materials" [3531-4793] -->
+<!-- EDIT4 SECTION "Create Textures and Materials" [3531-4768] -->
 <h3><a>Create 3D Models</a></h3>
 <div>
 
 <p>
 
 Install a mesh editor such as <a href="/com/jme3/gde/core/docs/jme3/external/blender.html">Blender</a> or 3D Studio MAX. Reuse textures and materials as much as possible. <strong>Consult the mesh editor&#039;s documentation for specific details how to do the following tasks.</strong>
+</p>
+
+<p>
+<p><div>Note that UV coords are part of the mesh and not part of the material, so if you import your mesh successfully you can later apply the texture again and it will map correctly.
+</div></p>
 
 </p>
 <ol>
@@ -175,10 +182,11 @@ See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
 <p><div><strong>When I load the model in JME, why does it look different than in the 3D editor?</strong> <br/>
 3D models will never look identical in a game engine and in a mesh editor. Mesh editors are optimized for high-quality offline rendering, and many of the material and texture options simply do not work in a live rendering context. Also, the shaders that render the materials in JME are different than in your mesh editor&#039;s renderer. Remind your graphic designers to only focus on features that game engines support.
 </div></p>
+
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Create 3D Models" [4794-6754] -->
+<!-- EDIT5 SECTION "Create 3D Models" [4769-6921] -->
 <h3><a>Convert 3D Models to .j3o Format</a></h3>
 <div>
 
@@ -191,7 +199,7 @@ Convert all models and scenes to jME3&#039;s binary .j3o format to load() them. 
 <li><div> Confirm that you exported the model into the <code>assets/Textures</code> directory (or subdirectories) together with all its textures.</div>
 </li>
 <li><div> In the <acronym title="Software Development Kit">SDK</acronym>, right-click the model and choose &quot;Convert to j3o Binary&quot;. <br/>
-The paths in the j3o now reference files with an absolute <code>assets/Textures/…</code> path.</div>
+The paths in the j3o now reference files with an absolute <code>assets/Textures/???</code> path.</div>
 </li>
 <li><div> Now, move the .j3o into the corresponding <code>assets/Models/</code> or <code>assets/Scenes/</code> directory. </div>
 </li>
@@ -205,7 +213,7 @@ This process ensures that the texture paths are correct, and it also keeps your 
 </p>
 
 <p>
-<strong>Must I convert to .j3o? – Yes!</strong>
+<strong>Must I convert to .j3o? ??? Yes!</strong>
 </p>
 <ul>
 <li><div> .j3o is an optimized format to store parts of a jME3 scene graph. A .j3o file can contain one shape, one model, or a whole scene.</div>
@@ -228,7 +236,7 @@ Use the jMonkeyEngine SceneComposer to add these properties.</div>
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Convert 3D Models to .j3o Format" [6755-8816] -->
+<!-- EDIT6 SECTION "Convert 3D Models to .j3o Format" [6922-8983] -->
 <h2><a>See Also</a></h2>
 <div>
 <ul>
@@ -247,5 +255,5 @@ Use the jMonkeyEngine SceneComposer to add these properties.</div>
 </span></div>
 
 </div>
-<!-- EDIT7 SECTION "See Also" [8817-] -->
+<!-- EDIT7 SECTION "See Also" [8984-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:multi-media_asset_pipeline?do=export_xhtmlbody">view online version</a></em></p>

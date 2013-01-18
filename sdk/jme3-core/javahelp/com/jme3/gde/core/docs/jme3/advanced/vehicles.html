@@ -126,7 +126,7 @@ Finally we add the behaviour (VehicleControl) to the visible Geometry (node).
 <pre>vehicleNode.addControl&#40;vehicle&#41;;</pre>
 
 <p>
-We configure the physical properties of the vehicle&#039;s suspension: Compresion, Damping, Stiffness, and MaxSuspenionForce. Picking workable values for the wheel suspension can be tricky – for background info have a look at these <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://docs.google.com/Doc?docid=0AXVUZ5xw6XpKZGNuZG56a3FfMzU0Z2NyZnF4Zmo&amp;hl=en"><param name="text" value="<html><u>Suspension Settings Tips</u></html>"><param name="textColor" value="blue"></object>. For now, let&#039;s work with the following values:
+We configure the physical properties of the vehicle&#039;s suspension: Compresion, Damping, Stiffness, and MaxSuspenionForce. Picking workable values for the wheel suspension can be tricky ??? for background info have a look at these <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://docs.google.com/Doc?docid=0AXVUZ5xw6XpKZGNuZG56a3FfMzU0Z2NyZnF4Zmo&amp;hl=en"><param name="text" value="<html><u>Suspension Settings Tips</u></html>"><param name="textColor" value="blue"></object>. For now, let&#039;s work with the following values:
 </p>
 <pre>float stiffness = 60.0f;//200=f1 car
 float compValue = .3f; //(should be lower than damp)
@@ -154,17 +154,17 @@ We create four wheel Geometries and add them to the vehicle. Our wheel geometrie
 The <code>addWheel()</code> method sets following properties:
 </p>
 <ul>
-<li><div> Vector3f connectionPoint – Coordinate where the suspension connects to the chassis (internally, this is where the Ray is casted downwards).</div>
+<li><div> Vector3f connectionPoint ??? Coordinate where the suspension connects to the chassis (internally, this is where the Ray is casted downwards).</div>
 </li>
-<li><div> Vector3f direction – Wheel direction is typically a (0,-1,0) vector.</div>
+<li><div> Vector3f direction ??? Wheel direction is typically a (0,-1,0) vector.</div>
 </li>
-<li><div> Vector3f axle – Axle direction is typically a (-1,0,0) vector.</div>
+<li><div> Vector3f axle ??? Axle direction is typically a (-1,0,0) vector.</div>
 </li>
-<li><div> float suspensionRestLength – Suspension rest length in world units</div>
+<li><div> float suspensionRestLength ??? Suspension rest length in world units</div>
 </li>
-<li><div> float wheelRadius – Wheel radius in world units</div>
+<li><div> float wheelRadius ??? Wheel radius in world units</div>
 </li>
-<li><div> boolean isFrontWheel – Whether this wheel is one of the steering wheels. <br/>
+<li><div> boolean isFrontWheel ??? Whether this wheel is one of the steering wheels. <br/>
 Front wheels are the ones that rotate visibly when the vehicle turns.</div>
 </li>
 </ul>
@@ -187,7 +187,7 @@ We create a Cylinder mesh shape that we use to create the four visible wheel geo
 <pre>Cylinder wheelMesh = new Cylinder&#40;16, 16, radius, radius * 0.6f, true&#41;;</pre>
 
 <p>
-For each wheel, we create a Node and a Geometry. We attach the Cylinder Geometry to the Node. We rotate the wheel by 90° around the Y axis. We set a material to make it visible. Finally we add the wheel (plus its properties) to the vehicle.
+For each wheel, we create a Node and a Geometry. We attach the Cylinder Geometry to the Node. We rotate the wheel by 90?? around the Y axis. We set a material to make it visible. Finally we add the wheel (plus its properties) to the vehicle.
 </p>
 <pre>Node node1 = new Node&#40;&quot;wheel 1 node&quot;&#41;;
 Geometry wheels1 = new Geometry&#40;&quot;wheel 1&quot;, wheelMesh&#41;;

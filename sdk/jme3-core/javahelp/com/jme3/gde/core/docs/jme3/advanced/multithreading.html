@@ -215,10 +215,10 @@ private Callable&lt;MyWayList&gt; findWay = new Callable&lt;MyWayList&gt;&#40;&#
 &nbsp;
         //Read or write data from the scene graph -- via the execution queue:
         Vector3f location = application.enqueue&#40;new Callable&lt;Vector3f&gt;&#40;&#41; &#123;
-            public Vector3f call&#40;&#41; throws Exception &#123;
-                //we clone the location so we can use the variable safely on our thread
-                return mySpatial.getLocalTranslation&#40;&#41;.clone&#40;&#41;;
-            &#125;
+        ????????public Vector3f call&#40;&#41; throws Exception &#123;
+        ????????????????//we clone the location so we can use the variable safely on our thread
+        ????????????????return mySpatial.getLocalTranslation&#40;&#41;.clone&#40;&#41;;
+        ????????&#125;
         &#125;&#41;.get&#40;&#41;;
 &nbsp;
         // This world class allows safe access via synchronized methods

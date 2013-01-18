@@ -12,7 +12,7 @@ What if you just want to quickly write code that loads models and brings them in
 </p>
 
 <p>
-If you ever have problems with objects appearing in the wrong spot, with the wrong scale, or wrong orientation, simply attach debug shapes to your scene to have a point of reference in 3D space – just like a giant ruler. If your code positions the debug shapes correctly, but models remain invisible when you apply the same code to them, you know that the problem must be either the model (where is its origin coordinate?), or the light (too dark? too bright? missing?), or the model&#039;s material (missing?) – and not the positioning code.
+If you ever have problems with objects appearing in the wrong spot, with the wrong scale, or wrong orientation, simply attach debug shapes to your scene to have a point of reference in 3D space ??? just like a giant ruler. If your code positions the debug shapes correctly, but models remain invisible when you apply the same code to them, you know that the problem must be either the model (where is its origin coordinate?), or the light (too dark? too bright? missing?), or the model&#039;s material (missing?) ??? and not the positioning code.
 </p>
 
 <p>
@@ -181,15 +181,34 @@ Then you can add a switch to toggle the model&#039;s wireframe on and off, like 
   &#125;;</pre>
 </div>
 </li>
+<li><div> Alternatively you could traverse over the whole scene and toggle for all Geometry objects in there if you don&#039;t want to create a new SceneProcessor <pre>  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+    boolean wireframe = false; 
+&nbsp;
+    @Override
+    public void onAction&#40;String name, boolean pressed, float tpf&#41; &#123;
+      // toggle wireframe
+      if &#40;name.equals&#40;&quot;toggle wireframe&quot;&#41; &amp;&amp; !pressed&#41; &#123;
+        wireframe = !wireframe; // toggle boolean
+        rootNode.depthFirstTraversal&#40;new SceneGraphVisitor&#40;&#41; &#123;
+          public void visit&#40;Spatial spatial&#41; &#123;
+            if &#40;spatial instanceof Geometry&#41;
+              &#40;&#40;Geometry&#41;spatial&#41;.getMaterial&#40;&#41;.getAdditionalRenderState&#40;&#41;.setWireframe&#40;wireframe&#41;;
+          &#125;
+        &#125;&#41;; 
+      &#125;
+      // else ... other input tests.
+    &#125;
+  &#125;;</pre>
+</div>
+</li>
 </ol>
 
 <p>
-
 TIP :: To set the line width of wireframe display, use mesh.setLineWidth(lineWidth). Default line width is 1.
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Example: Toggle Wireframe on Model" [5160-6219] -->
+<!-- EDIT9 SECTION "Example: Toggle Wireframe on Model" [5160-7050] -->
 <h2><a>Example: Toggle Wireframe on the scene</a></h2>
 <div>
 
@@ -243,14 +262,14 @@ Then attach the scene processor to the <acronym title="Graphical User Interface"
 <pre>getViewPort&#40;&#41;.addProcessor&#40;new WireProcessor&#40;&#41;&#41;;</pre>
 
 </div>
-<!-- EDIT10 SECTION "Example: Toggle Wireframe on the scene" [6220-7593] -->
+<!-- EDIT10 SECTION "Example: Toggle Wireframe on the scene" [7051-8424] -->
 <h2><a>See also</a></h2>
 <div>
 <ul>
-<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a> – if you can&#039;t see certain spatials, you can modify the culling behaviour to identify problems (such as inside-out custom meshes)</div>
+<li><div> <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a> ??? if you can&#039;t see certain spatials, you can modify the culling behaviour to identify problems (such as inside-out custom meshes)</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT11 SECTION "See also" [7594-] -->
+<!-- EDIT11 SECTION "See also" [8425-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:debugging?do=export_xhtmlbody">view online version</a></em></p>

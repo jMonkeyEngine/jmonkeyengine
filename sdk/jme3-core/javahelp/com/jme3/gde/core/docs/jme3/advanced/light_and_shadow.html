@@ -38,7 +38,7 @@ You can add several types of light sources to a scene using <code>rootNode.addLi
 </p>
 
 <p>
-The available light sources in <code>com.​jme3.​light</code> are:
+The available light sources in <code>com.???jme3.???light</code> are:
 </p>
 <ul>
 <li><div> SpotLight </div>
@@ -136,7 +136,7 @@ spot.setDirection&#40;cam.getDirection&#40;&#41;&#41;;             // shine forw
 rootNode.addLight&#40;spot&#41;;</pre>
 
 <p>
-If you want the spotlight to follow the flycam, repeat the setDirection(…) and setPosition(…) calls in the update loop, and kee syncing them with the camera position and direction.
+If you want the spotlight to follow the flycam, repeat the setDirection(???) and setPosition(???) calls in the update loop, and kee syncing them with the camera position and direction.
 </p>
 
 </div>
@@ -315,7 +315,7 @@ The constructor expects the following values:
 <ul>
 <li><div> Your assetManager object</div>
 </li>
-<li><div> The size of the rendered shadowmaps (512, 1024, 2048, etc…)</div>
+<li><div> The size of the rendered shadowmaps (512, 1024, 2048, etc???)</div>
 </li>
 <li><div> The number of shadow maps rendered (the more shadow maps, the more quality, the less FPS).</div>
 </li>
@@ -326,13 +326,13 @@ The constructor expects the following values:
 You can set the following properties on the <code>pssmRenderer</code> object:
 </p>
 <ul>
-<li><div> setDirection(Vector3f) – the direction of the light</div>
+<li><div> setDirection(Vector3f) ??? the direction of the light</div>
 </li>
-<li><div> setLambda(0.65f) – Factor to use to reduce the split size</div>
+<li><div> setLambda(0.65f) ??? Factor to use to reduce the split size</div>
 </li>
-<li><div> setShadowIntensity(0.7f) – shadow darkness (1 black, 0 invisible)</div>
+<li><div> setShadowIntensity(0.7f) ??? shadow darkness (1 black, 0 invisible)</div>
 </li>
-<li><div> setShadowZextend() – distance how far away from camera shadows will still be computed</div>
+<li><div> setShadowZextend() ??? distance how far away from camera shadows will still be computed</div>
 </li>
 </ul>
 
@@ -353,9 +353,9 @@ terrain.setShadowMode&#40;ShadowMode.Receive&#41;; </pre>
 Full sample code
 </p>
 <ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestSSAO.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestSSAO2.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestSSAO2.java</u></html>"><param name="textColor" value="blue"></object> – Screen-Space Ambient Occlusion shadows</div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestSSAO.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestSSAO2.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestSSAO2.java</u></html>"><param name="textColor" value="blue"></object> ??? Screen-Space Ambient Occlusion shadows</div>
 </li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestTransparentSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestTransparentSSAO.java</u></html>"><param name="textColor" value="blue"></object> – Screen-Space Ambient Occlusion shadows plus transparancy</div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestTransparentSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestTransparentSSAO.java</u></html>"><param name="textColor" value="blue"></object> ??? Screen-Space Ambient Occlusion shadows plus transparancy</div>
 </li>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/#more-321"><param name="text" value="<html><u>Screen Space Ambient Occlusion for jMonkeyEngine (article)</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
@@ -363,7 +363,7 @@ Full sample code
 
 <p>
 
-Ambient Occlusion refers to the shadows that nearby objects cast on each other under an ambient lighting. It‘s an approximation of how light radiates in a real life scene. To activate Ambient Occlusion shadows, add a jME SceneProcessor named <code>com.jme3.post.SSAOFilter</code> to the viewPort. SSAO stands for the Screen Space Ambient Occlusion technique.
+Ambient Occlusion refers to the shadows that nearby objects cast on each other under an ambient lighting. It???s an approximation of how light radiates in a real life scene. To activate Ambient Occlusion shadows, add a jME SceneProcessor named <code>com.jme3.post.SSAOFilter</code> to the viewPort. SSAO stands for the Screen Space Ambient Occlusion technique.
 </p>
 <pre>FilterPostProcessor fpp = new FilterPostProcessor&#40;assetManager&#41;;
 SSAOFilter ssaoFilter = new SSAOFilter&#40;12.94f, 43.92f, 0.33f, 0.61f&#41;;

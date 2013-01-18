@@ -97,7 +97,7 @@ For a rope bridge, each set of planks would be one dynamic node.
 
 <p>
 
-A PhysicsHingeJoint is an invisible connection between two nodes – here between the pendulum body and the hook. Why are hinges and joints represented by the same class? Hinges and joints have something in common: They constrain the <em>mechanical degree of freedom</em> (DOF) of another object. 
+A PhysicsHingeJoint is an invisible connection between two nodes ??? here between the pendulum body and the hook. Why are hinges and joints represented by the same class? Hinges and joints have something in common: They constrain the <em>mechanical degree of freedom</em> (DOF) of another object. 
 </p>
 
 <p>
@@ -135,7 +135,7 @@ You&#039;ll understand that, when creating any type of joint, it is important to
 
 <p>
 
-You create the HingeJoint after you have created the nodes that are to be chained together. In the code snippet you see that the HingeJoint constructor requires the two node objects. You also have to specify axes and pivots – they are the degrees of freedom that you just heard about.
+You create the HingeJoint after you have created the nodes that are to be chained together. In the code snippet you see that the HingeJoint constructor requires the two node objects. You also have to specify axes and pivots ??? they are the degrees of freedom that you just heard about.
 </p>
 <pre>private HingeJoint joint;
 ...
@@ -160,15 +160,15 @@ The pivot point&#039;s position will be at <code>(0,0,0)</code> in the global 3D
 Specify the following parameters for each joint:
 </p>
 <ul>
-<li><div> PhysicsControl A and B – the two nodes that are to be joined</div>
+<li><div> PhysicsControl A and B ??? the two nodes that are to be joined</div>
 </li>
-<li><div> Vector3f pivot A and pivot B – coordinates of the attachment point relative to A and B</div>
+<li><div> Vector3f pivot A and pivot B ??? coordinates of the attachment point relative to A and B</div>
 <ul>
 <li><div> The points typically lie on the surface of the PhysicsControl&#039;s Spatials, rarely in the middle.</div>
 </li>
 </ul>
 </li>
-<li><div> Vector3f axisA and axisB – around which axes each node is allowed to spin.</div>
+<li><div> Vector3f axisA and axisB ??? around which axes each node is allowed to spin.</div>
 <ul>
 <li><div> In our example, we constrain the pendulum to swing only along the Z axis.</div>
 </li>

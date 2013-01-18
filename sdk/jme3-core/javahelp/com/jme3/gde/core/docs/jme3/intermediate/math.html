@@ -12,7 +12,7 @@ Note: Typically you have to string these formulas together. Look in the table fo
 </p>
 <div><table>
 	<tr>
-		<th>I have…</th><th>I want…</th><th>Formula</th>
+		<th>I have???</th><th>I want???</th><th>Formula</th>
 	</tr>
 	<tr>
 		<td>normalized direction and length <br/>
@@ -23,6 +23,13 @@ new direction vector v0</td><td>v0 = n1.mult(d1)</td>
 		<td>point and direction vector <br/>
 p1,v1</td><td>to move the point <br/>
 new point p0</td><td>p0 = p1.add(v1)</td>
+	</tr>
+	<tr>
+		<td> direction, position and distance <br/>
+v1,p1,dist</td><td>Position at distance <br/>
+p2 </td><td>v1.normalzeLocal() <br/>
+scaledDir = v1.mult(dist) <br/>
+p2 = p1.add(scaledDir)</td>
 	</tr>
 	<tr>
 		<td>two direction vectors or normals <br/>
@@ -52,9 +59,9 @@ new Quaternion q</td><td>Quaternion q = new Quaternion(); <br/>
 q.lookAt(v,up)</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [387-1307] --><div><table>
+<!-- EDIT3 TABLE [387-1459] --><div><table>
 	<tr>
-		<th>I have…</th><th>I want…</th><th>Formula</th>
+		<th>I have???</th><th>I want???</th><th>Formula</th>
 	</tr>
 	<tr>
 		<td>angle in degrees <br/>
@@ -100,9 +107,9 @@ x and z coordinates</td><td>float x = FastMath.cos(phi)*r; <br/>
 float z = FastMath.sin(phi)*r;</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [1309-2403] -->
+<!-- EDIT4 TABLE [1461-2555] -->
 </div>
-<!-- EDIT2 SECTION "Formulas" [32-2405] -->
+<!-- EDIT2 SECTION "Formulas" [32-2557] -->
 <h2><a>Local vs Non-local methods?</a></h2>
 <div>
 <ul>
@@ -115,5 +122,5 @@ float z = FastMath.sin(phi)*r;</td>
 </ul>
 
 </div>
-<!-- EDIT5 SECTION "Local vs Non-local methods?" [2406-] -->
+<!-- EDIT5 SECTION "Local vs Non-local methods?" [2558-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:math?do=export_xhtmlbody">view online version</a></em></p>

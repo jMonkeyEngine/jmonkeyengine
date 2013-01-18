@@ -152,7 +152,7 @@ Every JME3 application has a rootNode: Your game automatically inherits the <cod
 		<th> Purpose: </th><td> A Geometry stores an object&#039;s looks. </td><td> A Node groups Geometries and other Nodes together. </td>
 	</tr>
 	<tr>
-		<th> Examples: </th><td> A box, a sphere, a player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc… </td><td> The <code>rootNode</code>, a floor node grouping several terrains, a custom vehicle-with-passengers node, a player-with-weapon node, an audio node, etc… </td>
+		<th> Examples: </th><td> A box, a sphere, a player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc??? </td><td> The <code>rootNode</code>, a floor node grouping several terrains, a custom vehicle-with-passengers node, a player-with-weapon node, an audio node, etc??? </td>
 	</tr>
 </table></div>
 <!-- EDIT5 TABLE [3977-4470] -->
@@ -169,7 +169,7 @@ What happens in the code snippet? You use the <code>simpleInitApp()</code> metho
 <ol>
 <li><div> You create the first box Geometry.</div>
 <ul>
-<li><div> Create a Box shape with a radius of (1,1,1), that makes the box 2x2x2 world units big.</div>
+<li><div> Create a Box shape with extents of (1,1,1), that makes the box 2x2x2 world units big.</div>
 </li>
 <li><div> Position the box at (1,-1,1) using the move() method. (Don&#039;t change the Vector3f.ZERO unless you want to change the center of rotation)</div>
 </li>
@@ -238,14 +238,14 @@ If you run the app with only the code up to here, you see two cubes: A red cube 
 <li><div> Rotate the pivot node.<pre>        pivot.rotate&#40; 0.4f , 0.4f , 0.0f &#41;;</pre>
 
 <p>
- If you run the app now, you see two boxes on top of each other – both tilted at the same angle.
+ If you run the app now, you see two boxes on top of each other ??? both tilted at the same angle.
 </p>
 </div>
 </li>
 </ol>
 
 </div>
-<!-- EDIT6 SECTION "Understanding the Code" [4472-6875] -->
+<!-- EDIT6 SECTION "Understanding the Code" [4472-6874] -->
 <h3><a>What is a Pivot Node?</a></h3>
 <div>
 
@@ -264,12 +264,12 @@ You can transform (e.g. rotate) Geometries around their own center, or around a 
 </ul>
 
 </div>
-<!-- EDIT7 SECTION "What is a Pivot Node?" [6876-8196] -->
+<!-- EDIT7 SECTION "What is a Pivot Node?" [6875-8195] -->
 <h2><a>How do I Populate the Scenegraph?</a></h2>
 <div>
 <div><table>
 	<tr>
-		<th> Task…? </th><th> Solution! </th>
+		<th> Task???? </th><th> Solution! </th>
 	</tr>
 	<tr>
 		<td> Create a Spatial </td><td> Create a Mesh shape, wrap it into a Geometry, and give it a Material. For example: <pre>Box mesh = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // a cuboid default mesh
@@ -298,9 +298,9 @@ thing.setMaterial&#40;mat&#41;;</pre>
 		<td> Specify what should be loaded at the start </td><td> Everything you initialize and attach to the <code>rootNode</code> in the <code>simpleInitApp()</code> method is part of the scene at the start of the game. </td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [8244-9537] -->
+<!-- EDIT9 TABLE [8243-9536] -->
 </div>
-<!-- EDIT8 SECTION "How do I Populate the Scenegraph?" [8197-9538] -->
+<!-- EDIT8 SECTION "How do I Populate the Scenegraph?" [8196-9537] -->
 <h2><a>How do I Transform Spatials?</a></h2>
 <div>
 
@@ -324,7 +324,7 @@ To move a Spatial <em>to</em> specific coordinates, such as (0,40.2f,-2), use: <
 </td><td>+right -left</td><td>+up -down</td><td>+forward -backward</td>
 	</tr>
 </table></div>
-<!-- EDIT11 TABLE [9662-10178] --><div><table>
+<!-- EDIT11 TABLE [9661-10177] --><div><table>
 	<tr>
 		<th> Scaling resizes Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -336,13 +336,13 @@ To scale a Spatial 10 times longer, one tenth the height, and keep the same widt
 </td><td>length</td><td>height</td><td>width</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [10180-10669] --><div><table>
+<!-- EDIT12 TABLE [10179-10668] --><div><table>
 	<tr>
 		<th> Rotation turns Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
 	<tr>
 		<td>3-D rotation is a bit tricky (<a href="/com/jme3/gde/core/docs/jme3/rotate.html">learn details here</a>). In short: You can rotate around three axes: Pitch, yaw, and roll. You can specify angles in degrees by multiplying the degrees value with <code>FastMath.DEG_TO_RAD</code>. <br/>
-To roll an object 180° around the z axis: <pre>thing.rotate&#40; 0f , 0f , 180*FastMath.DEG_TO_RAD &#41;;</pre>
+To roll an object 180?? around the z axis: <pre>thing.rotate&#40; 0f , 0f , 180*FastMath.DEG_TO_RAD &#41;;</pre>
 
 <p>
  Tip: If your game idea calls for a serious amount of rotations, it is worth looking into <a href="/com/jme3/gde/core/docs/jme3/quaternion.html">quaternion</a>s, a data structure that can combine and store rotations efficiently. 
@@ -352,9 +352,9 @@ To roll an object 180° around the z axis: <pre>thing.rotate&#40; 0f , 0f , 180*
 </td><td>pitch = nodding your head</td><td>yaw = shaking your head</td><td>roll = cocking your head</td>
 	</tr>
 </table></div>
-<!-- EDIT13 TABLE [10671-11452] -->
+<!-- EDIT13 TABLE [10670-11451] -->
 </div>
-<!-- EDIT10 SECTION "How do I Transform Spatials?" [9539-11453] -->
+<!-- EDIT10 SECTION "How do I Transform Spatials?" [9538-11452] -->
 <h2><a>How do I Troubleshoot Spatials?</a></h2>
 <div>
 
@@ -384,9 +384,9 @@ Did you rotate around the right axis? </td>
 		<td> A Geometry has an unexpected Color or Material. </td><td> Did you reuse a Material from another Geometry and have inadvertently changed its properties? (If so, consider cloning it: mat2 = mat.clone(); )  </td>
 	</tr>
 </table></div>
-<!-- EDIT15 TABLE [11585-12643] -->
+<!-- EDIT15 TABLE [11584-12642] -->
 </div>
-<!-- EDIT14 SECTION "How do I Troubleshoot Spatials?" [11454-12644] -->
+<!-- EDIT14 SECTION "How do I Troubleshoot Spatials?" [11453-12643] -->
 <h2><a>How do I Add Custom Data to Spatials?</a></h2>
 <div>
 
@@ -415,11 +415,11 @@ To read this Node&#039;s id number elsewhere, you would use:
 
 <p>
 
-By using different Strings keys (here the key is <code>pivot id</code>), you can get and set several values for whatever data the Spatial needs to carry. When you start writing your game, you might add a fuel value to a car node, speed value to an airplane node, or number of gold coins to a player node, and much more. 
+By using different Strings keys (here the key is <code>pivot id</code>), you can get and set several values for whatever data the Spatial needs to carry. When you start writing your game, you might add a fuel value to a car node, speed value to an airplane node, or number of gold coins to a player node, and much more. However, one should note that only custom objects that implements Savable can be passed.
 </p>
 
 </div>
-<!-- EDIT16 SECTION "How do I Add Custom Data to Spatials?" [12645-14010] -->
+<!-- EDIT16 SECTION "How do I Add Custom Data to Spatials?" [12644-14097] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -445,5 +445,5 @@ Since standard shapes like spheres and boxes get old fast, continue with the nex
 </span></div>
 
 </div>
-<!-- EDIT17 SECTION "Conclusion" [14011-] -->
+<!-- EDIT17 SECTION "Conclusion" [14098-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_node?do=export_xhtmlbody">view online version</a></em></p>

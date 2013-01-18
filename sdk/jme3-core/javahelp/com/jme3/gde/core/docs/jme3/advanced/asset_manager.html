@@ -4,7 +4,25 @@
 
 <p>
 
-JME3 has an integrated an asset manager that helps you keep your project assets organized. By assets we mean media files, such as 3D models, materials, textures, scenes, shaders, sounds, and fonts. Think of the asset manager as the filesystem of your game, independent of the actual deployment platform. It also manages the appropriate managing of OpenGL objects like textures so that they are e.g. not uploaded to the graphics card multiple times when multiple models use them.
+By assets we mean multi-media files, such as 3D models, materials, textures, scenes, custom shaders, music and sound files, and custom fonts. JME3 has an integrated asset manager that helps you keep your project assets organized. Think of the asset manager as the filesystem of your game, independent of the actual deployment platform. By default, store your assets in the <code>MyGame/assets/ </code> directory of your project.
+</p>
+
+<p>
+Advantages of the AssetManager:
+</p>
+<ul>
+<li><div> The paths stay the same, no matter whether the game runs on Windows, Mac, Linux, etc!</div>
+</li>
+<li><div> The AssetManager automatically optimizes the handling of OpenGL objects. <br/>
+For example, the same textures are not uploaded to the graphics card multiple times when multiple models use them.</div>
+</li>
+<li><div> The <a href="/com/jme3/gde/core/docs/sdk/default_build_script.html">default build script</a> automatically bundles the contents of the <code>assets</code> directory into the executable. </div>
+</li>
+</ul>
+
+<p>
+
+Advanced users can write a custom build and packaging script, and can register custom paths to the AssetManager, but this is up to you then. 
 </p>
 
 </div>
@@ -25,7 +43,7 @@ See also <a href="/com/jme3/gde/core/docs/jme3/intermediate/best_practices.html"
 </p>
 
 </div>
-<!-- EDIT1 SECTION "AssetManager" [1-1167] -->
+<!-- EDIT1 SECTION "AssetManager" [1-1691] -->
 <h2><a>Usage</a></h2>
 <div>
 
@@ -45,7 +63,7 @@ Here is an example how you load assets using the AssetManager. This lines loads 
     new AssetKey&#40;&quot;Common/Materials/RedColor.j3m&quot;&#41;&#41;;</pre>
 
 <p>
-This Material is &quot;somewhere&quot; in the jME3 JAR; the default Asset Manager is configured to handle a <code>Common/…</code> path correctly, so you don&#039;t have to specify the whole path when referring to built-in assets (such as default Materials).
+This Material is &quot;somewhere&quot; in the jME3 JAR; the default Asset Manager is configured to handle a <code>Common/???</code> path correctly, so you don&#039;t have to specify the whole path when referring to built-in assets (such as default Materials).
 </p>
 
 <p>
@@ -53,31 +71,41 @@ Additionally, you can configure the Asset Manager and add any path to its root. 
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Usage" [1168-2325] -->
+<!-- EDIT2 SECTION "Usage" [1692-2849] -->
 <h2><a>Asset Directory</a></h2>
 <div>
 
 <p>
 
-By default, jME3 searches for models in a directory named <code>assets</code>. <strong>In Java projects created with the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, an assets folder is created by default.</strong> Using any other IDE or the command line, you have to create this assets directory as an extra step (see the Codeless Project tip below).
+By default, jME3 searches for models in a directory named <code>assets</code>. 
+</p>
+
+<p>
+<p><div>In Java projects created with the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, an <code>assets</code> folder is created by default in your project directory. If you are using any other IDE, or the command line, you simply create an <code>assets</code> directory manually (see the Codeless Project tip below).
+</div></p>
 </p>
 
 <p>
 This is our recommended directory structure for storing assets:
 </p>
-<pre>jMonkeyProjects/MyGame/src/...          # Packages, .java source code.
-jMonkeyProjects/MyGame/assets/...       # The assets directory:
-jMonkeyProjects/MyGame/assets/Interface/  # .font, .jpg, .png, .xml
-jMonkeyProjects/MyGame/assets/MatDefs/    # .j3md
-jMonkeyProjects/MyGame/assets/Materials/  # .j3m
-jMonkeyProjects/MyGame/assets/Models/     # .j3o
-jMonkeyProjects/MyGame/assets/Scenes/     # .j3o
-jMonkeyProjects/MyGame/assets/Shaders/    # .j3f, .vert, .frag
-jMonkeyProjects/MyGame/assets/Sounds/     # .ogg, .wav
-jMonkeyProjects/MyGame/assets/Textures/   # .jpg, .png; also .mesh.xml+.material, .mtl+.obj, .blend (!) </pre>
+<pre>jMonkeyProjects/MyGame/src/...           # Packages, .java source code.
+jMonkeyProjects/MyGame/assets/...        # The assets directory:
+jMonkeyProjects/MyGame/assets/Interface/   # .font, .jpg, .png, .xml
+jMonkeyProjects/MyGame/assets/MatDefs/     # .j3md
+jMonkeyProjects/MyGame/assets/Materials/   # .j3m
+jMonkeyProjects/MyGame/assets/Models/      # .j3o
+jMonkeyProjects/MyGame/assets/Scenes/      # .j3o
+jMonkeyProjects/MyGame/assets/Shaders/     # .j3f, .vert, .frag
+jMonkeyProjects/MyGame/assets/Sounds/      # .ogg, .wav
+jMonkeyProjects/MyGame/assets/Textures/    # .jpg, .png; also .mesh.xml+.material, .mtl+.obj, .blend (!) </pre>
 
 <p>
-These are just the most common examples. <strong>You can rename/delete/add directories and subdirectories inside the <code>assets</code> directory</strong> in any way you like. Note however that there is no automatic refactoring for asset paths in the <acronym title="Software Development Kit">SDK</acronym>, so if you modify them late in the development process, you have to refactor all paths manually. 
+These subdirectories are just the most common examples. 
+</p>
+
+<p>
+<p><div>You can rename/delete/add (sub)directories inside the <code>assets</code> directory in any way you like. Note however that there is no automatic refactoring for asset paths in the <acronym title="Software Development Kit">SDK</acronym>, so if you modify them late in the development process, you have to refactor all paths manually.
+</div></p>
 </p>
 
 <p>
@@ -91,7 +119,7 @@ After the conversion, you move the .j3o file into the <code>assets/Models/</code
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Asset Directory" [2326-4667] -->
+<!-- EDIT3 SECTION "Asset Directory" [2850-5279] -->
 <h2><a>Example Code: Loading Assets</a></h2>
 <div>
 
@@ -148,7 +176,7 @@ jME3 also offers a ClasspathLocator, ZipLocator, FileLocator, HttpZipLocator, an
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Example Code: Loading Assets" [4668-6140] -->
+<!-- EDIT4 SECTION "Example Code: Loading Assets" [5280-6752] -->
 <h2><a>Common AssetManager Tasks</a></h2>
 <div>
 <div><table>
@@ -175,9 +203,9 @@ rootNode.attachChild&#40;scene&#41;;</pre>
 </td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [6180-7108] -->
+<!-- EDIT6 TABLE [6792-7720] -->
 </div>
-<!-- EDIT5 SECTION "Common AssetManager Tasks" [6141-7109] -->
+<!-- EDIT5 SECTION "Common AssetManager Tasks" [6753-7721] -->
 <h2><a>NullPointerException: Cannot locate resource?</a></h2>
 <div>
 
@@ -200,7 +228,7 @@ java.lang.NullPointerException</pre>
 </p>
 
 <p>
-If you use the default build script, <strong>original models and scenes, and ZIP files, are excluded from the distribution</strong> automatically. A stand-alone executable includes <strong>converted .j3o models and scenes only</strong>. The default build script makes sure to include existing .j3o files in the distribution, but you need to convert the models manually. 
+If you use the default build script, <strong>original models and scenes (.mesh.xml, .obj, .blend, .zip), are excluded</strong> from the distribution automatically. A stand-alone executable includes converted <strong>.j3o files</strong> (models and scenes) only. The default build script makes sure to bundle existing .j3o files in the distribution, but you need to remember to convert the models (from mesh.xml???&gt;.j3o, or .obj???&gt;.j3o, etc) yourself. 
 </p>
 
 <p>
@@ -211,28 +239,34 @@ If you use the default build script, <strong>original models and scenes, and ZIP
 Before building the executable, you must use the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s context menu action to <a href="/com/jme3/gde/core/docs/sdk/model_loader_and_viewer.html">convert 3D models to .j3o binary format</a>.
 </p>
 <ol>
-<li><div> Open the jME3 Project in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.</div>
+<li><div> Save your original models (.mesh.xml, .scene, .blend, or .obj files, plus textures) into <code>assets/Textures/</code>. (!)</div>
+</li>
+<li><div> Open the jME3 project in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.</div>
 </li>
 <li><div> Browse to the <code>assets</code> directory in the Projects window. </div>
 </li>
-<li><div> Right-click a .mesh.xml/.scene/.obj file, and choose &quot;convert to JME3 binary&quot;. </div>
+<li><div> Right-click an original model in <code>assets/Textures/</code>, and choose &quot;Convert to JME3 binary&quot;.</div>
 </li>
-<li><div> The converted file appears in the same directory as the .mesh.xml file. It has the same name and a .j3o suffix. </div>
+<li><div> The converted file appears in the same directory as the original file. It has the same name and a <code>.j3o</code> suffix. </div>
 </li>
-<li><div> Move the .j3o file into the <code>assets/Models/</code> or <code>assets/Scenes/</code> directories.</div>
+<li><div> Move the .j3o file into the <code>assets/Models/</code> or <code>assets/Scenes/</code> directory.</div>
 </li>
-<li><div> Update the file name in the <code>load()</code> code to access the .j3o file.</div>
+<li><div> Use the assetManager&#039;s <code>load()</code> method to load the <code>.j3o</code> file.</div>
 </li>
 </ol>
 
 <p>
 
-<p><div>If you load the scene from a non-.j3o ZIP file, ammend the <a href="/com/jme3/gde/core/docs/sdk/default_build_script.html">default_build_script</a> manully to copy the ZIP files into the distribution.
+This ensures that the model&#039;s Texture paths keep working between your 3D mesh editor and JME3.
+</p>
+
+<p>
+<p><div>If you must load custom assets from a non-.j3o ZIP file, you must manually ammend the <a href="/com/jme3/gde/core/docs/sdk/default_build_script.html">default build script</a> to copy ZIP files into your distribution. ZIPs are skipped by default.
 </div></p>
 </p>
 
 </div>
-<!-- EDIT7 SECTION "NullPointerException: Cannot locate resource?" [7110-8833] -->
+<!-- EDIT7 SECTION "NullPointerException: Cannot locate resource?" [7722-9798] -->
 <h2><a>Asset Handling For Other IDEs: Codeless Projects</a></h2>
 <div>
 
@@ -261,7 +295,7 @@ Store your assets there as described above.</div>
 </li>
 <li><div> Download and install the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.</div>
 </li>
-<li><div> In the <acronym title="Software Development Kit">SDK</acronym>, go to File → Import Projects → External Project Assets.</div>
+<li><div> In the <acronym title="Software Development Kit">SDK</acronym>, go to File ??? Import Projects ??? External Project Assets.</div>
 </li>
 <li><div> Select your (Eclipse or whatever) project and your assets folder in the Import Wizard.</div>
 </li>
@@ -282,5 +316,5 @@ Convert assets as described above.</div>
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Asset Handling For Other IDEs: Codeless Projects" [8834-] -->
+<!-- EDIT8 SECTION "Asset Handling For Other IDEs: Codeless Projects" [9799-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:asset_manager?do=export_xhtmlbody">view online version</a></em></p>

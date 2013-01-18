@@ -5,7 +5,7 @@
 <p>
 TerrainGrid is an extension built on top of the TerraMonkey tools like TerrainQuad and HeightMap, that provides &quot;infinite&quot; Terrain paging routines.  <br/>
 
-Thanks to Gábor (@anthyon) and Brent (@sploreg) for this contribution!
+Thanks to G??bor (@anthyon) and Brent (@sploreg) for this contribution!
 
 </p>
 
@@ -50,10 +50,10 @@ TerrainGrid is made up of the TerrainGrid class, and the HeightMapGrid and Terra
 <p>
 <br/>
 
-Multiple listeners can be added to the TerrainGrid, they will be called in the order of addition, so it’s possible to have multiple changes to the material before completing the load of the tile.
+Multiple listeners can be added to the TerrainGrid, they will be called in the order of addition, so it???s possible to have multiple changes to the material before completing the load of the tile.
 <br/>
 
-HeightMapGrid adds the possibility of loading terrain tiles on demand instead of having a simple height array. There’s no predefined way of how to store these tiles, it only takes care of loading one HeightMap object at given location at a time.
+HeightMapGrid adds the possibility of loading terrain tiles on demand instead of having a simple height array. There???s no predefined way of how to store these tiles, it only takes care of loading one HeightMap object at given location at a time.
 
 </p>
 
@@ -63,7 +63,7 @@ HeightMapGrid adds the possibility of loading terrain tiles on demand instead of
 <div>
 
 <p>
-After playing around with the terrain in jME3, soon comes the requirement of having larger explorable lands. Increasing the size of one TerrainQuad leads to more memory usage, while it will still be easy to reach the worlds boundaries. That’s why TerrainGrid was designed. It extends the TerraindQuad class and uses 4 HeightMaps (dark blue) as the four sub-quad. This means that a terrain of size 513 will use tiles of 257. Also an LRUCache is built into the terrain package, so surrounding tiles (green) can be pre-cached on a different thread, lowering the loading time. The quads are updated as the camera approaches the boundary of the light blue section.
+After playing around with the terrain in jME3, soon comes the requirement of having larger explorable lands. Increasing the size of one TerrainQuad leads to more memory usage, while it will still be easy to reach the worlds boundaries. That???s why TerrainGrid was designed. It extends the TerraindQuad class and uses 4 HeightMaps (dark blue) as the four sub-quad. This means that a terrain of size 513 will use tiles of 257. Also an LRUCache is built into the terrain package, so surrounding tiles (green) can be pre-cached on a different thread, lowering the loading time. The quads are updated as the camera approaches the boundary of the light blue section.
 
 </p>
 
@@ -79,7 +79,7 @@ There exist also two basic HeightMapGrid implementations:
 <ul>
 <li><div> ImageBasedHeightMapGrid: uses a sequentially numbered, 16 bit grayscale heightmaps. The physical filename of these files can be generated through the Namer interface. When a tile cannot be found by the assetManager, an empty (all-zero) heightmap is created, and a warning is added to the log.</div>
 </li>
-<li><div> FractalHeightMapGrid: uses a noise library to create a landscape on the fly. The shape of the terrain can be controlled by the various parameters and postfilters of the fractals. With the help of this grid implementation there’s no limitation – above of floating point precision limits – how far the camera can get. The tiles generated this way can be cached to the filesystem, for later modification. The FractalHeightMapGrid will always load from cache if a tile exists there!</div>
+<li><div> FractalHeightMapGrid: uses a noise library to create a landscape on the fly. The shape of the terrain can be controlled by the various parameters and postfilters of the fractals. With the help of this grid implementation there???s no limitation ??? above of floating point precision limits ??? how far the camera can get. The tiles generated this way can be cached to the filesystem, for later modification. The FractalHeightMapGrid will always load from cache if a tile exists there!</div>
 </li>
 </ul>
 

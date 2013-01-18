@@ -30,9 +30,9 @@ OK, let&#039;s get ready to create our first jMonkeyEngine3 application.
 In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>:
 </p>
 <ol>
-<li><div> Choose File→New Project… from the main menu.</div>
+<li><div> Choose File???New Project??? from the main menu.</div>
 </li>
-<li><div> In the New Project wizard, select the template JME3→Basic Game. Click Next. </div>
+<li><div> In the New Project wizard, select the template JME3???Basic Game. Click Next. </div>
 <ol>
 <li><div> Specify a project name, e.g. &quot;HelloWorldTutorial&quot;</div>
 </li>
@@ -70,7 +70,7 @@ In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>:
 <ol>
 <li><div> Right-click the Source Packages node of your project.</div>
 </li>
-<li><div> Choose New…→Java Class to create a new file.</div>
+<li><div> Choose New??????Java Class to create a new file.</div>
 </li>
 <li><div> Enter the class name: <code>HelloJME3</code></div>
 </li>
@@ -166,7 +166,7 @@ Look at the first line. The HelloJME3.java class extends <code>com.jme3.app.Simp
 &#125;</pre>
 
 <p>
-Every JME3 game is an instance of <code>com.jme3.app.SimpleApplication</code>. The SimpleApplication class manages your 3D scene graph and automatically draws it to the screen – that is, in short, what a game engine does for you! 
+Every JME3 game is an instance of <code>com.jme3.app.SimpleApplication</code>. The SimpleApplication class manages your 3D scene graph and automatically draws it to the screen ??? that is, in short, what a game engine does for you! 
 </p>
 
 <p>
@@ -234,7 +234,7 @@ Look at rest of the code sample. The <code>simpleInitApp()</code> method is auto
 The initialization code of a blue cube looks as follows:
 </p>
 <pre>    public void simpleInitApp&#40;&#41; &#123;
-        Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // create a 1x1x1 box shape at the origin
+        Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // create a 2x2x2 box shape at the origin
         Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;  // create a cube geometry from the box shape
         Material mat = new Material&#40;assetManager,
           &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;  // create a simple material
@@ -253,7 +253,7 @@ A typical JME3 game has the following initialization process:
 </li>
 <li><div> You make objects appear in the scene by attaching them to the <code>rootNode</code>.</div>
 </li>
-<li><div> <strong>Examples:</strong> Load player, terrain, sky, enemies, obstacles, …, and place them in their start positions.</div>
+<li><div> <strong>Examples:</strong> Load player, terrain, sky, enemies, obstacles, ???, and place them in their start positions.</div>
 </li>
 </ul>
 </li>
@@ -263,7 +263,7 @@ A typical JME3 game has the following initialization process:
 </li>
 <li><div> You set variables to their start values. </div>
 </li>
-<li><div> <strong>Examples:</strong> Set the <code>score</code> to 0, set <code>health</code> to 100%, …</div>
+<li><div> <strong>Examples:</strong> Set the <code>score</code> to 0, set <code>health</code> to 100%, ???</div>
 </li>
 </ul>
 </li>
@@ -271,17 +271,17 @@ A typical JME3 game has the following initialization process:
 <ul>
 <li><div> The following input bindings are pre-configured:</div>
 <ul>
-<li><div> W,A,S,D keys – Move around in the scene</div>
+<li><div> W,A,S,D keys ??? Move around in the scene</div>
 </li>
-<li><div> Mouse movement and arrow keys – Turn the camera</div>
+<li><div> Mouse movement and arrow keys ??? Turn the camera</div>
 </li>
-<li><div> Escape key – Quit the game</div>
+<li><div> Escape key ??? Quit the game</div>
 </li>
 </ul>
 </li>
 <li><div> Define your own additional keys and mouse click actions.</div>
 </li>
-<li><div> <strong>Examples:</strong> Click to shoot, press Space to jump, …</div>
+<li><div> <strong>Examples:</strong> Click to shoot, press Space to jump, ???</div>
 </li>
 </ul>
 </li>

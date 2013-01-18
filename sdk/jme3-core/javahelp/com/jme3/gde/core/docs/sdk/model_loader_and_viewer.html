@@ -8,7 +8,7 @@ The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> import
 </p>
 
 <p>
-Presently, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.blender.org/"><param name="text" value="<html><u>Blender 3D</u></html>"><param name="textColor" value="blue"></object> is the preferred modelling tool for jME3 as it is also Open-Source Software and an exporter for OgreXML files exists. Note that the OgreXML exporter is not compatible with Blender 2.49 or before!
+Presently, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.blender.org/"><param name="text" value="<html><u>Blender 3D</u></html>"><param name="textColor" value="blue"></object> is the preferred modelling tool for jME3 as it is also Open-Source Software and an exporter for OgreXML files exists. There is a direct .blend file importer available in the <acronym title="Software Development Kit">SDK</acronym> and you can directly import or store blend files in your project to convert them. If for some reason your version of blender is not compatible, you can use the default OgreXML format. Note that the OgreXML exporter is not compatible with Blender 2.49 or before!
 </p>
 
 <p>
@@ -16,7 +16,7 @@ Also, see this <object classid="java:org.netbeans.modules.javahelp.BrowserDispla
 </p>
 
 </div>
-<!-- EDIT1 SECTION "jMonkeyEngine SDK: Importing and Viewing Models" [1-711] -->
+<!-- EDIT1 SECTION "jMonkeyEngine SDK: Importing and Viewing Models" [1-955] -->
 <h3><a>Installing the OgreXML Exporter in Blender</a></h3>
 <div>
 
@@ -26,7 +26,7 @@ The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> includ
 
 </p>
 <ol>
-<li><div> Select &quot;Tools&quot;→&quot;OgreXML&quot;→&quot;Install Blender OgreXML&quot; in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Menu</div>
+<li><div> Select &quot;Tools&quot;???&quot;OgreXML&quot;???&quot;Install Blender OgreXML&quot; in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Menu</div>
 </li>
 <li><div> If you are presented a filechooser, select the folder where your blender scripts reside</div>
 </li>
@@ -41,12 +41,12 @@ Also check out <a href="/com/jme3/gde/core/docs/jme3/external/blender.html">how 
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Installing the OgreXML Exporter in Blender" [712-1311] -->
+<!-- EDIT2 SECTION "Installing the OgreXML Exporter in Blender" [956-1555] -->
 <h2><a>Importing and Viewing a Model</a></h2>
 <div>
 
 </div>
-<!-- EDIT3 SECTION "Importing and Viewing a Model" [1312-1353] -->
+<!-- EDIT3 SECTION "Importing and Viewing a Model" [1556-1597] -->
 <h3><a>Using the Model Importer Tool</a></h3>
 <div>
 
@@ -82,7 +82,7 @@ The model is converted to j3o and all necessary files are copied to the project 
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Using the Model Importer Tool" [1354-2219] -->
+<!-- EDIT4 SECTION "Using the Model Importer Tool" [1598-2463] -->
 <h3><a>Using the model files directly</a></h3>
 <div>
 
@@ -93,9 +93,11 @@ The model is converted to j3o and all necessary files are copied to the project 
 <ol>
 <li><div> Create a separate folder for each model in the <code>assets</code> folder of your project.</div>
 </li>
-<li><div> Export the model from Blender as OgreXML into its subfolder in <strong>the <code>asset</code> folder of your project</strong>, </div>
+<li><div> Save the model created in Blender (.blend) <strong>in the <code>asset</code> folder of your project</strong>, </div>
 </li>
-<li><div> Make sure that the OgreXML material file has the same name as the exported mesh or scene file!</div>
+<li><div> Make sure that no textures are packed in the .blend file.</div>
+</li>
+<li><div> Make sure all textures used in the .blend file are in the assets folder of the project.</div>
 </li>
 <li><div> In the Projects Explorer Assets node, select the model that you want to import.</div>
 </li>
@@ -105,7 +107,7 @@ The model is converted to j3o and all necessary files are copied to the project 
 </li>
 <li><div> Double-click it to view it in the SceneViewer.</div>
 </li>
-<li><div> Click on the lightbulb to turn on the light if you cannot see your model</div>
+<li><div> Click on the lightbulb to turn on the light if you cannot see your model.</div>
 </li>
 </ol>
 
@@ -116,10 +118,11 @@ Note: It is important that you copy the model file and its textures to the corre
 
 <p>
 Note: If the SceneViewer doesn&#039;t work refer to <a href="/com/jme3/gde/core/docs/sdk/troubleshooting.html">Troubleshooting jMonkeyEngine3 SDK</a>.
+
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Using the model files directly" [2220-3437] -->
+<!-- EDIT5 SECTION "Using the model files directly" [2464-3719] -->
 <h2><a>Working With a Model</a></h2>
 <div>
 <ul>
@@ -134,7 +137,7 @@ Note: If the SceneViewer doesn&#039;t work refer to <a href="/com/jme3/gde/core/
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Working With a Model" [3438-3773] -->
+<!-- EDIT6 SECTION "Working With a Model" [3720-4055] -->
 <h2><a>Notes About Model Assets</a></h2>
 <div>
 
@@ -144,7 +147,7 @@ The original OgreXML <code>.mesh.xml</code>, <code>.scene</code>, <code>.materia
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Notes About Model Assets" [3774-4190] -->
+<!-- EDIT7 SECTION "Notes About Model Assets" [4056-4472] -->
 <h2><a>About the SceneViewer and SceneExplorer window</a></h2>
 <div>
 
@@ -158,7 +161,7 @@ Most plugins will deliver their own UI elements to modify the scene so the Scene
 </p>
 
 </div>
-<!-- EDIT8 SECTION "About the SceneViewer and SceneExplorer window" [4191-4710] -->
+<!-- EDIT8 SECTION "About the SceneViewer and SceneExplorer window" [4473-4992] -->
 <h3><a>About the projects AssetManager</a></h3>
 <div>
 
@@ -182,5 +185,5 @@ To have a valid jME3 object, the paths to textures and other assets belonging to
 </span></div>
 
 </div>
-<!-- EDIT9 SECTION "About the projects AssetManager" [4711-] -->
+<!-- EDIT9 SECTION "About the projects AssetManager" [4993-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:model_loader_and_viewer?do=export_xhtmlbody">view online version</a></em></p>

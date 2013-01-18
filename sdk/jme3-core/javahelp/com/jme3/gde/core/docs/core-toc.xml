@@ -47,6 +47,7 @@
             <tocitem text="Filters" target="sdk.filters"/>
             <tocitem text="Blender File Support" target="sdk.blender"/>
             <tocitem text="Creating compatible models in Blender" target="jme3.external.blender"/>
+            <tocitem text="Creating compatible models in 3DS Max" target="jme3.external.3dsmax"/>
             <tocitem text="Vehicle Creator" target="sdk.vehicle_creator"/>
         </tocitem>
         <tocitem text="Working with Materials">

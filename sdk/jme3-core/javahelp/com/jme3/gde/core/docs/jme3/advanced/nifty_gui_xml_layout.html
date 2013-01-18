@@ -98,8 +98,9 @@ Create an empty screen.xml file in the <code>assets/Interfaces/</code> directory
 The following minimal <acronym title="Extensible Markup Language">XML</acronym> file contains a start screen and a HUD screen. (Neither has been defined yet.)
 </p>
 <pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
-<span>&lt;nifty xmlns=&quot;http://nifty-gui.sourceforge.net/nifty.xsd&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; </span>
-<span>       xsi:schemaLocation=&quot;http://nifty-gui.sourceforge.net/nifty.xsd http://nifty-gui.sourceforge.net/nifty.xsd&quot;&gt;</span>
+<span>&lt;nifty xmlns=&quot;http://nifty-gui.sourceforge.net/nifty-1.3.xsd&quot;</span>
+<span>  xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+<span>  xsi:schemaLocation=&quot;http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd&quot;&gt;</span>
   <span>&lt;screen id=&quot;start&quot;&gt;</span>
     &lt;!-- ... --&gt;
   <span><span>&lt;/screen&gt;</span></span>
@@ -117,7 +118,7 @@ Every Nifty <acronym title="Graphical User Interface">GUI</acronym> must have a 
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Make Screens" [2140-2864] -->
+<!-- EDIT4 SECTION "Make Screens" [2140-2872] -->
 <h3><a>Make Layers</a></h3>
 <div>
 
@@ -149,7 +150,7 @@ In a layer, you can now add panels and arrange them. Panels are containers that 
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Make Layers" [2865-3638] -->
+<!-- EDIT5 SECTION "Make Layers" [2873-3646] -->
 <h3><a>Make Panels</a></h3>
 <div>
 
@@ -202,7 +203,7 @@ The result should look as follows:
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Make Panels" [3639-5521] -->
+<!-- EDIT6 SECTION "Make Panels" [3647-5529] -->
 <h2><a>Adding Content to Panels</a></h2>
 <div>
 
@@ -212,7 +213,7 @@ See also <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Adding Content to Panels" [5522-5700] -->
+<!-- EDIT7 SECTION "Adding Content to Panels" [5530-5708] -->
 <h3><a>Add Images</a></h3>
 <div>
 
@@ -257,7 +258,7 @@ This image is scaled to use 50% of the height and 30% of the width of its contai
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Add Images" [5701-7387] -->
+<!-- EDIT8 SECTION "Add Images" [5709-7395] -->
 <h3><a>Add Static Text</a></h3>
 <div>
 
@@ -284,7 +285,7 @@ The font used is jME3&#039;s default font &quot;Interface/Fonts/Default.fnt&quot
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Add Static Text" [7388-8468] -->
+<!-- EDIT9 SECTION "Add Static Text" [7396-8476] -->
 <h3><a>Add Controls</a></h3>
 <div>
 
@@ -332,7 +333,7 @@ Our <acronym title="Graphical User Interface">GUI</acronym> plan asks for two bu
         <span><span>&lt;/panel&gt;</span></span></pre>
 
 <p>
-Note that these controls don&#039;t do anything yet – we&#039;ll get to that soon.
+Note that these controls don&#039;t do anything yet ??? we&#039;ll get to that soon.
 </p>
 
 </div>
@@ -342,11 +343,11 @@ Note that these controls don&#039;t do anything yet – we&#039;ll get to that s
 
 <p>
 
-Nifty additionally offers many customizable controls such as check boxes, text fields, menus, chats, tabs, … See also <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Elements"><param name="text" value="<html><u>Elements</u></html>"><param name="textColor" value="blue"></object> on the Nifty <acronym title="Graphical User Interface">GUI</acronym> site.
+Nifty additionally offers many customizable controls such as check boxes, text fields, menus, chats, tabs, ??? See also <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Elements"><param name="text" value="<html><u>Elements</u></html>"><param name="textColor" value="blue"></object> on the Nifty <acronym title="Graphical User Interface">GUI</acronym> site.
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Add Controls" [8469-10437] -->
+<!-- EDIT10 SECTION "Add Controls" [8477-10445] -->
 <h2><a>Intermediate Result</a></h2>
 <div>
 
@@ -364,7 +365,7 @@ Compare this result with the layout draft above.
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Intermediate Result" [10438-10798] -->
+<!-- EDIT11 SECTION "Intermediate Result" [10446-10806] -->
 <h2><a>Next Steps</a></h2>
 <div>
 
@@ -386,5 +387,5 @@ Integrate the <acronym title="Graphical User Interface">GUI</acronym> into the g
 </span></div>
 
 </div>
-<!-- EDIT12 SECTION "Next Steps" [10799-] -->
+<!-- EDIT12 SECTION "Next Steps" [10807-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_xml_layout?do=export_xhtmlbody">view online version</a></em></p>

@@ -5,7 +5,7 @@
 <p>
 <img src="/wiki/lib/exe/fetch.php">
 Use the Mesh class to create custom shapes that go beyond Quad, Box, Cylinder, and Sphere, even procedural shapes are possible. Thank you to KayTrance for providing the sample code!
-In this tutorial, we (re)create a very simple rectangular mesh, and we have a look at different ways of coloring it. A flat rectangle may not look useful because it&#039;s exactly the same as a <code>com.jme3.scene.shape.Quad</code>. We choose this simple example in order to show you how to build any shape out of triangles – without the distractions of more complex shapes.
+In this tutorial, we (re)create a very simple rectangular mesh, and we have a look at different ways of coloring it. A flat rectangle may not look useful because it&#039;s exactly the same as a <code>com.jme3.scene.shape.Quad</code>. We choose this simple example in order to show you how to build any shape out of triangles ??? without the distractions of more complex shapes.
 </p>
 <ul>
 <li><div> Full code sample: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/branches/stable-alpha4/engine/src/test/jme3test/model/shape/TestCustomMesh.java"><param name="text" value="<html><u>TestCustomMesh.java</u></html>"><param name="textColor" value="blue"></object></div>
@@ -20,7 +20,7 @@ In this tutorial, we (re)create a very simple rectangular mesh, and we have a lo
 <p>
 Polygon meshes are made up of triangles. The corners of the triangles are vertices. So, when ever you create a new shape, you break it down into triangles.
 Let&#039;s look at a cube. A cube is made up of 6 rectangles. Each rectangle can be broken down into two triangles. This means you need 12 triangles to create a cube mesh. You also need to know the 8 corner coordinates (vertices). The trick is that you have to specify the vertices in a certain order: Each triangle separately, counter-clockwise.
-Sounds worse than it is – here is an example:
+Sounds worse than it is ??? here is an example:
 
 </p>
 
@@ -79,7 +79,7 @@ texCoord&#91;3&#93; = new Vector2f&#40;1,1&#41;;</pre>
 <div>
 
 <p>
-Next we turn the unrelated coordinates into triangles – We define the order in which the mesh is constructed. Think of these indexes as coming in groups of three. Each group of indexes describes one triangle. Note that you must specify the vertices counter-clockwise!
+Next we turn the unrelated coordinates into triangles ??? We define the order in which the mesh is constructed. Think of these indexes as coming in groups of three. Each group of indexes describes one triangle. Note that you must specify the vertices counter-clockwise!
 
 </p>
 <pre>int &#91;&#93; indexes = &#123; 2,0,1, 1,3,2 &#125;;</pre>
@@ -308,7 +308,7 @@ In case however that your usecase requires the backfaces to be visible, you have
 
 <p>
 
-See also: <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a> – contains more info about how to debug custom meshes (that do not render as expected) by changing the default culling behaviour.
+See also: <a href="/com/jme3/gde/core/docs/jme3/advanced/spatial.html">Spatial</a> ??? contains more info about how to debug custom meshes (that do not render as expected) by changing the default culling behaviour.
 </p>
 <div><span>
 	<a href="/wiki/doku.php/tag:spatial?do=showtag&amp;tag=tag%3Aspatial">spatial</a>,
