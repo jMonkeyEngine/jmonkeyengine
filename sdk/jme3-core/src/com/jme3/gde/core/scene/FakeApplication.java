@@ -89,7 +89,7 @@ public class FakeApplication extends SimpleApplication {
         this.cam = cam;
         this.appStateManager = new FakeAppStateManager(this);
     }
-    
+
     public FakeApplication(Node rootNode, Node guiNode, AssetManager assetManager, Camera cam) {
         this.rootNode = rootNode;
         this.guiNode = guiNode;
@@ -395,7 +395,7 @@ public class FakeApplication extends SimpleApplication {
     public void setRootNode(Node rootNode) {
         this.rootNode = rootNode;
     }
-    
+
     public void stopFakeApp() {
         fakeAppThread.shutdown();
     }
@@ -554,6 +554,23 @@ public class FakeApplication extends SimpleApplication {
             return false;
         }
         return true;
+    }
+
+    public Class getClassByName(String className) {
+        Class clazz = null;
+        try {
+            clazz = getClass().getClassLoader().loadClass(className);
+        } catch (ClassNotFoundException ex) {
+        }
+        for (ClassLoader classLoader : assetManager.getClassLoaders()) {
+            if (clazz == null) {
+                try {
+                    clazz = classLoader.loadClass(className);
+                } catch (ClassNotFoundException ex) {
+                }
+            }
+        }
+        return clazz;
     }
 
     private void clearNode(final Node externalNode) {
