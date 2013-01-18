@@ -119,13 +119,14 @@ public class RunAppStateAction implements ContextAwareAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        //TODO: better way to access scene request
+        //TODO: better way to access scene request        
         SceneRequest req = SceneApplication.getApplication().getCurrentSceneRequest();
         if (req != null) {
             FakeApplication app = req.getFakeApp();
             try {
                 AppState state = (AppState) app.getClassByName(className).newInstance();
                 app.getStateManager().attach(state);
+                AppStateExplorerTopComponent.openExplorer();
             } catch (InstantiationException ex) {
                 DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error creating AppState, make sure it has an empty constructor!\n" + ex.getMessage()));
                 Exceptions.printStackTrace(ex);
@@ -141,8 +142,8 @@ public class RunAppStateAction implements ContextAwareAction {
             logger.log(Level.INFO, "No Scene Request available");
         }
     }
-
-    public void checkData(Lookup actionContext, final String name) {
+    
+    private void checkData(Lookup actionContext, final String name) {
         source = null;
         className = null;
         try {

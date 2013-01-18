@@ -31,14 +31,14 @@
  */
 package com.jme3.gde.core.appstates;
 
-import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.scene.FakeApplication;
 import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
-import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
+import java.util.Iterator;
 import javax.swing.ActionMap;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -85,7 +85,8 @@ public final class AppStateExplorerTopComponent extends TopComponent implements 
                 return;
             }
             mgr = request.getManager();
-            final AppStateManagerNode nod = new AppStateManagerNode(request.getFakeApp().getStateManager());
+            FakeApplication app = request.getFakeApp();
+            final AppStateManagerNode nod = new AppStateManagerNode(app.getStateManager());
             jButton1.setEnabled(true);
             explorerManager.setRootContext(nod);
             setActivatedNodes(new Node[]{nod});
@@ -93,7 +94,6 @@ public final class AppStateExplorerTopComponent extends TopComponent implements 
 
         public void sceneClosed(SceneRequest request) {
             currentRequest = null;
-            SceneApplication.getApplication().setFakeApp(null);
             mgr = null;
             jButton1.setEnabled(false);
             explorerManager.setRootContext(Node.EMPTY);
@@ -119,6 +119,17 @@ public final class AppStateExplorerTopComponent extends TopComponent implements 
             listener.sceneOpened(request);
         }
         SceneApplication.getApplication().addSceneListener(listener);
+    }
+
+    public static void openExplorer() {
+        for (Iterator<TopComponent> it = TopComponent.getRegistry().getOpened().iterator(); it.hasNext();) {
+            TopComponent topComponent = it.next();
+            if (topComponent instanceof AppStateExplorerTopComponent) {
+                AppStateExplorerTopComponent explorer = (AppStateExplorerTopComponent) topComponent;
+                explorer.requestVisible();
+                return;
+            }
+        }
     }
 
     /**

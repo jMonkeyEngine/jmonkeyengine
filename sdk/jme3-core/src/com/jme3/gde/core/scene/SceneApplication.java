@@ -26,6 +26,7 @@ package com.jme3.gde.core.scene;
 
 import com.jme3.app.Application;
 import com.jme3.app.StatsView;
+import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
@@ -91,7 +92,13 @@ public class SceneApplication extends Application implements LookupProvider {
         }
         return application;
     }
-    protected Node rootNode = new Node("Root Node");
+    protected Node rootNode = new Node("Root Node") {
+        @Override
+        public boolean removeFromParent() {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Trying to remove main RootNode!"));
+            return false;
+        }
+    };
     protected Node guiNode = new Node("Gui Node");
     private Node statsGuiNode = new Node("Stats Gui Node");
     protected Node toolsNode = new Node("Tools Node");
@@ -141,6 +148,7 @@ public class SceneApplication extends Application implements LookupProvider {
                 createCanvas();
                 startCanvas(true);
             }
+            fakeApp = new FakeApplication(rootNode, guiNode, assetManager, cam);
             nodeSync = new NodeSyncAppState();
             stateManager.attach(nodeSync);
             progressHandle.progress("initialize Base Application", 1);
@@ -205,6 +213,7 @@ public class SceneApplication extends Application implements LookupProvider {
     @Override
     public void initialize() {
         thread = Thread.currentThread();
+        fakeApp.startFakeApp();
         try {
             super.initialize();
             {
@@ -262,6 +271,12 @@ public class SceneApplication extends Application implements LookupProvider {
     }
 
     @Override
+    public void destroy() {
+        fakeApp.stopFakeApp();
+        super.destroy();
+    }
+    
+    @Override
     public void update() {
         if (speed == 0) {
             return;
@@ -309,6 +324,8 @@ public class SceneApplication extends Application implements LookupProvider {
             handleError(e.getMessage(), e);
         }
     }
+    
+    
 
     //TODO: Lookup for Application
     public Lookup createAdditionalLookup(Lookup baseContext) {
@@ -378,26 +395,20 @@ public class SceneApplication extends Application implements LookupProvider {
                 } else {
                     camController.disable();
                 }
-                //TODO: reuse fakeapp
-                fakeApp = new FakeApplication(rootNode, guiNode, request.getManager(), cam);
+                final AssetManager manager = request.getManager();
                 request.setFakeApp(fakeApp);
                 enqueue(new Callable() {
                     public Object call() throws Exception {
-                        if (request.getManager() != null) {
-                            assetManager = request.getManager();
+                        if (manager != null) {
+                            assetManager = manager;
+                            fakeApp.newAssetManager(manager);
                         }
                         Spatial model = request.getRootNode();
                         if (model == null) {
                             StatusDisplayer.getDefault().setStatusText("could not load Spatial from request: " + getCurrentSceneRequest().getWindowTitle());
                             return null;
                         }
-                        //TODO: bit dangerous, setting rootNode late
-                        //      still it should only be accessed from the
-                        //      update loop and be set until then.
-                                
-                        if (model instanceof Node) {
-                            fakeApp.setRootNode((Node) model);
-                        }
+                        //TODO: use FakeApp internal root node
                         rootNode.attachChild(model);
                         if (request.getToolNode() != null) {
                             toolsNode.attachChild(request.getToolNode());
@@ -442,16 +453,16 @@ public class SceneApplication extends Application implements LookupProvider {
                 if (oldRequest.getRequester() instanceof SceneApplication) {
                     camController.disable();
                 }
-                if (fakeApp != null) {
-                    fakeApp.stopFakeApp();
-                }
-                fakeApp = null;
                 enqueue(new Callable() {
                     public Object call() throws Exception {
                         if (physicsState != null) {
                             physicsState.getPhysicsSpace().removeAll(rootNode);
                             getStateManager().detach(physicsState);
                             physicsState = null;
+                        }
+                        //TODO: possibly dangerous (new var is created in EDT
+                        if (fakeApp != null) {
+                            fakeApp.cleanupFakeApp();
                         }
                         toolsNode.detachAllChildren();
                         rootNode.detachAllChildren();
@@ -645,11 +656,4 @@ public class SceneApplication extends Application implements LookupProvider {
         return java.awt.EventQueue.isDispatchThread();
     }
 
-    public FakeApplication getFakeApp() {
-        return fakeApp;
-    }
-
-    public void setFakeApp(FakeApplication fakeApp) {
-        this.fakeApp = fakeApp;
-    }
 }

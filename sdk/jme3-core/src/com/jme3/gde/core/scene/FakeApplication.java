@@ -46,6 +46,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
+import com.jme3.scene.UserData;
 import com.jme3.scene.control.Control;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
@@ -56,6 +57,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -392,12 +394,25 @@ public class FakeApplication extends SimpleApplication {
      */
     private ScheduledThreadPoolExecutor fakeAppThread = new ScheduledThreadPoolExecutor(1);
 
-    public void setRootNode(Node rootNode) {
-        this.rootNode = rootNode;
+    public void cleanupFakeApp() {
+        if (rootNode == null) {
+            return;
+        }
+        clearNode(rootNode);
+        appStateManager = new FakeAppStateManager(this);
+    }
+    
+    public void startFakeApp(){
+        fakeAppThread = new ScheduledThreadPoolExecutor(1);
     }
 
     public void stopFakeApp() {
+        cleanupFakeApp();
         fakeAppThread.shutdown();
+    }
+    
+    public void newAssetManager(AssetManager manager){
+        this.assetManager = manager;
     }
 
     private void defaultFakeError() {
@@ -593,6 +608,13 @@ public class FakeApplication extends SimpleApplication {
                 Exceptions.printStackTrace(e);
             }
             control = externalNode.getControl(Control.class);
+        }
+        Collection<String> keys = externalNode.getUserDataKeys();
+        if (keys != null) {
+            for (Iterator<String> it = keys.iterator(); it.hasNext();) {
+                String string = it.next();
+                externalNode.setUserData(string, null);
+            }
         }
     }
 }
