@@ -77,12 +77,16 @@ public class AssetCompletionProvider implements CompletionProvider {
             new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/material.gif"));
     private static ImageIcon matDefIcon =
             new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/jme-logo.png"));
+    private static ImageIcon fontIcon =
+            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/font.gif"));
+    private static ImageIcon filterIcon =
+            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/filters/icons/eye.gif"));
     private static ImageIcon textureIcon =
             new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/image.gif"));
 
     private enum AssetType {
 
-        Invalid, Model, Material, MatDef, Texture, Sound, Xml, Asset
+        Invalid, Model, Material, Filter, MatDef, Texture, Sound, Font, Xml, Asset
     }
 
     public AssetCompletionProvider() {
@@ -157,6 +161,20 @@ public class AssetCompletionProvider implements CompletionProvider {
                             }
                         }
                         break;
+                    case Font:
+                        for (String string : manager.getFilesWithSuffix("fnt")) {
+                            if (string.startsWith(filter)) {
+                                completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
+                            }
+                        }
+                        break;
+                    case Filter:
+                        for (String string : manager.getFilesWithSuffix("j3f")) {
+                            if (string.startsWith(filter)) {
+                                completionResultSet.addItem(new AssetCompletionItem(type, string, startOffset, caretOffset));
+                            }
+                        }
+                        break;
                     case Xml:
                         for (String string : manager.getFilesWithSuffix("xml")) {
                             if (string.startsWith(filter)) {
@@ -188,18 +206,22 @@ public class AssetCompletionProvider implements CompletionProvider {
                 return AssetType.Model;
             } else if (hasLastCommand(line, ".loadMaterial(\"")) {
                 return AssetType.Material;
+            } else if (hasLastCommand(line, ".loadFilter(\"")) {
+                return AssetType.Filter;
             } else if (hasLastCommand(line, ".loadTexture(\"")) {
                 return AssetType.Texture;
-            } else if (hasLastCommand(line, ".addXml(\"")) {
-                return AssetType.Xml;
-            } else if (hasLastCommand(line, ".fromXml(\"")) {
-                return AssetType.Xml;
             } else if (hasLastCommand(line, ".loadSound(\"")) {
                 return AssetType.Sound;
+            } else if (hasLastCommand(line, ".loadFont(\"")) {
+                return AssetType.Font;
             } else if (hasLastCommand(line, "new Material(")) {
                 return AssetType.MatDef;
             } else if (hasLastCommand(line, "new AudioNode(")) {
                 return AssetType.Sound;
+            } else if (hasLastCommand(line, ".addXml(\"")) {
+                return AssetType.Xml;
+            } else if (hasLastCommand(line, ".fromXml(\"")) {
+                return AssetType.Xml;
             }
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
@@ -323,6 +345,12 @@ public class AssetCompletionProvider implements CompletionProvider {
                     break;
                 case Sound:
                     icon = soundIcon;
+                    break;
+                case Font:
+                    icon = fontIcon;
+                    break;
+                case Filter:
+                    icon = filterIcon;
                     break;
                 case Asset:
                     icon = assetIcon;
