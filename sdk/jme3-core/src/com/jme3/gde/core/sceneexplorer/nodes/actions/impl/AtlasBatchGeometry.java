@@ -141,7 +141,7 @@ public class AtlasBatchGeometry extends AbstractToolWizardAction {
         WizardDescriptor wiz = new WizardDescriptor(new WizardDescriptor.ArrayIterator<WizardDescriptor>(panels));
         // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
         wiz.setTitleFormat(new MessageFormat("{0}"));
-        wiz.setTitle("...dialog title...");
+        wiz.setTitle("Create Batch with Texture Atlas");
         if (DialogDisplayer.getDefault().notify(wiz) == WizardDescriptor.FINISH_OPTION) {
             // do something
             return wiz;
