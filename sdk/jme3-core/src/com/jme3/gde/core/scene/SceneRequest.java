@@ -35,6 +35,7 @@ import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -53,9 +54,15 @@ public class SceneRequest {
     private ProjectAssetManager manager;
     private boolean displayed = false;
     private DataObject dataObject;
+    private Node dataNode;
     private HelpCtx helpCtx;
     private FakeApplication fakeApp;
 
+    public SceneRequest(Object requester, ProjectAssetManager manager) {
+        this.requester = requester;
+        this.manager = manager;
+    }
+    
     public SceneRequest(Object requester, JmeNode rootNode, ProjectAssetManager manager) {
         this.requester = requester;
         this.jmeNode = rootNode;
@@ -112,6 +119,10 @@ public class SceneRequest {
         return jmeNode;
     }
 
+    public void setJmeNode(JmeNode jmeNode) {
+        this.jmeNode = jmeNode;
+    }
+    
     public com.jme3.scene.Spatial getRootNode() {
         return rootNode;
     }
@@ -145,8 +156,9 @@ public class SceneRequest {
     }
 
     /**
-     * Add an additional Node that is not displayed in the SceneExplorer and can be
-     * used for displaying in-world tools, templates, previews etc.
+     * Add an additional Node that is not displayed in the SceneExplorer and can
+     * be used for displaying in-world tools, templates, previews etc.
+     *
      * @param toolScene the toolScene to set
      */
     public void setToolNode(com.jme3.scene.Node toolNode) {
@@ -159,10 +171,25 @@ public class SceneRequest {
 
     /**
      * sets the DataObject associated with this scene
+     *
      * @param dataObject
      */
     public void setDataObject(DataObject dataObject) {
         this.dataObject = dataObject;
+    }
+
+    public Node getDataNode() {
+        if (dataNode != null) {
+            return dataNode;
+        }
+        if (getDataObject() != null) {
+            return getDataObject().getNodeDelegate();
+        }
+        return dataNode;
+    }
+
+    public void setDataNode(Node dataNode) {
+        this.dataNode = dataNode;
     }
 
     public HelpCtx getHelpCtx() {
@@ -171,6 +198,7 @@ public class SceneRequest {
 
     /**
      * Set the help context for the SceneViewer window
+     *
      * @param helpCtx
      */
     public void setHelpCtx(HelpCtx helpCtx) {
@@ -184,5 +212,4 @@ public class SceneRequest {
     public FakeApplication getFakeApp() {
         return fakeApp;
     }
-    
 }
