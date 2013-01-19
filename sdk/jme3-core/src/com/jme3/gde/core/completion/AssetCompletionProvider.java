@@ -36,6 +36,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -68,7 +70,6 @@ import org.openide.util.ImageUtilities;
 public class AssetCompletionProvider implements CompletionProvider {
 
     private static final Logger logger = Logger.getLogger(AssetCompletionProvider.class.getName());
-    
     private static ImageIcon assetIcon =
             new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/assets.gif"));
     private static ImageIcon modelIcon =
@@ -90,7 +91,7 @@ public class AssetCompletionProvider implements CompletionProvider {
 
         Invalid, Model, Material, Filter, MatDef, Texture, Sound, Font, Xml, Asset
     }
-    
+
     public AssetCompletionProvider() {
     }
 
@@ -233,13 +234,39 @@ public class AssetCompletionProvider implements CompletionProvider {
 
     private boolean hasLastCommand(String line, String command) {
         int idx = line.lastIndexOf(command);
+        int brackState = 0;
         if (idx != -1) {
-            int bIdx = line.indexOf(")", idx);
-            if (bIdx == -1) {
-                return true;
+            StringReader reader = null;
+            try {
+                line = line.substring(idx + command.length());
+//                logger.log(Level.INFO, "Search in command: {0}", line);
+                reader = new StringReader(line);
+                int in = reader.read();
+                while (in != -1) {
+                    if (in == '(') {
+//                        logger.log(Level.INFO, "Found open bracket in command: {0}", line);
+                        brackState++;
+                    } else if (in == ')') {
+//                        logger.log(Level.INFO, "Found close bracket in command: {0}", line);
+                        brackState--;
+                    }
+                    in = reader.read();
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } finally {
+                if (reader != null) {
+                    reader.close();
+                }
             }
+        } else {
+            brackState = -1;
         }
-        return false;
+        if (brackState == 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private ProjectAssetManager getProjectAssetManager(Document doc) {
@@ -360,7 +387,7 @@ public class AssetCompletionProvider implements CompletionProvider {
                 case Invalid:
                     break;
                 default:
-                    //icon = assetIcon;
+                //icon = assetIcon;
             }
             CompletionUtilities.renderHtml(icon, text, null, g, defaultFont,
                     (selected ? Color.white : fieldColor), width, height, selected);
