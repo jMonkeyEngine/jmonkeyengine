@@ -275,7 +275,7 @@ public class SceneApplication extends Application implements LookupProvider {
         fakeApp.stopFakeApp();
         super.destroy();
     }
-    
+
     @Override
     public void update() {
         if (speed == 0) {
@@ -324,8 +324,6 @@ public class SceneApplication extends Application implements LookupProvider {
             handleError(e.getMessage(), e);
         }
     }
-    
-    
 
     //TODO: Lookup for Application
     public Lookup createAdditionalLookup(Lookup baseContext) {
@@ -477,7 +475,7 @@ public class SceneApplication extends Application implements LookupProvider {
     }
 
     private void checkSave(SceneRequest request) {
-        if ((request != null)
+        if ((request != null) && request.getDataObject() != null
                 && request.getDataObject().isModified()) {
             final DataObject req = request.getDataObject();
             Confirmation mesg = new NotifyDescriptor.Confirmation("Scene has not been saved,\ndo you want to save it?",
@@ -658,5 +656,4 @@ public class SceneApplication extends Application implements LookupProvider {
     public boolean isAwt() {
         return java.awt.EventQueue.isDispatchThread();
     }
-
 }

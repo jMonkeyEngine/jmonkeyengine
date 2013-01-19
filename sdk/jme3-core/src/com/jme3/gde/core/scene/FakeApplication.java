@@ -394,14 +394,14 @@ public class FakeApplication extends SimpleApplication {
     private ScheduledThreadPoolExecutor fakeAppThread = new ScheduledThreadPoolExecutor(1);
 
     public void cleanupFakeApp() {
-        if (rootNode == null) {
-            return;
-        }
-        clearNode(rootNode);
+        runQueuedFake();
         appStateManager = new FakeAppStateManager(this);
+        if (rootNode != null) {
+            clearNode(rootNode);
+        }
     }
-    
-    public void startFakeApp(){
+
+    public void startFakeApp() {
         fakeAppThread = new ScheduledThreadPoolExecutor(1);
     }
 
@@ -409,8 +409,8 @@ public class FakeApplication extends SimpleApplication {
         cleanupFakeApp();
         fakeAppThread.shutdown();
     }
-    
-    public void newAssetManager(AssetManager manager){
+
+    public void newAssetManager(AssetManager manager) {
         this.assetManager = manager;
     }
 
