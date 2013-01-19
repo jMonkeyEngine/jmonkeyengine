@@ -41,6 +41,8 @@ import com.jme3.audio.Listener;
 import com.jme3.gde.core.appstates.AppStateManagerNode;
 import com.jme3.input.FlyByCamera;
 import com.jme3.input.InputManager;
+import com.jme3.light.Light;
+import com.jme3.light.LightList;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
@@ -58,6 +60,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -360,6 +363,7 @@ public class FakeApplication extends SimpleApplication {
             return states;
         }
 
+        //TODO: make thread safe
         @Override
         public boolean attach(AppState state) {
             boolean ret = super.attach(state);
@@ -393,9 +397,22 @@ public class FakeApplication extends SimpleApplication {
      */
     private ScheduledThreadPoolExecutor fakeAppThread = new ScheduledThreadPoolExecutor(1);
 
+    public void removeCurrentStates() {
+        for (Iterator<AppState> it = new ArrayList(appStateManager.getAddedStates()).iterator(); it.hasNext();) {
+            AppState appState = it.next();
+            try {
+                appStateManager.detach(appState);
+            } catch (Exception e) {
+                Exceptions.printStackTrace(e);
+            }
+        }
+    }
+
     public void cleanupFakeApp() {
         runQueuedFake();
-        appStateManager = new FakeAppStateManager(this);
+        if (guiNode != null) {
+            clearNode(guiNode);
+        }
         if (rootNode != null) {
             clearNode(rootNode);
         }
@@ -443,13 +460,6 @@ public class FakeApplication extends SimpleApplication {
         DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(
                 msg,
                 NotifyDescriptor.WARNING_MESSAGE));
-    }
-
-    private void removeAllStates() {
-        for (Iterator<AppState> it = new ArrayList(appStateManager.getAddedStates()).iterator(); it.hasNext();) {
-            AppState appState = it.next();
-            appStateManager.detach(appState);
-        }
     }
 
     public boolean runQueuedFake() {
@@ -587,6 +597,30 @@ public class FakeApplication extends SimpleApplication {
         return clazz;
     }
 
+    private void removeAllStates() {
+        try {
+            try {
+                for (Iterator<AppState> it = new ArrayList(appStateManager.getAddedStates()).iterator(); it.hasNext();) {
+                    AppState appState = it.next();
+                    appStateManager.detach(appState);
+                }
+            } catch (Exception e) {
+                Exceptions.printStackTrace(e);
+            }
+            AppState state = appStateManager.getState(AppState.class);
+            while (state != null) {
+                try {
+                    appStateManager.update(0);
+                } catch (Exception e) {
+                    Exceptions.printStackTrace(e);
+                }
+                state = appStateManager.getState(AppState.class);
+            }
+        } catch (Exception e) {
+            Exceptions.printStackTrace(e);
+        }
+    }
+
     private void clearNode(final Node externalNode) {
         while (!externalNode.getChildren().isEmpty()) {
             try {
@@ -614,6 +648,24 @@ public class FakeApplication extends SimpleApplication {
                 String string = it.next();
                 externalNode.setUserData(string, null);
             }
+        }
+        LightList llist = null;
+        try {
+            llist = externalNode.getLocalLightList();
+            for (Iterator<Light> it = llist.iterator(); it.hasNext();) {
+                Light light = it.next();
+                try {
+                    externalNode.removeLight(light);
+                } catch (Exception e) {
+                    Exceptions.printStackTrace(e);
+                } catch (Error e) {
+                    Exceptions.printStackTrace(e);
+                }
+            }
+        } catch (Exception e) {
+            Exceptions.printStackTrace(e);
+        } catch (Error e) {
+            Exceptions.printStackTrace(e);
         }
     }
 }

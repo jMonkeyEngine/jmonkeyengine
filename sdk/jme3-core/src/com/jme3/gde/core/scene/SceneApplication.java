@@ -35,6 +35,7 @@ import com.jme3.gde.core.assets.AssetData;
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.scene.controller.AbstractCameraController;
 import com.jme3.gde.core.scene.processors.WireProcessor;
+import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
 import com.jme3.input.FlyByCamera;
@@ -381,10 +382,14 @@ public class SceneApplication extends Application implements LookupProvider {
                     return;
                 }
                 currentSceneRequest = request;
-                if (request.getDataObject() != null) {
-                    setCurrentFileNode(request.getDataObject().getNodeDelegate());
+                if (request.getDataNode() != null) {
+                    setCurrentFileNode(request.getDataNode());
                 } else {
                     setCurrentFileNode(null);
+                }
+                //TODO: handle this differently (no opened file)
+                if (request.getRootNode() == null && request.getJmeNode() == null) {
+                    request.setJmeNode(NodeUtility.createNode(rootNode, false));
                 }
                 setHelpContext(request.getHelpCtx());
                 setWindowTitle(request.getWindowTitle());
@@ -395,19 +400,17 @@ public class SceneApplication extends Application implements LookupProvider {
                 }
                 final AssetManager manager = request.getManager();
                 request.setFakeApp(fakeApp);
+                fakeApp.newAssetManager(manager);
                 enqueue(new Callable() {
                     public Object call() throws Exception {
                         if (manager != null) {
                             assetManager = manager;
-                            fakeApp.newAssetManager(manager);
                         }
                         Spatial model = request.getRootNode();
-                        if (model == null) {
-                            StatusDisplayer.getDefault().setStatusText("could not load Spatial from request: " + getCurrentSceneRequest().getWindowTitle());
-                            return null;
+                        //TODO: use FakeApp internal root node, don't handle model vs clean scene here
+                        if (model != null && model != rootNode) {
+                            rootNode.attachChild(model);
                         }
-                        //TODO: use FakeApp internal root node
-                        rootNode.attachChild(model);
                         if (request.getToolNode() != null) {
                             toolsNode.attachChild(request.getToolNode());
                         }
@@ -451,6 +454,8 @@ public class SceneApplication extends Application implements LookupProvider {
                 if (oldRequest.getRequester() instanceof SceneApplication) {
                     camController.disable();
                 }
+                //TODO: state list is not thread safe..
+                fakeApp.removeCurrentStates();
                 enqueue(new Callable() {
                     public Object call() throws Exception {
                         if (physicsState != null) {
