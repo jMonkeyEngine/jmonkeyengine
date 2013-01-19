@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,16 +44,7 @@ import com.jme3.util.BufferUtils;
  */
 /* package */class ArmatureModifier extends Modifier {
 	private static final Logger	LOGGER						= Logger.getLogger(ArmatureModifier.class.getName());
-	private static final int	MAXIMUM_WEIGHTS_PER_VERTEX	= 4;
-	// @Marcin it was an Ogre limitation, but as long as we use a MaxNumWeight
-	// variable in mesh,
-	// i guess this limitation has no sense for the blender loader...so i guess
-	// it's up to you. You'll have to deternine the max weight according to the
-	// provided blend file
-	// I added a check to avoid crash when loading a model that has more than 4
-	// weight per vertex on line 258
-	// If you decide to remove this limitation, remove this code.
-	// Rémy
+	private static final int		MAXIMUM_WEIGHTS_PER_VERTEX	= 4;//JME limitation
 
 	private Skeleton skeleton;
 	private Structure objectStructure;
@@ -304,42 +297,52 @@ import com.jme3.util.BufferUtils;
 		Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
 		FloatBuffer weightsFloatData = BufferUtils.createFloatBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
 		ByteBuffer indicesData = BufferUtils.createByteBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
+		
 		if (pDvert.isNotNull()) {// assigning weights and bone indices
+			boolean warnAboutTooManyVertexWeights = false;
 			List<Structure> dverts = pDvert.fetchData(blenderContext.getInputStream());// dverts.size() == verticesAmount (one dvert per vertex in blender)
 			int vertexIndex = 0;
+			//use tree map to sort weights from the lowest to the highest ones
+			TreeMap<Float, Integer> weightToIndexMap = new TreeMap<Float, Integer>();
 			
 			for (Structure dvert : dverts) {
 				List<Integer> vertexIndices = vertexReferenceMap.get(Integer.valueOf(vertexIndex));// we fetch the referenced vertices here
 				if(vertexIndices != null) {
 					int totweight = ((Number) dvert.getFieldValue("totweight")).intValue();// total amount of weights assignet to the vertex (max. 4 in JME)
 					Pointer pDW = (Pointer) dvert.getFieldValue("dw");
-					if (totweight > 0 && pDW.isNotNull() && groupToBoneIndexMap!=null) {// pDW should never be null here, but I check it just in case :)
+					if (totweight > 0 && groupToBoneIndexMap != null) {
+						weightToIndexMap.clear();
 						int weightIndex = 0;
 						List<Structure> dw = pDW.fetchData(blenderContext.getInputStream());
 						for (Structure deformWeight : dw) {
 							Integer boneIndex = groupToBoneIndexMap.get(((Number) deformWeight.getFieldValue("def_nr")).intValue());
-
-							// Remove this code if 4 weights limitation is removed
-							if (weightIndex == 4) {
-								LOGGER.log(Level.WARNING, "{0} has more than 4 weight on bone index {1}", new Object[] { meshStructure.getName(), boneIndex });
-								break;
-							}
-
 							// null here means that we came accross group that has no bone attached to
 							if (boneIndex != null) {
 								float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
-								if (weight == 0.0f) {
-									boneIndex = Integer.valueOf(0);
-								}
-								// we apply the weight to all referenced vertices
-								for (Integer index : vertexIndices) {
-									weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + weightIndex, weight);
-									indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + weightIndex, boneIndex.byteValue());
+								if(weightIndex < MAXIMUM_WEIGHTS_PER_VERTEX) {
+									if (weight == 0.0f) {
+										boneIndex = Integer.valueOf(0);
+									}
+									// we apply the weight to all referenced vertices
+									for (Integer index : vertexIndices) {
+										weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + weightIndex, weight);
+										indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + weightIndex, boneIndex.byteValue());
+									}
+									weightToIndexMap.put(weight, weightIndex);
+									bonesGroups[0] = Math.max(bonesGroups[0], weightIndex + 1);
+								} else if(weight > 0) {//if weight is zero the simply ignore it
+									warnAboutTooManyVertexWeights = true;
+									Entry<Float, Integer> lowestWeightAndIndex = weightToIndexMap.firstEntry();
+									if(lowestWeightAndIndex.getKey() < weight) {
+										weightsFloatData.put(lowestWeightAndIndex.getValue(), weight);
+										indicesData.put(lowestWeightAndIndex.getValue(), boneIndex.byteValue());
+										weightToIndexMap.remove(lowestWeightAndIndex.getKey());
+										weightToIndexMap.put(weight, lowestWeightAndIndex.getValue());
+									}
 								}
 							}
 							++weightIndex;
 						}
-						bonesGroups[0] = Math.max(bonesGroups[0], weightIndex);
 					} else {
 						// 0.0 weight indicates, do not transform this vertex, but keep it in bind pose.
 						for (Integer index : vertexIndices) {
@@ -349,6 +352,10 @@ import com.jme3.util.BufferUtils;
 					}
 				}
 				++vertexIndex;
+			}
+			
+			if(warnAboutTooManyVertexWeights) {
+				LOGGER.log(Level.WARNING, "{0} has vertices with more than 4 weights assigned. The model may not behave as it should.", meshStructure.getName());
 			}
 		} else {
 			// always bind all vertices to 0-indexed bone
@@ -386,17 +393,20 @@ import com.jme3.util.BufferUtils;
 	 */
 	private void endBoneAssigns(int vertCount, FloatBuffer weightsFloatData) {
 		weightsFloatData.rewind();
+		float[] weights = new float[MAXIMUM_WEIGHTS_PER_VERTEX];
 		for (int v = 0; v < vertCount; ++v) {
-			float w0 = weightsFloatData.get(), w1 = weightsFloatData.get(), w2 = weightsFloatData.get(), w3 = weightsFloatData.get();
-			float sum = w0 + w1 + w2 + w3;
+			float sum = 0;
+			for (int i = 0; i < MAXIMUM_WEIGHTS_PER_VERTEX; ++i) {
+				weights[i] = weightsFloatData.get();
+				sum += weights[i];
+			}
 			if (sum != 1f && sum != 0.0f) {
-				weightsFloatData.position(weightsFloatData.position() - 4);
+				weightsFloatData.position(weightsFloatData.position() - MAXIMUM_WEIGHTS_PER_VERTEX);
 				// compute new vals based on sum
 				float sumToB = 1f / sum;
-				weightsFloatData.put(w0 * sumToB);
-				weightsFloatData.put(w1 * sumToB);
-				weightsFloatData.put(w2 * sumToB);
-				weightsFloatData.put(w3 * sumToB);
+				for (int i = 0; i < MAXIMUM_WEIGHTS_PER_VERTEX; ++i) {
+					weightsFloatData.put(weights[i] * sumToB);
+				}
 			}
 		}
 		weightsFloatData.rewind();
