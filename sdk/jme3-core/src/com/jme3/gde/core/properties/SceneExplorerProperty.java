@@ -127,7 +127,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
                     inited = true;
                     objectLocal = duplicateObject(realValue);
                     notifyListeners(PROP_INIT_CHANGE, null, objectLocal);
-                    logger.log(Level.FINE, "Get first sync duplicate for {0}", this);
+                    logger.log(Level.FINE, "Got first sync duplicate for {0}", objectLocal);
                 }
             });
         } else if ((objectLocal != null) && !objectLocal.equals(realValue)) {
@@ -137,7 +137,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
                     T newObject = duplicateObject(realValue);
                     objectLocal = newObject;
                     notifyListeners(PROP_SCENE_CHANGE, oldObject, objectLocal);
-                    logger.log(Level.FINE, "Get update for {0} due to equals check", this);
+                    logger.log(Level.FINE, "Got update for {0} due to equals check", objectLocal);
                 }
             });
         } else if ((objectLocal == null) && (realValue != null)) {
@@ -145,7 +145,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
                 public void run() {
                     objectLocal = duplicateObject(realValue);
                     notifyListeners(PROP_SCENE_CHANGE, null, objectLocal);
-                    logger.log(Level.FINE, "Get update for {0} due to change from null", this);
+                    logger.log(Level.FINE, "Got update for {0} due to change from null", objectLocal);
                 }
             });
         }
@@ -155,7 +155,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     public T getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         return mutex.readAccess(new Mutex.Action<T>() {
             public T run() {
-                logger.log(Level.FINE, "Return local value of {0}", this);
+                logger.log(Level.FINE, "Return local value of {0}", objectLocal);
                 return objectLocal;
             }
         });
@@ -165,7 +165,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     public void setValue(final T val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         mutex.postWriteRequest(new Runnable() {
             public void run() {
-                logger.log(Level.FINE, "Set local value of {0}", this);
+                logger.log(Level.FINE, "Set local value of {0}", objectLocal);
                 final T oldObject = objectLocal;
                 objectLocal = val;
                 final T sceneObject = duplicateObject(val);
@@ -294,7 +294,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
 
     private T getSuperValue() {
         try {
-            logger.log(Level.FINE, "Get super value of {0} on thread {1}", new Object[]{this, Thread.currentThread().getName()});
+            logger.log(Level.FINE, "Get super value thread {0}", Thread.currentThread().getName());
             return super.getValue();
         } catch (IllegalAccessException ex) {
             Exceptions.printStackTrace(ex);
@@ -312,7 +312,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
                 logger.log(Level.FINE, "Add undo for {0} on thread {1}");
                 addUndo(duplicateObject(getSuperValue()), val);
             }
-            logger.log(Level.FINE, "Set super value of {0} on thread {1}", new Object[]{this, Thread.currentThread().getName()});
+            logger.log(Level.FINE, "Set super value on thread {0}", Thread.currentThread().getName());
             super.setValue(val);
         } catch (IllegalAccessException ex) {
             Exceptions.printStackTrace(ex);
@@ -371,7 +371,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     private void notifyListeners(final String type, final Object before, final Object after) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                logger.log(Level.FINE, "Notify SceneExplorer listeners of {0}", this);
+                logger.log(Level.FINE, "Notify SceneExplorer listeners");
                 for (Iterator<ScenePropertyChangeListener> it = listeners.iterator(); it.hasNext();) {
                     ScenePropertyChangeListener propertyChangeListener = it.next();
                     propertyChangeListener.propertyChange(type, getName(), before, after);
