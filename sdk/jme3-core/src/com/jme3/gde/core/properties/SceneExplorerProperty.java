@@ -109,7 +109,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         }
         //TODO: instantiates editor?
         editable = getPropertyEditor() != null;
-        logger.log(Level.FINE, "Created SceneExplorerProperty for {0}, cloneable = {1}, instantiatable = {2}, primitive = {3}, editable = {4}", new Object[]{valueType, cloneable, instantiable, primitive, editable});
+        logger.log(Level.FINE, "Created SceneExplorerProperty for {0},\n cloneable = {1},\n instantiatable = {2},\n primitive = {3},\n editable = {4}", new Object[]{valueType, cloneable, instantiable, primitive, editable});
         addPropertyChangeListener(listener);
     }
 
