@@ -47,11 +47,9 @@ import com.jme3.system.JmeContext.Type;
 import com.jme3.system.JmeSystem;
 
 /**
- * <code>SimpleApplication</code> extends the {@link com.jme3.app.Application}
- * class to provide default functionality like a first-person camera,
- * and an accessible root node that is updated and rendered regularly.
- * Additionally, <code>SimpleApplication</code> will display a statistics view
- * using the {@link com.jme3.app.StatsView} class. It will display
+ * <code>SimpleApplication</code> is the base class for all jME3 Applications.
+ * <code>SimpleApplication</code> will display a statistics view
+ * using the {@link com.jme3.app.StatsAppState} AppState. It will display
  * the current frames-per-second value on-screen in addition to the statistics.
  * Several keys have special functionality in <code>SimpleApplication</code>:<br/>
  *
@@ -60,6 +58,9 @@ import com.jme3.system.JmeSystem;
  * <tr><td>C</td><td>- Display the camera position and rotation in the console.</td></tr>
  * <tr><td>M</td><td>- Display memory usage in the console.</td></tr>
  * </table>
+ * 
+ * A {@link com.jme3.app.FlyCamAppState} is by default attached as well and can
+ * be removed by calling <code>stateManager.detach( stateManager.getState(FlyCamAppState.class) );</code>
  */
 public abstract class SimpleApplication extends Application {
 

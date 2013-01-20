@@ -59,8 +59,7 @@ import java.util.logging.Logger;
  * An <code>Application</code> provides all the tools that are commonly used in jME3
  * applications.
  *
- * jME3 applications should extend this class and call start() to begin the
- * application.
+ * jME3 applications *SHOULD NOT EXTEND* this class but extend SimpleApplication instead.
  *
  */
 public class Application implements SystemListener {
