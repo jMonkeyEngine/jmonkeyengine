@@ -90,6 +90,10 @@ public class Pointer {
         }
         List<Structure> structures = null;
         FileBlockHeader dataFileBlock = blenderContext.getFileBlock(oldMemoryAddress);
+        if(dataFileBlock == null) {
+        	throw new BlenderFileException("No data stored for address: " +oldMemoryAddress + 
+        			". Rarely blender makes mistakes when storing data. Try resaving the model after making minor changes. This usually helps.");
+        }
         if (pointerLevel > 1) {
             int pointersAmount = dataFileBlock.getSize() / inputStream.getPointerSize() * dataFileBlock.getCount();
             for (int i = 0; i < pointersAmount; ++i) {
