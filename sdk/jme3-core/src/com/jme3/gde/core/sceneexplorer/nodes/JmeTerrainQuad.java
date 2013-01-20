@@ -31,11 +31,11 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import java.awt.Image;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -44,8 +44,7 @@ import org.openide.util.ImageUtilities;
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
 public class JmeTerrainQuad extends JmeNode {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/terrain.png");
+    private static Image smallImage = IconList.terrain.getImage();
     private TerrainQuad geom;
 
     public JmeTerrainQuad() {

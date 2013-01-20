@@ -32,6 +32,7 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.animation.AnimControl;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.AnimationProperty;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.TrackVisibilityPopup;
@@ -47,7 +48,6 @@ import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.BooleanStateAction;
 import org.openide.util.actions.SystemAction;
 
@@ -63,8 +63,7 @@ public class JmeAnimControl extends AbstractSceneExplorerNode {
     private boolean displayBoneTracks = false;
     private boolean displayEffectTracks = true;
     private boolean displayAudioTracks = true;
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/animationcontrol.gif");
+    private static Image smallImage = IconList.animControl.getImage();
 
     public JmeAnimControl() {
     }

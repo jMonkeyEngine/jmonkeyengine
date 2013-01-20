@@ -33,6 +33,7 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.bullet.control.VehicleControl;
 import com.jme3.bullet.objects.VehicleWheel;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.light.Light;
 import com.jme3.math.Vector3f;
@@ -45,7 +46,6 @@ import org.openide.actions.DeleteAction;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.SystemAction;
 
 /**
@@ -57,8 +57,7 @@ public class JmeVehicleWheel extends AbstractSceneExplorerNode{
 
     private VehicleWheel wheel;
     private VehicleControl vehicle;
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/physicswheel.gif");
+    private static Image smallImage = IconList.wheel.getImage();
 
     public JmeVehicleWheel() {
     }

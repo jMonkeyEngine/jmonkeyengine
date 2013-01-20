@@ -33,11 +33,11 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.math.ColorRGBA;
 import java.awt.Image;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -46,8 +46,7 @@ import org.openide.util.ImageUtilities;
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
 public class JmeBitmapText extends JmeNode {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("/com/jme3/gde/core/sceneexplorer/nodes/icons/bitmaptext.gif");
+    private static Image smallImage = IconList.font.getImage();
     private BitmapText geom;
 
     public JmeBitmapText() {

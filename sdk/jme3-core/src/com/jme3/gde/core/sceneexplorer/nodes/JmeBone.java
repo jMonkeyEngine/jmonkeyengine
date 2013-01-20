@@ -32,6 +32,7 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.animation.Bone;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import java.awt.Image;
 import java.awt.datatransfer.DataFlavor;
@@ -44,7 +45,6 @@ import org.openide.awt.Actions;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -53,8 +53,7 @@ import org.openide.util.ImageUtilities;
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeBone extends AbstractSceneExplorerNode {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/bone.png");
+    private static Image smallImage = IconList.bone.getImage();
     private Bone bone;
     private JmeSkeletonControl jmeSkeletonControl;
     protected final DataFlavor BONE_FLAVOR = new DataFlavor(ClipboardSpatial.class, "Bone");

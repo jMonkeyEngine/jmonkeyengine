@@ -1,6 +1,7 @@
 package com.jme3.gde.core.codeless;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.icons.IconList;
 import java.awt.Image;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,7 +67,7 @@ class CodelessProjectLogicalView implements LogicalViewProvider {
 
         @Override
         public Image getIcon(int type) {
-            return ImageUtilities.loadImage("com/jme3/gde/core/sceneviewer/jme-logo.png");
+            return IconList.jmeLogo.getImage();
         }
 
         @Override

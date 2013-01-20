@@ -36,6 +36,7 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.Animation;
 import com.jme3.animation.LoopMode;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.AnimationProperty;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.ChannelDialog;
@@ -53,7 +54,6 @@ import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -63,8 +63,6 @@ import org.openide.util.ImageUtilities;
 public class JmeAnimation extends AbstractSceneExplorerNode {
 
     private Animation animation;
-    private static final String ICON = "com/jme3/gde/core/sceneexplorer/nodes/icons/anim.png";
-    private static final String ICON_PLAY = "com/jme3/gde/core/sceneexplorer/nodes/icons/animPlay.png";
     private Image icon;
     private JmeAnimControl jmeControl;
     private boolean playing = false;
@@ -86,7 +84,7 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
         setName(animation.getName());
         children.setAnimation(this);
         children.setAnimControl(jmeControl);
-        icon = ImageUtilities.loadImage(ICON);
+        icon = IconList.animation.getImage();
 
     }
 
@@ -104,10 +102,10 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
 
     public void toggleIcon(boolean enabled) {
         if (!playing) {
-            icon = ImageUtilities.loadImage(ICON);
+            icon = IconList.animation.getImage();
 
         } else {
-            icon = ImageUtilities.loadImage(ICON_PLAY);
+            icon = IconList.animationPlay.getImage();
 
         }
         fireIconChange();

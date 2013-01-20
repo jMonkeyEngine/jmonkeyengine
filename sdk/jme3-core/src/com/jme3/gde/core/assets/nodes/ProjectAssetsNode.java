@@ -33,13 +33,13 @@ package com.jme3.gde.core.assets.nodes;
 
 import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.icons.IconList;
 import java.awt.Image;
 import org.netbeans.api.project.Project;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
-import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ProxyLookup;
 
@@ -49,8 +49,7 @@ import org.openide.util.lookup.ProxyLookup;
  */
 public class ProjectAssetsNode extends FilterNode {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("/com/jme3/gde/core/assets/nodes/icons/assets.gif");
+    private static Image smallImage = IconList.asset.getImage();
 
     public ProjectAssetsNode(ProjectAssetManager manager, Project proj, Node node) throws DataObjectNotFoundException {
         super(node, new AssetChildren(manager, node), createLookupProxy(manager, node));

@@ -37,6 +37,7 @@ import com.jme3.animation.AudioTrack;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.EffectTrack;
 import com.jme3.animation.Track;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.AudioTrackProperty;
 import com.jme3.gde.core.properties.EffectTrackEmitterProperty;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
@@ -53,7 +54,6 @@ import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.SystemAction;
 
 /**
@@ -63,14 +63,10 @@ import org.openide.util.actions.SystemAction;
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeTrack extends AbstractSceneExplorerNode {
     
-    private static Image iconBoneTrack =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/boneTrack.png");
-    private static Image iconEffectTrack =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/effectTrack.png");
-    private static Image iconAudioTrack =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/audioTrack.png");
-    private static Image iconTrack =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/track.png");
+    private static Image iconBoneTrack = IconList.boneTrack.getImage();
+    private static Image iconEffectTrack = IconList.effectTrack.getImage();
+    private static Image iconAudioTrack = IconList.audioTrack.getImage();
+    private static Image iconTrack = IconList.track.getImage();
     private Track track;
     private AnimControl control;
     

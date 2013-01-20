@@ -33,6 +33,7 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
@@ -55,8 +57,7 @@ import org.openide.util.actions.SystemAction;
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
 public class JmeCharacterControl extends AbstractSceneExplorerNode {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/player.gif");
+    private static Image smallImage = IconList.player.getImage();
     private CharacterControl geom;
 
     public JmeCharacterControl() {

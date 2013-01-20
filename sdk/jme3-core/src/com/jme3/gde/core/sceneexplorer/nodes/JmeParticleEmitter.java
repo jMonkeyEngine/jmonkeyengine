@@ -37,6 +37,7 @@ import com.jme3.effect.influencers.DefaultParticleInfluencer;
 import com.jme3.effect.influencers.ParticleInfluencer;
 import com.jme3.effect.shapes.EmitterShape;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.ParticleInfluencerProperty;
 import com.jme3.gde.core.util.PropertyUtils;
 import com.jme3.math.ColorRGBA;
@@ -50,7 +51,6 @@ import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -61,8 +61,7 @@ public class JmeParticleEmitter extends JmeGeometry {
 
     public JmeParticleEmitter() {
     }
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/particleemitter.gif");
+    private static Image smallImage = IconList.emitter.getImage();
     private ParticleEmitter geom;
 
     public JmeParticleEmitter(ParticleEmitter spatial, JmeSpatialChildren children) {
@@ -132,7 +131,7 @@ public class JmeParticleEmitter extends JmeGeometry {
 
         set2.setDisplayName("Particle Influencer" + " - " + obj.getParticleInfluencer().getClass().getSimpleName());
         set2.setName(obj.getParticleInfluencer().getClass().getName());
-        ParticleInfluencerProperty prop = new ParticleInfluencerProperty(obj,this, this.getLookup().lookup(ProjectAssetManager.class).getProject());
+        ParticleInfluencerProperty prop = new ParticleInfluencerProperty(obj, this, this.getLookup().lookup(ProjectAssetManager.class).getProject());
         prop.addPropertyChangeListener(this);
         set2.put(prop);
 
@@ -191,7 +190,6 @@ public class JmeParticleEmitter extends JmeGeometry {
 
     private Property createButtonProperty() {
         return new PropertySupport.ReadWrite<Object>("emit", Object.class, "Emit all particles", "Click here to emit all particles of this emitter ") {
-
             JmeParticleEmitterButtonProperty pe;
 
             @Override

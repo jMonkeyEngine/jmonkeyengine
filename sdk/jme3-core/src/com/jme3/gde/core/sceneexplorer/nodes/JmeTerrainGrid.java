@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.math.Vector3f;
 import com.jme3.terrain.geomipmap.TerrainGrid;
 import com.jme3.terrain.geomipmap.TerrainGridListener;
@@ -40,7 +41,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -49,8 +49,7 @@ import org.openide.util.ImageUtilities;
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListener {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/terrain.png");
+    private static Image smallImage = IconList.terrain.getImage();
     private TerrainGrid geom;
 
     public JmeTerrainGrid() {

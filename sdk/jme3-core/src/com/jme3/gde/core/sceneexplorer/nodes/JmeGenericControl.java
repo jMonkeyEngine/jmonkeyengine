@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.ScenePropertyChangeListener;
 import com.jme3.gde.core.scene.SceneApplication;
@@ -51,7 +52,6 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ProxyLookup;
@@ -63,8 +63,7 @@ import org.openide.util.lookup.ProxyLookup;
 public class JmeGenericControl extends AbstractNode implements ScenePropertyChangeListener {
 
     private Control control;
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/animationcontrol.gif");
+    private static Image smallImage = IconList.wheel.getImage();
     private DataObject dobject;
     private InstanceContent lookupContents;
 
@@ -81,14 +80,12 @@ public class JmeGenericControl extends AbstractNode implements ScenePropertyChan
 
     @Override
     public Image getIcon(int type) {
-        return super.getIcon(type);
-//        return smallImage;
+        return smallImage;
     }
 
     @Override
     public Image getOpenedIcon(int type) {
-        return super.getOpenedIcon(type);
-//        return smallImage;
+        return smallImage;
     }
 
     @Override

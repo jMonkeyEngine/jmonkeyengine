@@ -32,6 +32,7 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.asset.ModelKey;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AddUserDataAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewControlPopup;
@@ -55,7 +56,6 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.SystemAction;
 
 /**
@@ -65,8 +65,7 @@ import org.openide.util.actions.SystemAction;
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeAssetLinkNode extends JmeNode {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/linknode.gif");
+    private static Image smallImage = IconList.link.getImage();
     private AssetLinkNode geom;
     private AssetLinkChildren linkChildren;
 

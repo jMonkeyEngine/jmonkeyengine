@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.sceneexplorer;
 
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
@@ -59,7 +60,6 @@ import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
-import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
@@ -75,7 +75,6 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
 
     private static SceneExplorerTopComponent instance;
     /** path to the icon used by the component and its open action */
-    static final String ICON_PATH = "com/jme3/gde/core/sceneexplorer/jme-logo.png";
     private static final String PREFERRED_ID = "SceneExplorerTopComponent";
     private SceneRequest request;
 //    private final Result<AbstractSceneExplorerNode> nodeSelectionResult;
@@ -89,7 +88,7 @@ public final class SceneExplorerTopComponent extends TopComponent implements Exp
         initActions();
         setName(NbBundle.getMessage(SceneExplorerTopComponent.class, "CTL_SceneExplorerTopComponent"));
         setToolTipText(NbBundle.getMessage(SceneExplorerTopComponent.class, "HINT_SceneExplorerTopComponent"));
-        setIcon(ImageUtilities.loadImage(ICON_PATH, true));
+        setIcon(IconList.jmeLogo.getImage());
         associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
 //        nodeSelectionResult = Utilities.actionsGlobalContext().lookupResult(AbstractSceneExplorerNode.class);
 //        nodeSelectionResult.addLookupListener(this);

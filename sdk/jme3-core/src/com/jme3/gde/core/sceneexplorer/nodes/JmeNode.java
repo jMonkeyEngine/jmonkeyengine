@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AddUserDataAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewControlPopup;
@@ -56,7 +57,6 @@ import org.openide.awt.Actions;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.datatransfer.PasteType;
 
@@ -67,8 +67,7 @@ import org.openide.util.datatransfer.PasteType;
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeNode extends JmeSpatial {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/node.gif");
+    private static Image smallImage = IconList.node.getImage();
     private Node node;
 
     public JmeNode() {

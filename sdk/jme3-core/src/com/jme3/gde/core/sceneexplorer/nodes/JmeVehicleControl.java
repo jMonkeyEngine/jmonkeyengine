@@ -34,6 +34,7 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.VehicleControl;
 import com.jme3.bullet.objects.VehicleWheel;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -51,7 +52,6 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.SystemAction;
 
 /**
@@ -61,8 +61,7 @@ import org.openide.util.actions.SystemAction;
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeVehicleControl extends AbstractSceneExplorerNode {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/vehicle.png");
+    private static Image smallImage = IconList.vehicle.getImage();
     private VehicleControl vehicle;
 
     public JmeVehicleControl() {

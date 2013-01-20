@@ -25,6 +25,7 @@
 package com.jme3.gde.core.sceneviewer;
 
 import com.jme3.gde.core.filters.FilterExplorerTopComponent;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.input.awt.AwtKeyInput;
@@ -176,12 +177,12 @@ public final class SceneViewerTopComponent extends TopComponent {
 
         jToolBar1.setRollover(true);
 
-        enableCamLight.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/lightbulb_off.gif"))); // NOI18N
+        enableCamLight.setIcon(IconList.lightOff);
         org.openide.awt.Mnemonics.setLocalizedText(enableCamLight, org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableCamLight.text")); // NOI18N
         enableCamLight.setToolTipText(org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableCamLight.toolTipText")); // NOI18N
         enableCamLight.setFocusable(false);
         enableCamLight.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        enableCamLight.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/lightbulb.gif"))); // NOI18N
+        enableCamLight.setSelectedIcon(IconList.lightOn);
         enableCamLight.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         enableCamLight.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -190,7 +191,7 @@ public final class SceneViewerTopComponent extends TopComponent {
         });
         jToolBar1.add(enableCamLight);
 
-        jToggleButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/filters/icons/eye.gif"))); // NOI18N
+        jToggleButton1.setIcon(IconList.eyeOpen);
         org.openide.awt.Mnemonics.setLocalizedText(jToggleButton1, org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.jToggleButton1.text")); // NOI18N
         jToggleButton1.setToolTipText(org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.jToggleButton1.toolTipText")); // NOI18N
         jToggleButton1.setFocusable(false);
@@ -204,12 +205,12 @@ public final class SceneViewerTopComponent extends TopComponent {
         jToolBar1.add(jToggleButton1);
         jToolBar1.add(jSeparator1);
 
-        enableWireframe.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/box_color.gif"))); // NOI18N
+        enableWireframe.setIcon(IconList.colorBox);
         org.openide.awt.Mnemonics.setLocalizedText(enableWireframe, org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableWireframe.text")); // NOI18N
         enableWireframe.setToolTipText(org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableWireframe.toolTipText")); // NOI18N
         enableWireframe.setFocusable(false);
         enableWireframe.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        enableWireframe.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/box_wire.gif"))); // NOI18N
+        enableWireframe.setSelectedIcon(IconList.wireBox);
         enableWireframe.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         enableWireframe.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -219,7 +220,7 @@ public final class SceneViewerTopComponent extends TopComponent {
         jToolBar1.add(enableWireframe);
         jToolBar1.add(jPanel1);
 
-        enableStats.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/65.png"))); // NOI18N
+        enableStats.setIcon(IconList.info);
         org.openide.awt.Mnemonics.setLocalizedText(enableStats, org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableStats.text")); // NOI18N
         enableStats.setToolTipText(org.openide.util.NbBundle.getMessage(SceneViewerTopComponent.class, "SceneViewerTopComponent.enableStats.toolTipText")); // NOI18N
         enableStats.setFocusable(false);

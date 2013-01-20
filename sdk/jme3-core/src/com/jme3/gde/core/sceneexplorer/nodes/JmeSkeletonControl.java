@@ -32,6 +32,7 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.animation.SkeletonControl;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.scene.Spatial;
 import java.awt.Image;
@@ -44,7 +45,6 @@ import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.SystemAction;
 
 /**
@@ -55,8 +55,7 @@ import org.openide.util.actions.SystemAction;
 public class JmeSkeletonControl extends AbstractSceneExplorerNode {
 
     private SkeletonControl skeletonControl;
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/skeletonControl.gif");
+    private static Image smallImage = IconList.skeletonControl.getImage();
 
     public JmeSkeletonControl() {
     }

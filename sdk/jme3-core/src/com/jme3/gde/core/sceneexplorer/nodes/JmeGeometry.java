@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.MaterialChangeListener;
 import com.jme3.gde.core.sceneexplorer.SceneExplorerTopComponent;
@@ -42,7 +43,6 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -51,8 +51,7 @@ import org.openide.util.ImageUtilities;
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/geometry.gif");
+    private static Image smallImage = IconList.geometry.getImage();
     private Geometry geom;
 
     public JmeGeometry() {

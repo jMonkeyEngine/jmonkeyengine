@@ -2,6 +2,7 @@
 package com.jme3.gde.core.codeless;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.icons.IconList;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +22,6 @@ import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.DefaultProjectOperations;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
@@ -203,8 +203,7 @@ class CodelessProject implements Project {
 
         @Override
         public Icon getIcon() {
-            return new ImageIcon(ImageUtilities.loadImage(
-                    "com/jme3/gde/core/sceneviewer/jme-logo.png"));
+            return IconList.jmeLogo;
         }
 
         @Override

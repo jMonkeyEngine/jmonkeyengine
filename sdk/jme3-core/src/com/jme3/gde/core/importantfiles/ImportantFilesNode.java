@@ -4,6 +4,7 @@
  */
 package com.jme3.gde.core.importantfiles;
 
+import com.jme3.gde.core.icons.IconList;
 import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,6 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 
 /**
@@ -29,8 +29,7 @@ import org.openide.util.Lookup;
  */
 public class ImportantFilesNode extends AbstractNode implements FileChangeListener {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/importantfiles/important.gif");
+    private static Image smallImage = IconList.important.getImage();
 
     public ImportantFilesNode(Project proj) throws DataObjectNotFoundException {
         super(new ImportantFilesChildren(proj));

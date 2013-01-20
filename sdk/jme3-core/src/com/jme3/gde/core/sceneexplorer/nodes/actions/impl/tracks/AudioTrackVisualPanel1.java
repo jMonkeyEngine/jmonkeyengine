@@ -33,6 +33,7 @@ package com.jme3.gde.core.sceneexplorer.nodes.actions.impl.tracks;
 
 import com.jme3.animation.Animation;
 import com.jme3.audio.AudioNode;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeAnimation;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -118,7 +119,7 @@ public final class AudioTrackVisualPanel1 extends JPanel {
         jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneexplorer/nodes/icons/audioTrack.png"))); // NOI18N
+        jLabel1.setIcon(IconList.audioTrack);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(AudioTrackVisualPanel1.class, "AudioTrackVisualPanel1.jLabel1.text")); // NOI18N
 
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -194,7 +195,7 @@ public final class AudioTrackVisualPanel1 extends JPanel {
                     .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel4)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);

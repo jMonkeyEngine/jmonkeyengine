@@ -33,6 +33,7 @@ package com.jme3.gde.core.filters;
 
 import com.jme3.gde.core.assets.FilterDataObject;
 import com.jme3.gde.core.filters.actions.NewFilterPopup;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.post.Filter;
 import com.jme3.post.FilterPostProcessor;
@@ -50,7 +51,6 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeTransfer;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.datatransfer.PasteType;
 import org.openide.util.lookup.Lookups;
@@ -62,8 +62,7 @@ import org.openide.util.lookup.Lookups;
 public class FilterPostProcessorNode extends AbstractNode {
 
     private FilterDataObject dataObject;
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/filters/icons/eye.gif");
+    private static Image smallImage = IconList.eyeOpen.getImage();
     private FilterPostProcessor fpp;
 
     public FilterPostProcessorNode(FilterDataObject dataObject) {

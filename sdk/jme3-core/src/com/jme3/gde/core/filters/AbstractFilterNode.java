@@ -32,6 +32,7 @@
 package com.jme3.gde.core.filters;
 
 import com.jme3.gde.core.filters.actions.EnableFiterAction;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.ScenePropertyChangeListener;
 import com.jme3.gde.core.util.PropertyUtils;
@@ -51,7 +52,6 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 import org.openide.util.actions.SystemAction;
 
 /**
@@ -65,8 +65,6 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
     protected DataObject dataObject;
     protected Filter filter;
     private static Image icon;
-    private static final String ICON_ENABLED = "com/jme3/gde/core/filters/icons/eye.gif";
-    private static final String ICON_DISABLED = "com/jme3/gde/core/filters/icons/crossedEye.gif";
 
     @Override
     public Image getIcon(int type) {
@@ -81,10 +79,10 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
 
     public void toggleIcon(boolean enabled) {
         if (enabled) {
-            icon = ImageUtilities.loadImage(ICON_ENABLED);
+            icon = IconList.eyeOpen.getImage();
 
         } else {
-            icon = ImageUtilities.loadImage(ICON_DISABLED);
+            icon = IconList.eyeCrossed.getImage();
 
         }
         fireIconChange();
@@ -98,9 +96,8 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         super(Children.LEAF);
         this.filter = filter;
         setName(filter.getName());
-        icon = ImageUtilities.loadImage(ICON_ENABLED);
-        setIconBaseWithExtension(ICON_ENABLED);
-
+        icon = IconList.eyeOpen.getImage();
+//        setIconBaseWithExtension(IconList.eyeOpen.);
     }
 
     @Override

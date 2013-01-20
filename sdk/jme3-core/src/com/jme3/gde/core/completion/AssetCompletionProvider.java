@@ -32,6 +32,7 @@
 package com.jme3.gde.core.completion;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.icons.IconList;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -60,7 +61,6 @@ import org.netbeans.spi.editor.completion.support.CompletionUtilities;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -70,23 +70,6 @@ import org.openide.util.ImageUtilities;
 public class AssetCompletionProvider implements CompletionProvider {
 
     private static final Logger logger = Logger.getLogger(AssetCompletionProvider.class.getName());
-    private static ImageIcon assetIcon =
-            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/assets.gif"));
-    private static ImageIcon modelIcon =
-            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/model.gif"));
-    private static ImageIcon soundIcon =
-            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/sound.gif"));
-    private static ImageIcon materialIcon =
-            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/material.gif"));
-    private static ImageIcon matDefIcon =
-            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/jme-logo.png"));
-    private static ImageIcon fontIcon =
-            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/font.gif"));
-    private static ImageIcon filterIcon =
-            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/filters/icons/eye.gif"));
-    private static ImageIcon textureIcon =
-            new ImageIcon(ImageUtilities.loadImage("com/jme3/gde/core/assets/nodes/icons/image.gif"));
-
     private enum AssetType {
 
         Invalid, Model, Material, Filter, MatDef, Texture, Sound, Font, Xml, Asset
@@ -366,28 +349,28 @@ public class AssetCompletionProvider implements CompletionProvider {
             ImageIcon icon = null;
             switch (type) {
                 case Model:
-                    icon = modelIcon;
+                    icon = IconList.model;
                     break;
                 case Material:
-                    icon = materialIcon;
+                    icon = IconList.material;
                     break;
                 case MatDef:
-                    icon = matDefIcon;
+                    icon = IconList.matDef;
                     break;
                 case Texture:
-                    icon = textureIcon;
+                    icon = IconList.texture;
                     break;
                 case Sound:
-                    icon = soundIcon;
+                    icon = IconList.sound;
                     break;
                 case Font:
-                    icon = fontIcon;
+                    icon = IconList.font;
                     break;
                 case Filter:
-                    icon = filterIcon;
+                    icon = IconList.filter;
                     break;
                 case Asset:
-                    icon = assetIcon;
+                    icon = IconList.asset;
                     break;
                 case Invalid:
                     break;

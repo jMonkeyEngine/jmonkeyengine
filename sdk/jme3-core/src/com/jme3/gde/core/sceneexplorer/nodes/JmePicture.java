@@ -31,11 +31,11 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes;
 
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.ui.Picture;
 import java.awt.Image;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -44,8 +44,7 @@ import org.openide.util.ImageUtilities;
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
 public class JmePicture extends JmeGeometry {
 
-    private static Image smallImage =
-            ImageUtilities.loadImage("com/jme3/gde/core/sceneexplorer/nodes/icons/picture.gif");
+    private static Image smallImage = IconList.texture.getImage();
     private Picture geom;
 
     public JmePicture() {

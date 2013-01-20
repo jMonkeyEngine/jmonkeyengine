@@ -4,6 +4,7 @@
  */
 package com.jme3.gde.core.scene.controller.toolbars;
 
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.core.sceneviewer.actions.SwitchBackViewAction;
 import com.jme3.gde.core.sceneviewer.actions.SwitchBottomViewAction;
@@ -13,7 +14,6 @@ import com.jme3.gde.core.sceneviewer.actions.SwitchRightViewAction;
 import com.jme3.gde.core.sceneviewer.actions.SwitchTopViewAction;
 import com.jme3.gde.core.sceneviewer.actions.ToggleOrthoPerspAction;
 import com.jme3.gde.core.util.CameraUtil.View;
-import javax.swing.ImageIcon;
 import org.openide.util.NbBundle;
 
 /**
@@ -24,8 +24,6 @@ public class CameraToolbar extends javax.swing.JToolBar {
 
     protected boolean isUserView = true;
     private static CameraToolbar instance;
-    ImageIcon userIcon = new ImageIcon(getClass().getResource("/com/jme3/gde/core/scene/controller/toolbars/user.png"));
-    //toolbar actions
     private ToggleOrthoPerspAction toggleOrthoPerspAction;
     private SwitchFrontViewAction switchFrontViewAction;
     private SwitchLeftViewAction switchLeftViewAction;
@@ -74,7 +72,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
         viewButton = new javax.swing.JButton();
         enableOrtho = new javax.swing.JToggleButton();
 
-        frontMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/scene/controller/toolbars/front.png"))); // NOI18N
+        frontMenuItem.setIcon(IconList.frontView);
         frontMenuItem.setText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.frontMenuItem.text")); // NOI18N
         frontMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -83,7 +81,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
         });
         viewMenu.add(frontMenuItem);
 
-        leftMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/scene/controller/toolbars/left.png"))); // NOI18N
+        leftMenuItem.setIcon(IconList.leftView);
         leftMenuItem.setText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.leftMenuItem.text")); // NOI18N
         leftMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -92,7 +90,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
         });
         viewMenu.add(leftMenuItem);
 
-        rightMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/scene/controller/toolbars/right.png"))); // NOI18N
+        rightMenuItem.setIcon(IconList.rightView);
         rightMenuItem.setText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.rightMenuItem.text")); // NOI18N
         rightMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -101,7 +99,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
         });
         viewMenu.add(rightMenuItem);
 
-        topMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/scene/controller/toolbars/top.png"))); // NOI18N
+        topMenuItem.setIcon(IconList.topView);
         topMenuItem.setText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.topMenuItem.text")); // NOI18N
         topMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -110,7 +108,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
         });
         viewMenu.add(topMenuItem);
 
-        backMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/scene/controller/toolbars/back.png"))); // NOI18N
+        backMenuItem.setIcon(IconList.backView);
         backMenuItem.setText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.backMenuItem.text")); // NOI18N
         backMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -119,7 +117,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
         });
         viewMenu.add(backMenuItem);
 
-        bottomMenuItem.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/scene/controller/toolbars/bottom.png"))); // NOI18N
+        bottomMenuItem.setIcon(IconList.bottomView);
         bottomMenuItem.setText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.bottomMenuItem.text")); // NOI18N
         bottomMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -128,8 +126,8 @@ public class CameraToolbar extends javax.swing.JToolBar {
         });
         viewMenu.add(bottomMenuItem);
 
-        viewButton.setFont(new java.awt.Font("Tahoma", 0, 8));
-        viewButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/scene/controller/toolbars/user.png"))); // NOI18N
+        viewButton.setFont(new java.awt.Font("Tahoma", 0, 8)); // NOI18N
+        viewButton.setIcon(IconList.userMode);
         viewButton.setText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.viewButton.text")); // NOI18N
         viewButton.setFocusable(false);
         viewButton.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
@@ -141,8 +139,8 @@ public class CameraToolbar extends javax.swing.JToolBar {
             }
         });
 
-        enableOrtho.setFont(new java.awt.Font("Tahoma", 0, 8));
-        enableOrtho.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/persp.png"))); // NOI18N
+        enableOrtho.setFont(new java.awt.Font("Tahoma", 0, 8)); // NOI18N
+        enableOrtho.setIcon(IconList.perspMode);
         enableOrtho.setText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.enableOrtho.text")); // NOI18N
         enableOrtho.setToolTipText(org.openide.util.NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.enableOrtho.toolTipText")); // NOI18N
         enableOrtho.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -151,7 +149,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
         enableOrtho.setMaximumSize(new java.awt.Dimension(27, 23));
         enableOrtho.setMinimumSize(new java.awt.Dimension(27, 23));
         enableOrtho.setPreferredSize(new java.awt.Dimension(50, 23));
-        enableOrtho.setSelectedIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/core/sceneviewer/icons/ortho.png"))); // NOI18N
+        enableOrtho.setSelectedIcon(IconList.orthoMode);
         enableOrtho.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         enableOrtho.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -167,7 +165,7 @@ public class CameraToolbar extends javax.swing.JToolBar {
                 .addComponent(viewButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(enableOrtho, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(96, Short.MAX_VALUE))
+                .addContainerGap(116, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -306,7 +304,7 @@ private void enableOrthoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
             case User:
             default:
                 if (!isUserView) {
-                    viewButton.setIcon(userIcon);
+                    viewButton.setIcon(IconList.userMode);
                     viewButton.setText(NbBundle.getMessage(CameraToolbar.class, "CameraToolbar.viewButton.label"));
                     isUserView = true;
                 }
