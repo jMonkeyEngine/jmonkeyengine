@@ -107,7 +107,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
                 DataObject obj = geom.getLookup().lookup(DataObject.class);
                 assert (obj != null);
                 FileObject currentFile = obj.getPrimaryFile();
-                FileObject currentFolder = pm.getAssetFolder().getFileObject("Materials/");
+                FileObject currentFolder = pm.getAssetFolder().getFileObject("Materials/Generated");
                 if (currentFolder == null) {
                     currentFolder = FileUtil.createFolder(pm.getAssetFolder(), "Materials");
                 }
