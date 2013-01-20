@@ -75,15 +75,15 @@ import org.openide.util.lookup.Lookups;
 public class ProjectAssetManager extends DesktopAssetManager {
 
     private static final Logger logger = Logger.getLogger(ProjectAssetManager.class.getName());
-    private Project project;
-    private URLClassLoader loader;
-    private List<String> folderNames = new LinkedList<String>();
-    private LinkedList<FileObject> jarItems = new LinkedList<FileObject>();
-    private final List<AssetEventListener> assetEventListeners = Collections.synchronizedList(new LinkedList<AssetEventListener>());
+    private final Mutex mutex = new Mutex();
+    private final Project project;
     private final List<ClassPathChangeListener> classPathListeners = Collections.synchronizedList(new LinkedList<ClassPathChangeListener>());
     private final List<ClassPath> classPaths = Collections.synchronizedList(new LinkedList<ClassPath>());
     private final List<ClassPathItem> classPathItems = Collections.synchronizedList(new LinkedList<ClassPathItem>());
-    private final Mutex mutex = new Mutex();
+    private final List<AssetEventListener> assetEventListeners = Collections.synchronizedList(new LinkedList<AssetEventListener>());
+    private final List<String> folderNames = new LinkedList<String>();
+    private final List<FileObject> jarItems = new LinkedList<FileObject>();
+    private URLClassLoader loader;
 
     public ProjectAssetManager(Project prj, String folderName) {
         super(true);
@@ -120,7 +120,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
         if (jarItems.isEmpty() && classPathItems.isEmpty()) {
             return;
         }
-        Logger.getLogger(ProjectAssetManager.class.getName()).log(Level.INFO, "Clear {0} classpath entries and {1} url locators for project {2}", new Object[]{classPathItems.size(), jarItems.size(), project.toString()});
+        logger.log(Level.INFO, "Clear {0} classpath entries and {1} url locators for project {2}", new Object[]{classPathItems.size(), jarItems.size(), project.toString()});
         for (FileObject fileObject : jarItems) {
             logger.log(Level.FINE, "Remove locator:{0}", fileObject.toURL());
             unregisterLocator(fileObject.toURL().toExternalForm(),
@@ -170,7 +170,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
             }
             loader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
             addClassLoader(loader);
-            Logger.getLogger(ProjectAssetManager.class.getName()).log(Level.INFO, "Updated {0} classpath entries and {1} url locators for project {2}", new Object[]{classPathItems.size(), jarItems.size(), project.toString()});
+            logger.log(Level.INFO, "Updated {0} classpath entries and {1} url locators for project {2}", new Object[]{classPathItems.size(), jarItems.size(), project.toString()});
         }
     }
     FileChangeListener listener = new FileChangeListener() {
@@ -197,15 +197,13 @@ public class ProjectAssetManager extends DesktopAssetManager {
         }
 
         private void fireChange(FileEvent fe) {
-            Logger.getLogger(ProjectAssetManager.class.getName()).log(Level.FINE, "Classpath item changed: {0}", fe);
-//            if (!fe.isExpected()) {
+            logger.log(Level.FINE, "Classpath item changed: {0}", fe);
             updateClassLoader();
-//            }
         }
     };
     private PropertyChangeListener classPathListener = new PropertyChangeListener() {
         public void propertyChange(PropertyChangeEvent evt) {
-            Logger.getLogger(ProjectAssetManager.class.getName()).log(Level.FINE, "Classpath event: {0}", evt);
+            logger.log(Level.FINE, "Classpath event: {0}", evt);
             if (ClassPath.PROP_ROOTS.equals(evt.getPropertyName())) {
                 updateClassLoader();
             } else if (ClassPath.PROP_ENTRIES.equals(evt.getPropertyName())) {
@@ -338,12 +336,6 @@ public class ProjectAssetManager extends DesktopAssetManager {
         return list.toArray(new String[list.size()]);
     }
 
-    /**
-     * Collects files over the asset folder(s) and classpath
-     *
-     * @param suffix
-     * @return
-     */
     private List<String> collectFilesWithSuffix(String suffix) {
         List<String> list = new LinkedList<String>();
         FileObject assetsFolder = getAssetFolder();
