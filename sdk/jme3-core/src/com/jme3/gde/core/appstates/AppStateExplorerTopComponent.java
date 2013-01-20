@@ -37,7 +37,6 @@ import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
-import com.jme3.scene.Spatial;
 import java.util.Iterator;
 import javax.swing.ActionMap;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -80,10 +79,6 @@ public final class AppStateExplorerTopComponent extends TopComponent implements 
     private SceneListener listener = new SceneListener() {
         public void sceneOpened(SceneRequest request) {
             currentRequest = request;
-            Spatial rootNode = request.getRootNode();
-            if (!(rootNode instanceof com.jme3.scene.Node)) {
-                return;
-            }
             mgr = request.getManager();
             FakeApplication app = request.getFakeApp();
             final AppStateManagerNode nod = new AppStateManagerNode(app.getStateManager());

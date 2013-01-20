@@ -35,6 +35,7 @@ import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.ScenePropertyChangeListener;
+import com.jme3.gde.core.scene.SceneSyncListener;
 import com.jme3.gde.core.util.PropertyUtils;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
@@ -52,7 +53,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
-public class AppStateNode extends AbstractNode implements ScenePropertyChangeListener {
+public class AppStateNode extends AbstractNode implements ScenePropertyChangeListener, SceneSyncListener {
 
     protected AppState appState;
     protected AppStateManager parent;
@@ -106,6 +107,18 @@ public class AppStateNode extends AbstractNode implements ScenePropertyChangeLis
 ////        return Actions.alwaysEnabled(new EnableFiterAction(this), "Toggle enabled", "", false);
 //        return null;
 //    }
+    public void syncSceneData(float tpf) {
+        //TODO: precache structure to avoid locks? Do it backwards, sending the actual bean value?
+        for (PropertySet propertySet : getPropertySets()) {
+            for (Property<?> property : propertySet.getProperties()) {
+                if (property instanceof SceneExplorerProperty) {
+                    SceneExplorerProperty prop = (SceneExplorerProperty) property;
+                    prop.syncValue();
+                }
+            }
+        }
+    }
+
     @Override
     public boolean canDestroy() {
         return true;

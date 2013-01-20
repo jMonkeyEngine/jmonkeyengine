@@ -33,6 +33,7 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.ScenePropertyChangeListener;
+import com.jme3.gde.core.scene.SceneSyncListener;
 import com.jme3.gde.core.util.DynamicLookup;
 import com.jme3.gde.core.util.PropertyUtils;
 import java.beans.PropertyDescriptor;
@@ -55,7 +56,7 @@ import org.openide.util.lookup.ProxyLookup;
  * @author normenhansen
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractSceneExplorerNode extends AbstractNode implements SceneExplorerNode, ScenePropertyChangeListener {
+public abstract class AbstractSceneExplorerNode extends AbstractNode implements SceneExplorerNode, ScenePropertyChangeListener, SceneSyncListener {
 
     protected Children jmeChildren;
     protected final InstanceContent lookupContents;
@@ -200,7 +201,7 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         return Sheet.createDefault();
     }
     
-    public void syncSceneData() {
+    public void syncSceneData(float tpf) {
         //TODO: precache structure to avoid locks? Do it backwards, sending the actual bean value?
         for (PropertySet propertySet : getPropertySets()) {
             for (Property<?> property : propertySet.getProperties()) {

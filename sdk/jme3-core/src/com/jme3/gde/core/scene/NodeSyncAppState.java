@@ -34,7 +34,6 @@ package com.jme3.gde.core.scene;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
-import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -51,15 +50,15 @@ import org.openide.util.Utilities;
  */
 public class NodeSyncAppState extends AbstractAppState implements LookupListener {
 
-    private final List<AbstractSceneExplorerNode> newNodes = Collections.synchronizedList(new LinkedList<AbstractSceneExplorerNode>());
-    private final List<AbstractSceneExplorerNode> oldNodes = Collections.synchronizedList(new LinkedList<AbstractSceneExplorerNode>());
-    private final Result<AbstractSceneExplorerNode> nodeSelectionResult;
-    private AbstractSceneExplorerNode node;
+    private final List<SceneSyncListener> newNodes = Collections.synchronizedList(new LinkedList<SceneSyncListener>());
+    private final List<SceneSyncListener> oldNodes = Collections.synchronizedList(new LinkedList<SceneSyncListener>());
+    private final Result<SceneSyncListener> nodeSelectionResult;
+    private SceneSyncListener node;
     private float timeStep = 1;
     private float timer = 0;
 
     public NodeSyncAppState() {
-        nodeSelectionResult = Utilities.actionsGlobalContext().lookupResult(AbstractSceneExplorerNode.class);
+        nodeSelectionResult = Utilities.actionsGlobalContext().lookupResult(SceneSyncListener.class);
     }
 
     @Override
@@ -72,24 +71,24 @@ public class NodeSyncAppState extends AbstractAppState implements LookupListener
     public void update(float tpf) {
         super.update(tpf);
         synchronized (newNodes) {
-            for (Iterator<AbstractSceneExplorerNode> it = newNodes.iterator(); it.hasNext();) {
-                AbstractSceneExplorerNode abstractSceneExplorerNode = it.next();
-                abstractSceneExplorerNode.syncSceneData();
+            for (Iterator<SceneSyncListener> it = newNodes.iterator(); it.hasNext();) {
+                SceneSyncListener abstractSceneExplorerNode = it.next();
+                abstractSceneExplorerNode.syncSceneData(0);
                 it.remove();
             }
         }
         timer += tpf;
         if (timer > timeStep) {
             timer = 0;
-            AbstractSceneExplorerNode node = this.node;
+            SceneSyncListener node = this.node;
             if (initialized && node != null) {
-                node.syncSceneData();
+                node.syncSceneData(tpf);
             }
         }
         synchronized (oldNodes) {
-            for (Iterator<AbstractSceneExplorerNode> it = oldNodes.iterator(); it.hasNext();) {
-                AbstractSceneExplorerNode abstractSceneExplorerNode = it.next();
-                abstractSceneExplorerNode.syncSceneData();
+            for (Iterator<SceneSyncListener> it = oldNodes.iterator(); it.hasNext();) {
+                SceneSyncListener abstractSceneExplorerNode = it.next();
+                abstractSceneExplorerNode.syncSceneData(0);
                 it.remove();
             }
         }
@@ -97,16 +96,16 @@ public class NodeSyncAppState extends AbstractAppState implements LookupListener
 
     public void resultChanged(LookupEvent ev) {
         Collection collection = nodeSelectionResult.allInstances();
-        AbstractSceneExplorerNode newNode = null;
+        SceneSyncListener newNode = null;
         for (Iterator it = collection.iterator(); it.hasNext();) {
             Object object = it.next();
-            if (object instanceof AbstractSceneExplorerNode) {
+            if (object instanceof SceneSyncListener) {
                 if (object != null) {
                     synchronized (newNodes) {
-                        newNodes.add((AbstractSceneExplorerNode) object);
+                        newNodes.add((SceneSyncListener) object);
                     }
                 }
-                newNode = (AbstractSceneExplorerNode) object;
+                newNode = (SceneSyncListener) object;
             }
         }
         if (node != null) {

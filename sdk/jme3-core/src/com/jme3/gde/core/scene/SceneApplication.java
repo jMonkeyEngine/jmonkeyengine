@@ -389,7 +389,12 @@ public class SceneApplication extends Application implements LookupProvider {
                 }
                 //TODO: handle this differently (no opened file)
                 if (request.getRootNode() == null && request.getJmeNode() == null) {
-                    request.setJmeNode(NodeUtility.createNode(rootNode, false));
+                    DataObject dobj = request.getDataObject();
+                    if (dobj != null) {
+                        request.setJmeNode(NodeUtility.createNode(rootNode, dobj));
+                    } else {
+                        request.setJmeNode(NodeUtility.createNode(rootNode, false));
+                    }
                 }
                 setHelpContext(request.getHelpCtx());
                 setWindowTitle(request.getWindowTitle());
