@@ -109,7 +109,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
                 FileObject currentFile = obj.getPrimaryFile();
                 FileObject currentFolder = pm.getAssetFolder().getFileObject("Materials/Generated");
                 if (currentFolder == null) {
-                    currentFolder = FileUtil.createFolder(pm.getAssetFolder(), "Materials");
+                    currentFolder = FileUtil.createFolder(pm.getAssetFolder(), "Materials/Generated");
                 }
                 int i = 0;
                 String newFileName = currentFile.getName() + "-" + sanitizeFileName(geom.getName());
