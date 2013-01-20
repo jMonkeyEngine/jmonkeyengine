@@ -121,34 +121,38 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
             return;
         }
         final T realValue = getSuperValue();
-        if ((objectLocal == null) && !inited) {
-            mutex.postWriteRequest(new Runnable() {
-                public void run() {
-                    inited = true;
-                    objectLocal = duplicateObject(realValue);
-                    notifyListeners(PROP_INIT_CHANGE, null, objectLocal);
-                    logger.log(Level.FINE, "Got first sync duplicate for {0}", objectLocal);
+        mutex.readAccess(new Runnable() {
+            public void run() {
+                if ((objectLocal == null) && !inited) {
+                    mutex.postWriteRequest(new Runnable() {
+                        public void run() {
+                            inited = true;
+                            objectLocal = duplicateObject(realValue);
+                            notifyListeners(PROP_INIT_CHANGE, null, objectLocal);
+                            logger.log(Level.FINE, "Got first sync duplicate for {0}", objectLocal);
+                        }
+                    });
+                } else if ((objectLocal != null) && !objectLocal.equals(realValue)) {
+                    mutex.postWriteRequest(new Runnable() {
+                        public void run() {
+                            T oldObject = objectLocal;
+                            T newObject = duplicateObject(realValue);
+                            objectLocal = newObject;
+                            notifyListeners(PROP_SCENE_CHANGE, oldObject, objectLocal);
+                            logger.log(Level.FINE, "Got update for {0} due to equals check", objectLocal);
+                        }
+                    });
+                } else if ((objectLocal == null) && (realValue != null)) {
+                    mutex.postWriteRequest(new Runnable() {
+                        public void run() {
+                            objectLocal = duplicateObject(realValue);
+                            notifyListeners(PROP_SCENE_CHANGE, null, objectLocal);
+                            logger.log(Level.FINE, "Got update for {0} due to change from null", objectLocal);
+                        }
+                    });
                 }
-            });
-        } else if ((objectLocal != null) && !objectLocal.equals(realValue)) {
-            mutex.postWriteRequest(new Runnable() {
-                public void run() {
-                    T oldObject = objectLocal;
-                    T newObject = duplicateObject(realValue);
-                    objectLocal = newObject;
-                    notifyListeners(PROP_SCENE_CHANGE, oldObject, objectLocal);
-                    logger.log(Level.FINE, "Got update for {0} due to equals check", objectLocal);
-                }
-            });
-        } else if ((objectLocal == null) && (realValue != null)) {
-            mutex.postWriteRequest(new Runnable() {
-                public void run() {
-                    objectLocal = duplicateObject(realValue);
-                    notifyListeners(PROP_SCENE_CHANGE, null, objectLocal);
-                    logger.log(Level.FINE, "Got update for {0} due to change from null", objectLocal);
-                }
-            });
-        }
+            }
+        });
     }
 
     @Override
