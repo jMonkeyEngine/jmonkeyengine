@@ -459,6 +459,7 @@ public class SceneApplication extends Application implements LookupProvider {
                 if (oldRequest.getRequester() instanceof SceneApplication) {
                     camController.disable();
                 }
+                enableCamLight(false);
                 //TODO: state list is not thread safe..
                 fakeApp.removeCurrentStates();
                 enqueue(new Callable() {
