@@ -97,6 +97,7 @@ public final class StoreTextureWizardWizardAction implements ActionListener {
                     file = FileUtil.createData(mgr.getAssetFolder(), path);
                     out = new BufferedOutputStream(file.getOutputStream());
                     out.write(data);
+                    file.getParent().refresh();
                 } catch (IOException ex) {
                     DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Failed to create data!\n" + ex));
                     Exceptions.printStackTrace(ex);

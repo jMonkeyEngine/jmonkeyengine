@@ -51,6 +51,7 @@ import java.util.LinkedList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
@@ -97,7 +98,7 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
     }
 
     public void setAsText(final String text) throws IllegalArgumentException {
-        if ("create j3m file".equals(text)) {            
+        if ("create j3m file".equals(text)) {
             try {
                 Node geom = SceneExplorerTopComponent.findInstance().getLastSelected();
                 assert (geom != null);
@@ -106,8 +107,10 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
                 DataObject obj = geom.getLookup().lookup(DataObject.class);
                 assert (obj != null);
                 FileObject currentFile = obj.getPrimaryFile();
-                FileObject currentFolder = currentFile.getParent();
-
+                FileObject currentFolder = pm.getAssetFolder().getFileObject("Materials/");
+                if (currentFolder == null) {
+                    currentFolder = FileUtil.createFolder(pm.getAssetFolder(), "Materials");
+                }
                 int i = 0;
                 String newFileName = currentFile.getName() + "-" + sanitizeFileName(geom.getName());
                 FileObject newFile = currentFolder.getFileObject(newFileName, "j3m");
@@ -131,8 +134,8 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
             applyMaterial(text);
         }
     }
-    
-    private String sanitizeFileName(String input){
+
+    private String sanitizeFileName(String input) {
         return input.replaceAll("[^A-Za-z0-9 ]", "_");
     }
 
@@ -140,7 +143,6 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
         try {
             Material old = material;
             SceneApplication.getApplication().enqueue(new Callable<Void>() {
-
                 public Void call() throws Exception {
                     SceneRequest request = SceneApplication.getApplication().getCurrentSceneRequest();
                     ((DesktopAssetManager) request.getManager()).deleteFromCache(new MaterialKey(text));
