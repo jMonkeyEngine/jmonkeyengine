@@ -351,6 +351,8 @@ public final class SceneViewerTopComponent extends TopComponent {
 //        oglCanvas.setActiveUpdates(false);
         SceneRequest req = SceneApplication.getApplication().getCurrentSceneRequest();
         if (req != null) {
+            enableCamLight.setEnabled(false);
+            enableStats.setEnabled(false);
             SceneApplication.getApplication().closeScene(req);
         }
     }
