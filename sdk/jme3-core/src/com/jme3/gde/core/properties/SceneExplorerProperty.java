@@ -66,6 +66,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     public static final String PROP_USER_CHANGE = "PROP_USER_CHANGE";
     public static final String PROP_INIT_CHANGE = "PROP_INIT_CHANGE";
     private T objectLocal;
+    private boolean changing = false;
     private final boolean cloneable;
     private final boolean instantiable;
     private final boolean primitive;
@@ -123,6 +124,9 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         final T realValue = getSuperValue();
         mutex.readAccess(new Runnable() {
             public void run() {
+                if (changing) {
+                    return;
+                }
                 if ((objectLocal == null) && !inited) {
                     mutex.postWriteRequest(new Runnable() {
                         public void run() {
@@ -169,14 +173,20 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     public void setValue(final T val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         mutex.postWriteRequest(new Runnable() {
             public void run() {
-                logger.log(Level.FINE, "Set local value of {0}", objectLocal);
+                logger.log(Level.FINE, "Set local value to {0}", val);
                 final T oldObject = objectLocal;
+                changing = true;
                 objectLocal = val;
                 final T sceneObject = duplicateObject(val);
                 notifyListeners(PROP_USER_CHANGE, oldObject, objectLocal);
                 SceneApplication.getApplication().enqueue(new Callable<Void>() {
                     public Void call() throws Exception {
-                        setSuperValue(sceneObject);
+                        mutex.postWriteRequest(new Runnable() {
+                            public void run() {
+                                setSuperValue(sceneObject);
+                                changing = false;
+                            }
+                        });
                         return null;
                     }
                 });
@@ -313,8 +323,9 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     private void setSuperValue(T val, boolean undo) {
         try {
             if (undo) {
-                logger.log(Level.FINE, "Add undo for {0} on thread {1}");
-                addUndo(duplicateObject(getSuperValue()), val);
+                T dupe = duplicateObject(getSuperValue());
+                logger.log(Level.FINE, "Add undo for {0}", dupe);
+                addUndo(dupe, val);
             }
             logger.log(Level.FINE, "Set super value on thread {0}", Thread.currentThread().getName());
             super.setValue(val);
