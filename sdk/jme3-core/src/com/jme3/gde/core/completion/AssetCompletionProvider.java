@@ -110,7 +110,6 @@ public class AssetCompletionProvider implements CompletionProvider {
                     completionResultSet.finish();
                     return;
                 }
-                AssetType type = determineType(document, caretOffset);
                 String filter = null;
                 int startOffset = caretOffset - 1;
                 try {
@@ -118,7 +117,12 @@ public class AssetCompletionProvider implements CompletionProvider {
                     final int lineStartOffset = getRowFirstNonWhite(bDoc, caretOffset);
                     final char[] line = bDoc.getText(lineStartOffset, caretOffset - lineStartOffset).toCharArray();
                     final int whiteOffset = indexOfInsertion(line);
-                    filter = new String(line, whiteOffset + 1, line.length - whiteOffset - 1);
+                    int end = line.length - whiteOffset - 1;
+                    if (end < 0) {
+                        completionResultSet.finish();
+                        return;
+                    }
+                    filter = new String(line, whiteOffset + 1, end);
                     if (whiteOffset > 0) {
                         startOffset = lineStartOffset + whiteOffset + 1;
                     } else {
@@ -128,6 +132,7 @@ public class AssetCompletionProvider implements CompletionProvider {
                     Exceptions.printStackTrace(ex);
                 }
                 logger.log(Level.FINE, "Searching with filter {0}", filter);
+                AssetType type = determineType(document, caretOffset);
                 switch (type) {
                     case Model:
                         for (String string : manager.getModels()) {
