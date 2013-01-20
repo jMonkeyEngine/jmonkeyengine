@@ -5,9 +5,13 @@
 package com.jme3.gde.materials;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.materials.wizards.StoreTextureWizardWizardAction;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
-import com.jme3.system.JmeSystem;
+import com.jme3.texture.Image;
+import com.jme3.texture.Texture;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,6 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+import jme3tools.converters.ImageToAwt;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
@@ -29,10 +39,12 @@ import org.openide.util.Exceptions;
 
 /**
  * Provides an editable j3m file
+ *
  * @author normenhansen
  */
 public class EditableMaterialFile {
 
+    private static final Logger logger = Logger.getLogger(EditableMaterialFile.class.getName());
     private String name;
     private String matDefName;
     private FileObject material;
@@ -139,7 +151,7 @@ public class EditableMaterialFile {
                                     value += " " + lines[i];
                                 }
                                 prop.setValue(value.trim());
-                            }                           
+                            }
                             additionalRenderStates.put(prop.getName(), prop);
                         }
                     }
@@ -153,6 +165,7 @@ public class EditableMaterialFile {
 
     /**
      * finds and loads the matdef file either from project or from base jme
+     *
      * @param line
      */
     private void parseMaterialProperties(String line) {
@@ -196,6 +209,7 @@ public class EditableMaterialFile {
     /**
      * Finds and loads the matdef file either from project or from base jme,
      * then applies the parameter values to the material parameter entries.
+     *
      * @param line
      */
     private void checkWithMatDef() {
@@ -253,7 +267,9 @@ public class EditableMaterialFile {
     }
 
     /**
-     * returns the new content of the material file, filled with the new parameters
+     * returns the new content of the material file, filled with the new
+     * parameters
+     *
      * @return
      */
     public String getUpdatedContent() {
@@ -409,6 +425,7 @@ public class EditableMaterialFile {
 
     /**
      * trims a line and removes comments
+     *
      * @param line
      * @return
      */
@@ -422,13 +439,14 @@ public class EditableMaterialFile {
 
     /**
      * trims a line and removes everything behind colon
+     *
      * @param line
      * @return
      */
     private String trimName(String line) {
         line = trimLine(line);
         int idx = line.indexOf("(");
-        if(idx == -1){
+        if (idx == -1) {
             idx = line.indexOf(":");
         }
         if (idx != -1) {
@@ -467,6 +485,7 @@ public class EditableMaterialFile {
 
     /**
      * Creates the data from a material
+     *
      * @param mat
      */
     public void setAsMaterial(Material mat) throws IOException {
@@ -478,7 +497,7 @@ public class EditableMaterialFile {
         Collection<MatParam> params = mat.getParams();
         for (Iterator<MatParam> it = params.iterator(); it.hasNext();) {
             MatParam matParam = it.next();
-            materialParameters.put(matParam.getName(), new MaterialProperty(matParam));
+            checkPackedTextureProps(mat, matParam);
         }
         additionalRenderStates.put("Wireframe", new MaterialProperty("OnOff", "Wireframe", mat.getAdditionalRenderState().isWireframe() ? "On" : "Off"));
         additionalRenderStates.put("DepthWrite", new MaterialProperty("OnOff", "DepthWrite", mat.getAdditionalRenderState().isDepthWrite() ? "On" : "Off"));
@@ -491,6 +510,53 @@ public class EditableMaterialFile {
         additionalRenderStates.put("PolyOffset", new MaterialProperty("Float,Float", "PolyOffset", mat.getAdditionalRenderState().getPolyOffsetUnits() + " " + mat.getAdditionalRenderState().getPolyOffsetFactor()));
         checkWithMatDef();
         setAsText(getUpdatedContent());
+    }
+
+    /**
+     * Prompts user to save packed textures
+     *
+     * @param mat
+     * @param param
+     */
+    private void checkPackedTextureProps(Material mat, MatParam param) {
+        MaterialProperty prop = new MaterialProperty(param);
+        materialParameters.put(param.getName(), prop);
+        if (prop.getValue() == null) {
+            switch (param.getVarType()) {
+                case Texture2D:
+                case Texture3D:
+                case TextureArray:
+                case TextureBuffer:
+                case TextureCubeMap:
+                    try {
+                        Texture tex = mat.getTextureParam(param.getName()).getTextureValue();
+                        Image img = tex.getImage();
+                        if (img == null) {
+                            logger.log(Level.INFO, "No image found");
+                            return;
+                        }
+                        BufferedImage image = ImageToAwt.convert(img, false, false, 0);
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        ImageWriter imgWrtr = ImageIO.getImageWritersByFormatName("png").next();
+                        ImageOutputStream imgOutStrm;
+                        imgOutStrm = ImageIO.createImageOutputStream(out);
+                        imgWrtr.setOutput(imgOutStrm);
+                        ImageWriteParam jpgWrtPrm = imgWrtr.getDefaultWriteParam();
+                        imgWrtr.write(null, new IIOImage(image, null, null), jpgWrtPrm);
+                        imgOutStrm.close();
+                        out.close();
+                        String name = material.getName();
+                        name = "Textures/" + name + "-" + param.getName() + ".png";
+                        StoreTextureWizardWizardAction act = new StoreTextureWizardWizardAction(manager, out.toByteArray(), name);
+                        act.actionPerformed(null);
+                        prop.setValue(act.getName());
+                    } catch (Exception ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                    break;
+                default:
+            }
+        }
     }
 
     /**

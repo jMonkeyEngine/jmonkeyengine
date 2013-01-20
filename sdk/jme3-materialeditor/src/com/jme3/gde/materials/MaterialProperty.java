@@ -4,11 +4,7 @@
  */
 package com.jme3.gde.materials;
 
-import com.jme3.asset.AssetKey;
-import com.jme3.asset.TextureKey;
 import com.jme3.material.MatParam;
-import com.jme3.math.ColorRGBA;
-import com.jme3.texture.Texture2D;
 
 /**
  *
@@ -32,8 +28,10 @@ public class MaterialProperty {
     public MaterialProperty(MatParam param) {
         this.type = param.getVarType().name();
         this.name = param.getName();
-        Object obj = param.getValue();
-        this.value = param.getValueAsString();
+        try {
+            this.value = param.getValueAsString();
+        } catch (UnsupportedOperationException e) {
+        }
     }
 
     /**
