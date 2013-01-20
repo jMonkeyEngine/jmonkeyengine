@@ -59,7 +59,7 @@ import java.util.logging.Logger;
  * An <code>Application</code> provides all the tools that are commonly used in jME3
  * applications.
  *
- * jME3 applications *SHOULD NOT EXTEND* this class but extend {@link com.jme3.appSimpleApplication} instead.
+ * jME3 applications *SHOULD NOT EXTEND* this class but extend {@link com.jme3.app.SimpleApplication} instead.
  *
  */
 public class Application implements SystemListener {
