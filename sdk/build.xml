@@ -49,7 +49,7 @@
     <target name="-create-netbeans-config">
         <!--replaces default values in jmonkeyplatform.conf file with run.args.extra from project.properties-->
         <mkdir dir="build/launcher/etc"/>
-        <copy file="${harness.dir}/etc/app.conf" tofile="build/launcher/etc/${app.name}.conf">
+        <copy file="${harness.dir}/etc/app.conf" tofile="build/launcher/etc/${app.name}.conf" overwrite="true">
             <filterchain>
                 <replacestring from="$${branding.token}" to="${branding.token}"/>
                 <replacestring from="$${APPNAME}/dev" to="$${APPNAME}/${app.version}"/>
