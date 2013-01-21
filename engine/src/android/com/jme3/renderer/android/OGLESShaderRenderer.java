@@ -308,9 +308,17 @@ public class OGLESShaderRenderer implements Renderer {
         String extensions = GLES20.glGetString(GLES20.GL_EXTENSIONS);
         logger.log(Level.INFO, "GL_EXTENSIONS: {0}", extensions);
 
-        GLES20.glGetIntegerv(GLES20.GL_COMPRESSED_TEXTURE_FORMATS, intBuf16);
-        for (int i = 0; i < intBuf16.limit(); i++) {
-            logger.log(Level.INFO, "Compressed Texture Formats: {0}", intBuf16.get(i));
+        // Get number of compressed formats available.
+        GLES20.glGetIntegerv(GLES20.GL_NUM_COMPRESSED_TEXTURE_FORMATS, intBuf16);
+        int numCompressedFormats = intBuf16.get(0);
+        
+        // Allocate buffer for compressed formats.
+        IntBuffer compressedFormats = BufferUtils.createIntBuffer(numCompressedFormats);
+        GLES20.glGetIntegerv(GLES20.GL_COMPRESSED_TEXTURE_FORMATS, compressedFormats);
+        
+        // Print compressed formats.
+        for (int i = 0; i < numCompressedFormats; i++) {
+            logger.log(Level.INFO, "Compressed Texture Formats: {0}", compressedFormats.get(i));
         }
 
         TextureUtil.loadTextureFeatures(extensions);
