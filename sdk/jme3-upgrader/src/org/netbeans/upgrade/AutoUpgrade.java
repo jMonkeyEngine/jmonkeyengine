@@ -49,6 +49,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -126,18 +127,20 @@ public final class AutoUpgrade {
     private static File checkPreviousOnOsSpecificPlace (final List<String> versionsToCheck) {
         String defaultUserdirRoot = System.getProperty ("netbeans.default_userdir_root"); // NOI18N
         //normen: to test in ide
-        if(defaultUserdirRoot==null){
+        if(defaultUserdirRoot == null){
             try {
                 defaultUserdirRoot = new File(System.getProperty("netbeans.user")).getParentFile().getCanonicalPath();
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
         }
+        LOGGER.log(Level.INFO, "determined userdir root of {0}", defaultUserdirRoot);
         File sourceFolder;
         if (defaultUserdirRoot != null) {
             File userHomeFile = new File (defaultUserdirRoot);
             for (String ver : versionsToCheck) {
                 sourceFolder = new File (userHomeFile.getAbsolutePath (), ver);
+                LOGGER.log(Level.INFO, "Look for {0} ", userHomeFile);
                 if (sourceFolder.exists () && sourceFolder.isDirectory ()) {
                     return sourceFolder;
                 }
@@ -157,7 +160,7 @@ public final class AutoUpgrade {
             while (it.hasNext () && sourceFolder == null) {
                 ver = it.next ();
                 sourceFolder = new File (userHomeFile.getAbsolutePath (), ver);
-                
+                LOGGER.log(Level.INFO, "Look for previous {0} ", userHomeFile);
                 if (sourceFolder.isDirectory ()) {
                     break;
                 }
