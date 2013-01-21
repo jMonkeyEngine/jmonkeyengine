@@ -120,6 +120,9 @@ public class Ipo {
 	 *            the index of the target for which the method calculates the
 	 *            tracks IMPORTANT! Aet to -1 (or any negative number) if you
 	 *            want to load spatial animation.
+	 * @param localQuaternionRotation
+	 *            the local rotation of the object/bone that will be animated by
+	 *            the track
 	 * @param startFrame
 	 *            the firs frame of tracks (inclusive)
 	 * @param stopFrame
@@ -133,7 +136,7 @@ public class Ipo {
 	 *            as jme while other features have different one (Z is UP)
 	 * @return bone track for the specified bone
 	 */
-	public Track calculateTrack(int targetIndex, int startFrame, int stopFrame, int fps, boolean spatialTrack) {
+	public Track calculateTrack(int targetIndex, Quaternion localQuaternionRotation, int startFrame, int stopFrame, int fps, boolean spatialTrack) {
 		if (calculatedTrack == null) {
 			// preparing data for track
 			int framesAmount = stopFrame - startFrame;
@@ -165,14 +168,14 @@ public class Ipo {
 							translation[0] = (float) value;
 							break;
 						case AC_LOC_Y:
-							if (fixUpAxis && spatialTrack) {
+							if (fixUpAxis) {
 								translation[2] = (float) -value;
 							} else {
 								translation[1] = (float) value;
 							}
 							break;
 						case AC_LOC_Z:
-							translation[fixUpAxis && spatialTrack ? 1 : 2] = (float) value;
+							translation[fixUpAxis ? 1 : 2] = (float) value;
 							break;
 
 						// ROTATION (used with object animation)
@@ -197,14 +200,14 @@ public class Ipo {
 							scale[0] = (float) value;
 							break;
 						case AC_SIZE_Y:
-							if (fixUpAxis && spatialTrack) {
+							if (fixUpAxis) {
 								scale[2] = (float) value;
 							} else {
 								scale[1] = (float) value;
 							}
 							break;
 						case AC_SIZE_Z:
-							scale[fixUpAxis && spatialTrack ? 1 : 2] = (float) value;
+							scale[fixUpAxis ? 1 : 2] = (float) value;
 							break;
 
 						// QUATERNION ROTATION (used with bone animation), dunno
@@ -234,7 +237,7 @@ public class Ipo {
 							LOGGER.warning("Unknown ipo curve type: " + bezierCurves[j].getType());
 					}
 				}
-				translations[index] = new Vector3f(translation[0], translation[1], translation[2]);
+				translations[index] = localQuaternionRotation.multLocal(new Vector3f(translation[0], translation[1], translation[2]));
 				rotations[index] = spatialTrack ? new Quaternion().fromAngles(objectRotation) : new Quaternion(quaternionRotation[0], quaternionRotation[1], quaternionRotation[2], quaternionRotation[3]);
 				scales[index] = new Vector3f(scale[0], scale[1], scale[2]);
 			}

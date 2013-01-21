@@ -1,17 +1,20 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
-import com.jme3.animation.AnimControl;
-import com.jme3.animation.Animation;
-import com.jme3.animation.SpatialTrack;
-import com.jme3.scene.Node;
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.animations.Ipo;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.ogre.AnimData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.Animation;
+import com.jme3.animation.SpatialTrack;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.animations.Ipo;
+import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
  * This modifier allows to add animation to the object.
@@ -46,9 +49,10 @@ import java.util.logging.Logger;
 	 */
 	public ObjectAnimationModifier(Ipo ipo, String objectAnimationName, Long objectOMA, BlenderContext blenderContext) throws BlenderFileException {
 		int fps = blenderContext.getBlenderKey().getFps();
-
+		
+		Spatial object = (Spatial) blenderContext.getLoadedFeature(objectOMA, LoadedFeatureDataType.LOADED_FEATURE);
 		// calculating track
-		SpatialTrack track = (SpatialTrack) ipo.calculateTrack(-1, 0, ipo.getLastFrame(), fps, true);
+		SpatialTrack track = (SpatialTrack) ipo.calculateTrack(-1, object.getLocalRotation(), 0, ipo.getLastFrame(), fps, true);
 
 		Animation animation = new Animation(objectAnimationName, ipo.getLastFrame() / (float)fps);
 		animation.setTracks(new SpatialTrack[] { track });

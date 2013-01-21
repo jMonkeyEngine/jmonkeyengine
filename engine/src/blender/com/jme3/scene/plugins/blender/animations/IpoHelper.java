@@ -1,6 +1,7 @@
 package com.jme3.scene.plugins.blender.animations;
 
 import com.jme3.animation.BoneTrack;
+import com.jme3.math.Quaternion;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.curves.BezierCurve;
@@ -194,7 +195,7 @@ public class IpoHelper extends AbstractBlenderHelper {
 		}
 
 		@Override
-		public BoneTrack calculateTrack(int boneIndex, int startFrame, int stopFrame, int fps, boolean boneTrack) {
+		public BoneTrack calculateTrack(int boneIndex, Quaternion localQuaternionRotation, int startFrame, int stopFrame, int fps, boolean boneTrack) {
 			throw new IllegalStateException("Constatnt ipo object cannot be used for calculating bone tracks!");
 		}
 	}
