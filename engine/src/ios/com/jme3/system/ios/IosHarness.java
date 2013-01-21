@@ -37,23 +37,18 @@ import com.jme3.system.JmeSystem;
 /**
  * @author normenhansen
  */
-public class IosHarness {
-    private final Application app;
+public abstract class IosHarness extends ObjcNativeObject {
 
-    public IosHarness(Application app) {
-        this.app = app;
+    protected Application app;
+
+    public IosHarness(long appDelegate) {
+        super(appDelegate);
         JmeSystem.setSystemDelegate(new JmeIosSystem());
-        app.start();
     }
 
-    public void appPaused(){
-    }
-    
-    public void appReactivated(){
-    }
+    public abstract void appPaused();
 
-    public void appClosed(){
-        app.stop();
-    }
-    
+    public abstract void appReactivated();
+
+    public abstract void appClosed();
 }
