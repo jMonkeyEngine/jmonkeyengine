@@ -40,7 +40,7 @@
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>org.netbeans.upgrade</package>
+                <package>com.jme3.gde.upgrader</package>
             </public-packages>
         </data>
     </configuration>
