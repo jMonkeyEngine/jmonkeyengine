@@ -140,7 +140,6 @@ public class Ipo {
 		if (calculatedTrack == null) {
 			// preparing data for track
 			int framesAmount = stopFrame - startFrame;
-			float start = (startFrame - 1.0f) / fps;
 			float timeBetweenFrames = 1.0f / fps;
 
 			float[] times = new float[framesAmount + 1];
@@ -159,7 +158,7 @@ public class Ipo {
 			// calculating track data
 			for (int frame = startFrame; frame <= stopFrame; ++frame) {
 				int index = frame - startFrame;
-				times[index] = start + (frame - 1) * timeBetweenFrames;
+				times[index] = index * timeBetweenFrames;//start + (frame - 1) * timeBetweenFrames;
 				for (int j = 0; j < bezierCurves.length; ++j) {
 					double value = bezierCurves[j].evaluate(frame, BezierCurve.Y_VALUE);
 					switch (bezierCurves[j].getType()) {
