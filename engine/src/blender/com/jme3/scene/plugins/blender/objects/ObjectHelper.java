@@ -127,7 +127,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			Structure parentStructure = pParent.fetchData(blenderContext.getInputStream()).get(0);
 			parent = this.toObject(parentStructure, blenderContext);
 		}
-
+		
 		Transform t = this.getTransformation(objectStructure, blenderContext);
 		
 		try {
@@ -157,13 +157,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
                         }
                     }
 					node.setLocalTransform(t);
-
-					//reading and applying all modifiers
-					ModifierHelper modifierHelper = blenderContext.getHelper(ModifierHelper.class);
-					Collection<Modifier> modifiers = modifierHelper.readModifiers(objectStructure, blenderContext);
-					for(Modifier modifier : modifiers) {
-						modifier.apply(node, blenderContext);
-					}
 
 					//setting the parent
 					if(parent instanceof Node) {
@@ -216,7 +209,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					Node armature = new Node(name);
 					armature.setLocalTransform(t);
 					armature.setUserData(ArmatureHelper.ARMETURE_NODE_MARKER, Boolean.TRUE);
-					//TODO: modifiers for armature ????
+					
 					if(parent instanceof Node) {
 						((Node)parent).attachChild(armature);
 					}
@@ -233,6 +226,14 @@ public class ObjectHelper extends AbstractBlenderHelper {
 			result.updateModelBound();//I prefer do compute bounding box here than read it from the file
 			
 			blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
+			
+			//applying modifiers
+			LOGGER.log(Level.FINE, "Reading and applying object's modifiers.");
+			ModifierHelper modifierHelper = blenderContext.getHelper(ModifierHelper.class);
+			Collection<Modifier> modifiers = modifierHelper.readModifiers(objectStructure, blenderContext);
+			for(Modifier modifier : modifiers) {
+				modifier.apply(result, blenderContext);
+			}
 			
 			//loading constraints connected with this object
 			ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
