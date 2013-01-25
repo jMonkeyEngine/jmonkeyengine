@@ -38,7 +38,6 @@
  */
 package org.mycompany.installer.wizard.components.panels;
 
-import java.awt.ComponentOrientation;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -221,6 +220,8 @@ public class PreInstallSummaryPanel extends ErrorMessagePanel {
                 text.append(StringUtils.LF);
                 text.append("    " + product.getInstallationLocation());
                 text.append(StringUtils.LF);
+                //normen-show only first item
+                break;
             }
             locationsPane.setText(text);
 
