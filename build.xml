@@ -12,7 +12,7 @@
     
     <target name="default" depends="zip"/>
 
-    <target name="build" description="Builds the complete GDE, copies over engine libraries." depends="-check-platform, -update-sdk-platform-config">
+    <target name="build" description="Builds the complete SDK, copies over engine libraries." depends="-check-platform, -update-sdk-platform-config">
         <ant dir="engine" target="update-sdk"/>
         <ant dir="sdk" target="build"/>
     </target>
@@ -36,7 +36,7 @@
 
     <target name="zip" description="Builds the complete SDK and packs it as a ZIP file" depends="build">
         <propertyfile file="sdk/nbproject/project.properties"/>
-        <move file="sdk/dist/${app.name}.zip" tofile="./jMonkeyEngine-GDE-${app.version}.zip"/>
+        <move file="sdk/dist/${app.name}.zip" tofile="./jMonkeyEngine-SDK-${app.version}-NoBundles.zip"/>
     </target>
     
     <target name="update-platform" description="Updates the base platform to the latest available build" depends="-remove-platform,-check-platform"/>
@@ -44,7 +44,7 @@
     <target name="-check-platform" depends="-check-platform-present" unless="platform.present">
         <property file="sdk/nbproject/project.properties"/>
         <echo message="Downloading base platform, this only has to be done once."/>
-        <get src="http://direct.jmonkeyengine.com/updates/nightly/${app.version}/platform-base.zip" dest="./" skipexisting="false"/>
+        <get src="${netbeans.platform.url}" dest="./platform-base.zip" skipexisting="false"/>
         <unzip src="platform-base.zip" dest="./"/>
         <antcall target="-update-sdk-platform-config"/>
         <delete file="platform-base.zip"/>
