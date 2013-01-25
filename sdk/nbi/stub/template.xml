@@ -52,7 +52,7 @@
     </target>
 
     <target name="-build-zip-ant" depends="-init-zip"  if="do.load.ant.props">
-        <subant buildpath="${suite.location}" inheritAll="false" target="build-zip"/>
+        <subant buildpath="${suite.location}" inheritAll="false" target="build-zip-for-installer"/>
     </target>
 
     <target name="-build-zip-maven" depends="-init-zip" if="do.load.maven.props">

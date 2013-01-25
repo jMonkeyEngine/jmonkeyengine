@@ -29,7 +29,7 @@
         <ant antfile="template.xml" dir="nbi/stub">
             <property name="suite.location" value="${basedir}"/>
             <property name="suite.nbi.product.uid" value="${app.name}"/>
-            <!--TODO: this is .0.1 because of the pre-release static 3.0.0, else the RCs could not be installed next to a beta-->
+            <!--TODO: this is .0.2 because of the pre-release static 3.0.0, else the RCs could not be installed next to a beta-->
             <property name="suite.nbi.product.version" value="${plugins.version}.0.2"/>
             <property name="nbi.stub.location" value="${basedir}/nbi/stub"/>
             <property name="nbi.stub.common.location" value="${basedir}/nbi/.common"/>
@@ -37,7 +37,7 @@
             <property name="nbi.registries.management.jar" value="${basedir}/nbi/antlib/nbi-registries-management.jar"/>
             <property name="nbi.engine.jar" value="${basedir}/nbi/antlib/nbi-engine.jar"/>
             <property name="nbi.license.file" value="${basedir}/jme-license.txt"/>
-            <property name="generate.installer.for.platforms" value="windows linux macosx"/>
+            <property name="generate.installer.for.platforms" value="windows-x86 windows-x64 linux-x86 linux-x64 macosx"/>
             <property name="generator-jdk-location-forward-slashes" value="${java.home}"/>
             <property name="generated-installers-location-forward-slashes" value="${basedir}/build/installer"/>
             <property name="pack200.enabled" value="true"/>
@@ -45,15 +45,23 @@
             <property name="nbi.dock.icon.file" value="${basedir}/jmonkeyplatform.icns"/>
         </ant>
     </target>
+    
+    <target name="build-zip-for-installer" depends="-set-bundled-jdkhome, suite.build-zip"/>
+    
+    <target name="-set-bundled-jdkhome">
+        <property name="jdkhome.string" value='jdkhome="jdk"'/>
+    </target>
 
     <target name="-create-netbeans-config">
         <!--replaces default values in jmonkeyplatform.conf file with run.args.extra from project.properties-->
         <mkdir dir="build/launcher/etc"/>
+        <property name="jdkhome.string" value='#jdkhome="/path/to/jdk"'/>
         <copy file="${harness.dir}/etc/app.conf" tofile="build/launcher/etc/${app.name}.conf" overwrite="true">
             <filterchain>
                 <replacestring from="$${branding.token}" to="${branding.token}"/>
                 <replacestring from="$${APPNAME}/dev" to="$${APPNAME}/${app.version}"/>
                 <replacestring from="-J-Xmx64m" to="${run.args.extra}"/>
+                <replacestring from='#jdkhome="/path/to/jdk"' to ='${jdkhome.string}'/>
             </filterchain>
         </copy>
         <copy file="jmonkeyplatform.import" tofile="build/launcher/etc/jmonkeyplatform.import"/>
@@ -131,9 +139,7 @@
     <target name="hudson-stable" depends="suite.clean, set-spec-version, suite.nbms, unset-spec-version">
     </target>
     
-    <!--target name="hudson-stable" depends="suite.clean, set-impl-version, suite.nbms, unset-impl-version">
-    </target-->
-    
+    <!--builds release installers-->
     <target name="hudson-release" depends="suite.clean, set-spec-version, build-installers, unset-spec-version, -upload-googlecode">
     </target>
     
@@ -338,21 +344,37 @@ for coding and for managing and creating game assets.
     
     <target name="-upload-googlecode" depends="-check-googlecode" if="googlecode.credentials.present">
         <property file="../../../googlecode.properties" prefix="googlecode"/>
-        <echo>Upload windows installer to googlecode..</echo>
+        <echo>Upload windows installers to googlecode..</echo>
         <gcupload projectname="jmonkeyengine"
                   labels="Type-Installer, OpSys-Windows, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for Windows"
-                  filename="${basedir}/dist/${app.name}-windows.exe"
-                  targetfilename="jME3_SDK_${app.version}-windows.exe"
+                  summary="jMonkeyEngine3 SDK ${app.version} for Windows32"
+                  filename="${basedir}/dist/${app.name}-windows-x86.exe"
+                  targetfilename="jME3_SDK_${app.version}-windows-x86.exe"
                   username="${googlecode.username}"
                   password="${googlecode.password}"
                   />
-        <echo>Upload linux installer to googlecode..</echo>
+        <gcupload projectname="jmonkeyengine"
+                  labels="Type-Installer, OpSys-Windows, jMonkeyEngine3, Featured"
+                  summary="jMonkeyEngine3 SDK ${app.version} for Windows64"
+                  filename="${basedir}/dist/${app.name}-windows-x64.exe"
+                  targetfilename="jME3_SDK_${app.version}-windows-x64.exe"
+                  username="${googlecode.username}"
+                  password="${googlecode.password}"
+                  />
+        <echo>Upload linux installers to googlecode..</echo>
         <gcupload projectname="jmonkeyengine"
                   labels="Type-Installer, OpSys-Linux, jMonkeyEngine3, Featured"
-                  summary="jMonkeyEngine3 SDK ${app.version} for Linux"
-                  filename="${basedir}/dist/${app.name}-linux.sh"
-                  targetfilename="jME3_SDK_${app.version}-linux.sh"
+                  summary="jMonkeyEngine3 SDK ${app.version} for Linux32"
+                  filename="${basedir}/dist/${app.name}-linux-x86.sh"
+                  targetfilename="jME3_SDK_${app.version}-linux-x86.sh"
+                  username="${googlecode.username}"
+                  password="${googlecode.password}"
+                  />
+        <gcupload projectname="jmonkeyengine"
+                  labels="Type-Installer, OpSys-Linux, jMonkeyEngine3, Featured"
+                  summary="jMonkeyEngine3 SDK ${app.version} for Linux64"
+                  filename="${basedir}/dist/${app.name}-linux-x64.sh"
+                  targetfilename="jME3_SDK_${app.version}-linux-x64.sh"
                   username="${googlecode.username}"
                   password="${googlecode.password}"
                   />
