@@ -270,9 +270,8 @@
                 </folder>
                 <folder name="Factories">
                     <file name="com-jme3-gde-core-assets-BinaryModelFileLoader.instance">
-                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/jme3/gde/core/assets/jme-logo.png"/>
                         <attr name="dataObjectClass" stringvalue="com.jme3.gde.core.assets.BinaryModelDataObject"/>
-                        <!--attr name="instanceCreate" methodvalue="com.jme3.gde.core.assets.BinaryModelFileLoader.factory"/-->
+                        <attr name="iconBase" stringvalue="com/jme3/gde/core/assets/jme-logo.png"/>
                         <attr name="mimeType" stringvalue="application/jme3model"/>
                     </file>
                 </folder>

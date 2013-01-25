@@ -7,5 +7,5 @@ and open the template in the editor.
 <tc-ref version="2.0" >
     <module name="com.jme3.gde.core" spec="0.1"/>
     <tc-id id="SceneViewerTopComponent"/>
-    <state opened="true"/>
+    <state opened="false"/>
 </tc-ref>
