@@ -49,6 +49,8 @@ import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.utils.ResourceUtils;
 import org.netbeans.installer.utils.helper.ExecutionMode;
+import org.netbeans.installer.utils.helper.Status;
+import org.netbeans.installer.utils.helper.Version;
 import org.netbeans.installer.wizard.components.WizardSequence;
 import org.netbeans.installer.wizard.components.actions.DownloadConfigurationLogicAction;
 import org.netbeans.installer.wizard.components.actions.DownloadInstallationDataAction;
@@ -88,13 +90,23 @@ public class MainSequence extends WizardSequence {
         installAction.setProperty(InstallAction.DESCRIPTION_PROPERTY,
                 DEFAULT_IA_DESCRIPTION);
     }
-    
+
     @Override
     public void executeForward() {
         final Registry registry = Registry.getInstance();
         final List<Product> toInstall = registry.getProductsToInstall();
         final List<Product> toUninstall = registry.getProductsToUninstall();
-
+        //normen - uninstall all other items with same version number
+        if (toUninstall.size() > 0) {
+            Version ver;
+            ver = toUninstall.get(0).getVersion();
+            List<Product> products = registry.getProducts();
+            for (Product product : products) {
+                if (product.getVersion().equals(ver)) {
+                    product.setStatus(Status.TO_BE_UNINSTALLED);
+                }
+            }
+        }
         // remove all current children (if there are any), as the components
         // selection has probably changed and we need to rebuild from scratch
         getChildren().clear();
@@ -116,9 +128,9 @@ public class MainSequence extends WizardSequence {
                 }
                 //normen - use first product path for all projects -> no separate path
                 // wizards needed
-                if(initProduct == null){
+                if (initProduct == null) {
                     initProduct = product;
-                }else{
+                } else {
                     addChild(new CopyInstallLocationAction(initProduct, product));
                 }
                 addChild(productSequences.get(product));
@@ -133,19 +145,19 @@ public class MainSequence extends WizardSequence {
 
         if (toInstall.size() > 0) {
             addChild(downloadInstallationDataAction);
-            addChild(installAction);            
+            addChild(installAction);
         }
 
         addChild(postInstallSummaryPanel);
-        
+
         super.executeForward();
     }
 
     @Override
     public boolean canExecuteForward() {
-        return ExecutionMode.NORMAL == ExecutionMode.getCurrentExecutionMode() &&
-                (Registry.getInstance().getProductsToInstall().size() > 0 ||
-                Registry.getInstance().getProductsToUninstall().size() > 0);
+        return ExecutionMode.NORMAL == ExecutionMode.getCurrentExecutionMode()
+                && (Registry.getInstance().getProductsToInstall().size() > 0
+                || Registry.getInstance().getProductsToUninstall().size() > 0);
     }
     /////////////////////////////////////////////////////////////////////////////////
     // Constants
@@ -157,5 +169,4 @@ public class MainSequence extends WizardSequence {
             ResourceUtils.getString(
             MainSequence.class,
             "MS.IA.description"); // NOI18N   
-    
 }

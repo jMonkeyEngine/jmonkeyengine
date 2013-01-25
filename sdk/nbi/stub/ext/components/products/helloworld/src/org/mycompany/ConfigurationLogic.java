@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.mycompany.wizard.panels.HelloWorldPanel;
 import org.mycompany.installer.utils.applications.NetBeansRCPUtils;
 import org.netbeans.installer.product.components.ProductConfigurationLogic;
@@ -301,6 +303,14 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
                     //ignore
                 }
             }        
+        } else{
+            String appName=ResourceUtils.getString(ConfigurationLogic.class, "CL.app.name");
+            File exeLink = new File(installLocation.getParentFile().getParent()+"/MacOS/"+appName);
+            try {
+                FileUtils.deleteWithEmptyParents(exeLink);
+            } catch (IOException ex) {
+                LogManager.log("Error removing app Link: " + ex);
+            }
         }
         /////////////////////////////////////////////////////////////////////////////
         //remove cluster/update files
