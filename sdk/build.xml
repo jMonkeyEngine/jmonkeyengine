@@ -36,7 +36,7 @@
             <property name="nbi.ant.tasks.jar" value="${basedir}/nbi/antlib/nbi-ant-tasks.jar"/>
             <property name="nbi.registries.management.jar" value="${basedir}/nbi/antlib/nbi-registries-management.jar"/>
             <property name="nbi.engine.jar" value="${basedir}/nbi/antlib/nbi-engine.jar"/>
-            <property name="nbi.license.file" value="${basedir}/jme-license.txt"/>
+            <property name="nbi.license.file" value="${basedir}/licenses-sdk.txt"/>
             <property name="generate.installer.for.platforms" value="windows-x86 windows-x64 linux-x86 linux-x64 macosx"/>
             <property name="generator-jdk-location-forward-slashes" value="${java.home}"/>
             <property name="generated-installers-location-forward-slashes" value="${basedir}/build/installer"/>
