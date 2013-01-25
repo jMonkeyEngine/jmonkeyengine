@@ -17,6 +17,7 @@ import org.netbeans.api.progress.ProgressHandle;
  */
 public class OutputReader implements Runnable {
 
+    private static final Logger logger = Logger.getLogger(OutputReader.class.getName());
     private Thread thread;
     private BufferedReader in;
     private ProgressHandle progress;
@@ -42,7 +43,7 @@ public class OutputReader implements Runnable {
                     if (progress != null) {
                         progress.progress(line);
                     } else {
-                        Logger.getLogger(OutputReader.class.getName()).log(Level.INFO, "{0}",line);
+                        logger.log(Level.INFO, "{0}", line);
                     }
                 }
             }
