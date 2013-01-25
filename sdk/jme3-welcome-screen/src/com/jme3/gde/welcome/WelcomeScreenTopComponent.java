@@ -41,7 +41,7 @@ preferredID = "WelcomeScreenTopComponent")
 })
 public final class WelcomeScreenTopComponent extends TopComponent implements HyperlinkListener {
 
-    private final RssFeedParser parser = new RssFeedParser(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.rss.link"));
+//    private final RssFeedParser parser = new RssFeedParser(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.rss.link"));
 
     public WelcomeScreenTopComponent() {
         initComponents();
@@ -140,7 +140,7 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
                 Exceptions.printStackTrace(ex1);
             }
         }
-        parser.updateFeed();
+//        parser.updateFeed();
     }
 
     @Override
