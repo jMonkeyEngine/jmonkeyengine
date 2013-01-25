@@ -8,15 +8,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
-import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Element;
-import javax.swing.text.ElementIterator;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -171,7 +165,11 @@ public class RssFeedParser {
                     }
                     if (event.asStartElement().getName().getLocalPart() != null && event.asStartElement().getName().getLocalPart().equals(DESCRIPTION)) {
                         event = eventReader.nextEvent();
-                        description = event.asCharacters().getData();
+                        if(event.getClass().getName().equals("com.ctc.wstx.evt.CompactStartElement")){
+                            description = event.asStartElement().asCharacters().getData();
+                        }else{
+                            description = event.asCharacters().getData();
+                        }
                         continue;
                     }
 

@@ -5,8 +5,6 @@
 package com.jme3.gde.welcome;
 
 import org.openide.modules.ModuleInstall;
-import org.openide.util.HelpCtx;
-import org.openide.util.NbPreferences;
 
 /**
  * Manages a module's lifecycle. Remember that an installer is optional and
@@ -16,7 +14,5 @@ public class Installer extends ModuleInstall {
 
     @Override
     public void restored() {
-        System.setProperty("awt.useSystemAAFontSettings", "on");
-        System.setProperty("swing.aatext", "true");
     }
 }
