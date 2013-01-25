@@ -1887,6 +1887,12 @@ public class OGLESShaderRenderer implements Renderer {
         boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
 
         Buffer indexData = indexBuf.getData();
+        
+        if (indexBuf.getFormat() == Format.UnsignedInt) {
+            throw new RendererException("OpenGL ES does not support 32-bit index buffers." + 
+                                        "Split your models to avoid going over 65536 vertices.");
+        }
+        
         if (mesh.getMode() == Mode.Hybrid) {
             int[] modeStart = mesh.getModeStart();
             int[] elementLengths = mesh.getElementLengths();
