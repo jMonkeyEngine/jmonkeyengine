@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 #(c) jMonkeyEngine.com
 #This script creates SFX binaries of the JDK for the specified platform
