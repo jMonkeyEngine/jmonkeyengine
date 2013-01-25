@@ -151,8 +151,7 @@
                 <attr name="position" intvalue="150"/>
             </file>
         </folder>
-        <folder name="SceneComposer-Tools_hidden">
-        </folder>
+        <!--folder name="SceneComposer-Tools_hidden"-->
     </folder>
     <folder name="Templates">
         <folder name="Scene">
