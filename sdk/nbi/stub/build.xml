@@ -14,6 +14,19 @@
         <delete dir="${output.dir}"/>
         <delete dir="${nbi.ext.dir}/products/helloworld/build"/>
         <delete dir="${nbi.ext.dir}/products/helloworld/dist"/>
+        <!--normen-->
+        <delete dir="${nbi.ext.dir}/products/jdk/build"/>
+        <delete dir="${nbi.ext.dir}/products/jdk/dist"/>
+        <delete dir="${nbi.ext.dir}/products/blender-osx/build"/>
+        <delete dir="${nbi.ext.dir}/products/blender-osx/dist"/>
+        <delete dir="${nbi.ext.dir}/products/blender-win32/build"/>
+        <delete dir="${nbi.ext.dir}/products/blender-win32/dist"/>
+        <delete dir="${nbi.ext.dir}/products/blender-win64/build"/>
+        <delete dir="${nbi.ext.dir}/products/blender-win64/dist"/>
+        <delete dir="${nbi.ext.dir}/products/blender-linux32/build"/>
+        <delete dir="${nbi.ext.dir}/products/blender-linux32/dist"/>
+        <delete dir="${nbi.ext.dir}/products/blender-linux64/build"/>
+        <delete dir="${nbi.ext.dir}/products/blender-linux64/dist"/>
         <delete dir="${nbi.ext.dir}/engine/build"/>
         <delete dir="${nbi.ext.dir}/engine/dist"/>
 
@@ -140,6 +153,30 @@ jarsigner.enabled=${jarsigner.enabled}
 
 
         </ant>
+        <!--normen-->
+	<echo message="BUILDING MAC JDK PRODUCT =================================="/>
+        <ant dir="${nbi.ext.dir}/infra/build/products/jdk" target="release-all">
+            <property name="basedir" value="${nbi.ext.dir}/infra/build/products/jdk"/>
+            <property name="environment.properties" value="${environment.properties}"/>
+            <property name="dist.dir" value="${output.dir}/components"/>
+            <property name="release.parent.uid" value=""/>
+            <property name="release.parent.version" value=""/>
+            <property name="release.parent.platforms" value=""/>
+            <property name="engine.dist.file" value="${output.dir}/registry-temp/engine.jar"/>
+        </ant>
+        <!--normen-build blender for platforms-->
+        <for-each property="platform" list="${target.platforms}" separator=" ">
+            <echo message="BUILDING BLENDER ${platform} PRODUCT =================================="/>
+            <ant dir="${nbi.ext.dir}/infra/build/products/blender-${platform}" target="release-all">
+                <property name="basedir" value="${nbi.ext.dir}/infra/build/products/blender-${platform}"/>
+                <property name="environment.properties" value="${environment.properties}"/>
+                <property name="dist.dir" value="${output.dir}/components"/>
+                <property name="release.parent.uid" value=""/>
+                <property name="release.parent.version" value=""/>
+                <property name="release.parent.platforms" value=""/>
+                <property name="engine.dist.file" value="${output.dir}/registry-temp/engine.jar"/>
+            </ant>        
+        </for-each>
     </target>
 
     <target name="-generate-bundles">
@@ -160,12 +197,52 @@ jarsigner.enabled=${jarsigner.enabled}
 
             <set property="bundle.extention" source="bundle.extention.${platform}"/>
 
-            <create-bundle root="${output.dir}/registry-temp" 
-                       platform="${platform}" 
-                       target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
-                <!--normen-->
-                <component uid="${main.product.uid}" version="${main.product.version}"/><!--0.8.0.0.0-->
-            </create-bundle>
+            <!--normen-->
+            <!-- Linux installers -->
+            <if property="platform" value="linux-x86"> 
+                <create-bundle root="${output.dir}/registry-temp" platform="${platform}"
+                               target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                    <component uid="${main.product.uid}" version="${main.product.version}"/>
+                    <component uid="blender" version="${main.product.version}"/>
+                    <property name="nbi.bundled.jvm.file" value="${basedir}/../../jdks/jdk-${platform}.bin"/>
+                </create-bundle>
+            </if>
+            <if property="platform" value="linux-x64"> 
+                <create-bundle root="${output.dir}/registry-temp" platform="${platform}"
+                               target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                    <component uid="${main.product.uid}" version="${main.product.version}"/>
+                    <component uid="blender" version="${main.product.version}"/>
+                    <property name="nbi.bundled.jvm.file" value="${basedir}/../../jdks/jdk-${platform}.bin"/>
+                </create-bundle>
+            </if>
+            <!-- Windows installers -->
+            <if property="platform" value="windows-x86"> 
+                <create-bundle root="${output.dir}/registry-temp" platform="${platform}" 
+                                   target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                    <component uid="${main.product.uid}" version="${main.product.version}"/>
+                    <component uid="blender" version="${main.product.version}"/>
+                    <property name="nbi.bundled.jvm.file" value="${basedir}/../../jdks/jdk-${platform}.exe"/>
+                </create-bundle>
+            </if>
+            <if property="platform" value="windows-x64"> 
+                <create-bundle root="${output.dir}/registry-temp" platform="${platform}" 
+                                   target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                    <component uid="${main.product.uid}" version="${main.product.version}"/>
+                    <component uid="blender" version="${main.product.version}"/>
+                    <property name="nbi.bundled.jvm.file" value="${basedir}/../../jdks/jdk-${platform}.exe"/>
+                </create-bundle>
+            </if>
+            <!-- Mac installer -->
+            <if property="platform" value="macosx"> 
+                <create-bundle root="${output.dir}/registry-temp" platform="${platform}" 
+                                   target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                    <component uid="${main.product.uid}" version="${main.product.version}"/>
+                    <component uid="blender" version="${main.product.version}"/>
+                    <component uid="jdk" version="${main.product.version}"/>
+                    <!--property name="nbi.bundled.jvm.file" value="${basedir}/../../jdks/mac_jdk.bin"/-->
+                </create-bundle>
+            </if>
+
             <if property="bundle.extention" value="zip">
                 <antcall target="zip-to-tgz">
                     <param name="input.file"  value="${bundles.release.dir}/${bundle.files.prefix}-${platform}.zip"/>

@@ -28,6 +28,8 @@ import org.netbeans.installer.utils.StringUtils;
 import org.netbeans.installer.utils.exceptions.NativeException;
 import org.netbeans.installer.wizard.Wizard;
 import org.netbeans.installer.wizard.components.WizardComponent;
+//normen - JDK launchers
+import org.netbeans.installer.utils.system.launchers.LauncherResource;
 
 public class ConfigurationLogic extends ProductConfigurationLogic {
 
@@ -74,7 +76,13 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
             //normen: rename executable
             File shortcut=new File(installLocation.getParentFile().getParent()+"/MacOS/executable");
             if(shortcut.exists()){
-                shortcut.renameTo(new File(installLocation.getParentFile().getParent()+"/MacOS/"+appName));
+                try {
+                    shortcut.renameTo(new File(installLocation.getParentFile().getParent()+"/MacOS/"+appName));
+                    getProduct().getInstalledFiles().add(shortcut.getAbsoluteFile());
+                } catch (IOException e) {
+                    LogManager.log(
+                                "... cannot rename executable " + f, e); // NOI18N
+                }
             }
 
             //normen: replace icon + app in Info.plist
@@ -178,7 +186,25 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
             LogManager.logUnindent(
                     "... done"); // NOI18N
         }
-
+        //normen - JDK install - uses package on OSX
+        if (!SystemUtils.isMacOS()) {
+            File javaHome = new File(System.getProperty("java.home"));
+            File target = new File(installLocation, "jdk");
+            try {
+                FileUtils.copyFile(javaHome, target, true); //FileUtils is one of the NBI core classes, already imported in ConfigurationLogic.java
+            } catch (IOException e) {
+                throw new InstallationException("Cannot copy JDK",e);
+            }
+            // set permissions:
+            File binDir = new File(target, "bin");
+            for (File file : binDir.listFiles()) {
+            try {
+                file.setExecutable(true);
+            } catch (Exception ex) { ex.printStackTrace(); }
+            }
+            // to add uninstaller logic:
+            SystemUtils.getNativeUtils().addUninstallerJVM(new LauncherResource(false, target));
+        }
     }
 
     @Override
@@ -262,6 +288,20 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
             }
         }
 
+        //normen - JDK uninstall
+        if (!SystemUtils.isMacOS()) {
+            File jre = new File(installLocation, "jdk");
+            if (jre.exists()) {
+                try {
+                    for (File file : FileUtils.listFiles(jre).toList()) {
+                        FileUtils.deleteOnExit(file);
+                    }
+                    FileUtils.deleteOnExit(installLocation);
+                } catch (IOException e) {
+                    //ignore
+                }
+            }        
+        }
         /////////////////////////////////////////////////////////////////////////////
         //remove cluster/update files
         /*

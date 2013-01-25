@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import org.mycompany.installer.wizard.components.panels.PostInstallSummaryPanel;
 import org.mycompany.installer.wizard.components.panels.PreInstallSummaryPanel;
+import org.mycompany.installer.wizard.components.actions.CopyInstallLocationAction;
 import org.netbeans.installer.product.components.Product;
 import org.netbeans.installer.product.Registry;
 import org.netbeans.installer.utils.ResourceUtils;
@@ -106,14 +107,20 @@ public class MainSequence extends WizardSequence {
         if (toInstall.size() > 0) {
             addChild(downloadConfigurationLogicAction);
             addChild(licensesPanel);
-
+            Product initProduct = null;
             for (Product product : toInstall) {
                 if (!productSequences.containsKey(product)) {
                     productSequences.put(
                             product,
                             new ProductWizardSequence(product));
                 }
-
+                //normen - use first product path for all projects -> no separate path
+                // wizards needed
+                if(initProduct == null){
+                    initProduct = product;
+                }else{
+                    addChild(new CopyInstallLocationAction(initProduct, product));
+                }
                 addChild(productSequences.get(product));
             }
         }
