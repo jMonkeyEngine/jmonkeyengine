@@ -76,9 +76,9 @@
            <fileset dir="${nbi.stub.common.location}"/>
         </copy>
 
-        <property name="product-uid"  value="${suite.nbi.product.uid}"/>
+        <property name="product.uid"  value="${suite.nbi.product.uid}"/>
         <!--normen-->
-        <property name="product-version"  value="${suite.nbi.product.version}"/>
+        <property name="product.version"  value="${suite.nbi.product.version}"/>
 
         <condition property="icon.path" value="${nbi.icon.file}" else="${installer.build.dir}/ext/components/products/helloworld/data/icon48.png">
              <and>
@@ -116,16 +116,16 @@
             <replacefilter token="{generated-installers-location-forward-slashes}"  value="${suite.dist.directory}"/>
             <replacefilter token="{pack200.enabled}"               value="${pack200.enabled}"/>
             <replacefilter token="{generated-installers-prefix}"   value="${installers.file.prefix}"/>
-            <replacefilter token="{product-uid}"                   value="${product-uid}"/>
+            <replacefilter token="{product-uid}"                   value="${product.uid}"/>
             <!--normen-->
-            <replacefilter token="{product-version}"                   value="${product-version}"/>
+            <replacefilter token="{product-version}"                   value="${product.version}"/>
         </replace>
 
         <replace dir="${installer.build.dir}/ext" encoding="utf-8">
             <replacefilter token="{product-name}" value="${suite.props.app.title}"/>
             <replacefilter token="{product-simple-name}" value="${suite.props.app.name}"/>
             <replacefilter token="{product-description}" value=""/>
-            <replacefilter token="{product-uid}"         value="${product-uid}"/>
+            <replacefilter token="{product-uid}"         value="${product.uid}"/>
             <replacefilter token="{product-icon-name}"   value="${icon.name}"/>
         </replace>
 
@@ -133,9 +133,9 @@
             <replacefilter token="{product.platforms}"        value="${generate.installer.for.platforms}"/>
             <replacefilter token="{product-data-path}"        value="${suite.dist.zip}"/>
             <replacefilter token="{product-data-sub-dir}"     value="${suite.props.app.name}"/>
-            <replacefilter token="{product-uid}"              value="${product-uid}"/>
+            <replacefilter token="{product-uid}"              value="${product.uid}"/>
             <!--normen-->
-            <replacefilter token="{product-version}"                   value="${product-version}"/>
+            <replacefilter token="{product-version}"                   value="${product.version}"/>
             <replacefilter token="{product-install-directory-name}"         value="${suite.props.app.name}"/>
             <replacefilter token="{product-install-directory-name-windows}" value="${suite.props.app.name}"/>
             <replacefilter token="{product-install-directory-name-macosx}"  value="${suite.props.app.name}"/>
