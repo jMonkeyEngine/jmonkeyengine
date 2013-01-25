@@ -99,6 +99,7 @@ public final class NewCustomControlWizardAction extends AbstractNewControlWizard
             if (clazz == null) {
                 try {
                     clazz = classLoader.loadClass(className);
+                    break;
                 } catch (ClassNotFoundException ex) {
                 }
             }
