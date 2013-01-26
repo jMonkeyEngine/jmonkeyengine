@@ -141,15 +141,6 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.javahelp</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>2.27.1</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>org.netbeans.modules.options.api</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -328,10 +319,12 @@
             </module-dependencies>
             <public-packages>
                 <package>com.jme3.gde.core</package>
+                <package>com.jme3.gde.core.appstates</package>
                 <package>com.jme3.gde.core.assets</package>
                 <package>com.jme3.gde.core.assets.actions</package>
                 <package>com.jme3.gde.core.assets.nodes</package>
                 <package>com.jme3.gde.core.codeless</package>
+                <package>com.jme3.gde.core.completion</package>
                 <package>com.jme3.gde.core.errorreport</package>
                 <package>com.jme3.gde.core.filters</package>
                 <package>com.jme3.gde.core.filters.actions</package>
