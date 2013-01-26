@@ -1,0 +1,66 @@
+<!--
+ Copyright (c) 2009-2010 jMonkeyEngine
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are
+ met:
+
+ * Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+ * Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+ * Neither the name of 'jMonkeyEngine' nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2><a>Automatically Updating jMonkeyEngine SDK</a></h2><div></div><h3><a>Getting stable updates</a></h3><div>
+            <p> The jMonkeyPlatform software includes an automatic web update feature. To run an update, simply go to Helpâ†’Check for Updates and you will get the most current stable update of the <acronym
+                    title="Software Development Kit">SDK</acronym> and the engine. By default the IDE will check every week for new update and inform you about them with a symbol in the lower right.</p></div><h3><a
+                name="testing_the_nightly_version" id="testing_the_nightly_version">Testing the nightly version</a></h3><div
+            class="level3"><p> You can test the nightly version with all the latest untested features to give feedback to the developers. Be warned however, the changes in the nightly versions might break your current game project if heavy changes have been committed.</p><p> To make sure that you do not break your current development environment it is recommended to use a separate application and settings directory for the nightly version.</p><ul><li
+                    class="level1"><div
+                        class="li"> Copy the whole application (folder) to a new name like jmonkeyplatform_nightly.</div></li><li
+                    class="level1"><div
+                        class="li"> Edit the file jmonkeyplatform.conf in the etc directory of the folder. Mac users have to right-click the application and select &quot;Show package contents&quot; and then navigate to Contents/Resources/jmonkeyplatform.</div></li><li
+                    class="level1"><div
+                        class="li"> Change the default_userdir or default_mac_userdir from &quot;${HOME}/.${APPNAME}/version&quot; to something like &quot;${HOME}/.${APPNAME}/nightly&quot;.</div></li></ul><p> Then start the new application and have your <acronym
+                    title="Software Development Kit">SDK</acronym> being updated to the most current nightly version:</p><ul><li
+                    class="level1"><div
+                        class="li"> Go to Toolsâ†’Plugins</div></li><li
+                    class="level1"><div
+                        class="li"> Select the &quot;Settings&quot; tab</div></li><li
+                    class="level1"><div
+                        class="li"> Select the checkbox for &quot;jMonkeyPlatform nightly svn&quot;</div></li><li
+                    class="level1"><div
+                        class="li"> Make sure the &quot;force install to shared directories&quot; checkbox is selected</div></li><li
+                    class="level1"><div
+                        class="li"> Select the &quot;Updates&quot; tab</div></li><li
+                    class="level1"><div
+                        class="li"> Press &quot;Reload Catalog&quot;</div></li><li
+                    class="level1"><div
+                        class="li"> Press &quot;Update&quot;</div></li></ul></div>
+    </body>
+</html>

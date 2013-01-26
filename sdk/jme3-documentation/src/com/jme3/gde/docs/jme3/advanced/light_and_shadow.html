@@ -1,0 +1,380 @@
+
+<h1><a>Light and Shadow</a></h1>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shading-ani.gif">
+</p>
+
+<p>
+Light and Shadow are two separate things in 3D engines, although we percieve them together in real life:
+</p>
+<ul>
+<li><div> Lighting means that an object is brighter on the side facing the light direction, and darker on the backside. Computationally, this is relatively easy. </div>
+</li>
+<li><div> Lighting does not mean that objects cast a shadow on the floor or other objects: Activating shadow processing is an additional step described here. Since casting shadows has an impact on performance, drop shadows and ambient occlusion shading are not activated by default.</div>
+</li>
+</ul>
+
+<p>
+
+<p><div>A light source with a direction or location is required for all Geometries with Lighting.j3md-based Materials. An ambient light is not sufficient. In a scene with no appropriate light sources, Geometries with Lighting.j3md-based Materials do not render. Only Geometries with Unshaded.j3md-based Materials are visible independent of any light sources.
+</div></p>
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Light and Shadow" [1-1017] -->
+<h2><a>Light Sources and Colors</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/light-sources.png">
+</p>
+
+<p>
+You can add several types of light sources to a scene using <code>rootNode.addLight(mylight)</code>. 
+</p>
+
+<p>
+The available light sources in <code>com.???jme3.???light</code> are:
+</p>
+<ul>
+<li><div> SpotLight </div>
+</li>
+<li><div> PointLight</div>
+</li>
+<li><div> AmbientLight</div>
+</li>
+<li><div> DirectionalLight</div>
+</li>
+</ul>
+
+<p>
+
+You control the color and intensity of each light source. Typically you set the color to white (<code>new ColorRGBA(1.0f,1.0f,1.0f,1.0f)</code> or <code>ColorRGBA.White</code>), which makes all scene elements appear in their natural color. 
+</p>
+
+<p>
+You can choose to use lights in other colors than white, or darker colors. This influences the scene&#039;s atmosphere and will make the scene appear colder (e.g. <code>ColorRGBA.Cyan</code>) or warmer (<code>ColorRGBA.Yellow</code>), brighter (higher values) or darker (lower values).
+</p>
+
+<p>
+You can get a list of all lights added to a Spatial by calling <code>getWorldLightList()</code> (includes inherited lights) or <code>getLocalLightList()</code> (only directly added lights), and iterating over the result.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Light Sources and Colors" [1018-2059] -->
+<h3><a>PointLight</a></h3>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/elephant-pointlights.png">
+</p>
+
+<p>
+A PointLight has a location and shines from there in all directions as far as its radius reaches. The light intensity decreases with increased distance from the light source. A PointLight can at the moment not be used for casting shadows (using the PssmShadowRenderer - read more about this below). 
+</p>
+
+<p>
+<strong>Typical example:</strong> Lamp, lightbulb, torch, candle.
+</p>
+<pre>PointLight lamp_light = new PointLight&#40;&#41;;
+lamp_light.setColor&#40;ColorRGBA.Yellow&#41;;
+lamp_light.setRadius&#40;4f&#41;;
+lamp_light.setPosition&#40;new Vector3f&#40;lamp_geo.getLocalTranslation&#40;&#41;&#41;&#41;;
+rootNode.addLight&#40;lamp_light&#41;;</pre>
+
+</div>
+<!-- EDIT3 SECTION "PointLight" [2060-2762] -->
+<h3><a>DirectionalLight</a></h3>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/house-directionallight.png">
+</p>
+
+<p>
+A DirectionalLight has no position, only a direction. It sends out parallel beams of light and is considered &quot;infinitely&quot; far away. You typically have one directional light per scene. A DirectionalLight can be used together with shadows. 
+</p>
+
+<p>
+<strong>Typically example:</strong> Sun light.
+</p>
+<pre>DirectionalLight sun = new DirectionalLight&#40;&#41;;
+sun.setColor&#40;ColorRGBA.White&#41;;
+sun.setDirection&#40;new Vector3f&#40;-.5f,-.5f,-.5f&#41;.normalizeLocal&#40;&#41;&#41;;
+rootNode.addLight&#40;sun&#41;;</pre>
+
+</div>
+<!-- EDIT4 SECTION "DirectionalLight" [2763-3367] -->
+<h3><a>SpotLight</a></h3>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/spotlight.png">
+</p>
+
+<p>
+A SpotLight sends out a distinct beam or cone of light. A SpotLight has a direction, a position, distance (range) and two angles. The inner angle is the central maximum of the light cone, the outer angle the edge of the light cone. Everything outside the light cone&#039;s angles is not affected by the light.
+</p>
+
+<p>
+<strong>Typical Example:</strong> Flashlight
+</p>
+<pre>SpotLight spot = new SpotLight&#40;&#41;;
+spot.setSpotRange&#40;100f&#41;;                           // distance
+spot.setSpotInnerAngle&#40;15f * FastMath.DEG_TO_RAD&#41;; // inner light cone (central beam)
+spot.setSpotOuterAngle&#40;35f * FastMath.DEG_TO_RAD&#41;; // outer light cone (edge of the light)
+spot.setColor&#40;ColorRGBA.White.mult&#40;1.3f&#41;&#41;;         // light color
+spot.setPosition&#40;cam.getLocation&#40;&#41;&#41;;               // shine from camera loc
+spot.setDirection&#40;cam.getDirection&#40;&#41;&#41;;             // shine forward from camera loc
+rootNode.addLight&#40;spot&#41;;</pre>
+
+<p>
+If you want the spotlight to follow the flycam, repeat the setDirection(???) and setPosition(???) calls in the update loop, and kee syncing them with the camera position and direction.
+</p>
+
+</div>
+<!-- EDIT5 SECTION "SpotLight" [3368-4502] -->
+<h3><a>AmbientLight</a></h3>
+<div>
+
+<p>
+
+An AmbientLight simply influences the brightness and color of the scene globally. It has no direction and no location and shines equally everywhere. An AmbientLight does not cast any shadows, and it lights all sides of Geometries evenly, which makes 3D objects look unnaturally flat; this is why you typically do not use an AmbientLight alone without one of the other lights.  
+</p>
+
+<p>
+<strong>Typical example:</strong> Regulate overall brightness, tinge the whole scene in a warm or cold color. 
+</p>
+<pre>AmbientLight al = new AmbientLight&#40;&#41;;
+al.setColor&#40;ColorRGBA.White.mult&#40;1.3f&#41;&#41;;
+rootNode.addLight&#40;al&#41;;</pre>
+
+<p>
+<p><div>You can increase the brightness of a light source gradually by multiplying the light color to values greater than 1.0f. <br/>
+Example: <code>mylight.setColor(ColorRGBA.White.mult(1.3f));</code>
+</div></p>
+</p>
+
+</div>
+<!-- EDIT6 SECTION "AmbientLight" [4503-5325] -->
+<h2><a>Light Follows Spatial</a></h2>
+<div>
+
+<p>
+
+You can use a <code>com.jme3.scene.control.LightControl</code> to make a SpotLight or PointLight follow a Spatial. This can be used for a flashlight being carried by a character, or for car headlights, or an aircraft&#039;s spotlight, etc.
+</p>
+<pre>PointLight myLight = new PointLight&#40;&#41;;
+rootNode.addLight&#40;myLight&#41;;
+LightControl lightControl = new LightControl&#40;myLight&#41;;
+spatial.addControl&#40;lightControl&#41;; // this spatial controls the position of this light.</pre>
+
+<p>
+Obviously, this does apply to AmbientLights which have no position.
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Light Follows Spatial" [5326-5886] -->
+<h2><a>Simple Lighting</a></h2>
+<div>
+
+<p>
+
+Full sample code:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestSimpleLighting.java"><param name="text" value="<html><u>TestSimpleLighting.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestLightRadius.java"><param name="text" value="<html><u>TestLightRadius.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+<p>
+
+For Simple Lighting we use Geometries with Materials based on Lighting.j3md (learn <a href="/com/jme3/gde/docs/jme3/advanced/materials_overview.html">more about Materials</a> here). Lighting.j3md-based materials dynamically support Shininess, and Ambient, Diffuse, and Specular light if there is a light source present. Note that this lighting method alone does not make the Geometry cast a shadow onto other Geometries automatically (see below for how to add drop shadows etc).
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/teapot-phong-illuminated.png">
+</p>
+<pre>Geometry teapot = &#40;Geometry&#41; assetManager.loadModel&#40;&quot;Models/Teapot/Teapot.obj&quot;&#41;;
+TangentBinormalGenerator.generate&#40;teapot.getMesh&#40;&#41;, true&#41;;
+Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Light/Lighting.j3md&quot;&#41;;
+mat.setBoolean&#40;&quot;m_UseMaterialColors&quot;, true&#41;;
+mat.setColor&#40;&quot;m_Ambient&quot;,  ColorRGBA.Orange&#41;;
+mat.setColor&#40;&quot;m_Diffuse&quot;,  ColorRGBA.Orange&#41;;
+mat.setColor&#40;&quot;m_Specular&quot;, ColorRGBA.White&#41;;
+mat.setFloat&#40;&quot;m_Shininess&quot;, 12&#41;;
+rootNode.attachChild&#40;teapot&#41;;</pre>
+
+<p>
+The above example uses material colors and no textures. You can of course also use Lighting.j3md to create a lit Material that uses Texture Maps. The following example uses Shininess, Diffuse Map and Normal Map (a.k.a Bump Map).
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/bump-mapped-sphere.png">
+</p>
+<pre>Sphere rock = new Sphere&#40;32,32, 2f&#41;;
+Geometry shiny_rock = new Geometry&#40;&quot;Shiny rock&quot;, rock&#41;;
+rock.setTextureMode&#40;Sphere.TextureMode.Projected&#41;; // better quality on spheres
+TangentBinormalGenerator.generate&#40;rock&#41;;           // for lighting effect
+Material mat_lit = new Material&#40;
+    assetManager, &quot;Common/MatDefs/Light/Lighting.j3md&quot;&#41;;
+mat_lit.setTexture&#40;&quot;m_DiffuseMap&quot;,                 // surface color
+    assetManager.loadTexture&#40;&quot;Textures/Terrain/Pond/Pond.png&quot;&#41;&#41;;
+mat_lit.setTexture&#40;&quot;m_NormalMap&quot;,                  // surface bumps
+    assetManager.loadTexture&#40;&quot;Textures/Terrain/Pond/Pond_normal.png&quot;&#41;&#41;;
+mat_lit.setFloat&#40;&quot;m_Shininess&quot;, 5f&#41;;               // surface smoothness [1,128]
+shiny_rock.setMaterial&#40;mat_lit&#41;;
+rootNode.attachChild&#40;shiny_rock&#41;;</pre>
+
+<p>
+These light effects update live when the object or light source moves. If you shine a colored PointLight at this object, you will see a light reflection tinged in the color of the PointLight.
+</p>
+
+</div>
+<!-- EDIT8 SECTION "Simple Lighting" [5887-8536] -->
+<h2><a>BasicShadowRenderer</a></h2>
+<div>
+
+<p>
+
+Full code sample
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestShadow.java"><param name="text" value="<html><u>TestShadow.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+<p>
+
+Use the Shadow Renderer to make Geometries with Lighting.j3md-based Materials cast and receive basic drop shadows. This fast and simple implementation of a shadow effect is good for scenes with flat floors, but looks less realistic on uneven terrains. To use it, you add a jME SceneProcessor named com.jme3.shadow.BasicShadowRenderer to the viewPort.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/drop-shadows.png">
+</p>
+<pre>BasicShadowRenderer bsr;
+...
+public void simpleInitApp&#40;&#41; &#123;
+    ...
+    bsr = new BasicShadowRenderer&#40;assetManager, 256&#41;;
+    bsr.setDirection&#40;new Vector3f&#40;-.5f,-.5f,-.5f&#41;.normalizeLocal&#40;&#41;&#41;; // light direction
+    viewPort.addProcessor&#40;bsr&#41;;
+    ...</pre>
+
+<p>
+Shadow calculations (cast and receive) have a performance impact, therefor we recommend to use them smartly. Switch off the default shadow mode for the whole scene graph, and then specify the shadow behaviour individually for every scene node that needs shadows: You specifiy whether it casts shadows, receives shadows, both (slower), or neither (faster). 
+</p>
+<pre>rootNode.setShadowMode&#40;ShadowMode.Off&#41;;        // reset all
+wall.setShadowMode&#40;ShadowMode.CastAndReceive&#41;; // normal behaviour (slow)
+floor.setShadowMode&#40;ShadowMode.Receive&#41;;       // can't see shadow cast below floor anyway...
+airplane.setShadowMode&#40;ShadowMode.Cast&#41;;       // nothing casts shadows onto airplane anyway...
+ghost.setShadowMode&#40;ShadowMode.Off&#41;;           // ghost is translucent anyway...</pre>
+
+</div>
+<!-- EDIT9 SECTION "BasicShadowRenderer" [8537-10206] -->
+<h2><a>Parallel-Split Shadow Map</a></h2>
+<div>
+
+<p>
+
+Full sample code
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestPssmShadow.java"><param name="text" value="<html><u>TestPssmShadow.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+<p>
+
+The more advanced PSSM shadow renderer can cast real-time shadows, even on curved surfaces such as terrains. It is a bit more resource hungry than the BasicShadowRenderer. To activate PSSM drop shadows, add a jME SceneProcessor named <code>com.jme3.shadow.PssmShadowRenderer</code> to the viewPort. PSSM stands for the Parallel-Split Shadow Map technique.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shadow.png">
+</p>
+<pre>private PssmShadowRenderer pssmRenderer;
+...
+public void simpleInitApp&#40;&#41; &#123;
+    ....
+    pssmRenderer = new PssmShadowRenderer&#40;assetManager, 1024, 3&#41;;
+    pssmRenderer.setDirection&#40;new Vector3f&#40;-.5f,-.5f,-.5f&#41;.normalizeLocal&#40;&#41;&#41;; // light direction
+    viewPort.addProcessor&#40;pssmRenderer&#41;;</pre>
+
+<p>
+The constructor expects the following values:
+</p>
+<ul>
+<li><div> Your assetManager object</div>
+</li>
+<li><div> The size of the rendered shadowmaps (512, 1024, 2048, etc???)</div>
+</li>
+<li><div> The number of shadow maps rendered (the more shadow maps, the more quality, the less FPS).</div>
+</li>
+</ul>
+
+<p>
+
+You can set the following properties on the <code>pssmRenderer</code> object:
+</p>
+<ul>
+<li><div> setDirection(Vector3f) ??? the direction of the light</div>
+</li>
+<li><div> setLambda(0.65f) ??? Factor to use to reduce the split size</div>
+</li>
+<li><div> setShadowIntensity(0.7f) ??? shadow darkness (1 black, 0 invisible)</div>
+</li>
+<li><div> setShadowZextend() ??? distance how far away from camera shadows will still be computed</div>
+</li>
+</ul>
+
+<p>
+
+As said above, it&#039;s more efficient to specify individual shadow behaviour for each Geometry.
+</p>
+<pre>teapot.setShadowMode&#40;ShadowMode.CastAndReceive&#41;;
+terrain.setShadowMode&#40;ShadowMode.Receive&#41;; </pre>
+
+</div>
+<!-- EDIT10 SECTION "Parallel-Split Shadow Map" [10207-11929] -->
+<h2><a>Screen Space Ambient Occlusion</a></h2>
+<div>
+
+<p>
+
+Full sample code
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestSSAO.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestSSAO2.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestSSAO2.java</u></html>"><param name="textColor" value="blue"></object> ??? Screen-Space Ambient Occlusion shadows</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestTransparentSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestTransparentSSAO.java</u></html>"><param name="textColor" value="blue"></object> ??? Screen-Space Ambient Occlusion shadows plus transparancy</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/2010/08/16/screen-space-ambient-occlusion-for-jmonkeyengine-3-0/#more-321"><param name="text" value="<html><u>Screen Space Ambient Occlusion for jMonkeyEngine (article)</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+<p>
+
+Ambient Occlusion refers to the shadows that nearby objects cast on each other under an ambient lighting. It???s an approximation of how light radiates in a real life scene. To activate Ambient Occlusion shadows, add a jME SceneProcessor named <code>com.jme3.post.SSAOFilter</code> to the viewPort. SSAO stands for the Screen Space Ambient Occlusion technique.
+</p>
+<pre>FilterPostProcessor fpp = new FilterPostProcessor&#40;assetManager&#41;;
+SSAOFilter ssaoFilter = new SSAOFilter&#40;12.94f, 43.92f, 0.33f, 0.61f&#41;;
+fpp.addFilter&#40;ssaoFilter&#41;;
+viewPort.addProcessor&#40;fpp&#41;;</pre>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shading-textured-ani.gif">
+
+</p>
+
+</div>
+<!-- EDIT11 SECTION "Screen Space Ambient Occlusion" [11930-] -->
+<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:light_and_shadow?do=export_xhtmlbody">view online version</a></em></p>
