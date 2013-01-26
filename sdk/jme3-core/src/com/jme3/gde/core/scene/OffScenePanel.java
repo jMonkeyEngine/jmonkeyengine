@@ -73,7 +73,7 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
     private int width = 640, height = 480;
     private ByteBuffer cpuBuf;
 //    private byte[] cpuArray;
-    private Node rootNode = new Node("Root Node");
+    private final Node rootNode = new Node("Root Node");
     private FrameBuffer offBuffer;
     private ViewPort viewPort;
     private Camera camera;
@@ -98,6 +98,7 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
         this.width = width;
         this.height = height;
         initComponents();
+        setupScene();
     }
 
     public void resizeGLView(final int x, final int y) {
@@ -138,7 +139,7 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
             public Object call() throws Exception {
                 setupOffView();
                 setupOffBuffer();
-                setupScene();
+                attachScene();
                 return null;
             }
         });
@@ -157,17 +158,20 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
     }
 
     private void setupScene() {
+        // setup framebuffer's scene
+        light = new PointLight();
+        light.setColor(ColorRGBA.White);
+        rootNode.addLight(light);
+    }
+    
+    private void attachScene() {
+        // attach the scene to the viewport to be rendered
         //setup framebuffer's cam
+        light.setPosition(camera.getLocation());
         camera.setFrustumPerspective(45f, 1f, 1f, 1000f);
         camera.setLocation(new Vector3f(5f, 5f, 5f));
         camera.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
 
-        // setup framebuffer's scene
-        light = new PointLight();
-        light.setPosition(camera.getLocation());
-        light.setColor(ColorRGBA.White);
-        rootNode.addLight(light);
-        // attach the scene to the viewport to be rendered
         viewPort.attachScene(rootNode);
     }
 
