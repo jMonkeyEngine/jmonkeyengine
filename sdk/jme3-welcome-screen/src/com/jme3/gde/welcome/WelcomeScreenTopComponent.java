@@ -14,6 +14,7 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.HtmlBrowser.URLDisplayer;
 import org.openide.util.Exceptions;
+import org.openide.util.HelpCtx;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import sun.swing.SwingUtilities2;
@@ -27,7 +28,7 @@ autostore = false)
 @TopComponent.Description(
     preferredID = "WelcomeScreenTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_ALWAYS)
+persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = "Window", id = "com.jme3.gde.welcome.WelcomeScreenTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
@@ -40,6 +41,7 @@ preferredID = "WelcomeScreenTopComponent")
     "HINT_WelcomeScreenTopComponent=Shows news and information about your SDK"
 })
 public final class WelcomeScreenTopComponent extends TopComponent implements HyperlinkListener {
+    private static final HelpCtx ctx = new HelpCtx("com.jme3.gde.core.about");
 
 //    private final RssFeedParser parser = new RssFeedParser(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.rss.link"));
 
@@ -141,6 +143,11 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
             }
         }
 //        parser.updateFeed();
+    }
+
+    @Override
+    public HelpCtx getHelpCtx() {
+        return ctx;
     }
 
     @Override
