@@ -85,7 +85,4 @@ public class ModelImporterWizardPanel3 implements WizardDescriptor.Panel {
         component.applySettings((WizardDescriptor) settings);
     }
 
-    public void cleanup() {
-        component.cleanup();
-    }
 }

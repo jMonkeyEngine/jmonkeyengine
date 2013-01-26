@@ -11,6 +11,8 @@ import com.jme3.gde.core.scene.OffScenePanel;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import javax.swing.JPanel;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -21,6 +23,7 @@ import org.openide.util.Exceptions;
 @SuppressWarnings({"unchecked", "serial"})
 public final class ModelImporterVisualPanel3 extends JPanel {
 
+    private static final Logger logger = Logger.getLogger(ModelImporterVisualPanel3.class.getName());
     private ModelImporterWizardPanel3 panel;
     private OffScenePanel offPanel;
     private ProjectAssetManager manager;
@@ -38,7 +41,6 @@ public final class ModelImporterVisualPanel3 extends JPanel {
         initComponents();
         this.panel = panel;
         offPanel = new OffScenePanel(320, 320);
-        offPanel.startPreview();
         jPanel1.add(offPanel);
     }
 
@@ -48,6 +50,7 @@ public final class ModelImporterVisualPanel3 extends JPanel {
     }
 
     public void loadSettings(WizardDescriptor wiz) {
+        offPanel.startPreview();
         jList1.setListData(new Object[0]);
         jList2.setListData(new Object[0]);
         manager = (ProjectAssetManager) wiz.getProperty("manager");
@@ -58,8 +61,9 @@ public final class ModelImporterVisualPanel3 extends JPanel {
         failedKeys = null;
         loadModel(mainKey);
         if (currentModel != null) {
+            logger.log(Level.INFO, "Attaching model {0}", currentModel);
             offPanel.attach(currentModel);
-        }else{
+        } else {
             jList2.setListData(new Object[]{mainKey});
         }
     }
@@ -70,19 +74,14 @@ public final class ModelImporterVisualPanel3 extends JPanel {
         wiz.putProperty("failedlist", failedKeys);
         wiz.putProperty("model", currentModel);
         if (currentModel != null) {
+            logger.log(Level.INFO, "Detaching model {0}", currentModel);
             offPanel.detach(currentModel);
         }
+        offPanel.stopPreview();
     }
 
     public boolean checkValid() {
         return currentModel != null;
-    }
-
-    public void cleanup() {
-        if (currentModel != null) {
-            offPanel.detach(currentModel);
-        }
-        offPanel.stopPreview();
     }
 
     public synchronized void loadModel(AssetKey modelKey) {

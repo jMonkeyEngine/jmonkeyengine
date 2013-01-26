@@ -84,7 +84,6 @@ public final class ImportModel implements ActionListener {
         dialog.setVisible(true);
         dialog.toFront();
         boolean cancelled = wiz.getValue() != WizardDescriptor.FINISH_OPTION;
-        ((ModelImporterWizardPanel3) panels[1]).cleanup();
         if (!cancelled) {
             new Thread(new Runnable() {
                 public void run() {
