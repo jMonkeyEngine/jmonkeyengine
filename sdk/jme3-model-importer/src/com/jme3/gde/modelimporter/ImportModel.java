@@ -143,14 +143,14 @@ public final class ImportModel implements ActionListener {
                 if (fileObj != null) {
                     DataObject obj = DataObject.find(fileObj);
                     AssetData data = obj.getLookup().lookup(AssetData.class);
-                    if (data != null) {
+                    if (obj instanceof SpatialAssetDataObject) {
+                        // Delete models that are not J3O.
+                        if (!(obj instanceof BinaryModelDataObject)) {
+                            deleteList.add(fileObj);
+                        }
+                    } else if (data != null) {
                         AssetKey assetKey = data.getAssetKey();
-                        if (obj instanceof SpatialAssetDataObject) {
-                            // Delete models that are not J3O.
-                            if (!(obj instanceof BinaryModelDataObject)) {
-                                deleteList.add(fileObj);
-                            }
-                        } else if (!(assetKey instanceof TextureKey)
+                        if (!(assetKey instanceof TextureKey)
                                 && !(assetKey instanceof MaterialKey)) {
                             // Also delete anything thats not an image or J3M file.
                             deleteList.add(fileObj);
