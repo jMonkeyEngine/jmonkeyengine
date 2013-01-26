@@ -20,7 +20,7 @@
 
     <!--updates the help sets-->
     <target name="update-help-sets" description="Loads the wiki pages from the web and converts them to JavaHelp html for manual.">
-        <ant antfile="build.xml" target="update-help-sets" inheritall="false" inheritrefs="false" dir="jme3-core/"/>
+        <ant antfile="build.xml" target="update-help-sets" inheritall="false" inheritrefs="false" dir="jme3-documentation/"/>
     </target>
 
     <target name="-create-netbeans-config">
