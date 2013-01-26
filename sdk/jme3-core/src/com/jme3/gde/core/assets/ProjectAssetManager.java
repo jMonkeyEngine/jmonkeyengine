@@ -84,8 +84,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
     private final List<String> folderNames = new LinkedList<String>();
     private final List<FileObject> jarItems = new LinkedList<FileObject>();
     private URLClassLoader loader;
-    private boolean disableAbsolutePaths;
-    
+
     public ProjectAssetManager(Project prj, String folderName) {
         super(true);
         this.project = prj;
@@ -98,13 +97,13 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     /**
-     * Creates <code>ProjectAssetManager</code> for dummy projects.
-     * 
-     * @param path Path on disk to find assets from
-     * @param disableAbsolutePaths If true, absolute asset paths won't 
-     * be used and the filename is loaded from the path argument directly.
+     * Creates
+     * <code>ProjectAssetManager</code> for dummy projects.
+     *
+     * @param path Path on disk to find assets from and the filename is loaded
+     * from the path argument directly.
      */
-    public ProjectAssetManager(FileObject path, boolean disableAbsolutePaths) {
+    public ProjectAssetManager(FileObject path) {
         super(true);
         if (path == null) {
             this.project = new DummyProject(this);
@@ -113,12 +112,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
         }
         String projectRootPath = project.getProjectDirectory().getPath();
         logger.log(Level.INFO, "Add locator: {0}", projectRootPath);
-        this.disableAbsolutePaths = disableAbsolutePaths;
-        if (disableAbsolutePaths) {
-            registerLocator(projectRootPath, RelativeOnlyFileLocator.class);
-        } else {
-            registerLocator(projectRootPath, "com.jme3.asset.plugins.FileLocator");
-        }
+        registerLocator(projectRootPath, "com.jme3.asset.plugins.FileLocator");
         for (AssetManagerConfigurator di : Lookup.getDefault().lookupAll(AssetManagerConfigurator.class)) {
             di.prepareManager(this);
         }
@@ -126,33 +120,19 @@ public class ProjectAssetManager extends DesktopAssetManager {
     }
 
     public ProjectAssetManager() {
-        this(null, false);
+        this(null);
     }
-    
+
     /**
-     * If true, then this <code>ProjectAssetManager</code> ignores
-     * absolute asset paths. 
-     * The assumption that asset paths are present physically under the assets 
-     * folder root does not hold true in this case.
-     */
-    public boolean isAbsolutePathsDisabled() {
-        return disableAbsolutePaths;
-    }
-    
-    /**
-     * Returns the <code>FileObject</code> for a given asset key, or null
-     * if no such asset exists.
-     * 
+     * Returns the
+     * <code>FileObject</code> for a given asset key, or null if no such asset
+     * exists. TODO: Only works for real files in the asset folder atm
+     *
      * @param assetKey The asset key to get the file object for
      * @return Either a FileObject for the asset or null if not found.
      */
     public FileObject getAssetFileObject(AssetKey assetKey) {
-        if (isAbsolutePathsDisabled()) {
-            String fileName = assetKey.getName().substring(assetKey.getFolder().length());
-            return getAssetFolder().getFileObject(fileName);
-        } else {
-            return getAssetFolder().getFileObject(assetKey.getName());
-        }
+        return getAssetFolder().getFileObject(assetKey.getName());
     }
 
     private void clearClassLoader() {

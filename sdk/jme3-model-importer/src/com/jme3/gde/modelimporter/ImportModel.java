@@ -101,19 +101,7 @@ public final class ImportModel implements ActionListener {
         }
     }
 
-    private String correctImportPathLetterCase(String importPath, List<AssetKey> assetKeys) {
-        for (AssetKey key : assetKeys) {
-            if (importPath.equalsIgnoreCase(key.getFolder())) {
-                // Recommend using the folder letter case from asset key.
-                return key.getFolder(); 
-            }
-        }
-        // No assets or none match the path. Use original.
-        return importPath; 
-    }
-    
     private void copyModel(WizardDescriptor wiz) {
-//        String path = (String) wiz.getProperty("path");
         AssetKey modelKey = (AssetKey) wiz.getProperty("mainkey");
         boolean keepFiles = (Boolean) wiz.getProperty("keepfiles");
 
@@ -126,27 +114,12 @@ public final class ImportModel implements ActionListener {
         if (manager == null) {
             throw new IllegalStateException("Cannot find project AssetManager!");
         }
-        
-        // Try to correct letter case in import path (this fixes case mismatch issues in Windows)
-        importPath = correctImportPathLetterCase(importPath, assetKeys);
-        
+
         List<FileObject> deleteList = new LinkedList<FileObject>();
-        int i = 0;
-        for (FileObject source : assetList) {
-            AssetKey assetKey = assetKeys.get(i++);
+        for (Iterator<FileObject> it = assetList.iterator(); it.hasNext();) {
+            FileObject source = it.next();
+            String folderName = importPath + "/" + importManager.getRelativeAssetPath(source.getParent().getPath());
             try {
-                String folderName;
-                // Put it in the user's import path if we use relative paths 
-                // (asset keys have folders)
-                // or loading the model portion of the asset.
-                // If we are loading dependent assets of J3O or J3M (absolute paths), 
-                // put them in the expected absolute paths.
-                if (assetKey.equals(modelKey) || assetKey.getFolder().equals("")) {
-                    folderName = importPath + "/" + importManager.getRelativeAssetPath(source.getParent().getPath());
-                } else {
-                    folderName = assetKey.getFolder();
-                }
-                
                 FileObject dest = manager.getAssetFolder().getFileObject(folderName);
                 if (dest == null) {
                     dest = FileUtil.createFolder(manager.getAssetFolder(), folderName);
@@ -170,6 +143,7 @@ public final class ImportModel implements ActionListener {
                 if (fileObj != null) {
                     DataObject obj = DataObject.find(fileObj);
                     AssetData data = obj.getLookup().lookup(AssetData.class);
+                    AssetKey assetKey = data.getAssetKey();
                     if (data != null) {
                         if (obj instanceof SpatialAssetDataObject) {
                             // Delete models that are not J3O.
