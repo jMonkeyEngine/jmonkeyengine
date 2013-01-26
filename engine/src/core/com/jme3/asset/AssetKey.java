@@ -36,6 +36,8 @@ import com.jme3.asset.cache.SimpleAssetCache;
 import com.jme3.export.*;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <code>AssetKey</code> is a key that is used to
@@ -153,7 +155,7 @@ public class AssetKey<T> implements Savable, Cloneable {
                 if (list.size() > 0) {
                     list.removeLast();
                 } else {
-                    throw new IllegalStateException("Relative path is outside assetmanager root!");
+                    Logger.getLogger(AssetKey.class.getName()).log(Level.SEVERE, "Asset path is outside assetmanager root");
                 }
             } else {
                 list.add(string);
