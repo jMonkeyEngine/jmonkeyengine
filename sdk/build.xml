@@ -16,8 +16,7 @@
     <taskdef name="desktopentry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-import.classpath"/>
 
     <!--override branding target to include netbeans config file creation, using this target makes sure init was called-->
-    <target name="branding" depends="-create-netbeans-config, -set-base-version, -zip-templates, suite.branding">
-    </target>
+    <target name="branding" depends="-create-netbeans-config, -set-base-version, -zip-templates, suite.branding"/>
 
     <!--updates the help sets-->
     <target name="update-help-sets" description="Loads the wiki pages from the web and converts them to JavaHelp html for manual.">
@@ -87,17 +86,17 @@
         <foreach target="-do-base-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true"/>
         <!--sets version to application branding files-->
         <replaceregexp file="${basedir}/branding/core/core.jar/org/netbeans/core/startup/Bundle.properties"
-                        match="currentVersion=(.*)"
-                        replace="currentVersion=${app.title} ${app.version}"
-                        byline="true"/>
+                       match="currentVersion=(.*)"
+                       replace="currentVersion=${app.title} ${app.version}"
+                       byline="true"/>
         <replaceregexp file="${basedir}/branding/modules/org-netbeans-core-windows.jar/org/netbeans/core/windows/view/ui/Bundle.properties"
-                        match="CTL_MainWindow_Title=(.*)"
-                        replace="CTL_MainWindow_Title=${app.title} ${app.version}"
-                        byline="true"/>
+                       match="CTL_MainWindow_Title=(.*)"
+                       replace="CTL_MainWindow_Title=${app.title} ${app.version}"
+                       byline="true"/>
         <replaceregexp file="${basedir}/branding/modules/org-netbeans-core-windows.jar/org/netbeans/core/windows/view/ui/Bundle.properties"
-                        match="CTL_MainWindow_Title_No_Project=(.*)"
-                        replace="CTL_MainWindow_Title_No_Project=${app.title} ${app.version}"
-                        byline="true"/>
+                       match="CTL_MainWindow_Title_No_Project=(.*)"
+                       replace="CTL_MainWindow_Title_No_Project=${app.title} ${app.version}"
+                       byline="true"/>
         <!--propertyfile
             file="${basedir}/branding/core/core.jar/org/netbeans/core/startup/Bundle.properties" 
             comment="Updated by build script">
@@ -120,16 +119,16 @@
         <updatesdkdeps projectfile="${module_dir}/nbproject/project.xml" version="${plugins.version}" basepackage="com.jme3.gde"/>
         <replace file="${module_dir}/nbproject/project.xml" token=' standalone="no"?>' value="?>${line.separator}"/>
         <replaceregexp file="${module_dir}/nbproject/project.properties"
-                        match="spec.version.base=(.*)"
-                        replace="spec.version.base=${plugins.version}"
-                        byline="true"/>
+                       match="spec.version.base=(.*)"
+                       replace="spec.version.base=${plugins.version}"
+                       byline="true"/>
     </target>
     
     <!--
-       ****************************************************************
-       Only Relevant for building nightly on Hudson server from here on
-       ****************************************************************
-      -->
+     ****************************************************************
+     Only Relevant for building nightly on Hudson server from here on
+     ****************************************************************
+    -->
       
     <!--creates update center version via hudson build server (update-help-sets, )-->
     <target name="hudson-nightly" depends="suite.clean, set-impl-version, suite.nbms, unset-impl-version">
@@ -140,7 +139,7 @@
     </target>
     
     <!--builds release installers-->
-    <target name="hudson-release" depends="suite.clean, set-spec-version, build-installers, unset-spec-version, -upload-googlecode">
+    <target name="hudson-release" depends="suite.clean, set-spec-version, build-installers, unset-spec-version">
     </target>
     
     <target name="set-spec-version">
@@ -163,23 +162,23 @@
             <equals arg1="${set_spec_version}" arg2="true"/>
             <then>
                 <replaceregexp file="${module_dir}/manifest.mf"
-                                match="OpenIDE-Module-Implementation-Version:(.*)"
-                                replace="OpenIDE-Module-Specification-Version: ${plugins.version}"
-                                byline="true"/>
+                               match="OpenIDE-Module-Implementation-Version:(.*)"
+                               replace="OpenIDE-Module-Specification-Version: ${plugins.version}"
+                               byline="true"/>
                 <replaceregexp file="${module_dir}/nbproject/project.properties"
-                                match="spec.version.base"
-                                replace="#spec.version.base"
-                                byline="true"/>
+                               match="spec.version.base"
+                               replace="#spec.version.base"
+                               byline="true"/>
             </then>
             <else>
                 <replaceregexp file="${module_dir}/manifest.mf"
-                                match="OpenIDE-Module-Specification-Version:(.*)"
-                                replace="OpenIDE-Module-Implementation-Version: 0"
-                                byline="true"/>
+                               match="OpenIDE-Module-Specification-Version:(.*)"
+                               replace="OpenIDE-Module-Implementation-Version: 0"
+                               byline="true"/>
                 <replaceregexp file="${module_dir}/nbproject/project.properties"
-                                match="#spec.version.base"
-                                replace="spec.version.base"
-                                byline="true"/>
+                               match="#spec.version.base"
+                               replace="spec.version.base"
+                               byline="true"/>
             </else>
         </if>
     </target>
@@ -316,14 +315,14 @@
             categories="Development;Java"
         />
         <deb toDir="dist"
-            package="jme3-sdk"
-            version="${app.version}"
-            section="devel"
-            depends="sun-java6-jdk"
-            maintainer="jMonkeyEngine"
-            homepage="http://www.jmonkeyengine.com"
-            postrm="debscripts/postrm"
-            >
+             package="jme3-sdk"
+             version="${app.version}"
+             section="devel"
+             depends="sun-java6-jdk"
+             maintainer="jMonkeyEngine"
+             homepage="http://www.jmonkeyengine.com"
+             postrm="debscripts/postrm"
+        >
             <tarfileset dir="dist/${app.name}/" prefix="opt/${app.name}">
                 <exclude name="bin/**"/>
             </tarfileset>
@@ -333,16 +332,17 @@
             <tarfileset file="build/${app.name}.desktop" prefix="usr/share/applications"/>
             <tarfileset file="${app.name}.png" prefix="opt/${app.name}"/>
             <description synopsis="jMonkeyEngine3 SDK is a complete solution for Java OpenGL game development.">
-jMonkeyEngine 3 was rebuilt from the ground up to be a modern 3D game engine,
-compatible with OpenGL 2.0 and above.
-Its architecture is shader-based, making it fully capable of current and
-next generation graphics standards. The jMonkeyEngine SDK gives you a complete IDE
-for coding and for managing and creating game assets.
+                jMonkeyEngine 3 was rebuilt from the ground up to be a modern 3D game engine,
+                compatible with OpenGL 2.0 and above.
+                Its architecture is shader-based, making it fully capable of current and
+                next generation graphics standards. The jMonkeyEngine SDK gives you a complete IDE
+                for coding and for managing and creating game assets.
             </description>
         </deb>
     </target>
     
     <target name="-upload-googlecode" depends="-check-googlecode" if="googlecode.credentials.present">
+        <property file="nbproject/project.properties"/>
         <property file="../../../googlecode.properties" prefix="googlecode"/>
         <echo>Upload windows installers to googlecode..</echo>
         <gcupload projectname="jmonkeyengine"
