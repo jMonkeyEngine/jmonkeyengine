@@ -143,8 +143,8 @@ public final class ImportModel implements ActionListener {
                 if (fileObj != null) {
                     DataObject obj = DataObject.find(fileObj);
                     AssetData data = obj.getLookup().lookup(AssetData.class);
-                    AssetKey assetKey = data.getAssetKey();
                     if (data != null) {
+                        AssetKey assetKey = data.getAssetKey();
                         if (obj instanceof SpatialAssetDataObject) {
                             // Delete models that are not J3O.
                             if (!(obj instanceof BinaryModelDataObject)) {
