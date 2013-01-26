@@ -90,6 +90,7 @@ public class BlockLanguageParser {
                 insideComment = true;
                 pushStatement(buffer);
                 lastChar = '\0';
+                lineNumber++;
             }else if (!insideComment){
                 if (ci == -1 || c == '{' || c == '}' || c == '\n' || c == ';'){
                     pushStatement(buffer);
