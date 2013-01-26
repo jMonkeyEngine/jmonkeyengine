@@ -13,85 +13,85 @@ Next: <a href="/com/jme3/gde/core/docs/jme3/beginner/hello_node.html">Hello Node
 </p>
 
 <p>
-In this tutorial series, we assume that you use the jMonkeyEngine <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a>. As an intermediate or advanced Java developer, you will quickly see that, in general, you can develop jMonkeyEngine code in any integrated development environment (NetBeans IDE, Eclipse, IntelliJ) or even from the <a href="/com/jme3/gde/core/docs/jme3/simpleapplication_from_the_commandline.html">command line</a>. 
+Nesta s??rie de tutoriais, n??s assumimos que voc?? usa o <a href="/com/jme3/gde/core/docs/sdk.html">SDK</a> da jMonkeyEngine. Como um desenvolvedor Java intermedi??rio ou avan??ado, voc?? rapidamente ver?? que, em geral, voc?? pode desenvolver c??digo da jMonkeyEngine em qualquer ambiente de desenvolvimento integrado (NetBeans IDE, Eclipse, IntelliJ) ou mesmo da linha de comando.
 </p>
 
 <p>
-OK, let&#039;s get ready to create our first jMonkeyEngine3 application.
+OK, Vamos nos aprontar para criar nossa primeira aplica????o jMonkeyEngine3.
 </p>
 
 </div>
-<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (1) - Hello SimpleApplication" [1-726] -->
-<h2><a>Create a Project</a></h2>
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (1) - Hello SimpleApplication" [1-723] -->
+<h2><a>Crie um Projeto</a></h2>
 <div>
 
 <p>
 
-In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>:
+Na <acronym title="Software Development Kit">SDK</acronym> da jMonkeyEngine:
 </p>
 <ol>
-<li><div> Choose File???New Project??? from the main menu.</div>
+<li><div> Escolha Arquivo (File)???Novo Projeto (New Project)??? do menu principal.</div>
 </li>
-<li><div> In the New Project wizard, select the template JME3???Basic Game. Click Next. </div>
+<li><div> No assistente de Novo Projeto, selecione o modelo JME3???Jogo B??sico (Basic Game). Clique em prosseguir (Next). </div>
 <ol>
-<li><div> Specify a project name, e.g. &quot;HelloWorldTutorial&quot;</div>
+<li><div> Especifique um nome de projeto, e.g. &quot;HelloWorldTutorial&quot;</div>
 </li>
-<li><div> Specify a path where to store your new project, e.g. a <code>jMonkeyProjects</code> directory in your home directory.</div>
+<li><div> Especifique um caminho para armazenar seu novo projeto, e.g. um diret??rio projetosjMonkey no seu diret??rio de usu??rio.</div>
 </li>
 </ol>
 </li>
-<li><div> Click Finish. </div>
+<li><div> Clique em terminar (Finish). </div>
 </li>
 </ol>
 
 <p>
 
-If you have questions, read more about <a href="/com/jme3/gde/core/docs/sdk/project_creation.html">Project Creation</a> here.
+Se voc?? tem perguntas, leia mais sobre Cria????o de Projeto aqui.
 </p>
 
 <p>
-<p><div>We recommend to go through the steps yourself, as described in the tutorials. Alternatively, you can create a project based on the <a href="/com/jme3/gde/core/docs/sdk/sample_code.html">JmeTests</a> template in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. It will create a project that already contains the <code>jme3test.helloworld</code> samples (and many others). For example, you can use the JmeTests project to verify whether you got the solution right.
+<p><div>N??s recomendamos atravessar os passos voc?? mesmo, como descrito nos tutoriais. Alternativamente, voc?? pode criar um projeto baseado no modelo <a href="/com/jme3/gde/core/docs/sdk/sample_code.html">JmeTests</a> no <acronym title="Software Development Kit">SDK</acronym> da jMonkeyEngine. Isto criar?? um projeto que j?? cont??m as amostras jme3test.helloworld (e muitas outras). Por exemplo, voc?? pode usar o projeto JmeTests para verificar se voc?? tem a solu????o certa.
 </div></p>
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Create a Project" [727-1588] -->
-<h2><a>Write a SimpleApplication</a></h2>
+<!-- EDIT2 SECTION "Crie um Projeto" [724-1670] -->
+<h2><a>Escreva uma aplica????o de amostra</a></h2>
 <div>
 
 <p>
 
-For this tutorial, you want to create a <code>jme3test.helloworld</code> package in your project, and create a file <code>HelloJME3.java</code> in it. 
+Para este tutorial, voc?? deseja criar um pacote jme3test.helloworld no seu projeto, e criar um arquivo <code>HelloJME3.java</code> nele. 
 </p>
 
 <p>
-In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>:
+No <acronym title="Software Development Kit">SDK</acronym> da jMonkeyEngine:
 </p>
 <ol>
-<li><div> Right-click the Source Packages node of your project.</div>
+<li><div> D?? um clique com o bot??o direito no n?? pacotes de c??digo-fonte (Source Packages) de seu projeto.</div>
 </li>
-<li><div> Choose New??????Java Class to create a new file.</div>
+<li><div> Escolha Novo (New)??? ???Classe Java (Java Class) para criar um novo arquivo.</div>
 </li>
-<li><div> Enter the class name: <code>HelloJME3</code></div>
+<li><div> Digite o nome da classe: <code>HelloJME3</code></div>
 </li>
-<li><div> Enter the package name: <code>jme3test.helloworld</code>. </div>
+<li><div> Digite o nome do pacote: <code>jme3test.helloworld</code>.</div>
 </li>
-<li><div> Click Finish.</div>
+<li><div> Clique em Finalizar (Finish).</div>
 </li>
 </ol>
 
 <p>
-The <acronym title="Software Development Kit">SDK</acronym> creates the file HelloJME3.java for you.
+O <acronym title="Software Development Kit">SDK</acronym> cria o arquivo HelloJME3.java para voc??.
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Write a SimpleApplication" [1589-2061] -->
-<h2><a>Sample Code</a></h2>
+<!-- EDIT3 SECTION "Escreva uma aplica????o de amostra" [1671-2240] -->
+<h2><a>C??digo de Amostra</a></h2>
 <div>
 
 <p>
 
-Replace the contents of the HelloJME3.java file with the following code:
+Substitua os conte??dos do arquivo HelloJME3.java com o seguinte c??digo:
 </p>
 <pre>package jme3test.helloworld;
 &nbsp;
@@ -125,48 +125,48 @@ public class HelloJME3 extends SimpleApplication &#123;
 &#125;</pre>
 
 <p>
-Right-click the HelloJME3 class and choose Run. If a jME3 settings dialog pops up, confirm the default settings.
+D?? um clique com o bot??o direito na classe HelloJME3 class e escolha Executar (Run). Se um di??logo de configura????es da jME3 aparecer, confirme as configura????es padr??o.
 </p>
 <ol>
-<li><div> You should see a simple window displaying a 3D cube.</div>
+<li><div> Voc?? deveria ver uma janela simples exibindo um cubo 3D.</div>
 </li>
-<li><div> Press the WASD keys and move the mouse to navigate around.</div>
+<li><div> Pressione as teclas WASD keys e mova para navegar ao redor.</div>
 </li>
-<li><div> Look at the FPS text and object count information in the bottom left. You will use this information during development, and you will remove it for the release. (To read the numbers correctly, consider that the 14 lines of text counts as 14 objects with 914 vertices.)</div>
+<li><div> Olhe no texto do FPS e na informa????o de contagem de objeto na esquerda-fundo. Voc?? usar?? esta informa????o durante o desenvolvimento, e voc?? remover?? ela para a libera????o. (Para ler os n??meros corretamente, considere que as 14 linhas de texto contam como 14 objetos com 914 v??rtices.)</div>
 </li>
-<li><div> Press Escape to close the application.</div>
+<li><div> Pressione Escape (Esc) para fechar a aplica????o.</div>
 </li>
 </ol>
 
 <p>
-Congratulations! Now let&#039;s find out how it works!
+Parab??ns! Agora camos decobrir como isso funciona!
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Sample Code" [2062-3976] -->
-<h2><a>Understanding the Code</a></h2>
+<!-- EDIT4 SECTION "C??digo de Amostra" [2241-4272] -->
+<h2><a>Compreendendo o c??digo</a></h2>
 <div>
 
 <p>
 
-The code above has initialized the scene, and started the application.
+O c??digo acima tem inicializado a cena, e iniciado a aplica????o.
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Understanding the Code" [3977-4084] -->
-<h3><a>Start the SimpleApplication</a></h3>
+<!-- EDIT5 SECTION "Compreendendo o c??digo" [4273-4377] -->
+<h3><a>Inicie a SimpleApplication</a></h3>
 <div>
 
 <p>
 
-Look at the first line. The HelloJME3.java class extends <code>com.jme3.app.SimpleApplication</code>. 
+Olhe na primeira linha. A classe HelloJME3.java estende <code>com.jme3.app.SimpleApplication</code>. 
 </p>
 <pre>public class HelloJME3 extends SimpleApplication &#123;
   // your code...
 &#125;</pre>
 
 <p>
-Every JME3 game is an instance of <code>com.jme3.app.SimpleApplication</code>. The SimpleApplication class manages your 3D scene graph and automatically draws it to the screen ??? that is, in short, what a game engine does for you! 
+Todo jogo JME3 ?? uma inst??ncia de com.jme3.app.SimpleApplication. A classe SimpleApplication gerencia seu grafo de cena 3D e automaticamente desenha ele para a tela ??? isto ??, em breve, o que uma engine de jogo faz para voc??! 
 </p>
 
 <p>
@@ -188,7 +188,7 @@ This code opens your application window. Let&#039;s learn how you put something 
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Start the SimpleApplication" [4085-5044] -->
+<!-- EDIT6 SECTION "Inicie a SimpleApplication" [4378-5344] -->
 <h3><a>Understanding the Terminology</a></h3>
 <div>
 <div><table>
@@ -211,14 +211,14 @@ This code opens your application window. Let&#039;s learn how you put something 
 		<td>You want the cube to appear in the center.</td><td>I create the Box at the origin = at <code>Vector3f.ZERO</code>.</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [5086-5559] -->
+<!-- EDIT8 TABLE [5386-5859] -->
 <p>
 
 If you are unfamiliar with the vocabulary, read more about <a href="/com/jme3/gde/core/docs/jme3/the_scene_graph.html">the Scene Graph</a> here.
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Understanding the Terminology" [5045-5652] -->
+<!-- EDIT7 SECTION "Understanding the Terminology" [5345-5952] -->
 <h3><a>Initialize the Scene</a></h3>
 <div>
 
@@ -288,7 +288,7 @@ A typical JME3 game has the following initialization process:
 </ol>
 
 </div>
-<!-- EDIT9 SECTION "Initialize the Scene" [5653-7652] -->
+<!-- EDIT9 SECTION "Initialize the Scene" [5953-7952] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -349,5 +349,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT10 SECTION "Conclusion" [7653-] -->
+<!-- EDIT10 SECTION "Conclusion" [7953-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_simpleapplication?do=export_xhtmlbody">view online version</a></em></p>

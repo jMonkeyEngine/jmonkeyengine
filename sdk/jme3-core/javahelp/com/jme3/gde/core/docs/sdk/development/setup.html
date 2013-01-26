@@ -36,12 +36,12 @@ Note that the creation of a Module Suite is only necessary if you want to upload
 </li>
 <li><div> To use core <acronym title="Software Development Kit">SDK</acronym> or jME3 functions, add &quot;<acronym title="Software Development Kit">SDK</acronym> Core&quot; and &quot;<acronym title="Software Development Kit">SDK</acronym> Engine&quot; via &quot;Module Properties???Library???Add Dependency&quot;</div>
 </li>
-<li><div> Write your plugin </div>
+<li><div> Write your plugin (e.g. <a href="/com/jme3/gde/core/docs/sdk/development.html">create a new editor</a> or <a href="/com/jme3/gde/core/docs/sdk/development/extension_library.html">wrap a jar library</a>)</div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT2 SECTION "Using jMonkeyEngine SDK for development" [179-1286] -->
+<!-- EDIT2 SECTION "Using jMonkeyEngine SDK for development" [179-1392] -->
 <h3><a>jMonkeyEngine SDK Contributions Update Center</a></h3>
 <div>
 
@@ -131,6 +131,10 @@ And thats it, from now on each time you commit changes to your module it will be
 <div>
 
 <p>
+You can just build your library locally and update and commit the jar file and javadoc/sources zip files to the contrib repo, the users plugins will automatically be updated with the new jar files. You can however also build the whole library project on the server.
+</p>
+
+<p>
 As only the module project is being built on the server, any projects that create the actual jar files for library plugins (&quot;normal&quot; projects from the <acronym title="Software Development Kit">SDK</acronym>/NetBeans) have to be built from the module build file. To do that simply add the following ant targets to the module build file:
 
 </p>
@@ -147,5 +151,5 @@ As only the module project is being built on the server, any projects that creat
 </p>
 
 </div>
-<!-- EDIT3 SECTION "jMonkeyEngine SDK Contributions Update Center" [1287-] -->
+<!-- EDIT3 SECTION "jMonkeyEngine SDK Contributions Update Center" [1393-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:setup?do=export_xhtmlbody">view online version</a></em></p>

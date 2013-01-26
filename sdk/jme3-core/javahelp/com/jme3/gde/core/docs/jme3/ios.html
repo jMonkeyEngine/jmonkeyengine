@@ -11,12 +11,12 @@ iOS deployment works via cross-compilation to native iOS ARM code, there is no v
 </p>
 
 <p>
-<p><div>Note that at the moment this option is in pre-alpha state and the system runs on a null renderer. This means there is no visual output. You can however use the current system to explore the options and test cross-compiling your applications.
+<p><div>Note that at the moment this option is in pre-alpha state and the system runs on a null renderer. This means there is no visual or audio output. You can however use the current system to explore the options and test cross-compiling your applications.
 </div></p>
 </p>
 
 </div>
-<!-- EDIT1 SECTION "iOS Deployment" [1-755] -->
+<!-- EDIT1 SECTION "iOS Deployment" [1-764] -->
 <h3><a>Enabling iOS deployment</a></h3>
 <div>
 
@@ -25,16 +25,21 @@ To enable iOS deployment, go to the project settings and under &quot;Application
 </p>
 
 <p>
-Note: When you do this for the first time or any time that the Avian library and OpenJDK is updated, they will be extracted to your <acronym title="Software Development Kit">SDK</acronym> settings folder, wait until it has been extracted before building an iOS-enabled project.
+<img src="nbdocs:/com/jme3/gde/core/docs/jme3/ios-deployment.png">
 </p>
 
 <p>
 After enabling deployment, a new <code>ios</code> directory is created in the project root that contains a <code>project</code> and a <code>src</code> folder. The <code>ios/project</code> folder contains an Xcode project that you will use to build and run the final iOS application for both iPhone and iOS. The <code>ios/src</code> folder contains java and native source files for bridging iOS and native code, you can add .java and .m files with your own iOS code here.
+</p>
+
+<p>
+<p><div>When you enable iOS deployment for the first time or any time that the Avian library and OpenJDK is updated, they will be extracted to your <acronym title="Software Development Kit">SDK</acronym> settings folder, wait until it has been extracted before building an iOS-enabled project.
+</div></p>
 
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Enabling iOS deployment" [756-1614] -->
+<!-- EDIT2 SECTION "Enabling iOS deployment" [765-1685] -->
 <h3><a>Building the iOS binaries</a></h3>
 <div>
 
@@ -51,16 +56,19 @@ After the iOS classpath has been created the avian compiler is used to create a 
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Building the iOS binaries" [1615-2436] -->
+<!-- EDIT3 SECTION "Building the iOS binaries" [1686-2507] -->
 <h3><a>Running and deploying the application</a></h3>
 <div>
 
 <p>
-To run the application, open the Xcode project in Xcode and press the run button. You can make changes to the UI and native invocation classes in the Xcode project as well. From here you can also deploy the application to your devices or the App Store.
+To run the application, open the Xcode project under <code>ios/project</code> in Xcode and press the run button. You can make changes to the UI and native invocation classes in the Xcode project as well. From here you can also deploy the application to your devices or the App Store.
+<p><div>Note that you should also adapt the project settings like application name and registration package in Xcode before deploying the final application.
+</div></p>
+
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Running and deploying the application" [2437-2738] -->
+<!-- EDIT4 SECTION "Running and deploying the application" [2508-2996] -->
 <h3><a>Creating native and java code for iOS</a></h3>
 <div>
 
@@ -73,7 +81,7 @@ The JmeAppHarness.java class is initialized and called from native code through 
 </p>
 
 <p>
-Effectively native code can reside in both the Xcode project and in the <code>ios/src</code> folder. To keep the dependencies clean and make code reusable you should try to put generic native code that does not depend on the Xcode project in the <code>ios/src</code> folder.
+Effectively native code can reside in both the Xcode project and in the <code>ios/src</code> folder. To keep the dependencies clean and make code reusable you should try to put generic native code that does not depend on the Xcode project in the <code>ios/src</code> folder. You can also mix and match ARC and non-ARC code through this by converting the main project to use ARC and putting code with manual memory management in the <code>ios/src</code> folder.
 </p>
 
 <p>
@@ -89,5 +97,5 @@ Java code for iOS should be in the <code>ios/src</code> folder as well for clean
 </span></div>
 
 </div>
-<!-- EDIT5 SECTION "Creating native and java code for iOS" [2739-] -->
+<!-- EDIT5 SECTION "Creating native and java code for iOS" [2997-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:ios?do=export_xhtmlbody">view online version</a></em></p>

@@ -55,6 +55,81 @@ Its important to note that each used texture will create one separate geometry. 
 <div>
 
 <p>
+To create an animation from scratch do the following:
+</p>
+<ul>
+<li><div> Create the model</div>
+<ul>
+<li><div> Make sure your models location, rotation and scale is applied and zero / one (see &quot;Model Checklist&quot; below)</div>
+</li>
+<li><div> (Did you know? You can make any model from a box by only using extrusion, this creates very clean meshes)</div>
+</li>
+</ul>
+</li>
+<li><div> Create the armature bones, don&#039;t forget to have one root bone!</div>
+<ul>
+<li><div> Start by placing the cursor at zero</div>
+</li>
+<li><div> Go to the Add???Armature???Single Bone menu and create the root bone</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/core/docs/jme3/external/blender-add-bone.png"></div>
+</li>
+</ul>
+</li>
+<li><div> Select the bone and go to edit mode (press tab)</div>
+</li>
+<li><div> Select the root bone end and press &quot;E&quot; to extrude the bone, then start rigging your model this way</div>
+</li>
+<li><div> <strong>Make sure your armatures location, rotation and scale is applied (see &quot;Model Checklist&quot; below) before continuing</strong></div>
+</li>
+</ul>
+</li>
+<li><div> Make the armature the parent of the model</div>
+<ul>
+<li><div> Make sure you are back in object mode (press tab again)</div>
+</li>
+<li><div> First select the model object then select the armature object with shift pressed, then press Ctrl-P</div>
+</li>
+<li><div> When you do this, you can select how the bone groups will be mapped to the model vertices initially</div>
+</li>
+</ul>
+</li>
+<li><div> Set a new armature constraint in the model &quot;Object Modifiers&quot; settings and select the Armature</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/core/docs/jme3/external/blender-make-armature.png"></div>
+</li>
+</ul>
+</li>
+<li><div> Voila, your model should move when you move the bones in pose mode</div>
+</li>
+<li><div> Go to the &quot;Dope Sheet&quot; window and select the &quot;Action editor&quot;</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/core/docs/jme3/external/blender-action-editor.png"></div>
+</li>
+</ul>
+</li>
+<li><div> Add an action by pressing the plus button</div>
+</li>
+<li><div> Create the keyframes (select the model armature and press I) along the timeline</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/core/docs/jme3/external/blender-add-keyframes.png"></div>
+</li>
+</ul>
+</li>
+<li><div> Each action will be an animation available via the animation control in jME after the import</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT5 SECTION "Animations" [1723-3497] -->
+<h3><a>Model Checklist</a></h3>
+<div>
+
+<p>
+Sometimes you do not create the model yourself and often times models from the web are not really made for OpenGL live rendering or not completely compatible with the bone system in jME.
+</p>
+
+<p>
 To export an animated model in Blender make sure the following conditions are met:
 
 </p>
@@ -130,7 +205,7 @@ Also check out these videos and resources:
 </ul>
 
 </div>
-<!-- EDIT5 SECTION "Animations" [1723-5066] -->
+<!-- EDIT6 SECTION "Model Checklist" [3498-7032] -->
 <h1><a>NormalMap baking</a></h1>
 <div>
 
@@ -140,7 +215,7 @@ Models for live rendering should have a low polygon count. To increase the perce
 </p>
 
 </div>
-<!-- EDIT6 SECTION "NormalMap baking" [5067-5398] -->
+<!-- EDIT7 SECTION "NormalMap baking" [7033-7364] -->
 <h2><a>Blender modeling lowPoly &amp; highPoly</a></h2>
 <div>
 
@@ -198,7 +273,7 @@ Now go into Render Tab, and bake a normalMap using same configuration as here:
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Blender modeling lowPoly & highPoly" [5399-6468] -->
+<!-- EDIT8 SECTION "Blender modeling lowPoly & highPoly" [7365-8434] -->
 <h2><a>Fixing the normal colors in Blender</a></h2>
 <div>
 
@@ -247,7 +322,7 @@ After rendering, save the file to a destination you want and use it with the JME
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Fixing the normal colors in Blender" [6469-7262] -->
+<!-- EDIT9 SECTION "Fixing the normal colors in Blender" [8435-9228] -->
 <h1><a>LightMap baking</a></h1>
 <div>
 
@@ -257,7 +332,7 @@ The goal of this tutorial is to explain briefly how to bake light map in blender
 </p>
 
 </div>
-<!-- EDIT9 SECTION "LightMap baking" [7263-7466] -->
+<!-- EDIT10 SECTION "LightMap baking" [9229-9432] -->
 <h2><a>Blender modeling + texturing</a></h2>
 <div>
 
@@ -303,7 +378,7 @@ then the light map<br/>
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Blender modeling + texturing" [7467-8578] -->
+<!-- EDIT11 SECTION "Blender modeling + texturing" [9433-10544] -->
 <h2><a>Importing the model in the SDK and creating the appropriate material</a></h2>
 <div>
 
@@ -332,7 +407,7 @@ The blend file, the ogre xml files and the textures can be found in the download
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Importing the model in the SDK and creating the appropriate material" [8579-9263] -->
+<!-- EDIT12 SECTION "Importing the model in the SDK and creating the appropriate material" [10545-11229] -->
 <h1><a>SkyBox baking</a></h1>
 <div>
 
@@ -457,7 +532,7 @@ If you want to do it from code, here is an example:
 </p>
 
 </div>
-<!-- EDIT12 SECTION "SkyBox baking" [9264-13871] -->
+<!-- EDIT13 SECTION "SkyBox baking" [11230-15837] -->
 <h3><a>Further reading</a></h3>
 <div>
 <ul>
@@ -468,5 +543,5 @@ If you want to do it from code, here is an example:
 </ul>
 
 </div>
-<!-- EDIT13 SECTION "Further reading" [13872-] -->
+<!-- EDIT14 SECTION "Further reading" [15838-] -->
 <p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:external:blender?do=export_xhtmlbody">view online version</a></em></p>

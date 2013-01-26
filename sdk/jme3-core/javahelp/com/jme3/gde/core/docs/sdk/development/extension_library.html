@@ -26,8 +26,6 @@ Creating the plugin project (in jMonkeyEngine <acronym title="Software Developme
 </li>
 <li><div> Enter a &quot;Module Display Name&quot; for your plugin like &quot;My Library&quot;</div>
 </li>
-<li><div> Check the &quot;Generate <acronym title="Extensible Markup Language">XML</acronym> Layer&quot; checkbox</div>
-</li>
 <li><div> Press Finish</div>
 </li>
 </ul>
@@ -71,8 +69,11 @@ You will notice a new file &quot;MyLibrary.xml&quot; is created in the plugins b
 </p>
 
 <p>
-After you are done, you can <a href="/com/jme3/gde/core/docs/sdk/development/setup#jmonkeyengine_sdk_contributions_update_center.html">contribute the plugin in the jMonkeyEngine SDK contribution update center</a>.
+Note that the files in the release folder are <strong>not</strong> automatically updated when the library changes, you have to pack and replace the jar and zip files manually. See the build script extension in the link below on how you can make your module build script do that automatically.
+</p>
 
+<p>
+After you are done, you can <a href="/com/jme3/gde/core/docs/sdk/development/setup#jmonkeyengine_sdk_contributions_update_center.html">contribute the plugin in the jMonkeyEngine SDK contribution update center</a>.
 </p>
 
 </div>
