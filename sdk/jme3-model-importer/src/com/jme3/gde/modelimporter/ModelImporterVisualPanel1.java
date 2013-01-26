@@ -80,7 +80,7 @@ public final class ModelImporterVisualPanel1 extends JPanel {
         manager = null;
         dataObject = null;
         data = null;
-        manager = new ProjectAssetManager(FileUtil.toFileObject(path).getParent());
+        manager = new ProjectAssetManager(FileUtil.toFileObject(path).getParent(), true);
         try {
             dataObject = DataObject.find(FileUtil.toFileObject(path));
             data = dataObject != null ? dataObject.getLookup().lookup(AssetData.class) : null;

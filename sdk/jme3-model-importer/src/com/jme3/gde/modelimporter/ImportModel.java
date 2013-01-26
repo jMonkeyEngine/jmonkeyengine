@@ -5,8 +5,10 @@
 package com.jme3.gde.modelimporter;
 
 import com.jme3.asset.AssetKey;
+import com.jme3.asset.MaterialKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.gde.core.assets.AssetData;
+import com.jme3.gde.core.assets.BinaryModelDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
 import com.jme3.scene.Spatial;
@@ -99,12 +101,24 @@ public final class ImportModel implements ActionListener {
         }
     }
 
+    private String correctImportPathLetterCase(String importPath, List<AssetKey> assetKeys) {
+        for (AssetKey key : assetKeys) {
+            if (importPath.equalsIgnoreCase(key.getFolder())) {
+                // Recommend using the folder letter case from asset key.
+                return key.getFolder(); 
+            }
+        }
+        // No assets or none match the path. Use original.
+        return importPath; 
+    }
+    
     private void copyModel(WizardDescriptor wiz) {
-//        List<AssetKey> keyList = (List<AssetKey>) wiz.getProperty("assetlist");
 //        String path = (String) wiz.getProperty("path");
-        AssetKey key = (AssetKey) wiz.getProperty("mainkey");
+        AssetKey modelKey = (AssetKey) wiz.getProperty("mainkey");
         boolean keepFiles = (Boolean) wiz.getProperty("keepfiles");
+
         List<FileObject> assetList = (List<FileObject>) wiz.getProperty("assetfiles");
+        List<AssetKey> assetKeys = (List<AssetKey>) wiz.getProperty("assetlist");
         String importPath = (String) wiz.getProperty("destpath");
         Project context = (Project) wiz.getProperty("project");
         ProjectAssetManager importManager = (ProjectAssetManager) wiz.getProperty("manager");
@@ -112,11 +126,27 @@ public final class ImportModel implements ActionListener {
         if (manager == null) {
             throw new IllegalStateException("Cannot find project AssetManager!");
         }
+        
+        // Try to correct letter case in import path (this fixes case mismatch issues in Windows)
+        importPath = correctImportPathLetterCase(importPath, assetKeys);
+        
         List<FileObject> deleteList = new LinkedList<FileObject>();
-        for (Iterator<FileObject> it = assetList.iterator(); it.hasNext();) {
-            FileObject source = it.next();
+        int i = 0;
+        for (FileObject source : assetList) {
+            AssetKey assetKey = assetKeys.get(i++);
             try {
-                String folderName = importPath + "/" + importManager.getRelativeAssetPath(source.getParent().getPath());
+                String folderName;
+                // Put it in the user's import path if we use relative paths 
+                // (asset keys have folders)
+                // or loading the model portion of the asset.
+                // If we are loading dependent assets of J3O or J3M (absolute paths), 
+                // put them in the expected absolute paths.
+                if (assetKey.equals(modelKey) || assetKey.getFolder().equals("")) {
+                    folderName = importPath + "/" + importManager.getRelativeAssetPath(source.getParent().getPath());
+                } else {
+                    folderName = assetKey.getFolder();
+                }
+                
                 FileObject dest = manager.getAssetFolder().getFileObject(folderName);
                 if (dest == null) {
                     dest = FileUtil.createFolder(manager.getAssetFolder(), folderName);
@@ -141,8 +171,14 @@ public final class ImportModel implements ActionListener {
                     DataObject obj = DataObject.find(fileObj);
                     AssetData data = obj.getLookup().lookup(AssetData.class);
                     if (data != null) {
-                        AssetKey assetKey = data.getAssetKey();
-                        if (!(assetKey instanceof TextureKey)) {
+                        if (obj instanceof SpatialAssetDataObject) {
+                            // Delete models that are not J3O.
+                            if (!(obj instanceof BinaryModelDataObject)) {
+                                deleteList.add(fileObj);
+                            }
+                        } else if (!(assetKey instanceof TextureKey)
+                                && !(assetKey instanceof MaterialKey)) {
+                            // Also delete anything thats not an image or J3M file.
                             deleteList.add(fileObj);
                         }
                     }
@@ -152,7 +188,7 @@ public final class ImportModel implements ActionListener {
             }
         }
 
-        FileObject file = manager.getAssetFolder().getFileObject(importPath + "/" + key.getName());
+        FileObject file = manager.getAssetFolder().getFileObject(importPath + "/" + modelKey.getName());
         DataObject targetModel;
         try {
             targetModel = DataObject.find(file);
@@ -160,7 +196,7 @@ public final class ImportModel implements ActionListener {
                 //TODO: wtf? why do i have to add the assetmanager?
                 ((SpatialAssetDataObject) targetModel).getLookupContents().add(manager);
                 AssetData data = targetModel.getLookup().lookup(AssetData.class);
-                data.setAssetKey(key);
+                data.setAssetKey(modelKey);
                 Spatial spat = (Spatial) data.loadAsset();
                 if (spat == null) {
                     throw new IllegalStateException("Cannot load model after copying!");

@@ -286,7 +286,7 @@ public class AssetDataObject extends MultiDataObject {
             if (pm == null || loadingThread != Thread.currentThread()) {
                 return;
             }
-            FileObject obj = pm.getAssetFolder().getFileObject(ak.getName());
+            FileObject obj = pm.getAssetFileObject(ak);
             if (obj != null && !assetList.contains(obj)) {
                 assetList.add(obj);
                 assetKeyList.add(ak);
@@ -298,7 +298,7 @@ public class AssetDataObject extends MultiDataObject {
             if (pm == null || loadingThread != Thread.currentThread()) {
                 return;
             }
-            FileObject obj = pm.getAssetFolder().getFileObject(ak1.getName());
+            FileObject obj = pm.getAssetFileObject(ak1);
             if (obj != null && assetList.contains(obj)) {
                 assetList.remove(obj);
                 assetKeyList.remove(ak1);
