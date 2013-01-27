@@ -61,6 +61,7 @@ public class Installer extends ModuleInstall {
     public void restored() {
         //start scene app
         SceneApplication.getApplication();
+        Logger.getLogger("org.openide.loaders.FolderChildren").setLevel(Level.OFF);
     }
 
     static {
