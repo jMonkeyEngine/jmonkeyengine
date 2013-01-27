@@ -459,16 +459,20 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     public void setParam(String name, VarType type, Object value) {
         checkSetParam(type, name);
         
-        MatParam val = getParam(name);
-        if (val == null) {
-            MatParam paramDef = def.getMaterialParam(name);
-            paramValues.put(name, new MatParam(type, name, value, paramDef.getFixedFuncBinding()));
+        if (type.isTextureType()) {
+            setTextureParam(name, type, (Texture)value);
         } else {
-            val.setValue(value);
-        }
-        
-        if (technique != null) {
-            technique.notifyParamChanged(name, type, value);
+            MatParam val = getParam(name);
+            if (val == null) {
+                MatParam paramDef = def.getMaterialParam(name);
+                paramValues.put(name, new MatParam(type, name, value, paramDef.getFixedFuncBinding()));
+            } else {
+                val.setValue(value);
+            }
+
+            if (technique != null) {
+                technique.notifyParamChanged(name, type, value);
+            }
         }
     }
 
