@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
+import com.jme3.asset.AssetInfo;
 import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -715,9 +716,12 @@ public class TextureHelper extends AbstractBlenderHelper {
 				TextureKey key = new TextureKey(assetName);
 				key.setGenerateMips(true);
 				key.setAsCube(false);
-				result = assetManager.loadTexture(key);
-				break;// if no exception is thrown then accept the located asset
-						// and break the loop
+                                AssetInfo info = assetManager.locateAsset(key);
+                                if(info != null){
+                                    result = assetManager.loadTexture(key);
+                                    break;// if no exception is thrown then accept the located asset
+                                          // and break the loop
+                                }
 			} catch (AssetNotFoundException e) {
 				LOGGER.fine(e.getLocalizedMessage());
 			}
