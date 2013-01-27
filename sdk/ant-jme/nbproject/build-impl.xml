@@ -523,39 +523,66 @@ is divided into following sections:
             </sequential>
         </macrodef>
     </target>
-    <target if="${junit.available}" name="-init-macrodef-junit-debug">
+    <target if="${junit.available}" name="-init-macrodef-junit-debug" unless="${nb.junit.batch}">
         <macrodef name="junit-debug" uri="http://www.netbeans.org/ns/j2se-project/3">
-            <attribute default="${main.class}" name="testClass"/>
-            <attribute default="" name="testMethod"/>
-            <element name="customize2" optional="true"/>
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <attribute default="" name="testmethods"/>
+            <element name="customize" optional="true"/>
             <sequential>
-                <property location="${build.test.results.dir}/TEST-@{testClass}.xml" name="test.report.file"/>
-                <delete file="${test.report.file}"/>
-                <mkdir dir="${build.test.results.dir}"/>
-                <condition else="" property="junit.methods.arg" value="methods=@{testMethod}">
-                    <isset property="test.method"/>
-                </condition>
-                <j2seproject3:debug classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner" classpath="${ant.home}/lib/ant.jar:${ant.home}/lib/ant-junit.jar:${debug.test.classpath}">
-                    <customize>
-                        <arg value="@{testClass}"/>
-                        <arg value="${junit.methods.arg}"/>
-                        <arg value="showoutput=true"/>
-                        <arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.BriefJUnitResultFormatter"/>
-                        <arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,${test.report.file}"/>
-                        <customize2/>
-                    </customize>
-                </j2seproject3:debug>
+                <property name="junit.forkmode" value="perTest"/>
+                <junit dir="${work.dir}" errorproperty="tests.failed" failureproperty="tests.failed" fork="true" forkmode="${junit.forkmode}" showoutput="true" tempdir="${build.dir}">
+                    <test methods="@{testmethods}" name="@{testincludes}" todir="${build.test.results.dir}"/>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <formatter type="brief" usefile="false"/>
+                    <formatter type="xml"/>
+                    <jvmarg value="-ea"/>
+                    <jvmarg line="${debug-args-line}"/>
+                    <jvmarg value="-Xrunjdwp:transport=${debug-transport},address=${jpda.address}"/>
+                    <customize/>
+                </junit>
             </sequential>
         </macrodef>
     </target>
-    <target depends="-init-macrodef-junit-debug" if="${junit.available}" name="-init-macrodef-junit-debug-impl">
-        <macrodef name="test-debug-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
-            <attribute default="${main.class}" name="testClass"/>
-            <attribute default="" name="testMethod"/>
-            <element implicit="true" name="customize2" optional="true"/>
+    <target if="${nb.junit.batch}" name="-init-macrodef-junit-debug-batch">
+        <macrodef name="junit-debug" uri="http://www.netbeans.org/ns/j2se-project/3">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <attribute default="" name="testmethods"/>
+            <element name="customize" optional="true"/>
             <sequential>
-                <j2seproject3:junit-debug testClass="@{testClass}" testMethod="@{testMethod}">
-                    <customize2/>
+                <property name="junit.forkmode" value="perTest"/>
+                <junit dir="${work.dir}" errorproperty="tests.failed" failureproperty="tests.failed" fork="true" forkmode="${junit.forkmode}" showoutput="true" tempdir="${build.dir}">
+                    <batchtest todir="${build.test.results.dir}"/>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <formatter type="brief" usefile="false"/>
+                    <formatter type="xml"/>
+                    <jvmarg value="-ea"/>
+                    <jvmarg line="${debug-args-line}"/>
+                    <jvmarg value="-Xrunjdwp:transport=${debug-transport},address=${jpda.address}"/>
+                    <customize/>
+                </junit>
+            </sequential>
+        </macrodef>
+    </target>
+    <target depends="-init-macrodef-junit-debug,-init-macrodef-junit-debug-batch" if="${junit.available}" name="-init-macrodef-junit-debug-impl">
+        <macrodef name="test-debug-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <attribute default="" name="testmethods"/>
+            <element implicit="true" name="customize" optional="true"/>
+            <sequential>
+                <j2seproject3:junit-debug excludes="@{excludes}" includes="@{includes}" testincludes="@{testincludes}" testmethods="@{testmethods}">
+                    <customize/>
                 </j2seproject3:junit-debug>
             </sequential>
         </macrodef>
@@ -588,7 +615,7 @@ is divided into following sections:
         </macrodef>
     </target>
     <target depends="-init-macrodef-testng-debug" if="${testng.available}" name="-init-macrodef-testng-debug-impl">
-        <macrodef name="test-debug-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
+        <macrodef name="testng-debug-impl" uri="http://www.netbeans.org/ns/j2se-project/3">
             <attribute default="${main.class}" name="testClass"/>
             <attribute default="" name="testMethod"/>
             <element implicit="true" name="customize2" optional="true"/>
@@ -599,22 +626,49 @@ is divided into following sections:
             </sequential>
         </macrodef>
     </target>
-    <target depends="-init-macrodef-junit-debug-impl,-init-macrodef-testng-debug-impl" name="-init-macrodef-test-debug">
+    <target depends="-init-macrodef-junit-debug-impl" if="${junit.available}" name="-init-macrodef-test-debug-junit">
         <macrodef name="test-debug" uri="http://www.netbeans.org/ns/j2se-project/3">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <attribute default="" name="testmethods"/>
             <attribute default="${main.class}" name="testClass"/>
             <attribute default="" name="testMethod"/>
             <sequential>
-                <j2seproject3:test-debug-impl testClass="@{testClass}" testMethod="@{testMethod}">
+                <j2seproject3:test-debug-impl excludes="@{excludes}" includes="@{includes}" testincludes="@{testincludes}" testmethods="@{testmethods}">
+                    <customize>
+                        <classpath>
+                            <path path="${run.test.classpath}"/>
+                        </classpath>
+                        <jvmarg line="${endorsed.classpath.cmd.line.arg}"/>
+                        <jvmarg line="${run.jvmargs}"/>
+                        <jvmarg line="${run.jvmargs.ide}"/>
+                    </customize>
+                </j2seproject3:test-debug-impl>
+            </sequential>
+        </macrodef>
+    </target>
+    <target depends="-init-macrodef-testng-debug-impl" if="${testng.available}" name="-init-macrodef-test-debug-testng">
+        <macrodef name="test-debug" uri="http://www.netbeans.org/ns/j2se-project/3">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <attribute default="" name="testmethods"/>
+            <attribute default="${main.class}" name="testClass"/>
+            <attribute default="" name="testMethod"/>
+            <sequential>
+                <j2seproject3:testng-debug-impl testClass="@{testClass}" testMethod="@{testMethod}">
                     <customize2>
                         <syspropertyset>
                             <propertyref prefix="test-sys-prop."/>
                             <mapper from="test-sys-prop.*" to="*" type="glob"/>
                         </syspropertyset>
                     </customize2>
-                </j2seproject3:test-debug-impl>
+                </j2seproject3:testng-debug-impl>
             </sequential>
         </macrodef>
     </target>
+    <target depends="-init-macrodef-test-debug-junit,-init-macrodef-test-debug-testng" name="-init-macrodef-test-debug"/>
     <!--
                 pre NB7.2 profiling section; consider it deprecated
             -->
@@ -775,6 +829,9 @@ is divided into following sections:
                     <path path="${run.classpath.without.build.classes.dir}"/>
                     <chainedmapper>
                         <flattenmapper/>
+                        <filtermapper>
+                            <replacestring from=" " to="%20"/>
+                        </filtermapper>
                         <globmapper from="*" to="lib/*"/>
                     </chainedmapper>
                 </pathconvert>
@@ -1252,13 +1309,14 @@ is divided into following sections:
                 TEST DEBUGGING SECTION
                 =======================
             -->
-    <target depends="init,compile-test" if="have.tests" name="-debug-start-debuggee-test">
+    <target depends="init,compile-test-single,-pre-test-run-single" if="have.tests" name="-debug-start-debuggee-test">
         <fail unless="test.class">Must select one file in the IDE or set test.class</fail>
-        <j2seproject3:test-debug testClass="${test.class}"/>
+        <j2seproject3:test-debug excludes="" includes="${javac.includes}" testClass="${test.class}" testincludes="${javac.includes}"/>
     </target>
-    <target depends="init,compile-test" if="have.tests" name="-debug-start-debuggee-test-method">
+    <target depends="init,compile-test-single,-pre-test-run-single" if="have.tests" name="-debug-start-debuggee-test-method">
         <fail unless="test.class">Must select one file in the IDE or set test.class</fail>
-        <j2seproject3:test-debug testClass="${test.class}" testMethod="${test.method}"/>
+        <fail unless="test.method">Must select some method in the IDE or set test.method</fail>
+        <j2seproject3:test-debug excludes="" includes="${javac.includes}" testClass="${test.class}" testMethod="${test.method}" testincludes="${test.class}" testmethods="${test.method}"/>
     </target>
     <target depends="init,compile-test" if="netbeans.home+have.tests" name="-debug-start-debugger-test">
         <j2seproject1:nbjpdastart classpath="${debug.test.classpath}" name="${test.class}"/>

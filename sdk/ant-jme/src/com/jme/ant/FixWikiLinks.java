@@ -40,6 +40,8 @@ public class FixWikiLinks extends Task {
                 line = line.replaceAll("/wiki/lib/exe/fetch\\.php/([^>]*):([^>]*):([^>]*)\"", "nbdocs:/" + helpPath + "$1/$2/$3\"");
                 line = line.replaceAll("/wiki/lib/exe/fetch\\.php/([^>]*):([^>]*)\"", "nbdocs:/" + helpPath + "$1/$2\"");
                 line = line.replaceAll("/wiki/lib/exe/fetch\\.php/([^>]*)\"", "nbdocs:/" + helpPath + "$1\"");
+//                line = line.replaceAll("/wiki/lib/exe/fetch\\.php?([^>]*)\"", "nbdocs:/" + helpPath + "external/$1\"").replaceAll("[_[^\\w\\däüö:ÄÜÖ\\/\\+\\-\\. ]]", "_");
+
                 line = line.replaceAll("<a href=([^>]*)><img src=\"([^\"]*)\"([^>]*)></a>", "<img src=\"$2\">");
                 line = line.replaceAll("<img src=\"([^>]*)\\?([^>]*)\">", "<img src=\"$1\">");
                 //                                      vvvv------v

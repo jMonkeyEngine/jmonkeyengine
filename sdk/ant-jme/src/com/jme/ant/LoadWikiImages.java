@@ -38,6 +38,8 @@ public class LoadWikiImages extends Task {
                     if (endIdx >= 0) {
                         String link = line.substring(idx + 10, endIdx);
                         int wikidx = link.indexOf("/wiki/lib/exe/fetch.php/");
+                        //int extidx = link.indexOf("/wiki/lib/exe/fetch.php?");
+                        int extidx = -1;
                         if (wikidx >= 0) {
                             String name = link.replaceAll("/wiki/lib/exe/fetch\\.php/", "");
                             int markIdx = name.indexOf("?");
@@ -48,7 +50,30 @@ public class LoadWikiImages extends Task {
                             URL url = new URL(host + link);
                             InputStream in = url.openStream();
                             File file = new File(getLocation().getFileName().replaceAll("build.xml", "") + File.separator + targetFolder + File.separator + name.replaceAll("/", File.separator));
-                            log("Getting: " + host + link);
+                            log("Getting image: " + host + link);
+                            log("To: " + file);
+                            File parent = file.getParentFile();
+                            parent.mkdirs();
+                            FileOutputStream out = new FileOutputStream(file);
+                            int byte_ = in.read();
+                            while (byte_ != -1) {
+                                out.write(byte_);
+                                byte_ = in.read();
+                            }
+                            in.close();
+                            out.close();
+                        }else if(extidx >= 0){
+                            String name = link.replaceAll("/wiki/lib/exe/fetch\\.php\\?([^>]*);media=([^>]*)\"", "");
+                            int markIdx = name.indexOf("?");
+                            if (markIdx >= 0) {
+                                name = name.substring(0, markIdx);
+                            }
+                            //make external folder and clean filename
+                            name = "external/" + name.replaceAll("[_[^\\w\\däüöÄÜÖ\\/\\+\\-\\. ]]", "_");
+                            URL url = new URL(host + link);
+                            InputStream in = url.openStream();
+                            File file = new File(getLocation().getFileName().replaceAll("build.xml", "") + File.separator + targetFolder + File.separator + name.replaceAll("/", File.separator));
+                            log("Getting external image: " + host + link);
                             log("To: " + file);
                             File parent = file.getParentFile();
                             parent.mkdirs();
