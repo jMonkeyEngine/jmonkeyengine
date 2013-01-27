@@ -279,7 +279,7 @@ public class SceneApplication extends Application implements LookupProvider {
 
     @Override
     public void update() {
-        if (speed == 0) {
+        if(!started) {
             return;
         }
         try {
@@ -618,11 +618,7 @@ public class SceneApplication extends Application implements LookupProvider {
             Exceptions.printStackTrace(t);
         } else {
             if (lastError != null && !lastError.equals(msg)) {
-                Message mesg = new NotifyDescriptor.Message(
-                        "Error in scene!\n"
-                        + "(" + t + ")",
-                        NotifyDescriptor.WARNING_MESSAGE);
-                DialogDisplayer.getDefault().notifyLater(mesg);
+                StatusDisplayer.getDefault().setStatusText("Error in Scene, check application log");
                 Exceptions.printStackTrace(t);
                 lastError = msg;
             }
