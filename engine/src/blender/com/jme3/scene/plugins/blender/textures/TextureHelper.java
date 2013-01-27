@@ -162,11 +162,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 			case TEX_NONE:// No texture, do nothing
 				break;
 			case TEX_POINTDENSITY:
-				LOGGER.warning("Point density texture loading currently not supported!");
-				break;
 			case TEX_VOXELDATA:
-				LOGGER.warning("Voxel data texture loading currently not supported!");
-				break;
 			case TEX_PLUGIN:
 			case TEX_ENVMAP:
 				LOGGER.log(Level.WARNING, "Unsupported texture type: {0} for texture: {1}", new Object[] { type, tex.getName() });
@@ -177,8 +173,25 @@ public class TextureHelper extends AbstractBlenderHelper {
 		if (result != null) {
 			result.setName(tex.getName());
 			result.setWrap(WrapMode.Repeat);
-			// NOTE: Enable mipmaps FOR ALL TEXTURES EVER
-			result.setMinFilter(MinFilter.Trilinear);
+			
+			//decide if the mipmaps will be generated
+			switch(blenderContext.getBlenderKey().getMipmapGenerationMethod()) {
+				case ALWAYS_GENERATE:
+					result.setMinFilter(MinFilter.Trilinear);
+					break;
+				case NEVER_GENERATE:
+					break;
+				case GENERATE_WHEN_NEEDED:
+					int imaflag = ((Number) tex.getFieldValue("imaflag")).intValue();
+					if((imaflag & 0x04) != 0) {
+						result.setMinFilter(MinFilter.Trilinear);
+					}
+					break;
+				default:
+					throw new IllegalStateException("Unknown mipmap generation method: " +
+								blenderContext.getBlenderKey().getMipmapGenerationMethod());
+			}
+			
 			if (type != TEX_IMAGE) {// only generated textures should have this key
 				result.setKey(new GeneratedTextureKey(tex.getName()));
 			}
