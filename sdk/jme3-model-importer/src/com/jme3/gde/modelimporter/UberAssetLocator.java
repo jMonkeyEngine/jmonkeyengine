@@ -38,6 +38,8 @@ import com.jme3.asset.AssetManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.filechooser.FileFilter;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileObject;
@@ -45,15 +47,74 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 /**
+ * Asset locator that tries to find a file across the filesystem or get user
+ * input on where the file is.
  *
  * @author normenhansen
  */
 public class UberAssetLocator implements AssetLocator {
+    //ugly static due to Locator instantiation
+
+    private static final List<UberAssetInfo> locatedAssets = new ArrayList<UberAssetInfo>();
+    private String rootPath;
+
+    public static void resetLocatedList() {
+        locatedAssets.clear();
+    }
+
+    public static List<UberAssetInfo> getLocatedList() {
+        return new ArrayList<UberAssetInfo>(locatedAssets);
+    }
+
+    private static UberAssetInfo getInfo(AssetKey key) {
+        for (UberAssetInfo uberAssetInfo : locatedAssets) {
+            if (uberAssetInfo.getKey().getName().equals(key.getName())) {
+                return uberAssetInfo;
+            }
+        }
+        return null;
+    }
+
+    public UberAssetLocator() {
+    }
 
     public void setRootPath(String rootPath) {
+        this.rootPath = rootPath;
     }
 
     public AssetInfo locate(AssetManager manager, AssetKey key) {
+        AssetInfo existing = getInfo(key);
+        if (existing != null) {
+            return existing;
+        }
+        FileObject file = findFile(key);
+        if (file == null) {
+            return null;
+        }
+        UberAssetInfo info = new UberAssetInfo(file, manager, key);
+        locatedAssets.add(info);
+        return info;
+    }
+
+    private FileObject findFile(AssetKey key) {
+        //TODO: better attempt to actually find file.. :)
+        String rootPath = this.rootPath != null ? this.rootPath.replace("\\", "/") : null;
+        if (rootPath != null) {
+            File file = new File(rootPath + "/" + key.getName());
+            FileObject fileObject = FileUtil.toFileObject(file);
+            if (fileObject != null) {
+                return fileObject;
+            }
+        }
+        File file = new File(key.getName());
+        FileObject fileObject = FileUtil.toFileObject(file);
+        if (fileObject != null) {
+            return fileObject;
+        }
+        return getUserPath(key);
+    }
+
+    private FileObject getUserPath(AssetKey key) {
         final String ext = key.getExtension();
         FileChooserBuilder fcb = new FileChooserBuilder(this.getClass());
         fcb.setTitle("Locate " + key.getName());
@@ -77,7 +138,7 @@ public class UberAssetLocator implements AssetLocator {
         if (file == null) {
             return null;
         }
-        return new UberAssetInfo(FileUtil.toFileObject(file), manager, key);
+        return FileUtil.toFileObject(file);
     }
 
     public static class UberAssetInfo extends AssetInfo {
@@ -87,6 +148,10 @@ public class UberAssetLocator implements AssetLocator {
         public UberAssetInfo(FileObject file, AssetManager manager, AssetKey key) {
             super(manager, key);
             this.file = file;
+        }
+
+        public FileObject getFileObject() {
+            return file;
         }
 
         @Override
