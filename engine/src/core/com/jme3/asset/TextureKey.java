@@ -95,6 +95,10 @@ public class TextureKey extends AssetKey<Texture> {
         return flipY;
     }
 
+    public void setFlipY(boolean flipY) {
+        this.flipY = flipY;
+    }
+    
     public int getAnisotropy() {
         return anisotropy;
     }
