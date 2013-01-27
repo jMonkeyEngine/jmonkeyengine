@@ -22,6 +22,15 @@
     <target name="update-help-sets" description="Loads the wiki pages from the web and converts them to JavaHelp html for manual.">
         <ant antfile="build.xml" target="update-help-sets" inheritall="false" inheritrefs="false" dir="jme3-documentation/"/>
     </target>
+    
+    <target name="update-nb-dependencies" description="Updates the dependencies of all projects to the currently used platform module versions">
+        <property file="nbproject/project.properties"/>
+        <foreach target="-update-nb-dep" list="${modules}" delimiter=":" param="module_dir" inheritall="true"/>
+    </target>
+    
+    <target name="-update-nb-dep">
+        <updatenbdeps projectFile="${module_dir}/nbproject/project.xml" platformFolder="../netbeans"/>
+    </target>
 
     <target name="-create-netbeans-config">
         <!--replaces default values in jmonkeyplatform.conf file with run.args.extra from project.properties-->
