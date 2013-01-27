@@ -83,6 +83,8 @@ public class MaterialExtensionLoader {
             } catch (AssetNotFoundException ex){
                 logger.log(Level.WARNING, "Cannot locate {0} for material {1}", new Object[]{texKey, key});
                 tex = new Texture2D( PlaceholderAssets.getPlaceholderImage() );
+                tex.setWrap(WrapMode.Repeat);
+                tex.setKey(texKey);
             }
             
             material.setTexture(jmeParamName, tex);

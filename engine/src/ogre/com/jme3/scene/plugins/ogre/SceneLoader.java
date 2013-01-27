@@ -305,7 +305,9 @@ public class SceneLoader extends DefaultHandler implements AssetLoader {
             if (ex.getMessage().equals(meshFile)) {
                 logger.log(Level.WARNING, "Cannot locate {0} for scene {1}", new Object[]{meshKey, key});
                 // Attach placeholder asset.
-                entityNode.attachChild(PlaceholderAssets.getPlaceholderModel(assetManager));
+                Spatial model = PlaceholderAssets.getPlaceholderModel(assetManager);
+                model.setKey(key);
+                entityNode.attachChild(model);
             } else {
                 throw ex;
             }

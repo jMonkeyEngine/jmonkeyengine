@@ -159,6 +159,10 @@ public class J3MLoader implements AssetLoader {
                 }
             }else{
                 tex = new Texture2D(PlaceholderAssets.getPlaceholderImage());
+                if (repeat){
+                    tex.setWrap(WrapMode.Repeat);
+                }
+                tex.setKey(texKey);
             }
             return tex;
         }else{
