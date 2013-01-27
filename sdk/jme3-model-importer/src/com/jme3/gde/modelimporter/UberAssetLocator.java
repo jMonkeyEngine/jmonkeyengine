@@ -99,7 +99,7 @@ public class UberAssetLocator implements AssetLocator {
             String normalName = uberAssetInfo.getKey().getName();
             if (assetBaseFolder != null) {
                 //sanitize filename by creating new asset key
-                String extendedName = new AssetKey(assetBaseFolder + "/" + normalName).getName();
+                String extendedName = new AssetKey(assetBaseFolder + normalName).getName();
                 logger.log(Level.INFO, "Looking for extended name {0}", extendedName);
                 if (extendedName.equals(key.getName())) {
                     logger.log(Level.INFO, "Found extended name {0}", extendedName);

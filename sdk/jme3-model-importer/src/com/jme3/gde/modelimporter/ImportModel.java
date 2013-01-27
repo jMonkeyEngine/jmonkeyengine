@@ -265,6 +265,7 @@ public final class ImportModel implements ActionListener {
                                     AssetKey curKey = tex.getKey();
                                     UberAssetInfo newInfo = UberAssetLocator.getInfo(curKey);
                                     if (newInfo != null) {
+                                        logger.log(Level.INFO, "Create new key with name {0}", newInfo.getNewAssetName());
                                         TextureKey newKey = new TextureKey(newInfo.getNewAssetName());
                                         Beans.copyProperties(curKey, newKey);
                                         Texture texture = mgr.loadTexture(newKey);
