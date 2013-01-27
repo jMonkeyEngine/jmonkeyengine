@@ -141,8 +141,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 				Pointer pImage = (Pointer) tex.getFieldValue("ima");
 				if (pImage.isNotNull()) {
 					Structure image = pImage.fetchData(blenderContext.getInputStream()).get(0);
-					result = this.getTextureFromImage(image, blenderContext);
-					if(result != null) {
+					Image loadedImage = this.loadImage(image, blenderContext);
+					if(loadedImage != null) {
+						result = new Texture2D(loadedImage);
 						this.applyColorbandAndColorFactors(tex, result.getImage(), blenderContext);
 					}
 				}
@@ -195,6 +196,8 @@ public class TextureHelper extends AbstractBlenderHelper {
 			if (type != TEX_IMAGE) {// only generated textures should have this key
 				result.setKey(new GeneratedTextureKey(tex.getName()));
 			}
+			
+			blenderContext.addLoadedFeatures(tex.getOldMemoryAddress(), tex.getName(), tex, result);
 		}
 		return result;
 	}
@@ -487,15 +490,15 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *             this exception is thrown when the blend file structure is
 	 *             somehow invalid or corrupted
 	 */
-	public Texture getTextureFromImage(Structure image, BlenderContext blenderContext) throws BlenderFileException {
+	protected Image loadImage(Structure image, BlenderContext blenderContext) throws BlenderFileException {
 		LOGGER.log(Level.FINE, "Fetching texture with OMA = {0}", image.getOldMemoryAddress());
-		Texture result = (Texture) blenderContext.getLoadedFeature(image.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+		Image result = (Image) blenderContext.getLoadedFeature(image.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if (result == null) {
 			String texturePath = image.getFieldValue("name").toString();
 			Pointer pPackedFile = (Pointer) image.getFieldValue("packedfile");
 			if (pPackedFile.isNull()) {
 				LOGGER.log(Level.INFO, "Reading texture from file: {0}", texturePath);
-				result = this.loadTextureFromFile(texturePath, blenderContext);
+				result = this.loadImageFromFile(texturePath, blenderContext);
 			} else {
 				LOGGER.info("Packed texture. Reading directly from the blend file!");
 				Structure packedFile = pPackedFile.fetchData(blenderContext.getInputStream()).get(0);
@@ -505,16 +508,11 @@ public class TextureHelper extends AbstractBlenderHelper {
 				ImageLoader imageLoader = new ImageLoader();
 
 				// Should the texture be flipped? It works for sinbad ..
-				Image im = imageLoader.loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true);
-				if (im != null) {
-					result = new Texture2D(im);
-				}
+				result = imageLoader.loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true);
 			}
 			if (result != null) {
-				result.setName(texturePath);
-				result.setWrap(Texture.WrapMode.Repeat);
 				if (LOGGER.isLoggable(Level.FINE)) {
-					LOGGER.log(Level.FINE, "Adding texture {0} to the loaded features with OMA = {1}", new Object[] { texturePath, image.getOldMemoryAddress() });
+					LOGGER.log(Level.FINE, "Adding image {0} to the loaded features with OMA = {1}", new Object[] { texturePath, image.getOldMemoryAddress() });
 				}
 				blenderContext.addLoadedFeatures(image.getOldMemoryAddress(), image.getName(), image, result);
 			}
@@ -693,14 +691,14 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *            the blender context
 	 * @return the loaded image or null if the image cannot be found
 	 */
-	protected Texture loadTextureFromFile(String name, BlenderContext blenderContext) {
+	protected Image loadImageFromFile(String name, BlenderContext blenderContext) {
 		if (!name.contains(".")) {
 			return null; // no extension means not a valid image
 		}
 
 		AssetManager assetManager = blenderContext.getAssetManager();
 		name = name.replaceAll("\\\\", "\\/");
-		Texture result = null;
+		Image result = null;
 
 		List<String> assetNames = new ArrayList<String>();
 		if (name.startsWith("//")) {
@@ -729,12 +727,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 				TextureKey key = new TextureKey(assetName);
 				key.setGenerateMips(true);
 				key.setAsCube(false);
-                                AssetInfo info = assetManager.locateAsset(key);
-                                if(info != null){
-                                    result = assetManager.loadTexture(key);
-                                    break;// if no exception is thrown then accept the located asset
-                                          // and break the loop
-                                }
+                AssetInfo info = assetManager.locateAsset(key);
+                if(info != null){
+                    Texture texture = assetManager.loadTexture(key);
+                    result = texture.getImage();//get only the image
+                    break;// if no exception is thrown then accept the located asset
+                          // and break the loop
+                }
 			} catch (AssetNotFoundException e) {
 				LOGGER.fine(e.getLocalizedMessage());
 			}
