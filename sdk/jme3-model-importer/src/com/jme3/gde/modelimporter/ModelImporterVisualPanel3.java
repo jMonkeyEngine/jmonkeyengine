@@ -50,16 +50,14 @@ public final class ModelImporterVisualPanel3 extends JPanel {
     }
 
     public void loadSettings(WizardDescriptor wiz) {
+        logger.log(Level.INFO, "Start offview panel");
         offPanel.startPreview();
         jList1.setListData(new Object[0]);
         jList2.setListData(new Object[0]);
         manager = (ProjectAssetManager) wiz.getProperty("manager");
         mainKey = (AssetKey) wiz.getProperty("mainkey");
         data = (AssetData) wiz.getProperty("assetdata");
-        assets = null;
-        assetKeys = null;
-        failedKeys = null;
-        loadModel(mainKey);
+        loadModel();
         if (currentModel != null) {
             logger.log(Level.INFO, "Attaching model {0}", currentModel);
             offPanel.attach(currentModel);
@@ -69,6 +67,7 @@ public final class ModelImporterVisualPanel3 extends JPanel {
     }
 
     public void applySettings(WizardDescriptor wiz) {
+        UberAssetLocator.setFindMode(false);
         wiz.putProperty("assetfiles", assets);
         wiz.putProperty("assetlist", assetKeys);
         wiz.putProperty("failedlist", failedKeys);
@@ -77,6 +76,7 @@ public final class ModelImporterVisualPanel3 extends JPanel {
             logger.log(Level.INFO, "Detaching model {0}", currentModel);
             offPanel.detach(currentModel);
         }
+        logger.log(Level.INFO, "Stop offview panel");
         offPanel.stopPreview();
     }
 
@@ -84,7 +84,11 @@ public final class ModelImporterVisualPanel3 extends JPanel {
         return currentModel != null;
     }
 
-    public synchronized void loadModel(AssetKey modelKey) {
+    private void loadModel() {
+        assets = null;
+        assetKeys = null;
+        failedKeys = null;
+        manager.registerLocator(manager.getAssetFolderName(), UberAssetLocator.class);
         try {
             currentModel = (Spatial) data.loadAsset();
             if (currentModel != null) {
@@ -113,7 +117,7 @@ public final class ModelImporterVisualPanel3 extends JPanel {
             DialogDisplayer.getDefault().notifyLater(msg);
             Exceptions.printStackTrace(e);
         }
-        manager.clearCache();
+        manager.unregisterLocator(manager.getAssetFolderName(), UberAssetLocator.class);
         panel.fireChangeEvent();
     }
 

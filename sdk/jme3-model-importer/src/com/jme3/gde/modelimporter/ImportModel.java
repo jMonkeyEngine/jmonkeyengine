@@ -11,16 +11,27 @@ import com.jme3.gde.core.assets.AssetData;
 import com.jme3.gde.core.assets.BinaryModelDataObject;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
+import com.jme3.gde.core.util.Beans;
+import com.jme3.gde.modelimporter.UberAssetLocator.UberAssetInfo;
+import com.jme3.material.MatParam;
+import com.jme3.material.Material;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
+import com.jme3.shader.VarType;
+import com.jme3.texture.Texture;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import javax.swing.JComponent;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -28,14 +39,12 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -54,6 +63,7 @@ displayName = "#CTL_ImportModel")
 @SuppressWarnings("unchecked")
 public final class ImportModel implements ActionListener {
 
+    private static final Logger logger = Logger.getLogger(ImportModel.class.getName());
     private Project context;
     private WizardDescriptor.Panel[] panels;
 
@@ -115,71 +125,108 @@ public final class ImportModel implements ActionListener {
         }
 
         List<FileObject> deleteList = new LinkedList<FileObject>();
+        int idx = 0;
+        //go through list and copy assets to project
         for (Iterator<FileObject> it = assetList.iterator(); it.hasNext();) {
             FileObject source = it.next();
-            String folderName = importPath + "/" + importManager.getRelativeAssetPath(source.getParent().getPath());
-            try {
-                FileObject dest = manager.getAssetFolder().getFileObject(folderName);
-                if (dest == null) {
-                    dest = FileUtil.createFolder(manager.getAssetFolder(), folderName);
+            AssetKey key = assetKeys.get(idx);
+            UberAssetInfo info = UberAssetLocator.getInfo(key);
+            if (info != null) {
+                logger.log(Level.INFO, "Found relocation info for {0}", key.getName());
+                //save texture in Textures folder
+                int i = 0;
+                String newTexturePath = importPath + key.getName().replace(key.getFolder(), "");
+                while (manager.getAssetFolder().getFileObject(newTexturePath) != null) {
+                    i++;
+                    newTexturePath = importPath + i + key.getName().replace(key.getFolder(), "");
                 }
-                FileObject fileObj = dest.getFileObject(source.getName(), source.getExt());
-                if (fileObj != null) {
-                    NotifyDescriptor.Confirmation msg = new NotifyDescriptor.Confirmation(
-                            "File " + source.getNameExt() + " exists, overwrite?",
-                            NotifyDescriptor.YES_NO_OPTION,
-                            NotifyDescriptor.WARNING_MESSAGE);
-                    Object result = DialogDisplayer.getDefault().notify(msg);
-                    if (NotifyDescriptor.YES_OPTION.equals(result)) {
-                        fileObj.delete();
-                        fileObj = source.copy(dest, source.getName(), source.getExt());
-                    } else {
-                        fileObj = null;
-                    }
+                newTexturePath = new AssetKey(newTexturePath).getName();
+                FileObject newFile = manager.createAsset(newTexturePath, info.getFileObject());
+                if (newFile == null) {
+                    logger.log(Level.SEVERE, "Could not create new file {0}", newTexturePath);
                 } else {
-                    fileObj = source.copy(dest, source.getName(), source.getExt());
+                    info.setNewAssetName(newTexturePath);
+                    logger.log(Level.INFO, "Created relocated texture file {0}", newTexturePath);
                 }
-                if (fileObj != null) {
-                    DataObject obj = DataObject.find(fileObj);
-                    AssetData data = obj.getLookup().lookup(AssetData.class);
-                    if (obj instanceof SpatialAssetDataObject) {
-                        // Delete models that are not J3O.
-                        if (!(obj instanceof BinaryModelDataObject)) {
-                            deleteList.add(fileObj);
+            } else {
+                try {
+                    String path = importPath + importManager.getRelativeAssetPath(source.getPath());
+                    FileObject fileObj = manager.createAsset(path, source);
+                    //add to delete list if not texture or j3o model
+                    if (fileObj != null) {
+                        logger.log(Level.INFO, "Copied file {0} to {1}", new Object[]{source.getPath(), path});
+                        DataObject obj = DataObject.find(fileObj);
+                        AssetData data = obj.getLookup().lookup(AssetData.class);
+                        if (obj instanceof SpatialAssetDataObject) {
+                            // Delete models that are not J3O.
+                            if (!(obj instanceof BinaryModelDataObject)) {
+                                deleteList.add(fileObj);
+                                logger.log(Level.INFO, "Add file {0} to delete list", path);
+                            }
+                        } else if (data != null) {
+                            AssetKey assetKey = data.getAssetKey();
+                            if (!(assetKey instanceof TextureKey)
+                                    && !(assetKey instanceof MaterialKey)) {
+                                // Also delete anything thats not an image or J3M file.
+                                deleteList.add(fileObj);
+                                logger.log(Level.INFO, "Add file {0} to delete list", path);
+                            }
                         }
-                    } else if (data != null) {
-                        AssetKey assetKey = data.getAssetKey();
-                        if (!(assetKey instanceof TextureKey)
-                                && !(assetKey instanceof MaterialKey)) {
-                            // Also delete anything thats not an image or J3M file.
-                            deleteList.add(fileObj);
-                        }
+                    } else {
+                        logger.log(Level.SEVERE, "Error copying file {0} to {1}", new Object[]{source.getPath(), path});
                     }
+                } catch (Exception ex) {
+                    Exceptions.printStackTrace(ex);
                 }
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
             }
+            idx++;
         }
-
-        FileObject file = manager.getAssetFolder().getFileObject(importPath + "/" + modelKey.getName());
+        //Find original model file
+        FileObject newFile = manager.getAssetFolder().getFileObject(importPath + modelKey.getName());
+        if (newFile == null) {
+            logger.log(Level.SEVERE, "Could not find file {0} after copying to project folder!", importPath + modelKey.getName());
+            return;
+        }
         DataObject targetModel;
+        ProjectAssetManager tempProjectManager = null;
         try {
-            targetModel = DataObject.find(file);
+            targetModel = DataObject.find(newFile);
             if (targetModel instanceof SpatialAssetDataObject) {
-                //TODO: wtf? why do i have to add the assetmanager?
-                ((SpatialAssetDataObject) targetModel).getLookupContents().add(manager);
-                AssetData data = targetModel.getLookup().lookup(AssetData.class);
-                data.setAssetKey(modelKey);
-                Spatial spat = (Spatial) data.loadAsset();
+                //Load model
+                tempProjectManager = targetModel.getLookup().lookup(ProjectAssetManager.class);
+                if (tempProjectManager != null) {
+                    logger.log(Level.INFO, "Using real ProjectAssetManager for import instatiation.");
+                } else {
+                    logger.log(Level.WARNING, "Using dummy ProjectAssetManager for import instantiation.");
+                    tempProjectManager = new ProjectAssetManager(manager.getAssetFolder());
+                    ((SpatialAssetDataObject) targetModel).getLookupContents().add(tempProjectManager);
+                }
+                UberAssetLocator.setAssetBaseFolder(importPath);
+                //register locator with cached located assets so they can be replaced later
+                tempProjectManager.registerLocator(importManager.getAssetFolderName(), UberAssetLocator.class);
+                AssetData targetData = targetModel.getLookup().lookup(AssetData.class);
+                targetData.setAssetKey(modelKey);
+                Spatial spat = (Spatial) targetData.loadAsset();
                 if (spat == null) {
                     throw new IllegalStateException("Cannot load model after copying!");
-
                 }
-                data.saveAsset();
+                replaceLocatedTextures(spat, manager);
+                targetData.saveAsset();
+                ((SpatialAssetDataObject) targetModel).getLookupContents().remove(tempProjectManager);
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
+        } finally {
+            if (tempProjectManager != null) {
+                try {
+                    tempProjectManager.unregisterLocator(importManager.getAssetFolderName(), UberAssetLocator.class);
+                } catch (Exception e) {
+                    Exceptions.printStackTrace(e);
+                }
+            }
+            UberAssetLocator.setAssetBaseFolder(null);
         }
+        //delete files if not keeping original
         if (!keepFiles) {
             for (Iterator<FileObject> it = deleteList.iterator(); it.hasNext();) {
                 FileObject fileObject = it.next();
@@ -194,6 +241,52 @@ public final class ImportModel implements ActionListener {
         FileObject importParentFolder = importFolder.getParent();
         importParentFolder.refresh();
         importFolder.refresh();
+    }
+
+    private void replaceLocatedTextures(Spatial spat, final ProjectAssetManager mgr) {
+        spat.depthFirstTraversal(new SceneGraphVisitorAdapter() {
+            @Override
+            public void visit(Geometry geom) {
+                Material mat = geom.getMaterial();
+                if (mat != null) {
+                    Collection<MatParam> params = mat.getParams();
+                    for (Iterator<MatParam> it = params.iterator(); it.hasNext();) {
+                        MatParam matParam = it.next();
+                        VarType paramType = matParam.getVarType();
+                        String paramName = matParam.getName();
+                        switch (paramType) {
+                            case Texture2D:
+                            case Texture3D:
+                            case TextureArray:
+                            case TextureBuffer:
+                            case TextureCubeMap:
+                                try {
+                                    Texture tex = mat.getTextureParam(paramName).getTextureValue();
+                                    AssetKey curKey = tex.getKey();
+                                    UberAssetInfo newInfo = UberAssetLocator.getInfo(curKey);
+                                    if (newInfo != null) {
+                                        TextureKey newKey = new TextureKey(newInfo.getNewAssetName());
+                                        Beans.copyProperties(curKey, newKey);
+                                        Texture texture = mgr.loadTexture(newKey);
+                                        if (texture != null) {
+                                            mat.setTextureParam(paramName, paramType, texture);
+                                            geom.setMaterial(mat);
+                                            logger.log(Level.INFO, "Apply relocated texture {0} for {1}", new Object[]{geom, newKey.getName()});
+                                        } else {
+                                            logger.log(Level.WARNING, "Could not find relocated texture!");
+                                        }
+                                    }
+                                } catch (Exception ex) {
+                                    Exceptions.printStackTrace(ex);
+                                }
+                                break;
+                            default:
+                        }
+                    }
+                }
+                super.visit(geom);
+            }
+        });
     }
 
     /**

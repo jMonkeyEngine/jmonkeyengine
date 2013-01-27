@@ -35,12 +35,17 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLocator;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.TextureKey;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.filechooser.FileFilter;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -55,10 +60,30 @@ import org.openide.util.Exceptions;
 public class UberAssetLocator implements AssetLocator {
     //ugly static due to Locator instantiation
 
+    private static final Logger logger = Logger.getLogger(UberAssetLocator.class.getName());
     private static final List<UberAssetInfo> locatedAssets = new ArrayList<UberAssetInfo>();
+    private static boolean findMode = true;
+    private static String assetBaseFolder;
+
+    public static boolean isFindMode() {
+        return findMode;
+    }
+
+    public static void setFindMode(boolean aFindMode) {
+        findMode = aFindMode;
+    }
+
+    public static String getAssetBaseFolder() {
+        return assetBaseFolder;
+    }
+
+    public static void setAssetBaseFolder(String aAssetBaseFolder) {
+        assetBaseFolder = aAssetBaseFolder;
+    }
     private String rootPath;
 
     public static void resetLocatedList() {
+        logger.log(Level.INFO, "Clearing asset List");
         locatedAssets.clear();
     }
 
@@ -66,9 +91,24 @@ public class UberAssetLocator implements AssetLocator {
         return new ArrayList<UberAssetInfo>(locatedAssets);
     }
 
-    private static UberAssetInfo getInfo(AssetKey key) {
+    public static UberAssetInfo getInfo(AssetKey key) {
+        if (locatedAssets.isEmpty()) {
+            logger.log(Level.INFO, "Looking in empty list for {0}", key.getName());
+        }
         for (UberAssetInfo uberAssetInfo : locatedAssets) {
-            if (uberAssetInfo.getKey().getName().equals(key.getName())) {
+            String normalName = uberAssetInfo.getKey().getName();
+            if (assetBaseFolder != null) {
+                //sanitize filename by creating new asset key
+                String extendedName = new AssetKey(assetBaseFolder + "/" + normalName).getName();
+                logger.log(Level.INFO, "Looking for extended name {0}", extendedName);
+                if (extendedName.equals(key.getName())) {
+                    logger.log(Level.INFO, "Found extended name {0}", extendedName);
+                    return uberAssetInfo;
+                }
+            }
+            logger.log(Level.INFO, "Looking for normal name {0}", normalName);
+            if (normalName.equals(key.getName())) {
+                logger.log(Level.INFO, "Found normal name {0}", normalName);
                 return uberAssetInfo;
             }
         }
@@ -83,17 +123,25 @@ public class UberAssetLocator implements AssetLocator {
     }
 
     public AssetInfo locate(AssetManager manager, AssetKey key) {
+        //we only locate texture keys atm
+        if (!(key instanceof TextureKey)) {
+            return null;
+        }
         AssetInfo existing = getInfo(key);
         if (existing != null) {
             return existing;
         }
-        FileObject file = findFile(key);
-        if (file == null) {
-            return null;
+        if (findMode) {
+            FileObject file = findFile(key);
+            if (file == null) {
+                return null;
+            }
+            logger.log(Level.INFO, "Storing location for {0}", key.getName());
+            UberAssetInfo info = new UberAssetInfo(file, manager, key);
+            locatedAssets.add(info);
+            return info;
         }
-        UberAssetInfo info = new UberAssetInfo(file, manager, key);
-        locatedAssets.add(info);
-        return info;
+        return null;
     }
 
     private FileObject findFile(AssetKey key) {
@@ -101,20 +149,32 @@ public class UberAssetLocator implements AssetLocator {
         String rootPath = this.rootPath != null ? this.rootPath.replace("\\", "/") : null;
         if (rootPath != null) {
             File file = new File(rootPath + "/" + key.getName());
+            file = FileUtil.normalizeFile(file);
             FileObject fileObject = FileUtil.toFileObject(file);
             if (fileObject != null) {
+                logger.log(Level.INFO, "Found file {0}" + fileObject);
                 return fileObject;
             }
         }
         File file = new File(key.getName());
+        file = FileUtil.normalizeFile(file);
         FileObject fileObject = FileUtil.toFileObject(file);
         if (fileObject != null) {
+            logger.log(Level.INFO, "Found file {0}" + fileObject);
             return fileObject;
         }
         return getUserPath(key);
     }
 
     private FileObject getUserPath(AssetKey key) {
+        NotifyDescriptor.Confirmation msg = new NotifyDescriptor.Confirmation(
+                "Referenced file " + key.getName() + " cannot be found!\nDo you want to look for it?",
+                NotifyDescriptor.YES_NO_OPTION,
+                NotifyDescriptor.WARNING_MESSAGE);
+        Object result = DialogDisplayer.getDefault().notify(msg);
+        if (!NotifyDescriptor.YES_OPTION.equals(result)) {
+            return null;
+        }
         final String ext = key.getExtension();
         FileChooserBuilder fcb = new FileChooserBuilder(this.getClass());
         fcb.setTitle("Locate " + key.getName());
@@ -144,6 +204,7 @@ public class UberAssetLocator implements AssetLocator {
     public static class UberAssetInfo extends AssetInfo {
 
         final FileObject file;
+        String newAssetName;
 
         public UberAssetInfo(FileObject file, AssetManager manager, AssetKey key) {
             super(manager, key);
@@ -152,6 +213,14 @@ public class UberAssetLocator implements AssetLocator {
 
         public FileObject getFileObject() {
             return file;
+        }
+
+        public String getNewAssetName() {
+            return newAssetName;
+        }
+
+        public void setNewAssetName(String newAssetName) {
+            this.newAssetName = newAssetName;
         }
 
         @Override

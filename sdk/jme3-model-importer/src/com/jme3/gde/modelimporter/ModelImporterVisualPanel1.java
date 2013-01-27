@@ -48,6 +48,10 @@ public final class ModelImporterVisualPanel1 extends JPanel {
     }
 
     public void loadSettings(WizardDescriptor wiz) {
+    }
+
+    public void applySettings(WizardDescriptor wiz) {
+        //reset
         wiz.putProperty("path", null);
         wiz.putProperty("manager", null);
         wiz.putProperty("dataobject", null);
@@ -58,9 +62,10 @@ public final class ModelImporterVisualPanel1 extends JPanel {
         wiz.putProperty("assetlist", null);
         wiz.putProperty("failedlist", null);
         wiz.putProperty("model", null);
-    }
-
-    public void applySettings(WizardDescriptor wiz) {
+        
+        UberAssetLocator.resetLocatedList();
+        UberAssetLocator.setFindMode(true);
+        manager.clearCache();
         wiz.putProperty("path", currentPath);
         wiz.putProperty("manager", manager);
         wiz.putProperty("dataobject", dataObject);

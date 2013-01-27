@@ -24,7 +24,12 @@ public final class ModelImporterVisualPanel4 extends JPanel {
     }
 
     public void applySettings(WizardDescriptor wiz) {
-        wiz.putProperty("destpath", jTextField1.getText());
+        //TODO real check for path!
+        String path = jTextField1.getText().trim();
+        if (path != null && !path.endsWith("/")) {
+            path = path + "/";
+        }
+        wiz.putProperty("destpath", path);
         wiz.putProperty("keepfiles", jCheckBox1.isSelected());
     }
     
