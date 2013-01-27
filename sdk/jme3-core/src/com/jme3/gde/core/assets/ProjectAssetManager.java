@@ -38,6 +38,7 @@ import com.jme3.asset.DesktopAssetManager;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -56,11 +57,14 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.XMLFileSystem;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
@@ -276,6 +280,50 @@ public class ProjectAssetManager extends DesktopAssetManager {
                 }
             }
         });
+    }
+
+    public FileObject createAsset(String path) {
+        return createAsset(path, null);
+    }
+
+    public FileObject createAsset(String path, FileObject source) {
+        FileObject assetFolder = getAssetFolder();
+        FileObject dest = getAssetFolder().getFileObject(path);
+        if (dest == null) {
+            try {
+                dest = FileUtil.createData(assetFolder, path);
+                if (source != null) {
+                    FileObject parent = dest.getParent();
+                    dest.delete();
+                    return source.copy(parent, source.getName(), source.getExt());
+                } else {
+                    return dest;
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        } else {
+            NotifyDescriptor.Confirmation msg = new NotifyDescriptor.Confirmation(
+                    "File " + source.getNameExt() + " exists, overwrite?",
+                    NotifyDescriptor.YES_NO_OPTION,
+                    NotifyDescriptor.WARNING_MESSAGE);
+            Object result = DialogDisplayer.getDefault().notify(msg);
+            if (NotifyDescriptor.YES_OPTION.equals(result)) {
+                try {
+                    if (source != null) {
+                        FileObject parent = dest.getParent();
+                        dest.delete();
+                        return source.copy(parent, source.getName(), source.getExt());
+                    } else {
+                        dest.delete();
+                        return FileUtil.createData(assetFolder, path);
+                    }
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+        return null;
     }
 
     /**
