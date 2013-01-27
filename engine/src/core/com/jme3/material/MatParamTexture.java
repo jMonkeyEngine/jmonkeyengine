@@ -62,6 +62,15 @@ public class MatParamTexture extends MatParam {
         this.value = value;
         this.texture = value;
     }
+    
+    @Override
+    public void setValue(Object value) {
+        if (!(value instanceof Texture)) {
+            throw new IllegalArgumentException("value must be a texture object");
+        }
+        this.value = value;
+        this.texture = (Texture) value;
+    }
 
     public void setUnit(int unit) {
         this.unit = unit;
@@ -85,6 +94,8 @@ public class MatParamTexture extends MatParam {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(unit, "texture_unit", -1);
+        
+        // For backwards compat
         oc.write(texture, "texture", null);
     }
 
@@ -93,6 +104,7 @@ public class MatParamTexture extends MatParam {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         unit = ic.readInt("texture_unit", -1);
-        texture = (Texture) ic.readSavable("texture", null);
+        texture = (Texture) value;
+        //texture = (Texture) ic.readSavable("texture", null);
     }
 }
