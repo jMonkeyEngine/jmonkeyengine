@@ -116,7 +116,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
         }
         String projectRootPath = project.getProjectDirectory().getPath();
         logger.log(Level.INFO, "Add locator: {0}", projectRootPath);
-        registerLocator(projectRootPath, "com.jme3.asset.plugins.FileLocator");
+        registerLocator(projectRootPath, com.jme3.gde.core.assets.RootLockingFileLocator.class);
         for (AssetManagerConfigurator di : Lookup.getDefault().lookupAll(AssetManagerConfigurator.class)) {
             di.prepareManager(this);
         }
