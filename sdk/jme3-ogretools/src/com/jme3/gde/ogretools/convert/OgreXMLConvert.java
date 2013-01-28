@@ -140,6 +140,8 @@ public class OgreXMLConvert {
 
         if (options.isGenerateTangents()) {
             strings.add("-t");
+            strings.add("-ts");
+            strings.add("4");
         }
         if (!options.isGenerateEdgeLists()) {
             strings.add("-e");
