@@ -47,8 +47,8 @@ import org.openide.loaders.MultiFileLoader;
 public class BinaryModelFileLoader extends MultiFileLoader {
 
     public static final String PROP_EXTENSIONS = "extensions"; // NOI18N
-    public static final String INFO_EXTENSION = "j3odata";
     public static final String FILE_EXTENSION = "j3o";
+    public static final String INFO_EXTENSION = FILE_EXTENSION + "data";
     public static final String MIME_TYPE = "application/jme3model";
     private static final long serialVersionUID = -4579746482156153693L;
 
@@ -72,10 +72,12 @@ public class BinaryModelFileLoader extends MultiFileLoader {
         getExtensions();
     }
 
-    /** For a given file find the primary file. 
+    /**
+     * For a given file find the primary file.
+     *
      * @param fo the file to find the primary file for
-     * @return the primary file for this file or null
-     * if this file is not recognized by this loader.
+     * @return the primary file for this file or null if this file is not
+     * recognized by this loader.
      */
     protected FileObject findPrimaryFile(FileObject fo) {
         // never recognize folders.
@@ -97,7 +99,9 @@ public class BinaryModelFileLoader extends MultiFileLoader {
         return null;
     }
 
-    /** Create the primary file entry. Primary files are the j3o files.
+    /**
+     * Create the primary file entry. Primary files are the j3o files.
+     *
      * @param primaryFile primary file recognized by this loader
      * @return primary entry for that file
      */
@@ -106,9 +110,10 @@ public class BinaryModelFileLoader extends MultiFileLoader {
         return new FileEntry(obj, primaryFile);
     }
 
-    /** Create a secondary file entry.
-     * Secondary files are properties files, which should also be retained (so, not a
-     * FileEntry.Numb object)
+    /**
+     * Create a secondary file entry. Secondary files are properties files,
+     * which should also be retained (so, not a FileEntry.Numb object)
+     *
      * @param secondaryFile secondary file to create entry for
      * @return the entry
      */
@@ -117,7 +122,9 @@ public class BinaryModelFileLoader extends MultiFileLoader {
         return new FileEntry(obj, secondaryFile);
     }
 
-    /** @return The list of extensions this loader recognizes. */
+    /**
+     * @return The list of extensions this loader recognizes.
+     */
     public ExtensionList getExtensions() {
         ExtensionList extensions = (ExtensionList) getProperty(PROP_EXTENSIONS);
         if (extensions == null) {
@@ -130,7 +137,9 @@ public class BinaryModelFileLoader extends MultiFileLoader {
         return extensions;
     }
 
-    /** Sets the extension list for this data loader.
+    /**
+     * Sets the extension list for this data loader.
+     *
      * @param ext new list of extensions.
      */
     public void setExtensions(ExtensionList ext) {
