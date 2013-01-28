@@ -409,11 +409,16 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
     /**
      * <code>lookAt</code> is a convenience method for auto-setting the local
-     * rotation based on a position and an up vector. It computes the rotation
+     * rotation based on a position in world space and an up vector. It computes the rotation
      * to transform the z-axis to point onto 'position' and the y-axis to 'up'.
      * Unlike {@link Quaternion#lookAt(com.jme3.math.Vector3f, com.jme3.math.Vector3f) } 
      * this method takes a world position to look at and not a relative direction.
      *
+     * Note : 28/01/2013 this method has been fixed as it was not taking into account the parent rotation.
+     * This was resulting in improper rotation when the spatial had rotated parent nodes.
+     * This method is intended to work in world space, so no matter what parent graph the 
+     * spatial has, it will look at the given position in world space.
+     * 
      * @param position
      *            where to look at in terms of world coordinates
      * @param upVector
@@ -426,11 +431,17 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         TempVars vars = TempVars.get();
 
         Vector3f compVecA = vars.vect4;
-        vars.release();
-
+      
         compVecA.set(position).subtractLocal(worldTranslation);
-        getLocalRotation().lookAt(compVecA, upVector);
-
+        getLocalRotation().lookAt(compVecA, upVector);        
+        
+        if ( getParent() != null ) {
+            Quaternion rot=vars.quat1;
+            rot =  rot.set(parent.getWorldRotation()).inverseLocal().multLocal(getLocalRotation());
+            rot.normalizeLocal();
+            setLocalRotation(rot);
+        }
+        vars.release();
         setTransformRefresh();
     }
 
