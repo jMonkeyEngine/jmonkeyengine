@@ -131,6 +131,12 @@ public class GeometryBatchFactory {
             }
 
             for (VertexBuffer vb : geom.getMesh().getBufferList().getArray()) {
+                int currentCompsForBuf = compsForBuf[vb.getBufferType().ordinal()];
+                 if (currentCompsForBuf != 0 && currentCompsForBuf != vb.getNumComponents()) {
+                   throw new UnsupportedOperationException("The geometry " + geom + " buffer " + vb.getBufferType() + 
+                                                           " has different number of components than the rest of the meshes " + 
+                                                           "(this: " + vb.getNumComponents() + ", expected: " + currentCompsForBuf + ")");
+                 }
                 compsForBuf[vb.getBufferType().ordinal()] = vb.getNumComponents();
                 formatForBuf[vb.getBufferType().ordinal()] = vb.getFormat();
             }
