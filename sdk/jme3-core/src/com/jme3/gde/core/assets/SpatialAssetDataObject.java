@@ -128,9 +128,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
             DataObject targetModel = DataObject.find(outFile);
             AssetData properties = targetModel.getLookup().lookup(AssetData.class);
             if (properties != null) {
-                properties.loadProperties();
                 properties.setProperty("ORIGINAL_PATH", mgr.getRelativeAssetPath(outFile.getPath()));
-                properties.saveProperties();
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
