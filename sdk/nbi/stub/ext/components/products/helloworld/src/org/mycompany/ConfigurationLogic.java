@@ -190,7 +190,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
         }
         //normen - JDK install - uses package on OSX
         if (!SystemUtils.isMacOS()) {
-            File javaHome = new File(System.getProperty("java.home"));
+            File javaHome = new File(System.getProperty("java.home")).getParentFile();
             File target = new File(installLocation, "jdk");
             try {
                 FileUtils.copyFile(javaHome, target, true); //FileUtils is one of the NBI core classes, already imported in ConfigurationLogic.java
