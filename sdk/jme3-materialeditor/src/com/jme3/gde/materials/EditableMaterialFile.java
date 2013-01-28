@@ -4,9 +4,12 @@
  */
 package com.jme3.gde.materials;
 
+import com.jme3.asset.TextureKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.core.util.Beans;
 import com.jme3.gde.materials.wizards.StoreTextureWizardWizardAction;
 import com.jme3.material.MatParam;
+import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -494,11 +497,7 @@ public class EditableMaterialFile {
         setMatDefName(mat.getMaterialDef().getAssetName());
         createBaseMaterialFile();
         materialParameters.clear();
-        Collection<MatParam> params = mat.getParams();
-        for (Iterator<MatParam> it = params.iterator(); it.hasNext();) {
-            MatParam matParam = it.next();
-            checkPackedTextureProps(mat, matParam);
-        }
+        checkPackedTextureProps(mat);
         additionalRenderStates.put("Wireframe", new MaterialProperty("OnOff", "Wireframe", mat.getAdditionalRenderState().isWireframe() ? "On" : "Off"));
         additionalRenderStates.put("DepthWrite", new MaterialProperty("OnOff", "DepthWrite", mat.getAdditionalRenderState().isDepthWrite() ? "On" : "Off"));
         additionalRenderStates.put("DepthTest", new MaterialProperty("OnOff", "DepthTest", mat.getAdditionalRenderState().isDepthTest() ? "On" : "Off"));
@@ -518,43 +517,59 @@ public class EditableMaterialFile {
      * @param mat
      * @param param
      */
-    private void checkPackedTextureProps(Material mat, MatParam param) {
-        MaterialProperty prop = new MaterialProperty(param);
-        materialParameters.put(param.getName(), prop);
-        if (prop.getValue() == null) {
-            switch (param.getVarType()) {
-                case Texture2D:
-                case Texture3D:
-                case TextureArray:
-                case TextureBuffer:
-                case TextureCubeMap:
-                    try {
-                        Texture tex = mat.getTextureParam(param.getName()).getTextureValue();
-                        Image img = tex.getImage();
-                        if (img == null) {
-                            logger.log(Level.INFO, "No image found");
-                            return;
+    private void checkPackedTextureProps(Material mat) {
+        Collection<MatParam> params = mat.getParams();
+        for (Iterator<MatParam> it = new ArrayList<MatParam>(params).iterator(); it.hasNext();) {
+            MatParam param = it.next();
+            MaterialProperty prop = new MaterialProperty(param);
+            if (prop.getValue() == null) {
+                switch (param.getVarType()) {
+                    case Texture2D:
+                    case Texture3D:
+                    case TextureArray:
+                    case TextureBuffer:
+                    case TextureCubeMap:
+                        try {
+                            MatParamTexture texParam = mat.getTextureParam(param.getName());
+                            Texture tex = texParam.getTextureValue();
+                            Image img = tex.getImage();
+                            if (img == null) {
+                                logger.log(Level.INFO, "No image found");
+                                return;
+                            }
+                            BufferedImage image = ImageToAwt.convert(img, false, false, 0);
+                            ByteArrayOutputStream out = new ByteArrayOutputStream();
+                            ImageWriter imgWrtr = ImageIO.getImageWritersByFormatName("png").next();
+                            ImageOutputStream imgOutStrm;
+                            imgOutStrm = ImageIO.createImageOutputStream(out);
+                            imgWrtr.setOutput(imgOutStrm);
+                            ImageWriteParam jpgWrtPrm = imgWrtr.getDefaultWriteParam();
+                            imgWrtr.write(null, new IIOImage(image, null, null), jpgWrtPrm);
+                            imgOutStrm.close();
+                            out.close();
+                            String texturePath = material.getName();
+                            texturePath = "Textures/" + texturePath + "-" + param.getName() + ".png";
+                            StoreTextureWizardWizardAction act = new StoreTextureWizardWizardAction(manager, out.toByteArray(), texturePath);
+                            act.actionPerformed(null);
+                            texturePath = act.getName();
+                            TextureKey texKey = new TextureKey(texturePath);
+                            TextureKey oldKey = (TextureKey)tex.getKey();
+                            if(oldKey!=null){
+                                Beans.copyProperties(texKey, oldKey);
+                            }
+                            //TODO: seems like flip is removed due to ImageToAwt
+                            texKey.setFlipY(false);
+                            Texture texture = manager.loadTexture(texKey);
+                            MatParamTexture newParam = new MatParamTexture(texParam.getVarType(), texParam.getName(), texture, texParam.getUnit());
+                            materialParameters.put(newParam.getName(), new MaterialProperty(newParam));
+                        } catch (Exception ex) {
+                            Exceptions.printStackTrace(ex);
                         }
-                        BufferedImage image = ImageToAwt.convert(img, false, false, 0);
-                        ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        ImageWriter imgWrtr = ImageIO.getImageWritersByFormatName("png").next();
-                        ImageOutputStream imgOutStrm;
-                        imgOutStrm = ImageIO.createImageOutputStream(out);
-                        imgWrtr.setOutput(imgOutStrm);
-                        ImageWriteParam jpgWrtPrm = imgWrtr.getDefaultWriteParam();
-                        imgWrtr.write(null, new IIOImage(image, null, null), jpgWrtPrm);
-                        imgOutStrm.close();
-                        out.close();
-                        String name = material.getName();
-                        name = "Textures/" + name + "-" + param.getName() + ".png";
-                        StoreTextureWizardWizardAction act = new StoreTextureWizardWizardAction(manager, out.toByteArray(), name);
-                        act.actionPerformed(null);
-                        prop.setValue(act.getName());
-                    } catch (Exception ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
-                    break;
-                default:
+                        break;
+                    default:
+                }
+            } else {
+                materialParameters.put(param.getName(), prop);
             }
         }
     }
