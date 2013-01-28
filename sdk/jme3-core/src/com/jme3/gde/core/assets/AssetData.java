@@ -32,31 +32,48 @@
 package com.jme3.gde.core.assets;
 
 import com.jme3.asset.AssetKey;
+import java.io.BufferedOutputStream;
+import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileAlreadyLockedException;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
+import org.openide.util.Mutex;
+import org.openide.util.Mutex.Action;
 
 /**
+ * Global object to access actual jME3 data within an AssetDataObject, available
+ * through the Lookup of any AssetDataObject. AssetDataObjects that wish to use
  *
  * @author normenhansen
  */
 @SuppressWarnings("unchecked")
-public class AssetData extends Properties {
+public class AssetData {
 
+    private static final Logger logger = Logger.getLogger(AssetData.class.getName());
+    private final Mutex propsMutex = new Mutex();
+    private final Properties props = new Properties();
     private AssetDataObject file;
     private String extension = "jmpdata";
+    private Date lastLoaded;
 
     public AssetData(AssetDataObject file) {
         this.file = file;
+        FileObject primaryFile = file.getPrimaryFile();
+        if (primaryFile != null) {
+            extension = primaryFile.getExt() + "data";
+        }
     }
 
     public AssetData(AssetDataObject file, String extension) {
@@ -64,19 +81,23 @@ public class AssetData extends Properties {
         this.extension = extension;
     }
 
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
+
     public AssetKey<?> getAssetKey() {
         return file.getAssetKey();
     }
-    
-    public void setAssetKey(AssetKey key){
+
+    public void setAssetKey(AssetKey key) {
         file.setAssetKeyData(key);
     }
-    
-    public void setModified(boolean modified){
+
+    public void setModified(boolean modified) {
         file.setModified(modified);
     }
-    
-    public void setSaveCookie(SaveCookie cookie){
+
+    public void setSaveCookie(SaveCookie cookie) {
         file.setSaveCookie(cookie);
     }
 
@@ -87,95 +108,132 @@ public class AssetData extends Properties {
     public void saveAsset() throws IOException {
         file.saveAsset();
     }
-    
-    public void closeAsset(){
+
+    public void closeAsset() {
         file.closeAsset();
     }
-    
-    public List<FileObject> getAssetList(){
+
+    public List<FileObject> getAssetList() {
         return file.getAssetList();
     }
 
-    public List<AssetKey> getAssetKeyList(){
+    public List<AssetKey> getAssetKeyList() {
         return file.getAssetKeyList();
     }
-    
+
     public List<AssetKey> getFailedList() {
         return file.getFailedList();
     }
-    
-    @Override
-    public synchronized String getProperty(String key) {
-        return super.getProperty(key);
+
+    public synchronized String getProperty(final String key) {
+        return propsMutex.readAccess(new Action<String>() {
+            public String run() {
+                readProperties();
+                return props.getProperty(key);
+            }
+        });
     }
 
-    @Override
-    public synchronized String getProperty(String key, String defaultValue) {
-//        loadProperties();
-        return super.getProperty(key, defaultValue);
+    public synchronized String getProperty(final String key, final String defaultValue) {
+        return propsMutex.readAccess(new Action<String>() {
+            public String run() {
+                readProperties();
+                return props.getProperty(key, defaultValue);
+            }
+        });
     }
 
-    @Override
-    public synchronized Object setProperty(String key, String value) {
-        Object obj= super.setProperty(key, value);
-//        try {
-//            saveProperties();
-//        } catch (FileAlreadyLockedException ex) {
-//            Exceptions.printStackTrace(ex);
-//        } catch (IOException ex) {
-//            Exceptions.printStackTrace(ex);
-//        }
-        return obj;
+    public synchronized String setProperty(final String key, final String value) {
+        return propsMutex.writeAccess(new Action<String>() {
+            public String run() {
+                String ret = (String) props.setProperty(key, value);
+                readProperties();
+                writeProperties();
+                return ret;
+            }
+        });
     }
 
+    @Deprecated
     public void loadProperties() {
-        clear();
-        FileObject myFile = FileUtil.findBrother(file.getPrimaryFile(), extension);
-        if (myFile == null) {
-            return;
-        }
-        InputStream in = null;
-        try {
-            in = myFile.getInputStream();
-            try {
-                load(in);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        } catch (FileNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
-        } finally {
-            try {
-                in.close();
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
     }
 
+    @Deprecated
     public void saveProperties() throws FileAlreadyLockedException, IOException {
-        OutputStream out = null;
-        FileLock lock = null;
-        try {
-            FileObject pFile = file.getPrimaryFile();
-            FileObject myFile = FileUtil.findBrother(pFile, extension);
-            if (myFile == null) {
-                myFile = FileUtil.createData(pFile.getParent(), pFile.getName() + "." + extension);
-            }
-            lock = myFile.lock();
-            out = myFile.getOutputStream(lock);
-            store(out, "");
-        } finally {
-            if (out != null) {
-                out.close();
-            }
-            if (lock != null) {
-                lock.releaseLock();
-            }
-        }
     }
 
-    public void setExtension(String extension) {
-        this.extension = extension;
+    private void readProperties() {
+        propsMutex.readAccess(new Runnable() {
+            public void run() {
+                final FileObject myFile = FileUtil.findBrother(file.getPrimaryFile(), extension);
+                if (myFile == null) {
+                    return;
+                }
+                final Date lastMod = myFile.lastModified();
+                if (!lastMod.equals(lastLoaded)) {
+                    propsMutex.writeAccess(new Runnable() {
+                        public void run() {
+                            props.clear();
+                            lastLoaded = lastMod;
+                            InputStream in = null;
+                            try {
+                                in = new BufferedInputStream(myFile.getInputStream());
+                                try {
+                                    props.load(in);
+                                } catch (IOException ex) {
+                                    Exceptions.printStackTrace(ex);
+                                }
+                            } catch (FileNotFoundException ex) {
+                                Exceptions.printStackTrace(ex);
+                            } finally {
+                                try {
+                                    in.close();
+                                } catch (IOException ex) {
+                                    Exceptions.printStackTrace(ex);
+                                }
+                            }
+                            logger.log(Level.INFO, "Read AssetData properties for {0}", file);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void writeProperties() {
+        //writeAccess because we write lastMod date, not because we write to the file
+        //the mutex protects the properties object, not the file
+        propsMutex.writeAccess(new Runnable() {
+            public void run() {
+                OutputStream out = null;
+                FileLock lock = null;
+                try {
+                    FileObject pFile = file.getPrimaryFile();
+                    FileObject myFile = FileUtil.findBrother(pFile, extension);
+                    if (myFile == null) {
+                        myFile = FileUtil.createData(pFile.getParent(), pFile.getName() + "." + extension);
+                    }
+                    lock = myFile.lock();
+                    out = new BufferedOutputStream(myFile.getOutputStream(lock));
+                    props.store(out, "");
+                    out.flush();
+                    lastLoaded = myFile.lastModified();
+                    logger.log(Level.INFO, "Written AssetData properties for {0}", file);
+                } catch (IOException e) {
+                    Exceptions.printStackTrace(e);
+                } finally {
+                    if (out != null) {
+                        try {
+                            out.close();
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                    if (lock != null) {
+                        lock.releaseLock();
+                    }
+                }
+            }
+        });
     }
 }
