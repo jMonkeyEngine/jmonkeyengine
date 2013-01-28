@@ -65,7 +65,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
     public synchronized ModelKey getAssetKey() {
         AssetKey superKey = super.getAssetKey();
         if (superKey instanceof ModelKey) {
-            return (ModelKey)superKey;
+            return (ModelKey) superKey;
         } else {
             ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
             if (mgr == null) {
@@ -128,7 +128,9 @@ public class SpatialAssetDataObject extends AssetDataObject {
             DataObject targetModel = DataObject.find(outFile);
             AssetData properties = targetModel.getLookup().lookup(AssetData.class);
             if (properties != null) {
-                properties.setProperty("ORIGINAL_PATH", mgr.getRelativeAssetPath(outFile.getPath()));
+                if (properties.getProperty("ORIGINAL_PATH") == null) {
+                    properties.setProperty("ORIGINAL_PATH", mgr.getRelativeAssetPath(outFile.getPath()));
+                }
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
