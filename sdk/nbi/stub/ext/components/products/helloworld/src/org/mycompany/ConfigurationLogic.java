@@ -471,7 +471,7 @@ public class ConfigurationLogic extends ProductConfigurationLogic {
             "bin/";
     public static final String EXECUTABLE_WINDOWS =
             BIN_SUBDIR
-            + ResourceUtils.getString(ConfigurationLogic.class, "CL.app.name") + ".exe"; // NOI18N
+            + ResourceUtils.getString(ConfigurationLogic.class, "CL.app.name") + (SystemUtils.isCurrentJava64Bit() ? "64" : "") + ".exe"; // NOI18N
     public static final String EXECUTABLE_UNIX =
             BIN_SUBDIR
             + ResourceUtils.getString(ConfigurationLogic.class, "CL.app.name"); // NOI18N
