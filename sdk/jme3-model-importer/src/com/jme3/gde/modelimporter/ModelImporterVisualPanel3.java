@@ -10,6 +10,7 @@ import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.OffScenePanel;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -95,6 +96,16 @@ public final class ModelImporterVisualPanel3 extends JPanel {
                 assetKeys = data.getAssetKeyList();
                 failedKeys = data.getFailedList();
                 assets = data.getAssetList();
+                //TODO:workaround for manually found assets not being added for some reason...
+                //Should be reported in located assets callback of assetmanager..
+                for (Iterator<UberAssetLocator.UberAssetInfo> it = UberAssetLocator.getLocatedList().iterator(); it.hasNext();) {
+                    logger.log(Level.WARNING, "Applying workaround, adding manually located assets to asset success list!");
+                    UberAssetLocator.UberAssetInfo uberAssetInfo = it.next();
+                    if(!assetKeys.contains(uberAssetInfo.getKey())){
+                        assetKeys.add(uberAssetInfo.getKey());
+                        assets.add(uberAssetInfo.getFileObject());
+                    }
+                }
                 jList1.setListData(assetKeys.toArray());
                 jList2.setListData(failedKeys.toArray());
                 if (failedKeys.size() > 0) {
