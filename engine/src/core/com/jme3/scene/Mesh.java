@@ -312,8 +312,8 @@ public class Mesh implements Savable, Cloneable {
 
             VertexBuffer bindPos = new VertexBuffer(Type.BindPosePosition);
             bindPos.setupData(Usage.CpuOnly,
-                    3,
-                    Format.Float,
+                    pos.getNumComponents(),
+                    pos.getFormat(),
                     BufferUtils.clone(pos.getData()));
             setBuffer(bindPos);
 
@@ -325,8 +325,8 @@ public class Mesh implements Savable, Cloneable {
             if (norm != null) {
                 VertexBuffer bindNorm = new VertexBuffer(Type.BindPoseNormal);
                 bindNorm.setupData(Usage.CpuOnly,
-                        3,
-                        Format.Float,
+                        norm.getNumComponents(),
+                        norm.getFormat(),
                         BufferUtils.clone(norm.getData()));
                 setBuffer(bindNorm);
                 norm.setUsage(Usage.Stream);
@@ -336,8 +336,8 @@ public class Mesh implements Savable, Cloneable {
             if (tangents != null) {
                 VertexBuffer bindTangents = new VertexBuffer(Type.BindPoseTangent);
                 bindTangents.setupData(Usage.CpuOnly,
-                        4,
-                        Format.Float,
+                        tangents.getNumComponents(),
+                        tangents.getFormat(),
                         BufferUtils.clone(tangents.getData()));
                 setBuffer(bindTangents);
                 tangents.setUsage(Usage.Stream);
