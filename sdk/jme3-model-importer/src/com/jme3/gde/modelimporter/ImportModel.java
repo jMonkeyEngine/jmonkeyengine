@@ -265,16 +265,20 @@ public final class ImportModel implements ActionListener {
                                     AssetKey curKey = tex.getKey();
                                     UberAssetInfo newInfo = UberAssetLocator.getInfo(curKey);
                                     if (newInfo != null) {
-                                        logger.log(Level.INFO, "Create new key with name {0}", newInfo.getNewAssetName());
-                                        TextureKey newKey = new TextureKey(newInfo.getNewAssetName());
-                                        Beans.copyProperties(curKey, newKey);
-                                        Texture texture = mgr.loadTexture(newKey);
-                                        if (texture != null) {
-                                            mat.setTextureParam(paramName, paramType, texture);
-                                            geom.setMaterial(mat);
-                                            logger.log(Level.INFO, "Apply relocated texture {0} for {1}", new Object[]{geom, newKey.getName()});
+                                        if (newInfo.getNewAssetName() != null) {
+                                            logger.log(Level.INFO, "Create new key with name {0}", newInfo.getNewAssetName());
+                                            TextureKey newKey = new TextureKey(newInfo.getNewAssetName());
+                                            Beans.copyProperties(curKey, newKey);
+                                            Texture texture = mgr.loadTexture(newKey);
+                                            if (texture != null) {
+                                                mat.setTextureParam(paramName, paramType, texture);
+                                                geom.setMaterial(mat);
+                                                logger.log(Level.INFO, "Apply relocated texture {0} for {1}", new Object[]{geom, newKey.getName()});
+                                            } else {
+                                                logger.log(Level.WARNING, "Could not find relocated texture!");
+                                            }
                                         } else {
-                                            logger.log(Level.WARNING, "Could not find relocated texture!");
+                                            logger.log(Level.SEVERE, "Don't have name for previously relocated asset {0}, something went wrong!", curKey);
                                         }
                                     }
                                 } catch (Exception ex) {
