@@ -148,7 +148,7 @@ public class UberAssetLocator implements AssetLocator {
         //TODO: better attempt to actually find file.. :)
         String rootPath = this.rootPath != null ? this.rootPath.replace("\\", "/") : null;
         if (rootPath != null) {
-            File file = new File(rootPath + "/" + key.getName());
+            File file = new File(rootPath + key.getName());
             file = FileUtil.normalizeFile(file);
             FileObject fileObject = FileUtil.toFileObject(file);
             if (fileObject != null) {
@@ -198,6 +198,8 @@ public class UberAssetLocator implements AssetLocator {
         if (file == null) {
             return null;
         }
+        logger.log(Level.INFO, "Got user file input");
+        file = FileUtil.normalizeFile(file);
         return FileUtil.toFileObject(file);
     }
 
