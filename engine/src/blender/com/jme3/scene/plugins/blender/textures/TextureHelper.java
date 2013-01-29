@@ -141,7 +141,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 				Pointer pImage = (Pointer) tex.getFieldValue("ima");
 				if (pImage.isNotNull()) {
 					Structure image = pImage.fetchData(blenderContext.getInputStream()).get(0);
-					Texture loadedTexture = this.loadImage(image, blenderContext);
+					Texture loadedTexture = this.loadTexture(image, blenderContext);
 					if(loadedTexture != null) {
 						result = loadedTexture;
 						this.applyColorbandAndColorFactors(tex, result.getImage(), blenderContext);
@@ -197,6 +197,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 				result.setKey(new GeneratedTextureKey(tex.getName()));
 			}
 			
+			if (LOGGER.isLoggable(Level.FINE)) {
+				LOGGER.log(Level.FINE, "Adding texture {0} to the loaded features with OMA = {1}", new Object[] { result.getName(), tex.getOldMemoryAddress() });
+			}
 			blenderContext.addLoadedFeatures(tex.getOldMemoryAddress(), tex.getName(), tex, result);
 		}
 		return result;
@@ -481,7 +484,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * This class returns a texture read from the file or from packed blender
 	 * data.
 	 * 
-	 * @param image
+	 * @param imageStructure
 	 *            image structure filled with data
 	 * @param blenderContext
 	 *            the blender context
@@ -490,12 +493,13 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *             this exception is thrown when the blend file structure is
 	 *             somehow invalid or corrupted
 	 */
-	protected Texture loadImage(Structure image, BlenderContext blenderContext) throws BlenderFileException {
-		LOGGER.log(Level.FINE, "Fetching texture with OMA = {0}", image.getOldMemoryAddress());
-		Texture result = new Texture2D((Image) blenderContext.getLoadedFeature(image.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE));
-		if (result == null) {
-			String texturePath = image.getFieldValue("name").toString();
-			Pointer pPackedFile = (Pointer) image.getFieldValue("packedfile");
+	protected Texture loadTexture(Structure imageStructure, BlenderContext blenderContext) throws BlenderFileException {
+		LOGGER.log(Level.FINE, "Fetching texture with OMA = {0}", imageStructure.getOldMemoryAddress());
+		Texture result = null;
+		Image im = (Image) blenderContext.getLoadedFeature(imageStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+		if (im == null) {
+			String texturePath = imageStructure.getFieldValue("name").toString();
+			Pointer pPackedFile = (Pointer) imageStructure.getFieldValue("packedfile");
 			if (pPackedFile.isNull()) {
 				LOGGER.log(Level.INFO, "Reading texture from file: {0}", texturePath);
 				result = this.loadImageFromFile(texturePath, blenderContext);
@@ -510,12 +514,8 @@ public class TextureHelper extends AbstractBlenderHelper {
 				// Should the texture be flipped? It works for sinbad ..
 				result = new Texture2D(imageLoader.loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true));
 			}
-			if (result != null) {
-				if (LOGGER.isLoggable(Level.FINE)) {
-					LOGGER.log(Level.FINE, "Adding image {0} to the loaded features with OMA = {1}", new Object[] { texturePath, image.getOldMemoryAddress() });
-				}
-				blenderContext.addLoadedFeatures(image.getOldMemoryAddress(), image.getName(), image, result);
-			}
+		} else {
+			result = new Texture2D(im);
 		}
 		return result;
 	}
