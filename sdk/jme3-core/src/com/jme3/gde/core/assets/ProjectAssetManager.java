@@ -127,18 +127,6 @@ public class ProjectAssetManager extends DesktopAssetManager {
         this(null);
     }
 
-    /**
-     * Returns the
-     * <code>FileObject</code> for a given asset key, or null if no such asset
-     * exists. TODO: Only works for real files in the asset folder atm
-     *
-     * @param assetKey The asset key to get the file object for
-     * @return Either a FileObject for the asset or null if not found.
-     */
-    public FileObject getAssetFileObject(AssetKey assetKey) {
-        return getAssetFolder().getFileObject(assetKey.getName());
-    }
-
     private void clearClassLoader() {
         if (jarItems.isEmpty() && classPathItems.isEmpty()) {
             return;
@@ -280,6 +268,57 @@ public class ProjectAssetManager extends DesktopAssetManager {
                 }
             }
         });
+    }
+
+    /**
+     * Returns the
+     * <code>FileObject</code> for a given asset path, or null if no such asset
+     * exists. First looks in the asset folder(s) for the file, then proceeds to
+     * scan the classpath folders and jar files for it.The returned FileObject
+     * might be inside a jar file and not writeable!
+     *
+     * @param assetKey The asset key to get the file object for
+     * @return Either a FileObject for the asset or null if not found.
+     */
+    public FileObject getAssetFileObject(AssetKey assetKey) {
+        String name = assetKey.getName();
+        return getAssetFileObject(name);
+    }
+
+    /**
+     * Returns the
+     * <code>FileObject</code> for a given asset path, or null if no such asset
+     * exists. First looks in the asset folder(s) for the file, then proceeds to
+     * scan the classpath folders and jar files for it.The returned FileObject
+     * might be inside a jar file and not writeable!
+     *
+     * @param name The asset name to get the file object for
+     * @return Either a FileObject for the asset or null if not found.
+     */
+    public FileObject getAssetFileObject(String name) {
+        assert (name != null);
+        FileObject file = getAssetFolder().getFileObject(name);
+        if (file != null) {
+            return file;
+        }
+        synchronized (classPathItems) {
+            // TODO I need to find out if classPathItems contains all jars added to a project
+            Iterator<ClassPathItem> classPathItemsIter = classPathItems.iterator();
+            while (classPathItemsIter.hasNext()) {
+                ClassPathItem classPathItem = classPathItemsIter.next();
+                FileObject jarFile = classPathItem.object;
+
+                Enumeration<FileObject> jarEntry = (Enumeration<FileObject>) jarFile.getChildren(true);
+                while (jarEntry.hasMoreElements()) {
+                    FileObject jarEntryAsset = jarEntry.nextElement();
+                    String path = jarEntryAsset.getPath();
+                    if (!path.startsWith("/") && path.equals(name)) {
+                        return jarEntryAsset;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public FileObject createAsset(String path) {
