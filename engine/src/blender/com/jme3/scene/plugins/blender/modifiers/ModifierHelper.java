@@ -184,8 +184,10 @@ public class ModifierHelper extends AbstractBlenderHelper {
 				Structure actionStructure = pAction.fetchData(blenderContext.getInputStream()).get(0);
 				IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
 				Ipo ipo = ipoHelper.fromAction(actionStructure, blenderContext);
-				result = new ObjectAnimationModifier(ipo, actionStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
-				blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
+				if(ipo != null) {//ipo can be null if it has no curves applied, ommit such modifier then
+					result = new ObjectAnimationModifier(ipo, actionStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
+					blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
+				}
 			}
 		}
 		return result;
