@@ -333,7 +333,7 @@ import com.jme3.util.BufferUtils;
 								} else if(weight > 0) {//if weight is zero the simply ignore it
 									warnAboutTooManyVertexWeights = true;
 									Entry<Float, Integer> lowestWeightAndIndex = weightToIndexMap.firstEntry();
-									if(lowestWeightAndIndex.getKey() < weight) {
+									if(lowestWeightAndIndex != null && lowestWeightAndIndex.getKey() < weight) {
 										weightsFloatData.put(lowestWeightAndIndex.getValue(), weight);
 										indicesData.put(lowestWeightAndIndex.getValue(), boneIndex.byteValue());
 										weightToIndexMap.remove(lowestWeightAndIndex.getKey());
