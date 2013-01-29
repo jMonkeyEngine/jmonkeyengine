@@ -141,9 +141,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 				Pointer pImage = (Pointer) tex.getFieldValue("ima");
 				if (pImage.isNotNull()) {
 					Structure image = pImage.fetchData(blenderContext.getInputStream()).get(0);
-					Image loadedImage = this.loadImage(image, blenderContext);
-					if(loadedImage != null) {
-						result = new Texture2D(loadedImage);
+					Texture loadedTexture = this.loadImage(image, blenderContext);
+					if(loadedTexture != null) {
+						result = loadedTexture;
 						this.applyColorbandAndColorFactors(tex, result.getImage(), blenderContext);
 					}
 				}
@@ -490,9 +490,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *             this exception is thrown when the blend file structure is
 	 *             somehow invalid or corrupted
 	 */
-	protected Image loadImage(Structure image, BlenderContext blenderContext) throws BlenderFileException {
+	protected Texture loadImage(Structure image, BlenderContext blenderContext) throws BlenderFileException {
 		LOGGER.log(Level.FINE, "Fetching texture with OMA = {0}", image.getOldMemoryAddress());
-		Image result = (Image) blenderContext.getLoadedFeature(image.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+		Texture result = new Texture2D((Image) blenderContext.getLoadedFeature(image.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE));
 		if (result == null) {
 			String texturePath = image.getFieldValue("name").toString();
 			Pointer pPackedFile = (Pointer) image.getFieldValue("packedfile");
@@ -508,7 +508,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 				ImageLoader imageLoader = new ImageLoader();
 
 				// Should the texture be flipped? It works for sinbad ..
-				result = imageLoader.loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true);
+				result = new Texture2D(imageLoader.loadImage(blenderContext.getInputStream(), dataFileBlock.getBlockPosition(), true));
 			}
 			if (result != null) {
 				if (LOGGER.isLoggable(Level.FINE)) {
@@ -691,14 +691,14 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *            the blender context
 	 * @return the loaded image or null if the image cannot be found
 	 */
-	protected Image loadImageFromFile(String name, BlenderContext blenderContext) {
+	protected Texture loadImageFromFile(String name, BlenderContext blenderContext) {
 		if (!name.contains(".")) {
 			return null; // no extension means not a valid image
 		}
 
 		AssetManager assetManager = blenderContext.getAssetManager();
 		name = name.replaceAll("\\\\", "\\/");
-		Image result = null;
+		Texture result = null;
 
 		List<String> assetNames = new ArrayList<String>();
 		if (name.startsWith("//")) {
@@ -730,7 +730,7 @@ public class TextureHelper extends AbstractBlenderHelper {
                 AssetInfo info = assetManager.locateAsset(key);
                 if(info != null){
                     Texture texture = assetManager.loadTexture(key);
-                    result = texture.getImage();//get only the image
+                    result = texture;//get only the image
                     break;// if no exception is thrown then accept the located asset
                           // and break the loop
                 }
