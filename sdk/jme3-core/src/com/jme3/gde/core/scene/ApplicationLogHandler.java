@@ -65,7 +65,7 @@ public class ApplicationLogHandler extends Handler {
         if (record.getLevel().equals(Level.SEVERE)) {
             Throwable thrown = record.getThrown();
             if (thrown != null) {
-                NotifyUtil.show("Exception!", formatter.formatMessage(record), MessageType.EXCEPTION, listener, 0);
+                NotifyUtil.error("Exception!", formatter.formatMessage(record), thrown, false);
             } else {
                 NotifyUtil.show("Error!", formatter.formatMessage(record), MessageType.ERROR, listener, 10000);
             }

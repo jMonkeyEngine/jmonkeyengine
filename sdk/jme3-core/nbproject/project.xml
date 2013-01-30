@@ -349,6 +349,7 @@
                 <package>com.jme3.gde.core.texture</package>
                 <package>com.jme3.gde.core.undoredo</package>
                 <package>com.jme3.gde.core.util</package>
+                <package>com.jme3.gde.core.util.notify</package>
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/DDSUtils.jar</runtime-relative-path>
