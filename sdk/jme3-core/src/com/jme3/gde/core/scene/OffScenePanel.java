@@ -307,6 +307,20 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
         });
     }
 
+    /**
+     * threadsafe detach from root node
+     * @param spat
+     */
+    public void detachAll() {
+        SceneApplication.getApplication().enqueue(new Callable<Object>() {
+
+            public Object call() throws Exception {
+                rootNode.detachAllChildren();
+                return null;
+            }
+        });
+    }
+
     public void setCamFocus(final Vector3f focus) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 

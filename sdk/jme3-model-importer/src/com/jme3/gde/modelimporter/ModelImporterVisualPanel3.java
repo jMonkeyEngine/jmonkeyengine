@@ -59,6 +59,7 @@ public final class ModelImporterVisualPanel3 extends JPanel {
         mainKey = (AssetKey) wiz.getProperty("mainkey");
         data = (AssetData) wiz.getProperty("assetdata");
         loadModel();
+        offPanel.detachAll();
         if (currentModel != null) {
             logger.log(Level.INFO, "Attaching model {0}", currentModel);
             offPanel.attach(currentModel);
@@ -73,10 +74,7 @@ public final class ModelImporterVisualPanel3 extends JPanel {
         wiz.putProperty("assetlist", assetKeys);
         wiz.putProperty("failedlist", failedKeys);
         wiz.putProperty("model", currentModel);
-        if (currentModel != null) {
-            logger.log(Level.INFO, "Detaching model {0}", currentModel);
-            offPanel.detach(currentModel);
-        }
+        offPanel.detachAll();
         logger.log(Level.INFO, "Stop offview panel");
         offPanel.stopPreview();
     }
