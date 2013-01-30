@@ -46,10 +46,22 @@ public abstract class AbstractBlenderAssetDataObject extends SpatialAssetDataObj
         }
         FileObject mainFile = getPrimaryFile();
         BlenderTool.runConversionScript(SUFFIX, mainFile);
+        mainFile.getParent().refresh();
         FileObject outFile = FileUtil.findBrother(mainFile, BlenderTool.TEMP_SUFFIX);
         if (outFile == null) {
             logger.log(Level.SEVERE, "Failed to create model, blend file cannot be found");
             return null;
+        }
+        int i = 1;
+        FileObject blend1File = FileUtil.findBrother(mainFile, BlenderTool.TEMP_SUFFIX + i);
+        while (blend1File != null) {
+            try {
+                blend1File.delete();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            i++;
+            blend1File = FileUtil.findBrother(mainFile, BlenderTool.TEMP_SUFFIX + i);
         }
         String assetKey = mgr.getRelativeAssetPath(outFile.getPath());
         FileLock lock = null;
