@@ -356,11 +356,11 @@ public class BlenderTool {
         return true;
     }
 
-    private static boolean runBlender(final String options, boolean async) {
+    private static boolean runBlender(final String file, boolean async) {
         if (!checkBlenderFolders()) {
             logger.log(Level.SEVERE, "Could not create blender settings folders!");
         }
-        logger.log(Level.INFO, "Running blender with options {0}", options);
+        logger.log(Level.INFO, "Running blender with options {0}", file);
         if (blenderOpened.getAndSet(true)) {
             logger.log(Level.INFO, "Blender seems to be running");
             return false;
@@ -379,7 +379,7 @@ public class BlenderTool {
             public void run() {
                 try {
                     String command = exe.getAbsolutePath();
-                    ProcessBuilder buildr = new ProcessBuilder(command, options);
+                    ProcessBuilder buildr = new ProcessBuilder(command, file);
                     buildr.directory(getBlenderRootFolder());
                     buildr.environment().put("BLENDER_USER_CONFIG", getConfigEnv());
                     buildr.environment().put("BLENDER_SYSTEM_SCRIPTS", getScriptsEnv());
@@ -404,6 +404,7 @@ public class BlenderTool {
                     java.awt.EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             mainWin.setState(Frame.NORMAL);
+                            mainWin.requestFocus();
                         }
                     });
                     successful.set(false);
@@ -419,7 +420,7 @@ public class BlenderTool {
     }
 
     public static boolean openInBlender(FileObject file) {
-        String path = "'" + file.getPath().replace("/", File.separator) + "'";
+        String path = file.getPath().replace("/", File.separator);
         return runBlender(path, true);
     }
 
