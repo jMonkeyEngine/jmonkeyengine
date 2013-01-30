@@ -83,7 +83,7 @@ position = 300)
     @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"),
     position = 1400)
 })
-public class BlenderDaeDataObject extends AbstractBlenderAssetDataObject {
+public class BlenderDaeDataObject extends AbstractBlenderImportDataObject {
 
     public BlenderDaeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);

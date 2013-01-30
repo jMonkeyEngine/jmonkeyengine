@@ -26,11 +26,11 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
-public abstract class AbstractBlenderAssetDataObject extends SpatialAssetDataObject {
+public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataObject {
 
     protected String SUFFIX;
 
-    public AbstractBlenderAssetDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
+    public AbstractBlenderImportDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
     }
 
