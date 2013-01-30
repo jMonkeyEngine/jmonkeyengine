@@ -37,6 +37,7 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
+import com.jme3.gde.core.util.notify.NotifyUtil;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import java.awt.event.ActionEvent;
@@ -85,11 +86,7 @@ public final class OpenModel implements ActionListener {
                         request.setWindowTitle("OpenGL Window - View Model");
                         app.openScene(request);
                     } else {
-                        Confirmation msg = new NotifyDescriptor.Confirmation(
-                                "Error opening " + context.getPrimaryFile().getNameExt(),
-                                NotifyDescriptor.OK_CANCEL_OPTION,
-                                NotifyDescriptor.ERROR_MESSAGE);
-                        DialogDisplayer.getDefault().notify(msg);
+                        DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error opening " + context.getPrimaryFile().getNameExt(), NotifyDescriptor.ERROR_MESSAGE));
                     }
                 }catch(Exception e){
                     e.printStackTrace();

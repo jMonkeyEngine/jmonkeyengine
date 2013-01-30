@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.assets.actions;
 
+import com.jme3.export.Savable;
 import com.jme3.gde.core.assets.BinaryModelDataObject;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
 import java.awt.event.ActionEvent;
@@ -38,9 +39,6 @@ import java.awt.event.ActionListener;
 import java.util.List;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.util.Exceptions;
 
 public final class ConvertModel implements ActionListener {
@@ -53,22 +51,18 @@ public final class ConvertModel implements ActionListener {
 
     public void actionPerformed(ActionEvent ev) {
         Runnable run = new Runnable() {
-
             public void run() {
                 ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Converting Model");
                 progressHandle.start();
                 for (SpatialAssetDataObject spatialAssetDataObject : context) {
                     if (!(spatialAssetDataObject instanceof BinaryModelDataObject)) {
                         try {
-                            spatialAssetDataObject.loadAsset();
-                            spatialAssetDataObject.saveAsset();
+                            Savable sav = spatialAssetDataObject.loadAsset();
+                            if (sav != null) {
+                                spatialAssetDataObject.saveAsset();
+                            }
                         } catch (Exception ex) {
                             Exceptions.printStackTrace(ex);
-                            Confirmation msg = new NotifyDescriptor.Confirmation(
-                                    "Error converting " + spatialAssetDataObject.getName() + "\n" + ex.toString(),
-                                    NotifyDescriptor.OK_CANCEL_OPTION,
-                                    NotifyDescriptor.ERROR_MESSAGE);
-                            DialogDisplayer.getDefault().notifyLater(msg);
                         }
                     }
                 }
