@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
@@ -43,8 +45,12 @@ public abstract class FontCreator {
     public static AngelFont buildFont(String fontName, int bitmapSize, int fontSize, int style, boolean debug) {
         return buildFont(fontName, fontName, bitmapSize, fontSize, style, 0, 0, 0, debug);
     }
-
+    
     public static AngelFont buildFont(String fontName, String fileName, int bitmapSize, int fontSize, int style, int paddingX, int paddingY, int letterSpacing, boolean debug) {
+        return buildFont(fontName, fileName, bitmapSize, fontSize, style, paddingX, paddingY, letterSpacing, 0, 256, debug);
+    }
+    
+    public static AngelFont buildFont(String fontName, String fileName, int bitmapSize, int fontSize, int style, int paddingX, int paddingY, int letterSpacing, int firstChar, int lastChar, boolean debug) {
         BufferedImage fontImage;
         Font font;
 
@@ -62,6 +68,7 @@ public abstract class FontCreator {
         }
         g.setColor(OPAQUE_WHITE);
         g.setBackground(TRANSPARENT_BLACK);
+        FontRenderContext frc = g.getFontRenderContext();
 
         FontMetrics fm = g.getFontMetrics();
 
@@ -70,38 +77,49 @@ public abstract class FontCreator {
             g.drawRect(0, 0, bitmapSize - 1, bitmapSize - 1);
         }
         int xPos = 0;
-        int yPos = 0;
-        int height = 0;
-        for (int i = 0; i < 256; i++) {
+        int height = fm.getDescent() + fm.getAscent();
+        int yPos = height + (paddingY * 2);
+        
+        for (int i = firstChar; i <= lastChar; i++) {
             char ch[] = {(char) i};
             String temp = new String(ch);
-            Rectangle2D bounds = fm.getStringBounds(temp, g);
-            height = fm.getDescent() + fm.getAscent();
-            if (yPos == 0) {
-                yPos = height + (paddingY * 2);
+            
+            if (!font.canDisplay((char)i)) {
+                continue;
             }
-            if (xPos + bounds.getWidth() + (paddingX * 2) > bitmapSize) {
+            
+            TextLayout tl = new TextLayout(temp, font, frc);
+            Rectangle2D pixelBounds = tl.getPixelBounds(frc, xPos, yPos);
+
+            int width = (int)Math.ceil(pixelBounds.getWidth());
+            
+            int advance = (int)Math.ceil(tl.getAdvance());
+            
+            int xOffset = (int)Math.round(pixelBounds.getX()) - xPos;
+            
+            if (xPos + width + (paddingX * 2) > bitmapSize) {
                 xPos = 0;
                 yPos += height + (paddingY * 2);
             }
-            g.drawString(temp, xPos + paddingX, yPos + paddingY);
+            
+            g.drawString(temp, xPos + paddingX - xOffset, yPos + paddingY);
             if (debug) {
                 g.setColor(Color.BLUE);
-                g.drawRect(xPos, yPos - fm.getAscent(), (int) bounds.getWidth() + (paddingX * 2), height + (paddingY * 2));
+                g.drawRect(xPos, yPos - fm.getAscent(), width + (paddingX * 2), height + (paddingY * 2));
                 g.setColor(Color.WHITE);
             }
             charLocs = charLocs
                     + "char id=" + i
                     + "    x=" + xPos
                     + "    y=" + (yPos - fm.getAscent())
-                    + "    width=" + ((int) bounds.getWidth() + (paddingX * 2))
-                    + "    height=" + ((int) bounds.getHeight() + (paddingY * 2))
-                    + "    xoffset=0"
+                    + "    width=" + (width + (paddingX * 2))
+                    + "    height=" + (fm.getHeight() + (paddingY * 2))
+                    + "    xoffset=" + (xOffset)
                     + "    yoffset=0"
-                    + "    xadvance=" + (((int) bounds.getWidth() + letterSpacing) - 1) + " "
+                    + "    xadvance=" + ((advance + letterSpacing) - 1) + " "
                     + "    page=0"
                     + "    chnl=0\n";
-            xPos += bounds.getWidth() + (paddingX * 2);
+            xPos += width + (paddingX * 2);
         }
         charLocs = "info face=null "
                 + "size=" + fontSize + " "
