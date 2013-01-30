@@ -36,6 +36,7 @@ import com.jme3.asset.AssetKey;
 import com.jme3.export.Savable;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.util.notify.NotifyUtil;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -192,7 +193,7 @@ public class AssetDataObject extends MultiDataObject {
 
     public synchronized void saveAsset() throws IOException {
         if (savable == null) {
-            Logger.getLogger(AssetDataObject.class.getName()).log(Level.WARNING, "Trying to write asset failed, asset data null!\nImport failed?");
+            logger.log(Level.WARNING, "Trying to write asset failed, asset data null!\nImport failed?");
             return;
         }
         final Savable savable = this.savable;
