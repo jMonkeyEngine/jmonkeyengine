@@ -31,8 +31,11 @@
  */
 package com.jme3.gde.core.scene;
 
+import com.jme3.gde.core.util.notify.MessageType;
 import com.jme3.gde.core.util.notify.NotifyUtil;
 import com.jme3.util.JmeFormatter;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -47,6 +50,11 @@ public class ApplicationLogHandler extends Handler {
 
     InputOutput io = IOProvider.getDefault().getIO("Application", true);
     JmeFormatter formatter = new JmeFormatter();
+    ActionListener listener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            io.select();
+        }
+    };
 
     public ApplicationLogHandler() {
         io.setErrSeparated(true);
@@ -57,15 +65,16 @@ public class ApplicationLogHandler extends Handler {
         if (record.getLevel().equals(Level.SEVERE)) {
             Throwable thrown = record.getThrown();
             if (thrown != null) {
-                NotifyUtil.error("Exception!", formatter.formatMessage(record), false);
-            }else{
-                NotifyUtil.error("Severe error!", formatter.formatMessage(record), true);
+                NotifyUtil.show("Exception!", formatter.formatMessage(record), MessageType.EXCEPTION, listener, 0);
+            } else {
+                NotifyUtil.show("Error!", formatter.formatMessage(record), MessageType.ERROR, listener, 10000);
             }
             io.getErr().println(formatter.formatMessage(record));
         } else if (record.getLevel().equals(Level.WARNING)) {
             io.getErr().println(formatter.formatMessage(record));
-            NotifyUtil.warn("Warning!", formatter.formatMessage(record), true);
+            NotifyUtil.show("Warning", formatter.formatMessage(record), MessageType.WARNING, listener, 5000);
         } else if (record.getLevel().equals(Level.INFO)) {
+//            NotifyUtil.show("Message", formatter.formatMessage(record), MessageType.INFO, listener, 3000);
             io.getOut().println(formatter.formatMessage(record));
         } else {
             io.getOut().println(formatter.formatMessage(record));
