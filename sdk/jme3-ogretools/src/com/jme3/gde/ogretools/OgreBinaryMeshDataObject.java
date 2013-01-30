@@ -64,6 +64,7 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
             replaceXmlFiles(mgr);
             listListener.stop();
             savable = spatial;
+            storeOriginalPathUserData();
             lock.releaseLock();
             File deleteFile = new File(options.getDestFile());
             deleteFile.delete();

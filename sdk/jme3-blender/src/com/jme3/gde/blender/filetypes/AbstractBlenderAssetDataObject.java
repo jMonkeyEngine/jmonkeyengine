@@ -72,6 +72,7 @@ public abstract class AbstractBlenderAssetDataObject extends SpatialAssetDataObj
             replaceFiles();
             listListener.stop();
             savable = spatial;
+            storeOriginalPathUserData();
             return spatial;
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
