@@ -1,30 +1,30 @@
-# This script is an example of how you can run blender from the command line
-# (in background mode with no interface) to automate tasks, in this example it
-# creates a text object, camera and light, then renders and/or saves it.
-# This example also shows how you can parse command line options to scripts.
+# This script invokes blender to import and save external model formats as
+# .blend files to be processed further.
 #
-# Example usage for this test.
-#  blender --background --factory-startup --python $HOME/background_job.py -- \
-#          --text="Hello World" \
-#          --render="/tmp/hello" \
-#          --save="/tmp/hello.blend"
-#
-# Notice:
-# '--factory-startup' is used to avoid the user default settings from
-#                     interfearing with automated scene generation.
-#
-# '--' causes blender to ignore all following arguments so python can use them.
+# Example usage for this importer:
+#  blender --background --factory-startup --python $HOME/import_3ds.py -- \
+#          --i="/tmp/hello.3ds" \
+#          --o="/tmp/hello.blend" \
 #
 # See blender --help for details.
 
 import bpy
 
-
-def convert_file(file_path, save_path):
+# Imports a file using importer
+def import_file(file_path):
+    # Import the model
     bpy.ops.wm.collada_import(filepath = file_path)
 
+# Clear existing objects.
+def clear_scene():
     scene = bpy.context.scene
+    scene.camera = None
+    for obj in scene.objects:
+        scene.objects.unlink(obj)
 
+# Save current scene as .blend file
+def save_file(save_path):
+    # Check if output file exists already
     try:
         f = open(save_path, 'w')
         f.close()
@@ -35,6 +35,7 @@ def convert_file(file_path, save_path):
         import traceback
         traceback.print_exc()
 
+    # Save .blend file
     if ok:
         bpy.ops.wm.save_as_mainfile(filepath=save_path)
 
@@ -54,7 +55,7 @@ def main():
     # When --help or no args are given, print this help
     usage_text = \
     "Run blender in background mode with this script:"
-    "  blender --background --python " + __file__ + " -- [options]"
+    "  blender --background --factory-startup --python " + __file__ + " -- [options]"
 
     parser = argparse.ArgumentParser(description=usage_text)
 
@@ -70,14 +71,10 @@ def main():
         parser.print_help()
         return
 
-    # Clear existing objects.
-    scene = bpy.context.scene
-    scene.camera = None
-    for obj in scene.objects:
-        scene.objects.unlink(obj)
-
     # Run the conversion
-    convert_file(args.file_path, args.save_path)
+    clear_scene()
+    import_file(args.file_path)
+    save_file(args.save_path)
 
     print("batch job finished, exiting")
 
