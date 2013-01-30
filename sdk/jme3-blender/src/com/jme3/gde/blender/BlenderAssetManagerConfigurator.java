@@ -16,5 +16,6 @@ public class BlenderAssetManagerConfigurator implements AssetManagerConfigurator
 
     public void prepareManager(AssetManager manager) {
         manager.registerLoader(com.jme3.scene.plugins.blender.BlenderModelLoader.class, "blend");
+        manager.registerLoader(com.jme3.scene.plugins.blender.BlenderModelLoader.class, BlenderTool.TEMP_SUFFIX);
     }
 }

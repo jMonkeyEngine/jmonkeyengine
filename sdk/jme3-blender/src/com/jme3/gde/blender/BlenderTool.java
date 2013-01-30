@@ -116,6 +116,7 @@
  */
 package com.jme3.gde.blender;
 
+import com.jme3.gde.blender.scripts.Scripts;
 import com.jme3.math.Vector3f;
 import java.awt.Frame;
 import java.awt.Window;
@@ -133,15 +134,18 @@ import org.openide.util.Utilities;
 import org.openide.windows.WindowManager;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+
 /**
  *
  * @author normenhansen
  */
 public class BlenderTool {
 
+    public static final String TEMP_SUFFIX = "blend";
     private static final String mainFolderName = "blender";
     private static final String configFolderName = mainFolderName + "/config";
     private static final String scriptsFolderName = mainFolderName + "/scripts";
+    private static final String jmeScriptsFolderName = mainFolderName + "/jmescripts";
     private static final String userScriptsFolderName = mainFolderName + "/userscripts";
     private static final String tempFolderName = mainFolderName + "/temp";
     private static final Logger logger = Logger.getLogger(BlenderTool.class.getName());
@@ -171,32 +175,42 @@ public class BlenderTool {
             FileObject configFileObject = fileObject.getFileObject(configFolderName);
             //TODO: using installed blender scripts folder, make more flexible by moving
             //to updateable folder
-//            FileObject scriptsFileObject = fileObject.getFileObject(scriptsFolderName);
+            FileObject scriptsFileObject = fileObject.getFileObject(scriptsFolderName);
+            FileObject jmeScriptsFileObject = fileObject.getFileObject(jmeScriptsFolderName);
             FileObject userScriptsFileObject = fileObject.getFileObject(userScriptsFolderName);
             if (configFileObject == null) {
                 try {
-                    FileUtil.createFolder(fileObject, configFolderName);
+                    configFileObject = FileUtil.createFolder(fileObject, configFolderName);
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                     return false;
                 }
             }
-//            if (scriptsFileObject == null) {
-//                try {
-//                    FileUtil.createFolder(fileObject, scriptsFolderName);
-//                } catch (IOException ex) {
-//                    Exceptions.printStackTrace(ex);
-//                    return false;
-//                }
-//            }
+            if (scriptsFileObject == null) {
+                try {
+                    scriptsFileObject = FileUtil.createFolder(fileObject, scriptsFolderName);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                    return false;
+                }
+            }
+            if (jmeScriptsFileObject == null) {
+                try {
+                    jmeScriptsFileObject = FileUtil.createFolder(fileObject, jmeScriptsFolderName);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                    return false;
+                }
+            }
             if (userScriptsFileObject == null) {
                 try {
-                    FileUtil.createFolder(fileObject, userScriptsFolderName);
+                    userScriptsFileObject = FileUtil.createFolder(fileObject, userScriptsFolderName);
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                     return false;
                 }
             }
+            Scripts.copyToFolder(jmeScriptsFileObject);
         } else {
             logger.log(Level.SEVERE, "No global settings folder found!");
             return false;
@@ -224,6 +238,18 @@ public class BlenderTool {
         return ret;
     }
 
+    private static String getJmeUserScriptPath(String scriptName) {
+        String ret = System.getProperty("netbeans.user") + "/" + jmeScriptsFolderName + "/" + scriptName;
+        ret = ret.replace("/", File.separator);
+        return ret;
+    }
+
+    private static String getImportScriptPath(String scriptName) {
+        String ret = System.getProperty("netbeans.user") + "/" + jmeScriptsFolderName + "/" + "import_" + scriptName + ".py";
+        ret = ret.replace("/", File.separator);
+        return ret;
+    }
+
     private static File getBlenderExecutable() {
         File blender = InstalledFileLocator.getDefault().locate(getBlenderOsPath() + "/" + getBlenderExeName(), null, false);
         if (blender == null) {
@@ -234,7 +260,7 @@ public class BlenderTool {
     }
 
     private static File getBlenderSettingsFolder() {
-        File blender = InstalledFileLocator.getDefault().locate(getBlenderOsPath() + "/2.64", null, false);
+        File blender = InstalledFileLocator.getDefault().locate(getBlenderOsPath() + "/2.65", null, false);
         if (blender == null) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message("Error finding Blender settings"));
             logger.log(Level.SEVERE, "Error finding Blender settings");
@@ -253,6 +279,52 @@ public class BlenderTool {
 
     private static void setBlendWin(Window win) {
         blenderWindow = win;
+    }
+
+    public static boolean runConversionScript(String type, FileObject input) {
+        if (!checkBlenderFolders()) {
+            logger.log(Level.SEVERE, "Could not create blender settings folders!");
+        }
+        final File exe = getBlenderExecutable();
+        if (exe == null) {
+            logger.log(Level.SEVERE, "Could not find blender executable!");
+            return false;
+        }
+        logger.log(Level.INFO, "Try running blender as converter for file {0}", input.getPath());
+        String scriptPath = getImportScriptPath(type);
+        String inputPath = input.getPath().replace("/", File.separator);
+        String inputFolder = input.getParent().getPath().replace("/", File.separator) + File.separator;
+        String outputPath = inputFolder + input.getName() + "." + TEMP_SUFFIX;
+        try {
+            String command = exe.getAbsolutePath();
+            ProcessBuilder buildr = new ProcessBuilder(command, "-b",
+                    "--factory-startup",
+                    "-P", scriptPath,
+                    "--",
+                    "-i", inputPath,
+                    "-o", outputPath);
+            buildr.directory(getBlenderRootFolder());
+            buildr.environment().put("BLENDER_USER_CONFIG", getConfigEnv());
+            buildr.environment().put("BLENDER_SYSTEM_SCRIPTS", getScriptsEnv());
+            buildr.environment().put("BLENDER_USER_SCRIPTS", getUserScriptsEnv());
+            Process proc = buildr.start();
+            OutputReader outReader = new OutputReader(proc.getInputStream());
+            OutputReader errReader = new OutputReader(proc.getErrorStream());
+            outReader.start();
+            errReader.start();
+            try {
+                proc.waitFor();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            if (proc.exitValue() != 0) {
+                logger.log(Level.SEVERE, "Error running blender!");
+                return false;
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return true;
     }
 
     private static boolean runBlender(final String options, boolean async) {
