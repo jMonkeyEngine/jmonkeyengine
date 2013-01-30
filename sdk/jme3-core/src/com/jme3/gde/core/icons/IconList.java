@@ -134,6 +134,18 @@ public class IconList {
             ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/terrain.png", false);
     public static ImageIcon vehicle =
             ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/vehicle.png", false);
-//    public static ImageIcon orthoMode =
-//            ImageUtilities.loadImageIcon(, false);
+    public static ImageIcon chimpConfused =
+            ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/chimpanzee-confused.gif", false);
+    public static ImageIcon chimpLobo =
+            ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/chimpanzee-lobotized.gif", false);
+    public static ImageIcon chimpMad =
+            ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/chimpanzee-mad.gif", false);
+    public static ImageIcon chimpNogood =
+            ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/chimpanzee-nogood.gif", false);
+    public static ImageIcon chimpSad =
+            ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/chimpanzee-sad.gif", false);
+    public static ImageIcon chimpSmile =
+            ImageUtilities.loadImageIcon("com/jme3/gde/core/icons/chimpanzee-smile.gif", false);
+//    public static ImageIcon icon =
+//            ImageUtilities.loadImageIcon("", false);
 }
