@@ -28,9 +28,13 @@ import com.jme3.gde.core.filters.FilterExplorerTopComponent;
 import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneRequest;
+import com.jme3.gde.core.util.notify.MessageType;
+import com.jme3.gde.core.util.notify.NotifyUtil;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
@@ -90,10 +94,10 @@ public final class SceneViewerTopComponent extends TopComponent {
 
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
-            showOpenGLError(e.toString());
+            SceneApplication.showStartupErrorMessage(e);
         } catch (Error err) {
             Exceptions.printStackTrace(err);
-            showOpenGLError(err.toString());
+            SceneApplication.showStartupErrorMessage(err);
         }
         //TODO: camera tools (see SwitchFrontViewAction)
 //        Collection<? extends Action> result = Lookups.forPath("CameraTools").lookupAll(Action.class);
@@ -298,24 +302,6 @@ public final class SceneViewerTopComponent extends TopComponent {
                 "There seem to be multiple components with the '" + PREFERRED_ID
                 + "' ID. That is a potential source of errors and unexpected behavior.");
         return getDefault();
-    }
-
-    public static void showOpenGLError(String e) {
-        Message msg = new NotifyDescriptor.Message(
-                "Error opening OpenGL window!\n"
-                + "Error: " + e + "\n"
-                + "See http://jmonkeyengine.org/wiki/doku.php/sdk:troubleshooting \n"
-                + "for more info."
-                + NotifyDescriptor.ERROR_MESSAGE);
-        DialogDisplayer.getDefault().notifyLater(msg);
-        if (!browserOpened) {
-            browserOpened = true;
-            try {
-                HtmlBrowser.URLDisplayer.getDefault().showURL(new URL("http://jmonkeyengine.org/wiki/doku.php/sdk:troubleshooting"));
-            } catch (MalformedURLException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
     }
 
     @Override

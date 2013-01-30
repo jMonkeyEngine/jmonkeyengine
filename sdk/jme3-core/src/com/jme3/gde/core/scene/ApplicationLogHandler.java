@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.scene;
 
+import com.jme3.gde.core.util.notify.NotifyUtil;
 import com.jme3.util.JmeFormatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -54,9 +55,16 @@ public class ApplicationLogHandler extends Handler {
     @Override
     public void publish(LogRecord record) {
         if (record.getLevel().equals(Level.SEVERE)) {
+            Throwable thrown = record.getThrown();
+            if (thrown != null) {
+                NotifyUtil.error("Exception!", formatter.formatMessage(record), false);
+            }else{
+                NotifyUtil.error("Severe error!", formatter.formatMessage(record), true);
+            }
             io.getErr().println(formatter.formatMessage(record));
         } else if (record.getLevel().equals(Level.WARNING)) {
             io.getErr().println(formatter.formatMessage(record));
+            NotifyUtil.warn("Warning!", formatter.formatMessage(record), true);
         } else if (record.getLevel().equals(Level.INFO)) {
             io.getOut().println(formatter.formatMessage(record));
         } else {

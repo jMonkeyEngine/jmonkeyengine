@@ -33,6 +33,7 @@ package com.jme3.gde.core.util.notify;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.Timer;
 import org.openide.awt.Notification;
 import org.openide.awt.NotificationDisplayer;
 
@@ -48,10 +49,20 @@ public class NotifyUtil {
     /**
      * Show message with the specified type and action listener
      */
-    public static void show(String title, String message, MessageType type, ActionListener actionListener, boolean clear) {
-        Notification n = (Notification) NotificationDisplayer.getDefault().notify(title, type.getIcon(), message, actionListener);
-        if (clear == true) {
-            n.clear();
+    public static void show(String title, String message, MessageType type, ActionListener actionListener, int timeout) {
+        final Notification n = (Notification) NotificationDisplayer.getDefault().notify(title, type.getIcon(), message, actionListener);
+        if (timeout > 0) {
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                public void run() {
+                    Timer timer = new Timer(10000, new ActionListener() {
+                        public void actionPerformed(ActionEvent e) {
+                            n.clear();
+                        }
+                    });
+                    timer.setRepeats(false);
+                    timer.start();
+                }
+            });
         }
     }
 
@@ -59,7 +70,7 @@ public class NotifyUtil {
      * Show message with the specified type and a default action which displays
      * the message using {@link MessageUtil} with the same message type
      */
-    public static void show(String title, final String message, final MessageType type, boolean clear) {
+    public static void show(String title, final String message, final MessageType type, int timeout) {
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,43 +78,48 @@ public class NotifyUtil {
             }
         };
 
-        show(title, message, type, actionListener, clear);
+        show(title, message, type, actionListener, timeout);
     }
 
     /**
      * Show an information notification
+     *
      * @param message
      */
     public static void info(String title, String message) {
         error(title, message, true);
     }
-    
+
     /**
      * Show an information notification
+     *
      * @param message
      */
     public static void info(String title, String message, boolean clear) {
-        show(title, message, MessageType.INFO, clear);
+        show(title, message, MessageType.INFO, 3000);
     }
 
     /**
      * Show an exception
-     * @param exception 
+     *
+     * @param exception
      */
     public static void error(Throwable exception) {
         error("Exception in SDK!", exception.getMessage(), exception, true);
     }
-    
+
     /**
      * Show an error notification
+     *
      * @param message
      */
     public static void error(String title, String message, boolean clear) {
-        show(title, message, MessageType.ERROR, clear);
+        show(title, message, MessageType.ERROR, 10000);
     }
 
     /**
      * Show an error notification for an exception
+     *
      * @param message
      * @param exception
      */
@@ -116,22 +132,24 @@ public class NotifyUtil {
             }
         };
 
-        show(title, message, MessageType.EXCEPTION, actionListener, clear);
+        show(title, message, MessageType.EXCEPTION, actionListener, 10000);
     }
 
     /**
      * Show an warning notification
+     *
      * @param message
      */
     public static void warn(String title, String message, boolean clear) {
-        show(title, message, MessageType.WARNING, clear);
+        show(title, message, MessageType.WARNING, 5000);
     }
 
     /**
      * Show an plain notification
+     *
      * @param message
      */
     public static void plain(String title, String message, boolean clear) {
-        show(title, message, MessageType.PLAIN, clear);
+        show(title, message, MessageType.PLAIN, 5000);
     }
 }

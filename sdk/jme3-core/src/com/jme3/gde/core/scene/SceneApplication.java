@@ -38,6 +38,8 @@ import com.jme3.gde.core.scene.processors.WireProcessor;
 import com.jme3.gde.core.sceneexplorer.nodes.NodeUtility;
 import com.jme3.gde.core.sceneviewer.SceneViewerTopComponent;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
+import com.jme3.gde.core.util.notify.MessageType;
+import com.jme3.gde.core.util.notify.NotifyUtil;
 import com.jme3.input.FlyByCamera;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.MouseAxisTrigger;
@@ -57,7 +59,11 @@ import com.jme3.system.awt.AwtPanel;
 import com.jme3.system.awt.AwtPanelsContext;
 import com.jme3.system.awt.PaintMode;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -69,6 +75,7 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
 import org.openide.NotifyDescriptor.Message;
+import org.openide.awt.HtmlBrowser;
 import org.openide.awt.StatusDisplayer;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
@@ -157,11 +164,11 @@ public class SceneApplication extends Application implements LookupProvider {
                 start();
             }
         } catch (Exception e) {
-            SceneViewerTopComponent.showOpenGLError(e.toString());
             Exceptions.printStackTrace(e);
+            showStartupErrorMessage(e);
         } catch (Error e) {
-            SceneViewerTopComponent.showOpenGLError(e.toString());
             Exceptions.printStackTrace(e);
+            showStartupErrorMessage(e);
         } finally {
             getProgressHandle().finish();
         }
@@ -262,10 +269,10 @@ public class SceneApplication extends Application implements LookupProvider {
             started = true;
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
-            SceneViewerTopComponent.showOpenGLError(e.toString());
+            showStartupErrorMessage(e);
         } catch (Error e) {
             Exceptions.printStackTrace(e);
-            SceneViewerTopComponent.showOpenGLError(e.toString());
+            showStartupErrorMessage(e);
         } finally {
             getProgressHandle().finish();
         }
@@ -614,7 +621,7 @@ public class SceneApplication extends Application implements LookupProvider {
             return;
         }
         if (!started) {
-            SceneViewerTopComponent.showOpenGLError(msg);
+            showStartupErrorMessage(t);
             Exceptions.printStackTrace(t);
         } else {
             if (lastError != null && !lastError.equals(msg)) {
@@ -623,6 +630,19 @@ public class SceneApplication extends Application implements LookupProvider {
                 lastError = msg;
             }
         }
+    }
+
+    public static void showStartupErrorMessage(Throwable exception) {
+        ActionListener lst = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    HtmlBrowser.URLDisplayer.getDefault().showURL(new URL("http://jmonkeyengine.org/wiki/doku.php/sdk:troubleshooting"));
+                } catch (MalformedURLException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        };
+        NotifyUtil.show("Error starting OpenGL context!", exception.getMessage() + " - Click here to go to troubleshooting web page.", MessageType.EXCEPTION, lst, 0);
     }
 
     @Override
