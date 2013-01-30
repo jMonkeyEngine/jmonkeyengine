@@ -153,17 +153,17 @@ public class SceneApplication extends Application implements LookupProvider {
             nodeSync = new NodeSyncAppState();
             stateManager.attach(nodeSync);
             progressHandle.progress("initialize Base Application", 1);
+            if (!useCanvas) {
+                start();
+            }
         } catch (Exception e) {
-            getProgressHandle().finish();
             SceneViewerTopComponent.showOpenGLError(e.toString());
             Exceptions.printStackTrace(e);
         } catch (Error e) {
-            getProgressHandle().finish();
             SceneViewerTopComponent.showOpenGLError(e.toString());
             Exceptions.printStackTrace(e);
-        }
-        if (!useCanvas) {
-            start();
+        } finally {
+            getProgressHandle().finish();
         }
     }
 
@@ -261,13 +261,13 @@ public class SceneApplication extends Application implements LookupProvider {
             inputManager.addMapping("MouseButtonRight", new MouseButtonTrigger(1));
             started = true;
         } catch (Exception e) {
-            getProgressHandle().finish();
             Exceptions.printStackTrace(e);
             SceneViewerTopComponent.showOpenGLError(e.toString());
         } catch (Error e) {
-            getProgressHandle().finish();
             Exceptions.printStackTrace(e);
             SceneViewerTopComponent.showOpenGLError(e.toString());
+        } finally {
+            getProgressHandle().finish();
         }
     }
 
@@ -279,7 +279,7 @@ public class SceneApplication extends Application implements LookupProvider {
 
     @Override
     public void update() {
-        if(!started) {
+        if (!started) {
             return;
         }
         try {
