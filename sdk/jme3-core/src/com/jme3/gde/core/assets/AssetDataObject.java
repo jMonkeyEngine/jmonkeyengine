@@ -74,6 +74,7 @@ import org.openide.util.lookup.ProxyLookup;
 @SuppressWarnings("unchecked")
 public class AssetDataObject extends MultiDataObject {
 
+    protected static final Logger logger = Logger.getLogger(AssetDataObject.class.getName());
     protected final Lookup lookup;
     protected final InstanceContent lookupContents = new InstanceContent();
     protected SaveCookie saveCookie = new SaveCookie() {
