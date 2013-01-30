@@ -142,11 +142,11 @@ public class SpatialAssetDataObject extends AssetDataObject {
             Exceptions.printStackTrace(ex);
         }
     }
-/*
- * SDK:
-- Only store ORIGINAL_PATH AssetData property when actually converting 
-- Store ORIGINAL_PATH and ORIGINAL_NAME UserData on geometry when creating j3o files with the SDK
-*/
+
+    /**
+     * Stores ORIGINAL_NAME and ORIGINAL_PATH UserData to all Geometry in
+     * loaded spatial
+     */
     protected void storeOriginalPathUserData() {
         final ArrayList<String> geomMap = new ArrayList<String>();
         Spatial spat = (Spatial) savable;
