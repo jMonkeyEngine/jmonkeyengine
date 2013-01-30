@@ -61,7 +61,7 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
             listListener.start();
             Spatial spatial = mgr.loadModel(assetKey);
             //replace transient xml files in list of assets for this model
-            replaceXmlFiles();
+            replaceXmlFiles(mgr);
             listListener.stop();
             savable = spatial;
             lock.releaseLock();
@@ -81,21 +81,18 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
         return null;
     }
 
-    private void replaceXmlFiles() {
-        List<FileObject> newFiles = new ArrayList<FileObject>();
-        for (Iterator<FileObject> it = assetList.iterator(); it.hasNext();) {
-            FileObject fileObject = it.next();
+    private void replaceXmlFiles(ProjectAssetManager mgr) {
+        for (int i = 0; i < assetList.size(); i++) {
+            FileObject fileObject = assetList.get(i);
             if (fileObject.hasExt("xml")) {
                 FileObject binaryFile = fileObject.getParent().getFileObject(fileObject.getName());
                 if (binaryFile != null) {
-                    newFiles.add(binaryFile);
-                    it.remove();
+                    assetList.remove(i);
+                    assetList.add(i, binaryFile);
+                    assetKeyList.remove(i);
+                    assetKeyList.add(i, new AssetKey(mgr.getRelativeAssetPath(binaryFile.getPath())));
                 }
             }
-        }
-        for (Iterator<FileObject> it = newFiles.iterator(); it.hasNext();) {
-            FileObject fileObject = it.next();
-            assetList.add(fileObject);
         }
     }
 }
