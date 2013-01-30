@@ -117,11 +117,10 @@
 package com.jme3.gde.blender;
 
 import com.jme3.gde.blender.scripts.Scripts;
-import com.jme3.math.Vector3f;
 import java.awt.Frame;
-import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.DialogDisplayer;
@@ -132,8 +131,6 @@ import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 import org.openide.windows.WindowManager;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 
 /**
  *
@@ -149,8 +146,7 @@ public class BlenderTool {
     private static final String userScriptsFolderName = mainFolderName + "/userscripts";
     private static final String tempFolderName = mainFolderName + "/temp";
     private static final Logger logger = Logger.getLogger(BlenderTool.class.getName());
-    private static boolean running = false;
-    private static Window blenderWindow = null;
+    private static final AtomicBoolean blenderOpened = new AtomicBoolean(false);
 
     private static String getBlenderExeName() {
         if (Utilities.isWindows()) {
@@ -238,14 +234,8 @@ public class BlenderTool {
         return ret;
     }
 
-    private static String getJmeUserScriptPath(String scriptName) {
-        String ret = System.getProperty("netbeans.user") + "/" + jmeScriptsFolderName + "/" + scriptName;
-        ret = ret.replace("/", File.separator);
-        return ret;
-    }
-
-    private static String getImportScriptPath(String scriptName) {
-        String ret = System.getProperty("netbeans.user") + "/" + jmeScriptsFolderName + "/" + "import_" + scriptName + ".py";
+    private static String getScriptPath(String scriptName, String prefix) {
+        String ret = System.getProperty("netbeans.user") + "/" + jmeScriptsFolderName + "/" + prefix + "_" + scriptName + ".py";
         ret = ret.replace("/", File.separator);
         return ret;
     }
@@ -277,10 +267,6 @@ public class BlenderTool {
         return blender;
     }
 
-    private static void setBlendWin(Window win) {
-        blenderWindow = win;
-    }
-
     public static boolean runConversionScript(String type, FileObject input) {
         if (!checkBlenderFolders()) {
             logger.log(Level.SEVERE, "Could not create blender settings folders!");
@@ -290,8 +276,8 @@ public class BlenderTool {
             logger.log(Level.SEVERE, "Could not find blender executable!");
             return false;
         }
-        logger.log(Level.INFO, "Try running blender as converter for file {0}", input.getPath());
-        String scriptPath = getImportScriptPath(type);
+        logger.log(Level.INFO, "Running blender as converter for file {0}", input.getPath());
+        String scriptPath = getScriptPath(type, "import");
         String inputPath = input.getPath().replace("/", File.separator);
         String inputFolder = input.getParent().getPath().replace("/", File.separator) + File.separator;
         String outputPath = inputFolder + input.getName() + "." + TEMP_SUFFIX;
@@ -327,40 +313,67 @@ public class BlenderTool {
         return true;
     }
 
+    public static boolean runToolScript(String toolName, FileObject input) {
+        if (!checkBlenderFolders()) {
+            logger.log(Level.SEVERE, "Could not create blender settings folders!");
+        }
+        final File exe = getBlenderExecutable();
+        if (exe == null) {
+            logger.log(Level.SEVERE, "Could not find blender executable!");
+            return false;
+        }
+        logger.log(Level.INFO, "Running blender as {0} tool for file {1}", new Object[]{toolName, input.getPath()});
+        String scriptPath = getScriptPath(toolName, "tool");
+        String inputPath = input.getPath().replace("/", File.separator);
+        try {
+            String command = exe.getAbsolutePath();
+            ProcessBuilder buildr = new ProcessBuilder(command, "-b",
+                    "--factory-startup",
+                    "-P", scriptPath,
+                    "--",
+                    "-i", inputPath);
+            buildr.directory(getBlenderRootFolder());
+            buildr.environment().put("BLENDER_USER_CONFIG", getConfigEnv());
+            buildr.environment().put("BLENDER_SYSTEM_SCRIPTS", getScriptsEnv());
+            buildr.environment().put("BLENDER_USER_SCRIPTS", getUserScriptsEnv());
+            Process proc = buildr.start();
+            OutputReader outReader = new OutputReader(proc.getInputStream());
+            OutputReader errReader = new OutputReader(proc.getErrorStream());
+            outReader.start();
+            errReader.start();
+            try {
+                proc.waitFor();
+            } catch (InterruptedException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            if (proc.exitValue() != 0) {
+                logger.log(Level.SEVERE, "Error running blender!");
+                return false;
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return true;
+    }
+
     private static boolean runBlender(final String options, boolean async) {
         if (!checkBlenderFolders()) {
             logger.log(Level.SEVERE, "Could not create blender settings folders!");
         }
-        logger.log(Level.INFO, "Try running blender with options {0}", options);
-        if (running) {
+        logger.log(Level.INFO, "Running blender with options {0}", options);
+        if (blenderOpened.getAndSet(true)) {
             logger.log(Level.INFO, "Blender seems to be running");
             return false;
         }
-        blenderWindow = null;
-        running = true;
-        //TODO: wtf, for some reason i cannot access AtomicBoolean..
-        final Vector3f v = new Vector3f(0, 0, 0);
+        final AtomicBoolean successful = new AtomicBoolean(true);
         final File exe = getBlenderExecutable();
         if (exe == null) {
             logger.log(Level.SEVERE, "Could not find blender executable!");
-            running = false;
+            blenderOpened.set(false);
             return false;
         }
         final Frame mainWin = WindowManager.getDefault().getMainWindow();
         assert (mainWin != null);
-        logger.log(Level.INFO, "Adding focus listener to window {0}", mainWin);
-//        mainWin.addWindowFocusListener(new WindowFocusListener() {
-//            public void windowGainedFocus(WindowEvent e) {
-//            }
-//
-//            public void windowLostFocus(WindowEvent e) {
-//                Window blendWin = e.getOppositeWindow();
-//                logger.log(Level.INFO, "Lost focus to window {0}, use as Blender window", blendWin);
-//                setBlendWin(blendWin);
-//                mainWin.removeWindowFocusListener(this);
-//                logger.log(Level.INFO, "Remove focus listener from window {0}", mainWin);
-//            }
-//        });
         mainWin.setState(Frame.ICONIFIED);
         Runnable r = new Runnable() {
             public void run() {
@@ -381,26 +394,19 @@ public class BlenderTool {
                     } catch (InterruptedException ex) {
                         Exceptions.printStackTrace(ex);
                     }
-                    if (proc.exitValue() != 0) {
-                        v.x = 1;
+                    if (proc.exitValue() == 0) {
+                        successful.set(true);
                     }
-                    java.awt.EventQueue.invokeLater(new Runnable() {
-                        public void run() {
-                            mainWin.setState(Frame.NORMAL);
-                        }
-                    });
-                    blenderWindow = null;
-                    running = false;
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     Exceptions.printStackTrace(ex);
-                    v.x = 1;
+                } finally {
+                    blenderOpened.set(false);
                     java.awt.EventQueue.invokeLater(new Runnable() {
                         public void run() {
                             mainWin.setState(Frame.NORMAL);
                         }
                     });
-                    blenderWindow = null;
-                    running = false;
+                    successful.set(false);
                 }
             }
         };
@@ -409,11 +415,7 @@ public class BlenderTool {
         } else {
             r.run();
         }
-        if (v.x != 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return successful.get();
     }
 
     public static boolean openInBlender(FileObject file) {
@@ -421,24 +423,10 @@ public class BlenderTool {
         return runBlender(path, true);
     }
 
-    public static boolean blenderToFront() {
-        Window win = blenderWindow;
-        if (win != null) {
-            logger.log(Level.INFO, "Request focus of Blender window {0}", win);
-            win.requestFocus();
-            return true;
-        }
-        return false;
-    }
-
     public static void runBlender() {
         if (!runBlender(null, true)) {
             logger.log(Level.INFO, "Could not run blender, already running? Trying to focus window.");
-            if (!blenderToFront()) {
-                logger.log(Level.INFO, "Could not bring blender to front.");
-            } else {
-                logger.log(Level.INFO, "Requested Blender window focus.");
-            }
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Blender is already running!"));
         }
     }
 }
