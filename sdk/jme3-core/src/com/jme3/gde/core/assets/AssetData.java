@@ -126,32 +126,33 @@ public class AssetData {
     }
 
     public synchronized String getProperty(final String key) {
+        readProperties();
         return propsMutex.readAccess(new Action<String>() {
             public String run() {
-                readProperties();
                 return props.getProperty(key);
             }
         });
     }
 
     public synchronized String getProperty(final String key, final String defaultValue) {
+        readProperties();
         return propsMutex.readAccess(new Action<String>() {
             public String run() {
-                readProperties();
                 return props.getProperty(key, defaultValue);
             }
         });
     }
 
     public synchronized String setProperty(final String key, final String value) {
-        return propsMutex.writeAccess(new Action<String>() {
+        readProperties();
+        String ret = propsMutex.writeAccess(new Action<String>() {
             public String run() {
                 String ret = (String) props.setProperty(key, value);
-                readProperties();
-                writeProperties();
                 return ret;
             }
         });
+        writeProperties();
+        return ret;
     }
 
     @Deprecated
@@ -163,7 +164,7 @@ public class AssetData {
     }
 
     private void readProperties() {
-        propsMutex.readAccess(new Runnable() {
+        propsMutex.writeAccess(new Runnable() {
             public void run() {
                 final FileObject myFile = FileUtil.findBrother(file.getPrimaryFile(), extension);
                 if (myFile == null) {
@@ -171,30 +172,26 @@ public class AssetData {
                 }
                 final Date lastMod = myFile.lastModified();
                 if (!lastMod.equals(lastLoaded)) {
-                    propsMutex.writeAccess(new Runnable() {
-                        public void run() {
-                            props.clear();
-                            lastLoaded = lastMod;
-                            InputStream in = null;
-                            try {
-                                in = new BufferedInputStream(myFile.getInputStream());
-                                try {
-                                    props.load(in);
-                                } catch (IOException ex) {
-                                    Exceptions.printStackTrace(ex);
-                                }
-                            } catch (FileNotFoundException ex) {
-                                Exceptions.printStackTrace(ex);
-                            } finally {
-                                try {
-                                    in.close();
-                                } catch (IOException ex) {
-                                    Exceptions.printStackTrace(ex);
-                                }
-                            }
-                            logger.log(Level.INFO, "Read AssetData properties for {0}", file);
+                    props.clear();
+                    lastLoaded = lastMod;
+                    InputStream in = null;
+                    try {
+                        in = new BufferedInputStream(myFile.getInputStream());
+                        try {
+                            props.load(in);
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
                         }
-                    });
+                    } catch (FileNotFoundException ex) {
+                        Exceptions.printStackTrace(ex);
+                    } finally {
+                        try {
+                            in.close();
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                    logger.log(Level.INFO, "Read AssetData properties for {0}", file);
                 }
             }
         });
