@@ -186,10 +186,10 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             Class<? extends JmeContext> ctxClazz = null;
             switch (type) {
                 case Display:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.jogl.JoglDisplay");
+                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.jogl.JoglNewtDisplay");
                     break;
                 case Canvas:
-                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.jogl.JoglCanvas");
+                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.jogl.JoglNewtCanvas");
                     break;
                 default:
                     throw new IllegalArgumentException("Unsupported context type " + type);
