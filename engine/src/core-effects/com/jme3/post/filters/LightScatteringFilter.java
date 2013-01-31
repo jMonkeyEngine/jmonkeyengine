@@ -101,12 +101,12 @@ public class LightScatteringFilter extends Filter {
     protected void postQueue(RenderQueue queue) {
         getClipCoordinates(lightPosition, screenLightPos, viewPort.getCamera());
         viewPort.getCamera().getViewMatrix().mult(lightPosition, viewLightPos);        
-        display = screenLightPos.x < 1.4f && screenLightPos.x > -0.6f && screenLightPos.y < 1.4f && screenLightPos.y > -0.6f && viewLightPos.z < 0;
         if (adaptative) {
             innerLightDensity = Math.max(lightDensity - Math.max(screenLightPos.x, screenLightPos.y), 0.0f);
         } else {
             innerLightDensity = lightDensity;
         }
+        display = innerLightDensity != 0.0 && viewLightPos.z < 0;
     }
 
     private Vector3f getClipCoordinates(Vector3f worldPosition, Vector3f store, Camera cam) {
