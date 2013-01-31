@@ -57,26 +57,8 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
 
         jScrollPane2.setOpaque(false);
         jScrollPane2.getViewport().setOpaque(false);
-        jEditorPane1.putClientProperty(SwingUtilities2.AA_TEXT_PROPERTY_KEY, null);
-
-        jEditorPane1.addHyperlinkListener(new HyperlinkListener() {
-            public void hyperlinkUpdate(HyperlinkEvent he) {
-                if (he.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                    try {
-                        jEditorPane1.setPage(he.getURL());
-                    } catch (IOException ex) {
-                        logger.log(Level.FINE, "Loading page failed", ex);
-                        try {
-                            logger.log(Level.WARNING, "Could not open web page!");
-                            URL startUrl = new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link"));
-                            jEditorPane1.setPage(startUrl);
-                        } catch (IOException ex1) {
-                            logger.log(Level.SEVERE, "Could not open local help page!", ex1);
-                        }
-                    }
-                }
-            }
-        });
+        jEditorPane1.putClientProperty(SwingUtilities2.AA_TEXT_PROPERTY_KEY, SwingUtilities2.AATextInfo.getAATextInfo(true));
+        jEditorPane1.addHyperlinkListener(this);
     }
 
     public void loadPage() {
@@ -87,7 +69,7 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
             NbPreferences.forModule(getClass()).putLong("LAST_PAGE_UPDATE", lastMod);
             jEditorPane1.setPage(startUrl);
         } catch (IOException ex) {
-            logger.log(Level.FINE, "Loading page failed", ex);
+            logger.log(Level.INFO, "Loading page failed", ex);
             try {
                 jEditorPane1.setPage(new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link")));
             } catch (IOException ex1) {
@@ -116,6 +98,23 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
             Exceptions.printStackTrace(ex);
         }
 
+    }
+
+    public void hyperlinkUpdate(HyperlinkEvent he) {
+        if (he.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+            try {
+                jEditorPane1.setPage(he.getURL());
+            } catch (IOException ex) {
+                logger.log(Level.INFO, "Loading page failed", ex);
+                try {
+                    logger.log(Level.WARNING, "Could not open web page!");
+                    URL startUrl = new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link"));
+                    jEditorPane1.setPage(startUrl);
+                } catch (IOException ex1) {
+                    logger.log(Level.SEVERE, "Could not open local help page!", ex1);
+                }
+            }
+        }
     }
 
     /**
@@ -203,11 +202,5 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
-    }
-
-    public void hyperlinkUpdate(HyperlinkEvent he) {
-        if (he.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-            URLDisplayer.getDefault().showURL(he.getURL());
-        }
     }
 }
