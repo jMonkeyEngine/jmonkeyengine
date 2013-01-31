@@ -4,9 +4,11 @@
  */
 package com.jme3.gde.welcome;
 
-import com.jme3.gde.welcome.rss.RssFeedParser;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -17,6 +19,8 @@ import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.NbPreferences;
+import org.openide.windows.WindowManager;
 import sun.swing.SwingUtilities2;
 
 /**
@@ -28,7 +32,7 @@ autostore = false)
 @TopComponent.Description(
     preferredID = "WelcomeScreenTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_NEVER)
+persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = "Window", id = "com.jme3.gde.welcome.WelcomeScreenTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
@@ -41,8 +45,9 @@ preferredID = "WelcomeScreenTopComponent")
     "HINT_WelcomeScreenTopComponent=Shows news and information about your SDK"
 })
 public final class WelcomeScreenTopComponent extends TopComponent implements HyperlinkListener {
-    private static final HelpCtx ctx = new HelpCtx("com.jme3.gde.core.about");
 
+    private static final Logger logger = Logger.getLogger(WelcomeScreenTopComponent.class.getName());
+    private static final HelpCtx ctx = new HelpCtx("com.jme3.gde.core.about");
 //    private final RssFeedParser parser = new RssFeedParser(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.rss.link"));
 
     public WelcomeScreenTopComponent() {
@@ -60,15 +65,54 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
                     try {
                         jEditorPane1.setPage(he.getURL());
                     } catch (IOException ex) {
+                        logger.log(Level.INFO, "Loading page failed", ex);
                         try {
-                            jEditorPane1.setPage(new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link")));
+                            logger.log(Level.WARNING, "Could not open web page!");
+                            URL startUrl = new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link"));
+                            jEditorPane1.setPage(startUrl);
                         } catch (IOException ex1) {
-                            Exceptions.printStackTrace(ex1);
+                            logger.log(Level.SEVERE, "Could not open local help page!", ex1);
                         }
                     }
                 }
             }
         });
+    }
+
+    public void loadPage() {
+        try {
+            URL startUrl = new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.http.link"));
+            URLConnection conn = startUrl.openConnection();
+            long lastMod = conn.getLastModified();
+            NbPreferences.forModule(getClass()).putLong("LAST_PAGE_UPDATE", lastMod);
+            jEditorPane1.setPage(startUrl);
+        } catch (IOException ex) {
+            logger.log(Level.INFO, "Loading page failed", ex);
+            try {
+                jEditorPane1.setPage(new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link")));
+            } catch (IOException ex1) {
+                logger.log(Level.SEVERE, "Could not open local help page!", ex1);
+            }
+        }
+    }
+
+    public static void checkOpen() {
+        try {
+            long lastCheck = NbPreferences.forModule(WelcomeScreenTopComponent.class).getLong("LAST_PAGE_UPDATE", 0);
+            URL startUrl = new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.http.link"));
+            URLConnection conn = startUrl.openConnection();
+            long lastMod = conn.getLastModified();
+            if (lastCheck != lastMod) {
+                WelcomeScreenTopComponent tc = (WelcomeScreenTopComponent) WindowManager.getDefault().findTopComponent("WelcomeScreenTopComponent");
+                if (tc != null) {
+                    tc.open();
+                    tc.requestActive();
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
     }
 
     /**
@@ -133,16 +177,7 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
 
     @Override
     public void componentOpened() {
-        try {
-            jEditorPane1.setPage(new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.http.link")));
-        } catch (IOException ex) {
-            try {
-                jEditorPane1.setPage(new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link")));
-            } catch (IOException ex1) {
-                Exceptions.printStackTrace(ex1);
-            }
-        }
-//        parser.updateFeed();
+        loadPage();
     }
 
     @Override
