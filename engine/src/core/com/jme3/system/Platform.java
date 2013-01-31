@@ -91,6 +91,10 @@ public enum Platform {
     /**
      * Android x86
      */
-    Android_X86;
+    Android_X86,
+    
+    iOS_X86,
+    
+    iOS_ARM;
     
 }
