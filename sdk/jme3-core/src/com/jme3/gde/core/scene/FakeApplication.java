@@ -453,7 +453,7 @@ public class FakeApplication extends SimpleApplication {
                 break;
             }
         }
-        showError("Fake app is fake!" + (severe ? "And WTF are you trying to do anyway?\n" : "\n") + trace);
+        showError("Fake app is fake!" + (severe ? "\nAnd WTF are you trying to do anyway?\n" : "\n") + trace);
     }
 
     private void showError(String msg) {
