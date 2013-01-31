@@ -28,29 +28,17 @@ import com.jme3.gde.core.filters.FilterExplorerTopComponent;
 import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneRequest;
-import com.jme3.gde.core.util.notify.MessageType;
-import com.jme3.gde.core.util.notify.NotifyUtil;
 import com.jme3.input.awt.AwtKeyInput;
 import com.jme3.input.event.KeyInputEvent;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import org.netbeans.api.settings.ConvertAsProperties;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.NotifyDescriptor.Message;
-import org.openide.awt.HtmlBrowser;
 import org.openide.awt.UndoRedo;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
@@ -93,10 +81,8 @@ public final class SceneViewerTopComponent extends TopComponent {
             oGLPanel.add(oglCanvas);
 
         } catch (Exception e) {
-            Exceptions.printStackTrace(e);
             SceneApplication.showStartupErrorMessage(e);
         } catch (Error err) {
-            Exceptions.printStackTrace(err);
             SceneApplication.showStartupErrorMessage(err);
         }
         //TODO: camera tools (see SwitchFrontViewAction)

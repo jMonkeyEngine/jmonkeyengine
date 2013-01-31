@@ -33,7 +33,11 @@ package com.jme3.gde.core.util.notify;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import javax.swing.Timer;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.Notification;
 import org.openide.awt.NotificationDisplayer;
 
@@ -49,12 +53,18 @@ public class NotifyUtil {
     /**
      * Show message with the specified type and action listener
      */
-    public static void show(String title, String message, MessageType type, ActionListener actionListener, int timeout) {
+    public static Notification show(String title, String message, MessageType type, ActionListener actionListener, final int timeout) {
+        if (message == null) {
+            message = "null";
+        }
+        if (title == null) {
+            title = "null";
+        }
         final Notification n = (Notification) NotificationDisplayer.getDefault().notify(title, type.getIcon(), message, actionListener);
         if (timeout > 0) {
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    Timer timer = new Timer(10000, new ActionListener() {
+                    Timer timer = new Timer(timeout, new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             n.clear();
                         }
@@ -64,13 +74,14 @@ public class NotifyUtil {
                 }
             });
         }
+        return n;
     }
 
     /**
      * Show message with the specified type and a default action which displays
      * the message using {@link MessageUtil} with the same message type
      */
-    public static void show(String title, final String message, final MessageType type, int timeout) {
+    public static Notification show(String title, final String message, final MessageType type, int timeout) {
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -78,7 +89,7 @@ public class NotifyUtil {
             }
         };
 
-        show(title, message, type, actionListener, timeout);
+        return show(title, message, type, actionListener, timeout);
     }
 
     /**
@@ -86,8 +97,8 @@ public class NotifyUtil {
      *
      * @param message
      */
-    public static void info(String title, String message) {
-        error(title, message, true);
+    public static Notification info(String title, String message) {
+        return error(title, message, true);
     }
 
     /**
@@ -95,17 +106,8 @@ public class NotifyUtil {
      *
      * @param message
      */
-    public static void info(String title, String message, boolean clear) {
-        show(title, message, MessageType.INFO, 3000);
-    }
-
-    /**
-     * Show an exception
-     *
-     * @param exception
-     */
-    public static void error(Throwable exception) {
-        error("Exception in SDK!", exception.getMessage(), exception, true);
+    public static Notification info(String title, String message, boolean clear) {
+        return show(title, message, MessageType.INFO, clear ? 3000 : 0);
     }
 
     /**
@@ -113,8 +115,25 @@ public class NotifyUtil {
      *
      * @param message
      */
-    public static void error(String title, String message, boolean clear) {
-        show(title, message, MessageType.ERROR, 10000);
+    public static Notification error(String title, String message, boolean clear) {
+        return show(title, message, MessageType.ERROR, clear ? 10000 : 0);
+    }
+
+    /**
+     * Show an exception
+     *
+     * @param exception
+     */
+    public static Notification error(Throwable exception) {
+        return error("Exception", exception.getMessage(), exception, false);
+    }
+
+    public static Notification error(String title, Throwable exception) {
+        return error(title, exception, false);
+    }
+
+    public static Notification error(String title, Throwable exception, boolean clear) {
+        return error(title, exception.getMessage(), exception, clear);
     }
 
     /**
@@ -123,16 +142,27 @@ public class NotifyUtil {
      * @param message
      * @param exception
      */
-    public static void error(String title, final String message, final Throwable exception, boolean clear) {
+    public static Notification error(String title, String message, final Throwable exception, boolean clear) {
+        final NoteKeeper keeper = new NoteKeeper();
+        if (message == null) {
+            message = exception.getMessage();
+        }
+        if (title == null) {
+            message = exception.getMessage();
+        }
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                ErrorManager.getDefault().notify(exception);
-                MessageUtil.showException(message, exception);
+                StringWriter out = new StringWriter();
+                exception.printStackTrace(new PrintWriter(out));
+                String exception = out.toString();
+                DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message(exception, NotifyDescriptor.ERROR_MESSAGE));
+                keeper.note.clear();
             }
         };
 
-        show(title, message, MessageType.EXCEPTION, actionListener, 10000);
+        keeper.note = show(title, message, MessageType.EXCEPTION, actionListener, clear ? 10000 : 0);
+        return keeper.note;
     }
 
     /**
@@ -140,8 +170,8 @@ public class NotifyUtil {
      *
      * @param message
      */
-    public static void warn(String title, String message, boolean clear) {
-        show(title, message, MessageType.WARNING, 5000);
+    public static Notification warn(String title, String message, boolean clear) {
+        return show(title, message, MessageType.WARNING, clear ? 5000 : 0);
     }
 
     /**
@@ -149,7 +179,12 @@ public class NotifyUtil {
      *
      * @param message
      */
-    public static void plain(String title, String message, boolean clear) {
-        show(title, message, MessageType.PLAIN, 5000);
+    public static Notification plain(String title, String message, boolean clear) {
+        return show(title, message, MessageType.PLAIN, clear ? 3000 : 0);
+    }
+
+    private static class NoteKeeper {
+
+        Notification note;
     }
 }

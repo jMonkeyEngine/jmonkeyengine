@@ -67,7 +67,7 @@ public class MessageUtil {
     * @param exception
     */
     public static void showException(String message, Throwable exception) {
-        getDialogDisplayer().notify(new NotifyDescriptor.Exception(exception, message));
+        getDialogDisplayer().notifyLater(new NotifyDescriptor.Exception(exception, message));
     }
 
     /**

@@ -65,6 +65,9 @@ public class Installer extends ModuleInstall {
     }
 
     static {
+        //set exception report levels
+        System.setProperty("netbeans.exception.report.min.level", "99999");
+        System.setProperty("netbeans.exception.alert.min.level", "99999"); 
         //set http agent
         System.setProperty("http.agent", NbBundle.getBundle("org.netbeans.core.windows.view.ui.Bundle").getString("CTL_MainWindow_Title")
                 + " (" + System.getProperty("os.name") + "/" + System.getProperty("os.version") + ")");

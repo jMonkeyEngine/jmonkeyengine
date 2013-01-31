@@ -36,9 +36,11 @@ import com.jme3.gde.core.util.notify.NotifyUtil;
 import com.jme3.util.JmeFormatter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.Callable;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import javax.swing.JButton;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
@@ -46,7 +48,7 @@ import org.openide.windows.InputOutput;
  *
  * @author normenhansen
  */
-public class ApplicationLogHandler extends Handler {
+public class ApplicationLogHandler extends Handler implements Callable<JButton> {
 
     InputOutput io = IOProvider.getDefault().getIO("Application", true);
     JmeFormatter formatter = new JmeFormatter();
@@ -65,31 +67,37 @@ public class ApplicationLogHandler extends Handler {
         if (record.getLevel().equals(Level.SEVERE)) {
             Throwable thrown = record.getThrown();
             if (thrown != null) {
-                NotifyUtil.error("Exception!", formatter.formatMessage(record), thrown, false);
+                NotifyUtil.error(thrown);
+                thrown.printStackTrace(io.getErr());
             } else {
-                NotifyUtil.show("Error!", formatter.formatMessage(record), MessageType.ERROR, listener, 10000);
+                NotifyUtil.show("Error", formatter.format(record), MessageType.ERROR, listener, 10000);
+                io.getErr().println(formatter.formatMessage(record));
             }
-            io.getErr().println(formatter.formatMessage(record));
         } else if (record.getLevel().equals(Level.WARNING)) {
             io.getErr().println(formatter.formatMessage(record));
             NotifyUtil.show("Warning", formatter.formatMessage(record), MessageType.WARNING, listener, 5000);
         } else if (record.getLevel().equals(Level.INFO)) {
-//            NotifyUtil.show("Message", formatter.formatMessage(record), MessageType.INFO, listener, 3000);
+            io.getOut().println(formatter.formatMessage(record));
+        } else if (record.getLevel().intValue()>800) {
+            //larger than INFO:
+            NotifyUtil.show("Info", formatter.formatMessage(record), MessageType.INFO, listener, 3000);
             io.getOut().println(formatter.formatMessage(record));
         } else {
             io.getOut().println(formatter.formatMessage(record));
         }
     }
 
+    public JButton call() throws Exception {
+        return new JButton("Report");
+    }
+
     @Override
     public void flush() {
-//        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void close() throws SecurityException {
         io.getOut().close();
         io.getErr().close();
-//        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

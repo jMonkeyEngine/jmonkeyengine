@@ -67,6 +67,7 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -74,9 +75,7 @@ import org.netbeans.spi.project.LookupProvider;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
-import org.openide.NotifyDescriptor.Message;
 import org.openide.awt.HtmlBrowser;
-import org.openide.awt.StatusDisplayer;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
@@ -91,6 +90,8 @@ import org.openide.util.lookup.Lookups;
 @SuppressWarnings("unchecked")
 public class SceneApplication extends Application implements LookupProvider {
 
+    private static final Logger logger = Logger.getLogger(SceneApplication.class.getName());
+    private static boolean failMessageShown = false;
     private PointLight camLight;
     private static SceneApplication application;
 
@@ -126,6 +127,7 @@ public class SceneApplication extends Application implements LookupProvider {
     private ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Opening SceneViewer..");
     private String lastError = "";
     private boolean started = false;
+    private boolean initFailed = false;
     private AwtPanel panel;
     private ViewPort overlayView;
     boolean useCanvas = false;
@@ -135,6 +137,7 @@ public class SceneApplication extends Application implements LookupProvider {
     private FakeApplication fakeApp;
 
     public SceneApplication() {
+        Logger.getLogger("com.jme3").addHandler(logHandler);
         progressHandle.start(7);
         useCanvas = "true".equals(NbPreferences.forModule(Installer.class).get("use_lwjgl_canvas", "false"));
         try {
@@ -147,8 +150,6 @@ public class SceneApplication extends Application implements LookupProvider {
                 newSetting.setCustomRenderer(AwtPanelsContext.class);
             }
             setSettings(newSetting);
-
-            Logger.getLogger("com.jme3").addHandler(logHandler);
 
             setPauseOnLostFocus(false);
 
@@ -164,10 +165,8 @@ public class SceneApplication extends Application implements LookupProvider {
                 start();
             }
         } catch (Exception e) {
-            Exceptions.printStackTrace(e);
             showStartupErrorMessage(e);
         } catch (Error e) {
-            Exceptions.printStackTrace(e);
             showStartupErrorMessage(e);
         } finally {
             getProgressHandle().finish();
@@ -220,116 +219,125 @@ public class SceneApplication extends Application implements LookupProvider {
 
     @Override
     public void initialize() {
-        thread = Thread.currentThread();
-        fakeApp.startFakeApp();
-        try {
-            super.initialize();
-            {
-                overlayView = getRenderManager().createMainView("Overlay", cam);
-                overlayView.setClearFlags(false, true, false);
-                guiViewPort.setClearFlags(false, false, false);
+        if (!initFailed) {
+            try {
+                super.initialize();
+                thread = Thread.currentThread();
+                fakeApp.startFakeApp();
+                {
+                    overlayView = getRenderManager().createMainView("Overlay", cam);
+                    overlayView.setClearFlags(false, true, false);
+                    guiViewPort.setClearFlags(false, false, false);
+                }
+                getProgressHandle().progress("Setup Camera Controller", 2);
+                //create camera controller
+                camController = new SceneCameraController(cam, inputManager);
+                //create preview view
+                getProgressHandle().progress("Setup Preview Scene", 3);
+
+                previewProcessor = new ScenePreviewProcessor();
+                previewProcessor.setupPreviewView();
+
+                getProgressHandle().progress("Prepare Camera", 4);
+                camLight = new PointLight();
+                camLight.setColor(ColorRGBA.White);
+
+                getProgressHandle().progress("Prepare Stats View", 5);
+                guiNode.setQueueBucket(Bucket.Gui);
+                guiNode.setCullHint(CullHint.Never);
+                loadFPSText();
+                loadStatsView();
+                getProgressHandle().progress("Attach Scene to Viewport", 6);
+                viewPort.attachScene(rootNode);
+                viewPort.attachScene(toolsNode);
+                guiViewPort.attachScene(guiNode);
+                cam.setLocation(new Vector3f(0, 0, 10));
+
+                getProgressHandle().progress("Create", 6);
+                wireProcessor = new WireProcessor(assetManager);
+                getProgressHandle().finish();
+
+                inputManager.addMapping("MouseAxisX", new MouseAxisTrigger(MouseInput.AXIS_X, false));
+                inputManager.addMapping("MouseAxisY", new MouseAxisTrigger(MouseInput.AXIS_Y, false));
+                inputManager.addMapping("MouseAxisX-", new MouseAxisTrigger(MouseInput.AXIS_X, true));
+                inputManager.addMapping("MouseAxisY-", new MouseAxisTrigger(MouseInput.AXIS_Y, true));
+                inputManager.addMapping("MouseWheel", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
+                inputManager.addMapping("MouseWheel-", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
+                inputManager.addMapping("MouseButtonLeft", new MouseButtonTrigger(0));
+                inputManager.addMapping("MouseButtonMiddle", new MouseButtonTrigger(2));
+                inputManager.addMapping("MouseButtonRight", new MouseButtonTrigger(1));
+                started = true;
+            } catch (Throwable e) {
+                showStartupErrorMessage(e);
+                initFailed = true;
+                if (fakeApp != null) {
+                    fakeApp.stopFakeApp();
+                }
+            } finally {
+                getProgressHandle().finish();
             }
-            getProgressHandle().progress("Setup Camera Controller", 2);
-            //create camera controller
-            camController = new SceneCameraController(cam, inputManager);
-            //create preview view
-            getProgressHandle().progress("Setup Preview Scene", 3);
-
-            previewProcessor = new ScenePreviewProcessor();
-            previewProcessor.setupPreviewView();
-
-            getProgressHandle().progress("Prepare Camera", 4);
-            camLight = new PointLight();
-            camLight.setColor(ColorRGBA.White);
-
-            getProgressHandle().progress("Prepare Stats View", 5);
-            guiNode.setQueueBucket(Bucket.Gui);
-            guiNode.setCullHint(CullHint.Never);
-            loadFPSText();
-            loadStatsView();
-            getProgressHandle().progress("Attach Scene to Viewport", 6);
-            viewPort.attachScene(rootNode);
-            viewPort.attachScene(toolsNode);
-            guiViewPort.attachScene(guiNode);
-            cam.setLocation(new Vector3f(0, 0, 10));
-
-            getProgressHandle().progress("Create", 6);
-            wireProcessor = new WireProcessor(assetManager);
-            getProgressHandle().finish();
-
-            inputManager.addMapping("MouseAxisX", new MouseAxisTrigger(MouseInput.AXIS_X, false));
-            inputManager.addMapping("MouseAxisY", new MouseAxisTrigger(MouseInput.AXIS_Y, false));
-            inputManager.addMapping("MouseAxisX-", new MouseAxisTrigger(MouseInput.AXIS_X, true));
-            inputManager.addMapping("MouseAxisY-", new MouseAxisTrigger(MouseInput.AXIS_Y, true));
-            inputManager.addMapping("MouseWheel", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
-            inputManager.addMapping("MouseWheel-", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
-            inputManager.addMapping("MouseButtonLeft", new MouseButtonTrigger(0));
-            inputManager.addMapping("MouseButtonMiddle", new MouseButtonTrigger(2));
-            inputManager.addMapping("MouseButtonRight", new MouseButtonTrigger(1));
-            started = true;
-        } catch (Exception e) {
-            Exceptions.printStackTrace(e);
-            showStartupErrorMessage(e);
-        } catch (Error e) {
-            Exceptions.printStackTrace(e);
-            showStartupErrorMessage(e);
-        } finally {
-            getProgressHandle().finish();
         }
     }
 
     @Override
     public void destroy() {
         fakeApp.stopFakeApp();
+        initFailed = false;
         super.destroy();
     }
 
     @Override
     public void update() {
         if (!started) {
-            return;
-        }
-        try {
-            super.update();
-            FakeApplication fakap = fakeApp;
-            if (fakap != null) {
-                fakap.runQueuedFake();
+            try {
+                runQueuedTasks();
+            } catch (Exception e) {
+                getStateManager().update(0);
+                logger.log(Level.INFO, "Exception calling Tasks:", e);
             }
-            float tpf = timer.getTimePerFrame();
-            camLight.setPosition(cam.getLocation());
-            secondCounter += tpf;
-            int fps = (int) timer.getFrameRate();
-            if (secondCounter >= 1.0f) {
-                fpsText.setText("Frames per second: " + fps);
-                secondCounter = 0.0f;
+        } else {
+            try {
+                super.update();
+                FakeApplication fakap = fakeApp;
+                if (fakap != null) {
+                    fakap.runQueuedFake();
+                }
+                float tpf = timer.getTimePerFrame();
+                camLight.setPosition(cam.getLocation());
+                secondCounter += tpf;
+                int fps = (int) timer.getFrameRate();
+                if (secondCounter >= 1.0f) {
+                    fpsText.setText("Frames per second: " + fps);
+                    secondCounter = 0.0f;
+                }
+                getStateManager().update(tpf);
+                toolsNode.updateLogicalState(tpf);
+                if (fakap != null) {
+                    fakap.updateFake(tpf);
+                    fakap.updateExternalLogicalState(rootNode, tpf);
+                    fakap.updateExternalLogicalState(guiNode, tpf);
+                    fakap.updateExternalGeometricState(rootNode);
+                    fakap.updateExternalGeometricState(guiNode);
+                } else {
+                    rootNode.updateLogicalState(tpf);
+                    guiNode.updateLogicalState(tpf);
+                    rootNode.updateGeometricState();
+                    guiNode.updateGeometricState();
+                }
+                toolsNode.updateGeometricState();
+                if (fakap != null) {
+                    fakap.renderFake();
+                }
+                getStateManager().render(renderManager);
+                renderManager.render(tpf, context.isRenderable());
+                getStateManager().postRender();
+            } catch (NullPointerException e) {
+                handleError("NullPointerException: " + e.getMessage(), e);
+            } catch (Exception e) {
+                handleError(e.getMessage(), e);
+            } catch (Error e) {
+                handleError(e.getMessage(), e);
             }
-            getStateManager().update(tpf);
-            toolsNode.updateLogicalState(tpf);
-            if (fakap != null) {
-                fakap.updateFake(tpf);
-                fakap.updateExternalLogicalState(rootNode, tpf);
-                fakap.updateExternalLogicalState(guiNode, tpf);
-                fakap.updateExternalGeometricState(rootNode);
-                fakap.updateExternalGeometricState(guiNode);
-            } else {
-                rootNode.updateLogicalState(tpf);
-                guiNode.updateLogicalState(tpf);
-                rootNode.updateGeometricState();
-                guiNode.updateGeometricState();
-            }
-            toolsNode.updateGeometricState();
-            if (fakap != null) {
-                fakap.renderFake();
-            }
-            getStateManager().render(renderManager);
-            renderManager.render(tpf, context.isRenderable());
-            getStateManager().postRender();
-        } catch (NullPointerException e) {
-            handleError("NullPointerException: " + e.getMessage(), e);
-        } catch (Exception e) {
-            handleError(e.getMessage(), e);
-        } catch (Error e) {
-            handleError(e.getMessage(), e);
         }
     }
 
@@ -382,6 +390,10 @@ public class SceneApplication extends Application implements LookupProvider {
      * @param request
      */
     public void openScene(final SceneRequest request) {
+        if (failMessageShown) {
+            NotifyUtil.show("Error starting OpenGL context!", "Click here to go to troubleshooting web page.", MessageType.EXCEPTION, lst, 0);
+            return;
+        }
         closeScene(currentSceneRequest, request);
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -618,32 +630,34 @@ public class SceneApplication extends Application implements LookupProvider {
     public void handleError(String msg, Throwable t) {
         progressHandle.finish();
         if (msg == null) {
-            return;
+            msg = t.getMessage();
         }
         if (!started) {
             showStartupErrorMessage(t);
-            Exceptions.printStackTrace(t);
-        } else {
-            if (lastError != null && !lastError.equals(msg)) {
-                StatusDisplayer.getDefault().setStatusText("Error in Scene, check application log");
-                Exceptions.printStackTrace(t);
-                lastError = msg;
-            }
+        } else if (lastError != null && !lastError.equals(msg)) {
+            logger.log(Level.SEVERE, msg, t);
+            lastError = msg;
         }
     }
 
     public static void showStartupErrorMessage(Throwable exception) {
-        ActionListener lst = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    HtmlBrowser.URLDisplayer.getDefault().showURL(new URL("http://jmonkeyengine.org/wiki/doku.php/sdk:troubleshooting"));
-                } catch (MalformedURLException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-            }
-        };
-        NotifyUtil.show("Error starting OpenGL context!", exception.getMessage() + " - Click here to go to troubleshooting web page.", MessageType.EXCEPTION, lst, 0);
+        if (failMessageShown) {
+            logger.log(Level.INFO, exception.getMessage(), exception);
+            return;
+        }
+        failMessageShown = true;
+        NotifyUtil.show("Error starting OpenGL context!", "Click here to go to troubleshooting web page.", MessageType.EXCEPTION, lst, 0);
+        logger.log(Level.INFO, exception.getMessage(), exception);
     }
+    private static ActionListener lst = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            try {
+                HtmlBrowser.URLDisplayer.getDefault().showURL(new URL("http://jmonkeyengine.org/wiki/doku.php/sdk:troubleshooting"));
+            } catch (MalformedURLException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+    };
 
     @Override
     public RenderManager getRenderManager() {
