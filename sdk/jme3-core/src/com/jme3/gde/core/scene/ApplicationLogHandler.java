@@ -52,6 +52,10 @@ public class ApplicationLogHandler extends Handler implements Callable<JButton> 
 
     public static class LogLevel extends Level {
 
+        /**
+         * Log level of 801 (one above "INFO") - used to display messages
+         * to the user via the little "monkey bubble" bottom right.
+         */
         public static final Level USERINFO = new LogLevel("User Info", 801, "User Info Log Level");
         public LogLevel(String name, int level, String string) {
             super(name, level, string);
@@ -81,13 +85,13 @@ public class ApplicationLogHandler extends Handler implements Callable<JButton> 
                 io.getErr().println(formatter.formatMessage(record));
             }
         } else if (record.getLevel().equals(Level.WARNING)) {
-            io.getErr().println(formatter.formatMessage(record));
             NotifyUtil.show("Warning", formatter.formatMessage(record), MessageType.WARNING, listener, 5000);
-        } else if (record.getLevel().equals(Level.INFO)) {
-            io.getOut().println(formatter.formatMessage(record));
+            io.getErr().println(formatter.formatMessage(record));
         } else if (record.getLevel().intValue() > 800) {
             //larger than INFO:
             NotifyUtil.show("Info", formatter.formatMessage(record), MessageType.INFO, listener, 3000);
+            io.getOut().println(formatter.formatMessage(record));
+        } else if (record.getLevel().equals(Level.INFO)) {
             io.getOut().println(formatter.formatMessage(record));
         } else {
             io.getOut().println(formatter.formatMessage(record));
