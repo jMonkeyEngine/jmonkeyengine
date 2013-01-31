@@ -92,7 +92,7 @@ public class BlenderKey extends ModelKey {
 	 */
 	protected Material							defaultMaterial;
 	/** Face cull mode. By default it is disabled. */
-	protected FaceCullMode						faceCullMode			= FaceCullMode.Off;
+	protected FaceCullMode						faceCullMode			= FaceCullMode.Back;
 	/**
 	 * Variable describes which layers will be loaded. N-th bit set means N-th layer will be loaded.
 	 * If set to -1 then the current layer will be loaded.
