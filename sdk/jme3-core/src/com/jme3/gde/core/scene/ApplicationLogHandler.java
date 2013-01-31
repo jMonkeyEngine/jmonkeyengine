@@ -50,6 +50,13 @@ import org.openide.windows.InputOutput;
  */
 public class ApplicationLogHandler extends Handler implements Callable<JButton> {
 
+    public static class LogLevel extends Level {
+
+        public static final Level USERINFO = new LogLevel("User Info", 801, "User Info Log Level");
+        public LogLevel(String name, int level, String string) {
+            super(name, level, string);
+        }
+    }
     InputOutput io = IOProvider.getDefault().getIO("Application", true);
     JmeFormatter formatter = new JmeFormatter();
     ActionListener listener = new ActionListener() {
@@ -78,7 +85,7 @@ public class ApplicationLogHandler extends Handler implements Callable<JButton> 
             NotifyUtil.show("Warning", formatter.formatMessage(record), MessageType.WARNING, listener, 5000);
         } else if (record.getLevel().equals(Level.INFO)) {
             io.getOut().println(formatter.formatMessage(record));
-        } else if (record.getLevel().intValue()>800) {
+        } else if (record.getLevel().intValue() > 800) {
             //larger than INFO:
             NotifyUtil.show("Info", formatter.formatMessage(record), MessageType.INFO, listener, 3000);
             io.getOut().println(formatter.formatMessage(record));

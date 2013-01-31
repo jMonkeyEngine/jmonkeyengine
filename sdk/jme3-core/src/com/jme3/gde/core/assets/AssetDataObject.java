@@ -35,8 +35,8 @@ import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
 import com.jme3.export.Savable;
 import com.jme3.export.binary.BinaryExporter;
+import com.jme3.gde.core.scene.ApplicationLogHandler.LogLevel;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.util.notify.NotifyUtil;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -52,7 +52,6 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -74,7 +73,7 @@ import org.openide.util.lookup.ProxyLookup;
  */
 @SuppressWarnings("unchecked")
 public class AssetDataObject extends MultiDataObject {
-    
+
     protected static final Logger logger = Logger.getLogger(AssetDataObject.class.getName());
     protected final Lookup lookup;
     protected final InstanceContent lookupContents = new InstanceContent();
@@ -98,7 +97,7 @@ public class AssetDataObject extends MultiDataObject {
     protected List<FileObject> assetList = new LinkedList<FileObject>();
     protected List<AssetKey> assetKeyList = new LinkedList<AssetKey>();
     protected List<AssetKey> failedList = new LinkedList<AssetKey>();
-    
+
     public AssetDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         contentLookup = new AbstractLookup(getLookupContents());
@@ -108,7 +107,7 @@ public class AssetDataObject extends MultiDataObject {
         setSaveCookie(saveCookie);
         findAssetManager();
     }
-    
+
     protected void findAssetManager() {
         FileObject file = getPrimaryFile();
         ProjectManager pm = ProjectManager.getDefault();
@@ -131,14 +130,14 @@ public class AssetDataObject extends MultiDataObject {
         }
 //        getLookupContents().add(new ProjectAssetManager(file.getParent()));
     }
-    
+
     @Override
     protected Node createNodeDelegate() {
         AssetDataNode node = new AssetDataNode(this, Children.LEAF, new ProxyLookup(getCookieSet().getLookup(), contentLookup));
         node.setIconBaseWithExtension("com/jme3/gde/core/icons/jme-logo.png");
         return node;
     }
-    
+
     @Override
     public synchronized void setModified(boolean modif) {
         super.setModified(modif);
@@ -148,22 +147,22 @@ public class AssetDataObject extends MultiDataObject {
             getCookieSet().assign(SaveCookie.class);
         }
     }
-    
+
     @Override
     public Lookup getLookup() {
         return lookup;
     }
-    
+
     public InstanceContent getLookupContents() {
         return lookupContents;
     }
-    
+
     public synchronized void setSaveCookie(SaveCookie cookie) {
         this.saveCookie = cookie;
         getCookieSet().assign(SaveCookie.class, saveCookie);
         setModified(false);
     }
-    
+
     public synchronized Savable loadAsset() {
         if (isModified() && savable != null) {
             return savable;
@@ -190,7 +189,7 @@ public class AssetDataObject extends MultiDataObject {
         }
         return savable;
     }
-    
+
     public synchronized void saveAsset() throws IOException {
         if (savable == null) {
             logger.log(Level.WARNING, "Trying to write asset failed, asset data null!\nImport failed?");
@@ -223,14 +222,14 @@ public class AssetDataObject extends MultiDataObject {
             }
         }
         progressHandle.finish();
-        NotifyUtil.info("Saved file", "File " + getPrimaryFile().getNameExt() + " saved successfully.");
+        logger.log(LogLevel.USERINFO, "File {0} saved successfully", getPrimaryFile().getNameExt());
         setModified(false);
     }
-    
+
     public synchronized void closeAsset() {
         savable = null;
     }
-    
+
     public synchronized AssetKey<?> getAssetKey() {
         if (assetKey == null) {
             ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
@@ -242,7 +241,7 @@ public class AssetDataObject extends MultiDataObject {
         }
         return assetKey;
     }
-    
+
     public synchronized void setAssetKeyData(AssetKey key) {
         try {
             BeanUtils.copyProperties(getAssetKey(), key);
@@ -252,37 +251,37 @@ public class AssetDataObject extends MultiDataObject {
             Exceptions.printStackTrace(ex);
         }
     }
-    
+
     public synchronized List<FileObject> getAssetList() {
         return new LinkedList<FileObject>(assetList);
     }
-    
+
     public synchronized List<AssetKey> getAssetKeyList() {
         return new LinkedList<AssetKey>(assetKeyList);
     }
-    
+
     public synchronized List<AssetKey> getFailedList() {
         return new LinkedList<AssetKey>(failedList);
     }
-    
+
     protected static class AssetListListener implements AssetEventListener {
-        
+
         private AssetDataObject obj;
         private List<FileObject> assetList;
         private List<AssetKey> assetKeyList;
         private List<AssetKey> failedList;
         private Thread loadingThread;
-        
+
         public AssetListListener(AssetDataObject obj, List<FileObject> assetList, List<AssetKey> assetKeyList, List<AssetKey> failedList) {
             this.obj = obj;
             this.assetList = assetList;
             this.assetKeyList = assetKeyList;
             this.failedList = failedList;
         }
-        
+
         public void assetLoaded(AssetKey ak) {
         }
-        
+
         public void assetRequested(AssetKey ak) {
             ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
             if (pm == null || loadingThread != Thread.currentThread()) {
@@ -294,7 +293,7 @@ public class AssetDataObject extends MultiDataObject {
                 assetKeyList.add(ak);
             }
         }
-        
+
         public void assetDependencyNotFound(AssetKey ak, AssetKey ak1) {
             ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
             if (pm == null || loadingThread != Thread.currentThread()) {
@@ -309,7 +308,7 @@ public class AssetDataObject extends MultiDataObject {
                 failedList.add(ak1);
             }
         }
-        
+
         public void start() {
             ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
             loadingThread = Thread.currentThread();
@@ -321,7 +320,7 @@ public class AssetDataObject extends MultiDataObject {
             }
             pm.addAssetEventListener(this);
         }
-        
+
         public void stop() {
             ProjectAssetManager pm = obj.getLookup().lookup(ProjectAssetManager.class);
             if (pm == null) {
