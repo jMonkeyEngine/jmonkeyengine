@@ -291,8 +291,8 @@ public class SceneApplication extends Application implements LookupProvider {
         if (!started) {
             try {
                 runQueuedTasks();
-            } catch (Exception e) {
                 getStateManager().update(0);
+            } catch (Exception e) {
                 logger.log(Level.INFO, "Exception calling Tasks:", e);
             }
         } else {
