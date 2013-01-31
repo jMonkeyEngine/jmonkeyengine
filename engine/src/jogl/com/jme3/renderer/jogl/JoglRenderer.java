@@ -2277,39 +2277,39 @@ public class JoglRenderer implements Renderer {
         assert bufId != -1;
 
         GL gl = GLContext.getCurrentGL();
-        if (gl.isGL2GL3()) {
-            if (context.boundElementArrayVBO != bufId) {
-                gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufId);
-                context.boundElementArrayVBO = bufId;
-                //statistics.onVertexBufferUse(indexBuf, true);
-            } else {
-                //statistics.onVertexBufferUse(indexBuf, true);
-            }
 
-            int vertCount = mesh.getVertexCount();
-            boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
+        if (context.boundElementArrayVBO != bufId) {
+            gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, bufId);
+            context.boundElementArrayVBO = bufId;
+            //statistics.onVertexBufferUse(indexBuf, true);
+        } else {
+            //statistics.onVertexBufferUse(indexBuf, true);
+        }
+        
+        int vertCount = mesh.getVertexCount();
+        boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
+        
+        if (mesh.getMode() == Mode.Hybrid) {
+            int[] modeStart = mesh.getModeStart();
+            int[] elementLengths = mesh.getElementLengths();
 
-            if (mesh.getMode() == Mode.Hybrid) {
-                int[] modeStart = mesh.getModeStart();
-                int[] elementLengths = mesh.getElementLengths();
+            int elMode = convertElementMode(Mode.Triangles);
+            int fmt = convertFormat(indexBuf.getFormat());
+            int elSize = indexBuf.getFormat().getComponentSize();
+            int listStart = modeStart[0];
+            int stripStart = modeStart[1];
+            int fanStart = modeStart[2];
+            int curOffset = 0;
+            for (int i = 0; i < elementLengths.length; i++) {
+                if (i == stripStart) {
+                    elMode = convertElementMode(Mode.TriangleStrip);
+                } else if (i == fanStart) {
+                    elMode = convertElementMode(Mode.TriangleStrip);
+                }
+                int elementLength = elementLengths[i];
 
-                int elMode = convertElementMode(Mode.Triangles);
-                int fmt = convertFormat(indexBuf.getFormat());
-                int elSize = indexBuf.getFormat().getComponentSize();
-                int listStart = modeStart[0];
-                int stripStart = modeStart[1];
-                int fanStart = modeStart[2];
-                int curOffset = 0;
-                for (int i = 0; i < elementLengths.length; i++) {
-                    if (i == stripStart) {
-                        elMode = convertElementMode(Mode.TriangleStrip);
-                    } else if (i == fanStart) {
-                        elMode = convertElementMode(Mode.TriangleStrip);
-                    }
-                    int elementLength = elementLengths[i];
-
-                    if (useInstancing) {
-
+                if (useInstancing) {
+                    if (gl.isGL2GL3()) {
                         indexBuf.getData().position(curOffset);
                         indexBuf.getData().limit(curOffset + elementLength);
 
@@ -2318,43 +2318,63 @@ public class JoglRenderer implements Renderer {
                                 fmt,
                                 indexBuf.getData(),
                                 count);
-
                     } else {
+                        throw new IllegalArgumentException(
+                                "instancing is not supported.");
+                    }
+                } else {
+                    if (gl.isGL2GL3()) {
                         gl.getGL2GL3().glDrawRangeElements(elMode,
                                 0,
                                 vertCount,
                                 elementLength,
                                 fmt,
                                 curOffset);
+                    } else {
+                        indexBuf.getData().position(curOffset);
+                        gl.glDrawElements(elMode, elementLength, fmt,
+                                indexBuf.getData());
                     }
-
-                    //FIXME check whether elSize is required
-                    curOffset += elementLength/* * elSize*/;
                 }
-            } else {
-                if (useInstancing) {
+
+                //FIXME check whether elSize is required
+                curOffset += elementLength * elSize;
+            }
+        } else {
+            if (useInstancing) {
+                if (gl.isGL2GL3()) {
                     gl.getGL2GL3().glDrawElementsInstanced(convertElementMode(mesh.getMode()),
                             indexBuf.getData().limit(),
                             convertFormat(indexBuf.getFormat()),
                             indexBuf.getData(),
                             count);
                 } else {
+                    throw new IllegalArgumentException(
+                            "instancing is not supported.");
+                }
+            } else {
+                if (gl.isGL2GL3()) {
                     gl.getGL2GL3().glDrawRangeElements(convertElementMode(mesh.getMode()),
                             0,
                             vertCount,
                             indexBuf.getData().limit(),
                             convertFormat(indexBuf.getFormat()),
                             0);
+                } else {
+                    indexBuf.getData().rewind();
+                    gl.glDrawElements(convertElementMode(mesh.getMode()),
+                            indexBuf.getData().limit(),
+                            convertFormat(indexBuf.getFormat()), 0);
                 }
             }
-        } else {
-            //FIXME: ES impl
         }
     }
 
-    /*********************************************************************\
-    |* Render Calls                                                      *|
-    \*********************************************************************/
+    /**
+     * *******************************************************************\ |*
+     * Render Calls *|
+    \********************************************************************
+     */
     private int convertElementMode(Mesh.Mode mode) {
         switch (mode) {
             case Points:
@@ -2375,29 +2395,25 @@ public class JoglRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unrecognized mesh mode: " + mode);
         }
     }
-    
+
     public void updateVertexArray(Mesh mesh) {
         int id = mesh.getId();
         GL gl = GLContext.getCurrentGL();
-        //FIXME rather use GLCaps and do it once for all
-        boolean isVaoSupported = gl.isFunctionAvailable("glGenVertexArrays") && 
-                gl.isFunctionAvailable("glBindVertexArray");
-        if (isVaoSupported) {
-            if (id == -1) {
-                IntBuffer temp = intBuf1;
-                if (gl.isGL2GL3()) {
-                    gl.getGL2GL3().glGenVertexArrays(1, temp);
-                }
-                id = temp.get(0);
-                mesh.setId(id);
-            }
 
-            if (context.boundVertexArray != id) {
-                if (gl.isGL2GL3()) {
-                    gl.getGL2GL3().glBindVertexArray(id);
-                }
-                context.boundVertexArray = id;
+        if (id == -1) {
+            IntBuffer temp = intBuf1;
+            if (gl.isGL2GL3()) {
+                gl.getGL2GL3().glGenVertexArrays(1, temp);
             }
+            id = temp.get(0);
+            mesh.setId(id);
+        }
+
+        if (context.boundVertexArray != id) {
+            if (gl.isGL2GL3()) {
+                gl.getGL2GL3().glBindVertexArray(id);
+            }
+            context.boundVertexArray = id;
         }
 
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
