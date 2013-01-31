@@ -81,7 +81,7 @@ public class HillHeightMap extends AbstractHeightMap {
                     + "or minimum radius is greater than maximum radius, "
                     + "or power of flattening is below one");
         }
-        logger.info("Contructing hill heightmap using seed: " + seed);
+        logger.fine("Contructing hill heightmap using seed: " + seed);
         this.size = size;
         this.seed = seed;
         this.iterations = iterations;
@@ -140,7 +140,7 @@ public class HillHeightMap extends AbstractHeightMap {
 
         normalizeTerrain(NORMALIZE_RANGE);
 
-        logger.info("Created Heightmap using the Hill Algorithm");
+        logger.fine("Created Heightmap using the Hill Algorithm");
 
         return true;
     }

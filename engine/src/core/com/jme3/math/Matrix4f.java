@@ -1208,7 +1208,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      */
     public Vector4f mult(Vector4f vec, Vector4f store) {
         if (null == vec) {
-            logger.info("Source vector is null, null result returned.");
+            logger.warning("Source vector is null, null result returned.");
             return null;
         }
         if (store == null) {
@@ -1249,7 +1249,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      */
     public Vector4f multAcross(Vector4f vec, Vector4f store) {
         if (null == vec) {
-            logger.info("Source vector is null, null result returned.");
+            logger.warning("Source vector is null, null result returned.");
             return null;
         }
         if (store == null) {
@@ -1342,7 +1342,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
      */
     public Vector3f multAcross(Vector3f vec, Vector3f store) {
         if (null == vec) {
-            logger.info("Source vector is null, null result returned.");
+            logger.warning("Source vector is null, null result returned.");
             return null;
         }
         if (store == null) {

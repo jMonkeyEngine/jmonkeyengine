@@ -179,7 +179,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                 logger.log(Level.SEVERE, "Failed to set display settings!", ex);
             }
             listener.reshape(settings.getWidth(), settings.getHeight());
-            logger.info("Display restarted.");
+            logger.fine("Display restarted.");
         }
 
         super.runLoop();

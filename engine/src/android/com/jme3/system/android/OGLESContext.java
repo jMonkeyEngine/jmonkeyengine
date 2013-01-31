@@ -124,7 +124,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             view.setEGLContextClientVersion(2);
             // RGB565, Depth16
             view.setEGLConfigChooser(5, 6, 5, 0, 16, 0);
-            logger.info("ConfigType.LEGACY using RGB565");
+            logger.fine("ConfigType.LEGACY using RGB565");
         } else {
             EGL10 egl = (EGL10) EGLContext.getEGL();
             EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
@@ -180,7 +180,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             renderer.resetGLObjects();
         } else {
             if (!created.get()) {
-                logger.info("GL Surface created, doing JME3 init");
+                logger.fine("GL Surface created, doing JME3 init");
                 initInThread();
             } else {
                 logger.warning("GL Surface already created");
@@ -191,7 +191,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected void initInThread() {
         created.set(true);
 
-        logger.info("OGLESContext create");
+        logger.fine("OGLESContext create");
         logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
 
         // Setup unhandled Exception Handler
@@ -235,7 +235,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             timer = null;
 
             // do android specific cleaning here
-            logger.info("Display destroyed.");
+            logger.fine("Display destroyed.");
 
             renderable.set(false);
         }

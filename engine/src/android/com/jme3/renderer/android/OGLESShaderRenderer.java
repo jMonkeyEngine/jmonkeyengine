@@ -1875,7 +1875,7 @@ public class OGLESShaderRenderer implements Renderer {
         assert bufId != -1;
 
         if (bufId == -1) {
-            logger.info("invalid buffer id!");
+            logger.warning("invalid buffer id!");
         }
 
         if (context.boundElementArrayVBO != bufId) {

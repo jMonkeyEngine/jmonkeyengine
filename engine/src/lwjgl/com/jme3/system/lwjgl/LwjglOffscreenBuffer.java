@@ -81,7 +81,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
 
             renderable.set(true);
 
-            logger.info("Offscreen buffer created.");
+            logger.fine("Offscreen buffer created.");
             printContextInitInfo();
         } catch (LWJGLException ex){
             listener.handleError("Failed to create display", ex);
@@ -139,7 +139,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         listener.destroy();
         renderer.cleanup();
         pbuffer.destroy();
-        logger.info("Offscreen buffer destroyed.");
+        logger.fine("Offscreen buffer destroyed.");
         
         super.internalDestroy();
     }

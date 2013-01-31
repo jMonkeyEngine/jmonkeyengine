@@ -69,7 +69,7 @@ public class LwjglMouseInput implements MouseInput {
 
         try {
             Mouse.create();
-            logger.info("Mouse created.");
+            logger.fine("Mouse created.");
             supportHardwareCursor = (Cursor.getCapabilities() & Cursor.CURSOR_ONE_BIT_TRANSPARENCY) != 0;
 
             // Recall state that was set before initialization
@@ -132,7 +132,7 @@ public class LwjglMouseInput implements MouseInput {
             return;
 
         Mouse.destroy();
-        logger.info("Mouse destroyed.");
+        logger.fine("Mouse destroyed.");
     }
 
     public void setCursorVisible(boolean visible){

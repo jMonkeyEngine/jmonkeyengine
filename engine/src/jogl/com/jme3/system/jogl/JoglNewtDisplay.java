@@ -157,7 +157,7 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
             canvas.requestFocus();
 
             super.internalCreate();
-            logger.info("Display created.");
+            logger.fine("Display created.");
 
             renderer.initialize();
             listener.initialize();
@@ -200,7 +200,7 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
                 canvas.setFullscreen(false);
             }
             canvas.destroy();
-            logger.info("Display destroyed.");
+            logger.fine("Display destroyed.");
             super.internalDestroy();
             return;
         }

@@ -84,7 +84,7 @@ public class DesktopAssetManager implements AssetManager {
         if (configFile != null){
             loadConfigFile(configFile);
         }
-        logger.info("DesktopAssetManager created.");
+        logger.fine("DesktopAssetManager created.");
     }
 
     private void loadConfigFile(URL configFile){

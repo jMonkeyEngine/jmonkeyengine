@@ -101,7 +101,7 @@ public class AndroidAssetManager extends DesktopAssetManager {
         registerLoaderSafe("com.jme3.scene.plugins.ogre.SceneLoader", "scene");
         
 
-        logger.info("AndroidAssetManager created.");
+        logger.fine("AndroidAssetManager created.");
     }
 
     /**

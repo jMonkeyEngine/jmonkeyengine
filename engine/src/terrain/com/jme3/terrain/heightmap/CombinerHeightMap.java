@@ -261,7 +261,7 @@ public class CombinerHeightMap extends AbstractHeightMap {
         }
 
 
-        logger.info("Created heightmap using Combiner");
+        logger.fine("Created heightmap using Combiner");
 
 
         return true;

@@ -83,7 +83,7 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
         canvas.requestFocus();
 
         super.internalCreate();
-        logger.info("Display created.");
+        logger.fine("Display created.");
 
         renderer.initialize();
         listener.initialize();
@@ -92,7 +92,7 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
     public void display(GLAutoDrawable glad) {
         if (!created.get() && renderer != null){
             listener.destroy();
-            logger.info("Canvas destroyed.");
+            logger.fine("Canvas destroyed.");
             super.internalDestroy();
             return;
         }

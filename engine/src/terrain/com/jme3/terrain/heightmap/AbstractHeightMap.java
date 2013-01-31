@@ -149,7 +149,7 @@ public abstract class AbstractHeightMap implements HeightMap {
      * @return the value at (x,z).
      */
     public float getTrueHeightAtPoint(int x, int z) {
-        //logger.info( heightData[x + (z*size)]);
+        //logger.fine( heightData[x + (z*size)]);
         return heightData[x + (z * size)];
     }
 

@@ -246,7 +246,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
             canvas.requestFocus();
 
             super.internalCreate();
-            logger.info("Display created.");
+            logger.fine("Display created.");
 
             renderer.initialize();
             listener.initialize();
@@ -312,7 +312,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
                 device.setFullScreenWindow(null);
             }
             frame.dispose();
-            logger.info("Display destroyed.");
+            logger.fine("Display destroyed.");
             super.internalDestroy();
             return;
         }

@@ -348,7 +348,7 @@ public class BoundingSphere extends BoundingVolume {
      *            the list of points to contain.
      */
     public void averagePoints(Vector3f[] points) {
-        logger.info("Bounding Sphere calculated using average points.");
+        logger.fine("Bounding Sphere calculated using average points.");
         center = points[0];
 
         for (int i = 1; i < points.length; i++) {

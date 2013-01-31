@@ -504,7 +504,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 				LOGGER.log(Level.FINE, "Reading texture from file: {0}", texturePath);
 				result = this.loadImageFromFile(texturePath, blenderContext);
 			} else {
-				LOGGER.info("Packed texture. Reading directly from the blend file!");
+				logger.fine("Packed texture. Reading directly from the blend file!");
 				Structure packedFile = pPackedFile.fetchData(blenderContext.getInputStream()).get(0);
 				Pointer pData = (Pointer) packedFile.getFieldValue("data");
 				FileBlockHeader dataFileBlock = blenderContext.getFileBlock(pData.getOldMemoryAddress());

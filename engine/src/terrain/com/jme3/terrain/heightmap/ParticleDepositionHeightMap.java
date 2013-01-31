@@ -318,7 +318,7 @@ public class ParticleDepositionHeightMap extends AbstractHeightMap {
         erodeTerrain();
         normalizeTerrain(NORMALIZE_RANGE);
 
-        logger.info("Created heightmap using Particle Deposition");
+        logger.fine("Created heightmap using Particle Deposition");
 
 
         return false;

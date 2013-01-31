@@ -194,7 +194,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
         destroyContext();
 
         listener.destroy();
-        logger.info("Display destroyed.");
+        logger.fine("Display destroyed.");
         super.internalDestroy();
     }
 

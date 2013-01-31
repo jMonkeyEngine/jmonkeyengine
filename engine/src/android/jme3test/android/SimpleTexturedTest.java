@@ -141,7 +141,7 @@ public class SimpleTexturedTest extends SimpleApplication {
 
 		// secondCounter has been removed from SimpleApplication
                 //if (secondCounter == 0)
-		//	logger.info("Frames per second: " + timer.getFrameRate());
+		//	logger.fine("Frames per second: " + timer.getFrameRate());
 
 		spheresContainer.rotate(0.2f * tpf, 0.4f * tpf, 0.8f * tpf);
 	}

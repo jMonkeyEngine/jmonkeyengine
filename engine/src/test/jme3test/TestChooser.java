@@ -117,14 +117,14 @@ public class TestChooser extends JDialog {
         }
 
         if (directory.exists()) {
-            logger.info("Searching for Demo classes in \""
+            logger.fine("Searching for Demo classes in \""
                     + directory.getName() + "\".");
             addAllFilesInDirectory(directory, classes, pckgname, recursive);
         } else {
             try {
                 // It does not work with the filesystem: we must
                 // be in the case of a package contained in a jar file.
-                logger.info("Searching for Demo classes in \"" + url + "\".");
+                logger.fine("Searching for Demo classes in \"" + url + "\".");
                 URLConnection urlConnection = url.openConnection();
                 if (urlConnection instanceof JarURLConnection) {
                     JarURLConnection conn = (JarURLConnection) urlConnection;
@@ -449,7 +449,7 @@ public class TestChooser extends JDialog {
 
     protected void start(String[] args) {
         final Vector<Class> classes = new Vector<Class>();
-        logger.info("Composing Test list...");
+        logger.fine("Composing Test list...");
         addDisplayedClasses(classes);
         setup(classes);
         Class<?> cls;

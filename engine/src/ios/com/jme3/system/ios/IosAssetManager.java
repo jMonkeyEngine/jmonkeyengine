@@ -101,7 +101,7 @@ public class IosAssetManager extends DesktopAssetManager {
         registerLoaderSafe("com.jme3.scene.plugins.ogre.SceneLoader", "scene");
         
 
-        logger.info("IosAssetManager created.");
+        logger.fine("IosAssetManager created.");
     }
 
     /**

@@ -166,7 +166,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        logger.info("onCreate");
+        logger.fine("onCreate");
         super.onCreate(savedInstanceState);
 
         JmeAndroidSystem.setActivity(this);
@@ -230,7 +230,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     protected void onRestart() {
-        logger.info("onRestart");
+        logger.fine("onRestart");
         super.onRestart();
         if (app != null) {
             app.restart();
@@ -240,13 +240,13 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     protected void onStart() {
-        logger.info("onStart");
+        logger.fine("onStart");
         super.onStart();
     }
 
     @Override
     protected void onResume() {
-        logger.info("onResume");
+        logger.fine("onResume");
         super.onResume();
         if (view != null) {
             view.onResume();
@@ -282,7 +282,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected void onPause() {
         loseFocus();
 
-        logger.info("onPause");
+        logger.fine("onPause");
         super.onPause();
         if (view != null) {
             view.onPause();
@@ -315,16 +315,16 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     protected void onStop() {
-        logger.info("onStop");
+        logger.fine("onStop");
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        logger.info("onDestroy");
+        logger.fine("onDestroy");
         final DataObject data = (DataObject) getLastNonConfigurationInstance();
         if (data != null || inConfigChange) {
-            logger.info("In Config Change, not stopping app.");
+            logger.fine("In Config Change, not stopping app.");
         } else {
             if (app != null) {
                 app.stop(!isGLThreadPaused);

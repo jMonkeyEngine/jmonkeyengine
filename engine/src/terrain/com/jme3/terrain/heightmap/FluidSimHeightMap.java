@@ -216,7 +216,7 @@ public class FluidSimHeightMap extends AbstractHeightMap {
         }
         normalizeTerrain(NORMALIZE_RANGE);
 
-        logger.info("Created Heightmap using fluid simulation");
+        logger.fine("Created Heightmap using fluid simulation");
 
         return true;
     }

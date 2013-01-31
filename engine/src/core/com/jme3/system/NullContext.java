@@ -65,7 +65,7 @@ public class NullContext implements JmeContext, Runnable {
     }
 
     protected void initInThread(){
-        logger.info("NullContext created.");
+        logger.fine("NullContext created.");
         logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -135,7 +135,7 @@ public class NullContext implements JmeContext, Runnable {
 
         deinitInThread();
 
-        logger.info("NullContext destroyed.");
+        logger.fine("NullContext destroyed.");
     }
 
     public void destroy(boolean waitFor){

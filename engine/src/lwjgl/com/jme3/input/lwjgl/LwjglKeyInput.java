@@ -62,7 +62,7 @@ public class LwjglKeyInput implements KeyInput {
         try {
             Keyboard.create();
             Keyboard.enableRepeatEvents(true);
-            logger.info("Keyboard created.");
+            logger.fine("Keyboard created.");
         } catch (LWJGLException ex) {
             logger.log(Level.SEVERE, "Error while creating keyboard.", ex);
         }
@@ -94,7 +94,7 @@ public class LwjglKeyInput implements KeyInput {
             return;
         
         Keyboard.destroy();
-        logger.info("Keyboard destroyed.");
+        logger.fine("Keyboard destroyed.");
     }
 
     public boolean isInitialized() {
