@@ -101,21 +101,21 @@ import java.util.logging.Logger;
 				try {
 					result = this.load(inputStream, flipY);
 				} catch (Exception e) {
-					logger.warning("Unable to load image using AWT loader!");
+					LOGGER.warning("Unable to load image using AWT loader!");
 				}
 				break;
 			case DDS:
 				try {
 					result = ddsLoader.load(inputStream);
 				} catch (Exception e) {
-					logger.warning("Unable to load image using DDS loader!");
+					LOGGER.warning("Unable to load image using DDS loader!");
 				}
 				break;
 			case TGA:
 				try {
 					result = TGALoader.load(inputStream, flipY);
 				} catch (Exception e) {
-					logger.warning("Unable to load image using TGA loader!");
+					LOGGER.warning("Unable to load image using TGA loader!");
 				}
 				break;
 			default:
