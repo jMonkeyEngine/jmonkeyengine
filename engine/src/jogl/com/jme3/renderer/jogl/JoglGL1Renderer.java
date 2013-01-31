@@ -62,6 +62,7 @@ import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.media.opengl.*;
+import javax.media.opengl.fixedfunc.GLLightingFunc;
 import jme3tools.converters.MipMapGenerator;
 
 public class JoglGL1Renderer implements GL1Renderer {
@@ -120,16 +121,16 @@ public class JoglGL1Renderer implements GL1Renderer {
         }
         
         // Default values for certain GL state.
-        gl.getGL2().glShadeModel(GL2.GL_SMOOTH);
-        gl.getGL2().glColorMaterial(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE);
-        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
+        gl.getGL2ES1().glShadeModel(GLLightingFunc.GL_SMOOTH);
+        gl.getGL2().glColorMaterial(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_DIFFUSE);
+        gl.glHint(GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
         
         // Enable rescaling/normaling of normal vectors.
         // Fixes lighting issues with scaled models.
         if (gl12){
-            gl.glEnable(GL2.GL_RESCALE_NORMAL);
+            gl.glEnable(GL2ES1.GL_RESCALE_NORMAL);
         }else{
-            gl.glEnable(GL2.GL_NORMALIZE);
+            gl.glEnable(GLLightingFunc.GL_NORMALIZE);
         }
 
         if (gl.isExtensionAvailable("GL_ARB_texture_non_power_of_two")) {
@@ -140,7 +141,7 @@ public class JoglGL1Renderer implements GL1Renderer {
                     + "Some features might not work.");
         }
         
-        gl.glGetIntegerv(GL2.GL_MAX_LIGHTS, ib1);
+        gl.glGetIntegerv(GL2ES1.GL_MAX_LIGHTS, ib1);
         maxLights = ib1.get(0);
         
         gl.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE, ib1);
@@ -167,7 +168,7 @@ public class JoglGL1Renderer implements GL1Renderer {
 
     public void setDepthRange(float start, float end) {
         GL gl = GLContext.getCurrentGL();
-        gl.getGL2().glDepthRange(start, end);
+        gl.getGL2ES2().glDepthRange(start, end);
     }
 
     public void clearBuffers(boolean color, boolean depth, boolean stencil) {
@@ -222,15 +223,15 @@ public class JoglGL1Renderer implements GL1Renderer {
     private void applyFixedFuncBindings(boolean forLighting){
         GL gl = GLContext.getCurrentGL();
         if (forLighting) {
-            gl.getGL2().glMaterialf(GL.GL_FRONT_AND_BACK, GL2.GL_SHININESS, context.shininess);
-            setMaterialColor(GL2.GL_AMBIENT, context.ambient, ColorRGBA.DarkGray);
-            setMaterialColor(GL2.GL_DIFFUSE, context.diffuse, ColorRGBA.White);
-            setMaterialColor(GL2.GL_SPECULAR, context.specular, ColorRGBA.Black);
+            gl.getGL2().glMaterialf(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_SHININESS, context.shininess);
+            setMaterialColor(GLLightingFunc.GL_AMBIENT, context.ambient, ColorRGBA.DarkGray);
+            setMaterialColor(GLLightingFunc.GL_DIFFUSE, context.diffuse, ColorRGBA.White);
+            setMaterialColor(GLLightingFunc.GL_SPECULAR, context.specular, ColorRGBA.Black);
 
             if (context.useVertexColor) {
-                gl.glEnable(GL2.GL_COLOR_MATERIAL);
+                gl.glEnable(GLLightingFunc.GL_COLOR_MATERIAL);
             } else {
-                gl.glDisable(GL2.GL_COLOR_MATERIAL);
+                gl.glDisable(GLLightingFunc.GL_COLOR_MATERIAL);
             }
         } else {
             // Ignore other values as they have no effect when 
