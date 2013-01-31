@@ -63,6 +63,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.media.opengl.*;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
+import javax.media.opengl.fixedfunc.GLMatrixFunc;
+import javax.media.opengl.fixedfunc.GLPointerFunc;
 import jme3tools.converters.MipMapGenerator;
 
 public class JoglGL1Renderer implements GL1Renderer {
@@ -244,10 +246,10 @@ public class JoglGL1Renderer implements GL1Renderer {
             }
         }
         if (context.alphaTestFallOff > 0f) {
-            gl.glEnable(GL2.GL_ALPHA_TEST);
-            gl.getGL2().glAlphaFunc(GL.GL_GREATER, context.alphaTestFallOff);
+            gl.glEnable(GL2ES1.GL_ALPHA_TEST);
+            gl.getGL2ES1().glAlphaFunc(GL.GL_GREATER, context.alphaTestFallOff);
         } else {
-            gl.glDisable(GL2.GL_ALPHA_TEST);
+            gl.glDisable(GL2ES1.GL_ALPHA_TEST);
         }
     }
     
@@ -293,19 +295,19 @@ public class JoglGL1Renderer implements GL1Renderer {
     public void applyRenderState(RenderState state) {
         GL gl = GLContext.getCurrentGL();
         if (state.isWireframe() && !context.wireframe) {
-            gl.getGL2().glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);
+            gl.getGL2GL3().glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_LINE);
             context.wireframe = true;
         } else if (!state.isWireframe() && context.wireframe) {
-            gl.getGL2().glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
+            gl.getGL2GL3().glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
             context.wireframe = false;
         }
 
         if (state.isDepthTest() && !context.depthTestEnabled) {
-            gl.getGL2().glEnable(GL.GL_DEPTH_TEST);
-            gl.getGL2().glDepthFunc(GL.GL_LEQUAL);
+            gl.glEnable(GL.GL_DEPTH_TEST);
+            gl.glDepthFunc(GL.GL_LEQUAL);
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
-            gl.getGL2().glDisable(GL.GL_DEPTH_TEST);
+            gl.glDisable(GL.GL_DEPTH_TEST);
             context.depthTestEnabled = false;
         }
 
@@ -316,18 +318,18 @@ public class JoglGL1Renderer implements GL1Renderer {
         }
         
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
-            gl.getGL2().glDepthMask(true);
+            gl.glDepthMask(true);
             context.depthWriteEnabled = true;
         } else if (!state.isDepthWrite() && context.depthWriteEnabled) {
-            gl.getGL2().glDepthMask(false);
+            gl.glDepthMask(false);
             context.depthWriteEnabled = false;
         }
 
         if (state.isColorWrite() && !context.colorWriteEnabled) {
-            gl.getGL2().glColorMask(true, true, true, true);
+            gl.glColorMask(true, true, true, true);
             context.colorWriteEnabled = true;
         } else if (!state.isColorWrite() && context.colorWriteEnabled) {
-            gl.getGL2().glColorMask(false, false, false, false);
+            gl.glColorMask(false, false, false, false);
             context.colorWriteEnabled = false;
         }
 
@@ -338,7 +340,7 @@ public class JoglGL1Renderer implements GL1Renderer {
         if (state.isPolyOffset()) {
             if (!context.polyOffsetEnabled) {
                 gl.glEnable(GL.GL_POLYGON_OFFSET_FILL);
-                gl.getGL2().glPolygonOffset(state.getPolyOffsetFactor(),
+                gl.glPolygonOffset(state.getPolyOffsetFactor(),
                         state.getPolyOffsetUnits());
                 context.polyOffsetEnabled = true;
                 context.polyOffsetFactor = state.getPolyOffsetFactor();
@@ -346,7 +348,7 @@ public class JoglGL1Renderer implements GL1Renderer {
             } else {
                 if (state.getPolyOffsetFactor() != context.polyOffsetFactor
                         || state.getPolyOffsetUnits() != context.polyOffsetUnits) {
-                    gl.getGL2().glPolygonOffset(state.getPolyOffsetFactor(),
+                    gl.glPolygonOffset(state.getPolyOffsetFactor(),
                             state.getPolyOffsetUnits());
                     context.polyOffsetFactor = state.getPolyOffsetFactor();
                     context.polyOffsetUnits = state.getPolyOffsetUnits();
@@ -484,23 +486,23 @@ public class JoglGL1Renderer implements GL1Renderer {
     
     private void setModelView(Matrix4f modelMatrix, Matrix4f viewMatrix){
         GL gl = GLContext.getCurrentGL();
-        if (context.matrixMode != GL2.GL_MODELVIEW) {
-            gl.getGL2().glMatrixMode(GL2.GL_MODELVIEW);
-            context.matrixMode = GL2.GL_MODELVIEW;
+        if (context.matrixMode != GLMatrixFunc.GL_MODELVIEW) {
+            gl.getGL2ES1().glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+            context.matrixMode = GLMatrixFunc.GL_MODELVIEW;
         }
 
-        gl.getGL2().glLoadMatrixf(storeMatrix(viewMatrix, fb16));
-        gl.getGL2().glMultMatrixf(storeMatrix(modelMatrix, fb16));
+        gl.getGL2ES1().glLoadMatrixf(storeMatrix(viewMatrix, fb16));
+        gl.getGL2ES1().glMultMatrixf(storeMatrix(modelMatrix, fb16));
     }
     
     private void setProjection(Matrix4f projMatrix){
         GL gl = GLContext.getCurrentGL();
-        if (context.matrixMode != GL2.GL_PROJECTION) {
-            gl.getGL2().glMatrixMode(GL2.GL_PROJECTION);
-            context.matrixMode = GL2.GL_PROJECTION;
+        if (context.matrixMode != GLMatrixFunc.GL_PROJECTION) {
+            gl.getGL2ES1().glMatrixMode(GLMatrixFunc.GL_PROJECTION);
+            context.matrixMode = GLMatrixFunc.GL_PROJECTION;
         }
 
-        gl.getGL2().glLoadMatrixf(storeMatrix(projMatrix, fb16));
+        gl.getGL2ES1().glLoadMatrixf(storeMatrix(projMatrix, fb16));
     }
 
     public void setWorldMatrix(Matrix4f worldMatrix) {
@@ -518,7 +520,7 @@ public class JoglGL1Renderer implements GL1Renderer {
         // apply fixed function bindings
         // and do other book keeping.
         if (list == null || list.size() == 0){
-            gl.glDisable(GL2.GL_LIGHTING);
+            gl.glDisable(GLLightingFunc.GL_LIGHTING);
             applyFixedFuncBindings(false);
             setModelView(worldMatrix, viewMatrix);
             return;
@@ -552,7 +554,7 @@ public class JoglGL1Renderer implements GL1Renderer {
         
         applyFixedFuncBindings(true);
         
-        gl.glEnable(GL2.GL_LIGHTING);
+        gl.glEnable(GLLightingFunc.GL_LIGHTING);
         
         fb16.clear();
         fb16.put(materialAmbientColor.r)
@@ -560,18 +562,18 @@ public class JoglGL1Renderer implements GL1Renderer {
             .put(materialAmbientColor.b)
             .put(1).flip();
         
-        gl.getGL2().glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, fb16);
+        gl.getGL2ES1().glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, fb16);
         
-        if (context.matrixMode != GL2.GL_MODELVIEW) {
-            gl.getGL2().glMatrixMode(GL2.GL_MODELVIEW);
-            context.matrixMode = GL2.GL_MODELVIEW;
+        if (context.matrixMode != GLMatrixFunc.GL_MODELVIEW) {
+            gl.getGL2ES1().glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
+            context.matrixMode = GLMatrixFunc.GL_MODELVIEW;
         }
         // Lights are already in world space, so just convert
         // them to view space.
-        gl.getGL2().glLoadMatrixf(storeMatrix(viewMatrix, fb16));
+        gl.getGL2ES1().glLoadMatrixf(storeMatrix(viewMatrix, fb16));
         
         for (int i = 0; i < lightList.size(); i++){
-            int glLightIndex = GL2.GL_LIGHT0 + i;
+            int glLightIndex = GLLightingFunc.GL_LIGHT0 + i;
             Light light = lightList.get(i);
             Light.Type lightType = light.getType();
             ColorRGBA col = light.getColor();
@@ -587,39 +589,39 @@ public class JoglGL1Renderer implements GL1Renderer {
 
                     fb16.clear();
                     fb16.put(col.r).put(col.g).put(col.b).put(col.a).flip();
-                    gl.getGL2().glLightfv(glLightIndex, GL2.GL_DIFFUSE, fb16);
-                    gl.getGL2().glLightfv(glLightIndex, GL2.GL_SPECULAR, fb16);
+                    gl.getGL2ES1().glLightfv(glLightIndex, GLLightingFunc.GL_DIFFUSE, fb16);
+                    gl.getGL2ES1().glLightfv(glLightIndex, GLLightingFunc.GL_SPECULAR, fb16);
 
                     pos = tempVec.set(dLight.getDirection()).negateLocal().normalizeLocal();
                     fb16.clear();
                     fb16.put(pos.x).put(pos.y).put(pos.z).put(0.0f).flip();
-                    gl.getGL2().glLightfv(glLightIndex, GL2.GL_POSITION, fb16);
-                    gl.getGL2().glLightf(glLightIndex, GL2.GL_SPOT_CUTOFF, 180);
+                    gl.getGL2ES1().glLightfv(glLightIndex, GLLightingFunc.GL_POSITION, fb16);
+                    gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_SPOT_CUTOFF, 180);
                     break;
                 case Point:
                     PointLight pLight = (PointLight) light;
       
                     fb16.clear();
                     fb16.put(col.r).put(col.g).put(col.b).put(col.a).flip();
-                    gl.getGL2().glLightfv(glLightIndex, GL2.GL_DIFFUSE, fb16);
-                    gl.getGL2().glLightfv(glLightIndex, GL2.GL_SPECULAR, fb16);
+                    gl.getGL2ES1().glLightfv(glLightIndex, GLLightingFunc.GL_DIFFUSE, fb16);
+                    gl.getGL2ES1().glLightfv(glLightIndex, GLLightingFunc.GL_SPECULAR, fb16);
 
                     pos = pLight.getPosition();
                     fb16.clear();
                     fb16.put(pos.x).put(pos.y).put(pos.z).put(1.0f).flip();
-                    gl.getGL2().glLightfv(glLightIndex, GL2.GL_POSITION, fb16);
-                    gl.getGL2().glLightf(glLightIndex, GL2.GL_SPOT_CUTOFF, 180);
+                    gl.getGL2ES1().glLightfv(glLightIndex, GLLightingFunc.GL_POSITION, fb16);
+                    gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_SPOT_CUTOFF, 180);
 
                     if (pLight.getRadius() > 0) {
                         // Note: this doesn't follow the same attenuation model
                         // as the one used in the lighting shader.
-                        gl.getGL2().glLightf(glLightIndex, GL2.GL_CONSTANT_ATTENUATION,  1);
-                        gl.getGL2().glLightf(glLightIndex, GL2.GL_LINEAR_ATTENUATION,    pLight.getInvRadius() * 2);
-                        gl.getGL2().glLightf(glLightIndex, GL2.GL_QUADRATIC_ATTENUATION, pLight.getInvRadius() * pLight.getInvRadius()); 
+                        gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_CONSTANT_ATTENUATION,  1);
+                        gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_LINEAR_ATTENUATION,    pLight.getInvRadius() * 2);
+                        gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_QUADRATIC_ATTENUATION, pLight.getInvRadius() * pLight.getInvRadius()); 
                     }else{
-                        gl.getGL2().glLightf(glLightIndex, GL2.GL_CONSTANT_ATTENUATION,  1);
-                        gl.getGL2().glLightf(glLightIndex, GL2.GL_LINEAR_ATTENUATION,    0);
-                        gl.getGL2().glLightf(glLightIndex, GL2.GL_QUADRATIC_ATTENUATION, 0);
+                        gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_CONSTANT_ATTENUATION,  1);
+                        gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_LINEAR_ATTENUATION,    0);
+                        gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_QUADRATIC_ATTENUATION, 0);
                     }
 
                     break;
@@ -628,18 +630,18 @@ public class JoglGL1Renderer implements GL1Renderer {
 
                     fb16.clear();
                     fb16.put(col.r).put(col.g).put(col.b).put(col.a).flip();
-                    gl.getGL2().glLightfv(glLightIndex, GL2.GL_DIFFUSE, fb16);
-                    gl.getGL2().glLightfv(glLightIndex, GL2.GL_SPECULAR, fb16);
+                    gl.getGL2ES1().glLightfv(glLightIndex, GLLightingFunc.GL_DIFFUSE, fb16);
+                    gl.getGL2ES1().glLightfv(glLightIndex, GLLightingFunc.GL_SPECULAR, fb16);
 
                     pos = sLight.getPosition();
                     fb16.clear();
                     fb16.put(pos.x).put(pos.y).put(pos.z).put(1.0f).flip();
-                    gl.getGL2().glLightfv(glLightIndex, GL2.GL_POSITION, fb16);
+                    gl.getGL2().glLightfv(glLightIndex, GLLightingFunc.GL_POSITION, fb16);
 
                     Vector3f dir = sLight.getDirection();
                     fb16.clear();
                     fb16.put(dir.x).put(dir.y).put(dir.z).put(1.0f).flip();
-                    gl.getGL2().glLightfv(glLightIndex, GL2.GL_SPOT_DIRECTION, fb16);
+                    gl.getGL2ES1().glLightfv(glLightIndex, GLLightingFunc.GL_SPOT_DIRECTION, fb16);
 
                     float outerAngleRad = sLight.getSpotOuterAngle();
                     float innerAngleRad = sLight.getSpotInnerAngle();
@@ -649,13 +651,13 @@ public class JoglGL1Renderer implements GL1Renderer {
                         spotExpo = (1.0f - (innerAngleRad / outerAngleRad)) * 128.0f;
                     }
 
-                    gl.getGL2().glLightf(glLightIndex, GL2.GL_SPOT_CUTOFF, spotCut);
-                    gl.getGL2().glLightf(glLightIndex, GL2.GL_SPOT_EXPONENT, spotExpo);
+                    gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_SPOT_CUTOFF, spotCut);
+                    gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_SPOT_EXPONENT, spotExpo);
 
                     if (sLight.getSpotRange() > 0) {
-                        gl.getGL2().glLightf(glLightIndex, GL2.GL_LINEAR_ATTENUATION, sLight.getInvSpotRange());
+                        gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_LINEAR_ATTENUATION, sLight.getInvSpotRange());
                     }else{
-                        gl.getGL2().glLightf(glLightIndex, GL2.GL_LINEAR_ATTENUATION, 0);
+                        gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_LINEAR_ATTENUATION, 0);
                     }
 
                     break;
@@ -667,7 +669,7 @@ public class JoglGL1Renderer implements GL1Renderer {
         
         // Disable lights after the index
         for (int i = lightList.size(); i < numLightsSetPrev; i++){
-            gl.glDisable(GL2.GL_LIGHT0 + i);
+            gl.glDisable(GLLightingFunc.GL_LIGHT0 + i);
         }
         
         // This will set view matrix as well.
@@ -677,7 +679,7 @@ public class JoglGL1Renderer implements GL1Renderer {
     private int convertTextureType(Texture.Type type) {
         switch (type) {
             case TwoDimensional:
-                return GL2.GL_TEXTURE_2D;
+                return GL.GL_TEXTURE_2D;
 //            case ThreeDimensional:
 //                return GL_TEXTURE_3D;
 //            case CubeMap:
@@ -690,9 +692,9 @@ public class JoglGL1Renderer implements GL1Renderer {
     private int convertMagFilter(Texture.MagFilter filter) {
         switch (filter) {
             case Bilinear:
-                return GL2.GL_LINEAR;
+                return GL.GL_LINEAR;
             case Nearest:
-                return GL2.GL_NEAREST;
+                return GL.GL_NEAREST;
             default:
                 throw new UnsupportedOperationException("Unknown mag filter: " + filter);
         }
@@ -701,17 +703,17 @@ public class JoglGL1Renderer implements GL1Renderer {
     private int convertMinFilter(Texture.MinFilter filter) {
         switch (filter) {
             case Trilinear:
-                return GL2.GL_LINEAR_MIPMAP_LINEAR;
+                return GL.GL_LINEAR_MIPMAP_LINEAR;
             case BilinearNearestMipMap:
-                return GL2.GL_LINEAR_MIPMAP_NEAREST;
+                return GL.GL_LINEAR_MIPMAP_NEAREST;
             case NearestLinearMipMap:
-                return GL2.GL_NEAREST_MIPMAP_LINEAR;
+                return GL.GL_NEAREST_MIPMAP_LINEAR;
             case NearestNearestMipMap:
-                return GL2.GL_NEAREST_MIPMAP_NEAREST;
+                return GL.GL_NEAREST_MIPMAP_NEAREST;
             case BilinearNoMipMaps:
-                return GL2.GL_LINEAR;
+                return GL.GL_LINEAR;
             case NearestNoMipMaps:
-                return GL2.GL_NEAREST;
+                return GL.GL_NEAREST;
             default:
                 throw new UnsupportedOperationException("Unknown min filter: " + filter);
         }
@@ -724,7 +726,7 @@ public class JoglGL1Renderer implements GL1Renderer {
             case BorderClamp:
                 return GL2.GL_CLAMP;
             case Repeat:
-                return GL2.GL_REPEAT;
+                return GL.GL_REPEAT;
             default:
                 throw new UnsupportedOperationException("Unknown wrap mode: " + mode);
         }
@@ -737,8 +739,8 @@ public class JoglGL1Renderer implements GL1Renderer {
         int minFilter = convertMinFilter(tex.getMinFilter());
         int magFilter = convertMagFilter(tex.getMagFilter());
         GL gl = GLContext.getCurrentGL();
-        gl.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER, minFilter);
-        gl.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER, magFilter);
+        gl.glTexParameteri(target, GL.GL_TEXTURE_MIN_FILTER, minFilter);
+        gl.glTexParameteri(target, GL.GL_TEXTURE_MAG_FILTER, magFilter);
 
         // repeat modes
         switch (tex.getType()) {
@@ -746,10 +748,10 @@ public class JoglGL1Renderer implements GL1Renderer {
 //            case CubeMap:
 //                glTexParameteri(target, GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
             case TwoDimensional:
-                gl.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_T, convertWrapMode(tex.getWrap(WrapAxis.T)));
+                gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_T, convertWrapMode(tex.getWrap(WrapAxis.T)));
                 // fall down here is intentional..
 //            case OneDimensional:
-                gl.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_S, convertWrapMode(tex.getWrap(WrapAxis.S)));
+                gl.glTexParameteri(target, GL.GL_TEXTURE_WRAP_S, convertWrapMode(tex.getWrap(WrapAxis.S)));
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown texture type: " + tex.getType());
@@ -801,7 +803,7 @@ public class JoglGL1Renderer implements GL1Renderer {
 
             // Check if hardware mips are supported
             if (gl.isExtensionAvailable("GL_VERSION_1_4")) {
-                gl.glTexParameteri(target, GL2.GL_GENERATE_MIPMAP, GL.GL_TRUE);
+                gl.glTexParameteri(target, GL2ES1.GL_GENERATE_MIPMAP, GL.GL_TRUE);
             } else {
                 MipMapGenerator.generateMipMaps(img);
             }
@@ -888,7 +890,7 @@ public class JoglGL1Renderer implements GL1Renderer {
         Image[] textures = context.boundTextures;
         if (textures[0] != null) {
             GL gl = GLContext.getCurrentGL();
-            gl.glDisable(GL2.GL_TEXTURE_2D);
+            gl.glDisable(GL.GL_TEXTURE_2D);
             textures[0] = null;
         }
     }
@@ -907,13 +909,13 @@ public class JoglGL1Renderer implements GL1Renderer {
     private int convertArrayType(VertexBuffer.Type type) {
         switch (type) {
             case Position:
-                return GL2.GL_VERTEX_ARRAY;
+                return GLPointerFunc.GL_VERTEX_ARRAY;
             case Normal:
-                return GL2.GL_NORMAL_ARRAY;
+                return GLPointerFunc.GL_NORMAL_ARRAY;
             case TexCoord:
-                return GL2.GL_TEXTURE_COORD_ARRAY;
+                return GLPointerFunc.GL_TEXTURE_COORD_ARRAY;
             case Color:
-                return GL2.GL_COLOR_ARRAY;
+                return GLPointerFunc.GL_COLOR_ARRAY;
             default:
                 return -1; // unsupported
         }
@@ -922,19 +924,19 @@ public class JoglGL1Renderer implements GL1Renderer {
     private int convertVertexFormat(VertexBuffer.Format fmt) {
         switch (fmt) {
             case Byte:
-                return GL2.GL_BYTE;
+                return GL.GL_BYTE;
             case Float:
-                return GL2.GL_FLOAT;
+                return GL.GL_FLOAT;
             case Int:
-                return GL2.GL_INT;
+                return GL2ES2.GL_INT;
             case Short:
-                return GL2.GL_SHORT;
+                return GL.GL_SHORT;
             case UnsignedByte:
-                return GL2.GL_UNSIGNED_BYTE;
+                return GL.GL_UNSIGNED_BYTE;
             case UnsignedInt:
-                return GL2.GL_UNSIGNED_INT;
+                return GL.GL_UNSIGNED_INT;
             case UnsignedShort:
-                return GL2.GL_UNSIGNED_SHORT;
+                return GL.GL_UNSIGNED_SHORT;
             default:
                 throw new UnsupportedOperationException("Unrecognized vertex format: " + fmt);
         }
@@ -943,19 +945,19 @@ public class JoglGL1Renderer implements GL1Renderer {
     private int convertElementMode(Mesh.Mode mode) {
         switch (mode) {
             case Points:
-                return GL2.GL_POINTS;
+                return GL.GL_POINTS;
             case Lines:
-                return GL2.GL_LINES;
+                return GL.GL_LINES;
             case LineLoop:
-                return GL2.GL_LINE_LOOP;
+                return GL.GL_LINE_LOOP;
             case LineStrip:
-                return GL2.GL_LINE_STRIP;
+                return GL.GL_LINE_STRIP;
             case Triangles:
                 return GL.GL_TRIANGLES;
             case TriangleFan:
-                return GL2.GL_TRIANGLE_FAN;
+                return GL.GL_TRIANGLE_FAN;
             case TriangleStrip:
-                return GL2.GL_TRIANGLE_STRIP;
+                return GL.GL_TRIANGLE_STRIP;
             default:
                 throw new UnsupportedOperationException("Unrecognized mesh mode: " + mode);
         }
@@ -980,16 +982,16 @@ public class JoglGL1Renderer implements GL1Renderer {
             return; // unsupported
         }
         GL gl = GLContext.getCurrentGL();
-        gl.getGL2().glEnableClientState(arrayType);
+        gl.getGL2GL3().glEnableClientState(arrayType);
         context.boundAttribs[vb.getBufferType().ordinal()] = vb;
 
         if (vb.getBufferType() == Type.Normal) {
             // normalize if requested
             if (vb.isNormalized() && !context.normalizeEnabled) {
-                gl.glEnable(GL2.GL_NORMALIZE);
+                gl.glEnable(GLLightingFunc.GL_NORMALIZE);
                 context.normalizeEnabled = true;
             } else if (!vb.isNormalized() && context.normalizeEnabled) {
-                gl.glDisable(GL2.GL_NORMALIZE);
+                gl.glDisable(GLLightingFunc.GL_NORMALIZE);
                 context.normalizeEnabled = false;
             }
         }
@@ -1045,14 +1047,14 @@ public class JoglGL1Renderer implements GL1Renderer {
     private void drawElements(int mode, int format, Buffer data) {
         GL gl = GLContext.getCurrentGL();
         switch (format) {
-            case GL2.GL_UNSIGNED_BYTE:
-                gl.getGL2().glDrawElements(mode, data.limit(), format, (ByteBuffer) data);
+            case GL.GL_UNSIGNED_BYTE:
+                gl.glDrawElements(mode, data.limit(), format, (ByteBuffer) data);
                 break;
-            case GL2.GL_UNSIGNED_SHORT:
-                gl.getGL2().glDrawElements(mode, data.limit(), format, (ShortBuffer) data);
+            case GL.GL_UNSIGNED_SHORT:
+                gl.glDrawElements(mode, data.limit(), format, (ShortBuffer) data);
                 break;
-            case GL2.GL_UNSIGNED_INT:
-                gl.getGL2().glDrawElements(mode, data.limit(), format, (IntBuffer) data);
+            case GL.GL_UNSIGNED_INT:
+                gl.glDrawElements(mode, data.limit(), format, (IntBuffer) data);
                 break;
             default:
                 throw new UnsupportedOperationException();
