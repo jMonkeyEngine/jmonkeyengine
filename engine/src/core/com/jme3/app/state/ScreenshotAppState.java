@@ -167,7 +167,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             } else {
                 file = new File(filePath + appName + shotIndex + ".png").getAbsoluteFile();
             }
-            logger.log(Level.INFO, "Saving ScreenShot to: {0}", file.getAbsolutePath());
+            logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
 
             OutputStream outStream = null;
             try {

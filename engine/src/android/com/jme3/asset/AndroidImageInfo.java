@@ -51,7 +51,7 @@ public class AndroidImageInfo extends ImageRaster {
         if (bitmap != null && !bitmap.isRecycled()) {
             bitmap.recycle();
             bitmap = null;
-            logger.log(Level.INFO, "Bitmap was deleted. ");
+            logger.log(Level.FINE, "Bitmap was deleted. ");
         }
     }
     

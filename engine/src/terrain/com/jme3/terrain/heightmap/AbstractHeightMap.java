@@ -272,7 +272,7 @@ public abstract class AbstractHeightMap implements HeightMap {
             return false;
         }
 
-        logger.log(Level.INFO, "Saved terrain to {0}", filename);
+        logger.log(Level.FINE, "Saved terrain to {0}", filename);
         return true;
     }
 

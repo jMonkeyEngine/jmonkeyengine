@@ -56,7 +56,7 @@ public class RigidBodyMotionState {
 
     public RigidBodyMotionState() {
         this.motionStateId = createMotionState();
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created MotionState {0}", Long.toHexString(motionStateId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created MotionState {0}", Long.toHexString(motionStateId));
     }
 
     private native long createMotionState();
@@ -155,7 +155,7 @@ public class RigidBodyMotionState {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finalizing MotionState {0}", Long.toHexString(motionStateId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing MotionState {0}", Long.toHexString(motionStateId));
         finalizeNative(motionStateId);
     }
 

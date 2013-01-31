@@ -106,7 +106,7 @@ public class JoystickCompatibilityMappings {
      *  used instead.
      */
     public static void addMapping( String stickName, String sourceComponentId, String remapId ) {
-        logger.log(Level.INFO, "addMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")" );        
+        logger.log(Level.FINE, "addMapping(" + stickName + ", " + sourceComponentId + ", " + remapId + ")" );        
         getMappings(stickName, true).put( sourceComponentId, remapId );
     } 
  
@@ -139,7 +139,7 @@ public class JoystickCompatibilityMappings {
      *  specified by the given URL.
      */   
     public static void loadMappingProperties( URL u ) throws IOException {
-        logger.log(Level.INFO, "Loading mapping properties:{0}", u);
+        logger.log(Level.FINE, "Loading mapping properties:{0}", u);
         InputStream in = u.openStream();
         try {        
             Properties p = new Properties();
@@ -151,7 +151,7 @@ public class JoystickCompatibilityMappings {
     }
 
     protected static void loadMappings( ClassLoader cl, String path ) throws IOException { 
-        logger.log(Level.INFO, "Searching for mappings for path:{0}", path);
+        logger.log(Level.FINE, "Searching for mappings for path:{0}", path);
         for( Enumeration<URL> en = cl.getResources(path); en.hasMoreElements(); ) {            
             URL u = en.nextElement();
             try { 

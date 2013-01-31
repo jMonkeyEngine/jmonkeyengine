@@ -170,7 +170,7 @@ public abstract class PhysicsCollisionObject implements Savable {
     }
 
     protected void initUserPointer() {
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "initUserPointer() objectId = {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "initUserPointer() objectId = {0}", Long.toHexString(objectId));
         initUserPointer(objectId, collisionGroup, collisionGroupsMask);
     }
     native void initUserPointer(long objectId, int group, int groups);
@@ -316,7 +316,7 @@ public abstract class PhysicsCollisionObject implements Savable {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finalizing CollisionObject {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing CollisionObject {0}", Long.toHexString(objectId));
         finalizeNative(objectId);
     }
 

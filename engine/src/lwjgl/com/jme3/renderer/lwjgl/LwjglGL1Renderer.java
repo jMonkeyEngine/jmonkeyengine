@@ -120,14 +120,14 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
 
     public void resetGLObjects() {
-        logger.log(Level.INFO, "Reseting objects and invalidating state");
+        logger.log(Level.FINE, "Reseting objects and invalidating state");
         objManager.resetObjects();
         statistics.clearMemory();
         invalidateState();
     }
 
     public void cleanup() {
-        logger.log(Level.INFO, "Deleting objects and invalidating state");
+        logger.log(Level.FINE, "Deleting objects and invalidating state");
         objManager.deleteAllObjects(this);
         statistics.clearMemory();
         invalidateState();

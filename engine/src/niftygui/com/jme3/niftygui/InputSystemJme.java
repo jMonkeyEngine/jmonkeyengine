@@ -276,7 +276,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             if (element != null) {
                 final TextField textField = element.getNiftyControl(TextField.class);
                 if (textField != null && !(textField instanceof TextFieldNull)) {
-                    Logger.getLogger(InputSystemJme.class.getName()).log(Level.INFO, "Current TextField: {0}", textField.getId());
+                    Logger.getLogger(InputSystemJme.class.getName()).log(Level.FINE, "Current TextField: {0}", textField.getId());
                     String initialValue = textField.getText();
                     if (initialValue == null) {
                         initialValue = "";

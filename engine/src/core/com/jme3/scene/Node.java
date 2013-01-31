@@ -247,8 +247,8 @@ public class Node extends Spatial implements Savable {
             // transform update down the tree-
             child.setTransformRefresh();
             child.setLightListRefresh();
-            if (logger.isLoggable(Level.INFO)) {
-                logger.log(Level.INFO,"Child ({0}) attached to this node ({1})",
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE,"Child ({0}) attached to this node ({1})",
                         new Object[]{child.getName(), getName()});
             }
         }
@@ -281,8 +281,8 @@ public class Node extends Spatial implements Savable {
             children.add(index, child);
             child.setTransformRefresh();
             child.setLightListRefresh();
-            if (logger.isLoggable(Level.INFO)) {
-                logger.log(Level.INFO,"Child ({0}) attached to this node ({1})",
+            if (logger.isLoggable(Level.FINE)) {
+                logger.log(Level.FINE,"Child ({0}) attached to this node ({1})",
                         new Object[]{child.getName(), getName()});
             }
         }
@@ -349,7 +349,7 @@ public class Node extends Spatial implements Savable {
         Spatial child =  children.remove(index);
         if ( child != null ) {
             child.setParent( null );
-            logger.log(Level.INFO, "{0}: Child removed.", this.toString());
+            logger.log(Level.FINE, "{0}: Child removed.", this.toString());
 
             // since a child with a bound was detached;
             // our own bound will probably change.
@@ -374,7 +374,7 @@ public class Node extends Spatial implements Savable {
         for ( int i = children.size() - 1; i >= 0; i-- ) {
             detachChildAt(i);
         }
-        logger.log(Level.INFO, "{0}: All children removed.", this.toString());
+        logger.log(Level.FINE, "{0}: All children removed.", this.toString());
     }
 
     /**

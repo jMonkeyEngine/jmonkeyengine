@@ -165,7 +165,7 @@ public class UdpKernel extends AbstractKernel
         if( socketEndpoints.remove( p.getRemoteAddress() ) == null )
             return;
 
-        log.log( Level.INFO, "Closing endpoint:{0}.", p );            
+        log.log( Level.FINE, "Closing endpoint:{0}.", p );            
         log.log( Level.FINE, "Socket endpoints size:{0}", socketEndpoints.size() );
 
         addEvent( EndpointEvent.createRemove( this, p ) );
@@ -253,7 +253,7 @@ public class UdpKernel extends AbstractKernel
         public void connect() throws IOException
         {
             socket = new DatagramSocket( address );
-            log.log( Level.INFO, "Hosting UDP connection:{0}.", address );
+            log.log( Level.FINE, "Hosting UDP connection:{0}.", address );
         }
 
         public void close() throws IOException, InterruptedException
@@ -270,7 +270,7 @@ public class UdpKernel extends AbstractKernel
 
         public void run()
         {
-            log.log( Level.INFO, "Kernel started for connection:{0}.", address );
+            log.log( Level.FINE, "Kernel started for connection:{0}.", address );
 
             // An atomic is safest and costs almost nothing
             while( go.get() ) {

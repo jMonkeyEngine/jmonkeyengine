@@ -180,7 +180,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         ib = BufferUtils.createIntBuffer(channels.length);
         chanSrcs = new AudioNode[channels.length];
 
-        logger.log(Level.INFO, "AudioRenderer supports {0} channels", channels.length);
+        logger.log(Level.FINE, "AudioRenderer supports {0} channels", channels.length);
 
         supportEfx = ALC10.alcIsExtensionPresent(device, "ALC_EXT_EFX");
         if (supportEfx) {
@@ -190,11 +190,11 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             ib.position(0).limit(1);
             ALC10.alcGetInteger(device, EFX10.ALC_EFX_MINOR_VERSION, ib);
             int minor = ib.get(0);
-            logger.log(Level.INFO, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
+            logger.log(Level.FINE, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
 
             ALC10.alcGetInteger(device, EFX10.ALC_MAX_AUXILIARY_SENDS, ib);
             auxSends = ib.get(0);
-            logger.log(Level.INFO, "Audio max auxilary sends: {0}", auxSends);
+            logger.log(Level.FINE, "Audio max auxilary sends: {0}", auxSends);
 
             // create slot
             ib.position(0).limit(1);

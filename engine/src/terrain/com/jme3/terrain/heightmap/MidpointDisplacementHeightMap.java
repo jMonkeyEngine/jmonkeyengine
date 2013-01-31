@@ -151,7 +151,7 @@ public class MidpointDisplacementHeightMap extends AbstractHeightMap {
 
         normalizeTerrain(NORMALIZE_RANGE);
 
-        logger.log(Level.INFO, "Midpoint displacement heightmap generated");
+        logger.log(Level.FINE, "Midpoint displacement heightmap generated");
         return true;
     }
 

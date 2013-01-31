@@ -84,7 +84,7 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
                     	result.addLight(((LightNode)object).getLight());
                     	result.attachChild((LightNode) object);
 					} else if (object instanceof Node && (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
-						LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+						LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
 						if (((Node) object).getParent() == null) {
 							result.attachChild((Spatial) object);
                         }

@@ -336,7 +336,7 @@ public class DefaultServer implements Server
                 if( !getGameName().equals(m.getGameName()) 
                     || getVersion() != m.getVersion() ) {
  
-                    log.log( Level.INFO, "Kicking client due to name/version mismatch:{0}.", c );
+                    log.log( Level.FINE, "Kicking client due to name/version mismatch:{0}.", c );
             
                     // Need to kick them off... I may regret doing this from within
                     // the sync block but the alternative is more code
@@ -374,7 +374,7 @@ public class DefaultServer implements Server
         // Best to do this outside of the synch block to avoid
         // over synchronizing which is the path to deadlocks
         if( addedConnection != null ) {       
-            log.log( Level.INFO, "Client registered:{0}.", addedConnection );
+            log.log( Level.FINE, "Client registered:{0}.", addedConnection );
             
             // Send the ID back to the client letting it know it's
             // fully connected.
@@ -397,7 +397,7 @@ public class DefaultServer implements Server
     protected void connectionClosed( Endpoint p )
     {
         if( p.isConnected() ) {
-            log.log( Level.INFO, "Connection closed:{0}.", p );
+            log.log( Level.FINE, "Connection closed:{0}.", p );
         } else {
             log.log( Level.FINE, "Connection closed:{0}.", p );
         }
@@ -430,7 +430,7 @@ public class DefaultServer implements Server
         //       since in general we are called back for every endpoint closing.
         if( removed != null && !removed.closed ) {
         
-            log.log( Level.INFO, "Client closed:{0}.", removed );
+            log.log( Level.FINE, "Client closed:{0}.", removed );
             
             removed.closeConnection();
         }

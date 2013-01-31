@@ -82,7 +82,7 @@ public class LwjglSmoothingTimer extends Timer {
         reset();
 
         //print timer resolution info
-        logger.log(Level.INFO, "Timer resolution: {0} ticks per second", LWJGL_TIMER_RES);
+        logger.log(Level.FINE, "Timer resolution: {0} ticks per second", LWJGL_TIMER_RES);
     }
 
     public void reset() {

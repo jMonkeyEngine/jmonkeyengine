@@ -98,12 +98,12 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
                 PhysicsSpace.getPhysicsSpace().remove(this);
                 removed = true;
             }
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Clearing RigidBody {0}", Long.toHexString(objectId));
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Clearing RigidBody {0}", Long.toHexString(objectId));
             finalizeNative(objectId);
         }
         preRebuild();
         objectId = createRigidBody(mass, motionState.getObjectId(), collisionShape.getObjectId());
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created RigidBody {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created RigidBody {0}", Long.toHexString(objectId));
         postRebuild();
         if (removed) {
             PhysicsSpace.getPhysicsSpace().add(this);

@@ -113,7 +113,7 @@ public class ImageTileLoader implements TerrainGridTileLoader{
         String name = null;
         try {
             name = namer.getName(x, z);
-            logger.log(Level.INFO, "Loading heightmap from file: {0}", name);
+            logger.log(Level.FINE, "Loading heightmap from file: {0}", name);
             final Texture texture = assetManager.loadTexture(new TextureKey(name));
             heightmap = new ImageBasedHeightMap(texture.getImage());
             /*if (assetInfo != null){

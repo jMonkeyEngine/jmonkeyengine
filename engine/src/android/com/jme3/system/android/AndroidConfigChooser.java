@@ -216,16 +216,16 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                     num_config)) {
                 throw new IllegalArgumentException("eglChooseConfig#2 failed");
             }
-//            logger.log(Level.INFO, "num_config: {0}", num_config[0]);
+//            logger.log(Level.FINE, "num_config: {0}", num_config[0]);
 //
-//            logger.log(Level.INFO, "There are {0} configurations that match the configAttrs", num_config[0]);
-//            logger.log(Level.INFO, "All Matching Configs:");
+//            logger.log(Level.FINE, "There are {0} configurations that match the configAttrs", num_config[0]);
+//            logger.log(Level.FINE, "All Matching Configs:");
 //            for (int i=0; i<configs.length; i++) {
 //                if (configs[i] != null) {
-//                    logger.log(Level.INFO, "configs{0} is not null", i);
+//                    logger.log(Level.FINE, "configs{0} is not null", i);
 //                    logEGLConfig(configs[i], display, egl);
 //                } else {
-//                    logger.log(Level.INFO, "configs{0} is null", i);
+//                    logger.log(Level.FINE, "configs{0} is null", i);
 //                }
 //            }
 

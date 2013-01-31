@@ -246,7 +246,7 @@ public class Camera implements Savable, Cloneable {
         onViewPortChange();
         onFrameChange();
 
-        logger.log(Level.INFO, "Camera created (W: {0}, H: {1})", new Object[]{width, height});
+        logger.log(Level.FINE, "Camera created (W: {0}, H: {1})", new Object[]{width, height});
     }
 
     @Override

@@ -126,14 +126,14 @@ public class PhysicsVehicle extends PhysicsRigidBody {
             throw new IllegalStateException("Physics space is not initialized!");
         }
         if (rayCasterId != 0) {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Clearing RayCaster {0}", Long.toHexString(rayCasterId));
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Clearing Vehicle {0}", Long.toHexString(vehicleId));
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Clearing RayCaster {0}", Long.toHexString(rayCasterId));
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Clearing Vehicle {0}", Long.toHexString(vehicleId));
             finalizeNative(rayCasterId, vehicleId);
         }
         rayCasterId = createVehicleRaycaster(objectId, space.getSpaceId());
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created RayCaster {0}", Long.toHexString(rayCasterId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created RayCaster {0}", Long.toHexString(rayCasterId));
         vehicleId = createRaycastVehicle(objectId, rayCasterId);
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created Vehicle {0}", Long.toHexString(vehicleId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Vehicle {0}", Long.toHexString(vehicleId));
         setCoordinateSystem(vehicleId, 0, 1, 2);
         for (VehicleWheel wheel : wheels) {
             wheel.setVehicleId(vehicleId, addWheel(vehicleId, wheel.getLocation(), wheel.getDirection(), wheel.getAxle(), wheel.getRestLength(), wheel.getRadius(), tuning, wheel.isFrontWheel()));
@@ -575,8 +575,8 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finalizing RayCaster {0}", Long.toHexString(rayCasterId));
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finalizing Vehicle {0}", Long.toHexString(vehicleId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing RayCaster {0}", Long.toHexString(rayCasterId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing Vehicle {0}", Long.toHexString(vehicleId));
         finalizeNative(rayCasterId, vehicleId);
     }
 

@@ -67,7 +67,7 @@ public class AssetTileLoader implements TerrainGridTileLoader {
 
     public TerrainQuad getTerrainQuadAt(Vector3f location) {
         String modelName = assetPath + "/" + name + "_" + Math.round(location.x) + "_" + Math.round(location.y) + "_" + Math.round(location.z) + ".j3o";
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Load terrain grid tile: {0}", modelName);
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Load terrain grid tile: {0}", modelName);
         TerrainQuad quad = null;
         try {
             quad = (TerrainQuad) manager.loadModel(modelName);
@@ -78,7 +78,7 @@ public class AssetTileLoader implements TerrainGridTileLoader {
             Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Could not load terrain grid tile: {0}", modelName);
             quad = createNewQuad(location);
         } else {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Loaded terrain grid tile: {0}", modelName);
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Loaded terrain grid tile: {0}", modelName);
         }
         return quad;
     }

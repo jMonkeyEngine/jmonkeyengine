@@ -223,7 +223,7 @@ public class JoglDisplay extends JoglAbstractDisplay {
             }
         });
 
-        logger.log(Level.INFO, "Selected display mode: {0}x{1}x{2} @{3}",
+        logger.log(Level.FINE, "Selected display mode: {0}x{1}x{2} @{3}",
                 new Object[]{gd.getDisplayMode().getWidth(),
                              gd.getDisplayMode().getHeight(),
                              gd.getDisplayMode().getBitDepth(),

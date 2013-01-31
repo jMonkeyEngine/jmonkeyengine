@@ -115,7 +115,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		//get object data
 		int type = ((Number)objectStructure.getFieldValue("type")).intValue();
 		String name = objectStructure.getName();
-		LOGGER.log(Level.INFO, "Loading obejct: {0}", name);
+		LOGGER.log(Level.FINE, "Loading obejct: {0}", name);
 
 		int restrictflag = ((Number)objectStructure.getFieldValue("restrictflag")).intValue();
 		boolean visible = (restrictflag & 0x01) != 0;
@@ -133,7 +133,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 		try {
 			switch(type) {
 				case OBJECT_TYPE_EMPTY:
-					LOGGER.log(Level.INFO, "Importing empty.");
+					LOGGER.log(Level.FINE, "Importing empty.");
 					Node empty = new Node(name);
 					empty.setLocalTransform(t);
 					if(parent instanceof Node) {
@@ -142,7 +142,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					result = empty;
 					break;
 				case OBJECT_TYPE_MESH:
-					LOGGER.log(Level.INFO, "Importing mesh.");
+					LOGGER.log(Level.FINE, "Importing mesh.");
 					Node node = new Node(name);
 					node.setCullHint(visible ? CullHint.Always : CullHint.Inherit);
 
@@ -166,7 +166,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					break;
 				case OBJECT_TYPE_SURF:
 				case OBJECT_TYPE_CURVE:
-					LOGGER.log(Level.INFO, "Importing curve/nurb.");
+					LOGGER.log(Level.FINE, "Importing curve/nurb.");
 					Pointer pCurve = (Pointer)objectStructure.getFieldValue("data");
 					if(pCurve.isNotNull()) {
 						CurvesHelper curvesHelper = blenderContext.getHelper(CurvesHelper.class);
@@ -180,7 +180,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 					}
 					break;
 				case OBJECT_TYPE_LAMP:
-					LOGGER.log(Level.INFO, "Importing lamp.");
+					LOGGER.log(Level.FINE, "Importing lamp.");
 					Pointer pLamp = (Pointer)objectStructure.getFieldValue("data");
 					if(pLamp.isNotNull()) {
 						LightHelper lightHelper = blenderContext.getHelper(LightHelper.class);

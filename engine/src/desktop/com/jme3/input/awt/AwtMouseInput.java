@@ -36,6 +36,8 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jme3.system.JmeSystem;
+import com.jme3.system.Platform;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -141,6 +143,10 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     }
 
     public void setCursorVisible(boolean visible) {
+//        if(JmeSystem.getPlatform() != Platform.MacOSX32 &&
+//                JmeSystem.getPlatform() != Platform.MacOSX64 &&
+//                JmeSystem.getPlatform() != Platform.MacOSX_PPC32 &&
+//                JmeSystem.getPlatform() != Platform.MacOSX_PPC64){
         if (this.visible != visible) {
             lastKnownLocation.x = lastKnownLocation.y = 0;
 
@@ -154,6 +160,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
                     }
                 }
             });
+//        }
         }
     }
 

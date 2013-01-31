@@ -78,17 +78,17 @@ public class PhysicsCharacter extends PhysicsCollisionObject {
     protected void buildObject() {
         if (objectId == 0) {
             objectId = createGhostObject();
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Creating GhostObject {0}", Long.toHexString(objectId));
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Creating GhostObject {0}", Long.toHexString(objectId));
             initUserPointer();
         }
         setCharacterFlags(objectId);
         attachCollisionShape(objectId, collisionShape.getObjectId());
         if (characterId != 0) {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Clearing Character {0}", Long.toHexString(objectId));
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Clearing Character {0}", Long.toHexString(objectId));
             finalizeNativeCharacter(characterId);
         }
         characterId = createCharacterObject(objectId, collisionShape.getObjectId(), stepHeight);
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Creating Character {0}", Long.toHexString(characterId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Creating Character {0}", Long.toHexString(characterId));
     }
 
     private native long createGhostObject();

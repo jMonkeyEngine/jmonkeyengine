@@ -90,7 +90,7 @@ public class ConeCollisionShape extends CollisionShape {
 
     protected void createShape() {
         objectId = createShape(axis, radius, height);
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created Shape {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));
 //        if (axis == PhysicsSpace.AXIS_X) {
 //            objectId = new ConeShapeX(radius, height);
 //        } else if (axis == PhysicsSpace.AXIS_Y) {

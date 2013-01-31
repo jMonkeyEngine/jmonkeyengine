@@ -89,7 +89,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             }
 
             if (renderThread == null){
-                logger.log(Level.INFO, "EDT: Creating OGL thread.");
+                logger.log(Level.FINE, "EDT: Creating OGL thread.");
 
                 // Also set some settings on the canvas here.
                 // So we don't do it outside the AWT thread.
@@ -102,7 +102,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 return;
             }
 
-            logger.log(Level.INFO, "EDT: Telling OGL to create display ..");
+            logger.log(Level.FINE, "EDT: Telling OGL to create display ..");
             synchronized (taskLock){
                 desiredTask = TASK_CREATE_DISPLAY;
 //                while (desiredTask != TASK_COMPLETE){
@@ -114,20 +114,20 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 //                }
 //                desiredTask = TASK_NOTHING;
             }
-//            logger.log(Level.INFO, "EDT: OGL has created the display");
+//            logger.log(Level.FINE, "EDT: OGL has created the display");
         }
 
         @Override
         public void removeNotify(){
             if (needClose.get()){
-                logger.log(Level.INFO, "EDT: Application is stopped. Not restoring canvas.");
+                logger.log(Level.FINE, "EDT: Application is stopped. Not restoring canvas.");
                 super.removeNotify();
                 return;
             }
 
             // We must tell GL context to shutdown and wait for it to
             // shutdown, otherwise, issues will occur.
-            logger.log(Level.INFO, "EDT: Telling OGL to destroy display ..");
+            logger.log(Level.FINE, "EDT: Telling OGL to destroy display ..");
             synchronized (taskLock){
                 desiredTask = TASK_DESTROY_DISPLAY;
                 while (desiredTask != TASK_COMPLETE){
@@ -141,7 +141,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 desiredTask = TASK_NOTHING;
             }
             
-            logger.log(Level.INFO, "EDT: Acknowledged receipt of canvas death");
+            logger.log(Level.FINE, "EDT: Acknowledged receipt of canvas death");
             // GL context is dead at this point
 
             super.removeNotify();
@@ -160,7 +160,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
 
     public void create(boolean waitFor){
         if (renderThread == null){
-            logger.log(Level.INFO, "MAIN: Creating OGL thread.");
+            logger.log(Level.FINE, "MAIN: Creating OGL thread.");
 
             renderThread = new Thread(LwjglCanvas.this, "LWJGL Renderer Thread");
             renderThread.start();
@@ -192,13 +192,13 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             synchronized (taskLock){
                 switch (desiredTask){
                     case TASK_CREATE_DISPLAY:
-                        logger.log(Level.INFO, "OGL: Creating display ..");
+                        logger.log(Level.FINE, "OGL: Creating display ..");
                         restoreCanvas();
                         listener.gainFocus();
                         desiredTask = TASK_NOTHING;
                         break;
                     case TASK_DESTROY_DISPLAY:
-                        logger.log(Level.INFO, "OGL: Destroying display ..");
+                        logger.log(Level.FINE, "OGL: Destroying display ..");
                         listener.loseFocus();
                         pauseCanvas();
                         break;
@@ -251,7 +251,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
      * Called to restore the canvas.
      */
     private void restoreCanvas(){
-        logger.log(Level.INFO, "OGL: Waiting for canvas to become displayable..");
+        logger.log(Level.FINE, "OGL: Waiting for canvas to become displayable..");
         while (!canvas.isDisplayable()){
             try {
                 Thread.sleep(10);
@@ -260,13 +260,13 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
             }
         }
         
-        logger.log(Level.INFO, "OGL: Creating display context ..");
+        logger.log(Level.FINE, "OGL: Creating display context ..");
 
         // Set renderable to true, since canvas is now displayable.
         renderable.set(true);
         createContext(settings);
 
-        logger.log(Level.INFO, "OGL: Display is active!");
+        logger.log(Level.FINE, "OGL: Display is active!");
 
         try {
             if (mouseWasCreated){
@@ -341,7 +341,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
         if (pbuffer == null) {
             pbuffer = new Pbuffer(1, 1, acquirePixelFormat(true), null);
             pbuffer.makeCurrent();
-            logger.log(Level.INFO, "OGL: Pbuffer has been created");
+            logger.log(Level.FINE, "OGL: Pbuffer has been created");
             
             // Any created objects are no longer valid
             if (!runningFirstTime){

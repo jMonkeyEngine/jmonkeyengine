@@ -122,7 +122,7 @@ public abstract class CollisionShape implements Savable {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finalizing CollisionShape {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing CollisionShape {0}", Long.toHexString(objectId));
         finalizeNative(objectId);
     }
 

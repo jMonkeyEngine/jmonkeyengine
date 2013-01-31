@@ -94,7 +94,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                                          settings.useStereo3D());
 
         frameRate = settings.getFrameRate();
-        logger.log(Level.INFO, "Selected display mode: {0}", displayMode);
+        logger.log(Level.FINE, "Selected display mode: {0}", displayMode);
 
         boolean pixelFormatChanged = false;
         if (created.get() && (pixelFormat.getBitsPerPixel() != pf.getBitsPerPixel()

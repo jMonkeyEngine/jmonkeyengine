@@ -72,7 +72,7 @@ public class CachedOggStream implements PhysicalOggStream {
             readOggNextPage();
         }
         long dt = System.nanoTime() - time;
-        Logger.getLogger(CachedOggStream.class.getName()).log(Level.INFO, "Took {0} ms to load OGG", dt/1000000);
+        Logger.getLogger(CachedOggStream.class.getName()).log(Level.FINE, "Took {0} ms to load OGG", dt/1000000);
     }
 
     public OggPage getLastOggPage() {

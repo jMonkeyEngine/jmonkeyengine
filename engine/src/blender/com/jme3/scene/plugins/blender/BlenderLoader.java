@@ -92,7 +92,7 @@ public class BlenderLoader extends AbstractBlenderLoader {
 						} else if (object instanceof CameraNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.CAMERAS) != 0) {
 							loadingResults.addCamera((CameraNode) object);
 						} else if (object instanceof Node && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
-							LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+							LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
 							if (this.isRootObject(loadingResults, (Node)object)) {
 								loadingResults.addObject((Node) object);
 							}

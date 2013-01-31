@@ -150,7 +150,7 @@ public class FaultHeightMap extends AbstractHeightMap {
 
         normalizeTerrain(NORMALIZE_RANGE);
 
-        logger.log(Level.INFO, "Fault heightmap generated");
+        logger.log(Level.FINE, "Fault heightmap generated");
         return true;
     }
 

@@ -236,7 +236,7 @@ public class BatchNode extends Node implements Savable {
         }
 
 
-        logger.log(Level.INFO, "Batched {0} geometries in {1} batches.", new Object[]{nbGeoms, batches.size()});
+        logger.log(Level.FINE, "Batched {0} geometries in {1} batches.", new Object[]{nbGeoms, batches.size()});
 
 
         //init temp float arrays

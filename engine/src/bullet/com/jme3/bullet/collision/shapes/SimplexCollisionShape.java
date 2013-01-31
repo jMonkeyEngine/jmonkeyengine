@@ -110,7 +110,7 @@ public class SimplexCollisionShape extends CollisionShape {
             objectId = createShape(vector1);
 //            objectId = new BU_Simplex1to4(Converter.convert(vector1));
         }
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created Shape {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));
 //        objectId.setLocalScaling(Converter.convert(getScale()));
 //        objectId.setMargin(margin);
         setScale(scale);

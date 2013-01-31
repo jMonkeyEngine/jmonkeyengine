@@ -64,13 +64,13 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     @Override
     public AssetManager newAssetManager(URL configFile) {
-        logger.log(Level.INFO, "Creating asset manager with config {0}", configFile);
+        logger.log(Level.FINE, "Creating asset manager with config {0}", configFile);
         return new AndroidAssetManager(configFile);
     }
 
     @Override
     public AssetManager newAssetManager() {
-        logger.log(Level.INFO, "Creating asset manager with default config");
+        logger.log(Level.FINE, "Creating asset manager with default config");
         return new AndroidAssetManager(null);
     }
 
@@ -143,7 +143,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         } catch (SecurityException ex) {
             logger.log(Level.SEVERE, "Security error in creating log file", ex);
         }
-        logger.log(Level.INFO, "Running on {0}", getFullName());
+        logger.log(Level.FINE, "Running on {0}", getFullName());
     }
 
     @Override
@@ -200,7 +200,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                 storageFolder = storageFolders.get(type);
                 if (storageFolder == null) {
                     String state = Environment.getExternalStorageState();
-                    logger.log(Level.INFO, "ExternalStorageState: {0}", state);
+                    logger.log(Level.FINE, "ExternalStorageState: {0}", state);
                     if (state.equals(Environment.MEDIA_MOUNTED)) {
                         storageFolder = activity.getApplicationContext().getExternalFilesDir(null);
                         storageFolders.put(type, storageFolder);
@@ -211,9 +211,9 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                 break;
         }
         if (storageFolder != null) {
-            logger.log(Level.INFO, "Base Storage Folder Path: {0}", storageFolder.getAbsolutePath());
+            logger.log(Level.FINE, "Base Storage Folder Path: {0}", storageFolder.getAbsolutePath());
         } else {
-            logger.log(Level.INFO, "Base Storage Folder not found!");
+            logger.log(Level.FINE, "Base Storage Folder not found!");
         }
         return storageFolder;
     }

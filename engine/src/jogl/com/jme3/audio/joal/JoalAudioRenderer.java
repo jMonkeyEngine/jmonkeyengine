@@ -196,7 +196,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
             ib = BufferUtils.createIntBuffer(channels.length);
             chanSrcs = new AudioNode[channels.length];
 
-            logger.log(Level.INFO, "AudioRenderer supports {0} channels", channels.length);
+            logger.log(Level.FINE, "AudioRenderer supports {0} channels", channels.length);
 
             supportEfx = alc.alcIsExtensionPresent(device, "ALC_EXT_EFX");
             if (supportEfx) {
@@ -206,11 +206,11 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 ib.position(0).limit(1);
                 alc.alcGetIntegerv(device, AL.ALC_EFX_MINOR_VERSION, 1, ib);
                 int minor = ib.get(0);
-                logger.log(Level.INFO, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
+                logger.log(Level.FINE, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
 
                 alc.alcGetIntegerv(device, AL.ALC_MAX_AUXILIARY_SENDS, 1, ib);
                 auxSends = ib.get(0);
-                logger.log(Level.INFO, "Audio max auxilary sends: {0}", auxSends);
+                logger.log(Level.FINE, "Audio max auxilary sends: {0}", auxSends);
 
                 // create slot
                 ib.position(0).limit(1);

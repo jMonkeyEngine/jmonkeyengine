@@ -72,7 +72,7 @@ public class MaterialDef {
         techniques = new HashMap<String, TechniqueDef>();
         matParams = new HashMap<String, MatParam>();
         defaultTechs = new ArrayList<TechniqueDef>();
-        logger.log(Level.INFO, "Loaded material definition: {0}", name);
+        logger.log(Level.FINE, "Loaded material definition: {0}", name);
     }
 
     /**

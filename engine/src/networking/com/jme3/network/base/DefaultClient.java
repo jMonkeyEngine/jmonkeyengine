@@ -383,7 +383,7 @@ public class DefaultClient implements Client
         if( m instanceof ClientRegistrationMessage ) {
             // Then we've gotten our real id
             this.id = (int)((ClientRegistrationMessage)m).getId();
-            log.log( Level.INFO, "Connection established, id:{0}.", this.id );
+            log.log( Level.FINE, "Connection established, id:{0}.", this.id );
             connecting.countDown();
             fireConnected();
             return;

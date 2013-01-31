@@ -100,7 +100,7 @@ public class SaveGame {
             }
             os = new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(saveFile)));
             ex.save(data, os);
-            Logger.getLogger(SaveGame.class.getName()).log(Level.INFO, "Saving data to: {0}", saveFile.getAbsolutePath());
+            Logger.getLogger(SaveGame.class.getName()).log(Level.FINE, "Saving data to: {0}", saveFile.getAbsolutePath());
         } catch (IOException ex1) {
             Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error saving data: {0}", ex1);
             ex1.printStackTrace();
@@ -182,7 +182,7 @@ public class SaveGame {
                 imp.setAssetManager(manager);
             }
             sav = imp.load(is);
-            Logger.getLogger(SaveGame.class.getName()).log(Level.INFO, "Loading data from: {0}", file.getAbsolutePath());
+            Logger.getLogger(SaveGame.class.getName()).log(Level.FINE, "Loading data from: {0}", file.getAbsolutePath());
         } catch (IOException ex) {
             Logger.getLogger(SaveGame.class.getName()).log(Level.SEVERE, "Error loading data: {0}", ex);
             ex.printStackTrace();

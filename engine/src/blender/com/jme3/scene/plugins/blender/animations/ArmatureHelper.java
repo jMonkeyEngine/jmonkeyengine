@@ -181,7 +181,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             file
 	 */
 	private BoneTrack[] getTracks250(Structure actionStructure, Skeleton skeleton, BlenderContext blenderContext) throws BlenderFileException {
-		LOGGER.log(Level.INFO, "Getting tracks!");
+		LOGGER.log(Level.FINE, "Getting tracks!");
 		IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
 		int fps = blenderContext.getBlenderKey().getFps();
 		Structure groups = (Structure) actionStructure.getFieldValue("groups");
@@ -223,7 +223,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 	 *             file
 	 */
 	private BoneTrack[] getTracks249(Structure actionStructure, Skeleton skeleton, BlenderContext blenderContext) throws BlenderFileException {
-		LOGGER.log(Level.INFO, "Getting tracks!");
+		LOGGER.log(Level.FINE, "Getting tracks!");
 		IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
 		int fps = blenderContext.getBlenderKey().getFps();
 		Structure chanbase = (Structure) actionStructure.getFieldValue("chanbase");

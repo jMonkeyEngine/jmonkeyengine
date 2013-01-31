@@ -346,7 +346,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         model.setLocalRotation(initRotation);
         model.setLocalScale(initScale);
 
-        logger.log(Level.INFO, "Created physics ragdoll for skeleton {0}", skeleton);
+        logger.log(Level.FINE, "Created physics ragdoll for skeleton {0}", skeleton);
     }
 
     /**
@@ -370,7 +370,7 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         for (int i = 0; i < skeleton.getRoots().length; i++) {
             Bone childBone = skeleton.getRoots()[i];
             if (childBone.getParent() == null) {
-                logger.log(Level.INFO, "Found root bone in skeleton {0}", skeleton);
+                logger.log(Level.FINE, "Found root bone in skeleton {0}", skeleton);
                 baseRigidBody = new PhysicsRigidBody(new BoxCollisionShape(Vector3f.UNIT_XYZ.mult(0.1f)), 1);
                 baseRigidBody.setKinematic(mode == Mode.Kinematic);
                 boneRecursion(model, childBone, baseRigidBody, 1, pointsMap);

@@ -57,7 +57,7 @@ public class JInputJoyInput implements JoyInput {
              || c.getType() == Controller.Type.MOUSE)
                 continue;
 
-            logger.log(Level.INFO, "Attempting to create joystick for: \"{0}\"", c);        
+            logger.log(Level.FINE, "Attempting to create joystick for: \"{0}\"", c);        
  
             // Try to create it like a joystick
             JInputJoystick stick = new JInputJoystick(inputManager, this, c, list.size(),
@@ -69,7 +69,7 @@ public class JInputJoyInput implements JoyInput {
             // If it has no axes then we'll assume it's not
             // a joystick
             if( stick.getAxisCount() == 0 ) {
-                logger.log(Level.INFO, "Not a joystick: {0}", c);
+                logger.log(Level.FINE, "Not a joystick: {0}", c);
                 continue;
             }
  
@@ -200,13 +200,13 @@ public class JInputJoyInput implements JoyInput {
             } else if( id instanceof Axis ) {
                 addAxis(comp);
             } else {
-                logger.log(Level.INFO, "Ignoring: \"{0}\"", comp);
+                logger.log(Level.FINE, "Ignoring: \"{0}\"", comp);
             }
         }
 
         protected void addButton( Component comp ) {
         
-            logger.log(Level.INFO, "Adding button: \"{0}\" id:" + comp.getIdentifier(), comp);
+            logger.log(Level.FINE, "Adding button: \"{0}\" id:" + comp.getIdentifier(), comp);
             
             Identifier id = comp.getIdentifier();            
             if( !(id instanceof Button) ) {
@@ -217,7 +217,7 @@ public class JInputJoyInput implements JoyInput {
             String original = id.getName();
             String logicalId = JoystickCompatibilityMappings.remapComponent( controller.getName(), original );
             if( name != original ) {
-                logger.log(Level.INFO, "Remapped:" + original + " to:" + logicalId);
+                logger.log(Level.FINE, "Remapped:" + original + " to:" + logicalId);
             }
  
             JoystickButton button = new DefaultJoystickButton( getInputManager(), this, getButtonCount(),
@@ -228,7 +228,7 @@ public class JInputJoyInput implements JoyInput {
         
         protected void addAxis( Component comp ) {
 
-            logger.log(Level.INFO, "Adding axis: \"{0}\" id:" + comp.getIdentifier(), comp );
+            logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + comp.getIdentifier(), comp );
                             
             Identifier id = comp.getIdentifier();
             if( !(id instanceof Axis) ) {
@@ -239,7 +239,7 @@ public class JInputJoyInput implements JoyInput {
             String original = id.getName();
             String logicalId = JoystickCompatibilityMappings.remapComponent( controller.getName(), original );
             if( name != original ) {
-                logger.log(Level.INFO, "Remapped:" + original + " to:" + logicalId);
+                logger.log(Level.FINE, "Remapped:" + original + " to:" + logicalId);
             }
             
             JoystickAxis axis = new DefaultJoystickAxis( getInputManager(), 
@@ -262,13 +262,13 @@ public class JInputJoyInput implements JoyInput {
                                                 this, getAxisCount(), JoystickAxis.POV_X, 
                                                 id.getName() + "_x",
                                                 comp.isAnalog(), comp.isRelative(), comp.getDeadZone() );
-                logger.log(Level.INFO, "Adding axis: \"{0}\" id:" + id.getName() + "_x", povX.getName() );
+                logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + id.getName() + "_x", povX.getName() );
                 addAxis(povX);
                 povY = new DefaultJoystickAxis( getInputManager(), 
                                                 this, getAxisCount(), JoystickAxis.POV_Y, 
                                                 id.getName() + "_y",
                                                 comp.isAnalog(), comp.isRelative(), comp.getDeadZone() );
-                logger.log(Level.INFO, "Adding axis: \"{0}\" id:" + id.getName() + "_y", povY.getName() );
+                logger.log(Level.FINE, "Adding axis: \"{0}\" id:" + id.getName() + "_y", povY.getName() );
                 addAxis(povY);
             }
             

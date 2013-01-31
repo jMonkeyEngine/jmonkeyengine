@@ -69,7 +69,7 @@ public class BlenderModelLoader extends BlenderLoader {
                     	modelRoot.addLight(((LightNode)object).getLight());
                     	modelRoot.attachChild((LightNode)object);
 					} else if (object instanceof Node && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
-						LOGGER.log(Level.INFO, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+						LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
 						if (((Node) object).getParent() == null) {
                             modelRoot.attachChild((Node)object);
                         }

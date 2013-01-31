@@ -79,7 +79,7 @@ public class PlaneCollisionShape extends CollisionShape{
 
     protected void createShape() {
         objectId = createShape(plane.getNormal(), plane.getConstant());
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created Shape {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));
 //        objectId = new StaticPlaneShape(Converter.convert(plane.getNormal()),plane.getConstant());
 //        objectId.setLocalScaling(Converter.convert(getScale()));
 //        objectId.setMargin(margin);

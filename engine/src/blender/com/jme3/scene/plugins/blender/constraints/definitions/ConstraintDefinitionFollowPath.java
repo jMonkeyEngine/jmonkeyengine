@@ -21,6 +21,6 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	@Override
 	public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
 		//TODO: implement when curves are implemented
-		LOGGER.log(Level.INFO, "'Follow path' not implemented! Curves not yet implemented!");
+		LOGGER.log(Level.WARNING, "'Follow path' not implemented! Curves not yet implemented!");
 	}
 }

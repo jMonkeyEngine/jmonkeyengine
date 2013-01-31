@@ -78,7 +78,7 @@ public class PhysicsGhostObject extends PhysicsCollisionObject {
         if (objectId == 0) {
 //            gObject = new PairCachingGhostObject();
             objectId = createGhostObject();
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created Ghost Object {0}", Long.toHexString(objectId));
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Ghost Object {0}", Long.toHexString(objectId));
             setGhostFlags(objectId);
             initUserPointer();
         }

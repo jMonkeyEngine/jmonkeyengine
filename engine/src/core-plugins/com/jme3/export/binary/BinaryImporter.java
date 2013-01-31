@@ -242,9 +242,9 @@ public final class BinaryImporter implements JmeImporter {
         Savable rVal = readObject(id);
         if (debug) {
             logger.info("Importer Stats: ");
-            logger.log(Level.INFO, "Tags: {0}", numClasses);
-            logger.log(Level.INFO, "Objects: {0}", numLocs);
-            logger.log(Level.INFO, "Data Size: {0}", dataArray.length);
+            logger.log(Level.FINE, "Tags: {0}", numClasses);
+            logger.log(Level.FINE, "Objects: {0}", numLocs);
+            logger.log(Level.FINE, "Data Size: {0}", dataArray.length);
         }
         dataArray = null;
         return rVal;

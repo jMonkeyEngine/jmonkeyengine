@@ -174,10 +174,10 @@ public class ObjectStore {
 
         if (client != null) {
             client.send(defMsg);
-            logger.log(Level.INFO, "Client: Sending {0}", defMsg);
+            logger.log(Level.FINE, "Client: Sending {0}", defMsg);
         } else {
             server.broadcast(defMsg);
-            logger.log(Level.INFO, "Server: Sending {0}", defMsg);
+            logger.log(Level.FINE, "Server: Sending {0}", defMsg);
         }
     }
 
@@ -223,10 +223,10 @@ public class ObjectStore {
 
         if (server != null){
             remoteObj.client.send(call);
-            logger.log(Level.INFO, "Server: Sending {0}", call);
+            logger.log(Level.FINE, "Server: Sending {0}", call);
         }else{
             client.send(call);
-            logger.log(Level.INFO, "Client: Sending {0}", call);
+            logger.log(Level.FINE, "Client: Sending {0}", call);
         }
        
         if (invoke != null){
@@ -296,10 +296,10 @@ public class ObjectStore {
                 retMsg.retVal = ret;
                 if (server != null){
                     source.send(retMsg);
-                    logger.log(Level.INFO, "Server: Sending {0}", retMsg);
+                    logger.log(Level.FINE, "Server: Sending {0}", retMsg);
                 } else{
                     client.send(retMsg);
-                    logger.log(Level.INFO, "Client: Sending {0}", retMsg);
+                    logger.log(Level.FINE, "Client: Sending {0}", retMsg);
                 }
             }
         }else if (message instanceof RemoteMethodReturnMessage){
@@ -332,10 +332,10 @@ public class ObjectStore {
             defMsg.objects = defs;
             if (this.client != null){
                 this.client.send(defMsg);
-                logger.log(Level.INFO, "Client: Sending {0}", defMsg);
+                logger.log(Level.FINE, "Client: Sending {0}", defMsg);
             } else{
                 conn.send(defMsg);
-                logger.log(Level.INFO, "Server: Sending {0}", defMsg);
+                logger.log(Level.FINE, "Server: Sending {0}", defMsg);
             }
         }
     }

@@ -81,7 +81,7 @@ public class WeakRefAssetCache implements AssetCache {
             }
         }
         if (removedAssets >= 1) {
-            logger.log(Level.INFO, "WeakRefAssetCache: {0} assets were purged from the cache.", removedAssets);
+            logger.log(Level.FINE, "WeakRefAssetCache: {0} assets were purged from the cache.", removedAssets);
         }
     }
     

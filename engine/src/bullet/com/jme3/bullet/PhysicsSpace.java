@@ -567,17 +567,17 @@ public class PhysicsSpace {
     private native void removeConstraint(long space, long id);
 
     private void addGhostObject(PhysicsGhostObject node) {
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding ghost object {0} to physics space.", Long.toHexString(node.getObjectId()));
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding ghost object {0} to physics space.", Long.toHexString(node.getObjectId()));
         addCollisionObject(physicsSpaceId, node.getObjectId());
     }
 
     private void removeGhostObject(PhysicsGhostObject node) {
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing ghost object {0} from physics space.", Long.toHexString(node.getObjectId()));
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing ghost object {0} from physics space.", Long.toHexString(node.getObjectId()));
         removeCollisionObject(physicsSpaceId, node.getObjectId());
     }
 
     private void addCharacter(PhysicsCharacter node) {
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding character {0} to physics space.", Long.toHexString(node.getObjectId()));
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding character {0} to physics space.", Long.toHexString(node.getObjectId()));
         addCharacterObject(physicsSpaceId, node.getObjectId());
         addAction(physicsSpaceId, node.getControllerId());
 //        dynamicsWorld.addCollisionObject(node.getObjectId(), CollisionFilterGroups.CHARACTER_FILTER, (short) (CollisionFilterGroups.STATIC_FILTER | CollisionFilterGroups.DEFAULT_FILTER));
@@ -585,7 +585,7 @@ public class PhysicsSpace {
     }
 
     private void removeCharacter(PhysicsCharacter node) {
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing character {0} from physics space.", Long.toHexString(node.getObjectId()));
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing character {0} from physics space.", Long.toHexString(node.getObjectId()));
         removeAction(physicsSpaceId, node.getControllerId());
         removeCharacterObject(physicsSpaceId, node.getObjectId());
 //        dynamicsWorld.removeAction(node.getControllerId());
@@ -608,32 +608,32 @@ public class PhysicsSpace {
             node.setKinematic(true);
         }
 
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding RigidBody {0} to physics space.", node.getObjectId());
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding RigidBody {0} to physics space.", node.getObjectId());
         if (node instanceof PhysicsVehicle) {
-            Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding vehicle constraint {0} to physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
+            Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding vehicle constraint {0} to physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
             addVehicle(physicsSpaceId, ((PhysicsVehicle) node).getVehicleId());
         }
     }
 
     private void removeRigidBody(PhysicsRigidBody node) {
         if (node instanceof PhysicsVehicle) {
-            Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing vehicle constraint {0} from physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
+            Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing vehicle constraint {0} from physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
             removeVehicle(physicsSpaceId, ((PhysicsVehicle) node).getVehicleId());
         }
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing RigidBody {0} from physics space.", Long.toHexString(node.getObjectId()));
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing RigidBody {0} from physics space.", Long.toHexString(node.getObjectId()));
         physicsNodes.remove(node.getObjectId());
         removeRigidBody(physicsSpaceId, node.getObjectId());
     }
 
     private void addJoint(PhysicsJoint joint) {
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Adding Joint {0} to physics space.", Long.toHexString(joint.getObjectId()));
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding Joint {0} to physics space.", Long.toHexString(joint.getObjectId()));
         physicsJoints.add(joint);
         addConstraintC(physicsSpaceId, joint.getObjectId(), !joint.isCollisionBetweenLinkedBodys());
 //        dynamicsWorld.addConstraint(joint.getObjectId(), !joint.isCollisionBetweenLinkedBodys());
     }
 
     private void removeJoint(PhysicsJoint joint) {
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.INFO, "Removing Joint {0} from physics space.", Long.toHexString(joint.getObjectId()));
+        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing Joint {0} from physics space.", Long.toHexString(joint.getObjectId()));
         physicsJoints.remove(joint);
         removeConstraint(physicsSpaceId, joint.getObjectId());
 //        dynamicsWorld.removeConstraint(joint.getObjectId());
@@ -915,7 +915,7 @@ public class PhysicsSpace {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finalizing PhysicsSpace {0}", Long.toHexString(physicsSpaceId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing PhysicsSpace {0}", Long.toHexString(physicsSpaceId));
         finalizeNative(physicsSpaceId);
     }
 

@@ -141,7 +141,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         // Get instance of Vibrator from current Context
         vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator == null) {
-            logger.log(Level.INFO, "Vibrator Service not found.");
+            logger.log(Level.FINE, "Vibrator Service not found.");
         }
     }
 
@@ -160,10 +160,10 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         sensorData.sensor = sensorManager.getDefaultSensor(sensorType);
 
         if (sensorData.sensor != null) {
-            logger.log(Level.INFO, "Sensor Type {0} found.", sensorType);
+            logger.log(Level.FINE, "Sensor Type {0} found.", sensorType);
             success = registerListener(sensorType);
         } else {
-            logger.log(Level.INFO, "Sensor Type {0} not found.", sensorType);
+            logger.log(Level.FINE, "Sensor Type {0} not found.", sensorType);
         }
 
         if (success) {
@@ -177,7 +177,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         SensorData sensorData = sensors.get(sensorType);
         if (sensorData != null) {
             if (sensorData.enabled) {
-                logger.log(Level.INFO, "Sensor Already Active: SensorType: {0}, active: {1}",
+                logger.log(Level.FINE, "Sensor Already Active: SensorType: {0}, active: {1}",
                         new Object[]{sensorType, sensorData.enabled});
                 return true;
             }
@@ -185,12 +185,12 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             if (sensorData.sensor != null) {
                 if (sensorManager.registerListener(this, sensorData.sensor, sensorData.androidSensorSpeed)) {
                     sensorData.enabled = true;
-                    logger.log(Level.INFO, "SensorType: {0}, actived: {1}",
+                    logger.log(Level.FINE, "SensorType: {0}, actived: {1}",
                             new Object[]{sensorType, sensorData.enabled});
                     return true;
                 } else {
                     sensorData.enabled = false;
-                    logger.log(Level.INFO, "Sensor Type {0} activation failed.", sensorType);
+                    logger.log(Level.FINE, "Sensor Type {0} activation failed.", sensorType);
                 }
             }
         }
@@ -205,7 +205,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             }
             sensorData.enabled = false;
             sensorData.haveData = false;
-            logger.log(Level.INFO, "SensorType: {0} deactivated, active: {1}",
+            logger.log(Level.FINE, "SensorType: {0} deactivated, active: {1}",
                     new Object[]{sensorType, sensorData.enabled});
         }
     }
@@ -261,11 +261,11 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         int yDir = SensorManager.AXIS_Y;
         int curRotation = getScreenRotation();
         if (lastRotation != curRotation) {
-            logger.log(Level.INFO, "Device Rotation changed to: {0}", curRotation);
+            logger.log(Level.FINE, "Device Rotation changed to: {0}", curRotation);
         }
         lastRotation = curRotation;
 
-//        logger.log(Level.INFO, "Screen Rotation: {0}", getScreenRotation());
+//        logger.log(Level.FINE, "Screen Rotation: {0}", getScreenRotation());
         switch (getScreenRotation()) {
             // device natural position
             case Surface.ROTATION_0:
@@ -380,7 +380,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             final float [] orientValues = new float[3];
             if (remapCoordinates(curRotationMat, rotatedRotationMat)) {
                 SensorManager.getOrientation(rotatedRotationMat, orientValues);
-//                logger.log(Level.INFO, "Orientation Values: {0}, {1}, {2}",
+//                logger.log(Level.FINE, "Orientation Values: {0}, {1}, {2}",
 //                        new Object[]{orientValues[0], orientValues[1], orientValues[2]});
 
 
@@ -414,11 +414,11 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
                 return true;
             } else {
-                logger.log(Level.INFO, "remapCoordinateSystem failed");
+                logger.log(Level.FINE, "remapCoordinateSystem failed");
             }
 
         } else {
-            logger.log(Level.INFO, "getRotationMatrix returned false");
+            logger.log(Level.FINE, "getRotationMatrix returned false");
         }
 
         return false;
@@ -438,7 +438,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
             };
             final int rumbleRepeatFrom = 0; // index into rumble pattern to repeat from
 
-            logger.log(Level.INFO, "Rumble amount: {0}, rumbleOnDur: {1}, rumbleOffDur: {2}",
+            logger.log(Level.FINE, "Rumble amount: {0}, rumbleOnDur: {1}, rumbleOffDur: {2}",
                     new Object[]{amount, rumbleOnDur, rumbleOffDur});
 
             if (rumbleOnDur > 0) {
@@ -470,7 +470,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
         List<Sensor> availSensors = sensorManager.getSensorList(Sensor.TYPE_ALL);
         for (Sensor sensor: availSensors) {
-            logger.log(Level.INFO, "{0} Sensor is available, Type: {1}, Vendor: {2}, Version: {3}",
+            logger.log(Level.FINE, "{0} Sensor is available, Type: {1}, Vendor: {2}, Version: {3}",
                     new Object[]{sensor.getName(), sensor.getType(), sensor.getVendor(), sensor.getVersion()});
         }
 
@@ -580,7 +580,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     }
 
     public void destroy() {
-        logger.log(Level.INFO, "Doing Destroy.");
+        logger.log(Level.FINE, "Doing Destroy.");
         pauseSensors();
         if (sensorManager != null) {
             sensorManager.unregisterListener(this);
@@ -660,9 +660,9 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         int sensorType = sensor.getType();
         SensorData sensorData = sensors.get(sensorType);
         if (sensorData != null) {
-            logger.log(Level.INFO, "onAccuracyChanged for {0}: accuracy: {1}",
+            logger.log(Level.FINE, "onAccuracyChanged for {0}: accuracy: {1}",
                     new Object[]{sensor.getName(), i});
-            logger.log(Level.INFO, "MaxRange: {0}, Resolution: {1}",
+            logger.log(Level.FINE, "MaxRange: {0}, Resolution: {1}",
                     new Object[]{sensor.getMaximumRange(), sensor.getResolution()});
             sensorData.sensorAccuracy = i;
         }
@@ -787,7 +787,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
 
         public void calibrateCenter() {
             zeroRawValue = lastRawValue;
-            logger.log(Level.INFO, "Calibrating axis {0} to {1}",
+            logger.log(Level.FINE, "Calibrating axis {0} to {1}",
                     new Object[]{getName(), zeroRawValue});
         }
 

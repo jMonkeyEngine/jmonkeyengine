@@ -67,7 +67,7 @@ public class LwjglTimer extends Timer {
      */
     public LwjglTimer() {
         reset();
-        logger.log(Level.INFO, "Timer resolution: {0} ticks per second", LWJGL_TIMER_RES);
+        logger.log(Level.FINE, "Timer resolution: {0} ticks per second", LWJGL_TIMER_RES);
     }
 
     public void reset() {

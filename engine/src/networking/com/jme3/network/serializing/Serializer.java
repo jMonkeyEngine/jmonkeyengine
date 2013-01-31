@@ -174,7 +174,7 @@ public abstract class Serializer {
         idRegistrations.put(id, reg);
         classRegistrations.put(cls, reg);
         
-        log.log( Level.INFO, "Registered class[" + id + "]:{0} to:" + serializer, cls );
+        log.log( Level.FINE, "Registered class[" + id + "]:{0} to:" + serializer, cls );
 
         serializer.initialize(cls);
 

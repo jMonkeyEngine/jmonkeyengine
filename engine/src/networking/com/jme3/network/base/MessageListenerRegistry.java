@@ -75,7 +75,7 @@ public class MessageListenerRegistry<S> implements MessageListener<S>
         }
         
         if( !delivered ) {
-            log.log( Level.INFO, "Received message had no registered listeners: {0}", m );
+            log.log( Level.FINE, "Received message had no registered listeners: {0}", m );
         }
     }
  

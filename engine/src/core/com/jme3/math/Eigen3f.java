@@ -384,7 +384,7 @@ public class Eigen3f implements java.io.Serializable {
 
         logger.info("eigenvalues = ");
         for (int i = 0; i < 3; i++)
-            logger.log(Level.INFO, "{0} ", eigenSystem.getEigenValue(i));
+            logger.log(Level.FINE, "{0} ", eigenSystem.getEigenValue(i));
 
         logger.info("eigenvectors = ");
         for (int i = 0; i < 3; i++) {

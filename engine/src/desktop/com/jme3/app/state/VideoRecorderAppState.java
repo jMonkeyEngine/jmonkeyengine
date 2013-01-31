@@ -123,7 +123,7 @@ public class VideoRecorderAppState extends AbstractAppState {
     public VideoRecorderAppState(File file, float quality) {
         this.file = file;
         this.quality = quality;
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "JME3 VideoRecorder running on {0} CPU's", numCpus);
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "JME3 VideoRecorder running on {0} CPU's", numCpus);
     }
 
     /**
@@ -135,7 +135,7 @@ public class VideoRecorderAppState extends AbstractAppState {
         this.file = file;
         this.quality = quality;
         this.framerate = framerate;
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "JME3 VideoRecorder running on {0} CPU's", numCpus);
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "JME3 VideoRecorder running on {0} CPU's", numCpus);
     }
 
     public File getFile() {

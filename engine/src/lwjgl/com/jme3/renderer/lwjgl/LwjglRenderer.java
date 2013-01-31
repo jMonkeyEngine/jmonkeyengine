@@ -386,7 +386,7 @@ public class LwjglRenderer implements Renderer {
             caps.add(Caps.Multisample);
         }
 
-        logger.log(Level.INFO, "Caps: {0}", caps);
+        logger.log(Level.FINE, "Caps: {0}", caps);
     }
 
     public void invalidateState() {
@@ -399,14 +399,14 @@ public class LwjglRenderer implements Renderer {
     }
 
     public void resetGLObjects() {
-        logger.log(Level.INFO, "Reseting objects and invalidating state");
+        logger.log(Level.FINE, "Reseting objects and invalidating state");
         objManager.resetObjects();
         statistics.clearMemory();
         invalidateState();
     }
 
     public void cleanup() {
-        logger.log(Level.INFO, "Deleting objects and invalidating state");
+        logger.log(Level.FINE, "Deleting objects and invalidating state");
         objManager.deleteAllObjects(this);
         statistics.clearMemory();
         invalidateState();
@@ -774,7 +774,7 @@ public class LwjglRenderer implements Renderer {
         if (loc < 0) {
             uniform.setLocation(-1);
             // uniform is not declared in shader
-            logger.log(Level.INFO, "Uniform {0} is not declared in shader {1}.", new Object[]{uniform.getName(), shader.getSources()});
+            logger.log(Level.FINE, "Uniform {0} is not declared in shader {1}.", new Object[]{uniform.getName(), shader.getSources()});
         } else {
             uniform.setLocation(loc);
         }
@@ -997,7 +997,7 @@ public class LwjglRenderer implements Renderer {
 
         if (compiledOK) {
             if (infoLog != null) {
-                logger.log(Level.INFO, "{0} compile success\n{1}",
+                logger.log(Level.FINE, "{0} compile success\n{1}",
                         new Object[]{source.getName(), infoLog});
             } else {
                 logger.log(Level.FINE, "{0} compile success", source.getName());
@@ -1069,7 +1069,7 @@ public class LwjglRenderer implements Renderer {
 
         if (linkOK) {
             if (infoLog != null) {
-                logger.log(Level.INFO, "shader link success. \n{0}", infoLog);
+                logger.log(Level.FINE, "shader link success. \n{0}", infoLog);
             } else {
                 logger.fine("shader link success");
             }

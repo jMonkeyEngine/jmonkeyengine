@@ -80,7 +80,7 @@ public class BoxCollisionShape extends CollisionShape {
 
     protected void createShape() {
         objectId = createShape(halfExtents);
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created Shape {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));
 //        cShape = new BoxShape(Converter.convert(halfExtents));
         setScale(scale);
         setMargin(margin);

@@ -148,9 +148,9 @@ public class GImpactCollisionShape extends CollisionShape {
 //        objectId.setLocalScaling(Converter.convert(getScale()));
 //        objectId.setMargin(margin);
         meshId = NativeMeshUtil.createTriangleIndexVertexArray(triangleIndexBase, vertexBase, numTriangles, numVertices, vertexStride, triangleIndexStride);
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created Mesh {0}", Long.toHexString(meshId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Mesh {0}", Long.toHexString(meshId));
         objectId = createShape(meshId);
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created Shape {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));
         setScale(scale);
         setMargin(margin);
     }
@@ -160,7 +160,7 @@ public class GImpactCollisionShape extends CollisionShape {
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finalizing Mesh {0}", Long.toHexString(meshId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing Mesh {0}", Long.toHexString(meshId));
         finalizeNative(meshId);
     }
 

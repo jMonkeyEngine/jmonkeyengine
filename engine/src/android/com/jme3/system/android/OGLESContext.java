@@ -131,7 +131,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
             int[] version = new int[2];
             if (egl.eglInitialize(display, version) == true) {
-                logger.log(Level.INFO, "Display EGL Version: {0}.{1}", new Object[]{version[0], version[1]});
+                logger.log(Level.CONFIG, "Display EGL Version: {0}.{1}", new Object[]{version[0], version[1]});
             }
 
             try {
@@ -192,7 +192,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         created.set(true);
 
         logger.info("OGLESContext create");
-        logger.log(Level.INFO, "Running on thread: {0}", Thread.currentThread().getName());
+        logger.log(Level.FINE, "Running on thread: {0}", Thread.currentThread().getName());
 
         // Setup unhandled Exception Handler
         Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -310,7 +310,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     // SystemListener:reshape
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        logger.log(Level.INFO, "GL Surface changed, width: {0} height: {1}", new Object[]{width, height});
+        logger.log(Level.FINE, "GL Surface changed, width: {0} height: {1}", new Object[]{width, height});
         settings.setResolution(width, height);
         listener.reshape(width, height);
     }
@@ -339,7 +339,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
             // Enforce a FPS cap
             if (milliDelta < minFrameDuration) {
-                //logger.log(Level.INFO, "Time per frame {0}", milliDelta);
+                //logger.log(Level.FINE, "Time per frame {0}", milliDelta);
                 try {
                     Thread.sleep(minFrameDuration - milliDelta);
                 } catch (InterruptedException e) {
@@ -394,7 +394,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     }
 
     public void requestDialog(final int id, final String title, final String initialValue, final SoftTextDialogInputListener listener) {
-        logger.log(Level.INFO, "requestDialog: title: {0}, initialValue: {1}",
+        logger.log(Level.FINE, "requestDialog: title: {0}, initialValue: {1}",
                 new Object[]{title, initialValue});
 
         final Activity activity = JmeAndroidSystem.getActivity();

@@ -127,7 +127,7 @@ public class ConeJoint extends PhysicsJoint {
 
     protected void createJoint() {
         objectId = createJoint(nodeA.getObjectId(), nodeB.getObjectId(), pivotA, rotA, pivotB, rotB);
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created Joint {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Joint {0}", Long.toHexString(objectId));
         setLimit(objectId, swingSpan1, swingSpan2, twistSpan);
         setAngularOnly(objectId, angularOnly);
     }

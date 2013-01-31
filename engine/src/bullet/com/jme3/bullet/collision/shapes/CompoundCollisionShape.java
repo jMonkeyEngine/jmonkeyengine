@@ -56,7 +56,7 @@ public class CompoundCollisionShape extends CollisionShape {
 
     public CompoundCollisionShape() {
         objectId = createShape();//new CompoundShape();
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Created Shape {0}", Long.toHexString(objectId));
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));
     }
 
     /**

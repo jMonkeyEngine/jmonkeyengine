@@ -161,14 +161,14 @@ public class MaterialHelper extends AbstractBlenderHelper {
 	 *         an exception is throw when problems with blend file occur
 	 */
 	public MaterialContext toMaterialContext(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
-		LOGGER.log(Level.INFO, "Loading material.");
+		LOGGER.log(Level.FINE, "Loading material.");
 		MaterialContext result = (MaterialContext) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
 		if (result != null) {
 			return result;
 		}
 		
 		result = new MaterialContext(structure, blenderContext);
-		LOGGER.log(Level.INFO, "Material''s name: {0}", result.name);
+		LOGGER.log(Level.FINE, "Material''s name: {0}", result.name);
 		blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, result);
 		return result;
 	}

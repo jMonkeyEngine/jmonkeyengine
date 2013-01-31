@@ -180,7 +180,7 @@ public class SelectorKernel extends AbstractKernel
      */
     protected void closeEndpoint( NioEndpoint p ) throws IOException
     {
-        //log.log( Level.INFO, "Closing endpoint:{0}.", p );
+        //log.log( Level.FINE, "Closing endpoint:{0}.", p );
             
         thread.cancel(p);
     }
@@ -253,7 +253,7 @@ public class SelectorKernel extends AbstractKernel
             // accepting new connections
             serverChannel.register(selector, SelectionKey.OP_ACCEPT);
 
-            log.log( Level.INFO, "Hosting TCP connection:{0}.", address );
+            log.log( Level.FINE, "Hosting TCP connection:{0}.", address );
         }
 
         public void close() throws IOException, InterruptedException
@@ -324,12 +324,12 @@ public class SelectorKernel extends AbstractKernel
         {
             SelectionKey key = endpointKeys.remove(p);
             if( key == null ) {
-                //log.log( Level.INFO, "Endpoint already closed:{0}.", p );
+                //log.log( Level.FINE, "Endpoint already closed:{0}.", p );
                 return;  // already closed it
             }                
             log.log( Level.FINE, "Endpoint keys size:{0}", endpointKeys.size() );
 
-            log.log( Level.INFO, "Closing endpoint:{0}.", p );
+            log.log( Level.FINE, "Closing endpoint:{0}.", p );
             SocketChannel c = (SocketChannel)key.channel();
 
             // Note: key.cancel() is specifically thread safe.  One of
@@ -343,7 +343,7 @@ public class SelectorKernel extends AbstractKernel
         protected void cancel( SelectionKey key, SocketChannel c ) throws IOException
         {
             NioEndpoint p = (NioEndpoint)key.attachment();            
-            log.log( Level.INFO, "Closing channel endpoint:{0}.", p );
+            log.log( Level.FINE, "Closing channel endpoint:{0}.", p );
             Object o = endpointKeys.remove(p);
 
             log.log( Level.FINE, "Endpoint keys size:{0}", endpointKeys.size() );
@@ -419,7 +419,7 @@ public class SelectorKernel extends AbstractKernel
                 if( !key.isValid() )
                     {
                     // When does this happen?
-                    log.log( Level.INFO, "Key is not valid:{0}.", key );
+                    log.log( Level.FINE, "Key is not valid:{0}.", key );
                     continue;
                     }
 
@@ -446,7 +446,7 @@ public class SelectorKernel extends AbstractKernel
 
         public void run()
         {
-            log.log( Level.INFO, "Kernel started for connection:{0}.", address );
+            log.log( Level.FINE, "Kernel started for connection:{0}.", address );
 
             // An atomic is safest and costs almost nothing
             while( go.get() ) {
