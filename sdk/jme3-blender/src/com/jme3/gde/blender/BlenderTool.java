@@ -374,7 +374,7 @@ public class BlenderTool {
         }
         final Frame mainWin = WindowManager.getDefault().getMainWindow();
         assert (mainWin != null);
-        mainWin.setState(Frame.ICONIFIED);
+        mainWin.setExtendedState(Frame.ICONIFIED);
         Runnable r = new Runnable() {
             public void run() {
                 try {
@@ -399,15 +399,15 @@ public class BlenderTool {
                     }
                 } catch (Exception ex) {
                     Exceptions.printStackTrace(ex);
+                    successful.set(false);
                 } finally {
                     blenderOpened.set(false);
                     java.awt.EventQueue.invokeLater(new Runnable() {
                         public void run() {
-                            mainWin.setState(Frame.NORMAL);
+                            mainWin.setExtendedState(Frame.NORMAL);
                             mainWin.requestFocus();
                         }
                     });
-                    successful.set(false);
                 }
             }
         };
