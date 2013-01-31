@@ -2379,20 +2379,25 @@ public class JoglRenderer implements Renderer {
     public void updateVertexArray(Mesh mesh) {
         int id = mesh.getId();
         GL gl = GLContext.getCurrentGL();
-        if (id == -1) {
-            IntBuffer temp = intBuf1;
-            if (gl.isGL2GL3()) {
-                gl.getGL2GL3().glGenVertexArrays(1, temp);
+        //FIXME rather use GLCaps and do it once for all
+        boolean isVaoSupported = gl.isFunctionAvailable("glGenVertexArrays") && 
+                gl.isFunctionAvailable("glBindVertexArray");
+        if (isVaoSupported) {
+            if (id == -1) {
+                IntBuffer temp = intBuf1;
+                if (gl.isGL2GL3()) {
+                    gl.getGL2GL3().glGenVertexArrays(1, temp);
+                }
+                id = temp.get(0);
+                mesh.setId(id);
             }
-            id = temp.get(0);
-            mesh.setId(id);
-        }
 
-        if (context.boundVertexArray != id) {
-            if (gl.isGL2GL3()) {
-                gl.getGL2GL3().glBindVertexArray(id);
+            if (context.boundVertexArray != id) {
+                if (gl.isGL2GL3()) {
+                    gl.getGL2GL3().glBindVertexArray(id);
+                }
+                context.boundVertexArray = id;
             }
-            context.boundVertexArray = id;
         }
 
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
