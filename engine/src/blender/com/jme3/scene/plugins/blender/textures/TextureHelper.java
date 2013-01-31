@@ -725,7 +725,6 @@ public class TextureHelper extends AbstractBlenderHelper {
 		for (String assetName : assetNames) {
 			try {
 				TextureKey key = new TextureKey(assetName);
-				key.setGenerateMips(true);
 				key.setAsCube(false);
                 AssetInfo info = assetManager.locateAsset(key);
                 if(info != null){
