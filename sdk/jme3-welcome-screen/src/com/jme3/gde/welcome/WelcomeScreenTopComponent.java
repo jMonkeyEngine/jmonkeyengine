@@ -65,7 +65,7 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
                     try {
                         jEditorPane1.setPage(he.getURL());
                     } catch (IOException ex) {
-                        logger.log(Level.INFO, "Loading page failed", ex);
+                        logger.log(Level.FINE, "Loading page failed", ex);
                         try {
                             logger.log(Level.WARNING, "Could not open web page!");
                             URL startUrl = new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link"));
@@ -87,7 +87,7 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
             NbPreferences.forModule(getClass()).putLong("LAST_PAGE_UPDATE", lastMod);
             jEditorPane1.setPage(startUrl);
         } catch (IOException ex) {
-            logger.log(Level.INFO, "Loading page failed", ex);
+            logger.log(Level.FINE, "Loading page failed", ex);
             try {
                 jEditorPane1.setPage(new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link")));
             } catch (IOException ex1) {
@@ -102,11 +102,14 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
             URL startUrl = new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.http.link"));
             URLConnection conn = startUrl.openConnection();
             long lastMod = conn.getLastModified();
+            logger.log(Level.FINE, "Checking page time {0} vs stored time {1}", new Object[]{lastMod, lastCheck});
             if (lastCheck != lastMod) {
                 WelcomeScreenTopComponent tc = (WelcomeScreenTopComponent) WindowManager.getDefault().findTopComponent("WelcomeScreenTopComponent");
                 if (tc != null) {
                     tc.open();
                     tc.requestActive();
+                } else {
+                    logger.log(Level.WARNING, "Did not find Welcome Screen window");
                 }
             }
         } catch (IOException ex) {
