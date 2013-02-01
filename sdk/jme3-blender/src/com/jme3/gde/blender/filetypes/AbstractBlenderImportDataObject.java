@@ -4,14 +4,15 @@
  */
 package com.jme3.gde.blender.filetypes;
 
+import com.jme3.asset.BlenderKey;
+import com.jme3.asset.ModelKey;
 import com.jme3.gde.blender.BlenderTool;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
+import com.jme3.gde.core.util.Beans;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.plugins.ogre.OgreMeshKey;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.logging.Level;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -63,12 +64,14 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
             i++;
             blend1File = FileUtil.findBrother(mainFile, BlenderTool.TEMP_SUFFIX + i);
         }
-        String assetKey = mgr.getRelativeAssetPath(outFile.getPath());
+        String assetKeyName = mgr.getRelativeAssetPath(outFile.getPath());
+        BlenderKey key = new BlenderKey(assetKeyName);
+        Beans.copyProperties(key, getAssetKey());
         FileLock lock = null;
         try {
             lock = getPrimaryFile().lock();
             listListener.start();
-            Spatial spatial = mgr.loadModel(assetKey);
+            Spatial spatial = mgr.loadModel(assetKeyName);
             replaceFiles();
             listListener.stop();
             savable = spatial;
@@ -89,6 +92,15 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
         return null;
     }
 
+    @Override
+    public synchronized ModelKey getAssetKey() {
+        if(super.getAssetKey() instanceof BlenderKey){
+            return (BlenderKey)assetKey;
+        }
+        assetKey = new BlenderKey(super.getAssetKey().getName());
+        return (BlenderKey)assetKey;
+    }
+    
     protected void replaceFiles() {
         for (int i = 0; i < assetList.size(); i++) {
             FileObject fileObject = assetList.get(i);
