@@ -39,6 +39,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
@@ -57,6 +59,7 @@ import org.openide.util.actions.CallableSystemAction;
 @SuppressWarnings("unchecked")
 public final class CodelessProjectWizardAction extends CallableSystemAction {
 
+    private static final Logger logger = Logger.getLogger(CodelessProjectWizardAction.class.getName());
     private WizardDescriptor.Panel[] panels;
 
     public void performAction() {
@@ -80,21 +83,23 @@ public final class CodelessProjectWizardAction extends CallableSystemAction {
         try {
             FileObject properties = project.createData(CodelessProjectFactory.CONFIG_NAME);
             Properties propertiesObj = new Properties();
-            FileLock lock=properties.lock();
-            InputStream in=properties.getInputStream();
+            FileLock lock = properties.lock();
+            InputStream in = properties.getInputStream();
             propertiesObj.load(in);
             in.close();
             propertiesObj.setProperty("assets.folder.name", assetsFolder);
-            OutputStream out=properties.getOutputStream(lock);
+            OutputStream out = properties.getOutputStream(lock);
             propertiesObj.store(out, "assets properties");
             out.close();
             lock.releaseLock();
 
             Project theProject = ProjectManager.getDefault().findProject(project);
-            if(theProject!=null){
+            if (theProject != null) {
                 Project[] array = new Project[1];
                 array[0] = theProject;
                 OpenProjects.getDefault().open(array, false);
+            } else {
+                logger.log(Level.SEVERE, "Could not create project!");
             }
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
@@ -102,15 +107,15 @@ public final class CodelessProjectWizardAction extends CallableSystemAction {
     }
 
     /**
-     * Initialize panels representing individual wizard's steps and sets
-     * various properties for them influencing wizard appearance.
+     * Initialize panels representing individual wizard's steps and sets various
+     * properties for them influencing wizard appearance.
      */
     private WizardDescriptor.Panel[] getPanels() {
         if (panels == null) {
             panels = new WizardDescriptor.Panel[]{
-                        new CodelessProjectWizardWizardPanel1(),
-                        new CodelessProjectWizardWizardPanel2()
-                    };
+                new CodelessProjectWizardWizardPanel1(),
+//                new CodelessProjectWizardWizardPanel2()
+            };
             String[] steps = new String[panels.length];
             for (int i = 0; i < panels.length; i++) {
                 Component c = panels[i].getComponent();

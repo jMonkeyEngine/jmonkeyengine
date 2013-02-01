@@ -32,6 +32,11 @@
 package com.jme3.gde.core.codeless;
 
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
@@ -43,6 +48,7 @@ public class CodelessProjectWizardWizardPanel1 implements WizardDescriptor.Panel
      * component from this class, just use getComponent().
      */
     private CodelessProjectWizardVisualPanel1 component;
+    private final Set<ChangeListener> listeners = new HashSet<ChangeListener>(1); // or can use ChangeSupport in NB 6.0
 
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created
@@ -50,7 +56,7 @@ public class CodelessProjectWizardWizardPanel1 implements WizardDescriptor.Panel
     // create only those which really need to be visible.
     public CodelessProjectWizardVisualPanel1 getComponent() {
         if (component == null) {
-            component = new CodelessProjectWizardVisualPanel1();
+            component = new CodelessProjectWizardVisualPanel1(this);
         }
         return component;
     }
@@ -63,49 +69,50 @@ public class CodelessProjectWizardWizardPanel1 implements WizardDescriptor.Panel
     }
 
     public boolean isValid() {
-//        StatusDisplayer.getDefault().setStatusText("Check: "+component.getProjectPath());
-//        if (new File(component.getProjectPath()).isDirectory()
-//                && new File(component.getProjectPath()+File.separator+component.getAssetsPath()).isDirectory()) {
-            return true;
-//        }
-//        return false;
+        String projectPath = component.getProjectPath();
+        String assetsPath = component.getAssetsPath();
+        File projectFile = new File(projectPath);
+        if (projectFile.isDirectory()) {
+            component.enableAssetsPath(true);
+            File assetsFile = new File(projectPath + assetsPath);
+            if (assetsFile.isDirectory()) {
+                return true;
+            }
+        } else {
+            component.enableAssetsPath(false);
+        }
+        return false;
     }
 
     public final void addChangeListener(ChangeListener l) {
+        synchronized (listeners) {
+            listeners.add(l);
+        }
     }
 
     public final void removeChangeListener(ChangeListener l) {
+        synchronized (listeners) {
+            listeners.remove(l);
+        }
     }
-    /*
-    private final Set<ChangeListener> listeners = new HashSet<ChangeListener>(1); // or can use ChangeSupport in NB 6.0
-    public final void addChangeListener(ChangeListener l) {
-    synchronized (listeners) {
-    listeners.add(l);
-    }
-    }
-    public final void removeChangeListener(ChangeListener l) {
-    synchronized (listeners) {
-    listeners.remove(l);
-    }
-    }
+
     protected final void fireChangeEvent() {
-    Iterator<ChangeListener> it;
-    synchronized (listeners) {
-    it = new HashSet<ChangeListener>(listeners).iterator();
+        Iterator<ChangeListener> it;
+        synchronized (listeners) {
+            it = new HashSet<ChangeListener>(listeners).iterator();
+        }
+        ChangeEvent ev = new ChangeEvent(this);
+        while (it.hasNext()) {
+            it.next().stateChanged(ev);
+        }
     }
-    ChangeEvent ev = new ChangeEvent(this);
-    while (it.hasNext()) {
-    it.next().stateChanged(ev);
-    }
-    }
-     */
 
     // You can use a settings object to keep track of state. Normally the
     // settings object will be the WizardDescriptor, so you can use
     // WizardDescriptor.getProperty & putProperty to store information entered
     // by the user.
     public void readSettings(Object settings) {
-        ActionListener listener=((WizardDescriptor)settings).getButtonListener();
+        ActionListener listener = ((WizardDescriptor) settings).getButtonListener();
         getComponent().setListener(listener);
     }
 
