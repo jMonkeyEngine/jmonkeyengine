@@ -104,7 +104,7 @@ public class ApplicationLogHandler extends Handler implements Callable<JButton> 
         levelFine.putValue(Action.SHORT_DESCRIPTION, "Set Fine Logging Level");
         levelInfo.putValue(Action.SHORT_DESCRIPTION, "Set Normal Logging Level");
         levelWarning.putValue(Action.SHORT_DESCRIPTION, "Set Warning Logging Level");
-        io = IOProvider.getDefault().getIO("Application", new Action[]{levelFine, levelInfo, levelWarning});
+        io = IOProvider.getDefault().getIO("Application", new Action[]{levelFine, levelInfo});
         io.setErrSeparated(true);
     }
 
