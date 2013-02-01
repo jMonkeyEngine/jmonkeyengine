@@ -4,9 +4,9 @@
  */
 package com.jme3.gde.blender;
 
+import com.jme3.gde.core.scene.ApplicationLogHandler.LogLevel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -37,7 +37,7 @@ public final class OpenInBlender implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent ev) {
         if (!BlenderTool.openInBlender(context.getPrimaryFile())) {
-            logger.log(Level.INFO, "Could not open file in blender, already running?");
+            logger.log(LogLevel.USERINFO, "Could not open file in blender, already running?");
         }
     }
 }
