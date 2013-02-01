@@ -5,13 +5,11 @@
 package com.jme3.gde.blender.filetypes;
 
 import com.jme3.asset.BlenderKey;
-import com.jme3.asset.ModelKey;
 import com.jme3.gde.blender.BlenderTool;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
 import com.jme3.gde.core.util.Beans;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.plugins.ogre.OgreMeshKey;
 import java.io.IOException;
 import java.util.logging.Level;
 import org.openide.DialogDisplayer;
