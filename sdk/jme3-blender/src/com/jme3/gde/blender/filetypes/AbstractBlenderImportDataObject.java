@@ -71,7 +71,7 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
         try {
             lock = getPrimaryFile().lock();
             listListener.start();
-            Spatial spatial = mgr.loadModel(assetKeyName);
+            Spatial spatial = mgr.loadModel(key);
             replaceFiles();
             listListener.stop();
             savable = spatial;
