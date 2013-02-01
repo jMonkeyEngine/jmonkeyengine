@@ -160,7 +160,7 @@ public class JoglRenderer implements Renderer {
         }
 
         String versionStr = null;
-        if (caps.contains(Caps.OpenGL20)) {
+        if (caps.contains(Caps.OpenGL20) || gl.isGL2ES2()) {
             versionStr = gl.glGetString(GL2ES2.GL_SHADING_LANGUAGE_VERSION);
         }
         if (versionStr == null || versionStr.equals("")) {
