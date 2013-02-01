@@ -55,24 +55,39 @@ import org.openide.util.Lookup;
 import org.openide.util.Mutex;
 
 /**
+ * This class allows editing jME scene values in property sheets in a threadsafe
+ * manner. The getter and setter are called via reflection and changes in the
+ * properties can be listed for.
  *
  * @author normenhansen
  */
 @SuppressWarnings("unchecked")
 public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
 
-    private static final Logger logger = Logger.getLogger(SceneExplorerProperty.class.getName());
-    public static final String PROP_SCENE_CHANGE = "PROP_SCENE_CHANGE";
+    protected static final Logger logger = Logger.getLogger(SceneExplorerProperty.class.getName());
+    /**
+     * Change that was caused by the user editing a property value.
+     */
     public static final String PROP_USER_CHANGE = "PROP_USER_CHANGE";
+    /**
+     * Change that was caused by the scene as opposed to user input.
+     */
+    public static final String PROP_SCENE_CHANGE = "PROP_SCENE_CHANGE";
+    /**
+     * Change that was caused by the initial data scan on the object. Note that
+     * this should normally not trigger any real "changes" but only make any
+     * display items rescan the data so its displaying the actual scene value
+     * and not the initialiation value.
+     */
     public static final String PROP_INIT_CHANGE = "PROP_INIT_CHANGE";
-    private T objectLocal;
-    private boolean changing = false;
-    private final boolean cloneable;
-    private final boolean instantiable;
-    private final boolean primitive;
-    private final Mutex mutex = new Mutex();
-    private boolean inited = false;
-    private final boolean editable;
+    protected T objectLocal;
+    protected boolean changing = false;
+    protected final boolean cloneable;
+    protected final boolean instantiable;
+    protected final boolean primitive;
+    protected final Mutex mutex = new Mutex();
+    protected boolean inited = false;
+    protected final boolean editable;
     protected LinkedList<ScenePropertyChangeListener> listeners = new LinkedList<ScenePropertyChangeListener>();
 
     public SceneExplorerProperty(T instance, Class valueType, String getter, String setter) throws NoSuchMethodException {
@@ -115,7 +130,8 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
     }
 
     /**
-     * synchronizes the local and scene value
+     * Synchronizes the local and scene value, has to be called on render
+     * thread.
      */
     public void syncValue() {
         if (!editable) {
@@ -159,6 +175,17 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         });
     }
 
+    /**
+     * Gets the current value, its a duplicate of the actual scene value. Note
+     * that the value is most probably not initialized yet when the Propety is
+     * created! Listen for PROP_INIT_CHANGE events to get a callback when the
+     * value is first read from the scene.
+     *
+     * @return
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     * @throws InvocationTargetException
+     */
     @Override
     public T getValue() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         return mutex.readAccess(new Mutex.Action<T>() {
@@ -169,6 +196,15 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         });
     }
 
+    /**
+     * Stores the given value locally and applies a duplicate to the scene
+     * object on the render thread.
+     *
+     * @param val
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     * @throws InvocationTargetException
+     */
     @Override
     public void setValue(final T val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         mutex.postWriteRequest(new Runnable() {
@@ -178,7 +214,6 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
                 changing = true;
                 objectLocal = val;
                 final T sceneObject = duplicateObject(val);
-                notifyListeners(PROP_USER_CHANGE, oldObject, objectLocal);
                 SceneApplication.getApplication().enqueue(new Callable<Void>() {
                     public Void call() throws Exception {
                         mutex.postWriteRequest(new Runnable() {
@@ -190,11 +225,20 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
                         return null;
                     }
                 });
+                //call listeners after enqueueing our own change.
+                notifyListeners(PROP_USER_CHANGE, oldObject, objectLocal);
             }
         });
     }
 
-    private boolean isPrimitive(Object obj, String getter) {
+    /**
+     * Checks if a getters return object is a primitive.
+     *
+     * @param obj
+     * @param getter
+     * @return
+     */
+    protected boolean isPrimitive(Object obj, String getter) {
         try {
             Class objClass = obj.getClass().getMethod(getter).getReturnType();
             if (objClass.isPrimitive()) {
@@ -207,7 +251,14 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         return false;
     }
 
-    private boolean canClone(Object obj, String getter) {
+    /**
+     * Checks if a getters return object can be cloned
+     *
+     * @param obj
+     * @param getter
+     * @return
+     */
+    protected boolean canClone(Object obj, String getter) {
         try {
             Class objClass = obj.getClass().getMethod(getter).getReturnType();
             if (Enum.class.isAssignableFrom(objClass)) {
@@ -231,7 +282,15 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         return false;
     }
 
-    private boolean canRecreate(Object obj, String getter) {
+    /**
+     * Checks if a getters return object can be recreated by calling a
+     * constructor of the object with the old object as parameter.
+     *
+     * @param obj
+     * @param getter
+     * @return
+     */
+    protected boolean canRecreate(Object obj, String getter) {
         try {
             Class objClass = obj.getClass().getMethod(getter).getReturnType();
             if (Enum.class.isAssignableFrom(objClass)) {
@@ -253,7 +312,13 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         return false;
     }
 
-    private T duplicateObject(T a) {
+    /**
+     * Duplicates an object based on the gathered info about cloneability etc.
+     *
+     * @param a
+     * @return
+     */
+    protected T duplicateObject(T a) {
         if (a == null) {
             return null;
         }
@@ -302,13 +367,24 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         return obj;
     }
 
-    private void setSuperValue(T val) {
+    /**
+     * Calls the actual scene objects setter with the passed object. Adds an
+     * undo step automatically.
+     *
+     * @param val
+     */
+    protected void setSuperValue(T val) {
         setSuperValue(val, true);
     }
 
-    private T getSuperValue() {
+    /**
+     * Calls the actual scene objects getter and returns the return value.
+     *
+     * @return
+     */
+    protected T getSuperValue() {
         try {
-            logger.log(Level.FINE, "Get super value thread {0}", Thread.currentThread().getName());
+            logger.log(Level.FINER, "Get super value thread {0}", Thread.currentThread().getName());
             return super.getValue();
         } catch (IllegalAccessException ex) {
             Exceptions.printStackTrace(ex);
@@ -320,14 +396,20 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         return null;
     }
 
-    private void setSuperValue(T val, boolean undo) {
+    /**
+     * Calls the actual scene objects setter with the passed object.
+     *
+     * @param val
+     * @param undo If an undo item should be created or not
+     */
+    protected void setSuperValue(T val, boolean undo) {
         try {
             if (undo) {
                 T dupe = duplicateObject(getSuperValue());
                 logger.log(Level.FINE, "Add undo for {0}", dupe);
                 addUndo(dupe, val);
             }
-            logger.log(Level.FINE, "Set super value on thread {0}", Thread.currentThread().getName());
+            logger.log(Level.FINER, "Set super value on thread {0}", Thread.currentThread().getName());
             super.setValue(val);
         } catch (IllegalAccessException ex) {
             Exceptions.printStackTrace(ex);
@@ -338,6 +420,12 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         }
     }
 
+    /**
+     * Adds an undo item for a change in this value.
+     *
+     * @param before
+     * @param after
+     */
     protected void addUndo(final Object before, final Object after) {
         SceneUndoRedoManager undoRedo = Lookup.getDefault().lookup(SceneUndoRedoManager.class);
         if (undoRedo == null) {
@@ -369,6 +457,12 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         });
     }
 
+    /**
+     * Add a ScenePropertyChangeListener to listen for changes of this propety.
+     * See the "PROP_XXX" properties for a list of change callback types.
+     *
+     * @param listener
+     */
     public void addPropertyChangeListener(ScenePropertyChangeListener listener) {
         if (listener != null) {
             logger.log(Level.FINE, "Add property listener {0}", listener);
@@ -376,6 +470,10 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         }
     }
 
+    /**
+     * Removes a ScenePropertyChangeListener that was listening for changes of
+     * this propety.
+     */
     public void removePropertyChangeListener(ScenePropertyChangeListener listener) {
         if (listener != null) {
             logger.log(Level.FINE, "Remove property listener {0}", listener);
@@ -383,7 +481,13 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
         }
     }
 
-    private void notifyListeners(final String type, final Object before, final Object after) {
+    /**
+     * Notify all ScenePropertyChangeListeners about a change in the property
+     * @param type
+     * @param before
+     * @param after 
+     */
+    protected void notifyListeners(final String type, final Object before, final Object after) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 logger.log(Level.FINE, "Notify SceneExplorer listeners");
