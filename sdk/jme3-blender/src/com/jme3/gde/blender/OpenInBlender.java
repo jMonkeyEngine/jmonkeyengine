@@ -37,7 +37,7 @@ public final class OpenInBlender implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent ev) {
         if (!BlenderTool.openInBlender(context.getPrimaryFile())) {
-            logger.log(LogLevel.WARNING, "Could not open file in blender, already running?");
+            logger.log(LogLevel.INFO, "Could not open file in blender.");
         }
     }
 }

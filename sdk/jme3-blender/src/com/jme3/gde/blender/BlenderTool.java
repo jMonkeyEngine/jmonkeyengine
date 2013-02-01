@@ -270,6 +270,7 @@ public class BlenderTool {
     public static boolean runConversionScript(String type, FileObject input) {
         if (!checkBlenderFolders()) {
             logger.log(Level.SEVERE, "Could not create blender settings folders!");
+            return false;
         }
         final File exe = getBlenderExecutable();
         if (exe == null) {
@@ -316,6 +317,7 @@ public class BlenderTool {
     public static boolean runToolScript(String toolName, FileObject input) {
         if (!checkBlenderFolders()) {
             logger.log(Level.SEVERE, "Could not create blender settings folders!");
+            return false;
         }
         final File exe = getBlenderExecutable();
         if (exe == null) {
@@ -359,10 +361,11 @@ public class BlenderTool {
     private static boolean runBlender(final String file, boolean async) {
         if (!checkBlenderFolders()) {
             logger.log(Level.SEVERE, "Could not create blender settings folders!");
+            return false;
         }
         logger.log(Level.INFO, "Running blender with options {0}", file);
         if (blenderOpened.getAndSet(true)) {
-            logger.log(Level.INFO, "Blender seems to be running");
+            logger.log(Level.WARNING, "Blender seems to be running already.");
             return false;
         }
         final AtomicBoolean successful = new AtomicBoolean(true);
