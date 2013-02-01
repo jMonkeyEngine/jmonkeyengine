@@ -93,7 +93,7 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
     }
 
     @Override
-    public synchronized ModelKey getAssetKey() {
+    public synchronized BlenderKey getAssetKey() {
         if(super.getAssetKey() instanceof BlenderKey){
             return (BlenderKey)assetKey;
         }
