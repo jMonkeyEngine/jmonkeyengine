@@ -78,7 +78,7 @@ public final class CodelessProjectWizardAction extends CallableSystemAction {
 
     private void createProjectSettings(WizardDescriptor wizardDescriptor) {
         String projectFolder = (String) wizardDescriptor.getProperty("PROJECT_FOLDER");
-        String assetsFolder = (String) wizardDescriptor.getProperty("ASSETS_FOLDER");
+        String assetsFolder = ((String) wizardDescriptor.getProperty("ASSETS_FOLDER")).replace(File.separator, "/");
         FileObject project = FileUtil.toFileObject(new File(projectFolder));
         try {
             FileObject properties = project.createData(CodelessProjectFactory.CONFIG_NAME);
