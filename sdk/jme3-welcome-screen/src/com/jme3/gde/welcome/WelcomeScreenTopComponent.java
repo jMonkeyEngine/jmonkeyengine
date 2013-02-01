@@ -4,7 +4,9 @@
  */
 package com.jme3.gde.welcome;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.logging.Level;
@@ -14,7 +16,6 @@ import javax.swing.event.HyperlinkListener;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.awt.HtmlBrowser.URLDisplayer;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.windows.TopComponent;
@@ -32,7 +33,7 @@ autostore = false)
 @TopComponent.Description(
     preferredID = "WelcomeScreenTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
-persistenceType = TopComponent.PERSISTENCE_NEVER)
+persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = "Window", id = "com.jme3.gde.welcome.WelcomeScreenTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
@@ -64,12 +65,11 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
     public void loadPage() {
         try {
             URL startUrl = new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.http.link"));
-            URLConnection conn = startUrl.openConnection();
-            long lastMod = conn.getLastModified();
+            long lastMod = getModified(startUrl);
             NbPreferences.forModule(getClass()).putLong("LAST_PAGE_UPDATE", lastMod);
             jEditorPane1.setPage(startUrl);
         } catch (IOException ex) {
-            logger.log(Level.INFO, "Loading page failed", ex);
+            logger.log(Level.INFO, "Loading welcome page from web failed", ex);
             try {
                 jEditorPane1.setPage(new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.local.link")));
             } catch (IOException ex1) {
@@ -79,12 +79,17 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
     }
 
     public static void checkOpen() {
+        checkOpen(0);
+    }
+
+    public static void checkOpen(long lastMod) {
         try {
             long lastCheck = NbPreferences.forModule(WelcomeScreenTopComponent.class).getLong("LAST_PAGE_UPDATE", 0);
             URL startUrl = new URL(org.openide.util.NbBundle.getMessage(WelcomeScreenTopComponent.class, "WelcomeScreenTopComponent.http.link"));
-            URLConnection conn = startUrl.openConnection();
-            long lastMod = conn.getLastModified();
-            logger.log(Level.FINE, "Checking page time {0} vs stored time {1}", new Object[]{lastMod, lastCheck});
+            if (lastMod == 0) {
+                lastMod = getModified(startUrl);
+            }
+            logger.log(Level.INFO, "Checking page id {0} vs stored id {1}", new Object[]{lastMod, lastCheck});
             if (lastCheck != lastMod) {
                 WelcomeScreenTopComponent tc = (WelcomeScreenTopComponent) WindowManager.getDefault().findTopComponent("WelcomeScreenTopComponent");
                 if (tc != null) {
@@ -115,6 +120,49 @@ public final class WelcomeScreenTopComponent extends TopComponent implements Hyp
                 }
             }
         }
+    }
+
+    private static long getModified(URL url) {
+        try {
+            URLConnection conn = url.openConnection();
+            long lastMod = conn.getLastModified();
+            if (lastMod != 0) {
+                logger.log(Level.INFO, "Found getLastModified of {0}", lastMod);
+                return lastMod;
+            } else {
+                logger.log(Level.INFO, "Returning hash code of content", lastMod);
+                String content = getContent(conn);
+                return content.hashCode();
+            }
+        } catch (IOException ex) {
+            logger.log(Level.INFO, "Loading welcome page modified date from web failed", ex);
+        }
+        return 0;
+    }
+
+    private static String getContent(URLConnection connection) {
+        BufferedReader in = null;
+        try {
+            in = new BufferedReader(
+                    new InputStreamReader(
+                    connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            return response.toString();
+        } catch (IOException ex) {
+            logger.log(Level.INFO, "Reading welcome page content from web failed", ex);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException ex) {
+            logger.log(Level.INFO, "Closing reader for welcome page content from web failed", ex);
+            }
+        }
+        return "";
     }
 
     /**
