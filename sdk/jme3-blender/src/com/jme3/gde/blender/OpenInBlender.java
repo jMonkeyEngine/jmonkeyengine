@@ -21,7 +21,6 @@ id = "com.jme3.gde.blender.OpenBlender")
     iconBase = "com/jme3/gde/blender/blender.png",
 displayName = "#CTL_OpenInBlender")
 @ActionReferences({
-    @ActionReference(path = "Menu/Tools", position = 3333),
     @ActionReference(path = "Toolbars/File", position = 335),
     @ActionReference(path = "Loaders/application/blender/Actions", position = 9)
 })
