@@ -188,8 +188,14 @@ public class JoglRenderer implements Renderer {
             versionStr = versionStr.substring(0, spaceIdx);
         }
         
-        float version = Float.parseFloat(versionStr);
-        glslVer = (int) (version * 100);
+        //FIXME revisit this fix later
+        try {
+            float version = Float.parseFloat(versionStr);
+            glslVer = (int) (version * 100);
+        } catch (NumberFormatException e) {
+            logger.warning("Failed parsing GLSL version assuming it's v1.00");
+            glslVer = 100;
+        }
 
         switch (glslVer) {
             default:
