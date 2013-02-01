@@ -35,6 +35,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.JPanel;
 import org.openide.filesystems.FileChooserBuilder;
+import org.openide.filesystems.FileUtil;
 
 public final class CodelessProjectWizardVisualPanel1 extends JPanel {
 
@@ -223,6 +224,7 @@ public final class CodelessProjectWizardVisualPanel1 extends JPanel {
         builder.setTitle("Select Project Folder");
         File file = builder.showOpenDialog();
         if (file != null) {
+            file = FileUtil.normalizeFile(file);
             jTextField1.setText(file.getAbsolutePath() + File.separator);
             panel.fireChangeEvent();
         }
@@ -238,6 +240,7 @@ public final class CodelessProjectWizardVisualPanel1 extends JPanel {
             builder.setTitle("Select Assets Folder");
             File file = builder.showOpenDialog();
             if (file != null) {
+                file = FileUtil.normalizeFile(file);
                 try {
                     jTextField2.setText(file.getAbsolutePath().substring(pathName.length(), file.getAbsolutePath().length()));
                     panel.fireChangeEvent();
