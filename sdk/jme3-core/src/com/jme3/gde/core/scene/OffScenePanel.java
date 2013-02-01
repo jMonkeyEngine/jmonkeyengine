@@ -70,6 +70,7 @@ import java.util.logging.Logger;
  */
 public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor {
 
+    private static final Logger logger = Logger.getLogger(OffScenePanel.class.getName());
     private int width = 640, height = 480;
     private ByteBuffer cpuBuf;
 //    private byte[] cpuArray;
@@ -93,7 +94,9 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
         this(640, 480);
     }
 
-    /** Creates new form ScenePanel */
+    /**
+     * Creates new form ScenePanel
+     */
     public OffScenePanel(int width, int height) {
         this.width = width;
         this.height = height;
@@ -103,7 +106,6 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 
     public void resizeGLView(final int x, final int y) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 width = x;
                 height = y;
@@ -116,7 +118,6 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
             }
         });
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             public void run() {
                 Dimension dim = new Dimension(x, y);
                 setPreferredSize(dim);
@@ -135,7 +136,6 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 //            }
 //        });
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 setupOffView();
                 setupOffBuffer();
@@ -148,13 +148,12 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
     public void stopPreview() {
         //TODO add your handling code here:
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 SceneApplication.getApplication().getRenderManager().removePreView(viewPort);
                 return null;
             }
         });
-        Logger.getLogger(OffScenePanel.class.getName()).log(Level.INFO, "Component hidden");
+        logger.log(Level.FINE, "Component hidden");
     }
 
     private void setupScene() {
@@ -163,7 +162,7 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
         light.setColor(ColorRGBA.White);
         rootNode.addLight(light);
     }
-    
+
     private void attachScene() {
         // attach the scene to the viewport to be rendered
         //setup framebuffer's cam
@@ -281,11 +280,11 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 
     /**
      * threadsafe attach to root node
+     *
      * @param spat
      */
     public void attach(final Spatial spat) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 rootNode.attachChild(spat);
                 return null;
@@ -295,11 +294,11 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 
     /**
      * threadsafe detach from root node
+     *
      * @param spat
      */
     public void detach(final Spatial spat) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 rootNode.detachChild(spat);
                 return null;
@@ -309,11 +308,11 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 
     /**
      * threadsafe detach from root node
+     *
      * @param spat
      */
     public void detachAll() {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 rootNode.detachAllChildren();
                 return null;
@@ -323,7 +322,6 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 
     public void setCamFocus(final Vector3f focus) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 doSetCamFocus(focus);
                 return null;
@@ -334,7 +332,6 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 
     public void doSetCamFocus(final Vector3f focus_) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 focus.set(focus_);
                 camera.setLocation(focus_.add(vector, camera.getLocation()));
@@ -348,7 +345,6 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
      */
     public void rotateCamera(final Vector3f axis, final float amount_) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 float amount = amount_;
                 if (axis.equals(camera.getLeft())) {
@@ -371,7 +367,6 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 
     public void panCamera(final float left, final float up) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 camera.getLeft().mult(left, vector);
                 vector.scaleAdd(up, camera.getUp(), vector);
@@ -385,7 +380,6 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 
     public void moveCamera(final float forward) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 camera.getDirection().mult(forward, vector);
                 camera.setLocation(camera.getLocation().add(vector));
@@ -396,7 +390,6 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 
     public void zoomCamera(final float amount_) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
-
             public Object call() throws Exception {
                 float amount = amount_;
                 amount = camera.getLocation().distance(focus) * amount;
@@ -410,10 +403,10 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
         });
     }
 
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents

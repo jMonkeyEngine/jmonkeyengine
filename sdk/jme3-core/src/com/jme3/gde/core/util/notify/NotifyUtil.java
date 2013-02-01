@@ -98,7 +98,7 @@ public class NotifyUtil {
      * @param message
      */
     public static Notification info(String title, String message) {
-        return error(title, message, true);
+        return info(title, message, true);
     }
 
     /**

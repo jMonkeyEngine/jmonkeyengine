@@ -60,6 +60,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class AssetsLookupProvider implements LookupProvider {
 
+    private static final Logger logger = Logger.getLogger(AssetsLookupProvider.class.getName());
     private Project project;
     public static final String[] keyList = new String[]{
         "assets.jar.name",
@@ -103,7 +104,7 @@ public class AssetsLookupProvider implements LookupProvider {
                 in.close();
                 String assetsFolderName = properties.getProperty("assets.folder.name", "assets");
                 if (prj.getProjectDirectory().getFileObject(assetsFolderName) != null) {
-                    Logger.getLogger(AssetsLookupProvider.class.getName()).log(Level.INFO, "Valid jMP project, extending with ProjectAssetManager");
+                    logger.log(Level.FINE, "Valid jMP project, extending with ProjectAssetManager");
                     return Lookups.fixed(new ProjectAssetManager(prj, assetsFolderName), openedHook);
                 }
             } catch (Exception ex) {
@@ -118,7 +119,6 @@ public class AssetsLookupProvider implements LookupProvider {
         return Lookups.fixed();
     }
     private ProjectOpenedHook openedHook = new ProjectOpenedHook() {
-
         @Override
         protected void projectClosed() {
         }
@@ -143,7 +143,7 @@ public class AssetsLookupProvider implements LookupProvider {
         //old properties files
         FileObject oldProperties = projDir.getFileObject("nbproject/assets.properties");
         if (oldProperties != null) {
-            Logger.getLogger(AssetsLookupProvider.class.getName()).log(Level.INFO, "Deleting old project assets.properties");
+            logger.log(Level.FINE, "Deleting old project assets.properties");
             try {
                 props.load(oldProperties.getInputStream());
                 store(props, project);
@@ -193,7 +193,6 @@ public class AssetsLookupProvider implements LookupProvider {
             final InputStream is = projPropsFO.getInputStream();
 //            final InputStream pis = privPropsFO.getInputStream();
             ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Void>() {
-
                 @Override
                 public Void run() throws Exception {
                     try {

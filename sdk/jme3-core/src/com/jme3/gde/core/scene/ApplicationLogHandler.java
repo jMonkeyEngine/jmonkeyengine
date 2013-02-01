@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.scene;
 
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.util.notify.MessageType;
 import com.jme3.gde.core.util.notify.NotifyUtil;
 import com.jme3.util.JmeFormatter;
@@ -40,6 +41,9 @@ import java.util.concurrent.Callable;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
@@ -50,26 +54,57 @@ import org.openide.windows.InputOutput;
  */
 public class ApplicationLogHandler extends Handler implements Callable<JButton> {
 
+    private static final Logger logger = Logger.getLogger(ApplicationLogHandler.class.getName());
+
     public static class LogLevel extends Level {
 
         /**
-         * Log level of 801 (one above "INFO") - used to display messages
-         * to the user via the little "monkey bubble" bottom right.
+         * Log level of 801 (one above "INFO") - used to display messages to the
+         * user via the little "monkey bubble" bottom right.
          */
         public static final Level USERINFO = new LogLevel("User Info", 801, "User Info Log Level");
+
         public LogLevel(String name, int level, String string) {
             super(name, level, string);
         }
     }
-    InputOutput io = IOProvider.getDefault().getIO("Application", true);
+    InputOutput io;
     JmeFormatter formatter = new JmeFormatter();
     ActionListener listener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             io.select();
         }
     };
+    Action levelFine = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            Logger.getLogger("com.jme3").setLevel(Level.FINE);
+            NotifyUtil.info("Changed logging level", "Changed logging level to FINE");
+        }
+    };
+    Action levelInfo = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            Logger.getLogger("com.jme3").setLevel(Level.INFO);
+            NotifyUtil.info("Changed logging level", "Changed logging level to INFO");
+        }
+    };
+    Action levelWarning = new AbstractAction() {
+        public void actionPerformed(ActionEvent e) {
+            Logger.getLogger("com.jme3").setLevel(Level.WARNING);
+            NotifyUtil.info("Changed logging level", "Changed logging level to WARNING");
+        }
+    };
 
     public ApplicationLogHandler() {
+        levelFine.putValue(Action.SMALL_ICON, IconList.chimpConfused);
+        levelInfo.putValue(Action.SMALL_ICON, IconList.chimpSmile);
+        levelWarning.putValue(Action.SMALL_ICON, IconList.chimpNogood);
+        levelFine.putValue(Action.NAME, "Fine");
+        levelInfo.putValue(Action.NAME, "Normal");
+        levelWarning.putValue(Action.NAME, "Warning");
+        levelFine.putValue(Action.SHORT_DESCRIPTION, "Set Fine Logging Level");
+        levelInfo.putValue(Action.SHORT_DESCRIPTION, "Set Normal Logging Level");
+        levelWarning.putValue(Action.SHORT_DESCRIPTION, "Set Warning Logging Level");
+        io = IOProvider.getDefault().getIO("Application", new Action[]{levelFine, levelInfo, levelWarning});
         io.setErrSeparated(true);
     }
 

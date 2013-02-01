@@ -115,7 +115,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
             this.project = new DummyProject(this, path);
         }
         String projectRootPath = project.getProjectDirectory().getPath();
-        logger.log(Level.INFO, "Add locator: {0}", projectRootPath);
+        logger.log(Level.FINE, "Add locator: {0}", projectRootPath);
         registerLocator(projectRootPath, com.jme3.gde.core.assets.RootLockingFileLocator.class);
         for (AssetManagerConfigurator di : Lookup.getDefault().lookupAll(AssetManagerConfigurator.class)) {
             di.prepareManager(this);
@@ -131,7 +131,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
         if (jarItems.isEmpty() && classPathItems.isEmpty()) {
             return;
         }
-        logger.log(Level.INFO, "Clear {0} classpath entries and {1} url locators for project {2}", new Object[]{classPathItems.size(), jarItems.size(), project.toString()});
+        logger.log(Level.FINE, "Clear {0} classpath entries and {1} url locators for project {2}", new Object[]{classPathItems.size(), jarItems.size(), project.toString()});
         for (FileObject fileObject : jarItems) {
             logger.log(Level.FINE, "Remove locator:{0}", fileObject.toURL());
             unregisterLocator(fileObject.toURL().toExternalForm(),
@@ -181,7 +181,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
             }
             loader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
             addClassLoader(loader);
-            logger.log(Level.INFO, "Updated {0} classpath entries and {1} url locators for project {2}", new Object[]{classPathItems.size(), jarItems.size(), project.toString()});
+            logger.log(Level.FINE, "Updated {0} classpath entries and {1} url locators for project {2}", new Object[]{classPathItems.size(), jarItems.size(), project.toString()});
         }
     }
     FileChangeListener listener = new FileChangeListener() {
@@ -370,7 +370,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
      */
     public void addFolderLocator(String relativePath) {
         String string = project.getProjectDirectory().getPath() + "/" + relativePath + "/";
-        logger.log(Level.INFO, "Add locator:{0}", string);
+        logger.log(Level.FINE, "Add locator:{0}", string);
         registerLocator(string,
                 "com.jme3.asset.plugins.FileLocator");
         folderNames.add(relativePath);

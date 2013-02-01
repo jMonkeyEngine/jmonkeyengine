@@ -162,7 +162,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
                         geomName = "null";
                     }
                     geom.setUserData("ORIGINAL_NAME", geomName);
-                    logger.log(Level.INFO, "Set ORIGINAL_NAME for {0}", geomName);
+                    logger.log(Level.FINE, "Set ORIGINAL_NAME for {0}", geomName);
                     while (curSpat != null) {
                         String name = curSpat.getName();
                         if (name == null) {
@@ -179,7 +179,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
                     }
                     geomMap.add(id);
                     geom.setUserData("ORIGINAL_PATH", id);
-                    logger.log(Level.INFO, "Set ORIGINAL_PATH for {0}", id);
+                    logger.log(Level.FINE, "Set ORIGINAL_PATH for {0}", id);
                     super.visit(geom);
                 }
             });

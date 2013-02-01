@@ -64,6 +64,7 @@ import org.openide.util.Exceptions;
  * @author normenhansen
  */
 public class ProjectExtensionManager {
+
     private static final Logger logger = Logger.getLogger(ProjectExtensionManager.class.getName());
     private String extensionName;
     private String extensionVersion;
@@ -124,16 +125,16 @@ public class ProjectExtensionManager {
      * @param proj
      */
     public void checkExtension(Project proj) {
-        Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Checking extension..");
+        logger.log(Level.FINE, "Checking extension..");
         if (!(proj instanceof J2SEProject)) {
-            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.WARNING, "Trying to load Assets Properties from non-asset project");
+            logger.log(Level.WARNING, "Trying to load Assets Properties from non-asset project");
             return;
         }
 
         FileObject projDir = proj.getProjectDirectory();
         final FileObject buildXmlFO = J2SEProjectUtil.getBuildXml((J2SEProject) proj);
         if (buildXmlFO == null) {
-            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.WARNING, "The project build script does not exist, the project cannot be extended by jMP.");
+            logger.log(Level.WARNING, "The project build script does not exist, the project cannot be extended by jMP.");
             return;
         }
         FileObject assetsBuildFile = getImplFile(projDir, true);
@@ -141,7 +142,7 @@ public class ProjectExtensionManager {
         if (extender != null) {
             assert assetsBuildFile != null;
             if (extender.getExtension(extensionName) == null) {
-                Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Creating extension {0}", extensionName);
+                logger.log(Level.FINE, "Creating extension {0}", extensionName);
                 AntBuildExtender.Extension ext = extender.addExtension(extensionName, assetsBuildFile);
                 if (extensionDependencies != null) {
                     for (int i = 0; i < extensionDependencies.length; i += 2) {
@@ -163,7 +164,7 @@ public class ProjectExtensionManager {
                 }
             }
         } else {
-            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.WARNING, "Trying to include assets build snippet in project type that doesn't support AntBuildExtender API contract.");
+            logger.log(Level.WARNING, "Trying to include assets build snippet in project type that doesn't support AntBuildExtender API contract.");
         }
     }
 
@@ -174,28 +175,28 @@ public class ProjectExtensionManager {
      */
     public void removeExtension(Project proj) {
         if (!(proj instanceof J2SEProject)) {
-            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.WARNING, "Trying to load Assets Properties from non-asset project");
+            logger.log(Level.WARNING, "Trying to load Assets Properties from non-asset project");
             return;
         }
 
         FileObject projDir = proj.getProjectDirectory();
         final FileObject buildXmlFO = J2SEProjectUtil.getBuildXml((J2SEProject) proj);
         if (buildXmlFO == null) {
-            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.WARNING, "The project build script does not exist, the project cannot be extended by jMP.");
+            logger.log(Level.WARNING, "The project build script does not exist, the project cannot be extended by jMP.");
             return;
         }
         AntBuildExtender extender = proj.getLookup().lookup(AntBuildExtender.class);
         if (extender != null) {
             if (extender.getExtension(extensionName) != null) {
-                Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Removing extension {0}", extensionName);
+                logger.log(Level.FINE, "Removing extension {0}", extensionName);
                 extender.removeExtension(extensionName);
                 try {
                     FileObject assetsBuildFile = getImplFile(projDir, false);
                     if (assetsBuildFile != null) {
-                        Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Deleting {0}", assetsBuildFile.getNameExt());
+                        logger.log(Level.FINE, "Deleting {0}", assetsBuildFile.getNameExt());
                         assetsBuildFile.delete();
                     }
-                    Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Saving project {0}", proj.getProjectDirectory().getName());
+                    logger.log(Level.FINE, "Saving project {0}", proj.getProjectDirectory().getName());
 //                    ProjectManager.getDefault().saveProject(proj);
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
@@ -208,7 +209,7 @@ public class ProjectExtensionManager {
                 }
             }
         } else {
-            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.WARNING, "Trying to include assets build snippet in project type that doesn't support AntBuildExtender API contract.");
+            logger.log(Level.WARNING, "Trying to include assets build snippet in project type that doesn't support AntBuildExtender API contract.");
         }
     }
 
@@ -353,20 +354,20 @@ public class ProjectExtensionManager {
     private FileObject getImplFile(FileObject projDir, boolean create) {
         FileObject assetsImpl = projDir.getFileObject("nbproject/" + extensionName + "-impl.xml");
         if (assetsImpl == null) {
-            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "No extension file {0}-impl.xml found", extensionName);
+            logger.log(Level.FINE, "No extension file {0}-impl.xml found", extensionName);
             if (create) {
-                Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Creating extension file {0}-impl.xml", extensionName);
+                logger.log(Level.FINE, "Creating extension file {0}-impl.xml", extensionName);
                 assetsImpl = createImplFile(projDir);
             }
         } else {
-            Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Found extension file {0}-impl.xml", extensionName);
+            logger.log(Level.FINE, "Found extension file {0}-impl.xml", extensionName);
             try {
                 if (create && !assetsImpl.asLines().get(1).startsWith("<!--" + extensionName + "-impl.xml " + extensionVersion + "-->")) {
-                    Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Updating extension file {0}-impl.xml", extensionName);
+                    logger.log(Level.FINE, "Updating extension file {0}-impl.xml", extensionName);
                     assetsImpl.delete();
-                    Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Deleted extension file {0}-impl.xml", extensionName);
+                    logger.log(Level.FINE, "Deleted extension file {0}-impl.xml", extensionName);
                     assetsImpl = createImplFile(projDir);
-                    Logger.getLogger(ProjectExtensionManager.class.getName()).log(Level.INFO, "Recreated extension file {0}-impl.xml", extensionName);
+                    logger.log(Level.FINE, "Recreated extension file {0}-impl.xml", extensionName);
                 }
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
@@ -447,7 +448,7 @@ public class ProjectExtensionManager {
                     //XXX: deleting old (beta) files here
                     FileObject fo = projectRoot.getFileObject(entry.getName());
                     if (fo != null && entry.getSize() != -1 && entry.getSize() == fo.getSize()) {
-                        logger.log(Level.INFO, "Deleting old folder {0}", fo.getNameExt());
+                        logger.log(Level.FINE, "Deleting old folder {0}", fo.getNameExt());
                         fo.delete();
                     }
                     FileUtil.createFolder(projectRoot, fileName);
@@ -455,7 +456,7 @@ public class ProjectExtensionManager {
                     //XXX: deleting old (beta) files here
                     FileObject fo = projectRoot.getFileObject(entry.getName());
                     if (fo != null && !fo.equals(projectRoot)) {
-                        logger.log(Level.INFO, "Deleting old file {0}", fo.getNameExt());
+                        logger.log(Level.FINE, "Deleting old file {0}", fo.getNameExt());
                         fo.delete();
                     }
                     fo = projectRoot.getFileObject(fileName);
@@ -463,7 +464,7 @@ public class ProjectExtensionManager {
                         fo = FileUtil.createData(projectRoot, fileName);
                         writeFile(str, fo);
                     } else {
-                        logger.log(Level.INFO, "Not overwriting existing file {0}", fo.getNameExt());
+                        logger.log(Level.FINE, "Not overwriting existing file {0}", fo.getNameExt());
                     }
                 }
             }
@@ -485,7 +486,7 @@ public class ProjectExtensionManager {
                 //XXX: deleting old (beta) files here
                 FileObject old = projectRoot.getFileObject(entry.getName());
                 if (old != null && !old.equals(projectRoot)) {
-                    logger.log(Level.INFO, "Deleting old file {0}", old.getNameExt());
+                    logger.log(Level.FINE, "Deleting old file {0}", old.getNameExt());
                     if (entry.getSize() != -1 && entry.getSize() == old.getSize()) {
                         old.delete();
                     }
@@ -494,11 +495,11 @@ public class ProjectExtensionManager {
                 FileObject obj = projectRoot.getFileObject(fileName);
                 if (obj != null && !obj.equals(projectRoot) && !obj.isFolder()) {
                     if (entry.getSize() != -1 && entry.getSize() == obj.getSize()) {
-                        logger.log(Level.INFO, "Deleting file {0}", obj.getNameExt());
+                        logger.log(Level.FINE, "Deleting file {0}", obj.getNameExt());
                         obj.delete();
                     } else {
                         kept = true;
-                        logger.log(Level.INFO, "Keeping file {0}", obj.getNameExt());
+                        logger.log(Level.FINE, "Keeping file {0}", obj.getNameExt());
                     }
                 }
             }
@@ -518,7 +519,7 @@ public class ProjectExtensionManager {
     private void writeFile(ZipInputStream str, FileObject fo) throws IOException {
         OutputStream out = fo.getOutputStream();
         try {
-            logger.log(Level.INFO, "Creating file " + fo.getNameExt());
+            logger.log(Level.FINE, "Creating file " + fo.getNameExt());
             FileUtil.copy(str, out);
         } finally {
             out.close();

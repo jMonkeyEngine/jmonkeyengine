@@ -66,6 +66,7 @@ import org.openide.util.Utilities;
  */
 public class ZipExtensionTool {
 
+    private static final Logger logger = Logger.getLogger(ZipExtensionTool.class.getName());
     static final ConcurrentHashMap<String, Boolean> installMap = new ConcurrentHashMap<String, Boolean>();
     static final int BUFFER = 2048;
     private final String settingsFolder = System.getProperty("netbeans.user");
@@ -309,7 +310,7 @@ public class ZipExtensionTool {
                 String line;
                 while ((line = in.readLine()) != null) {
                     if (line.trim().length() > 0) {
-                        Logger.getLogger(this.getClass().getName()).log(Level.INFO, line);
+                        logger.log(Level.FINE, line);
                     }
                 }
             } catch (Exception e) {

@@ -49,6 +49,7 @@ import org.openide.nodes.Sheet;
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
 public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListener {
 
+    private static final Logger logger = Logger.getLogger(JmeTerrainGrid.class.getName());
     private static Image smallImage = IconList.terrain.getImage();
     private TerrainGrid geom;
 
@@ -59,7 +60,7 @@ public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListene
         super(spatial, children);
         getLookupContents().add(spatial);
         this.geom = spatial;
-      //  setName(spatial.getName());
+        //  setName(spatial.getName());
         geom.addListener(this);
     }
 
@@ -113,9 +114,8 @@ public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListene
     }
 
     public void tileAttached(Vector3f vctrf, TerrainQuad tq) {
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Calling TerrainGrid update for node: {0}" + this);
+        logger.log(Level.FINE, "Calling TerrainGrid update for node: {0}" + this);
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             public void run() {
                 refresh(false);
             }
@@ -123,9 +123,8 @@ public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListene
     }
 
     public void tileDetached(Vector3f vctrf, TerrainQuad tq) {
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Calling TerrainGrid update for node: {0}" + this);
+        logger.log(Level.FINE, "Calling TerrainGrid update for node: {0}" + this);
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             public void run() {
                 refresh(false);
             }

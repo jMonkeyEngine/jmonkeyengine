@@ -191,7 +191,7 @@ public class AssetData {
                             Exceptions.printStackTrace(ex);
                         }
                     }
-                    logger.log(Level.INFO, "Read AssetData properties for {0}", file);
+                    logger.log(Level.FINE, "Read AssetData properties for {0}", file);
                 }
             }
         });
@@ -215,7 +215,7 @@ public class AssetData {
                     props.store(out, "");
                     out.flush();
                     lastLoaded = myFile.lastModified();
-                    logger.log(Level.INFO, "Written AssetData properties for {0}", file);
+                    logger.log(Level.FINE, "Written AssetData properties for {0}", file);
                 } catch (IOException e) {
                     Exceptions.printStackTrace(e);
                 } finally {
