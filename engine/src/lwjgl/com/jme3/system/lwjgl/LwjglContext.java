@@ -74,7 +74,7 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void printContextInitInfo(){
-        logger.log(Level.INFO, "Lwjgl context running on thread {1}", Thread.currentThread().getName());
+        logger.log(Level.INFO, "Lwjgl context running on thread {0}", Thread.currentThread().getName());
 
         logger.log(Level.INFO, "Adapter: {0}", Display.getAdapter());
         logger.log(Level.INFO, "Driver Version: {0}", Display.getVersion());
