@@ -144,19 +144,19 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
         return null;
     }
 
-    private void setObservedFilePath(String after) {
+    private void setObservedFilePath(String assetName) {
         ProjectAssetManager mgr = assetDataObject.getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {
             logger.log(Level.WARNING, "File is not part of a jME project but tries to find original model...");
             return;
         }
-        FileObject fileObject = mgr.getAssetFileObject(after);
+        FileObject fileObject = mgr.getAssetFileObject(assetName);
         //ignoring same file -> old properties files
         if (fileObject != null) {
             if (!fileObject.equals(assetDataObject.getPrimaryFile())) {
                 if (originalObject != null) {
                     originalObject.removeFileChangeListener(this);
-                    logger.log(Level.INFO, "{0} stop listening for external changes on {1}", new Object[]{assetDataObject.getName(), originalObject});
+                    logger.log(Level.INFO, "{0} stops listening for external changes on {1}", new Object[]{assetDataObject.getName(), originalObject});
                 }
                 fileObject.addFileChangeListener(this);
                 logger.log(Level.INFO, "{0} listening for external changes on {1}", new Object[]{assetDataObject.getName(), fileObject});
@@ -165,7 +165,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
                 logger.log(Level.FINE, "Ignoring old reference to self for {0}", assetDataObject.getName());
             }
         } else {
-            logger.log(Level.INFO, "Could not get FileObject for file when trying to find original model file. Possibly deleted.");
+            logger.log(Level.INFO, "Could not get FileObject for {0} when trying to opdate original data for {1}. Possibly deleted.",new Object[]{assetName, assetDataObject.getName()});
             //TODO: add folder listener for when recreated
         }
     }
