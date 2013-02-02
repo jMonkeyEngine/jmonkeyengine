@@ -60,6 +60,7 @@ public final class ConvertModel implements ActionListener {
                             Savable sav = spatialAssetDataObject.loadAsset();
                             if (sav != null) {
                                 spatialAssetDataObject.saveAsset();
+                                spatialAssetDataObject.closeAsset();
                             }
                         } catch (Exception ex) {
                             Exceptions.printStackTrace(ex);
