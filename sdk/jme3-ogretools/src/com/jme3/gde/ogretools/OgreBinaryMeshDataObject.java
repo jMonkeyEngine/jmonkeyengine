@@ -13,6 +13,7 @@ import com.jme3.gde.ogretools.convert.OgreXMLConvertOptions;
 import com.jme3.scene.Spatial;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
@@ -34,6 +35,13 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
         if (savable != null) {
             return (Spatial) savable;
         }
+        ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
+        if (mgr == null) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("File is not part of a project!\nCannot load without ProjectAssetManager."));
+            return null;
+        }
+        //make sure its actually closed and all data gets reloaded
+        closeAsset();
         ProgressHandle handle = ProgressHandleFactory.createHandle("Converting OgreBinary");
         handle.start();
         //mesh
@@ -49,11 +57,6 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
             conv2.doConvert(options2, handle);
         }
         handle.progress("Convert Model");
-        ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
-        if (mgr == null) {
-            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("File is not part of a project!\nCannot load without ProjectAssetManager."));
-            return null;
-        }
         String assetKey = mgr.getRelativeAssetPath(options.getDestFile());
         FileLock lock = null;
         try {
@@ -63,12 +66,13 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
             //replace transient xml files in list of assets for this model
             replaceXmlFiles(mgr);
             listListener.stop();
-            savable = spatial;
             SpatialUtil.storeOriginalPathUserData(spatial);
             lock.releaseLock();
             File deleteFile = new File(options.getDestFile());
             deleteFile.delete();
             handle.finish();
+            savable = spatial;
+            logger.log(Level.INFO, "Loaded asset {0}", getName());
             return spatial;
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);

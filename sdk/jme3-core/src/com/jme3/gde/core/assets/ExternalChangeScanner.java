@@ -35,8 +35,6 @@ import com.jme3.export.Savable;
 import com.jme3.gde.core.scene.ApplicationLogHandler;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.util.SpatialUtil;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -164,7 +162,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
                 logger.log(Level.INFO, "{0} listening for external changes on {1}", new Object[]{assetDataObject.getName(), fileObject});
                 originalObject = fileObject;
             } else {
-                logger.log(Level.INFO, "Ignoring old reference to self for {0}", assetDataObject.getName());
+                logger.log(Level.FINE, "Ignoring old reference to self for {0}", assetDataObject.getName());
             }
         } else {
             logger.log(Level.INFO, "Could not get FileObject for file when trying to find original model file. Possibly deleted.");

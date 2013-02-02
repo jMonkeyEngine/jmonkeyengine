@@ -52,9 +52,10 @@ public final class ModelImporterVisualPanel4 extends JPanel {
         jTextField1.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel4.class, "ModelImporterVisualPanel4.jTextField1.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jCheckBox1, org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel4.class, "ModelImporterVisualPanel4.jCheckBox1.text")); // NOI18N
+        jCheckBox1.setToolTipText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel4.class, "ModelImporterVisualPanel4.jCheckBox1.toolTipText")); // NOI18N
 
-        jTextArea1.setColumns(20);
         jTextArea1.setEditable(false);
+        jTextArea1.setColumns(20);
         jTextArea1.setLineWrap(true);
         jTextArea1.setRows(5);
         jTextArea1.setText(org.openide.util.NbBundle.getMessage(ModelImporterVisualPanel4.class, "ModelImporterVisualPanel4.jTextArea1.text")); // NOI18N
@@ -68,9 +69,9 @@ public final class ModelImporterVisualPanel4 extends JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jLabel1)
-                .addContainerGap(303, Short.MAX_VALUE))
-            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE)
-            .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE)
+                .addContainerGap(322, Short.MAX_VALUE))
+            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
+            .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
         layout.setVerticalGroup(
@@ -82,7 +83,7 @@ public final class ModelImporterVisualPanel4 extends JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jCheckBox1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables

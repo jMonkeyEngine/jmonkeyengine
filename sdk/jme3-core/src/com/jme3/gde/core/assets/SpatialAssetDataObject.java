@@ -87,18 +87,20 @@ public class SpatialAssetDataObject extends AssetDataObject {
             DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("File is not part of a project!\nCannot load without ProjectAssetManager."));
             return null;
         }
+        //make sure its actually closed and all data gets reloaded
+        closeAsset();
         FileLock lock = null;
         try {
             lock = getPrimaryFile().lock();
-            mgr.deleteFromCache(getAssetKey());
             listListener.start();
             Spatial spatial = mgr.loadModel(getAssetKey());
             listListener.stop();
-            savable = spatial;
             if (!(this instanceof BinaryModelDataObject)) {
                 SpatialUtil.storeOriginalPathUserData(spatial);
             }
             lock.releaseLock();
+            savable = spatial;
+            logger.log(Level.INFO, "Loaded asset {0}", getName());
             return spatial;
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);

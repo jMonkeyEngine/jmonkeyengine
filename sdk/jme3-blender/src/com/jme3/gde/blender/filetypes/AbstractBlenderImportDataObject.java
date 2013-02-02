@@ -47,8 +47,13 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
             DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("File is not part of a project!\nCannot load without ProjectAssetManager."));
             return null;
         }
+        //make sure its actually closed and all data gets reloaded
+        closeAsset();
         FileObject mainFile = getPrimaryFile();
-        BlenderTool.runConversionScript(SUFFIX, mainFile);
+        if (!BlenderTool.runConversionScript(SUFFIX, mainFile)) {
+            logger.log(Level.SEVERE, "Failed to create model, running blender caused an error");
+            return null;
+        }
         mainFile.getParent().refresh();
         FileObject outFile = FileUtil.findBrother(mainFile, BlenderTool.TEMP_SUFFIX);
         if (outFile == null) {
@@ -76,8 +81,9 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
             Spatial spatial = mgr.loadModel(key);
             replaceFiles();
             listListener.stop();
-            savable = spatial;
             SpatialUtil.storeOriginalPathUserData(spatial);
+            savable = spatial;
+            logger.log(Level.INFO, "Loaded asset {0}", getName());
             return spatial;
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
@@ -96,13 +102,13 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
 
     @Override
     public synchronized BlenderKey getAssetKey() {
-        if(super.getAssetKey() instanceof BlenderKey){
-            return (BlenderKey)assetKey;
+        if (super.getAssetKey() instanceof BlenderKey) {
+            return (BlenderKey) assetKey;
         }
         assetKey = new BlenderKey(super.getAssetKey().getName());
-        return (BlenderKey)assetKey;
+        return (BlenderKey) assetKey;
     }
-    
+
     protected void replaceFiles() {
         for (int i = 0; i < assetList.size(); i++) {
             FileObject fileObject = assetList.get(i);

@@ -179,21 +179,24 @@ public class AssetDataObject extends MultiDataObject {
      */
     public synchronized Savable loadAsset() {
         if (savable != null) {
-            return (Spatial) savable;
+            return savable;
         }
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {
             DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("File is not part of a project!\nCannot load without ProjectAssetManager."));
             return null;
         }
+        //make sure its actually closed and all data gets reloaded
+        closeAsset();
         FileLock lock = null;
         try {
             lock = getPrimaryFile().lock();
             listListener.start();
             Savable spatial = (Savable) mgr.loadAsset(getAssetKey());
             listListener.stop();
-            savable = spatial;
             lock.releaseLock();
+            savable = spatial;
+            logger.log(Level.INFO, "Loaded asset {0}", getName());
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         } finally {
@@ -251,18 +254,19 @@ public class AssetDataObject extends MultiDataObject {
      */
     public synchronized void closeAsset() {
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
-        if (mgr != null) {
+        if (mgr != null && savable != null) {
             logger.log(Level.INFO, "Closing asset {0}, deleting from cache.", getName());
             mgr.deleteFromCache(getAssetKey());
             //delete referenced assets too
             for (Iterator<AssetKey> it = assetKeyList.iterator(); it.hasNext();) {
                 AssetKey assetKey1 = it.next();
+                logger.log(Level.INFO, "Removing linked asset {0}, from cache via main asset {1}.", new Object[]{assetKey1.getName(), getName()});
                 mgr.deleteFromCache(assetKey1);
             }
-        } else {
+            savable = null;
+        } else if(mgr == null){
             logger.log(Level.WARNING, "Closing asset {0} with no ProjectAssetManager assigned..?", getName());
         }
-        savable = null;
     }
 
     /**
