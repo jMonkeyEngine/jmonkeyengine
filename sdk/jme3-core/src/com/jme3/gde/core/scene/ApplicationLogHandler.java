@@ -116,15 +116,15 @@ public class ApplicationLogHandler extends Handler implements Callable<JButton> 
                 NotifyUtil.error(thrown);
                 thrown.printStackTrace(io.getErr());
             } else {
-                NotifyUtil.show("Error", formatter.format(record), MessageType.ERROR, listener, 10000);
+                NotifyUtil.show("Error", formatter.format(record), MessageType.ERROR, listener, 0);
                 io.getErr().println(formatter.formatMessage(record));
             }
         } else if (record.getLevel().equals(Level.WARNING)) {
-            NotifyUtil.show("Warning", formatter.formatMessage(record), MessageType.WARNING, listener, 5000);
+            NotifyUtil.show("Warning", formatter.formatMessage(record), MessageType.WARNING, listener, 10000);
             io.getErr().println(formatter.formatMessage(record));
         } else if (record.getLevel().intValue() > 800) {
             //larger than INFO:
-            NotifyUtil.show("Info", formatter.formatMessage(record), MessageType.INFO, listener, 3000);
+            NotifyUtil.show("Info", formatter.formatMessage(record), MessageType.INFO, listener, 6000);
             io.getOut().println(formatter.formatMessage(record));
         } else if (record.getLevel().equals(Level.INFO)) {
             io.getOut().println(formatter.formatMessage(record));
