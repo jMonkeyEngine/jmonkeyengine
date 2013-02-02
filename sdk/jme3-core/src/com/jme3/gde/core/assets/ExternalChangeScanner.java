@@ -86,7 +86,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
             //TODO: execute on separate thread?
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    NotifyDescriptor.Confirmation mesg = new NotifyDescriptor.Confirmation("Original file for " + assetDataObject.getName() + "changed\nTry and reapply mesh data to j3o file?",
+                    NotifyDescriptor.Confirmation mesg = new NotifyDescriptor.Confirmation("Original file for " + assetDataObject.getName() + " changed\nTry and reapply mesh data to j3o file?",
                             "Original file changed.",
                             NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE);
                     DialogDisplayer.getDefault().notify(mesg);
