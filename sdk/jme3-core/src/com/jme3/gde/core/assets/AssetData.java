@@ -32,13 +32,16 @@
 package com.jme3.gde.core.assets;
 
 import com.jme3.asset.AssetKey;
+import com.jme3.export.Savable;
 import java.io.BufferedOutputStream;
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -62,6 +65,7 @@ import org.openide.util.Mutex.Action;
 public class AssetData {
 
     private static final Logger logger = Logger.getLogger(AssetData.class.getName());
+    private final List<AssetDataPropertyChangeListener> listeners = new ArrayList<AssetDataPropertyChangeListener>();
     private final Mutex propsMutex = new Mutex();
     private final Properties props = new Properties();
     private AssetDataObject file;
@@ -81,14 +85,28 @@ public class AssetData {
         this.extension = extension;
     }
 
-    public void setExtension(String extension) {
-        this.extension = extension;
-    }
+    /**
+     * Sets the extension of the assetData properties file, normally not
+     * necessary to use this, it will be .[originalsuffix]data, for example
+     * .j3odata.
+     *
+     * @param extension
+     */
+//    public void setExtension(String extension) {
+//        this.extension = extension;
+//    }
 
     public AssetKey<?> getAssetKey() {
         return file.getAssetKey();
     }
 
+    /**
+     * Applies the supplied keys data to the assets assetKey so it will be
+     * loaded with these settings next time loadAsset is actually loading the
+     * asset from the ProjectAssetManager.
+     *
+     * @param key
+     */
     public void setAssetKey(AssetKey key) {
         file.setAssetKeyData(key);
     }
@@ -101,10 +119,23 @@ public class AssetData {
         file.setSaveCookie(cookie);
     }
 
-    public Object loadAsset() {
+    /**
+     * Loads the asset from the DataObject via the ProjectAssetManager in the
+     * lookup. Returns the currently loaded asset when it has been loaded
+     * already, close the asset using closeAsset().
+     *
+     * @return
+     */
+    public Savable loadAsset() {
         return file.loadAsset();
     }
 
+    /**
+     * Saves this asset, when a saveExtension is set, saves it as a brother file
+     * with that extension.
+     *
+     * @throws IOException
+     */
     public void saveAsset() throws IOException {
         file.saveAsset();
     }
@@ -152,6 +183,7 @@ public class AssetData {
             }
         });
         writeProperties();
+        notifyListeners(key, ret, value);
         return ret;
     }
 
@@ -232,5 +264,26 @@ public class AssetData {
                 }
             }
         });
+    }
+
+    protected void notifyListeners(String property, String before, String after) {
+        synchronized (listeners) {
+            for (Iterator<AssetDataPropertyChangeListener> it = listeners.iterator(); it.hasNext();) {
+                AssetDataPropertyChangeListener assetDataPropertyChangeListener = it.next();
+                assetDataPropertyChangeListener.assetDataPropertyChanged(property, before, after);
+            }
+        }
+    }
+
+    public void addPropertyChangeListener(AssetDataPropertyChangeListener listener) {
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removePropertyChangeListener(AssetDataPropertyChangeListener listener) {
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
     }
 }

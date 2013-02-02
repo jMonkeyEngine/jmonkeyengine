@@ -33,13 +33,16 @@ package com.jme3.gde.core.assets;
 
 import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
+import com.jme3.asset.BlenderKey;
 import com.jme3.export.Savable;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.core.scene.ApplicationLogHandler.LogLevel;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.scene.Spatial;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -75,8 +78,15 @@ import org.openide.util.lookup.ProxyLookup;
 public class AssetDataObject extends MultiDataObject {
 
     protected static final Logger logger = Logger.getLogger(AssetDataObject.class.getName());
-    protected final Lookup lookup;
     protected final InstanceContent lookupContents = new InstanceContent();
+    protected final AbstractLookup contentLookup;
+    protected final Lookup lookup;
+    protected final AssetData assetData;
+    protected final ProjectAssetManager assetManager;
+    protected final AssetListListener listListener;
+    protected final List<FileObject> assetList = new LinkedList<FileObject>();
+    protected final List<AssetKey> assetKeyList = new LinkedList<AssetKey>();
+    protected final List<AssetKey> failedList = new LinkedList<AssetKey>();
     protected SaveCookie saveCookie = new SaveCookie() {
         public void save() throws IOException {
             //TODO: On OpenGL thread? -- safest way.. with get()?
@@ -92,23 +102,20 @@ public class AssetDataObject extends MultiDataObject {
     protected AssetKey assetKey;
     protected Savable savable;
     protected String saveExtension;
-    protected AbstractLookup contentLookup;
-    protected AssetListListener listListener;
-    protected List<FileObject> assetList = new LinkedList<FileObject>();
-    protected List<AssetKey> assetKeyList = new LinkedList<AssetKey>();
-    protected List<AssetKey> failedList = new LinkedList<AssetKey>();
 
     public AssetDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
-        contentLookup = new AbstractLookup(getLookupContents());
-        lookupContents.add(new AssetData(this));
+        contentLookup = new AbstractLookup(lookupContents);
+        assetData = new AssetData(this);
+        lookupContents.add(assetData);
         lookup = new ProxyLookup(getCookieSet().getLookup(), contentLookup);
         listListener = new AssetListListener(this, assetList, assetKeyList, failedList);
+        assetManager = findAssetManager();
+        //assign savecookie (same as method)
         setSaveCookie(saveCookie);
-        findAssetManager();
     }
 
-    protected void findAssetManager() {
+    private ProjectAssetManager findAssetManager() {
         FileObject file = getPrimaryFile();
         ProjectManager pm = ProjectManager.getDefault();
         while (file != null) {
@@ -119,7 +126,7 @@ public class AssetDataObject extends MultiDataObject {
                         ProjectAssetManager mgr = project.getLookup().lookup(ProjectAssetManager.class);
                         if (mgr != null) {
                             getLookupContents().add(mgr);
-                            return;
+                            return mgr;
                         }
                     }
                 } catch (IOException ex) {
@@ -128,7 +135,7 @@ public class AssetDataObject extends MultiDataObject {
             }
             file = file.getParent();
         }
-//        getLookupContents().add(new ProjectAssetManager(file.getParent()));
+        return null;
     }
 
     @Override
@@ -163,9 +170,16 @@ public class AssetDataObject extends MultiDataObject {
         setModified(false);
     }
 
+    /**
+     * Loads the asset from the DataObject via the ProjectAssetManager in the
+     * lookup. Returns the currently loaded asset when it has been loaded
+     * already, close the asset using closeAsset().
+     *
+     * @return
+     */
     public synchronized Savable loadAsset() {
-        if (isModified() && savable != null) {
-            return savable;
+        if (savable != null) {
+            return (Spatial) savable;
         }
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr == null) {
@@ -190,6 +204,12 @@ public class AssetDataObject extends MultiDataObject {
         return savable;
     }
 
+    /**
+     * Saves this asset, when a saveExtension is set, saves it as a brother file
+     * with that extension.
+     *
+     * @throws IOException
+     */
     public synchronized void saveAsset() throws IOException {
         if (savable == null) {
             logger.log(Level.WARNING, "Trying to write asset failed, asset data null!\nImport failed?");
@@ -222,14 +242,47 @@ public class AssetDataObject extends MultiDataObject {
             }
         }
         progressHandle.finish();
-        logger.log(LogLevel.USERINFO, "File {0} saved successfully", getPrimaryFile().getNameExt());
         setModified(false);
+        logger.log(LogLevel.USERINFO, "File {0} saved successfully", getPrimaryFile().getNameExt());
     }
 
+    /**
+     * Closes this asset so that loadAsset will cause it to be loaded
+     */
     public synchronized void closeAsset() {
+        ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
+        if (mgr != null) {
+            logger.log(Level.INFO, "Closing asset {0}, deleting from cache.", getName());
+            mgr.deleteFromCache(getAssetKey());
+            //delete referenced assets too
+            for (Iterator<AssetKey> it = assetKeyList.iterator(); it.hasNext();) {
+                AssetKey assetKey1 = it.next();
+                mgr.deleteFromCache(assetKey1);
+            }
+        } else {
+            logger.log(Level.WARNING, "Closing asset {0} with no ProjectAssetManager assigned..?", getName());
+        }
         savable = null;
     }
 
+    /**
+     * Returns the AssetKey of this asset type. When extending AssetDataObject
+     * or a subtype the class should override this so the key type and
+     * properties can be recognized properly:
+     * <pre>
+     * public synchronized MyKeyType getAssetKey() {
+     *     //return key if already set
+     *     if(super.getAssetKey() instanceof MyKeyType){
+     *         return (MyKeyType)assetKey;
+     *     }
+     *     //set own key type and return
+     *     assetKey = new MyKeyType(super.getAssetKey().getName());
+     *     return (MyKeyType)assetKey;
+     * }
+     * </pre>
+     *
+     * @return
+     */
     public synchronized AssetKey<?> getAssetKey() {
         if (assetKey == null) {
             ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
@@ -242,6 +295,13 @@ public class AssetDataObject extends MultiDataObject {
         return assetKey;
     }
 
+    /**
+     * Applies the supplied keys data to the assets assetKey so it will be
+     * loaded with these settings next time loadAsset is actually loading the
+     * asset from the ProjectAssetManager.
+     *
+     * @param key
+     */
     public synchronized void setAssetKeyData(AssetKey key) {
         try {
             BeanUtils.copyProperties(getAssetKey(), key);
@@ -287,9 +347,9 @@ public class AssetDataObject extends MultiDataObject {
             if (pm == null || loadingThread != Thread.currentThread()) {
                 return;
             }
-            FileObject obj = pm.getAssetFileObject(ak);
-            if (obj != null && !assetList.contains(obj)) {
-                assetList.add(obj);
+            FileObject fObj = pm.getAssetFileObject(ak);
+            if (fObj != null && !assetList.contains(fObj)) {
+                assetList.add(fObj);
                 assetKeyList.add(ak);
             }
         }
@@ -299,9 +359,9 @@ public class AssetDataObject extends MultiDataObject {
             if (pm == null || loadingThread != Thread.currentThread()) {
                 return;
             }
-            FileObject obj = pm.getAssetFileObject(ak1);
-            if (obj != null && assetList.contains(obj)) {
-                assetList.remove(obj);
+            FileObject fObj = pm.getAssetFileObject(ak1);
+            if (fObj != null && assetList.contains(fObj)) {
+                assetList.remove(fObj);
                 assetKeyList.remove(ak1);
             }
             if (!failedList.contains(ak1)) {

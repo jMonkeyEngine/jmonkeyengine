@@ -33,11 +33,9 @@ package com.jme3.gde.core.assets;
 
 import com.jme3.asset.AssetKey;
 import com.jme3.asset.ModelKey;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.SceneGraphVisitorAdapter;
+import com.jme3.gde.core.util.SpatialUtil;
 import com.jme3.scene.Spatial;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openide.DialogDisplayer;
@@ -81,7 +79,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
 
     @Override
     public synchronized Spatial loadAsset() {
-        if (isModified() && savable != null) {
+        if (savable != null) {
             return (Spatial) savable;
         }
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
@@ -98,7 +96,7 @@ public class SpatialAssetDataObject extends AssetDataObject {
             listListener.stop();
             savable = spatial;
             if (!(this instanceof BinaryModelDataObject)) {
-                storeOriginalPathUserData();
+                SpatialUtil.storeOriginalPathUserData(spatial);
             }
             lock.releaseLock();
             return spatial;
@@ -135,56 +133,15 @@ public class SpatialAssetDataObject extends AssetDataObject {
             AssetData properties = targetModel.getLookup().lookup(AssetData.class);
             if (properties != null) {
                 if (properties.getProperty("ORIGINAL_PATH") == null) {
-                    properties.setProperty("ORIGINAL_PATH", mgr.getRelativeAssetPath(outFile.getPath()));
+                    String path = mgr.getRelativeAssetPath(getPrimaryFile().getPath());
+                    properties.setProperty("ORIGINAL_PATH", path);
+                    logger.log(Level.INFO, "Set original path for {0} to {1}", new Object[]{getName(), path});
                 }
+            } else {
+                logger.log(Level.WARNING, "New object {0} has no AssetData?", getName());
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
-        }
-    }
-
-    /**
-     * Stores ORIGINAL_NAME and ORIGINAL_PATH UserData to all Geometry in
-     * loaded spatial
-     */
-    protected void storeOriginalPathUserData() {
-        final ArrayList<String> geomMap = new ArrayList<String>();
-        Spatial spat = (Spatial) savable;
-        if (spat != null) {
-            spat.depthFirstTraversal(new SceneGraphVisitorAdapter() {
-                @Override
-                public void visit(Geometry geom) {
-                    StringBuilder geometryIdentifier = new StringBuilder();
-                    Spatial curSpat = geom;
-                    String geomName = curSpat.getName();
-                    if (geomName == null) {
-                        logger.log(Level.WARNING, "Null geometry name!");
-                        geomName = "null";
-                    }
-                    geom.setUserData("ORIGINAL_NAME", geomName);
-                    logger.log(Level.FINE, "Set ORIGINAL_NAME for {0}", geomName);
-                    while (curSpat != null) {
-                        String name = curSpat.getName();
-                        if (name == null) {
-                            logger.log(Level.WARNING, "Null spatial name!");
-                            name = "null";
-                        }
-                        geometryIdentifier.insert(0, name);
-                        geometryIdentifier.insert(0, '/');
-                        curSpat = curSpat.getParent();
-                    }
-                    String id = geometryIdentifier.toString();
-                    if (geomMap.contains(id)) {
-                        logger.log(Level.WARNING, "Cannot create unique name for Geometry {0}: {1}", new Object[]{geom, id});
-                    }
-                    geomMap.add(id);
-                    geom.setUserData("ORIGINAL_PATH", id);
-                    logger.log(Level.FINE, "Set ORIGINAL_PATH for {0}", id);
-                    super.visit(geom);
-                }
-            });
-        } else {
-            logger.log(Level.SEVERE, "No geometry available when trying to scan initial geometry configuration");
         }
     }
 }
