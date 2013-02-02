@@ -9,6 +9,7 @@ import com.jme3.gde.blender.BlenderTool;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
 import com.jme3.gde.core.util.Beans;
+import com.jme3.gde.core.util.SpatialUtil;
 import com.jme3.scene.Spatial;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -35,6 +36,9 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
 
     @Override
     public Spatial loadAsset() {
+        if (savable != null) {
+            return (Spatial) savable;
+        }
         if (SUFFIX == null) {
             throw new IllegalStateException("Suffix for blender filetype is null! Set SUFFIX = \"sfx\" in constructor!");
         }
@@ -73,7 +77,7 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
             replaceFiles();
             listListener.stop();
             savable = spatial;
-            storeOriginalPathUserData();
+            SpatialUtil.storeOriginalPathUserData(spatial);
             return spatial;
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);

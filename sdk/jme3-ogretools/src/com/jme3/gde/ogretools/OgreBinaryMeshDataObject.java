@@ -7,21 +7,18 @@ package com.jme3.gde.ogretools;
 import com.jme3.asset.AssetKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
+import com.jme3.gde.core.util.SpatialUtil;
 import com.jme3.gde.ogretools.convert.OgreXMLConvert;
 import com.jme3.gde.ogretools.convert.OgreXMLConvertOptions;
 import com.jme3.scene.Spatial;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.util.Exceptions;
@@ -34,6 +31,9 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
 
     @Override
     public Spatial loadAsset() {
+        if (savable != null) {
+            return (Spatial) savable;
+        }
         ProgressHandle handle = ProgressHandleFactory.createHandle("Converting OgreBinary");
         handle.start();
         //mesh
@@ -64,7 +64,7 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
             replaceXmlFiles(mgr);
             listListener.stop();
             savable = spatial;
-            storeOriginalPathUserData();
+            SpatialUtil.storeOriginalPathUserData(spatial);
             lock.releaseLock();
             File deleteFile = new File(options.getDestFile());
             deleteFile.delete();
