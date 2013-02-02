@@ -98,6 +98,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
                             Spatial spat = (Spatial) assetDataObject.loadAsset();
                             SpatialUtil.updateOriginalMeshData(spat, original);
                             closeOriginalSpatial();
+                            assetDataObject.saveAsset();
                             return null;
                         }
                     });
