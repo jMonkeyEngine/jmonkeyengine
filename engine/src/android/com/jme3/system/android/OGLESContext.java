@@ -131,7 +131,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
             int[] version = new int[2];
             if (egl.eglInitialize(display, version) == true) {
-                logger.log(Level.CONFIG, "Display EGL Version: {0}.{1}", new Object[]{version[0], version[1]});
+                logger.log(Level.INFO, "Display EGL Version: {0}.{1}", new Object[]{version[0], version[1]});
             }
 
             try {

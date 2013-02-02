@@ -47,6 +47,7 @@ import java.util.logging.Logger;
 
 public class JmeSystem {
 
+    private static final Logger logger = Logger.getLogger(JmeSystem.class.getName());
     public static enum StorageFolderType {
         Internal,
         External,

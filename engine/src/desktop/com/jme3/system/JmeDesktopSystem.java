@@ -305,7 +305,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         } catch (SecurityException ex) {
             logger.log(Level.SEVERE, "Security error in creating log file", ex);
         }
-        logger.log(Level.FINE, "Running on {0}", getFullName());
+        logger.log(Level.INFO, "Running on {0}", getFullName());
 
         if (!lowPermissions) {
             try {
