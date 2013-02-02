@@ -167,7 +167,8 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
                 logger.log(Level.INFO, "Ignoring old reference to self for {0}", assetDataObject.getName());
             }
         } else {
-            logger.log(Level.WARNING, "Could not get FileObject for file when trying to find original model file.");
+            logger.log(Level.INFO, "Could not get FileObject for file when trying to find original model file. Possibly deleted.");
+            //TODO: add folder listener for when recreated
         }
     }
 
@@ -197,7 +198,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
             originalObject.removeFileChangeListener(this);
             originalObject = null;
         }
-        //TODO: add folder listener for when recreated?
+        //TODO: add folder listener for when recreated
     }
 
     public void fileRenamed(FileRenameEvent fe) {
