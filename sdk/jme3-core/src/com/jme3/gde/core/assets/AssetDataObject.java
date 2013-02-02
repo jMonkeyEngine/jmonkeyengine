@@ -33,12 +33,10 @@ package com.jme3.gde.core.assets;
 
 import com.jme3.asset.AssetEventListener;
 import com.jme3.asset.AssetKey;
-import com.jme3.asset.BlenderKey;
 import com.jme3.export.Savable;
 import com.jme3.export.binary.BinaryExporter;
 import com.jme3.gde.core.scene.ApplicationLogHandler.LogLevel;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.scene.Spatial;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -264,7 +262,7 @@ public class AssetDataObject extends MultiDataObject {
                 mgr.deleteFromCache(assetKey1);
             }
             savable = null;
-        } else if(mgr == null){
+        } else if (mgr == null) {
             logger.log(Level.WARNING, "Closing asset {0} with no ProjectAssetManager assigned..?", getName());
         }
     }
@@ -316,14 +314,35 @@ public class AssetDataObject extends MultiDataObject {
         }
     }
 
+    /**
+     * Gets a list of FileObjects that represent all files that have been loaded
+     * along this asset. This includes textures for models as well as materials
+     * and other files. It does not include j3md and shader files.
+     *
+     * @return
+     */
     public synchronized List<FileObject> getAssetList() {
         return new LinkedList<FileObject>(assetList);
     }
 
+    /**
+     * Gets a list of AssetKeys that represent all files that have been loaded
+     * along this asset. This includes textures for models as well as materials
+     * and other files. It does not include j3md and shader files.
+     *
+     * @return
+     */
     public synchronized List<AssetKey> getAssetKeyList() {
         return new LinkedList<AssetKey>(assetKeyList);
     }
 
+    /**
+     * Gets a list of AssetKeys that represent all files that failed to load for
+     * this asset. These were tried to be located but could not be found by the
+     * import AssetManager.
+     *
+     * @return
+     */
     public synchronized List<AssetKey> getFailedList() {
         return new LinkedList<AssetKey>(failedList);
     }
