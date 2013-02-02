@@ -38,6 +38,8 @@ import org.openide.loaders.MultiFileLoader;
 
 public class BinaryModelDataObject extends SpatialAssetDataObject {
 
+    protected final ExternalChangeScanner scanner = new ExternalChangeScanner(this);
+
     public BinaryModelDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
     }
