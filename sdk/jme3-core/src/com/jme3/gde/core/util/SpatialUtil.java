@@ -186,6 +186,13 @@ public class SpatialUtil {
         return holder.spatial;
     }
 
+    /**
+     * Updates the mesh data of existing objects from an original file, adds new
+     * nonexisting geometry objects to the root, including their parents if they
+     * don't exist.
+     * @param root
+     * @param original 
+     */
     public static void updateMeshDataFromOriginal(final Spatial root, final Spatial original) {
         original.depthFirstTraversal(new SceneGraphVisitorAdapter() {
             @Override
@@ -193,7 +200,7 @@ public class SpatialUtil {
                 //will always return same class type as 2nd param, so casting is safe
                 Geometry spat = (Geometry) findTaggedSpatial(root, geom);
                 if (spat != null) {
-                    spat.setMesh(geom.getMesh().deepClone());
+                    spat.setMesh(geom.getMesh());
                     logger.log(LogLevel.USERINFO, "Updated mesh for Geometry {0}", geom.getName());
                 } else {
                     addLeafWithNonExistingParents(root, geom);
