@@ -96,7 +96,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
                         public Void call() throws Exception {
                             Spatial original = loadOriginalSpatial();
                             Spatial spat = (Spatial) assetDataObject.loadAsset();
-                            SpatialUtil.updateOriginalMeshData(spat, original);
+                            SpatialUtil.updateMeshDataFromOriginal(spat, original);
                             closeOriginalSpatial();
                             assetDataObject.saveAsset();
                             return null;

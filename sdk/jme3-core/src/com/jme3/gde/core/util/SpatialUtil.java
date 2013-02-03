@@ -33,6 +33,7 @@ package com.jme3.gde.core.util;
 
 import com.jme3.gde.core.scene.ApplicationLogHandler.LogLevel;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
@@ -92,7 +93,7 @@ public class SpatialUtil {
                     Spatial curSpat = geom;
                     String geomName = curSpat.getName();
                     if (geomName == null) {
-                        logger.log(Level.WARNING, "Null geometry name!");
+                        logger.log(Level.WARNING, "Null Geometry name!");
                         geomName = "null";
                     }
                     geom.setUserData("ORIGINAL_NAME", geomName);
@@ -108,7 +109,7 @@ public class SpatialUtil {
                 }
             });
         } else {
-            logger.log(Level.SEVERE, "No geometry available when trying to scan initial geometry configuration");
+            logger.log(Level.SEVERE, "No geometry available when trying to scan initial Geometry configuration");
         }
     }
 
@@ -128,7 +129,7 @@ public class SpatialUtil {
         final String name = needle.getName();
         final String path = getSpatialPath(needle);
         if (name == null || path == null) {
-            logger.log(Level.INFO, "Trying to find tagged spatial with null name spatial for {0}.", root);
+            logger.log(Level.INFO, "Trying to find tagged Spatial with null name spatial for {0}.", root);
         }
         final Class clazz = needle.getClass();
         String rootName = root.getUserData("ORIGINAL_NAME");
@@ -145,7 +146,7 @@ public class SpatialUtil {
                     if (holder.spatial == null) {
                         holder.spatial = spatial;
                     } else {
-                        logger.log(Level.WARNING, "Found spatial {0} twice in {1}", new Object[]{path, root});
+                        logger.log(Level.WARNING, "Found Spatial {0} twice in {1}", new Object[]{path, root});
                     }
                 }
             }
@@ -164,17 +165,20 @@ public class SpatialUtil {
      * @param path
      */
     public static Spatial findSpatial(final Spatial root, final String name, final String path) {
-        if (name.equals(root.getName()) && getSpatialPath(root).equals(path)) {
+        if (name == null || path == null) {
+            logger.log(Level.INFO, "Trying to find Spatial with null name spatial for {0}.", root);
+        }
+        if (name.equals(root.getName()) && path.equals(getSpatialPath(root))) {
             return root;
         }
         final SpatialHolder holder = new SpatialHolder();
         root.depthFirstTraversal(new SceneGraphVisitor() {
             public void visit(Spatial spatial) {
-                if (name.equals(spatial.getName()) && getSpatialPath(spatial).equals(path)) {
+                if (name.equals(spatial.getName()) && path.equals(getSpatialPath(spatial))) {
                     if (holder.spatial == null) {
                         holder.spatial = spatial;
                     } else {
-                        logger.log(Level.WARNING, "Found spatial {0} twice in {1}", new Object[]{path, root});
+                        logger.log(Level.WARNING, "Found Spatial {0} twice in {1}", new Object[]{path, root});
                     }
                 }
             }
@@ -182,30 +186,56 @@ public class SpatialUtil {
         return holder.spatial;
     }
 
-    public static void updateOriginalMeshData(final Spatial root, final Spatial original) {
+    public static void updateMeshDataFromOriginal(final Spatial root, final Spatial original) {
         original.depthFirstTraversal(new SceneGraphVisitorAdapter() {
             @Override
             public void visit(Geometry geom) {
-                //will always return same class type, so casting is safe
+                //will always return same class type as 2nd param, so casting is safe
                 Geometry spat = (Geometry) findTaggedSpatial(root, geom);
                 if (spat != null) {
                     spat.setMesh(geom.getMesh().deepClone());
-                    logger.log(LogLevel.USERINFO, "Updated mesh for geometry {0}", geom.getName());
+                    logger.log(LogLevel.USERINFO, "Updated mesh for Geometry {0}", geom.getName());
                 } else {
-//                    addNewOriginal()
+                    addLeafWithNonExistingParents(root, geom);
                 }
             }
         });
         return;
     }
 
-    private void addNewOriginalGeometry(final Spatial root, final Geometry original) {
-
-        return;
+    /**
+     * Adds a leaf to a spatial, including all nonexisting parents.
+     *
+     * @param root
+     * @param original
+     */
+    private static void addLeafWithNonExistingParents(Spatial root, Spatial leaf) {
+        if (!(root instanceof Node)) {
+            logger.log(Level.WARNING, "Cannot add new Leaf {0} to {1}, is not a Node!", new Object[]{leaf.getName(), root.getName()});
+            return;
+        }
+        for (Spatial s = leaf; s.getParent() != null; s = s.getParent()) {
+            Spatial parent = s.getParent();
+            Spatial other = findSpatial(root, parent.getName(), getSpatialPath(parent));
+            if (other == null) {
+                continue;
+            }
+            if (other instanceof Node) {
+                logger.log(Level.INFO, "Attaching {0} to {1} in root {2} to add leaf {3}", new Object[]{s, other, root, leaf});
+                Node otherNode = (Node) other;
+                otherNode.attachChild(s);
+                //set original path data to leaf
+                leaf.setUserData(ORIGINAL_NAME, leaf.getName());
+                leaf.setUserData(ORIGINAL_PATH, getSpatialPath(leaf));
+                logger.log(LogLevel.USERINFO, "Attached Node {0} with leaf {0}", new Object[]{other, leaf});
+            } else {
+                logger.log(Level.WARNING, "Cannot attach leaf {0} to found spatial {1} in root {2}, not a node.", new Object[]{leaf, other, root});
+            }
+        }
     }
 
-    public void clearRemovedOriginals(final Spatial root, final Spatial original) {
-
+    public static void clearRemovedOriginals(final Spatial root, final Spatial original) {
+        //TODO
         return;
     }
 
