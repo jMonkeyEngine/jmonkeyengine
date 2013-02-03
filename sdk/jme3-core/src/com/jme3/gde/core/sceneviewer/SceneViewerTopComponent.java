@@ -54,8 +54,6 @@ autostore = false)
 public final class SceneViewerTopComponent extends TopComponent {
 
     private static SceneViewerTopComponent instance;
-    private static boolean browserOpened = false;
-//    private AtomicBoolean errorMessageOpen = new AtomicBoolean(false);
     /**
      * path to the icon used by the component and its open action
      */
@@ -63,7 +61,6 @@ public final class SceneViewerTopComponent extends TopComponent {
     private static final String PREFERRED_ID = "SceneViewerTopComponent";
     private SceneApplication app;
     private HelpCtx helpContext = new HelpCtx("com.jme3.gde.core.sceneviewer");
-//    private Canvas oglCanvas;
     private Component oglCanvas;
 
     public SceneViewerTopComponent() {
@@ -75,7 +72,6 @@ public final class SceneViewerTopComponent extends TopComponent {
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         try {
             app = SceneApplication.getApplication();
-//            oglCanvas = ((JmeCanvasContext) app.getContext()).getCanvas();
             oglCanvas = app.getMainPanel();
             oglCanvas.setFocusable(false);
             oGLPanel.add(oglCanvas);
@@ -292,7 +288,7 @@ public final class SceneViewerTopComponent extends TopComponent {
 
     @Override
     public int getPersistenceType() {
-        return TopComponent.PERSISTENCE_ALWAYS;
+        return TopComponent.PERSISTENCE_NEVER;
     }
 
     @Override
@@ -309,16 +305,6 @@ public final class SceneViewerTopComponent extends TopComponent {
     @Override
     public void componentOpened() {
         super.componentOpened();
-//        if(!NbPreferences.forModule(SceneViewerTopComponent.class).getBoolean("HELP_SHOWN", false)){
-//            java.awt.EventQueue.invokeLater(new Runnable() {
-//
-//                public void run() {
-//                    Lookup.getDefault().lookup(Help.class).showHelp(new HelpCtx("com.jme3.gde.core.about"));
-//                }
-//            });
-//            NbPreferences.forModule(SceneViewerTopComponent.class).put("HELP_SHOWN", "true");
-//        }
-//        oglCanvas.setActiveUpdates(true);
     }
 
     @Override
