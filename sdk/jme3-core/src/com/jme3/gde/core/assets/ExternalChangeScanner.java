@@ -84,12 +84,12 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
             //TODO: execute on separate thread?
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    NotifyDescriptor.Confirmation mesg = new NotifyDescriptor.Confirmation("Original file for " + assetDataObject.getName() + " changed\nTry and reapply mesh data to j3o file?",
+                    NotifyDescriptor.Confirmation mesg = new NotifyDescriptor.Confirmation("Original file for " + assetDataObject.getName() + " changed\nTry and reapply mesh data to j3o file?\nThe j3o will be saved after the data has been updated.",
                             "Original file changed.",
                             NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE);
                     DialogDisplayer.getDefault().notify(mesg);
                     if (mesg.getValue() != NotifyDescriptor.Confirmation.YES_OPTION) {
-                        userNotified.getAndSet(false);
+                        userNotified.set(false);
                         return;
                     }
                     SceneApplication.getApplication().enqueue(new Callable<Void>() {
@@ -102,7 +102,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
                             return null;
                         }
                     });
-                    userNotified.getAndSet(false);
+                    userNotified.set(false);
                 }
             });
         } else {
@@ -166,7 +166,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
                 logger.log(Level.FINE, "Ignoring old reference to self for {0}", assetDataObject.getName());
             }
         } else {
-            logger.log(Level.INFO, "Could not get FileObject for {0} when trying to opdate original data for {1}. Possibly deleted.",new Object[]{assetName, assetDataObject.getName()});
+            logger.log(Level.INFO, "Could not get FileObject for {0} when trying to opdate original data for {1}. Possibly deleted.", new Object[]{assetName, assetDataObject.getName()});
             //TODO: add folder listener for when recreated
         }
     }
