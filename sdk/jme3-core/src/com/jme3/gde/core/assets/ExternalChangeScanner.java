@@ -40,6 +40,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileAttributeEvent;
@@ -94,11 +96,19 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
                     }
                     SceneApplication.getApplication().enqueue(new Callable<Void>() {
                         public Void call() throws Exception {
-                            Spatial original = loadOriginalSpatial();
-                            Spatial spat = (Spatial) assetDataObject.loadAsset();
-                            SpatialUtil.updateMeshDataFromOriginal(spat, original);
-                            closeOriginalSpatial();
-                            assetDataObject.saveAsset();
+                            ProgressHandle handle = ProgressHandleFactory.createHandle("Updating file data");
+                            handle.start();
+                            try {
+                                Spatial original = loadOriginalSpatial();
+                                Spatial spat = (Spatial) assetDataObject.loadAsset();
+                                SpatialUtil.updateMeshDataFromOriginal(spat, original);
+                                closeOriginalSpatial();
+                                assetDataObject.saveAsset();
+                            } catch (Exception e) {
+                                logger.log(Level.SEVERE, "Exception when trying to update external data.", e);
+                            } finally {
+                                handle.finish();
+                            }
                             return null;
                         }
                     });
