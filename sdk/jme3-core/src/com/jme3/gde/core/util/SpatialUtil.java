@@ -88,29 +88,28 @@ public class SpatialUtil {
         //TODO: only stores for geometry atm
         final ArrayList<String> geomMap = new ArrayList<String>();
         if (spat != null) {
-            spat.depthFirstTraversal(new SceneGraphVisitorAdapter() {
+            spat.depthFirstTraversal(new SceneGraphVisitor() {
                 @Override
-                public void visit(Geometry geom) {
+                public void visit(Spatial geom) {
                     Spatial curSpat = geom;
                     String geomName = curSpat.getName();
                     if (geomName == null) {
-                        logger.log(Level.WARNING, "Null Geometry name!");
+                        logger.log(Level.WARNING, "Null Spatial name!");
                         geomName = "null";
                     }
                     geom.setUserData("ORIGINAL_NAME", geomName);
                     logger.log(Level.FINE, "Set ORIGINAL_NAME for {0}", geomName);
                     String id = SpatialUtil.getSpatialPath(curSpat);
                     if (geomMap.contains(id)) {
-                        logger.log(Level.WARNING, "Cannot create unique name for Geometry {0}: {1}", new Object[]{geom, id});
+                        logger.log(Level.WARNING, "Cannot create unique name for Spatial {0}: {1}", new Object[]{geom, id});
                     }
                     geomMap.add(id);
                     geom.setUserData("ORIGINAL_PATH", id);
                     logger.log(Level.FINE, "Set ORIGINAL_PATH for {0}", id);
-                    super.visit(geom);
                 }
             });
         } else {
-            logger.log(Level.SEVERE, "No geometry available when trying to scan initial Geometry configuration");
+            logger.log(Level.SEVERE, "No Spatial available when trying to add Spatial paths.");
         }
     }
 
@@ -225,23 +224,53 @@ public class SpatialUtil {
         }
         for (Spatial s = leaf; s.getParent() != null; s = s.getParent()) {
             Spatial parent = s.getParent();
-            Spatial other = findSpatial(root, parent.getName(), getSpatialPath(parent));
+            Spatial other = findTaggedSpatial(root, parent);
             if (other == null) {
                 continue;
             }
             if (other instanceof Node) {
                 logger.log(Level.INFO, "Attaching {0} to {1} in root {2} to add leaf {3}", new Object[]{s, other, root, leaf});
+                //set original path data to leaf and new parents
+                for(Spatial spt = leaf; spt != parent; spt = spt.getParent()){
+                    spt.setUserData(ORIGINAL_NAME, spt.getName());
+                    spt.setUserData(ORIGINAL_PATH, getSpatialPath(spt));
+                    spt = spt.getParent();
+                }
+                //attach to new node in own root
                 Node otherNode = (Node) other;
                 otherNode.attachChild(s);
-                //set original path data to leaf
-                leaf.setUserData(ORIGINAL_NAME, leaf.getName());
-                leaf.setUserData(ORIGINAL_PATH, getSpatialPath(leaf));
-                logger.log(LogLevel.USERINFO, "Attached Node {0} with leaf {0}", new Object[]{other, leaf});
+                logger.log(LogLevel.USERINFO, "Attached Node {0} with leaf {0}", new Object[]{other.getName(), leaf.getName()});
                 return;
             } else {
                 logger.log(Level.WARNING, "Cannot attach leaf {0} to found spatial {1} in root {2}, not a node.", new Object[]{leaf, other, root});
             }
         }
+        logger.log(Level.WARNING, "Could not attach new Leaf {0}, no root node found.", leaf.getName());
+    }
+
+    public static void updateAnimControlDataFromOriginal(final Spatial root, final Spatial original) {
+        //loop through original to also find new AnimControls, we expect all nodes etc. to exist
+        //TODO: can (blender) AnimControls end up in other nodes that are not a parent of the geometry they modify?
+        original.depthFirstTraversal(new SceneGraphVisitor() {
+            @Override
+            public void visit(Spatial spat) {
+                AnimControl animContol = spat.getControl(AnimControl.class);
+                if (animContol != null) {
+                    Spatial otherSpatial = findTaggedSpatial(root, spat);
+                    if (otherSpatial != null) {
+                        AnimControl myControl = otherSpatial.getControl(AnimControl.class);
+                        if (myControl != null) {
+                            //copy control data
+                        } else {
+                            //copy control
+                        }
+                    } else {
+                        logger.log(Level.WARNING, "Could not find sibling for {0} in root {1} when trying to apply AnimControl data", new Object[]{spat, root});
+                    }
+                }
+            }
+        });
+        //TODO: remove old AnimControls?
     }
 
     public static void clearRemovedOriginals(final Spatial root, final Spatial original) {
