@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.util;
 
+import com.jme3.animation.AnimControl;
 import com.jme3.gde.core.scene.ApplicationLogHandler.LogLevel;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -190,10 +191,12 @@ public class SpatialUtil {
      * Updates the mesh data of existing objects from an original file, adds new
      * nonexisting geometry objects to the root, including their parents if they
      * don't exist.
+     *
      * @param root
-     * @param original 
+     * @param original
      */
     public static void updateMeshDataFromOriginal(final Spatial root, final Spatial original) {
+        //loop through original to also find new geometry
         original.depthFirstTraversal(new SceneGraphVisitorAdapter() {
             @Override
             public void visit(Geometry geom) {
@@ -207,7 +210,6 @@ public class SpatialUtil {
                 }
             }
         });
-        return;
     }
 
     /**
@@ -235,6 +237,7 @@ public class SpatialUtil {
                 leaf.setUserData(ORIGINAL_NAME, leaf.getName());
                 leaf.setUserData(ORIGINAL_PATH, getSpatialPath(leaf));
                 logger.log(LogLevel.USERINFO, "Attached Node {0} with leaf {0}", new Object[]{other, leaf});
+                return;
             } else {
                 logger.log(Level.WARNING, "Cannot attach leaf {0} to found spatial {1} in root {2}, not a node.", new Object[]{leaf, other, root});
             }
@@ -242,7 +245,7 @@ public class SpatialUtil {
     }
 
     public static void clearRemovedOriginals(final Spatial root, final Spatial original) {
-        //TODO
+        //TODO: Clear old stuff at all?
         return;
     }
 
