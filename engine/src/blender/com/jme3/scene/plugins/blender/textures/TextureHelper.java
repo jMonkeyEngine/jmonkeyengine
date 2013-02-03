@@ -708,7 +708,7 @@ public class TextureHelper extends AbstractBlenderHelper {
         }
 
         AssetManager assetManager = blenderContext.getAssetManager();
-        name = name.replaceAll("\\\\", "\\/");
+        name = name.replace('\\', '/');
         Texture result = null;
 
         if (name.startsWith("//")) {
