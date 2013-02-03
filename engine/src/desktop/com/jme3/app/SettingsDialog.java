@@ -657,6 +657,9 @@ public final class SettingsDialog extends JDialog {
         if (!fullscreenBox.isSelected()) {
             displayResCombo.setModel(new DefaultComboBoxModel(
                     getWindowedResolutions(windowModes)));
+            if (displayResCombo.getItemCount() > 0) {
+                displayResCombo.setSelectedIndex(displayResCombo.getItemCount()-1);
+            }
             colorDepthCombo.setModel(new DefaultComboBoxModel(new String[]{
                         "24 bpp", "16 bpp"}));
             displayFreqCombo.setModel(new DefaultComboBoxModel(
@@ -664,7 +667,10 @@ public final class SettingsDialog extends JDialog {
             displayFreqCombo.setEnabled(false);
         } else {
             displayResCombo.setModel(new DefaultComboBoxModel(
-                    getResolutions(modes, Integer.MAX_VALUE)));
+                    getResolutions(modes, Integer.MAX_VALUE, Integer.MAX_VALUE)));
+            if (displayResCombo.getItemCount() > 0) {
+                displayResCombo.setSelectedIndex(displayResCombo.getItemCount()-1);
+            }
             displayFreqCombo.setEnabled(true);
             updateDisplayChoices();
         }
@@ -704,17 +710,21 @@ public final class SettingsDialog extends JDialog {
      * Returns every unique resolution from an array of <code>DisplayMode</code>s
      * where the resolution is greater than the configured minimums.
      */
-    private String[] getResolutions(DisplayMode[] modes, int heightLimit) {
+    private String[] getResolutions(DisplayMode[] modes, int heightLimit, int widthLimit) {
+        Insets insets = getInsets();
+        heightLimit -= insets.top + insets.bottom;
+        widthLimit -= insets.left + insets.right;
+        
         ArrayList<String> resolutions = new ArrayList<String>(modes.length);
         for (int i = 0; i < modes.length; i++) {
             int height = modes[i].getHeight();
             int width = modes[i].getWidth();
-            if (width >= minWidth && height >= minHeight && height <= heightLimit) {
-                if (height == heightLimit) {
-                    // If height is equal to height limit then subtract the size of the window frame and use that
-                    Insets insets = getInsets();
-                    height -= insets.top + insets.bottom;
-                    width -= insets.left + insets.right;
+            if (width >= minWidth && height >= minHeight) {
+                if (height >= heightLimit) {
+                    height = heightLimit;
+                }
+                if (width >= widthLimit) {
+                    width = widthLimit;
                 }
                 
                 String res = width + " x " + height;
@@ -736,13 +746,18 @@ public final class SettingsDialog extends JDialog {
      */
     private String[] getWindowedResolutions(DisplayMode[] modes) {
         int maxHeight = 0;
+        int maxWidth = 0;
+        
         for (int i = 0; i < modes.length; i++) {
             if (maxHeight < modes[i].getHeight()) {
                 maxHeight = modes[i].getHeight();
             }
+            if (maxWidth < modes[i].getWidth()) {
+                maxWidth = modes[i].getWidth();
+            }
         }
 
-        return getResolutions(modes, maxHeight);
+        return getResolutions(modes, maxHeight, maxWidth);
     }
 
     /**
