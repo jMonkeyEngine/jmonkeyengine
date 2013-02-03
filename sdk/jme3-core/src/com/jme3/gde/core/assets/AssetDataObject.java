@@ -317,7 +317,7 @@ public class AssetDataObject extends MultiDataObject {
     /**
      * Gets a list of FileObjects that represent all files that have been loaded
      * along this asset. This includes textures for models as well as materials
-     * and other files. It does not include j3md and shader files.
+     * and other files.
      *
      * @return
      */
@@ -328,7 +328,7 @@ public class AssetDataObject extends MultiDataObject {
     /**
      * Gets a list of AssetKeys that represent all files that have been loaded
      * along this asset. This includes textures for models as well as materials
-     * and other files. It does not include j3md and shader files.
+     * and other files.
      *
      * @return
      */
