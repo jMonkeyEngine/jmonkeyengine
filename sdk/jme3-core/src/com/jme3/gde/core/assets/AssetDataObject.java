@@ -253,12 +253,10 @@ public class AssetDataObject extends MultiDataObject {
     public synchronized void closeAsset() {
         ProjectAssetManager mgr = getLookup().lookup(ProjectAssetManager.class);
         if (mgr != null && savable != null) {
-            logger.log(Level.INFO, "Closing asset {0}, deleting from cache.", getName());
-            mgr.deleteFromCache(getAssetKey());
             //delete referenced assets too
             for (Iterator<AssetKey> it = assetKeyList.iterator(); it.hasNext();) {
                 AssetKey assetKey1 = it.next();
-                logger.log(Level.INFO, "Removing linked asset {0}, from cache via main asset {1}.", new Object[]{assetKey1.getName(), getName()});
+                logger.log(Level.INFO, "Removing asset {0}, from cache via main asset {1}.", new Object[]{assetKey1.getName(), getName()});
                 mgr.deleteFromCache(assetKey1);
             }
             savable = null;
