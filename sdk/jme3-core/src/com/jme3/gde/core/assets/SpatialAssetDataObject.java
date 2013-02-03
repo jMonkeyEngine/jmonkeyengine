@@ -89,25 +89,18 @@ public class SpatialAssetDataObject extends AssetDataObject {
         }
         //make sure its actually closed and all data gets reloaded
         closeAsset();
-        FileLock lock = null;
         try {
-            lock = getPrimaryFile().lock();
             listListener.start();
             Spatial spatial = mgr.loadModel(getAssetKey());
             listListener.stop();
             if (!(this instanceof BinaryModelDataObject)) {
                 SpatialUtil.storeOriginalPathUserData(spatial);
             }
-            lock.releaseLock();
             savable = spatial;
             logger.log(Level.INFO, "Loaded asset {0}", getName());
             return spatial;
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
-        } finally {
-            if (lock != null) {
-                lock.releaseLock();
-            }
         }
         return null;
     }

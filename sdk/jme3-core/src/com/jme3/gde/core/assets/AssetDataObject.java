@@ -220,7 +220,7 @@ public class AssetDataObject extends MultiDataObject {
         ProgressHandle progressHandle = ProgressHandleFactory.createHandle("Saving File..");
         progressHandle.start();
         BinaryExporter exp = BinaryExporter.getInstance();
-        FileLock lock = null;
+//        FileLock lock = null;
         OutputStream out = null;
         try {
             if (saveExtension == null) {
@@ -235,16 +235,16 @@ public class AssetDataObject extends MultiDataObject {
             }
             exp.save(savable, out);
         } finally {
-            if (lock != null) {
-                lock.releaseLock();
-            }
+//            if (lock != null) {
+//                lock.releaseLock();
+//            }
             if (out != null) {
                 out.close();
             }
         }
         progressHandle.finish();
         setModified(false);
-        logger.log(LogLevel.USERINFO, "File {0} saved successfully", getPrimaryFile().getNameExt());
+        logger.log(Level.INFO, "File {0} saved successfully", getPrimaryFile().getNameExt());
     }
 
     /**

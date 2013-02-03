@@ -42,47 +42,36 @@ public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
         }
         //make sure its actually closed and all data gets reloaded
         closeAsset();
-        ProgressHandle handle = ProgressHandleFactory.createHandle("Converting OgreBinary");
-        handle.start();
         //mesh
         OgreXMLConvertOptions options = new OgreXMLConvertOptions(getPrimaryFile().getPath());
         options.setBinaryFile(true);
         OgreXMLConvert conv = new OgreXMLConvert();
-        conv.doConvert(options, handle);
+        conv.doConvert(options, null);
         //try skeleton
         if (getPrimaryFile().existsExt("skeleton")) {
             OgreXMLConvertOptions options2 = new OgreXMLConvertOptions(getPrimaryFile().getParent().getFileObject(getPrimaryFile().getName(), "skeleton").getPath());
             options2.setBinaryFile(true);
             OgreXMLConvert conv2 = new OgreXMLConvert();
-            conv2.doConvert(options2, handle);
+            conv2.doConvert(options2, null);
         }
-        handle.progress("Convert Model");
         String assetKey = mgr.getRelativeAssetPath(options.getDestFile());
-        FileLock lock = null;
         try {
-            lock = getPrimaryFile().lock();
             listListener.start();
             Spatial spatial = mgr.loadModel(assetKey);
             //replace transient xml files in list of assets for this model
             replaceXmlFiles(mgr);
             listListener.stop();
             SpatialUtil.storeOriginalPathUserData(spatial);
-            lock.releaseLock();
             File deleteFile = new File(options.getDestFile());
             deleteFile.delete();
-            handle.finish();
             savable = spatial;
             logger.log(Level.INFO, "Loaded asset {0}", getName());
             return spatial;
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
-            if (lock != null) {
-                lock.releaseLock();
-            }
         }
         File deleteFile = new File(options.getDestFile());
         deleteFile.delete();
-        handle.finish();
         return null;
     }
 

@@ -74,9 +74,7 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
         String assetKeyName = mgr.getRelativeAssetPath(outFile.getPath());
         BlenderKey key = new BlenderKey(assetKeyName);
         Beans.copyProperties(key, getAssetKey());
-        FileLock lock = null;
         try {
-            lock = getPrimaryFile().lock();
             listListener.start();
             Spatial spatial = mgr.loadModel(key);
             replaceFiles();
@@ -85,12 +83,9 @@ public abstract class AbstractBlenderImportDataObject extends SpatialAssetDataOb
             savable = spatial;
             logger.log(Level.INFO, "Loaded asset {0}", getName());
             return spatial;
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         } finally {
-            if (lock != null) {
-                lock.releaseLock();
-            }
             try {
                 outFile.delete();
             } catch (IOException ex) {
