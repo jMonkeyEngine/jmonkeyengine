@@ -682,63 +682,97 @@ public class TextureHelper extends AbstractBlenderHelper {
 		}
 	}
 
-	/**
-	 * This method loads the textre from outside the blend file.
-	 * 
-	 * @param name
-	 *            the path to the image
-	 * @param blenderContext
-	 *            the blender context
-	 * @return the loaded image or null if the image cannot be found
-	 */
-	protected Texture loadImageFromFile(String name, BlenderContext blenderContext) {
-		if (!name.contains(".")) {
-			return null; // no extension means not a valid image
-		}
+    /**
+     * This method loads the textre from outside the blend file using the
+     * AssetManager that the blend file was loaded with. It returns a texture
+     * with a full assetKey that references the original texture so it later
+     * doesn't need to ba packed when the model data is serialized. It searches
+     * the AssetManager for the full path if the model file is a relative path
+     * and will attempt to truncate the path if it is an absolute file path
+     * until the path can be found in the AssetManager. If the texture can not
+     * be found, it will issue a load attempt for the initial path anyway so the
+     * failed load can be reported by the AssetManagers callback methods for
+     * failed assets.
+     *
+     * @param name the path to the image
+     * @param blenderContext the blender context
+     * @return the loaded image or null if the image cannot be found
+     */
+    protected Texture loadImageFromFile(String name, BlenderContext blenderContext) {
+        // @Marcin: please, please disable the use of "TAB"
+        // in your IDE in favor of four spaces.
+        // All your code looks like this for us: http://i.imgur.com/sGcBv6Q.png
+        // spaces always work ;)
+        if (!name.contains(".")) {
+            return null; // no extension means not a valid image
+        }
 
-		AssetManager assetManager = blenderContext.getAssetManager();
-		name = name.replaceAll("\\\\", "\\/");
-		Texture result = null;
+        AssetManager assetManager = blenderContext.getAssetManager();
+        name = name.replaceAll("\\\\", "\\/");
+        Texture result = null;
 
-		List<String> assetNames = new ArrayList<String>();
-		if (name.startsWith("//")) {
-			String relativePath = name.substring(2);
-			// augument the path with blender key path
-			BlenderKey blenderKey = blenderContext.getBlenderKey();
-			int idx = blenderKey.getName().lastIndexOf('/');
-			String blenderAssetFolder = blenderKey.getName().substring(0, idx != -1 ? idx : 0);
-			assetNames.add(blenderAssetFolder + '/' + relativePath);
-		} else {// use every path from the asset name to the root (absolute
-				// path)
-			String[] paths = name.split("\\/");
-			StringBuilder sb = new StringBuilder(paths[paths.length - 1]);// the asset name
-			assetNames.add(paths[paths.length - 1]);
+        if (name.startsWith("//")) {
+            // This is a relative path, so try to find it relative to the .blend file
+            String relativePath = name.substring(2);
+            // Augument the path with blender key path
+            BlenderKey blenderKey = blenderContext.getBlenderKey();
+            int idx = blenderKey.getName().lastIndexOf('/');
+            String blenderAssetFolder = blenderKey.getName().substring(0, idx != -1 ? idx : 0);
+            String absoluteName = blenderAssetFolder + '/' + relativePath;
+            // Directly try to load texture so AssetManager can report missing textures
+            try {
+                TextureKey key = new TextureKey(absoluteName);
+                assetManager.loadTexture(key);
+            } catch (AssetNotFoundException e) {
+                LOGGER.fine(e.getLocalizedMessage());
+            }
+        } else {
+            // This is a full path, try to truncate it until the file can be found
+            // this works as the assetManager root is most probably a part of the
+            // image path. E.g. AssetManager has a locator at c:/Files/ and the
+            // texture path is c:/Files/Textures/Models/Image.jpg.
+            // For this we create a list with every possible full path name from
+            // the asset name to the root. Image.jpg, Models/Image.jpg,
+            // Textures/Models/Image.jpg (bingo) etc.
+            List<String> assetNames = new ArrayList<String>();
+            String[] paths = name.split("\\/");
+            StringBuilder sb = new StringBuilder(paths[paths.length - 1]);// the asset name
+            assetNames.add(paths[paths.length - 1]);
 
-			for (int i = paths.length - 2; i >= 0; --i) {
-				sb.insert(0, '/');
-				sb.insert(0, paths[i]);
-				assetNames.add(0, sb.toString());
-			}
-		}
-
-		// now try to locate the asset
-		for (String assetName : assetNames) {
-			try {
-				TextureKey key = new TextureKey(assetName);
-				key.setAsCube(false);
-                AssetInfo info = assetManager.locateAsset(key);
-                if(info != null){
-                    Texture texture = assetManager.loadTexture(key);
-                    result = texture;//get only the image
-                    break;// if no exception is thrown then accept the located asset
-                          // and break the loop
+            for (int i = paths.length - 2; i >= 0; --i) {
+                sb.insert(0, '/');
+                sb.insert(0, paths[i]);
+                assetNames.add(0, sb.toString());
+            }
+            // Now try to locate the asset
+            for (String assetName : assetNames) {
+                try {
+                    TextureKey key = new TextureKey(assetName);
+                    key.setAsCube(false);
+                    AssetInfo info = assetManager.locateAsset(key);
+                    if (info != null) {
+                        Texture texture = assetManager.loadTexture(key);
+                        result = texture;
+                        //if texture is found return it;
+                        return result;
+                    }
+                } catch (AssetNotFoundException e) {
+                    LOGGER.fine(e.getLocalizedMessage());
                 }
-			} catch (AssetNotFoundException e) {
-				LOGGER.fine(e.getLocalizedMessage());
-			}
-		}
-		return result;
-	}
+            }
+            // The asset was not found in the loop above, call loadTexture with
+            // the original path once anyway so that the AssetManager can report
+            // the missing asset to subsystems.
+            try {
+                TextureKey key = new TextureKey(name);
+                assetManager.loadTexture(key);
+            } catch (AssetNotFoundException e) {
+                LOGGER.fine(e.getLocalizedMessage());
+            }
+        }
+
+        return result;
+    }
 
 	@Override
 	public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
