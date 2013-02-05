@@ -119,12 +119,12 @@ public abstract class AbstractPhysicsControl implements PhysicsControl {
     }
 
     /**
-     * Applies a physics location to the spatial
+     * Applies a physics transform to the spatial
      *
      * @param worldLocation
      * @param worldRotation
      */
-    protected void applyPhysicsLocation(Vector3f worldLocation, Quaternion worldRotation) {
+    protected void applyPhysicsTransform(Vector3f worldLocation, Quaternion worldRotation) {
         if (enabled && spatial != null) {
             Vector3f localLocation = spatial.getLocalTranslation();
             Quaternion localRotationQuat = spatial.getLocalRotation();
@@ -132,6 +132,7 @@ public abstract class AbstractPhysicsControl implements PhysicsControl {
                 localLocation.set(worldLocation).subtractLocal(spatial.getParent().getWorldTranslation());
                 localLocation.divideLocal(spatial.getParent().getWorldScale());
                 tmp_inverseWorldRotation.set(spatial.getParent().getWorldRotation()).inverseLocal().multLocal(localLocation);
+                localRotationQuat.set(worldRotation);
                 tmp_inverseWorldRotation.set(spatial.getParent().getWorldRotation()).inverseLocal().mult(localRotationQuat, localRotationQuat);
 
                 spatial.setLocalTranslation(localLocation);
