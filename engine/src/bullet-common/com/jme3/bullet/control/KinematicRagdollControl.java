@@ -35,7 +35,6 @@ import com.jme3.animation.AnimControl;
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
-import com.jme3.asset.AssetManager;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
@@ -534,22 +533,6 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
         return enabled;
     }
 
-    protected void attachDebugShape(AssetManager manager) {
-        for (Iterator<PhysicsBoneLink> it = boneLinks.values().iterator(); it.hasNext();) {
-            PhysicsBoneLink physicsBoneLink = it.next();
-            physicsBoneLink.rigidBody.createDebugShape(manager);
-        }
-        debug = true;
-    }
-
-    protected void detachDebugShape() {
-        for (Iterator<PhysicsBoneLink> it = boneLinks.values().iterator(); it.hasNext();) {
-            PhysicsBoneLink physicsBoneLink = it.next();
-            physicsBoneLink.rigidBody.detachDebugShape();
-        }
-        debug = false;
-    }
-
     /**
      * For internal use only
      * specific render for the ragdoll(if debugging)      
@@ -557,21 +540,6 @@ public class KinematicRagdollControl implements PhysicsControl, PhysicsCollision
      * @param vp 
      */
     public void render(RenderManager rm, ViewPort vp) {
-        if (enabled && space != null && space.getDebugManager() != null) {
-            if (!debug) {
-                attachDebugShape(space.getDebugManager());
-            }
-            for (Iterator<PhysicsBoneLink> it = boneLinks.values().iterator(); it.hasNext();) {
-                PhysicsBoneLink physicsBoneLink = it.next();
-                Spatial debugShape = physicsBoneLink.rigidBody.debugShape();
-                if (debugShape != null) {
-                    debugShape.setLocalTranslation(physicsBoneLink.rigidBody.getMotionState().getWorldLocation());
-                    debugShape.setLocalRotation(physicsBoneLink.rigidBody.getMotionState().getWorldRotationQuat());
-                    debugShape.updateGeometricState();
-                    rm.renderScene(debugShape, vp);
-                }
-            }
-        }
     }
 
     /**

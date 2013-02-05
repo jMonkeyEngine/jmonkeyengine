@@ -174,15 +174,6 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
     }
 
     public void render(RenderManager rm, ViewPort vp) {
-        if (enabled && space != null && space.getDebugManager() != null) {
-            if (debugShape == null) {
-                attachDebugShape(space.getDebugManager());
-            }
-            debugShape.setLocalTranslation(getPhysicsLocation());
-            debugShape.updateLogicalState(0);
-            debugShape.updateGeometricState();
-            rm.renderScene(debugShape, vp);
-        }
     }
 
     public void setPhysicsSpace(PhysicsSpace space) {

@@ -230,17 +230,6 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
     }
 
     public void render(RenderManager rm, ViewPort vp) {
-        if (enabled && space != null && space.getDebugManager() != null) {
-            if (debugShape == null) {
-                attachDebugShape(space.getDebugManager());
-            }
-            //TODO: using spatial traslation/rotation..
-            debugShape.setLocalTranslation(spatial.getWorldTranslation());
-            debugShape.setLocalRotation(spatial.getWorldRotation());
-            debugShape.updateLogicalState(0);
-            debugShape.updateGeometricState();
-            rm.renderScene(debugShape, vp);
-        }
     }
 
     public void setPhysicsSpace(PhysicsSpace space) {

@@ -43,11 +43,9 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
-import com.jme3.scene.debug.Arrow;
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -201,51 +199,7 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl {
         }
     }
 
-    @Override
-    protected Spatial getDebugShape() {
-        return super.getDebugShape();
-    }
-
     public void render(RenderManager rm, ViewPort vp) {
-        if (enabled && space != null && space.getDebugManager() != null) {
-            if (debugShape == null) {
-                attachDebugShape(space.getDebugManager());
-            }
-            Node debugNode = (Node) debugShape;
-            debugShape.setLocalTranslation(spatial.getWorldTranslation());
-            debugShape.setLocalRotation(spatial.getWorldRotation());
-            int i = 0;
-            for (Iterator<VehicleWheel> it = wheels.iterator(); it.hasNext();) {
-                VehicleWheel physicsVehicleWheel = it.next();
-                Vector3f location = physicsVehicleWheel.getLocation().clone();
-                Vector3f direction = physicsVehicleWheel.getDirection().clone();
-                Vector3f axle = physicsVehicleWheel.getAxle().clone();
-                float restLength = physicsVehicleWheel.getRestLength();
-                float radius = physicsVehicleWheel.getRadius();
-
-                Geometry locGeom = (Geometry) debugNode.getChild("WheelLocationDebugShape" + i);
-                Geometry dirGeom = (Geometry) debugNode.getChild("WheelDirectionDebugShape" + i);
-                Geometry axleGeom = (Geometry) debugNode.getChild("WheelAxleDebugShape" + i);
-                Geometry wheelGeom = (Geometry) debugNode.getChild("WheelRadiusDebugShape" + i);
-
-                Arrow locArrow = (Arrow) locGeom.getMesh();
-                locArrow.setArrowExtent(location);
-                Arrow axleArrow = (Arrow) axleGeom.getMesh();
-                axleArrow.setArrowExtent(axle.normalizeLocal().multLocal(0.3f));
-                Arrow wheelArrow = (Arrow) wheelGeom.getMesh();
-                wheelArrow.setArrowExtent(direction.normalizeLocal().multLocal(radius));
-                Arrow dirArrow = (Arrow) dirGeom.getMesh();
-                dirArrow.setArrowExtent(direction.normalizeLocal().multLocal(restLength));
-
-                dirGeom.setLocalTranslation(location);
-                axleGeom.setLocalTranslation(location.addLocal(direction));
-                wheelGeom.setLocalTranslation(location);
-                i++;
-            }
-            debugShape.updateLogicalState(0);
-            debugShape.updateGeometricState();
-            rm.renderScene(debugShape, vp);
-        }
     }
 
     public void setPhysicsSpace(PhysicsSpace space) {

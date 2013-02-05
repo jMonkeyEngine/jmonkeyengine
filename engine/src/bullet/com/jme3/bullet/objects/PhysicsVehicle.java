@@ -39,13 +39,9 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.debug.Arrow;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -189,9 +185,6 @@ public class PhysicsVehicle extends PhysicsRigidBody {
         wheels.add(wheel);
         if (vehicleId != 0) {
             wheel.setVehicleId(vehicleId, addWheel(vehicleId, wheel.getLocation(), wheel.getDirection(), wheel.getAxle(), wheel.getRestLength(), wheel.getRadius(), tuning, wheel.isFrontWheel()));
-        }
-        if (debugShape != null) {
-            updateDebugShape();
         }
         return wheel;
     }
@@ -499,49 +492,6 @@ public class PhysicsVehicle extends PhysicsRigidBody {
      */
     public long getVehicleId() {
         return vehicleId;
-    }
-
-    @Override
-    protected Spatial getDebugShape() {
-        Spatial shape = super.getDebugShape();
-        Node node = null;
-        if (shape instanceof Node) {
-            node = (Node) shape;
-        } else {
-            node = new Node("DebugShapeNode");
-            node.attachChild(shape);
-        }
-        int i = 0;
-        for (Iterator<VehicleWheel> it = wheels.iterator(); it.hasNext();) {
-            VehicleWheel physicsVehicleWheel = it.next();
-            Vector3f location = physicsVehicleWheel.getLocation().clone();
-            Vector3f direction = physicsVehicleWheel.getDirection().clone();
-            Vector3f axle = physicsVehicleWheel.getAxle().clone();
-            float restLength = physicsVehicleWheel.getRestLength();
-            float radius = physicsVehicleWheel.getRadius();
-
-            Arrow locArrow = new Arrow(location);
-            Arrow axleArrow = new Arrow(axle.normalizeLocal().multLocal(0.3f));
-            Arrow wheelArrow = new Arrow(direction.normalizeLocal().multLocal(radius));
-            Arrow dirArrow = new Arrow(direction.normalizeLocal().multLocal(restLength));
-            Geometry locGeom = new Geometry("WheelLocationDebugShape" + i, locArrow);
-            Geometry dirGeom = new Geometry("WheelDirectionDebugShape" + i, dirArrow);
-            Geometry axleGeom = new Geometry("WheelAxleDebugShape" + i, axleArrow);
-            Geometry wheelGeom = new Geometry("WheelRadiusDebugShape" + i, wheelArrow);
-            dirGeom.setLocalTranslation(location);
-            axleGeom.setLocalTranslation(location.add(direction));
-            wheelGeom.setLocalTranslation(location.add(direction));
-            locGeom.setMaterial(debugMaterialGreen);
-            dirGeom.setMaterial(debugMaterialGreen);
-            axleGeom.setMaterial(debugMaterialGreen);
-            wheelGeom.setMaterial(debugMaterialGreen);
-            node.attachChild(locGeom);
-            node.attachChild(dirGeom);
-            node.attachChild(axleGeom);
-            node.attachChild(wheelGeom);
-            i++;
-        }
-        return node;
     }
 
     @Override

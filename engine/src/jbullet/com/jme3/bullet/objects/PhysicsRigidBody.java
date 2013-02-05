@@ -49,13 +49,8 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.math.Matrix3f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.debug.Arrow;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -587,7 +582,6 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
         if (!joints.contains(joint)) {
             joints.add(joint);
         }
-        updateDebugShape();
     }
 
     /**
@@ -618,35 +612,6 @@ public class PhysicsRigidBody extends PhysicsCollisionObject {
      */
     public void destroy() {
         rBody.destroy();
-    }
-
-    @Override
-    protected Spatial getDebugShape() {
-        //add joints
-        Spatial shape = super.getDebugShape();
-        Node node = null;
-        if (shape instanceof Node) {
-            node = (Node) shape;
-        } else {
-            node = new Node("DebugShapeNode");
-            node.attachChild(shape);
-        }
-        int i = 0;
-        for (Iterator<PhysicsJoint> it = joints.iterator(); it.hasNext();) {
-            PhysicsJoint physicsJoint = it.next();
-            Vector3f pivot = null;
-            if (physicsJoint.getBodyA() == this) {
-                pivot = physicsJoint.getPivotA();
-            } else {
-                pivot = physicsJoint.getPivotB();
-            }
-            Arrow arrow = new Arrow(pivot);
-            Geometry geom = new Geometry("DebugBone" + i, arrow);
-            geom.setMaterial(debugMaterialGreen);
-            node.attachChild(geom);
-            i++;
-        }
-        return node;
     }
 
     @Override

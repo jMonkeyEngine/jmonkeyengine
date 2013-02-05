@@ -179,10 +179,6 @@ public class PhysicsVehicle extends PhysicsRigidBody {
         wheel.setWheelsDampingRelaxation(tuning.suspensionDamping);
         wheel.setMaxSuspensionForce(tuning.maxSuspensionForce);
         wheels.add(wheel);
-        if (debugShape != null) {
-            detachDebugShape();
-        }
-//        updateDebugShape();
         return wheel;
     }
 
@@ -193,7 +189,6 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     public void removeWheel(int wheel) {
         wheels.remove(wheel);
         rebuildRigidBody();
-//        updateDebugShape();
     }
 
     /**
@@ -483,49 +478,6 @@ public class PhysicsVehicle extends PhysicsRigidBody {
     @Override
     public void destroy() {
         super.destroy();
-    }
-
-    @Override
-    protected Spatial getDebugShape() {
-        Spatial shape = super.getDebugShape();
-        Node node = null;
-        if (shape instanceof Node) {
-            node = (Node) shape;
-        } else {
-            node = new Node("DebugShapeNode");
-            node.attachChild(shape);
-        }
-        int i = 0;
-        for (Iterator<VehicleWheel> it = wheels.iterator(); it.hasNext();) {
-            VehicleWheel physicsVehicleWheel = it.next();
-            Vector3f location = physicsVehicleWheel.getLocation().clone();
-            Vector3f direction = physicsVehicleWheel.getDirection().clone();
-            Vector3f axle = physicsVehicleWheel.getAxle().clone();
-            float restLength = physicsVehicleWheel.getRestLength();
-            float radius = physicsVehicleWheel.getRadius();
-
-            Arrow locArrow = new Arrow(location);
-            Arrow axleArrow = new Arrow(axle.normalizeLocal().multLocal(0.3f));
-            Arrow wheelArrow = new Arrow(direction.normalizeLocal().multLocal(radius));
-            Arrow dirArrow = new Arrow(direction.normalizeLocal().multLocal(restLength));
-            Geometry locGeom = new Geometry("WheelLocationDebugShape" + i, locArrow);
-            Geometry dirGeom = new Geometry("WheelDirectionDebugShape" + i, dirArrow);
-            Geometry axleGeom = new Geometry("WheelAxleDebugShape" + i, axleArrow);
-            Geometry wheelGeom = new Geometry("WheelRadiusDebugShape" + i, wheelArrow);
-            dirGeom.setLocalTranslation(location);
-            axleGeom.setLocalTranslation(location.add(direction));
-            wheelGeom.setLocalTranslation(location.add(direction));
-            locGeom.setMaterial(debugMaterialGreen);
-            dirGeom.setMaterial(debugMaterialGreen);
-            axleGeom.setMaterial(debugMaterialGreen);
-            wheelGeom.setMaterial(debugMaterialGreen);
-            node.attachChild(locGeom);
-            node.attachChild(dirGeom);
-            node.attachChild(axleGeom);
-            node.attachChild(wheelGeom);
-            i++;
-        }
-        return node;
     }
 
     @Override
