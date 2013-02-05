@@ -47,6 +47,8 @@ import com.bulletphysics.dynamics.InternalTickCallback;
 import com.bulletphysics.dynamics.RigidBody;
 import com.bulletphysics.dynamics.constraintsolver.ConstraintSolver;
 import com.bulletphysics.dynamics.constraintsolver.SequentialImpulseConstraintSolver;
+import com.bulletphysics.dynamics.constraintsolver.TypedConstraint;
+import com.bulletphysics.dynamics.vehicle.RaycastVehicle;
 import com.bulletphysics.extras.gimpact.GImpactCollisionAlgorithm;
 import com.jme3.app.AppTask;
 import com.jme3.asset.AssetManager;
@@ -81,6 +83,7 @@ import java.util.logging.Logger;
  */
 public class PhysicsSpace {
 
+    private static final Logger logger = Logger.getLogger(PhysicsSpace.class.getName());
     public static final int AXIS_X = 0;
     public static final int AXIS_Y = 1;
     public static final int AXIS_Z = 2;
@@ -100,13 +103,15 @@ public class PhysicsSpace {
     private CollisionDispatcher dispatcher;
     private ConstraintSolver solver;
     private DefaultCollisionConfiguration collisionConfiguration;
-//    private Map<GhostObject, PhysicsGhostObject> physicsGhostNodes = new ConcurrentHashMap<GhostObject, PhysicsGhostObject>();
-    private Map<RigidBody, PhysicsRigidBody> physicsNodes = new ConcurrentHashMap<RigidBody, PhysicsRigidBody>();
-    private List<PhysicsJoint> physicsJoints = new LinkedList<PhysicsJoint>();
-    private List<PhysicsCollisionListener> collisionListeners = new LinkedList<PhysicsCollisionListener>();
-    private List<PhysicsCollisionEvent> collisionEvents = new LinkedList<PhysicsCollisionEvent>();
+    private Map<PairCachingGhostObject, PhysicsGhostObject> physicsGhostObjects = new ConcurrentHashMap<PairCachingGhostObject, PhysicsGhostObject>();
+    private Map<PairCachingGhostObject, PhysicsCharacter> physicsCharacters = new ConcurrentHashMap<PairCachingGhostObject, PhysicsCharacter>();
+    private Map<RigidBody, PhysicsRigidBody> physicsBodies = new ConcurrentHashMap<RigidBody, PhysicsRigidBody>();
+    private Map<TypedConstraint, PhysicsJoint> physicsJoints = new ConcurrentHashMap<TypedConstraint, PhysicsJoint>();
+    private Map<RaycastVehicle, PhysicsVehicle> physicsVehicles = new ConcurrentHashMap<RaycastVehicle, PhysicsVehicle>();
     private Map<Integer, PhysicsCollisionGroupListener> collisionGroupListeners = new ConcurrentHashMap<Integer, PhysicsCollisionGroupListener>();
     private ConcurrentLinkedQueue<PhysicsTickListener> tickListeners = new ConcurrentLinkedQueue<PhysicsTickListener>();
+    private List<PhysicsCollisionListener> collisionListeners = new LinkedList<PhysicsCollisionListener>();
+    private List<PhysicsCollisionEvent> collisionEvents = new LinkedList<PhysicsCollisionEvent>();
     private PhysicsCollisionEventFactory eventFactory = new PhysicsCollisionEventFactory();
     private Vector3f worldMin = new Vector3f(-10000f, -10000f, -10000f);
     private Vector3f worldMax = new Vector3f(10000f, 10000f, 10000f);
@@ -428,31 +433,23 @@ public class PhysicsSpace {
     public void addAll(Spatial spatial) {
         if (spatial.getControl(RigidBodyControl.class) != null) {
             RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
-            if (!physicsNodes.containsValue(physicsNode)) {
-                physicsNode.setPhysicsSpace(this);
-            }
+            physicsNode.setPhysicsSpace(this);
             //add joints
             List<PhysicsJoint> joints = physicsNode.getJoints();
             for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
                 PhysicsJoint physicsJoint = it1.next();
                 //add connected physicsnodes if they are not already added
-                if (!physicsNodes.containsValue(physicsJoint.getBodyA())) {
-                    if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                        add(physicsJoint.getBodyA());
-                    } else {
-                        addRigidBody(physicsJoint.getBodyA());
-                    }
+                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
+                    add(physicsJoint.getBodyA());
+                } else {
+                    addRigidBody(physicsJoint.getBodyA());
                 }
-                if (!physicsNodes.containsValue(physicsJoint.getBodyB())) {
-                    if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                        add(physicsJoint.getBodyB());
-                    } else {
-                        addRigidBody(physicsJoint.getBodyB());
-                    }
+                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
+                    add(physicsJoint.getBodyB());
+                } else {
+                    addRigidBody(physicsJoint.getBodyB());
                 }
-                if (!physicsJoints.contains(physicsJoint)) {
-                    addJoint(physicsJoint);
-                }
+                addJoint(physicsJoint);
             }
         } else if (spatial.getControl(PhysicsControl.class) != null) {
             spatial.getControl(PhysicsControl.class).setPhysicsSpace(this);
@@ -475,31 +472,23 @@ public class PhysicsSpace {
     public void removeAll(Spatial spatial) {
         if (spatial.getControl(RigidBodyControl.class) != null) {
             RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
-            if (physicsNodes.containsValue(physicsNode)) {
-                physicsNode.setPhysicsSpace(null);
-            }
+            physicsNode.setPhysicsSpace(null);
             //remove joints
             List<PhysicsJoint> joints = physicsNode.getJoints();
             for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
                 PhysicsJoint physicsJoint = it1.next();
                 //add connected physicsnodes if they are not already added
-                if (physicsNodes.containsValue(physicsJoint.getBodyA())) {
-                    if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                        remove(physicsJoint.getBodyA());
-                    } else {
-                        removeRigidBody(physicsJoint.getBodyA());
-                    }
+                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
+                    remove(physicsJoint.getBodyA());
+                } else {
+                    removeRigidBody(physicsJoint.getBodyA());
                 }
-                if (physicsNodes.containsValue(physicsJoint.getBodyB())) {
-                    if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                        remove(physicsJoint.getBodyB());
-                    } else {
-                        removeRigidBody(physicsJoint.getBodyB());
-                    }
+                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
+                    remove(physicsJoint.getBodyB());
+                } else {
+                    removeRigidBody(physicsJoint.getBodyB());
                 }
-                if (physicsJoints.contains(physicsJoint)) {
-                    removeJoint(physicsJoint);
-                }
+                removeJoint(physicsJoint);
             }
         } else if (spatial.getControl(PhysicsControl.class) != null) {
             spatial.getControl(PhysicsControl.class).setPhysicsSpace(null);
@@ -515,30 +504,53 @@ public class PhysicsSpace {
     }
 
     private void addGhostObject(PhysicsGhostObject node) {
+        if(physicsGhostObjects.containsKey(node.getObjectId())){
+            logger.log(Level.WARNING, "GhostObject {0} already exists in PhysicsSpace, cannot add.", node);
+            return;
+        }
+        physicsGhostObjects.put(node.getObjectId(), node);
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding ghost object {0} to physics space.", node.getObjectId());
         dynamicsWorld.addCollisionObject(node.getObjectId());
     }
 
     private void removeGhostObject(PhysicsGhostObject node) {
+        if(!physicsGhostObjects.containsKey(node.getObjectId())){
+            logger.log(Level.WARNING, "GhostObject {0} does not exist in PhysicsSpace, cannot remove.", node);
+            return;
+        }
+        physicsGhostObjects.remove(node.getObjectId());
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing ghost object {0} from physics space.", node.getObjectId());
         dynamicsWorld.removeCollisionObject(node.getObjectId());
     }
 
     private void addCharacter(PhysicsCharacter node) {
+        if(physicsCharacters.containsKey(node.getObjectId())){
+            logger.log(Level.WARNING, "Character {0} already exists in PhysicsSpace, cannot add.", node);
+            return;
+        }
+        physicsCharacters.put(node.getObjectId(), node);
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding character {0} to physics space.", node.getObjectId());
-//        dynamicsWorld.addCollisionObject(node.getObjectId());
         dynamicsWorld.addCollisionObject(node.getObjectId(), CollisionFilterGroups.CHARACTER_FILTER, (short) (CollisionFilterGroups.STATIC_FILTER | CollisionFilterGroups.DEFAULT_FILTER));
         dynamicsWorld.addAction(node.getControllerId());
     }
 
     private void removeCharacter(PhysicsCharacter node) {
+        if(!physicsCharacters.containsKey(node.getObjectId())){
+            logger.log(Level.WARNING, "Character {0} does not exist in PhysicsSpace, cannot remove.", node);
+            return;
+        }
+        physicsCharacters.remove(node.getObjectId());
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing character {0} from physics space.", node.getObjectId());
         dynamicsWorld.removeAction(node.getControllerId());
         dynamicsWorld.removeCollisionObject(node.getObjectId());
     }
 
     private void addRigidBody(PhysicsRigidBody node) {
-        physicsNodes.put(node.getObjectId(), node);
+        if(physicsBodies.containsKey(node.getObjectId())){
+            logger.log(Level.WARNING, "RigidBody {0} already exists in PhysicsSpace, cannot add.", node);
+            return;
+        }
+        physicsBodies.put(node.getObjectId(), node);
 
         //Workaround
         //It seems that adding a Kinematic RigidBody to the dynamicWorld prevent it from being non kinematic again afterward.
@@ -557,29 +569,43 @@ public class PhysicsSpace {
         if (node instanceof PhysicsVehicle) {
             Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding vehicle constraint {0} to physics space.", ((PhysicsVehicle) node).getVehicleId());
             ((PhysicsVehicle) node).createVehicle(this);
+            physicsVehicles.put(((PhysicsVehicle) node).getVehicleId(), (PhysicsVehicle)node);
             dynamicsWorld.addVehicle(((PhysicsVehicle) node).getVehicleId());
         }
     }
 
     private void removeRigidBody(PhysicsRigidBody node) {
+        if(!physicsBodies.containsKey(node.getObjectId())){
+            logger.log(Level.WARNING, "RigidBody {0} does not exist in PhysicsSpace, cannot remove.", node);
+            return;
+        }
         if (node instanceof PhysicsVehicle) {
             Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing vehicle constraint {0} from physics space.", ((PhysicsVehicle) node).getVehicleId());
+            physicsVehicles.remove(((PhysicsVehicle) node).getVehicleId());
             dynamicsWorld.removeVehicle(((PhysicsVehicle) node).getVehicleId());
         }
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing RigidBody {0} from physics space.", node.getObjectId());
-        physicsNodes.remove(node.getObjectId());
+        physicsBodies.remove(node.getObjectId());
         dynamicsWorld.removeRigidBody(node.getObjectId());
     }
 
     private void addJoint(PhysicsJoint joint) {
+        if(physicsJoints.containsKey(joint.getObjectId())){
+            logger.log(Level.WARNING, "Joint {0} already exists in PhysicsSpace, cannot add.", joint);
+            return;
+        }
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding Joint {0} to physics space.", joint.getObjectId());
-        physicsJoints.add(joint);
+        physicsJoints.put(joint.getObjectId(), joint);
         dynamicsWorld.addConstraint(joint.getObjectId(), !joint.isCollisionBetweenLinkedBodys());
     }
 
     private void removeJoint(PhysicsJoint joint) {
+        if(!physicsJoints.containsKey(joint.getObjectId())){
+            logger.log(Level.WARNING, "Joint {0} does not exist in PhysicsSpace, cannot remove.", joint);
+            return;
+        }
         Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing Joint {0} from physics space.", joint.getObjectId());
-        physicsJoints.remove(joint);
+        physicsJoints.remove(joint.getObjectId());
         dynamicsWorld.removeConstraint(joint.getObjectId());
     }
 
@@ -734,7 +760,7 @@ public class PhysicsSpace {
      * destroys the current PhysicsSpace so that a new one can be created
      */
     public void destroy() {
-        physicsNodes.clear();
+        physicsBodies.clear();
         physicsJoints.clear();
 
         dynamicsWorld.destroy();
