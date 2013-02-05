@@ -157,9 +157,6 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         //start physics thread(pool)
         if (threadingType == ThreadingType.PARALLEL) {
             startPhysicsOnExecutor();
-//        } else if (threadingType == ThreadingType.DETACHED) {
-//            startPhysicsOnExecutor();
-//            executor.submit(detachedPhysicsUpdate);
         } else {
             pSpace = new PhysicsSpace(worldMin, worldMax, broadphaseType);
         }
@@ -232,9 +229,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         if (!active) {
             return;
         }
-//        if (threadingType != ThreadingType.DETACHED) {
         pSpace.distributeEvents();
-//        }
         this.tpf = tpf;
     }
 
