@@ -173,7 +173,6 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         }
         this.app = app;
         this.stateManager = stateManager;
-        initialized = true;
     }
 
     public boolean isInitialized() {
@@ -273,6 +272,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
             executor.shutdown();
             executor = null;
         }
+        initialized = false;
         pSpace.removeTickListener(this);
         pSpace.destroy();
     }
