@@ -35,6 +35,7 @@ import com.jme3.app.Application;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.bullet.PhysicsSpace.BroadphaseType;
+import com.jme3.bullet.debug.BulletDebugAppState;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import java.util.concurrent.*;
@@ -43,6 +44,7 @@ import java.util.logging.Logger;
 
 /**
  * <code>BulletAppState</code> allows using bullet physics in an Application.
+ *
  * @author normenhansen
  */
 public class BulletAppState implements AppState, PhysicsTickListener {
@@ -56,31 +58,38 @@ public class BulletAppState implements AppState, PhysicsTickListener {
     protected BroadphaseType broadphaseType = BroadphaseType.DBVT;
     protected Vector3f worldMin = new Vector3f(-10000f, -10000f, -10000f);
     protected Vector3f worldMax = new Vector3f(10000f, 10000f, 10000f);
-    private float speed = 1;
+    protected float speed = 1;
     protected boolean active = true;
+    protected boolean debugEnabled = false;
+    protected BulletDebugAppState debugAppState;
     protected float tpf;
     protected Future physicsFuture;
 
     /**
-     * Creates a new BulletAppState running a PhysicsSpace for physics simulation,
-     * use getStateManager().addState(bulletAppState) to enable physics for an Application.
+     * Creates a new BulletAppState running a PhysicsSpace for physics
+     * simulation, use getStateManager().addState(bulletAppState) to enable
+     * physics for an Application.
      */
     public BulletAppState() {
     }
 
     /**
-     * Creates a new BulletAppState running a PhysicsSpace for physics simulation,
-     * use getStateManager().addState(bulletAppState) to enable physics for an Application.
-     * @param broadphaseType The type of broadphase collision detection, BroadphaseType.DVBT is the default
+     * Creates a new BulletAppState running a PhysicsSpace for physics
+     * simulation, use getStateManager().addState(bulletAppState) to enable
+     * physics for an Application.
+     *
+     * @param broadphaseType The type of broadphase collision detection,
+     * BroadphaseType.DVBT is the default
      */
     public BulletAppState(BroadphaseType broadphaseType) {
         this(new Vector3f(-10000f, -10000f, -10000f), new Vector3f(10000f, 10000f, 10000f), broadphaseType);
     }
 
     /**
-     * Creates a new BulletAppState running a PhysicsSpace for physics simulation,
-     * use getStateManager().addState(bulletAppState) to enable physics for an Application.
-     * An AxisSweep broadphase is used.
+     * Creates a new BulletAppState running a PhysicsSpace for physics
+     * simulation, use getStateManager().addState(bulletAppState) to enable
+     * physics for an Application. An AxisSweep broadphase is used.
+     *
      * @param worldMin The minimum world extent
      * @param worldMax The maximum world extent
      */
@@ -101,7 +110,6 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         executor = new ScheduledThreadPoolExecutor(1);
         final BulletAppState app = this;
         Callable<Boolean> call = new Callable<Boolean>() {
-
             public Boolean call() throws Exception {
                 detachedPhysicsLastUpdate = System.currentTimeMillis();
                 pSpace = new PhysicsSpace(worldMin, worldMax, broadphaseType);
@@ -120,7 +128,6 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         }
     }
     private Callable<Boolean> parallelPhysicsUpdate = new Callable<Boolean>() {
-
         public Boolean call() throws Exception {
             pSpace.update(tpf * getSpeed());
             return true;
@@ -128,7 +135,6 @@ public class BulletAppState implements AppState, PhysicsTickListener {
     };
     long detachedPhysicsLastUpdate = 0;
     private Callable<Boolean> detachedPhysicsUpdate = new Callable<Boolean>() {
-
         public Boolean call() throws Exception {
             pSpace.update(getPhysicsSpace().getAccuracy() * getSpeed());
             pSpace.distributeEvents();
@@ -144,8 +150,8 @@ public class BulletAppState implements AppState, PhysicsTickListener {
     }
 
     /**
-     * The physics system is started automatically on attaching, if you want to start it
-     * before for some reason, you can use this method.
+     * The physics system is started automatically on attaching, if you want to
+     * start it before for some reason, you can use this method.
      */
     public void startPhysics() {
         //start physics thread(pool)
@@ -165,19 +171,28 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         if (!initialized) {
             startPhysics();
         }
+        this.stateManager = stateManager;
         initialized = true;
     }
 
     public boolean isInitialized() {
         return initialized;
     }
-    
+
     public void setEnabled(boolean enabled) {
         this.active = enabled;
     }
-    
+
     public boolean isEnabled() {
         return active;
+    }
+
+    public void setDebugEnabled(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
+    }
+
+    public boolean isDebugEnabled() {
+        return debugEnabled;
     }
 
     public void stateAttached(AppStateManager stateManager) {
@@ -187,17 +202,36 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         if (threadingType == ThreadingType.PARALLEL) {
             PhysicsSpace.setLocalThreadPhysicsSpace(pSpace);
         }
+        if (debugEnabled) {
+            debugAppState = new BulletDebugAppState(pSpace);
+            stateManager.attach(debugAppState);
+        }
     }
 
     public void stateDetached(AppStateManager stateManager) {
     }
 
     public void update(float tpf) {
+        if (debugEnabled && debugAppState == null) {
+            debugAppState = new BulletDebugAppState(pSpace);
+            stateManager.attach(debugAppState);
+            pSpace.enableDebug(app.getAssetManager());
+        } else if (!debugEnabled && debugAppState != null) {
+            stateManager.detach(debugAppState);
+            debugAppState = null;
+            pSpace.enableDebug(null);
+        }
+        //TODO: remove when deprecation of PhysicsSpace.enableDebug is through
+        if (pSpace.getDebugManager() != null && !debugEnabled) {
+            debugEnabled = true;
+        } else if (pSpace.getDebugManager() == null && debugEnabled) {
+            debugEnabled = false;
+        }
         if (!active) {
             return;
         }
 //        if (threadingType != ThreadingType.DETACHED) {
-            pSpace.distributeEvents();
+        pSpace.distributeEvents();
 //        }
         this.tpf = tpf;
     }
@@ -228,6 +262,10 @@ public class BulletAppState implements AppState, PhysicsTickListener {
     }
 
     public void cleanup() {
+        if (debugAppState != null) {
+            stateManager.detach(debugAppState);
+            debugAppState = null;
+        }
         if (executor != null) {
             executor.shutdown();
             executor = null;
@@ -245,6 +283,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
 
     /**
      * Use before attaching state
+     *
      * @param threadingType the threadingType to set
      */
     public void setThreadingType(ThreadingType threadingType) {
@@ -289,13 +328,14 @@ public class BulletAppState implements AppState, PhysicsTickListener {
     public enum ThreadingType {
 
         /**
-         * Default mode; user update, physics update and rendering happen sequentially (single threaded)
+         * Default mode; user update, physics update and rendering happen
+         * sequentially (single threaded)
          */
         SEQUENTIAL,
         /**
-         * Parallel threaded mode; physics update and rendering are executed in parallel, update order is kept.<br/>
-         * Multiple BulletAppStates will execute in parallel in this mode.
+         * Parallel threaded mode; physics update and rendering are executed in
+         * parallel, update order is kept.<br/> Multiple BulletAppStates will
+         * execute in parallel in this mode.
          */
-        PARALLEL,
-    }
+        PARALLEL,}
 }
