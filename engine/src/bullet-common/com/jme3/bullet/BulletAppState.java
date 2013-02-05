@@ -171,6 +171,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         if (!initialized) {
             startPhysics();
         }
+        this.app = app;
         this.stateManager = stateManager;
         initialized = true;
     }
@@ -339,5 +340,6 @@ public class BulletAppState implements AppState, PhysicsTickListener {
          * parallel, update order is kept.<br/> Multiple BulletAppStates will
          * execute in parallel in this mode.
          */
-        PARALLEL,}
+        PARALLEL,
+    }
 }
