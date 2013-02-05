@@ -51,6 +51,7 @@ import java.io.IOException;
  */
 public abstract class AbstractPhysicsControl implements PhysicsControl {
 
+    private final Quaternion tmp_inverseWorldRotation = new Quaternion();
     protected Spatial spatial;
     protected boolean enabled = true;
     protected boolean added = false;
@@ -103,18 +104,44 @@ public abstract class AbstractPhysicsControl implements PhysicsControl {
         applyLocal = applyPhysicsLocal;
     }
 
-    private Vector3f getSpatialTranslation() {
+    protected Vector3f getSpatialTranslation() {
         if (applyLocal) {
             return spatial.getLocalTranslation();
         }
         return spatial.getWorldTranslation();
     }
 
-    private Quaternion getSpatialRotation() {
+    protected Quaternion getSpatialRotation() {
         if (applyLocal) {
             return spatial.getLocalRotation();
         }
         return spatial.getWorldRotation();
+    }
+
+    /**
+     * Applies a physics location to the spatial
+     *
+     * @param worldLocation
+     * @param worldRotation
+     */
+    protected void applyPhysicsLocation(Vector3f worldLocation, Quaternion worldRotation) {
+        if (enabled && spatial != null) {
+            Vector3f localLocation = spatial.getLocalTranslation();
+            Quaternion localRotationQuat = spatial.getLocalRotation();
+            if (!applyLocal && spatial.getParent() != null) {
+                localLocation.set(worldLocation).subtractLocal(spatial.getParent().getWorldTranslation());
+                localLocation.divideLocal(spatial.getParent().getWorldScale());
+                tmp_inverseWorldRotation.set(spatial.getParent().getWorldRotation()).inverseLocal().multLocal(localLocation);
+                tmp_inverseWorldRotation.set(spatial.getParent().getWorldRotation()).inverseLocal().mult(localRotationQuat, localRotationQuat);
+
+                spatial.setLocalTranslation(localLocation);
+                spatial.setLocalRotation(localRotationQuat);
+            } else {
+                spatial.setLocalTranslation(worldLocation);
+                spatial.setLocalRotation(worldRotation);
+            }
+        }
+
     }
 
     public void setSpatial(Spatial spatial) {
@@ -148,11 +175,6 @@ public abstract class AbstractPhysicsControl implements PhysicsControl {
     }
 
     public void update(float tpf) {
-        if (!enabled) {
-            return;
-        }
-        setPhysicsLocation(getSpatialTranslation());
-        setPhysicsRotation(getSpatialRotation());
     }
 
     public void render(RenderManager rm, ViewPort vp) {
