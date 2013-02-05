@@ -857,9 +857,11 @@ public class PhysicsSpace {
     }
 
     /**
-     * Enable debug display for physics
+     * Enable debug display for physics.
+     *
+     * @deprecated in favor of BulletDebugAppState, use
+     * <code>BulletAppState.setDebugEnabled(boolean)</code> to add automatically
      * @param manager AssetManager to use to create debug materials
-     * @Deprecated in favor of BulletDebugAppState, use BulletAppState.setDebugEnabled(boolean) to add automatically
      */
     @Deprecated
     public void enableDebug(AssetManager manager) {
