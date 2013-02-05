@@ -212,14 +212,16 @@ public class BulletAppState implements AppState, PhysicsTickListener {
     }
 
     public void update(float tpf) {
-        if (debugEnabled && debugAppState == null) {
+        if (debugEnabled && debugAppState == null && pSpace != null) {
             debugAppState = new BulletDebugAppState(pSpace);
             stateManager.attach(debugAppState);
             pSpace.enableDebug(app.getAssetManager());
         } else if (!debugEnabled && debugAppState != null) {
             stateManager.detach(debugAppState);
             debugAppState = null;
-            pSpace.enableDebug(null);
+            if (pSpace != null) {
+                pSpace.enableDebug(null);
+            }
         }
         //TODO: remove when deprecation of PhysicsSpace.enableDebug is through
         if (pSpace.getDebugManager() != null && !debugEnabled) {
