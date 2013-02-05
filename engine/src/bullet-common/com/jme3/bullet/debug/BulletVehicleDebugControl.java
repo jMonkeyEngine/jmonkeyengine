@@ -93,10 +93,10 @@ public class BulletVehicleDebugControl extends AbstractPhysicsDebugControl {
             dirGeom.setLocalTranslation(location);
             axleGeom.setLocalTranslation(location.add(direction));
             wheelGeom.setLocalTranslation(location.add(direction));
-            locGeom.setMaterial(debugAppState.DEBUG_GREEN);
-            dirGeom.setMaterial(debugAppState.DEBUG_GREEN);
-            axleGeom.setMaterial(debugAppState.DEBUG_GREEN);
-            wheelGeom.setMaterial(debugAppState.DEBUG_GREEN);
+            locGeom.setMaterial(debugAppState.DEBUG_MAGENTA);
+            dirGeom.setMaterial(debugAppState.DEBUG_MAGENTA);
+            axleGeom.setMaterial(debugAppState.DEBUG_MAGENTA);
+            wheelGeom.setMaterial(debugAppState.DEBUG_MAGENTA);
             suspensionNode.attachChild(locGeom);
             suspensionNode.attachChild(dirGeom);
             suspensionNode.attachChild(axleGeom);
