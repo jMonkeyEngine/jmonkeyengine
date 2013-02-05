@@ -46,6 +46,7 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,7 +64,7 @@ import java.util.logging.Logger;
  */
 public class PhysicsSpace {
     
-    private static final Logger logger = Logger.getLogger(PhysicsSpace.class.getName());
+    private static final Logger logger = logger;
     public static final int AXIS_X = 0;
     public static final int AXIS_Y = 1;
     public static final int AXIS_Z = 2;
@@ -197,7 +198,7 @@ public class PhysicsSpace {
             try {
                 task.invoke();
             } catch (Exception ex) {
-                Logger.getLogger(PhysicsSpace.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
             }
             task = pQueue.poll();
         }
@@ -271,7 +272,7 @@ public class PhysicsSpace {
 //                    try {
 //                        task.invoke();
 //                    } catch (Exception ex) {
-//                        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.SEVERE, null, ex);
+//                        logger.log(Level.SEVERE, null, ex);
 //                    }
 //                    task = pQueue.poll();
 //                }
@@ -562,7 +563,7 @@ public class PhysicsSpace {
             return;
         }
         physicsGhostObjects.put(node.getObjectId(), node);
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding ghost object {0} to physics space.", Long.toHexString(node.getObjectId()));
+        logger.log(Level.FINE, "Adding ghost object {0} to physics space.", Long.toHexString(node.getObjectId()));
         addCollisionObject(physicsSpaceId, node.getObjectId());
     }
 
@@ -572,7 +573,7 @@ public class PhysicsSpace {
             return;
         }
         physicsGhostObjects.remove(node.getObjectId());
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing ghost object {0} from physics space.", Long.toHexString(node.getObjectId()));
+        logger.log(Level.FINE, "Removing ghost object {0} from physics space.", Long.toHexString(node.getObjectId()));
         removeCollisionObject(physicsSpaceId, node.getObjectId());
     }
 
@@ -582,7 +583,7 @@ public class PhysicsSpace {
             return;
         }
         physicsCharacters.put(node.getObjectId(), node);
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding character {0} to physics space.", Long.toHexString(node.getObjectId()));
+        logger.log(Level.FINE, "Adding character {0} to physics space.", Long.toHexString(node.getObjectId()));
         addCharacterObject(physicsSpaceId, node.getObjectId());
         addAction(physicsSpaceId, node.getControllerId());
 //        dynamicsWorld.addCollisionObject(node.getObjectId(), CollisionFilterGroups.CHARACTER_FILTER, (short) (CollisionFilterGroups.STATIC_FILTER | CollisionFilterGroups.DEFAULT_FILTER));
@@ -595,7 +596,7 @@ public class PhysicsSpace {
             return;
         }
         physicsCharacters.remove(node.getObjectId());
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing character {0} from physics space.", Long.toHexString(node.getObjectId()));
+        logger.log(Level.FINE, "Removing character {0} from physics space.", Long.toHexString(node.getObjectId()));
         removeAction(physicsSpaceId, node.getControllerId());
         removeCharacterObject(physicsSpaceId, node.getObjectId());
 //        dynamicsWorld.removeAction(node.getControllerId());
@@ -622,9 +623,9 @@ public class PhysicsSpace {
             node.setKinematic(true);
         }
 
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding RigidBody {0} to physics space.", node.getObjectId());
+        logger.log(Level.FINE, "Adding RigidBody {0} to physics space.", node.getObjectId());
         if (node instanceof PhysicsVehicle) {
-            Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding vehicle constraint {0} to physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
+            logger.log(Level.FINE, "Adding vehicle constraint {0} to physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
             physicsVehicles.put(((PhysicsVehicle) node).getVehicleId(), (PhysicsVehicle)node);
             addVehicle(physicsSpaceId, ((PhysicsVehicle) node).getVehicleId());
         }
@@ -636,11 +637,11 @@ public class PhysicsSpace {
             return;
         }
         if (node instanceof PhysicsVehicle) {
-            Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing vehicle constraint {0} from physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
+            logger.log(Level.FINE, "Removing vehicle constraint {0} from physics space.", Long.toHexString(((PhysicsVehicle) node).getVehicleId()));
             physicsVehicles.remove(((PhysicsVehicle) node).getVehicleId());
             removeVehicle(physicsSpaceId, ((PhysicsVehicle) node).getVehicleId());
         }
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing RigidBody {0} from physics space.", Long.toHexString(node.getObjectId()));
+        logger.log(Level.FINE, "Removing RigidBody {0} from physics space.", Long.toHexString(node.getObjectId()));
         physicsBodies.remove(node.getObjectId());
         removeRigidBody(physicsSpaceId, node.getObjectId());
     }
@@ -650,7 +651,7 @@ public class PhysicsSpace {
             logger.log(Level.WARNING, "Joint {0} already exists in PhysicsSpace, cannot add.", joint);
             return;
         }
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Adding Joint {0} to physics space.", Long.toHexString(joint.getObjectId()));
+        logger.log(Level.FINE, "Adding Joint {0} to physics space.", Long.toHexString(joint.getObjectId()));
         physicsJoints.put(joint.getObjectId(), joint);
         addConstraintC(physicsSpaceId, joint.getObjectId(), !joint.isCollisionBetweenLinkedBodys());
 //        dynamicsWorld.addConstraint(joint.getObjectId(), !joint.isCollisionBetweenLinkedBodys());
@@ -661,12 +662,32 @@ public class PhysicsSpace {
             logger.log(Level.WARNING, "Joint {0} does not exist in PhysicsSpace, cannot remove.", joint);
             return;
         }
-        Logger.getLogger(PhysicsSpace.class.getName()).log(Level.FINE, "Removing Joint {0} from physics space.", Long.toHexString(joint.getObjectId()));
+        logger.log(Level.FINE, "Removing Joint {0} from physics space.", Long.toHexString(joint.getObjectId()));
         physicsJoints.remove(joint.getObjectId());
         removeConstraint(physicsSpaceId, joint.getObjectId());
 //        dynamicsWorld.removeConstraint(joint.getObjectId());
     }
 
+    public Collection<PhysicsRigidBody> getRigidBodyList(){
+        return new LinkedList<PhysicsRigidBody>(physicsBodies.values());
+    }
+
+    public Collection<PhysicsGhostObject> getGhostObjectList(){
+        return new LinkedList<PhysicsGhostObject>(physicsGhostObjects.values());
+    }
+    
+    public Collection<PhysicsCharacter> getCharacterList(){
+        return new LinkedList<PhysicsCharacter>(physicsCharacters.values());
+    }
+    
+    public Collection<PhysicsJoint> getJointList(){
+        return new LinkedList<PhysicsJoint>(physicsJoints.values());
+    }
+    
+    public Collection<PhysicsVehicle> getVehicleList(){
+        return new LinkedList<PhysicsVehicle>(physicsVehicles.values());
+    }
+    
     /**
      * Sets the gravity of the PhysicsSpace, set before adding physics objects!
      * @param gravity
@@ -779,7 +800,7 @@ public class PhysicsSpace {
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end) {
         List<PhysicsSweepTestResult> results = new LinkedList<PhysicsSweepTestResult>();
 //        if (!(shape.getCShape() instanceof ConvexShape)) {
-//            Logger.getLogger(PhysicsSpace.class.getName()).log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
+//            logger.log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
 //            return results;
 //        }
 //        dynamicsWorld.convexSweepTest((ConvexShape) shape.getCShape(), Converter.convert(start, sweepTrans1), Converter.convert(end, sweepTrans2), new InternalSweepListener(results));
@@ -795,7 +816,7 @@ public class PhysicsSpace {
     public List<PhysicsSweepTestResult> sweepTest(CollisionShape shape, Transform start, Transform end, List<PhysicsSweepTestResult> results) {
         results.clear();
 //        if (!(shape.getCShape() instanceof ConvexShape)) {
-//            Logger.getLogger(PhysicsSpace.class.getName()).log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
+//            logger.log(Level.WARNING, "Trying to sweep test with incompatible mesh shape!");
 //            return results;
 //        }
 //        dynamicsWorld.convexSweepTest((ConvexShape) shape.getCShape(), Converter.convert(start, sweepTrans1), Converter.convert(end, sweepTrans2), new InternalSweepListener(results));
