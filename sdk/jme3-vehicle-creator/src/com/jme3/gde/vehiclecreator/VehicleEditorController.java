@@ -177,7 +177,7 @@ public class VehicleEditorController implements LookupListener, ActionListener {
         testing = true;
         bulletState.getPhysicsSpace().addAll(toolsNode);
         bulletState.getPhysicsSpace().add(vehicleControl);
-        vehicleControl.detachDebugShape();
+//        vehicleControl.detachDebugShape();
 //        cameraController.disable();
 //        if (chaseCam == null) {
 //            chaseCam = new ChaseCamera(SceneApplication.getApplication().getCamera(), vehicleNode);
