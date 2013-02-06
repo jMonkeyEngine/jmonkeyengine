@@ -39,6 +39,11 @@ def save_file(save_path):
     if ok:
         bpy.ops.wm.save_as_mainfile(filepath=save_path)
 
+# Due to an issue in the DAE importer, the file has to be resaved after an import
+def open_save_file(open_path):
+     bpy.ops.wm.open_mainfile(filepath=save_path)
+     bpy.ops.wm.save_as_mainfile(filepath=save_path)
+
 def main():
     import sys       # to get command line args
     import argparse  # to parse options for us and print a nice help message
@@ -75,6 +80,7 @@ def main():
     clear_scene()
     import_file(args.file_path)
     save_file(args.save_path)
+    open_save_file(args.save_path)
 
     print("batch job finished, exiting")
 
