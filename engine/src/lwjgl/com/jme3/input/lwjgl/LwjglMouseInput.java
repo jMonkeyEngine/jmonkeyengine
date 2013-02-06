@@ -153,14 +153,17 @@ public class LwjglMouseInput implements MouseInput {
 
     public void setNativeCursor(JmeCursor jmeCursor) {
         try {
-            Cursor newCursor = new Cursor(
-                    jmeCursor.getWidth(),
-                    jmeCursor.getHeight(),
-                    jmeCursor.getXHotSpot(),
-                    jmeCursor.getYHotSpot(),
-                    jmeCursor.getNumImages(),
-                    jmeCursor.getImagesData(),
-                    jmeCursor.getImagesDelay());
+            Cursor newCursor = null;
+            if (jmeCursor != null) {
+                 newCursor = new Cursor(
+                        jmeCursor.getWidth(),
+                        jmeCursor.getHeight(),
+                        jmeCursor.getXHotSpot(),
+                        jmeCursor.getYHotSpot(),
+                        jmeCursor.getNumImages(),
+                        jmeCursor.getImagesData(),
+                        jmeCursor.getImagesDelay());
+            }
             Mouse.setNativeCursor(newCursor);
         } catch (LWJGLException ex) {
             Logger.getLogger(LwjglMouseInput.class.getName()).log(Level.SEVERE, null, ex);
