@@ -86,10 +86,7 @@ public class BulletRigidBodyDebugControl extends AbstractPhysicsDebugControl {
             node.attachChild(geom);
         }
         applyPhysicsTransform(body.getPhysicsLocation(location), body.getPhysicsRotation(rotation));
-        //no scaling for sphere, capsule, cylinder
-        if (!(body.getCollisionShape() instanceof CylinderCollisionShape) && !(body.getCollisionShape() instanceof CapsuleCollisionShape) || !(body.getCollisionShape() instanceof SphereCollisionShape)) {
-            geom.setLocalScale(body.getCollisionShape().getScale());
-        }
+        geom.setLocalScale(body.getCollisionShape().getScale());
     }
 
     @Override

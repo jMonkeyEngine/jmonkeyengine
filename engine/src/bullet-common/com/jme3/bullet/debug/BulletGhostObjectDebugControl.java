@@ -86,10 +86,7 @@ public class BulletGhostObjectDebugControl extends AbstractPhysicsDebugControl{
             node.attachChild(geom);
         }
         applyPhysicsTransform(body.getPhysicsLocation(location), Quaternion.IDENTITY);
-        //no scaling for sphere, capsule, cylinder
-        if (!(body.getCollisionShape() instanceof CylinderCollisionShape) && !(body.getCollisionShape() instanceof CapsuleCollisionShape) || !(body.getCollisionShape() instanceof SphereCollisionShape)) {
-            geom.setLocalScale(body.getCollisionShape().getScale());
-        }
+        geom.setLocalScale(body.getCollisionShape().getScale());
     }
 
     @Override
