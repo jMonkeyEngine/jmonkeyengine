@@ -31,13 +31,16 @@
  */
 package com.jme3.bullet.debug;
 
+import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
+import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.objects.PhysicsCharacter;
+import com.jme3.bullet.util.DebugShapeFactory;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 
@@ -48,14 +51,16 @@ import com.jme3.scene.Spatial;
 public class BulletCharacterDebugControl extends AbstractPhysicsDebugControl {
 
     protected final PhysicsCharacter body;
-    protected final Geometry geom;
     protected final Vector3f location = new Vector3f();
     protected final Quaternion rotation = new Quaternion();
+    protected CollisionShape myShape;
+    protected Spatial geom;
 
     public BulletCharacterDebugControl(BulletDebugAppState debugAppState, PhysicsCharacter body) {
         super(debugAppState);
         this.body = body;
-        this.geom = new Geometry(body.toString());
+        myShape = body.getCollisionShape();
+        this.geom = DebugShapeFactory.getDebugShape(body.getCollisionShape());
         geom.setMaterial(debugAppState.DEBUG_PINK);
     }
 
@@ -73,18 +78,17 @@ public class BulletCharacterDebugControl extends AbstractPhysicsDebugControl {
 
     @Override
     protected void controlUpdate(float tpf) {
-        Mesh mesh = debugAppState.getShapeBuffer().getShapeMesh(body.getCollisionShape());
-        if (mesh != null) {
-            if (geom.getMesh() != mesh) {
-                geom.setMesh(mesh);
-            }
-        } else {
-            if (geom.getMesh() != BulletDebugAppState.CollisionShapeBuffer.NO_MESH) {
-                geom.setMesh(BulletDebugAppState.CollisionShapeBuffer.NO_MESH);
-            }
+        if(myShape != body.getCollisionShape()){
+            Node node = (Node) this.spatial;
+            node.detachChild(geom);
+            geom = DebugShapeFactory.getDebugShape(body.getCollisionShape());
+            node.attachChild(geom);
         }
         applyPhysicsTransform(body.getPhysicsLocation(location), Quaternion.IDENTITY);
-        geom.setLocalScale(body.getCollisionShape().getScale());
+        //no scaling for sphere, capsule, cylinder
+        if (!(body.getCollisionShape() instanceof CylinderCollisionShape) && !(body.getCollisionShape() instanceof CapsuleCollisionShape) || !(body.getCollisionShape() instanceof SphereCollisionShape)) {
+            geom.setLocalScale(body.getCollisionShape().getScale());
+        }
     }
 
     @Override

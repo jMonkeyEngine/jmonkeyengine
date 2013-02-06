@@ -36,28 +36,21 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.PhysicsSpace;
-import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.joints.PhysicsJoint;
 import com.jme3.bullet.objects.PhysicsCharacter;
 import com.jme3.bullet.objects.PhysicsGhostObject;
 import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.bullet.objects.PhysicsVehicle;
-import com.jme3.bullet.util.DebugShapeFactory;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.debug.Arrow;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,8 +62,6 @@ public class BulletDebugAppState extends AbstractAppState {
 
     protected static final Logger logger = Logger.getLogger(BulletDebugAppState.class.getName());
     protected final PhysicsSpace space;
-    protected final CollisionShapeBuffer shapeBuffer = new CollisionShapeBuffer();
-    protected final ArrowBuffer arrowBuffer = new ArrowBuffer();
     protected final Node physicsDebugRootNode = new Node("Physics Debug Root Node");
     protected ViewPort viewPort;
     protected RenderManager rm;
@@ -119,10 +110,6 @@ public class BulletDebugAppState extends AbstractAppState {
         //update our debug root node
         physicsDebugRootNode.updateLogicalState(tpf);
         physicsDebugRootNode.updateGeometricState();
-        //reset shapes -> this removes all meshes for shapes that were not used this update cycle
-        shapeBuffer.resetShapes();
-        //reset arrows -> this makes arrow meshes available for the next update cycle
-        arrowBuffer.resetArrows();
     }
 
     @Override
@@ -300,62 +287,4 @@ public class BulletDebugAppState extends AbstractAppState {
         }
     }
 
-    public ArrowBuffer getArrowBuffer() {
-        return arrowBuffer;
-    }
-
-    public CollisionShapeBuffer getShapeBuffer() {
-        return shapeBuffer;
-    }
-
-    public static class CollisionShapeBuffer {
-
-        public static final Mesh NO_MESH = new Arrow(new Vector3f(0, 0, 0));
-        private HashMap<CollisionShape, Mesh> shapes = new HashMap<CollisionShape, Mesh>();
-        private HashMap<CollisionShape, Mesh> usedShapes = new HashMap<CollisionShape, Mesh>();
-
-        public void resetShapes() {
-            shapes = usedShapes;
-            usedShapes = new HashMap<CollisionShape, Mesh>();
-        }
-
-        public Mesh getShapeMesh(CollisionShape shape) {
-            if (shape == null) {
-                return null;
-            }
-            Mesh mesh = shapes.get(shape);
-            if (mesh == null) {
-                logger.log(Level.FINE, "Create new debug MESH");
-                mesh = DebugShapeFactory.getDebugMesh(shape);
-                shapes.put(shape, mesh);
-            }
-            usedShapes.put(shape, mesh);
-            return mesh;
-        }
-    }
-
-    public static class ArrowBuffer {
-
-        private final Queue<Arrow> arrows = new ConcurrentLinkedQueue<Arrow>();
-        private final Queue<Arrow> usedArrows = new ConcurrentLinkedQueue<Arrow>();
-
-        public void resetArrows() {
-            arrows.addAll(usedArrows);
-        }
-
-        public Arrow getArrow() {
-            return getArrow(Vector3f.UNIT_Y);
-        }
-
-        public Arrow getArrow(Vector3f extent) {
-            Arrow arrow = arrows.poll();
-            if (arrow == null) {
-                arrow = new Arrow(extent);
-            } else {
-                arrow.setArrowExtent(extent);
-            }
-            usedArrows.add(arrow);
-            return arrow;
-        }
-    }
 }
