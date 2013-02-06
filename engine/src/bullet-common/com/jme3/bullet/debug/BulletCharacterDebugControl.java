@@ -84,6 +84,7 @@ public class BulletCharacterDebugControl extends AbstractPhysicsDebugControl {
             }
         }
         applyPhysicsTransform(body.getPhysicsLocation(location), Quaternion.IDENTITY);
+        geom.setLocalScale(body.getCollisionShape().getScale());
     }
 
     @Override

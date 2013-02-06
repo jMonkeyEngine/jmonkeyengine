@@ -83,6 +83,7 @@ public class BulletGhostObjectDebugControl extends AbstractPhysicsDebugControl{
             }
         }
         applyPhysicsTransform(body.getPhysicsLocation(location), Quaternion.IDENTITY);
+        geom.setLocalScale(body.getCollisionShape().getScale());
     }
 
     @Override
