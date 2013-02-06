@@ -31,10 +31,7 @@
  */
 package com.jme3.bullet.debug;
 
-import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
-import com.jme3.bullet.collision.shapes.CylinderCollisionShape;
-import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.objects.PhysicsCharacter;
 import com.jme3.bullet.util.DebugShapeFactory;
 import com.jme3.math.Quaternion;
@@ -82,6 +79,7 @@ public class BulletCharacterDebugControl extends AbstractPhysicsDebugControl {
             Node node = (Node) this.spatial;
             node.detachChild(geom);
             geom = DebugShapeFactory.getDebugShape(body.getCollisionShape());
+            geom.setMaterial(debugAppState.DEBUG_PINK);
             node.attachChild(geom);
         }
         applyPhysicsTransform(body.getPhysicsLocation(location), Quaternion.IDENTITY);
