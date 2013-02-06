@@ -41,6 +41,8 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.math.Vector3f;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Basic cylinder collision shape
@@ -81,6 +83,14 @@ public class CylinderCollisionShape extends CollisionShape {
 
     public int getAxis() {
         return axis;
+    }
+
+    /**
+     * WARNING - CompoundCollisionShape scaling has no effect.
+     */
+    @Override
+    public void setScale(Vector3f scale) {
+        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "CylinderCollisionShape cannot be scaled");
     }
 
     public void write(JmeExporter ex) throws IOException {

@@ -35,6 +35,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.Vector3f;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -85,6 +86,14 @@ public class CapsuleCollisionShape extends CollisionShape{
 
     public int getAxis() {
         return axis;
+    }
+
+    /**
+     * WARNING - CompoundCollisionShape scaling has no effect.
+     */
+    @Override
+    public void setScale(Vector3f scale) {
+        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "CapsuleCollisionShape cannot be scaled");
     }
 
     public void write(JmeExporter ex) throws IOException {
