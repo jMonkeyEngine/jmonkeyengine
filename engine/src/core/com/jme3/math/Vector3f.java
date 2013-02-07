@@ -383,12 +383,31 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
         return this;
     }
 
+    /**
+     * Projects this vector onto another vector
+     *
+     * @param other The vector to project this vector onto
+     * @return A new vector with the projection result
+     */
     public Vector3f project(Vector3f other){
         float n = this.dot(other); // A . B
         float d = other.lengthSquared(); // |B|^2
         return new Vector3f(other).normalizeLocal().multLocal(n/d);
     }
 
+    /**
+     * Projects this vector onto another vector, stores the result in this
+     * vector
+     *
+     * @param other The vector to project this vector onto
+     * @return This Vector3f, set to the projection result
+     */
+    public Vector3f projectLocal(Vector3f other){
+        float n = this.dot(other); // A . B
+        float d = other.lengthSquared(); // |B|^2
+        return set(other).normalizeLocal().multLocal(n/d);
+    }
+    
     /**
      * Returns true if this vector is a unit vector (length() ~= 1),
      * returns false otherwise.
