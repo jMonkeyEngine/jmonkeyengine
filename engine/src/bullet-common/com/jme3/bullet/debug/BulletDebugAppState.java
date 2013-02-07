@@ -61,6 +61,9 @@ import java.util.logging.Logger;
 public class BulletDebugAppState extends AbstractAppState {
 
     protected static final Logger logger = Logger.getLogger(BulletDebugAppState.class.getName());
+    protected DebugAppStateFilter filter;
+    protected Application app;
+    protected AssetManager assetManager;
     protected final PhysicsSpace space;
     protected final Node physicsDebugRootNode = new Node("Physics Debug Root Node");
     protected ViewPort viewPort;
@@ -81,10 +84,20 @@ public class BulletDebugAppState extends AbstractAppState {
         this.space = space;
     }
 
+    public DebugTools getNewDebugTools() {
+        return new DebugTools(assetManager);
+    }
+
+    public void setFilter(DebugAppStateFilter filter) {
+        this.filter = filter;
+    }
+    
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         super.initialize(stateManager, app);
+        this.app = app;
         this.rm = app.getRenderManager();
+        this.assetManager = app.getAssetManager();
         setupMaterials(app);
         physicsDebugRootNode.setCullHint(Spatial.CullHint.Never);
         viewPort = rm.createMainView("Physics Debug Overlay", app.getCamera());
@@ -155,12 +168,14 @@ public class BulletDebugAppState extends AbstractAppState {
                 bodies.put(physicsObject, spat);
                 oldObjects.remove(physicsObject);
             } else {
-                logger.log(Level.FINE, "Create new debug RigidBody");
-                //create new spatial
-                Node node = new Node(physicsObject.toString());
-                node.addControl(new BulletRigidBodyDebugControl(this, physicsObject));
-                bodies.put(physicsObject, node);
-                physicsDebugRootNode.attachChild(node);
+                if (filter == null || filter.displayObject(physicsObject)) {
+                    logger.log(Level.FINE, "Create new debug RigidBody");
+                    //create new spatial
+                    Node node = new Node(physicsObject.toString());
+                    node.addControl(new BulletRigidBodyDebugControl(this, physicsObject));
+                    bodies.put(physicsObject, node);
+                    physicsDebugRootNode.attachChild(node);
+                }
             }
         }
         //remove leftover spatials
@@ -184,12 +199,14 @@ public class BulletDebugAppState extends AbstractAppState {
                 joints.put(physicsObject, spat);
                 oldObjects.remove(physicsObject);
             } else {
-                logger.log(Level.FINE, "Create new debug Joint");
-                //create new spatial
-                Node node = new Node(physicsObject.toString());
-                node.addControl(new BulletJointDebugControl(this, physicsObject));
-                joints.put(physicsObject, node);
-                physicsDebugRootNode.attachChild(node);
+                if (filter == null || filter.displayObject(physicsObject)) {
+                    logger.log(Level.FINE, "Create new debug Joint");
+                    //create new spatial
+                    Node node = new Node(physicsObject.toString());
+                    node.addControl(new BulletJointDebugControl(this, physicsObject));
+                    joints.put(physicsObject, node);
+                    physicsDebugRootNode.attachChild(node);
+                }
             }
         }
         //remove leftover spatials
@@ -213,12 +230,14 @@ public class BulletDebugAppState extends AbstractAppState {
                 ghosts.put(physicsObject, spat);
                 oldObjects.remove(physicsObject);
             } else {
-                logger.log(Level.FINE, "Create new debug GhostObject");
-                //create new spatial
-                Node node = new Node(physicsObject.toString());
-                node.addControl(new BulletGhostObjectDebugControl(this, physicsObject));
-                ghosts.put(physicsObject, node);
-                physicsDebugRootNode.attachChild(node);
+                if (filter == null || filter.displayObject(physicsObject)) {
+                    logger.log(Level.FINE, "Create new debug GhostObject");
+                    //create new spatial
+                    Node node = new Node(physicsObject.toString());
+                    node.addControl(new BulletGhostObjectDebugControl(this, physicsObject));
+                    ghosts.put(physicsObject, node);
+                    physicsDebugRootNode.attachChild(node);
+                }
             }
         }
         //remove leftover spatials
@@ -242,12 +261,14 @@ public class BulletDebugAppState extends AbstractAppState {
                 characters.put(physicsObject, spat);
                 oldObjects.remove(physicsObject);
             } else {
-                logger.log(Level.FINE, "Create new debug Character");
-                //create new spatial
-                Node node = new Node(physicsObject.toString());
-                node.addControl(new BulletCharacterDebugControl(this, physicsObject));
-                characters.put(physicsObject, node);
-                physicsDebugRootNode.attachChild(node);
+                if (filter == null || filter.displayObject(physicsObject)) {
+                    logger.log(Level.FINE, "Create new debug Character");
+                    //create new spatial
+                    Node node = new Node(physicsObject.toString());
+                    node.addControl(new BulletCharacterDebugControl(this, physicsObject));
+                    characters.put(physicsObject, node);
+                    physicsDebugRootNode.attachChild(node);
+                }
             }
         }
         //remove leftover spatials
@@ -271,12 +292,14 @@ public class BulletDebugAppState extends AbstractAppState {
                 vehicles.put(physicsObject, spat);
                 oldObjects.remove(physicsObject);
             } else {
-                logger.log(Level.FINE, "Create new debug Vehicle");
-                //create new spatial
-                Node node = new Node(physicsObject.toString());
-                node.addControl(new BulletVehicleDebugControl(this, physicsObject));
-                vehicles.put(physicsObject, node);
-                physicsDebugRootNode.attachChild(node);
+                if (filter == null || filter.displayObject(physicsObject)) {
+                    logger.log(Level.FINE, "Create new debug Vehicle");
+                    //create new spatial
+                    Node node = new Node(physicsObject.toString());
+                    node.addControl(new BulletVehicleDebugControl(this, physicsObject));
+                    vehicles.put(physicsObject, node);
+                    physicsDebugRootNode.attachChild(node);
+                }
             }
         }
         //remove leftover spatials
@@ -287,4 +310,17 @@ public class BulletDebugAppState extends AbstractAppState {
         }
     }
 
+    /**
+     * Interface that allows filtering out objects from the debug display
+     */
+    public static interface DebugAppStateFilter {
+
+        /**
+         * Queries an object to be displayed
+         *
+         * @param obj The object to be displayed
+         * @return return true if the object should be displayed, false if not
+         */
+        public boolean displayObject(Object obj);
+    }
 }
