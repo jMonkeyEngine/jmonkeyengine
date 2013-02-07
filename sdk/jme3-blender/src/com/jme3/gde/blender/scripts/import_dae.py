@@ -40,7 +40,7 @@ def save_file(save_path):
         bpy.ops.wm.save_as_mainfile(filepath=save_path)
 
 # Due to an issue in the DAE importer, the file has to be resaved after an import
-def open_save_file(open_path):
+def open_save_file(save_path):
      bpy.ops.wm.open_mainfile(filepath=save_path)
      bpy.ops.wm.save_as_mainfile(filepath=save_path)
 
