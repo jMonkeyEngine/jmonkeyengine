@@ -639,6 +639,16 @@ public class PhysicsSpace {
     }
 
     /**
+     * Gets the gravity of the PhysicsSpace
+     * @param gravity
+     */
+    public Vector3f getGravity(Vector3f gravity) {
+        javax.vecmath.Vector3f tempVec = new javax.vecmath.Vector3f();
+        dynamicsWorld.getGravity(tempVec);
+        return Converter.convert(tempVec, gravity);
+    }
+    
+    /**
      * applies gravity value to all objects
      */
     public void applyGravity() {

@@ -703,12 +703,18 @@ public class PhysicsSpace {
      * @param gravity
      */
     public void setGravity(Vector3f gravity) {
-//        dynamicsWorld.setGravity(Converter.convert(gravity));
+        gravity.set(gravity);
         setGravity(physicsSpaceId, gravity);
     }
 
     private native void setGravity(long spaceId, Vector3f gravity);
 
+    //TODO: getGravity
+    private final Vector3f gravity = new Vector3f(0,-9.81f,0);
+    public Vector3f getGravity(Vector3f gravity) {
+        return gravity.set(this.gravity);
+    }
+    
 //    /**
 //     * applies gravity value to all objects
 //     */
