@@ -139,7 +139,9 @@ public final class OBJLoader implements AssetLoader {
         
         public Spatial createGeometry(){
             Node groupNode = new Node(objectName);
-            
+            if (objectName == null) {
+                groupNode.setName("Model");
+            }
 //            if (matFaces.size() > 0){
 //                for (Entry<String, ArrayList<Face>> entry : matFaces.entrySet()){
 //                    ArrayList<Face> materialFaces = entry.getValue();
