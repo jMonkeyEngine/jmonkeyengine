@@ -384,6 +384,9 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      * gravity vector!
      */
     public void resetForward(Vector3f vec) {
+        if (vec == null) {
+            vec = Vector3f.UNIT_Z;
+        }
         localForward.set(vec);
         updateLocalCoordinateSystem();
     }
