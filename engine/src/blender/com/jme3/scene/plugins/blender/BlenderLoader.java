@@ -183,7 +183,7 @@ public class BlenderLoader extends AbstractBlenderLoader {
 		}
 
 		// opening stream
-		BlenderInputStream inputStream = new BlenderInputStream(assetInfo.openStream(), assetInfo.getManager());
+		BlenderInputStream inputStream = new BlenderInputStream(assetInfo.openStream());
 
 		// reading blocks
 		blocks = new ArrayList<FileBlockHeader>();

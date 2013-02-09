@@ -38,7 +38,6 @@ import java.io.InputStream;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
-import com.jme3.asset.AssetManager;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 
 /**
@@ -50,8 +49,6 @@ public class BlenderInputStream extends InputStream {
     private static final Logger LOGGER = Logger.getLogger(BlenderInputStream.class.getName());
     /** The default size of the blender buffer. */
     private static final int DEFAULT_BUFFER_SIZE = 1048576;												//1MB
-    /** The application's asset manager. */
-    private AssetManager assetManager;
     /**
      * Size of a pointer; all pointers in the file are stored in this format. '_' means 4 bytes and '-' means 8 bytes.
      */
@@ -73,13 +70,10 @@ public class BlenderInputStream extends InputStream {
      * Constructor. The input stream is stored and used to read data.
      * @param inputStream
      *        the stream we read data from
-     * @param assetManager
-     *        the application's asset manager
      * @throws BlenderFileException
      *         this exception is thrown if the file header has some invalid data
      */
-    public BlenderInputStream(InputStream inputStream, AssetManager assetManager) throws BlenderFileException {
-        this.assetManager = assetManager;
+    public BlenderInputStream(InputStream inputStream) throws BlenderFileException {
         //the size value will canche while reading the file; the available() method cannot be counted on
         try {
             size = inputStream.available();
@@ -353,14 +347,6 @@ public class BlenderInputStream extends InputStream {
      */
     public int getPointerSize() {
         return pointerSize;
-    }
-
-    /**
-     * This method returns the application's asset manager.
-     * @return the application's asset manager
-     */
-    public AssetManager getAssetManager() {
-        return assetManager;
     }
 
     /**
