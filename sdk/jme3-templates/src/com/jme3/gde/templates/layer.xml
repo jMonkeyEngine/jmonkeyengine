@@ -12,6 +12,13 @@
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/basic/BasicGameDescription.html"/>
                     <attr name="template" boolvalue="true"/>
                 </file>
+                <file name="JME3TestsAndroidProject.zip" url="JME3TestsAndroidProject.zip">
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/jme3/gde/templates/Phone_16.gif"/>
+                    <attr name="displayName" bundlevalue="com.jme3.gde.templates.Bundle#Templates/Project/JME3/JME3TestsAndroidProject.zip"/>
+                    <attr name="instantiatingIterator" methodvalue="com.jme3.gde.templates.testsandroid.JME3TestsAndroidWizardIterator.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/testsandroid/JME3TestsAndroidDescription.html"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
             </folder>
         </folder>
         <folder name="JME3 Classes">
