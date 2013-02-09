@@ -1183,7 +1183,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             clone.controls = new SafeArrayList<Control>(Control.class);
             for (int i = 0; i < controls.size(); i++) {
                 Control newControl = controls.get(i).cloneForSpatial(clone);
-                newControl.setSpatial(this);
+                newControl.setSpatial(clone);
                 clone.controls.add(newControl);
             }
 
