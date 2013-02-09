@@ -51,6 +51,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -123,14 +124,17 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         Ragdoll
     }
 
-    public class PhysicsBoneLink {
+    public class PhysicsBoneLink implements Savable {
 
-        protected Bone bone;
         protected PhysicsRigidBody rigidBody;
-        protected Quaternion initalWorldRotation;
+        protected Bone bone;
         protected SixDofJoint joint;
+        protected Quaternion initalWorldRotation;
         protected Quaternion startBlendingRot = new Quaternion();
         protected Vector3f startBlendingPos = new Vector3f();
+
+        public PhysicsBoneLink() {
+        }
 
         public Bone getBone() {
             return bone;
@@ -138,6 +142,26 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
 
         public PhysicsRigidBody getRigidBody() {
             return rigidBody;
+        }
+
+        public void write(JmeExporter ex) throws IOException {
+            OutputCapsule oc = ex.getCapsule(this);
+            oc.write(rigidBody, "rigidBody", null);
+            oc.write(bone, "bone", null);
+            oc.write(joint, "joint", null);
+            oc.write(initalWorldRotation, "initalWorldRotation", null);
+            oc.write(startBlendingRot, "startBlendingRot", new Quaternion());
+            oc.write(startBlendingPos, "startBlendingPos", new Vector3f());
+        }
+
+        public void read(JmeImporter im) throws IOException {
+            InputCapsule ic = im.getCapsule(this);
+            rigidBody = (PhysicsRigidBody) ic.readSavable("rigidBody", null);
+            bone = (Bone) ic.readSavable("bone", null);
+            joint = (SixDofJoint) ic.readSavable("joint", null);
+            initalWorldRotation = (Quaternion) ic.readSavable("initalWorldRotation", null);
+            startBlendingRot = (Quaternion) ic.readSavable("startBlendingRot", null);
+            startBlendingPos = (Vector3f) ic.readSavable("startBlendingPos", null);
         }
     }
 
@@ -771,7 +795,12 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     }
 
     public Control cloneForSpatial(Spatial spatial) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        KinematicRagdollControl control = new KinematicRagdollControl(preset, weightThreshold);
+        control.setMode(mode);
+        control.setRootMass(rootMass);
+        control.setWeightThreshold(weightThreshold);
+        control.setApplyPhysicsLocal(applyLocal);
+        return control;
     }
 
     /**
@@ -783,6 +812,22 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
+        oc.write(boneList.toArray(new String[boneList.size()]), "boneList", new String[0]);
+        oc.write(boneLinks.values().toArray(new PhysicsBoneLink[boneLinks.size()]), "boneLinks", new PhysicsBoneLink[0]);
+        oc.write(modelPosition, "modelPosition", new Vector3f());
+        oc.write(modelRotation, "modelRotation", new Quaternion());
+        oc.write(targetModel, "targetModel", null);
+        oc.write(skeleton, "skeleton", null);
+//        oc.write(preset, "preset", null);//TODO
+        oc.write(initScale, "initScale", null);
+        oc.write(mode, "mode", null);
+        oc.write(blendedControl, "blendedControl", false);
+        oc.write(weightThreshold, "weightThreshold", -1.0f);
+        oc.write(blendStart, "blendStart", 0.0f);
+        oc.write(blendTime, "blendTime", 1.0f);
+        oc.write(eventDispatchImpulseThreshold, "eventDispatchImpulseThreshold", 10);
+        oc.write(rootMass, "rootMass", 15);
+        oc.write(totalMass, "totalMass", 0);
     }
 
     /**
@@ -794,5 +839,27 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
+        String[] loadedBoneList = ic.readStringArray("boneList", new String[0]);
+        for (String string : loadedBoneList) {
+            boneList.add(string);
+        }
+        PhysicsBoneLink[] loadedBoneLinks = (PhysicsBoneLink[])ic.readSavableArray("boneList", new PhysicsBoneLink[0]);
+        for (PhysicsBoneLink physicsBoneLink : loadedBoneLinks) {
+            boneLinks.put(physicsBoneLink.bone.getName(), physicsBoneLink);
+        }
+        modelPosition.set((Vector3f) ic.readSavable("modelPosition", new Vector3f()));
+        modelRotation.set((Quaternion) ic.readSavable("modelRotation", new Quaternion()));
+        targetModel = (Spatial) ic.readSavable("targetModel", null);
+        skeleton = (Skeleton) ic.readSavable("skeleton", null);
+//        preset //TODO
+        initScale = (Vector3f) ic.readSavable("initScale", null);
+        mode = ic.readEnum("mode", Mode.class, Mode.Kinematic);
+        blendedControl = ic.readBoolean("blendedControl", false);
+        weightThreshold = ic.readFloat("weightThreshold", -1.0f);
+        blendStart = ic.readFloat("blendStart", 0.0f);
+        blendTime = ic.readFloat("blendTime", 1.0f);
+        eventDispatchImpulseThreshold = ic.readFloat("eventDispatchImpulseThreshold", 10);
+        rootMass = ic.readFloat("rootMass", 15);
+        totalMass = ic.readFloat("totalMass", 0);
     }
 }
