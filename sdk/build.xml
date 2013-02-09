@@ -22,12 +22,12 @@
     <target name="update-help-sets" description="Loads the wiki pages from the web and converts them to JavaHelp html for manual.">
         <ant antfile="build.xml" target="update-help-sets" inheritall="false" inheritrefs="false" dir="jme3-documentation/"/>
     </target>
-    
+
     <target name="update-nb-dependencies" description="Updates the dependencies of all projects to the currently used platform module versions">
         <property file="nbproject/project.properties"/>
         <foreach target="-update-nb-dep" list="${modules}" delimiter=":" param="module_dir" inheritall="true"/>
     </target>
-    
+
     <target name="-update-nb-dep">
         <updatenbdeps projectFile="${module_dir}/nbproject/project.xml" platformFolder="../netbeans"/>
     </target>
@@ -60,6 +60,15 @@
             <exclude name="**/dist/"/>
             <exclude name="**/nbproject/private/"/>
         </zip>
+        <zip basedir="JME3TestsTemplateAndroid/" destfile="jme3-templates/src/com/jme3/gde/templates/JME3TestsAndroidProject.zip">
+            <exclude name="**/build/"/>
+            <exclude name="**/dist/"/>
+            <exclude name="**/mobile/libs/"/>
+            <exclude name="**/mobile/gen/"/>
+            <exclude name="**/mobile/local.properties"/>
+            <exclude name="**/mobile/private/"/>
+            <exclude name="**/nbproject/private/"/>
+        </zip>
     </target>
 
     <target name="-set-base-version" description ="sets/unsets base version to major version for all plugins, updates branding version">
@@ -79,7 +88,7 @@
                        replace="CTL_MainWindow_Title_No_Project=${app.title} ${app.version}"
                        byline="true"/>
         <!--propertyfile
-            file="${basedir}/branding/core/core.jar/org/netbeans/core/startup/Bundle.properties" 
+            file="${basedir}/branding/core/core.jar/org/netbeans/core/startup/Bundle.properties"
             comment="Updated by build script">
             <entry key="currentVersion" value="${app.title} ${app.version}" />
         </propertyfile-->
@@ -104,13 +113,13 @@
                        replace="spec.version.base=${plugins.version}"
                        byline="true"/>
     </target>
-    
+
     <!--
      ****************************************************************
      Only Relevant for building nightly on Hudson server from here on
      ****************************************************************
     -->
-      
+
     <!--creates update center version via hudson build server (update-help-sets, )-->
     <target name="hudson-nightly" depends="suite.clean, set-impl-version, suite.nbms, unset-impl-version">
     </target>
@@ -118,11 +127,11 @@
     <!--to be used after release, sets version number sans svn revision-->
     <target name="hudson-stable" depends="suite.clean, set-spec-version, suite.nbms, unset-spec-version">
     </target>
-    
+
     <!--builds release installers-->
     <target name="hudson-release" depends="suite.clean, set-spec-version, build-installers, unset-spec-version">
     </target>
-    
+
     <target name="set-spec-version">
         <property file="nbproject/project.properties"/>
         <foreach target="-do-spec-version" list="${modules}" delimiter=":" param="module_dir" inheritall="true">
@@ -163,7 +172,7 @@
             </else>
         </if>
     </target>
-    
+
     <target name="set-impl-version">
         <property file="nbproject/project.properties"/>
         <antcall target="-create-jme3-svn-properties" inheritall="true">
@@ -303,9 +312,9 @@
             <property name="nbi.dock.icon.file" value="${basedir}/jmonkeyplatform.icns"/>
         </ant>
     </target>
-    
+
     <target name="build-zip-for-installer" depends="-set-bundled-jdkhome, suite.build-zip"/>
-    
+
     <target name="-set-bundled-jdkhome">
         <property name="jdkhome.string" value='jdkhome="jdk"'/>
     </target>
@@ -349,7 +358,7 @@
             </description>
         </deb>
     </target>
-    
+
     <target name="-upload-googlecode" depends="-check-googlecode" if="googlecode.credentials.present">
         <property file="nbproject/project.properties"/>
         <property file="../../../googlecode.properties" prefix="googlecode"/>
@@ -396,11 +405,11 @@
                   username="${googlecode.username}"
                   password="${googlecode.password}"
                   />
-    </target> 
-    
+    </target>
+
     <target name="-check-googlecode">
         <available file="../../../googlecode.properties" property="googlecode.credentials.present"/>
-    </target> 
-    
-    
+    </target>
+
+
 </project>
