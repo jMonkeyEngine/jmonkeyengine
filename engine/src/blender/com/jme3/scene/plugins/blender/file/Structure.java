@@ -215,6 +215,16 @@ public class Structure implements Cloneable {
     public String getFieldName(int fieldIndex) {
         return fields[fieldIndex].name;
     }
+    
+    /**
+     * This method returns the full field name of the given index.
+     * @param fieldIndex
+     *        the index of the field
+     * @return the full field name of the given index
+     */
+    public String getFieldFullName(int fieldIndex) {
+        return fields[fieldIndex].getFullName();
+    }
 
     /**
      * This method returns the field type of the given index.

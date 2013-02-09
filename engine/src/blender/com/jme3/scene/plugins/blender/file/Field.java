@@ -276,10 +276,13 @@ class Field implements Cloneable {
             }
         }
     }
-
-    @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder();
+    
+    /**
+     * This method builds the full name of the field (with function, pointer and table indications).
+     * @return the full name of the field
+     */
+    public String getFullName() {
+    	StringBuilder result = new StringBuilder();
         if (function) {
             result.append('(');
         }
@@ -295,6 +298,14 @@ class Field implements Cloneable {
         if (function) {
             result.append(")()");
         }
+        return result.toString();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append(this.getFullName());
+
         //insert appropriate amount of spaces to format the output corrently
         int nameLength = result.length();
         result.append(' ');//at least one space is a must
