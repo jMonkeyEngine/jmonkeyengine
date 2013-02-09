@@ -193,108 +193,116 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         if (!enabled) {
             return;
         }
-        TempVars vars = TempVars.get();
-
-        Quaternion tmpRot1 = vars.quat1;
-        Quaternion tmpRot2 = vars.quat2;
 
         //if the ragdoll has the control of the skeleton, we update each bone with its position in physic world space.
         if (mode == mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)) {
-            for (PhysicsBoneLink link : boneLinks.values()) {
-
-                Vector3f position = vars.vect1;
-
-                //retrieving bone position in physic world space
-                Vector3f p = link.rigidBody.getMotionState().getWorldLocation();
-                //transforming this position with inverse transforms of the model
-                targetModel.getWorldTransform().transformInverseVector(p, position);
-
-                //retrieving bone rotation in physic world space
-                Quaternion q = link.rigidBody.getMotionState().getWorldRotationQuat();
-
-                //multiplying this rotation by the initialWorld rotation of the bone, 
-                //then transforming it with the inverse world rotation of the model
-                tmpRot1.set(q).multLocal(link.initalWorldRotation);
-                tmpRot2.set(targetModel.getWorldRotation()).inverseLocal().mult(tmpRot1, tmpRot1);
-                tmpRot1.normalizeLocal();
-
-                //if the bone is the root bone, we apply the physic's transform to the model, so its position and rotation are correctly updated
-                if (link.bone.getParent() == null) {
-
-                    //offsetting the physic's position/rotation by the root bone inverse model space position/rotaion
-                    modelPosition.set(p).subtractLocal(link.bone.getWorldBindPosition());
-                    targetModel.getParent().getWorldTransform().transformInverseVector(modelPosition, modelPosition);
-                    modelRotation.set(q).multLocal(tmpRot2.set(link.bone.getWorldBindRotation()).inverseLocal());
-
-
-                    //applying transforms to the model
-                    targetModel.setLocalTranslation(modelPosition);
-
-                    targetModel.setLocalRotation(modelRotation);
-
-                    //Applying computed transforms to the bone
-                    link.bone.setUserTransformsWorld(position, tmpRot1);
-
-                } else {
-                    //if boneList is empty, this means that every bone in the ragdoll has a collision shape,
-                    //so we just update the bone position
-                    if (boneList.isEmpty()) {
-                        link.bone.setUserTransformsWorld(position, tmpRot1);
-                    } else {
-                        //boneList is not empty, this means some bones of the skeleton might not be associated with a collision shape.
-                        //So we update them recusively
-                        RagdollUtils.setTransform(link.bone, position, tmpRot1, false, boneList);
-                    }
-                }
-            }
+            ragDollUpdate(tpf);
         } else {
-            //the ragdoll does not have the controll, so the keyframed animation updates the physic position of the physic bonces
-            for (PhysicsBoneLink link : boneLinks.values()) {
+            kinematicUpdate(tpf);
+        }
+    }
 
-                Vector3f position = vars.vect1;
+    protected void ragDollUpdate(float tpf) {
+        TempVars vars = TempVars.get();
+        Quaternion tmpRot1 = vars.quat1;
+        Quaternion tmpRot2 = vars.quat2;
+        
+        for (PhysicsBoneLink link : boneLinks.values()) {
 
-                //if blended control this means, keyframed animation is updating the skeleton, 
-                //but to allow smooth transition, we blend this transformation with the saved position of the ragdoll
-                if (blendedControl) {
-                    Vector3f position2 = vars.vect2;
-                    //initializing tmp vars with the start position/rotation of the ragdoll
-                    position.set(link.startBlendingPos);
-                    tmpRot1.set(link.startBlendingRot);
+            Vector3f position = vars.vect1;
 
-                    //interpolating between ragdoll position/rotation and keyframed position/rotation
-                    tmpRot2.set(tmpRot1).nlerp(link.bone.getModelSpaceRotation(), blendStart / blendTime);
-                    position2.set(position).interpolate(link.bone.getModelSpacePosition(), blendStart / blendTime);
-                    tmpRot1.set(tmpRot2);
-                    position.set(position2);
+            //retrieving bone position in physic world space
+            Vector3f p = link.rigidBody.getMotionState().getWorldLocation();
+            //transforming this position with inverse transforms of the model
+            targetModel.getWorldTransform().transformInverseVector(p, position);
 
-                    //updating bones transforms
-                    if (boneList.isEmpty()) {
-                        //we ensure we have the control to update the bone
-                        link.bone.setUserControl(true);
-                        link.bone.setUserTransformsWorld(position, tmpRot1);
-                        //we give control back to the key framed animation.
-                        link.bone.setUserControl(false);
-                    } else {
-                        RagdollUtils.setTransform(link.bone, position, tmpRot1, true, boneList);
-                    }
+            //retrieving bone rotation in physic world space
+            Quaternion q = link.rigidBody.getMotionState().getWorldRotationQuat();
 
-                }
-                //setting skeleton transforms to the ragdoll
-                matchPhysicObjectToBone(link, position, tmpRot1);
-                modelPosition.set(targetModel.getLocalTranslation());
+            //multiplying this rotation by the initialWorld rotation of the bone, 
+            //then transforming it with the inverse world rotation of the model
+            tmpRot1.set(q).multLocal(link.initalWorldRotation);
+            tmpRot2.set(targetModel.getWorldRotation()).inverseLocal().mult(tmpRot1, tmpRot1);
+            tmpRot1.normalizeLocal();
 
-            }
+            //if the bone is the root bone, we apply the physic's transform to the model, so its position and rotation are correctly updated
+            if (link.bone.getParent() == null) {
 
-            //time control for blending
-            if (blendedControl) {
-                blendStart += tpf;
-                if (blendStart > blendTime) {
-                    blendedControl = false;
+                //offsetting the physic's position/rotation by the root bone inverse model space position/rotaion
+                modelPosition.set(p).subtractLocal(link.bone.getWorldBindPosition());
+                targetModel.getParent().getWorldTransform().transformInverseVector(modelPosition, modelPosition);
+                modelRotation.set(q).multLocal(tmpRot2.set(link.bone.getWorldBindRotation()).inverseLocal());
+
+
+                //applying transforms to the model
+                targetModel.setLocalTranslation(modelPosition);
+
+                targetModel.setLocalRotation(modelRotation);
+
+                //Applying computed transforms to the bone
+                link.bone.setUserTransformsWorld(position, tmpRot1);
+
+            } else {
+                //if boneList is empty, this means that every bone in the ragdoll has a collision shape,
+                //so we just update the bone position
+                if (boneList.isEmpty()) {
+                    link.bone.setUserTransformsWorld(position, tmpRot1);
+                } else {
+                    //boneList is not empty, this means some bones of the skeleton might not be associated with a collision shape.
+                    //So we update them recusively
+                    RagdollUtils.setTransform(link.bone, position, tmpRot1, false, boneList);
                 }
             }
         }
         vars.release();
+    }
 
+    protected void kinematicUpdate(float tpf) {
+        //the ragdoll does not have the controll, so the keyframed animation updates the physic position of the physic bonces
+        TempVars vars = TempVars.get();
+        Quaternion tmpRot1 = vars.quat1;
+        Quaternion tmpRot2 = vars.quat2;
+        Vector3f position = vars.vect1;
+        for (PhysicsBoneLink link : boneLinks.values()) {
+            //if blended control this means, keyframed animation is updating the skeleton, 
+            //but to allow smooth transition, we blend this transformation with the saved position of the ragdoll
+            if (blendedControl) {
+                Vector3f position2 = vars.vect2;
+                //initializing tmp vars with the start position/rotation of the ragdoll
+                position.set(link.startBlendingPos);
+                tmpRot1.set(link.startBlendingRot);
+
+                //interpolating between ragdoll position/rotation and keyframed position/rotation
+                tmpRot2.set(tmpRot1).nlerp(link.bone.getModelSpaceRotation(), blendStart / blendTime);
+                position2.set(position).interpolate(link.bone.getModelSpacePosition(), blendStart / blendTime);
+                tmpRot1.set(tmpRot2);
+                position.set(position2);
+
+                //updating bones transforms
+                if (boneList.isEmpty()) {
+                    //we ensure we have the control to update the bone
+                    link.bone.setUserControl(true);
+                    link.bone.setUserTransformsWorld(position, tmpRot1);
+                    //we give control back to the key framed animation.
+                    link.bone.setUserControl(false);
+                } else {
+                    RagdollUtils.setTransform(link.bone, position, tmpRot1, true, boneList);
+                }
+
+            }
+            //setting skeleton transforms to the ragdoll
+            matchPhysicObjectToBone(link, position, tmpRot1);
+            modelPosition.set(targetModel.getLocalTranslation());
+        }
+
+        //time control for blending
+        if (blendedControl) {
+            blendStart += tpf;
+            if (blendStart > blendTime) {
+                blendedControl = false;
+            }
+        }
+        vars.release();
     }
 
     /**
