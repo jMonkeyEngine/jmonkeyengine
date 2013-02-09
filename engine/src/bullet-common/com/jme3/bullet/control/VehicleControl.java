@@ -152,8 +152,6 @@ public class VehicleControl extends PhysicsVehicle implements PhysicsControl {
             }
         }
         control.setApplyPhysicsLocal(isApplyPhysicsLocal());
-
-        control.setSpatial(spatial);
         return control;
     }
 

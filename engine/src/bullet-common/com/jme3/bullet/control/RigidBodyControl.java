@@ -112,8 +112,6 @@ public class RigidBodyControl extends PhysicsRigidBody implements PhysicsControl
             control.setLinearVelocity(getLinearVelocity());
         }
         control.setApplyPhysicsLocal(isApplyPhysicsLocal());
-
-        control.setSpatial(spatial);
         return control;
     }
 

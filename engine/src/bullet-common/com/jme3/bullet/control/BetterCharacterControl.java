@@ -659,7 +659,6 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     public Control cloneForSpatial(Spatial spatial) {
         BetterCharacterControl control = new BetterCharacterControl(radius, height, mass);
         control.setJumpForce(jumpForce);
-        control.setSpatial(spatial);
         return control;
     }
 

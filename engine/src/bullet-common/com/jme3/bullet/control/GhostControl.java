@@ -102,8 +102,6 @@ public class GhostControl extends PhysicsGhostObject implements PhysicsControl {
         control.setPhysicsLocation(getPhysicsLocation());
         control.setPhysicsRotation(getPhysicsRotationMatrix());
         control.setApplyPhysicsLocal(isApplyPhysicsLocal());
-
-        control.setSpatial(spatial);
         return control;
     }
 

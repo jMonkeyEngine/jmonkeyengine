@@ -47,9 +47,10 @@ import com.jme3.scene.control.Control;
 import java.io.IOException;
 
 /**
- *
+ * @deprecated in favor of <code>BetterCharacterControl</code>
  * @author normenhansen
  */
+@Deprecated
 public class CharacterControl extends PhysicsCharacter implements PhysicsControl {
 
     protected Spatial spatial;
@@ -100,8 +101,6 @@ public class CharacterControl extends PhysicsCharacter implements PhysicsControl
         control.setPhysicsLocation(getPhysicsLocation());
         control.setUpAxis(getUpAxis());
         control.setApplyPhysicsLocal(isApplyPhysicsLocal());
-
-        control.setSpatial(spatial);
         return control;
     }
 
