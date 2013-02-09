@@ -31,6 +31,7 @@
  */
 package com.jme3.gde.core.properties;
 
+import com.jme3.asset.TextureKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.properties.preview.DDSPreview;
 import com.jme3.gde.core.util.TreeUtil;
@@ -294,6 +295,7 @@ private void noTexturebuttonActionPerformed(java.awt.event.ActionEvent evt) {//G
             } else {
                 Texture tex = assetManager.loadTexture(selected);
                 newicon = ImageUtilities.image2Icon(ImageToAwt.convert(tex.getImage(), false, true, 0));
+                assetManager.deleteFromCache(new TextureKey(selected));
                 imagePreviewLabel.setIcon(newicon);
                 infoLabel.setText(" " + node.getUserObject() + "    w : " + newicon.getIconWidth() + "    h : " + newicon.getIconHeight());
             }
