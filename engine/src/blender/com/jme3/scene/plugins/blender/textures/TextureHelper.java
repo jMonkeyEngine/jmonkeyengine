@@ -749,11 +749,16 @@ public class TextureHelper extends AbstractBlenderHelper {
                 try {
                     TextureKey key = new TextureKey(assetName);
                     key.setAsCube(false);
+                    // TODO: gather from 
+                    key.setFlipY(true);
+                    key.setGenerateMips(true);
                     AssetInfo info = assetManager.locateAsset(key);
                     if (info != null) {
                         Texture texture = assetManager.loadTexture(key);
                         result = texture;
-                        //if texture is found return it;
+                        // Set key explicitly here if other ways fail
+                        texture.setKey(key);
+                        // If texture is found return it;
                         return result;
                     }
                 } catch (AssetNotFoundException e) {
