@@ -791,6 +791,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      * @param rm
      * @param vp
      */
+    @Override
     public void render(RenderManager rm, ViewPort vp) {
     }
 
@@ -809,6 +810,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      * @param ex
      * @throws IOException
      */
+    @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
@@ -836,13 +838,12 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      * @param im
      * @throws IOException
      */
+    @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule ic = im.getCapsule(this);
         String[] loadedBoneList = ic.readStringArray("boneList", new String[0]);
-        for (String string : loadedBoneList) {
-            boneList.add(string);
-        }
+        boneList.addAll(Arrays.asList(loadedBoneList));
         PhysicsBoneLink[] loadedBoneLinks = (PhysicsBoneLink[])ic.readSavableArray("boneList", new PhysicsBoneLink[0]);
         for (PhysicsBoneLink physicsBoneLink : loadedBoneLinks) {
             boneLinks.put(physicsBoneLink.bone.getName(), physicsBoneLink);
