@@ -102,7 +102,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     protected final Map<String, PhysicsBoneLink> boneLinks = new HashMap<String, PhysicsBoneLink>();
     protected final Vector3f modelPosition = new Vector3f();
     protected final Quaternion modelRotation = new Quaternion();
-    protected PhysicsRigidBody baseRigidBody;
+    protected final PhysicsRigidBody baseRigidBody;
     protected Spatial targetModel;
     protected Skeleton skeleton;
     protected RagdollPreset preset = new HumanoidRagdollPreset();
@@ -145,18 +145,23 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      * contruct a KinematicRagdollControl
      */
     public KinematicRagdollControl() {
+        baseRigidBody = new PhysicsRigidBody(new BoxCollisionShape(Vector3f.UNIT_XYZ.mult(0.1f)), 1);
+        baseRigidBody.setKinematic(mode == Mode.Kinematic);
     }
 
     public KinematicRagdollControl(float weightThreshold) {
+        this();
         this.weightThreshold = weightThreshold;
     }
 
     public KinematicRagdollControl(RagdollPreset preset, float weightThreshold) {
+        this();
         this.preset = preset;
         this.weightThreshold = weightThreshold;
     }
 
     public KinematicRagdollControl(RagdollPreset preset) {
+        this();
         this.preset = preset;
     }
 
@@ -307,15 +312,9 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     }
 
     @Override
-    public void setSpatial(Spatial model) {
-        super.setSpatial(model);
+    protected void createSpatialData(Spatial model) {
         if (added) {
             removePhysics(space);
-        }
-        boneLinks.clear();
-        baseRigidBody = null;
-        if (model == null) {
-            return;
         }
         targetModel = model;
         Node parent = model.getParent();
@@ -355,6 +354,15 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         logger.log(Level.FINE, "Created physics ragdoll for skeleton {0}", skeleton);
     }
 
+    @Override
+    protected void removeSpatialData(Spatial spat) {
+        if (added) {
+            removePhysics(space);
+            added = false;
+        }
+        boneLinks.clear();
+    }
+
     /**
      * Add a bone name to this control Using this method you can specify which
      * bones of the skeleton will be used to build the collision shapes.
@@ -378,8 +386,6 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
             Bone childBone = skeleton.getRoots()[i];
             if (childBone.getParent() == null) {
                 logger.log(Level.FINE, "Found root bone in skeleton {0}", skeleton);
-                baseRigidBody = new PhysicsRigidBody(new BoxCollisionShape(Vector3f.UNIT_XYZ.mult(0.1f)), 1);
-                baseRigidBody.setKinematic(mode == Mode.Kinematic);
                 boneRecursion(model, childBone, baseRigidBody, 1, pointsMap);
             }
         }

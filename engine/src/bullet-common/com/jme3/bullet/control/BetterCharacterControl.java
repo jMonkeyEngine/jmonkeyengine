@@ -603,18 +603,6 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
-     * We set the current spatial as UserObject so the user can find his
-     * spatial.
-     *
-     * @param spatial
-     */
-    @Override
-    public void setSpatial(Spatial spatial) {
-        super.setSpatial(spatial);
-        rigidBody.setUserObject(spatial);
-    }
-
-    /**
      * This is implemented from AbstractPhysicsControl and called when the
      * spatial is attached for example. We don't set the actual physics rotation
      * but the view rotation here. It might actually be altered by the
@@ -656,6 +644,16 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         space.removeTickListener(this);
     }
 
+    @Override
+    protected void createSpatialData(Spatial spat) {
+        rigidBody.setUserObject(spatial);
+    }
+
+    @Override
+    protected void removeSpatialData(Spatial spat) {
+        rigidBody.setUserObject(null);
+    }
+    
     public Control cloneForSpatial(Spatial spatial) {
         BetterCharacterControl control = new BetterCharacterControl(radius, height, mass);
         control.setJumpForce(jumpForce);

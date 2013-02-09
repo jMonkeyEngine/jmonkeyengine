@@ -59,6 +59,22 @@ public abstract class AbstractPhysicsControl implements PhysicsControl {
     protected boolean applyLocal = false;
 
     /**
+     * Called when the control is added to a new spatial, create any
+     * spatial-dependent data here.
+     *
+     * @param spat The new spatial, guaranteed not to be null
+     */
+    protected abstract void createSpatialData(Spatial spat);
+
+    /**
+     * Called when the control is removed from a spatial, remove any
+     * spatial-dependent data here.
+     *
+     * @param spat The old spatial, guaranteed not to be null
+     */
+    protected abstract void removeSpatialData(Spatial spat);
+
+    /**
      * Called when the physics object is supposed to move to the spatial
      * position.
      *
@@ -146,10 +162,17 @@ public abstract class AbstractPhysicsControl implements PhysicsControl {
     }
 
     public void setSpatial(Spatial spatial) {
+        if (this.spatial != null && this.spatial != spatial) {
+            removeSpatialData(this.spatial);
+        }
+        else if (this.spatial == spatial) {
+            return;
+        }
         this.spatial = spatial;
         if (spatial == null) {
             return;
         }
+        createSpatialData(this.spatial);
         setPhysicsLocation(getSpatialTranslation());
         setPhysicsRotation(getSpatialRotation());
     }
