@@ -722,7 +722,12 @@ public class TextureHelper extends AbstractBlenderHelper {
             // Directly try to load texture so AssetManager can report missing textures
             try {
                 TextureKey key = new TextureKey(absoluteName);
-                assetManager.loadTexture(key);
+                //TODO: gather from blender data
+                key.setAsCube(false);
+                key.setFlipY(true);
+                key.setGenerateMips(true);
+                result = assetManager.loadTexture(key);
+                result.setKey(key);
             } catch (AssetNotFoundException e) {
                 LOGGER.fine(e.getLocalizedMessage());
             }
@@ -748,8 +753,8 @@ public class TextureHelper extends AbstractBlenderHelper {
             for (String assetName : assetNames) {
                 try {
                     TextureKey key = new TextureKey(assetName);
+                    //TODO: gather from blender data
                     key.setAsCube(false);
-                    // TODO: gather from 
                     key.setFlipY(true);
                     key.setGenerateMips(true);
                     AssetInfo info = assetManager.locateAsset(key);
