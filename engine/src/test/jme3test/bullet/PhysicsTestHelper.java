@@ -114,7 +114,7 @@ public class PhysicsTestHelper {
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         material.setTexture("ColorMap", assetManager.loadTexture("Interface/Logo/Monkey.jpg"));
 
-        Box floorBox = new Box(140, 0.25f, 140);
+        Box floorBox = new Box(20, 0.25f, 20);
         Geometry floorGeometry = new Geometry("Floor", floorBox);
         floorGeometry.setMaterial(material);
         floorGeometry.setLocalTranslation(0, -0.25f, 0);
@@ -137,7 +137,7 @@ public class PhysicsTestHelper {
             rootNode.attachChild(ballGeometry);
             space.add(ballGeometry);
         }
-
+        {
         //immovable Box with mesh collision shape
         Box box = new Box(1, 1, 1);
         Geometry boxGeometry = new Geometry("Box", box);
@@ -146,7 +146,17 @@ public class PhysicsTestHelper {
         boxGeometry.addControl(new RigidBodyControl(new MeshCollisionShape(box), 0));
         rootNode.attachChild(boxGeometry);
         space.add(boxGeometry);
-
+        }
+        {
+        //immovable Box with mesh collision shape
+        Box box = new Box(1, 1, 1);
+        Geometry boxGeometry = new Geometry("Box", box);
+        boxGeometry.setMaterial(material);
+        boxGeometry.setLocalTranslation(4, 3, 4);
+        boxGeometry.addControl(new RigidBodyControl(new MeshCollisionShape(box), 0));
+        rootNode.attachChild(boxGeometry);
+        space.add(boxGeometry);
+        }
     }
 
     /**
@@ -217,7 +227,7 @@ public class PhysicsTestHelper {
                     bulletg.setMaterial(mat2);
                     bulletg.setShadowMode(ShadowMode.CastAndReceive);
                     bulletg.setLocalTranslation(app.getCamera().getLocation());
-                    RigidBodyControl bulletControl = new RigidBodyControl(1);
+                    RigidBodyControl bulletControl = new RigidBodyControl(10);
                     bulletg.addControl(bulletControl);
                     bulletControl.setLinearVelocity(app.getCamera().getDirection().mult(25));
                     bulletg.addControl(bulletControl);
