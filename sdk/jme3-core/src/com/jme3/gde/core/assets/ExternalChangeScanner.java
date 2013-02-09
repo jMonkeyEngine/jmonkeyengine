@@ -45,6 +45,7 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileAttributeEvent;
+import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
@@ -76,6 +77,20 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
                 setObservedFilePath(path);
             }
             assetData.addPropertyChangeListener(this);
+            final ExternalChangeScanner main = this;
+            assetDataObject.getPrimaryFile().addFileChangeListener(new FileChangeAdapter() {
+                @Override
+                public void fileDeleted(FileEvent fe) {
+                    logger.log(Level.INFO, "File {0} deleted, remove!", new Object[]{fe.getFile()});
+                    assetData.removePropertyChangeListener(main);
+                    fe.getFile().removeFileChangeListener(this);
+                    if (originalObject != null) {
+                        logger.log(Level.INFO, "Remove file change listener for {0}", originalObject);
+                        originalObject.removeFileChangeListener(main);
+                        originalObject = null;
+                    }
+                }
+            });
         } else {
             logger.log(Level.WARNING, "Trying to observer changes for asset {0} which has no AssetData in Lookup.", assetDataObject.getName());
         }
@@ -86,8 +101,8 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
             //TODO: execute on separate thread?
             java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    NotifyDescriptor.Confirmation mesg = new NotifyDescriptor.Confirmation("Original file for " + assetDataObject.getName() + " changed\nTry and reapply mesh data to j3o file?\nThe j3o will be saved after the data has been updated.",
-                            "Original file changed.",
+                    NotifyDescriptor.Confirmation mesg = new NotifyDescriptor.Confirmation("Original file for " + assetDataObject.getName() + " changed\nTry and reapply mesh data to j3o file?",
+                            "Original file changed",
                             NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE);
                     DialogDisplayer.getDefault().notify(mesg);
                     if (mesg.getValue() != NotifyDescriptor.Confirmation.YES_OPTION) {
@@ -96,19 +111,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
                     }
                     SceneApplication.getApplication().enqueue(new Callable<Void>() {
                         public Void call() throws Exception {
-                            ProgressHandle handle = ProgressHandleFactory.createHandle("Updating file data");
-                            handle.start();
-                            try {
-                                Spatial original = loadOriginalSpatial();
-                                Spatial spat = (Spatial) assetDataObject.loadAsset();
-                                SpatialUtil.updateMeshDataFromOriginal(spat, original);
-                                closeOriginalSpatial();
-                                assetDataObject.saveAsset();
-                            } catch (Exception e) {
-                                logger.log(Level.SEVERE, "Exception when trying to update external data.", e);
-                            } finally {
-                                handle.finish();
-                            }
+                            applyExternalData();
                             return null;
                         }
                     });
@@ -117,6 +120,29 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
             });
         } else {
             logger.log(Level.INFO, "User already notified about change in {0}", assetDataObject.getName());
+        }
+    }
+
+    private void applyExternalData() {
+        ProgressHandle handle = ProgressHandleFactory.createHandle("Updating file data");
+        handle.start();
+        try {
+            Spatial original = loadOriginalSpatial();
+            Spatial spat = (Spatial) assetDataObject.loadAsset();
+            SpatialUtil.updateMeshDataFromOriginal(spat, original);
+            closeOriginalSpatial();
+//            NotifyDescriptor.Confirmation mesg = new NotifyDescriptor.Confirmation("Model appears to have animations, try to import as well?\nCurrently this will unlink attachment Nodes and clear\nadded effects tracks.",
+//                    "Animations Available",
+//                    NotifyDescriptor.YES_NO_OPTION, NotifyDescriptor.QUESTION_MESSAGE);
+//            DialogDisplayer.getDefault().notify(mesg);
+//            if (mesg.getValue() == NotifyDescriptor.Confirmation.YES_OPTION) {
+//                SpatialUtil.updateAnimControlDataFromOriginal(spat, original);
+//            }
+            assetDataObject.saveAsset();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Exception when trying to update external data.", e);
+        } finally {
+            handle.finish();
         }
     }
 
@@ -203,7 +229,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
     public void fileDeleted(FileEvent fe) {
         logger.log(Level.INFO, "External file {0} for {1} deleted!", new Object[]{fe.getFile(), assetDataObject.getName()});
         if (originalObject != null) {
-            logger.log(ApplicationLogHandler.LogLevel.USERINFO, "Remove file change listener for deleted object on {0}", assetDataObject.getName());
+            logger.log(ApplicationLogHandler.LogLevel.INFO, "Remove file change listener for deleted object on {0}", assetDataObject.getName());
             originalObject.removeFileChangeListener(this);
             originalObject = null;
         }
@@ -213,7 +239,7 @@ public class ExternalChangeScanner implements AssetDataPropertyChangeListener, F
     public void fileRenamed(FileRenameEvent fe) {
         logger.log(Level.INFO, "External file {0} for {1} renamed!", new Object[]{fe.getFile(), assetDataObject.getName()});
         if (originalObject != null) {
-            logger.log(Level.WARNING, "Remove file change listener for renamed object on {0}", assetDataObject.getName());
+            logger.log(Level.INFO, "Remove file change listener for renamed object on {0}", assetDataObject.getName());
             originalObject.removeFileChangeListener(this);
             originalObject = null;
         }
