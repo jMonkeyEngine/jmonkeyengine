@@ -42,7 +42,6 @@ public class ${name} extends AbstractControl{
     public Control cloneForSpatial(Spatial spatial) {
         ${name} control = new ${name}();
         //TODO: copy parameters to new Control
-        control.setSpatial(spatial);
         return control;
     }
 
