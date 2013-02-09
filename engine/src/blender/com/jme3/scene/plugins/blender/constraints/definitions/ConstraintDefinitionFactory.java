@@ -70,6 +70,10 @@ public class ConstraintDefinitionFactory {
 		CONSTRAINT_CLASSES.put("bTrackToConstraint", ConstraintDefinitionTrackTo.class);
 		CONSTRAINT_CLASSES.put("bSameVolumeConstraint", ConstraintDefinitionSameVolume.class);
 		CONSTRAINT_CLASSES.put("bTransLikeConstraint", ConstraintDefinitionTransLike.class);
+		//Blender 2.62+
+		CONSTRAINT_CLASSES.put("bCameraSolverConstraint", ConstraintDefinitionCameraSolver.class);
+		CONSTRAINT_CLASSES.put("bObjectSolverConstraint", ConstraintDefinitionObjectSolver.class);
+		CONSTRAINT_CLASSES.put("bFollowTrackConstraint", ConstraintDefinitionFollowTrack.class);
 	}
 	
 	/**
