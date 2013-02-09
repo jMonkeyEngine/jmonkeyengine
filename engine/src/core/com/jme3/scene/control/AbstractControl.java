@@ -54,7 +54,7 @@ public abstract class AbstractControl implements Control {
     }
 
     public void setSpatial(Spatial spatial) {
-        if (this.spatial != null && spatial != null) {
+        if (this.spatial != null && spatial != null && spatial != this.spatial) {
             throw new IllegalStateException("This control has already been added to a Spatial");
         }   
         this.spatial = spatial;
