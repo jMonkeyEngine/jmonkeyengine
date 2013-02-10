@@ -45,15 +45,19 @@
             </fileset>
         </copy>
 
+        <antcall target="-add-android-lib"/>
+        <antcall target="-unzip-bullet-libs"/>
+        <antcall target="-unzip-assets"/>
+        <copy file="${dist.jar}" todir="mobile/libs/" verbose="false"/>
+    </target>
+
+    <target name="-add-android-lib">
         <echo>Adding libraries for android.</echo>
         <copy todir="mobile/libs" flatten="true">
             <path>
                 <pathelement path="${libs.android-base.classpath}"/>
             </path>
         </copy>
-        <antcall target="-unzip-bullet-libs"/>
-        <antcall target="-unzip-assets"/>
-        <copy file="${dist.jar}" todir="mobile/libs/" verbose="false"/>
     </target>
 
     <target name="-unzip-bullet-libs" depends="-delete-bullet-libs" if="bulletIsIncluded">
