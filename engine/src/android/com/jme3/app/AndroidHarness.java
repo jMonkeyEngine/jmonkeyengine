@@ -80,12 +80,12 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     /**
      * Flip X axis
      */
-    protected boolean mouseEventsInvertX = true;
+    protected boolean mouseEventsInvertX = false;
 
     /**
      * Flip Y axis
      */
-    protected boolean mouseEventsInvertY = true;
+    protected boolean mouseEventsInvertY = false;
 
     /**
      * if true finish this activity when the jme app is stopped
