@@ -78,7 +78,7 @@ public class AndroidSdkTool {
 
     /**
      * Returns a FileObject for the android SDK folder, null if none is specified
-     * @return 
+     * @return
      */
     public static FileObject getSdkFolder() {
         String path = getSdkPath();
@@ -94,7 +94,7 @@ public class AndroidSdkTool {
 
     /**
      * Returns a String with the path to the SDK or null if none is specified.
-     * @return 
+     * @return
      */
     public static String getSdkPath() {
         String path = NbPreferences.forModule(AndroidSdkTool.class).get("sdk_path", null);
@@ -125,7 +125,7 @@ public class AndroidSdkTool {
 
     /**
      * Returns a string with the path to the android tool, specific for platform (.exe for windows)
-     * @return 
+     * @return
      */
     public static String getAndroidToolPath() {
         FileObject executable = null;
@@ -147,7 +147,7 @@ public class AndroidSdkTool {
 
     /**
      * Gets a list of android targets registered in the SDK
-     * @return 
+     * @return
      */
     public static List<AndroidTarget> getTargetList() {
         ArrayList<AndroidTarget> list = new ArrayList<AndroidTarget>();
@@ -420,10 +420,8 @@ public class AndroidSdkTool {
                 + "        eglConfigVerboseLogging = false;\n"
                 + "        // Choose screen orientation\n"
                 + "        screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;\n"
-                + "        // Invert the MouseEvents X (default = true)\n"
-                + "        mouseEventsInvertX = true;\n"
-                + "        // Invert the MouseEvents Y (default = true)\n"
-                + "        mouseEventsInvertY = true;\n"
+                + "        // Enable MouseEvents being generated from TouchEvents (default = true)\n"
+                + "        mouseEventsEnabled = true;\n"
                 + "    }\n"
                 + " \n"
                 + "}\n";
