@@ -49,6 +49,7 @@ public class CustomArrayAdapter extends ArrayAdapter<String> {
     /** Setter for selected item position */
     public void setSelectedPosition(int selectedPosition) {
         this.selectedPosition = selectedPosition;
+        Log.i(TAG, "Setting position to: " + this.selectedPosition);
     }
 
     /** Setter for selected item background color */

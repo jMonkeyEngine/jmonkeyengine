@@ -26,6 +26,8 @@ public class TestsHarness extends AndroidHarness{
         // Enable verbose logging
         eglConfigVerboseLogging = false;
         // Choose screen orientation
+        // This test project also set the Activity to Landscape in the AndroidManifest.xml
+        // If you modify this, also modify AndroidManifest.xml
         screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
         // Invert the MouseEvents X (default = true)
         mouseEventsInvertX = true;
@@ -37,12 +39,17 @@ public class TestsHarness extends AndroidHarness{
         joystickEventsEnabled = false;
         // Simulate mouse events with Android touch input (default = true)
         mouseEventsEnabled = true;
+        mouseEventsInvertX = false;
+        mouseEventsInvertY = false;
+
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Intent intent = getIntent();
         appClass = intent.getStringExtra(MainActivity.SELECTED_APP_CLASS);
+        mouseEventsEnabled = intent.getBooleanExtra(MainActivity.ENABLE_MOUSE_EVENTS, mouseEventsEnabled);
+        joystickEventsEnabled = intent.getBooleanExtra(MainActivity.ENABLE_JOYSTICK_EVENTS, joystickEventsEnabled);
 
         super.onCreate(savedInstanceState);
     }

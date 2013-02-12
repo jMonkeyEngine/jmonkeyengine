@@ -11,13 +11,15 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 import com.jme3.app.Application;
 import dalvik.system.DexFile;
 import java.io.IOException;
@@ -25,9 +27,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-//TODO:  Add settings menu items for MouseEvents, JoystickEvents, and device orientation
 //TODO:  Create onscreen virtual keypad for triggering normal mapped keys used by test apps or modify test apps for touch with onscreen keypad
-//TODO:  Go through each test and see if any classes need to be added to the exclusions list
 
 /**
  * Main Activity started by the application.  Users select different jME3 test
@@ -51,6 +51,18 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
      */
     public static final String SELECTED_LIST_POSITION = "Selected_List_Position";
 
+    /**
+     * Static String to pass the key for the setting for enabling mouse events to the
+     * savedInstanceState Bundle.
+     */
+    public static final String ENABLE_MOUSE_EVENTS = "Enable_Mouse_Events";
+
+    /**
+     * Static String to pass the key for the setting for enabling joystick events to the
+     * savedInstanceState Bundle.
+     */
+    public static final String ENABLE_JOYSTICK_EVENTS = "Enable_Joystick_Events";
+
     /* Fields to contain the current position and display contents of the spinner */
     private int currentPosition = 0;
     private String currentSelection = "";
@@ -71,6 +83,10 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
     /* Filter Edit Box */
     EditText editFilterText;
 
+    /* Custom settings for the test app */
+    private boolean enableMouseEvents = true;
+    private boolean enableJoystickEvents = false;
+
 
     /**
      * Called when the activity is first created.
@@ -86,6 +102,8 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
                     );
             currentPosition = savedInstanceState.getInt(SELECTED_LIST_POSITION, 0);
             currentSelection = savedInstanceState.getString(SELECTED_APP_CLASS);
+            enableMouseEvents = savedInstanceState.getBoolean(ENABLE_MOUSE_EVENTS, true);
+            enableJoystickEvents = savedInstanceState.getBoolean(ENABLE_JOYSTICK_EVENTS, false);
         }
 
 
@@ -192,6 +210,8 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
             Log.i(TAG, "User selected OK for class: " + currentSelection);
             Intent intent = new Intent(this, TestsHarness.class);
             intent.putExtra(SELECTED_APP_CLASS, currentSelection);
+            intent.putExtra(ENABLE_MOUSE_EVENTS, enableMouseEvents);
+            intent.putExtra(ENABLE_JOYSTICK_EVENTS, enableJoystickEvents);
             startActivity(intent);
         } else if (view.equals(btnCancel)) {
             /* Exit */
@@ -250,14 +270,16 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
 
     private void setSelection(int position) {
         if (position == -1) {
-            arrayAdapter.setSelectedPosition(0);
+            arrayAdapter.setSelectedPosition(-1);
             currentPosition = -1;
             currentSelection = "";
+            btnOK.setEnabled(false);
             listClasses.invalidateViews();
         } else {
             arrayAdapter.setSelectedPosition(position);
             currentPosition = position;
             currentSelection = arrayAdapter.getItem(position);
+            btnOK.setEnabled(true);
             listClasses.invalidateViews();
         }
     }
@@ -267,13 +289,17 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
         super.onSaveInstanceState(savedInstanceState);
         Log.i(TAG, "Saving selections in onSaveInstanceState: "
                 + "position: " + currentPosition + ", "
-                + "class: " + currentSelection
+                + "class: " + currentSelection + ", "
+                + "mouseEvents: " + enableMouseEvents + ", "
+                + "joystickEvents: " + enableJoystickEvents + ", "
                 );
         // Save current selections to the savedInstanceState.
         // This bundle will be passed to onCreate if the process is
         // killed and restarted.
         savedInstanceState.putString(SELECTED_APP_CLASS, currentSelection);
         savedInstanceState.putInt(SELECTED_LIST_POSITION, currentPosition);
+        savedInstanceState.putBoolean(ENABLE_MOUSE_EVENTS, enableMouseEvents);
+        savedInstanceState.putBoolean(ENABLE_JOYSTICK_EVENTS, enableJoystickEvents);
     }
 
     @Override
@@ -294,8 +320,8 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
 
     public void onTextChanged(CharSequence cs, int startPos, int beforePos, int count) {
         Log.i(TAG, "onTextChanged with cs: " + cs + ", startPos: " + startPos + ", beforePos: " + beforePos + ", count: " + count);
-//        setSelection(-1);
         arrayAdapter.getFilter().filter(cs.toString());
+        setSelection(-1);
     }
 
     public void afterTextChanged(Editable edtbl) {
@@ -305,6 +331,60 @@ public class MainActivity extends Activity implements OnItemClickListener, View.
     protected void onDestroy() {
         super.onDestroy();
         editFilterText.removeTextChangedListener(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.optionsmenu, menu);
+
+        return true;
+}
+
+    @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+        MenuItem item;
+
+        item = menu.findItem(R.id.optionEnableMouseEvents);
+        if (item != null) {
+            Log.i(TAG, "Found EnableMouseEvents menu item");
+            if (enableMouseEvents) {
+                item.setTitle(R.string.strOptionDisableMouseEventsTitle);
+            } else {
+                item.setTitle(R.string.strOptionEnableMouseEventsTitle);
+            }
+        }
+
+        item = menu.findItem(R.id.optionEnableJoystickEvents);
+        if (item != null) {
+            Log.i(TAG, "Found EnableJoystickEvents menu item");
+            if (enableJoystickEvents) {
+                item.setTitle(R.string.strOptionDisableJoystickEventsTitle);
+            } else {
+                item.setTitle(R.string.strOptionEnableJoystickEventsTitle);
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.optionEnableMouseEvents:
+                enableMouseEvents = !enableMouseEvents;
+                Log.i(TAG, "enableMouseEvents set to: " + enableMouseEvents);
+                break;
+            case R.id.optionEnableJoystickEvents:
+                enableJoystickEvents = !enableJoystickEvents;
+                Log.i(TAG, "enableJoystickEvents set to: " + enableJoystickEvents);
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        return true;
+
     }
 
 }
