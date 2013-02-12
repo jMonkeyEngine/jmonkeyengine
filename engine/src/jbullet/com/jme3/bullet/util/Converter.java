@@ -223,7 +223,7 @@ public class Converter {
         return out;
     }
 
-    public static IndexedMesh convert(Mesh mesh) {
+    public static synchronized IndexedMesh convert(Mesh mesh) {
         IndexedMesh jBulletIndexedMesh = new IndexedMesh();
         jBulletIndexedMesh.triangleIndexBase = ByteBuffer.allocate(mesh.getTriangleCount() * 3 * 4);
         jBulletIndexedMesh.vertexBase = ByteBuffer.allocate(mesh.getVertexCount() * 3 * 4);
