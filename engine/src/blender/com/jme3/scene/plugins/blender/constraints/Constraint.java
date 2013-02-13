@@ -21,8 +21,6 @@ import com.jme3.scene.plugins.blender.file.Structure;
 public abstract class Constraint {
 	private static final Logger LOGGER = Logger.getLogger(Constraint.class.getName());
 	
-	/** Indicates if the constraint is invalid. */
-	protected boolean invalid;
 	/** The name of this constraint. */
 	protected final String name;
 	/** Indicates if the constraint is already baked or not. */
@@ -89,7 +87,7 @@ public abstract class Constraint {
 	 * order is kept.
 	 */
 	public void bake() {
-		if(invalid) {
+		if(!this.validate()) {
 			LOGGER.warning("The constraint " + name + " is invalid and will not be applied.");
 		} else if(!baked) {
 			if(targetOMA != null) {
@@ -107,6 +105,12 @@ public abstract class Constraint {
 			baked = true;
 		}
 	}
+	
+	/**
+	 * Performs validation before baking. Checks factors that can prevent constraint from baking that could not be
+	 * checked during constraint loading.
+	 */
+	protected abstract boolean validate();
 	
 	/**
 	 * This method should be overwridden and perform the baking opertion.

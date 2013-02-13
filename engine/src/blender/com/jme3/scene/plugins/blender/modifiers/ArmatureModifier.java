@@ -102,11 +102,12 @@ import com.jme3.util.BufferUtils;
 				List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase(blenderContext);
 				List<Bone> bonesList = new ArrayList<Bone>();
 				for (int i = 0; i < bonebase.size(); ++i) {
-					armatureHelper.buildBones(bonebase.get(i), null, bonesList, objectToArmatureTransformation, bonesPoseChannels, blenderContext);
+					armatureHelper.buildBones(armatureObject.getOldMemoryAddress(), bonebase.get(i), null, bonesList, objectToArmatureTransformation, bonesPoseChannels, blenderContext);
 				}
 				bonesList.add(0, new Bone(""));
 				Bone[] bones = bonesList.toArray(new Bone[bonesList.size()]);
 				skeleton = new Skeleton(bones);
+				blenderContext.setSkeleton(armatureObject.getOldMemoryAddress(), skeleton);
 				this.objectStructure = objectStructure;
 				this.meshStructure = meshStructure;
 				

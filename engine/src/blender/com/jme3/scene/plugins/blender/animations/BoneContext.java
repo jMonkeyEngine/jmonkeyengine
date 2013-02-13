@@ -1,5 +1,9 @@
 package com.jme3.scene.plugins.blender.animations;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.jme3.animation.Bone;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
@@ -10,9 +14,6 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class holds the basic data that describes a bone.
@@ -20,6 +21,8 @@ import java.util.Map;
  * @author Marcin Roguski (Kaelthas)
  */
 public class BoneContext {
+	/** The OMA of the bone's armature object. */
+	private Long 				armatureObjectOMA;
 	/** The structure of the bone. */
 	private Structure			boneStructure;
 	/** Bone's pose channel structure. */
@@ -48,6 +51,8 @@ public class BoneContext {
 	/**
 	 * Constructor. Creates the basic set of bone's data.
 	 * 
+	 * @param armatureObjectOMA
+	 * 			  the OMA of the bone's armature object
 	 * @param boneStructure
 	 *            the bone's structure
 	 * @param objectToArmatureMatrix
@@ -60,8 +65,8 @@ public class BoneContext {
 	 *             an exception is thrown when problem with blender data reading
 	 *             occurs
 	 */
-	public BoneContext(Structure boneStructure, Matrix4f objectToArmatureMatrix, final Map<Long, Structure> bonesPoseChannels, BlenderContext blenderContext) throws BlenderFileException {
-		this(boneStructure, null, objectToArmatureMatrix, bonesPoseChannels, blenderContext);
+	public BoneContext(Long armatureObjectOMA, Structure boneStructure, Matrix4f objectToArmatureMatrix, final Map<Long, Structure> bonesPoseChannels, BlenderContext blenderContext) throws BlenderFileException {
+		this(boneStructure, armatureObjectOMA, null, objectToArmatureMatrix, bonesPoseChannels, blenderContext);
 	}
 
 	/**
@@ -69,6 +74,8 @@ public class BoneContext {
 	 * 
 	 * @param boneStructure
 	 *            the bone's structure
+	 * @param armatureObjectOMA
+	 *            the OMA of the bone's armature object
 	 * @param parent
 	 *            bone's parent (null if the bone is the root bone)
 	 * @param objectToArmatureMatrix
@@ -81,9 +88,10 @@ public class BoneContext {
 	 *             an exception is thrown when problem with blender data reading
 	 *             occurs
 	 */
-	private BoneContext(Structure boneStructure, BoneContext parent, Matrix4f objectToArmatureMatrix, final Map<Long, Structure> bonesPoseChannels, BlenderContext blenderContext) throws BlenderFileException {
+	private BoneContext(Structure boneStructure, Long armatureObjectOMA, BoneContext parent, Matrix4f objectToArmatureMatrix, final Map<Long, Structure> bonesPoseChannels, BlenderContext blenderContext) throws BlenderFileException {
 		this.parent = parent;
 		this.boneStructure = boneStructure;
+		this.armatureObjectOMA = armatureObjectOMA;
 		boneName = boneStructure.getFieldValue("name").toString();
 		ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
 		armatureMatrix = objectHelper.getMatrix(boneStructure, "arm_mat", true);
@@ -92,7 +100,7 @@ public class BoneContext {
 		this.computeRestMatrix(objectToArmatureMatrix);
 		List<Structure> childbase = ((Structure) boneStructure.getFieldValue("childbase")).evaluateListBase(blenderContext);
 		for (Structure child : childbase) {
-			this.children.add(new BoneContext(child, this, objectToArmatureMatrix, bonesPoseChannels, blenderContext));
+			this.children.add(new BoneContext(child, armatureObjectOMA, this, objectToArmatureMatrix, bonesPoseChannels, blenderContext));
 		}
 
 		poseChannel = bonesPoseChannels.get(boneStructure.getOldMemoryAddress());
@@ -206,5 +214,12 @@ public class BoneContext {
 	 */
 	public Long getBoneOma() {
 		return boneStructure.getOldMemoryAddress();	
+	}
+	
+	/**
+	 * @return OMA of the bone's armature object
+	 */
+	public Long getArmatureObjectOMA() {
+		return armatureObjectOMA;
 	}
 }

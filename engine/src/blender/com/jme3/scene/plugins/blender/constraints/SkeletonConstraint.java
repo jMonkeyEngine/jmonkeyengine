@@ -28,5 +28,10 @@ import com.jme3.scene.plugins.blender.file.Structure;
 	}
 
 	@Override
+	protected boolean validate() {
+		return true;
+	}
+	
+	@Override
 	protected void prepareTracksForApplyingConstraints() { }
 }

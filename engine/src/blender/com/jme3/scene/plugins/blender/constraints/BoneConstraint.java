@@ -1,6 +1,7 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.animation.Animation;
@@ -10,14 +11,15 @@ import com.jme3.animation.Track;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
@@ -26,52 +28,97 @@ import com.jme3.scene.plugins.ogre.AnimData;
  */
 /*package*/ class BoneConstraint extends Constraint {
 	private static final Logger LOGGER = Logger.getLogger(BoneConstraint.class.getName());
-	/** The OMA of the target armature. */
-	protected Long targetArmatureOMA;
 	
+	protected boolean isNodeTarget;
+	
+	/**
+	 * The bone constraint constructor.
+	 * 
+	 * @param constraintStructure
+	 *            the constraint's structure
+	 * @param ownerOMA
+	 *            the OMA of the bone that owns the constraint
+	 * @param influenceIpo
+	 *            the influence interpolation curve
+	 * @param blenderContext
+	 *            the blender context
+	 * @throws BlenderFileException
+	 *             exception thrown when problems with blender file occur
+	 */
 	public BoneConstraint(Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext)
 			throws BlenderFileException {
 		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
-		targetArmatureOMA = targetOMA;
-		if(targetArmatureOMA != null && targetArmatureOMA <= 0L) {
-			targetArmatureOMA = null;
-		}
-		targetOMA = null;
-		if(targetArmatureOMA != null && targetArmatureOMA > 0L && (subtargetName == null || subtargetName.length() == 0)) {
-			invalid = true;
-		}
 	}
 
 	@Override
-	public void performBakingOperation() {
-		Bone owner = blenderContext.getBoneContext(ownerOMA).getBone();
-		Bone target = null;
-		
-		if(targetArmatureOMA != null) {//first make sure the target is loaded
-			ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-			try {
-				objectHelper.toObject((Structure) blenderContext.getLoadedFeature(targetArmatureOMA, LoadedFeatureDataType.LOADED_STRUCTURE), blenderContext);
-			} catch (BlenderFileException e) {
-				LOGGER.warning("Problems occured during target object loading. The constraint " + name + " will not be applied.");
-				return ;
+	protected boolean validate() {
+		if(targetOMA != null) {
+			Spatial nodeTarget = (Spatial)blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
+			//the second part of the if expression verifies if the found node (if any) is an armature node
+			if(nodeTarget == null || nodeTarget.getUserData(ArmatureHelper.ARMETURE_NODE_MARKER) != null) {
+				//if the target is not an object node then it is an Armature, so make sure the bone is in the current skeleton
+				BoneContext boneContext = blenderContext.getBoneContext(ownerOMA);
+				if(targetOMA.longValue() != boneContext.getArmatureObjectOMA().longValue()) {
+					LOGGER.log(Level.WARNING, "Bone constraint {0} must target bone in the its own skeleton! Targeting bone in another skeleton is not supported!", name);
+					return false;
+				}
+			} else {
+				isNodeTarget = true;
 			}
-			
-			BoneContext boneContext = blenderContext.getBoneByName(subtargetName);
-			target = boneContext.getBone();
-			this.targetOMA = boneContext.getBoneOma();
 		}
 		
-		this.prepareTracksForApplyingConstraints();
-		AnimData animData = blenderContext.getAnimData(ownerOMA);
-		if(animData != null) {
-			for(Animation animation : animData.anims) {
-				Transform ownerTransform = constraintHelper.getBoneTransform(ownerSpace, owner);
-				Transform targetTransform = target != null ? constraintHelper.getBoneTransform(targetSpace, target) : null;
+		return true;
+	}
+	
+	@Override
+	public void performBakingOperation() {
+		Bone owner = blenderContext.getBoneContext(ownerOMA).getBone();
+		
+		if(targetOMA != null) {
+			if(isNodeTarget) {
+				Spatial target = (Spatial) blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
+				this.prepareTracksForApplyingConstraints();
+				AnimData animData = blenderContext.getAnimData(ownerOMA);
+				if(animData != null) {
+					for(Animation animation : animData.anims) {
+						Transform ownerTransform = constraintHelper.getBoneTransform(ownerSpace, owner);
+						Transform targetTransform = constraintHelper.getNodeObjectTransform(targetSpace, targetOMA, blenderContext);
+						
+						Track boneTrack = constraintHelper.getTrack(owner, animData.skeleton, animation);
+						Track targetTrack = constraintHelper.getTrack(target, animation);
+						
+						constraintDefinition.bake(ownerTransform, targetTransform, boneTrack, targetTrack, this.ipo);
+					}
+				}
+			} else {
+				BoneContext boneContext = blenderContext.getBoneByName(subtargetName);
+				Bone target = boneContext.getBone();
+				this.targetOMA = boneContext.getBoneOma();
 				
-				BoneTrack boneTrack = constraintHelper.getTrack(owner, animData.skeleton, animation);
-				BoneTrack targetTrack = target != null ? constraintHelper.getTrack(target, animData.skeleton, animation) : null;
-				
-				constraintDefinition.bake(ownerTransform, targetTransform, boneTrack, targetTrack, this.ipo);
+				this.prepareTracksForApplyingConstraints();
+				AnimData animData = blenderContext.getAnimData(ownerOMA);
+				if(animData != null) {
+					for(Animation animation : animData.anims) {
+						Transform ownerTransform = constraintHelper.getBoneTransform(ownerSpace, owner);
+						Transform targetTransform = constraintHelper.getBoneTransform(targetSpace, target);
+						
+						Track boneTrack = constraintHelper.getTrack(owner, animData.skeleton, animation);
+						Track targetTrack = constraintHelper.getTrack(target, animData.skeleton, animation);
+						
+						constraintDefinition.bake(ownerTransform, targetTransform, boneTrack, targetTrack, this.ipo);
+					}
+				}
+			}
+		} else {
+			this.prepareTracksForApplyingConstraints();
+			AnimData animData = blenderContext.getAnimData(ownerOMA);
+			if(animData != null) {
+				for(Animation animation : animData.anims) {
+					Transform ownerTransform = constraintHelper.getBoneTransform(ownerSpace, owner);
+					Track boneTrack = constraintHelper.getTrack(owner, animData.skeleton, animation);
+					
+					constraintDefinition.bake(ownerTransform, null, boneTrack, null, this.ipo);
+				}
 			}
 		}
 	}
@@ -112,21 +159,25 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	/**
 	 * The method determines if the bone has animations.
 	 * 
-	 * @param boneOMA
-	 *            OMA of the bone
-	 * @return <b>true</b> if the bone has animations and <b>false</b> otherwise
+	 * @param animOwnerOMA
+	 *            OMA of the animation's owner
+	 * @return <b>true</b> if the target has animations and <b>false</b> otherwise
 	 */
-	protected boolean hasAnimation(Long boneOMA) {
-		AnimData animData = blenderContext.getAnimData(boneOMA);
+	protected boolean hasAnimation(Long animOwnerOMA) {
+		AnimData animData = blenderContext.getAnimData(animOwnerOMA);
 		if(animData != null) {
-			Bone bone = blenderContext.getBoneContext(boneOMA).getBone();
-			int boneIndex = animData.skeleton.getBoneIndex(bone);
-			for(Animation animation : animData.anims) {
-				for(Track track : animation.getTracks()) {
-					if(track instanceof BoneTrack && ((BoneTrack) track).getTargetBoneIndex() == boneIndex) {
-						return true;
+			if(!isNodeTarget) {
+				Bone bone = blenderContext.getBoneContext(animOwnerOMA).getBone();
+				int boneIndex = animData.skeleton.getBoneIndex(bone);
+				for(Animation animation : animData.anims) {
+					for(Track track : animation.getTracks()) {
+						if(track instanceof BoneTrack && ((BoneTrack) track).getTargetBoneIndex() == boneIndex) {
+							return true;
+						}
 					}
 				}
+			} else {
+				return true;
 			}
 		}
 		return false;

@@ -39,7 +39,6 @@ import com.jme3.scene.plugins.ogre.AnimData;
 	public SpatialConstraint(Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext)
 			throws BlenderFileException {
 		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
-		targetOMA = targetArmatureOMA;//spatial constraint uses only targetOMA and not armatureTargetOMA which is set by BoneConstraint
 	}
 	
 	@Override
