@@ -578,9 +578,10 @@ public class SceneEditorController implements PropertyChangeListener, NodeListen
                     selected.worldToLocal(location, localVec);
                     linkNode.setLocalTranslation(localVec);
                 }
+                addSpatialUndo(selected, linkNode, null, jmeRootNode);
             }
+            file.closeAsset();
             refreshSelected();
-            addSpatialUndo(selected, linkNode, null, jmeRootNode);
         } catch (Exception ex) {
             Confirmation msg = new NotifyDescriptor.Confirmation(
                     "Error importing " + file.getName() + "\n" + ex.toString(),
