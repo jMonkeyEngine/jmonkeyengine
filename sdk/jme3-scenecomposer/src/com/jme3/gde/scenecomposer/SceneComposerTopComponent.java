@@ -899,13 +899,13 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
         SceneApplication.getApplication().openScene(request);
     }
 
-    public void addModel(Spatial model) {
-        if (editorController != null) {
-            editorController.addModel(model, toolController.getCursorLocation());
-        } else {
-            displayInfo("No scene opened!");
-        }
-    }
+//    public void addModel(Spatial model) {
+//        if (editorController != null) {
+//            editorController.addModel(model, toolController.getCursorLocation());
+//        } else {
+//            displayInfo("No scene opened!");
+//        }
+//    }
 
     public void addModel(SpatialAssetDataObject model) {
         if (editorController != null) {
