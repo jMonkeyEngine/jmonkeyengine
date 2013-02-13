@@ -135,13 +135,14 @@ public class TextureHelper extends AbstractBlenderHelper {
 			return result;
 		}
 		int type = ((Number) tex.getFieldValue("type")).intValue();
-
+		int imaflag = ((Number) tex.getFieldValue("imaflag")).intValue();
+		
 		switch (type) {
 			case TEX_IMAGE:// (it is first because probably this will be most commonly used)
 				Pointer pImage = (Pointer) tex.getFieldValue("ima");
 				if (pImage.isNotNull()) {
 					Structure image = pImage.fetchData(blenderContext.getInputStream()).get(0);
-					Texture loadedTexture = this.loadTexture(image, blenderContext);
+					Texture loadedTexture = this.loadTexture(image, imaflag, blenderContext);
 					if(loadedTexture != null) {
 						result = loadedTexture;
 						this.applyColorbandAndColorFactors(tex, result.getImage(), blenderContext);
@@ -183,7 +184,6 @@ public class TextureHelper extends AbstractBlenderHelper {
 				case NEVER_GENERATE:
 					break;
 				case GENERATE_WHEN_NEEDED:
-					int imaflag = ((Number) tex.getFieldValue("imaflag")).intValue();
 					if((imaflag & 0x04) != 0) {
 						result.setMinFilter(MinFilter.Trilinear);
 					}
@@ -486,6 +486,8 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 * 
 	 * @param imageStructure
 	 *            image structure filled with data
+	 * @param imaflag
+	 *            the image flag
 	 * @param blenderContext
 	 *            the blender context
 	 * @return the texture that can be used by JME engine
@@ -493,7 +495,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 	 *             this exception is thrown when the blend file structure is
 	 *             somehow invalid or corrupted
 	 */
-	protected Texture loadTexture(Structure imageStructure, BlenderContext blenderContext) throws BlenderFileException {
+	protected Texture loadTexture(Structure imageStructure, int imaflag, BlenderContext blenderContext) throws BlenderFileException {
 		LOGGER.log(Level.FINE, "Fetching texture with OMA = {0}", imageStructure.getOldMemoryAddress());
 		Texture result = null;
 		Image im = (Image) blenderContext.getLoadedFeature(imageStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
@@ -502,7 +504,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 			Pointer pPackedFile = (Pointer) imageStructure.getFieldValue("packedfile");
 			if (pPackedFile.isNull()) {
 				LOGGER.log(Level.FINE, "Reading texture from file: {0}", texturePath);
-				result = this.loadImageFromFile(texturePath, blenderContext);
+				result = this.loadImageFromFile(texturePath, imaflag, blenderContext);
 			} else {
 				LOGGER.fine("Packed texture. Reading directly from the blend file!");
 				Structure packedFile = pPackedFile.fetchData(blenderContext.getInputStream()).get(0);
@@ -695,10 +697,11 @@ public class TextureHelper extends AbstractBlenderHelper {
      * failed assets.
      *
      * @param name the path to the image
+     * @param imaflag the image flag
      * @param blenderContext the blender context
      * @return the loaded image or null if the image cannot be found
      */
-    protected Texture loadImageFromFile(String name, BlenderContext blenderContext) {
+    protected Texture loadImageFromFile(String name, int imaflag, BlenderContext blenderContext) {
         // @Marcin: please, please disable the use of "TAB"
         // in your IDE in favor of four spaces.
         // All your code looks like this for us: http://i.imgur.com/sGcBv6Q.png
@@ -707,6 +710,22 @@ public class TextureHelper extends AbstractBlenderHelper {
             return null; // no extension means not a valid image
         }
 
+        //decide if the mipmaps will be generated
+        boolean generateMipmaps = false;
+        switch(blenderContext.getBlenderKey().getMipmapGenerationMethod()) {
+            case ALWAYS_GENERATE:
+                generateMipmaps = true;
+                break;
+            case NEVER_GENERATE:
+                break;
+            case GENERATE_WHEN_NEEDED:
+                generateMipmaps = (imaflag & 0x04) != 0;
+                break;
+            default:
+                throw new IllegalStateException("Unknown mipmap generation method: " +
+                            blenderContext.getBlenderKey().getMipmapGenerationMethod());
+        }
+        
         AssetManager assetManager = blenderContext.getAssetManager();
         name = name.replace('\\', '/');
         Texture result = null;
@@ -722,10 +741,9 @@ public class TextureHelper extends AbstractBlenderHelper {
             // Directly try to load texture so AssetManager can report missing textures
             try {
                 TextureKey key = new TextureKey(absoluteName);
-                //TODO: gather from blender data
                 key.setAsCube(false);
                 key.setFlipY(true);
-                key.setGenerateMips(true);
+                key.setGenerateMips(generateMipmaps);
                 result = assetManager.loadTexture(key);
                 result.setKey(key);
             } catch (AssetNotFoundException e) {
@@ -753,10 +771,9 @@ public class TextureHelper extends AbstractBlenderHelper {
             for (String assetName : assetNames) {
                 try {
                     TextureKey key = new TextureKey(assetName);
-                    //TODO: gather from blender data
                     key.setAsCube(false);
                     key.setFlipY(true);
-                    key.setGenerateMips(true);
+                    key.setGenerateMips(generateMipmaps);
                     AssetInfo info = assetManager.locateAsset(key);
                     if (info != null) {
                         Texture texture = assetManager.loadTexture(key);
