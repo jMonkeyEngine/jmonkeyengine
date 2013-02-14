@@ -65,33 +65,29 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**<strong>This control is still a WIP, use it at your own risk</strong><br>
- * To use this control you need a model with an AnimControl and a SkeletonControl.<br>
- * This should be the case if you imported an animated model from Ogre or blender.<br>
- * Note enabling/disabling the control add/removes it from the physic space<br>
- * <p>
- * This control creates collision shapes for each bones of the skeleton when you call spatial.addControl(ragdollControl).
- * <ul>
- *     <li>The shape is HullCollision shape based on the vertices associated with each bone and based on a tweakable weight threshold (see setWeightThreshold)</li>
- *     <li>If you don't want each bone to be a collision shape, you can specify what bone to use by using the addBoneName method<br>
- *         By using this method, bone that are not used to create a shape, are "merged" to their parent to create the collision shape.
- *     </li>
- * </ul>
- *</p>
- *<p>
- *There are 2 modes for this control : 
- * <ul>
- *     <li><strong>The kinematic modes :</strong><br>
- *        this is the default behavior, this means that the collision shapes of the body are able to interact with physics enabled objects.
- *        in this mode physic shapes follow the moovements of the animated skeleton (for example animated by a key framed animation)
- *        this mode is enabled by calling setKinematicMode();                
- *     </li>
- *     <li><strong>The ragdoll modes :</strong><br>
- *        To enable this behavior, you need to call setRagdollMode() method.
- *        In this mode the charater is entirely controled by physics, so it will fall under the gravity and move if any force is applied to it.
- *     </li>
- * </ul>
- *</p>
+/**
+ * <strong>This control is still a WIP, use it at your own risk</strong><br> To
+ * use this control you need a model with an AnimControl and a
+ * SkeletonControl.<br> This should be the case if you imported an animated
+ * model from Ogre or blender.<br> Note enabling/disabling the control
+ * add/removes it from the physic space<br> <p> This control creates collision
+ * shapes for each bones of the skeleton when you call
+ * spatial.addControl(ragdollControl). <ul> <li>The shape is HullCollision shape
+ * based on the vertices associated with each bone and based on a tweakable
+ * weight threshold (see setWeightThreshold)</li> <li>If you don't want each
+ * bone to be a collision shape, you can specify what bone to use by using the
+ * addBoneName method<br> By using this method, bone that are not used to create
+ * a shape, are "merged" to their parent to create the collision shape. </li>
+ * </ul> </p> <p> There are 2 modes for this control : <ul> <li><strong>The
+ * kinematic modes :</strong><br> this is the default behavior, this means that
+ * the collision shapes of the body are able to interact with physics enabled
+ * objects. in this mode physic shapes follow the moovements of the animated
+ * skeleton (for example animated by a key framed animation) this mode is
+ * enabled by calling setKinematicMode(); </li> <li><strong>The ragdoll modes
+ * :</strong><br> To enable this behavior, you need to call setRagdollMode()
+ * method. In this mode the charater is entirely controled by physics, so it
+ * will fall under the gravity and move if any force is applied to it. </li>
+ * </ul> </p>
  *
  * @author Normen Hansen and Rémy Bouquet (Nehon)
  */
@@ -206,7 +202,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         TempVars vars = TempVars.get();
         Quaternion tmpRot1 = vars.quat1;
         Quaternion tmpRot2 = vars.quat2;
-        
+
         for (PhysicsBoneLink link : boneLinks.values()) {
 
             Vector3f position = vars.vect1;
@@ -334,20 +330,15 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
      * after it's been initialized, same as reattaching.
      */
     public void reBuild() {
-        if (added) {
-            removePhysics(space);
-            setSpatial(targetModel);
-            addPhysics(space);
-        } else {
-            setSpatial(targetModel);
+        if (spatial == null) {
+            return;
         }
+        removeSpatialData(spatial);
+        createSpatialData(spatial);
     }
 
     @Override
     protected void createSpatialData(Spatial model) {
-        if (added) {
-            removePhysics(space);
-        }
         targetModel = model;
         Node parent = model.getParent();
 
@@ -390,7 +381,6 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     protected void removeSpatialData(Spatial spat) {
         if (added) {
             removePhysics(space);
-            added = false;
         }
         boneLinks.clear();
     }
@@ -852,7 +842,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         InputCapsule ic = im.getCapsule(this);
         String[] loadedBoneList = ic.readStringArray("boneList", new String[0]);
         boneList.addAll(Arrays.asList(loadedBoneList));
-        PhysicsBoneLink[] loadedBoneLinks = (PhysicsBoneLink[])ic.readSavableArray("boneList", new PhysicsBoneLink[0]);
+        PhysicsBoneLink[] loadedBoneLinks = (PhysicsBoneLink[]) ic.readSavableArray("boneList", new PhysicsBoneLink[0]);
         for (PhysicsBoneLink physicsBoneLink : loadedBoneLinks) {
             boneLinks.put(physicsBoneLink.bone.getName(), physicsBoneLink);
         }
