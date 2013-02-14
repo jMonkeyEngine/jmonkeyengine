@@ -154,6 +154,9 @@ public class BulletAppState implements AppState, PhysicsTickListener {
      * start it before for some reason, you can use this method.
      */
     public void startPhysics() {
+        if (initialized) {
+            return;
+        }
         //start physics thread(pool)
         if (threadingType == ThreadingType.PARALLEL) {
             startPhysicsOnExecutor();
@@ -163,13 +166,24 @@ public class BulletAppState implements AppState, PhysicsTickListener {
         pSpace.addTickListener(this);
         initialized = true;
     }
+    
+    public void stopPhysics() {
+        if(!initialized){
+            return;
+        }
+        if (executor != null) {
+            executor.shutdown();
+            executor = null;
+        }
+        pSpace.removeTickListener(this);
+        pSpace.destroy();
+        initialized = false;
+    }
 
     public void initialize(AppStateManager stateManager, Application app) {
-        if (!initialized) {
-            startPhysics();
-        }
         this.app = app;
         this.stateManager = stateManager;
+        startPhysics();
     }
 
     public boolean isInitialized() {
@@ -263,13 +277,7 @@ public class BulletAppState implements AppState, PhysicsTickListener {
             stateManager.detach(debugAppState);
             debugAppState = null;
         }
-        if (executor != null) {
-            executor.shutdown();
-            executor = null;
-        }
-        initialized = false;
-        pSpace.removeTickListener(this);
-        pSpace.destroy();
+        stopPhysics();
     }
 
     /**
