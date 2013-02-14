@@ -47,6 +47,8 @@ public class BoneContext {
 	private Matrix4f			inverseTotalTransformation;
 	/** Bone's parent inverse matrix. */
 	private Matrix4f			inverseParentMatrix;
+	/** The length of the bone. */
+	private float				length;
 
 	/**
 	 * Constructor. Creates the basic set of bone's data.
@@ -93,6 +95,7 @@ public class BoneContext {
 		this.boneStructure = boneStructure;
 		this.armatureObjectOMA = armatureObjectOMA;
 		boneName = boneStructure.getFieldValue("name").toString();
+		length = ((Number)boneStructure.getFieldValue("length")).floatValue();
 		ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
 		armatureMatrix = objectHelper.getMatrix(boneStructure, "arm_mat", true);
 
@@ -214,6 +217,13 @@ public class BoneContext {
 	 */
 	public Long getBoneOma() {
 		return boneStructure.getOldMemoryAddress();	
+	}
+	
+	/**
+	 * @return the length of the bone
+	 */
+	public float getLength() {
+		return length;
 	}
 	
 	/**
