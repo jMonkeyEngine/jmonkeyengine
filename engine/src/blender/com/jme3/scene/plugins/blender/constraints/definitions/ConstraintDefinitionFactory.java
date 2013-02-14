@@ -42,38 +42,42 @@ import com.jme3.scene.plugins.blender.file.Structure;
 public class ConstraintDefinitionFactory {
     private static final Map<String, Class<? extends ConstraintDefinition>> CONSTRAINT_CLASSES = new HashMap<String, Class<? extends ConstraintDefinition>>();
     static {
-        CONSTRAINT_CLASSES.put("bActionConstraint", ConstraintDefinitionAction.class);
-        CONSTRAINT_CLASSES.put("bChildOfConstraint", ConstraintDefinitionChildOf.class);
-        CONSTRAINT_CLASSES.put("bClampToConstraint", ConstraintDefinitionClampTo.class);
         CONSTRAINT_CLASSES.put("bDistLimitConstraint", ConstraintDefinitionDistLimit.class);
-        CONSTRAINT_CLASSES.put("bFollowPathConstraint", ConstraintDefinitionFollowPath.class);
-        CONSTRAINT_CLASSES.put("bKinematicConstraint", ConstraintDefinitionInverseKinematics.class);
-        CONSTRAINT_CLASSES.put("bLockTrackConstraint", ConstraintDefinitionLockTrack.class);
         CONSTRAINT_CLASSES.put("bLocateLikeConstraint", ConstraintDefinitionLocLike.class);
         CONSTRAINT_CLASSES.put("bLocLimitConstraint", ConstraintDefinitionLocLimit.class);
-        CONSTRAINT_CLASSES.put("bMinMaxConstraint", ConstraintDefinitionMinMax.class);
         CONSTRAINT_CLASSES.put("bNullConstraint", ConstraintDefinitionNull.class);
-        CONSTRAINT_CLASSES.put("bPythonConstraint", ConstraintDefinitionPython.class);
-        CONSTRAINT_CLASSES.put("bRigidBodyJointConstraint", ConstraintDefinitionRigidBodyJoint.class);
         CONSTRAINT_CLASSES.put("bRotateLikeConstraint", ConstraintDefinitionRotLike.class);
-        CONSTRAINT_CLASSES.put("bShrinkWrapConstraint", ConstraintDefinitionShrinkWrap.class);
+        CONSTRAINT_CLASSES.put("bRotLimitConstraint", ConstraintDefinitionRotLimit.class);
         CONSTRAINT_CLASSES.put("bSizeLikeConstraint", ConstraintDefinitionSizeLike.class);
         CONSTRAINT_CLASSES.put("bSizeLimitConstraint", ConstraintDefinitionSizeLimit.class);
-        CONSTRAINT_CLASSES.put("bStretchToConstraint", ConstraintDefinitionStretchTo.class);
-        CONSTRAINT_CLASSES.put("bTransformConstraint", ConstraintDefinitionTransform.class);
-        CONSTRAINT_CLASSES.put("bRotLimitConstraint", ConstraintDefinitionRotLimit.class);
+    }
+    
+    private static final Map<String, String> UNSUPPORTED_CONSTRAINTS = new HashMap<String, String>();
+    static {
+        UNSUPPORTED_CONSTRAINTS.put("bActionConstraint", "Action");
+        UNSUPPORTED_CONSTRAINTS.put("bChildOfConstraint", "Child of");
+        UNSUPPORTED_CONSTRAINTS.put("bClampToConstraint", "Clamp to");
+        UNSUPPORTED_CONSTRAINTS.put("bFollowPathConstraint", "Follow path");
+        UNSUPPORTED_CONSTRAINTS.put("bKinematicConstraint", "Inverse kinematic");
+        UNSUPPORTED_CONSTRAINTS.put("bLockTrackConstraint", "Lock track");
+        UNSUPPORTED_CONSTRAINTS.put("bMinMaxConstraint", "Min max");
+        UNSUPPORTED_CONSTRAINTS.put("bPythonConstraint", "Python/Script");
+        UNSUPPORTED_CONSTRAINTS.put("bRigidBodyJointConstraint", "Rigid body joint");
+        UNSUPPORTED_CONSTRAINTS.put("bShrinkWrapConstraint", "Shrinkwrap");
+        UNSUPPORTED_CONSTRAINTS.put("bStretchToConstraint", "Stretch to");
+        UNSUPPORTED_CONSTRAINTS.put("bTransformConstraint", "Transform");
         // Blender 2.50+
-        CONSTRAINT_CLASSES.put("bSplineIKConstraint", ConstraintDefinitionSplineInverseKinematic.class);
-        CONSTRAINT_CLASSES.put("bDampTrackConstraint", ConstraintDefinitionDampTrack.class);
-        CONSTRAINT_CLASSES.put("bPivotConstraint", ConstraintDefinitionDampTrack.class);
+        UNSUPPORTED_CONSTRAINTS.put("bSplineIKConstraint", "Spline inverse kinematics");
+        UNSUPPORTED_CONSTRAINTS.put("bDampTrackConstraint", "Damp track");
+        UNSUPPORTED_CONSTRAINTS.put("bPivotConstraint", "Pivot");
         // Blender 2.56+
-        CONSTRAINT_CLASSES.put("bTrackToConstraint", ConstraintDefinitionTrackTo.class);
-        CONSTRAINT_CLASSES.put("bSameVolumeConstraint", ConstraintDefinitionSameVolume.class);
-        CONSTRAINT_CLASSES.put("bTransLikeConstraint", ConstraintDefinitionTransLike.class);
+        UNSUPPORTED_CONSTRAINTS.put("bTrackToConstraint", "Track to");
+        UNSUPPORTED_CONSTRAINTS.put("bSameVolumeConstraint", "Same volume");
+        UNSUPPORTED_CONSTRAINTS.put("bTransLikeConstraint", "Trans like");
         // Blender 2.62+
-        CONSTRAINT_CLASSES.put("bCameraSolverConstraint", ConstraintDefinitionCameraSolver.class);
-        CONSTRAINT_CLASSES.put("bObjectSolverConstraint", ConstraintDefinitionObjectSolver.class);
-        CONSTRAINT_CLASSES.put("bFollowTrackConstraint", ConstraintDefinitionFollowTrack.class);
+        UNSUPPORTED_CONSTRAINTS.put("bCameraSolverConstraint", "Camera solver");
+        UNSUPPORTED_CONSTRAINTS.put("bObjectSolverConstraint", "Object solver");
+        UNSUPPORTED_CONSTRAINTS.put("bFollowTrackConstraint", "Follow track");
     }
 
     /**
@@ -108,7 +112,12 @@ public class ConstraintDefinitionFactory {
                 throw new BlenderFileException(e.getLocalizedMessage(), e);
             }
         } else {
-            throw new BlenderFileException("Unknown constraint type: " + constraintClassName);
+            String constraintName = UNSUPPORTED_CONSTRAINTS.get(constraintClassName);
+            if(constraintName != null) {
+                return new UnsupportedConstraintDefinition(constraintName);
+            } else {
+                throw new BlenderFileException("Unknown constraint type: " + constraintClassName);
+            }
         }
     }
 }
