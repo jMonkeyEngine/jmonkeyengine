@@ -42,43 +42,44 @@ import com.jme3.texture.Image.Format;
  * @author Marcin Roguski (Kaelthas)
  */
 public abstract class TextureGenerator {
-	protected NoiseGenerator	noiseGenerator;
-	protected int flag;
-	protected float[][] colorBand;
-	protected BrightnessAndContrastData bacd;
-	protected Format imageFormat;
-	
-	public TextureGenerator(NoiseGenerator noiseGenerator, Format imageFormat) {
-		this.noiseGenerator = noiseGenerator;
-		this.imageFormat = imageFormat;
-	}
+    protected NoiseGenerator            noiseGenerator;
+    protected int                       flag;
+    protected float[][]                 colorBand;
+    protected BrightnessAndContrastData bacd;
+    protected Format                    imageFormat;
 
-	public Format getImageFormat() {
-		return imageFormat;
-	}
-	
-	public void readData(Structure tex, BlenderContext blenderContext) {
-		flag = ((Number) tex.getFieldValue("flag")).intValue();
-		colorBand = new ColorBand(tex, blenderContext).computeValues();
-		bacd = new BrightnessAndContrastData(tex);
-		if(colorBand != null) {
-			imageFormat = Format.RGBA8;
-		}
-	}
-	
-	public abstract void getPixel(TexturePixel pixel, float x, float y, float z);
-	
-	/**
-	 * This method applies brightness and contrast for RGB textures.
-	 * @param tex texture structure
-	 * @param texres
-	 */
-	protected void applyBrightnessAndContrast(BrightnessAndContrastData bacd, TexturePixel texres) {
+    public TextureGenerator(NoiseGenerator noiseGenerator, Format imageFormat) {
+        this.noiseGenerator = noiseGenerator;
+        this.imageFormat = imageFormat;
+    }
+
+    public Format getImageFormat() {
+        return imageFormat;
+    }
+
+    public void readData(Structure tex, BlenderContext blenderContext) {
+        flag = ((Number) tex.getFieldValue("flag")).intValue();
+        colorBand = new ColorBand(tex, blenderContext).computeValues();
+        bacd = new BrightnessAndContrastData(tex);
+        if (colorBand != null) {
+            imageFormat = Format.RGBA8;
+        }
+    }
+
+    public abstract void getPixel(TexturePixel pixel, float x, float y, float z);
+
+    /**
+     * This method applies brightness and contrast for RGB textures.
+     * @param tex
+     *            texture structure
+     * @param texres
+     */
+    protected void applyBrightnessAndContrast(BrightnessAndContrastData bacd, TexturePixel texres) {
         texres.red = (texres.red - 0.5f) * bacd.contrast + bacd.brightness;
         if (texres.red < 0.0f) {
             texres.red = 0.0f;
         }
-        texres.green =(texres.green - 0.5f) * bacd.contrast + bacd.brightness;
+        texres.green = (texres.green - 0.5f) * bacd.contrast + bacd.brightness;
         if (texres.green < 0.0f) {
             texres.green = 0.0f;
         }
@@ -87,14 +88,14 @@ public abstract class TextureGenerator {
             texres.blue = 0.0f;
         }
     }
-	
-	/**
-	 * This method applies brightness and contrast for Luminance textures.
-	 * @param texres
-	 * @param contrast
-	 * @param brightness
-	 */
-	protected void applyBrightnessAndContrast(TexturePixel texres, float contrast, float brightness) {
+
+    /**
+     * This method applies brightness and contrast for Luminance textures.
+     * @param texres
+     * @param contrast
+     * @param brightness
+     */
+    protected void applyBrightnessAndContrast(TexturePixel texres, float contrast, float brightness) {
         texres.intensity = (texres.intensity - 0.5f) * contrast + brightness;
         if (texres.intensity < 0.0f) {
             texres.intensity = 0.0f;
@@ -102,28 +103,29 @@ public abstract class TextureGenerator {
             texres.intensity = 1.0f;
         }
     }
-	
-	/**
-	 * This class contains brightness and contrast data.
-	 * @author Marcin Roguski (Kaelthas)
-	 */
-	protected static class BrightnessAndContrastData {
-		public final float contrast;
+
+    /**
+     * This class contains brightness and contrast data.
+     * @author Marcin Roguski (Kaelthas)
+     */
+    protected static class BrightnessAndContrastData {
+        public final float contrast;
         public final float brightness;
         public final float rFactor;
         public final float gFactor;
         public final float bFactor;
-        
+
         /**
          * Constructor reads the required data from the given structure.
-         * @param tex texture structure
+         * @param tex
+         *            texture structure
          */
-		public BrightnessAndContrastData(Structure tex) {
-			contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
-	        brightness = ((Number) tex.getFieldValue("bright")).floatValue() - 0.5f;
-	        rFactor = ((Number) tex.getFieldValue("rfac")).floatValue();
-	        gFactor = ((Number) tex.getFieldValue("gfac")).floatValue();
-	        bFactor = ((Number) tex.getFieldValue("bfac")).floatValue();
-		}
-	}
+        public BrightnessAndContrastData(Structure tex) {
+            contrast = ((Number) tex.getFieldValue("contrast")).floatValue();
+            brightness = ((Number) tex.getFieldValue("bright")).floatValue() - 0.5f;
+            rFactor = ((Number) tex.getFieldValue("rfac")).floatValue();
+            gFactor = ((Number) tex.getFieldValue("gfac")).floatValue();
+            bFactor = ((Number) tex.getFieldValue("bfac")).floatValue();
+        }
+    }
 }

@@ -46,35 +46,35 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
  */
 public class BlenderInputStream extends InputStream {
 
-    private static final Logger LOGGER = Logger.getLogger(BlenderInputStream.class.getName());
+    private static final Logger LOGGER              = Logger.getLogger(BlenderInputStream.class.getName());
     /** The default size of the blender buffer. */
-    private static final int DEFAULT_BUFFER_SIZE = 1048576;												//1MB
+    private static final int    DEFAULT_BUFFER_SIZE = 1048576;                                             // 1MB
     /**
      * Size of a pointer; all pointers in the file are stored in this format. '_' means 4 bytes and '-' means 8 bytes.
      */
-    private int pointerSize;
+    private int                 pointerSize;
     /**
      * Type of byte ordering used; 'v' means little endian and 'V' means big endian.
      */
-    private char endianess;
+    private char                endianess;
     /** Version of Blender the file was created in; '248' means version 2.48. */
-    private String versionNumber;
+    private String              versionNumber;
     /** The buffer we store the read data to. */
-    protected byte[] cachedBuffer;
+    protected byte[]            cachedBuffer;
     /** The total size of the stored data. */
-    protected int size;
+    protected int               size;
     /** The current position of the read cursor. */
-    protected int position;
+    protected int               position;
 
     /**
      * Constructor. The input stream is stored and used to read data.
      * @param inputStream
-     *        the stream we read data from
+     *            the stream we read data from
      * @throws BlenderFileException
-     *         this exception is thrown if the file header has some invalid data
+     *             this exception is thrown if the file header has some invalid data
      */
     public BlenderInputStream(InputStream inputStream) throws BlenderFileException {
-        //the size value will canche while reading the file; the available() method cannot be counted on
+        // the size value will canche while reading the file; the available() method cannot be counted on
         try {
             size = inputStream.available();
         } catch (IOException e) {
@@ -84,7 +84,7 @@ public class BlenderInputStream extends InputStream {
             size = BlenderInputStream.DEFAULT_BUFFER_SIZE;
         }
 
-        //buffered input stream is used here for much faster file reading
+        // buffered input stream is used here for much faster file reading
         BufferedInputStream bufferedInputStream;
         if (inputStream instanceof BufferedInputStream) {
             bufferedInputStream = (BufferedInputStream) inputStream;
@@ -97,16 +97,16 @@ public class BlenderInputStream extends InputStream {
         } catch (IOException e) {
             throw new BlenderFileException("Problems occured while caching the file!", e);
         } finally {
-        	try {
-				inputStream.close();
-			} catch (IOException e) {
-				LOGGER.warning("Unable to close stream with blender file.");
-			}
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                LOGGER.warning("Unable to close stream with blender file.");
+            }
         }
 
         try {
             this.readFileHeader();
-        } catch (BlenderFileException e) {//the file might be packed, don't panic, try one more time ;)
+        } catch (BlenderFileException e) {// the file might be packed, don't panic, try one more time ;)
             this.decompressFile();
             this.position = 0;
             this.readFileHeader();
@@ -116,22 +116,22 @@ public class BlenderInputStream extends InputStream {
     /**
      * This method reads the whole stream into a buffer.
      * @param inputStream
-     *        the stream to read the file data from
-     * @throws IOException 
-     * 		   an exception is thrown when data read from the stream is invalid or there are problems with i/o
-     *         operations
+     *            the stream to read the file data from
+     * @throws IOException
+     *             an exception is thrown when data read from the stream is invalid or there are problems with i/o
+     *             operations
      */
     private void readStreamToCache(InputStream inputStream) throws IOException {
         int data = inputStream.read();
         cachedBuffer = new byte[size];
-        size = 0;//this will count the actual size
+        size = 0;// this will count the actual size
         while (data != -1) {
-        	if (size >= cachedBuffer.length) {//widen the cached array
+            if (size >= cachedBuffer.length) {// widen the cached array
                 byte[] newBuffer = new byte[cachedBuffer.length + (cachedBuffer.length >> 1)];
                 System.arraycopy(cachedBuffer, 0, newBuffer, 0, cachedBuffer.length);
                 cachedBuffer = newBuffer;
             }
-        	cachedBuffer[size++] = (byte) data;
+            cachedBuffer[size++] = (byte) data;
             data = inputStream.read();
         }
     }
@@ -146,8 +146,7 @@ public class BlenderInputStream extends InputStream {
             gis = new GZIPInputStream(new ByteArrayInputStream(cachedBuffer));
             this.readStreamToCache(gis);
         } catch (IOException e) {
-            throw new IllegalStateException("IO errors occured where they should NOT! "
-                    + "The data is already buffered at this point!", e);
+            throw new IllegalStateException("IO errors occured where they should NOT! " + "The data is already buffered at this point!", e);
         } finally {
             try {
                 if (gis != null) {
@@ -162,9 +161,9 @@ public class BlenderInputStream extends InputStream {
     /**
      * This method loads the header from the given stream during instance creation.
      * @param inputStream
-     *        the stream we read the header from
+     *            the stream we read the header from
      * @throws BlenderFileException
-     *         this exception is thrown if the file header has some invalid data
+     *             this exception is thrown if the file header has some invalid data
      */
     private void readFileHeader() throws BlenderFileException {
         byte[] identifier = new byte[7];
@@ -213,7 +212,7 @@ public class BlenderInputStream extends InputStream {
     }
 
     /**
-     * This method reads a bytes number big enough to fill the table. 
+     * This method reads a bytes number big enough to fill the table.
      * It does not throw exceptions so it is for internal use only.
      * @param bytes
      *            an array to be filled with data
@@ -319,7 +318,7 @@ public class BlenderInputStream extends InputStream {
     /**
      * This method sets the current position of the read cursor.
      * @param position
-     *        the position of the read cursor
+     *            the position of the read cursor
      */
     public void setPosition(int position) {
         this.position = position;
@@ -352,7 +351,7 @@ public class BlenderInputStream extends InputStream {
     /**
      * This method aligns cursor position forward to a given amount of bytes.
      * @param bytesAmount
-     *        the byte amount to which we aligh the cursor
+     *            the byte amount to which we aligh the cursor
      */
     public void alignPosition(int bytesAmount) {
         if (bytesAmount <= 0) {
@@ -365,17 +364,17 @@ public class BlenderInputStream extends InputStream {
     }
 
     @Override
-    public void close() throws IOException { 
-    	//this method is unimplemented because some loaders (ie. TGALoader) have flaws that close the stream given from the outside
-    	//because the images can be stored directly in the blender file then this stream is properly positioned and given to the loader
-    	//to read the image file, that is why we do not want it to be closed before the reading is done
-    	//to properly close the stream use forceClose() method
+    public void close() throws IOException {
+        // this method is unimplemented because some loaders (ie. TGALoader) have flaws that close the stream given from the outside
+        // because the images can be stored directly in the blender file then this stream is properly positioned and given to the loader
+        // to read the image file, that is why we do not want it to be closed before the reading is done
+        // to properly close the stream use forceClose() method
     }
-    
+
     /**
      * This method should be used to close the stream because some loaders may close the stream while reading resources from it.
      */
     public void forceClose() {
-    	cachedBuffer = null;
+        cachedBuffer = null;
     }
 }

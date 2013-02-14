@@ -11,16 +11,16 @@ import com.jme3.scene.plugins.blender.file.Structure;
  * This class represents 'Clamp to' constraint type in blender.
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class ConstraintDefinitionClampTo extends ConstraintDefinition {
-	private static final Logger LOGGER = Logger.getLogger(ConstraintDefinitionClampTo.class.getName());
-	
-	public ConstraintDefinitionClampTo(Structure constraintData, BlenderContext blenderContext) {
-		super(constraintData, blenderContext);
-	}
-	
-	@Override
-	public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
-		//TODO: implement when curves are implemented
-		LOGGER.log(Level.WARNING, "'Clamp to' not yet implemented!");
-	}
+/* package */class ConstraintDefinitionClampTo extends ConstraintDefinition {
+    private static final Logger LOGGER = Logger.getLogger(ConstraintDefinitionClampTo.class.getName());
+
+    public ConstraintDefinitionClampTo(Structure constraintData, BlenderContext blenderContext) {
+        super(constraintData, blenderContext);
+    }
+
+    @Override
+    public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+        // TODO: implement when curves are implemented
+        LOGGER.log(Level.WARNING, "'Clamp to' not yet implemented!");
+    }
 }

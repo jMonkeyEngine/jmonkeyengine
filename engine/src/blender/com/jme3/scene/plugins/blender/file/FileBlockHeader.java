@@ -41,52 +41,51 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
  */
 public class FileBlockHeader {
 
-    public static final int BLOCK_TE00 = 'T' << 24 | 'E' << 16;					//TE00
-    public static final int BLOCK_ME00 = 'M' << 24 | 'E' << 16;					//ME00
-    public static final int BLOCK_SR00 = 'S' << 24 | 'R' << 16;					//SR00
-    public static final int BLOCK_CA00 = 'C' << 24 | 'A' << 16;					//CA00
-    public static final int BLOCK_LA00 = 'L' << 24 | 'A' << 16;					//LA00
-    public static final int BLOCK_OB00 = 'O' << 24 | 'B' << 16;					//OB00
-    public static final int BLOCK_MA00 = 'M' << 24 | 'A' << 16;					//MA00
-    public static final int BLOCK_SC00 = 'S' << 24 | 'C' << 16;					//SC00
-    public static final int BLOCK_WO00 = 'W' << 24 | 'O' << 16;					//WO00
-    public static final int BLOCK_TX00 = 'T' << 24 | 'X' << 16;					//TX00
-    public static final int BLOCK_IP00 = 'I' << 24 | 'P' << 16;					//IP00
-    public static final int BLOCK_AC00 = 'A' << 24 | 'C' << 16;					//AC00
-    public static final int BLOCK_GLOB = 'G' << 24 | 'L' << 16 | 'O' << 8 | 'B';	//GLOB
-    public static final int BLOCK_REND = 'R' << 24 | 'E' << 16 | 'N' << 8 | 'D';	//REND
-    public static final int BLOCK_DATA = 'D' << 24 | 'A' << 16 | 'T' << 8 | 'A';	//DATA
-    public static final int BLOCK_DNA1 = 'D' << 24 | 'N' << 16 | 'A' << 8 | '1';	//DNA1
-    public static final int BLOCK_ENDB = 'E' << 24 | 'N' << 16 | 'D' << 8 | 'B';	//ENDB
+    public static final int BLOCK_TE00 = 'T' << 24 | 'E' << 16;                 // TE00
+    public static final int BLOCK_ME00 = 'M' << 24 | 'E' << 16;                 // ME00
+    public static final int BLOCK_SR00 = 'S' << 24 | 'R' << 16;                 // SR00
+    public static final int BLOCK_CA00 = 'C' << 24 | 'A' << 16;                 // CA00
+    public static final int BLOCK_LA00 = 'L' << 24 | 'A' << 16;                 // LA00
+    public static final int BLOCK_OB00 = 'O' << 24 | 'B' << 16;                 // OB00
+    public static final int BLOCK_MA00 = 'M' << 24 | 'A' << 16;                 // MA00
+    public static final int BLOCK_SC00 = 'S' << 24 | 'C' << 16;                 // SC00
+    public static final int BLOCK_WO00 = 'W' << 24 | 'O' << 16;                 // WO00
+    public static final int BLOCK_TX00 = 'T' << 24 | 'X' << 16;                 // TX00
+    public static final int BLOCK_IP00 = 'I' << 24 | 'P' << 16;                 // IP00
+    public static final int BLOCK_AC00 = 'A' << 24 | 'C' << 16;                 // AC00
+    public static final int BLOCK_GLOB = 'G' << 24 | 'L' << 16 | 'O' << 8 | 'B'; // GLOB
+    public static final int BLOCK_REND = 'R' << 24 | 'E' << 16 | 'N' << 8 | 'D'; // REND
+    public static final int BLOCK_DATA = 'D' << 24 | 'A' << 16 | 'T' << 8 | 'A'; // DATA
+    public static final int BLOCK_DNA1 = 'D' << 24 | 'N' << 16 | 'A' << 8 | '1'; // DNA1
+    public static final int BLOCK_ENDB = 'E' << 24 | 'N' << 16 | 'D' << 8 | 'B'; // ENDB
     /** Identifier of the file-block [4 bytes]. */
-    private int code;
+    private int             code;
     /** Total length of the data after the file-block-header [4 bytes]. */
-    private int size;
+    private int             size;
     /**
      * Memory address the structure was located when written to disk [4 or 8 bytes (defined in file header as a pointer
      * size)].
      */
-    private long oldMemoryAddress;
+    private long            oldMemoryAddress;
     /** Index of the SDNA structure [4 bytes]. */
-    private int sdnaIndex;
+    private int             sdnaIndex;
     /** Number of structure located in this file-block [4 bytes]. */
-    private int count;
+    private int             count;
     /** Start position of the block's data in the stream. */
-    private int blockPosition;
+    private int             blockPosition;
 
     /**
      * Constructor. Loads the block header from the given stream during instance creation.
      * @param inputStream
-     *        the stream we read the block header from
+     *            the stream we read the block header from
      * @param blenderContext
-     *        the blender context
+     *            the blender context
      * @throws BlenderFileException
-     *         this exception is thrown when the pointer size is neither 4 nor 8
+     *             this exception is thrown when the pointer size is neither 4 nor 8
      */
     public FileBlockHeader(BlenderInputStream inputStream, BlenderContext blenderContext) throws BlenderFileException {
         inputStream.alignPosition(4);
-        code = inputStream.readByte() << 24 | inputStream.readByte() << 16
-                | inputStream.readByte() << 8 | inputStream.readByte();
+        code = inputStream.readByte() << 24 | inputStream.readByte() << 16 | inputStream.readByte() << 8 | inputStream.readByte();
         size = inputStream.readInt();
         oldMemoryAddress = inputStream.readPointer();
         sdnaIndex = inputStream.readInt();
@@ -103,7 +102,7 @@ public class FileBlockHeader {
     /**
      * This method returns the structure described by the header filled with appropriate data.
      * @param blenderContext
-     *        the blender context
+     *            the blender context
      * @return structure filled with data
      * @throws BlenderFileException
      */
@@ -186,7 +185,7 @@ public class FileBlockHeader {
     /**
      * This method transforms the coded bloch id into a string value.
      * @param code
-     *        the id of the block
+     *            the id of the block
      * @return the string value of the block id
      */
     protected String codeToString(int code) {

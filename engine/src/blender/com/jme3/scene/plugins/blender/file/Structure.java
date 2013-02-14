@@ -49,20 +49,20 @@ public class Structure implements Cloneable {
     /** The address of the block that fills the structure. */
     private transient Long oldMemoryAddress;
     /** The type of the structure. */
-    private String type;
+    private String         type;
     /**
      * The fields of the structure. Each field consists of a pair: name-type.
      */
-    private Field[] fields;
+    private Field[]        fields;
 
     /**
      * Constructor that copies the data of the structure.
      * @param structure
-     *        the structure to copy.
+     *            the structure to copy.
      * @param blenderContext
-     *        the blender context of the structure
+     *            the blender context of the structure
      * @throws CloneNotSupportedException
-     *         this exception should never be thrown
+     *             this exception should never be thrown
      */
     private Structure(Structure structure, BlenderContext blenderContext) throws CloneNotSupportedException {
         type = structure.type;
@@ -77,15 +77,15 @@ public class Structure implements Cloneable {
     /**
      * Constructor. Loads the structure from the given stream during instance creation.
      * @param inputStream
-     *        the stream we read the structure from
+     *            the stream we read the structure from
      * @param names
-     *        the names from which the name of structure and its fields will be taken
+     *            the names from which the name of structure and its fields will be taken
      * @param types
-     *        the names of types for the structure
+     *            the names of types for the structure
      * @param blenderContext
-     *        the blender context
+     *            the blender context
      * @throws BlenderFileException
-     *         this exception occurs if the amount of fields, defined in the file, is negative
+     *             this exception occurs if the amount of fields, defined in the file, is negative
      */
     public Structure(BlenderInputStream inputStream, String[] names, String[] types, BlenderContext blenderContext) throws BlenderFileException {
         int nameIndex = inputStream.readShort();
@@ -109,10 +109,10 @@ public class Structure implements Cloneable {
     /**
      * This method fills the structure with data.
      * @param inputStream
-     *        the stream we read data from, its read cursor should be placed at the start position of the data for the
-     *        structure
+     *            the stream we read data from, its read cursor should be placed at the start position of the data for the
+     *            structure
      * @throws BlenderFileException
-     *         an exception is thrown when the blend file is somehow invalid or corrupted
+     *             an exception is thrown when the blend file is somehow invalid or corrupted
      */
     public void fill(BlenderInputStream inputStream) throws BlenderFileException {
         int position = inputStream.getPosition();
@@ -127,7 +127,7 @@ public class Structure implements Cloneable {
     /**
      * This method returns the value of the filed with a given name.
      * @param fieldName
-     *        the name of the field
+     *            the name of the field
      * @return the value of the field or null if no field with a given name is found
      */
     public Object getFieldValue(String fieldName) {
@@ -143,7 +143,7 @@ public class Structure implements Cloneable {
      * This method returns the value of the filed with a given name. The structure is considered to have flat fields
      * only (no substructures).
      * @param fieldName
-     *        the name of the field
+     *            the name of the field
      * @return the value of the field or null if no field with a given name is found
      */
     public Object getFlatFieldValue(String fieldName) {
@@ -153,7 +153,7 @@ public class Structure implements Cloneable {
                 return value;
             } else if (value instanceof Structure) {
                 value = ((Structure) value).getFlatFieldValue(fieldName);
-                if (value != null) {//we can compare references here, since we use one static object as a NULL field value
+                if (value != null) {// we can compare references here, since we use one static object as a NULL field value
                     return value;
                 }
             }
@@ -165,12 +165,12 @@ public class Structure implements Cloneable {
      * This methos should be used on structures that are of a 'ListBase' type. It creates a List of structures that are
      * held by this structure within the blend file.
      * @param blenderContext
-     *        the blender context
+     *            the blender context
      * @return a list of filled structures
      * @throws BlenderFileException
-     *         this exception is thrown when the blend file structure is somehow invalid or corrupted
+     *             this exception is thrown when the blend file structure is somehow invalid or corrupted
      * @throws IllegalArgumentException
-     *         this exception is thrown if the type of the structure is not 'ListBase'
+     *             this exception is thrown if the type of the structure is not 'ListBase'
      */
     public List<Structure> evaluateListBase(BlenderContext blenderContext) throws BlenderFileException {
         if (!"ListBase".equals(this.type)) {
@@ -209,17 +209,17 @@ public class Structure implements Cloneable {
     /**
      * This method returns the field name of the given index.
      * @param fieldIndex
-     *        the index of the field
+     *            the index of the field
      * @return the field name of the given index
      */
     public String getFieldName(int fieldIndex) {
         return fields[fieldIndex].name;
     }
-    
+
     /**
      * This method returns the full field name of the given index.
      * @param fieldIndex
-     *        the index of the field
+     *            the index of the field
      * @return the full field name of the given index
      */
     public String getFieldFullName(int fieldIndex) {
@@ -229,7 +229,7 @@ public class Structure implements Cloneable {
     /**
      * This method returns the field type of the given index.
      * @param fieldIndex
-     *        the index of the field
+     *            the index of the field
      * @return the field type of the given index
      */
     public String getFieldType(int fieldIndex) {
@@ -248,20 +248,20 @@ public class Structure implements Cloneable {
         return oldMemoryAddress;
     }
 
-/**
-	 * This method returns the name of the structure. If the structure has an ID field then the name is returned.
-	 * Otherwise the name does not exists and the method returns null.
-	 * @return the name of the structure read from the ID field or null
-	 */
-	public String getName() {
-		Object fieldValue = this.getFieldValue("ID");
-		if(fieldValue instanceof Structure) {
-			Structure id = (Structure)fieldValue;
-			return id == null ? null : id.getFieldValue("name").toString().substring(2);//blender adds 2-charactes as a name prefix
-		}
-		return null;
-	}
-	
+    /**
+     * This method returns the name of the structure. If the structure has an ID field then the name is returned.
+     * Otherwise the name does not exists and the method returns null.
+     * @return the name of the structure read from the ID field or null
+     */
+    public String getName() {
+        Object fieldValue = this.getFieldValue("ID");
+        if (fieldValue instanceof Structure) {
+            Structure id = (Structure) fieldValue;
+            return id == null ? null : id.getFieldValue("name").toString().substring(2);// blender adds 2-charactes as a name prefix
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder("struct ").append(type).append(" {\n");
@@ -280,7 +280,7 @@ public class Structure implements Cloneable {
      * This enum enumerates all known data types that can be found in the blend file.
      * @author Marcin Roguski
      */
-    /*package*/
+    /* package */
     static enum DataType {
 
         CHARACTER, SHORT, INTEGER, LONG, FLOAT, DOUBLE, VOID, STRUCTURE, POINTER;
@@ -305,12 +305,12 @@ public class Structure implements Cloneable {
          * This method returns the data type that is appropriate to the given type name. WARNING! The type recognition
          * is case sensitive!
          * @param type
-         *        the type name of the data
+         *            the type name of the data
          * @param blenderContext
-         *        the blender context
+         *            the blender context
          * @return appropriate enum value to the given type name
          * @throws BlenderFileException
-         *         this exception is thrown if the given type name does not exist in the blend file
+         *             this exception is thrown if the given type name does not exist in the blend file
          */
         public static DataType getDataType(String type, BlenderContext blenderContext) throws BlenderFileException {
             DataType result = PRIMARY_TYPES.get(type);

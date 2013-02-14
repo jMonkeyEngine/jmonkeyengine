@@ -53,143 +53,143 @@ import java.util.logging.Logger;
  */
 public class ModifierHelper extends AbstractBlenderHelper {
 
-	private static final Logger	LOGGER	= Logger.getLogger(ModifierHelper.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ModifierHelper.class.getName());
 
-	/**
-	 * This constructor parses the given blender version and stores the result.
-	 * Some functionalities may differ in different blender versions.
-	 * 
-	 * @param blenderVersion
-	 *            the version read from the blend file
-	 * @param fixUpAxis
-	 *            a variable that indicates if the Y asxis is the UP axis or not
-	 */
-	public ModifierHelper(String blenderVersion, boolean fixUpAxis) {
-		super(blenderVersion, fixUpAxis);
-	}
+    /**
+     * This constructor parses the given blender version and stores the result.
+     * Some functionalities may differ in different blender versions.
+     * 
+     * @param blenderVersion
+     *            the version read from the blend file
+     * @param fixUpAxis
+     *            a variable that indicates if the Y asxis is the UP axis or not
+     */
+    public ModifierHelper(String blenderVersion, boolean fixUpAxis) {
+        super(blenderVersion, fixUpAxis);
+    }
 
-	/**
-	 * This method reads the given object's modifiers.
-	 * 
-	 * @param objectStructure
-	 *            the object structure
-	 * @param blenderContext
-	 *            the blender context
-	 * @throws BlenderFileException
-	 *             this exception is thrown when the blender file is somehow
-	 *             corrupted
-	 */
-	public Collection<Modifier> readModifiers(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
-		Set<String> alreadyReadModifiers = new HashSet<String>();
-		Collection<Modifier> result = new ArrayList<Modifier>();
-		Structure modifiersListBase = (Structure) objectStructure.getFieldValue("modifiers");
-		List<Structure> modifiers = modifiersListBase.evaluateListBase(blenderContext);
-		for (Structure modifierStructure : modifiers) {
-			String modifierType = modifierStructure.getType();
-			if(!Modifier.canBeAppliedMultipleTimes(modifierType) && alreadyReadModifiers.contains(modifierType)) {
-				LOGGER.log(Level.WARNING, "Modifier {0} can only be applied once to object: {1}", new Object[] { modifierType, objectStructure.getName() });
-			} else {
-				Modifier modifier = null;
-				if (Modifier.ARRAY_MODIFIER_DATA.equals(modifierStructure.getType())) {
-					modifier = new ArrayModifier(modifierStructure, blenderContext);
-				} else if (Modifier.MIRROR_MODIFIER_DATA.equals(modifierStructure.getType())) {
-					modifier = new MirrorModifier(modifierStructure, blenderContext);
-				} else if (Modifier.ARMATURE_MODIFIER_DATA.equals(modifierStructure.getType())) {
-					modifier = new ArmatureModifier(objectStructure, modifierStructure, blenderContext);
-				} else if (Modifier.PARTICLE_MODIFIER_DATA.equals(modifierStructure.getType())) {
-					modifier = new ParticlesModifier(modifierStructure, blenderContext);
-				}
+    /**
+     * This method reads the given object's modifiers.
+     * 
+     * @param objectStructure
+     *            the object structure
+     * @param blenderContext
+     *            the blender context
+     * @throws BlenderFileException
+     *             this exception is thrown when the blender file is somehow
+     *             corrupted
+     */
+    public Collection<Modifier> readModifiers(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
+        Set<String> alreadyReadModifiers = new HashSet<String>();
+        Collection<Modifier> result = new ArrayList<Modifier>();
+        Structure modifiersListBase = (Structure) objectStructure.getFieldValue("modifiers");
+        List<Structure> modifiers = modifiersListBase.evaluateListBase(blenderContext);
+        for (Structure modifierStructure : modifiers) {
+            String modifierType = modifierStructure.getType();
+            if (!Modifier.canBeAppliedMultipleTimes(modifierType) && alreadyReadModifiers.contains(modifierType)) {
+                LOGGER.log(Level.WARNING, "Modifier {0} can only be applied once to object: {1}", new Object[] { modifierType, objectStructure.getName() });
+            } else {
+                Modifier modifier = null;
+                if (Modifier.ARRAY_MODIFIER_DATA.equals(modifierStructure.getType())) {
+                    modifier = new ArrayModifier(modifierStructure, blenderContext);
+                } else if (Modifier.MIRROR_MODIFIER_DATA.equals(modifierStructure.getType())) {
+                    modifier = new MirrorModifier(modifierStructure, blenderContext);
+                } else if (Modifier.ARMATURE_MODIFIER_DATA.equals(modifierStructure.getType())) {
+                    modifier = new ArmatureModifier(objectStructure, modifierStructure, blenderContext);
+                } else if (Modifier.PARTICLE_MODIFIER_DATA.equals(modifierStructure.getType())) {
+                    modifier = new ParticlesModifier(modifierStructure, blenderContext);
+                }
 
-				if (modifier != null) {
-					if(modifier.isModifying()) {
-						result.add(modifier);
-						blenderContext.addModifier(objectStructure.getOldMemoryAddress(), modifier);
-						alreadyReadModifiers.add(modifierType);
-					} else {
-						LOGGER.log(Level.WARNING, "The modifier {0} will cause no changes in the model. It will be ignored!", modifierStructure.getName());
-					}
-				} else {
-					LOGGER.log(Level.WARNING, "Unsupported modifier type: {0}", modifierStructure.getType());
-				}
-			}
-		}
+                if (modifier != null) {
+                    if (modifier.isModifying()) {
+                        result.add(modifier);
+                        blenderContext.addModifier(objectStructure.getOldMemoryAddress(), modifier);
+                        alreadyReadModifiers.add(modifierType);
+                    } else {
+                        LOGGER.log(Level.WARNING, "The modifier {0} will cause no changes in the model. It will be ignored!", modifierStructure.getName());
+                    }
+                } else {
+                    LOGGER.log(Level.WARNING, "Unsupported modifier type: {0}", modifierStructure.getType());
+                }
+            }
+        }
 
-		// at the end read object's animation modifier (object animation is
-		// either described by action or by ipo of the object)
-		Modifier modifier;
-		if (blenderVersion <= 249) {
-			modifier = this.readAnimationModifier249(objectStructure, blenderContext);
-		} else {
-			modifier = this.readAnimationModifier250(objectStructure, blenderContext);
-		}
-		if (modifier != null) {
-			result.add(modifier);
-		}
-		return result;
-	}
+        // at the end read object's animation modifier (object animation is
+        // either described by action or by ipo of the object)
+        Modifier modifier;
+        if (blenderVersion <= 249) {
+            modifier = this.readAnimationModifier249(objectStructure, blenderContext);
+        } else {
+            modifier = this.readAnimationModifier250(objectStructure, blenderContext);
+        }
+        if (modifier != null) {
+            result.add(modifier);
+        }
+        return result;
+    }
 
-	@Override
-	public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-		return true;
-	}
+    @Override
+    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
+        return true;
+    }
 
-	/**
-	 * This method reads the object's animation modifier for blender version
-	 * 2.49 and lower.
-	 * 
-	 * @param objectStructure
-	 *            the object's structure
-	 * @param blenderContext
-	 *            the blender context
-	 * @return loaded modifier
-	 * @throws BlenderFileException
-	 *             this exception is thrown when the blender file is somehow
-	 *             corrupted
-	 */
-	private Modifier readAnimationModifier249(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
-		Modifier result = null;
-		Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
-		if (pIpo.isNotNull()) {
-			IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
-			Structure ipoStructure = pIpo.fetchData(blenderContext.getInputStream()).get(0);
-			Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
-			if(ipo != null) {
-				result = new ObjectAnimationModifier(ipo, objectStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
-				blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
-			}
-		}
-		return result;
-	}
+    /**
+     * This method reads the object's animation modifier for blender version
+     * 2.49 and lower.
+     * 
+     * @param objectStructure
+     *            the object's structure
+     * @param blenderContext
+     *            the blender context
+     * @return loaded modifier
+     * @throws BlenderFileException
+     *             this exception is thrown when the blender file is somehow
+     *             corrupted
+     */
+    private Modifier readAnimationModifier249(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
+        Modifier result = null;
+        Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
+        if (pIpo.isNotNull()) {
+            IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
+            Structure ipoStructure = pIpo.fetchData(blenderContext.getInputStream()).get(0);
+            Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
+            if (ipo != null) {
+                result = new ObjectAnimationModifier(ipo, objectStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
+                blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
+            }
+        }
+        return result;
+    }
 
-	/**
-	 * This method reads the object's animation modifier for blender version
-	 * 2.50 and higher.
-	 * 
-	 * @param objectStructure
-	 *            the object's structure
-	 * @param blenderContext
-	 *            the blender context
-	 * @return loaded modifier
-	 * @throws BlenderFileException
-	 *             this exception is thrown when the blender file is somehow
-	 *             corrupted
-	 */
-	private Modifier readAnimationModifier250(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
-		Modifier result = null;
-		Pointer pAnimData = (Pointer) objectStructure.getFieldValue("adt");
-		if (pAnimData.isNotNull()) {
-			Structure animData = pAnimData.fetchData(blenderContext.getInputStream()).get(0);
-			Pointer pAction = (Pointer) animData.getFieldValue("action");
-			if (pAction.isNotNull()) {
-				Structure actionStructure = pAction.fetchData(blenderContext.getInputStream()).get(0);
-				IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
-				Ipo ipo = ipoHelper.fromAction(actionStructure, blenderContext);
-				if(ipo != null) {//ipo can be null if it has no curves applied, ommit such modifier then
-					result = new ObjectAnimationModifier(ipo, actionStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
-					blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
-				}
-			}
-		}
-		return result;
-	}
+    /**
+     * This method reads the object's animation modifier for blender version
+     * 2.50 and higher.
+     * 
+     * @param objectStructure
+     *            the object's structure
+     * @param blenderContext
+     *            the blender context
+     * @return loaded modifier
+     * @throws BlenderFileException
+     *             this exception is thrown when the blender file is somehow
+     *             corrupted
+     */
+    private Modifier readAnimationModifier250(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
+        Modifier result = null;
+        Pointer pAnimData = (Pointer) objectStructure.getFieldValue("adt");
+        if (pAnimData.isNotNull()) {
+            Structure animData = pAnimData.fetchData(blenderContext.getInputStream()).get(0);
+            Pointer pAction = (Pointer) animData.getFieldValue("action");
+            if (pAction.isNotNull()) {
+                Structure actionStructure = pAction.fetchData(blenderContext.getInputStream()).get(0);
+                IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
+                Ipo ipo = ipoHelper.fromAction(actionStructure, blenderContext);
+                if (ipo != null) {// ipo can be null if it has no curves applied, ommit such modifier then
+                    result = new ObjectAnimationModifier(ipo, actionStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
+                    blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
+                }
+            }
+        }
+        return result;
+    }
 }

@@ -11,16 +11,16 @@ import com.jme3.scene.plugins.blender.file.Structure;
  * This class represents 'Follow track' constraint type in blender.
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class ConstraintDefinitionFollowTrack extends ConstraintDefinition {
-	private static final Logger LOGGER = Logger.getLogger(ConstraintDefinitionAction.class.getName());
-	
-	public ConstraintDefinitionFollowTrack(Structure constraintData, BlenderContext blenderContext) {
-		super(constraintData, blenderContext);
-	}
+/* package */class ConstraintDefinitionFollowTrack extends ConstraintDefinition {
+    private static final Logger LOGGER = Logger.getLogger(ConstraintDefinitionAction.class.getName());
 
-	@Override
-	public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
-		// TODO: implement 'Follow track' constraint
-		LOGGER.log(Level.WARNING, "'Follow track' constraint NOT implemented!");
-	}
+    public ConstraintDefinitionFollowTrack(Structure constraintData, BlenderContext blenderContext) {
+        super(constraintData, blenderContext);
+    }
+
+    @Override
+    public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+        // TODO: implement 'Follow track' constraint
+        LOGGER.log(Level.WARNING, "'Follow track' constraint NOT implemented!");
+    }
 }

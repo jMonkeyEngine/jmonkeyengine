@@ -59,49 +59,49 @@ public class LightHelper extends AbstractBlenderHelper {
      * This constructor parses the given blender version and stores the result. Some functionalities may differ in
      * different blender versions.
      * @param blenderVersion
-     *        the version read from the blend file
+     *            the version read from the blend file
      * @param fixUpAxis
-     *        a variable that indicates if the Y asxis is the UP axis or not
+     *            a variable that indicates if the Y asxis is the UP axis or not
      */
     public LightHelper(String blenderVersion, boolean fixUpAxis) {
         super(blenderVersion, fixUpAxis);
     }
 
     public LightNode toLight(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
-    	LightNode result = (LightNode) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+        LightNode result = (LightNode) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
         if (result != null) {
             return result;
         }
         Light light = null;
         int type = ((Number) structure.getFieldValue("type")).intValue();
         switch (type) {
-            case 0://Lamp
-            	light = new PointLight();
+            case 0:// Lamp
+                light = new PointLight();
                 float distance = ((Number) structure.getFieldValue("dist")).floatValue();
                 ((PointLight) light).setRadius(distance);
                 break;
-            case 1://Sun
+            case 1:// Sun
                 LOGGER.log(Level.WARNING, "'Sun' lamp is not supported in jMonkeyEngine.");
                 break;
-            case 2://Spot
-            	light = new SpotLight();
-            	//range
-            	((SpotLight)light).setSpotRange(((Number) structure.getFieldValue("dist")).floatValue());
-            	//outer angle
-            	float outerAngle = ((Number) structure.getFieldValue("spotsize")).floatValue()*FastMath.DEG_TO_RAD * 0.5f;
-            	((SpotLight)light).setSpotOuterAngle(outerAngle);
-            	
-            	//inner angle
-            	float spotblend = ((Number) structure.getFieldValue("spotblend")).floatValue();
+            case 2:// Spot
+                light = new SpotLight();
+                // range
+                ((SpotLight) light).setSpotRange(((Number) structure.getFieldValue("dist")).floatValue());
+                // outer angle
+                float outerAngle = ((Number) structure.getFieldValue("spotsize")).floatValue() * FastMath.DEG_TO_RAD * 0.5f;
+                ((SpotLight) light).setSpotOuterAngle(outerAngle);
+
+                // inner angle
+                float spotblend = ((Number) structure.getFieldValue("spotblend")).floatValue();
                 spotblend = FastMath.clamp(spotblend, 0, 1);
                 float innerAngle = outerAngle * (1 - spotblend);
-            	((SpotLight)light).setSpotInnerAngle(innerAngle);
+                ((SpotLight) light).setSpotInnerAngle(innerAngle);
                 break;
-            case 3://Hemi
+            case 3:// Hemi
                 LOGGER.log(Level.WARNING, "'Hemi' lamp is not supported in jMonkeyEngine.");
                 break;
-            case 4://Area
-            	light = new DirectionalLight();
+            case 4:// Area
+                light = new DirectionalLight();
                 break;
             default:
                 throw new BlenderFileException("Unknown light source type: " + type);
@@ -115,9 +115,9 @@ public class LightHelper extends AbstractBlenderHelper {
         }
         return result;
     }
-    
+
     @Override
     public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-    	return (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0;
+        return (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0;
     }
 }

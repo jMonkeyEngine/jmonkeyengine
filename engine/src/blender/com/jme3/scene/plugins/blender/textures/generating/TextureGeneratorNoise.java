@@ -42,44 +42,44 @@ import com.jme3.texture.Image.Format;
  * @author Marcin Roguski (Kaelthas)
  */
 public class TextureGeneratorNoise extends TextureGenerator {
-	protected int noisedepth;
-	
-	/**
-	 * Constructor stores the given noise generator.
-	 * @param noiseGenerator
-	 *        the noise generator
-	 */
-	public TextureGeneratorNoise(NoiseGenerator noiseGenerator) {
-		super(noiseGenerator, Format.Luminance8);
-	}
-	
-	@Override
-	public void readData(Structure tex, BlenderContext blenderContext) {
-		super.readData(tex, blenderContext);
-		noisedepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
-	}
-	
-	@Override
-	public void getPixel(TexturePixel pixel, float x, float y, float z) {
-		int random = FastMath.rand.nextInt();
-		int val = random & 3;
+    protected int noisedepth;
 
-		int loop = noisedepth;
-		while (loop-- != 0) {
-			random >>= 2;
-			val *= random & 3;
-		}
-		pixel.intensity = FastMath.clamp(val, 0.0f, 1.0f);
-		if (colorBand != null) {
-			int colorbandIndex = (int) (pixel.intensity * 1000.0f);
-			pixel.red = colorBand[colorbandIndex][0];
-			pixel.green = colorBand[colorbandIndex][1];
-			pixel.blue = colorBand[colorbandIndex][2];
-			
-			this.applyBrightnessAndContrast(bacd, pixel);
-			pixel.alpha = colorBand[colorbandIndex][3];
-		} else {
-			this.applyBrightnessAndContrast(pixel, bacd.contrast, bacd.brightness);
-		}
-	}
+    /**
+     * Constructor stores the given noise generator.
+     * @param noiseGenerator
+     *            the noise generator
+     */
+    public TextureGeneratorNoise(NoiseGenerator noiseGenerator) {
+        super(noiseGenerator, Format.Luminance8);
+    }
+
+    @Override
+    public void readData(Structure tex, BlenderContext blenderContext) {
+        super.readData(tex, blenderContext);
+        noisedepth = ((Number) tex.getFieldValue("noisedepth")).intValue();
+    }
+
+    @Override
+    public void getPixel(TexturePixel pixel, float x, float y, float z) {
+        int random = FastMath.rand.nextInt();
+        int val = random & 3;
+
+        int loop = noisedepth;
+        while (loop-- != 0) {
+            random >>= 2;
+            val *= random & 3;
+        }
+        pixel.intensity = FastMath.clamp(val, 0.0f, 1.0f);
+        if (colorBand != null) {
+            int colorbandIndex = (int) (pixel.intensity * 1000.0f);
+            pixel.red = colorBand[colorbandIndex][0];
+            pixel.green = colorBand[colorbandIndex][1];
+            pixel.blue = colorBand[colorbandIndex][2];
+
+            this.applyBrightnessAndContrast(bacd, pixel);
+            pixel.alpha = colorBand[colorbandIndex][3];
+        } else {
+            this.applyBrightnessAndContrast(pixel, bacd.contrast, bacd.brightness);
+        }
+    }
 }

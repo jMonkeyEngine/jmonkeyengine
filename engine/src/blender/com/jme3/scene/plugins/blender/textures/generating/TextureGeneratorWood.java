@@ -41,54 +41,55 @@ import com.jme3.texture.Image.Format;
  * @author Marcin Roguski (Kaelthas)
  */
 public class TextureGeneratorWood extends TextureGenerator {
-	// tex->noisebasis2
-    protected static final int TEX_SIN = 0;
-    protected static final int TEX_SAW = 1;
-    protected static final int TEX_TRI = 2;
-    
+    // tex->noisebasis2
+    protected static final int  TEX_SIN       = 0;
+    protected static final int  TEX_SAW       = 1;
+    protected static final int  TEX_TRI       = 2;
+
     // tex->stype
-    protected static final int TEX_BAND = 0;
-    protected static final int TEX_RING = 1;
-    protected static final int TEX_BANDNOISE = 2;
-    protected static final int TEX_RINGNOISE = 3;
-    
+    protected static final int  TEX_BAND      = 0;
+    protected static final int  TEX_RING      = 1;
+    protected static final int  TEX_BANDNOISE = 2;
+    protected static final int  TEX_RINGNOISE = 3;
+
     // tex->noisetype
-    protected static final int TEX_NOISESOFT = 0;
-    protected static final int TEX_NOISEPERL = 1;
-    
+    protected static final int  TEX_NOISESOFT = 0;
+    protected static final int  TEX_NOISEPERL = 1;
+
     protected WoodIntensityData woodIntensityData;
-    
-	/**
-	 * Constructor stores the given noise generator.
-	 * @param noiseGenerator the noise generator
-	 */
-	public TextureGeneratorWood(NoiseGenerator noiseGenerator) {
-		super(noiseGenerator, Format.Luminance8);
-	}
-	
-	@Override
-	public void readData(Structure tex, BlenderContext blenderContext) {
-		super.readData(tex, blenderContext);
-		woodIntensityData = new WoodIntensityData(tex);
-	}
-	
-	@Override
-	public void getPixel(TexturePixel pixel, float x, float y, float z) {
-		pixel.intensity = this.woodIntensity(woodIntensityData, x, y, z);
-		
-		if (colorBand != null) {
-			int colorbandIndex = (int) (pixel.intensity * 1000.0f);
-			pixel.red = colorBand[colorbandIndex][0];
-			pixel.green = colorBand[colorbandIndex][1];
-			pixel.blue = colorBand[colorbandIndex][2];
-			
-			this.applyBrightnessAndContrast(bacd, pixel);
-			pixel.alpha = colorBand[colorbandIndex][3];
-		} else {
-			this.applyBrightnessAndContrast(pixel, bacd.contrast, bacd.brightness);
-		}
-	}
-	
+
+    /**
+     * Constructor stores the given noise generator.
+     * @param noiseGenerator
+     *            the noise generator
+     */
+    public TextureGeneratorWood(NoiseGenerator noiseGenerator) {
+        super(noiseGenerator, Format.Luminance8);
+    }
+
+    @Override
+    public void readData(Structure tex, BlenderContext blenderContext) {
+        super.readData(tex, blenderContext);
+        woodIntensityData = new WoodIntensityData(tex);
+    }
+
+    @Override
+    public void getPixel(TexturePixel pixel, float x, float y, float z) {
+        pixel.intensity = this.woodIntensity(woodIntensityData, x, y, z);
+
+        if (colorBand != null) {
+            int colorbandIndex = (int) (pixel.intensity * 1000.0f);
+            pixel.red = colorBand[colorbandIndex][0];
+            pixel.green = colorBand[colorbandIndex][1];
+            pixel.blue = colorBand[colorbandIndex][2];
+
+            this.applyBrightnessAndContrast(bacd, pixel);
+            pixel.alpha = colorBand[colorbandIndex][3];
+        } else {
+            this.applyBrightnessAndContrast(pixel, bacd.contrast, bacd.brightness);
+        }
+    }
+
     protected static WaveForm[] waveformFunctions = new WaveForm[3];
     static {
         waveformFunctions[0] = new WaveForm() {// sinus (TEX_SIN)
@@ -119,63 +120,66 @@ public class TextureGeneratorWood extends TextureGenerator {
     /**
      * Computes basic wood intensity value at x,y,z.
      * @param woodIntData
-     * @param x X coordinate of the texture pixel
-     * @param y Y coordinate of the texture pixel
-     * @param z Z coordinate of the texture pixel
+     * @param x
+     *            X coordinate of the texture pixel
+     * @param y
+     *            Y coordinate of the texture pixel
+     * @param z
+     *            Z coordinate of the texture pixel
      * @return wood intensity at position [x, y, z]
      */
     public float woodIntensity(WoodIntensityData woodIntData, float x, float y, float z) {
         float result;
 
-        switch(woodIntData.woodType) {
-	        case TEX_BAND:
-	        	result = woodIntData.waveformFunction.execute((x + y + z) * 10.0f);
-	        	break;
-	        case TEX_RING:
-	        	result = woodIntData.waveformFunction.execute((float) Math.sqrt(x * x + y * y + z * z) * 20.0f);
-	        	break;
-	        case TEX_BANDNOISE:
-	        	result = woodIntData.turbul * NoiseGenerator.NoiseFunctions.noise(x, y, z, woodIntData.noisesize, 0, woodIntData.noisebasis, woodIntData.isHard);
-	            result = woodIntData.waveformFunction.execute((x + y + z) * 10.0f + result);
-	        	break;
-	        case TEX_RINGNOISE:
-	        	result = woodIntData.turbul * NoiseGenerator.NoiseFunctions.noise(x, y, z, woodIntData.noisesize, 0, woodIntData.noisebasis, woodIntData.isHard);
-	            result = woodIntData.waveformFunction.execute((float) Math.sqrt(x * x + y * y + z * z) * 20.0f + result);
-	        	break;
-        	default:
-        		result = 0;
+        switch (woodIntData.woodType) {
+            case TEX_BAND:
+                result = woodIntData.waveformFunction.execute((x + y + z) * 10.0f);
+                break;
+            case TEX_RING:
+                result = woodIntData.waveformFunction.execute((float) Math.sqrt(x * x + y * y + z * z) * 20.0f);
+                break;
+            case TEX_BANDNOISE:
+                result = woodIntData.turbul * NoiseGenerator.NoiseFunctions.noise(x, y, z, woodIntData.noisesize, 0, woodIntData.noisebasis, woodIntData.isHard);
+                result = woodIntData.waveformFunction.execute((x + y + z) * 10.0f + result);
+                break;
+            case TEX_RINGNOISE:
+                result = woodIntData.turbul * NoiseGenerator.NoiseFunctions.noise(x, y, z, woodIntData.noisesize, 0, woodIntData.noisebasis, woodIntData.isHard);
+                result = woodIntData.waveformFunction.execute((float) Math.sqrt(x * x + y * y + z * z) * 20.0f + result);
+                break;
+            default:
+                result = 0;
         }
         return result;
     }
-    
+
     /**
      * A class that collects the data for wood intensity calculations.
      * @author Marcin Roguski (Kaelthas)
      */
     private static class WoodIntensityData {
-    	public final WaveForm waveformFunction;
-    	public final int noisebasis;
-    	public final float noisesize;
-    	public final float turbul;
-    	public final int noiseType;
-    	public final int woodType;
-    	public final boolean isHard;
-        
-    	public WoodIntensityData(Structure tex) {
-    		int waveform = ((Number) tex.getFieldValue("noisebasis2")).intValue();//wave form: TEX_SIN=0, TEX_SAW=1, TEX_TRI=2
-    		if (waveform > TEX_TRI || waveform < TEX_SIN) {
+        public final WaveForm waveformFunction;
+        public final int      noisebasis;
+        public final float    noisesize;
+        public final float    turbul;
+        public final int      noiseType;
+        public final int      woodType;
+        public final boolean  isHard;
+
+        public WoodIntensityData(Structure tex) {
+            int waveform = ((Number) tex.getFieldValue("noisebasis2")).intValue();// wave form: TEX_SIN=0, TEX_SAW=1, TEX_TRI=2
+            if (waveform > TEX_TRI || waveform < TEX_SIN) {
                 waveform = 0; // check to be sure noisebasis2 is initialized ahead of time
             }
-    		waveformFunction = waveformFunctions[waveform];
-    		noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
+            waveformFunction = waveformFunctions[waveform];
+            noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
             woodType = ((Number) tex.getFieldValue("stype")).intValue();
             noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
             turbul = ((Number) tex.getFieldValue("turbul")).floatValue();
             noiseType = ((Number) tex.getFieldValue("noisetype")).intValue();
             isHard = noiseType != TEX_NOISESOFT;
-		}
+        }
     }
-    
+
     protected static interface WaveForm {
 
         float execute(float x);

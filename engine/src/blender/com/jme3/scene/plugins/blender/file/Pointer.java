@@ -45,20 +45,20 @@ public class Pointer {
     /** The blender context. */
     private BlenderContext blenderContext;
     /** The level of the pointer. */
-    private int pointerLevel;
+    private int            pointerLevel;
     /** The address in file it points to. */
-    private long oldMemoryAddress;
+    private long           oldMemoryAddress;
     /** This variable indicates if the field is a function pointer. */
-    public boolean function;
+    public boolean         function;
 
     /**
      * Constructr. Stores the basic data about the pointer.
      * @param pointerLevel
-     *        the level of the pointer
+     *            the level of the pointer
      * @param function
-     *        this variable indicates if the field is a function pointer
+     *            this variable indicates if the field is a function pointer
      * @param blenderContext
-     *        the repository f data; used in fetching the value that the pointer points
+     *            the repository f data; used in fetching the value that the pointer points
      */
     public Pointer(int pointerLevel, boolean function, BlenderContext blenderContext) {
         this.pointerLevel = pointerLevel;
@@ -70,7 +70,7 @@ public class Pointer {
      * This method fills the pointer with its address value (it doesn't get the actual data yet. Use the 'fetch' method
      * for this.
      * @param inputStream
-     *        the stream we read the pointer value from
+     *            the stream we read the pointer value from
      */
     public void fill(BlenderInputStream inputStream) {
         oldMemoryAddress = inputStream.readPointer();
@@ -79,10 +79,10 @@ public class Pointer {
     /**
      * This method fetches the data stored under the given address.
      * @param inputStream
-     *        the stream we read data from
+     *            the stream we read data from
      * @return the data read from the file
      * @throws BlenderFileException
-     *         this exception is thrown when the blend file structure is somehow invalid or corrupted
+     *             this exception is thrown when the blend file structure is somehow invalid or corrupted
      */
     public List<Structure> fetchData(BlenderInputStream inputStream) throws BlenderFileException {
         if (oldMemoryAddress == 0) {
@@ -90,9 +90,8 @@ public class Pointer {
         }
         List<Structure> structures = null;
         FileBlockHeader dataFileBlock = blenderContext.getFileBlock(oldMemoryAddress);
-        if(dataFileBlock == null) {
-        	throw new BlenderFileException("No data stored for address: " +oldMemoryAddress + 
-        			". Rarely blender makes mistakes when storing data. Try resaving the model after making minor changes. This usually helps.");
+        if (dataFileBlock == null) {
+            throw new BlenderFileException("No data stored for address: " + oldMemoryAddress + ". Rarely blender makes mistakes when storing data. Try resaving the model after making minor changes. This usually helps.");
         }
         if (pointerLevel > 1) {
             int pointersAmount = dataFileBlock.getSize() / inputStream.getPointerSize() * dataFileBlock.getCount();
@@ -108,12 +107,12 @@ public class Pointer {
                         structures.addAll(p.fetchData(inputStream));
                     }
                 } else {
-                	//it is necessary to put null's if the pointer is null, ie. in materials array that is attached to the mesh, the index
-                	//of the material is important, that is why we need null's to indicate that some materials' slots are empty
-                	if(structures == null) {
-                		structures = new ArrayList<Structure>();
-                	}
-                	structures.add(null);
+                    // it is necessary to put null's if the pointer is null, ie. in materials array that is attached to the mesh, the index
+                    // of the material is important, that is why we need null's to indicate that some materials' slots are empty
+                    if (structures == null) {
+                        structures = new ArrayList<Structure>();
+                    }
+                    structures.add(null);
                 }
             }
         } else {
@@ -144,7 +143,7 @@ public class Pointer {
     public boolean isNull() {
         return oldMemoryAddress == 0;
     }
-    
+
     /**
      * This method indicates if this is a null-pointer or not.
      * @return <b>true</b> if the pointer is not null and <b>false</b> otherwise

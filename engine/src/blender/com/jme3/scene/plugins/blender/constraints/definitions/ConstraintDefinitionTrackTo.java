@@ -13,15 +13,15 @@ import com.jme3.scene.plugins.blender.file.Structure;
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class ConstraintDefinitionTrackTo extends ConstraintDefinition {
-	private static final Logger LOGGER = Logger.getLogger(ConstraintDefinitionTrackTo.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ConstraintDefinitionTrackTo.class.getName());
 
-	public ConstraintDefinitionTrackTo(Structure constraintData, BlenderContext blenderContext) {
-		super(constraintData, blenderContext);
-	}
-	
-	@Override
-	public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
-		// TODO: implement 'Track to' constraint
-		LOGGER.log(Level.WARNING, "'Track to' constraint NOT implemented!");
-	}
+    public ConstraintDefinitionTrackTo(Structure constraintData, BlenderContext blenderContext) {
+        super(constraintData, blenderContext);
+    }
+
+    @Override
+    public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+        // TODO: implement 'Track to' constraint
+        LOGGER.log(Level.WARNING, "'Track to' constraint NOT implemented!");
+    }
 }

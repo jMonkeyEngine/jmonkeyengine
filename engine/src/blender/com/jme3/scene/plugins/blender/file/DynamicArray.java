@@ -37,12 +37,12 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
  * An array that can be dynamically modified/
  * @author Marcin Roguski
  * @param <T>
- *        the type of stored data in the array
+ *            the type of stored data in the array
  */
 public class DynamicArray<T> implements Cloneable {
 
     /** An array object that holds the required data. */
-    private T[] array;
+    private T[]   array;
     /**
      * This table holds the sizes of dimetions of the dynamic table. It's length specifies the table dimension or a
      * pointer level. For example: if tableSizes.length == 3 then it either specifies a dynamic table of fixed lengths:
@@ -53,9 +53,9 @@ public class DynamicArray<T> implements Cloneable {
     /**
      * Constructor. Builds an empty array of the specified sizes.
      * @param tableSizes
-     *        the sizes of the table
+     *            the sizes of the table
      * @throws BlenderFileException
-     *         an exception is thrown if one of the sizes is not a positive number
+     *             an exception is thrown if one of the sizes is not a positive number
      */
     @SuppressWarnings("unchecked")
     public DynamicArray(int[] tableSizes) throws BlenderFileException {
@@ -73,9 +73,9 @@ public class DynamicArray<T> implements Cloneable {
     /**
      * Constructor. Builds an empty array of the specified sizes.
      * @param tableSizes
-     *        the sizes of the table
+     *            the sizes of the table
      * @throws BlenderFileException
-     *         an exception is thrown if one of the sizes is not a positive number
+     *             an exception is thrown if one of the sizes is not a positive number
      */
     public DynamicArray(int[] tableSizes, T[] data) throws BlenderFileException {
         this.tableSizes = tableSizes;
@@ -101,7 +101,7 @@ public class DynamicArray<T> implements Cloneable {
      * This method returns a value on the specified position. The dimension of the table is not taken into
      * consideration.
      * @param position
-     *        the position of the data
+     *            the position of the data
      * @return required data
      */
     public T get(int position) {
@@ -112,7 +112,7 @@ public class DynamicArray<T> implements Cloneable {
      * This method returns a value on the specified position in multidimensional array. Be careful not to exceed the
      * table boundaries. Check the table's dimension first.
      * @param position
-     *        the position of the data indices of data position
+     *            the position of the data indices of data position
      * @return required data required data
      */
     public T get(int... position) {
@@ -138,8 +138,8 @@ public class DynamicArray<T> implements Cloneable {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        if (array instanceof Character[]) {//in case of character array we convert it to String
-            for (int i = 0; i < array.length && (Character) array[i] != '\0'; ++i) {//strings are terminater with '0'
+        if (array instanceof Character[]) {// in case of character array we convert it to String
+            for (int i = 0; i < array.length && (Character) array[i] != '\0'; ++i) {// strings are terminater with '0'
                 result.append(array[i]);
             }
         } else {

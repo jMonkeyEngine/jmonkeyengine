@@ -42,39 +42,37 @@ import java.util.Map;
  */
 public class DnaBlockData {
 
-    private static final int SDNA_ID = 'S' << 24 | 'D' << 16 | 'N' << 8 | 'A';	//SDNA
-    private static final int NAME_ID = 'N' << 24 | 'A' << 16 | 'M' << 8 | 'E';	//NAME
-    private static final int TYPE_ID = 'T' << 24 | 'Y' << 16 | 'P' << 8 | 'E';	//TYPE
-    private static final int TLEN_ID = 'T' << 24 | 'L' << 16 | 'E' << 8 | 'N';	//TLEN
-    private static final int STRC_ID = 'S' << 24 | 'T' << 16 | 'R' << 8 | 'C';	//STRC
+    private static final int             SDNA_ID = 'S' << 24 | 'D' << 16 | 'N' << 8 | 'A'; // SDNA
+    private static final int             NAME_ID = 'N' << 24 | 'A' << 16 | 'M' << 8 | 'E'; // NAME
+    private static final int             TYPE_ID = 'T' << 24 | 'Y' << 16 | 'P' << 8 | 'E'; // TYPE
+    private static final int             TLEN_ID = 'T' << 24 | 'L' << 16 | 'E' << 8 | 'N'; // TLEN
+    private static final int             STRC_ID = 'S' << 24 | 'T' << 16 | 'R' << 8 | 'C'; // STRC
     /** Structures available inside the file. */
-    private final Structure[] structures;
+    private final Structure[]            structures;
     /** A map that helps finding a structure by type. */
     private final Map<String, Structure> structuresMap;
 
     /**
      * Constructor. Loads the block from the given stream during instance creation.
      * @param inputStream
-     *        the stream we read the block from
+     *            the stream we read the block from
      * @param blenderContext
-     *        the blender context
+     *            the blender context
      * @throws BlenderFileException
-     *         this exception is throw if the blend file is invalid or somehow corrupted
+     *             this exception is throw if the blend file is invalid or somehow corrupted
      */
     public DnaBlockData(BlenderInputStream inputStream, BlenderContext blenderContext) throws BlenderFileException {
         int identifier;
 
-        //reading 'SDNA' identifier
-        identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16
-                | inputStream.readByte() << 8 | inputStream.readByte();
+        // reading 'SDNA' identifier
+        identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16 | inputStream.readByte() << 8 | inputStream.readByte();
 
         if (identifier != SDNA_ID) {
             throw new BlenderFileException("Invalid identifier! '" + this.toString(SDNA_ID) + "' expected and found: " + this.toString(identifier));
         }
 
-        //reading names
-        identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16
-                | inputStream.readByte() << 8 | inputStream.readByte();
+        // reading names
+        identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16 | inputStream.readByte() << 8 | inputStream.readByte();
         if (identifier != NAME_ID) {
             throw new BlenderFileException("Invalid identifier! '" + this.toString(NAME_ID) + "' expected and found: " + this.toString(identifier));
         }
@@ -87,10 +85,9 @@ public class DnaBlockData {
             names[i] = inputStream.readString();
         }
 
-        //reding types
+        // reding types
         inputStream.alignPosition(4);
-        identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16
-                | inputStream.readByte() << 8 | inputStream.readByte();
+        identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16 | inputStream.readByte() << 8 | inputStream.readByte();
         if (identifier != TYPE_ID) {
             throw new BlenderFileException("Invalid identifier! '" + this.toString(TYPE_ID) + "' expected and found: " + this.toString(identifier));
         }
@@ -103,22 +100,20 @@ public class DnaBlockData {
             types[i] = inputStream.readString();
         }
 
-        //reading lengths
+        // reading lengths
         inputStream.alignPosition(4);
-        identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16
-                | inputStream.readByte() << 8 | inputStream.readByte();
+        identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16 | inputStream.readByte() << 8 | inputStream.readByte();
         if (identifier != TLEN_ID) {
             throw new BlenderFileException("Invalid identifier! '" + this.toString(TLEN_ID) + "' expected and found: " + this.toString(identifier));
         }
-        int[] lengths = new int[amount];//theamount is the same as int types
+        int[] lengths = new int[amount];// theamount is the same as int types
         for (int i = 0; i < amount; ++i) {
             lengths[i] = inputStream.readShort();
         }
 
-        //reading structures
+        // reading structures
         inputStream.alignPosition(4);
-        identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16
-                | inputStream.readByte() << 8 | inputStream.readByte();
+        identifier = inputStream.readByte() << 24 | inputStream.readByte() << 16 | inputStream.readByte() << 8 | inputStream.readByte();
         if (identifier != STRC_ID) {
             throw new BlenderFileException("Invalid identifier! '" + this.toString(STRC_ID) + "' expected and found: " + this.toString(identifier));
         }
@@ -148,7 +143,7 @@ public class DnaBlockData {
     /**
      * This method returns the structure of the given index.
      * @param index
-     *        the index of the structure
+     *            the index of the structure
      * @return the structure of the given index
      */
     public Structure getStructure(int index) {
@@ -162,7 +157,7 @@ public class DnaBlockData {
     /**
      * This method returns a structure of the given name. If the name does not exists then null is returned.
      * @param name
-     *        the name of the structure
+     *            the name of the structure
      * @return the required structure or null if the given name is inapropriate
      */
     public Structure getStructure(String name) {
@@ -176,7 +171,7 @@ public class DnaBlockData {
     /**
      * This method indicates if the structure of the given name exists.
      * @param name
-     *        the name of the structure
+     *            the name of the structure
      * @return true if the structure exists and false otherwise
      */
     public boolean hasStructure(String name) {
@@ -186,7 +181,7 @@ public class DnaBlockData {
     /**
      * This method converts the given identifier code to string.
      * @param code
-     *        the code taht is to be converted
+     *            the code taht is to be converted
      * @return the string value of the identifier
      */
     private String toString(int code) {

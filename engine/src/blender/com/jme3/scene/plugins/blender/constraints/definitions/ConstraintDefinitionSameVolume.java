@@ -12,16 +12,16 @@ import com.jme3.scene.plugins.blender.file.Structure;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class ConstraintDefinitionSameVolume extends ConstraintDefinition {
-	private static final Logger LOGGER = Logger.getLogger(ConstraintDefinitionSameVolume.class.getName());
-	
-	public ConstraintDefinitionSameVolume(Structure constraintData, BlenderContext blenderContext) {
-		super(constraintData, blenderContext);
-	}
-	
-	@Override
-	public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
-		// TODO: implement 'Same volume' constraint
-		LOGGER.log(Level.WARNING, "'Same volume' constraint NOT implemented!");
-	}
+/* package */class ConstraintDefinitionSameVolume extends ConstraintDefinition {
+    private static final Logger LOGGER = Logger.getLogger(ConstraintDefinitionSameVolume.class.getName());
+
+    public ConstraintDefinitionSameVolume(Structure constraintData, BlenderContext blenderContext) {
+        super(constraintData, blenderContext);
+    }
+
+    @Override
+    public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+        // TODO: implement 'Same volume' constraint
+        LOGGER.log(Level.WARNING, "'Same volume' constraint NOT implemented!");
+    }
 }

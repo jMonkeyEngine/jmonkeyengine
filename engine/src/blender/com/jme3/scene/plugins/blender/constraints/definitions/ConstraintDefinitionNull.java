@@ -8,14 +8,14 @@ import com.jme3.scene.plugins.blender.file.Structure;
  * This class represents 'Null' constraint type in blender.
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class ConstraintDefinitionNull extends ConstraintDefinition {
+/* package */class ConstraintDefinitionNull extends ConstraintDefinition {
 
-	public ConstraintDefinitionNull(Structure constraintData, BlenderContext blenderContext) {
-		super(constraintData, blenderContext);
-	}
-	
-	@Override
-	public void bake(Transform ownerTransform, Transform targetTransform, float influence) { 
-		//null constraint does nothing so no need to implement this one
-	}
+    public ConstraintDefinitionNull(Structure constraintData, BlenderContext blenderContext) {
+        super(constraintData, blenderContext);
+    }
+
+    @Override
+    public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+        // null constraint does nothing so no need to implement this one
+    }
 }

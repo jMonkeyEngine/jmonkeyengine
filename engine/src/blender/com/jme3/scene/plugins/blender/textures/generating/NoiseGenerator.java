@@ -51,37 +51,37 @@ import java.util.logging.Logger;
  * It is only used by TextureHelper.
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class NoiseGenerator extends AbstractBlenderHelper {
-    private static final Logger LOGGER = Logger.getLogger(NoiseGenerator.class.getName());
-    
+/* package */class NoiseGenerator extends AbstractBlenderHelper {
+    private static final Logger LOGGER       = Logger.getLogger(NoiseGenerator.class.getName());
+
     // tex->stype
-    protected static final int TEX_PLASTIC = 0;
-    protected static final int TEX_WALLIN = 1;
-    protected static final int TEX_WALLOUT = 2;
+    protected static final int  TEX_PLASTIC  = 0;
+    protected static final int  TEX_WALLIN   = 1;
+    protected static final int  TEX_WALLOUT  = 2;
 
     // musgrave stype
-    protected static final int TEX_MFRACTAL = 0;
-    protected static final int TEX_RIDGEDMF = 1;
-    protected static final int TEX_HYBRIDMF = 2;
-    protected static final int TEX_FBM = 3;
-    protected static final int TEX_HTERRAIN = 4;
+    protected static final int  TEX_MFRACTAL = 0;
+    protected static final int  TEX_RIDGEDMF = 1;
+    protected static final int  TEX_HYBRIDMF = 2;
+    protected static final int  TEX_FBM      = 3;
+    protected static final int  TEX_HTERRAIN = 4;
 
     // keyblock->type
-    protected static final int KEY_LINEAR = 0;
-    protected static final int KEY_CARDINAL = 1;
-    protected static final int KEY_BSPLINE = 2;
+    protected static final int  KEY_LINEAR   = 0;
+    protected static final int  KEY_CARDINAL = 1;
+    protected static final int  KEY_BSPLINE  = 2;
 
     // CONSTANTS (read from file)
-    protected static float[] hashpntf;
-    protected static short[] hash;
-    protected static float[] hashvectf;
-    protected static short[] p;
-    protected static float[][] g;
+    protected static float[]    hashpntf;
+    protected static short[]    hash;
+    protected static float[]    hashvectf;
+    protected static short[]    p;
+    protected static float[][]  g;
 
     /**
      * Constructor. Stores the blender version number and loads the constants needed for computations.
      * @param blenderVersion
-     *        the number of blender version
+     *            the number of blender version
      */
     public NoiseGenerator(String blenderVersion) {
         super(blenderVersion, false);
@@ -116,11 +116,11 @@ import java.util.logging.Logger;
             }
         }
     }
-    
-    protected static Map<Integer, NoiseFunction> noiseFunctions = new HashMap<Integer, NoiseFunction>();
+
+    protected static Map<Integer, NoiseFunction>    noiseFunctions    = new HashMap<Integer, NoiseFunction>();
     static {
         noiseFunctions.put(Integer.valueOf(0), new NoiseFunction() {
-        	// originalBlenderNoise
+            // originalBlenderNoise
             public float execute(float x, float y, float z) {
                 return NoiseFunctions.originalBlenderNoise(x, y, z);
             }
@@ -130,7 +130,7 @@ import java.util.logging.Logger;
             }
         });
         noiseFunctions.put(Integer.valueOf(1), new NoiseFunction() {
-        	// orgPerlinNoise
+            // orgPerlinNoise
             public float execute(float x, float y, float z) {
                 return 0.5f + 0.5f * NoiseFunctions.noise3Perlin(x, y, z);
             }
@@ -140,7 +140,7 @@ import java.util.logging.Logger;
             }
         });
         noiseFunctions.put(Integer.valueOf(2), new NoiseFunction() {
-        	// newPerlin
+            // newPerlin
             public float execute(float x, float y, float z) {
                 return 0.5f + 0.5f * NoiseFunctions.newPerlin(x, y, z);
             }
@@ -150,7 +150,7 @@ import java.util.logging.Logger;
             }
         });
         noiseFunctions.put(Integer.valueOf(3), new NoiseFunction() {
-        	// voronoi_F1
+            // voronoi_F1
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
@@ -164,7 +164,7 @@ import java.util.logging.Logger;
             }
         });
         noiseFunctions.put(Integer.valueOf(4), new NoiseFunction() {
-        	// voronoi_F2
+            // voronoi_F2
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
@@ -178,7 +178,7 @@ import java.util.logging.Logger;
             }
         });
         noiseFunctions.put(Integer.valueOf(5), new NoiseFunction() {
-        	// voronoi_F3
+            // voronoi_F3
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
@@ -192,7 +192,7 @@ import java.util.logging.Logger;
             }
         });
         noiseFunctions.put(Integer.valueOf(6), new NoiseFunction() {
-        	// voronoi_F4
+            // voronoi_F4
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
@@ -206,7 +206,7 @@ import java.util.logging.Logger;
             }
         });
         noiseFunctions.put(Integer.valueOf(7), new NoiseFunction() {
-        	// voronoi_F1F2
+            // voronoi_F1F2
             public float execute(float x, float y, float z) {
                 float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
@@ -220,7 +220,7 @@ import java.util.logging.Logger;
             }
         });
         noiseFunctions.put(Integer.valueOf(8), new NoiseFunction() {
-        	// voronoi_Cr
+            // voronoi_Cr
             public float execute(float x, float y, float z) {
                 float t = 10 * noiseFunctions.get(Integer.valueOf(7)).execute(x, y, z);// voronoi_F1F2
                 return t > 1.0f ? 1.0f : t;
@@ -232,7 +232,7 @@ import java.util.logging.Logger;
             }
         });
         noiseFunctions.put(Integer.valueOf(14), new NoiseFunction() {
-        	// cellNoise
+            // cellNoise
             public float execute(float x, float y, float z) {
                 int xi = (int) Math.floor(x);
                 int yi = (int) Math.floor(y);
@@ -252,25 +252,25 @@ import java.util.logging.Logger;
 
     static {
         distanceFunctions.put(Integer.valueOf(0), new DistanceFunction() {
-        	// real distance
+            // real distance
             public float execute(float x, float y, float z, float e) {
                 return (float) Math.sqrt(x * x + y * y + z * z);
             }
         });
         distanceFunctions.put(Integer.valueOf(1), new DistanceFunction() {
-        	// distance squared
+            // distance squared
             public float execute(float x, float y, float z, float e) {
                 return x * x + y * y + z * z;
             }
         });
         distanceFunctions.put(Integer.valueOf(2), new DistanceFunction() {
-        	// manhattan/taxicab/cityblock distance
+            // manhattan/taxicab/cityblock distance
             public float execute(float x, float y, float z, float e) {
                 return FastMath.abs(x) + FastMath.abs(y) + FastMath.abs(z);
             }
         });
         distanceFunctions.put(Integer.valueOf(3), new DistanceFunction() {
-        	// Chebychev
+            // Chebychev
             public float execute(float x, float y, float z, float e) {
                 x = FastMath.abs(x);
                 y = FastMath.abs(y);
@@ -280,14 +280,14 @@ import java.util.logging.Logger;
             }
         });
         distanceFunctions.put(Integer.valueOf(4), new DistanceFunction() {
-        	// Minkovsky, preset exponent 0.5 (MinkovskyH)
+            // Minkovsky, preset exponent 0.5 (MinkovskyH)
             public float execute(float x, float y, float z, float e) {
                 float d = (float) (Math.sqrt(FastMath.abs(x)) + Math.sqrt(FastMath.abs(y)) + Math.sqrt(FastMath.abs(z)));
                 return d * d;
             }
         });
         distanceFunctions.put(Integer.valueOf(5), new DistanceFunction() {
-        	// Minkovsky, preset exponent 0.25 (Minkovsky4)
+            // Minkovsky, preset exponent 0.25 (Minkovsky4)
             public float execute(float x, float y, float z, float e) {
                 x *= x;
                 y *= y;
@@ -296,13 +296,13 @@ import java.util.logging.Logger;
             }
         });
         distanceFunctions.put(Integer.valueOf(6), new DistanceFunction() {
-        	// Minkovsky, general case
+            // Minkovsky, general case
             public float execute(float x, float y, float z, float e) {
                 return (float) Math.pow(Math.pow(FastMath.abs(x), e) + Math.pow(FastMath.abs(y), e) + Math.pow(FastMath.abs(z), e), 1.0f / e);
             }
         });
     }
-    
+
     protected static Map<Integer, MusgraveFunction> musgraveFunctions = new HashMap<Integer, NoiseGenerator.MusgraveFunction>();
     static {
         musgraveFunctions.put(Integer.valueOf(TEX_MFRACTAL), new MusgraveFunction() {
@@ -460,64 +460,64 @@ import java.util.logging.Logger;
             }
         });
     }
-    
+
     public static class NoiseFunctions {
-    	public static float noise(float x, float y, float z, float noiseSize, int noiseDepth, int noiseBasis, boolean isHard) {
-    		NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noiseBasis));
-    		if (abstractNoiseFunc == null) {
-	            abstractNoiseFunc = noiseFunctions.get(0);
-	            noiseBasis = 0;
-	        }
-    		
-    		if (noiseBasis == 0) {
-    			++x;
-	            ++y;
-	            ++z;
-	        }
+        public static float noise(float x, float y, float z, float noiseSize, int noiseDepth, int noiseBasis, boolean isHard) {
+            NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noiseBasis));
+            if (abstractNoiseFunc == null) {
+                abstractNoiseFunc = noiseFunctions.get(0);
+                noiseBasis = 0;
+            }
 
-	        if (noiseSize != 0.0) {
-	            noiseSize = 1.0f / noiseSize;
-	            x *= noiseSize;
-	            y *= noiseSize;
-	            z *= noiseSize;
-	        }
-	        float result = abstractNoiseFunc.execute(x, y, z);
-	        return isHard ? Math.abs(2.0f * result - 1.0f) : result;
-    	}
-    	
-    	public static float turbulence(float x, float y, float z, float noiseSize, int noiseDepth, int noiseBasis, boolean isHard) {
-    		NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noiseBasis));
-    		if (abstractNoiseFunc == null) {
-	            abstractNoiseFunc = noiseFunctions.get(0);
-	            noiseBasis = 0;
-	        }
-    		
-    		if (noiseBasis == 0) {
-	            ++x;
-	            ++y;
-	            ++z;
-	        }
-	        if (noiseSize != 0.0) {
-	            noiseSize = 1.0f / noiseSize;
-	            x *= noiseSize;
-	            y *= noiseSize;
-	            z *= noiseSize;
-	        }
-	        
-	        float sum = 0, t, amp = 1, fscale = 1;
-	        for (int i = 0; i <= noiseDepth; ++i, amp *= 0.5, fscale *= 2) {
-	            t = abstractNoiseFunc.execute(fscale * x, fscale * y, fscale * z);
-	            if (isHard) {
-	                t = FastMath.abs(2.0f * t - 1.0f);
-	            }
-	            sum += t * amp;
-	        }
+            if (noiseBasis == 0) {
+                ++x;
+                ++y;
+                ++z;
+            }
 
-	        sum *= (float) (1 << noiseDepth) / (float) ((1 << noiseDepth + 1) - 1);
-	        return sum;
-    	}
-    	
-    	/**
+            if (noiseSize != 0.0) {
+                noiseSize = 1.0f / noiseSize;
+                x *= noiseSize;
+                y *= noiseSize;
+                z *= noiseSize;
+            }
+            float result = abstractNoiseFunc.execute(x, y, z);
+            return isHard ? Math.abs(2.0f * result - 1.0f) : result;
+        }
+
+        public static float turbulence(float x, float y, float z, float noiseSize, int noiseDepth, int noiseBasis, boolean isHard) {
+            NoiseFunction abstractNoiseFunc = noiseFunctions.get(Integer.valueOf(noiseBasis));
+            if (abstractNoiseFunc == null) {
+                abstractNoiseFunc = noiseFunctions.get(0);
+                noiseBasis = 0;
+            }
+
+            if (noiseBasis == 0) {
+                ++x;
+                ++y;
+                ++z;
+            }
+            if (noiseSize != 0.0) {
+                noiseSize = 1.0f / noiseSize;
+                x *= noiseSize;
+                y *= noiseSize;
+                z *= noiseSize;
+            }
+
+            float sum = 0, t, amp = 1, fscale = 1;
+            for (int i = 0; i <= noiseDepth; ++i, amp *= 0.5, fscale *= 2) {
+                t = abstractNoiseFunc.execute(fscale * x, fscale * y, fscale * z);
+                if (isHard) {
+                    t = FastMath.abs(2.0f * t - 1.0f);
+                }
+                sum += t * amp;
+            }
+
+            sum *= (float) (1 << noiseDepth) / (float) ((1 << noiseDepth + 1) - 1);
+            return sum;
+        }
+
+        /**
          * Not 'pure' Worley, but the results are virtually the same. Returns distances in da and point coords in pa
          */
         public static void voronoi(float x, float y, float z, float[] da, float[] pa, float distanceExponent, int distanceType) {
@@ -531,7 +531,7 @@ import java.util.logging.Logger;
             int xi = (int) FastMath.floor(x);
             int yi = (int) FastMath.floor(y);
             int zi = (int) FastMath.floor(z);
-            da[0] = da[1] = da[2] = da[3] = Float.MAX_VALUE;//1e10f;
+            da[0] = da[1] = da[2] = da[3] = Float.MAX_VALUE;// 1e10f;
             for (int i = xi - 1; i <= xi + 1; ++i) {
                 for (int j = yi - 1; j <= yi + 1; ++j) {
                     for (int k = zi - 1; k <= zi + 1; ++k) {
@@ -589,7 +589,7 @@ import java.util.logging.Logger;
                 }
             }
         }
-        
+
         // instead of adding another permutation array, just use hash table defined above
         public static float newPerlin(float x, float y, float z) {
             int A, AA, AB, B, BA, BB;
@@ -598,7 +598,7 @@ import java.util.logging.Logger;
             x -= floorX;
             y -= floorY;
             z -= floorZ;
-            //computing fading curves
+            // computing fading curves
             floorX = NoiseMath.npfade(x);
             floorY = NoiseMath.npfade(y);
             floorZ = NoiseMath.npfade(z);
@@ -608,14 +608,8 @@ import java.util.logging.Logger;
             B = hash[intX + 1] + intY;
             BA = hash[B] + intZ;
             BB = hash[B + 1] + intZ;
-            return  NoiseMath.lerp(floorZ, NoiseMath.lerp(floorY, NoiseMath.lerp(floorX, NoiseMath.grad(hash[AA], x, y, z),
-            		NoiseMath.grad(hash[BA], x - 1, y, z)),
-            		NoiseMath.lerp(floorX, NoiseMath.grad(hash[AB], x, y - 1, z),
-            		NoiseMath.grad(hash[BB], x - 1, y - 1, z))),
-            		NoiseMath.lerp(floorY, NoiseMath.lerp(floorX, NoiseMath.grad(hash[AA + 1], x, y, z - 1),
-            		NoiseMath.grad(hash[BA + 1], x - 1, y, z - 1)),
-            		NoiseMath.lerp(floorX, NoiseMath.grad(hash[AB + 1], x, y - 1, z - 1), 
-            		NoiseMath.grad(hash[BB + 1], x - 1, y - 1, z - 1))));
+            return NoiseMath.lerp(floorZ, NoiseMath.lerp(floorY, NoiseMath.lerp(floorX, NoiseMath.grad(hash[AA], x, y, z), NoiseMath.grad(hash[BA], x - 1, y, z)), NoiseMath.lerp(floorX, NoiseMath.grad(hash[AB], x, y - 1, z), NoiseMath.grad(hash[BB], x - 1, y - 1, z))),
+                    NoiseMath.lerp(floorY, NoiseMath.lerp(floorX, NoiseMath.grad(hash[AA + 1], x, y, z - 1), NoiseMath.grad(hash[BA + 1], x - 1, y, z - 1)), NoiseMath.lerp(floorX, NoiseMath.grad(hash[AB + 1], x, y - 1, z - 1), NoiseMath.grad(hash[BB + 1], x - 1, y - 1, z - 1))));
         }
 
         public static float noise3Perlin(float x, float y, float z) {
@@ -624,13 +618,13 @@ import java.util.logging.Logger;
             int bx1 = bx0 + 1 & 0xFF;
             float rx0 = t - (int) t;
             float rx1 = rx0 - 1.0f;
-            
+
             t = y + 10000.0f;
             int by0 = (int) t & 0xFF;
             int by1 = by0 + 1 & 0xFF;
             float ry0 = t - (int) t;
             float ry1 = ry0 - 1.0f;
-            
+
             t = z + 10000.0f;
             int bz0 = (int) t & 0xFF;
             int bz1 = bz0 + 1 & 0xFF;
@@ -685,7 +679,7 @@ import java.util.logging.Logger;
             int ix = (int) Math.floor(x);
             int iy = (int) Math.floor(y);
             int iz = (int) Math.floor(z);
-            
+
             float ox = x - ix;
             float oy = y - iy;
             float oz = z - iz;
@@ -707,24 +701,23 @@ import java.util.logging.Logger;
             cn4 = 1.0f - 3.0f * cn4 - 2.0f * cn4 * jx;
             cn5 = 1.0f - 3.0f * cn5 - 2.0f * cn5 * jy;
             cn6 = 1.0f - 3.0f * cn6 - 2.0f * cn6 * jz;
-            float[] cn = new float[] {cn1 * cn2 * cn3, cn1 * cn2 * cn6, cn1 * cn5 * cn3, cn1 * cn5 * cn6,
-					  cn4 * cn2 * cn3, cn4 * cn2 * cn6, cn4 * cn5 * cn3, cn4 * cn5 * cn6,};
-            
+            float[] cn = new float[] { cn1 * cn2 * cn3, cn1 * cn2 * cn6, cn1 * cn5 * cn3, cn1 * cn5 * cn6, cn4 * cn2 * cn3, cn4 * cn2 * cn6, cn4 * cn5 * cn3, cn4 * cn5 * cn6, };
+
             int b00 = hash[hash[ix & 0xFF] + (iy & 0xFF)];
             int b01 = hash[hash[ix & 0xFF] + (iy + 1 & 0xFF)];
             int b10 = hash[hash[ix + 1 & 0xFF] + (iy & 0xFF)];
             int b11 = hash[hash[ix + 1 & 0xFF] + (iy + 1 & 0xFF)];
-            int[] b1 = new int[] {b00, b00, b01, b01, b10, b10, b11, b11};
-            
-            int[] b2 = new int[] {iz & 0xFF, iz + 1 & 0xFF};
-            
-            float[] xFactor = new float[] {ox, ox, ox, ox, jx, jx, jx, jx};
-            float[] yFactor = new float[] {oy, oy, jy, jy, oy, oy, jy, jy};
-            float[] zFactor = new float[] {oz, jz, oz, jz, oz, jz, oz, jz};
-            
-            for(int i=0;i<8;++i) {
-            	int hIndex = 3 * hash[b1[i] + b2[i%2]];
-            	n += cn[i] * (hashvectf[hIndex] * xFactor[i] + hashvectf[hIndex + 1] * yFactor[i] + hashvectf[hIndex + 2] * zFactor[i]);
+            int[] b1 = new int[] { b00, b00, b01, b01, b10, b10, b11, b11 };
+
+            int[] b2 = new int[] { iz & 0xFF, iz + 1 & 0xFF };
+
+            float[] xFactor = new float[] { ox, ox, ox, ox, jx, jx, jx, jx };
+            float[] yFactor = new float[] { oy, oy, jy, jy, oy, oy, jy, jy };
+            float[] zFactor = new float[] { oz, jz, oz, jz, oz, jz, oz, jz };
+
+            for (int i = 0; i < 8; ++i) {
+                int hIndex = 3 * hash[b1[i] + b2[i % 2]];
+                n += cn[i] * (hashvectf[hIndex] * xFactor[i] + hashvectf[hIndex + 1] * yFactor[i] + hashvectf[hIndex + 2] * zFactor[i]);
             }
 
             if (n < 0.0f) {
@@ -746,11 +739,11 @@ import java.util.logging.Logger;
         /**
          * This method calculates the unsigned value of the noise.
          * @param x
-         *        the x texture coordinate
+         *            the x texture coordinate
          * @param y
-         *        the y texture coordinate
+         *            the y texture coordinate
          * @param z
-         *        the z texture coordinate
+         *            the z texture coordinate
          * @return value of the noise
          */
         float execute(float x, float y, float z);
@@ -758,49 +751,49 @@ import java.util.logging.Logger;
         /**
          * This method calculates the signed value of the noise.
          * @param x
-         *        the x texture coordinate
+         *            the x texture coordinate
          * @param y
-         *        the y texture coordinate
+         *            the y texture coordinate
          * @param z
-         *        the z texture coordinate
+         *            the z texture coordinate
          * @return value of the noise
          */
         float executeSigned(float x, float y, float z);
     }
-    
+
     public static class NoiseMath {
-    	public static float lerp(float t, float a, float b) {
+        public static float lerp(float t, float a, float b) {
             return a + t * (b - a);
         }
 
-    	public static float npfade(float t) {
+        public static float npfade(float t) {
             return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
         }
 
-    	public static float grad(int hash, float x, float y, float z) {
+        public static float grad(int hash, float x, float y, float z) {
             int h = hash & 0x0F;
             float u = h < 8 ? x : y, v = h < 4 ? y : h == 12 || h == 14 ? x : z;
             return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
         }
 
-    	public static float surve(float t) {
+        public static float surve(float t) {
             return t * t * (3.0f - 2.0f * t);
         }
 
-    	public static float at(float x, float y, float z, float[] q) {
+        public static float at(float x, float y, float z, float[] q) {
             return x * q[0] + y * q[1] + z * q[2];
         }
-    	
-    	public static void hash(int x, int y, int z, float[] result) {
+
+        public static void hash(int x, int y, int z, float[] result) {
             result[0] = hashpntf[3 * hash[hash[hash[z & 0xFF] + y & 0xFF] + x & 0xFF]];
             result[1] = hashpntf[3 * hash[hash[hash[z & 0xFF] + y & 0xFF] + x & 0xFF] + 1];
             result[2] = hashpntf[3 * hash[hash[hash[z & 0xFF] + y & 0xFF] + x & 0xFF] + 2];
         }
     }
-    
+
     @Override
     public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-    	return true;
+        return true;
     }
 
     /**
@@ -812,13 +805,13 @@ import java.util.logging.Logger;
         /**
          * This method calculates the distance for voronoi algorithms.
          * @param x
-         *        the x coordinate
+         *            the x coordinate
          * @param y
-         *        the y coordinate
+         *            the y coordinate
          * @param z
-         *        the z coordinate
+         *            the z coordinate
          * @param e
-         *        this parameter used in Monkovsky (no idea what it really is ;)
+         *            this parameter used in Monkovsky (no idea what it really is ;)
          * @return
          */
         float execute(float x, float y, float z, float e);

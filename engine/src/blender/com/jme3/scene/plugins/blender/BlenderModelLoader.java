@@ -57,30 +57,30 @@ public class BlenderModelLoader extends BlenderLoader {
     public Spatial load(AssetInfo assetInfo) throws IOException {
         try {
             this.setup(assetInfo);
-            
+
             BlenderKey blenderKey = blenderContext.getBlenderKey();
             Node modelRoot = new Node(blenderKey.getName());
-            
+
             for (FileBlockHeader block : blocks) {
                 if (block.getCode() == FileBlockHeader.BLOCK_OB00) {
                     Object object = this.toObject(block.getStructure(blenderContext));
-                    
-                    if(object instanceof LightNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
-                    	modelRoot.addLight(((LightNode)object).getLight());
-                    	modelRoot.attachChild((LightNode)object);
-					} else if (object instanceof Node && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
-						LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
-						if (((Node) object).getParent() == null) {
-                            modelRoot.attachChild((Node)object);
+
+                    if (object instanceof LightNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
+                        modelRoot.addLight(((LightNode) object).getLight());
+                        modelRoot.attachChild((LightNode) object);
+                    } else if (object instanceof Node && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
+                        LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+                        if (((Node) object).getParent() == null) {
+                            modelRoot.attachChild((Node) object);
                         }
-					}
+                    }
                 }
             }
-            
-            //bake constraints after everything is loaded
-			ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
-			constraintHelper.bakeConstraints(blenderContext);
-            
+
+            // bake constraints after everything is loaded
+            ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+            constraintHelper.bakeConstraints(blenderContext);
+
             blenderContext.dispose();
             return modelRoot;
         } catch (BlenderFileException e) {

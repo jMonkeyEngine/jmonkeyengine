@@ -15,23 +15,24 @@ import com.jme3.scene.plugins.blender.file.Structure;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/ class SkeletonConstraint extends Constraint {
-	private static final Logger LOGGER = Logger.getLogger(SkeletonConstraint.class.getName());
-	
-	public SkeletonConstraint(Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
-		super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
-	}
+/* package */class SkeletonConstraint extends Constraint {
+    private static final Logger LOGGER = Logger.getLogger(SkeletonConstraint.class.getName());
 
-	@Override
-	public void performBakingOperation() {
-		LOGGER.warning("Applying constraints to skeleton is not supported.");
-	}
+    public SkeletonConstraint(Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
+        super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
+    }
 
-	@Override
-	protected boolean validate() {
-		return true;
-	}
-	
-	@Override
-	protected void prepareTracksForApplyingConstraints() { }
+    @Override
+    public void performBakingOperation() {
+        LOGGER.warning("Applying constraints to skeleton is not supported.");
+    }
+
+    @Override
+    protected boolean validate() {
+        return true;
+    }
+
+    @Override
+    protected void prepareTracksForApplyingConstraints() {
+    }
 }
