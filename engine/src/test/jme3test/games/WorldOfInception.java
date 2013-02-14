@@ -465,7 +465,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
             strb.insert(0, this.getPlayerPosition());
             cur = cur.getParent();
             while (cur != null) {
-                strb.insert(0, this.getPositionInParent() + " / ");
+                strb.insert(0, cur.getPositionInParent() + " / ");
                 cur = cur.getParent();
             }
             return strb.toString();
