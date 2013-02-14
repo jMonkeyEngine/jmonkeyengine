@@ -96,7 +96,6 @@ public class TestBetterCharacter extends SimpleApplication implements ActionList
         // Add a character control to the node so we can add other things and
         // control the model rotation
         physicsCharacter = new BetterCharacterControl(0.3f, 2.5f, 8f);
-        physicsCharacter.setDebugTools(new DebugTools(assetManager));
         characterNode.addControl(physicsCharacter);
         getPhysicsSpace().add(physicsCharacter);
 

@@ -37,7 +37,6 @@ import com.jme3.bullet.collision.PhysicsRayTestResult;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
-import com.jme3.bullet.debug.DebugTools;
 import com.jme3.bullet.objects.PhysicsRigidBody;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -87,6 +86,10 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      */
     protected final Vector3f localForward = new Vector3f(0, 0, 1);
     /**
+     * Local left direction, derived from up and forward.
+     */
+    protected final Vector3f localLeft = new Vector3f(1, 0, 0);
+    /**
      * Local z-forward quaternion for the "local absolute" z-forward direction.
      */
     protected final Quaternion localForwardRotation = new Quaternion(Quaternion.DIRECTION_Z);
@@ -107,7 +110,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     protected final Vector3f rotatedViewDirection = new Vector3f(0, 0, 1);
     protected final Vector3f walkDirection = new Vector3f();
     protected final Vector3f jumpForce;
-    protected final Vector3f physicsDampening = new Vector3f(0.3f, 0, 0.3f);
+    protected float physicsDamping = 10f;
     protected final Vector3f scale = new Vector3f(1, 1, 1);
     protected final Vector3f velocity = new Vector3f();
     protected boolean jump = false;
@@ -146,18 +149,11 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         rigidBody.getPhysicsLocation(location);
         //rotation has been set through viewDirection
         applyPhysicsTransform(location, rotation);
-        debugTools.setPinkArrow(location, localForward);
-    }
-    private DebugTools debugTools = null;
-
-    public void setDebugTools(DebugTools debugTools) {
-        this.debugTools = debugTools;
     }
 
     @Override
     public void render(RenderManager rm, ViewPort vp) {
         super.render(rm, vp);
-        debugTools.show(rm, vp);
     }
 
     /**
@@ -173,18 +169,20 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
             wantToUnDuck = false;
             ducked = false;
         }
+        TempVars vars = TempVars.get();
 
-        //TODO: this damping (physicsInfluence) is not framerate decoupled
-//        Vector3f physicsPlane = localForwardRotation.mult(physicsDampening);
-//        Vector3f counter = velocity.mult(physicsPlane).negateLocal().multLocal(tpf * 100.0f);
-//        velocity.addLocal(counter);
-//        debugTools.setGreenArrow(location, counter);
-
-        debugTools.setBlueArrow(location, walkDirection);
+        // dampen existing x/z forces
+        float existingLeftVelocity = velocity.dot(localLeft);
+        float existingForwardVelocity = velocity.dot(localForward);
+        Vector3f counter = vars.vect1;
+        existingLeftVelocity = existingLeftVelocity * tpf * physicsDamping;
+        existingForwardVelocity = existingForwardVelocity * tpf * physicsDamping;
+        counter.set(-existingLeftVelocity, 0, -existingForwardVelocity);
+        localForwardRotation.multLocal(counter);
+        velocity.addLocal(counter);
 
         float designatedVelocity = walkDirection.length();
         if (designatedVelocity > 0) {
-            TempVars vars = TempVars.get();
             Vector3f localWalkDirection = vars.vect1;
             //normalize walkdirection
             localWalkDirection.set(walkDirection).normalizeLocal();
@@ -194,22 +192,17 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
             float finalVelocity = designatedVelocity - existingVelocity;
             localWalkDirection.multLocal(finalVelocity);
             //add resulting vector to existing velocity
-            debugTools.setYellowArrow(location, localWalkDirection);
             velocity.addLocal(localWalkDirection);
-            vars.release();
-        } else {
-            debugTools.setYellowArrow(location, Vector3f.ZERO);
         }
         rigidBody.setLinearVelocity(velocity);
         if (jump) {
             //TODO: precalculate jump force
-            TempVars vars = TempVars.get();
             Vector3f rotatedJumpForce = vars.vect1;
             rotatedJumpForce.set(jumpForce);
             rigidBody.applyImpulse(localForwardRotation.multLocal(rotatedJumpForce), Vector3f.ZERO);
             jump = false;
-            vars.release();
         }
+        vars.release();
     }
 
     /**
@@ -220,7 +213,6 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
      */
     public void physicsTick(PhysicsSpace space, float tpf) {
         rigidBody.getLinearVelocity(velocity);
-        debugTools.setRedArrow(location, velocity);
     }
 
     /**
@@ -436,6 +428,23 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     }
 
     /**
+     * Sets how much the physics forces in the local x/z plane should be
+     * dampened.
+     * @param physicsDamping The dampening value, 0 = no dampening, default = 10
+     */
+    public void setPhysicsDamping(float physicsDamping) {
+        this.physicsDamping = physicsDamping;
+    }
+
+    /**
+     * Gets how much the physics forces in the local x/z plane should be
+     * dampened.
+     */
+    public float getPhysicsDamping() {
+        return physicsDamping;
+    }
+    
+    /**
      * This actually sets a new collision shape to the character to change the
      * height of the capsule.
      *
@@ -456,7 +465,6 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         float height = getFinalHeight();
         location.set(localUp).multLocal(height).addLocal(this.location);
         rayVector.set(localUp).multLocal(-height - FastMath.ZERO_TOLERANCE).addLocal(location);
-        debugTools.setMagentaArrow(location, rayVector.subtract(location));
         List<PhysicsRayTestResult> results = space.rayTest(location, rayVector);
         vars.release();
         for (PhysicsRayTestResult physicsRayTestResult : results) {
@@ -478,7 +486,6 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         Vector3f rayVector = vars.vect2;
         location.set(localUp).multLocal(FastMath.ZERO_TOLERANCE).addLocal(this.location);
         rayVector.set(localUp).multLocal(height + FastMath.ZERO_TOLERANCE).addLocal(location);
-        debugTools.setMagentaArrow(location, rayVector.subtract(location));
         List<PhysicsRayTestResult> results = space.rayTest(location, rayVector);
         vars.release();
         for (PhysicsRayTestResult physicsRayTestResult : results) {
@@ -486,7 +493,6 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
                 return false;
             }
         }
-        debugTools.setMagentaArrow(location, Vector3f.ZERO);
         return true;
     }
 
@@ -533,6 +539,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     protected void updateLocalCoordinateSystem() {
         //gravity vector has possibly changed, calculate new world forward (UNIT_Z)
         calculateNewForward(localForwardRotation, localForward, localUp);
+        localLeft.set(localUp).crossLocal(localForward);
         rigidBody.setPhysicsRotation(localForwardRotation);
         updateLocalViewDirection();
     }
@@ -653,7 +660,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     protected void removeSpatialData(Spatial spat) {
         rigidBody.setUserObject(null);
     }
-    
+
     public Control cloneForSpatial(Spatial spatial) {
         BetterCharacterControl control = new BetterCharacterControl(radius, height, mass);
         control.setJumpForce(jumpForce);
@@ -668,6 +675,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         oc.write(height, "height", 1);
         oc.write(mass, "mass", 1);
         oc.write(jumpForce, "jumpForce", new Vector3f(0, mass * 5, 0));
+        oc.write(physicsDamping, "physicsDamping", 0.9f);
     }
 
     @Override
@@ -677,6 +685,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         this.radius = in.readFloat("radius", 1);
         this.height = in.readFloat("height", 2);
         this.mass = in.readFloat("mass", 80);
+        this.physicsDamping = in.readFloat("physicsDamping", 0.9f);
         this.jumpForce.set((Vector3f) in.readSavable("jumpForce", new Vector3f(0, mass * 5, 0)));
         rigidBody = new PhysicsRigidBody(getShape(), mass);
         jumpForce.set(new Vector3f(0, mass * 5, 0));
