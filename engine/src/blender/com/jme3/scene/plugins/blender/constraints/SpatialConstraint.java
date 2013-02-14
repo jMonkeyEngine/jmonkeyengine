@@ -8,7 +8,9 @@ import java.util.logging.Logger;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
 import com.jme3.animation.Bone;
+import com.jme3.animation.BoneTrack;
 import com.jme3.animation.SpatialTrack;
+import com.jme3.animation.Track;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
@@ -28,7 +30,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
  * This includes: nodes, cameras nodes and light nodes.
  * @author Marcin Roguski (Kaelthas)
  */
-/* package */class SpatialConstraint extends BoneConstraint {
+/* package */class SpatialConstraint extends Constraint {
     private static final Logger LOGGER = Logger.getLogger(SpatialConstraint.class.getName());
 
     /** The owner of the constraint. */
@@ -40,6 +42,14 @@ import com.jme3.scene.plugins.ogre.AnimData;
         super(constraintStructure, ownerOMA, influenceIpo, blenderContext);
     }
 
+    @Override
+    protected boolean validate() {
+        if (targetOMA != null) {
+            return blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE) != null;
+        }
+        return true;
+    }
+    
     @Override
     public void performBakingOperation() {
         this.owner = (Spatial) blenderContext.getLoadedFeature(ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);
@@ -130,6 +140,29 @@ import com.jme3.scene.plugins.ogre.AnimData;
         }
     }
 
+    /**
+     * The method determines if the bone has animations.
+     * 
+     * @param boneOMA
+     *            OMA of the animation's owner
+     * @return <b>true</b> if the target has animations and <b>false</b> otherwise
+     */
+    protected boolean hasAnimation(Long boneOMA) {
+        AnimData animData = blenderContext.getAnimData(boneOMA);
+        if (animData != null) {
+            Bone bone = blenderContext.getBoneContext(boneOMA).getBone();
+            int boneIndex = animData.skeleton.getBoneIndex(bone);
+            for (Animation animation : animData.anims) {
+                for (Track track : animation.getTracks()) {
+                    if (track instanceof BoneTrack && ((BoneTrack) track).getTargetBoneIndex() == boneIndex) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
     /**
      * This method applies spatial transform on each frame of the given
      * animations.

@@ -1,10 +1,17 @@
 package com.jme3.scene.plugins.blender.constraints;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.animation.Animation;
+import com.jme3.animation.BoneTrack;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Transform;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.constraints.definitions.ConstraintDefinition;
@@ -12,6 +19,7 @@ import com.jme3.scene.plugins.blender.constraints.definitions.ConstraintDefiniti
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
  * The implementation of a constraint.
@@ -124,4 +132,38 @@ public abstract class Constraint {
      * that will have non modifying values for translation, rotation and scale and will have the same amount of frames as its parent has.
      */
     protected abstract void prepareTracksForApplyingConstraints();
+    
+    /**
+     * The method applies bone's current position to all of the traces of the
+     * given animations.
+     * 
+     * @param boneContext
+     *            the bone context
+     * @param space
+     *            the bone's evaluation space
+     * @param referenceAnimData
+     *            the object containing the animations
+     */
+    protected void applyAnimData(BoneContext boneContext, Space space, AnimData referenceAnimData) {
+        ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+        Transform transform = constraintHelper.getBoneTransform(space, boneContext.getBone());
+
+        AnimData animData = blenderContext.getAnimData(boneContext.getBoneOma());
+
+        for (Animation animation : referenceAnimData.anims) {
+            BoneTrack parentTrack = (BoneTrack) animation.getTracks()[0];
+
+            float[] times = parentTrack.getTimes();
+            Vector3f[] translations = new Vector3f[times.length];
+            Quaternion[] rotations = new Quaternion[times.length];
+            Vector3f[] scales = new Vector3f[times.length];
+            Arrays.fill(translations, transform.getTranslation());
+            Arrays.fill(rotations, transform.getRotation());
+            Arrays.fill(scales, transform.getScale());
+            for (Animation anim : animData.anims) {
+                anim.addTrack(new BoneTrack(animData.skeleton.getBoneIndex(boneContext.getBone()), times, translations, rotations, scales));
+            }
+        }
+        blenderContext.setAnimData(boneContext.getBoneOma(), animData);
+    }
 }

@@ -1,6 +1,5 @@
 package com.jme3.scene.plugins.blender.constraints;
 
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -8,9 +7,7 @@ import com.jme3.animation.Animation;
 import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Track;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
@@ -180,39 +177,5 @@ import com.jme3.scene.plugins.ogre.AnimData;
             }
         }
         return false;
-    }
-
-    /**
-     * The method applies bone's current position to all of the traces of the
-     * given animations.
-     * 
-     * @param boneContext
-     *            the bone context
-     * @param space
-     *            the bone's evaluation space
-     * @param referenceAnimData
-     *            the object containing the animations
-     */
-    protected void applyAnimData(BoneContext boneContext, Space space, AnimData referenceAnimData) {
-        ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
-        Transform transform = constraintHelper.getBoneTransform(space, boneContext.getBone());
-
-        AnimData animData = blenderContext.getAnimData(boneContext.getBoneOma());
-
-        for (Animation animation : referenceAnimData.anims) {
-            BoneTrack parentTrack = (BoneTrack) animation.getTracks()[0];
-
-            float[] times = parentTrack.getTimes();
-            Vector3f[] translations = new Vector3f[times.length];
-            Quaternion[] rotations = new Quaternion[times.length];
-            Vector3f[] scales = new Vector3f[times.length];
-            Arrays.fill(translations, transform.getTranslation());
-            Arrays.fill(rotations, transform.getRotation());
-            Arrays.fill(scales, transform.getScale());
-            for (Animation anim : animData.anims) {
-                anim.addTrack(new BoneTrack(animData.skeleton.getBoneIndex(boneContext.getBone()), times, translations, rotations, scales));
-            }
-        }
-        blenderContext.setAnimData(boneContext.getBoneOma(), animData);
     }
 }
