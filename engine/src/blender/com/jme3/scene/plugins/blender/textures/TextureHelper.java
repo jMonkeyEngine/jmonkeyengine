@@ -703,10 +703,6 @@ public class TextureHelper extends AbstractBlenderHelper {
      * @return the loaded image or null if the image cannot be found
      */
     protected Texture loadImageFromFile(String name, int imaflag, BlenderContext blenderContext) {
-        // @Marcin: please, please disable the use of "TAB"
-        // in your IDE in favor of four spaces.
-        // All your code looks like this for us: http://i.imgur.com/sGcBv6Q.png
-        // spaces always work ;)
         if (!name.contains(".")) {
             return null; // no extension means not a valid image
         }
