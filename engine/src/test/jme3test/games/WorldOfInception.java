@@ -41,6 +41,7 @@ import com.jme3.bullet.collision.shapes.MeshCollisionShape;
 import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.debug.DebugTools;
+import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -116,6 +117,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
         poiCollisionShape = new SphereCollisionShape(1f);
         ballCollisionShape = new SphereCollisionShape(1f);
         setupKeys();
+        setupDisplay();
     }
 
     private void setupKeys() {
@@ -133,6 +135,17 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
         inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_LEFT));
         inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_RIGHT));
         inputManager.addListener(this, "StrafeLeft", "StrafeRight", "Forward", "Back", "StrafeUp", "StrafeDown", "Space", "Reset", "Esc", "Up", "Down", "Left", "Right");
+    }
+
+    private void setupDisplay() {
+        if (fpsText == null) {
+            fpsText = new BitmapText(guiFont, false);
+        }
+        fpsText.setLocalScale(0.7f, 0.7f, 0.7f);
+        fpsText.setLocalTranslation(0, fpsText.getLineHeight(), 0);
+        fpsText.setText("");
+        fpsText.setCullHint(Spatial.CullHint.Never);
+        guiNode.attachChild(fpsText);
     }
 
     public void onAnalog(String name, float value, float tpf) {
@@ -167,6 +180,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
     public void simpleUpdate(float tpf) {
         currentLevel = currentLevel.getCurrentLevel();
         currentLevel.move(walkDirection);
+        fpsText.setText("Location: " + currentLevel.getCoordinates());
         walkDirection.set(Vector3f.ZERO);
     }
 
@@ -275,14 +289,6 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
             }
         }
 
-        public static float linear2decibel(float x) {
-            return (float) (20.0 * Math.log(x) / Math.log(10));
-        }
-
-        public static float decibel2linear(float x) {
-            return (float) Math.pow(10.0, x / 20.0);
-        }
-
         private void scaleAsChild(float percent, Vector3f dist) {
             float childScale = mapValue(percent, 1.0f / poiRadius, 1);
             Vector3f distToHorizon = dist.normalize();
@@ -319,6 +325,12 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
         }
 
         public InceptionLevel getLastLevel(Ray pickRay) {
+            // TODO: get a level based on positions getting ever more accurate,
+            // from any given position
+            return null;
+        }
+
+        public InceptionLevel getLevel(Vector3f... location) {
             // TODO: get a level based on positions getting ever more accurate,
             // from any given position
             return null;
@@ -375,7 +387,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
         }
 
         private void cleanupData() {
-            physicsState.cleanup();
+            physicsState.stopPhysics();
             //TODO: remove all objects?
             physicsState = null;
             rootNode = null;
@@ -439,8 +451,24 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
             return curScaleAmount;
         }
 
+        public InceptionLevel getParent() {
+            return parent;
+        }
+
         public InceptionLevel getCurrentLevel() {
             return currentReturnLevel;
+        }
+
+        public String getCoordinates() {
+            InceptionLevel cur = this;
+            StringBuilder strb = new StringBuilder();
+            strb.insert(0, this.getPlayerPosition());
+            cur = cur.getParent();
+            while (cur != null) {
+                strb.insert(0, this.getPositionInParent() + " / ");
+                cur = cur.getParent();
+            }
+            return strb.toString();
         }
     }
 
