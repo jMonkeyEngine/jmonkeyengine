@@ -463,6 +463,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
             InceptionLevel cur = this;
             StringBuilder strb = new StringBuilder();
             strb.insert(0, this.getPlayerPosition());
+            strb.insert(0, this.getPositionInParent() + " / ");
             cur = cur.getParent();
             while (cur != null) {
                 strb.insert(0, cur.getPositionInParent() + " / ");
