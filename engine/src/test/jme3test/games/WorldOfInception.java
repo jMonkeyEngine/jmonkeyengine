@@ -260,12 +260,10 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
                     return;
                 } else if (currentActiveChild != null && currentActiveChild.getPositionInParent().equals(vector3f)) {
                     //TODO: doing this here causes problems when close to multiple pois
-                    logger.log(Level.INFO, "Detach child {0}", currentActiveChild);
                     rootNode.getChild(i).setCullHint(Spatial.CullHint.Inherit);
-                    stateManager.detach(currentActiveChild);
-                    currentActiveChild = null;
                 }
             }
+            checkActiveChild(null);
             curScaleAmount = 0;
             rootNode.setLocalScale(1);
             rootNode.setLocalTranslation(playerPos.negate());
@@ -276,6 +274,14 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
 
         private void checkActiveChild(Vector3f vector3f) {
             AppStateManager stateManager = application.getStateManager();
+            if(vector3f == null){
+                if(currentActiveChild != null){
+                    logger.log(Level.INFO, "Detach child {0}", currentActiveChild);
+                    stateManager.detach(currentActiveChild);
+                    currentActiveChild = null;
+                }
+                return;
+            }
             if (currentActiveChild == null) {
                 currentActiveChild = new InceptionLevel(this, vector3f);
                 stateManager.attach(currentActiveChild);
