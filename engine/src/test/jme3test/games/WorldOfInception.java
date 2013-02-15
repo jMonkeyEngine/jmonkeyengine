@@ -50,6 +50,8 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
+import com.jme3.post.filters.FogFilter;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -118,6 +120,7 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
         ballCollisionShape = new SphereCollisionShape(1f);
         setupKeys();
         setupDisplay();
+        setupFog();
     }
 
     private void setupKeys() {
@@ -146,6 +149,19 @@ public class WorldOfInception extends SimpleApplication implements AnalogListene
         fpsText.setText("");
         fpsText.setCullHint(Spatial.CullHint.Never);
         guiNode.attachChild(fpsText);
+    }
+
+    private void setupFog() {
+        // use fog to give more sense of depth
+        FilterPostProcessor fpp;
+        FogFilter fog;
+        fpp=new FilterPostProcessor(assetManager);
+        fog=new FogFilter();
+        fog.setFogColor(new ColorRGBA(0.0f, 0.0f, 0.0f, 1.0f));
+        fog.setFogDistance(poiRadius);
+        fog.setFogDensity(2.0f);
+        fpp.addFilter(fog);
+        viewPort.addProcessor(fpp);
     }
 
     public void onAnalog(String name, float value, float tpf) {
