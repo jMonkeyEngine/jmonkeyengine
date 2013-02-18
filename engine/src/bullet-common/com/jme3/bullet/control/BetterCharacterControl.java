@@ -110,7 +110,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     protected final Vector3f rotatedViewDirection = new Vector3f(0, 0, 1);
     protected final Vector3f walkDirection = new Vector3f();
     protected final Vector3f jumpForce;
-    protected float physicsDamping = 10f;
+    protected float physicsDamping = 0.9f;
     protected final Vector3f scale = new Vector3f(1, 1, 1);
     protected final Vector3f velocity = new Vector3f();
     protected boolean jump = false;
@@ -175,8 +175,8 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         float existingLeftVelocity = velocity.dot(localLeft);
         float existingForwardVelocity = velocity.dot(localForward);
         Vector3f counter = vars.vect1;
-        existingLeftVelocity = existingLeftVelocity * tpf * physicsDamping;
-        existingForwardVelocity = existingForwardVelocity * tpf * physicsDamping;
+        existingLeftVelocity = existingLeftVelocity * physicsDamping;
+        existingForwardVelocity = existingForwardVelocity * physicsDamping;
         counter.set(-existingLeftVelocity, 0, -existingForwardVelocity);
         localForwardRotation.multLocal(counter);
         velocity.addLocal(counter);
@@ -430,7 +430,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     /**
      * Sets how much the physics forces in the local x/z plane should be
      * dampened.
-     * @param physicsDamping The dampening value, 0 = no dampening, default = 10
+     * @param physicsDamping The dampening value, 0 = no dampening, 1 = no external force, default = 0.9
      */
     public void setPhysicsDamping(float physicsDamping) {
         this.physicsDamping = physicsDamping;
