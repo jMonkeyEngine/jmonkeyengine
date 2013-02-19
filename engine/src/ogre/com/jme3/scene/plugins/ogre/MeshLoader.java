@@ -233,7 +233,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         if (mat == null) {
             logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{matName, key});
             mat = PlaceholderAssets.getPlaceholderMaterial(assetManager);          
-            mat.setKey(new MaterialKey(matName));
+            //mat.setKey(new MaterialKey(matName));
         }
 
         if (mat.isTransparent()) {
