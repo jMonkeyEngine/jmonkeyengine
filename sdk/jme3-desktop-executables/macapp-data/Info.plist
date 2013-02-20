@@ -1,44 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<?xml version="1.0" ?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>CFBundleName</key>
-	<string>${application.title}</string>
-	<key>CFBundleIdentifier</key>
-	<string>${main.class}</string>
-	<key>CFBundleVersion</key>
-	<string>100.0</string>
-	<key>CFBundleAllowMixedLocalizations</key>
-	<string>true</string>
-	<key>CFBundleExecutable</key>
-	<string>JavaApplicationStub</string>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleIconFile</key>
-	<string>GenericApp.icns</string>
-	<key>Java</key>
-	<dict>
-		<key>VMOptions</key>
-		<string>${run.jvmargs}</string>
-		<key>WorkingDirectory</key>
-		<string>$APP_PACKAGE/Contents/Resources/Java</string>
-		<key>MainClass</key>
-		<string>${main.class}</string>
-		<key>JVMVersion</key>
-		<string>1.5+</string>
-		<key>ClassPath</key>
-			<string>$JAVAROOT/${application.title}.jar</string>
-		<key>Properties</key>
-		<dict>
-			<key>apple.laf.useScreenMenuBar</key>
-			<string>true</string>
-		</dict>
-	</dict>
-</dict>
+ <dict>
+  <key>CFBundleDevelopmentRegion</key>
+  <string>English</string>
+  <key>CFBundleExecutable</key>
+  <string>JavaAppLauncher</string>
+  <key>CFBundleIconFile</key>
+  <string>GenericApp.icns</string>
+  <key>CFBundleIdentifier</key>
+  <string>${main.class}</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundleName</key>
+  <string>${application.title}</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleShortVersionString</key>
+  <string>1.0</string>
+  <key>CFBundleSignature</key>
+  <string>????</string>
+  <!-- See http://developer.apple.com/library/mac/#releasenotes/General/SubmittingToMacAppStore/_index.html
+       for list of AppStore categories -->
+  <key>LSApplicationCategoryType</key>
+  <string>unknown</string>
+  <key>CFBundleVersion</key>
+  <string>1</string>
+  <key>NSHumanReadableCopyright</key>
+  <string>Unknown</string>
+  <key>JVMMainClassName</key>
+  <string>${main.class}</string>
+  <key>JVMOptions</key>
+  <array>
+      <string>${run.jvmargs}</string>
+  </array>
+ </dict>
 </plist>
