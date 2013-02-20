@@ -31,7 +31,7 @@
  */
 package com.jme3.audio.lwjgl;
 
-import com.jme3.audio.AudioNode.Status;
+import com.jme3.audio.AudioSource.Status;
 import com.jme3.audio.*;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
@@ -61,7 +61,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
     private final ByteBuffer nativeBuf = BufferUtils.createByteBuffer(BUFFER_SIZE);
     private final byte[] arrayBuf = new byte[BUFFER_SIZE];
     private int[] channels;
-    private AudioNode[] chanSrcs;
+    private AudioSource[] chanSrcs;
     private int nextChan = 0;
     private ArrayList<Integer> freeChans = new ArrayList<Integer>();
     private Listener listener;
@@ -156,10 +156,10 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         ALCdevice device = AL.getDevice();
         String deviceName = ALC10.alcGetString(device, ALC10.ALC_DEVICE_SPECIFIER);
 
-        logger.log(Level.FINER, "Audio Device: {0}", deviceName);
-        logger.log(Level.FINER, "Audio Vendor: {0}", alGetString(AL_VENDOR));
-        logger.log(Level.FINER, "Audio Renderer: {0}", alGetString(AL_RENDERER));
-        logger.log(Level.FINER, "Audio Version: {0}", alGetString(AL_VERSION));
+        logger.log(Level.INFO, "Audio Device: {0}", deviceName);
+        logger.log(Level.INFO, "Audio Vendor: {0}", alGetString(AL_VENDOR));
+        logger.log(Level.INFO, "Audio Renderer: {0}", alGetString(AL_RENDERER));
+        logger.log(Level.INFO, "Audio Version: {0}", alGetString(AL_VERSION));
 
         // Find maximum # of sources supported by this implementation
         ArrayList<Integer> channelList = new ArrayList<Integer>();
@@ -178,9 +178,9 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         }
 
         ib = BufferUtils.createIntBuffer(channels.length);
-        chanSrcs = new AudioNode[channels.length];
+        chanSrcs = new AudioSource[channels.length];
 
-        logger.log(Level.FINE, "AudioRenderer supports {0} channels", channels.length);
+        logger.log(Level.INFO, "AudioRenderer supports {0} channels", channels.length);
 
         supportEfx = ALC10.alcIsExtensionPresent(device, "ALC_EXT_EFX");
         if (supportEfx) {
@@ -190,11 +190,11 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
             ib.position(0).limit(1);
             ALC10.alcGetInteger(device, EFX10.ALC_EFX_MINOR_VERSION, ib);
             int minor = ib.get(0);
-            logger.log(Level.FINE, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
+            logger.log(Level.INFO, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
 
             ALC10.alcGetInteger(device, EFX10.ALC_MAX_AUXILIARY_SENDS, ib);
             auxSends = ib.get(0);
-            logger.log(Level.FINE, "Audio max auxilary sends: {0}", auxSends);
+            logger.log(Level.INFO, "Audio max auxilary sends: {0}", auxSends);
 
             // create slot
             ib.position(0).limit(1);
@@ -282,7 +282,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         f.clearUpdateNeeded();
     }
 
-    public void updateSourceParam(AudioNode src, AudioParam param) {
+    public void updateSourceParam(AudioSource src, AudioParam param) {
         checkDead();
         synchronized (threadLock) {
             while (!threadLock.get()) {
@@ -295,10 +295,10 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-            // There is a race condition in AudioNode that can
+            // There is a race condition in AudioSource that can
             // cause this to be called for a node that has been
             // detached from its channel.  For example, setVolume()
-            // called from the render thread may see that that AudioNode
+            // called from the render thread may see that that AudioSource
             // still has a channel value but the audio thread may
             // clear that channel before setVolume() gets to call
             // updateSourceParam() (because the audio stopped playing
@@ -317,7 +317,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                         return;
                     }
 
-                    Vector3f pos = src.getWorldTranslation();
+                    Vector3f pos = src.getPosition();
                     alSource3f(id, AL_POSITION, pos.x, pos.y, pos.z);
                     break;
                 case Velocity:
@@ -456,9 +456,9 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    private void setSourceParams(int id, AudioNode src, boolean forceNonLoop) {
+    private void setSourceParams(int id, AudioSource src, boolean forceNonLoop) {
         if (src.isPositional()) {
-            Vector3f pos = src.getWorldTranslation();
+            Vector3f pos = src.getPosition();
             Vector3f vel = src.getVelocity();
             alSource3f(id, AL_POSITION, pos.x, pos.y, pos.z);
             alSource3f(id, AL_VELOCITY, vel.x, vel.y, vel.z);
@@ -704,7 +704,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
     private void clearChannel(int index) {
         // make room at this channel
         if (chanSrcs[index] != null) {
-            AudioNode src = chanSrcs[index];
+            AudioSource src = chanSrcs[index];
 
             int sourceId = channels[index];
             alSourceStop(sourceId);
@@ -723,7 +723,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
                 alSourcei(sourceId, EFX10.AL_DIRECT_FILTER, EFX10.AL_FILTER_NULL);
             }
             if (src.isPositional()) {
-                AudioNode pas = (AudioNode) src;
+                AudioSource pas = (AudioSource) src;
                 if (pas.isReverbEnabled() && supportEfx) {
                     AL11.alSource3i(sourceId, EFX10.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX10.AL_FILTER_NULL);
                 }
@@ -743,7 +743,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         }
 
         for (int i = 0; i < channels.length; i++) {
-            AudioNode src = chanSrcs[i];
+            AudioSource src = chanSrcs[i];
             if (src == null) {
                 continue;
             }
@@ -830,7 +830,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    public void playSourceInstance(AudioNode src) {
+    public void playSourceInstance(AudioSource src) {
         checkDead();
         synchronized (threadLock) {
             while (!threadLock.get()) {
@@ -873,7 +873,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    public void playSource(AudioNode src) {
+    public void playSource(AudioSource src) {
         checkDead();
         synchronized (threadLock) {
             while (!threadLock.get()) {
@@ -916,7 +916,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    public void pauseSource(AudioNode src) {
+    public void pauseSource(AudioSource src) {
         checkDead();
         synchronized (threadLock) {
             while (!threadLock.get()) {
@@ -938,7 +938,7 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    public void stopSource(AudioNode src) {
+    public void stopSource(AudioSource src) {
         synchronized (threadLock) {
             while (!threadLock.get()) {
                 try {

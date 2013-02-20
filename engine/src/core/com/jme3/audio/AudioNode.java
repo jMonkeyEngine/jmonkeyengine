@@ -60,7 +60,7 @@ import java.util.logging.Logger;
  * @author normenhansen
  * @author Kirill Vainer
  */
-public class AudioNode extends Node {
+public class AudioNode extends Node implements AudioSource {
 
     //Version #1 : AudioKey is now stored into "audio_key" instead of "key"
     public static final int SAVABLE_VERSION = 1;
@@ -71,7 +71,7 @@ public class AudioNode extends Node {
     protected Filter dryFilter;
     protected AudioKey audioKey;
     protected transient AudioData data = null;
-    protected transient volatile Status status = Status.Stopped;
+    protected transient volatile AudioSource.Status status = AudioSource.Status.Stopped;
     protected transient volatile int channel = -1;
     protected Vector3f velocity = new Vector3f();
     protected boolean reverbEnabled = true;
@@ -86,7 +86,9 @@ public class AudioNode extends Node {
 
     /**
      * <code>Status</code> indicates the current status of the audio node.
+     * @deprecated - use AudioSource.Status instead
      */
+    @Deprecated
     public enum Status {
         /**
          * The audio node is currently playing. This will be set if
@@ -223,7 +225,7 @@ public class AudioNode extends Node {
      * Do not use.
      */
     public final void setChannel(int channel) {
-        if (status != Status.Stopped) {
+        if (status != AudioSource.Status.Stopped) {
             throw new IllegalStateException("Can only set source id when stopped");
         }
 
@@ -294,14 +296,14 @@ public class AudioNode extends Node {
      * The status will be changed when either the {@link AudioNode#play() }
      * or {@link AudioNode#stop() } methods are called.
      */
-    public Status getStatus() {
+    public AudioSource.Status getStatus() {
         return status;
     }
 
     /**
      * Do not use.
      */
-    public final void setStatus(Status status) {
+    public final void setStatus(AudioSource.Status status) {
         this.status = status;
     }
 
@@ -399,12 +401,16 @@ public class AudioNode extends Node {
         this.timeOffset = timeOffset;
         if (data instanceof AudioStream) {
             ((AudioStream) data).setTime(timeOffset);
-        }else if(status == Status.Playing){
+        }else if(status == AudioSource.Status.Playing){
             stop();
             play();
         }
     }
 
+    public Vector3f getPosition() {
+        return getWorldTranslation();
+    }
+    
     /**
      * @return The velocity of the audio node.
      * 

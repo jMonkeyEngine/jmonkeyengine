@@ -47,17 +47,17 @@ public interface AudioRenderer {
     /**
      * Sets the environment, used for reverb effects.
      *
-     * @see AudioNode#setReverbEnabled(boolean)
+     * @see AudioSource#setReverbEnabled(boolean)
      * @param env The environment to set.
      */
     public void setEnvironment(Environment env);
 
-    public void playSourceInstance(AudioNode src);
-    public void playSource(AudioNode src);
-    public void pauseSource(AudioNode src);
-    public void stopSource(AudioNode src);
+    public void playSourceInstance(AudioSource src);
+    public void playSource(AudioSource src);
+    public void pauseSource(AudioSource src);
+    public void stopSource(AudioSource src);
 
-    public void updateSourceParam(AudioNode src, AudioParam param);
+    public void updateSourceParam(AudioSource src, AudioParam param);
     public void updateListenerParam(Listener listener, ListenerParam param);
 
     public void deleteFilter(Filter filter);

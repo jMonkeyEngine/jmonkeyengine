@@ -31,7 +31,7 @@
  */
 package com.jme3.audio.joal;
 
-import com.jme3.audio.AudioNode.Status;
+import com.jme3.audio.AudioSource.Status;
 import com.jme3.audio.*;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
@@ -61,7 +61,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
     private final ByteBuffer nativeBuf = BufferUtils.createByteBuffer(BUFFER_SIZE);
     private final byte[] arrayBuf = new byte[BUFFER_SIZE];
     private int[] channels;
-    private AudioNode[] chanSrcs;
+    private AudioSource[] chanSrcs;
     private int nextChan = 0;
     private ArrayList<Integer> freeChans = new ArrayList<Integer>();
     private Listener listener;
@@ -194,7 +194,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
             }
 
             ib = BufferUtils.createIntBuffer(channels.length);
-            chanSrcs = new AudioNode[channels.length];
+            chanSrcs = new AudioSource[channels.length];
 
             logger.log(Level.FINE, "AudioRenderer supports {0} channels", channels.length);
 
@@ -308,7 +308,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
         f.clearUpdateNeeded();
     }
 
-    public void updateSourceParam(AudioNode src, AudioParam param) {
+    public void updateSourceParam(AudioSource src, AudioParam param) {
         checkDead();
         synchronized (threadLock) {
             while (!threadLock.get()) {
@@ -321,10 +321,10 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-            // There is a race condition in AudioNode that can
+            // There is a race condition in AudioSource that can
             // cause this to be called for a node that has been
             // detached from its channel.  For example, setVolume()
-            // called from the render thread may see that that AudioNode
+            // called from the render thread may see that that AudioSource
             // still has a channel value but the audio thread may
             // clear that channel before setVolume() gets to call
             // updateSourceParam() (because the audio stopped playing
@@ -343,7 +343,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                         return;
                     }
 
-                    Vector3f pos = src.getWorldTranslation();
+                    Vector3f pos = src.getPosition();
                     al.alSource3f(id, ALConstants.AL_POSITION, pos.x, pos.y, pos.z);
                     break;
                 case Velocity:
@@ -482,9 +482,9 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    private void setSourceParams(int id, AudioNode src, boolean forceNonLoop) {
+    private void setSourceParams(int id, AudioSource src, boolean forceNonLoop) {
         if (src.isPositional()) {
-            Vector3f pos = src.getWorldTranslation();
+            Vector3f pos = src.getPosition();
             Vector3f vel = src.getVelocity();
             al.alSource3f(id, ALConstants.AL_POSITION, pos.x, pos.y, pos.z);
             al.alSource3f(id, ALConstants.AL_VELOCITY, vel.x, vel.y, vel.z);
@@ -731,7 +731,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
     private void clearChannel(int index) {
         // make room at this channel
         if (chanSrcs[index] != null) {
-            AudioNode src = chanSrcs[index];
+            AudioSource src = chanSrcs[index];
 
             int sourceId = channels[index];
             al.alSourceStop(sourceId);
@@ -750,7 +750,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 al.alSourcei(sourceId, AL.AL_DIRECT_FILTER, AL.AL_FILTER_NULL);
             }
             if (src.isPositional()) {
-                AudioNode pas = (AudioNode) src;
+                AudioSource pas = (AudioSource) src;
                 if (pas.isReverbEnabled() && supportEfx) {
                     al.alSource3i(sourceId, AL.AL_AUXILIARY_SEND_FILTER, 0, 0, AL.AL_FILTER_NULL);
                 }
@@ -770,7 +770,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
         }
 
         for (int i = 0; i < channels.length; i++) {
-            AudioNode src = chanSrcs[i];
+            AudioSource src = chanSrcs[i];
             if (src == null) {
                 continue;
             }
@@ -790,7 +790,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
             ib.position(0).limit(1);
             al.alGetSourcei(sourceId, AL.AL_SOURCE_STATE, ib);
             int state = ib.get(0);
-            boolean wantPlaying = src.getStatus() == AudioNode.Status.Playing;
+            boolean wantPlaying = src.getStatus() == AudioSource.Status.Playing;
             boolean stopped = state == ALConstants.AL_STOPPED;
 
             if (streaming && wantPlaying) {
@@ -803,7 +803,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 } else {
                     if (stopped) {
                         // became inactive
-                        src.setStatus(AudioNode.Status.Stopped);
+                        src.setStatus(AudioSource.Status.Stopped);
                         src.setChannel(-1);
                         clearChannel(i);
                         freeChannel(i);
@@ -817,11 +817,11 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 boolean paused = state == ALConstants.AL_PAUSED;
 
                 // make sure OAL pause state & source state coincide
-                assert (src.getStatus() == AudioNode.Status.Paused && paused) || (!paused);
+                assert (src.getStatus() == AudioSource.Status.Paused && paused) || (!paused);
 
                 if (stopped) {
                     if (boundSource) {
-                        src.setStatus(AudioNode.Status.Stopped);
+                        src.setStatus(AudioSource.Status.Stopped);
                         src.setChannel(-1);
                     }
                     clearChannel(i);
@@ -859,7 +859,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    public void playSourceInstance(AudioNode src) {
+    public void playSourceInstance(AudioSource src) {
         checkDead();
         synchronized (threadLock) {
             while (!threadLock.get()) {
@@ -902,7 +902,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    public void playSource(AudioNode src) {
+    public void playSource(AudioSource src) {
         checkDead();
         synchronized (threadLock) {
             while (!threadLock.get()) {
@@ -917,9 +917,9 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
 
             //assert src.getStatus() == Status.Stopped || src.getChannel() == -1;
 
-            if (src.getStatus() == AudioNode.Status.Playing) {
+            if (src.getStatus() == AudioSource.Status.Playing) {
                 return;
-            } else if (src.getStatus() == AudioNode.Status.Stopped) {
+            } else if (src.getStatus() == AudioSource.Status.Stopped) {
 
                 // allocate channel to this source
                 int index = newChannel();
@@ -941,11 +941,11 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
             }
 
             al.alSourcePlay(channels[src.getChannel()]);
-            src.setStatus(AudioNode.Status.Playing);
+            src.setStatus(AudioSource.Status.Playing);
         }
     }
 
-    public void pauseSource(AudioNode src) {
+    public void pauseSource(AudioSource src) {
         checkDead();
         synchronized (threadLock) {
             while (!threadLock.get()) {
@@ -958,16 +958,16 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-            if (src.getStatus() == AudioNode.Status.Playing) {
+            if (src.getStatus() == AudioSource.Status.Playing) {
                 assert src.getChannel() != -1;
 
                 al.alSourcePause(channels[src.getChannel()]);
-                src.setStatus(AudioNode.Status.Paused);
+                src.setStatus(AudioSource.Status.Paused);
             }
         }
     }
 
-    public void stopSource(AudioNode src) {
+    public void stopSource(AudioSource src) {
         synchronized (threadLock) {
             while (!threadLock.get()) {
                 try {
@@ -979,11 +979,11 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-            if (src.getStatus() != AudioNode.Status.Stopped) {
+            if (src.getStatus() != AudioSource.Status.Stopped) {
                 int chan = src.getChannel();
                 assert chan != -1; // if it's not stopped, must have id
 
-                src.setStatus(AudioNode.Status.Stopped);
+                src.setStatus(AudioSource.Status.Stopped);
                 src.setChannel(-1);
                 clearChannel(chan);
                 freeChannel(chan);
