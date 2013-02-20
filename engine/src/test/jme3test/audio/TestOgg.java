@@ -34,6 +34,7 @@ package jme3test.audio;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
+import com.jme3.audio.AudioSource;
 import com.jme3.audio.LowPassFilter;
 
 public class TestOgg extends SimpleApplication {
@@ -54,7 +55,7 @@ public class TestOgg extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf){
-        if (audioSource.getStatus() != AudioNode.Status.Playing){
+        if (audioSource.getStatus() != AudioSource.Status.Playing){
             audioRenderer.deleteAudioData(audioSource.getAudioData());
 
             System.out.println("Playing with low pass filter");

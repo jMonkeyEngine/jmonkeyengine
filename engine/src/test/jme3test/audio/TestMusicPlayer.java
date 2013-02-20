@@ -35,7 +35,7 @@ package jme3test.audio;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.audio.*;
-import com.jme3.audio.AudioNode.Status;
+import com.jme3.audio.AudioSource.Status;
 import com.jme3.audio.plugins.OGGLoader;
 import com.jme3.audio.plugins.WAVLoader;
 import com.jme3.system.AppSettings;

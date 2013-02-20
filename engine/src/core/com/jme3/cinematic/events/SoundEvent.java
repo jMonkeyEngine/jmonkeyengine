@@ -34,6 +34,7 @@ package com.jme3.cinematic.events;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.audio.AudioNode;
+import com.jme3.audio.AudioSource;
 import com.jme3.cinematic.Cinematic;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -185,7 +186,7 @@ public class SoundEvent extends AbstractCinematicEvent {
 
     @Override
     public void onUpdate(float tpf) {
-        if (audioNode.getStatus() == AudioNode.Status.Stopped) {
+        if (audioNode.getStatus() == AudioSource.Status.Stopped) {
             stop();
         }
     }
