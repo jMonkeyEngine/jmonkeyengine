@@ -46,19 +46,6 @@ public interface AudioSource {
     public int getChannel();
 
     /**
-     * Start playing the audio.
-     */
-    public void play();
-
-    /**
-     * Start playing an instance of this audio. This method can be used
-     * to play the same <code>AudioSource</code> multiple times. Note
-     * that changes to the parameters of this AudioSource will not effect the 
-     * instances already playing.
-     */
-    public void playInstance();
-    
-    /**
      * @return The {#link Filter dry filter} that is set.
      * @see AudioSource#setDryFilter(com.jme3.audio.Filter) 
      */
