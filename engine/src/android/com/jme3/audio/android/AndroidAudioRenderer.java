@@ -40,7 +40,7 @@ import android.media.MediaPlayer;
 import android.media.SoundPool;
 import com.jme3.asset.AssetKey;
 import com.jme3.audio.*;
-import com.jme3.audio.AudioNode.Status;
+import com.jme3.audio.AudioSource.Status;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import java.io.IOException;
@@ -59,13 +59,13 @@ public class AndroidAudioRenderer implements AudioRenderer,
 
     private static final Logger logger = Logger.getLogger(AndroidAudioRenderer.class.getName());
     private final static int MAX_NUM_CHANNELS = 16;
-    private final HashMap<AudioNode, MediaPlayer> musicPlaying = new HashMap<AudioNode, MediaPlayer>();
+    private final HashMap<AudioSource, MediaPlayer> musicPlaying = new HashMap<AudioSource, MediaPlayer>();
     private SoundPool soundPool = null;
     private final Vector3f listenerPosition = new Vector3f();
     // For temp use
     private final Vector3f distanceVector = new Vector3f();
     private final AssetManager assetManager;
-    private HashMap<Integer, AudioNode> soundpoolStillLoading = new HashMap<Integer, AudioNode>();
+    private HashMap<Integer, AudioSource> soundpoolStillLoading = new HashMap<Integer, AudioSource>();
     private Listener listener;
     private boolean audioDisabled = false;
     private final AudioManager manager;
@@ -84,7 +84,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
     }
 
     @Override
-    public void updateSourceParam(AudioNode src, AudioParam param) {
+    public void updateSourceParam(AudioSource src, AudioParam param) {
         if (audioDisabled) {
             return;
         }
@@ -99,7 +99,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
                     return;
                 }
 
-                Vector3f pos = src.getWorldTranslation();
+                Vector3f pos = src.getPosition();
                 break;
             case Velocity:
                 if (!src.isPositional()) {
@@ -220,13 +220,13 @@ public class AndroidAudioRenderer implements AudioRenderer,
         float volume;
 
         // Loop over all mediaplayers
-        for (AudioNode src : musicPlaying.keySet()) {
+        for (AudioSource src : musicPlaying.keySet()) {
 
             MediaPlayer mp = musicPlaying.get(src);
 
             // Calc the distance to the listener
             distanceVector.set(listenerPosition);
-            distanceVector.subtractLocal(src.getLocalTranslation());
+            distanceVector.subtractLocal(src.getPosition());
             distance = FastMath.abs(distanceVector.length());
 
             if (distance < src.getRefDistance()) {
@@ -275,7 +275,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
         }
 
         // Cleanup media player
-        for (AudioNode src : musicPlaying.keySet()) {
+        for (AudioSource src : musicPlaying.keySet()) {
             MediaPlayer mp = musicPlaying.get(src);
             {
                 mp.stop();
@@ -294,7 +294,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
         }
             // XXX: This has bad performance -> maybe change overall structure of
             // mediaplayer in this audiorenderer?
-            for (AudioNode src : musicPlaying.keySet()) {
+            for (AudioSource src : musicPlaying.keySet()) {
                 if (musicPlaying.get(src) == mp) {
                     src.setStatus(Status.Stopped);
                     break;
@@ -312,7 +312,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
      * a specific streamid, so removing is not possilbe -> noone knows when
      * sound finished.
      */
-    public void playSourceInstance(AudioNode src) {
+    public void playSourceInstance(AudioSource src) {
         if (audioDisabled) {
             return;
         }
@@ -357,7 +357,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
 
     @Override
     public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-        AudioNode src = soundpoolStillLoading.remove(sampleId);
+        AudioSource src = soundpoolStillLoading.remove(sampleId);
 
         if (src == null) {
             logger.warning("Something went terribly wrong! onLoadComplete"
@@ -376,7 +376,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
         }
     }
 
-    public void playSource(AudioNode src) {
+    public void playSource(AudioSource src) {
         if (audioDisabled) {
             return;
         }
@@ -414,13 +414,13 @@ public class AndroidAudioRenderer implements AudioRenderer,
         }
     }
 
-    private void setSourceParams(AudioNode src, MediaPlayer mp) {
+    private void setSourceParams(AudioSource src, MediaPlayer mp) {
         mp.setLooping(src.isLooping());
         mp.setVolume(src.getVolume(), src.getVolume());
         //src.getDryFilter();
     }
 
-    private void setSourceParams(AudioNode src) {
+    private void setSourceParams(AudioSource src) {
         soundPool.setLoop(src.getChannel(), src.isLooping() ? -1 : 0);
         soundPool.setVolume(src.getChannel(), src.getVolume(), src.getVolume());
     }
@@ -452,7 +452,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
         }
     }
 
-    public void pauseSource(AudioNode src) {
+    public void pauseSource(AudioSource src) {
         if (audioDisabled) {
             return;
         }
@@ -469,7 +469,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
         }
     }
 
-    public void stopSource(AudioNode src) {
+    public void stopSource(AudioSource src) {
         if (audioDisabled) {
             return;
         }
@@ -494,7 +494,7 @@ public class AndroidAudioRenderer implements AudioRenderer,
     @Override
     public void deleteAudioData(AudioData ad) {
 
-        for (AudioNode src : musicPlaying.keySet()) {
+        for (AudioSource src : musicPlaying.keySet()) {
             if (src.getAudioData() == ad) {
                 MediaPlayer mp = musicPlaying.remove(src);
                 mp.stop();
