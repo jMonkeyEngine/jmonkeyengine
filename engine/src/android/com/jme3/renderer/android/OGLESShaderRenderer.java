@@ -783,12 +783,22 @@ public class OGLESShaderRenderer implements Renderer {
                     id, source.getDefines()
                     + source.getSource());
         } else {
+            String precision ="";
+            if (source.getType() == ShaderType.Fragment) {
+                precision =  "precision mediump float;\n";
+            }
             GLES20.glShaderSource(
-                    id,
-                    "precision mediump float;\n"
-                    + source.getDefines()
+                    id,                 
+                    precision
+                    +source.getDefines()
                     + source.getSource());
         }
+//        int range[] = new int[2];
+//        int precision[] =  new int[1];		
+//        GLES20.glGetShaderPrecisionFormat(GLES20.GL_VERTEX_SHADER, GLES20.GL_HIGH_FLOAT, range, 0, precision, 0);        
+//        System.out.println("PRECISION HIGH FLOAT VERTEX");
+//        System.out.println("range "+range[0]+"," +range[1]);
+//        System.out.println("precision "+precision[0]);
 
         GLES20.glCompileShader(id);
         GLES20.glGetShaderiv(id, GLES20.GL_COMPILE_STATUS, intBuf1);
