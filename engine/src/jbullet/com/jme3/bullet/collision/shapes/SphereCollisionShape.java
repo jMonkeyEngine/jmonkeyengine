@@ -66,14 +66,6 @@ public class SphereCollisionShape extends CollisionShape {
         return radius;
     }
 
-    /**
-     * WARNING - CompoundCollisionShape scaling has no effect.
-     */
-    @Override
-    public void setScale(Vector3f scale) {
-        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "SphereCollisionShape cannot be scaled");
-    }
-
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);

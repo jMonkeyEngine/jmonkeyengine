@@ -94,14 +94,6 @@ public class CapsuleCollisionShape extends CollisionShape{
         return axis;
     }
 
-    /**
-     * WARNING - CompoundCollisionShape scaling has no effect.
-     */
-    @Override
-    public void setScale(Vector3f scale) {
-        Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "CapsuleCollisionShape cannot be scaled");
-    }
-
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule capsule = ex.getCapsule(this);
