@@ -982,5 +982,27 @@ public class TerrainPatch extends Geometry {
         return worldTranslationCached;
     }
 
+    /**
+     * Removes any references when the terrain is being removed.
+     */
+    protected void clearCaches() {
+        if (leftNeighbour != null) {
+            leftNeighbour.rightNeighbour = null;
+            leftNeighbour = null;
+        }
+        if (rightNeighbour != null) {
+            rightNeighbour.leftNeighbour = null;
+            rightNeighbour = null;
+        }
+        if (topNeighbour != null) {
+            topNeighbour.bottomNeighbour = null;
+            topNeighbour = null;
+        }
+        if (bottomNeighbour != null) {
+            bottomNeighbour.topNeighbour = null;
+            bottomNeighbour = null;
+        }
+    }
+
 
 }

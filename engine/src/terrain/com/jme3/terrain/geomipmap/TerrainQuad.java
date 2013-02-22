@@ -1806,6 +1806,34 @@ public class TerrainQuad extends Node implements Terrain {
 
         return quadClone;
     }
+        
+    @Override
+    protected void setParent(Node parent) {
+        super.setParent(parent);
+        if (parent == null) {
+            // if the terrain is being detached
+            clearCaches();
+        }
+    }
+    
+    /**
+     * Removes any cached references this terrain is holding, in particular
+     * the TerrainPatch's neighbour references.
+     * This is called automatically when the root terrainQuad is detached from
+     * its parent or if setParent(null) is called.
+     */
+    public void clearCaches() {
+        if (children != null) {
+            for (int i = children.size(); --i >= 0;) {
+                Spatial child = children.get(i);
+                if (child instanceof TerrainQuad) {
+                    ((TerrainQuad) child).clearCaches();
+                } else if (child instanceof TerrainPatch) {
+                    ((TerrainPatch) child).clearCaches();
+                }
+            }
+        }
+    }
     
     public int getMaxLod() {
         if (maxLod < 0)
