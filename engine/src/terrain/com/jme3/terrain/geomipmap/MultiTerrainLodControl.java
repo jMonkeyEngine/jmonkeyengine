@@ -80,7 +80,7 @@ public class MultiTerrainLodControl extends TerrainLodControl {
      * the render thread.
      */
     public void removeTerrain(TerrainQuad tq) {
-        removedTerrains.remove(tq);
+        removedTerrains.add(tq);
     }
     
     @Override
