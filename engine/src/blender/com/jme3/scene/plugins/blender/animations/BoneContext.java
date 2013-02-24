@@ -7,11 +7,9 @@ import java.util.Map;
 import com.jme3.animation.Bone;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
-import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 
@@ -25,8 +23,6 @@ public class BoneContext {
     private Long              armatureObjectOMA;
     /** The structure of the bone. */
     private Structure         boneStructure;
-    /** Bone's pose channel structure. */
-    private Structure         poseChannel;
     /** Bone's name. */
     private String            boneName;
     /** This variable indicates if the Y axis should be the UP axis. */
@@ -39,8 +35,6 @@ public class BoneContext {
     private List<BoneContext> children      = new ArrayList<BoneContext>();
     /** Created bone (available after calling 'buildBone' method). */
     private Bone              bone;
-    /** Bone's pose transform (available after calling 'buildBone' method). */
-    private Transform         poseTransform = new Transform();
     /** The bone's rest matrix. */
     private Matrix4f          restMatrix;
     /** Bone's total inverse transformation. */
@@ -106,8 +100,6 @@ public class BoneContext {
             this.children.add(new BoneContext(child, armatureObjectOMA, this, objectToArmatureMatrix, bonesPoseChannels, blenderContext));
         }
 
-        poseChannel = bonesPoseChannels.get(boneStructure.getOldMemoryAddress());
-
         blenderContext.setBoneContext(boneStructure.getOldMemoryAddress(), this);
     }
 
@@ -134,33 +126,6 @@ public class BoneContext {
         for (BoneContext child : this.children) {
             child.computeRestMatrix(objectToArmatureMatrix);
         }
-    }
-
-    /**
-     * This method computes the pose transform for the bone.
-     */
-    @SuppressWarnings("unchecked")
-    private void computePoseTransform() {
-        DynamicArray<Number> loc = (DynamicArray<Number>) poseChannel.getFieldValue("loc");
-        DynamicArray<Number> size = (DynamicArray<Number>) poseChannel.getFieldValue("size");
-        DynamicArray<Number> quat = (DynamicArray<Number>) poseChannel.getFieldValue("quat");
-        if (fixUpAxis) {
-            poseTransform.setTranslation(loc.get(0).floatValue(), -loc.get(2).floatValue(), loc.get(1).floatValue());
-            poseTransform.setRotation(new Quaternion(quat.get(1).floatValue(), quat.get(3).floatValue(), -quat.get(2).floatValue(), quat.get(0).floatValue()));
-            poseTransform.setScale(size.get(0).floatValue(), size.get(2).floatValue(), size.get(1).floatValue());
-        } else {
-            poseTransform.setTranslation(loc.get(0).floatValue(), loc.get(1).floatValue(), loc.get(2).floatValue());
-            poseTransform.setRotation(new Quaternion(quat.get(0).floatValue(), quat.get(1).floatValue(), quat.get(2).floatValue(), quat.get(3).floatValue()));
-            poseTransform.setScale(size.get(0).floatValue(), size.get(1).floatValue(), size.get(2).floatValue());
-        }
-
-        Transform localTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
-        localTransform.setScale(bone.getLocalScale());
-        localTransform.getTranslation().addLocal(poseTransform.getTranslation());
-        localTransform.getRotation().multLocal(poseTransform.getRotation());
-        localTransform.getScale().multLocal(poseTransform.getScale());
-
-        poseTransform.set(localTransform);
     }
 
     /**
@@ -193,16 +158,7 @@ public class BoneContext {
             bone.addChild(child.buildBone(bones, boneOMAs, blenderContext));
         }
 
-        this.computePoseTransform();
-
         return bone;
-    }
-
-    /**
-     * @return bone's pose transformation
-     */
-    public Transform getPoseTransform() {
-        return poseTransform;
     }
 
     /**
