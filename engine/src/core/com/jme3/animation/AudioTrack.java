@@ -68,6 +68,7 @@ public class AudioTrack implements ClonableTrack {
     private float length = 0;
     private boolean initialized = false;
     private boolean started = false;
+    private boolean played = false;
 
     //Animation listener to stop the sound when the animation ends or is changed
     private class OnEndListener implements AnimEventListener {
@@ -121,7 +122,7 @@ public class AudioTrack implements ClonableTrack {
      */
     public void setTime(float time, float weight, AnimControl control, AnimChannel channel, TempVars vars) {
 
-        if (time == length) {
+        if (time >= length) {
             return;
         }
         if (!initialized) {
