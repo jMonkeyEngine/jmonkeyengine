@@ -396,7 +396,11 @@ public class AndroidInput implements
 
     private void processEvent(TouchEvent event) {
         synchronized (eventQueue) {
-            eventQueue.push(event);
+            //Discarding events when the ring buffer is full to avoid buffer overflow.
+            if(eventQueue.size()< MAX_EVENTS){
+                eventQueue.push(event);
+            }
+            
         }
     }
 
