@@ -103,27 +103,5 @@ public class AndroidAssetManager extends DesktopAssetManager {
 
         logger.fine("AndroidAssetManager created.");
     }
-
-    /**
-     * Loads a texture. 
-     *
-     * @return the texture
-     */
-    @Override
-    public Texture loadTexture(TextureKey key) {
-        Texture tex = (Texture) loadAsset(key);
-
-        // XXX: This will improve performance on some really
-        // low end GPUs (e.g. ones with OpenGL ES 1 support only)
-        // but otherwise won't help on the higher ones. 
-        // Strongly consider removing this.
-        tex.setMagFilter(Texture.MagFilter.Nearest);
-        tex.setAnisotropicFilter(0);
-        if (tex.getMinFilter().usesMipMapLevels()) {
-            tex.setMinFilter(Texture.MinFilter.NearestNearestMipMap);
-        } else {
-            tex.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
-        }
-        return tex;
-    }
+    
 }
