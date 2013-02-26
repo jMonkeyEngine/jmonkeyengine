@@ -33,7 +33,6 @@ package com.jme3.renderer.queue;
 
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
-import com.jme3.util.ListSort;
 import com.jme3.util.SortUtil;
 
 /**
@@ -49,15 +48,9 @@ public class GeometryList {
     private static final int DEFAULT_SIZE = 32;
 
     private Geometry[] geometries;
- //   private Geometry[] geometries2;
-    private ListSort listSort;
+    private Geometry[] geometries2;
     private int size;
     private GeometryComparator comparator;
-    
-    /*static private int count =0;
-    static private int cpt =0;
-    static private long time = 0;
-    */
 
     /**
      * Initializes the GeometryList to use the given {@link GeometryComparator}
@@ -68,9 +61,8 @@ public class GeometryList {
     public GeometryList(GeometryComparator comparator) {
         size = 0;
         geometries = new Geometry[DEFAULT_SIZE];
-   //     geometries2 = new Geometry[DEFAULT_SIZE];
+        geometries2 = new Geometry[DEFAULT_SIZE];
         this.comparator = comparator;
-        listSort = new ListSort<Geometry>();
     }
 
     /**
@@ -123,9 +115,9 @@ public class GeometryList {
             System.arraycopy(geometries, 0, temp, 0, size);
             geometries = temp; // original list replaced by double-size list
             
-    //        geometries2 = new Geometry[size * 2];            
+            geometries2 = new Geometry[size * 2];
         }
-        geometries[size++] = g;       
+        geometries[size++] = g;
     }
 
     /**
@@ -136,7 +128,7 @@ public class GeometryList {
             geometries[i] = null;
         }
 
-        size = 0;        
+        size = 0;
     }
 
     /**
@@ -145,34 +137,14 @@ public class GeometryList {
     public void sort() {
         if (size > 1) {
             // sort the spatial list using the comparator
-//            count++;
-//            long t = System.nanoTime();
             
-            if(listSort.getLength() != size){
-                listSort.allocateStack(size);
-            }                       
-            listSort.sort(geometries,comparator);
+//            SortUtil.qsort(geometries, 0, size, comparator);
+//            Arrays.sort(geometries, 0, size, comparator);            
             
-//            time += System.nanoTime() - t;
+            System.arraycopy(geometries, 0, geometries2, 0, size);
+            SortUtil.msort(geometries2, geometries, 0, size-1, comparator);
             
-          
-            
-//            count++;            
-//             long t = System.nanoTime();
-//            System.arraycopy(geometries, 0, geometries2, 0, size);
-//            SortUtil.msort(geometries2, geometries, 0, size-1, comparator);
-//            time += System.nanoTime() - t;
-//            
-//            count++;
-//            long t = System.nanoTime();            
-//            Arrays.sort(geometries,0,size, comparator);
-//            time += System.nanoTime() - t;
+
         }
-        
-//        if( count>50){
-//            count = 0;
-//            cpt++;
-//            System.err.println(50*cpt+"\t"+time/1000000);
-//        }
     }
 }
