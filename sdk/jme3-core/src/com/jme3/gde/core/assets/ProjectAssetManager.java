@@ -433,6 +433,14 @@ public class ProjectAssetManager extends DesktopAssetManager {
         return filesWithSuffix("j3md");
     }
 
+    public List<String>  getProjectShaderNodeDefs() {       
+        return collectProjectFilesWithSuffix("j3sn", new LinkedList<String>());
+    }
+
+    public  List<String> getDependenciesShaderNodeDefs() {        
+        return collectDependenciesFilesWithSuffix("j3sn", new LinkedList<String>());
+    }
+
     public String[] getAssetsWithSuffix(String string) {
         return filesWithSuffix(string);
     }
@@ -444,6 +452,12 @@ public class ProjectAssetManager extends DesktopAssetManager {
 
     private List<String> collectFilesWithSuffix(String suffix) {
         List<String> list = new LinkedList<String>();
+        collectProjectFilesWithSuffix(suffix, list);
+        collectDependenciesFilesWithSuffix(suffix, list);
+        return list;
+    }
+
+    private List<String> collectProjectFilesWithSuffix(String suffix, List<String> list) {
         FileObject assetsFolder = getAssetFolder();
         if (assetsFolder != null) {
             Enumeration<FileObject> assets = (Enumeration<FileObject>) assetsFolder.getChildren(true);
@@ -454,7 +468,10 @@ public class ProjectAssetManager extends DesktopAssetManager {
                 }
             }
         }
+        return list;
+    }
 
+    private List<String> collectDependenciesFilesWithSuffix(String suffix, List<String> list) {
         synchronized (classPathItems) {
             // TODO I need to find out if classPathItems contains all jars added to a project
             Iterator<ClassPathItem> classPathItemsIter = classPathItems.iterator();
@@ -472,9 +489,8 @@ public class ProjectAssetManager extends DesktopAssetManager {
                     }
                 }
             }
+            return list;
         }
-
-        return list;
     }
 
     public InputStream getResourceAsStream(String name) {
