@@ -38,6 +38,7 @@ import com.jme3.texture.Texture;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
 import java.util.LinkedList;
@@ -69,12 +70,14 @@ public class TexturePropertyEditor implements PropertyEditor {
         this.manager = manager;
     }
 
-    public void setValue(Object value) {
+    public void setValue(Object value) {        
         if (value instanceof Texture) {
             texture = (Texture) value;
+            triggerListeners(null,texture);
         } else {
-            texture = null;
-        }
+            triggerListeners(texture,null);
+            texture = null;            
+        }        
     }
 
     public Object getValue() {
@@ -135,5 +138,11 @@ public class TexturePropertyEditor implements PropertyEditor {
 
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         listeners.remove(listener);
+    }
+
+    private void triggerListeners(Object oldValue,Object value) {
+        for (PropertyChangeListener propertyChangeListener : listeners) {
+            propertyChangeListener.propertyChange(new PropertyChangeEvent(this, "texture", oldValue, value));
+        }
     }
 }
