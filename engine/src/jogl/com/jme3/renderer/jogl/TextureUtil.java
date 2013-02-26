@@ -43,6 +43,8 @@ import javax.media.opengl.GL2GL3;
 import javax.media.opengl.GLContext;
 
 public class TextureUtil {
+    
+    private static boolean abgrToRgbaConversionEnabled = false;
 
     public static int convertTextureFormat(Format fmt) {
         switch (fmt) {
@@ -157,8 +159,9 @@ public class TextureUtil {
         GL gl = GLContext.getCurrentGL();
         switch (fmt){
             case ABGR8:
-                if (!gl.isExtensionAvailable("GL_EXT_abgr")){
-                    return null;
+                if (!gl.isExtensionAvailable("GL_EXT_abgr") && !abgrToRgbaConversionEnabled) {
+                    setFormat(Format.ABGR8,   GL.GL_RGBA,        GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false);
+                    abgrToRgbaConversionEnabled = true;
                 }
                 break;
             case BGR8:
@@ -257,6 +260,9 @@ public class TextureUtil {
         int depth = image.getDepth();
 
         if (data != null) {
+            if (abgrToRgbaConversionEnabled) {
+                convertABGRtoRGBA(data);
+            }
             gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
         }
 
@@ -384,5 +390,23 @@ public class TextureUtil {
             
             pos += mipSizes[i];
         }
+    }
+    
+    private static void convertABGRtoRGBA(ByteBuffer buffer) {
+
+        for (int i = 0; i < buffer.capacity(); i++) {
+
+            int a = buffer.get(i++);
+            int b = buffer.get(i++);
+            int g = buffer.get(i++);
+            int r = buffer.get(i);
+
+            buffer.put(i - 3, (byte) r);
+            buffer.put(i - 2, (byte) g);
+            buffer.put(i - 1, (byte) b);
+            buffer.put(i, (byte) a);
+
+        }
+
     }
 }
