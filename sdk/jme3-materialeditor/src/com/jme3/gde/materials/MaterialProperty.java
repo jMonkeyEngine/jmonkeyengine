@@ -28,9 +28,11 @@ public class MaterialProperty {
     public MaterialProperty(MatParam param) {
         this.type = param.getVarType().name();
         this.name = param.getName();
-        try {
-            this.value = param.getValueAsString();
-        } catch (UnsupportedOperationException e) {
+        if (param.getValue() != null) {
+            try {
+                this.value = param.getValueAsString();
+            } catch (UnsupportedOperationException e) {
+            }
         }
     }
 
