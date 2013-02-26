@@ -7,6 +7,7 @@ package com.jme3.gde.materials;
 import com.jme3.asset.TextureKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.util.Beans;
+import com.jme3.gde.materialdefinition.utils.MaterialUtils;
 import com.jme3.gde.materials.wizards.StoreTextureWizardWizardAction;
 import com.jme3.material.MatParam;
 import com.jme3.material.MatParamTexture;
@@ -90,7 +91,7 @@ public class EditableMaterialFile {
             //scan material text
             for (String line : material.asLines()) {
                 //trim line incl comments
-                line = trimLine(line);
+                line = MaterialUtils.trimLine(line);
                 //find and load matdef file
                 if (line.startsWith("Material ") || line.startsWith("Material\t") && level == 0) {
                     parseMaterialProperties(line);
@@ -223,7 +224,7 @@ public class EditableMaterialFile {
         if (matDef != null && matDef.isValid()) {
             try {
                 for (String defLine : matDef.asLines()) {
-                    defLine = trimLine(defLine.trim());
+                    defLine = MaterialUtils.trimLine(defLine.trim());
                     if (defLine.startsWith("MaterialParameters ") || defLine.startsWith("MaterialParameters\t") || defLine.startsWith("MaterialParameters{") && level == 1) {
                         params = true;
                     }
@@ -241,7 +242,7 @@ public class EditableMaterialFile {
                         for (int i = 0; i < variableTypes.length; i++) {
                             String string = variableTypes[i];
                             if (defLine.startsWith(string)) {
-                                String name = trimName(defLine.replaceFirst(string, ""));
+                                String name = MaterialUtils.trimName(defLine.replaceFirst(string, ""));
                                 matDefEntries.add(name);
                                 MaterialProperty prop = materialParameters.get(name);
                                 if (prop == null) {
@@ -288,7 +289,7 @@ public class EditableMaterialFile {
             //goes through the lines of the material file and replaces the values it finds
             for (String line : matLines) {
                 String newLine = line;
-                line = trimLine(line);
+                line = MaterialUtils.trimLine(line);
                 //write material header
                 if (line.startsWith("Material ") || line.startsWith("Material\t") && level == 0) {
                     String suffix = "";
@@ -426,37 +427,7 @@ public class EditableMaterialFile {
         out.close();
     }
 
-    /**
-     * trims a line and removes comments
-     *
-     * @param line
-     * @return
-     */
-    private String trimLine(String line) {
-        int idx = line.indexOf("//");
-        if (idx != -1) {
-            line = line.substring(0, idx);
-        }
-        return line.trim();
-    }
-
-    /**
-     * trims a line and removes everything behind colon
-     *
-     * @param line
-     * @return
-     */
-    private String trimName(String line) {
-        line = trimLine(line);
-        int idx = line.indexOf("(");
-        if (idx == -1) {
-            idx = line.indexOf(":");
-        }
-        if (idx != -1) {
-            line = line.substring(0, idx);
-        }
-        return line.trim();
-    }
+ 
 
     public Map<String, MaterialProperty> getParameterMap() {
         return materialParameters;
