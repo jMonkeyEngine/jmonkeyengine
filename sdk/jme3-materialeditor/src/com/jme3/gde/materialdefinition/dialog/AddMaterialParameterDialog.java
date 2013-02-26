@@ -25,7 +25,7 @@ public class AddMaterialParameterDialog extends javax.swing.JDialog {
     public AddMaterialParameterDialog(java.awt.Frame parent, boolean modal, Diagram diagram, Point clickPosition) {
         super(parent, modal);
         initComponents();
-        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>();
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
         model.addElement("Color");
         for (VarType varType : VarType.values()) {
 

@@ -24,7 +24,7 @@ public class AddWorldParameterDialog extends javax.swing.JDialog {
     public AddWorldParameterDialog(java.awt.Frame parent, boolean modal, Diagram diagram, Point clickPosition) {
         super(parent, modal);
         initComponents();
-        DefaultComboBoxModel<UniformBinding> model = new DefaultComboBoxModel<UniformBinding>();
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
 
         for (UniformBinding binding : UniformBinding.values()) {
             model.addElement(binding);

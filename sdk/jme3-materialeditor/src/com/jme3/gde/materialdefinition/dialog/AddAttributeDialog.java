@@ -6,7 +6,6 @@ package com.jme3.gde.materialdefinition.dialog;
 
 import com.jme3.gde.materialdefinition.editor.Diagram;
 import com.jme3.scene.VertexBuffer;
-import com.jme3.shader.UniformBinding;
 import java.awt.Point;
 import javax.swing.DefaultComboBoxModel;
 
@@ -25,7 +24,7 @@ public class AddAttributeDialog extends javax.swing.JDialog {
     public AddAttributeDialog(java.awt.Frame parent, boolean modal, Diagram diagram, Point clickPosition) {
         super(parent, modal);
         initComponents();
-        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<String>();
+        DefaultComboBoxModel model = new DefaultComboBoxModel();
 
         for (VertexBuffer.Type attr : VertexBuffer.Type.values()) {
             model.addElement("in" + attr.name());
