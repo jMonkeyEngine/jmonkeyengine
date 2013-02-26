@@ -1,0 +1,19 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition TransformPosition{
+        Type: Vertex        
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Basic/transformPosition.vert
+        Documentation {
+            This node transforms a position according to the given matrix
+            @input inputPosition the position to transform
+            @input transformsMatrix the matrix to use for this transformation
+            @output outPosition the transformed position
+        } 
+        Input {
+            vec3 inputPosition
+            mat4 transformsMatrix
+        }
+        Output {
+            vec4 outPosition
+        }
+    }
+}

@@ -1,0 +1,21 @@
+ShaderNodeDefinitions{
+     ShaderNodeDefinition LightMapping{
+        Type: Fragment
+        Shader GLSL100: Common/MatDefs/ShaderNodes/LightMapping/lightMap.frag
+        Documentation {
+            This Node is responsible for multiplying a light mapping contribution to a given color.   
+            @input texCoord the texture coordinates to use for light mapping
+            @input lightMap the texture to use for light mapping   
+            @input color the color the lightmap color will be multiplied to
+            @output color the resulting color             
+        }
+        Input{            
+            vec2 texCoord
+            sampler2D lightMap    
+            vec4 color               
+        }
+        Output{
+            vec4 color
+        }
+    }   
+}    

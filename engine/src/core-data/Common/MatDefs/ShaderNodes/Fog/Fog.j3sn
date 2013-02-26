@@ -1,0 +1,46 @@
+ShaderNodesDefinitions { 
+        ShaderNodeDefinition FogFactor{
+            Type: Vertex
+            Shader GLSL100: Common/MatDefs/ShaderNodes/Fog/fogFactor.vert            
+            Documentation {
+                This Node is responsible for computing the fog factor of a vertex in the vertex shader.
+                It computes the fogFactor according to view space z (distance from cam to vertex) and a fogDensity parameter.
+                This Node should be used with a FogOutput for the fragment shader to effectively output the fog color.                      
+                @input modelPostion the vertex position in model space
+                @input modelViewMatrix the model view matrix responsible to transform a vertex position from model space to view space.              
+                @input fogDensity the fog density (usually assigned with a material parameter)                
+                @output fogFactor the fog factor of the vertex output as a varying
+            }
+            Input{  
+                vec4 modelPosition       
+                // Note here that the fog vertex shader will compute position of the vertex in view space
+                // This is a pretty common operation that could be used elsewhere.
+                // IMO I would split this in 2 ShaderNodes, so that the view space pos could be reused.
+                mat4 modelViewMatrix 
+                float fogDensity
+            }
+            Output{
+                float fogFactor                
+            }
+        }
+        ShaderNodeDefinition FogOutput{
+            Type: Fragment
+            Shader GLSL100: Common/MatDefs/ShaderNodes/Fog/fogOutput.frag
+            Documentation {
+                This Node is responsible for multiplying a fog contribution to a color according to a fogColor and a fogFactor.
+                This node should be used with a FogFactor node that will be responsible to compute the fogFactor in the vertex shader.             
+                @input fogFactor the previously computed fog factor                     
+                @input fogColor the fog color
+                @input color the color the fog contribution will be multiplied to.                
+                @output color the color with fog contribution (usually assigned to Global.color)             
+            }
+            Input{                  
+                float fogFactor
+                vec4 fogColor
+                vec4 color
+            }
+            Output{
+                vec4 color
+            }
+        }
+}

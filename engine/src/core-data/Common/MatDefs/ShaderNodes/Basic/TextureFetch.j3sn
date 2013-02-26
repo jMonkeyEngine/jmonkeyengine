@@ -1,0 +1,19 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition TextureFetch {      
+        Type: Fragment
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Basic/texture.frag
+        Documentation{
+            Fetches a color value in the given texture acording to given texture coordinates
+            @input texture the texture to read
+            @input texCoord the texture coordinates
+            @output outColor the fetched color
+        }
+        Input {
+            sampler2D texture
+            vec2 texCoord            
+        }
+        Output {
+            vec4 outColor
+        }
+    }
+}

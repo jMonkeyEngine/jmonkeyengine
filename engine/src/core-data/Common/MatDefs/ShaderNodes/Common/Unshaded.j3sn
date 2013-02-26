@@ -1,0 +1,27 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition Unshaded{
+        Type: Fragment
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Common/unshaded.frag
+        Documentation {
+            This Node is responsible for outputing the unshaded color of a fragment.
+            It can support texture mapping, an arbitrary input color and a vertex color 
+            (all resulting colors will be multiplied)                   
+            @input texCoord the texture coordinates to use for texture mapping
+            @input vertColor the vertex color (often comming from a varrying)
+            @input matColor the material color (often comming from a material parameter) 
+            @input colorMap the texture to use for texture mapping  
+            @input color the color this node contribution will be multiplied to
+            @output outColor the color of the pixel (usually assigned to Global.color) 
+        }
+        Input{                   
+            vec2 texCoord                    
+            vec4 vertColor     
+            vec4 matColor
+            sampler2D colorMap  
+            vec4 color
+        }
+        Output{
+            vec4 color                
+        }
+    }
+}
