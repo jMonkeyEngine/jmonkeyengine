@@ -32,9 +32,11 @@
 package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.renderer.Caps;
 import com.jme3.shader.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -170,7 +172,7 @@ public class Technique /* implements Savable */ {
      * 
      * @param assetManager The asset manager to use for loading shaders.
      */
-    public void makeCurrent(AssetManager assetManager, boolean techniqueSwitched) {
+    public void makeCurrent(AssetManager assetManager, boolean techniqueSwitched, EnumSet<Caps> rendererCaps) {
         if (!def.isUsingShaders()) {
             // No shaders are used, no processing is neccessary. 
             return;
@@ -197,23 +199,23 @@ public class Technique /* implements Savable */ {
         }
 
         if (needReload) {
-            loadShader(assetManager);
+            loadShader(assetManager,rendererCaps);
         }
     }
 
-    private void loadShader(AssetManager manager) {
-        // recompute define list
-        DefineList allDefines = new DefineList();
-        allDefines.addFrom(def.getShaderPresetDefines());
-        allDefines.addFrom(defines);
-
-        ShaderKey key = new ShaderKey(def.getVertexShaderName(),
-                                      def.getFragmentShaderName(),
-                                      allDefines,
-                                      def.getVertexShaderLanguage(),
-                                      def.getFragmentShaderLanguage());
-        shader = manager.loadShader(key);
-
+    private void loadShader(AssetManager manager,EnumSet<Caps> rendererCaps) {
+        
+        if (getDef().isUsingShaderNodes()) {
+            shader = manager.getShaderGenerator(rendererCaps).generateShader(this);
+        } else {
+            ShaderKey key = new ShaderKey(def.getVertexShaderName(),
+                    def.getFragmentShaderName(),
+                    getAllDefines(),
+                    def.getVertexShaderLanguage(),
+                    def.getFragmentShaderLanguage());
+            shader = manager.loadShader(key);
+        
+        }
         // register the world bound uniforms
         worldBindUniforms.clear();
         if (def.getWorldBindings() != null) {
@@ -224,9 +226,20 @@ public class Technique /* implements Savable */ {
                    worldBindUniforms.add(uniform);
                }
            }
-        }
+        }        
         needReload = false;
     }
+    
+    /**
+     * Computes the define list
+     * @return the complete define list
+     */
+    public DefineList getAllDefines() {
+        DefineList allDefines = new DefineList();
+        allDefines.addFrom(def.getShaderPresetDefines());
+        allDefines.addFrom(defines);
+        return allDefines;
+    } 
     
     /*
     public void write(JmeExporter ex) throws IOException {

@@ -29,64 +29,61 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.util.blockparser;
+package com.jme3.asset;
 
-import java.util.ArrayList;
+import com.jme3.asset.cache.AssetCache;
+import com.jme3.shader.ShaderNodeDefinition;
 import java.util.List;
 
-public class Statement {
+/**
+ * Used for loading {@link ShaderNodeDefinition shader nodes definition}
+ *
+ * Tells if the defintion has to be loaded with or without its documentation
+ *
+ * @author Kirill Vainer
+ */
+public class ShaderNodeDefinitionKey extends AssetKey<List<ShaderNodeDefinition>> {
 
-    protected int lineNumber;
-    protected String line;
-    protected List<Statement> contents = new ArrayList<Statement>();
+    private boolean loadDocumentation = false;
 
-    protected Statement(int lineNumber, String line) {
-        this.lineNumber = lineNumber;
-        this.line = line;
+    /**
+     * creates a ShaderNodeDefinitionKey
+     *
+     * @param name the name of the asset to load
+     */
+    public ShaderNodeDefinitionKey(String name) {
+        super(name);
     }
 
-    protected void addStatement(Statement statement) {
-        contents.add(statement);
-    }
-
-    protected void addStatement(int index, Statement statement) {
-        contents.add(index, statement);
-    }
-
-    public int getLineNumber() {
-        return lineNumber;
-    }
-
-    public String getLine() {
-        return line;
-    }
-
-    public List<Statement> getContents() {
-        return contents;
-    }
-
-    protected String getIndent(int indent) {
-        return "                               ".substring(0, indent);
-    }
-
-    protected String toString(int indent) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getIndent(indent));
-        sb.append(line);
-        if (contents != null) {
-            sb.append(" {\n");
-            for (Statement statement : contents) {
-                sb.append(statement.toString(indent + 4));
-                sb.append("\n");
-            }
-            sb.append(getIndent(indent));
-            sb.append("}");
-        }
-        return sb.toString();
+    /**
+     * creates a ShaderNodeDefinitionKey
+     */
+    public ShaderNodeDefinitionKey() {
+        super();
     }
 
     @Override
-    public String toString() {
-        return toString(0);
+    public Class<? extends AssetCache> getCacheType() {
+        return null;
+    }
+
+    /**
+     *
+     * @return true if the asset loaded with this key will contain its
+     * documentation
+     */
+    public boolean isLoadDocumentation() {
+        return loadDocumentation;
+    }
+
+    /**
+     * sets to true to load the documentation along with the
+     * ShaderNodeDefinition
+     *
+     * @param loadDocumentation true to load the documentation along with the
+     * ShaderNodeDefinition
+     */
+    public void setLoadDocumentation(boolean loadDocumentation) {
+        this.loadDocumentation = loadDocumentation;
     }
 }

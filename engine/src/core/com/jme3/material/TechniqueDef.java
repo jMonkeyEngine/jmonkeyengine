@@ -35,6 +35,7 @@ import com.jme3.export.*;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
 import com.jme3.shader.DefineList;
+import com.jme3.shader.ShaderNode;
 import com.jme3.shader.UniformBinding;
 import com.jme3.shader.VarType;
 import java.io.IOException;
@@ -110,6 +111,9 @@ public class TechniqueDef implements Savable {
     
     private DefineList presetDefines;
     private boolean usesShaders;
+    private boolean usesNodes = false;
+    private List<ShaderNode> shaderNodes;
+    private ShaderGenerationInfo shaderGenerationInfo;
 
     private RenderState renderState;
     private RenderState forcedRenderState;
@@ -216,6 +220,16 @@ public class TechniqueDef implements Savable {
      */
     public boolean isUsingShaders(){
         return usesShaders;
+    }
+    
+    /**
+     * Returns true if this technique uses Shader Nodes, false otherwise.
+     * 
+     * @return true if this technique uses Shader Nodes, false otherwise.
+     * 
+     */
+    public boolean isUsingShaderNodes(){
+        return usesNodes;
     }
 
     /**
@@ -408,6 +422,9 @@ public class TechniqueDef implements Savable {
         oc.write(shadowMode, "shadowMode", ShadowMode.Disable);
         oc.write(renderState, "renderState", null);
         oc.write(usesShaders, "usesShaders", false);
+        oc.write(usesNodes, "usesNodes", false);
+        oc.writeSavableArrayList((ArrayList)shaderNodes,"shaderNodes", null);
+        oc.write(shaderGenerationInfo, "shaderGenerationInfo", null);
         
         // TODO: Finish this when Map<String, String> export is available
 //        oc.write(defineParams, "defineParams", null);
@@ -435,6 +452,32 @@ public class TechniqueDef implements Savable {
             vertLanguage = ic.readString("vertLanguage", null);
             fragLanguage = ic.readString("fragLanguage", null);;
         }
+        
+        usesNodes = ic.readBoolean("usesNodes", false);
+        shaderNodes = ic.readSavableArrayList("shaderNodes", null);
+        shaderGenerationInfo = (ShaderGenerationInfo) ic.readSavable("shaderGenerationInfo", null);
     }
-    
+
+    public List<ShaderNode> getShaderNodes() {
+        return shaderNodes;
+    }
+
+    public void setShaderNodes(List<ShaderNode> shaderNodes) {
+        this.shaderNodes = shaderNodes;
+        usesNodes = true;
+        usesShaders = true;
+    }
+
+    public ShaderGenerationInfo getShaderGenerationInfo() {
+        return shaderGenerationInfo;
+    }
+
+    public void setShaderGenerationInfo(ShaderGenerationInfo shaderGenerationInfo) {
+        this.shaderGenerationInfo = shaderGenerationInfo;
+    }
+
+    @Override
+    public String toString() {
+        return "TechniqueDef{" + "requiredCaps=" + requiredCaps + ", name=" + name + ", vertName=" + vertName + ", fragName=" + fragName + ", vertLanguage=" + vertLanguage + ", fragLanguage=" + fragLanguage + ", presetDefines=" + presetDefines + ", usesShaders=" + usesShaders + ", usesNodes=" + usesNodes + ", shaderNodes=" + shaderNodes + ", shaderGenerationInfo=" + shaderGenerationInfo + ", renderState=" + renderState + ", forcedRenderState=" + forcedRenderState + ", lightMode=" + lightMode + ", shadowMode=" + shadowMode + ", defineParams=" + defineParams + ", worldBinds=" + worldBinds + '}';
+    }    
 }

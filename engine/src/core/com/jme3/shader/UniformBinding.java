@@ -37,63 +37,63 @@ public enum UniformBinding {
      * The world matrix. Converts Model space to World space.
      * Type: mat4
      */
-    WorldMatrix,
+    WorldMatrix("mat4"),
 
     /**
      * The view matrix. Converts World space to View space.
      * Type: mat4
      */
-    ViewMatrix,
+    ViewMatrix("mat4"),
 
     /**
      * The projection matrix. Converts View space to Clip/Projection space.
      * Type: mat4
      */
-    ProjectionMatrix,
+    ProjectionMatrix("mat4"),
 
     /**
      * The world view matrix. Converts Model space to View space.
      * Type: mat4
      */
-    WorldViewMatrix,
+    WorldViewMatrix("mat4"),
 
     /**
      * The normal matrix. The inverse transpose of the worldview matrix.
      * Converts normals from model space to view space.
      * Type: mat3
      */
-    NormalMatrix,
+    NormalMatrix("mat3"),
 
     /**
      * The world view projection matrix. Converts Model space to Clip/Projection
      * space.
      * Type: mat4
      */
-    WorldViewProjectionMatrix,
+    WorldViewProjectionMatrix("mat4"),
 
     /**
      * The view projection matrix. Converts World space to Clip/Projection
      * space.
      * Type: mat4
      */
-    ViewProjectionMatrix,
+    ViewProjectionMatrix("mat4"),
 
     /**
      * The world matrix inverse transpose. Converts a normals from Model space
      * to world space.
      * Type: mat3
      */
-    WorldMatrixInverseTranspose,      
+    WorldMatrixInverseTranspose("mat3"),      
 
 
 
-    WorldMatrixInverse,
-    ViewMatrixInverse,
-    ProjectionMatrixInverse,
-    ViewProjectionMatrixInverse,
-    WorldViewMatrixInverse,
-    NormalMatrixInverse,
-    WorldViewProjectionMatrixInverse,
+    WorldMatrixInverse("mat4"),
+    ViewMatrixInverse("mat4"),
+    ProjectionMatrixInverse("mat4"),
+    ViewProjectionMatrixInverse("mat4"),
+    WorldViewMatrixInverse("mat4"),
+    NormalMatrixInverse("mat3"),
+    WorldViewProjectionMatrixInverse("mat4"),
 
     /**
      * Contains the four viewport parameters in this order:
@@ -103,7 +103,7 @@ public enum UniformBinding {
      * W = Bottom.
      * Type: vec4
      */
-    ViewPort,
+    ViewPort("vec4"),
 
     /**
      * The near and far values for the camera frustum.
@@ -111,65 +111,80 @@ public enum UniformBinding {
      * Y = Far.
      * Type: vec2
      */
-    FrustumNearFar,
+    FrustumNearFar("vec2"),
     
     /**
      * The width and height of the camera.
      * Type: vec2
      */
-    Resolution,
+    Resolution("vec2"),
     
     /**
      * The inverse of the resolution, 1/width and 1/height. 
      * Type: vec2
      */
-    ResolutionInverse,
+    ResolutionInverse("vec2"),
 
     /**
      * Aspect ratio of the resolution currently set. Width/Height.
      * Type: float
      */
-    Aspect,
+    Aspect("float"),
 
     /**
      * Camera position in world space.
      * Type: vec3
      */
-    CameraPosition,
+    CameraPosition("vec3"),
 
     /**
      * Direction of the camera.
      * Type: vec3
      */
-    CameraDirection,
+    CameraDirection("vec3"),
 
     /**
      * Left vector of the camera.
      * Type: vec3
      */
-    CameraLeft,
+    CameraLeft("vec3"),
 
     /**
      * Up vector of the camera.
      * Type: vec3
      */
-    CameraUp,
+    CameraUp("vec3"),
 
     /**
      * Time in seconds since the application was started.
      * Type: float
      */
-    Time,
+    Time("float"),
 
     /**
      * Time in seconds that the last frame took.
      * Type: float
      */
-    Tpf,
+    Tpf("float"),
 
     /**
      * Frames per second.
      * Type: float
      */
-    FrameRate,
+    FrameRate("float");
+    
+    String glslType;
+
+    private UniformBinding() {
+    }
+
+    private UniformBinding(String glslType) {
+        this.glslType = glslType;
+    }
+
+    public String getGlslType() {
+        return glslType;
+    }
+    
+    
 }

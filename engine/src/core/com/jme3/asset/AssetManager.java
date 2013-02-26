@@ -38,12 +38,15 @@ import com.jme3.audio.AudioKey;
 import com.jme3.font.BitmapFont;
 import com.jme3.material.Material;
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.renderer.Caps;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.OBJLoader;
 import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderGenerator;
 import com.jme3.shader.ShaderKey;
 import com.jme3.texture.Texture;
 import com.jme3.texture.plugins.TGALoader;
+import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -364,4 +367,17 @@ public interface AssetManager {
      * @see AssetManager#loadAsset(com.jme3.asset.AssetKey)
      */
     public FilterPostProcessor loadFilter(String name);
+    
+    /**
+     * Sets the shaderGenerator to generate shaders based on shaderNodes.
+     * @param generator the shaderGenerator 
+     */    
+    public void setShaderGenerator(ShaderGenerator generator);
+    
+    /**
+     * Returns the shaderGenerator responsible for generating the shaders
+     * @return the shaderGenerator 
+     */
+    public ShaderGenerator getShaderGenerator(EnumSet<Caps> caps);
+    
 }

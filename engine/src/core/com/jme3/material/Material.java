@@ -873,10 +873,10 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     public void selectTechnique(String name, RenderManager renderManager) {
         // check if already created
         Technique tech = techniques.get(name);
+        // When choosing technique, we choose one that
+        // supports all the caps.
+        EnumSet<Caps> rendererCaps = renderManager.getRenderer().getCaps();
         if (tech == null) {
-            // When choosing technique, we choose one that
-            // supports all the caps.
-            EnumSet<Caps> rendererCaps = renderManager.getRenderer().getCaps();
 
             if (name.equals("Default")) {
                 List<TechniqueDef> techDefs = def.getDefaultTechniques();
@@ -923,7 +923,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         technique = tech;
-        tech.makeCurrent(def.getAssetManager(), true);
+        tech.makeCurrent(def.getAssetManager(), true, rendererCaps);
 
         // shader was changed
         sortingId = -1;
@@ -933,7 +933,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (technique == null) {
             selectTechnique("Default", rm);
         } else {
-            technique.makeCurrent(def.getAssetManager(), false);
+            technique.makeCurrent(def.getAssetManager(), false, rm.getRenderer().getCaps());
         }
     }
 

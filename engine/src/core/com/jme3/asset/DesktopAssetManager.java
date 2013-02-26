@@ -38,8 +38,12 @@ import com.jme3.audio.AudioKey;
 import com.jme3.font.BitmapFont;
 import com.jme3.material.Material;
 import com.jme3.post.FilterPostProcessor;
+import com.jme3.renderer.Caps;
 import com.jme3.scene.Spatial;
+import com.jme3.shader.Glsl100ShaderGenerator;
+import com.jme3.shader.Glsl150ShaderGenerator;
 import com.jme3.shader.Shader;
+import com.jme3.shader.ShaderGenerator;
 import com.jme3.shader.ShaderKey;
 import com.jme3.texture.Texture;
 import java.io.IOException;
@@ -48,6 +52,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
@@ -62,6 +67,7 @@ import java.util.logging.Logger;
 public class DesktopAssetManager implements AssetManager {
 
     private static final Logger logger = Logger.getLogger(AssetManager.class.getName());
+    private ShaderGenerator shaderGenerator;
     
     private final ImplHandler handler = new ImplHandler(this);
 
@@ -83,7 +89,7 @@ public class DesktopAssetManager implements AssetManager {
     public DesktopAssetManager(URL configFile){
         if (configFile != null){
             loadConfigFile(configFile);
-        }
+        }        
         logger.fine("DesktopAssetManager created.");
     }
 
@@ -407,4 +413,29 @@ public class DesktopAssetManager implements AssetManager {
         }
         return shader;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ShaderGenerator getShaderGenerator(EnumSet<Caps> caps) {
+        if (shaderGenerator == null) {
+            if(caps.contains(Caps.GLSL150)){
+                shaderGenerator = new Glsl150ShaderGenerator(this);
+            }else{
+                shaderGenerator = new Glsl100ShaderGenerator(this);
+            }
+        }
+        return shaderGenerator;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setShaderGenerator(ShaderGenerator shaderGenerator) {
+        this.shaderGenerator = shaderGenerator;
+    }
+
+    
 }
