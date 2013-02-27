@@ -202,14 +202,14 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
             //supportEfx = alc.alcIsExtensionPresent(device, "ALC_EXT_EFX");
             if (supportEfx) {
                 ib.position(0).limit(1);
-                alc.alcGetIntegerv(device, AL.ALC_EFX_MAJOR_VERSION, 1, ib);
+                alc.alcGetIntegerv(device, ALExtConstants.ALC_EFX_MAJOR_VERSION, 1, ib);
                 int major = ib.get(0);
                 ib.position(0).limit(1);
-                alc.alcGetIntegerv(device, AL.ALC_EFX_MINOR_VERSION, 1, ib);
+                alc.alcGetIntegerv(device, ALExtConstants.ALC_EFX_MINOR_VERSION, 1, ib);
                 int minor = ib.get(0);
                 logger.log(Level.FINE, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
 
-                alc.alcGetIntegerv(device, AL.ALC_MAX_AUXILIARY_SENDS, 1, ib);
+                alc.alcGetIntegerv(device, ALExtConstants.ALC_MAX_AUXILIARY_SENDS, 1, ib);
                 auxSends = ib.get(0);
                 logger.log(Level.FINE, "Audio max auxilary sends: {0}", auxSends);
 
@@ -222,10 +222,10 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 ib.position(0).limit(1);
                 al.alGenEffects(1, ib);
                 reverbFx = ib.get(0);
-                al.alEffecti(reverbFx, AL.AL_EFFECT_TYPE, AL.AL_EFFECT_REVERB);
+                al.alEffecti(reverbFx, ALExtConstants.AL_EFFECT_TYPE, ALExtConstants.AL_EFFECT_REVERB);
 
                 // attach reverb effect to effect slot
-                al.alAuxiliaryEffectSloti(reverbFxSlot, AL.AL_EFFECTSLOT_EFFECT, reverbFx);
+                al.alAuxiliaryEffectSloti(reverbFxSlot, ALExtConstants.AL_EFFECTSLOT_EFFECT, reverbFx);
             } else {
                 logger.log(Level.WARNING, "OpenAL EFX not available! Audio effects won't work.");
             }
@@ -297,9 +297,9 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
 
         if (f instanceof LowPassFilter) {
             LowPassFilter lpf = (LowPassFilter) f;
-            al.alFilteri(id, AL.AL_FILTER_TYPE, AL.AL_FILTER_LOWPASS);
-            al.alFilterf(id, AL.AL_LOWPASS_GAIN, lpf.getVolume());
-            al.alFilterf(id, AL.AL_LOWPASS_GAINHF, lpf.getHighFreqVolume());
+            al.alFilteri(id, ALExtConstants.AL_FILTER_TYPE, ALExtConstants.AL_FILTER_LOWPASS);
+            al.alFilterf(id, ALExtConstants.AL_LOWPASS_GAIN, lpf.getVolume());
+            al.alFilterf(id, ALExtConstants.AL_LOWPASS_GAINHF, lpf.getHighFreqVolume());
         } else {
             throw new UnsupportedOperationException("Filter type unsupported: "
                     + f.getClass().getName());
@@ -373,7 +373,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                         return;
                     }
 
-                    int filter = AL.AL_FILTER_NULL;
+                    int filter = ALExtConstants.AL_FILTER_NULL;
                     if (src.getReverbFilter() != null) {
                         Filter f = src.getReverbFilter();
                         if (f.isUpdateNeeded()) {
@@ -381,7 +381,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                         }
                         filter = f.getId();
                     }
-                    al.alSource3i(id, AL.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
+                    al.alSource3i(id, ALExtConstants.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
                     break;
                 case ReverbEnabled:
                     if (!supportEfx || !src.isPositional()) {
@@ -391,7 +391,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                     if (src.isReverbEnabled()) {
                         updateSourceParam(src, AudioParam.ReverbFilter);
                     } else {
-                        al.alSource3i(id, AL.AL_AUXILIARY_SEND_FILTER, 0, 0, AL.AL_FILTER_NULL);
+                        al.alSource3i(id, ALExtConstants.AL_AUXILIARY_SEND_FILTER, 0, 0, ALExtConstants.AL_FILTER_NULL);
                     }
                     break;
                 case IsPositional:
@@ -402,7 +402,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                         al.alSource3f(id, ALConstants.AL_VELOCITY, 0, 0, 0);
                         
                         // Disable reverb
-                        al.alSource3i(id, AL.AL_AUXILIARY_SEND_FILTER, 0, 0, AL.AL_FILTER_NULL);
+                        al.alSource3i(id, ALExtConstants.AL_AUXILIARY_SEND_FILTER, 0, 0, ALExtConstants.AL_FILTER_NULL);
                     } else {
                         al.alSourcei(id, ALConstants.AL_SOURCE_RELATIVE, ALConstants.AL_FALSE);
                         updateSourceParam(src, AudioParam.Position);
@@ -457,10 +457,10 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                             updateFilter(f);
 
                             // NOTE: must re-attach filter for changes to apply.
-                            al.alSourcei(id, AL.AL_DIRECT_FILTER, f.getId());
+                            al.alSourcei(id, ALExtConstants.AL_DIRECT_FILTER, f.getId());
                         }
                     } else {
-                        al.alSourcei(id, AL.AL_DIRECT_FILTER, AL.AL_FILTER_NULL);
+                        al.alSourcei(id, ALExtConstants.AL_DIRECT_FILTER, ALExtConstants.AL_FILTER_NULL);
                     }
                     break;
                 case Looping:
@@ -493,7 +493,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
             al.alSourcei(id, ALConstants.AL_SOURCE_RELATIVE, ALConstants.AL_FALSE);
 
             if (src.isReverbEnabled() && supportEfx) {
-                int filter = AL.AL_FILTER_NULL;
+                int filter = ALExtConstants.AL_FILTER_NULL;
                 if (src.getReverbFilter() != null) {
                     Filter f = src.getReverbFilter();
                     if (f.isUpdateNeeded()) {
@@ -501,7 +501,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                     }
                     filter = f.getId();
                 }
-                al.alSource3i(id, AL.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
+                al.alSource3i(id, ALExtConstants.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
             }
         } else {
             // play in headspace
@@ -516,7 +516,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 updateFilter(f);
 
                 // NOTE: must re-attach filter for changes to apply.
-                al.alSourcei(id, AL.AL_DIRECT_FILTER, f.getId());
+                al.alSourcei(id, ALExtConstants.AL_DIRECT_FILTER, f.getId());
             }
         }
 
@@ -627,21 +627,21 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-            al.alEffectf(reverbFx, AL.AL_REVERB_DENSITY, env.getDensity());
-            al.alEffectf(reverbFx, AL.AL_REVERB_DIFFUSION, env.getDiffusion());
-            al.alEffectf(reverbFx, AL.AL_REVERB_GAIN, env.getGain());
-            al.alEffectf(reverbFx, AL.AL_REVERB_GAINHF, env.getGainHf());
-            al.alEffectf(reverbFx, AL.AL_REVERB_DECAY_TIME, env.getDecayTime());
-            al.alEffectf(reverbFx, AL.AL_REVERB_DECAY_HFRATIO, env.getDecayHFRatio());
-            al.alEffectf(reverbFx, AL.AL_REVERB_REFLECTIONS_GAIN, env.getReflectGain());
-            al.alEffectf(reverbFx, AL.AL_REVERB_REFLECTIONS_DELAY, env.getReflectDelay());
-            al.alEffectf(reverbFx, AL.AL_REVERB_LATE_REVERB_GAIN, env.getLateReverbGain());
-            al.alEffectf(reverbFx, AL.AL_REVERB_LATE_REVERB_DELAY, env.getLateReverbDelay());
-            al.alEffectf(reverbFx, AL.AL_REVERB_AIR_ABSORPTION_GAINHF, env.getAirAbsorbGainHf());
-            al.alEffectf(reverbFx, AL.AL_REVERB_ROOM_ROLLOFF_FACTOR, env.getRoomRolloffFactor());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DENSITY, env.getDensity());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DIFFUSION, env.getDiffusion());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_GAIN, env.getGain());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_GAINHF, env.getGainHf());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DECAY_TIME, env.getDecayTime());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DECAY_HFRATIO, env.getDecayHFRatio());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_REFLECTIONS_GAIN, env.getReflectGain());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_REFLECTIONS_DELAY, env.getReflectDelay());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_LATE_REVERB_GAIN, env.getLateReverbGain());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_LATE_REVERB_DELAY, env.getLateReverbDelay());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_AIR_ABSORPTION_GAINHF, env.getAirAbsorbGainHf());
+            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_ROOM_ROLLOFF_FACTOR, env.getRoomRolloffFactor());
 
             // attach effect to slot
-            al.alAuxiliaryEffectSloti(reverbFxSlot, AL.AL_EFFECTSLOT_EFFECT, reverbFx);
+            al.alAuxiliaryEffectSloti(reverbFxSlot, ALExtConstants.AL_EFFECTSLOT_EFFECT, reverbFx);
         }
     }
 
@@ -747,12 +747,12 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
 
             if (src.getDryFilter() != null && supportEfx) {
                 // detach filter
-                al.alSourcei(sourceId, AL.AL_DIRECT_FILTER, AL.AL_FILTER_NULL);
+                al.alSourcei(sourceId, ALExtConstants.AL_DIRECT_FILTER, ALExtConstants.AL_FILTER_NULL);
             }
             if (src.isPositional()) {
                 AudioSource pas = (AudioSource) src;
                 if (pas.isReverbEnabled() && supportEfx) {
-                    al.alSource3i(sourceId, AL.AL_AUXILIARY_SEND_FILTER, 0, 0, AL.AL_FILTER_NULL);
+                    al.alSource3i(sourceId, ALExtConstants.AL_AUXILIARY_SEND_FILTER, 0, 0, ALExtConstants.AL_FILTER_NULL);
                 }
             }
 
