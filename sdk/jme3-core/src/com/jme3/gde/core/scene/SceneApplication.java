@@ -27,6 +27,7 @@ package com.jme3.gde.core.scene;
 import com.jme3.app.Application;
 import com.jme3.app.StatsView;
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioContext;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
@@ -223,7 +224,8 @@ public class SceneApplication extends Application implements LookupProvider {
             try {
                 super.initialize();
                 thread = Thread.currentThread();
-                fakeApp.startFakeApp();
+                fakeApp.setAudioRenderer(audioRenderer);
+                fakeApp.startFakeApp();                
                 {
                     overlayView = getRenderManager().createMainView("Overlay", cam);
                     overlayView.setClearFlags(false, true, false);

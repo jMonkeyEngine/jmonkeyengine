@@ -36,6 +36,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
+import com.jme3.audio.AudioContext;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.Listener;
 import com.jme3.gde.core.appstates.AppStateManagerNode;
@@ -100,6 +101,10 @@ public class FakeApplication extends SimpleApplication {
         this.assetManager = assetManager;
         this.cam = cam;
         this.appStateManager = new FakeAppStateManager(this);
+    }
+    
+    public void setAudioRenderer(AudioRenderer audioRenderer){
+        this.audioRenderer = audioRenderer;
     }
 
     @Override
@@ -487,6 +492,7 @@ public class FakeApplication extends SimpleApplication {
     public boolean updateFake(final float tpf) {
         Future fut = fakeAppThread.submit(new Callable<Void>() {
             public Void call() throws Exception {
+                AudioContext.setAudioRenderer(audioRenderer);
                 appStateManager.update(tpf);
                 return null;
             }
@@ -534,7 +540,7 @@ public class FakeApplication extends SimpleApplication {
 
     public boolean updateExternalLogicalState(final Node externalNode, final float tpf) {
         Future fut = fakeAppThread.submit(new Callable<Void>() {
-            public Void call() throws Exception {
+            public Void call() throws Exception {               
                 externalNode.updateLogicalState(tpf);
                 return null;
             }
