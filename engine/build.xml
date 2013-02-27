@@ -271,6 +271,8 @@
         <copy file="${dist.dir}/../lib/jogl/joal.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/joal-natives-linux-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/joal-natives-linux-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-linux-armv6.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-linux-armv6hf.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/joal-natives-solaris-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/joal-natives-solaris-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/joal-natives-macosx-universal.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
@@ -279,6 +281,8 @@
         <copy file="${dist.dir}/../lib/jogl/gluegen-rt.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-linux-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-linux-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-linux-armv6.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-linux-armv6hf.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-solaris-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-solaris-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-macosx-universal.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
@@ -287,6 +291,8 @@
         <copy file="${dist.dir}/../lib/jogl/jogl-all.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-linux-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-linux-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-linux-armv6.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-linux-armv6hf.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-solaris-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-solaris-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
         <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-macosx-universal.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
