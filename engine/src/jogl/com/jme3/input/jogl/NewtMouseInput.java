@@ -207,7 +207,7 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
 
     public void mouseWheelMoved(MouseEvent awtEvt) {
         //FIXME not sure this is the right way to handle this case
-        int dwheel = awtEvt.getWheelRotation();
+        float dwheel = awtEvt.getWheelRotation();
         wheelPos += dwheel * WHEEL_AMP;
         cursorMoved = true;
     }
