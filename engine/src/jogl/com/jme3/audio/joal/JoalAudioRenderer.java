@@ -77,6 +77,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
     
     private ALC alc;
     private AL al;
+    private ALExt alExt;
     
     static {
         ALut.alutInit();
@@ -145,6 +146,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
         try {
             alc = ALFactory.getALC();
             al = ALFactory.getAL();
+            alExt = ALFactory.getALExt();
 
             // Get handle to default device.
             ALCdevice device = alc.alcOpenDevice(null);
@@ -215,17 +217,17 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
 
                 // create slot
                 ib.position(0).limit(1);
-                al.alGenAuxiliaryEffectSlots(1, ib);
+                alExt.alGenAuxiliaryEffectSlots(1, ib);
                 reverbFxSlot = ib.get(0);
 
                 // create effect
                 ib.position(0).limit(1);
-                al.alGenEffects(1, ib);
+                alExt.alGenEffects(1, ib);
                 reverbFx = ib.get(0);
-                al.alEffecti(reverbFx, ALExtConstants.AL_EFFECT_TYPE, ALExtConstants.AL_EFFECT_REVERB);
+                alExt.alEffecti(reverbFx, ALExtConstants.AL_EFFECT_TYPE, ALExtConstants.AL_EFFECT_REVERB);
 
                 // attach reverb effect to effect slot
-                al.alAuxiliaryEffectSloti(reverbFxSlot, ALExtConstants.AL_EFFECTSLOT_EFFECT, reverbFx);
+                alExt.alAuxiliaryEffectSloti(reverbFxSlot, ALExtConstants.AL_EFFECTSLOT_EFFECT, reverbFx);
             } else {
                 logger.log(Level.WARNING, "OpenAL EFX not available! Audio effects won't work.");
             }
@@ -264,13 +266,13 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
         if (supportEfx) {
             ib.position(0).limit(1);
             ib.put(0, reverbFx);
-            al.alDeleteEffects(1, ib);
+            alExt.alDeleteEffects(1, ib);
 
             // If this is not allocated, why is it deleted?
             // Commented out to fix native crash in OpenAL.
             ib.position(0).limit(1);
             ib.put(0, reverbFxSlot);
-            al.alDeleteAuxiliaryEffectSlots(1, ib);
+            alExt.alDeleteAuxiliaryEffectSlots(1, ib);
         }
 
         //FIXME
@@ -288,7 +290,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
         int id = f.getId();
         if (id == -1) {
             ib.position(0).limit(1);
-            al.alGenFilters(1, ib);
+            alExt.alGenFilters(1, ib);
             id = ib.get(0);
             f.setId(id);
 
@@ -297,9 +299,9 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
 
         if (f instanceof LowPassFilter) {
             LowPassFilter lpf = (LowPassFilter) f;
-            al.alFilteri(id, ALExtConstants.AL_FILTER_TYPE, ALExtConstants.AL_FILTER_LOWPASS);
-            al.alFilterf(id, ALExtConstants.AL_LOWPASS_GAIN, lpf.getVolume());
-            al.alFilterf(id, ALExtConstants.AL_LOWPASS_GAINHF, lpf.getHighFreqVolume());
+            alExt.alFilteri(id, ALExtConstants.AL_FILTER_TYPE, ALExtConstants.AL_FILTER_LOWPASS);
+            alExt.alFilterf(id, ALExtConstants.AL_LOWPASS_GAIN, lpf.getVolume());
+            alExt.alFilterf(id, ALExtConstants.AL_LOWPASS_GAINHF, lpf.getHighFreqVolume());
         } else {
             throw new UnsupportedOperationException("Filter type unsupported: "
                     + f.getClass().getName());
@@ -627,21 +629,21 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DENSITY, env.getDensity());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DIFFUSION, env.getDiffusion());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_GAIN, env.getGain());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_GAINHF, env.getGainHf());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DECAY_TIME, env.getDecayTime());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DECAY_HFRATIO, env.getDecayHFRatio());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_REFLECTIONS_GAIN, env.getReflectGain());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_REFLECTIONS_DELAY, env.getReflectDelay());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_LATE_REVERB_GAIN, env.getLateReverbGain());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_LATE_REVERB_DELAY, env.getLateReverbDelay());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_AIR_ABSORPTION_GAINHF, env.getAirAbsorbGainHf());
-            al.alEffectf(reverbFx, ALExtConstants.AL_REVERB_ROOM_ROLLOFF_FACTOR, env.getRoomRolloffFactor());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DENSITY, env.getDensity());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DIFFUSION, env.getDiffusion());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_GAIN, env.getGain());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_GAINHF, env.getGainHf());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DECAY_TIME, env.getDecayTime());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_DECAY_HFRATIO, env.getDecayHFRatio());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_REFLECTIONS_GAIN, env.getReflectGain());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_REFLECTIONS_DELAY, env.getReflectDelay());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_LATE_REVERB_GAIN, env.getLateReverbGain());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_LATE_REVERB_DELAY, env.getLateReverbDelay());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_AIR_ABSORPTION_GAINHF, env.getAirAbsorbGainHf());
+            alExt.alEffectf(reverbFx, ALExtConstants.AL_REVERB_ROOM_ROLLOFF_FACTOR, env.getRoomRolloffFactor());
 
             // attach effect to slot
-            al.alAuxiliaryEffectSloti(reverbFxSlot, ALExtConstants.AL_EFFECTSLOT_EFFECT, reverbFx);
+            alExt.alAuxiliaryEffectSloti(reverbFxSlot, ALExtConstants.AL_EFFECTSLOT_EFFECT, reverbFx);
         }
     }
 
@@ -1071,7 +1073,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
         if (id != -1) {
             ib.put(0, id);
             ib.position(0).limit(1);
-            al.alDeleteFilters(1, ib);
+            alExt.alDeleteFilters(1, ib);
         }
     }
 
