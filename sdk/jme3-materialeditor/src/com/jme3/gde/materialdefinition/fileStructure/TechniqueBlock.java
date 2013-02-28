@@ -7,7 +7,6 @@ package com.jme3.gde.materialdefinition.fileStructure;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.FragmentShaderFileBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.InputMappingBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.LightModeBlock;
-import com.jme3.gde.materialdefinition.fileStructure.leaves.MatParamBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.ShaderFileBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.UnsupportedStatement;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.VertexShaderFileBlock;

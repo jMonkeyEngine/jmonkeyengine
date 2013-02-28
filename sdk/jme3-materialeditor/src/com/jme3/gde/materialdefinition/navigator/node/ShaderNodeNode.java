@@ -7,7 +7,9 @@ package com.jme3.gde.materialdefinition.navigator.node;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.materialdefinition.MatDefDataObject;
 import com.jme3.gde.materialdefinition.editor.Selectable;
+import com.jme3.gde.materialdefinition.fileStructure.MatDefBlock;
 import com.jme3.gde.materialdefinition.fileStructure.ShaderNodeBlock;
+import com.jme3.gde.materialdefinition.fileStructure.TechniqueBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.MappingBlock;
 import com.jme3.gde.materialdefinition.icons.Icons;
 import com.jme3.gde.materialdefinition.navigator.node.properties.DefaultProperty;
@@ -17,6 +19,7 @@ import com.jme3.shader.ShaderNodeDefinition;
 import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import org.openide.nodes.Children;
@@ -33,9 +36,8 @@ import org.openide.util.WeakListeners;
 public class ShaderNodeNode extends AbstractMatDefNode implements Selectable, PropertyChangeListener {
 
     ShaderNodeBlock shaderNode;
-    ShaderNodeDefinition def;    
+    ShaderNodeDefinition def;
     String key = "";
-
 
     public ShaderNodeNode(final Lookup lookup, final ShaderNodeBlock shaderNode) {
 //        super(Children.create(new ChildFactory<MappingBlock>() {
@@ -55,7 +57,7 @@ public class ShaderNodeNode extends AbstractMatDefNode implements Selectable, Pr
 //                return new MappingNode(lookup, key);
 //            }
 //        }, true), lookup);
-        super(new MappingNodeChildren(lookup, shaderNode), lookup);        
+        super(new MappingNodeChildren(lookup, shaderNode), lookup);
         this.shaderNode = shaderNode;
         setName(shaderNode.getName());
         key = makeKey();
@@ -78,7 +80,17 @@ public class ShaderNodeNode extends AbstractMatDefNode implements Selectable, Pr
         set.setDisplayName(shaderNode.getName() + " ShaderNode");
         set.setShortDescription(def.getDocumentation());
         try {
-            set.put(new DefaultProperty<String>(shaderNode, String.class, "Name", "getName", "setName"));
+            set.put(new DefaultProperty<String>(shaderNode, String.class, "Name", "getName", "setName") {
+                @Override
+                public void setValue(String val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                    val = fixNodeName(val);
+                    //glsl variable can't start with a number
+                    if(val.matches("^\\d.*")){
+                        return;
+                    }
+                    super.setValue(val);
+                }
+            });
             set.put(new DefaultProperty<String>(shaderNode, String.class, "Condition", "getCondition", "setCondition"));
 
         } catch (NoSuchMethodException ex) {
@@ -91,8 +103,21 @@ public class ShaderNodeNode extends AbstractMatDefNode implements Selectable, Pr
         sheet.put(set);
 
         return sheet;
+    }
 
+    private String fixNodeName(String name) {
+        TechniqueBlock tech = ((TechniqueNode) this.getParentNode()).getDef();
+        List<ShaderNodeBlock> list = tech.getShaderNodes();
+        return fixNodeName(list, name, 0);
+    }
 
+    private String fixNodeName(List<ShaderNodeBlock> nodes, String name, int count) {
+        for (ShaderNodeBlock nodePanel : nodes) {
+            if ((name + (count == 0 ? "" : count)).equals(nodePanel.getName())) {
+                return fixNodeName(nodes, name, count + 1);
+            }
+        }
+        return name + (count == 0 ? "" : count);
     }
 
     @Override

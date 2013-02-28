@@ -56,6 +56,10 @@ public class TechniqueNode extends AbstractMatDefNode implements Selectable, Pro
 
     }
 
+    protected TechniqueBlock getDef() {
+        return def;
+    }
+
     @Override
     public Image getIcon(int type) {
         return Icons.tech.getImage();

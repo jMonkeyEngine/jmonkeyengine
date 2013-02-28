@@ -28,5 +28,5 @@ public class DefaultProperty<T> extends PropertySupport.Reflection<T> {
     @Override
     public boolean canWrite() {
         return !readOnly;
-    }
+    }  
 }
