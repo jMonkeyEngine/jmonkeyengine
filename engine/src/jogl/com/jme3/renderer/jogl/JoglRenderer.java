@@ -69,6 +69,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.media.nativewindow.NativeWindowFactory;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES1;
@@ -188,13 +189,15 @@ public class JoglRenderer implements Renderer {
             versionStr = versionStr.substring(0, spaceIdx);
         }
         
-        //FIXME revisit this fix later
         try {
             float version = Float.parseFloat(versionStr);
             glslVer = (int) (version * 100);
         } catch (NumberFormatException e) {
-            logger.warning("Failed parsing GLSL version assuming it's v1.00");
-            glslVer = 100;
+            // the parsing fails on Raspberry Pi
+            if (NativeWindowFactory.getNativeWindowType(false).equals(NativeWindowFactory.TYPE_BCM_VC_IV)) {
+                logger.warning("Failed parsing GLSL version assuming it's v1.00");
+                glslVer = 100;
+            }
         }
 
         switch (glslVer) {
