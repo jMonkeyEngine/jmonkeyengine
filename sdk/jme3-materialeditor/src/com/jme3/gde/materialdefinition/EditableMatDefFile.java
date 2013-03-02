@@ -5,7 +5,6 @@
 package com.jme3.gde.materialdefinition;
 
 import com.jme3.asset.AssetKey;
-import com.jme3.asset.MaterialKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.materialdefinition.fileStructure.MatDefBlock;
@@ -14,12 +13,14 @@ import com.jme3.gde.materialdefinition.fileStructure.TechniqueBlock;
 import com.jme3.gde.materialdefinition.fileStructure.UberStatement;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.InputMappingBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.LeafStatement;
+import com.jme3.gde.materialdefinition.fileStructure.leaves.MatParamBlock;
 import com.jme3.gde.materialdefinition.fileStructure.leaves.OutputMappingBlock;
 import com.jme3.gde.materialdefinition.navigator.node.MatDefNode;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.plugins.J3MLoader;
+import com.jme3.material.plugins.MatParseException;
 import com.jme3.shader.Glsl100ShaderGenerator;
 import com.jme3.shader.Glsl150ShaderGenerator;
 import com.jme3.shader.Shader;
@@ -30,7 +31,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -68,29 +68,52 @@ public class EditableMatDefFile {
     private final static String GLSL100 = "GLSL100";
     private final static String GLSL150 = "GLSL150";
     private Lookup lookup;
+    private boolean loaded = false;
+    private boolean dirty = false;
 
     public EditableMatDefFile(Lookup lookup) {
         obj = lookup.lookup(MatDefDataObject.class);
+        load(lookup);
 
+    }
+
+    public final void load(Lookup lookup) {
         this.matDefFile = obj.getPrimaryFile();
         this.assetManager = lookup.lookup(ProjectAssetManager.class);
         this.glsl100 = new Glsl100ShaderGenerator(assetManager);
         this.glsl150 = new Glsl150ShaderGenerator(assetManager);
         this.lookup = lookup;
 
-        materialDef = null;
-        matDefStructure = null;
+        if (matDefStructure != null) {
+            obj.getLookupContents().remove(matDefStructure);
+            matDefStructure = null;
+        }
+        if (materialDef != null) {
+            obj.getLookupContents().remove(materialDef);
+            materialDef = null;
+        }
         FileLock lock = null;
-
         try {
             lock = matDefFile.lock();
             List<Statement> sta = BlockLanguageParser.parse(obj.getPrimaryFile().getInputStream());
             matDefStructure = new MatDefBlock(sta.get(0));
-            //  System.err.println(block.toString());
+            AssetKey matDefKey = new AssetKey(assetManager.getRelativeAssetPath(assetManager.getRelativeAssetPath(matDefFile.getPath())));
+            assetManager.deleteFromCache(matDefKey);
             materialDef = (MaterialDef) assetManager.loadAsset(assetManager.getRelativeAssetPath(matDefFile.getPath()));
             lock.releaseLock();
         } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
+            Throwable t = ex.getCause();
+            boolean matParseError = false;
+            while (t != null) {
+                if (t instanceof MatParseException) {
+                    Logger.getLogger(EditableMatDefFile.class.getName()).log(Level.SEVERE, t.getMessage());
+                    matParseError = true;
+                }
+                t = t.getCause();
+            }
+            if (!matParseError) {
+                Exceptions.printStackTrace(ex);
+            }
         } finally {
             if (lock != null) {
                 lock.releaseLock();
@@ -99,10 +122,11 @@ public class EditableMatDefFile {
         if (materialDef != null) {
             currentTechnique = matDefStructure.getTechniques().get(0);
             registerListener(matDefStructure);
+
             obj.getLookupContents().add(matDefStructure);
             updateLookupWithMaterialData(obj);
+            loaded = true;
         }
-
     }
 
     private void registerListener(Statement sta) {
@@ -130,7 +154,7 @@ public class EditableMatDefFile {
     public String getShaderCode(String version, Shader.ShaderType type) {
         try {
             material.selectTechnique("Default", SceneApplication.getApplication().getRenderManager());
-            Shader s = null;
+            Shader s;
             if (version.equals(GLSL100)) {
                 s = glsl100.generateShader(material.getActiveTechnique());
             } else {
@@ -186,6 +210,22 @@ public class EditableMatDefFile {
         }
     }
 
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
+    }
+
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
+    }
+
     private class MatStructChangeListener implements PropertyChangeListener {
 
         public void propertyChange(PropertyChangeEvent evt) {
@@ -209,6 +249,32 @@ public class EditableMatDefFile {
                         for (OutputMappingBlock outputMappingBlock : l) {
                             if (outputMappingBlock.getRightNameSpace().equals(oldValue)) {
                                 outputMappingBlock.setRightNameSpace(newValue);
+                            }
+                        }
+                    }
+                }
+            }
+            if (evt.getPropertyName().equals(MatDefBlock.REMOVE_MAT_PARAM)) {
+                MatParamBlock oldValue = (MatParamBlock) evt.getOldValue();
+
+                for (ShaderNodeBlock shaderNodeBlock : currentTechnique.getShaderNodes()) {
+
+                    if (shaderNodeBlock.getCondition() != null && shaderNodeBlock.getCondition().contains(oldValue.getName())) {
+                        shaderNodeBlock.setCondition(shaderNodeBlock.getCondition().replaceAll(oldValue.getName(), "").trim());                      
+                    }
+                    List<InputMappingBlock> lin = shaderNodeBlock.getInputs();
+                    if (lin != null) {
+                        for (InputMappingBlock inputMappingBlock : shaderNodeBlock.getInputs()) {
+                            if (inputMappingBlock.getCondition() != null && inputMappingBlock.getCondition().contains(oldValue.getName())) {
+                                inputMappingBlock.setCondition(inputMappingBlock.getCondition().replaceAll(oldValue.getName(), "").trim());                               
+                            }
+                        }
+                    }
+                    List<OutputMappingBlock> l = shaderNodeBlock.getOutputs();
+                    if (l != null) {
+                        for (OutputMappingBlock outputMappingBlock : l) {
+                            if (outputMappingBlock.getCondition() != null && outputMappingBlock.getCondition().contains(oldValue.getName())) {
+                                outputMappingBlock.setCondition(outputMappingBlock.getCondition().replaceAll(oldValue.getName(), "").trim());                             
                             }
                         }
                     }
@@ -257,8 +323,5 @@ public class EditableMatDefFile {
             Logger.getLogger(EditableMatDefFile.class.getName()).log(Level.SEVERE, ex.getMessage());
         }
         updateLookupWithMaterialData(obj);
-        AssetKey matDefKey = new AssetKey(assetManager.getRelativeAssetPath(assetManager.getRelativeAssetPath(matDefFile.getPath())));
-        assetManager.deleteFromCache(matDefKey);
-
     }
 }

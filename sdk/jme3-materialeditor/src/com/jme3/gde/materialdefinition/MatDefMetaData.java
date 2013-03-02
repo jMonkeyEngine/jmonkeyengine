@@ -126,7 +126,7 @@ public class MatDefMetaData {
                 if (prop == null) {
                     return defaultProps.getProperty(key);
                 }
-                return prop;                
+                return prop;
             }
         });
     }
@@ -139,7 +139,7 @@ public class MatDefMetaData {
                 return ret;
             }
         });
-       // writeProperties();
+        // writeProperties();
         notifyListeners(key, ret, value);
         return ret;
     }
@@ -308,10 +308,12 @@ public class MatDefMetaData {
 
     }
 
-    public void save(){
-        writeProperties();
+    public void save() {
+        if (!props.isEmpty()) {
+            writeProperties();
+        }
     }
-    
+
     private void writeProperties() {
         //writeAccess because we write lastMod date, not because we write to the file
         //the mutex protects the properties object, not the file

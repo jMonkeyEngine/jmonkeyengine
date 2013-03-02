@@ -33,6 +33,8 @@ package com.jme3.gde.materialdefinition;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.materialdefinition.navigator.MatDefNavigatorPanel;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
@@ -41,9 +43,7 @@ import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
-import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileChangeAdapter;
-import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
@@ -140,14 +140,16 @@ public class MatDefDataObject extends MultiDataObject {
         findAssetManager();
         final MatDefMetaData metaData = new MatDefMetaData(this);
         lookupContents.add(metaData);
-        pf.addFileChangeListener(new FileChangeAdapter(){
-
+        pf.addFileChangeListener(new FileChangeAdapter() {
             @Override
             public void fileChanged(FileEvent fe) {
                 super.fileChanged(fe);
                 metaData.save();
+                if (file.isDirty()) {
+                    file.setLoaded(false);
+                    file.setDirty(false);
+                }
             }
-            
         });
 
     }
@@ -202,6 +204,33 @@ public class MatDefDataObject extends MultiDataObject {
             nav.updateData(obj);
         }
         MultiViewEditorElement ed = new MultiViewEditorElement(lkp) {
+            KeyListener listener = new KeyListener() {
+                public void keyTyped(KeyEvent e) {
+                }
+
+                public void keyPressed(KeyEvent e) {
+                    EditableMatDefFile f = obj.getEditableFile();
+                    if (f != null) {
+                        f.setDirty(true);
+                    }
+                }
+
+                public void keyReleased(KeyEvent e) {                   
+                }
+            };
+
+            @Override
+            public void componentActivated() {
+                super.componentActivated();
+                getEditorPane().addKeyListener(listener);
+            }
+
+            @Override
+            public void componentDeactivated() {
+                super.componentDeactivated();
+                getEditorPane().removeKeyListener(listener);
+            }
+
             @Override
             public void componentClosed() {
                 super.componentClosed();
@@ -247,11 +276,7 @@ public class MatDefDataObject extends MultiDataObject {
         metaData.duplicate(df, name);
         return super.handleCopyRename(df, name, ext);
     }
-    
-    
 
-    
-    
     public EditableMatDefFile getEditableFile() {
         if (file == null) {
             file = new EditableMatDefFile(getLookup());

@@ -80,7 +80,7 @@ public class MatDefBlock extends UberStatement {
             techniqueBlock.cleanMappings(vblock, "MatParam", matParam.getName());
             techniqueBlock.cleanMappings(fblock, "MatParam", matParam.getName());
         }
-        fire(REMOVE_MAT_PARAM, null, matParam);
+        fire(REMOVE_MAT_PARAM, matParam, null);
     }
 
     public List<TechniqueBlock> getTechniques() {

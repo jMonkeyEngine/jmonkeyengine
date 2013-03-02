@@ -50,14 +50,19 @@ import com.jme3.shader.Shader;
 import com.jme3.shader.ShaderNodeDefinition;
 import com.jme3.shader.ShaderNodeVariable;
 import com.jme3.shader.ShaderUtils;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyVetoException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import org.netbeans.core.spi.multiview.CloseOperationState;
@@ -91,12 +96,17 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
     Selectable prevNode;
     MatDefMetaData metaData;
 
-    public MatDefEditorlElement(Lookup lkp) {
+    public MatDefEditorlElement(final Lookup lkp) {
+        initComponents();
         obj = lkp.lookup(MatDefDataObject.class);
         metaData = lkp.lookup(MatDefMetaData.class);
         assert obj != null;
-        EditableMatDefFile file = obj.getEditableFile();
-        initComponents();
+        final EditableMatDefFile file = obj.getEditableFile();
+        reload(file, lkp);
+    }
+
+    private void initDiagram(Lookup lkp) throws NumberFormatException {
+        diagram1.clear();
         diagram1.setParent(this);
 
         Material mat = lkp.lookup(Material.class);
@@ -223,9 +233,6 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
                 }
             });
         }
-
-
-
     }
 
     @Override
@@ -353,6 +360,10 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
 
     @Override
     public void componentActivated() {
+        if (!obj.getEditableFile().isLoaded()) {
+            obj.getEditableFile().load(obj.getLookup());
+            reload(obj.getEditableFile(), obj.getLookup());
+        }
     }
 
     @Override
@@ -542,7 +553,6 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
 
     private TechniqueBlock getTechnique(MatDefBlock matDef) {
         TechniqueBlock technique = matDef.getTechniques().get(0);
-
         return technique;
     }
 
@@ -562,5 +572,33 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
 
         metaData.setProperty(diagram1.getCurrentTechniqueName() + "/" + key, x + "," + y);
 
+    }
+
+    private void reload(final EditableMatDefFile file, final Lookup lkp) throws NumberFormatException {
+        if (file.isLoaded()) {
+            initDiagram(lkp);
+            MatDefNavigatorPanel nav = obj.getLookup().lookup(MatDefNavigatorPanel.class);
+            if (nav != null) {
+                nav.updateData(obj);
+            }
+        } else {
+            diagram1.clear();
+            JLabel error = new JLabel("Cannot load material definition.");
+            error.setForeground(Color.RED);
+            error.setBounds(0, 0, 200, 20);
+            diagram1.add(error);
+            JButton btn = new JButton("retry");
+            btn.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    file.load(lkp);
+                    if (file.isLoaded()) {
+                        initDiagram(lkp);
+                    }
+                }
+            });
+            btn.setBounds(0, 25, 150, 20);
+            diagram1.add(btn);
+
+        }
     }
 }

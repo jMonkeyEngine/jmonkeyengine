@@ -380,6 +380,14 @@ public class Diagram extends JPanel implements MouseListener, MouseMotionListene
         return item;
     }
 
+    
+    public void clear(){
+        removeAll();
+        outBuses.clear();
+        connections.clear();
+        nodes.clear();
+    }
+    
     private void createPopupMenu() {
         contextMenu.setFont(new Font("Tahoma", 1, 10)); // NOI18N
         contextMenu.setOpaque(true);

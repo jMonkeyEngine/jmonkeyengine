@@ -166,17 +166,4 @@ public class MatDefNavigatorPanel extends JPanel implements NavigatorPanel, Expl
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 
-    /**
-     * Gets default instance. Do not use directly: reserved for *.settings files
-     * only, i.e. deserialization routines; otherwise you could get a
-     * non-deserialized instance. To obtain the singleton instance, use
-     * {@link #findInstance}.
-     */
-    public static synchronized MatDefNavigatorPanel getDefault() {
-        if (instance == null) {
-            instance = new MatDefNavigatorPanel();
-        }
-        return instance;
-    }
-    private static MatDefNavigatorPanel instance;
 }
