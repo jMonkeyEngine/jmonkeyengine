@@ -68,7 +68,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     /**
      * set to 2, 4 to enable multisampling.
      */
-//    protected int antiAliasingSamples = 0;
+    protected int antiAliasingSamples = 0;
     /**
      * If true Android Sensors are used as simulated Joysticks Users can use the
      * Android sensor feedback through the RawInputListener or by registering
@@ -193,7 +193,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             settings.setEmulateMouse(mouseEventsEnabled);
             settings.setEmulateMouseFlipAxis(mouseEventsInvertX, mouseEventsInvertY);
             settings.setUseJoysticks(joystickEventsEnabled);
-//            settings.setSamples(antiAliasingSamples);
+            settings.setSamples(antiAliasingSamples);
             settings.setResolution(disp.getWidth(), disp.getHeight());
             settings.put(AndroidConfigChooser.SETTINGS_CONFIG_TYPE, eglConfigType);
             

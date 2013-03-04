@@ -34,9 +34,10 @@ public class AndroidConfigChooser implements EGLConfigChooser {
          */
         FASTEST(5, 6, 5, 0, 16, 0, 5, 6, 5, 0, 16, 0),
         /**
-         * RGB???, 0 alpha, >=16 depth, 0 stencil
+         * min RGB888, 0 alpha, 16 depth, 0 stencil max RGB888, 0 alpha, 32
+         * depth, 8 stencil
          */
-        BEST(8, 8, 8, 0, 32, 0, 8, 8, 8, 0, 16, 0),
+        BEST(8, 8, 8, 0, 32, 8, 8, 8, 8, 0, 16, 0),
         /**
          * Turn off config chooser and use hardcoded
          * setEGLContextClientVersion(2); setEGLConfigChooser(5, 6, 5, 0, 16,
@@ -44,17 +45,18 @@ public class AndroidConfigChooser implements EGLConfigChooser {
          */
         LEGACY(5, 6, 5, 0, 16, 0, 5, 6, 5, 0, 16, 0),
         /**
-         * RGB???, 8 alpha, >=16 depth, 0 stencil
+         * min RGB888, 8 alpha, 16 depth, 0 stencil max RGB888, 8 alpha, 32
+         * depth, 8 stencil
          */
-        BEST_TRANSLUCENT(8, 8, 8, 8, 32, 0, 8, 8, 8, 8, 16, 0);
+        BEST_TRANSLUCENT(8, 8, 8, 8, 32, 8, 8, 8, 8, 8, 16, 0);
         /**
-         * red, green, blue, alpha, depth, stencil
+         * red, green, blue, alpha, depth, stencil (max values)
          */
         int r, g, b, a, d, s;
         /**
-         * fallback
+         * minimal values
          */
-        int fbr, fbg, fbb, fba, fbd, fbs;
+        int mr, mg, mb, ma, md, ms;
 
         private ConfigType(int r, int g, int b, int a, int d, int s, int fbr, int fbg, int fbb, int fba, int fbd, int fbs) {
             this.r = r;
@@ -63,12 +65,12 @@ public class AndroidConfigChooser implements EGLConfigChooser {
             this.a = a;
             this.d = d;
             this.s = s;
-            this.fbr = fbr;
-            this.fbg = fbg;
-            this.fbb = fbb;
-            this.fba = fba;
-            this.fbd = fbd;
-            this.fbs = fbs;
+            this.mr = fbr;
+            this.mg = fbg;
+            this.mb = fbb;
+            this.ma = fba;
+            this.md = fbd;
+            this.ms = fbs;
         }
     }
 
@@ -104,45 +106,15 @@ public class AndroidConfigChooser implements EGLConfigChooser {
      * @param display
      * @return true if successfull, false if no config was found
      */
-    public boolean findConfig(EGL10 egl, EGLDisplay display) {        
+    public boolean findConfig(EGL10 egl, EGLDisplay display) {
         ConfigType type = (ConfigType) settings.get(SETTINGS_CONFIG_TYPE);
 
-        ComponentSizeChooser compChooser = new ComponentSizeChooser(type.r, type.g, type.b, type.a, type.d, type.s, 4,1,2);
+        ComponentSizeChooser compChooser = new ComponentSizeChooser(type, settings.getSamples());
         choosenConfig = compChooser.chooseConfig(egl, display);
-        if (choosenConfig == null) {
-            compChooser = new ComponentSizeChooser(type.fbr, type.fbg, type.fbb, type.fba, type.fbd, type.fbs);
-            choosenConfig = compChooser.chooseConfig(egl, display);
-        }
         logger.log(Level.FINE, "JME3 using {0} EGL configuration available here: ", type.name());
-//        switch (type) {
-//            case BEST:
-//                compChooser = new ComponentSizeChooser(8, 8, 8, 0, 32, 0);
-//                choosenConfig = compChooser.chooseConfig(egl, display);
-//                if (choosenConfig == null) {
-//                    compChooser = new ComponentSizeChooser(8, 8, 8, 0, 16, 0);
-//                    choosenConfig = compChooser.chooseConfig(egl, display);
-//                }
-//                logger.fine("JME3 using best EGL configuration available here: ");
-//                break;
-//            case BEST_TRANSLUCENT:
-//                compChooser = new ComponentSizeChooser(8, 8, 8, 8, 32, 0);
-//                choosenConfig = compChooser.chooseConfig(egl, display);
-//                if (choosenConfig == null) {
-//                    compChooser = new ComponentSizeChooser(8, 8, 8, 8, 16, 0);
-//                    choosenConfig = compChooser.chooseConfig(egl, display);
-//                }
-//                logger.fine("JME3 using best EGL configuration available here with translucent pixels: ");
-//                break;
-//            case FASTEST:
-//                compChooser = new ComponentSizeChooser(5, 6, 5, 0, 16, 0);
-//                choosenConfig = compChooser.chooseConfig(egl, display);
-//                logger.fine("JME3 using fastest EGL configuration available here: ");
-//                break;
-//
-//        }
 
         if (choosenConfig != null) {
-            logger.fine("JME3 using choosen config: ");
+            logger.info("JME3 using choosen config: ");
             logEGLConfig(choosenConfig, display, egl);
             pixelFormat = getPixelFormat(choosenConfig, display, egl);
             clientOpenGLESVersion = getOpenGLVersion(choosenConfig, display, egl);
@@ -197,34 +169,34 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         int[] value = new int[1];
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RED_SIZE, value);
-        logger.fine(String.format("EGL_RED_SIZE  = %d", value[0]));
+        logger.info(String.format("EGL_RED_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_GREEN_SIZE, value);
-        logger.fine(String.format("EGL_GREEN_SIZE  = %d", value[0]));
+        logger.info(String.format("EGL_GREEN_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_BLUE_SIZE, value);
-        logger.fine(String.format("EGL_BLUE_SIZE  = %d", value[0]));
+        logger.info(String.format("EGL_BLUE_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
-        logger.fine(String.format("EGL_ALPHA_SIZE  = %d", value[0]));
+        logger.info(String.format("EGL_ALPHA_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_DEPTH_SIZE, value);
-        logger.fine(String.format("EGL_DEPTH_SIZE  = %d", value[0]));
+        logger.info(String.format("EGL_DEPTH_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_STENCIL_SIZE, value);
-        logger.fine(String.format("EGL_STENCIL_SIZE  = %d", value[0]));
+        logger.info(String.format("EGL_STENCIL_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RENDERABLE_TYPE, value);
-        logger.fine(String.format("EGL_RENDERABLE_TYPE  = %d", value[0]));
+        logger.info(String.format("EGL_RENDERABLE_TYPE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SURFACE_TYPE, value);
-        logger.fine(String.format("EGL_SURFACE_TYPE  = %d", value[0]));
+        logger.info(String.format("EGL_SURFACE_TYPE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SAMPLE_BUFFERS, value);
-        logger.fine(String.format("EGL_SAMPLE_BUFFERS  = %d", value[0]));
+        logger.info(String.format("EGL_SAMPLE_BUFFERS  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SAMPLES, value);
-        logger.fine(String.format("EGL_SAMPLES  = %d", value[0]));
+        logger.info(String.format("EGL_SAMPLES  = %d", value[0]));
     }
 
     public int getClientOpenGLESVersion() {
@@ -241,78 +213,34 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
     private abstract class BaseConfigChooser implements EGLConfigChooser {
 
-        private boolean bClientOpenGLESVersionSet;
-
-        public BaseConfigChooser(int[] configSpec) {
-            bClientOpenGLESVersionSet = false;
-            mConfigSpec = filterConfigSpec(configSpec);
+        public BaseConfigChooser() {
         }
 
+        @Override
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
+
             int[] num_config = new int[1];
-            if (!egl.eglChooseConfig(display, mConfigSpec, null, 0,
-                    num_config)) {
-                throw new IllegalArgumentException("eglChooseConfig failed");
-            }
+            int[] configSpec = new int[]{
+                EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+                EGL10.EGL_NONE};
+
+            egl.eglChooseConfig(display, configSpec, null, 0, num_config);
 
             int numConfigs = num_config[0];
-
-            if (numConfigs <= 0) {
-                //throw new IllegalArgumentException("No configs match configSpec");
-
-                return null;
-            }
-
             EGLConfig[] configs = new EGLConfig[numConfigs];
-            if (!egl.eglChooseConfig(display, mConfigSpec, configs, numConfigs,
-                    num_config)) {
-                throw new IllegalArgumentException("eglChooseConfig#2 failed");
-            }
-//            logger.log(Level.FINE, "num_config: {0}", num_config[0]);
-//
-//            logger.log(Level.FINE, "There are {0} configurations that match the configAttrs", num_config[0]);
-//            logger.log(Level.FINE, "All Matching Configs:");
-//            for (int i=0; i<configs.length; i++) {
-//                if (configs[i] != null) {
-//                    logger.log(Level.FINE, "configs{0} is not null", i);
-//                    logEGLConfig(configs[i], display, egl);
-//                } else {
-//                    logger.log(Level.FINE, "configs{0} is null", i);
-//                }
+            egl.eglChooseConfig(display, configSpec, configs, numConfigs, num_config);
+
+//            System.err.println("-----------------------------");
+//            for (EGLConfig eGLConfig : configs) {
+//                logEGLConfig(eGLConfig, display, egl);
 //            }
 
             EGLConfig config = chooseConfig(egl, display, configs);
-            //if (config == null) {
-            //    throw new IllegalArgumentException("No config chosen");
-            //}
             return config;
         }
 
         abstract EGLConfig chooseConfig(EGL10 egl, EGLDisplay display,
                 EGLConfig[] configs);
-        protected int[] mConfigSpec;
-
-        private int[] filterConfigSpec(int[] configSpec) {
-            if (bClientOpenGLESVersionSet == true) {
-                return configSpec;
-            }
-            /*
-             * We know none of the subclasses define EGL_RENDERABLE_TYPE. And we
-             * know the configSpec is well formed.
-             */
-            int len = configSpec.length;
-            int[] newConfigSpec = new int[len + 2];
-            System.arraycopy(configSpec, 0, newConfigSpec, 0, len - 1);
-            newConfigSpec[len - 1] = EGL10.EGL_RENDERABLE_TYPE;
-            newConfigSpec[len] = 4; /*
-             * EGL_OPENGL_ES2_BIT
-             */
-            newConfigSpec[len + 1] = EGL10.EGL_NONE;
-
-            bClientOpenGLESVersionSet = true;
-
-            return newConfigSpec;
-        }
     }
 
     /**
@@ -322,66 +250,47 @@ public class AndroidConfigChooser implements EGLConfigChooser {
     private class ComponentSizeChooser extends BaseConfigChooser {
 
         private int[] mValue;
-        // Subclasses can adjust these values:
-        protected int mRedSize;
-        protected int mGreenSize;
-        protected int mBlueSize;
-        protected int mAlphaSize;
-        protected int mDepthSize;
-        protected int mStencilSize;
-        protected int mRenderableType;
-        protected int mSampleBuffers;
+        private ConfigType configType;
         protected int mSamples;
 
-        public ComponentSizeChooser(int redSize, int greenSize, int blueSize,
-                int alphaSize, int depthSize, int stencilSize) {
-            super(new int[]{
-                        EGL10.EGL_RED_SIZE, redSize,
-                        EGL10.EGL_GREEN_SIZE, greenSize,
-                        EGL10.EGL_BLUE_SIZE, blueSize,
-                        EGL10.EGL_ALPHA_SIZE, alphaSize,
-                        EGL10.EGL_DEPTH_SIZE, depthSize,
-                        EGL10.EGL_STENCIL_SIZE, stencilSize,
-                        EGL10.EGL_NONE});
+//        public ComponentSizeChooser(int redSize, int greenSize, int blueSize,
+//                int alphaSize, int depthSize, int stencilSize, int samples) {
+//            super(new int[]{
+//                        EGL10.EGL_RED_SIZE, redSize,
+//                        EGL10.EGL_GREEN_SIZE, greenSize,
+//                        EGL10.EGL_BLUE_SIZE, blueSize,
+//                        EGL10.EGL_ALPHA_SIZE, alphaSize,
+//                        EGL10.EGL_DEPTH_SIZE, depthSize,
+//                        EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+//                        EGL10.EGL_SAMPLE_BUFFERS, TRUE,
+//                        EGL10.EGL_SAMPLES, samples,
+//                        EGL10.EGL_NONE});
+//            mValue = new int[1];
+//            mRedSize = redSize;
+//            mGreenSize = greenSize;
+//            mBlueSize = blueSize;
+//            mAlphaSize = alphaSize;
+//            mDepthSize = depthSize;
+//            mStencilSize = stencilSize;
+//            mSamples = samples;
+//        }
+        public ComponentSizeChooser(ConfigType configType, int samples) {
             mValue = new int[1];
-            mRedSize = redSize;
-            mGreenSize = greenSize;
-            mBlueSize = blueSize;
-            mAlphaSize = alphaSize;
-            mDepthSize = depthSize;
-            mStencilSize = stencilSize;
-        }
-
-        public ComponentSizeChooser(int redSize, int greenSize, int blueSize,
-                int alphaSize, int depthSize, int stencilSize, int renderableType, int sampleBuffers, int samples) {
-            super(new int[]{
-                        EGL10.EGL_RED_SIZE, redSize,
-                        EGL10.EGL_GREEN_SIZE, greenSize,
-                        EGL10.EGL_BLUE_SIZE, blueSize,
-                        EGL10.EGL_ALPHA_SIZE, alphaSize,
-                        EGL10.EGL_DEPTH_SIZE, depthSize,
-                        EGL10.EGL_STENCIL_SIZE, stencilSize,
-                        EGL10.EGL_RENDERABLE_TYPE, renderableType,
-                        EGL10.EGL_SAMPLE_BUFFERS, sampleBuffers,
-                        EGL10.EGL_SAMPLES, samples,
-                        EGL10.EGL_NONE});
-            mValue = new int[1];
-            mRedSize = redSize;
-            mGreenSize = greenSize;
-            mBlueSize = blueSize;
-            mAlphaSize = alphaSize;
-            mDepthSize = depthSize;
-            mStencilSize = stencilSize;
-            mRenderableType = renderableType;
-            mSampleBuffers = sampleBuffers;
             mSamples = samples;
+            this.configType = configType;
         }
 
         @Override
         public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs) {
 
+            EGLConfig keptConfig = null;
+            int kd = 0;
+            int knbMs = 0;
+
+
             // first pass through config list.  Try to find an exact match.
             for (EGLConfig config : configs) {
+//                logEGLConfig(config, display, egl);
                 int r = findConfigAttrib(egl, display, config,
                         EGL10.EGL_RED_SIZE, 0);
                 int g = findConfigAttrib(egl, display, config,
@@ -394,35 +303,48 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                         EGL10.EGL_DEPTH_SIZE, 0);
                 int s = findConfigAttrib(egl, display, config,
                         EGL10.EGL_STENCIL_SIZE, 0);
+                int isMs = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_SAMPLE_BUFFERS, 0);
+                int nbMs = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_SAMPLES, 0);
 
-                if ((r == mRedSize) && (g == mGreenSize)
-                        && (b == mBlueSize) && (a == mAlphaSize)
-                        && (d == mDepthSize) && (s == mStencilSize)) {
-                    return config;
-                }
-            }
+                if (inRange(r, configType.mr, configType.r)
+                        && inRange(g, configType.mg, configType.g)
+                        && inRange(b, configType.mb, configType.b)
+                        && inRange(a, configType.ma, configType.a)
+                        && inRange(d, configType.md, configType.d)
+                        && inRange(s, configType.ms, configType.s)) {
+                    if (mSamples == 0 && isMs != 0) {
+                        continue;
+                    }
+                    boolean keep = false;
+                    //we keep the config if the depth is better or if the AA setting is better
+                    if (d >= kd) {
+                        kd = d;
+                        keep = true;
+                    } else {
+                        keep = false;
+                    }
 
-            // second pass through config list.  Try to find an RGBA match.
-            for (EGLConfig config : configs) {
-                int d = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_DEPTH_SIZE, 0);
-                int s = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_STENCIL_SIZE, 0);
-                if ((d >= mDepthSize) && (s >= mStencilSize)) {
-                    int r = findConfigAttrib(egl, display, config,
-                            EGL10.EGL_RED_SIZE, 0);
-                    int g = findConfigAttrib(egl, display, config,
-                            EGL10.EGL_GREEN_SIZE, 0);
-                    int b = findConfigAttrib(egl, display, config,
-                            EGL10.EGL_BLUE_SIZE, 0);
-                    int a = findConfigAttrib(egl, display, config,
-                            EGL10.EGL_ALPHA_SIZE, 0);
-                    if ((r == mRedSize) && (g == mGreenSize)
-                            && (b == mBlueSize) && (a == mAlphaSize)) {
-                        return config;
+                    if (mSamples != 0) {
+                        if (nbMs >= knbMs && nbMs <= mSamples) {
+                            knbMs = nbMs;
+                            keep = true;
+                        } else {
+                            keep = false;
+                        }
+                    }
+                    
+                    if (keep) {
+                        keptConfig = config;
                     }
                 }
             }
+
+            if (keptConfig != null) {
+                return keptConfig;
+            }
+
 
             // failsafe. pick the 1st config.
             if (configs.length > 0) {
@@ -431,6 +353,10 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                 return null;
             }
 
+        }
+
+        private boolean inRange(int val, int min, int max) {
+            return min <= val && val <= max;
         }
 
         private int findConfigAttrib(EGL10 egl, EGLDisplay display,
