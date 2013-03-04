@@ -66,7 +66,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected final AtomicBoolean created = new AtomicBoolean(false);
     protected final AtomicBoolean renderable = new AtomicBoolean(false);
     protected final AtomicBoolean needClose = new AtomicBoolean(false);
-    protected final AppSettings settings = new AppSettings(true);
+    protected AppSettings settings = new AppSettings(true);
 
     /*
      * >= OpenGL ES 2.0 (Android 2.2+)
@@ -91,24 +91,41 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     public Type getType() {
         return Type.Display;
     }
-
+    
     /**
-     * <code>createView</code> creates the GLSurfaceView that the
-     * renderer will draw to.
-     * <p>
-     * The result GLSurfaceView will receive input events and forward
-     * them to the Application. Any rendering will be done into
-     * the GLSurfaceView. Only one GLSurfaceView can be created at this time.
-     * The given configType specifies how to determine the display configuration.
+     * <code>createView</code> creates the GLSurfaceView that the renderer will
+     * draw to. <p> The result GLSurfaceView will receive input events and
+     * forward them to the Application. Any rendering will be done into the
+     * GLSurfaceView. Only one GLSurfaceView can be created at this time. The
+     * given configType specifies how to determine the display configuration.
      *
      *
      * @param configType ConfigType.FASTEST (Default) | ConfigType.LEGACY |
      * ConfigType.BEST
      * @param eglConfigVerboseLogging if true show all found configs
      * @return GLSurfaceView The newly created view
+     * @deprecated AndroidGLSurfaceView createView() 
+     * and put the configType in the appSettigs with the key AndroidConfigChoose.SETTINGS_CONFIG_TYPE
      */
+    @Deprecated
     public AndroidGLSurfaceView createView(ConfigType configType, boolean eglConfigVerboseLogging) {
-        AndroidGLSurfaceView view;
+        settings.put(AndroidConfigChooser.SETTINGS_CONFIG_TYPE, configType);
+        return this.createView();        
+    }
+    /**
+     * <code>createView</code> creates the GLSurfaceView that the renderer will
+     * draw to. <p> The result GLSurfaceView will receive input events and
+     * forward them to the Application. Any rendering will be done into the
+     * GLSurfaceView. Only one GLSurfaceView can be created at this time. The
+     * given configType specifies how to determine the display configuration.    
+     *
+     * 
+     * @param eglConfigVerboseLogging if true show all found configs
+     * @return GLSurfaceView The newly created view
+     */
+    public AndroidGLSurfaceView createView() {
+        AndroidGLSurfaceView view;       
+        ConfigType configType = (ConfigType)settings.get(AndroidConfigChooser.SETTINGS_CONFIG_TYPE);
 
         // Start to set up the view
         view = new AndroidGLSurfaceView(JmeAndroidSystem.getActivity().getApplication());
@@ -136,7 +153,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
             try {
                 // Create a config chooser
-                AndroidConfigChooser configChooser = new AndroidConfigChooser(configType);
+                AndroidConfigChooser configChooser = new AndroidConfigChooser(settings);
                 // Init chooser
                 if (!configChooser.findConfig(egl, display)) {
                     listener.handleError("Unable to find suitable EGL config", null);
@@ -196,7 +213,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         // Setup unhandled Exception Handler
         Thread.currentThread().setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-
             public void uncaughtException(Thread thread, Throwable thrown) {
                 listener.handleError("Exception thrown in " + thread.toString(), thrown);
             }
@@ -399,7 +415,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         final Activity activity = JmeAndroidSystem.getActivity();
         activity.runOnUiThread(new Runnable() {
-
             @Override
             public void run() {
 
@@ -436,7 +451,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
                 AlertDialog dialogTextInput = new AlertDialog.Builder(activity).setTitle(title).setView(layoutTextDialogInput).setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
-
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 /* User clicked OK, send COMPLETE action
                                  * and text */
@@ -444,7 +458,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                             }
                         }).setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
-
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 /* User clicked CANCEL, send CANCEL action
                                  * and text */

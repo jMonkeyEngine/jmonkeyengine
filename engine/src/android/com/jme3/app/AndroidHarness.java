@@ -25,6 +25,7 @@ import com.jme3.input.event.TouchEvent;
 import com.jme3.renderer.android.AndroidGLSurfaceView;
 import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
+import com.jme3.system.android.AndroidConfigChooser;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
@@ -43,12 +44,10 @@ import java.util.logging.Logger;
 public class AndroidHarness extends Activity implements TouchListener, DialogInterface.OnClickListener, SystemListener {
 
     protected final static Logger logger = Logger.getLogger(AndroidHarness.class.getName());
-
     /**
      * The application class to start
      */
     protected String appClass = "jme3test.android.Test";
-
     /**
      * The jme3 application object
      */
@@ -59,55 +58,52 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * RGBA8888 or better if supported by the hardware
      */
     protected ConfigType eglConfigType = ConfigType.FASTEST;
-
     /**
      * If true all valid and not valid egl configs are logged
+     * @deprecated this has no use
      */
+    @Deprecated
     protected boolean eglConfigVerboseLogging = false;
-
+    
     /**
-     * If true Android Sensors are used as simulated Joysticks
-     * Users can use the Android sensor feedback through the RawInputListener
-     * or by registering JoyAxisTriggers.
+     * set to 2, 4 to enable multisampling.
+     */
+//    protected int antiAliasingSamples = 0;
+    /**
+     * If true Android Sensors are used as simulated Joysticks Users can use the
+     * Android sensor feedback through the RawInputListener or by registering
+     * JoyAxisTriggers.
      */
     protected boolean joystickEventsEnabled = false;
-
     /**
      * If true MouseEvents are generated from TouchEvents
      */
     protected boolean mouseEventsEnabled = true;
-
     /**
      * Flip X axis
      */
     protected boolean mouseEventsInvertX = false;
-
     /**
      * Flip Y axis
      */
     protected boolean mouseEventsInvertY = false;
-
     /**
      * if true finish this activity when the jme app is stopped
      */
     protected boolean finishOnAppStop = true;
-
     /**
      * set to false if you don't want the harness to handle the exit hook
      */
     protected boolean handleExitHook = true;
-
     /**
      * Title of the exit dialog, default is "Do you want to exit?"
      */
     protected String exitDialogTitle = "Do you want to exit?";
-
     /**
      * Message of the exit dialog, default is "Use your home key to bring this
      * app into the background or exit to terminate it."
      */
     protected String exitDialogMessage = "Use your home key to bring this app into the background or exit to terminate it.";
-
     /**
      * Set the screen window mode. If screenFullSize is true, then the
      * notification bar and title bar are removed and the screen covers the
@@ -116,20 +112,17 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * false, then the title bar is also displayed under the notification bar.
      */
     protected boolean screenFullScreen = true;
-
     /**
      * if screenShowTitle is true while screenFullScreen is false, then the
      * title bar is also displayed under the notification bar
      */
     protected boolean screenShowTitle = true;
-
     /**
      * Splash Screen picture Resource ID. If a Splash Screen is desired, set
      * splashPicID to the value of the Resource ID (i.e. R.drawable.picname). If
      * splashPicID = 0, then no splash screen will be displayed.
      */
     protected int splashPicID = 0;
-
     /**
      * Set the screen orientation, default is SENSOR
      * ActivityInfo.SCREEN_ORIENTATION_* constants package
@@ -200,7 +193,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             settings.setEmulateMouse(mouseEventsEnabled);
             settings.setEmulateMouseFlipAxis(mouseEventsInvertX, mouseEventsInvertY);
             settings.setUseJoysticks(joystickEventsEnabled);
+//            settings.setSamples(antiAliasingSamples);
             settings.setResolution(disp.getWidth(), disp.getHeight());
+            settings.put(AndroidConfigChooser.SETTINGS_CONFIG_TYPE, eglConfigType);
+            
 
             // Create application instance
             try {
@@ -221,7 +217,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
 
         ctx = (OGLESContext) app.getContext();
-        view = ctx.createView(eglConfigType, eglConfigVerboseLogging);
+        view = ctx.createView();
         // AndroidHarness wraps the app as a SystemListener.
         ctx.setSystemListener(this);
         layoutDisplay();
@@ -401,7 +397,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             switch (evt.getType()) {
                 case KEY_UP:
                     runOnUiThread(new Runnable() {
-
                         @Override
                         public void run() {
                             AlertDialog dialog = new AlertDialog.Builder(AndroidHarness.this) // .setIcon(R.drawable.alert_dialog_icon)
@@ -438,12 +433,12 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             }
 
             if (view.getParent() != null) {
-                ((ViewGroup)view.getParent()).removeView(view);
+                ((ViewGroup) view.getParent()).removeView(view);
             }
             frameLayout.addView(view);
 
             if (splashImageView.getParent() != null) {
-                ((ViewGroup)splashImageView.getParent()).removeView(splashImageView);
+                ((ViewGroup) splashImageView.getParent()).removeView(splashImageView);
             }
             frameLayout.addView(splashImageView, lp);
 
@@ -461,7 +456,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             if (frameLayout != null) {
                 if (splashImageView != null) {
                     this.runOnUiThread(new Runnable() {
-
                         @Override
                         public void run() {
                             splashImageView.setVisibility(View.INVISIBLE);
