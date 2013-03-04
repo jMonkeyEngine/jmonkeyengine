@@ -332,8 +332,11 @@ import com.jme3.util.BufferUtils;
                                     warnAboutTooManyVertexWeights = true;
                                     Entry<Float, Integer> lowestWeightAndIndex = weightToIndexMap.firstEntry();
                                     if (lowestWeightAndIndex != null && lowestWeightAndIndex.getKey() < weight) {
-                                        weightsFloatData.put(lowestWeightAndIndex.getValue(), weight);
-                                        indicesData.put(lowestWeightAndIndex.getValue(), boneIndex.byteValue());
+                                        // we apply the weight to all referenced vertices
+                                        for (Integer index : vertexIndices) {
+                                            weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + lowestWeightAndIndex.getValue(), weight);
+                                            indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + lowestWeightAndIndex.getValue(), boneIndex.byteValue());
+                                        }
                                         weightToIndexMap.remove(lowestWeightAndIndex.getKey());
                                         weightToIndexMap.put(weight, lowestWeightAndIndex.getValue());
                                     }
