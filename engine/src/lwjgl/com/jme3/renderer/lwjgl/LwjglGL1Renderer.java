@@ -1,6 +1,28 @@
 package com.jme3.renderer.lwjgl;
 
-import com.jme3.light.*;
+import static org.lwjgl.opengl.GL11.*;
+
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import jme3tools.converters.MipMapGenerator;
+
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GLContext;
+
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
+import com.jme3.light.LightList;
+import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.FixedFuncBinding;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -25,16 +47,6 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
-import java.nio.*;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import jme3tools.converters.MipMapGenerator;
-import static org.lwjgl.opengl.GL11.*;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL14;
-import org.lwjgl.opengl.GLContext;
 
 public class LwjglGL1Renderer implements GL1Renderer {
 
@@ -834,6 +846,11 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
 
         setupTextureParams(tex);
+    }
+
+    public void modifyTexture(Texture tex, Image pixels, int x, int y) {
+      setTexture(0, tex);
+      TextureUtil.uploadSubTexture(pixels, convertTextureType(tex.getType()), 0, x, y);
     }
 
     private void clearTextureUnits() {

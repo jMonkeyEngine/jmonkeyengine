@@ -239,6 +239,16 @@ public interface Renderer {
     public void setTexture(int unit, Texture tex);
 
     /**
+     * Modify the given Texture tex with the given Image. The image will be put at x and y into the texture.
+     *
+     * @param tex the Texture that will be modified
+     * @param pixels the source Image data to copy data from
+     * @param x the x position to put the image into the texture
+     * @param y the y position to put the image into the texture
+     */
+    public void modifyTexture(Texture tex, Image pixels, int x, int y);
+
+    /**
      * Deletes a texture from the GPU.
      */
     public void deleteImage(Image image);

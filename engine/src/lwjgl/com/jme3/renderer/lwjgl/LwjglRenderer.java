@@ -1946,6 +1946,11 @@ public class LwjglRenderer implements Renderer {
         setupTextureParams(tex);
     }
 
+    public void modifyTexture(Texture tex, Image pixels, int x, int y) {
+      setTexture(0, tex);
+      TextureUtil.uploadSubTexture(pixels, convertTextureType(tex.getType(), pixels.getMultiSamples(), -1), 0, x, y);
+    }
+
     public void clearTextureUnits() {
 //        IDList textureList = context.textureIndexList;
 //        Image[] textures = context.boundTextures;

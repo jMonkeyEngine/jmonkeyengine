@@ -32,11 +32,29 @@
 
 package com.jme3.renderer.lwjgl;
 
+import java.nio.ByteBuffer;
+
+import org.lwjgl.opengl.ARBHalfFloatPixel;
+import org.lwjgl.opengl.ARBTextureFloat;
+import org.lwjgl.opengl.ARBTextureMultisample;
+import org.lwjgl.opengl.ContextCapabilities;
+import org.lwjgl.opengl.EXTAbgr;
+import org.lwjgl.opengl.EXTBgra;
+import org.lwjgl.opengl.EXTPackedFloat;
+import org.lwjgl.opengl.EXTTextureArray;
+import org.lwjgl.opengl.EXTTextureCompressionLATC;
+import org.lwjgl.opengl.EXTTextureCompressionS3TC;
+import org.lwjgl.opengl.EXTTextureSharedExponent;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL13;
+import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GLContext;
+
 import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
-import java.nio.ByteBuffer;
-import org.lwjgl.opengl.*;
 
 class TextureUtil {
 
@@ -349,4 +367,103 @@ class TextureUtil {
         }
     }
 
+    /**
+     * Update the texture currently bound to target at with data from the given Image at position x and y. The parameter
+     * index is used as the zoffset in case a 3d texture or texture 2d array is being updated.
+     *
+     * @param image Image with the source data (this data will be put into the texture)
+     * @param target the target texture
+     * @param index the mipmap level to update
+     * @param x the x position where to put the image in the texture
+     * @param y the y position where to put the image in the texture
+     */
+    public static void uploadSubTexture(
+        Image image,
+        int target,
+        int index,
+        int x,
+        int y) {
+      Image.Format fmt = image.getFormat();
+      GLImageFormat glFmt = getImageFormatWithError(fmt);
+
+      ByteBuffer data = null;
+      if (index >= 0 && image.getData() != null && image.getData().size() > 0) {
+        data = image.getData(index);
+      }
+
+      int width = image.getWidth();
+      int height = image.getHeight();
+      int depth = image.getDepth();
+
+      if (data != null) {
+        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+      }
+
+      int[] mipSizes = image.getMipMapSizes();
+      int pos = 0;
+
+      // TODO: Remove unneccessary allocation
+      if (mipSizes == null){
+        if (data != null) {
+          mipSizes = new int[]{ data.capacity() };
+        } else {
+          mipSizes = new int[]{ width * height * fmt.getBitsPerPixel() / 8 };
+        }
+      }
+
+      int samples = image.getMultiSamples();
+
+      for (int i = 0; i < mipSizes.length; i++){
+        int mipWidth =  Math.max(1, width  >> i);
+        int mipHeight = Math.max(1, height >> i);
+        int mipDepth =  Math.max(1, depth  >> i);
+
+        if (data != null){
+          data.position(pos);
+          data.limit(pos + mipSizes[i]);
+        }
+
+        // to remove the cumbersome if/then/else stuff below we'll update the pos right here and use continue after each
+        // gl*Image call in an attempt to unclutter things a bit
+        pos += mipSizes[i];
+
+        int glFmtInternal = glFmt.internalFormat;
+        int glFmtFormat = glFmt.format;
+        int glFmtDataType = glFmt.dataType;
+
+        if (glFmt.compressed && data != null){
+          if (target == GL12.GL_TEXTURE_3D){
+            GL13.glCompressedTexSubImage3D(target, i, x, y, index, mipWidth, mipHeight, mipDepth, glFmtInternal, data);
+            continue;
+          }
+
+          // all other targets use 2D: array, cubemap, 2d
+          GL13.glCompressedTexSubImage2D(target, i, x, y, mipWidth, mipHeight, glFmtInternal, data);
+          continue;
+        }
+
+        if (target == GL12.GL_TEXTURE_3D){
+          GL12.glTexSubImage3D(target, i, x, y, index, mipWidth, mipHeight, mipDepth, glFmtFormat, glFmtDataType, data);
+          continue;
+        }
+
+        if (target == EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT){
+          // prepare data for 2D array or upload slice
+          if (index == -1){
+            GL12.glTexSubImage3D(target, i, x, y, index, mipWidth, mipHeight, mipDepth, glFmtFormat, glFmtDataType, data);
+            continue;
+          }
+
+          GL12.glTexSubImage3D(target, i, x, y, index, width, height, 1, glFmtFormat, glFmtDataType, data);
+          continue;
+        }
+
+        if (samples > 1){
+          throw new IllegalStateException("Cannot update multisample textures");
+        }
+
+        GL11.glTexSubImage2D(target, i, x, y, mipWidth, mipHeight, glFmtFormat, glFmtDataType, data);
+        continue;
+      }
+    }
 }

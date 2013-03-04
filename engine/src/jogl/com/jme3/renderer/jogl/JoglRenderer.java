@@ -31,6 +31,25 @@
  */
 package com.jme3.renderer.jogl;
 
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.media.opengl.GL;
+import javax.media.opengl.GL2;
+import javax.media.opengl.GL2ES1;
+import javax.media.opengl.GL2ES2;
+import javax.media.opengl.GL2GL3;
+import javax.media.opengl.GLContext;
+
+import jme3tools.converters.MipMapGenerator;
+import jme3tools.shader.ShaderDebug;
+
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -64,20 +83,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
 import com.jme3.util.SafeArrayList;
-import java.nio.*;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.media.nativewindow.NativeWindowFactory;
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GL2ES1;
-import javax.media.opengl.GL2ES2;
-import javax.media.opengl.GL2GL3;
-import javax.media.opengl.GLContext;
-import jme3tools.converters.MipMapGenerator;
-import jme3tools.shader.ShaderDebug;
 
 public class JoglRenderer implements Renderer {
 
@@ -2041,6 +2047,11 @@ public class JoglRenderer implements Renderer {
         }
 
         setupTextureParams(tex);
+    }
+
+    public void modifyTexture(Texture tex, Image pixels, int x, int y) {
+      setTexture(0, tex);
+      TextureUtil.uploadSubTexture(pixels, convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), -1), 0, x, y);
     }
 
     public void clearTextureUnits() {

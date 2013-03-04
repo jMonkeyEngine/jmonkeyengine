@@ -31,7 +31,33 @@
  */
 package com.jme3.renderer.jogl;
 
-import com.jme3.light.*;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.media.opengl.GL;
+import javax.media.opengl.GL2;
+import javax.media.opengl.GL2ES1;
+import javax.media.opengl.GL2ES2;
+import javax.media.opengl.GL2GL3;
+import javax.media.opengl.GLContext;
+import javax.media.opengl.fixedfunc.GLLightingFunc;
+import javax.media.opengl.fixedfunc.GLMatrixFunc;
+import javax.media.opengl.fixedfunc.GLPointerFunc;
+
+import jme3tools.converters.MipMapGenerator;
+
+import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
+import com.jme3.light.LightList;
+import com.jme3.light.PointLight;
+import com.jme3.light.SpotLight;
 import com.jme3.material.FixedFuncBinding;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -56,16 +82,6 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
-import java.nio.*;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.media.opengl.*;
-import javax.media.opengl.fixedfunc.GLLightingFunc;
-import javax.media.opengl.fixedfunc.GLMatrixFunc;
-import javax.media.opengl.fixedfunc.GLPointerFunc;
-import jme3tools.converters.MipMapGenerator;
 
 public class JoglGL1Renderer implements GL1Renderer {
 
@@ -884,6 +900,11 @@ public class JoglGL1Renderer implements GL1Renderer {
         }
 
         setupTextureParams(tex);
+    }
+
+    public void modifyTexture(Texture tex, Image pixels, int x, int y) {
+      setTexture(0, tex);
+      TextureUtil.uploadSubTexture(pixels, convertTextureType(tex.getType()), 0, x, y);
     }
 
     private void clearTextureUnits() {

@@ -401,4 +401,23 @@ public class TextureUtil {
         }
     }
 
+    /**
+     * Update the texture currently bound to target at with data from the given Image at position x and y. The parameter
+     * index is used as the zoffset in case a 3d texture or texture 2d array is being updated.
+     *
+     * @param image Image with the source data (this data will be put into the texture)
+     * @param target the target texture
+     * @param index the mipmap level to update
+     * @param x the x position where to put the image in the texture
+     * @param y the y position where to put the image in the texture
+     */
+    public static void uploadSubTexture(
+        Image image,
+        int target,
+        int index,
+        int x,
+        int y) {
+      // FIXME and implement this!
+    }
+
 }

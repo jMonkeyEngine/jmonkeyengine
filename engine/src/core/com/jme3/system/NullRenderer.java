@@ -31,6 +31,9 @@
  */
 package com.jme3.system;
 
+import java.nio.ByteBuffer;
+import java.util.EnumSet;
+
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -45,8 +48,6 @@ import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
-import java.nio.ByteBuffer;
-import java.util.EnumSet;
 
 public class NullRenderer implements Renderer {
 
@@ -125,6 +126,9 @@ public class NullRenderer implements Renderer {
     }
 
     public void setTexture(int unit, Texture tex) {
+    }
+
+    public void modifyTexture(Texture tex, Image pixels, int x, int y) {
     }
 
     public void updateBufferData(VertexBuffer vb) {
