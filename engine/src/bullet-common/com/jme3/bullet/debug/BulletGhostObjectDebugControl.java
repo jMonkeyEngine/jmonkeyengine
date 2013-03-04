@@ -84,7 +84,7 @@ public class BulletGhostObjectDebugControl extends AbstractPhysicsDebugControl {
             geom.setMaterial(debugAppState.DEBUG_YELLOW);
             node.attachChild(geom);
         }
-        applyPhysicsTransform(body.getPhysicsLocation(location), Quaternion.IDENTITY);
+        applyPhysicsTransform(body.getPhysicsLocation(location), body.getPhysicsRotation(rotation));
         geom.setLocalScale(body.getCollisionShape().getScale());
     }
 
