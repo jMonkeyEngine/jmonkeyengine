@@ -95,7 +95,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
     @Override
     public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
         logger.fine("GLSurfaceView asks for egl config, returning: ");
-        logEGLConfig(choosenConfig, display, egl);
+        logEGLConfig(choosenConfig, display, egl, Level.FINE);
         return choosenConfig;
     }
 
@@ -115,7 +115,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
         if (choosenConfig != null) {
             logger.info("JME3 using choosen config: ");
-            logEGLConfig(choosenConfig, display, egl);
+            logEGLConfig(choosenConfig, display, egl, Level.INFO);
             pixelFormat = getPixelFormat(choosenConfig, display, egl);
             clientOpenGLESVersion = getOpenGLVersion(choosenConfig, display, egl);
             return true;
@@ -165,38 +165,38 @@ public class AndroidConfigChooser implements EGLConfigChooser {
      * @param display
      * @param egl
      */
-    public void logEGLConfig(EGLConfig conf, EGLDisplay display, EGL10 egl) {
+    public void logEGLConfig(EGLConfig conf, EGLDisplay display, EGL10 egl, Level level) {
         int[] value = new int[1];
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RED_SIZE, value);
-        logger.info(String.format("EGL_RED_SIZE  = %d", value[0]));
+        logger.log(level,String.format("EGL_RED_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_GREEN_SIZE, value);
-        logger.info(String.format("EGL_GREEN_SIZE  = %d", value[0]));
+        logger.log(level,String.format("EGL_GREEN_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_BLUE_SIZE, value);
-        logger.info(String.format("EGL_BLUE_SIZE  = %d", value[0]));
+        logger.log(level,String.format("EGL_BLUE_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
-        logger.info(String.format("EGL_ALPHA_SIZE  = %d", value[0]));
+        logger.log(level,String.format("EGL_ALPHA_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_DEPTH_SIZE, value);
-        logger.info(String.format("EGL_DEPTH_SIZE  = %d", value[0]));
+        logger.log(level,String.format("EGL_DEPTH_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_STENCIL_SIZE, value);
-        logger.info(String.format("EGL_STENCIL_SIZE  = %d", value[0]));
+        logger.log(level,String.format("EGL_STENCIL_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RENDERABLE_TYPE, value);
-        logger.info(String.format("EGL_RENDERABLE_TYPE  = %d", value[0]));
+        logger.log(level,String.format("EGL_RENDERABLE_TYPE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SURFACE_TYPE, value);
-        logger.info(String.format("EGL_SURFACE_TYPE  = %d", value[0]));
+        logger.log(level,String.format("EGL_SURFACE_TYPE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SAMPLE_BUFFERS, value);
-        logger.info(String.format("EGL_SAMPLE_BUFFERS  = %d", value[0]));
+        logger.log(level,String.format("EGL_SAMPLE_BUFFERS  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SAMPLES, value);
-        logger.info(String.format("EGL_SAMPLES  = %d", value[0]));
+        logger.log(level,String.format("EGL_SAMPLES  = %d", value[0]));
     }
 
     public int getClientOpenGLESVersion() {
@@ -230,10 +230,11 @@ public class AndroidConfigChooser implements EGLConfigChooser {
             EGLConfig[] configs = new EGLConfig[numConfigs];
             egl.eglChooseConfig(display, configSpec, configs, numConfigs, num_config);
 
-//            System.err.println("-----------------------------");
-//            for (EGLConfig eGLConfig : configs) {
-//                logEGLConfig(eGLConfig, display, egl);
-//            }
+            logger.fine("--------------Display Configurations---------------");
+            for (EGLConfig eGLConfig : configs) {
+                logEGLConfig(eGLConfig, display, egl, Level.FINE);
+                logger.fine("----------------------------------------");
+            }
 
             EGLConfig config = chooseConfig(egl, display, configs);
             return config;
@@ -334,7 +335,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                             keep = false;
                         }
                     }
-                    
+
                     if (keep) {
                         keptConfig = config;
                     }
