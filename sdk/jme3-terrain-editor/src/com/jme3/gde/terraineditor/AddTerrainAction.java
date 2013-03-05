@@ -127,6 +127,9 @@ public class AddTerrainAction extends AbstractNewSpatialWizardAction {
                     for (int w=0; w<alphaTextureSize; w++)
                         alphaBlend.setRGB(w, h, 0x00FF0000);//argb
             }
+            File textureFolder = new File(assetFolder+"/Textures/");
+            if (!textureFolder.exists())
+                textureFolder.mkdir();
             File alphaFolder = new File(assetFolder+"/Textures/terrain-alpha/");
             if (!alphaFolder.exists())
                 alphaFolder.mkdir();

@@ -46,8 +46,11 @@ import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.openide.filesystems.FileObject;
@@ -167,7 +170,10 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
             return new String[]{};
         }
         if (material.getAssetName() == null) {
-            String[] materials = request.getManager().getMaterials();
+            String[] matsUnsorted = request.getManager().getMaterials();
+            List<String> matList = Arrays.asList(matsUnsorted);
+            Collections.sort(matList);
+            String[] materials = matList.toArray(new String[0]);
             String[] mats = new String[materials.length + 1];
             mats[0] = ("create j3m file");
             for (int i = 0; i < materials.length; i++) {
@@ -176,7 +182,10 @@ public class MaterialPropertyEditor implements PropertyEditor, SceneExplorerProp
             }
             return mats;
         } else {
-            return request.getManager().getMaterials();
+            String[] matsUnsorted = request.getManager().getMaterials();
+            List<String> matList = Arrays.asList(matsUnsorted);
+            Collections.sort(matList);
+            return matList.toArray(new String[0]);
         }
     }
 
