@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -37,11 +38,14 @@ public class MaterialBrowser extends javax.swing.JDialog implements TreeSelectio
 
     private ProjectAssetManager assetManager;
     private MaterialPropertyEditor editor;
+    private Preferences prefs;
+    private static final String PREF_LAST_SELECTED = "lastSelectedMaterial";
 
     /** Creates new form MaterialBrowser */
     public MaterialBrowser(java.awt.Frame parent, boolean modal, ProjectAssetManager assetManager, MaterialPropertyEditor editor) {
         this.assetManager = assetManager;
         this.editor = editor;
+        prefs = Preferences.userNodeForPackage(this.getClass());
         initComponents();
         loadAvailableMaterials();
         setSelectedMaterial((Material) editor.getValue());
@@ -85,6 +89,13 @@ public class MaterialBrowser extends javax.swing.JDialog implements TreeSelectio
             jTree1.expandPath(TreeUtil.buildTreePath(jTree1, parent, path, 0, true));
             jTree1.getSelectionModel().setSelectionPath(TreeUtil.buildTreePath(jTree1, parent, path, 0, false));
 
+        } else {
+            String lastSelected = prefs.get(PREF_LAST_SELECTED, null);
+            if (lastSelected != null) {
+                TreePath parent = new TreePath((TreeNode) jTree1.getModel().getRoot());
+                TreePath selectedTreePath = TreeUtil.buildTreePath(jTree1, parent, ("/"+lastSelected).split("/"), 0, true);
+                jTree1.expandPath(selectedTreePath);
+            }
         }
     }
 
@@ -109,10 +120,11 @@ public class MaterialBrowser extends javax.swing.JDialog implements TreeSelectio
                     fr.read(b);
                     materialTextPreview.setText(new String(b).trim());
                 }
+                prefs.put(PREF_LAST_SELECTED, selected);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
-
+            
         } else {
             materialPreviewWidget1.clear();
             materialTextPreview.setText("");

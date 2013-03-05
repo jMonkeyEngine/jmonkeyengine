@@ -69,7 +69,6 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
     private ProjectAssetManager assetManager;
     private TexturePropertyEditor editor;
     private DDSPreview ddsPreview;
-    //private static TreePath lastSelectedTexture;
     private Preferences prefs;
     private static final String PREF_LAST_SELECTED = "lastSelectedTexture";
 
