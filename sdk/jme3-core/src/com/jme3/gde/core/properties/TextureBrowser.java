@@ -39,7 +39,11 @@ import com.jme3.texture.Texture;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
 import javax.swing.event.TreeSelectionEvent;
@@ -65,18 +69,19 @@ public class TextureBrowser extends javax.swing.JDialog implements TreeSelection
     private ProjectAssetManager assetManager;
     private TexturePropertyEditor editor;
     private DDSPreview ddsPreview;
+    //private static TreePath lastSelectedTexture;
+    private Preferences prefs;
+    private static final String PREF_LAST_SELECTED = "lastSelectedTexture";
 
     public TextureBrowser(java.awt.Frame parent, boolean modal, ProjectAssetManager assetManager, TexturePropertyEditor editor) {
         super(parent, modal);
+        prefs = Preferences.userNodeForPackage(this.getClass());
         this.assetManager = assetManager;
         this.editor = editor;
         initComponents();
         loadAvailableTextures();
         setSelectedTexture((Texture) editor.getValue());
         setLocationRelativeTo(null);
-
-
-
     }
 
     /** This method is called from within the constructor to
@@ -256,7 +261,9 @@ private void noTexturebuttonActionPerformed(java.awt.event.ActionEvent evt) {//G
         }
 
         String[] leaves = assetManager.getTextures();
-        TreeUtil.createTree(jTree1, leaves);
+        List<String> leavesList = Arrays.asList(leaves);
+        Collections.sort(leavesList);
+        TreeUtil.createTree(jTree1, leavesList.toArray(new String[0]));
         TreeUtil.expandTree(jTree1, (TreeNode) jTree1.getModel().getRoot(), 1);
         jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         jTree1.addTreeSelectionListener(this);
@@ -267,9 +274,17 @@ private void noTexturebuttonActionPerformed(java.awt.event.ActionEvent evt) {//G
             Logger.getLogger(TextureBrowser.class.getName()).finer("Looking for Texture: " + texture.getName());
             String[] path = ("/" + texture.getName()).split("/");
             TreePath parent = new TreePath((TreeNode) jTree1.getModel().getRoot());
-            jTree1.expandPath(TreeUtil.buildTreePath(jTree1, parent, path, 0, true));
+            TreePath selectedTreePath = TreeUtil.buildTreePath(jTree1, parent, path, 0, true);
+            jTree1.expandPath(selectedTreePath);
             jTree1.getSelectionModel().setSelectionPath(TreeUtil.buildTreePath(jTree1, parent, path, 0, false));
 
+        } else {
+            String lastSelected = prefs.get(PREF_LAST_SELECTED, null);
+            if (lastSelected != null) {
+                TreePath parent = new TreePath((TreeNode) jTree1.getModel().getRoot());
+                TreePath selectedTreePath = TreeUtil.buildTreePath(jTree1, parent, ("/"+lastSelected).split("/"), 0, true);
+                jTree1.expandPath(selectedTreePath);
+            }
         }
     }
 
@@ -299,7 +314,8 @@ private void noTexturebuttonActionPerformed(java.awt.event.ActionEvent evt) {//G
                 imagePreviewLabel.setIcon(newicon);
                 infoLabel.setText(" " + node.getUserObject() + "    w : " + newicon.getIconWidth() + "    h : " + newicon.getIconHeight());
             }
-
+            
+            prefs.put(PREF_LAST_SELECTED, selected);
         } else {
             imagePreviewLabel.setIcon(null);
             infoLabel.setText("");
