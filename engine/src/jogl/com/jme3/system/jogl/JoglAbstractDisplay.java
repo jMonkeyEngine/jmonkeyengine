@@ -45,7 +45,13 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
+import javax.media.opengl.DebugGL2;
+import javax.media.opengl.DebugGL3;
+import javax.media.opengl.DebugGL3bc;
+import javax.media.opengl.DebugGL4;
 import javax.media.opengl.DebugGL4bc;
+import javax.media.opengl.DebugGLES1;
+import javax.media.opengl.DebugGLES2;
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
@@ -119,11 +125,38 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
 
         if (settings.getBoolean("GraphicsDebug")) {
             canvas.invoke(false, new GLRunnable() {
-
                 public boolean run(GLAutoDrawable glad) {
                     GL gl = glad.getGL();
-                    if (gl.isGL4bc()) {
-                        canvas.setGL(new DebugGL4bc(gl.getGL4bc()));
+                    if (gl.isGLES()) {
+                        if (gl.isGLES1()) {
+                            glad.setGL(new DebugGLES1(gl.getGLES1()));
+                        } else {
+                            if (gl.isGLES2()) {
+                                glad.setGL(new DebugGLES2(gl.getGLES2()));
+                            } else {
+                                // TODO ES3
+                            }
+                        }
+                    } else {
+                        if (gl.isGL4bc()) {
+                            glad.setGL(new DebugGL4bc(gl.getGL4bc()));
+                        } else {
+                            if (gl.isGL4()) {
+                                glad.setGL(new DebugGL4(gl.getGL4()));
+                            } else {
+                                if (gl.isGL3bc()) {
+                                    glad.setGL(new DebugGL3bc(gl.getGL3bc()));
+                                } else {
+                                    if (gl.isGL3()) {
+                                        glad.setGL(new DebugGL3(gl.getGL3()));
+                                    } else {
+                                        if (gl.isGL2()) {
+                                            glad.setGL(new DebugGL2(gl.getGL2()));
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     return true;
                 }
