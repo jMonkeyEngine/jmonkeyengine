@@ -18,6 +18,9 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -50,7 +53,9 @@ public class MaterialBrowser extends javax.swing.JDialog implements TreeSelectio
             return;
         }
         String[] leaves = assetManager.getMaterials();
-        TreeUtil.createTree(jTree1, leaves);
+        List<String> leavesList = Arrays.asList(leaves);
+        Collections.sort(leavesList);
+        TreeUtil.createTree(jTree1, leavesList.toArray(new String[0]));
         TreeUtil.expandTree(jTree1, (TreeNode) jTree1.getModel().getRoot(), 1);
         jTree1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         jTree1.addTreeSelectionListener(this);

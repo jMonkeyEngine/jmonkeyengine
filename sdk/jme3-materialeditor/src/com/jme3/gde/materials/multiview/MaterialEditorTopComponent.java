@@ -21,6 +21,8 @@ import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -523,14 +525,16 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
         }
     }
 
-    public void setMatDefList(final String[] strings, String selected) {
+    public void setMatDefList(final String[] matDefs, String selected) {
         EditableMaterialFile prop = materialFile;
         materialFile = null;
         jComboBox1.removeAllItems();
         jComboBox1.addItem("");
-
-        for (int i = 0; i < strings.length; i++) {
-            String string = strings[i];
+        List<String> matDefList = Arrays.asList(matDefs);
+        Collections.sort(matDefList);
+        String[] sortedMatDefs = matDefList.toArray(new String[0]);
+        for (int i = 0; i < sortedMatDefs.length; i++) {
+            String string = sortedMatDefs[i];
             jComboBox1.addItem(string);
         }
 
