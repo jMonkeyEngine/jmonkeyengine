@@ -61,6 +61,7 @@ public abstract class JoglContext implements JmeContext {
 
     protected KeyInput keyInput;
     protected MouseInput mouseInput;
+    protected JoyInput joyInput;
 
     public void setSystemListener(SystemListener listener){
         this.listener = listener;
@@ -91,7 +92,7 @@ public abstract class JoglContext implements JmeContext {
     }
 
     public JoyInput getJoyInput() {
-        return null;
+        return joyInput;
     }
 
     public Timer getTimer() {
