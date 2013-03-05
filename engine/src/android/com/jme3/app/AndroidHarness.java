@@ -13,7 +13,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
 import com.jme3.input.JoyInput;
@@ -29,9 +28,11 @@ import com.jme3.system.android.AndroidConfigChooser;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
+import com.jme3.util.AndroidLogHandler;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 /**
@@ -159,6 +160,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        LogManager.getLogManager().getLogger("").addHandler(new AndroidLogHandler());
         logger.fine("onCreate");
         super.onCreate(savedInstanceState);
 
