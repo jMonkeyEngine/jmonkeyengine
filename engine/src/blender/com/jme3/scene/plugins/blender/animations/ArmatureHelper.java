@@ -31,23 +31,23 @@
  */
 package com.jme3.scene.plugins.blender.animations;
 
-import com.jme3.animation.Bone;
-import com.jme3.animation.BoneTrack;
-import com.jme3.animation.Skeleton;
-import com.jme3.math.Matrix4f;
-import com.jme3.scene.Spatial;
-import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.curves.BezierCurve;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.Pointer;
-import com.jme3.scene.plugins.blender.file.Structure;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.jme3.animation.Bone;
+import com.jme3.animation.BoneTrack;
+import com.jme3.animation.Skeleton;
+import com.jme3.math.Matrix4f;
+import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.curves.BezierCurve;
+import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.Pointer;
+import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
  * This class defines the methods to calculate certain aspects of animation and

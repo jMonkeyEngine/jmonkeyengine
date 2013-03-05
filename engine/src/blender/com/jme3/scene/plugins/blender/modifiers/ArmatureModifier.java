@@ -314,9 +314,10 @@ import com.jme3.util.BufferUtils;
                         List<Structure> dw = pDW.fetchData(blenderContext.getInputStream());
                         for (Structure deformWeight : dw) {
                             Integer boneIndex = groupToBoneIndexMap.get(((Number) deformWeight.getFieldValue("def_nr")).intValue());
-                            // null here means that we came accross group that has no bone attached to
-                            if (boneIndex != null) {
-                                float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
+                            float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
+                            // boneIndex == null: it here means that we came accross group that has no bone attached to, so simply ignore it
+                            // if weight == 0 and weightIndex == 0 then ignore the weight (do not set weight = 0 as a first weight)
+                            if (boneIndex != null && (weight > 0.0f || weightIndex > 0)) {
                                 if (weightIndex < MAXIMUM_WEIGHTS_PER_VERTEX) {
                                     if (weight == 0.0f) {
                                         boneIndex = Integer.valueOf(0);
@@ -341,8 +342,8 @@ import com.jme3.util.BufferUtils;
                                         weightToIndexMap.put(weight, lowestWeightAndIndex.getValue());
                                     }
                                 }
+                                ++weightIndex;
                             }
-                            ++weightIndex;
                         }
                     } else {
                         // 0.0 weight indicates, do not transform this vertex, but keep it in bind pose.
