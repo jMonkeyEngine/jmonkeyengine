@@ -105,15 +105,12 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
                 super.removeNotify();
             }
         };
-        if (settings.isVSync()) {
-            canvas.invoke(false, new GLRunnable() {
-
-                public boolean run(GLAutoDrawable glad) {
-                    canvas.getGL().setSwapInterval(1);
-                    return true;
-                }
-            });
-        }
+        canvas.invoke(false, new GLRunnable() {
+            public boolean run(GLAutoDrawable glad) {
+                canvas.getGL().setSwapInterval(settings.isVSync() ? 1 : 0);
+                return true;
+            }
+        });
         canvas.setFocusable(true);
         canvas.requestFocus();
         canvas.setSize(settings.getWidth(), settings.getHeight());
