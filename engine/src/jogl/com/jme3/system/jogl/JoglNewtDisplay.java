@@ -47,7 +47,7 @@ import javax.media.opengl.GLAutoDrawable;
 
 public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
     
-    private static final Logger logger = Logger.getLogger(JoglDisplay.class.getName());
+    private static final Logger logger = Logger.getLogger(JoglNewtDisplay.class.getName());
 
     protected AtomicBoolean windowCloseRequest = new AtomicBoolean(false);
     protected AtomicBoolean needClose = new AtomicBoolean(false);
