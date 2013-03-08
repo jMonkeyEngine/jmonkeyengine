@@ -244,7 +244,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         createTerrainButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         raiseTerrainButton = new javax.swing.JToggleButton();
-        lowerTerrainButton = new javax.swing.JToggleButton();
         smoothTerrainButton = new javax.swing.JToggleButton();
         roughTerrainButton = new javax.swing.JToggleButton();
         levelTerrainButton = new javax.swing.JToggleButton();
@@ -421,18 +420,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             }
         });
         jToolBar1.add(raiseTerrainButton);
-
-        terrainModButtonGroup.add(lowerTerrainButton);
-        lowerTerrainButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-down.png"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(lowerTerrainButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.lowerTerrainButton.text")); // NOI18N
-        lowerTerrainButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.lowerTerrainButton.toolTipText")); // NOI18N
-        lowerTerrainButton.setActionCommand(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.lowerTerrainButton.actionCommand")); // NOI18N
-        lowerTerrainButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lowerTerrainButtonActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(lowerTerrainButton);
 
         terrainModButtonGroup.add(smoothTerrainButton);
         smoothTerrainButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-smooth.png"))); // NOI18N
@@ -729,17 +716,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         }
     }//GEN-LAST:event_raiseTerrainButtonActionPerformed
 
-    private void lowerTerrainButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lowerTerrainButtonActionPerformed
-        if (lowerTerrainButton.isSelected()) {
-            LowerTerrainTool tool = new LowerTerrainTool();
-            toolController.setTerrainEditButtonState(tool);
-            setHintText(tool);
-        } else {
-            toolController.setTerrainEditButtonState(null);
-            setHintText((TerrainTool) null);
-        }
-    }//GEN-LAST:event_lowerTerrainButtonActionPerformed
-
     private void addTextureButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTextureButtonActionPerformed
         if (editorController == null || editorController.getTerrain(null) == null) {
             return;
@@ -949,7 +925,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JPanel levelBrushPanel;
     private javax.swing.JCheckBox levelPrecisionCheckbox;
     private javax.swing.JToggleButton levelTerrainButton;
-    private javax.swing.JToggleButton lowerTerrainButton;
     private javax.swing.JTextField octavesField;
     private javax.swing.JPanel paintingPanel;
     private javax.swing.JLabel radiusLabel;

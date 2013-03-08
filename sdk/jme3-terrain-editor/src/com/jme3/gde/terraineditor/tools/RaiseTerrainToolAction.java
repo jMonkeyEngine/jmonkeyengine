@@ -61,6 +61,10 @@ public class RaiseTerrainToolAction extends AbstractTerrainToolAction {
         name = "Raise terrain";
     }
 
+    public Object applyTool(AbstractSceneExplorerNode rootNode) {
+        return doApplyTool(rootNode);
+    }
+    
     @Override
     protected Object doApplyTool(AbstractSceneExplorerNode rootNode) {
         Terrain terrain = getTerrain(rootNode.getLookup().lookup(Node.class));
