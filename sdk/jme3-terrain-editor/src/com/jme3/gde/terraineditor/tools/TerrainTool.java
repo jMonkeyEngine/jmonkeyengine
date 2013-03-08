@@ -81,6 +81,7 @@ public abstract class TerrainTool {
     private Vector3f axis;
     private Meshes mesh;
     private final Map<Vector3f, Float> cachedMap = new HashMap<Vector3f, Float>(); // caching only
+    private boolean primary = true;
     
     public static enum Meshes {
         Box, Sphere
@@ -103,6 +104,14 @@ public abstract class TerrainTool {
         this.manager = manager;
         addMarkerPrimary(parent);
     }
+
+    public boolean isPrimary() {
+        return primary;
+    }
+
+    public void setPrimary(boolean primary) {
+        this.primary = primary;
+    }
     
     /**
      * The primary action for the tool gets activated
@@ -113,6 +122,12 @@ public abstract class TerrainTool {
      * The secondary action for the tool gets activated
      */
     public abstract void actionSecondary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject);
+    
+    /**
+     * The action has ended, record undo actions.
+     * Currently just implemented for Paint tool
+     */
+    public void actionEnded(AbstractSceneExplorerNode rootNode, DataObject dataObject) {}
     
     /**
      * Signals that this tool will or will not snap to fixed axis angles

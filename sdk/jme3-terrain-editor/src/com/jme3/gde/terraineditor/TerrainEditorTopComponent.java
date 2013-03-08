@@ -252,7 +252,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         jSeparator2 = new javax.swing.JToolBar.Separator();
         addTextureButton = new javax.swing.JButton();
         removeTextureButton = new javax.swing.JButton();
-        paintButton = new javax.swing.JToggleButton();
         eraseButton = new javax.swing.JToggleButton();
         jSeparator3 = new javax.swing.JToolBar.Separator();
         radiusLabel = new javax.swing.JLabel();
@@ -512,24 +511,11 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         });
         jToolBar1.add(removeTextureButton);
 
-        terrainModButtonGroup.add(paintButton);
-        paintButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-paint-circle.png"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(paintButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.paintButton.text")); // NOI18N
-        paintButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.paintButton.toolTipText")); // NOI18N
-        paintButton.setFocusable(false);
-        paintButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        paintButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        paintButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                paintButtonActionPerformed(evt);
-            }
-        });
-        jToolBar1.add(paintButton);
-
         terrainModButtonGroup.add(eraseButton);
         eraseButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-erase-circle.png"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(eraseButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.eraseButton.text")); // NOI18N
         eraseButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.eraseButton.toolTipText")); // NOI18N
+        eraseButton.setEnabled(false);
         eraseButton.setFocusable(false);
         eraseButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         eraseButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -547,7 +533,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         radiusSlider.setMajorTickSpacing(10);
         radiusSlider.setMinorTickSpacing(5);
         radiusSlider.setPaintTicks(true);
-        radiusSlider.setSnapToTicks(true);
         radiusSlider.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.radiusSlider.toolTipText")); // NOI18N
         radiusSlider.setValue(5);
         radiusSlider.setOpaque(false);
@@ -722,7 +707,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
                     .addComponent(hintPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(paintingPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(toolSettingsPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -754,17 +739,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             setHintText((TerrainTool) null);
         }
     }//GEN-LAST:event_lowerTerrainButtonActionPerformed
-
-    private void paintButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paintButtonActionPerformed
-        if (paintButton.isSelected()) {
-            PaintTerrainTool tool = new PaintTerrainTool();
-            toolController.setTerrainEditButtonState(tool);
-            setHintText(tool);
-        } else {
-            toolController.setTerrainEditButtonState(null);
-            setHintText((TerrainTool) null);
-        }
-    }//GEN-LAST:event_paintButtonActionPerformed
 
     private void addTextureButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTextureButtonActionPerformed
         if (editorController == null || editorController.getTerrain(null) == null) {
@@ -807,7 +781,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     private void eraseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eraseButtonActionPerformed
         if (eraseButton.isSelected()) {
-            EraseTerrainTool tool = new EraseTerrainTool();
+            PaintTerrainTool tool = new PaintTerrainTool();
             toolController.setTerrainEditButtonState(tool);
             setHintText(tool);
         } else {
@@ -977,7 +951,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JToggleButton levelTerrainButton;
     private javax.swing.JToggleButton lowerTerrainButton;
     private javax.swing.JTextField octavesField;
-    private javax.swing.JToggleButton paintButton;
     private javax.swing.JPanel paintingPanel;
     private javax.swing.JLabel radiusLabel;
     private javax.swing.JSlider radiusSlider;

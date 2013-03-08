@@ -43,7 +43,7 @@ import com.jme3.texture.Texture;
 import java.nio.ByteBuffer;
 
 /**
- * Paint the texture at the specified location.
+ * Paint or erase the texture at the specified location.
  * 
  * @author Brent Owens
  */
@@ -60,6 +60,10 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
         this.weight = weight;
         this.selectedTextureIndex = selectedTextureIndex;
         name = "Paint terrain";
+    }
+    
+    public Object applyTool(AbstractSceneExplorerNode rootNode) {
+        return doApplyTool(rootNode);
     }
     
     @Override

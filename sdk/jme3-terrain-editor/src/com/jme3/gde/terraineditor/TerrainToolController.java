@@ -35,6 +35,7 @@ package com.jme3.gde.terraineditor;
 import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.controller.SceneToolController;
+import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeNode;
 import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.terraineditor.tools.TerrainTool;
@@ -42,6 +43,7 @@ import com.jme3.input.event.KeyInputEvent;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import java.util.concurrent.Callable;
+import org.openide.loaders.DataObject;
 
 /**
  * The controller for the terrain modification tools. It will in turn interact
@@ -63,6 +65,8 @@ public class TerrainToolController extends SceneToolController {
     private float toolWeight;
     private int selectedTextureIndex = -1;
     private boolean mesh = false;
+    private boolean primary = false;
+    private boolean alternate = false;
     
 
     public TerrainToolController(Node toolsNode, AssetManager manager, JmeNode rootNode) {
@@ -200,7 +204,7 @@ public class TerrainToolController extends SceneToolController {
      */
     public void doTerrainEditToolActivated() {
 
-        if (terrainTool != null) {
+        if (terrainTool != null && primary && !alternate) {
             Vector3f point = getMarkerLocation();
             if (point != null) {
                 topComponent.getExtraToolParams();
@@ -215,14 +219,24 @@ public class TerrainToolController extends SceneToolController {
      */
     public void doTerrainEditToolAlternateActivated() {
         
-        if (terrainTool != null) {
-            Vector3f point = cameraController.getTerrainCollisionPoint();
+        if (terrainTool != null && alternate && !primary) {
+            //Vector3f point = cameraController.getTerrainCollisionPoint();
+            Vector3f point = getMarkerLocation();
             if (point != null) {
+                topComponent.getExtraToolParams();
                 terrainTool.actionSecondary(point, selectedTextureIndex, jmeRootNode, editorController.getCurrentDataObject());
             }
             
         }
 
+    }
+
+    public void setPrimary(boolean primary) {
+        this.primary = primary;
+    }
+
+    public void setAlternate(boolean alternate) {
+        this.alternate = alternate;
     }
 
     void setExtraToolParams(ExtraToolParams params) {
@@ -238,6 +252,16 @@ public class TerrainToolController extends SceneToolController {
     void doKeyPressed(KeyInputEvent kie) {
         if (terrainTool != null) {
             terrainTool.keyPressed(kie);
+        }
+    }
+
+    /**
+     * The action on the tool has ended (mouse button up), record the Undo (for painting only now)
+     */
+    void doTerrainEditToolActionEnded() {
+        if (terrainTool != null) {
+            System.out.println("undo tagged");
+            terrainTool.actionEnded(jmeRootNode, editorController.getCurrentDataObject());
         }
     }
 } 

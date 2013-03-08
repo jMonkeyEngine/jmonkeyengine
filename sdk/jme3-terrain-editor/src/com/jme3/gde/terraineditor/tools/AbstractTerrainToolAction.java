@@ -43,11 +43,17 @@ import com.jme3.terrain.Terrain;
  */
 public abstract class AbstractTerrainToolAction extends AbstractStatefulGLToolAction {
 
+    private Terrain terrain;
+    
     protected Terrain getTerrain(Spatial root) {
 
+        if (terrain != null)
+            return terrain;
+        
         // is this the terrain?
         if (root instanceof Terrain && root instanceof Node) {
-            return (Terrain)root;
+            terrain = (Terrain)root;
+            return terrain;
         }
 
         if (root instanceof Node) {

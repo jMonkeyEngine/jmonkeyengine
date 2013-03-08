@@ -105,32 +105,43 @@ public class TerrainCameraController extends AbstractCameraController {
 
     @Override
     protected void checkClick(int button, boolean pressed) {
-        
-         /*if (button == 0) {
-            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
-                terrainEditToolActivated = true;
-            }
-        }
-       
-         if (button == 1) {
-         if (isTerrainEditButtonEnabled() && !forceCameraControls) {
-         toolController.doTerrainEditToolAlternateActivated();
-         }
-         }*/
-
-        if (button == 1) {
-            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
-                toolController.doTerrainEditToolAlternateActivated();
-            }
-        }
+        checkMouseButtonState(button, pressed);
     }
-
+    
     @Override
     protected void checkDragged(int button, boolean pressed) {
-        if (button == 0  && !forceCameraControls) {
-            terrainEditToolActivated = true;
+        checkMouseButtonState(button, pressed);
+    }
+    
+    private void checkMouseButtonState(int button, boolean pressed) {
+        if (isTerrainEditButtonEnabled() && !forceCameraControls) {
+            if (terrainEditToolActivated != pressed)
+                toolController.doTerrainEditToolActionEnded(); // button state change, trigger undo action
+            terrainEditToolActivated = pressed;
+        }
+        
+        
+        if (button == 0) {
+            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
+                toolController.setPrimary(pressed);
+                System.out.println("primary "+pressed);
+            }
+        }
+        
+        if (button == 1) {
+            if (isTerrainEditButtonEnabled() && !forceCameraControls) {
+                toolController.setAlternate(pressed);
+                System.out.println("alternate "+pressed);
+            }
         }
     }
+
+    /*@Override
+    protected void checkDragged(int button, boolean pressed) {
+        if ( (button == 0 || button == 1) && !forceCameraControls) {
+            terrainEditToolActivated = true;
+        }
+    }*/
 
     @Override
     protected void checkMoved() {
@@ -151,8 +162,9 @@ public class TerrainCameraController extends AbstractCameraController {
                 lastModifyTime = 0;
                 if (terrainEditToolActivated) {
                     toolController.doTerrainEditToolActivated();
+                    toolController.doTerrainEditToolAlternateActivated();
                 }
-                terrainEditToolActivated = false;
+                //terrainEditToolActivated = false;
                 lastModifyTime = app.getContext().getTimer().getTime();
             }
         }

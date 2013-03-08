@@ -32,33 +32,131 @@
 package com.jme3.gde.terraineditor.tools;
 
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractStatefulGLToolAction;
+import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
+import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
+import com.jme3.terrain.Terrain;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 import org.openide.loaders.DataObject;
+import org.openide.util.Lookup;
 
 /**
- *
+ * Paint or erase the textures on the terrain.
+ * 
  * @author Brent Owens
  */
 public class PaintTerrainTool extends TerrainTool {
 
+    private boolean painting = false; // to check when undo actions need to be set
+    List<PaintTerrainToolAction> actions = new ArrayList<PaintTerrainToolAction>();
+
+    
     @Override
     public void actionPrimary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject) {
-        if (radius == 0 || weight == 0)
-            return;
-        PaintTerrainToolAction action = new PaintTerrainToolAction(point, radius, weight, textureIndex);
-        action.doActionPerformed(rootNode, dataObject);
+        setPrimary(true);
+        action(point, textureIndex, rootNode, dataObject);
     }
 
     @Override
     public void actionSecondary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject) {
-        // do nothing
+        setPrimary(false);
+        action(point, textureIndex, rootNode, dataObject);
+    }
+    
+    private void action(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject) {
+        if (radius == 0 || weight == 0)
+            return;
+        
+        if (!painting)
+            painting = true;
+        
+        PaintTerrainToolAction action;
+        if (isPrimary())
+            action = new PaintTerrainToolAction(point, radius, weight, textureIndex);
+        else
+            action = new PaintTerrainToolAction(point, radius, -weight, textureIndex);
+        action.doActionPerformed(rootNode, dataObject, false);
+        actions.add(action);
+    }
+    
+    @Override
+    public void actionEnded(AbstractSceneExplorerNode rootNode, DataObject dataObject) {
+        if (painting) {
+            painting = false;
+            
+            if (actions.isEmpty())
+                return;
+            
+            // record undo action
+            List<PaintTerrainToolAction> cloned = new ArrayList<PaintTerrainToolAction>();
+            cloned.addAll(actions);
+            recordUndo(cloned, rootNode, dataObject);
+            actions.clear();
+        }
+    }
+
+    /**
+     * Is it already painting?
+     * If the user releases the mouse outside the window, this can be used to check
+     * if they were painting, and if so, call actionEnded()
+     */
+    public boolean isPainting() {
+        return painting;
     }
     
     @Override
     public void addMarkerPrimary(Node parent) {
         super.addMarkerPrimary(parent);
         markerPrimary.getMaterial().setColor("Color", ColorRGBA.Cyan);
+    }
+
+    private void recordUndo(final List<PaintTerrainToolAction> actions, final AbstractSceneExplorerNode rootNode, final DataObject dataObject) {
+        Lookup lookup = Lookup.getDefault() ;
+        SceneUndoRedoManager manager = lookup.lookup(SceneUndoRedoManager.class);
+
+        AbstractUndoableSceneEdit undoer = new AbstractUndoableSceneEdit() {
+
+            @Override
+            public void sceneUndo() throws CannotUndoException {
+                Terrain terrain = null;
+                for (int i=actions.size()-1; i>=0; i--) {
+                    PaintTerrainToolAction a = actions.get(i);
+                    if (terrain == null) 
+                        terrain = a.getTerrain(rootNode.getLookup().lookup(Node.class));
+                    a.doUndoTool(rootNode, terrain);
+                }
+                setModified(rootNode, dataObject);
+            }
+
+            @Override
+            public void sceneRedo() throws CannotRedoException {
+                for (int i=0; i<actions.size(); i++) {
+                    PaintTerrainToolAction a = actions.get(i);
+                    a.applyTool(rootNode);
+                }
+                setModified(rootNode, dataObject);
+            }
+
+        };
+        if (manager != null) // this is a temporary check, it should never be null but occasionally is
+            manager.addEdit(this, undoer);
+    }
+    
+    protected void setModified(final AbstractSceneExplorerNode rootNode, final DataObject dataObject) {
+        if (dataObject.isModified())
+            return;
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                dataObject.setModified(true);
+                rootNode.refresh(true);
+            }
+        });
     }
 }

@@ -62,9 +62,15 @@ public abstract class AbstractStatefulGLToolAction {
     }
 
     public void doActionPerformed(final AbstractSceneExplorerNode rootNode, final DataObject dataObject) {
+        doActionPerformed(rootNode, dataObject, true);
+    }
+    
+    public void doActionPerformed(final AbstractSceneExplorerNode rootNode, final DataObject dataObject, boolean recordUndo) {
 
         final Object object = doApplyTool(rootNode);
-        if (object!=null) {
+        
+        if (object!=null && recordUndo) {
+            
             Lookup lookup = Lookup.getDefault() ;
             SceneUndoRedoManager manager = lookup.lookup(SceneUndoRedoManager.class);
 
