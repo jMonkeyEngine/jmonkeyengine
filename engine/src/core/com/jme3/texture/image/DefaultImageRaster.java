@@ -39,12 +39,13 @@ import java.nio.ByteBuffer;
 public class DefaultImageRaster extends ImageRaster {
     
     private final int[] components = new int[4];
-    private final ByteBuffer buffer;
+    private ByteBuffer buffer;
     private final Image image;
     private final ImageCodec codec;
     private final int width;
     private final int height;
     private final byte[] temp;
+    private int slice;
     
     private void rangeCheck(int x, int y) {
         if (x < 0 || y < 0 || x >= width || y >= height) {
@@ -54,6 +55,7 @@ public class DefaultImageRaster extends ImageRaster {
     
     public DefaultImageRaster(Image image, int slice) {
         this.image = image;
+        this.slice = slice;
         this.buffer = image.getData(slice);
         this.codec = ImageCodec.lookup(image.getFormat());
         this.width = image.getWidth();
@@ -105,16 +107,23 @@ public class DefaultImageRaster extends ImageRaster {
                 components[2] = Math.min( (int) (color.g * codec.maxGreen + 0.5f), codec.maxGreen);
                 components[3] = Math.min( (int) (color.b * codec.maxBlue + 0.5f), codec.maxBlue);
                 break;
-        }
-        codec.writeComponents(buffer, x, y, width, components, temp);
+        }     
+        codec.writeComponents(getBuffer(), x, y, width, components, temp);
         image.setUpdateNeeded();
+    }
+    
+    private ByteBuffer getBuffer(){
+        if(buffer == null){
+            this.buffer = image.getData(slice);
+        }
+        return buffer;
     }
     
     @Override
     public ColorRGBA getPixel(int x, int y, ColorRGBA store) {
         rangeCheck(x, y);
         
-        codec.readComponents(buffer, x, y, width, components, temp);
+        codec.readComponents(getBuffer(), x, y, width, components, temp);
         if (store == null) {
             store = new ColorRGBA();
         }
