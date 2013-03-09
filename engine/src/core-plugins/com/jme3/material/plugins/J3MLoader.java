@@ -445,6 +445,10 @@ public class J3MLoader implements AssetLoader {
         for (Statement statement : techStat.getContents()){
             readTechniqueStatement(statement);
         }
+        
+        if(isUseNodes){
+            nodesLoaderDelegate.computeConditions();
+        }
 
         if (vertName != null && fragName != null){
             technique.setShaderFile(vertName, fragName, vertLanguage, fragLanguage);
