@@ -110,7 +110,6 @@ public class NewtKeyInput implements KeyInput, KeyListener {
             synchronized (eventQueue){
                 eventQueue.add(keyEvent);
             }
-            System.out.println(evt);
         }
     }
 
@@ -125,7 +124,6 @@ public class NewtKeyInput implements KeyInput, KeyListener {
             synchronized (eventQueue){
                 eventQueue.add(keyEvent);
             }
-            System.out.println(evt);
         }
     }
 
