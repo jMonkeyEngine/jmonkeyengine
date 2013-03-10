@@ -210,7 +210,7 @@ public final class MatDefEditorlElement extends JPanel implements MultiViewEleme
         final Lookup.Result<Material> resMat = obj.getLookup().lookupResult(Material.class);
         resMat.addLookupListener(new LookupListener() {
             public void resultChanged(LookupEvent ev) {
-                Collection<Material> col = (Collection<Material>) resMat.allInstances();
+                Collection<? extends Material> col = (Collection<? extends Material>) resMat.allInstances();
                 if (!col.isEmpty()) {
                     Material material = col.iterator().next();
                     diagram1.refreshPreviews(material);

@@ -27,12 +27,12 @@ public class MatDefNavigatorPanel extends JPanel implements NavigatorPanel, Expl
     /**
      * template for finding data in given context.
      */
-    private static final Lookup.Template MY_DATA = new Lookup.Template(MatDefDataObject.class);
+    private static final Lookup.Template<MatDefDataObject> MY_DATA = new Lookup.Template<MatDefDataObject>(MatDefDataObject.class);
 
     /**
      * current context to work on
      */
-    private Lookup.Result curContext;
+    private Lookup.Result<MatDefDataObject> curContext;
     private Lookup lookup;
     /**
      * listener to context changes
@@ -68,7 +68,7 @@ public class MatDefNavigatorPanel extends JPanel implements NavigatorPanel, Expl
         //lookup = context;
         curContext.addLookupListener(getContextListener());
         // get actual data and recompute content
-        Collection data = curContext.allInstances();
+        Collection<? extends MatDefDataObject> data = curContext.allInstances();
         setNewContent(data);
 
         //  ExplorerUtils.activateActions(mgr, true);
@@ -76,7 +76,7 @@ public class MatDefNavigatorPanel extends JPanel implements NavigatorPanel, Expl
     }
 
     public void panelDeactivated() {
-        Collection data = curContext.allInstances();
+        Collection<? extends MatDefDataObject>  data = curContext.allInstances();
         if (!data.isEmpty()) {
             MatDefDataObject obj = (MatDefDataObject) data.iterator().next();
             obj.getLookupContents().remove(this);
@@ -95,7 +95,7 @@ public class MatDefNavigatorPanel extends JPanel implements NavigatorPanel, Expl
     /**
      * *********** non - public part ***********
      */
-    private void setNewContent(Collection newData) {
+    private void setNewContent(Collection<? extends MatDefDataObject>  newData) {
         if (!newData.isEmpty()) {
             MatDefDataObject data = (MatDefDataObject) newData.iterator().next();
             data.getLookupContents().add(this);
@@ -135,7 +135,7 @@ public class MatDefNavigatorPanel extends JPanel implements NavigatorPanel, Expl
     private class ContextListener implements LookupListener {
 
         public void resultChanged(LookupEvent ev) {
-            Collection data = ((Lookup.Result) ev.getSource()).allInstances();
+            Collection<? extends MatDefDataObject>  data = (Collection<? extends MatDefDataObject>)((Lookup.Result<?> ) ev.getSource()).allInstances();
             setNewContent(data);
         }
     } // end of ContextListener
