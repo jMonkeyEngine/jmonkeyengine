@@ -398,6 +398,8 @@ public class AndroidSdkTool {
                 + "import com.jme3.app.AndroidHarness;\n"
                 + "import android.content.pm.ActivityInfo;\n"
                 + "import com.jme3.system.android.AndroidConfigChooser.ConfigType;\n"
+                + "import java.util.logging.Level;\n"
+                + "import java.util.logging.LogManager;\n"
                 + " \n"
                 + "public class MainActivity extends AndroidHarness{\n"
                 + " \n"
