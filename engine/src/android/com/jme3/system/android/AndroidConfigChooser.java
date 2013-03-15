@@ -3,6 +3,8 @@ package com.jme3.system.android;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView.EGLConfigChooser;
 import com.jme3.system.AppSettings;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.microedition.khronos.egl.EGL10;
@@ -58,19 +60,19 @@ public class AndroidConfigChooser implements EGLConfigChooser {
          */
         int mr, mg, mb, ma, md, ms;
 
-        private ConfigType(int r, int g, int b, int a, int d, int s, int fbr, int fbg, int fbb, int fba, int fbd, int fbs) {
+        private ConfigType(int r, int g, int b, int a, int d, int s, int mr, int mg, int mb, int ma, int md, int ms) {
             this.r = r;
             this.g = g;
             this.b = b;
             this.a = a;
             this.d = d;
             this.s = s;
-            this.mr = fbr;
-            this.mg = fbg;
-            this.mb = fbb;
-            this.ma = fba;
-            this.md = fbd;
-            this.ms = fbs;
+            this.mr = mr;
+            this.mg = mg;
+            this.mb = mb;
+            this.ma = ma;
+            this.md = md;
+            this.ms = ms;
         }
     }
 
@@ -169,34 +171,34 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         int[] value = new int[1];
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RED_SIZE, value);
-        logger.log(level,String.format("EGL_RED_SIZE  = %d", value[0]));
+        logger.log(level, String.format("EGL_RED_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_GREEN_SIZE, value);
-        logger.log(level,String.format("EGL_GREEN_SIZE  = %d", value[0]));
+        logger.log(level, String.format("EGL_GREEN_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_BLUE_SIZE, value);
-        logger.log(level,String.format("EGL_BLUE_SIZE  = %d", value[0]));
+        logger.log(level, String.format("EGL_BLUE_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
-        logger.log(level,String.format("EGL_ALPHA_SIZE  = %d", value[0]));
+        logger.log(level, String.format("EGL_ALPHA_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_DEPTH_SIZE, value);
-        logger.log(level,String.format("EGL_DEPTH_SIZE  = %d", value[0]));
+        logger.log(level, String.format("EGL_DEPTH_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_STENCIL_SIZE, value);
-        logger.log(level,String.format("EGL_STENCIL_SIZE  = %d", value[0]));
+        logger.log(level, String.format("EGL_STENCIL_SIZE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RENDERABLE_TYPE, value);
-        logger.log(level,String.format("EGL_RENDERABLE_TYPE  = %d", value[0]));
+        logger.log(level, String.format("EGL_RENDERABLE_TYPE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SURFACE_TYPE, value);
-        logger.log(level,String.format("EGL_SURFACE_TYPE  = %d", value[0]));
+        logger.log(level, String.format("EGL_SURFACE_TYPE  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SAMPLE_BUFFERS, value);
-        logger.log(level,String.format("EGL_SAMPLE_BUFFERS  = %d", value[0]));
+        logger.log(level, String.format("EGL_SAMPLE_BUFFERS  = %d", value[0]));
 
         egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SAMPLES, value);
-        logger.log(level,String.format("EGL_SAMPLES  = %d", value[0]));
+        logger.log(level, String.format("EGL_SAMPLES  = %d", value[0]));
     }
 
     public int getClientOpenGLESVersion() {
@@ -254,27 +256,6 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         private ConfigType configType;
         protected int mSamples;
 
-//        public ComponentSizeChooser(int redSize, int greenSize, int blueSize,
-//                int alphaSize, int depthSize, int stencilSize, int samples) {
-//            super(new int[]{
-//                        EGL10.EGL_RED_SIZE, redSize,
-//                        EGL10.EGL_GREEN_SIZE, greenSize,
-//                        EGL10.EGL_BLUE_SIZE, blueSize,
-//                        EGL10.EGL_ALPHA_SIZE, alphaSize,
-//                        EGL10.EGL_DEPTH_SIZE, depthSize,
-//                        EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-//                        EGL10.EGL_SAMPLE_BUFFERS, TRUE,
-//                        EGL10.EGL_SAMPLES, samples,
-//                        EGL10.EGL_NONE});
-//            mValue = new int[1];
-//            mRedSize = redSize;
-//            mGreenSize = greenSize;
-//            mBlueSize = blueSize;
-//            mAlphaSize = alphaSize;
-//            mDepthSize = depthSize;
-//            mStencilSize = stencilSize;
-//            mSamples = samples;
-//        }
         public ComponentSizeChooser(ConfigType configType, int samples) {
             mValue = new int[1];
             mSamples = samples;
@@ -291,7 +272,6 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
             // first pass through config list.  Try to find an exact match.
             for (EGLConfig config : configs) {
-//                logEGLConfig(config, display, egl);
                 int r = findConfigAttrib(egl, display, config,
                         EGL10.EGL_RED_SIZE, 0);
                 int g = findConfigAttrib(egl, display, config,
@@ -318,7 +298,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                     if (mSamples == 0 && isMs != 0) {
                         continue;
                     }
-                    boolean keep = false;
+                    boolean keep;
                     //we keep the config if the depth is better or if the AA setting is better
                     if (d >= kd) {
                         kd = d;
@@ -346,14 +326,38 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                 return keptConfig;
             }
 
-
-            // failsafe. pick the 1st config.
-            if (configs.length > 0) {
-                return configs[0];
-            } else {
-                return null;
+            if (configType == ConfigType.BEST) {
+                logger.log(Level.WARNING, "Failed to find a suitable display configuration for BEST, attempting BEST_TRANSLUCENT");
+                configType = ConfigType.BEST_TRANSLUCENT;
+                keptConfig = chooseConfig(egl, display, configs);
+                if (keptConfig != null) {
+                    return keptConfig;
+                }
             }
 
+            if (configType == ConfigType.BEST_TRANSLUCENT) {
+                logger.log(Level.WARNING, "Failed to find a suitable display configuration for BEST_TRANSLUCENT, attempting FASTEST");
+                configType = ConfigType.FASTEST;
+                keptConfig = chooseConfig(egl, display, configs);
+
+                if (keptConfig != null) {
+                    return keptConfig;
+                }
+            }
+            
+            logger.log(Level.WARNING, "Failed to find a suitable display configuration for FASTEST, hoping for the best...");
+
+            // failsafe. pick the 1st config with a 16 bit depth buffer.
+            for (EGLConfig config : configs) {
+                int d = findConfigAttrib(egl, display, config,
+                        EGL10.EGL_DEPTH_SIZE, 0);
+                if (d >= 16) {
+                    return config;
+                }
+            }
+
+            //nothing much we can do...
+            return null;
         }
 
         private boolean inRange(int val, int min, int max) {
@@ -369,4 +373,140 @@ public class AndroidConfigChooser implements EGLConfigChooser {
             return defaultValue;
         }
     }
+//DON'T REMOVE THIS, USED FOR UNIT TESTING FAILING CONFIGURATION LISTS.
+//    private static class Config {
+//
+//        int r, g, b, a, d, s, ms, ns;
+//
+//        public Config(int r, int g, int b, int a, int d, int s, int ms, int ns) {
+//            this.r = r;
+//            this.g = g;
+//            this.b = b;
+//            this.a = a;
+//            this.d = d;
+//            this.s = s;
+//            this.ms = ms;
+//            this.ns = ns;
+//        }
+//
+//        @Override
+//        public String toString() {
+//            return "Config{" + "r=" + r + ", g=" + g + ", b=" + b + ", a=" + a + ", d=" + d + ", s=" + s + ", ms=" + ms + ", ns=" + ns + '}';
+//        }
+//    }
+//
+//    public static Config chooseConfig(List<Config> configs, ConfigType configType, int mSamples) {
+//
+//        Config keptConfig = null;
+//        int kd = 0;
+//        int knbMs = 0;
+//
+//
+//        // first pass through config list.  Try to find an exact match.
+//        for (Config config : configs) {
+////                logEGLConfig(config, display, egl);
+//            int r = config.r;
+//            int g = config.g;
+//            int b = config.b;
+//            int a = config.a;
+//            int d = config.d;
+//            int s = config.s;
+//            int isMs = config.ms;
+//            int nbMs = config.ns;
+//
+//            if (inRange(r, configType.mr, configType.r)
+//                    && inRange(g, configType.mg, configType.g)
+//                    && inRange(b, configType.mb, configType.b)
+//                    && inRange(a, configType.ma, configType.a)
+//                    && inRange(d, configType.md, configType.d)
+//                    && inRange(s, configType.ms, configType.s)) {
+//                if (mSamples == 0 && isMs != 0) {
+//                    continue;
+//                }
+//                boolean keep = false;
+//                //we keep the config if the depth is better or if the AA setting is better
+//                if (d >= kd) {
+//                    kd = d;
+//                    keep = true;
+//                } else {
+//                    keep = false;
+//                }
+//
+//                if (mSamples != 0) {
+//                    if (nbMs >= knbMs && nbMs <= mSamples) {
+//                        knbMs = nbMs;
+//                        keep = true;
+//                    } else {
+//                        keep = false;
+//                    }
+//                }
+//
+//                if (keep) {
+//                    keptConfig = config;
+//                }
+//            }
+//        }
+//
+//        if (keptConfig != null) {
+//            return keptConfig;
+//        }
+//
+//        if (configType == ConfigType.BEST) {
+//            keptConfig = chooseConfig(configs, ConfigType.BEST_TRANSLUCENT, mSamples);
+//
+//            if (keptConfig != null) {
+//                return keptConfig;
+//            }
+//        }
+//
+//        if (configType == ConfigType.BEST_TRANSLUCENT) {
+//            keptConfig = chooseConfig(configs, ConfigType.FASTEST, mSamples);
+//
+//            if (keptConfig != null) {
+//                return keptConfig;
+//            }
+//        }
+//        // failsafe. pick the 1st config.
+//
+//        for (Config config : configs) {
+//            if (config.d >= 16) {
+//                return config;
+//            }
+//        }
+//
+//        return null;
+//    }
+//
+//    private static boolean inRange(int val, int min, int max) {
+//        return min <= val && val <= max;
+//    }
+//
+//    public static void main(String... argv) {
+//        List<Config> confs = new ArrayList<Config>();
+//        confs.add(new Config(5, 6, 5, 0, 0, 0, 0, 0));
+//        confs.add(new Config(5, 6, 5, 0, 16, 0, 0, 0));
+//        confs.add(new Config(5, 6, 5, 0, 24, 8, 0, 0));
+//        confs.add(new Config(8, 8, 8, 8, 0, 0, 0, 0));
+////            confs.add(new Config(8, 8, 8, 8, 16, 0, 0, 0));
+////            confs.add(new Config(8, 8, 8, 8, 24, 8, 0, 0));
+//
+//        confs.add(new Config(5, 6, 5, 0, 0, 0, 1, 2));
+//        confs.add(new Config(5, 6, 5, 0, 16, 0, 1, 2));
+//        confs.add(new Config(5, 6, 5, 0, 24, 8, 1, 2));
+//        confs.add(new Config(8, 8, 8, 8, 0, 0, 1, 2));
+////            confs.add(new Config(8, 8, 8, 8, 16, 0, 1, 2));
+////            confs.add(new Config(8, 8, 8, 8, 24, 8, 1, 2));
+//
+//        confs.add(new Config(5, 6, 5, 0, 0, 0, 1, 4));
+//        confs.add(new Config(5, 6, 5, 0, 16, 0, 1, 4));
+//        confs.add(new Config(5, 6, 5, 0, 24, 8, 1, 4));
+//        confs.add(new Config(8, 8, 8, 8, 0, 0, 1, 4));
+////            confs.add(new Config(8, 8, 8, 8, 16, 0, 1, 4));
+////            confs.add(new Config(8, 8, 8, 8, 24, 8, 1, 4));
+//
+//        Config chosen = chooseConfig(confs, ConfigType.BEST, 0);
+//
+//        System.err.println(chosen);
+//
+//    }
 }
