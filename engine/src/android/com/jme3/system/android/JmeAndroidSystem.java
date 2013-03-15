@@ -115,34 +115,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         }
 
         initialized = true;
-        try {
-//            JmeFormatter formatter = new JmeFormatter();
-//            Handler consoleHandler = new AndroidLogHandler();
-//            consoleHandler.setFormatter(formatter);
-//
-//            Logger log = Logger.getLogger("");
-//            for (Handler h : log.getHandlers()) {
-//                log.removeHandler(h);
-//            }
-//            log.addHandler(consoleHandler);
-            Logger log = Logger.getLogger(JmeAndroidSystem.class.getName());
-            boolean bIsLogFormatSet = false;
-            do {
-                log.setLevel(Level.ALL);
-                if (log.getHandlers().length == 0) {
-                    log = log.getParent();
-                    if (log != null) {
-                        for (Handler h : log.getHandlers()) {
-                            h.setFormatter(new JmeFormatter());
-                            h.setLevel(Level.ALL);
-                            bIsLogFormatSet = true;
-                        }
-                    }
-                }
-            } while (log != null && !bIsLogFormatSet);
-        } catch (SecurityException ex) {
-            logger.log(Level.SEVERE, "Security error in creating log file", ex);
-        }
+
         logger.log(Level.INFO, "Running on {0}", getFullName());
     }
 

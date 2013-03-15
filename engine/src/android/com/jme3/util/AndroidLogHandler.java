@@ -15,22 +15,31 @@ import java.util.logging.Logger;
  */
 public class AndroidLogHandler extends Handler {
 
-    private static final Formatter THE_FORMATTER = new Formatter() {
+    private static final Formatter JME_FORMATTER = new JmeFormatter() {
+
+        String lineSeperator = System.getProperty("line.separator");
+
         @Override
-        public String format(LogRecord r) {
-            Throwable thrown = r.getThrown();
-            if (thrown != null) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                sw.write(r.getMessage());
-                sw.write("\n");
-                thrown.printStackTrace(pw);
-                pw.flush();
-                return sw.toString();
-            } else {
-                return r.getMessage();
+        public String format(LogRecord record) {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append(record.getLevel().getLocalizedName()).append(" ");
+            sb.append(formatMessage(record)).append(lineSeperator);
+
+            if (record.getThrown() != null) {
+                try {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    record.getThrown().printStackTrace(pw);
+                    pw.close();
+                    sb.append(sw.toString());
+                } catch (Exception ex) {
+                }
             }
+
+            return sb.toString();
         }
+
     };
 
     @Override
@@ -44,14 +53,13 @@ public class AndroidLogHandler extends Handler {
     @Override
     public void publish(LogRecord record) {
 
+        int level = getAndroidLevel(record.getLevel());
+//        String tag = loggerNameToTag(record.getLoggerName());
+        String tag = record.getLoggerName();
+
         try {
-            Level level = record.getLevel();
-            String tag = record.getLoggerName();
-            String msg = THE_FORMATTER.format(record);
-            int lv = getAndroidLevel(level);
-
-            Log.println(lv, tag, msg);
-
+            String message = JME_FORMATTER.format(record);
+            Log.println(level, tag, message);
         } catch (RuntimeException e) {
             Log.e("AndroidHandler", "Error logging message.", e);
         }
@@ -77,4 +85,26 @@ public class AndroidLogHandler extends Handler {
             return Log.DEBUG;
         }
     }
+
+    /**
+     * Returns the short logger tag for the given logger name.
+     * Traditionally loggers are named by fully-qualified Java classes; this
+     * method attempts to return a concise identifying part of such names.
+     */
+    public static String loggerNameToTag(String loggerName) {
+        // Anonymous logger.
+        if (loggerName == null) {
+            return "null";
+        }
+
+        int length = loggerName.length();
+        int lastPeriod = loggerName.lastIndexOf(".");
+
+        if (lastPeriod == -1) {
+            return loggerName;
+        }
+
+        return loggerName.substring(lastPeriod + 1);
+    }
+
 }

@@ -31,6 +31,7 @@ import com.jme3.system.android.OGLESContext;
 import com.jme3.util.AndroidLogHandler;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -65,7 +66,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      */
     @Deprecated
     protected boolean eglConfigVerboseLogging = false;
-    
+
     /**
      * set to 2, 4 to enable multisampling.
      */
@@ -160,7 +161,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        LogManager.getLogManager().getLogger("").addHandler(new AndroidLogHandler());
+        initializeLogHandler();
+
         logger.fine("onCreate");
         super.onCreate(savedInstanceState);
 
@@ -198,7 +200,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             settings.setSamples(antiAliasingSamples);
             settings.setResolution(disp.getWidth(), disp.getHeight());
             settings.put(AndroidConfigChooser.SETTINGS_CONFIG_TYPE, eglConfigType);
-            
+
 
             // Create application instance
             try {
@@ -471,6 +473,24 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 logger.log(Level.FINE, "frameLayout is null");
             }
         }
+    }
+
+    /**
+     * Removes the standard Android log handler due to an issue with not logging
+     * entries lower than INFO level and adds a handler that produces
+     * JME formatted log messages.
+     */
+    protected void initializeLogHandler() {
+        Logger log = LogManager.getLogManager().getLogger("");
+        for (Handler handler : log.getHandlers()) {
+            if (log.getLevel() != null && log.getLevel().intValue() <= Level.FINE.intValue()) {
+                Log.v("AndroidHarness", "Removing Handler class: " + handler.getClass().getName());
+            }
+            log.removeHandler(handler);
+        }
+        Handler handler = new AndroidLogHandler();
+        log.addHandler(handler);
+        handler.setLevel(Level.ALL);
     }
 
     public void initialize() {
