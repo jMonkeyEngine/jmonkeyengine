@@ -56,12 +56,11 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     protected float maxVerticalRotation = FastMath.PI / 2;
     protected float minDistance = 1.0f;
     protected float maxDistance = 40.0f;
-    protected float distance = 20;
-    protected float zoomSpeed = 2f;
+    protected float distance = 20;    
     protected float rotationSpeed = 1.0f;
     protected float rotation = 0;
     protected float trailingRotationInertia = 0.05f;
-    protected float zoomSensitivity = 5f;
+    protected float zoomSensitivity = 2f;
     protected float rotationSensitivity = 5f;
     protected float chasingSensitivity = 5f;
     protected float trailingSensitivity = 0.5f;
@@ -297,7 +296,7 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
         }
 
         zooming = true;
-        targetDistance += value * zoomSpeed;
+        targetDistance += value * zoomSensitivity;
         if (targetDistance > maxDistance) {
             targetDistance = maxDistance;
         }
