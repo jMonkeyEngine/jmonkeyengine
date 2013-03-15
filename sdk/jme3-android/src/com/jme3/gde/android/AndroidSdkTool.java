@@ -422,6 +422,8 @@ public class AndroidSdkTool {
                 + "        screenOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;\n"
                 + "        // Enable MouseEvents being generated from TouchEvents (default = true)\n"
                 + "        mouseEventsEnabled = true;\n"
+                + "        // Set the default logging level (default=Level.INFO, Level.ALL=All Debug Info)\n"
+                + "        LogManager.getLogManager().getLogger(\"\").setLevel(Level.INFO);\n"
                 + "    }\n"
                 + " \n"
                 + "}\n";
