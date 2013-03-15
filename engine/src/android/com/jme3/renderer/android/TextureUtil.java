@@ -18,14 +18,13 @@ import java.util.logging.Logger;
 public class TextureUtil {
 
     private static final Logger logger = Logger.getLogger(TextureUtil.class.getName());
-    
     //TODO Make this configurable through appSettings
     public static boolean ENABLE_COMPRESSION = true;
     private static boolean NPOT = false;
     private static boolean ETC1support = false;
     private static boolean DXT1 = false;
     private static boolean DEPTH24 = false;
-    
+
     public static void loadTextureFeatures(String extensionString) {
         ETC1support = extensionString.contains("GL_OES_compressed_ETC1_RGB8_texture");
         DEPTH24 = extensionString.contains("GL_OES_depth24");
@@ -36,21 +35,21 @@ public class TextureUtil {
         logger.log(Level.FINE, "Supports NPOT? {0}", NPOT);
         logger.log(Level.FINE, "Supports DXT1? {0}", DXT1);
     }
-    
+
     private static void buildMipmap(Bitmap bitmap, boolean compress) {
         int level = 0;
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();
-        
+
         logger.log(Level.FINEST, " - Generating mipmaps for bitmap using SOFTWARE");
 
         GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
-        
+
         while (height >= 1 || width >= 1) {
             //First of all, generate the texture from our bitmap and set it to the according level
             if (compress) {
                 logger.log(Level.FINEST, " - Uploading LOD level {0} ({1}x{2}) with compression.", new Object[]{level, width, height});
-                uploadBitmapAsCompressed(GLES20.GL_TEXTURE_2D, level, bitmap);
+                uploadBitmapAsCompressed(GLES20.GL_TEXTURE_2D, level, bitmap, false, 0, 0);
             } else {
                 logger.log(Level.FINEST, " - Uploading LOD level {0} ({1}x{2}) directly.", new Object[]{level, width, height});
                 GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, level, bitmap, 0);
@@ -67,20 +66,26 @@ public class TextureUtil {
 
             // Recycle any bitmaps created as a result of scaling the bitmap.
             // Do not recycle the original image (mipmap level 0)
-            if (level != 0){
+            if (level != 0) {
                 bitmap.recycle();
             }
-            
+
             bitmap = bitmap2;
-            
+
             level++;
         }
     }
 
-    private static void uploadBitmapAsCompressed(int target, int level, Bitmap bitmap) {
+    private static void uploadBitmapAsCompressed(int target, int level, Bitmap bitmap, boolean subTexture, int x, int y) {
         if (bitmap.hasAlpha()) {
             logger.log(Level.FINEST, " - Uploading bitmap directly. Cannot compress as alpha present.");
-            GLUtils.texImage2D(target, level, bitmap, 0);
+            if (subTexture) {
+                GLUtils.texSubImage2D(target, level, x, y, bitmap);
+                checkGLError();
+            } else {
+                GLUtils.texImage2D(target, level, bitmap, 0);
+                checkGLError();
+            }
         } else {
             // Convert to RGB565
             int bytesPerPixel = 2;
@@ -97,15 +102,15 @@ public class TextureUtil {
             // Encode the image into the output bytebuffer
             int encodedImageSize = ETC1.getEncodedDataSize(bitmap.getWidth(), bitmap.getHeight());
             ByteBuffer compressedImage = BufferUtils.createByteBuffer(encodedImageSize);
-            ETC1.encodeImage(inputImage, bitmap.getWidth(), 
-                                 bitmap.getHeight(), 
-                             bytesPerPixel, 
-                             bytesPerPixel * bitmap.getWidth(), 
-                             compressedImage);
-            
+            ETC1.encodeImage(inputImage, bitmap.getWidth(),
+                    bitmap.getHeight(),
+                    bytesPerPixel,
+                    bytesPerPixel * bitmap.getWidth(),
+                    compressedImage);
+
             // Delete the input image buffer
             BufferUtils.destroyDirectBuffer(inputImage);
-            
+
             // Create an ETC1Texture from the compressed image data
             ETC1Texture etc1tex = new ETC1Texture(bitmap.getWidth(), bitmap.getHeight(), compressedImage);
 
@@ -113,55 +118,53 @@ public class TextureUtil {
             if (bytesPerPixel == 2) {
                 int oldSize = (bitmap.getRowBytes() * bitmap.getHeight());
                 int newSize = compressedImage.capacity();
-                logger.log(Level.FINEST, " - Uploading compressed image to GL, oldSize = {0}, newSize = {1}, ratio = {2}", new Object[]{oldSize, newSize, (float)oldSize/newSize});
-                GLES20.glCompressedTexImage2D(target, 
-                                              level, 
-                                              ETC1.ETC1_RGB8_OES, 
-                                              bitmap.getWidth(), 
-                                              bitmap.getHeight(), 
-                                              0, 
-                                              etc1tex.getData().capacity(), 
-                                              etc1tex.getData());
-                
+                logger.log(Level.FINEST, " - Uploading compressed image to GL, oldSize = {0}, newSize = {1}, ratio = {2}", new Object[]{oldSize, newSize, (float) oldSize / newSize});
+                if (subTexture) {
+                    GLES20.glCompressedTexSubImage2D(target,
+                            level,
+                            x, y,
+                            bitmap.getWidth(),
+                            bitmap.getHeight(),
+                            ETC1.ETC1_RGB8_OES,
+                            etc1tex.getData().capacity(),
+                            etc1tex.getData());
+                    checkGLError();
+                } else {
+                    GLES20.glCompressedTexImage2D(target,
+                            level,
+                            ETC1.ETC1_RGB8_OES,
+                            bitmap.getWidth(),
+                            bitmap.getHeight(),
+                            0,
+                            etc1tex.getData().capacity(),
+                            etc1tex.getData());
+                    checkGLError();
+                }
+
 //                ETC1Util.loadTexture(target, level, 0, GLES20.GL_RGB,
 //                        GLES20.GL_UNSIGNED_SHORT_5_6_5, etc1Texture);
 //            } else if (bytesPerPixel == 3) {
 //                ETC1Util.loadTexture(target, level, 0, GLES20.GL_RGB,
 //                        GLES20.GL_UNSIGNED_BYTE, etc1Texture);
             }
-            
+
             BufferUtils.destroyDirectBuffer(compressedImage);
         }
     }
-    
+
     /**
      * <code>uploadTextureBitmap</code> uploads a native android bitmap
      */
     public static void uploadTextureBitmap(final int target, Bitmap bitmap, boolean needMips) {
+        uploadTextureBitmap(target, bitmap, needMips, false, 0, 0);
+    }
+
+    /**
+     * <code>uploadTextureBitmap</code> uploads a native android bitmap
+     */
+    public static void uploadTextureBitmap(final int target, Bitmap bitmap, boolean needMips, boolean subTexture, int x, int y) {
         boolean recycleBitmap = false;
-        if (!NPOT || needMips) {
-            // Power of 2 images are not supported by this GPU.
-            // OR
-            // Mipmaps were requested to be used. 
-            // Currently OGLES does not support NPOT textures with mipmaps.
-            int width = bitmap.getWidth();
-            int height = bitmap.getHeight();
-            
-            // If the image is not power of 2, rescale it
-            if (!FastMath.isPowerOfTwo(width) || !FastMath.isPowerOfTwo(height)) {
-                // Scale to power of two.
-                width  = FastMath.nearestPowerOfTwo(width);
-                height = FastMath.nearestPowerOfTwo(height);
-                
-                logger.log(Level.WARNING, " - Image is not POT, so scaling it to new resolution: {0}x{1}", new Object[]{width, height});
-                Bitmap bitmap2 = Bitmap.createScaledBitmap(bitmap, width, height, true);
-                bitmap = bitmap2;
-                
-                // Flag to indicate that bitmap
-                // should be recycled at the end.
-                recycleBitmap = true; 
-            }
-        }
+        //TODO, maybe this should raise an exception when NPOT is not supported
 
         boolean willCompress = ENABLE_COMPRESSION && ETC1support && !bitmap.hasAlpha();
         if (needMips && willCompress) {
@@ -172,29 +175,39 @@ public class TextureUtil {
             if (willCompress) {
                 // Image is compressed but mipmaps are not desired, upload directly.
                 logger.log(Level.FINEST, " - Uploading compressed bitmap. Mipmaps are not generated.");
-                uploadBitmapAsCompressed(target, 0, bitmap);
+                uploadBitmapAsCompressed(target, 0, bitmap, subTexture, x, y);
+
             } else {
                 // Image is not compressed, mipmaps may or may not be desired.
-                logger.log(Level.FINEST, " - Uploading bitmap directly.{0}", 
-                        (needMips ? 
-                            " Mipmaps will be generated in HARDWARE" : 
-                            " Mipmaps are not generated."));
-                GLUtils.texImage2D(target, 0, bitmap, 0);
+                logger.log(Level.FINEST, " - Uploading bitmap directly.{0}",
+                        (needMips
+                        ? " Mipmaps will be generated in HARDWARE"
+                        : " Mipmaps are not generated."));
+                if (subTexture) {
+                    System.err.println("x : " + x + " y :" + y + " , " + bitmap.getWidth() + "/" + bitmap.getHeight());
+                    GLUtils.texSubImage2D(target, 0, x, y, bitmap);
+                    checkGLError();
+                } else {
+                    GLUtils.texImage2D(target, 0, bitmap, 0);
+                    checkGLError();
+                }
+
                 if (needMips) {
                     // No pregenerated mips available,
                     // generate from base level if required
                     GLES20.glGenerateMipmap(target);
+                    checkGLError();
                 }
             }
         }
-        
+
         if (recycleBitmap) {
             bitmap.recycle();
         }
     }
-    
+
     public static void uploadTextureAny(Image img, int target, int index, boolean needMips) {
-        if (img.getEfficentData() instanceof AndroidImageInfo){
+        if (img.getEfficentData() instanceof AndroidImageInfo) {
             logger.log(Level.FINEST, " === Uploading image {0}. Using BITMAP PATH === ", img);
             // If image was loaded from asset manager, use fast path
             AndroidImageInfo imageInfo = (AndroidImageInfo) img.getEfficentData();
@@ -206,14 +219,14 @@ public class TextureUtil {
                 logger.log(Level.WARNING, "Generating mipmaps is only"
                         + " supported for Bitmap based or non-compressed images!");
             }
-            
+
             // Upload using slower path
-            logger.log(Level.FINEST, " - Uploading bitmap directly.{0}", 
-                        (wantGeneratedMips ? 
-                            " Mipmaps will be generated in HARDWARE" : 
-                            " Mipmaps are not generated."));
+            logger.log(Level.FINEST, " - Uploading bitmap directly.{0}",
+                    (wantGeneratedMips
+                    ? " Mipmaps will be generated in HARDWARE"
+                    : " Mipmaps are not generated."));
             uploadTexture(img, target, index);
-            
+
             // Image was uploaded using slower path, since it is not compressed,
             // then compress it
             if (wantGeneratedMips) {
@@ -223,48 +236,14 @@ public class TextureUtil {
             }
         }
     }
-    
+
     private static void unsupportedFormat(Format fmt) {
         throw new UnsupportedOperationException("The image format '" + fmt + "' is unsupported by the video hardware.");
     }
 
-    private static void uploadTexture(Image img,
-                                     int target,
-                                     int index){
-
-        if (img.getEfficentData() instanceof AndroidImageInfo){
-            throw new RendererException("This image uses efficient data. "
-                    + "Use uploadTextureBitmap instead.");
-        }
-
-        // Otherwise upload image directly. 
-        // Prefer to only use power of 2 textures here to avoid errors.
-        Image.Format fmt = img.getFormat();
-        ByteBuffer data;
-        if (index >= 0 || img.getData() != null && img.getData().size() > 0){
-            data = img.getData(index);
-        }else{
-            data = null;
-        }
-
-        int width = img.getWidth();
-        int height = img.getHeight();
-        int depth = img.getDepth();
-        
-        if (!NPOT) {
-            // Check if texture is POT
-            if (!FastMath.isPowerOfTwo(width) || !FastMath.isPowerOfTwo(height)) {
-                throw new RendererException("Non-power-of-2 textures "
-                        + "are not supported by the video hardware "
-                        + "and no scaling path available for image: " + img);
-            }
-        }
-        
-        boolean compress = false;
-        int format = -1;
-        int dataType = -1;
-
-        switch (fmt){
+    private static AndroidGLImageFormat getImageFormat(Format fmt) throws UnsupportedOperationException {
+        AndroidGLImageFormat imageFormat = new AndroidGLImageFormat();
+        switch (fmt) {
             case RGBA16:
             case RGB16:
             case RGB10:
@@ -273,69 +252,110 @@ public class TextureUtil {
             case Alpha16:
             case Depth32:
             case Depth32F:
-                throw new UnsupportedOperationException("The image format '" 
+                throw new UnsupportedOperationException("The image format '"
                         + fmt + "' is not supported by OpenGL ES 2.0 specification.");
             case Alpha8:
-                format = GLES20.GL_ALPHA;
-                dataType = GLES20.GL_UNSIGNED_BYTE;                
+                imageFormat.format = GLES20.GL_ALPHA;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case Luminance8:
-                format = GLES20.GL_LUMINANCE;
-                dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.format = GLES20.GL_LUMINANCE;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case Luminance8Alpha8:
-                format = GLES20.GL_LUMINANCE_ALPHA;
-                dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.format = GLES20.GL_LUMINANCE_ALPHA;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case RGB565:
-                format = GLES20.GL_RGB;
-                dataType = GLES20.GL_UNSIGNED_SHORT_5_6_5;
+                imageFormat.format = GLES20.GL_RGB;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT_5_6_5;
                 break;
             case ARGB4444:
-                format = GLES20.GL_RGBA4;
-                dataType = GLES20.GL_UNSIGNED_SHORT_4_4_4_4;
+                imageFormat.format = GLES20.GL_RGBA4;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT_4_4_4_4;
                 break;
             case RGB5A1:
-                format = GLES20.GL_RGBA;
-                dataType = GLES20.GL_UNSIGNED_SHORT_5_5_5_1;
+                imageFormat.format = GLES20.GL_RGBA;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT_5_5_5_1;
                 break;
             case RGB8:
-                format = GLES20.GL_RGB;
-                dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.format = GLES20.GL_RGB;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case BGR8:
-                format = GLES20.GL_RGB;
-                dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.format = GLES20.GL_RGB;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case RGBA8:
-                format = GLES20.GL_RGBA;                
-                dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.format = GLES20.GL_RGBA;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case Depth:
             case Depth16:
             case Depth24:
-                format = GLES20.GL_DEPTH_COMPONENT;
-                dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.format = GLES20.GL_DEPTH_COMPONENT;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
                 break;
             case DXT1:
                 if (!DXT1) {
                     unsupportedFormat(fmt);
                 }
-                format = 0x83F0;
-                dataType = GLES20.GL_UNSIGNED_BYTE;
-                compress = true;
+                imageFormat.format = 0x83F0;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.compress = true;
                 break;
             case DXT1A:
                 if (!DXT1) {
                     unsupportedFormat(fmt);
                 }
-                format = 0x83F1;
-                dataType = GLES20.GL_UNSIGNED_BYTE;
-                compress = true;
+                imageFormat.format = 0x83F1;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.compress = true;
                 break;
             default:
                 throw new UnsupportedOperationException("Unrecognized format: " + fmt);
         }
+        return imageFormat;
+    }
+
+    private static class AndroidGLImageFormat {
+
+        boolean compress = false;
+        int format = -1;
+        int dataType = -1;
+    }
+
+    private static void uploadTexture(Image img,
+            int target,
+            int index) {
+
+        if (img.getEfficentData() instanceof AndroidImageInfo) {
+            throw new RendererException("This image uses efficient data. "
+                    + "Use uploadTextureBitmap instead.");
+        }
+
+        // Otherwise upload image directly. 
+        // Prefer to only use power of 2 textures here to avoid errors.
+        Image.Format fmt = img.getFormat();
+        ByteBuffer data;
+        if (index >= 0 || img.getData() != null && img.getData().size() > 0) {
+            data = img.getData(index);
+        } else {
+            data = null;
+        }
+
+        int width = img.getWidth();
+        int height = img.getHeight();
+
+        if (!NPOT) {
+            // Check if texture is POT
+            if (!FastMath.isPowerOfTwo(width) || !FastMath.isPowerOfTwo(height)) {
+                throw new RendererException("Non-power-of-2 textures "
+                        + "are not supported by the video hardware "
+                        + "and no scaling path available for image: " + img);
+            }
+        }
+        AndroidGLImageFormat imageFormat = getImageFormat(fmt);
 
         if (data != null) {
             GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
@@ -343,81 +363,134 @@ public class TextureUtil {
 
         int[] mipSizes = img.getMipMapSizes();
         int pos = 0;
-        if (mipSizes == null){
-            if (data != null)
-                mipSizes = new int[]{ data.capacity() };
-            else
-                mipSizes = new int[]{ width * height * fmt.getBitsPerPixel() / 8 };
+        if (mipSizes == null) {
+            if (data != null) {
+                mipSizes = new int[]{data.capacity()};
+            } else {
+                mipSizes = new int[]{width * height * fmt.getBitsPerPixel() / 8};
+            }
         }
 
-        // XXX: might want to change that when support
-        // of more than paletted compressions is added..
-        /// NOTE: Doesn't support mipmaps
-//        if (compress){
-//            data.clear();
-//            GLES20.glCompressedTexImage2D(target,
-//                                      1 - mipSizes.length,
-//                                      format,
-//                                      width,
-//                                      height,
-//                                      0,
-//                                      data.capacity(),
-//                                      data);
-//            return;
-//        }
-
-        for (int i = 0; i < mipSizes.length; i++){
-            int mipWidth =  Math.max(1, width  >> i);
+        for (int i = 0; i < mipSizes.length; i++) {
+            int mipWidth = Math.max(1, width >> i);
             int mipHeight = Math.max(1, height >> i);
-//            int mipDepth =  Math.max(1, depth  >> i);
 
-            if (data != null){
+            if (data != null) {
                 data.position(pos);
                 data.limit(pos + mipSizes[i]);
             }
 
-            if (compress && data != null){
+            if (imageFormat.compress && data != null) {
                 GLES20.glCompressedTexImage2D(target,
-                                          i,
-                                          format,
-                                          mipWidth,
-                                          mipHeight,
-                                          0,
-                                          data.remaining(),
-                                          data);
-            }else{
+                        i,
+                        imageFormat.format,
+                        mipWidth,
+                        mipHeight,
+                        0,
+                        data.remaining(),
+                        data);
+            } else {
                 GLES20.glTexImage2D(target,
-                                i,
-                                format,
-                                mipWidth,
-                                mipHeight,
-                                0,
-                                format,
-                                dataType,
-                                data);
+                        i,
+                        imageFormat.format,
+                        mipWidth,
+                        mipHeight,
+                        0,
+                        imageFormat.format,
+                        imageFormat.dataType,
+                        data);
             }
 
             pos += mipSizes[i];
         }
     }
 
+    private static void checkGLError() {
+        int error;
+        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+            throw new RendererException("OpenGL Error " + error);
+        }
+    }
+
     /**
-     * Update the texture currently bound to target at with data from the given Image at position x and y. The parameter
-     * index is used as the zoffset in case a 3d texture or texture 2d array is being updated.
+     * Update the texture currently bound to target at with data from the given
+     * Image at position x and y. The parameter index is used as the zoffset in
+     * case a 3d texture or texture 2d array is being updated.
      *
-     * @param image Image with the source data (this data will be put into the texture)
+     * @param image Image with the source data (this data will be put into the
+     * texture)
      * @param target the target texture
      * @param index the mipmap level to update
      * @param x the x position where to put the image in the texture
      * @param y the y position where to put the image in the texture
      */
     public static void uploadSubTexture(
-        Image image,
-        int target,
-        int index,
-        int x,
-        int y) {
-      // FIXME and implement this!
-    }
+            Image img,
+            int target,
+            int index,
+            int x,
+            int y) {
+        if (img.getEfficentData() instanceof AndroidImageInfo) {
+            AndroidImageInfo imageInfo = (AndroidImageInfo) img.getEfficentData();
+            uploadTextureBitmap(target, imageInfo.getBitmap(), true, true, x, y);
+            return;
+        }
 
+        // Otherwise upload image directly. 
+        // Prefer to only use power of 2 textures here to avoid errors.
+        Image.Format fmt = img.getFormat();
+        ByteBuffer data;
+        if (index >= 0 || img.getData() != null && img.getData().size() > 0) {
+            data = img.getData(index);
+        } else {
+            data = null;
+        }
+
+        int width = img.getWidth();
+        int height = img.getHeight();
+
+        if (!NPOT) {
+            // Check if texture is POT
+            if (!FastMath.isPowerOfTwo(width) || !FastMath.isPowerOfTwo(height)) {
+                throw new RendererException("Non-power-of-2 textures "
+                        + "are not supported by the video hardware "
+                        + "and no scaling path available for image: " + img);
+            }
+        }
+        AndroidGLImageFormat imageFormat = getImageFormat(fmt);
+
+        if (data != null) {
+            GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
+        }
+
+        int[] mipSizes = img.getMipMapSizes();
+        int pos = 0;
+        if (mipSizes == null) {
+            if (data != null) {
+                mipSizes = new int[]{data.capacity()};
+            } else {
+                mipSizes = new int[]{width * height * fmt.getBitsPerPixel() / 8};
+            }
+        }
+
+        for (int i = 0; i < mipSizes.length; i++) {
+            int mipWidth = Math.max(1, width >> i);
+            int mipHeight = Math.max(1, height >> i);
+
+            if (data != null) {
+                data.position(pos);
+                data.limit(pos + mipSizes[i]);
+            }
+
+            if (imageFormat.compress && data != null) {
+                GLES20.glCompressedTexSubImage2D(target, i, x, y, mipWidth, mipHeight, imageFormat.format, data.remaining(), data);
+                checkGLError();
+            } else {
+                GLES20.glTexSubImage2D(target, i, x, y, mipWidth, mipHeight, imageFormat.format, imageFormat.dataType, data);
+                checkGLError();
+            }
+
+            pos += mipSizes[i];
+        }
+    }
 }
