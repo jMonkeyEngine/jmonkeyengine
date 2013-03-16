@@ -195,7 +195,7 @@ public final class BufferUtils {
             if (element != null) {
                 buff.put(element.getX()).put(element.getY()).put(element.getZ()).put(element.getW());
             } else {
-                buff.put(0).put(0).put(0);
+                buff.put(0).put(0).put(0).put(0);
             }
         }
         buff.flip();
@@ -217,7 +217,7 @@ public final class BufferUtils {
             if (data[x] != null) {
                 buff.put(data[x].getX()).put(data[x].getY()).put(data[x].getZ()).put(data[x].getW());
             } else {
-                buff.put(0).put(0).put(0);
+                buff.put(0).put(0).put(0).put(0);
             }
         }
         buff.flip();
