@@ -46,6 +46,8 @@ import java.util.HashSet;
  */
 public class Statistics {
 
+    protected boolean enabled = false;
+
     protected int numObjects;
     protected int numTriangles;
     protected int numVertices;
@@ -121,6 +123,9 @@ public class Statistics {
      * 
      */
     public void onMeshDrawn(Mesh mesh, int lod){
+        if( !enabled )
+            return;
+            
         numObjects ++;
         numTriangles += mesh.getTriangleCount(lod);
         numVertices += mesh.getVertexCount();
@@ -135,6 +140,9 @@ public class Statistics {
     public void onShaderUse(Shader shader, boolean wasSwitched){
         assert shader.getId() >= 1;
 
+        if( !enabled )
+            return;
+            
         if (!shadersUsed.contains(shader.getId()))
             shadersUsed.add(shader.getId());
 
@@ -146,6 +154,8 @@ public class Statistics {
      * Called by the Renderer when a uniform was set.
      */
     public void onUniformSet(){
+        if( !enabled )
+            return;
         numUniformsSet ++;
     }
 
@@ -158,6 +168,9 @@ public class Statistics {
     public void onTextureUse(Image image, boolean wasSwitched){
         assert image.getId() >= 1;
 
+        if( !enabled )
+            return;
+            
         if (!texturesUsed.contains(image.getId()))
             texturesUsed.add(image.getId());
 
@@ -172,6 +185,9 @@ public class Statistics {
      * @param wasSwitched If true, the framebuffer required a state switch
      */
     public void onFrameBufferUse(FrameBuffer fb, boolean wasSwitched){
+        if( !enabled )
+            return;
+            
         if (fb != null){
             assert fb.getId() >= 1;
 
@@ -204,6 +220,8 @@ public class Statistics {
      * Called by the Renderer when it creates a new shader
      */
     public void onNewShader(){
+        if( !enabled )
+            return;
         memoryShaders ++;
     }
 
@@ -211,6 +229,8 @@ public class Statistics {
      * Called by the Renderer when it creates a new texture
      */
     public void onNewTexture(){
+        if( !enabled )
+            return;
         memoryTextures ++;
     }
 
@@ -218,6 +238,8 @@ public class Statistics {
      * Called by the Renderer when it creates a new framebuffer
      */
     public void onNewFrameBuffer(){
+        if( !enabled )
+            return;
         memoryFrameBuffers ++;
     }
 
@@ -225,6 +247,8 @@ public class Statistics {
      * Called by the Renderer when it deletes a shader
      */
     public void onDeleteShader(){
+        if( !enabled )
+            return;
         memoryShaders --;
     }
 
@@ -232,6 +256,8 @@ public class Statistics {
      * Called by the Renderer when it deletes a texture
      */
     public void onDeleteTexture(){
+        if( !enabled )
+            return;
         memoryTextures --;
     }
 
@@ -239,6 +265,8 @@ public class Statistics {
      * Called by the Renderer when it deletes a framebuffer
      */
     public void onDeleteFrameBuffer(){
+        if( !enabled )
+            return;
         memoryFrameBuffers --;
     }
 
@@ -251,4 +279,11 @@ public class Statistics {
         memoryTextures = 0;
     }
 
+    public void setEnabled( boolean f ) {
+        this.enabled = f;
+    }
+    
+    public boolean isEnabled() {
+        return enabled;
+    }
 }
