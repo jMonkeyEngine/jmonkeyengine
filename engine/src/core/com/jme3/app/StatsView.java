@@ -77,6 +77,7 @@ public class StatsView extends Node implements Control {
         setCullHint(CullHint.Never);
 
         statistics = stats;
+        statistics.setEnabled(enabled);
 
         statLabels = statistics.getLabels();
         statData = new int[statLabels.length];
@@ -123,6 +124,7 @@ public class StatsView extends Node implements Control {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+        statistics.setEnabled(enabled);
     }
 
     public boolean isEnabled() {
