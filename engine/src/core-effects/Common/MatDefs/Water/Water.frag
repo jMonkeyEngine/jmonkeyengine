@@ -349,6 +349,7 @@ void main(){
     #ifdef ENABLE_REFRACTION
         texC = texCoord.xy;
         texC += sin(m_Time*1.8  + 3.0 * abs(position.y)) * (refractionScale * min(depth2, 1.0));
+        texC = clamp(texC,0.0,1.0);
         refraction = texture2D(m_Texture, texC).rgb;
     #endif
 

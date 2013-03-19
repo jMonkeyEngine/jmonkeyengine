@@ -348,7 +348,8 @@ vec4 main_multiSample(int sampleNum){
     #ifdef ENABLE_REFRACTION
        // texC = texCoord.xy+ m_ReflectionDisplace * normal.x;
         texC = texCoord.xy;
-        texC += sin(m_Time*1.8  + 3.0 * abs(position.y)) * (refractionScale * min(depth2, 1.0));
+        texC += sin(m_Time*1.8 + 3.0 * abs(position.y))* (refractionScale * min(depth2, 1.0));
+        texC = clamp(texC,0.0,1.0);
         #ifdef RESOLVE_MS
             ivec2 iTexC = ivec2(texC * textureSize(m_Texture));
             refraction = texelFetch(m_Texture, iTexC, sampleNum).rgb;
