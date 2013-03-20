@@ -34,6 +34,7 @@ package com.jme3.shader;
 import com.jme3.math.*;
 import com.jme3.util.BufferUtils;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 public class Uniform extends ShaderVariable {
 
@@ -127,11 +128,11 @@ public class Uniform extends ShaderVariable {
     public void clearValue(){
         updateNeeded = true;
 
-        if (multiData != null){
-            ZERO_BUF.clear();
+        if (multiData != null){           
             multiData.clear();
 
             while (multiData.remaining() > 0){
+                ZERO_BUF.clear();
                 ZERO_BUF.limit( Math.min(multiData.remaining(), 16) );
                 multiData.put(ZERO_BUF);
             }
@@ -201,6 +202,15 @@ public class Uniform extends ShaderVariable {
                 }
                 m4.fillFloatBuffer(multiData, true);
                 multiData.clear();
+                break;
+            case IntArray:
+                int[] ia = (int[]) value;
+                if (this.value == null) {
+                    this.value = BufferUtils.createIntBuffer(ia);
+                } else {
+                    this.value = BufferUtils.ensureLargeEnough((IntBuffer)this.value, ia.length);
+                }
+                ((IntBuffer)this.value).clear();
                 break;
             case FloatArray:
                 float[] fa = (float[]) value;

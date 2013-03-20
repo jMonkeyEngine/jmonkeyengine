@@ -1120,6 +1120,24 @@ public final class BufferUtils {
         }
         return buffer;
     }
+    
+    public static IntBuffer ensureLargeEnough(IntBuffer buffer, int required) {
+        if (buffer != null) {
+            buffer.limit(buffer.capacity());
+        }
+        if (buffer == null || (buffer.remaining() < required)) {
+            int position = (buffer != null ? buffer.position() : 0);
+            IntBuffer newVerts = createIntBuffer(position + required);
+            if (buffer != null) {
+                buffer.flip();
+                newVerts.put(buffer);
+                newVerts.position(position);
+            }
+            buffer = newVerts;
+        }
+        return buffer;
+    }
+    
 
     public static ShortBuffer ensureLargeEnough(ShortBuffer buffer, int required) {
         if (buffer != null) {

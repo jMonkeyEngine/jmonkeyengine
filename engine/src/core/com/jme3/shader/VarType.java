@@ -38,6 +38,7 @@ public enum VarType {
     Vector3("vec3"),
     Vector4("vec4"),
 
+    IntArray(true,false,"int[]"),
     FloatArray(true,false,"float[]"),
     Vector2Array(true,false,"vec2[]"),
     Vector3Array(true,false,"vec3[]"),

@@ -823,6 +823,7 @@ public class LwjglRenderer implements Renderer {
 
         uniform.clearUpdateNeeded();
         FloatBuffer fb;
+        IntBuffer ib;
         switch (uniform.getVarType()) {
             case Float:
                 Float f = (Float) uniform.getValue();
@@ -862,6 +863,10 @@ public class LwjglRenderer implements Renderer {
                 fb = (FloatBuffer) uniform.getValue();
                 assert fb.remaining() == 16;
                 glUniformMatrix4(loc, false, fb);
+                break;
+            case IntArray:
+                ib = (IntBuffer) uniform.getValue();
+                glUniform1(loc, ib);
                 break;
             case FloatArray:
                 fb = (FloatBuffer) uniform.getValue();

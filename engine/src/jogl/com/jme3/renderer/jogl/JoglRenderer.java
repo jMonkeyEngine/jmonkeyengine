@@ -877,6 +877,7 @@ public class JoglRenderer implements Renderer {
 
         uniform.clearUpdateNeeded();
         FloatBuffer fb;
+        IntBuffer ib;
         GL gl = GLContext.getCurrentGL();
         switch (uniform.getVarType()) {
             case Float:
@@ -917,6 +918,10 @@ public class JoglRenderer implements Renderer {
                 fb = (FloatBuffer) uniform.getValue();
                 assert fb.remaining() == 16;
                 gl.getGL2ES2().glUniformMatrix4fv(loc, 1, false, fb);
+                break;
+            case IntArray:
+                ib = (IntBuffer) uniform.getValue();
+                gl.getGL2ES2().glUniform1iv(loc, ib.remaining(), ib);
                 break;
             case FloatArray:
                 fb = (FloatBuffer) uniform.getValue();

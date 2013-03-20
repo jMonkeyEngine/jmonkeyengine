@@ -643,6 +643,7 @@ public class OGLESShaderRenderer implements Renderer {
 
         uniform.clearUpdateNeeded();
         FloatBuffer fb;
+        IntBuffer ib;
         switch (uniform.getVarType()) {
             case Float:
                 Float f = (Float) uniform.getValue();
@@ -682,6 +683,10 @@ public class OGLESShaderRenderer implements Renderer {
                 fb = (FloatBuffer) uniform.getValue();
                 assert fb.remaining() == 16;
                 GLES20.glUniformMatrix4fv(loc, 1, false, fb);
+                break;
+            case IntArray:
+                ib = (IntBuffer) uniform.getValue();
+                GLES20.glUniform1iv(loc, ib.limit(), ib);
                 break;
             case FloatArray:
                 fb = (FloatBuffer) uniform.getValue();
