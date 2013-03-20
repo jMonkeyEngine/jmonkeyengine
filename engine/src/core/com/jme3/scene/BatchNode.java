@@ -185,8 +185,7 @@ public class BatchNode extends Node implements Savable {
     }
 
     protected void doBatch() {
-        Map<Material, List<Geometry>> matMap = new HashMap<Material, List<Geometry>>();
-        maxVertCount = 0;
+        Map<Material, List<Geometry>> matMap = new HashMap<Material, List<Geometry>>();    
         int nbGeoms = 0;
 
         gatherGeomerties(matMap, this, needsFullRebatch);
@@ -196,7 +195,12 @@ public class BatchNode extends Node implements Savable {
             }
             batches.clear();
             batchesByGeom.clear();
+        }        
+        //only reset maxVertCount if there is something new to batch
+        if (matMap.size() > 0) {
+            maxVertCount = 0;
         }
+        
         for (Map.Entry<Material, List<Geometry>> entry : matMap.entrySet()) {
             Mesh m = new Mesh();
             Material material = entry.getKey();
@@ -238,12 +242,15 @@ public class BatchNode extends Node implements Savable {
 
         logger.log(Level.FINE, "Batched {0} geometries in {1} batches.", new Object[]{nbGeoms, batches.size()});
 
-
-        //init temp float arrays
-        tmpFloat = new float[maxVertCount * 3];
-        tmpFloatN = new float[maxVertCount * 3];
-        if (useTangents) {
-            tmpFloatT = new float[maxVertCount * 4];
+        //init the temp arrays if something has been batched only.
+        if(matMap.size()>0){
+            //TODO these arrays should be allocated by chunk instead to avoid recreating them each time the batch is changed.
+            //init temp float arrays
+            tmpFloat = new float[maxVertCount * 3];
+            tmpFloatN = new float[maxVertCount * 3];
+            if (useTangents) {
+                tmpFloatT = new float[maxVertCount * 4];
+            }
         }
     }
 
