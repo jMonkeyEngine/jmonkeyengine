@@ -31,6 +31,10 @@
  */
 package com.jme3.shadow;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jme3.asset.AssetManager;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -61,9 +65,6 @@ import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.ShadowCompareMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * abstract shadow renderer that holds commons feature to have for a shadow
@@ -101,6 +102,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     protected GeometryList sceneReceivers;
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
+    private String[] shadowMapStringCache;
+    private String[] lightViewStringCache;
 
     
     /**
@@ -134,6 +137,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         shadowMaps = new Texture2D[nbShadowMaps];
         dispPic = new Picture[nbShadowMaps];
         lightViewProjectionsMatrices = new Matrix4f[nbShadowMaps];
+        shadowMapStringCache = new String[nbShadowMaps];
+        lightViewStringCache = new String[nbShadowMaps];
 
         //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
         dummyTex = new Texture2D(shadowMapSize, shadowMapSize, Format.RGBA8);
@@ -150,8 +155,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
 
             //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
             shadowFB[i].setColorTexture(dummyTex);
+            shadowMapStringCache[i] = "ShadowMap" + i; 
+            lightViewStringCache[i] = "LightViewProjectionMatrix" + i;
 
-            postshadowMat.setTexture("ShadowMap" + i, shadowMaps[i]);
+            postshadowMat.setTexture(shadowMapStringCache[i], shadowMaps[i]);
 
             //quads for debuging purpose
             dispPic[i] = new Picture("Picture" + i);
@@ -172,7 +179,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         this.postshadowMat = postShadowMat;
         postshadowMat.setFloat("ShadowMapSize", shadowMapSize);
         for (int i = 0; i < nbShadowMaps; i++) {
-            postshadowMat.setTexture("ShadowMap" + i, shadowMaps[i]);
+            postshadowMat.setTexture(shadowMapStringCache[i], shadowMaps[i]);
         }
         setShadowCompareMode(shadowCompareMode);
         setEdgeFilteringMode(edgeFilteringMode);
@@ -492,10 +499,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             mat.setFloat("ShadowMapSize", shadowMapSize);
 
             for (int j = 0; j < nbShadowMaps; j++) {
-                mat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
+                mat.setMatrix4(lightViewStringCache[j], lightViewProjectionsMatrices[j]);
             }
             for (int j = 0; j < nbShadowMaps; j++) {
-                mat.setTexture("ShadowMap" + j, shadowMaps[j]);
+                mat.setTexture(shadowMapStringCache[j], shadowMaps[j]);
             }
             mat.setBoolean("HardwareShadows", shadowCompareMode == CompareMode.Hardware);
             mat.setInt("FilterMode", edgeFilteringMode.getMaterialParamValue());
@@ -519,8 +526,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     protected void setPostShadowParams() {
         setMaterialParameters(postshadowMat);
         for (int j = 0; j < nbShadowMaps; j++) {
-            postshadowMat.setMatrix4("LightViewProjectionMatrix" + j, lightViewProjectionsMatrices[j]);
-            postshadowMat.setTexture("ShadowMap" + j, shadowMaps[j]);
+            postshadowMat.setMatrix4(lightViewStringCache[j], lightViewProjectionsMatrices[j]);
+            postshadowMat.setTexture(shadowMapStringCache[j], shadowMaps[j]);
         }
     }
 

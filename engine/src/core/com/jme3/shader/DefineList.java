@@ -32,7 +32,11 @@
 package com.jme3.shader;
 
 import com.jme3.export.*;
+import com.jme3.material.MatParam;
+import com.jme3.material.TechniqueDef;
+
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -176,6 +180,62 @@ public class DefineList implements Savable, Cloneable {
     public boolean equals(Object obj) {
         final DefineList other = (DefineList) obj;
         return defines.equals(other.defines);
+    }
+    
+    public boolean equalsParams(Collection<MatParam> params, TechniqueDef def) {
+
+        int size = 0;
+
+        for (MatParam param : params) {
+            String key = def.getShaderParamDefine(param.getName());
+            if (key != null) {
+                Object val = param.getValue();
+                if (val != null) {
+
+                    switch (param.getVarType()) {
+                    case Boolean: {
+                        String current = defines.get(key);
+                        if (((Boolean) val).booleanValue()) {
+                            if (current == null || current != ONE) {
+                                return false;
+                            }
+                            size++;
+                        } else {
+                            if (current != null) {
+                                return false;
+                            }
+                        }
+                    }
+                        break;
+                    case Float:
+                    case Int: {
+                        String newValue = val.toString();
+                        String current = defines.get(key);
+                        if (!newValue.equals(current)) {
+                            return false;
+                        }
+                        size++;
+                    }
+                        break;
+                    default: {
+                        if (!defines.containsKey(key)) {
+                            return false;
+                        }
+                        size++;
+                    }
+                        break;
+                    }
+
+                }
+
+            }
+        }
+
+        if (size != defines.size()) {
+            return false;
+        }
+
+        return true;
     }
     
     @Override
