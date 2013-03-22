@@ -418,7 +418,9 @@ public class Node extends Spatial implements Savable {
 
     /**
      * <code>getChild</code> returns the first child found with exactly the
-     * given name (case sensitive.)
+     * given name (case sensitive.) This method does a depth first recursive
+     * search of all descendants of this node, it will return the first node
+     * found with a matching name.
      * 
      * @param name
      *            the name of the child to retrieve. If null, we'll return null.
