@@ -51,7 +51,6 @@ import java.nio.BufferUnderflowException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import org.bushe.swing.event.Logger;
 
 /**
  * Produces the mesh for the TerrainPatch.
