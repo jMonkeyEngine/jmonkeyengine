@@ -258,9 +258,8 @@ public final class SettingsDialog extends JDialog {
         try {
             URL file = new URL("file:" + image);
             setImage(file);
-            // We can safely ignore the exception - it just means that the user
-            // gave us a bogus file
         } catch (MalformedURLException e) {
+           logger.log(Level.WARNING, "Couldn’t read from file '" + image + "'", e);
         }
     }
 
@@ -503,7 +502,7 @@ public final class SettingsDialog extends JDialog {
             Method setIconImages = getClass().getMethod("setIconImages", List.class);
             setIconImages.invoke(this, icons);
         } catch (Exception e) {
-            return;
+            logger.log(Level.WARNING, "Error setting icon images", e);
         }
     }
 
@@ -697,6 +696,7 @@ public final class SettingsDialog extends JDialog {
         try {
             url = new URL("file:" + file);
         } catch (MalformedURLException e) {
+            logger.log(Level.WARNING, "Invalid file name '" + file + "'", e);
         }
         return url;
     }
