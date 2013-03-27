@@ -164,6 +164,7 @@ vec4 underWater(){
     vec3 refraction = color2;
     #ifdef ENABLE_REFRACTION
         texC = texCoord.xy *sin (fresnel+1.0);
+        texC = clamp(texC,0.0,1.0);
         refraction = texture2D(m_Texture, texC).rgb;
     #endif 
 
