@@ -140,6 +140,32 @@ public class AppStateManager {
     }
 
     /**
+     * Attaches many state to the AppStateManager in a way that is guaranteed
+     * that they will all get initialized before any of their updates are run.
+     * The same state cannot be attached twice and will be ignored.
+     *
+     * @param states The states to attach
+     */
+    public void attachAll(AppState... states){
+        attachAll(Arrays.asList(states));
+    }
+
+    /**
+     * Attaches many state to the AppStateManager in a way that is guaranteed
+     * that they will all get initialized before any of their updates are run.
+     * The same state cannot be attached twice and will be ignored.
+     *
+     * @param states The states to attach
+     */
+    public void attachAll(Iterable<AppState> states){
+        synchronized (this.states){
+            for( AppState state : states ) {
+                attach(state);
+            }
+        }
+    }
+
+    /**
      * Detaches the state from the AppStateManager. 
      *
      * @param state The state to detach
