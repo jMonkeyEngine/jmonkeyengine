@@ -32,7 +32,7 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.audio.AudioNode;
-import com.jme3.audio.AudioNode.Status;
+import com.jme3.audio.AudioSource;
 import com.jme3.audio.Filter;
 import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.AudioDataProperty;
@@ -100,7 +100,7 @@ public class JmeAudioNode extends JmeNode {
         set.put(makeProperty(obj, float.class, "getRefDistance", "setRefDistance", "Ref Distance"));
         set.put(makeProperty(obj, float.class, "getTimeOffset", "setTimeOffset", "Time Offset"));
 
-        set.put(makeProperty(obj, Status.class, "getStatus", "setStatus", "Status"));
+        set.put(makeProperty(obj, AudioSource.Status.class, "getStatus", "setStatus", "Status"));
 
         set.put(makeProperty(obj, float.class, "getVolume", "setVolume", "Volume"));
         set.put(makeProperty(obj, Vector3f.class, "getVelocity", "setVelocity", "Velocity"));
