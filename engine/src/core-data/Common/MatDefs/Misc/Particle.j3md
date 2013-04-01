@@ -8,6 +8,7 @@ MaterialDef Point Sprite {
         //only used for soft particles
         Texture2D DepthTexture
         Float Softness
+        Int NumSamplesDepth
 
         // Texture of the glowing parts of the material
         Texture2D GlowMap
@@ -81,6 +82,31 @@ MaterialDef Point Sprite {
 
         Defines {
             USE_TEXTURE : Texture
+        }
+    }
+
+    Technique SoftParticles15{
+
+        VertexShader   GLSL100 : Common/MatDefs/Misc/SoftParticle.vert
+        FragmentShader GLSL150 : Common/MatDefs/Misc/SoftParticle15.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            WorldMatrix
+            CameraPosition
+        }
+
+        RenderState {
+            Blend AlphaAdditive
+            DepthWrite Off
+            PointSprite On            
+        }
+
+        Defines {
+            USE_TEXTURE : Texture
+            POINT_SPRITE : PointSprite
+            RESOLVE_DEPTH_MS : NumSamplesDepth
         }
     }
 

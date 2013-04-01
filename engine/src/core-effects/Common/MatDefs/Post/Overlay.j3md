@@ -2,6 +2,7 @@ MaterialDef Default GUI {
 
     MaterialParameters {
         Int NumSamples
+        Int NumSamplesDepth
         Texture2D Texture
         Color Color        
     }
