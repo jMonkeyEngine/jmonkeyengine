@@ -40,6 +40,7 @@ import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.AnimationProperty;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.ChannelDialog;
+import com.jme3.gde.core.sceneexplorer.nodes.actions.ExtractSubAnimationDialog;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.impl.tracks.AudioTrackWizardAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.impl.tracks.EffectTrackWizardAction;
 import java.awt.Image;
@@ -49,6 +50,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 import org.openide.awt.Actions;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
@@ -138,7 +140,6 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
 
         sheet.put(set);
         return sheet;
-
     }
 
     public void setChanged() {
@@ -151,7 +152,8 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
         return new Action[]{Actions.alwaysEnabled(new PlayAction(), playing ? "Stop" : "Play", "", false),
                     Actions.alwaysEnabled(new PlayBackParamsAction(), "Playback parameters", "", false),
                     Actions.alwaysEnabled(new EffectTrackWizardAction(jmeControl.getLookup().lookup(AnimControl.class).getSpatial(), this), "Add Effect Track", "", false),
-                    Actions.alwaysEnabled(new AudioTrackWizardAction(jmeControl.getLookup().lookup(AnimControl.class).getSpatial(), this), "Add Audio Track", "", false)
+                    Actions.alwaysEnabled(new AudioTrackWizardAction(jmeControl.getLookup().lookup(AnimControl.class).getSpatial(), this), "Add Audio Track", "", false),
+                    Actions.alwaysEnabled(new ExtractAnimationAction(), "Extract sub-animation", "", true)
                 };
     }
 
@@ -264,7 +266,7 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
                                 public void run() {
                                     stop();
                                 }
-                            });                           
+                            });
                         }
 
                         ac.removeListener(this);
@@ -343,6 +345,27 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
             Exceptions.printStackTrace(ex);
         }
 
+    }
+
+    class ExtractAnimationAction implements ActionListener {
+
+        ExtractSubAnimationDialog dialog = new ExtractSubAnimationDialog();
+
+        public void actionPerformed(ActionEvent e) {
+            try {
+                dialog.setAnimControl(JmeAnimation.this.jmeControl);
+                dialog.setAnimation(JmeAnimation.this.animation);
+                //animation
+                dialog.setLocationRelativeTo(null);
+                dialog.setVisible(true);
+
+                JmeAnimation.this.jmeControl.fireSave(true);
+                JmeAnimation.this.jmeControl.refresh(true);
+                JmeAnimation.this.jmeControl.refreshChildren();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 //    class AddTrackAction implements ActionListener {
 //

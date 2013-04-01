@@ -196,6 +196,7 @@ public class JmeAnimControl extends AbstractSceneExplorerNode {
     }
 
     public void refreshChildren() {
+        ((JmeAnimChildren)this.jmeChildren).refreshChildren(true);
         for (Object node : getChildren().getNodes()) {
             JmeAnimation anim = (JmeAnimation) node;
             ((JmeTrackChildren) anim.getChildren()).refreshChildren(true);
