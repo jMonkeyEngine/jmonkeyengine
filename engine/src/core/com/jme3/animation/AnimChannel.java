@@ -60,6 +60,7 @@ public final class AnimChannel {
     private float speed;
     private float timeBlendFrom;
     private float speedBlendFrom;
+    private boolean notified=false;
 
     private LoopMode loopMode, loopModeBlendFrom;
     
@@ -262,6 +263,7 @@ public final class AnimChannel {
         time = 0;
         speed = 1f;
         loopMode = LoopMode.Loop;
+        notified = false;
     }
 
     /**
@@ -360,6 +362,7 @@ public final class AnimChannel {
             }
         }
         animation = null;
+        notified = false;
     }
 
     void update(float tpf, TempVars vars) {
@@ -392,10 +395,11 @@ public final class AnimChannel {
         time += tpf * speed;
 
         if (animation.getLength() > 0){
-            if (time >= animation.getLength()) {
+            if (!notified && (time >= animation.getLength() || time < 0)) {
                 control.notifyAnimCycleDone(this, animation.getName());
-            } else if (time < 0) {
-                control.notifyAnimCycleDone(this, animation.getName());
+                if (loopMode == LoopMode.DontLoop) {
+                    notified = true;
+                }
             } 
         }
 
