@@ -3,6 +3,7 @@ package jme3test.light;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.input.ChaseCamera;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
@@ -55,6 +56,10 @@ public class TestEnvironmentMapping extends SimpleApplication {
         bf.setExposurePower(0.6f);
         
         fpp.addFilter(bf);
+        
+        DirectionalLight l = new DirectionalLight();
+        l.setDirection(new Vector3f(0, -1, -1));
+        rootNode.addLight(l);
         
         viewPort.addProcessor(fpp);
     }
