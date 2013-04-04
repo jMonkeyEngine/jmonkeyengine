@@ -94,10 +94,14 @@ import com.jme3.util.BufferUtils;
                     bonesPoseChannels.put(pBone.getOldMemoryAddress(), poseChannel);
                 }
 
+                Matrix4f objectToArmatureTransformation = Matrix4f.IDENTITY;
                 ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-                Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", true);
-                Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "obmat", true).invertLocal();
-                Matrix4f objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
+                
+                if(objectHelper.isLineage(armatureObject, objectStructure, blenderContext)) {
+	                Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", blenderContext.getBlenderKey().isFixUpAxis());
+	                Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "obmat", true).invertLocal();
+	                objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
+                }
 
                 List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase(blenderContext);
                 List<Bone> bonesList = new ArrayList<Bone>();
@@ -202,11 +206,11 @@ import com.jme3.util.BufferUtils;
                     mesh.setBuffer(buffers[0]);
                     mesh.setBuffer(buffers[1]);
 
-                    VertexBuffer bindNormalBuffer = (meshContext.getBindNormalBuffer(materialIndex));
+                    VertexBuffer bindNormalBuffer = meshContext.getBindNormalBuffer(materialIndex);
                     if (bindNormalBuffer != null) {
                         mesh.setBuffer(bindNormalBuffer);
                     }
-                    VertexBuffer bindPoseBuffer = (meshContext.getBindPoseBuffer(materialIndex));
+                    VertexBuffer bindPoseBuffer = meshContext.getBindPoseBuffer(materialIndex);
                     if (bindPoseBuffer != null) {
                         mesh.setBuffer(bindPoseBuffer);
                     }

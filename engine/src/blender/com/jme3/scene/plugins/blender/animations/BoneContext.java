@@ -25,8 +25,6 @@ public class BoneContext {
     private Structure         boneStructure;
     /** Bone's name. */
     private String            boneName;
-    /** This variable indicates if the Y axis should be the UP axis. */
-    private boolean           fixUpAxis;
     /** The bone's armature matrix. */
     private Matrix4f          armatureMatrix;
     /** The parent context. */
@@ -93,7 +91,6 @@ public class BoneContext {
         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
         armatureMatrix = objectHelper.getMatrix(boneStructure, "arm_mat", true);
 
-        fixUpAxis = blenderContext.getBlenderKey().isFixUpAxis();
         this.computeRestMatrix(objectToArmatureMatrix);
         List<Structure> childbase = ((Structure) boneStructure.getFieldValue("childbase")).evaluateListBase(blenderContext);
         for (Structure child : childbase) {
@@ -112,10 +109,8 @@ public class BoneContext {
     private void computeRestMatrix(Matrix4f objectToArmatureMatrix) {
         if (parent != null) {
             inverseParentMatrix = parent.inverseTotalTransformation.clone();
-        } else if (fixUpAxis) {
-            inverseParentMatrix = objectToArmatureMatrix.clone();
         } else {
-            inverseParentMatrix = Matrix4f.IDENTITY.clone();
+            inverseParentMatrix = objectToArmatureMatrix.clone();
         }
 
         restMatrix = armatureMatrix.clone();

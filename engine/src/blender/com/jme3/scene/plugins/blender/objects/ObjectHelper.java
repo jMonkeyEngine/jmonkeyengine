@@ -174,9 +174,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
                         List<Geometry> curves = curvesHelper.toCurve(curveData, blenderContext);
                         result = new Node(name);
                         for (Geometry curve : curves) {
-                            ((Node) result).attachChild(curve);
+                            result.attachChild(curve);
                         }
-                        ((Node) result).setLocalTransform(t);
+                        result.setLocalTransform(t);
                     }
                     break;
                 case OBJECT_TYPE_LAMP:
@@ -244,13 +244,38 @@ public class ObjectHelper extends AbstractBlenderHelper {
                 Properties properties = this.loadProperties(objectStructure, blenderContext);
                 // the loaded property is a group property, so we need to get each value and set it to Spatial
                 if (result instanceof Spatial && properties != null && properties.getValue() != null) {
-                    this.applyProperties((Spatial) result, properties);
+                    this.applyProperties(result, properties);
                 }
             }
         }
         return result;
     }
 
+    /**
+     * Method tells if the structure1 is a lineage of structure2.
+     * 
+     * @param structure1
+     *            the first structure
+     * @param structure2
+     *            the second structure
+     * @return <b>true</b> if the first structure is a lineage of the second
+     *         structure and <b>false</b> otherwise
+     * @throws BlenderFileException
+     *             thrown when problems with reading the blend file occur
+     */
+    public boolean isLineage(Structure structure1, Structure structure2, BlenderContext blenderContext) throws BlenderFileException {
+        Pointer pParent = (Pointer) structure2.getFieldValue("parent");
+        while (pParent.isNotNull()) {
+            long oma = pParent.getOldMemoryAddress();
+            if (structure1.getOldMemoryAddress().longValue() == oma) {
+                return true;
+            }
+            structure2 = blenderContext.getFileBlock(oma).getStructure(blenderContext);
+            pParent = (Pointer) structure2.getFieldValue("parent");
+        }
+        return false;
+    }
+    
     /**
      * This method calculates local transformation for the object. Parentage is taken under consideration.
      * @param objectStructure
