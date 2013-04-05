@@ -17,7 +17,9 @@ import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
+import com.jme3.math.Matrix3f;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -101,6 +103,9 @@ import com.jme3.util.BufferUtils;
 	                Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", blenderContext.getBlenderKey().isFixUpAxis());
 	                Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "obmat", true).invertLocal();
 	                objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
+	                Matrix3f rot = objectToArmatureTransformation.toRotationMatrix();
+	                objectToArmatureTransformation = new Matrix4f();
+	                objectToArmatureTransformation.setRotationQuaternion(new Quaternion().fromRotationMatrix(rot));
                 }
 
                 List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase(blenderContext);
