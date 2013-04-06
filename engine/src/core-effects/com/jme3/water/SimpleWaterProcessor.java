@@ -54,18 +54,18 @@ import com.jme3.ui.Picture;
  * Simple Water renders a simple plane that use reflection and refraction to look like water.
  * It's pretty basic, but much faster than the WaterFilter
  * It's useful if you aim low specs hardware and still want a good looking water.
- * Usage is : 
+ * Usage is :
  * <code>
  *      SimpleWaterProcessor waterProcessor = new SimpleWaterProcessor(assetManager);
  *      //setting the scene to use for reflection
  *      waterProcessor.setReflectionScene(mainScene);
  *      //setting the light position
  *      waterProcessor.setLightPosition(lightPos);
- *      
+ *
  *      //setting the water plane
  *      Vector3f waterLocation=new Vector3f(0,-20,0);
  *      waterProcessor.setPlane(new Plane(Vector3f.UNIT_Y, waterLocation.dot(Vector3f.UNIT_Y)));
- *      //setting the water color 
+ *      //setting the water color
  *      waterProcessor.setWaterColor(ColorRGBA.Brown);
  *
  *      //creating a quad to render water to
@@ -74,13 +74,13 @@ import com.jme3.ui.Picture;
  *      //the texture coordinates define the general size of the waves
  *      quad.scaleTextureCoordinates(new Vector2f(6f,6f));
  *
- *      //creating a geom to attach the water material 
+ *      //creating a geom to attach the water material
  *      Geometry water=new Geometry("water", quad);
  *      water.setLocalTranslation(-200, -20, 250);
  *      water.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X));
  *      //finally setting the material
  *      water.setMaterial(waterProcessor.getMaterial());
- *    
+ *
  *      //attaching the water to the root node
  *      rootNode.attachChild(water);
  * </code>
@@ -229,10 +229,10 @@ public class SimpleWaterProcessor implements SceneProcessor {
         }
 
         //we are rendering a sub part of the scene so the camera planeState may never be reseted to 0.
-//        reflectionCam.setPlaneState(0);        
+//        reflectionCam.setPlaneState(0);
 //        refractionCam.setPlaneState(0);
-        
-        
+
+
         //Rendering reflection and refraction
         rm.renderViewPort(reflectionView, savedTpf);
         rm.renderViewPort(refractionView, savedTpf);
@@ -268,7 +268,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
     }
 
     protected void loadTextures(AssetManager manager) {
-        normalTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/water_normalmap.dds");
+        normalTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/water_normalmap.png");
         dudvTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/dudv_map.jpg");
         normalTexture.setWrap(WrapMode.Repeat);
         dudvTexture.setWrap(WrapMode.Repeat);
@@ -349,7 +349,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns the width of the reflection and refraction textures
-     * @return 
+     * @return
      */
     public int getRenderWidth() {
         return renderWidth;
@@ -357,7 +357,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns the height of the reflection and refraction textures
-     * @return 
+     * @return
      */
     public int getRenderHeight() {
         return renderHeight;
@@ -376,7 +376,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns the water plane
-     * @return 
+     * @return
      */
     public Plane getPlane() {
         return plane;
@@ -439,7 +439,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * return the water depth
-     * @return 
+     * @return
      */
     public float getWaterDepth() {
         return waterDepth;
@@ -447,7 +447,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * returns water transparency
-     * @return 
+     * @return
      */
     public float getWaterTransparency() {
         return waterTransparency;
@@ -455,7 +455,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * sets the water transparency default os 0.1f
-     * @param waterTransparency 
+     * @param waterTransparency
      */
     public void setWaterTransparency(float waterTransparency) {
         this.waterTransparency = Math.max(0, waterTransparency);
@@ -495,7 +495,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * retruns true if the waterprocessor is in debug mode
-     * @return 
+     * @return
      */
     public boolean isDebug() {
         return debug;
@@ -503,7 +503,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * set to true to display reflection and refraction textures in the GUI for debug purpose
-     * @param debug 
+     * @param debug
      */
     public void setDebug(boolean debug) {
         this.debug = debug;
@@ -533,7 +533,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
 
     /**
      * sets the reflection clipping plane offset
-     * set a nagetive value to lower the clipping plane for relection texture rendering.     
+     * set a nagetive value to lower the clipping plane for relection texture rendering.
      * @param reflectionClippingOffset
      */
     public void setReflectionClippingOffset(float reflectionClippingOffset) {
