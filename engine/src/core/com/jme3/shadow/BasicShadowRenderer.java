@@ -69,6 +69,7 @@ public class BasicShadowRenderer implements SceneProcessor {
     private Vector3f[] points = new Vector3f[8];
     private Vector3f direction = new Vector3f();
     protected Texture2D dummyTex;
+    private float shadowMapSize;
 
     /**
      * Creates a BasicShadowRenderer
@@ -84,7 +85,7 @@ public class BasicShadowRenderer implements SceneProcessor {
          //DO NOT COMMENT THIS (it prevent the OSX incomplete read buffer crash)
         dummyTex = new Texture2D(size, size, Format.RGBA8);        
         shadowFB.setColorTexture(dummyTex);
-
+        shadowMapSize = (float)size;
         preshadowMat = new Material(manager, "Common/MatDefs/Shadow/PreShadow.j3md");
         postshadowMat = new Material(manager, "Common/MatDefs/Shadow/BasicPostShadow.j3md");
         postshadowMat.setTexture("ShadowMap", shadowMap);
@@ -177,7 +178,7 @@ public class BasicShadowRenderer implements SceneProcessor {
         shadowCam.updateViewProjection();
 
         // render shadow casters to shadow map
-        ShadowUtil.updateShadowCamera(occluders, receivers, shadowCam, points);
+        ShadowUtil.updateShadowCamera(occluders, receivers, shadowCam, points, shadowMapSize);
 
         Renderer r = renderManager.getRenderer();
         renderManager.setCamera(shadowCam, false);

@@ -33,6 +33,7 @@ package com.jme3.shadow;
 
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector2f;
@@ -44,7 +45,6 @@ import com.jme3.util.TempVars;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -67,12 +67,12 @@ public class ShadowUtil {
     public static void updateFrustumPoints2(Camera viewCam, Vector3f[] points) {
         int w = viewCam.getWidth();
         int h = viewCam.getHeight();
-        
+
         points[0].set(viewCam.getWorldCoordinates(new Vector2f(0, 0), 0));
         points[1].set(viewCam.getWorldCoordinates(new Vector2f(0, h), 0));
         points[2].set(viewCam.getWorldCoordinates(new Vector2f(w, h), 0));
         points[3].set(viewCam.getWorldCoordinates(new Vector2f(w, 0), 0));
-        
+
         points[4].set(viewCam.getWorldCoordinates(new Vector2f(0, 0), 1));
         points[5].set(viewCam.getWorldCoordinates(new Vector2f(0, h), 1));
         points[6].set(viewCam.getWorldCoordinates(new Vector2f(w, h), 1));
@@ -95,23 +95,23 @@ public class ShadowUtil {
             float farOverride,
             float scale,
             Vector3f[] points) {
-        
+
         Vector3f pos = viewCam.getLocation();
         Vector3f dir = viewCam.getDirection();
         Vector3f up = viewCam.getUp();
-        
+
         float depthHeightRatio = viewCam.getFrustumTop() / viewCam.getFrustumNear();
         float near = nearOverride;
         float far = farOverride;
         float ftop = viewCam.getFrustumTop();
         float fright = viewCam.getFrustumRight();
         float ratio = fright / ftop;
-        
+
         float near_height;
         float near_width;
         float far_height;
         float far_width;
-        
+
         if (viewCam.isParallelProjection()) {
             near_height = ftop;
             near_width = near_height * ratio;
@@ -123,30 +123,30 @@ public class ShadowUtil {
             far_height = depthHeightRatio * far;
             far_width = far_height * ratio;
         }
-        
+
         Vector3f right = dir.cross(up).normalizeLocal();
-        
+
         Vector3f temp = new Vector3f();
         temp.set(dir).multLocal(far).addLocal(pos);
         Vector3f farCenter = temp.clone();
         temp.set(dir).multLocal(near).addLocal(pos);
         Vector3f nearCenter = temp.clone();
-        
+
         Vector3f nearUp = temp.set(up).multLocal(near_height).clone();
         Vector3f farUp = temp.set(up).multLocal(far_height).clone();
         Vector3f nearRight = temp.set(right).multLocal(near_width).clone();
         Vector3f farRight = temp.set(right).multLocal(far_width).clone();
-        
+
         points[0].set(nearCenter).subtractLocal(nearUp).subtractLocal(nearRight);
         points[1].set(nearCenter).addLocal(nearUp).subtractLocal(nearRight);
         points[2].set(nearCenter).addLocal(nearUp).addLocal(nearRight);
         points[3].set(nearCenter).subtractLocal(nearUp).addLocal(nearRight);
-        
+
         points[4].set(farCenter).subtractLocal(farUp).subtractLocal(farRight);
         points[5].set(farCenter).addLocal(farUp).subtractLocal(farRight);
         points[6].set(farCenter).addLocal(farUp).addLocal(farRight);
         points[7].set(farCenter).subtractLocal(farUp).addLocal(farRight);
-        
+
         if (scale != 1.0f) {
             // find center of frustum
             Vector3f center = new Vector3f();
@@ -154,7 +154,7 @@ public class ShadowUtil {
                 center.addLocal(points[i]);
             }
             center.divideLocal(8f);
-            
+
             Vector3f cDir = new Vector3f();
             for (int i = 0; i < 8; i++) {
                 cDir.set(points[i]).subtractLocal(center);
@@ -231,7 +231,7 @@ public class ShadowUtil {
         Vector3f temp = new Vector3f();
         for (int i = 0; i < pts.length; i++) {
             transform.transformVector(pts[i], temp);
-            
+
             min.minLocal(temp);
             max.maxLocal(temp);
         }
@@ -251,15 +251,15 @@ public class ShadowUtil {
         Vector3f max = new Vector3f(Vector3f.NEGATIVE_INFINITY);
         TempVars vars = TempVars.get();
         Vector3f temp = vars.vect1;
-        
+
         for (int i = 0; i < pts.length; i++) {
             float w = mat.multProj(pts[i], temp);
-            
+
             temp.x /= w;
             temp.y /= w;
             // Why was this commented out?
             temp.z /= w;
-            
+
             min.minLocal(temp);
             max.maxLocal(temp);
         }
@@ -280,20 +280,20 @@ public class ShadowUtil {
     public static void updateShadowCamera(Camera shadowCam, Vector3f[] points) {
         boolean ortho = shadowCam.isParallelProjection();
         shadowCam.setProjectionMatrix(null);
-        
+
         if (ortho) {
             shadowCam.setFrustum(-1, 1, -1, 1, 1, -1);
         } else {
             shadowCam.setFrustumPerspective(45, 1, 1, 150);
         }
-        
+
         Matrix4f viewProjMatrix = shadowCam.getViewProjectionMatrix();
         Matrix4f projMatrix = shadowCam.getProjectionMatrix();
-        
+
         BoundingBox splitBB = computeBoundForPoints(points, viewProjMatrix);
-        
+
         TempVars vars = TempVars.get();
-        
+
         Vector3f splitMin = splitBB.getMin(vars.vect1);
         Vector3f splitMax = splitBB.getMax(vars.vect2);
 
@@ -302,25 +302,25 @@ public class ShadowUtil {
         // Create the crop matrix.
         float scaleX, scaleY, scaleZ;
         float offsetX, offsetY, offsetZ;
-        
+
         scaleX = 2.0f / (splitMax.x - splitMin.x);
         scaleY = 2.0f / (splitMax.y - splitMin.y);
         offsetX = -0.5f * (splitMax.x + splitMin.x) * scaleX;
         offsetY = -0.5f * (splitMax.y + splitMin.y) * scaleY;
         scaleZ = 1.0f / (splitMax.z - splitMin.z);
         offsetZ = -splitMin.z * scaleZ;
-        
+
         Matrix4f cropMatrix = vars.tempMat4;
         cropMatrix.set(scaleX, 0f, 0f, offsetX,
                 0f, scaleY, 0f, offsetY,
                 0f, 0f, scaleZ, offsetZ,
                 0f, 0f, 0f, 1f);
-        
-        
+
+
         Matrix4f result = new Matrix4f();
         result.set(cropMatrix);
         result.multLocal(projMatrix);
-        
+
         vars.release();
         shadowCam.setProjectionMatrix(result);
     }
@@ -337,8 +337,9 @@ public class ShadowUtil {
     public static void updateShadowCamera(GeometryList occluders,
             GeometryList receivers,
             Camera shadowCam,
-            Vector3f[] points) {
-        updateShadowCamera(occluders, receivers, shadowCam, points, null);
+            Vector3f[] points,
+            float shadowMapSize) {
+        updateShadowCamera(occluders, receivers, shadowCam, points, null, shadowMapSize);
     }
 
     /**
@@ -353,40 +354,41 @@ public class ShadowUtil {
             GeometryList receivers,
             Camera shadowCam,
             Vector3f[] points,
-            GeometryList splitOccluders) {
-        
+            GeometryList splitOccluders,
+            float shadowMapSize) {
+
         boolean ortho = shadowCam.isParallelProjection();
-        
+
         shadowCam.setProjectionMatrix(null);
-        
+
         if (ortho) {
             shadowCam.setFrustum(-1, 1, -1, 1, 1, -1);
         }
 
         // create transform to rotate points to viewspace        
         Matrix4f viewProjMatrix = shadowCam.getViewProjectionMatrix();
-        
+
         BoundingBox splitBB = computeBoundForPoints(points, viewProjMatrix);
-        
+
         ArrayList<BoundingVolume> visRecvList = new ArrayList<BoundingVolume>();
         for (int i = 0; i < receivers.size(); i++) {
             // convert bounding box to light's viewproj space
             Geometry receiver = receivers.get(i);
             BoundingVolume bv = receiver.getWorldBound();
             BoundingVolume recvBox = bv.transform(viewProjMatrix, null);
-            
+
             if (splitBB.intersects(recvBox)) {
                 visRecvList.add(recvBox);
             }
         }
-        
+
         ArrayList<BoundingVolume> visOccList = new ArrayList<BoundingVolume>();
         for (int i = 0; i < occluders.size(); i++) {
             // convert bounding box to light's viewproj space
             Geometry occluder = occluders.get(i);
             BoundingVolume bv = occluder.getWorldBound();
             BoundingVolume occBox = bv.transform(viewProjMatrix, null);
-            
+
             boolean intersects = splitBB.intersects(occBox);
             if (!intersects && occBox instanceof BoundingBox) {
                 BoundingBox occBB = (BoundingBox) occBox;
@@ -416,7 +418,7 @@ public class ShadowUtil {
                 }
             }
         }
-        
+
         BoundingBox casterBB = computeUnionBound(visOccList);
         BoundingBox receiverBB = computeUnionBound(visRecvList);
 
@@ -426,18 +428,18 @@ public class ShadowUtil {
             casterBB.setYExtent(casterBB.getYExtent() + 2.0f);
             casterBB.setZExtent(casterBB.getZExtent() + 2.0f);
         }
-        
+
         TempVars vars = TempVars.get();
-        
+
         Vector3f casterMin = casterBB.getMin(vars.vect1);
         Vector3f casterMax = casterBB.getMax(vars.vect2);
-        
+
         Vector3f receiverMin = receiverBB.getMin(vars.vect3);
         Vector3f receiverMax = receiverBB.getMax(vars.vect4);
-        
+
         Vector3f splitMin = splitBB.getMin(vars.vect5);
         Vector3f splitMax = splitBB.getMax(vars.vect6);
-        
+
         splitMin.z = 0;
 
 //        if (!ortho) {
@@ -445,17 +447,17 @@ public class ShadowUtil {
 //        }
 
         Matrix4f projMatrix = shadowCam.getProjectionMatrix();
-        
+
         Vector3f cropMin = vars.vect7;
         Vector3f cropMax = vars.vect8;
 
         // IMPORTANT: Special handling for Z values
         cropMin.x = max(max(casterMin.x, receiverMin.x), splitMin.x);
         cropMax.x = min(min(casterMax.x, receiverMax.x), splitMax.x);
-        
+
         cropMin.y = max(max(casterMin.y, receiverMin.y), splitMin.y);
         cropMax.y = min(min(casterMax.y, receiverMax.y), splitMax.y);
-        
+
         cropMin.z = min(casterMin.z, splitMin.z);
         cropMax.z = min(receiverMax.z, splitMax.z);
 
@@ -463,33 +465,52 @@ public class ShadowUtil {
         // Create the crop matrix.
         float scaleX, scaleY, scaleZ;
         float offsetX, offsetY, offsetZ;
-        
+
         scaleX = (2.0f) / (cropMax.x - cropMin.x);
         scaleY = (2.0f) / (cropMax.y - cropMin.y);
-        
+
+        //Shadow map stabilization approximation from shaderX 7
+        //from Practical Cascaded Shadow maps adapted to PSSM
+        //scale stabilization
+        float halfTextureSize = shadowMapSize * 0.5f;
+        if (halfTextureSize != 0) {
+            float scaleQuantizer = 0.1f;            
+            scaleX = 1.0f / FastMath.ceil(1.0f / scaleX * scaleQuantizer) * scaleQuantizer;
+            scaleY = 1.0f / FastMath.ceil(1.0f / scaleY * scaleQuantizer) * scaleQuantizer;
+        }
+
         offsetX = -0.5f * (cropMax.x + cropMin.x) * scaleX;
         offsetY = -0.5f * (cropMax.y + cropMin.y) * scaleY;
-        
+
+
+        //Shadow map stabilization approximation from shaderX 7
+        //from Practical Cascaded Shadow maps adapted to PSSM
+        //offset stabilization
+        if (halfTextureSize != 0) {
+            offsetX = FastMath.ceil(offsetX * halfTextureSize) / halfTextureSize;
+            offsetY = FastMath.ceil(offsetY * halfTextureSize) / halfTextureSize;
+        }
+
         scaleZ = 1.0f / (cropMax.z - cropMin.z);
         offsetZ = -cropMin.z * scaleZ;
-        
-        
-        
-        
+
+
+
+
         Matrix4f cropMatrix = vars.tempMat4;
         cropMatrix.set(scaleX, 0f, 0f, offsetX,
                 0f, scaleY, 0f, offsetY,
                 0f, 0f, scaleZ, offsetZ,
                 0f, 0f, 0f, 1f);
-        
-        
+
+
         Matrix4f result = new Matrix4f();
         result.set(cropMatrix);
         result.multLocal(projMatrix);
         vars.release();
-        
+
         shadowCam.setProjectionMatrix(result);
-        
+
     }
 
     /**
@@ -514,7 +535,7 @@ public class ShadowUtil {
             }
             camera.setPlaneState(planeState);
         }
-        
+
     }
 
     /**
@@ -545,6 +566,6 @@ public class ShadowUtil {
                 outputGeometryList.add(g);
             }
         }
-        
+
     }
 }

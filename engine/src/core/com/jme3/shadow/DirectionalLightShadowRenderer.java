@@ -69,6 +69,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     //Holding the info for fading shadows in the far distance 
     protected Vector2f fadeInfo;
     protected float fadeLength;
+    private boolean stabilize = true;
 
     /**
      * Used for serialzation use
@@ -166,15 +167,15 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         }
 
     }
-
+    
     @Override
     protected GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders) {
 
         // update frustum points based on current camera and split
         ShadowUtil.updateFrustumPoints(viewPort.getCamera(), splitsArray[shadowMapIndex], splitsArray[shadowMapIndex + 1], 1.0f, points);
 
-        //Updating shadow cam with curent split frustra
-        ShadowUtil.updateShadowCamera(sceneOccluders, sceneReceivers, shadowCam, points, shadowMapOccluders);
+        //Updating shadow cam with curent split frustra        
+        ShadowUtil.updateShadowCamera(sceneOccluders, sceneReceivers, shadowCam, points, shadowMapOccluders, stabilize?shadowMapSize:0);
 
         return shadowMapOccluders;
     }
@@ -283,6 +284,24 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         return 0f;
     }
 
+    /**
+     * retruns true if stabilization is enabled
+     * @return 
+     */
+    public boolean isEnabledStabilization() {
+        return stabilize;
+    }
+    
+    /**
+     * Enables the stabilization of the shadows's edges. (default is true)
+     * This prevents shadows' edges to flicker when the camera moves
+     * However it can lead to some shadow quality loss in some particular scenes.
+     * @param stabilize 
+     */
+    public void setEnabledStabilization(boolean stabilize) {
+        this.stabilize = stabilize;
+    }
+    
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);

@@ -29,12 +29,14 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package jme3test.light;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
@@ -45,9 +47,9 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.shadow.PssmShadowRenderer;
-import com.jme3.shadow.PssmShadowRenderer.CompareMode;
-import com.jme3.shadow.PssmShadowRenderer.FilterMode;
+import com.jme3.shadow.CompareMode;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.shadow.EdgeFilteringMode;
 
 public class TestTransparentShadow extends SimpleApplication {
 
@@ -69,7 +71,7 @@ public class TestTransparentShadow extends SimpleApplication {
         Material mat = assetManager.loadMaterial("Textures/Terrain/Pond/Pond.j3m");
         mat.setFloat("Shininess", 0);
         geom.setMaterial(mat);
-        
+
         geom.rotate(-FastMath.HALF_PI, 0, 0);
         geom.center();
         geom.setShadowMode(ShadowMode.CastAndReceive);
@@ -80,7 +82,7 @@ public class TestTransparentShadow extends SimpleApplication {
         tree.setQueueBucket(Bucket.Transparent);
         tree.setShadowMode(ShadowMode.CastAndReceive);
 
-           
+
         AmbientLight al = new AmbientLight();
         al.setColor(ColorRGBA.White.mult(0.7f));
         rootNode.addLight(al);
@@ -90,8 +92,8 @@ public class TestTransparentShadow extends SimpleApplication {
         dl1.setColor(ColorRGBA.White.mult(1.5f));
         rootNode.addLight(dl1);
 
-        rootNode.attachChild(tree);    
-        
+        rootNode.attachChild(tree);
+
         /** Uses Texture from jme3-test-data library! */
         ParticleEmitter fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
         Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
@@ -99,39 +101,51 @@ public class TestTransparentShadow extends SimpleApplication {
         //mat_red.getAdditionalRenderState().setDepthTest(true);
         //mat_red.getAdditionalRenderState().setDepthWrite(true);
         fire.setMaterial(mat_red);
-        fire.setImagesX(2); fire.setImagesY(2); // 2x2 texture animation
-        fire.setEndColor(  new ColorRGBA(1f, 0f, 0f, 1f));   // red
+        fire.setImagesX(2);
+        fire.setImagesY(2); // 2x2 texture animation
+        fire.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
         fire.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
-        fire.setInitialVelocity(new Vector3f(0, 2, 0));
+        fire.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 2, 0));
         fire.setStartSize(0.6f);
         fire.setEndSize(0.1f);
         fire.setGravity(0, 0, 0);
         fire.setLowLife(0.5f);
         fire.setHighLife(1.5f);
-        fire.setVelocityVariation(0.3f);
+        fire.getParticleInfluencer().setVelocityVariation(0.3f);
         fire.setLocalTranslation(1.0f, 0, 1.0f);
         fire.setLocalScale(0.3f);
         fire.setQueueBucket(Bucket.Translucent);
-      //  rootNode.attachChild(fire);
+        //  rootNode.attachChild(fire);
 
-        
-        Material mat2 = assetManager.loadMaterial("Common/Materials/RedColor.j3m");  
- 
+
+        Material mat2 = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
+
 
         Geometry ball = new Geometry("sphere", new Sphere(16, 16, 0.5f));
         ball.setMaterial(mat2);
         ball.setShadowMode(ShadowMode.CastAndReceive);
         rootNode.attachChild(ball);
         ball.setLocalTranslation(-1.0f, 1.5f, 1.0f);
-         
-         
-        PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 1);
-        pssmRenderer.setDirection(dl1.getDirection());
-        pssmRenderer.setLambda(0.55f);
-        pssmRenderer.setShadowIntensity(0.8f);
-        pssmRenderer.setCompareMode(CompareMode.Software);
-        pssmRenderer.setFilterMode(FilterMode.PCF4);
-        //pssmRenderer.displayDebug();
-         viewPort.addProcessor(pssmRenderer);
-    }
+
+
+        final DirectionalLightShadowRenderer dlsRenderer = new DirectionalLightShadowRenderer(assetManager, 1024, 1);
+        dlsRenderer.setLight(dl1);
+        dlsRenderer.setLambda(0.55f);
+        dlsRenderer.setShadowIntensity(0.8f);
+        dlsRenderer.setShadowCompareMode(CompareMode.Software);
+        dlsRenderer.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
+        dlsRenderer.displayDebug();
+        viewPort.addProcessor(dlsRenderer);
+        inputManager.addMapping("stabilize", new KeyTrigger(KeyInput.KEY_B));
+
+        inputManager.addListener(new ActionListener() {
+            @Override
+            public void onAction(String name, boolean isPressed, float tpf) {
+                if (name.equals("stabilize") && isPressed) {
+                    dlsRenderer.setEnabledStabilization(!dlsRenderer.isEnabledStabilization()) ;
+                }
+            }
+        }, "stabilize");
+
+   }
 }

@@ -46,6 +46,7 @@ import com.jme3.shadow.PointLightShadowFilter;
 import com.jme3.shadow.PointLightShadowRenderer;
 
 public class TestPointLightShadows extends SimpleApplication {
+    public static final int SHADOWMAP_SIZE = 512;
 
     public static void main(String[] args) {
         TestPointLightShadows app = new TestPointLightShadows();
@@ -83,12 +84,12 @@ public class TestPointLightShadows extends SimpleApplication {
         box.setLocalTranslation(-1f, 0.5f, -2);
 
 
-
-        plsr = new PointLightShadowRenderer(assetManager, 512);
+        plsr = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
         plsr.setLight((PointLight) scene.getLocalLightList().get(0));
-        plsr.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
-     //   plsr.setFlushQueues(false);
-        //   plsr.displayDebug();
+        plsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
+       // plsr.setFlushQueues(false);
+        //plsr.displayFrustum();
+        plsr.displayDebug();
         viewPort.addProcessor(plsr);
 
 
@@ -96,7 +97,7 @@ public class TestPointLightShadows extends SimpleApplication {
 //        pl.setPosition(new Vector3f(0, 0.5f, 0));
 //        pl.setRadius(5);
 //        rootNode.addLight(pl);
-
+//
 //        Geometry lightMdl2 = new Geometry("Light2", new Sphere(10, 10, 0.1f));
 //        //Geometry  lightMdl = new Geometry("Light", new Box(.1f,.1f,.1f));
 //        lightMdl2.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
@@ -104,26 +105,27 @@ public class TestPointLightShadows extends SimpleApplication {
 //        rootNode.attachChild(lightMdl2);
 //        lightMdl2.setLocalTranslation(pl.getPosition());
 //        PointLightShadowRenderer plsr2 = new PointLightShadowRenderer(assetManager, 512);
+//        plsr2.setShadowIntensity(0.3f);
 //        plsr2.setLight(pl);
-//        plsr2.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
+//        plsr2.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
 //        //   plsr.displayDebug();
 //        viewPort.addProcessor(plsr2);
 
 
-        plsf = new PointLightShadowFilter(assetManager, 512);
-        plsf.setLight((PointLight) scene.getLocalLightList().get(0));
-        plsf.setEdgeFilteringMode(EdgeFilteringMode.Nearest);
+        plsf = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
+        plsf.setLight((PointLight) scene.getLocalLightList().get(0));     
+        plsf.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
         plsf.setEnabled(false);
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         fpp.addFilter(plsf);
         viewPort.addProcessor(fpp);
-
+              
         ShadowTestUIManager uiMan = new ShadowTestUIManager(assetManager, plsr, plsf, guiNode, inputManager, viewPort);
     }
 
     @Override
     public void simpleUpdate(float tpf) {
-//        lightNode.move(FastMath.cos(tpf) * 0.4f, 0, FastMath.sin(tpf) * 0.4f);
+ //      lightNode.move(FastMath.cos(tpf) * 0.4f, 0, FastMath.sin(tpf) * 0.4f);
     }
 }

@@ -32,6 +32,7 @@
 package jme3test.light;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
@@ -59,6 +60,7 @@ import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 
 public class TestDirectionalLightShadow extends SimpleApplication implements ActionListener, AnalogListener {
+    public static final int SHADOWMAP_SIZE = 1024;
 
     private Spatial[] obj;
     private Material[] mat;
@@ -135,7 +137,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         rootNode.attachChild(ground);
 
         l = new DirectionalLight();
-        //   l.setDirection(new Vector3f(0.5973172f, -0.16583486f, 0.7846725f).normalizeLocal());
+        //l.setDirection(new Vector3f(0.5973172f, -0.16583486f, 0.7846725f).normalizeLocal());
         l.setDirection(new Vector3f(-1, -1, -1));
         rootNode.addLight(l);
 
@@ -161,7 +163,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
 
         loadScene();
 
-        dlsr = new DirectionalLightShadowRenderer(assetManager, 1024, 3);
+        dlsr = new DirectionalLightShadowRenderer(assetManager, SHADOWMAP_SIZE, 3);
         dlsr.setLight(l);
         dlsr.setLambda(0.55f);
         dlsr.setShadowIntensity(0.6f);
@@ -169,7 +171,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         dlsr.displayDebug();
         viewPort.addProcessor(dlsr);
 
-        dlsf = new DirectionalLightShadowFilter(assetManager, 1024, 3);
+        dlsf = new DirectionalLightShadowFilter(assetManager, SHADOWMAP_SIZE, 3);
         dlsf.setLight(l);
         dlsf.setLambda(0.55f);
         dlsf.setShadowIntensity(0.6f);
@@ -192,6 +194,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         inputManager.addMapping("lambdaDown", new KeyTrigger(KeyInput.KEY_J));
         inputManager.addMapping("switchGroundMat", new KeyTrigger(KeyInput.KEY_M));
         inputManager.addMapping("debug", new KeyTrigger(KeyInput.KEY_X));
+        inputManager.addMapping("stabilize", new KeyTrigger(KeyInput.KEY_B));
 
 
         inputManager.addMapping("up", new KeyTrigger(KeyInput.KEY_NUMPAD8));
@@ -204,14 +207,21 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
 
 
         inputManager.addListener(this, "lambdaUp", "lambdaDown", "ThicknessUp", "ThicknessDown",
-                "switchGroundMat", "debug", "up", "down", "right", "left", "fwd", "back","pp");
+                "switchGroundMat", "debug", "up", "down", "right", "left", "fwd", "back", "pp","stabilize");
 
         ShadowTestUIManager uiMan = new ShadowTestUIManager(assetManager, dlsr, dlsf, guiNode, inputManager, viewPort);
-        
+
         inputManager.addListener(this, "Size+", "Size-");
-                inputManager.addMapping("Size+", new KeyTrigger(KeyInput.KEY_W));
-                inputManager.addMapping("Size-", new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping("Size+", new KeyTrigger(KeyInput.KEY_W));
+        inputManager.addMapping("Size-", new KeyTrigger(KeyInput.KEY_S));
+ 
+        shadowStabilizationText = new BitmapText(guiFont, false);
+        shadowStabilizationText.setSize(guiFont.getCharSet().getRenderedSize() * 0.75f);
+        shadowStabilizationText.setText("(b:on/off) Shadow stabilization : " + dlsr.isEnabledStabilization());
+        shadowStabilizationText.setLocalTranslation(10, viewPort.getCamera().getHeight() - 100, 0);
+        guiNode.attachChild(shadowStabilizationText);
     }
+    private  BitmapText shadowStabilizationText ;
 
     public void onAction(String name, boolean keyPressed, float tpf) {
 
@@ -223,7 +233,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
                 cam.setParallelProjection(true);
                 float aspect = (float) cam.getWidth() / cam.getHeight();
                 cam.setFrustum(-1000, 1000, -aspect * frustumSize, aspect * frustumSize, frustumSize, -frustumSize);
-                
+
             }
         }
 
@@ -242,6 +252,11 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
             dlsr.displayFrustum();
         }
 
+        if (name.equals("stabilize") && keyPressed) {
+            dlsr.setEnabledStabilization(!dlsr.isEnabledStabilization());
+            dlsf.setEnabledStabilization(!dlsf.isEnabledStabilization());  
+            shadowStabilizationText.setText("(b:on/off) Shadow stabilization : " + dlsr.isEnabledStabilization());
+        }
 
         if (name.equals("switchGroundMat") && keyPressed) {
             if (ground.getMaterial() == matGroundL) {

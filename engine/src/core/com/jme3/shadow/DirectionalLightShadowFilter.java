@@ -37,7 +37,6 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.light.DirectionalLight;
-import com.jme3.material.Material;
 import java.io.IOException;
 
 /**
@@ -155,6 +154,24 @@ public class DirectionalLightShadowFilter extends AbstractShadowFilter<Direction
     public float getShadowZFadeLength() {
         return shadowRenderer.getShadowZFadeLength();
     }
+    
+    /**
+     * retruns true if stabilization is enabled
+     * @return 
+     */
+    public boolean isEnabledStabilization() {
+        return shadowRenderer.isEnabledStabilization();
+    }
+    
+    /**
+     * Enables the stabilization of the shadows's edges. (default is true)
+     * This prevents shadows' edges to flicker when the camera moves
+     * However it can lead to some shadow quality loss in some particular scenes.
+     * @param stabilize 
+     */
+    public void setEnabledStabilization(boolean stabilize) {
+        shadowRenderer.setEnabledStabilization(stabilize);        
+    }    
 
     @Override
     public void write(JmeExporter ex) throws IOException {
