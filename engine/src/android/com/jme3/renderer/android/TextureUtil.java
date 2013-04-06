@@ -24,16 +24,19 @@ public class TextureUtil {
     private static boolean ETC1support = false;
     private static boolean DXT1 = false;
     private static boolean DEPTH24 = false;
+    private static boolean DEPTH_TEXTURE = false;
 
     public static void loadTextureFeatures(String extensionString) {
         ETC1support = extensionString.contains("GL_OES_compressed_ETC1_RGB8_texture");
         DEPTH24 = extensionString.contains("GL_OES_depth24");
         NPOT = extensionString.contains("GL_OES_texture_npot") || extensionString.contains("GL_NV_texture_npot_2D_mipmap");
         DXT1 = extensionString.contains("GL_EXT_texture_compression_dxt1");
+        DEPTH_TEXTURE = extensionString.contains("GL_OES_depth_texture");
         logger.log(Level.FINE, "Supports ETC1? {0}", ETC1support);
         logger.log(Level.FINE, "Supports DEPTH24? {0}", DEPTH24);
         logger.log(Level.FINE, "Supports NPOT? {0}", NPOT);
         logger.log(Level.FINE, "Supports DXT1? {0}", DXT1);
+        logger.log(Level.FINE, "Supports DEPTH_TEXTURE? {0}", DEPTH_TEXTURE);
     }
 
     private static void buildMipmap(Bitmap bitmap, boolean compress) {
@@ -241,7 +244,7 @@ public class TextureUtil {
         throw new UnsupportedOperationException("The image format '" + fmt + "' is unsupported by the video hardware.");
     }
 
-    private static AndroidGLImageFormat getImageFormat(Format fmt) throws UnsupportedOperationException {
+    public static AndroidGLImageFormat getImageFormat(Format fmt) throws UnsupportedOperationException {
         AndroidGLImageFormat imageFormat = new AndroidGLImageFormat();
         switch (fmt) {
             case RGBA16:
@@ -269,14 +272,17 @@ public class TextureUtil {
             case RGB565:
                 imageFormat.format = GLES20.GL_RGB;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT_5_6_5;
+                imageFormat.renderBufferStorageFormat = GLES20.GL_RGB565;
                 break;
             case ARGB4444:
                 imageFormat.format = GLES20.GL_RGBA4;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT_4_4_4_4;
+                imageFormat.renderBufferStorageFormat = GLES20.GL_RGBA4;
                 break;
             case RGB5A1:
                 imageFormat.format = GLES20.GL_RGBA;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT_5_5_5_1;
+                imageFormat.renderBufferStorageFormat = GLES20.GL_RGB5_A1;
                 break;
             case RGB8:
                 imageFormat.format = GLES20.GL_RGB;
@@ -293,8 +299,12 @@ public class TextureUtil {
             case Depth:
             case Depth16:
             case Depth24:
+                if (!DEPTH_TEXTURE) {
+                    unsupportedFormat(fmt);
+                }
                 imageFormat.format = GLES20.GL_DEPTH_COMPONENT;
-                imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT;
+                imageFormat.renderBufferStorageFormat = GLES20.GL_DEPTH_COMPONENT16;
                 break;
             case DXT1:
                 if (!DXT1) {
@@ -318,10 +328,11 @@ public class TextureUtil {
         return imageFormat;
     }
 
-    private static class AndroidGLImageFormat {
+    public static class AndroidGLImageFormat {
 
         boolean compress = false;
         int format = -1;
+        int renderBufferStorageFormat = -1;
         int dataType = -1;
     }
 
@@ -334,7 +345,7 @@ public class TextureUtil {
                     + "Use uploadTextureBitmap instead.");
         }
 
-        // Otherwise upload image directly. 
+        // Otherwise upload image directly.
         // Prefer to only use power of 2 textures here to avoid errors.
         Image.Format fmt = img.getFormat();
         ByteBuffer data;
@@ -436,7 +447,7 @@ public class TextureUtil {
             return;
         }
 
-        // Otherwise upload image directly. 
+        // Otherwise upload image directly.
         // Prefer to only use power of 2 textures here to avoid errors.
         Image.Format fmt = img.getFormat();
         ByteBuffer data;
