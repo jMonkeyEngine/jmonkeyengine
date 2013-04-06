@@ -263,6 +263,7 @@ public final class AnimChannel {
         time = 0;
         speed = 1f;
         loopMode = LoopMode.Loop;
+        System.out.println("Setting notified false");
         notified = false;
     }
 
@@ -362,6 +363,7 @@ public final class AnimChannel {
             }
         }
         animation = null;
+        System.out.println("Setting notified false");
         notified = false;
     }
 
@@ -396,10 +398,13 @@ public final class AnimChannel {
 
         if (animation.getLength() > 0){
             if (!notified && (time >= animation.getLength() || time < 0)) {
-                control.notifyAnimCycleDone(this, animation.getName());
                 if (loopMode == LoopMode.DontLoop) {
+                    // Note that this flag has to be set before calling the notify
+                    // since the notify may start a new animation and then unset
+                    // the flag.
                     notified = true;
                 }
+                control.notifyAnimCycleDone(this, animation.getName());
             } 
         }
 
