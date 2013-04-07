@@ -1177,7 +1177,7 @@ public class OGLESShaderRenderer implements Renderer {
 
         AndroidGLImageFormat imageFormat = TextureUtil.getImageFormat(rb.getFormat());
         if (imageFormat.renderBufferStorageFormat == 0) {
-            throw new RendererException("The format '" + rb.getFormat() + "' cannot be used for renderbuffers.")
+            throw new RendererException("The format '" + rb.getFormat() + "' cannot be used for renderbuffers.");
         }
 
 //        if (fb.getSamples() > 1 && GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
