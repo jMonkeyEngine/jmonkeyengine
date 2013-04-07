@@ -39,6 +39,7 @@ import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
 import com.jme3.math.*;
 import com.jme3.renderer.*;
+import com.jme3.renderer.android.TextureUtil.AndroidGLImageFormat;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
@@ -1174,7 +1175,10 @@ public class OGLESShaderRenderer implements Renderer {
                     + ":" + fb.getHeight() + " is not supported.");
         }
 
-        int glRenderBufferStorageFormat = TextureUtil.getImageFormat(rb.getFormat()).renderBufferStorageFormat;
+        AndroidGLImageFormat imageFormat = TextureUtil.getImageFormat(rb.getFormat());
+        if (imageFormat.renderBufferStorageFormat == 0) {
+            throw new RendererException("The format '" + rb.getFormat() + "' cannot be used for renderbuffers.")
+        }
 
 //        if (fb.getSamples() > 1 && GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
         if (fb.getSamples() > 1) {
@@ -1191,7 +1195,7 @@ public class OGLESShaderRenderer implements Renderer {
 //                    fb.getHeight());
         } else {
             GLES20.glRenderbufferStorage(GLES20.GL_RENDERBUFFER,
-                    glRenderBufferStorageFormat,
+                    imageFormat.renderBufferStorageFormat,
                     fb.getWidth(),
                     fb.getHeight());
         }
