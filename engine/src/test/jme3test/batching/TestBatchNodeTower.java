@@ -41,18 +41,20 @@ import com.jme3.font.BitmapText;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.BatchNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.scene.shape.Sphere.TextureMode;
-import com.jme3.shadow.PssmShadowRenderer;
-import com.jme3.shadow.PssmShadowRenderer.CompareMode;
-import com.jme3.shadow.PssmShadowRenderer.FilterMode;
+import com.jme3.shadow.CompareMode;
+import com.jme3.shadow.DirectionalLightShadowFilter;
+import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.system.AppSettings;
 import com.jme3.system.NanoTimer;
 import com.jme3.texture.Texture;
@@ -76,7 +78,7 @@ public class TestBatchNodeTower extends SimpleApplication {
     Material mat;
     Material mat2;
     Material mat3;
-    PssmShadowRenderer bsr;
+    DirectionalLightShadowFilter shadowRenderer;
     private Sphere bullet;
     private Box brick;
     private SphereCollisionShape bulletCollisionShape;
@@ -102,7 +104,7 @@ public class TestBatchNodeTower extends SimpleApplication {
         bullet.setTextureMode(TextureMode.Projected);
         bulletCollisionShape = new SphereCollisionShape(0.4f);
 
-        brick = new Box(Vector3f.ZERO, brickWidth, brickHeight, brickDepth);
+        brick = new Box(brickWidth, brickHeight, brickDepth);
         brick.scaleTextureCoordinates(new Vector2f(1f, .5f));
         //bulletAppState.getPhysicsSpace().enableDebug(assetManager);
         initMaterial();
@@ -121,13 +123,17 @@ public class TestBatchNodeTower extends SimpleApplication {
         rootNode.attachChild(batchNode);
         
         
-        bsr = new PssmShadowRenderer(assetManager, 1024, 2);
-        bsr.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
-        bsr.setLambda(0.55f);
-        bsr.setShadowIntensity(0.6f);
-        bsr.setCompareMode(CompareMode.Hardware);
-        bsr.setFilterMode(FilterMode.PCF4);
-        viewPort.addProcessor(bsr);   
+        shadowRenderer = new DirectionalLightShadowFilter(assetManager, 1024, 2);
+        DirectionalLight dl = new DirectionalLight();
+        dl.setDirection(new Vector3f(-1, -1, -1).normalizeLocal());
+        shadowRenderer.setLight(dl);
+        shadowRenderer.setLambda(0.55f);
+        shadowRenderer.setShadowIntensity(0.6f);
+        shadowRenderer.setShadowCompareMode(CompareMode.Hardware);
+        shadowRenderer.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
+        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
+        fpp.addFilter(shadowRenderer);
+        viewPort.addProcessor(fpp);   
     }
 
     private PhysicsSpace getPhysicsSpace() {
@@ -158,10 +164,11 @@ public class TestBatchNodeTower extends SimpleApplication {
         angle = 0f;
         for (int i = 0; i < brickLayers; i++){
             // Increment rows
-            if(i!=0)
-                tempY+=brickHeight*2;
-            else
-                tempY=brickHeight;
+            if (i != 0) {
+                tempY += brickHeight * 2;
+            } else {
+                tempY = brickHeight;
+            }
             // Alternate brick seams
             angle = 360.0f / bricksPerLayer * i/2f;
             for (int j = 0; j < bricksPerLayer; j++){
