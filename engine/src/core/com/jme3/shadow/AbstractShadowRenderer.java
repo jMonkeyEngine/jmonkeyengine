@@ -197,10 +197,6 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             throw new NullPointerException();
         }
 
-        if (this.edgeFilteringMode == filterMode) {
-            return;
-        }
-
         this.edgeFilteringMode = filterMode;
         postshadowMat.setInt("FilterMode", filterMode.getMaterialParamValue());
         postshadowMat.setFloat("PCFEdge", edgesThickness);
