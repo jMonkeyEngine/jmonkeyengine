@@ -23,20 +23,39 @@ public class TextureUtil {
     private static boolean NPOT = false;
     private static boolean ETC1support = false;
     private static boolean DXT1 = false;
-    private static boolean DEPTH24 = false;
+    private static boolean DEPTH24_STENCIL8 = false;
     private static boolean DEPTH_TEXTURE = false;
+    private static boolean RGBA8 = false;
+    
+    // Same constant used by both GL_ARM_rgba8 and GL_OES_rgb8_rgba8.
+    private static final int GL_RGBA8 = 0x8058;
+    
+    private static final int GL_DXT1 = 0x83F0;
+    private static final int GL_DXT1A = 0x83F1;
+    
+    private static final int GL_DEPTH_STENCIL_OES = 0x84F9;
+    private static final int GL_UNSIGNED_INT_24_8_OES = 0x84FA;
+    private static final int GL_DEPTH24_STENCIL8_OES = 0x88F0;
 
     public static void loadTextureFeatures(String extensionString) {
         ETC1support = extensionString.contains("GL_OES_compressed_ETC1_RGB8_texture");
-        DEPTH24 = extensionString.contains("GL_OES_depth24");
-        NPOT = extensionString.contains("GL_IMG_texture_npot") || extensionString.contains("GL_OES_texture_npot") || extensionString.contains("GL_NV_texture_npot_2D_mipmap");
+        DEPTH24_STENCIL8 = extensionString.contains("GL_OES_packed_depth_stencil");
+        NPOT = extensionString.contains("GL_IMG_texture_npot") 
+                || extensionString.contains("GL_OES_texture_npot") 
+                || extensionString.contains("GL_NV_texture_npot_2D_mipmap");
+        
         DXT1 = extensionString.contains("GL_EXT_texture_compression_dxt1");
         DEPTH_TEXTURE = extensionString.contains("GL_OES_depth_texture");
+        
+        RGBA8 = extensionString.contains("GL_ARM_rgba8") ||
+                extensionString.contains("GL_OES_rgb8_rgba8");
+        
         logger.log(Level.FINE, "Supports ETC1? {0}", ETC1support);
-        logger.log(Level.FINE, "Supports DEPTH24? {0}", DEPTH24);
+        logger.log(Level.FINE, "Supports DEPTH24_STENCIL8? {0}", DEPTH24_STENCIL8);
         logger.log(Level.FINE, "Supports NPOT? {0}", NPOT);
         logger.log(Level.FINE, "Supports DXT1? {0}", DXT1);
         logger.log(Level.FINE, "Supports DEPTH_TEXTURE? {0}", DEPTH_TEXTURE);
+        logger.log(Level.FINE, "Supports RGBA8? {0}", RGBA8);
     }
 
     private static void buildMipmap(Bitmap bitmap, boolean compress) {
@@ -228,6 +247,7 @@ public class TextureUtil {
                     (wantGeneratedMips
                     ? " Mipmaps will be generated in HARDWARE"
                     : " Mipmaps are not generated."));
+            
             uploadTexture(img, target, index);
 
             // Image was uploaded using slower path, since it is not compressed,
@@ -260,14 +280,31 @@ public class TextureUtil {
             case Alpha8:
                 imageFormat.format = GLES20.GL_ALPHA;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
+                if (RGBA8) {
+                    imageFormat.renderBufferStorageFormat = GL_RGBA8;
+                } else {
+                    // Highest precision alpha supported by vanilla OGLES2
+                    imageFormat.renderBufferStorageFormat = GLES20.GL_RGBA4;
+                }
                 break;
             case Luminance8:
                 imageFormat.format = GLES20.GL_LUMINANCE;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
+                if (RGBA8) {
+                    imageFormat.renderBufferStorageFormat = GL_RGBA8;
+                } else {
+                    // Highest precision luminance supported by vanilla OGLES2
+                    imageFormat.renderBufferStorageFormat = GLES20.GL_RGB565;
+                }
                 break;
             case Luminance8Alpha8:
                 imageFormat.format = GLES20.GL_LUMINANCE_ALPHA;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
+                if (RGBA8) {
+                    imageFormat.renderBufferStorageFormat = GL_RGBA8;
+                } else {
+                    imageFormat.renderBufferStorageFormat = GLES20.GL_RGBA4;
+                }
                 break;
             case RGB565:
                 imageFormat.format = GLES20.GL_RGB;
@@ -287,20 +324,33 @@ public class TextureUtil {
             case RGB8:
                 imageFormat.format = GLES20.GL_RGB;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
-                imageFormat.renderBufferStorageFormat = 0x8058;
+                if (RGBA8) {
+                    imageFormat.renderBufferStorageFormat = GL_RGBA8;
+                } else {
+                    // Fallback: Use RGB565 if RGBA8 is not available.
+                    imageFormat.renderBufferStorageFormat = GLES20.GL_RGB565;
+                }
                 break;
             case BGR8:
                 imageFormat.format = GLES20.GL_RGB;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
+                if (RGBA8) {
+                    imageFormat.renderBufferStorageFormat = GL_RGBA8;
+                } else {
+                    imageFormat.renderBufferStorageFormat = GLES20.GL_RGB565;
+                }
                 break;
             case RGBA8:
                 imageFormat.format = GLES20.GL_RGBA;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
-                imageFormat.renderBufferStorageFormat = 0x8058;
+                if (RGBA8) {
+                    imageFormat.renderBufferStorageFormat = GL_RGBA8;
+                } else {
+                    imageFormat.renderBufferStorageFormat = GLES20.GL_RGBA4;
+                }
                 break;
             case Depth:
             case Depth16:
-            case Depth24:
                 if (!DEPTH_TEXTURE) {
                     unsupportedFormat(fmt);
                 }
@@ -308,11 +358,28 @@ public class TextureUtil {
                 imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT;
                 imageFormat.renderBufferStorageFormat = GLES20.GL_DEPTH_COMPONENT16;
                 break;
+            case Depth24:
+            case Depth24Stencil8:
+                if (!DEPTH_TEXTURE) {
+                    unsupportedFormat(fmt);
+                }
+                if (DEPTH24_STENCIL8) {
+                    // NEW: True Depth24 + Stencil8 format.
+                    imageFormat.format = GL_DEPTH_STENCIL_OES;
+                    imageFormat.dataType = GL_UNSIGNED_INT_24_8_OES;
+                    imageFormat.renderBufferStorageFormat = GL_DEPTH24_STENCIL8_OES;
+                } else {
+                    // Vanilla OGLES2, only Depth16 available.
+                    imageFormat.format = GLES20.GL_DEPTH_COMPONENT;
+                    imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT;
+                    imageFormat.renderBufferStorageFormat = GLES20.GL_DEPTH_COMPONENT16;
+                }
+                break;
             case DXT1:
                 if (!DXT1) {
                     unsupportedFormat(fmt);
                 }
-                imageFormat.format = 0x83F0;
+                imageFormat.format = GL_DXT1;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
                 imageFormat.compress = true;
                 break;
@@ -320,7 +387,7 @@ public class TextureUtil {
                 if (!DXT1) {
                     unsupportedFormat(fmt);
                 }
-                imageFormat.format = 0x83F1;
+                imageFormat.format = GL_DXT1A;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
                 imageFormat.compress = true;
                 break;
