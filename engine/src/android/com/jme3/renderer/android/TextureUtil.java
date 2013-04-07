@@ -29,7 +29,7 @@ public class TextureUtil {
     public static void loadTextureFeatures(String extensionString) {
         ETC1support = extensionString.contains("GL_OES_compressed_ETC1_RGB8_texture");
         DEPTH24 = extensionString.contains("GL_OES_depth24");
-        NPOT = extensionString.contains("GL_OES_texture_npot") || extensionString.contains("GL_NV_texture_npot_2D_mipmap");
+        NPOT = extensionString.contains("GL_IMG_texture_npot") || extensionString.contains("GL_OES_texture_npot") || extensionString.contains("GL_NV_texture_npot_2D_mipmap");
         DXT1 = extensionString.contains("GL_EXT_texture_compression_dxt1");
         DEPTH_TEXTURE = extensionString.contains("GL_OES_depth_texture");
         logger.log(Level.FINE, "Supports ETC1? {0}", ETC1support);
@@ -287,6 +287,7 @@ public class TextureUtil {
             case RGB8:
                 imageFormat.format = GLES20.GL_RGB;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.renderBufferStorageFormat = 0x8058;
                 break;
             case BGR8:
                 imageFormat.format = GLES20.GL_RGB;
@@ -295,6 +296,7 @@ public class TextureUtil {
             case RGBA8:
                 imageFormat.format = GLES20.GL_RGBA;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_BYTE;
+                imageFormat.renderBufferStorageFormat = 0x8058;
                 break;
             case Depth:
             case Depth16:
