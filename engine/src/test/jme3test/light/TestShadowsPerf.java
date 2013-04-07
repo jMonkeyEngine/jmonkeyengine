@@ -48,9 +48,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.shadow.PssmShadowRenderer;
-import com.jme3.shadow.PssmShadowRenderer.CompareMode;
-import com.jme3.shadow.PssmShadowRenderer.FilterMode;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.util.TangentBinormalGenerator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -117,7 +116,7 @@ public class TestShadowsPerf extends SimpleApplication {
 
         createballs();
 
-        final PssmShadowRenderer pssmRenderer = new PssmShadowRenderer(assetManager, 1024, 4);
+        final DirectionalLightShadowRenderer pssmRenderer = new DirectionalLightShadowRenderer(assetManager, 1024, 4);
         viewPort.addProcessor(pssmRenderer);
 //        
 //        final PssmShadowFilter pssmRenderer = new PssmShadowFilter(assetManager, 1024, 4);
@@ -125,11 +124,11 @@ public class TestShadowsPerf extends SimpleApplication {
 //        fpp.addFilter(pssmRenderer);
 //        viewPort.addProcessor(fpp);
                 
-        pssmRenderer.setDirection(dl.getDirection());
+        pssmRenderer.setLight(dl);
         pssmRenderer.setLambda(0.55f);
         pssmRenderer.setShadowIntensity(0.55f);
-        pssmRenderer.setCompareMode(CompareMode.Software);
-        pssmRenderer.setFilterMode(FilterMode.PCF4);
+        pssmRenderer.setShadowCompareMode(com.jme3.shadow.CompareMode.Software);
+        pssmRenderer.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
         //pssmRenderer.displayDebug();
 
         inputManager.addListener(new ActionListener() {
@@ -153,7 +152,7 @@ public class TestShadowsPerf extends SimpleApplication {
         System.out.println((frames / time) + ";" + val);
 
 
-        for (int i = val; i < val + 200; i++) {
+        for (int i = val; i < val+1 ; i++) {
 
             Geometry s = sphere.clone().clone(false);
             s.setMaterial(mat);
@@ -162,7 +161,7 @@ public class TestShadowsPerf extends SimpleApplication {
             rootNode.attachChild(s);
         }
         if (val == 300) {
-            //stop();
+            stop();
         }
         val += 1;
         time = 0;
@@ -176,7 +175,7 @@ public class TestShadowsPerf extends SimpleApplication {
         time += tpf;
         frames++;
         if (time > 1) {
-            //createballs();
+            createballs();
         }
     }
 }
