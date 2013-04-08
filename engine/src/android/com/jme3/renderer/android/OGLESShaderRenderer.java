@@ -1495,12 +1495,6 @@ public class OGLESShaderRenderer implements Renderer {
             }
 
             setFrameBuffer(fb);
-            if (context.boundReadBuf != rb.getSlot()) {
-                GLES20.glActiveTexture(convertAttachmentSlot(rb.getSlot()));
-                RendererUtil.checkGLError();
-                
-                context.boundReadBuf = rb.getSlot();
-            }
         } else {
             setFrameBuffer(null);
         }
