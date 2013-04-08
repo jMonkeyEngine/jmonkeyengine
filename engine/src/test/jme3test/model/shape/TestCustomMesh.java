@@ -75,12 +75,12 @@ public class TestCustomMesh extends SimpleApplication {
         texCoord[3] = new Vector2f(1,1);
 
         // Indexes. We define the order in which mesh should be constructed
-        int [] indexes = {2,0,1,1,3,2};
+        short[] indexes = {2, 0, 1, 1, 3, 2};
 
         // Setting buffers
         m.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(vertices));
         m.setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(texCoord));
-        m.setBuffer(Type.Index, 1, BufferUtils.createIntBuffer(indexes));
+        m.setBuffer(Type.Index, 1, BufferUtils.createShortBuffer(indexes));
         m.updateBound();
 
         // *************************************************************************

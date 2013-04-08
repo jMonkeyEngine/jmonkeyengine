@@ -103,10 +103,10 @@ public class TextureUtil {
             logger.log(Level.FINEST, " - Uploading bitmap directly. Cannot compress as alpha present.");
             if (subTexture) {
                 GLUtils.texSubImage2D(target, level, x, y, bitmap);
-                checkGLError();
+                RendererUtil.checkGLError();
             } else {
                 GLUtils.texImage2D(target, level, bitmap, 0);
-                checkGLError();
+                RendererUtil.checkGLError();
             }
         } else {
             // Convert to RGB565
@@ -150,7 +150,8 @@ public class TextureUtil {
                             ETC1.ETC1_RGB8_OES,
                             etc1tex.getData().capacity(),
                             etc1tex.getData());
-                    checkGLError();
+                    
+                    RendererUtil.checkGLError();
                 } else {
                     GLES20.glCompressedTexImage2D(target,
                             level,
@@ -160,7 +161,8 @@ public class TextureUtil {
                             0,
                             etc1tex.getData().capacity(),
                             etc1tex.getData());
-                    checkGLError();
+                    
+                    RendererUtil.checkGLError();
                 }
 
 //                ETC1Util.loadTexture(target, level, 0, GLES20.GL_RGB,
@@ -208,17 +210,17 @@ public class TextureUtil {
                 if (subTexture) {
                     System.err.println("x : " + x + " y :" + y + " , " + bitmap.getWidth() + "/" + bitmap.getHeight());
                     GLUtils.texSubImage2D(target, 0, x, y, bitmap);
-                    checkGLError();
+                    RendererUtil.checkGLError();
                 } else {
                     GLUtils.texImage2D(target, 0, bitmap, 0);
-                    checkGLError();
+                    RendererUtil.checkGLError();
                 }
 
                 if (needMips) {
                     // No pregenerated mips available,
                     // generate from base level if required
                     GLES20.glGenerateMipmap(target);
-                    checkGLError();
+                    RendererUtil.checkGLError();
                 }
             }
         }
@@ -485,13 +487,6 @@ public class TextureUtil {
         }
     }
 
-    private static void checkGLError() {
-        int error;
-        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            throw new RendererException("OpenGL Error " + error);
-        }
-    }
-
     /**
      * Update the texture currently bound to target at with data from the given
      * Image at position x and y. The parameter index is used as the zoffset in
@@ -564,10 +559,10 @@ public class TextureUtil {
 
             if (imageFormat.compress && data != null) {
                 GLES20.glCompressedTexSubImage2D(target, i, x, y, mipWidth, mipHeight, imageFormat.format, data.remaining(), data);
-                checkGLError();
+                RendererUtil.checkGLError();
             } else {
                 GLES20.glTexSubImage2D(target, i, x, y, mipWidth, mipHeight, imageFormat.format, imageFormat.dataType, data);
-                checkGLError();
+                RendererUtil.checkGLError();
             }
 
             pos += mipSizes[i];

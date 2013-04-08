@@ -121,13 +121,6 @@ public class OGLESShaderRenderer implements Renderer {
         nameBuf.rewind();
     }
 
-    private void checkGLError() {
-        int error;
-        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            throw new RendererException("OpenGL Error " + error);
-        }
-    }
-
     public Statistics getStatistics() {
         return statistics;
     }
@@ -330,6 +323,9 @@ public class OGLESShaderRenderer implements Renderer {
         // Allocate buffer for compressed formats.
         IntBuffer compressedFormats = BufferUtils.createIntBuffer(numCompressedFormats);
         GLES20.glGetIntegerv(GLES20.GL_COMPRESSED_TEXTURE_FORMATS, compressedFormats);
+        
+        // Check for errors after all glGet calls.
+        RendererUtil.checkGLError();
 
         // Print compressed formats.
         for (int i = 0; i < numCompressedFormats; i++) {
@@ -337,9 +333,10 @@ public class OGLESShaderRenderer implements Renderer {
         }
 
         TextureUtil.loadTextureFeatures(extensions);
-
+        
         applyRenderState(RenderState.DEFAULT);
         GLES20.glDisable(GLES20.GL_DITHER);
+        RendererUtil.checkGLError();
 
         useVBO = false;
 
@@ -363,7 +360,7 @@ public class OGLESShaderRenderer implements Renderer {
         objManager.resetObjects();
         statistics.clearMemory();
         boundShader = null;
-//        lastFb = null;
+        lastFb = null;
         context.reset();
     }
 
@@ -383,6 +380,7 @@ public class OGLESShaderRenderer implements Renderer {
     \*********************************************************************/
     public void setDepthRange(float start, float end) {
         GLES20.glDepthRangef(start, end);
+        RendererUtil.checkGLError();
     }
 
     public void clearBuffers(boolean color, boolean depth, boolean stencil) {
@@ -398,11 +396,13 @@ public class OGLESShaderRenderer implements Renderer {
         }
         if (bits != 0) {
             GLES20.glClear(bits);
+            RendererUtil.checkGLError();
         }
     }
 
     public void setBackgroundColor(ColorRGBA color) {
         GLES20.glClearColor(color.r, color.g, color.b, color.a);
+        RendererUtil.checkGLError();
     }
 
     public void applyRenderState(RenderState state) {
@@ -418,24 +418,30 @@ public class OGLESShaderRenderer implements Renderer {
         if (state.isDepthTest() && !context.depthTestEnabled) {
             GLES20.glEnable(GLES20.GL_DEPTH_TEST);
             GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+            RendererUtil.checkGLError();
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
             GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+            RendererUtil.checkGLError();
             context.depthTestEnabled = false;
         }
 
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             GLES20.glDepthMask(true);
+            RendererUtil.checkGLError();
             context.depthWriteEnabled = true;
         } else if (!state.isDepthWrite() && context.depthWriteEnabled) {
             GLES20.glDepthMask(false);
+            RendererUtil.checkGLError();
             context.depthWriteEnabled = false;
         }
         if (state.isColorWrite() && !context.colorWriteEnabled) {
             GLES20.glColorMask(true, true, true, true);
+            RendererUtil.checkGLError();
             context.colorWriteEnabled = true;
         } else if (!state.isColorWrite() && context.colorWriteEnabled) {
             GLES20.glColorMask(false, false, false, false);
+            RendererUtil.checkGLError();
             context.colorWriteEnabled = false;
         }
 //        if (state.isPointSprite() && !context.pointSprite) {
@@ -452,6 +458,8 @@ public class OGLESShaderRenderer implements Renderer {
                 GLES20.glEnable(GLES20.GL_POLYGON_OFFSET_FILL);
                 GLES20.glPolygonOffset(state.getPolyOffsetFactor(),
                         state.getPolyOffsetUnits());
+                RendererUtil.checkGLError();
+                
                 context.polyOffsetEnabled = true;
                 context.polyOffsetFactor = state.getPolyOffsetFactor();
                 context.polyOffsetUnits = state.getPolyOffsetUnits();
@@ -460,6 +468,8 @@ public class OGLESShaderRenderer implements Renderer {
                         || state.getPolyOffsetUnits() != context.polyOffsetUnits) {
                     GLES20.glPolygonOffset(state.getPolyOffsetFactor(),
                             state.getPolyOffsetUnits());
+                    RendererUtil.checkGLError();
+                    
                     context.polyOffsetFactor = state.getPolyOffsetFactor();
                     context.polyOffsetUnits = state.getPolyOffsetUnits();
                 }
@@ -467,6 +477,8 @@ public class OGLESShaderRenderer implements Renderer {
         } else {
             if (context.polyOffsetEnabled) {
                 GLES20.glDisable(GLES20.GL_POLYGON_OFFSET_FILL);
+                RendererUtil.checkGLError();
+                
                 context.polyOffsetEnabled = false;
                 context.polyOffsetFactor = 0;
                 context.polyOffsetUnits = 0;
@@ -475,8 +487,10 @@ public class OGLESShaderRenderer implements Renderer {
         if (state.getFaceCullMode() != context.cullMode) {
             if (state.getFaceCullMode() == RenderState.FaceCullMode.Off) {
                 GLES20.glDisable(GLES20.GL_CULL_FACE);
+                RendererUtil.checkGLError();
             } else {
                 GLES20.glEnable(GLES20.GL_CULL_FACE);
+                RendererUtil.checkGLError();
             }
 
             switch (state.getFaceCullMode()) {
@@ -484,12 +498,15 @@ public class OGLESShaderRenderer implements Renderer {
                     break;
                 case Back:
                     GLES20.glCullFace(GLES20.GL_BACK);
+                    RendererUtil.checkGLError();
                     break;
                 case Front:
                     GLES20.glCullFace(GLES20.GL_FRONT);
+                    RendererUtil.checkGLError();
                     break;
                 case FrontAndBack:
                     GLES20.glCullFace(GLES20.GL_FRONT_AND_BACK);
+                    RendererUtil.checkGLError();
                     break;
                 default:
                     throw new UnsupportedOperationException("Unrecognized face cull mode: "
@@ -502,6 +519,7 @@ public class OGLESShaderRenderer implements Renderer {
         if (state.getBlendMode() != context.blendMode) {
             if (state.getBlendMode() == RenderState.BlendMode.Off) {
                 GLES20.glDisable(GLES20.GL_BLEND);
+                RendererUtil.checkGLError();
             } else {
                 GLES20.glEnable(GLES20.GL_BLEND);
                 switch (state.getBlendMode()) {
@@ -532,6 +550,7 @@ public class OGLESShaderRenderer implements Renderer {
                         throw new UnsupportedOperationException("Unrecognized blend mode: "
                                 + state.getBlendMode());
                 }
+                RendererUtil.checkGLError();
             }
             context.blendMode = state.getBlendMode();
         }
@@ -543,6 +562,8 @@ public class OGLESShaderRenderer implements Renderer {
     public void setViewPort(int x, int y, int w, int h) {
         if (x != vpX || vpY != y || vpW != w || vpH != h) {
             GLES20.glViewport(x, y, w, h);
+            RendererUtil.checkGLError();
+            
             vpX = x;
             vpY = y;
             vpW = w;
@@ -553,10 +574,12 @@ public class OGLESShaderRenderer implements Renderer {
     public void setClipRect(int x, int y, int width, int height) {
         if (!context.clipRectEnabled) {
             GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+            RendererUtil.checkGLError();
             context.clipRectEnabled = true;
         }
         if (clipX != x || clipY != y || clipW != width || clipH != height) {
             GLES20.glScissor(x, y, width, height);
+            RendererUtil.checkGLError();
             clipX = x;
             clipY = y;
             clipW = width;
@@ -567,6 +590,7 @@ public class OGLESShaderRenderer implements Renderer {
     public void clearClipRect() {
         if (context.clipRectEnabled) {
             GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+            RendererUtil.checkGLError();
             context.clipRectEnabled = false;
 
             clipX = 0;
@@ -577,10 +601,8 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     public void onFrame() {
-        int error = GLES20.glGetError();
-        if (error != GLES20.GL_NO_ERROR){
-            throw new RendererException("OpenGL Error " + error + ". Enable error checking for more info.");
-        }
+        RendererUtil.checkGLErrorForced();
+
         objManager.deleteUnused(this);
     }
 
@@ -598,6 +620,8 @@ public class OGLESShaderRenderer implements Renderer {
         stringBuf.append(uniform.getName()).append('\0');
         updateNameBuffer();
         int loc = GLES20.glGetUniformLocation(shader.getId(), uniform.getName());
+        RendererUtil.checkGLError();
+        
         if (loc < 0) {
             uniform.setLocation(-1);
             // uniform is not declared in shader
@@ -610,6 +634,8 @@ public class OGLESShaderRenderer implements Renderer {
         int shaderId = shader.getId();
         if (context.boundShaderProgram != shaderId) {
             GLES20.glUseProgram(shaderId);
+            RendererUtil.checkGLError();
+            
             statistics.onShaderUse(shader, true);
             boundShader = shader;
             context.boundShaderProgram = shaderId;
@@ -626,6 +652,8 @@ public class OGLESShaderRenderer implements Renderer {
 
         if (context.boundShaderProgram != shaderId) {
             GLES20.glUseProgram(shaderId);
+            RendererUtil.checkGLError();
+            
             statistics.onShaderUse(shader, true);
             boundShader = shader;
             context.boundShaderProgram = shaderId;
@@ -730,6 +758,7 @@ public class OGLESShaderRenderer implements Renderer {
             default:
                 throw new UnsupportedOperationException("Unsupported uniform type: " + uniform.getVarType());
         }
+        RendererUtil.checkGLError();
     }
 
     protected void updateShaderUniforms(Shader shader) {
@@ -775,6 +804,8 @@ public class OGLESShaderRenderer implements Renderer {
         if (id == -1) {
             // Create id
             id = GLES20.glCreateShader(convertShaderType(source.getType()));
+            RendererUtil.checkGLError();
+            
             if (id <= 0) {
                 throw new RendererException("Invalid ID received when trying to create shader.");
             }
@@ -821,7 +852,10 @@ public class OGLESShaderRenderer implements Renderer {
 //        System.out.println("precision "+precision[0]);
 
         GLES20.glCompileShader(id);
+        RendererUtil.checkGLError();
+        
         GLES20.glGetShaderiv(id, GLES20.GL_COMPILE_STATUS, intBuf1);
+        RendererUtil.checkGLError();
 
         boolean compiledOK = intBuf1.get(0) == GLES20.GL_TRUE;
         String infoLog = null;
@@ -830,7 +864,7 @@ public class OGLESShaderRenderer implements Renderer {
             // even if compile succeeded, check
             // log for warnings
             GLES20.glGetShaderiv(id, GLES20.GL_INFO_LOG_LENGTH, intBuf1);
-            checkGLError();
+            RendererUtil.checkGLError();
             infoLog = GLES20.glGetShaderInfoLog(id);
         }
 
@@ -858,6 +892,7 @@ public class OGLESShaderRenderer implements Renderer {
         if (id == -1) {
             // create program
             id = GLES20.glCreateProgram();
+            RendererUtil.checkGLError();
 
             if (id <= 0) {
                 throw new RendererException("Invalid ID received when trying to create shader program.");
@@ -871,23 +906,30 @@ public class OGLESShaderRenderer implements Renderer {
             if (source.isUpdateNeeded()) {
                 updateShaderSourceData(source);
             }
+            
             GLES20.glAttachShader(id, source.getId());
+            RendererUtil.checkGLError();
         }
 
         // link shaders to program
         GLES20.glLinkProgram(id);
+        RendererUtil.checkGLError();
+        
         GLES20.glGetProgramiv(id, GLES20.GL_LINK_STATUS, intBuf1);
+        RendererUtil.checkGLError();
 
         boolean linkOK = intBuf1.get(0) == GLES20.GL_TRUE;
         String infoLog = null;
 
         if (VALIDATE_SHADER || !linkOK) {
             GLES20.glGetProgramiv(id, GLES20.GL_INFO_LOG_LENGTH, intBuf1);
+            RendererUtil.checkGLError();
 
             int length = intBuf1.get(0);
             if (length > 3) {
                 // get infos
                 infoLog = GLES20.glGetProgramInfoLog(id);
+                RendererUtil.checkGLError();
             }
         }
 
@@ -940,7 +982,10 @@ public class OGLESShaderRenderer implements Renderer {
         }
 
         source.clearUpdateNeeded();
+        
         GLES20.glDeleteShader(source.getId());
+        RendererUtil.checkGLError();
+        
         source.resetObject();
     }
 
@@ -953,11 +998,15 @@ public class OGLESShaderRenderer implements Renderer {
         for (ShaderSource source : shader.getSources()) {
             if (source.getId() != -1) {
                 GLES20.glDetachShader(shader.getId(), source.getId());
+                RendererUtil.checkGLError();
+                
                 deleteShaderSource(source);
             }
         }
 
         GLES20.glDeleteProgram(shader.getId());
+        RendererUtil.checkGLError();
+        
         statistics.onDeleteShader();
         shader.resetObject();
     }
@@ -1161,12 +1210,16 @@ public class OGLESShaderRenderer implements Renderer {
         int id = rb.getId();
         if (id == -1) {
             GLES20.glGenRenderbuffers(1, intBuf1);
+            RendererUtil.checkGLError();
+            
             id = intBuf1.get(0);
             rb.setId(id);
         }
 
         if (context.boundRB != id) {
             GLES20.glBindRenderbuffer(GLES20.GL_RENDERBUFFER, id);
+            RendererUtil.checkGLError();
+            
             context.boundRB = id;
         }
 
@@ -1198,6 +1251,8 @@ public class OGLESShaderRenderer implements Renderer {
                     imageFormat.renderBufferStorageFormat,
                     fb.getWidth(),
                     fb.getHeight());
+            
+            RendererUtil.checkGLError();
         }
     }
 
@@ -1229,6 +1284,8 @@ public class OGLESShaderRenderer implements Renderer {
                 convertTextureType(tex.getType()),
                 image.getId(),
                 0);
+        
+        RendererUtil.checkGLError();
     }
 
     public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
@@ -1246,6 +1303,8 @@ public class OGLESShaderRenderer implements Renderer {
                     convertAttachmentSlot(rb.getSlot()),
                     GLES20.GL_RENDERBUFFER,
                     rb.getId());
+            
+            RendererUtil.checkGLError();
         }
     }
 
@@ -1255,6 +1314,8 @@ public class OGLESShaderRenderer implements Renderer {
             intBuf1.clear();
             // create FBO
             GLES20.glGenFramebuffers(1, intBuf1);
+            RendererUtil.checkGLError();
+            
             id = intBuf1.get(0);
             fb.setId(id);
             objManager.registerForCleanup(fb);
@@ -1264,6 +1325,8 @@ public class OGLESShaderRenderer implements Renderer {
 
         if (context.boundFBO != id) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, id);
+            RendererUtil.checkGLError();
+            
             // binding an FBO automatically sets draw buf to GL_COLOR_ATTACHMENT0
             context.boundDrawBuf = 0;
             context.boundFBO = id;
@@ -1309,6 +1372,7 @@ public class OGLESShaderRenderer implements Renderer {
 //                    int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
                     int textureType = convertTextureType(tex.getType());
                     GLES20.glGenerateMipmap(textureType);
+                    RendererUtil.checkGLError();
                 }
             }
         }
@@ -1317,6 +1381,8 @@ public class OGLESShaderRenderer implements Renderer {
             // unbind any fbos
             if (context.boundFBO != 0) {
                 GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+                RendererUtil.checkGLError();
+                
                 statistics.onFrameBufferUse(null, true);
 
                 context.boundFBO = 0;
@@ -1347,6 +1413,8 @@ public class OGLESShaderRenderer implements Renderer {
 
             if (context.boundFBO != fb.getId()) {
                 GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fb.getId());
+                RendererUtil.checkGLError();
+                
                 statistics.onFrameBufferUse(fb, true);
 
                 // update viewport to reflect framebuffer's resolution
@@ -1395,6 +1463,8 @@ public class OGLESShaderRenderer implements Renderer {
                     // select this draw buffer
                     if (context.boundDrawBuf != rb.getSlot()) {
                         GLES20.glActiveTexture(convertAttachmentSlot(rb.getSlot()));
+                        RendererUtil.checkGLError();
+                        
                         context.boundDrawBuf = rb.getSlot();
                     }
                 }
@@ -1427,6 +1497,8 @@ public class OGLESShaderRenderer implements Renderer {
             setFrameBuffer(fb);
             if (context.boundReadBuf != rb.getSlot()) {
                 GLES20.glActiveTexture(convertAttachmentSlot(rb.getSlot()));
+                RendererUtil.checkGLError();
+                
                 context.boundReadBuf = rb.getSlot();
             }
         } else {
@@ -1434,17 +1506,21 @@ public class OGLESShaderRenderer implements Renderer {
         }
 
         GLES20.glReadPixels(vpX, vpY, vpW, vpH, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, byteBuf);
+        RendererUtil.checkGLError();
     }
 
     private void deleteRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
         intBuf1.put(0, rb.getId());
         GLES20.glDeleteRenderbuffers(1, intBuf1);
+        RendererUtil.checkGLError();
     }
 
     public void deleteFrameBuffer(FrameBuffer fb) {
         if (fb.getId() != -1) {
             if (context.boundFBO == fb.getId()) {
                 GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+                RendererUtil.checkGLError();
+                
                 context.boundFBO = 0;
             }
 
@@ -1457,6 +1533,8 @@ public class OGLESShaderRenderer implements Renderer {
 
             intBuf1.put(0, fb.getId());
             GLES20.glDeleteFramebuffers(1, intBuf1);
+            RendererUtil.checkGLError();
+            
             fb.resetObject();
 
             statistics.onDeleteFrameBuffer();
@@ -1539,6 +1617,7 @@ public class OGLESShaderRenderer implements Renderer {
 
         GLES20.glTexParameteri(target, GLES20.GL_TEXTURE_MIN_FILTER, minFilter);
         GLES20.glTexParameteri(target, GLES20.GL_TEXTURE_MAG_FILTER, magFilter);
+        RendererUtil.checkGLError();
 
         /*
         if (tex.getAnisotropicFilter() > 1){
@@ -1565,6 +1644,8 @@ public class OGLESShaderRenderer implements Renderer {
                 // fall down here is intentional..
 //          case OneDimensional:
                 GLES20.glTexParameteri(target, GLES20.GL_TEXTURE_WRAP_S, convertWrapMode(tex.getWrap(WrapAxis.S)));
+                
+                RendererUtil.checkGLError();
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown texture type: " + tex.getType());
@@ -1594,6 +1675,8 @@ public class OGLESShaderRenderer implements Renderer {
         if (texId == -1) {
             // create texture
             GLES20.glGenTextures(1, intBuf1);
+            RendererUtil.checkGLError();
+            
             texId = intBuf1.get(0);
             img.setId(texId);
             objManager.registerForCleanup(img);
@@ -1606,10 +1689,14 @@ public class OGLESShaderRenderer implements Renderer {
         if (context.boundTextures[0] != img) {
             if (context.boundTextureUnit != 0) {
                 GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+                RendererUtil.checkGLError();
+                
                 context.boundTextureUnit = 0;
             }
 
             GLES20.glBindTexture(target, texId);
+            RendererUtil.checkGLError();
+            
             context.boundTextures[0] = img;
         }
 
@@ -1697,6 +1784,8 @@ public class OGLESShaderRenderer implements Renderer {
             }
 
             GLES20.glBindTexture(type, texId);
+            RendererUtil.checkGLError();
+            
             textures[unit] = image;
 
             statistics.onTextureUse(tex.getImage(), true);
@@ -1734,6 +1823,8 @@ public class OGLESShaderRenderer implements Renderer {
             intBuf1.position(0).limit(1);
 
             GLES20.glDeleteTextures(1, intBuf1);
+            RendererUtil.checkGLError();
+            
             image.resetObject();
 
             statistics.onDeleteTexture();
@@ -1791,6 +1882,8 @@ public class OGLESShaderRenderer implements Renderer {
         if (bufId == -1) {
             // create buffer
             GLES20.glGenBuffers(1, intBuf1);
+            RendererUtil.checkGLError();
+            
             bufId = intBuf1.get(0);
             vb.setId(bufId);
             objManager.registerForCleanup(vb);
@@ -1804,12 +1897,16 @@ public class OGLESShaderRenderer implements Renderer {
             target = GLES20.GL_ELEMENT_ARRAY_BUFFER;
             if (context.boundElementArrayVBO != bufId) {
                 GLES20.glBindBuffer(target, bufId);
+                RendererUtil.checkGLError();
+                
                 context.boundElementArrayVBO = bufId;
             }
         } else {
             target = GLES20.GL_ARRAY_BUFFER;
             if (context.boundArrayVBO != bufId) {
                 GLES20.glBindBuffer(target, bufId);
+                RendererUtil.checkGLError();
+                
                 context.boundArrayVBO = bufId;
             }
         }
@@ -1825,21 +1922,21 @@ public class OGLESShaderRenderer implements Renderer {
                 case Byte:
                 case UnsignedByte:
                     GLES20.glBufferData(target, size, (ByteBuffer) vb.getData(), usage);
+                    RendererUtil.checkGLError();
                     break;
-              //case Half:
                 case Short:
                 case UnsignedShort:
                     GLES20.glBufferData(target, size, (ShortBuffer) vb.getData(), usage);
+                    RendererUtil.checkGLError();
                     break;
                 case Int:
                 case UnsignedInt:
                     GLES20.glBufferData(target, size, (IntBuffer) vb.getData(), usage);
+                    RendererUtil.checkGLError();
                     break;
                 case Float:
                     GLES20.glBufferData(target, size, (FloatBuffer) vb.getData(), usage);
-                    break;
-                case Double:
-                    GLES20.glBufferData(target, size, (DoubleBuffer) vb.getData(), usage);
+                    RendererUtil.checkGLError();
                     break;
                 default:
                     throw new RuntimeException("Unknown buffer format.");
@@ -1851,20 +1948,21 @@ public class OGLESShaderRenderer implements Renderer {
                 case Byte:
                 case UnsignedByte:
                     GLES20.glBufferSubData(target, 0, size, (ByteBuffer) vb.getData());
+                    RendererUtil.checkGLError();
                     break;
                 case Short:
                 case UnsignedShort:
                     GLES20.glBufferSubData(target, 0, size, (ShortBuffer) vb.getData());
+                    RendererUtil.checkGLError();
                     break;
                 case Int:
                 case UnsignedInt:
                     GLES20.glBufferSubData(target, 0, size, (IntBuffer) vb.getData());
+                    RendererUtil.checkGLError();
                     break;
                 case Float:
                     GLES20.glBufferSubData(target, 0, size, (FloatBuffer) vb.getData());
-                    break;
-                case Double:
-                    GLES20.glBufferSubData(target, 0, size, (DoubleBuffer) vb.getData());
+                    RendererUtil.checkGLError();
                     break;
                 default:
                     throw new RuntimeException("Unknown buffer format.");
@@ -1881,6 +1979,8 @@ public class OGLESShaderRenderer implements Renderer {
             intBuf1.position(0).limit(1);
 
             GLES20.glDeleteBuffers(1, intBuf1);
+            RendererUtil.checkGLError();
+            
             vb.resetObject();
         }
     }
@@ -1891,6 +1991,8 @@ public class OGLESShaderRenderer implements Renderer {
             int idx = attribList.oldList[i];
 
             GLES20.glDisableVertexAttribArray(idx);
+            RendererUtil.checkGLError();
+            
             context.boundAttribs[idx] = null;
         }
         context.attribIndexList.copyNewToOld();
@@ -1920,6 +2022,7 @@ public class OGLESShaderRenderer implements Renderer {
 
                 String attributeName = "in" + vb.getBufferType().name();
                 loc = GLES20.glGetAttribLocation(programId, attributeName);
+                RendererUtil.checkGLError();
 
                 // not really the name of it in the shader (inPosition\0) but
                 // the internal name of the enum (Position).
@@ -1934,6 +2037,7 @@ public class OGLESShaderRenderer implements Renderer {
             VertexBuffer[] attribs = context.boundAttribs;
             if (!context.attribIndexList.moveToNew(loc)) {
                 GLES20.glEnableVertexAttribArray(loc);
+                RendererUtil.checkGLError();
                 //System.out.println("Enabled ATTRIB IDX: "+loc);
             }
             if (attribs[loc] != vb) {
@@ -1946,8 +2050,9 @@ public class OGLESShaderRenderer implements Renderer {
                 }
 
                 if (context.boundArrayVBO != bufId) {
-
                     GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, bufId);
+                    RendererUtil.checkGLError();
+                    
                     context.boundArrayVBO = bufId;
                 }
 
@@ -1959,6 +2064,8 @@ public class OGLESShaderRenderer implements Renderer {
                                     vb.isNormalized(),
                                     vb.getStride(),
                                     0);
+                
+                RendererUtil.checkGLError();
 
                 attribs[loc] = vb;
             }
@@ -1977,6 +2084,7 @@ public class OGLESShaderRenderer implements Renderer {
         vertCount, count);
         }else{*/
         GLES20.glDrawArrays(convertElementMode(mode), 0, vertCount);
+        RendererUtil.checkGLError();
         /*
         }*/
     }
@@ -1994,11 +2102,13 @@ public class OGLESShaderRenderer implements Renderer {
         assert bufId != -1;
 
         if (bufId == -1) {
-            logger.warning("invalid buffer id!");
+            throw new RendererException("Invalid buffer ID");
         }
 
         if (context.boundElementArrayVBO != bufId) {
             GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, bufId);
+            RendererUtil.checkGLError();
+            
             context.boundElementArrayVBO = bufId;
         }
 
@@ -2044,6 +2154,7 @@ public class OGLESShaderRenderer implements Renderer {
                 } else {
                     indexBuf.getData().position(curOffset);
                     GLES20.glDrawElements(elMode, elementLength, fmt, indexBuf.getData());
+                    RendererUtil.checkGLError();
                     /*
                     glDrawRangeElements(elMode,
                     0,
@@ -2074,6 +2185,7 @@ public class OGLESShaderRenderer implements Renderer {
                         indexBuf.getData().limit(),
                         convertVertexBufferFormat(indexBuf.getFormat()),
                         0);
+                RendererUtil.checkGLError();
             }
         }
     }
@@ -2180,6 +2292,7 @@ public class OGLESShaderRenderer implements Renderer {
             drawTriangleList_Array(indices, mesh, count);
         } else {
             GLES20.glDrawArrays(convertElementMode(mesh.getMode()), 0, mesh.getVertexCount());
+            RendererUtil.checkGLError();
         }
         clearVertexAttribs();
         clearTextureUnits();
@@ -2219,18 +2332,23 @@ public class OGLESShaderRenderer implements Renderer {
         } else {
 //            throw new UnsupportedOperationException("Cannot render without index buffer");
             GLES20.glDrawArrays(convertElementMode(mesh.getMode()), 0, mesh.getVertexCount());
+            RendererUtil.checkGLError();
         }
         clearVertexAttribs();
         clearTextureUnits();
     }
 
     public void renderMesh(Mesh mesh, int lod, int count) {
+        /*
+         * NOTE: not supported in OpenGL ES 2.0.
         if (context.pointSize != mesh.getPointSize()) {
             GLES10.glPointSize(mesh.getPointSize());
             context.pointSize = mesh.getPointSize();
         }
+        */ 
         if (context.lineWidth != mesh.getLineWidth()) {
             GLES20.glLineWidth(mesh.getLineWidth());
+            RendererUtil.checkGLError();
             context.lineWidth = mesh.getLineWidth();
         }
 
@@ -2281,12 +2399,13 @@ public class OGLESShaderRenderer implements Renderer {
                 if (i == stripStart) {
                     elMode = convertElementMode(Mode.TriangleStrip);
                 } else if (i == fanStart) {
-                    elMode = convertElementMode(Mode.TriangleStrip);
+                    elMode = convertElementMode(Mode.TriangleFan);
                 }
                 int elementLength = elementLengths[i];
 
                 indexBuf.getData().position(curOffset);
                 GLES20.glDrawElements(elMode, elementLength, fmt, indexBuf.getData());
+                RendererUtil.checkGLError();
 
                 curOffset += elementLength * elSize;
             }
@@ -2296,6 +2415,7 @@ public class OGLESShaderRenderer implements Renderer {
                     indexBuf.getData().limit(),
                     convertVertexBufferFormat(indexBuf.getFormat()),
                     indexBuf.getData());
+            RendererUtil.checkGLError();
         }
     }
 
@@ -2323,6 +2443,8 @@ public class OGLESShaderRenderer implements Renderer {
                 String attributeName = "in" + vb.getBufferType().name();
 
                 loc = GLES20.glGetAttribLocation(programId, attributeName);
+                RendererUtil.checkGLError();
+                
                 if (loc < 0) {
                     attrib.setLocation(-1);
                     return; // not available in shader.
@@ -2345,8 +2467,11 @@ public class OGLESShaderRenderer implements Renderer {
                         vb.isNormalized(),
                         vb.getStride(),
                         avb.getData());
+                
+                RendererUtil.checkGLError();
 
                 GLES20.glEnableVertexAttribArray(loc);
+                RendererUtil.checkGLError();
 
                 attribs[loc] = vb;
             } // if (attribs[loc] != vb)
@@ -2366,8 +2491,10 @@ public class OGLESShaderRenderer implements Renderer {
     public void setAlphaToCoverage(boolean value) {
         if (value) {
             GLES20.glEnable(GLES20.GL_SAMPLE_ALPHA_TO_COVERAGE);
+            RendererUtil.checkGLError();
         } else {
             GLES20.glDisable(GLES20.GL_SAMPLE_ALPHA_TO_COVERAGE);
+            RendererUtil.checkGLError();
         }
     }
 
@@ -2375,6 +2502,6 @@ public class OGLESShaderRenderer implements Renderer {
     public void invalidateState() {
         context.reset();
         boundShader = null;
-//        lastFb = null;
+        lastFb = null;
     }
 }

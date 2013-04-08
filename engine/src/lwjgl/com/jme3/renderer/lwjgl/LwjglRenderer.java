@@ -2256,7 +2256,7 @@ public class LwjglRenderer implements Renderer {
                 if (i == stripStart) {
                     elMode = convertElementMode(Mode.TriangleStrip);
                 } else if (i == fanStart) {
-                    elMode = convertElementMode(Mode.TriangleStrip);
+                    elMode = convertElementMode(Mode.TriangleFan);
                 }
                 int elementLength = elementLengths[i];
 
