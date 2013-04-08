@@ -89,7 +89,7 @@ public class BoneContext {
         boneName = boneStructure.getFieldValue("name").toString();
         length = ((Number) boneStructure.getFieldValue("length")).floatValue();
         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-        armatureMatrix = objectHelper.getMatrix(boneStructure, "arm_mat", true);
+        armatureMatrix = objectHelper.getMatrix(boneStructure, "arm_mat", blenderContext.getBlenderKey().isFixUpAxis());
 
         this.computeRestMatrix(objectToArmatureMatrix);
         List<Structure> childbase = ((Structure) boneStructure.getFieldValue("childbase")).evaluateListBase(blenderContext);
@@ -117,10 +117,6 @@ public class BoneContext {
         inverseTotalTransformation = restMatrix.invert();
 
         restMatrix = inverseParentMatrix.mult(restMatrix);
-
-        for (BoneContext child : this.children) {
-            child.computeRestMatrix(objectToArmatureMatrix);
-        }
     }
 
     /**

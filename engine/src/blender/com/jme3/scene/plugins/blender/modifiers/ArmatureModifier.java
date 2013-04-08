@@ -100,8 +100,9 @@ import com.jme3.util.BufferUtils;
                 ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
                 
                 if(objectHelper.isLineage(armatureObject, objectStructure, blenderContext)) {
-	                Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", blenderContext.getBlenderKey().isFixUpAxis());
-	                Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "obmat", true).invertLocal();
+                    boolean fixUpAxis = blenderContext.getBlenderKey().isFixUpAxis();
+	                Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", fixUpAxis);
+	                Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "imat", fixUpAxis);
 	                objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
 	                Matrix3f rot = objectToArmatureTransformation.toRotationMatrix();
 	                objectToArmatureTransformation = new Matrix4f();
