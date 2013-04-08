@@ -1260,11 +1260,11 @@ public class OGLESShaderRenderer implements Renderer {
         // can also add support for stencil here
         if (attachmentSlot == -100) {
             return GLES20.GL_DEPTH_ATTACHMENT;
-        } else if (attachmentSlot < 0 || attachmentSlot >= 16) {
-            throw new UnsupportedOperationException("Invalid FBO attachment slot: " + attachmentSlot);
+        } else if (attachmentSlot == 0) {
+            return GLES20.GL_COLOR_ATTACHMENT0;
+        } else {
+            throw new UnsupportedOperationException("Android does not support multiple color attachments to an FBO");
         }
-
-        return GLES20.GL_COLOR_ATTACHMENT0 + attachmentSlot;
     }
 
     public void updateRenderTexture(FrameBuffer fb, RenderBuffer rb) {
