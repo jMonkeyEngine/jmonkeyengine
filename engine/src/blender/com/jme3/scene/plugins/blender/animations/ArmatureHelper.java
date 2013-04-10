@@ -85,17 +85,15 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      *            the parent bone
      * @param result
      *            the list where the newly created bone will be added
-     * @param bonesPoseChannels
-     *            a map of bones poses channels
      * @param blenderContext
      *            the blender context
      * @throws BlenderFileException
      *             an exception is thrown when there is problem with the blender
      *             file
      */
-    public void buildBones(Long armatureObjectOMA, Structure boneStructure, Bone parent, List<Bone> result, Matrix4f arbt, final Map<Long, Structure> bonesPoseChannels, BlenderContext blenderContext) throws BlenderFileException {
-        BoneContext bc = new BoneContext(armatureObjectOMA, boneStructure, arbt, bonesPoseChannels, blenderContext);
-        bc.buildBone(result, bonesOMAs, blenderContext);
+    public void buildBones(Long armatureObjectOMA, Structure boneStructure, Bone parent, List<Bone> result, Matrix4f objectToArmatureTransformation, BlenderContext blenderContext) throws BlenderFileException {
+        BoneContext bc = new BoneContext(armatureObjectOMA, boneStructure, blenderContext);
+        bc.buildBone(result, bonesOMAs, objectToArmatureTransformation, blenderContext);
     }
 
     /**

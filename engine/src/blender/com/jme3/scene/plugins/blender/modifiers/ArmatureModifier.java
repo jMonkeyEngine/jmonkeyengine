@@ -17,9 +17,7 @@ import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Matrix4f;
-import com.jme3.math.Quaternion;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -87,32 +85,16 @@ import com.jme3.util.BufferUtils;
                 // load skeleton
                 Structure armatureStructure = ((Pointer) armatureObject.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
 
-                Structure pose = ((Pointer) armatureObject.getFieldValue("pose")).fetchData(blenderContext.getInputStream()).get(0);
-                List<Structure> chanbase = ((Structure) pose.getFieldValue("chanbase")).evaluateListBase(blenderContext);
-
-                Map<Long, Structure> bonesPoseChannels = new HashMap<Long, Structure>(chanbase.size());
-                for (Structure poseChannel : chanbase) {
-                    Pointer pBone = (Pointer) poseChannel.getFieldValue("bone");
-                    bonesPoseChannels.put(pBone.getOldMemoryAddress(), poseChannel);
-                }
-
-                Matrix4f objectToArmatureTransformation = Matrix4f.IDENTITY;
                 ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-                
-                if(objectHelper.isLineage(armatureObject, objectStructure, blenderContext)) {
-                    boolean fixUpAxis = blenderContext.getBlenderKey().isFixUpAxis();
-	                Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", fixUpAxis);
-	                Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "imat", fixUpAxis);
-	                objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
-	                Matrix3f rot = objectToArmatureTransformation.toRotationMatrix();
-	                objectToArmatureTransformation = new Matrix4f();
-	                objectToArmatureTransformation.setRotationQuaternion(new Quaternion().fromRotationMatrix(rot));
-                }
+                boolean fixUpAxis = blenderContext.getBlenderKey().isFixUpAxis();
+                Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", fixUpAxis);
+                Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "imat", fixUpAxis);
+                Matrix4f objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
 
                 List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase(blenderContext);
                 List<Bone> bonesList = new ArrayList<Bone>();
                 for (int i = 0; i < bonebase.size(); ++i) {
-                    armatureHelper.buildBones(armatureObject.getOldMemoryAddress(), bonebase.get(i), null, bonesList, objectToArmatureTransformation, bonesPoseChannels, blenderContext);
+                    armatureHelper.buildBones(armatureObject.getOldMemoryAddress(), bonebase.get(i), null, bonesList, objectToArmatureTransformation, blenderContext);
                 }
                 bonesList.add(0, new Bone(""));
                 Bone[] bones = bonesList.toArray(new Bone[bonesList.size()]);
@@ -244,7 +226,7 @@ import com.jme3.util.BufferUtils;
         }
         node.addControl(control);
         node.addControl(new SkeletonControl(animData.skeleton));
-
+        
         return node;
     }
 

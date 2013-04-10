@@ -37,8 +37,6 @@ public class BoneContext {
     private Matrix4f          restMatrix;
     /** Bone's total inverse transformation. */
     private Matrix4f          inverseTotalTransformation;
-    /** Bone's parent inverse matrix. */
-    private Matrix4f          inverseParentMatrix;
     /** The length of the bone. */
     private float             length;
 
@@ -49,18 +47,14 @@ public class BoneContext {
      *            the OMA of the bone's armature object
      * @param boneStructure
      *            the bone's structure
-     * @param objectToArmatureMatrix
-     *            object-to-armature transformation matrix
-     * @param bonesPoseChannels
-     *            a map of pose channels for each bone OMA
      * @param blenderContext
      *            the blender context
      * @throws BlenderFileException
      *             an exception is thrown when problem with blender data reading
      *             occurs
      */
-    public BoneContext(Long armatureObjectOMA, Structure boneStructure, Matrix4f objectToArmatureMatrix, final Map<Long, Structure> bonesPoseChannels, BlenderContext blenderContext) throws BlenderFileException {
-        this(boneStructure, armatureObjectOMA, null, objectToArmatureMatrix, bonesPoseChannels, blenderContext);
+    public BoneContext(Long armatureObjectOMA, Structure boneStructure, BlenderContext blenderContext) throws BlenderFileException {
+        this(boneStructure, armatureObjectOMA, null, blenderContext);
     }
 
     /**
@@ -72,17 +66,13 @@ public class BoneContext {
      *            the OMA of the bone's armature object
      * @param parent
      *            bone's parent (null if the bone is the root bone)
-     * @param objectToArmatureMatrix
-     *            object-to-armature transformation matrix
-     * @param bonesPoseChannels
-     *            a map of pose channels for each bone OMA
      * @param blenderContext
      *            the blender context
      * @throws BlenderFileException
      *             an exception is thrown when problem with blender data reading
      *             occurs
      */
-    private BoneContext(Structure boneStructure, Long armatureObjectOMA, BoneContext parent, Matrix4f objectToArmatureMatrix, final Map<Long, Structure> bonesPoseChannels, BlenderContext blenderContext) throws BlenderFileException {
+    private BoneContext(Structure boneStructure, Long armatureObjectOMA, BoneContext parent, BlenderContext blenderContext) throws BlenderFileException {
         this.parent = parent;
         this.boneStructure = boneStructure;
         this.armatureObjectOMA = armatureObjectOMA;
@@ -90,34 +80,23 @@ public class BoneContext {
         length = ((Number) boneStructure.getFieldValue("length")).floatValue();
         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
         armatureMatrix = objectHelper.getMatrix(boneStructure, "arm_mat", blenderContext.getBlenderKey().isFixUpAxis());
-
-        this.computeRestMatrix(objectToArmatureMatrix);
+        
+        //compute the bone's rest matrix
+        restMatrix = armatureMatrix.clone();
+        inverseTotalTransformation = restMatrix.invert();
+        if(parent != null) {
+            restMatrix = parent.inverseTotalTransformation.mult(restMatrix);
+        }
+        
+        //create the children
         List<Structure> childbase = ((Structure) boneStructure.getFieldValue("childbase")).evaluateListBase(blenderContext);
         for (Structure child : childbase) {
-            this.children.add(new BoneContext(child, armatureObjectOMA, this, objectToArmatureMatrix, bonesPoseChannels, blenderContext));
+            this.children.add(new BoneContext(child, armatureObjectOMA, this, blenderContext));
         }
 
         blenderContext.setBoneContext(boneStructure.getOldMemoryAddress(), this);
     }
 
-    /**
-     * This method computes the rest matrix for the bone.
-     * 
-     * @param objectToArmatureMatrix
-     *            object-to-armature transformation matrix
-     */
-    private void computeRestMatrix(Matrix4f objectToArmatureMatrix) {
-        if (parent != null) {
-            inverseParentMatrix = parent.inverseTotalTransformation.clone();
-        } else {
-            inverseParentMatrix = objectToArmatureMatrix.clone();
-        }
-
-        restMatrix = armatureMatrix.clone();
-        inverseTotalTransformation = restMatrix.invert();
-
-        restMatrix = inverseParentMatrix.mult(restMatrix);
-    }
 
     /**
      * This method builds the bone. It recursively builds the bone's children.
@@ -126,27 +105,34 @@ public class BoneContext {
      *            a list of bones where the newly created bone will be added
      * @param boneOMAs
      *            the map between bone and its old memory address
+     * @param objectToArmatureMatrix
+     *            object to armature transformation matrix
      * @param blenderContext
      *            the blender context
      * @return newly created bone
      */
-    public Bone buildBone(List<Bone> bones, Map<Bone, Long> boneOMAs, BlenderContext blenderContext) {
+    public Bone buildBone(List<Bone> bones, Map<Bone, Long> boneOMAs, Matrix4f objectToArmatureMatrix, BlenderContext blenderContext) {
         Long boneOMA = boneStructure.getOldMemoryAddress();
         bone = new Bone(boneName);
         bones.add(bone);
         boneOMAs.put(bone, boneOMA);
         blenderContext.addLoadedFeatures(boneOMA, boneName, boneStructure, bone);
 
-        Matrix4f pose = this.restMatrix.clone();
         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
 
-        Vector3f poseLocation = pose.toTranslationVector();
-        Quaternion rotation = pose.toRotationQuat();
-        Vector3f scale = objectHelper.getScale(pose);
+        Vector3f poseLocation = restMatrix.toTranslationVector();
+        Quaternion rotation = restMatrix.toRotationQuat().normalizeLocal();
+        Vector3f scale = objectHelper.getScale(restMatrix);
+        if(parent == null) {
+            Quaternion rotationQuaternion = objectToArmatureMatrix.toRotationQuat().normalizeLocal(); 
+            scale.multLocal(objectHelper.getScale(objectToArmatureMatrix));            
+            rotationQuaternion.multLocal(poseLocation.addLocal(objectToArmatureMatrix.toTranslationVector()));
+            rotation.multLocal(rotationQuaternion);
+        }
 
         bone.setBindTransforms(poseLocation, rotation, scale);
         for (BoneContext child : children) {
-            bone.addChild(child.buildBone(bones, boneOMAs, blenderContext));
+            bone.addChild(child.buildBone(bones, boneOMAs, objectToArmatureMatrix, blenderContext));
         }
 
         return bone;

@@ -250,31 +250,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
         }
         return result;
     }
-
-    /**
-     * Method tells if the structure1 is a lineage of structure2.
-     * 
-     * @param structure1
-     *            the first structure
-     * @param structure2
-     *            the second structure
-     * @return <b>true</b> if the first structure is a lineage of the second
-     *         structure and <b>false</b> otherwise
-     * @throws BlenderFileException
-     *             thrown when problems with reading the blend file occur
-     */
-    public boolean isLineage(Structure structure1, Structure structure2, BlenderContext blenderContext) throws BlenderFileException {
-        Pointer pParent = (Pointer) structure2.getFieldValue("parent");
-        while (pParent.isNotNull()) {
-            long oma = pParent.getOldMemoryAddress();
-            if (structure1.getOldMemoryAddress().longValue() == oma) {
-                return true;
-            }
-            structure2 = blenderContext.getFileBlock(oma).getStructure(blenderContext);
-            pParent = (Pointer) structure2.getFieldValue("parent");
-        }
-        return false;
-    }
     
     /**
      * This method calculates local transformation for the object. Parentage is taken under consideration.
