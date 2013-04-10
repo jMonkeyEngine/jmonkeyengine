@@ -251,7 +251,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         jSeparator2 = new javax.swing.JToolBar.Separator();
         addTextureButton = new javax.swing.JButton();
         removeTextureButton = new javax.swing.JButton();
-        eraseButton = new javax.swing.JToggleButton();
+        paintButton = new javax.swing.JToggleButton();
         jSeparator3 = new javax.swing.JToolBar.Separator();
         radiusLabel = new javax.swing.JLabel();
         radiusSlider = new javax.swing.JSlider();
@@ -498,20 +498,19 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         });
         jToolBar1.add(removeTextureButton);
 
-        terrainModButtonGroup.add(eraseButton);
-        eraseButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-erase-circle.png"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(eraseButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.eraseButton.text")); // NOI18N
-        eraseButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.eraseButton.toolTipText")); // NOI18N
-        eraseButton.setEnabled(false);
-        eraseButton.setFocusable(false);
-        eraseButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        eraseButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        eraseButton.addActionListener(new java.awt.event.ActionListener() {
+        terrainModButtonGroup.add(paintButton);
+        paintButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/terraineditor/icon_terrain-paint-circle.png"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(paintButton, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.paintButton.text")); // NOI18N
+        paintButton.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.paintButton.toolTipText")); // NOI18N
+        paintButton.setFocusable(false);
+        paintButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        paintButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        paintButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                eraseButtonActionPerformed(evt);
+                paintButtonActionPerformed(evt);
             }
         });
-        jToolBar1.add(eraseButton);
+        jToolBar1.add(paintButton);
         jToolBar1.add(jSeparator3);
 
         org.openide.awt.Mnemonics.setLocalizedText(radiusLabel, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.radiusLabel.text")); // NOI18N
@@ -755,8 +754,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         editorController.enableTextureButtons();
     }//GEN-LAST:event_removeTextureButtonActionPerformed
 
-    private void eraseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eraseButtonActionPerformed
-        if (eraseButton.isSelected()) {
+    private void paintButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paintButtonActionPerformed
+        if (paintButton.isSelected()) {
             PaintTerrainTool tool = new PaintTerrainTool();
             toolController.setTerrainEditButtonState(tool);
             setHintText(tool);
@@ -764,7 +763,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             toolController.setTerrainEditButtonState(null);
             setHintText((TerrainTool) null);
         }
-    }//GEN-LAST:event_eraseButtonActionPerformed
+    }//GEN-LAST:event_paintButtonActionPerformed
 
     private void triPlanarCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_triPlanarCheckBoxActionPerformed
         editorController.setTriPlanarEnabled(triPlanarCheckBox.isSelected());
@@ -902,7 +901,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addTextureButton;
     private javax.swing.JButton createTerrainButton;
-    private javax.swing.JToggleButton eraseButton;
     private javax.swing.JPanel fractalBrushPanel;
     private javax.swing.JLabel heightLabel;
     private javax.swing.JSlider heightSlider;
@@ -926,6 +924,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JCheckBox levelPrecisionCheckbox;
     private javax.swing.JToggleButton levelTerrainButton;
     private javax.swing.JTextField octavesField;
+    private javax.swing.JToggleButton paintButton;
     private javax.swing.JPanel paintingPanel;
     private javax.swing.JLabel radiusLabel;
     private javax.swing.JSlider radiusSlider;
