@@ -806,10 +806,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * in this vector.
      * @param other 
      */
-    public void maxLocal(Vector3f other){
+    public Vector3f maxLocal(Vector3f other){
         x = other.x > x ? other.x : x;
         y = other.y > y ? other.y : y;
         z = other.z > z ? other.z : z;
+        return this;
     }
 
     /**
@@ -818,10 +819,11 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * in this vector.
      * @param other
      */
-    public void minLocal(Vector3f other){
+    public Vector3f minLocal(Vector3f other){
         x = other.x < x ? other.x : x;
         y = other.y < y ? other.y : y;
         z = other.z < z ? other.z : z;
+        return this;
     }
 
     /**
