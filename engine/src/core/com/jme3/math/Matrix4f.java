@@ -1744,7 +1744,6 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 
     public Matrix3f toRotationMatrix() {
         return new Matrix3f(m00, m01, m02, m10, m11, m12, m20, m21, m22);
-
     }
 
     public void toRotationMatrix(Matrix3f mat) {
@@ -1757,8 +1756,32 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         mat.m20 = m20;
         mat.m21 = m21;
         mat.m22 = m22;
+	}
 
-    }
+	/**
+	 * Retreives the scale vector from the matrix.
+	 * 
+	 * @return the scale vector
+	 */
+	public Vector3f toScaleVector() {
+		Vector3f result = new Vector3f();
+		this.toScaleVector(result);
+		return result;
+	}
+
+	/**
+	 * Retreives the scale vector from the matrix and stores it into a given
+	 * vector.
+	 * 
+	 * @param the
+	 *            vector where the scale will be stored
+	 */
+	public void toScaleVector(Vector3f vector) {
+		float scaleX = (float) Math.sqrt(m00 * m00 + m10 * m10 + m20 * m20);
+		float scaleY = (float) Math.sqrt(m01 * m01 + m11 * m11 + m21 * m21);
+		float scaleZ = (float) Math.sqrt(m02 * m02 + m12 * m12 + m22 * m22);
+		vector.set(scaleX, scaleY, scaleZ);
+	}
 
     public void setScale(float x, float y, float z) {
         m00 *= x;
