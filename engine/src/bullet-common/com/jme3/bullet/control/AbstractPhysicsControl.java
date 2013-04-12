@@ -160,12 +160,11 @@ public abstract class AbstractPhysicsControl implements PhysicsControl {
         }
 
     }
-
+    
     public void setSpatial(Spatial spatial) {
         if (this.spatial != null && this.spatial != spatial) {
             removeSpatialData(this.spatial);
-        }
-        else if (this.spatial == spatial) {
+        } else if (this.spatial == spatial) {
             return;
         }
         this.spatial = spatial;
@@ -207,12 +206,14 @@ public abstract class AbstractPhysicsControl implements PhysicsControl {
     public void setPhysicsSpace(PhysicsSpace space) {
         if (space == null) {
             if (this.space != null) {
-                removePhysics(space);
+                removePhysics(this.space);
                 added = false;
             }
         } else {
             if (this.space == space) {
                 return;
+            } else if (this.space != null) {
+                removePhysics(this.space);
             }
             addPhysics(space);
             added = true;
