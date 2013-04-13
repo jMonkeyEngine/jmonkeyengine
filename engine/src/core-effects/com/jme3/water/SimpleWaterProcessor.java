@@ -123,6 +123,10 @@ public class SimpleWaterProcessor implements SceneProcessor {
     private Vector3f vect1 = new Vector3f();
     private Vector3f vect2 = new Vector3f();
     private Vector3f vect3 = new Vector3f();
+    private float distortionScale = 0.2f;
+    private float distortionMix = 0.5f;
+    private float texScale = 1f;
+    
 
     /**
      * Creates a SimpleWaterProcessor
@@ -471,9 +475,18 @@ public class SimpleWaterProcessor implements SceneProcessor {
     }
 
     /**
+     * returns the speed of the wave animation.
+     * @return the speed
+     */
+    public float getWaveSpeed(){
+        return speed;
+    }
+    
+    /**
      * Sets the scale of distortion by the normal map, default = 0.2
      */
     public void setDistortionScale(float value) {
+        distortionScale  = value;
         material.setColor("distortionScale", new ColorRGBA(value, value, value, value));
     }
 
@@ -481,6 +494,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
      * Sets how the normal and dudv map are mixed to create the wave effect, default = 0.5
      */
     public void setDistortionMix(float value) {
+        distortionMix = value;
         material.setColor("distortionMix", new ColorRGBA(value, value, value, value));
     }
 
@@ -490,8 +504,40 @@ public class SimpleWaterProcessor implements SceneProcessor {
      * use mesh.scaleTextureCoordinates(Vector2f) for that.
      */
     public void setTexScale(float value) {
+        texScale = value;
         material.setColor("texScale", new ColorRGBA(value, value, value, value));
     }
+
+    /**
+     * returns the scale of distortion by the normal map, default = 0.2
+     *
+     * @return the distortion scale
+     */
+    public float getDistortionScale() {
+        return distortionScale;
+    }
+
+    /**
+     * returns how the normal and dudv map are mixed to create the wave effect,
+     * default = 0.5
+     *
+     * @return the distortion mix
+     */
+    public float getDistortionMix() {
+        return distortionMix;
+    }
+
+    /**
+     * returns the scale of the normal/dudv texture, default = 1. Note that the
+     * waves should be scaled by the texture coordinates of the quad to avoid
+     * animation artifacts, use mesh.scaleTextureCoordinates(Vector2f) for that.
+     *
+     * @return the textures scale
+     */
+    public float getTexScale() {
+        return texScale;
+    }
+
 
     /**
      * retruns true if the waterprocessor is in debug mode
