@@ -341,7 +341,7 @@ public class Mesh implements Savable, Cloneable {
                         BufferUtils.clone(tangents.getData()));
                 setBuffer(bindTangents);
                 tangents.setUsage(Usage.Stream);
-            }
+            }// else hardware setup does nothing, mesh already in bind pose
         }
     }
 
@@ -352,21 +352,69 @@ public class Mesh implements Savable, Cloneable {
      * @param forSoftwareAnim Should be true to enable the conversion.
      */
     public void prepareForAnim(boolean forSoftwareAnim){
-        if (forSoftwareAnim){
-            // convert indices
+        if (forSoftwareAnim) {
+            // convert indices to ubytes on the heap or floats
             VertexBuffer indices = getBuffer(Type.BoneIndex);
-            ByteBuffer originalIndex = (ByteBuffer) indices.getData();
-            ByteBuffer arrayIndex = ByteBuffer.allocate(originalIndex.capacity());
-            originalIndex.clear();
-            arrayIndex.put(originalIndex);
-            indices.updateData(arrayIndex);
+            Buffer buffer = indices.getData();
+            if (buffer instanceof ByteBuffer) {
+                ByteBuffer originalIndex = (ByteBuffer) buffer;
+                ByteBuffer arrayIndex = ByteBuffer.allocate(originalIndex.capacity());
+                originalIndex.clear();
+                arrayIndex.put(originalIndex);
+                indices.updateData(arrayIndex);
+            } else if (buffer instanceof FloatBuffer) {
+                //Floats back to bytes
+                FloatBuffer originalIndex = (FloatBuffer) buffer;
+                ByteBuffer arrayIndex = ByteBuffer.allocate(originalIndex.capacity());
+                originalIndex.clear();
+                for (int i = 0; i < originalIndex.capacity(); i++) {
+                    arrayIndex.put((byte) originalIndex.get(i));
+                }
+                indices.updateData(arrayIndex);
+            }
 
-            // convert weights
+            // convert weights on the heap
             VertexBuffer weights = getBuffer(Type.BoneWeight);
             FloatBuffer originalWeight = (FloatBuffer) weights.getData();
             FloatBuffer arrayWeight = FloatBuffer.allocate(originalWeight.capacity());
             originalWeight.clear();
             arrayWeight.put(originalWeight);
+            weights.updateData(arrayWeight);
+        } else {
+            //BoneIndex must be 32 bit for attribute type constraints in shaders
+            VertexBuffer indices = getBuffer(Type.BoneIndex);
+            Buffer buffer = indices.getData();
+            if (buffer instanceof ByteBuffer) {
+                ByteBuffer bIndex = (ByteBuffer) buffer;
+                final float[] rval = new float[bIndex.capacity()];
+                for (int i = 0; i < rval.length; i++) {
+                    rval[i] = bIndex.get(i);
+                }
+                clearBuffer(Type.BoneIndex);
+
+                VertexBuffer ib = new VertexBuffer(Type.BoneIndex);
+                ib.setupData(Usage.Stream,
+                        4,
+                        Format.Float,
+                        BufferUtils.createFloatBuffer(rval));
+                setBuffer(ib);
+            } else if (buffer instanceof FloatBuffer) {
+                //BoneWeights on DirectBuffer
+                FloatBuffer originalIndices = (FloatBuffer) buffer;
+                FloatBuffer arrayIndices = BufferUtils.createFloatBuffer(originalIndices.capacity());
+                originalIndices.clear();
+                arrayIndices.put(originalIndices);
+                indices.setUsage(Usage.Stream);
+                indices.updateData(arrayIndices);
+            }
+
+            //BoneWeights on DirectBuffer
+            VertexBuffer weights = getBuffer(Type.BoneWeight);
+            FloatBuffer originalWeight = (FloatBuffer) weights.getData();
+            FloatBuffer arrayWeight = BufferUtils.createFloatBuffer(originalWeight.capacity());
+            originalWeight.clear();
+            arrayWeight.put(originalWeight);
+            weights.setUsage(Usage.Static);
             weights.updateData(arrayWeight);
         }
     }

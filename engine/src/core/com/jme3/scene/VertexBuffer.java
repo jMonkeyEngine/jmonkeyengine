@@ -145,7 +145,8 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * Bone indices, used with animation (4 ubytes).
          * If used with software skinning, the usage should be 
          * {@link Usage#CpuOnly}, and the buffer should be allocated
-         * on the heap.
+         * on the heap as a ubytes buffer. For Hardware skinning this should be
+         * either an int or float buffer due to shader attribute types restrictions.
          */
         BoneIndex,
 

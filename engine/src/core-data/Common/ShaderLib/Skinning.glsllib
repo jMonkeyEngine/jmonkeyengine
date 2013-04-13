@@ -1,36 +1,55 @@
-#ifdef USE_HWSKINNING
-
-#ifndef NUM_BONES
-#error A required pre-processor define "NUM_BONES" is not set!
-#endif
-
+ #ifdef NUM_BONES
+ 
 attribute vec4 inBoneWeight;
-attribute vec4 inBoneIndices;
+attribute vec4 inBoneIndex;
 uniform mat4 m_BoneMatrices[NUM_BONES];
-
-void Skinning_Compute(inout vec4 position, inout vec4 normal){
-    vec4 index  = inBoneIndices;
-    vec4 weight = inBoneWeight;
-
-    vec4 newPos    = vec4(0.0);
-    vec4 newNormal = vec4(0.0);
-
-    for (float i = 0.0; i < 4.0; i += 1.0){
-        mat4 skinMat = m_BoneMatrices[int(index.x)];
-        newPos    += weight.x * (skinMat * position);
-        newNormal += weight.x * (skinMat * normal);
-        index = index.yzwx;
-        weight = weight.yzwx;
-    }
-
-    position = newPos;
-    normal = newNormal;
+ 
+void Skinning_Compute(inout vec4 position){
+    #if NUM_WEIGHTS_PER_VERT == 1
+    position = m_BoneMatrices[int(inBoneIndex.x)] * position;
+    #else
+    mat4 mat = mat4(0.0);
+    mat += m_BoneMatrices[int(inBoneIndex.x)] * inBoneWeight.x;
+    mat += m_BoneMatrices[int(inBoneIndex.y)] * inBoneWeight.y;
+    mat += m_BoneMatrices[int(inBoneIndex.z)] * inBoneWeight.z;
+    mat += m_BoneMatrices[int(inBoneIndex.w)] * inBoneWeight.w;
+    position = mat * position;
+    #endif
 }
-
-#else
-
-void Skinning_Compute(inout vec4 position, inout vec4 normal){
-   // skinning disabled, leave position and normal unaltered
+ 
+void Skinning_Compute(inout vec4 position, inout vec3 normal){
+    #if NUM_WEIGHTS_PER_VERT == 1
+    position = m_BoneMatrices[int(inBoneIndex.x)] * position;
+    normal = (mat3(m_BoneMatrices[int(inBoneIndex.x)][0].xyz,
+                   m_BoneMatrices[int(inBoneIndex.x)][1].xyz,
+                   m_BoneMatrices[int(inBoneIndex.x)][2].xyz) * normal);
+    #else
+    mat4 mat = mat4(0.0);
+    mat += m_BoneMatrices[int(inBoneIndex.x)] * inBoneWeight.x;
+    mat += m_BoneMatrices[int(inBoneIndex.y)] * inBoneWeight.y;
+    mat += m_BoneMatrices[int(inBoneIndex.z)] * inBoneWeight.z;
+    mat += m_BoneMatrices[int(inBoneIndex.w)] * inBoneWeight.w;
+    position = mat * position;
+    normal = (mat3(mat[0].xyz,mat[1].xyz,mat[2].xyz) * normal);
+    #endif
 }
-
+ 
+void Skinning_Compute(inout vec4 position, inout vec4 tangent, inout vec3 normal){
+    #if NUM_WEIGHTS_PER_VERT == 1
+    position = m_BoneMatrices[int(inBoneIndex.x)] * position;
+    tangent = m_BoneMatrices[int(inBoneIndex.x)] * tangent;
+    normal = (mat3(m_BoneMatrices[int(inBoneIndex.x)][0].xyz,
+                   m_BoneMatrices[int(inBoneIndex.x)][1].xyz,
+                   m_BoneMatrices[int(inBoneIndex.x)][2].xyz) * normal);
+    #else
+    mat4 mat = mat4(0.0);
+    mat += m_BoneMatrices[int(inBoneIndex.x)] * inBoneWeight.x;
+    mat += m_BoneMatrices[int(inBoneIndex.y)] * inBoneWeight.y;
+    mat += m_BoneMatrices[int(inBoneIndex.z)] * inBoneWeight.z;
+    mat += m_BoneMatrices[int(inBoneIndex.w)] * inBoneWeight.w;
+    position = mat * position;
+    tangent = mat * tangent;
+    normal = (mat3(mat[0].xyz,mat[1].xyz,mat[2].xyz) * normal);
+    #endif
+}
 #endif
