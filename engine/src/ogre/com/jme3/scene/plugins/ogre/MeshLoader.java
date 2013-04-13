@@ -148,17 +148,17 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     public void endDocument() {
     }
 
-    private void pushIndex(int index){
-        if (ib != null){
+    private void pushIndex(int index) {
+        if (ib != null) {
             ib.put(index);
-        }else{
-            sb.put((short)index);
+        } else {
+            sb.put((short) index);
         }
     }
-    
+
     private void pushFace(String v1, String v2, String v3) throws SAXException {
         // TODO: fan/strip support
-        switch (mesh.getMode()){
+        switch (mesh.getMode()) {
             case Triangles:
                 pushIndex(parseInt(v1));
                 pushIndex(parseInt(v2));
@@ -175,15 +175,14 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
 //    private boolean isUsingSharedVerts(Geometry geom) {
-        // Old code for buffer sharer
-        //return geom.getUserData(UserData.JME_SHAREDMESH) != null;
+    // Old code for buffer sharer
+    //return geom.getUserData(UserData.JME_SHAREDMESH) != null;
 //    }
-
     private void startFaces(String count) throws SAXException {
         int numFaces = parseInt(count);
         int indicesPerFace = 0;
 
-        switch (mesh.getMode()){
+        switch (mesh.getMode()) {
             case Triangles:
                 indicesPerFace = 3;
                 break;
@@ -198,7 +197,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         }
 
         int numIndices = indicesPerFace * numFaces;
-        
+
         vb = new VertexBuffer(VertexBuffer.Type.Index);
         if (!usesBigIndices) {
             sb = BufferUtils.createShortBuffer(numIndices);
@@ -218,9 +217,9 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             // load as native jme3 material instance
             try {
                 mat = assetManager.loadMaterial(matName);
-            } catch (AssetNotFoundException ex){
+            } catch (AssetNotFoundException ex) {
                 // Warning will be raised (see below)
-                if (!ex.getMessage().equals(matName)){
+                if (!ex.getMessage().equals(matName)) {
                     throw ex;
                 }
             }
@@ -229,10 +228,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 mat = materialList.get(matName);
             }
         }
-        
+
         if (mat == null) {
             logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{matName, key});
-            mat = PlaceholderAssets.getPlaceholderMaterial(assetManager);          
+            mat = PlaceholderAssets.getPlaceholderMaterial(assetManager);
             //mat.setKey(new MaterialKey(matName));
         }
 
@@ -247,10 +246,10 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         mesh = new Mesh();
         if (opType == null || opType.equals("triangle_list")) {
             mesh.setMode(Mesh.Mode.Triangles);
-        //} else if (opType.equals("triangle_strip")) {
-        //    mesh.setMode(Mesh.Mode.TriangleStrip);
-        //} else if (opType.equals("triangle_fan")) {
-        //    mesh.setMode(Mesh.Mode.TriangleFan);
+            //} else if (opType.equals("triangle_strip")) {
+            //    mesh.setMode(Mesh.Mode.TriangleStrip);
+            //} else if (opType.equals("triangle_fan")) {
+            //    mesh.setMode(Mesh.Mode.TriangleFan);
         } else if (opType.equals("line_list")) {
             mesh.setMode(Mesh.Mode.Lines);
         } else {
@@ -261,14 +260,14 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         usesSharedVerts = parseBool(usesharedvertices, false);
         if (usesSharedVerts) {
             usesSharedMesh.add(true);
-            
+
             // Old code for buffer sharer
             // import vertexbuffers from shared geom
 //            IntMap<VertexBuffer> sharedBufs = sharedMesh.getBuffers();
 //            for (Entry<VertexBuffer> entry : sharedBufs) {
 //                mesh.setBuffer(entry.getValue());
 //            }
-        }else{
+        } else {
             usesSharedMesh.add(false);
         }
 
@@ -302,26 +301,26 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
     }
 
     /**
-     * Normalizes weights if needed and finds largest amount of weights used
-     * for all vertices in the buffer.
+     * Normalizes weights if needed and finds largest amount of weights used for
+     * all vertices in the buffer.
      */
     private void endBoneAssigns() {
 //        if (mesh != sharedMesh && isUsingSharedVerts(geom)) {
 //            return;
 //        }
 
-        if (!actuallyHasWeights){
+        if (!actuallyHasWeights) {
             // No weights were actually written (the tag didn't have any entries)
             // remove those buffers
             mesh.clearBuffer(Type.BoneIndex);
             mesh.clearBuffer(Type.BoneWeight);
-            
+
             weightsFloatData = null;
             indicesData = null;
-            
+
             return;
         }
-        
+
         //int vertCount = mesh.getVertexCount();
         int maxWeightsPerVert = 0;
         weightsFloatData.rewind();
@@ -518,15 +517,15 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         int index = Integer.parseInt(submeshindex);
         mesh = geoms.get(index).getMesh();
         int faceCount = Integer.parseInt(numfaces);
-        
+
         VertexBuffer originalIndexBuffer = mesh.getBuffer(Type.Index);
         vb = new VertexBuffer(VertexBuffer.Type.Index);
-        if (originalIndexBuffer.getFormat() == Format.UnsignedInt){
+        if (originalIndexBuffer.getFormat() == Format.UnsignedInt) {
             // LOD buffer should also be integer
             ib = BufferUtils.createIntBuffer(faceCount * 3);
             sb = null;
             vb.setupData(Usage.Static, 3, Format.UnsignedInt, ib);
-        }else{
+        } else {
             sb = BufferUtils.createShortBuffer(faceCount * 3);
             ib = null;
             vb.setupData(Usage.Static, 3, Format.UnsignedShort, sb);
@@ -536,7 +535,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         if (levels == null) {
             // Create the LOD levels list
             levels = new ArrayList<VertexBuffer>();
-            
+
             // Add the first LOD level (always the original index buffer)
             levels.add(originalIndexBuffer);
             lodLevels.put(index, levels);
@@ -593,7 +592,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         AssetKey assetKey = new AssetKey(folderName + name + ".xml");
         try {
             animData = (AnimData) assetManager.loadAsset(assetKey);
-        } catch (AssetNotFoundException ex){
+        } catch (AssetNotFoundException ex) {
             logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{assetKey, key});
             animData = null;
         }
@@ -698,7 +697,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             return;
         }
 
-        
+
         // If submesh hack is enabled, ignore any submesh/submeshes
         // end tags.
         if (qName.equals("submesh") && !submeshNamesHack) {
@@ -763,12 +762,12 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
         for (int i = 0; i < geoms.size(); i++) {
             Geometry g = geoms.get(i);
             Mesh m = g.getMesh();
-            
+
             // New code for buffer extract
             if (sharedMesh != null && usesSharedMesh.get(i)) {
                 m.extractVertexData(sharedMesh);
             }
-            
+
             // Old code for buffer sharer
             //if (sharedMesh != null && isUsingSharedVerts(g)) {
             //    m.setBound(sharedMesh.getBound().clone());
@@ -792,14 +791,14 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             for (int i = 0; i < geoms.size(); i++) {
                 Geometry g = geoms.get(i);
                 Mesh m = geoms.get(i).getMesh();
-                
+
                 m.generateBindPose(!HARDWARE_SKINNING);
-                
+
                 // Old code for buffer sharer
                 //boolean useShared = isUsingSharedVerts(g);
                 //if (!useShared) {
-                    // create bind pose
-                    //m.generateBindPose(!HARDWARE_SKINNING);
+                // create bind pose
+                //m.generateBindPose(!HARDWARE_SKINNING);
                 //}
             }
 
@@ -843,7 +842,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                 OgreMeshKey meshKey = (OgreMeshKey) key;
                 materialList = meshKey.getMaterialList();
                 String materialName = meshKey.getMaterialName();
-                
+
                 // Material list not set but material name is available
                 if (materialList == null && materialName != null) {
                     OgreMaterialKey materialKey = new OgreMaterialKey(folderName + materialName + ".material");
@@ -853,7 +852,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
                         logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{materialKey, key});
                     }
                 }
-            }else{
+            } else {
                 // Make sure to reset it to null so that previous state
                 // doesn't leak onto this one
                 materialList = null;
@@ -862,15 +861,15 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             // If for some reason material list could not be found through
             // OgreMeshKey, or if regular ModelKey specified, load using 
             // default method.
-            if (materialList == null){
+            if (materialList == null) {
                 OgreMaterialKey materialKey = new OgreMaterialKey(folderName + meshName + ".material");
                 try {
                     materialList = (MaterialList) assetManager.loadAsset(materialKey);
                 } catch (AssetNotFoundException e) {
-                    logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{ materialKey, key });
+                    logger.log(Level.WARNING, "Cannot locate {0} for model {1}", new Object[]{materialKey, key});
                 }
             }
-            
+
             // Added by larynx 25.06.2011
             // Android needs the namespace aware flag set to true                 
             // Kirill 30.06.2011
@@ -878,21 +877,21 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
             // checking with JmeSystem.
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
-            
+
             XMLReader xr = factory.newSAXParser().getXMLReader();
             xr.setContentHandler(this);
             xr.setErrorHandler(this);
-            
+
             InputStreamReader r = null;
             try {
                 r = new InputStreamReader(info.openStream());
                 xr.parse(new InputSource(r));
             } finally {
-                if (r != null){
+                if (r != null) {
                     r.close();
                 }
             }
-            
+
             return compileModel();
         } catch (SAXException ex) {
             IOException ioEx = new IOException("Error while parsing Ogre3D mesh.xml");
