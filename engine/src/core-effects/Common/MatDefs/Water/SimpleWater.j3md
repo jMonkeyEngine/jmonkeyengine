@@ -10,9 +10,9 @@ MaterialDef Simple Water {
         Vector3 lightPos
         Float time
         Float waterDepth
-        Vector4 distortionScale
-        Vector4 distortionMix
-        Vector4 texScale
+        Float distortionScale
+        Float distortionMix
+        Float texScale
         Vector2 FrustumNearFar
         Float waterTransparency
     }

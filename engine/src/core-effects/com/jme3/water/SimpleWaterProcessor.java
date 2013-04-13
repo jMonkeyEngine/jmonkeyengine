@@ -139,10 +139,10 @@ public class SimpleWaterProcessor implements SceneProcessor {
         material.setFloat("waterTransparency", waterTransparency / 10);
         material.setColor("waterColor", ColorRGBA.White);
         material.setVector3("lightPos", new Vector3f(1, -1, 1));
-
-        material.setColor("distortionScale", new ColorRGBA(0.2f, 0.2f, 0.2f, 0.2f));
-        material.setColor("distortionMix", new ColorRGBA(0.5f, 0.5f, 0.5f, 0.5f));
-        material.setColor("texScale", new ColorRGBA(1.0f, 1.0f, 1.0f, 1.0f));
+        
+        material.setFloat("distortionScale", distortionScale);
+        material.setFloat("distortionMix", distortionMix);
+        material.setFloat("texScale", texScale);
         updateClipPlanes();
 
     }
@@ -487,7 +487,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
      */
     public void setDistortionScale(float value) {
         distortionScale  = value;
-        material.setColor("distortionScale", new ColorRGBA(value, value, value, value));
+        material.setFloat("distortionScale", distortionScale);
     }
 
     /**
@@ -495,7 +495,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
      */
     public void setDistortionMix(float value) {
         distortionMix = value;
-        material.setColor("distortionMix", new ColorRGBA(value, value, value, value));
+        material.setFloat("distortionMix", distortionMix);
     }
 
     /**
@@ -505,7 +505,7 @@ public class SimpleWaterProcessor implements SceneProcessor {
      */
     public void setTexScale(float value) {
         texScale = value;
-        material.setColor("texScale", new ColorRGBA(value, value, value, value));
+        material.setFloat("texScale", texScale);
     }
 
     /**

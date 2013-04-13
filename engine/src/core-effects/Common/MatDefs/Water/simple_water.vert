@@ -19,8 +19,8 @@ attribute vec3 inTangent;
 attribute vec3 inNormal;
 
 varying vec4 lightDir;
-varying vec4 waterTex1;
-varying vec4 waterTex2;
+varying vec2 waterTex1;
+varying vec2 waterTex2;
 varying vec4 position;
 varying vec4 viewDir;
 varying vec4 viewpos;
@@ -76,11 +76,11 @@ void main(void)
     viewCamDir.w = 0.0;
 
 
-    vec4 t1 = vec4(0.0, -m_time, 0.0,0.0);
-    vec4 t2 = vec4(0.0, m_time, 0.0,0.0);
+    vec2 t1 = vec2(0.0, -m_time);
+    vec2 t2 = vec2(0.0, m_time);
 
-    waterTex1 =vec4(inTexCoord,0.0,0.0) + t1;
-    waterTex2 =vec4(inTexCoord ,0.0,0.0)+ t2;
+    waterTex1 = inTexCoord + t1;
+    waterTex2 = inTexCoord + t2;
 
     position = g_WorldViewProjectionMatrix * inPosition;
     gl_Position = position;
