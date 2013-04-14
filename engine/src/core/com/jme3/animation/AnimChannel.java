@@ -263,7 +263,6 @@ public final class AnimChannel {
         time = 0;
         speed = 1f;
         loopMode = LoopMode.Loop;
-        System.out.println("Setting notified false");
         notified = false;
     }
 
