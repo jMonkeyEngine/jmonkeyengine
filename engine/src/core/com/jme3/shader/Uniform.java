@@ -309,7 +309,7 @@ public class Uniform extends ShaderVariable {
             return;
 
         FloatBuffer fb = (FloatBuffer) value;
-        if (fb == null || fb.capacity() < length) {
+        if (fb == null || fb.capacity() < length * 4) {
             value = BufferUtils.createFloatBuffer(length * 4);
         }
 
