@@ -35,7 +35,7 @@
     </target>
 
     <target description="create mobile/libs directory and copy project libraries" name="-copy-project-libs">
-        <copy todir="mobile/libs" flatten="true" verbose="true" preservelastmodified="true">
+        <copy todir="mobile/libs" flatten="true" verbose="false" preservelastmodified="true">
             <path>
                 <pathelement path="${run.classpath.without.build.classes.dir}"/>
             </path>
