@@ -1260,7 +1260,7 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
         store.x = m00 * vx + m10 * vy + m20 * vz + m30 * vw;
         store.y = m01 * vx + m11 * vy + m21 * vz + m31 * vw;
         store.z = m02 * vx + m12 * vy + m22 * vz + m32 * vw;
-        store.z = m03 * vx + m13 * vy + m23 * vz + m33 * vw;
+        store.w = m03 * vx + m13 * vy + m23 * vz + m33 * vw;
 
         return store;
     }
