@@ -120,6 +120,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
                 } catch (java.lang.IllegalArgumentException e) {
                     Logger.getLogger(SkeletonControl.class.getName()).log(Level.INFO, "{0} material doesn't support Hardware Skinning reverting to software", new String[]{m.getName()});
                     setUseHwSkinning(false);
+                    return;
                 }
             } else {
                 if (m.getParam("NumberOfBones") != null) {
@@ -132,8 +133,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
             if (isMeshAnimated(mesh)) {
                 mesh.prepareForAnim(!useHwSkinning); // prepare for software animation
             }
-        }
-        if (useHwSkinning) {
         }
     }
 
