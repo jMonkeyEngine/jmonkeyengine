@@ -170,7 +170,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         if (screenFullScreen) {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         } else {
             if (!screenShowTitle) {
                 requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -183,7 +183,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         if (data != null) {
             logger.log(Level.FINE, "Using Retained App");
             this.app = data.app;
-
         } else {
             // Discover the screen reolution
             //TODO try to find a better way to get a hand on the resolution
@@ -212,8 +211,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
                 app.setSettings(settings);
                 app.start();
-
-
             } catch (Exception ex) {
                 handleError("Class " + appClass + " init failed", ex);
                 setContentView(new TextView(this));
@@ -225,7 +222,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         // AndroidHarness wraps the app as a SystemListener.
         ctx.setSystemListener(this);
         layoutDisplay();
-
     }
 
     @Override
@@ -235,7 +231,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         if (app != null) {
             app.restart();
         }
-
     }
 
     @Override
@@ -251,7 +246,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         if (view != null) {
             view.onResume();
         }
-
         if (app != null) {
             //resume the audio
             AudioRenderer result = app.getAudioRenderer();
@@ -310,7 +304,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             }
         }
         isGLThreadPaused = true;
-
     }
 
     @Override
@@ -330,6 +323,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 app.stop(!isGLThreadPaused);
             }
         }
+        setContentView(new TextView(this));
         JmeAndroidSystem.setActivity(null);
         ctx = null;
         app = null;
