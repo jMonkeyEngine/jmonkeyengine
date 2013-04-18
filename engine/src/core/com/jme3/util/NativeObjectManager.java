@@ -31,11 +31,11 @@
  */
 package com.jme3.util;
 
-import com.jme3.renderer.Renderer;
+import com.jme3.scene.VertexBuffer;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,8 +66,8 @@ public class NativeObjectManager {
     /**
      * List of currently active GLObjects.
      */
-    private ArrayList<NativeObjectRef> refList
-            = new ArrayList<NativeObjectRef>();
+    private HashSet<NativeObjectRef> refList
+            = new HashSet<NativeObjectRef>();
 
     private class NativeObjectRef extends PhantomReference<Object>{
         
