@@ -127,6 +127,10 @@ MaterialDef Phong Lighting {
 
         Float PCFEdge
         Float ShadowMapSize
+
+        // For hardware skinning
+        Int NumberOfBones
+        Matrix4Array BoneMatrices
     }
 
     Technique {
@@ -169,7 +173,9 @@ MaterialDef Phong Lighting {
             SEPARATE_TEXCOORD : SeparateTexCoord
 
             USE_REFLECTION : EnvMap
-            SPHERE_MAP : SphereMap            
+            SPHERE_MAP : SphereMap  
+
+            NUM_BONES : NumberOfBones
         }
     }
 
@@ -319,6 +325,8 @@ MaterialDef Phong Lighting {
             NEED_TEXCOORD1
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
+
+            NUM_BONES : NumberOfBones
         }
     }
 

@@ -1,6 +1,8 @@
 #define ATTENUATION
 //#define HQ_ATTENUATION
 
+#import "Common/ShaderLib/Skinning.glsllib"
+
 uniform mat4 g_WorldViewProjectionMatrix;
 uniform mat4 g_WorldViewMatrix;
 uniform mat3 g_NormalMatrix;
@@ -68,8 +70,8 @@ varying vec3 lightVec;
      * Output:
      * varying refVec
      */
-    void computeRef(){
-        vec3 worldPos = (g_WorldMatrix * vec4(inPosition,1.0)).xyz;
+    void computeRef(in vec4 modelSpacePos){
+        vec3 worldPos = (g_WorldMatrix * modelSpacePos).xyz;
 
         vec3 I = normalize( g_CameraPosition - worldPos  ).xyz;
         vec3 N = normalize( (g_WorldMatrix * vec4(inNormal, 0.0)).xyz );
@@ -131,15 +133,22 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec4 w
 #endif
 
 void main(){
-   vec4 pos = vec4(inPosition, 1.0);
-   gl_Position = g_WorldViewProjectionMatrix * pos;
+   vec4 modelSpacePos = vec4(inPosition, 1.0);
+   vec3 modelSpaceNorm = inNormal;
+   vec3 modelSpaceTan  = inTangent.xyz;
+
+   #ifdef NUM_BONES
+        Skinning_Compute(modelSpacePos, modelSpaceNorm, modelSpaceTan);
+   #endif
+
+   gl_Position = g_WorldViewProjectionMatrix * modelSpacePos;
    texCoord = inTexCoord;
    #ifdef SEPARATE_TEXCOORD
       texCoord2 = inTexCoord2;
    #endif
 
-   vec3 wvPosition = (g_WorldViewMatrix * pos).xyz;
-   vec3 wvNormal  = normalize(g_NormalMatrix * inNormal);
+   vec3 wvPosition = (g_WorldViewMatrix * modelSpacePos).xyz;
+   vec3 wvNormal  = normalize(g_NormalMatrix * modelSpaceNorm);
    vec3 viewDir = normalize(-wvPosition);
   
        //vec4 lightColor = g_LightColor[gl_InstanceID];
@@ -152,7 +161,7 @@ void main(){
    vec4 lightColor = g_LightColor;
 
    #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
-     vec3 wvTangent = normalize(g_NormalMatrix * inTangent.xyz);
+     vec3 wvTangent = normalize(g_NormalMatrix * modelSpaceTan);
      vec3 wvBinormal = cross(wvNormal, wvTangent);
 
      mat3 tbnMat = mat3(wvTangent, wvBinormal * -inTangent.w,wvNormal);
@@ -202,6 +211,6 @@ void main(){
     #endif
 
     #ifdef USE_REFLECTION
-        computeRef();
+        computeRef(modelSpacePos);
     #endif 
 }
