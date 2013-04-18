@@ -63,7 +63,7 @@ import java.util.logging.Logger;
 public class SkeletonControl extends AbstractControl implements Cloneable {
 
     /**
-     * The skeleton of the model
+     * The skeleton of the model.
      */
     private Skeleton skeleton;
     /**
@@ -75,16 +75,29 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
      * are visible in at least one camera.
      */
     private boolean wasMeshUpdated = false;
+    
     /**
-     * Flag to enable hardware/gpu skinning if available, disable for
-     * software/cpu skinning, enabled by default
+     * User wishes to use hardware skinning if available.
      */
-    private boolean useHwSkinning = false;
+    private transient boolean hwSkinningDesired = false;
+    
     /**
-     * Flag to check if we have to check the shader if it would work and on fail
-     * switch to sw skinning
+     * Hardware skinning is currently being used.
      */
-    private boolean triedHwSkinning = false;
+    private transient boolean hwSkinningEnabled = false;
+    
+    /**
+     * Hardware skinning was tested on this GPU, results
+     * are stored in {@link #hwSkinningSupported} variable.
+     */
+    private transient boolean hwSkinningTested = false;
+    
+    /**
+     * If hardware skinning was {@link #hwSkinningTested tested}, then
+     * this variable will be set to true if supported, and false if otherwise.
+     */
+    private transient boolean hwSkinningSupported = false;
+    
     /**
      * Bone offset matrices, recreated each frame
      */
@@ -100,46 +113,85 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     public SkeletonControl() {
     }
 
-    /**
-     * Hint to use hardware/software skinning mode. If gpu skinning fails or is
-     * disabledIf in hardware mode all or some models display the same animation
-     * cycle make sure your materials are not identical but clones
-     *
-     * @param useHwSkinning the useHwSkinning to set
-     *
-     */
-    public void setUseHwSkinning(boolean useHwSkinning) {
-        this.useHwSkinning = useHwSkinning;
-        this.triedHwSkinning = false;
-        //next full 10 bones (e.g. 30 on 24 bones )
-        int bones = ((skeleton.getBoneCount() / 10) + 1) * 10;
+    private void switchToHardware() {
+        // Next full 10 bones (e.g. 30 on 24 bones)
+        int numBones = ((skeleton.getBoneCount() / 10) + 1) * 10;
         for (Material m : materials) {
-            if (useHwSkinning) {
-                try {
-                    m.setInt("NumberOfBones", bones);
-                } catch (java.lang.IllegalArgumentException e) {
-                    Logger.getLogger(SkeletonControl.class.getName()).log(Level.INFO, "{0} material doesn't support Hardware Skinning reverting to software", new String[]{m.getName()});
-                    setUseHwSkinning(false);
-                    return;
-                }
-            } else {
-                if (m.getParam("NumberOfBones") != null) {
-                    m.clearParam("NumberOfBones");
-                }
-            }
+            m.setInt("NumberOfBones", numBones);
         }
-
         for (Mesh mesh : targets) {
             if (isMeshAnimated(mesh)) {
-                mesh.prepareForAnim(!useHwSkinning); // prepare for software animation
+                mesh.prepareForAnim(false);
             }
         }
     }
 
-    public boolean isUseHwSkinning() {
-        return useHwSkinning;
+    private void switchToSoftware() {
+        for (Material m : materials) {
+            if (m.getParam("NumberOfBones") != null) {
+                m.clearParam("NumberOfBones");
+            }
+        }
+        for (Mesh mesh : targets) {
+            if (isMeshAnimated(mesh)) {
+                mesh.prepareForAnim(true);
+            }
+        }
     }
 
+    private boolean testHardwareSupported(RenderManager rm) {
+        for (Material m : materials) {
+            // Some of the animated mesh(es) do not support hardware skinning,
+            // so it is not supported by the model.
+            if (m.getMaterialDef().getMaterialParam("NumberOfBones") == null) {
+                Logger.getLogger(SkeletonControl.class.getName()).log(Level.WARNING, 
+                        "Not using hardware skinning for {0}, " + 
+                        "because material {1} doesn''t support it.", 
+                        new Object[]{spatial, m.getMaterialDef().getName()});
+                
+                return false;
+            }
+        }
+
+        switchToHardware();
+        
+        try {
+            rm.preloadScene(spatial);
+            return true;
+        } catch (RendererException e) {
+            Logger.getLogger(SkeletonControl.class.getName()).log(Level.WARNING, "Could not enable HW skinning due to shader compile error:", e);
+            return false;
+        }
+    }
+
+    /**
+     * Specifies if hardware skinning is preferred. If it is preferred and
+     * supported by GPU, it shall be enabled, if its not preferred, or not
+     * supported by GPU, then it shall be disabled.
+     * 
+     * @see #isHardwareSkinningUsed() 
+     */
+    public void setHardwareSkinningPreferred(boolean preferred) {
+        hwSkinningDesired = preferred;
+    }
+    
+    /**
+     * @return True if hardware skinning is preferable to software skinning.
+     * Set to false by default.
+     * 
+     * @see #setHardwareSkinningPreferred(boolean) 
+     */
+    public boolean isHardwareSkinningPreferred() {
+        return hwSkinningDesired;
+    }
+    
+    /**
+     * @return True is hardware skinning is activated and is currently used, false otherwise.
+     */
+    public boolean isHardwareSkinningUsed() {
+        return hwSkinningEnabled;
+    }
+    
     /**
      * Creates a skeleton control. The list of targets will be acquired
      * automatically when the control is attached to a node.
@@ -168,7 +220,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
 
     private void findTargets(Node node, ArrayList<Mesh> targets, HashSet<Material> materials) {
         Mesh sharedMesh = null;
-
 
         for (Spatial child : node.getChildren()) {
             if (child instanceof Geometry) {
@@ -217,46 +268,65 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
             findTargets(node, meshes, mats);
             targets = meshes.toArray(new Mesh[meshes.size()]);
             materials = mats.toArray(new Material[mats.size()]);
-            //try hw skinning, will be reset to sw skinning if render call fails
-            setUseHwSkinning(true);
         } else {
             targets = null;
             materials = null;
         }
     }
 
+    private void controlRenderSoftware() {
+        resetToBind(); // reset morph meshes to bind pose
+
+        offsetMatrices = skeleton.computeSkinningMatrices();
+
+        for (int i = 0; i < targets.length; i++) {
+            // NOTE: This assumes that code higher up
+            // Already ensured those targets are animated
+            // otherwise a crash will happen in skin update
+            //if (isMeshAnimated(targets)) {
+            softwareSkinUpdate(targets[i], offsetMatrices);
+            //}
+        }
+    }
+
+    private void controlRenderHardware() {
+        offsetMatrices = skeleton.computeSkinningMatrices();
+        for (Material m : materials) {
+            m.setParam("BoneMatrices", VarType.Matrix4Array, offsetMatrices);
+        }
+    }
+
+    
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
         if (!wasMeshUpdated) {
-            if (useHwSkinning) {
-                //preload scene to check if shader won’t blow with too many bones
-                if (!triedHwSkinning) {
-                    triedHwSkinning = true;
-                    try {
-                        rm.preloadScene(this.spatial);
-                    } catch (RendererException e) {
-                        //revert back to sw skinning for this model
-                        setUseHwSkinning(false);
-                    }
-                }
-                offsetMatrices = skeleton.computeSkinningMatrices();
+            // Prevent illegal cases. These should never happen.
+            assert hwSkinningTested || (!hwSkinningTested && !hwSkinningSupported && !hwSkinningEnabled);
+            assert !hwSkinningEnabled || (hwSkinningEnabled && hwSkinningTested && hwSkinningSupported);
 
-                hardwareSkinUpdate();
+            if (hwSkinningDesired && !hwSkinningTested) {
+                hwSkinningTested = true;
+                hwSkinningSupported = testHardwareSupported(rm);
+
+                if (hwSkinningSupported) {
+                    hwSkinningEnabled = true;
+                    
+                    Logger.getLogger(SkeletonControl.class.getName()).log(Level.INFO, "Hardware skinning engaged for " + spatial);
+                } else {
+                    switchToSoftware();
+                }
+            } else if (hwSkinningDesired && hwSkinningSupported && !hwSkinningEnabled) {
+                switchToHardware();
+                hwSkinningEnabled = true;
+            } else if (!hwSkinningDesired && hwSkinningEnabled) {
+                switchToSoftware();
+                hwSkinningEnabled = false;
+            }
+
+            if (hwSkinningEnabled) {
+                controlRenderHardware();
             } else {
-                resetToBind(); // reset morph meshes to bind pose
-
-                offsetMatrices = skeleton.computeSkinningMatrices();
-
-                // if hardware skinning is supported, the matrices and weight buffer
-                // will be sent by the SkinningShaderLogic object assigned to the shader
-                for (int i = 0; i < targets.length; i++) {
-                    // NOTE: This assumes that code higher up
-                    // Already ensured those targets are animated
-                    // otherwise a crash will happen in skin update
-                    //if (isMeshAnimated(targets)) {
-                    softwareSkinUpdate(targets[i], offsetMatrices);
-                    //}
-                }
+                controlRenderSoftware();
             }
 
             wasMeshUpdated = true;
@@ -275,7 +345,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
                 Buffer bwBuff = mesh.getBuffer(Type.BoneWeight).getData();
                 Buffer biBuff = mesh.getBuffer(Type.BoneIndex).getData();
                 if (!biBuff.hasArray() || !bwBuff.hasArray()) {
-                    mesh.prepareForAnim(!useHwSkinning); // prepare for software animation
+                    mesh.prepareForAnim(true); // prepare for software animation
                 }
                 VertexBuffer bindPos = mesh.getBuffer(Type.BindPosePosition);
                 VertexBuffer bindNorm = mesh.getBuffer(Type.BindPoseNormal);
@@ -407,18 +477,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         }
 
 
-    }
-
-    /**
-     * Update the mesh according to the given transformation matrices
-     *
-     * @param mesh then mesh
-     * @param offsetMatrices the transformation matrices to apply
-     */
-    private void hardwareSkinUpdate() {
-        for (Material m : materials) {
-            m.setParam("BoneMatrices", VarType.Matrix4Array, offsetMatrices);
-        }
     }
 
     /**
