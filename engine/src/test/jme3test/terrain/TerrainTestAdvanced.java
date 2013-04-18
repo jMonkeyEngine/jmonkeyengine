@@ -151,6 +151,12 @@ public class TerrainTestAdvanced extends SimpleApplication {
         matTerrain.setTexture("NormalMap_2", normalMap2);
         matTerrain.setTexture("NormalMap_4", normalMap2);
 
+        
+        // WIREFRAME material (used to debug the terrain, only useful for this test case)
+        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        matWire.getAdditionalRenderState().setWireframe(true);
+        matWire.setColor("Color", ColorRGBA.Green);
+        
         createSky();
 
         // CREATE HEIGHTMAP

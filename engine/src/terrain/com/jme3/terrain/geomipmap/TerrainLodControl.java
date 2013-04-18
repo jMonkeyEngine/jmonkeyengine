@@ -92,6 +92,7 @@ public class TerrainLodControl extends AbstractControl {
     
     protected ExecutorService executor;
     protected Future<HashMap<String, UpdatedTerrainPatch>> indexer;
+    private boolean forceUpdate = true;
     
     public TerrainLodControl() {
     }
@@ -175,10 +176,11 @@ public class TerrainLodControl extends AbstractControl {
             lodOffCount = 0;
         
         if (lastCameraLocations != null) {
-            if (lastCameraLocationsTheSame(locations) && !lodCalculator.isLodOff())
+            if (!forceUpdate && lastCameraLocationsTheSame(locations) && !lodCalculator.isLodOff())
                 return; // don't update if in same spot
             else
                 lastCameraLocations = cloneVectorList(locations);
+            forceUpdate = false;
         }
         else {
             lastCameraLocations = cloneVectorList(locations);
@@ -190,10 +192,6 @@ public class TerrainLodControl extends AbstractControl {
         }
         setLodCalcRunning(true);
 
-        //if (getParent() instanceof TerrainQuad) {
-        //    return; // we just want the root quad to perform this.
-        //}
-
         if (executor == null)
             executor = createExecutorService();
         
@@ -201,6 +199,14 @@ public class TerrainLodControl extends AbstractControl {
         
         UpdateLOD updateLodThread = getLodThread(locations, lodCalculator);
         indexer = executor.submit(updateLodThread);
+    }
+
+    /**
+     * Force the LOD to update instantly, does not wait for the camera to move.
+     * It will reset once it has updated.
+     */
+    public void forceUpdate() {
+        this.forceUpdate = true;
     }
     
     protected void prepareTerrain() {
@@ -237,23 +243,7 @@ public class TerrainLodControl extends AbstractControl {
                 }
             }
         }
-        /*synchronized (updatePatchesLock) {
-            
-            if (updatedPatches == null || updatedPatches.isEmpty())
-                return;
-
-            // do the actual geometry update here
-            for (UpdatedTerrainPatch utp : updatedPatches.values()) {
-                utp.updateAll();
-            }
-
-            updatedPatches = null;
-        }*/
     }
-    
-    //public boolean hasPatchesToUpdate() {
-    //    return updatedPatches != null && !updatedPatches.isEmpty();
-    //}
     
     private boolean lastCameraLocationsTheSame(List<Vector3f> locations) {
         boolean theSame = true;
