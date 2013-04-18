@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/Skinning.glsllib"
+
 uniform mat4 g_WorldViewProjectionMatrix;
 attribute vec3 inPosition;
 
@@ -27,5 +29,9 @@ void main(){
         vertColor = inColor;
     #endif
 
-    gl_Position = g_WorldViewProjectionMatrix * vec4(inPosition, 1.0);
+    vec4 modelSpacePos = vec4(inPosition, 1.0);
+    #ifdef NUM_BONES
+        Skinning_Compute(modelSpacePos);
+    #endif
+    gl_Position = g_WorldViewProjectionMatrix * modelSpacePos;
 }

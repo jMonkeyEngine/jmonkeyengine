@@ -11,6 +11,10 @@ MaterialDef Unshaded {
         Texture2D GlowMap
         // The glow color of the object
         Color GlowColor
+
+        // For hardware skinning
+        Int NumberOfBones
+        Matrix4Array BoneMatrices
     }
 
     Technique {
@@ -27,6 +31,7 @@ MaterialDef Unshaded {
             HAS_LIGHTMAP : LightMap
             HAS_VERTEXCOLOR : VertexColor
             HAS_COLOR : Color
+            NUM_BONES : NumberOfBones
         }
     }
 
@@ -62,6 +67,7 @@ MaterialDef Unshaded {
             NEED_TEXCOORD1
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
+            NUM_BONES : NumberOfBones
         }
     }
 }
