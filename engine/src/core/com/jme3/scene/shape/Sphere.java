@@ -383,10 +383,16 @@ public class Sphere extends Mesh {
      * @param radius the radius of the sphere.
      */
     public void updateGeometry(int zSamples, int radialSamples, float radius) {
+        if (zSamples < 3) {
+            throw new IllegalArgumentException("zSamples cannot be smaller than 3");
+        }
         updateGeometry(zSamples, radialSamples, radius, false, false);
     }
 
     public void updateGeometry(int zSamples, int radialSamples, float radius, boolean useEvenSlices, boolean interior) {
+        if (zSamples < 3) {
+            throw new IllegalArgumentException("zSamples cannot be smaller than 3");
+        }
         this.zSamples = zSamples;
         this.radialSamples = radialSamples;
         this.radius = radius;

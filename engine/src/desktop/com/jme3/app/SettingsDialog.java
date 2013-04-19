@@ -59,7 +59,7 @@ import javax.swing.*;
  * @author Eric Woroshow
  * @author Joshua Slack - reworked for proper use of GL commands.
  */
-public final class SettingsDialog extends JDialog {
+public final class SettingsDialog extends JFrame {
 
     public static interface SelectionListener {
 
@@ -141,7 +141,7 @@ public final class SettingsDialog extends JDialog {
         this.source = source;
         this.imageFile = imageFile;
 
-        setModal(true);
+        //setModal(true);
         setAlwaysOnTop(true);
         setResizable(false);
 
