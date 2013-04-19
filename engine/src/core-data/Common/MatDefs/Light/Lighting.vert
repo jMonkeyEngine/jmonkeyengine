@@ -135,10 +135,17 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec4 w
 void main(){
    vec4 modelSpacePos = vec4(inPosition, 1.0);
    vec3 modelSpaceNorm = inNormal;
-   vec3 modelSpaceTan  = inTangent.xyz;
+   
+   #ifndef VERTEX_LIGHTING
+        vec3 modelSpaceTan  = inTangent.xyz;
+   #endif
 
    #ifdef NUM_BONES
+        #ifndef VERTEX_LIGHTING
         Skinning_Compute(modelSpacePos, modelSpaceNorm, modelSpaceTan);
+        #else
+        Skinning_Compute(modelSpacePos, modelSpaceNorm);
+        #endif
    #endif
 
    gl_Position = g_WorldViewProjectionMatrix * modelSpacePos;
