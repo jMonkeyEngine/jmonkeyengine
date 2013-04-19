@@ -31,6 +31,7 @@
  */
 package com.jme3.texture;
 
+import com.jme3.texture.Image.Format;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,26 +59,27 @@ public class TextureArray extends Texture {
     }
 
     /**
-     * Construct a TextureArray from the given list of images
-     * warning, this feature is only supported on opengl 3.0 version.
+     * Construct a TextureArray from the given list of images.
      * To check if a hardware supports TextureArray check : 
      * renderManager.getRenderer().getCaps().contains(Caps.TextureArray)
      * @param images 
      */
     public TextureArray(List<Image> images) {
-        super();        
+        super();
+        
         int width = images.get(0).getWidth();
         int height = images.get(0).getHeight();
-        Image arrayImage = new Image(images.get(0).getFormat(), width, height,
-                null);
+        Format format = images.get(0).getFormat();
+        Image arrayImage = new Image(format, width, height, null);
 
         for (Image img : images) {
             if (img.getHeight() != height || img.getWidth() != width) {
-                Logger.getLogger(TextureArray.class.getName()).log(
-                        Level.WARNING,
-                        "all images must have the same width/height");
-                continue;
+                throw new IllegalArgumentException("Images in texture array must have same dimensions");
             }
+            if (img.getFormat() != format) {
+                throw new IllegalArgumentException("Images in texture array must have same format");
+            }
+            
             arrayImage.addData(img.getData(0));
         }
         setImage(arrayImage);
