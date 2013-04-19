@@ -600,7 +600,12 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
     private void startSubmeshName(String indexStr, String nameStr) {
         int index = Integer.parseInt(indexStr);
-        geoms.get(index).setName(nameStr);
+        if (geoms.size() >= index) {
+            logger.log(Level.WARNING, "Submesh name index is larger than number of geometries: {0} >= {1}",
+                    new Object[]{index, geoms.size()});
+        } else {
+            geoms.get(index).setName(nameStr);
+        }
     }
 
     @Override
