@@ -62,6 +62,7 @@ public class TestAmbient extends SimpleApplication {
     waves.setRefDistance(5);
 
     nature = new AudioNode(assetManager, "Sound/Environment/Nature.ogg", true);
+    nature.setPositional(false);
     nature.setVolume(3);
     
     waves.playInstance();
