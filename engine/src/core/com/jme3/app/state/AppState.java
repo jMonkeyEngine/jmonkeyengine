@@ -70,8 +70,14 @@ import com.jme3.renderer.RenderManager;
 public interface AppState {
 
     /**
-     * Called to initialize the <code>AppState</code>. This method is called 
-     * in the next render pass after the <code>AppState</code> is attached. 
+     * Called by {@link AppStateManager} when transitioning this {@code AppState}
+     * from <i>initializing</i> to <i>running</i>.<br>
+     * This will happen on the next iteration through the update loop after
+     * {@link AppStateManager#attach()} was called.
+     * <p>
+     * <code>AppStateManager</code> will call this only from the update loop
+     * inside the rendering thread. This means is it safe to modify the scene 
+     * graph from this method.
      *
      * @param stateManager The state manager
      * @param app The application
@@ -88,6 +94,9 @@ public interface AppState {
      * Enable or disable the functionality of the <code>AppState</code>.
      * The effect of this call depends on implementation. An 
      * <code>AppState</code> starts as being enabled by default.
+     * A disabled <code>AppState</code>s does not get calls to
+     * {@link #update(float)}, {@link #render(RenderManager)}, or
+     * {@link #postRender()} from its {@link AppStateManager}.
      * 
      * @param active activate the AppState or not.
      */
@@ -101,19 +110,29 @@ public interface AppState {
     public boolean isEnabled();
 
     /**
-     * Called when the state was attached. Most implementations should do little
-     * or nothing in this method. In particular any scene graph changes need to
-     * be made in <code>initialize()</code>.
+     * Called by {@link AppStateManager#attach()} when transitioning this
+     * <code>AppState</code> from <i>detached</i> to <i>initializing</i>.
+     * <p>
+     * There is no assumption about the thread from which this function is
+     * called, therefore it is <b>unsafe</b> to modify the scene graph
+     * from this method. Please use 
+     * {@link #initialize(com.jme3.app.state.AppStateManager, com.jme3.app.Application) }
+     * instead.
      *
      * @param stateManager State manager to which the state was attached to.
      */
     public void stateAttached(AppStateManager stateManager);
 
    /**
-    * Called when the state was detached. Most implementations should do little
-     * or nothing in this method. In particular any scene graph changes need to
-     * be made in <code>cleanup()</code>.
-    *
+    * Called by {@link AppStateManager#detach()} when transitioning this
+    * <code>AppState</code> from <i>running</i> to <i>terminating</i>.
+    * <p>
+    * There is no assumption about the thread from which this function is
+    * called, therefore it is <b>unsafe</b> to modify the scene graph
+    * from this method. Please use 
+    * {@link #cleanup() }
+    * instead.
+    * 
     * @param stateManager The state manager from which the state was detached from.
     */
     public void stateDetached(AppStateManager stateManager);
@@ -122,29 +141,31 @@ public interface AppState {
      * Called to update the <code>AppState</code>. This method will be called 
      * every render pass if the <code>AppState</code> is both attached and enabled.
      *
-     * @param tpf Time per frame.
+     * @param tpf Time since the last call to update(), in seconds.
      */
     public void update(float tpf);
 
     /**
-     * Render the state.
+     * Render the state. This method will be called 
+     * every render pass if the <code>AppState</code> is both attached and enabled.
      *
      * @param rm RenderManager
      */
     public void render(RenderManager rm);
 
     /**
-     * Called after all rendering commands are flushed.
+     * Called after all rendering commands are flushed. This method will be called 
+     * every render pass if the <code>AppState</code> is both attached and enabled.
      */
     public void postRender();
 
     /**
-     * Called to clean up the <code>AppState</code> after it has been removed. This
+     * Called by {@link AppStateManager} when transitioning this
+     * <code>AppState</code> from <i>terminating</i> to <i>detached</i>. This
      * method is called the following render pass after the <code>AppState</code> has 
      * been detached and is always called once and only once for each time
      * <code>initialize()</code> is called. Either when the <code>AppState</code>
      * is detached or when the application terminates (if it terminates normally).
-     * 
      */
     public void cleanup();
 
