@@ -51,7 +51,7 @@ import java.util.List;
  *                       the state was attached.
  * <li>initialize() : called ONCE on the render thread at the beginning of the next
  *                    AppStateManager.update().
- * <li>stateDetached() : called when the state is attached on the thread on which
+ * <li>stateDetached() : called when the state is detached on the thread on which
  *                       the state was detached.  This is not necessarily on the
  *                       render thread and it is not necessarily safe to modify
  *                       the scene graph, etc..
