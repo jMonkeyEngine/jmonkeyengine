@@ -319,7 +319,7 @@ public class LwjglRenderer implements Renderer {
             }
         }
 
-        if (ctxCaps.GL_EXT_texture_array) {
+        if (ctxCaps.GL_EXT_texture_array || ctxCaps.OpenGL30) {
             caps.add(Caps.TextureArray);
         }
 
@@ -1753,6 +1753,7 @@ public class LwjglRenderer implements Renderer {
         if (context.pointSprite) {
             return; // Attempt to fix glTexParameter crash for some ATI GPUs
         }
+        
         // repeat modes
         switch (tex.getType()) {
             case ThreeDimensional:
@@ -1886,9 +1887,15 @@ public class LwjglRenderer implements Renderer {
                 TextureUtil.uploadTexture(img, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0);
             }
         } else if (target == EXTTextureArray.GL_TEXTURE_2D_ARRAY_EXT) {
+            if (!caps.contains(Caps.TextureArray)) {
+                throw new RendererException("Texture arrays not supported by graphics hardware");
+            }
+            
             List<ByteBuffer> data = img.getData();
+            
             // -1 index specifies prepare data for 2D Array
             TextureUtil.uploadTexture(img, target, -1, 0);
+            
             for (int i = 0; i < data.size(); i++) {
                 // upload each slice of 2D array in turn
                 // this time with the appropriate index
