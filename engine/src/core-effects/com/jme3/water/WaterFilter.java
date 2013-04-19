@@ -853,10 +853,13 @@ public class WaterFilter extends Filter {
      */
     public void setReflectionMapSize(int reflectionMapSize) {
         this.reflectionMapSize = reflectionMapSize;
-        reflectionPass.init(renderManager.getRenderer(), reflectionMapSize, reflectionMapSize, Format.RGBA8, Format.Depth);
-        reflectionCam.resize(reflectionMapSize, reflectionMapSize, true);
-        reflectionProcessor.setReflectionBuffer(reflectionPass.getRenderFrameBuffer());
-        material.setTexture("ReflectionMap", reflectionPass.getRenderedTexture());
+        //if reflection pass is already initialized we must update it
+        if(reflectionPass !=  null){
+            reflectionPass.init(renderManager.getRenderer(), reflectionMapSize, reflectionMapSize, Format.RGBA8, Format.Depth);
+            reflectionCam.resize(reflectionMapSize, reflectionMapSize, true);
+            reflectionProcessor.setReflectionBuffer(reflectionPass.getRenderFrameBuffer());
+            material.setTexture("ReflectionMap", reflectionPass.getRenderedTexture());
+        }
 
     }
 
