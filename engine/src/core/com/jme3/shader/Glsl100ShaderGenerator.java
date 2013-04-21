@@ -49,7 +49,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     /**
      * the indentation characters 1à tabulation characters
      */
-    private final static String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t";
+    private final static String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 
     /**
      * creates a Glsl100ShaderGenerator
@@ -333,6 +333,11 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
             source.append("_");
         }
         source.append(var.getName());
+        if (var.getMultiplicity() != null) {
+            source.append("[");
+            source.append(var.getMultiplicity().toUpperCase());
+            source.append("]");
+        }
         if (value != null) {
             source.append(" = ");
             source.append(value);

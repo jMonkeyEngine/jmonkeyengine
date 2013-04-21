@@ -50,6 +50,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     private String nameSpace;
     private String condition;
     private boolean shaderOutput = false;
+    private String multiplicity;
 
     /**
      * creates a ShaderNodeVariable
@@ -60,6 +61,23 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     public ShaderNodeVariable(String type, String name) {
         this.name = name;
         this.type = type;
+    }
+    
+    
+    /**
+     * creates a ShaderNodeVariable
+     *
+     * @param type the glsl type of the variable
+     * @param nameSpace the nameSpace (can be the name of the shaderNode or
+     * Globel,Attr,MatParam,WorldParam)
+     * @param name the name of the variable
+     * @param multiplicity the number of element if this variable is an array. Can be an Int of a declared material parameter
+     */
+    public ShaderNodeVariable(String type, String nameSpace, String name, String multiplicity) {
+        this.name = name;
+        this.nameSpace = nameSpace;
+        this.type = type;
+        this.multiplicity = multiplicity;
     }
 
     /**
@@ -170,6 +188,7 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         oc.write(nameSpace, "nameSpace", "");
         oc.write(condition, "condition", null);
         oc.write(shaderOutput, "shaderOutput", false);
+        oc.write(multiplicity, "multiplicity", null);
 
     }
 
@@ -184,8 +203,9 @@ public class ShaderNodeVariable implements Savable, Cloneable {
         name = ic.readString("name", "");
         type = ic.readString("type", "");
         nameSpace = ic.readString("nameSpace", "");
-        condition = ic.readString("condition", null);
+        condition = ic.readString("condition", null);        
         shaderOutput = ic.readBoolean("shaderOutput", false);
+        multiplicity = ic.readString("multiplicity", null);
     }
 
     /**
@@ -231,4 +251,23 @@ public class ShaderNodeVariable implements Savable, Cloneable {
     public void setShaderOutput(boolean shaderOutput) {
         this.shaderOutput = shaderOutput;
     }
+
+    /**
+     * 
+     * @return the number of elements if this variable is an array
+     */
+    public String getMultiplicity() {
+        return multiplicity;
+    }
+
+    /**
+     * sets the number of elements of this variable making it an array
+     * this value can be a number of can be a define
+     * @param multiplicity 
+     */
+    public void setMultiplicity(String multiplicity) {
+        this.multiplicity = multiplicity;
+    }
+    
+    
 }

@@ -71,6 +71,33 @@ public class ShaderUtils {
 
         return false;
     }
+    
+     /**
+     * Check if a mapping is valid by checking the multiplicity of both of
+     * the variables if they are arrays
+     *
+     * @param mapping the mapping
+     * @return true if this mapping is valid
+     */
+    public static boolean multiplicityMatch(VariableMapping mapping) {
+        String leftMult = mapping.getLeftVariable().getMultiplicity();
+        String rightMult = mapping.getRightVariable().getMultiplicity();
+        
+        if(leftMult == null){
+            if(rightMult != null){
+                return false;
+            }
+        }else{
+            if(rightMult == null){
+                return false;
+            }else{
+                if(!leftMult.equalsIgnoreCase(rightMult)){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
     /**
      * return the cardinality of a type and a swizzle example : vec4 cardinality

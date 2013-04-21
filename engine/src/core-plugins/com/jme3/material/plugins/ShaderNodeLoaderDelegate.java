@@ -272,12 +272,23 @@ public class ShaderNodeLoaderDelegate {
      * @throws IOException
      */
     protected ShaderNodeVariable readVariable(Statement statement) throws IOException {
-        String[] splitVar = statement.getLine().trim().split("\\s");
-        if (varNames.contains(splitVar[1] + ";")) {
-            throw new MatParseException("Duplicate variable name " + splitVar[1], statement);
+        String line = statement.getLine().trim().replaceAll("\\s*\\[", "[");
+        String[] splitVar = line.split("\\s");
+        String varName = splitVar[1];
+        String varType = splitVar[0];
+        String multiplicity = null;
+
+        if (varName.contains("[")) {
+            //we have an array
+            String[] arr = splitVar[1].split("\\[");
+            varName = arr[0].trim();
+            multiplicity = arr[1].replaceAll("\\]", "").trim();          
         }
-        varNames += splitVar[1] + ";";
-        return new ShaderNodeVariable(splitVar[0], splitVar[1]);
+        if (varNames.contains(varName + ";")) {
+            throw new MatParseException("Duplicate variable name " + varName, statement);
+        }
+        varNames += varName + ";";
+        return new ShaderNodeVariable(varType, "", varName, multiplicity);
     }
 
     /**
@@ -437,6 +448,7 @@ public class ShaderNodeLoaderDelegate {
         for (ShaderNodeVariable shaderNodeVariable : list) {
             if (shaderNodeVariable.getName().equals(var.getName())) {
                 var.setType(shaderNodeVariable.getType());
+                var.setMultiplicity(shaderNodeVariable.getMultiplicity());
                 var.setNameSpace(shaderNode.getName());
                 return true;
             }
@@ -545,18 +557,37 @@ public class ShaderNodeLoaderDelegate {
      * @param map the map of uniforms to search into
      * @return true if the param was added to the map
      */
-    public boolean updateRightFromUniforms(MatParam param, VariableMapping mapping, Map<String, DeclaredVariable> map) {
+    public boolean updateRightFromUniforms(MatParam param, VariableMapping mapping, Map<String, DeclaredVariable> map, Statement statement) throws MatParseException {
         ShaderNodeVariable right = mapping.getRightVariable();
         DeclaredVariable dv = map.get(param.getPrefixedName());
         if (dv == null) {
             right.setType(param.getVarType().getGlslType());
-            right.setName(param.getPrefixedName());
+            right.setName(param.getPrefixedName());     
+            if(mapping.getLeftVariable().getMultiplicity() != null){
+                if(!param.getVarType().name().endsWith("Array")){
+                    throw new MatParseException(param.getName() + " is not of Array type", statement);
+                }
+                String multiplicity = mapping.getLeftVariable().getMultiplicity();
+                try {
+                    Integer.parseInt(multiplicity);
+                } catch (NumberFormatException nfe) {
+                    //multiplicity is not an int attempting to find for a material parameter.
+                    MatParam mp = findMatParam(multiplicity);
+                    if (mp != null) {
+                        addDefine(multiplicity);
+                        multiplicity = multiplicity.toUpperCase();
+                    } else {
+                        throw new MatParseException("Wrong multiplicity for variable" + mapping.getLeftVariable().getName() + ". " + multiplicity + " should be an int or a declared material parameter.", statement);
+                    }
+                }
+                 right.setMultiplicity(multiplicity);       
+            }       
             dv = new DeclaredVariable(right);
             map.put(right.getName(), dv);
-            dv.addNode(shaderNode);
+            dv.addNode(shaderNode);  
             mapping.setRightVariable(right);
             return true;
-        }
+        }      
         dv.addNode(shaderNode);
         mapping.setRightVariable(dv.var);
         return false;
@@ -669,12 +700,11 @@ public class ShaderNodeLoaderDelegate {
                 throw new MatParseException("Could not find a Material Parameter named " + right.getName(), statement1);
             }
             if (shaderNode.getDefinition().getType() == Shader.ShaderType.Vertex) {
-                if (updateRightFromUniforms(param, mapping, vertexDeclaredUniforms)) {
-                    //                 updateCondition(mapping.getRightVariable(), mapping);
+                if (updateRightFromUniforms(param, mapping, vertexDeclaredUniforms, statement1)) {                  
                     storeVertexUniform(mapping.getRightVariable());
                 }
             } else {
-                if (updateRightFromUniforms(param, mapping, fragmentDeclaredUniforms)) {
+                if (updateRightFromUniforms(param, mapping, fragmentDeclaredUniforms, statement1)) {
                     if (mapping.getRightVariable().getType().contains("|")) {
                         String type = fixSamplerType(left.getType(), mapping.getRightVariable().getType());
                         if (type != null) {
@@ -682,8 +712,7 @@ public class ShaderNodeLoaderDelegate {
                         } else {
                             throw new MatParseException(param.getVarType().toString() + " can only be matched to one of " + param.getVarType().getGlslType().replaceAll("\\|", ",") + " found " + left.getType(), statement1);
                         }
-                    }
-                    //                 updateCondition(mapping.getRightVariable(), mapping);
+                    }                
                     storeFragmentUniform(mapping.getRightVariable());
                 }
             }
@@ -694,13 +723,11 @@ public class ShaderNodeLoaderDelegate {
                 throw new MatParseException("Could not find a World Parameter named " + right.getName(), statement1);
             }
             if (shaderNode.getDefinition().getType() == Shader.ShaderType.Vertex) {
-                if (updateRightFromUniforms(worldParam, mapping, vertexDeclaredUniforms)) {
-                    //                  updateCondition(mapping.getRightVariable(), mapping);
+                if (updateRightFromUniforms(worldParam, mapping, vertexDeclaredUniforms)) {                    
                     storeVertexUniform(mapping.getRightVariable());
                 }
             } else {
-                if (updateRightFromUniforms(worldParam, mapping, fragmentDeclaredUniforms)) {
-                    //                 updateCondition(mapping.getRightVariable(), mapping);
+                if (updateRightFromUniforms(worldParam, mapping, fragmentDeclaredUniforms)) {                    
                     storeFragmentUniform(mapping.getRightVariable());
                 }
             }
@@ -716,8 +743,7 @@ public class ShaderNodeLoaderDelegate {
             }
             right.setNameSpace(node.getName());
             right.setType(var.getType());
-            mapping.setRightVariable(right);
-            //          updateCondition(mapping.getRightVariable(), mapping);
+            mapping.setRightVariable(right);            
             storeVaryings(node, mapping.getRightVariable());
 
         }
@@ -751,7 +777,6 @@ public class ShaderNodeLoaderDelegate {
 
         if (left.getNameSpace().equals("Global")) {
             left.setType("vec4");//Globals are all vec4 for now (maybe forever...)
-            //      updateCondition(left, mapping);
             storeGlobal(left, statement1);
         } else {
             throw new MatParseException("Only Global nameSpace is allowed for outputMapping, got" + left.getNameSpace(), statement1);
@@ -1025,6 +1050,11 @@ public class ShaderNodeLoaderDelegate {
             String ls = mapping.getLeftSwizzling().length() == 0 ? "" : "." + mapping.getLeftSwizzling();
             String rs = mapping.getRightSwizzling().length() == 0 ? "" : "." + mapping.getRightSwizzling();
             throw new MatParseException("Type mismatch, cannot convert" + mapping.getLeftVariable().getType() + ls + " to " + mapping.getRightVariable().getType() + rs, statement1);
+        }
+        if (!ShaderUtils.multiplicityMatch(mapping)) {
+            String type1 = mapping.getLeftVariable().getType() + "[" + mapping.getLeftVariable().getMultiplicity() + "]";
+            String type2 = mapping.getRightVariable().getType() + "[" + mapping.getRightVariable().getMultiplicity() + "]";
+            throw new MatParseException("Type mismatch, cannot convert" + type1 + " to " + type2, statement1);
         }
     }
 
