@@ -45,6 +45,7 @@ public class ShaderKey extends AssetKey<Shader> {
     protected String vertLanguage;
     protected String fragLanguage;
     protected int cachedHashedCode = 0;
+    protected boolean usesShaderNodes = false;
 
     public ShaderKey(){
     }
@@ -56,7 +57,7 @@ public class ShaderKey extends AssetKey<Shader> {
         this.vertLanguage = vertLanguage;
         this.fragLanguage = fragLanguage;
     }
-
+    
     @Override
     public ShaderKey clone() {
         ShaderKey clone = (ShaderKey) super.clone();
@@ -123,6 +124,14 @@ public class ShaderKey extends AssetKey<Shader> {
     
     public String getFragmentShaderLanguage() {
         return fragLanguage;
+    }
+
+    public boolean isUsesShaderNodes() {
+        return usesShaderNodes;
+    }
+
+    public void setUsesShaderNodes(boolean usesShaderNodes) {
+        this.usesShaderNodes = usesShaderNodes;
     }
 
     @Override

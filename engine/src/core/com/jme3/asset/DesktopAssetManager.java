@@ -398,16 +398,23 @@ public class DesktopAssetManager implements AssetManager {
         AssetCache cache = handler.getCache(SimpleAssetCache.class);
         Shader shader = (Shader) cache.getFromCache(key);
         if (shader == null){
-            String vertName = key.getVertName();
-            String fragName = key.getFragName();
+            if (key.isUsesShaderNodes()) {
+                if(shaderGenerator == null){
+                    throw new UnsupportedOperationException("ShaderGenerator was not initialized, make sure assetManager.getGenerator(caps) has been called");
+                }
+                shader = shaderGenerator.generateShader();
+            } else {
+                String vertName = key.getVertName();
+                String fragName = key.getFragName();
 
-            String vertSource = (String) loadAsset(new AssetKey(vertName));
-            String fragSource = (String) loadAsset(new AssetKey(fragName));
+                String vertSource = (String) loadAsset(new AssetKey(vertName));
+                String fragSource = (String) loadAsset(new AssetKey(fragName));
 
-            shader = new Shader();
-            shader.initialize();
-            shader.addSource(Shader.ShaderType.Vertex,   vertName, vertSource, key.getDefines().getCompiled(), key.getVertexShaderLanguage());
-            shader.addSource(Shader.ShaderType.Fragment, fragName, fragSource, key.getDefines().getCompiled(), key.getFragmentShaderLanguage());
+                shader = new Shader();
+                shader.initialize();
+                shader.addSource(Shader.ShaderType.Vertex, vertName, vertSource, key.getDefines().getCompiled(), key.getVertexShaderLanguage());
+                shader.addSource(Shader.ShaderType.Fragment, fragName, fragSource, key.getDefines().getCompiled(), key.getFragmentShaderLanguage());
+            }
 
             cache.addToCache(key, shader);
         }

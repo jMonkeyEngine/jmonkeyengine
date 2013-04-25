@@ -448,6 +448,8 @@ public class J3MLoader implements AssetLoader {
         
         if(isUseNodes){
             nodesLoaderDelegate.computeConditions();
+            //used for caching later, the shader here is not a file.
+            technique.setShaderFile(technique.hashCode() + "", technique.hashCode() + "", "GLSL100", "GLSL100");
         }
 
         if (vertName != null && fragName != null){

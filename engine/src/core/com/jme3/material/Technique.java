@@ -204,17 +204,18 @@ public class Technique /* implements Savable */ {
 
     private void loadShader(AssetManager manager,EnumSet<Caps> rendererCaps) {
         
-        if (getDef().isUsingShaderNodes()) {
-            shader = manager.getShaderGenerator(rendererCaps).generateShader(this);
-        } else {
-            ShaderKey key = new ShaderKey(def.getVertexShaderName(),
+        ShaderKey key = new ShaderKey(def.getVertexShaderName(),
                     def.getFragmentShaderName(),
                     getAllDefines(),
                     def.getVertexShaderLanguage(),
                     def.getFragmentShaderLanguage());
-            shader = manager.loadShader(key);
         
-        }
+        if (getDef().isUsingShaderNodes()) {                 
+           manager.getShaderGenerator(rendererCaps).initialize(this);           
+           key.setUsesShaderNodes(true);
+        }   
+        shader = manager.loadShader(key);
+
         // register the world bound uniforms
         worldBindUniforms.clear();
         if (def.getWorldBindings() != null) {

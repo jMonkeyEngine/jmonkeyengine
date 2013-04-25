@@ -52,6 +52,8 @@ public abstract class ShaderGenerator {
     protected AssetManager assetManager;
     //indentation value for generation
     protected int indent;
+    //the technique to use for the shader generation
+    protected Technique technique = null;    
 
     /**
      * Build a shaderGenerator
@@ -59,16 +61,23 @@ public abstract class ShaderGenerator {
      * @param assetManager
      */
     protected ShaderGenerator(AssetManager assetManager) {
-        this.assetManager = assetManager;
+        this.assetManager = assetManager;        
     }
-
+    
+    public void initialize(Technique technique){
+        this.technique = technique;
+    }
+    
     /**
      * Generate vertex and fragment shaders for the given technique
      *
      * @param technique the technique to use to generate the shaders
      * @return a Shader program
      */
-    public Shader generateShader(Technique technique) {
+    public Shader generateShader() {
+        if(technique == null){
+            throw new UnsupportedOperationException("The shaderGenerator was not properly initialized, call initialize(Technique) before any generation");
+        }
 
         DefineList defines = technique.getAllDefines();
         TechniqueDef def = technique.getDef();
@@ -81,7 +90,8 @@ public abstract class ShaderGenerator {
         shader.initialize();
         shader.addSource(Shader.ShaderType.Vertex, technique.getDef().getName() + ".vert", vertexSource, defines.getCompiled(), getLanguageAndVersion(ShaderType.Vertex));
         shader.addSource(Shader.ShaderType.Fragment, technique.getDef().getName() + ".frag", fragmentSource, defines.getCompiled(), getLanguageAndVersion(ShaderType.Fragment));
-
+        
+        technique = null;
         return shader;
     }
 
@@ -286,5 +296,5 @@ public abstract class ShaderGenerator {
             }
         }
         return index;
-    }
+    }    
 }
