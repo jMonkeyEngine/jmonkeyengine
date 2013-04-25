@@ -45,12 +45,12 @@ import java.util.List;
 public class PerspectiveLodCalculator implements LodCalculator {
 
     private Camera cam;
-    private float[] entropyDistances;
     private float pixelError;
+    private boolean turnOffLod = false;
 
     public PerspectiveLodCalculator() {}
     
-    public PerspectiveLodCalculator(Camera cam, float pixelError){
+    public PerspectiveLodCalculator(Camera cam, float pixelError) {
         this.cam = cam;
         this.pixelError = pixelError;
     }
@@ -73,16 +73,23 @@ public class PerspectiveLodCalculator implements LodCalculator {
     }
     
     public boolean calculateLod(TerrainPatch patch, List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
-        if (entropyDistances == null){
-            // compute entropy distances
-            float[] lodEntropies = patch.getLodEntropies();
-            entropyDistances = new float[lodEntropies.length];
-            float cameraConstant = getCameraConstant(cam, pixelError);
-            for (int i = 0; i < lodEntropies.length; i++){
-                entropyDistances[i] = lodEntropies[i] * cameraConstant;
+        if (turnOffLod) {
+            // set to full detail
+            int prevLOD = patch.getLod();
+            UpdatedTerrainPatch utp = updates.get(patch.getName());
+            if (utp == null) {
+                utp = new UpdatedTerrainPatch(patch);
+                updates.put(utp.getName(), utp);
             }
+            utp.setNewLod(0);
+            utp.setPreviousLod(prevLOD);
+            //utp.setReIndexNeeded(true);
+            return true;
         }
-
+        
+        float[] lodEntropies = patch.getLodEntropies();
+        float cameraConstant = getCameraConstant(cam, pixelError);
+        
         Vector3f patchPos = getCenterLocation(patch);
 
         // vector from camera to patch
@@ -92,7 +99,7 @@ public class PerspectiveLodCalculator implements LodCalculator {
 
         // go through each lod level to find the one we are in
         for (int i = 0; i <= patch.getMaxLod(); i++) {
-            if (distance < entropyDistances[i] || i == patch.getMaxLod()){
+            if (distance < lodEntropies[i] * cameraConstant || i == patch.getMaxLod()){
                 boolean reIndexNeeded = false;
                 if (i != patch.getLod()) {
                     reIndexNeeded = true;
@@ -133,6 +140,7 @@ public class PerspectiveLodCalculator implements LodCalculator {
     }
 
     public void write(JmeExporter ex) throws IOException {
+        
     }
 
     public void read(JmeImporter im) throws IOException {
@@ -155,15 +163,15 @@ public class PerspectiveLodCalculator implements LodCalculator {
     }
 
     public void turnOffLod() {
-        //TODO
+        turnOffLod = true;
     }
-
+    
     public boolean isLodOff() {
-        return false; //TODO
+        return turnOffLod;
     }
     
     public void turnOnLod() {
-        //TODO
+        turnOffLod = false;
     }
     
 }
