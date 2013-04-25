@@ -73,7 +73,7 @@ public class AndroidAssetManager extends DesktopAssetManager {
      * If URL == null then a default list of locators and loaders for android is set
      * @param configFile
      */
-    public AndroidAssetManager(URL configFile) {
+    public AndroidAssetManager(URL configFile) {        
         System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
 
         // Set Default Android config        	       
@@ -84,6 +84,7 @@ public class AndroidAssetManager extends DesktopAssetManager {
         registerLoader(AndroidAudioLoader.class, "ogg", "mp3", "wav");
         registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3m");
         registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3md");
+        registerLoader(com.jme3.material.plugins.ShaderNodeDefinitionLoader.class, "j3sn");
         registerLoader(com.jme3.shader.plugins.GLSLLoader.class, "vert", "frag", "glsl", "glsllib");
         registerLoader(com.jme3.export.binary.BinaryImporter.class, "j3o");
         registerLoader(com.jme3.font.plugins.BitmapFontLoader.class, "fnt");
