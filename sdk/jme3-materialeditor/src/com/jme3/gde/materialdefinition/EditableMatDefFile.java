@@ -156,9 +156,11 @@ public class EditableMatDefFile {
             material.selectTechnique("Default", SceneApplication.getApplication().getRenderManager());
             Shader s;
             if (version.equals(GLSL100)) {
-                s = glsl100.generateShader(material.getActiveTechnique());
+                glsl100.initialize(material.getActiveTechnique());
+                s = glsl100.generateShader();
             } else {
-                s = glsl150.generateShader(material.getActiveTechnique());
+                glsl150.initialize(material.getActiveTechnique());
+                s = glsl150.generateShader();
             }
             for (Iterator<Shader.ShaderSource> it = s.getSources().iterator(); it.hasNext();) {
                 Shader.ShaderSource source = it.next();
