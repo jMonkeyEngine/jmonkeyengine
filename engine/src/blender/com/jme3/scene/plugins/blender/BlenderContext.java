@@ -46,8 +46,8 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.BlenderKey;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
-import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.DnaBlockData;
@@ -101,11 +101,6 @@ public class BlenderContext {
     private Map<String, Object[]>               loadedFeaturesByName   = new HashMap<String, Object[]>();
     /** A stack that hold the parent structure of currently loaded feature. */
     private Stack<Structure>                    parentStack            = new Stack<Structure>();
-    /**
-     * A map storing loaded ipos. The key is the ipo's owner old memory address
-     * and the value is the ipo.
-     */
-    private Map<Long, Ipo>                      loadedIpos             = new HashMap<Long, Ipo>();
     /** A list of modifiers for the specified object. */
     protected Map<Long, List<Modifier>>         modifiers              = new HashMap<Long, List<Modifier>>();
     /** A list of constraints for the specified object. */
@@ -114,6 +109,8 @@ public class BlenderContext {
     private Map<Long, AnimData>                 animData               = new HashMap<Long, AnimData>();
     /** Loaded skeletons. */
     private Map<Long, Skeleton>                 skeletons              = new HashMap<Long, Skeleton>();
+    /** A map between skeleton and node it modifies. */
+    private Map<Skeleton, Node>                 nodesWithSkeletons     = new HashMap<Skeleton, Node>();
     /** A map of mesh contexts. */
     protected Map<Long, MeshContext>            meshContexts           = new HashMap<Long, MeshContext>();
     /** A map of bone contexts. */
@@ -346,25 +343,6 @@ public class BlenderContext {
     }
 
     /**
-     * This method returns the feature of a given name. If the feature is not
-     * yet loaded then null is returned.
-     * 
-     * @param featureName
-     *            the name of the feature
-     * @param loadedFeatureDataType
-     *            the type of data we want to retreive it can be either filled
-     *            structure or already converted feature
-     * @return loaded feature or null if it was not yet loaded
-     */
-    public Object getLoadedFeature(String featureName, LoadedFeatureDataType loadedFeatureDataType) {
-        Object[] result = loadedFeaturesByName.get(featureName);
-        if (result != null) {
-            return result[loadedFeatureDataType.getIndex()];
-        }
-        return null;
-    }
-
-    /**
      * This method clears the saved features stored in the features map.
      */
     public void clearLoadedFeatures() {
@@ -406,38 +384,6 @@ public class BlenderContext {
         } catch (EmptyStackException e) {
             return null;
         }
-    }
-
-    /**
-     * This method adds new ipo curve for the feature.
-     * 
-     * @param ownerOMA
-     *            the OMA of blender feature that owns the ipo
-     * @param ipo
-     *            the ipo to be added
-     */
-    public void addIpo(Long ownerOMA, Ipo ipo) {
-        loadedIpos.put(ownerOMA, ipo);
-    }
-
-    /**
-     * This method removes the ipo curve from the feature.
-     * 
-     * @param ownerOma
-     *            the OMA of blender feature that owns the ipo
-     */
-    public Ipo removeIpo(Long ownerOma) {
-        return loadedIpos.remove(ownerOma);
-    }
-
-    /**
-     * This method returns the ipo curve of the feature.
-     * 
-     * @param ownerOMA
-     *            the OMA of blender feature that owns the ipo
-     */
-    public Ipo getIpo(Long ownerOMA) {
-        return loadedIpos.get(ownerOMA);
     }
 
     /**
@@ -500,18 +446,6 @@ public class BlenderContext {
     }
 
     /**
-     * This method returns constraints for the object specified by its old
-     * memory address. If no modifiers are found - <b>null</b> is returned.
-     * 
-     * @param objectOMA
-     *            object's old memory address
-     * @return the list of object's modifiers or null
-     */
-    public List<Constraint> getConstraints(Long objectOMA) {
-        return objectOMA == null ? null : constraints.get(objectOMA);
-    }
-
-    /**
      * @return all available constraints
      */
     public List<Constraint> getAllConstraints() {
@@ -555,6 +489,30 @@ public class BlenderContext {
      */
     public void setSkeleton(Long skeletonOMA, Skeleton skeleton) {
         this.skeletons.put(skeletonOMA, skeleton);
+    }
+
+    /**
+     * The method stores a binding between the skeleton and the proper armature
+     * node.
+     * 
+     * @param skeleton
+     *            the skeleton
+     * @param node
+     *            the armature node
+     */
+    public void setNodeForSkeleton(Skeleton skeleton, Node node) {
+        nodesWithSkeletons.put(skeleton, node);
+    }
+
+    /**
+     * This method returns the armature node that is defined for the skeleton.
+     * 
+     * @param skeleton
+     *            the skeleton
+     * @return the armature node that defines the skeleton in blender
+     */
+    public Node getControlledNode(Skeleton skeleton) {
+        return nodesWithSkeletons.get(skeleton);
     }
 
     /**
@@ -636,6 +594,22 @@ public class BlenderContext {
     }
 
     /**
+     * Returns bone context for the given bone.
+     * 
+     * @param bone
+     *            the bone
+     * @return the bone's bone context
+     */
+    public BoneContext getBoneContext(Bone bone) {
+        for (Entry<Long, BoneContext> entry : boneContexts.entrySet()) {
+            if (entry.getValue().getBone().equals(bone)) {
+                return entry.getValue();
+            }
+        }
+        throw new IllegalStateException("Cannot find context for bone: " + bone);
+    }
+
+    /**
      * This metod returns the default material.
      * 
      * @return the default material
@@ -658,7 +632,6 @@ public class BlenderContext {
         loadedFeatures.clear();
         loadedFeaturesByName.clear();
         parentStack.clear();
-        loadedIpos.clear();
         modifiers.clear();
         constraints.clear();
         animData.clear();
@@ -672,7 +645,7 @@ public class BlenderContext {
      * This enum defines what loaded data type user wants to retreive. It can be
      * either filled structure or already converted data.
      * 
-     * @author Marcin Roguski
+     * @author Marcin Roguski (Kaelthas)
      */
     public static enum LoadedFeatureDataType {
 

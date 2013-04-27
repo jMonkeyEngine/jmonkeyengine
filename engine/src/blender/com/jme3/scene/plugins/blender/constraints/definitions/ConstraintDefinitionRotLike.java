@@ -7,6 +7,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
  * This class represents 'Rot like' constraint type in blender.
+ * 
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class ConstraintDefinitionRotLike extends ConstraintDefinition {
@@ -21,8 +22,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
     private transient float[] ownerAngles      = new float[3];
     private transient float[] targetAngles     = new float[3];
 
-    public ConstraintDefinitionRotLike(Structure constraintData, BlenderContext blenderContext) {
-        super(constraintData, blenderContext);
+    public ConstraintDefinitionRotLike(Structure constraintData, Long ownerOMA, BlenderContext blenderContext) {
+        super(constraintData, ownerOMA, blenderContext);
     }
 
     @Override
@@ -33,7 +34,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
         Quaternion startRotation = ownerRotation.clone();
         Quaternion offset = Quaternion.IDENTITY;
-        if ((flag & ROTLIKE_OFFSET) != 0) {// we add the original rotation to the copied rotation
+        if ((flag & ROTLIKE_OFFSET) != 0) {// we add the original rotation to
+                                           // the copied rotation
             offset = startRotation;
         }
 
@@ -58,10 +60,14 @@ import com.jme3.scene.plugins.blender.file.Structure;
         ownerRotation.fromAngles(ownerAngles).multLocal(offset);
 
         if (influence < 1.0f) {
-
             // startLocation.subtractLocal(ownerLocation).normalizeLocal().mult(influence);
             // ownerLocation.addLocal(startLocation);
             // TODO
         }
+    }
+
+    @Override
+    public String getConstraintTypeName() {
+        return "Copy rotation";
     }
 }

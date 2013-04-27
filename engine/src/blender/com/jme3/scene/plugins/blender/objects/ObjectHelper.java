@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
+import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
@@ -65,6 +66,7 @@ import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
 
 /**
  * A class that is used in object calculations.
+ * 
  * @author Marcin Roguski (Kaelthas)
  */
 public class ObjectHelper extends AbstractBlenderHelper {
@@ -83,8 +85,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
     protected static final int  OBJECT_TYPE_ARMATURE = 25;
 
     /**
-     * This constructor parses the given blender version and stores the result. Some functionalities may differ in
-     * different blender versions.
+     * This constructor parses the given blender version and stores the result.
+     * Some functionalities may differ in different blender versions.
+     * 
      * @param blenderVersion
      *            the version read from the blend file
      * @param fixUpAxis
@@ -95,7 +98,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
     }
 
     /**
-     * This method reads the given structure and createn an object that represents the data.
+     * This method reads the given structure and createn an object that
+     * represents the data.
+     * 
      * @param objectStructure
      *            the object's structure
      * @param blenderContext
@@ -205,7 +210,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     }
                     break;
                 case OBJECT_TYPE_ARMATURE:
-                    // need to create an empty node to properly create parent-children relationships between nodes
+                    // need to create an empty node to properly create
+                    // parent-children relationships between nodes
                     Node armature = new Node(name);
                     armature.setLocalTransform(t);
                     armature.setUserData(ArmatureHelper.ARMETURE_NODE_MARKER, Boolean.TRUE);
@@ -223,9 +229,13 @@ public class ObjectHelper extends AbstractBlenderHelper {
         }
 
         if (result != null) {
-            result.updateModelBound();// I prefer do compute bounding box here than read it from the file
+            result.updateModelBound();// I prefer do compute bounding box here
+                                      // than read it from the file
 
             blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
+            // TODO: this data is only to help during loading, shall I remove it
+            // after all the loading is done ???
+            result.setUserData("oma", objectStructure.getOldMemoryAddress());
 
             // applying modifiers
             LOGGER.log(Level.FINE, "Reading and applying object's modifiers.");
@@ -242,7 +252,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
             // reading custom properties
             if (blenderContext.getBlenderKey().isLoadObjectProperties()) {
                 Properties properties = this.loadProperties(objectStructure, blenderContext);
-                // the loaded property is a group property, so we need to get each value and set it to Spatial
+                // the loaded property is a group property, so we need to get
+                // each value and set it to Spatial
                 if (result instanceof Spatial && properties != null && properties.getValue() != null) {
                     this.applyProperties(result, properties);
                 }
@@ -250,9 +261,11 @@ public class ObjectHelper extends AbstractBlenderHelper {
         }
         return result;
     }
-    
+
     /**
-     * This method calculates local transformation for the object. Parentage is taken under consideration.
+     * This method calculates local transformation for the object. Parentage is
+     * taken under consideration.
+     * 
      * @param objectStructure
      *            the object's structure
      * @return objects transformation relative to its parent
@@ -277,16 +290,16 @@ public class ObjectHelper extends AbstractBlenderHelper {
 
         Vector3f translation = localMatrix.toTranslationVector();
         Quaternion rotation = localMatrix.toRotationQuat();
-        Vector3f scale = this.getScale(parentInv).multLocal(size.get(0).floatValue(), size.get(1).floatValue(), size.get(2).floatValue());
+        Vector3f scale = parentInv.toScaleVector().multLocal(size.get(0).floatValue(), size.get(1).floatValue(), size.get(2).floatValue());
 
         if (fixUpAxis) {
             float y = translation.y;
             translation.y = translation.z;
-            translation.z = -y;
+            translation.z = y == 0 ? 0 : -y;
 
             y = rotation.getY();
             float z = rotation.getZ();
-            rotation.set(rotation.getX(), z, -y, rotation.getW());
+            rotation.set(rotation.getX(), z, y == 0 ? 0 : -y, rotation.getW());
 
             y = scale.y;
             scale.y = scale.z;
@@ -301,7 +314,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
 
     /**
      * This method returns the matrix of a given name for the given structure.
-     * The matrix is NOT transformed if Y axis is up - the raw data is loaded from the blender file.
+     * The matrix is NOT transformed if Y axis is up - the raw data is loaded
+     * from the blender file.
+     * 
      * @param structure
      *            the structure with matrix data
      * @param matrixName
@@ -315,6 +330,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
     /**
      * This method returns the matrix of a given name for the given structure.
      * It takes up axis into consideration.
+     * 
      * @param structure
      *            the structure with matrix data
      * @param matrixName
@@ -325,7 +341,11 @@ public class ObjectHelper extends AbstractBlenderHelper {
     public Matrix4f getMatrix(Structure structure, String matrixName, boolean applyFixUpAxis) {
         Matrix4f result = new Matrix4f();
         DynamicArray<Number> obmat = (DynamicArray<Number>) structure.getFieldValue(matrixName);
-        int rowAndColumnSize = Math.abs((int) Math.sqrt(obmat.getTotalSize()));// the matrix must be square
+        int rowAndColumnSize = Math.abs((int) Math.sqrt(obmat.getTotalSize()));// the
+                                                                               // matrix
+                                                                               // must
+                                                                               // be
+                                                                               // square
         for (int i = 0; i < rowAndColumnSize; ++i) {
             for (int j = 0; j < rowAndColumnSize; ++j) {
                 result.set(i, j, obmat.get(j, i).floatValue());
@@ -334,15 +354,15 @@ public class ObjectHelper extends AbstractBlenderHelper {
         if (applyFixUpAxis && fixUpAxis) {
             Vector3f translation = result.toTranslationVector();
             Quaternion rotation = result.toRotationQuat();
-            Vector3f scale = this.getScale(result);
+            Vector3f scale = result.toScaleVector();
 
             float y = translation.y;
             translation.y = translation.z;
-            translation.z = -y;
+            translation.z = y == 0 ? 0 : -y;
 
             y = rotation.getY();
             float z = rotation.getZ();
-            rotation.set(rotation.getX(), z, -y, rotation.getW());
+            rotation.set(rotation.getX(), z, y == 0 ? 0 : -y, rotation.getW());
 
             y = scale.y;
             scale.y = scale.z;
@@ -353,21 +373,17 @@ public class ObjectHelper extends AbstractBlenderHelper {
             result.setRotationQuaternion(rotation);
             result.setScale(scale);
         }
-        return result;
-    }
 
-    /**
-     * This method returns the scale from the given matrix.
-     * 
-     * @param matrix
-     *            the transformation matrix
-     * @return the scale from the given matrix
-     */
-    public Vector3f getScale(Matrix4f matrix) {
-        float scaleX = (float) Math.sqrt(matrix.m00 * matrix.m00 + matrix.m10 * matrix.m10 + matrix.m20 * matrix.m20);
-        float scaleY = (float) Math.sqrt(matrix.m01 * matrix.m01 + matrix.m11 * matrix.m11 + matrix.m21 * matrix.m21);
-        float scaleZ = (float) Math.sqrt(matrix.m02 * matrix.m02 + matrix.m12 * matrix.m12 + matrix.m22 * matrix.m22);
-        return new Vector3f(scaleX, scaleY, scaleZ);
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                float value = result.get(i, j);
+                if (Math.abs(value) <= FastMath.FLT_EPSILON) {
+                    result.set(i, j, 0);
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override

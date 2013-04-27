@@ -40,7 +40,10 @@ public class Ipo {
     private Track               calculatedTrack;
     /** This variable indicates if the Y asxis is the UP axis or not. */
     protected boolean           fixUpAxis;
-    /** Depending on the blender version rotations are stored in degrees or radians so we need to know the version that is used. */
+    /**
+     * Depending on the blender version rotations are stored in degrees or
+     * radians so we need to know the version that is used.
+     */
     protected final int         blenderVersion;
 
     /**
@@ -158,7 +161,8 @@ public class Ipo {
             // calculating track data
             for (int frame = startFrame; frame <= stopFrame; ++frame) {
                 int index = frame - startFrame;
-                times[index] = index * timeBetweenFrames;// start + (frame - 1) * timeBetweenFrames;
+                times[index] = index * timeBetweenFrames;// start + (frame - 1)
+                                                         // * timeBetweenFrames;
                 for (int j = 0; j < bezierCurves.length; ++j) {
                     double value = bezierCurves[j].evaluate(frame, BezierCurve.Y_VALUE);
                     switch (bezierCurves[j].getType()) {
@@ -168,7 +172,7 @@ public class Ipo {
                             break;
                         case AC_LOC_Y:
                             if (fixUpAxis) {
-                                translation[2] = (float) -value;
+                                translation[2] = value == 0.0f ? 0 : (float) -value;
                             } else {
                                 translation[1] = (float) value;
                             }
@@ -185,7 +189,7 @@ public class Ipo {
                             break;
                         case OB_ROT_Y:
                             if (fixUpAxis) {
-                                objectRotation[2] = (float) -value * degreeToRadiansFactor;
+                                objectRotation[2] = value == 0.0f ? 0 : (float) -value * degreeToRadiansFactor;
                             } else {
                                 objectRotation[1] = (float) value * degreeToRadiansFactor;
                             }
@@ -199,11 +203,7 @@ public class Ipo {
                             scale[0] = (float) value;
                             break;
                         case AC_SIZE_Y:
-                            if (fixUpAxis) {
-                                scale[2] = (float) value;
-                            } else {
-                                scale[1] = (float) value;
-                            }
+                            scale[fixUpAxis ? 2 : 1] = (float) value;
                             break;
                         case AC_SIZE_Z:
                             scale[fixUpAxis ? 1 : 2] = (float) value;
@@ -220,17 +220,13 @@ public class Ipo {
                             break;
                         case AC_QUAT_Y:
                             if (fixUpAxis) {
-                                quaternionRotation[2] = -(float) value;
+                                quaternionRotation[2] = value == 0.0f ? 0 : -(float) value;
                             } else {
                                 quaternionRotation[1] = (float) value;
                             }
                             break;
                         case AC_QUAT_Z:
-                            if (fixUpAxis) {
-                                quaternionRotation[1] = (float) value;
-                            } else {
-                                quaternionRotation[2] = (float) value;
-                            }
+                            quaternionRotation[fixUpAxis ? 1 : 2] = (float) value;
                             break;
                         default:
                             LOGGER.warning("Unknown ipo curve type: " + bezierCurves[j].getType());

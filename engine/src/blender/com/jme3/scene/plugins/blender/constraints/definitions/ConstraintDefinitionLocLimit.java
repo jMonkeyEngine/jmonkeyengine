@@ -1,5 +1,6 @@
 package com.jme3.scene.plugins.blender.constraints.definitions;
 
+import com.jme3.animation.Bone;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -7,6 +8,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
  * This class represents 'Loc limit' constraint type in blender.
+ * 
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class ConstraintDefinitionLocLimit extends ConstraintDefinition {
@@ -19,8 +21,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
     protected float[][]      limits     = new float[3][2];
 
-    public ConstraintDefinitionLocLimit(Structure constraintData, BlenderContext blenderContext) {
-        super(constraintData, blenderContext);
+    public ConstraintDefinitionLocLimit(Structure constraintData, Long ownerOMA, BlenderContext blenderContext) {
+        super(constraintData, ownerOMA, blenderContext);
         if (blenderContext.getBlenderKey().isFixUpAxis()) {
             limits[0][0] = ((Number) constraintData.getFieldValue("xmin")).floatValue();
             limits[0][1] = ((Number) constraintData.getFieldValue("xmax")).floatValue();
@@ -34,7 +36,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
             int ymax = flag & LIMIT_YMAX;
             int zmin = flag & LIMIT_ZMIN;
             int zmax = flag & LIMIT_ZMAX;
-            flag &= LIMIT_XMIN | LIMIT_XMAX;// clear the other flags to swap them
+            flag &= LIMIT_XMIN | LIMIT_XMAX;// clear the other flags to swap
+                                            // them
             flag |= ymin << 2;
             flag |= ymax << 2;
             flag |= zmin >> 2;
@@ -51,6 +54,11 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
     @Override
     public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+        if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null) {
+            // location limit does not work on bones who have parent
+            return;
+        }
+
         Vector3f translation = ownerTransform.getTranslation();
 
         if ((flag & LIMIT_XMIN) != 0 && translation.x < limits[0][0]) {
@@ -71,5 +79,10 @@ import com.jme3.scene.plugins.blender.file.Structure;
         if ((flag & LIMIT_ZMAX) != 0 && translation.z > limits[2][1]) {
             translation.z -= (translation.z - limits[2][1]) * influence;
         }
+    }
+
+    @Override
+    public String getConstraintTypeName() {
+        return "Limit location";
     }
 }

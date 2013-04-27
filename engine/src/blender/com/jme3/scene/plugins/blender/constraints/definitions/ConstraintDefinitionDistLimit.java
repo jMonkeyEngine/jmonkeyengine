@@ -1,5 +1,6 @@
 package com.jme3.scene.plugins.blender.constraints.definitions;
 
+import com.jme3.animation.Bone;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -7,6 +8,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
  * This class represents 'Dist limit' constraint type in blender.
+ * 
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class ConstraintDefinitionDistLimit extends ConstraintDefinition {
@@ -17,14 +19,19 @@ import com.jme3.scene.plugins.blender.file.Structure;
     protected int            mode;
     protected float          dist;
 
-    public ConstraintDefinitionDistLimit(Structure constraintData, BlenderContext blenderContext) {
-        super(constraintData, blenderContext);
+    public ConstraintDefinitionDistLimit(Structure constraintData, Long ownerOMA, BlenderContext blenderContext) {
+        super(constraintData, ownerOMA, blenderContext);
         mode = ((Number) constraintData.getFieldValue("mode")).intValue();
         dist = ((Number) constraintData.getFieldValue("dist")).floatValue();
     }
 
     @Override
     public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+        if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null) {
+            // distance limit does not work on bones who have parent
+            return;
+        }
+
         Vector3f v = ownerTransform.getTranslation().subtract(targetTransform.getTranslation());
         float currentDistance = v.length();
 
@@ -55,5 +62,10 @@ import com.jme3.scene.plugins.blender.file.Structure;
             default:
                 throw new IllegalStateException("Unknown distance limit constraint mode: " + mode);
         }
+    }
+
+    @Override
+    public String getConstraintTypeName() {
+        return "Limit distance";
     }
 }

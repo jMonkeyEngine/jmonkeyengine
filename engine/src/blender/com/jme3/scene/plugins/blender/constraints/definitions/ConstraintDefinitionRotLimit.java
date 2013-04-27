@@ -18,13 +18,13 @@ import com.jme3.scene.plugins.blender.file.Structure;
     private transient float[][] limits     = new float[3][2];
     private transient float[]   angles     = new float[3];
 
-    public ConstraintDefinitionRotLimit(Structure constraintData, BlenderContext blenderContext) {
-        super(constraintData, blenderContext);
-        if (blenderContext.getBlenderKey().isFixUpAxis()/* && owner.spatial != null */) {// FIXME: !!!!!!!!
+    public ConstraintDefinitionRotLimit(Structure constraintData, Long ownerOMA, BlenderContext blenderContext) {
+        super(constraintData, ownerOMA, blenderContext);
+        if (blenderContext.getBlenderKey().isFixUpAxis()) {
             limits[0][0] = ((Number) constraintData.getFieldValue("xmin")).floatValue();
             limits[0][1] = ((Number) constraintData.getFieldValue("xmax")).floatValue();
-            limits[2][0] = -((Number) constraintData.getFieldValue("ymin")).floatValue();
-            limits[2][1] = -((Number) constraintData.getFieldValue("ymax")).floatValue();
+            limits[2][0] = ((Number) constraintData.getFieldValue("ymin")).floatValue();
+            limits[2][1] = ((Number) constraintData.getFieldValue("ymax")).floatValue();
             limits[1][0] = ((Number) constraintData.getFieldValue("zmin")).floatValue();
             limits[1][1] = ((Number) constraintData.getFieldValue("zmax")).floatValue();
 
@@ -45,15 +45,38 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
         // until blender 2.49 the rotations values were stored in degrees
         if (blenderContext.getBlenderVersion() <= 249) {
-            for (int i = 0; i < limits.length; ++i) {
+            for (int i = 0; i < 3; ++i) {
                 limits[i][0] *= FastMath.DEG_TO_RAD;
                 limits[i][1] *= FastMath.DEG_TO_RAD;
             }
         }
+
+        // make sure that the limits are always in range [0, 2PI)
+        // TODO: left it here because it is essential to make sure all cases
+        // work poperly
+        // but will do it a little bit later ;)
+        /*
+         * for (int i = 0; i < 3; ++i) { for (int j = 0; j < 2; ++j) { int
+         * multFactor = (int)Math.abs(limits[i][j] / FastMath.TWO_PI) ; if
+         * (limits[i][j] < 0) { limits[i][j] += FastMath.TWO_PI * (multFactor +
+         * 1); } else { limits[i][j] -= FastMath.TWO_PI * multFactor; } } //make
+         * sure the lower limit is not greater than the upper one
+         * if(limits[i][0] > limits[i][1]) { float temp = limits[i][0];
+         * limits[i][0] = limits[i][1]; limits[i][1] = temp; } }
+         */
     }
 
     @Override
     public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+        ownerTransform.getRotation().toAngles(angles);
+        // make sure that the rotations are always in range [0, 2PI)
+        // TODO: same comment as in constructor
+        /*
+         * for (int i = 0; i < 3; ++i) { int multFactor =
+         * (int)Math.abs(angles[i] / FastMath.TWO_PI) ; if(angles[i] < 0) {
+         * angles[i] += FastMath.TWO_PI * (multFactor + 1); } else { angles[i]
+         * -= FastMath.TWO_PI * multFactor; } }
+         */
         if ((flag & LIMIT_XROT) != 0) {
             float difference = 0.0f;
             if (angles[0] < limits[0][0]) {
@@ -81,5 +104,11 @@ import com.jme3.scene.plugins.blender.file.Structure;
             }
             angles[2] -= difference;
         }
+        ownerTransform.getRotation().fromAngles(angles);
+    }
+
+    @Override
+    public String getConstraintTypeName() {
+        return "Limit rotation";
     }
 }

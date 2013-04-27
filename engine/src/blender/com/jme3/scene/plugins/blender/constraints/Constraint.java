@@ -1,17 +1,9 @@
 package com.jme3.scene.plugins.blender.constraints;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.animation.Animation;
-import com.jme3.animation.BoneTrack;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Transform;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.constraints.definitions.ConstraintDefinition;
@@ -19,7 +11,6 @@ import com.jme3.scene.plugins.blender.constraints.definitions.ConstraintDefiniti
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
  * The implementation of a constraint.
@@ -55,6 +46,8 @@ public abstract class Constraint {
      *            the constraint's structure (bConstraint clss in blender 2.49).
      * @param ownerOMA
      *            the old memory address of the constraint owner
+     * @param ownerType
+     *            the type of the constraint owner
      * @param influenceIpo
      *            the ipo curve of the influence factor
      * @param blenderContext
@@ -69,101 +62,88 @@ public abstract class Constraint {
         Pointer pData = (Pointer) constraintStructure.getFieldValue("data");
         if (pData.isNotNull()) {
             Structure data = pData.fetchData(blenderContext.getInputStream()).get(0);
-            constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(data, blenderContext);
+            constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(data, ownerOMA, blenderContext);
             Pointer pTar = (Pointer) data.getFieldValue("tar");
             if (pTar != null && pTar.isNotNull()) {
                 this.targetOMA = pTar.getOldMemoryAddress();
                 this.targetSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("tarspace")).byteValue());
                 Object subtargetValue = data.getFieldValue("subtarget");
-                if (subtargetValue != null) {// not all constraint data have the subtarget field
+                if (subtargetValue != null) {// not all constraint data have the
+                                             // subtarget field
                     subtargetName = subtargetValue.toString();
                 }
             }
         } else {
             // Null constraint has no data, so create it here
-            constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(null, blenderContext);
+            constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(null, null, blenderContext);
         }
         this.ownerSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("ownspace")).byteValue());
         this.ipo = influenceIpo;
         this.ownerOMA = ownerOMA;
         this.constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+        LOGGER.log(Level.INFO, "Created constraint: {0} with definition: {1}", new Object[] { name, constraintDefinition });
     }
 
     /**
-     * This method bakes the required sontraints into its owner. It checks if the constraint is invalid
-     * or if it isn't yet baked. It also performs baking of its target constraints so that the proper baking
-     * order is kept.
+     * @return <b>true</b> if the constraint is implemented and <b>false</b>
+     *         otherwise
      */
-    public void bake() {
-        if (!this.validate()) {
-            LOGGER.warning("The constraint " + name + " is invalid and will not be applied.");
-        } else if (!baked) {
-            if (targetOMA != null) {
-                List<Constraint> targetConstraints = blenderContext.getConstraints(targetOMA);
-                if (targetConstraints != null && targetConstraints.size() > 0) {
-                    LOGGER.log(Level.FINE, "Baking target constraints of constraint: {0}", name);
-                    for (Constraint targetConstraint : targetConstraints) {
-                        targetConstraint.bake();
-                    }
-                }
-            }
-
-            LOGGER.log(Level.FINE, "Performing baking of constraint: {0}", name);
-            this.performBakingOperation();
-            baked = true;
-        }
+    public boolean isImplemented() {
+        return constraintDefinition == null ? true : constraintDefinition.isImplemented();
     }
 
     /**
-     * Performs validation before baking. Checks factors that can prevent constraint from baking that could not be
-     * checked during constraint loading.
+     * @return the name of the constraint type, similar to the constraint name
+     *         used in Blender
      */
-    protected abstract boolean validate();
+    public String getConstraintTypeName() {
+        return constraintDefinition.getConstraintTypeName();
+    }
 
     /**
-     * This method should be overwridden and perform the baking opertion.
+     * Performs validation before baking. Checks factors that can prevent
+     * constraint from baking that could not be checked during constraint
+     * loading.
      */
-    protected abstract void performBakingOperation();
+    public abstract boolean validate();
 
-    /**
-     * This method prepares the tracks for both owner and parent. If either owner or parent have no track while its parent has -
-     * the tracks are created. The tracks will not modify the owner/target movement but will be there ready for applying constraints.
-     * For example if the owner is a spatial and has no animation but its parent is moving then the track is created for the owner
-     * that will have non modifying values for translation, rotation and scale and will have the same amount of frames as its parent has.
-     */
-    protected abstract void prepareTracksForApplyingConstraints();
-    
-    /**
-     * The method applies bone's current position to all of the traces of the
-     * given animations.
-     * 
-     * @param boneContext
-     *            the bone context
-     * @param space
-     *            the bone's evaluation space
-     * @param referenceAnimData
-     *            the object containing the animations
-     */
-    protected void applyAnimData(BoneContext boneContext, Space space, AnimData referenceAnimData) {
-        ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
-        Transform transform = constraintHelper.getBoneTransform(space, boneContext.getBone());
+    public abstract void apply(int frame);
 
-        AnimData animData = blenderContext.getAnimData(boneContext.getBoneOma());
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((ownerOMA == null) ? 0 : ownerOMA.hashCode());
+        return result;
+    }
 
-        for (Animation animation : referenceAnimData.anims) {
-            BoneTrack parentTrack = (BoneTrack) animation.getTracks()[0];
-
-            float[] times = parentTrack.getTimes();
-            Vector3f[] translations = new Vector3f[times.length];
-            Quaternion[] rotations = new Quaternion[times.length];
-            Vector3f[] scales = new Vector3f[times.length];
-            Arrays.fill(translations, transform.getTranslation());
-            Arrays.fill(rotations, transform.getRotation());
-            Arrays.fill(scales, transform.getScale());
-            for (Animation anim : animData.anims) {
-                anim.addTrack(new BoneTrack(animData.skeleton.getBoneIndex(boneContext.getBone()), times, translations, rotations, scales));
-            }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-        blenderContext.setAnimData(boneContext.getBoneOma(), animData);
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Constraint other = (Constraint) obj;
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (ownerOMA == null) {
+            if (other.ownerOMA != null) {
+                return false;
+            }
+        } else if (!ownerOMA.equals(other.ownerOMA)) {
+            return false;
+        }
+        return true;
     }
 }

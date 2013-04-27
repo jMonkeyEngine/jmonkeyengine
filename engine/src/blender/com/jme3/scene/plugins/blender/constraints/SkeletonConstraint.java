@@ -23,16 +23,13 @@ import com.jme3.scene.plugins.blender.file.Structure;
     }
 
     @Override
-    public void performBakingOperation() {
+    public boolean validate() {
+        LOGGER.warning("Constraints for skeleton are not supported.");
+        return false;
+    }
+
+    @Override
+    public void apply(int frame) {
         LOGGER.warning("Applying constraints to skeleton is not supported.");
-    }
-
-    @Override
-    protected boolean validate() {
-        return true;
-    }
-
-    @Override
-    protected void prepareTracksForApplyingConstraints() {
     }
 }

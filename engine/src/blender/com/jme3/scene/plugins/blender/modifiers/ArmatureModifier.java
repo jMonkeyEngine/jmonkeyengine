@@ -44,7 +44,8 @@ import com.jme3.util.BufferUtils;
  */
 /* package */class ArmatureModifier extends Modifier {
     private static final Logger LOGGER                     = Logger.getLogger(ArmatureModifier.class.getName());
-    private static final int    MAXIMUM_WEIGHTS_PER_VERTEX = 4;                                                  // JME limitation
+    private static final int    MAXIMUM_WEIGHTS_PER_VERTEX = 4;                                                 // JME
+                                                                                                                 // limitation
 
     private Skeleton            skeleton;
     private Structure           objectStructure;
@@ -71,7 +72,9 @@ import com.jme3.util.BufferUtils;
      */
     public ArmatureModifier(Structure objectStructure, Structure modifierStructure, BlenderContext blenderContext) throws BlenderFileException {
         Structure meshStructure = ((Pointer) objectStructure.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
-        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
+        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert
+                                                                        // =
+                                                                        // DeformVERTices
 
         // if pDvert==null then there are not vertex groups and no need to load
         // skeleton (untill bone envelopes are supported)
@@ -109,7 +112,8 @@ import com.jme3.util.BufferUtils;
                 // read animations
                 ArrayList<Animation> animations = new ArrayList<Animation>();
                 List<FileBlockHeader> actionHeaders = blenderContext.getFileBlocks(Integer.valueOf(FileBlockHeader.BLOCK_AC00));
-                if (actionHeaders != null) {// it may happen that the model has armature with no actions
+                if (actionHeaders != null) {// it may happen that the model has
+                                            // armature with no actions
                     for (FileBlockHeader header : actionHeaders) {
                         Structure actionStructure = header.getStructure(blenderContext);
                         String actionName = actionStructure.getName();
@@ -202,7 +206,8 @@ import com.jme3.util.BufferUtils;
                     if (bindPoseBuffer != null) {
                         mesh.setBuffer(bindPoseBuffer);
                     }
-                    // change the usage type of vertex and normal buffers from Static to Stream
+                    // change the usage type of vertex and normal buffers from
+                    // Static to Stream
                     mesh.getBuffer(Type.Position).setUsage(Usage.Stream);
                     mesh.getBuffer(Type.Normal).setUsage(Usage.Stream);
                 }
@@ -226,7 +231,9 @@ import com.jme3.util.BufferUtils;
         }
         node.addControl(control);
         node.addControl(new SkeletonControl(animData.skeleton));
-        
+
+        blenderContext.setNodeForSkeleton(skeleton, node);
+
         return node;
     }
 
@@ -282,23 +289,50 @@ import com.jme3.util.BufferUtils;
      *             this exception is thrown when the blend file structure is
      *             somehow invalid or corrupted
      */
-    private VertexBuffer[] getBoneWeightAndIndexBuffer(Structure meshStructure, int vertexListSize, int[] bonesGroups, Map<Integer, List<Integer>> vertexReferenceMap, Map<Integer, Integer> groupToBoneIndexMap, BlenderContext blenderContext) throws BlenderFileException {
+    private VertexBuffer[] getBoneWeightAndIndexBuffer(Structure meshStructure, int vertexListSize, int[] bonesGroups, Map<Integer, List<Integer>> vertexReferenceMap, Map<Integer, Integer> groupToBoneIndexMap, BlenderContext blenderContext)
+            throws BlenderFileException {
         bonesGroups[0] = 0;
-        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
+        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert
+                                                                        // =
+                                                                        // DeformVERTices
         FloatBuffer weightsFloatData = BufferUtils.createFloatBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
         ByteBuffer indicesData = BufferUtils.createByteBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
 
         if (pDvert.isNotNull()) {// assigning weights and bone indices
             boolean warnAboutTooManyVertexWeights = false;
-            List<Structure> dverts = pDvert.fetchData(blenderContext.getInputStream());// dverts.size() == verticesAmount (one dvert per vertex in blender)
+            List<Structure> dverts = pDvert.fetchData(blenderContext.getInputStream());// dverts.size()
+                                                                                       // ==
+                                                                                       // verticesAmount
+                                                                                       // (one
+                                                                                       // dvert
+                                                                                       // per
+                                                                                       // vertex
+                                                                                       // in
+                                                                                       // blender)
             int vertexIndex = 0;
             // use tree map to sort weights from the lowest to the highest ones
             TreeMap<Float, Integer> weightToIndexMap = new TreeMap<Float, Integer>();
 
             for (Structure dvert : dverts) {
-                List<Integer> vertexIndices = vertexReferenceMap.get(Integer.valueOf(vertexIndex));// we fetch the referenced vertices here
+                List<Integer> vertexIndices = vertexReferenceMap.get(Integer.valueOf(vertexIndex));// we
+                                                                                                   // fetch
+                                                                                                   // the
+                                                                                                   // referenced
+                                                                                                   // vertices
+                                                                                                   // here
                 if (vertexIndices != null) {
-                    int totweight = ((Number) dvert.getFieldValue("totweight")).intValue();// total amount of weights assignet to the vertex (max. 4 in JME)
+                    int totweight = ((Number) dvert.getFieldValue("totweight")).intValue();// total
+                                                                                           // amount
+                                                                                           // of
+                                                                                           // weights
+                                                                                           // assignet
+                                                                                           // to
+                                                                                           // the
+                                                                                           // vertex
+                                                                                           // (max.
+                                                                                           // 4
+                                                                                           // in
+                                                                                           // JME)
                     Pointer pDW = (Pointer) dvert.getFieldValue("dw");
                     if (totweight > 0 && groupToBoneIndexMap != null) {
                         weightToIndexMap.clear();
@@ -307,25 +341,32 @@ import com.jme3.util.BufferUtils;
                         for (Structure deformWeight : dw) {
                             Integer boneIndex = groupToBoneIndexMap.get(((Number) deformWeight.getFieldValue("def_nr")).intValue());
                             float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
-                            // boneIndex == null: it here means that we came accross group that has no bone attached to, so simply ignore it
-                            // if weight == 0 and weightIndex == 0 then ignore the weight (do not set weight = 0 as a first weight)
+                            // boneIndex == null: it here means that we came
+                            // accross group that has no bone attached to, so
+                            // simply ignore it
+                            // if weight == 0 and weightIndex == 0 then ignore
+                            // the weight (do not set weight = 0 as a first
+                            // weight)
                             if (boneIndex != null && (weight > 0.0f || weightIndex > 0)) {
                                 if (weightIndex < MAXIMUM_WEIGHTS_PER_VERTEX) {
                                     if (weight == 0.0f) {
                                         boneIndex = Integer.valueOf(0);
                                     }
-                                    // we apply the weight to all referenced vertices
+                                    // we apply the weight to all referenced
+                                    // vertices
                                     for (Integer index : vertexIndices) {
                                         weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + weightIndex, weight);
                                         indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + weightIndex, boneIndex.byteValue());
                                     }
                                     weightToIndexMap.put(weight, weightIndex);
                                     bonesGroups[0] = Math.max(bonesGroups[0], weightIndex + 1);
-                                } else if (weight > 0) {// if weight is zero the simply ignore it
+                                } else if (weight > 0) {// if weight is zero the
+                                                        // simply ignore it
                                     warnAboutTooManyVertexWeights = true;
                                     Entry<Float, Integer> lowestWeightAndIndex = weightToIndexMap.firstEntry();
                                     if (lowestWeightAndIndex != null && lowestWeightAndIndex.getKey() < weight) {
-                                        // we apply the weight to all referenced vertices
+                                        // we apply the weight to all referenced
+                                        // vertices
                                         for (Integer index : vertexIndices) {
                                             weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + lowestWeightAndIndex.getValue(), weight);
                                             indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + lowestWeightAndIndex.getValue(), boneIndex.byteValue());
@@ -338,7 +379,8 @@ import com.jme3.util.BufferUtils;
                             }
                         }
                     } else {
-                        // 0.0 weight indicates, do not transform this vertex, but keep it in bind pose.
+                        // 0.0 weight indicates, do not transform this vertex,
+                        // but keep it in bind pose.
                         for (Integer index : vertexIndices) {
                             weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, 0.0f);
                             indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, (byte) 0);
@@ -354,7 +396,8 @@ import com.jme3.util.BufferUtils;
         } else {
             // always bind all vertices to 0-indexed bone
             // this bone makes the model look normally if vertices have no bone
-            // assigned and it is used in object animation, so if we come accross object
+            // assigned and it is used in object animation, so if we come
+            // accross object
             // animation we can use the 0-indexed bone for this
             for (List<Integer> vertexIndexList : vertexReferenceMap.values()) {
                 // we apply the weight to all referenced vertices

@@ -7,6 +7,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
  * This class represents 'Size limit' constraint type in blender.
+ * 
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class ConstraintDefinitionSizeLimit extends ConstraintDefinition {
@@ -19,8 +20,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
     protected transient float[][] limits     = new float[3][2];
 
-    public ConstraintDefinitionSizeLimit(Structure constraintData, BlenderContext blenderContext) {
-        super(constraintData, blenderContext);
+    public ConstraintDefinitionSizeLimit(Structure constraintData, Long ownerOMA, BlenderContext blenderContext) {
+        super(constraintData, ownerOMA, blenderContext);
         if (blenderContext.getBlenderKey().isFixUpAxis()) {
             limits[0][0] = ((Number) constraintData.getFieldValue("xmin")).floatValue();
             limits[0][1] = ((Number) constraintData.getFieldValue("xmax")).floatValue();
@@ -34,7 +35,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
             int ymax = flag & LIMIT_YMAX;
             int zmin = flag & LIMIT_ZMIN;
             int zmax = flag & LIMIT_ZMAX;
-            flag &= LIMIT_XMIN | LIMIT_XMAX;// clear the other flags to swap them
+            flag &= LIMIT_XMIN | LIMIT_XMAX;// clear the other flags to swap
+                                            // them
             flag |= ymin << 2;
             flag |= ymax << 2;
             flag |= zmin >> 2;
@@ -71,5 +73,10 @@ import com.jme3.scene.plugins.blender.file.Structure;
         if ((flag & LIMIT_ZMAX) != 0 && scale.z > limits[2][1]) {
             scale.z -= (scale.z - limits[2][1]) * influence;
         }
+    }
+
+    @Override
+    public String getConstraintTypeName() {
+        return "Limit scale";
     }
 }

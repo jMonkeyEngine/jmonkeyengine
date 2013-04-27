@@ -40,7 +40,7 @@ import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
 
 public class ConstraintDefinitionFactory {
-    private static final Map<String, Class<? extends ConstraintDefinition>> CONSTRAINT_CLASSES = new HashMap<String, Class<? extends ConstraintDefinition>>();
+    private static final Map<String, Class<? extends ConstraintDefinition>> CONSTRAINT_CLASSES      = new HashMap<String, Class<? extends ConstraintDefinition>>();
     static {
         CONSTRAINT_CLASSES.put("bDistLimitConstraint", ConstraintDefinitionDistLimit.class);
         CONSTRAINT_CLASSES.put("bLocateLikeConstraint", ConstraintDefinitionLocLike.class);
@@ -51,8 +51,8 @@ public class ConstraintDefinitionFactory {
         CONSTRAINT_CLASSES.put("bSizeLikeConstraint", ConstraintDefinitionSizeLike.class);
         CONSTRAINT_CLASSES.put("bSizeLimitConstraint", ConstraintDefinitionSizeLimit.class);
     }
-    
-    private static final Map<String, String> UNSUPPORTED_CONSTRAINTS = new HashMap<String, String>();
+
+    private static final Map<String, String>                                UNSUPPORTED_CONSTRAINTS = new HashMap<String, String>();
     static {
         UNSUPPORTED_CONSTRAINTS.put("bActionConstraint", "Action");
         UNSUPPORTED_CONSTRAINTS.put("bChildOfConstraint", "Child of");
@@ -84,22 +84,23 @@ public class ConstraintDefinitionFactory {
      * This method creates the constraint instance.
      * 
      * @param constraintStructure
-     *            the constraint's structure (bConstraint clss in blender 2.49). If the value is null the NullConstraint is created.
+     *            the constraint's structure (bConstraint clss in blender 2.49).
+     *            If the value is null the NullConstraint is created.
      * @param blenderContext
      *            the blender context
      * @throws BlenderFileException
      *             this exception is thrown when the blender file is somehow
      *             corrupted
      */
-    public static ConstraintDefinition createConstraintDefinition(Structure constraintStructure, BlenderContext blenderContext) throws BlenderFileException {
+    public static ConstraintDefinition createConstraintDefinition(Structure constraintStructure, Long ownerOMA, BlenderContext blenderContext) throws BlenderFileException {
         if (constraintStructure == null) {
-            return new ConstraintDefinitionNull(null, blenderContext);
+            return new ConstraintDefinitionNull(null, ownerOMA, blenderContext);
         }
         String constraintClassName = constraintStructure.getType();
         Class<? extends ConstraintDefinition> constraintDefinitionClass = CONSTRAINT_CLASSES.get(constraintClassName);
         if (constraintDefinitionClass != null) {
             try {
-                return (ConstraintDefinition) constraintDefinitionClass.getDeclaredConstructors()[0].newInstance(constraintStructure, blenderContext);
+                return (ConstraintDefinition) constraintDefinitionClass.getDeclaredConstructors()[0].newInstance(constraintStructure, ownerOMA, blenderContext);
             } catch (IllegalArgumentException e) {
                 throw new BlenderFileException(e.getLocalizedMessage(), e);
             } catch (SecurityException e) {
@@ -113,7 +114,7 @@ public class ConstraintDefinitionFactory {
             }
         } else {
             String constraintName = UNSUPPORTED_CONSTRAINTS.get(constraintClassName);
-            if(constraintName != null) {
+            if (constraintName != null) {
                 return new UnsupportedConstraintDefinition(constraintName);
             } else {
                 throw new BlenderFileException("Unknown constraint type: " + constraintClassName);

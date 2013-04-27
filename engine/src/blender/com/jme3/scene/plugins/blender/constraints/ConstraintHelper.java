@@ -1,51 +1,65 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import com.jme3.animation.Animation;
 import com.jme3.animation.Bone;
-import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
-import com.jme3.animation.SpatialTrack;
-import com.jme3.animation.Track;
+import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.animations.IpoHelper;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
  * This class should be used for constraint calculations.
+ * 
  * @author Marcin Roguski (Kaelthas)
  */
 public class ConstraintHelper extends AbstractBlenderHelper {
-    private static final Logger LOGGER = Logger.getLogger(ConstraintHelper.class.getName());
+    private static final Logger     LOGGER                      = Logger.getLogger(ConstraintHelper.class.getName());
+
+    private static final Quaternion POS_POSE_SPACE_QUATERNION   = new Quaternion(new float[] { FastMath.PI, 0, 0 });
+    private static final Quaternion NEG_POSE_SPACE_QUATERNION   = new Quaternion(new float[] { -FastMath.PI, 0, 0 });
+    private static final Quaternion POS_PARLOC_SPACE_QUATERNION = new Quaternion(new float[] { FastMath.HALF_PI, 0, 0 });
+    private static final Quaternion NEG_PARLOC_SPACE_QUATERNION = new Quaternion(new float[] { -FastMath.HALF_PI, 0, 0 });
+
+    private BlenderContext          blenderContext;
 
     /**
-     * Helper constructor. It's main task is to generate the affection functions. These functions are common to all
-     * ConstraintHelper instances. Unfortunately this constructor might grow large. If it becomes too large - I shall
-     * consider refactoring. The constructor parses the given blender version and stores the result. Some
-     * functionalities may differ in different blender versions.
+     * Helper constructor. It's main task is to generate the affection
+     * functions. These functions are common to all ConstraintHelper instances.
+     * Unfortunately this constructor might grow large. If it becomes too large
+     * - I shall consider refactoring. The constructor parses the given blender
+     * version and stores the result. Some functionalities may differ in
+     * different blender versions.
+     * 
      * @param blenderVersion
      *            the version read from the blend file
+     * @param blenderContext
+     *            the blender context
      * @param fixUpAxis
      *            a variable that indicates if the Y asxis is the UP axis or not
      */
     public ConstraintHelper(String blenderVersion, BlenderContext blenderContext, boolean fixUpAxis) {
         super(blenderVersion, fixUpAxis);
+        this.blenderContext = blenderContext;
     }
 
     /**
@@ -95,7 +109,8 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                 List<Constraint> constraintsList = new ArrayList<Constraint>();
                 Long boneOMA = Long.valueOf(((Pointer) poseChannel.getFieldValue("bone")).getOldMemoryAddress());
 
-                // the name is read directly from structure because bone might not yet be loaded
+                // the name is read directly from structure because bone might
+                // not yet be loaded
                 String name = blenderContext.getFileBlock(boneOMA).getStructure(blenderContext).getFieldValue("name").toString();
                 List<Structure> constraints = ((Structure) poseChannel.getFieldValue("constraints")).evaluateListBase(blenderContext);
                 for (Structure constraint : constraints) {
@@ -130,7 +145,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                     ipo = ipoHelper.fromValue(enforce);
                 }
 
-                constraintsList.add(this.getConstraint(dataType, constraint, objectStructure.getOldMemoryAddress(), ipo, blenderContext));
+                constraintsList.add(this.createConstraint(dataType, constraint, objectStructure.getOldMemoryAddress(), ipo, blenderContext));
             }
             blenderContext.addConstraints(objectStructure.getOldMemoryAddress(), constraintsList);
         }
@@ -155,7 +170,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      * @throws BlenderFileException
      *             thrown when problems with blender file occured
      */
-    private Constraint getConstraint(String dataType, Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
+    private Constraint createConstraint(String dataType, Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
         if (dataType == null || "Mesh".equalsIgnoreCase(dataType) || "Camera".equalsIgnoreCase(dataType) || "Lamp".equalsIgnoreCase(dataType)) {
             return new SpatialConstraint(constraintStructure, ownerOMA, influenceIpo, blenderContext);
         } else if ("Armature".equalsIgnoreCase(dataType)) {
@@ -172,249 +187,214 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      *            the blender context
      */
     public void bakeConstraints(BlenderContext blenderContext) {
+        List<SimulationNode> simulationRootNodes = new ArrayList<SimulationNode>();
         for (Constraint constraint : blenderContext.getAllConstraints()) {
-            constraint.bake();
-        }
-    }
+            boolean constraintUsed = false;
+            for (SimulationNode node : simulationRootNodes) {
+                if (node.contains(constraint)) {
+                    constraintUsed = true;
+                    break;
+                }
+            }
 
-    /**
-     * The method returns track for bone.
-     * 
-     * @param bone
-     *            the bone
-     * @param skeleton
-     *            the bone's skeleton
-     * @param animation
-     *            the bone's animation
-     * @return track for the given bone that was found among the given
-     *         animations or null if none is found
-     */
-    /* package */BoneTrack getTrack(Bone bone, Skeleton skeleton, Animation animation) {
-        int boneIndex = skeleton.getBoneIndex(bone);
-        for (Track track : animation.getTracks()) {
-            if (((BoneTrack) track).getTargetBoneIndex() == boneIndex) {
-                return (BoneTrack) track;
+            if (!constraintUsed) {
+                if (constraint instanceof BoneConstraint) {
+                    BoneContext boneContext = blenderContext.getBoneContext(constraint.ownerOMA);
+                    simulationRootNodes.add(new SimulationNode(boneContext.getArmatureObjectOMA(), blenderContext));
+                } else if (constraint instanceof SpatialConstraint) {
+                    Spatial spatial = (Spatial) blenderContext.getLoadedFeature(constraint.ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);
+                    while (spatial.getParent() != null) {
+                        spatial = spatial.getParent();
+                    }
+                    simulationRootNodes.add(new SimulationNode((Long) spatial.getUserData("oma"), blenderContext));
+                } else {
+                    throw new IllegalStateException("Unsupported constraint type: " + constraint);
+                }
             }
         }
-        return null;
-    }
 
-    /**
-     * The method returns track for spatial.
-     * 
-     * @param bone
-     *            the spatial
-     * @param animation
-     *            the spatial's animation
-     * @return track for the given spatial that was found among the given
-     *         animations or null if none is found
-     */
-    /* package */SpatialTrack getTrack(Spatial spatial, Animation animation) {
-        Track[] tracks = animation.getTracks();
-        if (tracks != null && tracks.length == 1) {
-            return (SpatialTrack) tracks[0];
+        for (SimulationNode node : simulationRootNodes) {
+            node.simulate();
         }
-        return null;
     }
 
     /**
-     * This method returns the transform read directly from the blender
-     * structure. This can be used to read transforms from one of the object
-     * types: <li>Spatial <li>Camera <li>Light
+     * The method retreives the transform from a feature in a given space.
      * 
+     * @param oma
+     *            the OMA of the feature (spatial or armature node)
+     * @param subtargetName
+     *            the feature's subtarget (bone in a case of armature's node)
      * @param space
-     *            the space where transform is evaluated
-     * @param spatialOMA
-     *            the OMA of the object
-     * @param blenderContext
-     *            the blender context
-     * @return the object's transform in a given space
+     *            the space the transform is evaluated to
+     * @return thensform of a feature in a given space
      */
-    @SuppressWarnings("unchecked")
-    /* package */Transform getNodeObjectTransform(Space space, Long spatialOMA, BlenderContext blenderContext) {
-        switch (space) {
-            case CONSTRAINT_SPACE_LOCAL:
-                Structure targetStructure = (Structure) blenderContext.getLoadedFeature(spatialOMA, LoadedFeatureDataType.LOADED_STRUCTURE);
+    public Transform getTransform(Long oma, String subtargetName, Space space) {
+        Spatial feature = (Spatial) blenderContext.getLoadedFeature(oma, LoadedFeatureDataType.LOADED_FEATURE);
+        boolean isArmature = feature.getUserData(ArmatureHelper.ARMETURE_NODE_MARKER) != null;
+        if (isArmature) {
+            BoneContext targetBoneContext = blenderContext.getBoneByName(subtargetName);
+            Bone bone = targetBoneContext.getBone();
 
-                DynamicArray<Number> locArray = ((DynamicArray<Number>) targetStructure.getFieldValue("loc"));
-                Vector3f loc = new Vector3f(locArray.get(0).floatValue(), locArray.get(1).floatValue(), locArray.get(2).floatValue());
-                DynamicArray<Number> rotArray = ((DynamicArray<Number>) targetStructure.getFieldValue("rot"));
-                Quaternion rot = new Quaternion(new float[] { rotArray.get(0).floatValue(), rotArray.get(1).floatValue(), rotArray.get(2).floatValue() });
-                DynamicArray<Number> sizeArray = ((DynamicArray<Number>) targetStructure.getFieldValue("size"));
-                Vector3f size = new Vector3f(sizeArray.get(0).floatValue(), sizeArray.get(1).floatValue(), sizeArray.get(2).floatValue());
+            switch (space) {
+                case CONSTRAINT_SPACE_WORLD:
+                    Transform t = new Transform(bone.getModelSpacePosition(), bone.getModelSpaceRotation(), bone.getModelSpaceScale());
+                    System.out.println("A: " + Arrays.toString(t.getRotation().toAngles(null)));
+                    return t;
+                case CONSTRAINT_SPACE_LOCAL:
+                    Transform localTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
+                    localTransform.setScale(bone.getLocalScale());
+                    return localTransform;
+                case CONSTRAINT_SPACE_POSE:
+                    Node nodeWithAnimationControl = blenderContext.getControlledNode(targetBoneContext.getSkeleton());
+                    Matrix4f m = this.toMatrix(nodeWithAnimationControl.getWorldTransform());
+                    Matrix4f boneAgainstModifiedNodeMatrix = this.toMatrix(bone.getLocalPosition(), bone.getLocalRotation(), bone.getLocalScale());
+                    Matrix4f boneWorldMatrix = m.multLocal(boneAgainstModifiedNodeMatrix);
 
-                if (blenderContext.getBlenderKey().isFixUpAxis()) {
-                    float y = loc.y;
-                    loc.y = loc.z;
-                    loc.z = -y;
+                    Matrix4f armatureWorldMatrix = this.toMatrix(feature.getWorldTransform()).invertLocal();
+                    Matrix4f r2 = armatureWorldMatrix.multLocal(boneWorldMatrix);
 
-                    y = rot.getY();
-                    float z = rot.getZ();
-                    rot.set(rot.getX(), z, -y, rot.getW());
+                    Vector3f loc2 = r2.toTranslationVector();
+                    Quaternion rot2 = r2.toRotationQuat().normalizeLocal().multLocal(POS_POSE_SPACE_QUATERNION);
+                    Vector3f scl2 = r2.toScaleVector();
 
-                    y = size.y;
-                    size.y = size.z;
-                    size.z = y;
-                }
+                    return new Transform(loc2, rot2, scl2);
+                case CONSTRAINT_SPACE_PARLOCAL:
+                    Matrix4f parentLocalMatrix = Matrix4f.IDENTITY;
+                    if (bone.getParent() != null) {
+                        Bone parent = bone.getParent();
+                        parentLocalMatrix = this.toMatrix(parent.getLocalPosition(), parent.getLocalRotation(), parent.getLocalScale());
+                    } else {// we need to clone it because otherwise we could
+                            // spoil the IDENTITY matrix
+                        parentLocalMatrix = parentLocalMatrix.clone();
+                    }
+                    Matrix4f boneLocalMatrix = this.toMatrix(bone.getLocalPosition(), bone.getLocalRotation(), bone.getLocalScale());
+                    Matrix4f result = parentLocalMatrix.multLocal(boneLocalMatrix);
 
-                Transform result = new Transform(loc, rot);
-                result.setScale(size);
-                return result;
-            case CONSTRAINT_SPACE_WORLD:// TODO: get it from the object structure ???
-                Object feature = blenderContext.getLoadedFeature(spatialOMA, LoadedFeatureDataType.LOADED_FEATURE);
-                if (feature instanceof Spatial) {
+                    Vector3f loc = result.toTranslationVector();
+                    Quaternion rot = result.toRotationQuat().normalizeLocal().multLocal(NEG_PARLOC_SPACE_QUATERNION);
+                    Vector3f scl = result.toScaleVector();
+                    return new Transform(loc, rot, scl);
+                default:
+                    throw new IllegalStateException("Unknown space type: " + space);
+            }
+        } else {
+            switch (space) {
+                case CONSTRAINT_SPACE_LOCAL:
+                    return ((Spatial) feature).getLocalTransform();
+                case CONSTRAINT_SPACE_WORLD:
                     return ((Spatial) feature).getWorldTransform();
-                } else if (feature instanceof Skeleton) {
-                    LOGGER.warning("Trying to get transformation for skeleton. This is not supported. Returning null.");
-                    return null;
-                } else {
-                    throw new IllegalArgumentException("Given old memory address does not point to a valid object type (spatial, camera or light).");
-                }
-            default:
-                throw new IllegalStateException("Invalid space type for target object: " + space.toString());
+                case CONSTRAINT_SPACE_PARLOCAL:
+                case CONSTRAINT_SPACE_POSE:
+                    throw new IllegalStateException("Nodes can have only Local and World spaces applied!");
+                default:
+                    throw new IllegalStateException("Unknown space type: " + space);
+            }
         }
     }
 
     /**
-     * The method returns the transform for the given bone computed in the given
+     * Applies transform to a feature (bone or spatial). Computations transform
+     * the given transformation from the given space to the feature's local
      * space.
      * 
+     * @param oma
+     *            the OMA of the feature we apply transformation to
+     * @param subtargetName
+     *            the name of the feature's subtarget (bone in case of armature)
      * @param space
-     *            the computation space
-     * @param bone
-     *            the bone we get the transform from
-     * @return the transform of the given bone
-     */
-    /* package */Transform getBoneTransform(Space space, Bone bone) {
-        switch (space) {
-            case CONSTRAINT_SPACE_LOCAL:
-                Transform localTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
-                localTransform.setScale(bone.getLocalScale());
-                return localTransform;
-            case CONSTRAINT_SPACE_WORLD:
-                Transform worldTransform = new Transform(bone.getWorldBindPosition(), bone.getWorldBindRotation());
-                worldTransform.setScale(bone.getWorldBindScale());
-                return worldTransform;
-            case CONSTRAINT_SPACE_POSE:
-                Transform poseTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
-                poseTransform.setScale(bone.getLocalScale());
-                return poseTransform;
-            case CONSTRAINT_SPACE_PARLOCAL:
-                Transform parentLocalTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
-                parentLocalTransform.setScale(bone.getLocalScale());
-                return parentLocalTransform;
-            default:
-                throw new IllegalStateException("Invalid space type for target object: " + space.toString());
-        }
-    }
-
-    /**
-     * The method applies the transform for the given spatial, computed in the
-     * given space.
-     * 
-     * @param spatial
-     *            the spatial we apply the transform for
-     * @param space
-     *            the computation space
+     *            the space in which the given transform is to be applied
      * @param transform
-     *            the transform being applied
+     *            the transform we apply
      */
-    /* package */void applyTransform(Spatial spatial, Space space, Transform transform) {
-        switch (space) {
-            case CONSTRAINT_SPACE_LOCAL:
-                Transform ownerLocalTransform = spatial.getLocalTransform();
-                ownerLocalTransform.getTranslation().addLocal(transform.getTranslation());
-                ownerLocalTransform.getRotation().multLocal(transform.getRotation());
-                ownerLocalTransform.getScale().multLocal(transform.getScale());
-                break;
-            case CONSTRAINT_SPACE_WORLD:
-                Matrix4f m = this.getParentWorldTransformMatrix(spatial);
-                m.invertLocal();
-                Matrix4f matrix = this.toMatrix(transform);
-                m.multLocal(matrix);
+    public void applyTransform(Long oma, String subtargetName, Space space, Transform transform) {
+        Spatial feature = (Spatial) blenderContext.getLoadedFeature(oma, LoadedFeatureDataType.LOADED_FEATURE);
+        boolean isArmature = feature.getUserData(ArmatureHelper.ARMETURE_NODE_MARKER) != null;
+        if (isArmature) {
+            Skeleton skeleton = blenderContext.getSkeleton(oma);
+            BoneContext targetBoneContext = blenderContext.getBoneByName(subtargetName);
+            Bone bone = targetBoneContext.getBone();
 
-                float scaleX = (float) Math.sqrt(m.m00 * m.m00 + m.m10 * m.m10 + m.m20 * m.m20);
-                float scaleY = (float) Math.sqrt(m.m01 * m.m01 + m.m11 * m.m11 + m.m21 * m.m21);
-                float scaleZ = (float) Math.sqrt(m.m02 * m.m02 + m.m12 * m.m12 + m.m22 * m.m22);
+            Node nodeControlledBySkeleton = blenderContext.getControlledNode(skeleton);
+            Transform nodeTransform = nodeControlledBySkeleton.getWorldTransform();
+            Matrix4f invertedNodeMatrix = this.toMatrix(nodeTransform).invertLocal();
 
-                transform.setTranslation(m.toTranslationVector());
-                transform.setRotation(m.toRotationQuat());
-                transform.setScale(scaleX, scaleY, scaleZ);
-                spatial.setLocalTransform(transform);
-                break;
-            case CONSTRAINT_SPACE_PARLOCAL:
-            case CONSTRAINT_SPACE_POSE:
-                throw new IllegalStateException("Invalid space type (" + space.toString() + ") for owner object.");
-            default:
-                throw new IllegalStateException("Invalid space type for target object: " + space.toString());
+            switch (space) {
+                case CONSTRAINT_SPACE_LOCAL:
+                    bone.setBindTransforms(transform.getTranslation(), transform.getRotation(), transform.getScale());
+                    break;
+                case CONSTRAINT_SPACE_WORLD:
+                    System.out.println("B: " + Arrays.toString(transform.getRotation().toAngles(null)));
+                    Matrix4f boneMatrix = this.toMatrix(transform);
+                    Bone parent = bone.getParent();
+                    if (parent != null) {
+                        Matrix4f invertedParentWorldMatrix = this.toMatrix(parent.getModelSpacePosition(), parent.getModelSpaceRotation(), parent.getModelSpaceScale()).invertLocal();
+                        boneMatrix = invertedParentWorldMatrix.multLocal(boneMatrix);
+                    }
+
+                    boneMatrix = invertedNodeMatrix.multLocal(boneMatrix);
+                    bone.setBindTransforms(boneMatrix.toTranslationVector(), boneMatrix.toRotationQuat(), boneMatrix.toScaleVector());
+                    break;
+                case CONSTRAINT_SPACE_POSE:
+                    Matrix4f armatureWorldMatrix = this.toMatrix(feature.getWorldTransform());
+                    Matrix4f bonePoseMatrix = this.toMatrix(transform);
+                    Matrix4f boneWorldMatrix = armatureWorldMatrix.multLocal(bonePoseMatrix);
+                    // now compute bone's local matrix
+                    Matrix4f boneLocalMatrix = invertedNodeMatrix.multLocal(boneWorldMatrix);
+
+                    Vector3f loc2 = boneLocalMatrix.toTranslationVector();
+                    Quaternion rot2 = boneLocalMatrix.toRotationQuat().normalizeLocal().multLocal(new Quaternion(NEG_POSE_SPACE_QUATERNION));
+                    Vector3f scl2 = boneLocalMatrix.toScaleVector();
+                    bone.setBindTransforms(loc2, rot2, scl2);
+                    break;
+                case CONSTRAINT_SPACE_PARLOCAL:
+                    Matrix4f parentLocalMatrix = Matrix4f.IDENTITY;
+                    if (bone.getParent() != null) {
+                        parentLocalMatrix = this.toMatrix(bone.getParent().getLocalPosition(), bone.getParent().getLocalRotation(), bone.getParent().getLocalScale());
+                        parentLocalMatrix.invertLocal();
+                    } else {// we need to clone it because otherwise we could
+                            // spoil the IDENTITY matrix
+                        parentLocalMatrix = parentLocalMatrix.clone();
+                    }
+                    Matrix4f m = this.toMatrix(transform.getTranslation(), transform.getRotation(), transform.getScale());
+                    Matrix4f result = parentLocalMatrix.multLocal(m);
+                    Vector3f loc = result.toTranslationVector();
+                    Quaternion rot = result.toRotationQuat().normalizeLocal().multLocal(POS_PARLOC_SPACE_QUATERNION);
+                    Vector3f scl = result.toScaleVector();
+                    bone.setBindTransforms(loc, rot, scl);
+                    break;
+                default:
+                    throw new IllegalStateException("Invalid space type for target object: " + space.toString());
+            }
+        } else if (feature instanceof Spatial) {
+            Spatial spatial = (Spatial) feature;
+            switch (space) {
+                case CONSTRAINT_SPACE_LOCAL:
+                    spatial.getLocalTransform().set(transform);
+                    break;
+                case CONSTRAINT_SPACE_WORLD:
+                    if (spatial.getParent() == null) {
+                        spatial.setLocalTransform(transform);
+                    } else {
+                        Transform parentWorldTransform = spatial.getParent().getWorldTransform();
+
+                        Matrix4f parentMatrix = this.toMatrix(parentWorldTransform).invertLocal();
+                        Matrix4f m = this.toMatrix(transform);
+                        m = m.multLocal(parentMatrix);
+
+                        transform.setTranslation(m.toTranslationVector());
+                        transform.setRotation(m.toRotationQuat());
+                        transform.setScale(m.toScaleVector());
+
+                        spatial.setLocalTransform(transform);
+                    }
+                    break;
+                default:
+                    throw new IllegalStateException("Invalid space type for spatial object: " + space.toString());
+            }
+        } else {
+            throw new IllegalStateException("Constrained transformation can be applied only to Bone or Spatial feature!");
         }
-    }
-
-    /**
-     * The method applies the transform for the given bone, computed in the
-     * given space.
-     * 
-     * @param bone
-     *            the bone we apply the transform for
-     * @param space
-     *            the computation space
-     * @param transform
-     *            the transform being applied
-     */
-    /* package */void applyTransform(Bone bone, Space space, Transform transform) {
-        switch (space) {
-            case CONSTRAINT_SPACE_LOCAL:
-                bone.setBindTransforms(transform.getTranslation(), transform.getRotation(), transform.getScale());
-                break;
-            case CONSTRAINT_SPACE_WORLD:
-                Matrix4f m = this.getParentWorldTransformMatrix(bone);
-                // m.invertLocal();
-                transform.setTranslation(m.mult(transform.getTranslation()));
-                transform.setRotation(m.mult(transform.getRotation(), null));
-                transform.setScale(transform.getScale());
-                bone.setBindTransforms(transform.getTranslation(), transform.getRotation(), transform.getScale());
-                // float x = FastMath.HALF_PI/2;
-                // float y = -FastMath.HALF_PI;
-                // float z = -FastMath.HALF_PI/2;
-                // bone.setBindTransforms(new Vector3f(0,0,0), new Quaternion().fromAngles(x, y, z), new Vector3f(1,1,1));
-                break;
-            case CONSTRAINT_SPACE_PARLOCAL:
-                Vector3f parentLocalTranslation = bone.getLocalPosition().add(transform.getTranslation());
-                Quaternion parentLocalRotation = bone.getLocalRotation().mult(transform.getRotation());
-                bone.setBindTransforms(parentLocalTranslation, parentLocalRotation, transform.getScale());
-                break;
-            case CONSTRAINT_SPACE_POSE:
-                bone.setBindTransforms(transform.getTranslation(), transform.getRotation(), transform.getScale());
-                break;
-            default:
-                throw new IllegalStateException("Invalid space type for target object: " + space.toString());
-        }
-    }
-
-    /**
-     * @return world transform matrix of the feature's parent or identity matrix
-     *         if the feature has no parent
-     */
-    private Matrix4f getParentWorldTransformMatrix(Spatial spatial) {
-        Matrix4f result = new Matrix4f();
-        if (spatial.getParent() != null) {
-            Transform t = spatial.getParent().getWorldTransform();
-            result.setTransform(t.getTranslation(), t.getScale(), t.getRotation().toRotationMatrix());
-        }
-        return result;
-    }
-
-    /**
-     * @return world transform matrix of the feature's parent or identity matrix
-     *         if the feature has no parent
-     */
-    private Matrix4f getParentWorldTransformMatrix(Bone bone) {
-        Matrix4f result = new Matrix4f();
-        Bone parent = bone.getParent();
-        if (parent != null) {
-            result.setTransform(parent.getWorldBindPosition(), parent.getWorldBindScale(), parent.getWorldBindRotation().toRotationMatrix());
-        }
-        return result;
     }
 
     /**
@@ -422,16 +402,28 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      * 
      * @param transform
      *            the transform to be converted
-     * @return 4x4 matri that represents the given transform
+     * @return 4x4 matrix that represents the given transform
      */
     private Matrix4f toMatrix(Transform transform) {
         Matrix4f result = Matrix4f.IDENTITY;
         if (transform != null) {
-            result = new Matrix4f();
-            result.setTranslation(transform.getTranslation());
-            result.setRotationQuaternion(transform.getRotation());
-            result.setScale(transform.getScale());
+            result = this.toMatrix(transform.getTranslation(), transform.getRotation(), transform.getScale());
         }
+        return result;
+    }
+
+    /**
+     * Converts given transformation parameters into the matrix.
+     * 
+     * @param transform
+     *            the transform to be converted
+     * @return 4x4 matrix that represents the given transformation parameters
+     */
+    private Matrix4f toMatrix(Vector3f position, Quaternion rotation, Vector3f scale) {
+        Matrix4f result = new Matrix4f();
+        result.setTranslation(position);
+        result.setRotationQuaternion(rotation);
+        result.setScale(scale);
         return result;
     }
 
@@ -447,7 +439,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      */
     public static enum Space {
 
-        CONSTRAINT_SPACE_WORLD, CONSTRAINT_SPACE_LOCAL, CONSTRAINT_SPACE_POSE, CONSTRAINT_SPACE_PARLOCAL, CONSTRAINT_SPACE_INVALID;
+        CONSTRAINT_SPACE_WORLD, CONSTRAINT_SPACE_LOCAL, CONSTRAINT_SPACE_POSE, CONSTRAINT_SPACE_PARLOCAL;
 
         /**
          * This method returns the enum instance when given the appropriate
@@ -468,7 +460,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                 case 3:
                     return CONSTRAINT_SPACE_PARLOCAL;
                 default:
-                    return CONSTRAINT_SPACE_INVALID;
+                    throw new IllegalArgumentException("Value: " + c + " cannot be converted to Space enum instance!");
             }
         }
     }
