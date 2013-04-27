@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/Skinning.glsllib"
 uniform mat4 g_WorldViewProjectionMatrix;
 uniform mat3 g_NormalMatrix;
 
@@ -11,6 +12,11 @@ varying vec2 texCoord;
 void main(void)
 {
    texCoord=inTexCoord.xy;
-   normal = normalize(g_NormalMatrix * inNormal);
-   gl_Position = g_WorldViewProjectionMatrix * vec4(inPosition,1.0);
+   vec4 modelSpacePos = vec4(inPosition, 1.0);
+   vec3 modelSpaceNormals = inNormal;
+   #ifdef NUM_BONES
+       Skinning_Compute(modelSpacePos,modelSpaceNormals);
+   #endif
+   normal = normalize(g_NormalMatrix * modelSpaceNormals);
+   gl_Position = g_WorldViewProjectionMatrix * modelSpacePos;
 }

@@ -192,6 +192,7 @@ MaterialDef Phong Lighting {
         Defines {
             COLOR_MAP : ColorMap
             DISCARD_ALPHA : AlphaDiscardThreshold
+            NUM_BONES : NumberOfBones
         }
 
         ForcedRenderState {
@@ -218,12 +219,13 @@ MaterialDef Phong Lighting {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold
+            DISCARD_ALPHA : AlphaDiscardThreshold           
             COLOR_MAP : ColorMap
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
+            NUM_BONES : NumberOfBones
         }
 
         ForcedRenderState {
@@ -246,12 +248,13 @@ MaterialDef Phong Lighting {
             HARDWARE_SHADOWS : HardwareShadows
             FILTER_MODE : FilterMode
             PCFEDGE : PCFEdge
-            DISCARD_ALPHA : AlphaDiscardThreshold
+            DISCARD_ALPHA : AlphaDiscardThreshold           
             COLOR_MAP : ColorMap
             SHADOWMAP_SIZE : ShadowMapSize
             FADE : FadeInfo
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
+            NUM_BONES : NumberOfBones
         }
 
         ForcedRenderState {
@@ -274,10 +277,7 @@ MaterialDef Phong Lighting {
 
         Defines {
             DIFFUSEMAP_ALPHA : DiffuseMap
-        }
-
-        RenderState {
-
+            NUM_BONES : NumberOfBones
         }
 
     }
