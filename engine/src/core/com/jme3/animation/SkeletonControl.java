@@ -426,14 +426,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     }
 
     /**
-     * sets the skeleton for this control
-     *
-     * @param skeleton
-     */
-//    public void setSkeleton(Skeleton skeleton) {
-//        this.skeleton = skeleton;
-//    }
-    /**
      * returns a copy of array of the targets meshes of this control
      *
      * @return
@@ -442,14 +434,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         return targets.toArray(new Mesh[targets.size()]);
     }
 
-    /**
-     * sets the target meshes of this control
-     *
-     * @param targets
-     */
-//    public void setTargets(Mesh[] targets) {
-//        this.targets = targets;
-//    }
     /**
      * Update the mesh according to the given transformation matrices
      *
@@ -731,26 +715,14 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(skeleton, "skeleton", null);
-        //Targets and materials doesn't need to be saved, th'ay be gathered on each frame
-        //oc.write(targets, "targets", null);
-        //oc.write(materials, "materials", null);
+        //Targets and materials don't need to be saved, they'll be gathered on each frame
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
-//        Savable[] sav = in.readSavableArray("targets", null);
-//        if (sav != null) {
-//            targets = new Mesh[sav.length];
-//            System.arraycopy(sav, 0, targets, 0, sav.length);
-//        }
         skeleton = (Skeleton) in.readSavable("skeleton", null);
-//        sav = in.readSavableArray("materials", null);
-//        if (sav != null) {
-//            materials = new Material[sav.length];
-//            System.arraycopy(sav, 0, materials, 0, sav.length);
-//        }
     }
 
     private void updateTargetsAndMaterials(Spatial spatial) {
