@@ -289,6 +289,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
+        updateTargetsAndMaterials(spatial);
         if (!wasMeshUpdated) {
             // Prevent illegal cases. These should never happen.
             assert hwSkinningTested || (!hwSkinningTested && !hwSkinningSupported && !hwSkinningEnabled);
@@ -326,8 +327,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     @Override
     protected void controlUpdate(float tpf) {
         wasMeshUpdated = false;
-        updateTargetsAndMaterials(spatial);
-    }
+     }
 
     //only do this for software updates
     void resetToBind() {
