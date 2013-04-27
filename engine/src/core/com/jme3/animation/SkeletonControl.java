@@ -43,13 +43,15 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
 import com.jme3.shader.VarType;
+import com.jme3.util.SafeArrayList;
 import com.jme3.util.TempVars;
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,7 +71,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     /**
      * List of targets which this controller effects.
      */
-    private Mesh[] targets;
+    private SafeArrayList<Mesh> targets = new SafeArrayList<Mesh>(Mesh.class);
     /**
      * Used to track when a mesh was updated. Meshes are only updated if they
      * are visible in at least one camera.
@@ -105,7 +107,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     /**
      * Material references used for hardware skinning
      */
-    private Material[] materials;
+    private Set<Material> materials = new HashSet<Material>();
 
     /**
      * Serialization only. Do not use.
@@ -211,15 +213,15 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     @Deprecated
     SkeletonControl(Mesh[] targets, Skeleton skeleton) {
         this.skeleton = skeleton;
-        this.targets = targets;
+        this.targets = new SafeArrayList<Mesh>(Mesh.class, Arrays.asList(targets));
     }
 
     private boolean isMeshAnimated(Mesh mesh) {
         return mesh.getBuffer(Type.BindPosePosition) != null;
     }
 
-    private void findTargets(Node node, ArrayList<Mesh> targets, HashSet<Material> materials) {
-        Mesh sharedMesh = null;
+    private void findTargets(Node node) {
+        Mesh sharedMesh = null;        
 
         for (Spatial child : node.getChildren()) {
             if (child instanceof Geometry) {
@@ -248,7 +250,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
                     }
                 }
             } else if (child instanceof Node) {
-                findTargets((Node) child, targets, materials);
+                findTargets((Node) child);
             }
         }
 
@@ -261,17 +263,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     @Override
     public void setSpatial(Spatial spatial) {
         super.setSpatial(spatial);
-        if (spatial != null) {
-            Node node = (Node) spatial;
-            HashSet<Material> mats = new HashSet<Material>();
-            ArrayList<Mesh> meshes = new ArrayList<Mesh>();
-            findTargets(node, meshes, mats);
-            targets = meshes.toArray(new Mesh[meshes.size()]);
-            materials = mats.toArray(new Material[mats.size()]);
-        } else {
-            targets = null;
-            materials = null;
-        }
+        updateTargetsAndMaterials(spatial);
     }
 
     private void controlRenderSoftware() {
@@ -279,14 +271,12 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
 
         offsetMatrices = skeleton.computeSkinningMatrices();
 
-        for (int i = 0; i < targets.length; i++) {
+        for (Mesh mesh : targets) {
             // NOTE: This assumes that code higher up
             // Already ensured those targets are animated
             // otherwise a crash will happen in skin update
-            //if (isMeshAnimated(targets)) {
-            softwareSkinUpdate(targets[i], offsetMatrices);
-            //}
-        }
+            softwareSkinUpdate(mesh, offsetMatrices);
+        }     
     }
 
     private void controlRenderHardware() {
@@ -336,6 +326,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     @Override
     protected void controlUpdate(float tpf) {
         wasMeshUpdated = false;
+        updateTargetsAndMaterials(spatial);
     }
 
     //only do this for software updates
@@ -443,12 +434,12 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
 //        this.skeleton = skeleton;
 //    }
     /**
-     * returns the targets meshes of this control
+     * returns a copy of array of the targets meshes of this control
      *
      * @return
      */
-    public Mesh[] getTargets() {
-        return targets;
+    public Mesh[] getTargets() {        
+        return targets.toArray(new Mesh[targets.size()]);
     }
 
     /**
@@ -739,25 +730,35 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
         OutputCapsule oc = ex.getCapsule(this);
-        oc.write(targets, "targets", null);
         oc.write(skeleton, "skeleton", null);
-        oc.write(materials, "materials", null);
+        //Targets and materials doesn't need to be saved, th'ay be gathered on each frame
+        //oc.write(targets, "targets", null);
+        //oc.write(materials, "materials", null);
     }
 
     @Override
     public void read(JmeImporter im) throws IOException {
         super.read(im);
         InputCapsule in = im.getCapsule(this);
-        Savable[] sav = in.readSavableArray("targets", null);
-        if (sav != null) {
-            targets = new Mesh[sav.length];
-            System.arraycopy(sav, 0, targets, 0, sav.length);
-        }
+//        Savable[] sav = in.readSavableArray("targets", null);
+//        if (sav != null) {
+//            targets = new Mesh[sav.length];
+//            System.arraycopy(sav, 0, targets, 0, sav.length);
+//        }
         skeleton = (Skeleton) in.readSavable("skeleton", null);
-        sav = in.readSavableArray("materials", null);
-        if (sav != null) {
-            materials = new Material[sav.length];
-            System.arraycopy(sav, 0, materials, 0, sav.length);
+//        sav = in.readSavableArray("materials", null);
+//        if (sav != null) {
+//            materials = new Material[sav.length];
+//            System.arraycopy(sav, 0, materials, 0, sav.length);
+//        }
+    }
+
+    private void updateTargetsAndMaterials(Spatial spatial) {
+        targets.clear();
+        materials.clear();           
+        if (spatial != null && spatial instanceof Node) {
+            Node node = (Node) spatial;                        
+            findTargets(node);
         }
     }
 }
