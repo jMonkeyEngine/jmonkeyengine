@@ -45,9 +45,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
     public boolean validate() {
         if (targetOMA != null) {
             Spatial nodeTarget = (Spatial) blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
+            if(nodeTarget == null) {
+                LOGGER.log(Level.WARNING, "Cannot find target for constraint: {0}.", name);
+                return false;
+            }
             // the second part of the if expression verifies if the found node
             // (if any) is an armature node
-            if (nodeTarget == null || nodeTarget.getUserData(ArmatureHelper.ARMETURE_NODE_MARKER) != null) {
+            if (nodeTarget.getUserData(ArmatureHelper.ARMATURE_NODE_MARKER) != null) {
+                if(subtargetName.trim().isEmpty()) {
+                    LOGGER.log(Level.WARNING, "No bone target specified for constraint: {0}.", name);
+                    return false;
+                }
                 // if the target is not an object node then it is an Armature,
                 // so make sure the bone is in the current skeleton
                 BoneContext boneContext = blenderContext.getBoneContext(ownerOMA);
