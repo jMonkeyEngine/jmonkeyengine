@@ -99,7 +99,7 @@ public class TextureHelper extends AbstractBlenderHelper {
     public static final int         TEX_VOXELDATA    = 15;                                             // v.
                                                                                                         // 25+
 
-    private TextureGeneratorFactory textureGeneratorFactory;
+    private TextureGeneratorFactory textureGeneratorFactory = new TextureGeneratorFactory();
 
     /**
      * This constructor parses the given blender version and stores the result.
@@ -107,12 +107,11 @@ public class TextureHelper extends AbstractBlenderHelper {
      * 
      * @param blenderVersion
      *            the version read from the blend file
-     * @param fixUpAxis
-     *            a variable that indicates if the Y asxis is the UP axis or not
+     * @param blenderContext
+     *            the blender context
      */
-    public TextureHelper(String blenderVersion, boolean fixUpAxis) {
-        super(blenderVersion, false);
-        textureGeneratorFactory = new TextureGeneratorFactory(blenderVersion);
+    public TextureHelper(String blenderVersion, BlenderContext blenderContext) {
+        super(blenderVersion, blenderContext);
     }
 
     /**

@@ -12,6 +12,11 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 
+/**
+ * A builder class for meshes.
+ * 
+ * @author Marcin Roguski (Kaelthas)
+ */
 /*package*/class MeshBuilder {
     private static final Logger                       LOGGER          = Logger.getLogger(MeshBuilder.class.getName());
 

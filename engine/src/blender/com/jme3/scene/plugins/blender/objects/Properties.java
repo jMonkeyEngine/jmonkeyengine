@@ -164,22 +164,6 @@ public class Properties implements Cloneable {
     }
 
     /**
-     * This method returns the description of the property.
-     * @return the description of the property
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * This method returns the type of the property.
-     * @return the type of the property
-     */
-    public int getType() {
-        return type;
-    }
-
-    /**
      * This method returns the value of the property.
      * The type of the value depends on the type of the property.
      * @return the value of the property

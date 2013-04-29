@@ -192,9 +192,4 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
         }
         return node;
     }
-
-    @Override
-    public String getType() {
-        return Modifier.MIRROR_MODIFIER_DATA;
-    }
 }

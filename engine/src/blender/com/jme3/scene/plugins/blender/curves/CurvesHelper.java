@@ -89,11 +89,11 @@ public class CurvesHelper extends AbstractBlenderHelper {
      * different blender versions.
      * @param blenderVersion
      *            the version read from the blend file
-     * @param fixUpAxis
-     *            a variable that indicates if the Y asxis is the UP axis or not
+     * @param blenderContext
+     *            the blender context
      */
-    public CurvesHelper(String blenderVersion, boolean fixUpAxis) {
-        super(blenderVersion, fixUpAxis);
+    public CurvesHelper(String blenderVersion, BlenderContext blenderContext) {
+        super(blenderVersion, blenderContext);
     }
 
     /**

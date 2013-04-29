@@ -281,7 +281,7 @@ class Field implements Cloneable {
      * This method builds the full name of the field (with function, pointer and table indications).
      * @return the full name of the field
      */
-    public String getFullName() {
+    /*package*/ String getFullName() {
         StringBuilder result = new StringBuilder();
         if (function) {
             result.append('(');

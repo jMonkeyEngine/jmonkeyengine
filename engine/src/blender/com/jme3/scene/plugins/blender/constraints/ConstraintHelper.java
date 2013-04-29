@@ -1,7 +1,6 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,26 +39,16 @@ public class ConstraintHelper extends AbstractBlenderHelper {
     private static final Quaternion POS_PARLOC_SPACE_QUATERNION = new Quaternion(new float[] { FastMath.HALF_PI, 0, 0 });
     private static final Quaternion NEG_PARLOC_SPACE_QUATERNION = new Quaternion(new float[] { -FastMath.HALF_PI, 0, 0 });
 
-    private BlenderContext          blenderContext;
-
     /**
-     * Helper constructor. It's main task is to generate the affection
-     * functions. These functions are common to all ConstraintHelper instances.
-     * Unfortunately this constructor might grow large. If it becomes too large
-     * - I shall consider refactoring. The constructor parses the given blender
-     * version and stores the result. Some functionalities may differ in
-     * different blender versions.
+     * Helper constructor.
      * 
      * @param blenderVersion
      *            the version read from the blend file
      * @param blenderContext
      *            the blender context
-     * @param fixUpAxis
-     *            a variable that indicates if the Y asxis is the UP axis or not
      */
-    public ConstraintHelper(String blenderVersion, BlenderContext blenderContext, boolean fixUpAxis) {
-        super(blenderVersion, fixUpAxis);
-        this.blenderContext = blenderContext;
+    public ConstraintHelper(String blenderVersion, BlenderContext blenderContext) {
+        super(blenderVersion, blenderContext);
     }
 
     /**
@@ -231,16 +220,14 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      */
     public Transform getTransform(Long oma, String subtargetName, Space space) {
         Spatial feature = (Spatial) blenderContext.getLoadedFeature(oma, LoadedFeatureDataType.LOADED_FEATURE);
-        boolean isArmature = feature.getUserData(ArmatureHelper.ARMETURE_NODE_MARKER) != null;
+        boolean isArmature = feature.getUserData(ArmatureHelper.ARMATURE_NODE_MARKER) != null;
         if (isArmature) {
             BoneContext targetBoneContext = blenderContext.getBoneByName(subtargetName);
             Bone bone = targetBoneContext.getBone();
 
             switch (space) {
                 case CONSTRAINT_SPACE_WORLD:
-                    Transform t = new Transform(bone.getModelSpacePosition(), bone.getModelSpaceRotation(), bone.getModelSpaceScale());
-                    System.out.println("A: " + Arrays.toString(t.getRotation().toAngles(null)));
-                    return t;
+                    return new Transform(bone.getModelSpacePosition(), bone.getModelSpaceRotation(), bone.getModelSpaceScale());
                 case CONSTRAINT_SPACE_LOCAL:
                     Transform localTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
                     localTransform.setScale(bone.getLocalScale());
@@ -264,8 +251,9 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                     if (bone.getParent() != null) {
                         Bone parent = bone.getParent();
                         parentLocalMatrix = this.toMatrix(parent.getLocalPosition(), parent.getLocalRotation(), parent.getLocalScale());
-                    } else {// we need to clone it because otherwise we could
-                            // spoil the IDENTITY matrix
+                    } else {
+                        // we need to clone it because otherwise we could spoil
+                        // the IDENTITY matrix
                         parentLocalMatrix = parentLocalMatrix.clone();
                     }
                     Matrix4f boneLocalMatrix = this.toMatrix(bone.getLocalPosition(), bone.getLocalRotation(), bone.getLocalScale());
@@ -309,7 +297,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      */
     public void applyTransform(Long oma, String subtargetName, Space space, Transform transform) {
         Spatial feature = (Spatial) blenderContext.getLoadedFeature(oma, LoadedFeatureDataType.LOADED_FEATURE);
-        boolean isArmature = feature.getUserData(ArmatureHelper.ARMETURE_NODE_MARKER) != null;
+        boolean isArmature = feature.getUserData(ArmatureHelper.ARMATURE_NODE_MARKER) != null;
         if (isArmature) {
             Skeleton skeleton = blenderContext.getSkeleton(oma);
             BoneContext targetBoneContext = blenderContext.getBoneByName(subtargetName);
@@ -324,7 +312,6 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                     bone.setBindTransforms(transform.getTranslation(), transform.getRotation(), transform.getScale());
                     break;
                 case CONSTRAINT_SPACE_WORLD:
-                    System.out.println("B: " + Arrays.toString(transform.getRotation().toAngles(null)));
                     Matrix4f boneMatrix = this.toMatrix(transform);
                     Bone parent = bone.getParent();
                     if (parent != null) {
@@ -352,8 +339,9 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                     if (bone.getParent() != null) {
                         parentLocalMatrix = this.toMatrix(bone.getParent().getLocalPosition(), bone.getParent().getLocalRotation(), bone.getParent().getLocalScale());
                         parentLocalMatrix.invertLocal();
-                    } else {// we need to clone it because otherwise we could
-                            // spoil the IDENTITY matrix
+                    } else {
+                        // we need to clone it because otherwise we could
+                        // spoil the IDENTITY matrix
                         parentLocalMatrix = parentLocalMatrix.clone();
                     }
                     Matrix4f m = this.toMatrix(transform.getTranslation(), transform.getRotation(), transform.getScale());

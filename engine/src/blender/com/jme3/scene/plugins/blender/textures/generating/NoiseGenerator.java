@@ -31,11 +31,6 @@
  */
 package com.jme3.scene.plugins.blender.textures.generating;
 
-import com.jme3.math.FastMath;
-import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgrave.MusgraveData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -44,14 +39,16 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.math.FastMath;
+import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgrave.MusgraveData;
+
 /**
  * This generator is responsible for creating various noises used to create
  * generated textures loaded from blender.
- * It derives from AbstractBlenderHelper but is not stored in blender context.
  * It is only used by TextureHelper.
  * @author Marcin Roguski (Kaelthas)
  */
-/* package */class NoiseGenerator extends AbstractBlenderHelper {
+/* package */class NoiseGenerator {
     private static final Logger LOGGER       = Logger.getLogger(NoiseGenerator.class.getName());
 
     // tex->stype
@@ -79,21 +76,11 @@ import java.util.logging.Logger;
     protected static float[][]  g;
 
     /**
-     * Constructor. Stores the blender version number and loads the constants needed for computations.
-     * @param blenderVersion
-     *            the number of blender version
+     * Constructor. Loads the constants needed for computations. They are exactly like the ones the blender uses. Each
+     * deriving class should override this method and load its own constraints.
      */
-    public NoiseGenerator(String blenderVersion) {
-        super(blenderVersion, false);
-        this.loadConstants();
-    }
-
-    /**
-     * This method loads the constants needed for computations. They are exactly like the ones the blender uses. Each
-     * deriving class should override this method and load its own constraints. Be carefult with overriding though, if
-     * an exception will be thrown the class will not be instantiated.
-     */
-    protected void loadConstants() {
+    public NoiseGenerator() {
+        LOGGER.fine("Loading noise constants.");
         InputStream is = NoiseGenerator.class.getResourceAsStream("noiseconstants.dat");
         try {
             ObjectInputStream ois = new ObjectInputStream(is);
@@ -789,11 +776,6 @@ import java.util.logging.Logger;
             result[1] = hashpntf[3 * hash[hash[hash[z & 0xFF] + y & 0xFF] + x & 0xFF] + 1];
             result[2] = hashpntf[3 * hash[hash[hash[z & 0xFF] + y & 0xFF] + x & 0xFF] + 2];
         }
-    }
-
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        return true;
     }
 
     /**

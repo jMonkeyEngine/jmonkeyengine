@@ -164,6 +164,18 @@ public final class MaterialContext {
         this.transparent = transparent;
     }
 
+    /**
+     * Applies material to a given geometry.
+     * 
+     * @param geometry
+     *            the geometry
+     * @param geometriesOMA
+     *            the geometries OMA
+     * @param userDefinedUVCoordinates
+     *            UV coords defined by user
+     * @param blenderContext
+     *            the blender context
+     */
     public void applyMaterial(Geometry geometry, Long geometriesOMA, List<Vector2f> userDefinedUVCoordinates, BlenderContext blenderContext) {
         Material material = null;
         if (shadeless) {
@@ -324,13 +336,6 @@ public final class MaterialContext {
      */
     public void setFaceCullMode(FaceCullMode faceCullMode) {
         this.faceCullMode = faceCullMode;
-    }
-
-    /**
-     * @return the face cull mode
-     */
-    public FaceCullMode getFaceCullMode() {
-        return faceCullMode;
     }
 
     /**

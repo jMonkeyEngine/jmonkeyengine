@@ -92,9 +92,4 @@ import java.util.logging.Logger;
         node.attachChild(emitter);
         return node;
     }
-
-    @Override
-    public String getType() {
-        return Modifier.PARTICLE_MODIFIER_DATA;
-    }
 }

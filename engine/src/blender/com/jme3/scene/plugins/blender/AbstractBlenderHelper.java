@@ -49,7 +49,8 @@ import com.jme3.scene.plugins.blender.objects.Properties;
  * @author Marcin Roguski
  */
 public abstract class AbstractBlenderHelper {
-
+    /** The blender context. */
+    protected BlenderContext blenderContext;
     /** The version of the blend file. */
     protected final int  blenderVersion;
     /** This variable indicates if the Y asxis is the UP axis or not. */
@@ -62,12 +63,13 @@ public abstract class AbstractBlenderHelper {
      * versions.
      * @param blenderVersion
      *            the version read from the blend file
-     * @param fixUpAxis
-     *            a variable that indicates if the Y asxis is the UP axis or not
+     * @param blenderContext
+     *            the blender context
      */
-    public AbstractBlenderHelper(String blenderVersion, boolean fixUpAxis) {
+    public AbstractBlenderHelper(String blenderVersion, BlenderContext blenderContext) {
         this.blenderVersion = Integer.parseInt(blenderVersion);
-        this.fixUpAxis = fixUpAxis;
+        this.blenderContext = blenderContext;
+        this.fixUpAxis = blenderContext.getBlenderKey().isFixUpAxis();
         if (fixUpAxis) {
             upAxisRotationQuaternion = new Quaternion().fromAngles(-FastMath.HALF_PI, 0, 0);
         }

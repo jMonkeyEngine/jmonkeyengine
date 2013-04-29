@@ -42,13 +42,6 @@ public abstract class Modifier {
     public abstract Node apply(Node node, BlenderContext blenderContext);
 
     /**
-     * This method returns blender's type of modifier.
-     * 
-     * @return blender's type of modifier
-     */
-    public abstract String getType();
-
-    /**
      * Determines if the modifier can be applied multiple times over one mesh.
      * At this moment only armature and object animation modifiers cannot be
      * applied multiple times.

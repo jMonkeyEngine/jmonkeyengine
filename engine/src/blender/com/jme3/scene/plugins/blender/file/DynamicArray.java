@@ -57,26 +57,6 @@ public class DynamicArray<T> implements Cloneable {
      * @throws BlenderFileException
      *             an exception is thrown if one of the sizes is not a positive number
      */
-    @SuppressWarnings("unchecked")
-    public DynamicArray(int[] tableSizes) throws BlenderFileException {
-        this.tableSizes = tableSizes;
-        int totalSize = 1;
-        for (int size : tableSizes) {
-            if (size <= 0) {
-                throw new BlenderFileException("The size of the table must be positive!");
-            }
-            totalSize *= size;
-        }
-        this.array = (T[]) new Object[totalSize];
-    }
-
-    /**
-     * Constructor. Builds an empty array of the specified sizes.
-     * @param tableSizes
-     *            the sizes of the table
-     * @throws BlenderFileException
-     *             an exception is thrown if one of the sizes is not a positive number
-     */
     public DynamicArray(int[] tableSizes, T[] data) throws BlenderFileException {
         this.tableSizes = tableSizes;
         int totalSize = 1;

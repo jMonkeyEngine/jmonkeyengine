@@ -239,9 +239,4 @@ import java.util.logging.Logger;
         }
         return node;
     }
-
-    @Override
-    public String getType() {
-        return ARRAY_MODIFIER_DATA;
-    }
 }

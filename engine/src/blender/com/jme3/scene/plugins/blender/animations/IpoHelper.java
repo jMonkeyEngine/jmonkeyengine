@@ -29,11 +29,11 @@ public class IpoHelper extends AbstractBlenderHelper {
      * 
      * @param blenderVersion
      *            the version read from the blend file
-     * @param fixUpAxis
-     *            a variable that indicates if the Y asxis is the UP axis or not
+     * @param blenderContext
+     *            the blender context
      */
-    public IpoHelper(String blenderVersion, boolean fixUpAxis) {
-        super(blenderVersion, fixUpAxis);
+    public IpoHelper(String blenderVersion, BlenderContext blenderContext) {
+        super(blenderVersion, blenderContext);
     }
 
     /**
@@ -187,11 +187,6 @@ public class IpoHelper extends AbstractBlenderHelper {
         @Override
         public float calculateValue(int frame, int curveIndex) {
             return constValue;
-        }
-
-        @Override
-        public int getCurvesAmount() {
-            return 0;
         }
 
         @Override

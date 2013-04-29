@@ -90,11 +90,11 @@ public class ObjectHelper extends AbstractBlenderHelper {
      * 
      * @param blenderVersion
      *            the version read from the blend file
-     * @param fixUpAxis
-     *            a variable that indicates if the Y asxis is the UP axis or not
+     * @param blenderContext
+     *            the blender context
      */
-    public ObjectHelper(String blenderVersion, boolean fixUpAxis) {
-        super(blenderVersion, fixUpAxis);
+    public ObjectHelper(String blenderVersion, BlenderContext blenderContext) {
+        super(blenderVersion, blenderContext);
     }
 
     /**
@@ -214,7 +214,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     // parent-children relationships between nodes
                     Node armature = new Node(name);
                     armature.setLocalTransform(t);
-                    armature.setUserData(ArmatureHelper.ARMETURE_NODE_MARKER, Boolean.TRUE);
+                    armature.setUserData(ArmatureHelper.ARMATURE_NODE_MARKER, Boolean.TRUE);
 
                     if (parent instanceof Node) {
                         ((Node) parent).attachChild(armature);
@@ -229,9 +229,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
         }
 
         if (result != null) {
-            result.updateModelBound();// I prefer do compute bounding box here
-                                      // than read it from the file
-
+         // I prefer do compute bounding box here than read it from the file
+            result.updateModelBound();
+            
             blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
             // TODO: this data is only to help during loading, shall I remove it
             // after all the loading is done ???
@@ -341,11 +341,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
     public Matrix4f getMatrix(Structure structure, String matrixName, boolean applyFixUpAxis) {
         Matrix4f result = new Matrix4f();
         DynamicArray<Number> obmat = (DynamicArray<Number>) structure.getFieldValue(matrixName);
-        int rowAndColumnSize = Math.abs((int) Math.sqrt(obmat.getTotalSize()));// the
-                                                                               // matrix
-                                                                               // must
-                                                                               // be
-                                                                               // square
+        //the matrix must be square
+        int rowAndColumnSize = Math.abs((int) Math.sqrt(obmat.getTotalSize()));
         for (int i = 0; i < rowAndColumnSize; ++i) {
             for (int j = 0; j < rowAndColumnSize; ++j) {
                 result.set(i, j, obmat.get(j, i).floatValue());

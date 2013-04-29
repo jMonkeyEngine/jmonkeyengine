@@ -207,16 +207,6 @@ public class Structure implements Cloneable {
     }
 
     /**
-     * This method returns the field name of the given index.
-     * @param fieldIndex
-     *            the index of the field
-     * @return the field name of the given index
-     */
-    public String getFieldName(int fieldIndex) {
-        return fields[fieldIndex].name;
-    }
-
-    /**
      * This method returns the full field name of the given index.
      * @param fieldIndex
      *            the index of the field
@@ -278,10 +268,9 @@ public class Structure implements Cloneable {
 
     /**
      * This enum enumerates all known data types that can be found in the blend file.
-     * @author Marcin Roguski
+     * @author Marcin Roguski (Kaelthas)
      */
-    /* package */
-    static enum DataType {
+    /* package */ static enum DataType {
 
         CHARACTER, SHORT, INTEGER, LONG, FLOAT, DOUBLE, VOID, STRUCTURE, POINTER;
         /** The map containing the known primary types. */

@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  * The data block containing the description of the file.
- * @author Marcin Roguski
+ * @author Marcin Roguski (Kaelthas)
  */
 public class DnaBlockData {
 

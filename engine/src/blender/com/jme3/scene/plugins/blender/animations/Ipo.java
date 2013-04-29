@@ -89,15 +89,6 @@ public class Ipo {
     }
 
     /**
-     * This method returns the curves amount.
-     * 
-     * @return the curves amount
-     */
-    public int getCurvesAmount() {
-        return bezierCurves.length;
-    }
-
-    /**
      * This method returns the frame where last bezier triple center point of
      * the specified bezier curve is located.
      * 

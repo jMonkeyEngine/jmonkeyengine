@@ -43,8 +43,6 @@ public class SimulationNode {
     private String                    name;
     /** A list of children for the node (either bones or child spatials). */
     private List<SimulationNode>      children     = new ArrayList<SimulationNode>();
-    /** A virtual track for each of the nodes. */
-    private Map<String, VirtualTrack> virtualTrack = new HashMap<String, VirtualTrack>();
     /** A list of constraints that the current node has. */
     private List<Constraint>          constraints;
     /** A list of node's animations. */
@@ -91,7 +89,7 @@ public class SimulationNode {
      */
     private SimulationNode(Long featureOMA, BlenderContext blenderContext, boolean rootNode) {
         Node spatial = (Node) blenderContext.getLoadedFeature(featureOMA, LoadedFeatureDataType.LOADED_FEATURE);
-        if (spatial.getUserData(ArmatureHelper.ARMETURE_NODE_MARKER) != null) {
+        if (spatial.getUserData(ArmatureHelper.ARMATURE_NODE_MARKER) != null) {
             this.skeleton = blenderContext.getSkeleton(featureOMA);
 
             Node nodeWithAnimationControl = blenderContext.getControlledNode(skeleton);
@@ -206,7 +204,6 @@ public class SimulationNode {
                     float maxTime = animationTimeBoundaries[1];
 
                     VirtualTrack vTrack = new VirtualTrack(maxFrame, maxTime);
-                    virtualTrack.put(animation.getName(), vTrack);
                     for (Track track : animation.getTracks()) {
                         for (int frame = 0; frame < maxFrame; ++frame) {
                             spatial.setLocalTranslation(((SpatialTrack) track).getTranslations()[frame]);
@@ -260,11 +257,11 @@ public class SimulationNode {
                     Map<Integer, VirtualTrack> tracks = new HashMap<Integer, VirtualTrack>();
                     Map<Integer, Transform> previousTransforms = new HashMap<Integer, Transform>();
                     for (int frame = 0; frame < maxFrame; ++frame) {
-                        this.reset();// this MUST be done here, otherwise
-                                     // setting next frame of animation will
-                                     // lead to possible errors
-                        // first set proper time for all bones in all the tracks
-                        // ...
+                        // this MUST be done here, otherwise setting next frame of animation will
+                        // lead to possible errors
+                        this.reset();
+                        
+                        // first set proper time for all bones in all the tracks ...
                         for (Track track : animation.getTracks()) {
                             float time = ((BoneTrack) track).getTimes()[frame];
                             Integer boneIndex = ((BoneTrack) track).getTargetBoneIndex();

@@ -54,7 +54,6 @@ import com.jme3.scene.plugins.blender.file.DnaBlockData;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.meshes.MeshContext;
-import com.jme3.scene.plugins.blender.modifiers.Modifier;
 import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
@@ -101,8 +100,6 @@ public class BlenderContext {
     private Map<String, Object[]>               loadedFeaturesByName   = new HashMap<String, Object[]>();
     /** A stack that hold the parent structure of currently loaded feature. */
     private Stack<Structure>                    parentStack            = new Stack<Structure>();
-    /** A list of modifiers for the specified object. */
-    protected Map<Long, List<Modifier>>         modifiers              = new HashMap<Long, List<Modifier>>();
     /** A list of constraints for the specified object. */
     protected Map<Long, List<Constraint>>       constraints            = new HashMap<Long, List<Constraint>>();
     /** Anim data loaded for features. */
@@ -273,14 +270,6 @@ public class BlenderContext {
     }
 
     /**
-     * This method clears the saved block headers stored in the features map.
-     */
-    public void clearFileBlocks() {
-        fileBlockHeadersByOma.clear();
-        fileBlockHeadersByCode.clear();
-    }
-
-    /**
      * This method adds a helper instance to the helpers' map.
      * 
      * @param <T>
@@ -343,13 +332,6 @@ public class BlenderContext {
     }
 
     /**
-     * This method clears the saved features stored in the features map.
-     */
-    public void clearLoadedFeatures() {
-        loadedFeatures.clear();
-    }
-
-    /**
      * This method adds the structure to the parent stack.
      * 
      * @param parent
@@ -384,48 +366,6 @@ public class BlenderContext {
         } catch (EmptyStackException e) {
             return null;
         }
-    }
-
-    /**
-     * This method adds a new modifier to the list.
-     * 
-     * @param ownerOMA
-     *            the owner's old memory address
-     * @param modifier
-     *            the object's modifier
-     */
-    public void addModifier(Long ownerOMA, Modifier modifier) {
-        List<Modifier> objectModifiers = this.modifiers.get(ownerOMA);
-        if (objectModifiers == null) {
-            objectModifiers = new ArrayList<Modifier>();
-            this.modifiers.put(ownerOMA, objectModifiers);
-        }
-        objectModifiers.add(modifier);
-    }
-
-    /**
-     * This method returns modifiers for the object specified by its old memory
-     * address and the modifier type. If no modifiers are found - empty list is
-     * returned. If the type is null - all modifiers for the object are
-     * returned.
-     * 
-     * @param objectOMA
-     *            object's old memory address
-     * @param type
-     *            the type of the modifier
-     * @return the list of object's modifiers
-     */
-    public List<Modifier> getModifiers(Long objectOMA, String type) {
-        List<Modifier> result = new ArrayList<Modifier>();
-        List<Modifier> readModifiers = modifiers.get(objectOMA);
-        if (readModifiers != null && readModifiers.size() > 0) {
-            for (Modifier modifier : readModifiers) {
-                if (type == null || type.isEmpty() || modifier.getType().equals(type)) {
-                    result.add(modifier);
-                }
-            }
-        }
-        return result;
     }
 
     /**
@@ -632,13 +572,14 @@ public class BlenderContext {
         loadedFeatures.clear();
         loadedFeaturesByName.clear();
         parentStack.clear();
-        modifiers.clear();
         constraints.clear();
         animData.clear();
         skeletons.clear();
         meshContexts.clear();
         boneContexts.clear();
         helpers.clear();
+        fileBlockHeadersByOma.clear();
+        fileBlockHeadersByCode.clear();
     }
 
     /**

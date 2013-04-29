@@ -130,14 +130,6 @@ public class FileBlockHeader {
     }
 
     /**
-     * This method returns the memory address.
-     * @return the memory address
-     */
-    public long getOldMemoryAddress() {
-        return oldMemoryAddress;
-    }
-
-    /**
      * This method returns the sdna index.
      * @return the sdna index
      */

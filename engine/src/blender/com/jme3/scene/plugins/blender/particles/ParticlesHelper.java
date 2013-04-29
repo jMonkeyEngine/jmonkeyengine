@@ -86,11 +86,11 @@ public class ParticlesHelper extends AbstractBlenderHelper {
      * different blender versions.
      * @param blenderVersion
      *            the version read from the blend file
-     * @param fixUpAxis
-     *            a variable that indicates if the Y asxis is the UP axis or not
+     * @param blenderContext
+     *            the blender context
      */
-    public ParticlesHelper(String blenderVersion, boolean fixUpAxis) {
-        super(blenderVersion, fixUpAxis);
+    public ParticlesHelper(String blenderVersion, BlenderContext blenderContext) {
+        super(blenderVersion, blenderContext);
     }
 
     @SuppressWarnings("unchecked")

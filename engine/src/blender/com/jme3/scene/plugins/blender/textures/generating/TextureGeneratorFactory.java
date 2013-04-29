@@ -4,11 +4,7 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper;
 
 public class TextureGeneratorFactory {
 
-    private NoiseGenerator noiseGenerator;
-
-    public TextureGeneratorFactory(String blenderVersion) {
-        noiseGenerator = new NoiseGenerator(blenderVersion);
-    }
+    private NoiseGenerator noiseGenerator = new NoiseGenerator();
 
     public TextureGenerator createTextureGenerator(int generatedTexture) {
         switch (generatedTexture) {

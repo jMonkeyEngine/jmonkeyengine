@@ -31,9 +31,15 @@
  */
 package com.jme3.scene.plugins.blender.materials;
 
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.material.MatParam;
-import com.jme3.material.MatParamTexture;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
@@ -48,13 +54,6 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MaterialHelper extends AbstractBlenderHelper {
     private static final Logger              LOGGER                = Logger.getLogger(MaterialHelper.class.getName());
@@ -93,11 +92,11 @@ public class MaterialHelper extends AbstractBlenderHelper {
      * 
      * @param blenderVersion
      *            the version read from the blend file
-     * @param fixUpAxis
-     *            a variable that indicates if the Y asxis is the UP axis or not
+     * @param blenderContext
+     *            the blender context
      */
-    public MaterialHelper(String blenderVersion, boolean fixUpAxis) {
-        super(blenderVersion, false);
+    public MaterialHelper(String blenderVersion, BlenderContext blenderContext) {
+        super(blenderVersion, blenderContext);
         // setting alpha masks
         alphaMasks.put(ALPHA_MASK_NONE, new IAlphaMask() {
             public void setImageSize(int width, int height) {
@@ -175,49 +174,6 @@ public class MaterialHelper extends AbstractBlenderHelper {
     }
 
     /**
-     * This method returns a material similar to the one given but without textures. If the material has no textures it is not cloned but
-     * returned itself.
-     * 
-     * @param material
-     *            a material to be cloned without textures
-     * @param imageType
-     *            type of image defined by blender; the constants are defined in TextureHelper
-     * @return material without textures of a specified type
-     */
-    public Material getNonTexturedMaterial(Material material, int imageType) {
-        String[] textureParamNames = new String[] { TEXTURE_TYPE_DIFFUSE, TEXTURE_TYPE_NORMAL, TEXTURE_TYPE_GLOW, TEXTURE_TYPE_SPECULAR, TEXTURE_TYPE_ALPHA };
-        Map<String, Texture> textures = new HashMap<String, Texture>(textureParamNames.length);
-        for (String textureParamName : textureParamNames) {
-            MatParamTexture matParamTexture = material.getTextureParam(textureParamName);
-            if (matParamTexture != null) {
-                textures.put(textureParamName, matParamTexture.getTextureValue());
-            }
-        }
-        if (textures.isEmpty()) {
-            return material;
-        } else {
-            // clear all textures first so that wo de not waste resources cloning them
-            for (Entry<String, Texture> textureParamName : textures.entrySet()) {
-                String name = textureParamName.getValue().getName();
-                try {
-                    int type = Integer.parseInt(name);
-                    if (type == imageType) {
-                        material.clearParam(textureParamName.getKey());
-                    }
-                } catch (NumberFormatException e) {
-                    LOGGER.log(Level.WARNING, "The name of the texture does not contain the texture type value! {0} will not be removed!", name);
-                }
-            }
-            Material result = material.clone();
-            // put the textures back in place
-            for (Entry<String, Texture> textureEntry : textures.entrySet()) {
-                material.setTexture(textureEntry.getKey(), textureEntry.getValue());
-            }
-            return result;
-        }
-    }
-
-    /**
      * This method converts the given material into particles-usable material.
      * The texture and glow color are being copied.
      * The method assumes it receives the Lighting type of material.
@@ -267,53 +223,6 @@ public class MaterialHelper extends AbstractBlenderHelper {
             result.setParam("GlowColor", VarType.Vector3, color);
         }
         return result;
-    }
-
-    /**
-     * This method indicates if the material has any kind of texture.
-     * 
-     * @param material
-     *            the material
-     * @return <b>true</b> if the texture exists in the material and <B>false</b> otherwise
-     */
-    public boolean hasTexture(Material material) {
-        if (material != null) {
-            if (material.getTextureParam(TEXTURE_TYPE_ALPHA) != null) {
-                return true;
-            }
-            if (material.getTextureParam(TEXTURE_TYPE_COLOR) != null) {
-                return true;
-            }
-            if (material.getTextureParam(TEXTURE_TYPE_DIFFUSE) != null) {
-                return true;
-            }
-            if (material.getTextureParam(TEXTURE_TYPE_GLOW) != null) {
-                return true;
-            }
-            if (material.getTextureParam(TEXTURE_TYPE_NORMAL) != null) {
-                return true;
-            }
-            if (material.getTextureParam(TEXTURE_TYPE_SPECULAR) != null) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * This method indicates if the material has a texture of a specified type.
-     * 
-     * @param material
-     *            the material
-     * @param textureType
-     *            the type of the texture
-     * @return <b>true</b> if the texture exists in the material and <B>false</b> otherwise
-     */
-    public boolean hasTexture(Material material, String textureType) {
-        if (material != null) {
-            return material.getTextureParam(textureType) != null;
-        }
-        return false;
     }
 
     /**

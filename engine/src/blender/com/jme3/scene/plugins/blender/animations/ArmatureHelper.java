@@ -58,10 +58,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 public class ArmatureHelper extends AbstractBlenderHelper {
     private static final Logger LOGGER               = Logger.getLogger(ArmatureHelper.class.getName());
 
-    public static final String  ARMETURE_NODE_MARKER = "armeture-node";
-
-    /** A map of bones and their old memory addresses. */
-    private Map<Bone, Long>     bonesOMAs            = new HashMap<Bone, Long>();
+    public static final String  ARMATURE_NODE_MARKER = "armature-node";
 
     /**
      * This constructor parses the given blender version and stores the result.
@@ -69,11 +66,11 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      * 
      * @param blenderVersion
      *            the version read from the blend file
-     * @param fixUpAxis
-     *            a variable that indicates if the Y asxis is the UP axis or not
+     * @param blenderContext
+     *            the blender context
      */
-    public ArmatureHelper(String blenderVersion, boolean fixUpAxis) {
-        super(blenderVersion, fixUpAxis);
+    public ArmatureHelper(String blenderVersion, BlenderContext blenderContext) {
+        super(blenderVersion, blenderContext);
     }
 
     /**
@@ -93,23 +90,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      */
     public void buildBones(Long armatureObjectOMA, Structure boneStructure, Bone parent, List<Bone> result, Matrix4f objectToArmatureTransformation, BlenderContext blenderContext) throws BlenderFileException {
         BoneContext bc = new BoneContext(armatureObjectOMA, boneStructure, blenderContext);
-        bc.buildBone(result, bonesOMAs, objectToArmatureTransformation, blenderContext);
-    }
-
-    /**
-     * This method returns the old memory address of a bone. If the bone does
-     * not exist in the blend file - zero is returned.
-     * 
-     * @param bone
-     *            the bone whose old memory address we seek
-     * @return the old memory address of the given bone
-     */
-    public Long getBoneOMA(Bone bone) {
-        Long result = bonesOMAs.get(bone);
-        if (result == null) {
-            result = Long.valueOf(0);
-        }
-        return result;
+        bc.buildBone(result, objectToArmatureTransformation, blenderContext);
     }
 
     /**

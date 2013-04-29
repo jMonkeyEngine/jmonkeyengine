@@ -195,18 +195,18 @@ public class BlenderLoader extends AbstractBlenderLoader {
         blenderContext.setBlenderKey(blenderKey);
 
         // creating helpers
-        blenderContext.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), blenderContext, blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
-        blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber(), blenderKey.isFixUpAxis()));
+        blenderContext.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(CurvesHelper.class, new CurvesHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(LightHelper.class, new LightHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(CameraHelper.class, new CameraHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber(), blenderContext));
 
         // reading the blocks (dna block is automatically saved in the blender context when found)
         FileBlockHeader sceneFileBlock = null;

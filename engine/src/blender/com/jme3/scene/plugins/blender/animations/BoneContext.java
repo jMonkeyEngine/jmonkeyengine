@@ -2,7 +2,6 @@ package com.jme3.scene.plugins.blender.animations;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
@@ -105,19 +104,16 @@ public class BoneContext {
      * 
      * @param bones
      *            a list of bones where the newly created bone will be added
-     * @param boneOMAs
-     *            the map between bone and its old memory address
      * @param objectToArmatureMatrix
      *            object to armature transformation matrix
      * @param blenderContext
      *            the blender context
      * @return newly created bone
      */
-    public Bone buildBone(List<Bone> bones, Map<Bone, Long> boneOMAs, Matrix4f objectToArmatureMatrix, BlenderContext blenderContext) {
+    public Bone buildBone(List<Bone> bones, Matrix4f objectToArmatureMatrix, BlenderContext blenderContext) {
         Long boneOMA = boneStructure.getOldMemoryAddress();
         bone = new Bone(boneName);
         bones.add(bone);
-        boneOMAs.put(bone, boneOMA);
         blenderContext.addLoadedFeatures(boneOMA, boneName, boneStructure, bone);
 
         Vector3f poseLocation = restMatrix.toTranslationVector();
@@ -132,7 +128,7 @@ public class BoneContext {
 
         bone.setBindTransforms(poseLocation, rotation, scale);
         for (BoneContext child : children) {
-            bone.addChild(child.buildBone(bones, boneOMAs, objectToArmatureMatrix, blenderContext));
+            bone.addChild(child.buildBone(bones, objectToArmatureMatrix, blenderContext));
         }
 
         return bone;

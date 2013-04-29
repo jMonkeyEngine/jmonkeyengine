@@ -61,11 +61,11 @@ public class ModifierHelper extends AbstractBlenderHelper {
      * 
      * @param blenderVersion
      *            the version read from the blend file
-     * @param fixUpAxis
-     *            a variable that indicates if the Y asxis is the UP axis or not
+     * @param blenderContext
+     *            the blender context
      */
-    public ModifierHelper(String blenderVersion, boolean fixUpAxis) {
-        super(blenderVersion, fixUpAxis);
+    public ModifierHelper(String blenderVersion, BlenderContext blenderContext) {
+        super(blenderVersion, blenderContext);
     }
 
     /**
@@ -103,7 +103,6 @@ public class ModifierHelper extends AbstractBlenderHelper {
                 if (modifier != null) {
                     if (modifier.isModifying()) {
                         result.add(modifier);
-                        blenderContext.addModifier(objectStructure.getOldMemoryAddress(), modifier);
                         alreadyReadModifiers.add(modifierType);
                     } else {
                         LOGGER.log(Level.WARNING, "The modifier {0} will cause no changes in the model. It will be ignored!", modifierStructure.getName());
@@ -155,7 +154,6 @@ public class ModifierHelper extends AbstractBlenderHelper {
             Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
             if (ipo != null) {
                 result = new ObjectAnimationModifier(ipo, objectStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
-                blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
             }
         }
         return result;
@@ -186,7 +184,6 @@ public class ModifierHelper extends AbstractBlenderHelper {
                 Ipo ipo = ipoHelper.fromAction(actionStructure, blenderContext);
                 if (ipo != null) {// ipo can be null if it has no curves applied, ommit such modifier then
                     result = new ObjectAnimationModifier(ipo, actionStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
-                    blenderContext.addModifier(objectStructure.getOldMemoryAddress(), result);
                 }
             }
         }

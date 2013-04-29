@@ -86,9 +86,4 @@ import com.jme3.scene.plugins.ogre.AnimData;
         }
         return node;
     }
-
-    @Override
-    public String getType() {
-        return Modifier.OBJECT_ANIMATION_MODIFIER_DATA;
-    }
 }

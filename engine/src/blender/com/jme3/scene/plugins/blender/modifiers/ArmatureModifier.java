@@ -28,6 +28,7 @@ import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -72,9 +73,7 @@ import com.jme3.util.BufferUtils;
      */
     public ArmatureModifier(Structure objectStructure, Structure modifierStructure, BlenderContext blenderContext) throws BlenderFileException {
         Structure meshStructure = ((Pointer) objectStructure.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
-        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert
-                                                                        // =
-                                                                        // DeformVERTices
+        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
 
         // if pDvert==null then there are not vertex groups and no need to load
         // skeleton (untill bone envelopes are supported)
@@ -162,9 +161,12 @@ import com.jme3.util.BufferUtils;
 
                 // store the animation data for each bone
                 for (Bone bone : bones) {
-                    Long boneOma = armatureHelper.getBoneOMA(bone);
-                    if (boneOma != null) {
-                        blenderContext.setAnimData(boneOma, animData);
+                    if(bone.getName().length() > 0) {
+                        BoneContext boneContext = blenderContext.getBoneContext(bone);
+                        Long boneOma = boneContext.getBoneOma();
+                        if (boneOma != null) {
+                            blenderContext.setAnimData(boneOma, animData);
+                        }
                     }
                 }
             } else {
@@ -300,39 +302,18 @@ import com.jme3.util.BufferUtils;
 
         if (pDvert.isNotNull()) {// assigning weights and bone indices
             boolean warnAboutTooManyVertexWeights = false;
-            List<Structure> dverts = pDvert.fetchData(blenderContext.getInputStream());// dverts.size()
-                                                                                       // ==
-                                                                                       // verticesAmount
-                                                                                       // (one
-                                                                                       // dvert
-                                                                                       // per
-                                                                                       // vertex
-                                                                                       // in
-                                                                                       // blender)
+            // dverts.size() = verticesAmount (one dvert per vertex in blender)
+            List<Structure> dverts = pDvert.fetchData(blenderContext.getInputStream());
             int vertexIndex = 0;
             // use tree map to sort weights from the lowest to the highest ones
             TreeMap<Float, Integer> weightToIndexMap = new TreeMap<Float, Integer>();
 
             for (Structure dvert : dverts) {
-                List<Integer> vertexIndices = vertexReferenceMap.get(Integer.valueOf(vertexIndex));// we
-                                                                                                   // fetch
-                                                                                                   // the
-                                                                                                   // referenced
-                                                                                                   // vertices
-                                                                                                   // here
+                //we fetch the referenced vertices here
+                List<Integer> vertexIndices = vertexReferenceMap.get(Integer.valueOf(vertexIndex));
                 if (vertexIndices != null) {
-                    int totweight = ((Number) dvert.getFieldValue("totweight")).intValue();// total
-                                                                                           // amount
-                                                                                           // of
-                                                                                           // weights
-                                                                                           // assignet
-                                                                                           // to
-                                                                                           // the
-                                                                                           // vertex
-                                                                                           // (max.
-                                                                                           // 4
-                                                                                           // in
-                                                                                           // JME)
+                    // total amount of wights assigned to the vertex (max. 4 in JME)
+                    int totweight = ((Number) dvert.getFieldValue("totweight")).intValue();
                     Pointer pDW = (Pointer) dvert.getFieldValue("dw");
                     if (totweight > 0 && groupToBoneIndexMap != null) {
                         weightToIndexMap.clear();
@@ -447,10 +428,5 @@ import com.jme3.util.BufferUtils;
             }
         }
         weightsFloatData.rewind();
-    }
-
-    @Override
-    public String getType() {
-        return Modifier.ARMATURE_MODIFIER_DATA;
     }
 }
