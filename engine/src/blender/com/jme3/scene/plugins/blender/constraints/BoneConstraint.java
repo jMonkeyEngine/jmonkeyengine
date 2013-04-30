@@ -51,7 +51,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
             }
             // the second part of the if expression verifies if the found node
             // (if any) is an armature node
-            if (nodeTarget.getUserData(ArmatureHelper.ARMATURE_NODE_MARKER) != null) {
+            if (blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, nodeTarget) != null) {
                 if(subtargetName.trim().isEmpty()) {
                     LOGGER.log(Level.WARNING, "No bone target specified for constraint: {0}.", name);
                     return false;

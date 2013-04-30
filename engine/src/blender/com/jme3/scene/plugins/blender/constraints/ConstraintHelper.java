@@ -25,6 +25,7 @@ import com.jme3.scene.plugins.blender.animations.IpoHelper;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 
 /**
  * This class should be used for constraint calculations.
@@ -195,7 +196,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                     while (spatial.getParent() != null) {
                         spatial = spatial.getParent();
                     }
-                    simulationRootNodes.add(new SimulationNode((Long) spatial.getUserData("oma"), blenderContext));
+                    simulationRootNodes.add(new SimulationNode((Long) blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, spatial), blenderContext));
                 } else {
                     throw new IllegalStateException("Unsupported constraint type: " + constraint);
                 }
@@ -220,7 +221,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      */
     public Transform getTransform(Long oma, String subtargetName, Space space) {
         Spatial feature = (Spatial) blenderContext.getLoadedFeature(oma, LoadedFeatureDataType.LOADED_FEATURE);
-        boolean isArmature = feature.getUserData(ArmatureHelper.ARMATURE_NODE_MARKER) != null;
+        boolean isArmature = blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, feature) != null;
         if (isArmature) {
             BoneContext targetBoneContext = blenderContext.getBoneByName(subtargetName);
             Bone bone = targetBoneContext.getBone();
@@ -269,9 +270,9 @@ public class ConstraintHelper extends AbstractBlenderHelper {
         } else {
             switch (space) {
                 case CONSTRAINT_SPACE_LOCAL:
-                    return ((Spatial) feature).getLocalTransform();
+                    return feature.getLocalTransform();
                 case CONSTRAINT_SPACE_WORLD:
-                    return ((Spatial) feature).getWorldTransform();
+                    return feature.getWorldTransform();
                 case CONSTRAINT_SPACE_PARLOCAL:
                 case CONSTRAINT_SPACE_POSE:
                     throw new IllegalStateException("Nodes can have only Local and World spaces applied!");
@@ -297,7 +298,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      */
     public void applyTransform(Long oma, String subtargetName, Space space, Transform transform) {
         Spatial feature = (Spatial) blenderContext.getLoadedFeature(oma, LoadedFeatureDataType.LOADED_FEATURE);
-        boolean isArmature = feature.getUserData(ArmatureHelper.ARMATURE_NODE_MARKER) != null;
+        boolean isArmature = blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, feature) != null;
         if (isArmature) {
             Skeleton skeleton = blenderContext.getSkeleton(oma);
             BoneContext targetBoneContext = blenderContext.getBoneByName(subtargetName);
@@ -354,17 +355,16 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                 default:
                     throw new IllegalStateException("Invalid space type for target object: " + space.toString());
             }
-        } else if (feature instanceof Spatial) {
-            Spatial spatial = (Spatial) feature;
+        } else {
             switch (space) {
                 case CONSTRAINT_SPACE_LOCAL:
-                    spatial.getLocalTransform().set(transform);
+                    feature.getLocalTransform().set(transform);
                     break;
                 case CONSTRAINT_SPACE_WORLD:
-                    if (spatial.getParent() == null) {
-                        spatial.setLocalTransform(transform);
+                    if (feature.getParent() == null) {
+                        feature.setLocalTransform(transform);
                     } else {
-                        Transform parentWorldTransform = spatial.getParent().getWorldTransform();
+                        Transform parentWorldTransform = feature.getParent().getWorldTransform();
 
                         Matrix4f parentMatrix = this.toMatrix(parentWorldTransform).invertLocal();
                         Matrix4f m = this.toMatrix(transform);
@@ -374,14 +374,12 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                         transform.setRotation(m.toRotationQuat());
                         transform.setScale(m.toScaleVector());
 
-                        spatial.setLocalTransform(transform);
+                        feature.setLocalTransform(transform);
                     }
                     break;
                 default:
                     throw new IllegalStateException("Invalid space type for spatial object: " + space.toString());
             }
-        } else {
-            throw new IllegalStateException("Constrained transformation can be applied only to Bone or Spatial feature!");
         }
     }
 

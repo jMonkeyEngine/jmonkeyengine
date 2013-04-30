@@ -114,7 +114,9 @@ public class BlenderContext {
     protected Map<Long, BoneContext>            boneContexts           = new HashMap<Long, BoneContext>();
     /** A map og helpers that perform loading. */
     private Map<String, AbstractBlenderHelper>  helpers                = new HashMap<String, AbstractBlenderHelper>();
-
+    /** Markers used by loading classes to store some custom data. This is made to avoid putting this data into user properties. */
+    private Map<String, Map<Object, Object>>    markers                = new HashMap<String, Map<Object,Object>>();
+    
     /**
      * This method sets the blender file version.
      * 
@@ -562,6 +564,44 @@ public class BlenderContext {
         }
         return blenderKey.getDefaultMaterial();
     }
+    
+    /**
+     * Adds a custom marker for scene's feature.
+     * 
+     * @param marker
+     *            the marker name
+     * @param feature
+     *            te scene's feature (can be node, material or texture or
+     *            anything else)
+     * @param markerValue
+     *            the marker value
+     */
+    public void addMarker(String marker, Object feature, Object markerValue) {
+        if (markerValue == null) {
+            throw new IllegalArgumentException("The marker's value cannot be null.");
+        }
+        Map<Object, Object> markersMap = markers.get(marker);
+        if (markersMap == null) {
+            markersMap = new HashMap<Object, Object>();
+            markers.put(marker, markersMap);
+        }
+        markersMap.put(feature, markerValue);
+    }
+
+    /**
+     * Returns the marker value. The returned value is null if no marker was
+     * defined for the given feature.
+     * 
+     * @param marker
+     *            the marker name
+     * @param feature
+     *            the scene's feature
+     * @return marker value or null if it was not defined
+     */
+    public Object getMarkerValue(String marker, Object feature) {
+        Map<Object, Object> markersMap = markers.get(marker);
+        return markersMap == null ? null : markersMap.get(feature);
+    }
 
     /**
      * Clears all sotred resources and closes the blender input stream.
@@ -580,6 +620,7 @@ public class BlenderContext {
         helpers.clear();
         fileBlockHeadersByOma.clear();
         fileBlockHeadersByCode.clear();
+        markers.clear();
     }
 
     /**

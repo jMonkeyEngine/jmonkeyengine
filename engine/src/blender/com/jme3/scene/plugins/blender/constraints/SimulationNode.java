@@ -25,6 +25,7 @@ import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
+import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.util.TempVars;
 
 /**
@@ -89,7 +90,7 @@ public class SimulationNode {
      */
     private SimulationNode(Long featureOMA, BlenderContext blenderContext, boolean rootNode) {
         Node spatial = (Node) blenderContext.getLoadedFeature(featureOMA, LoadedFeatureDataType.LOADED_FEATURE);
-        if (spatial.getUserData(ArmatureHelper.ARMATURE_NODE_MARKER) != null) {
+        if (blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, spatial) != null) {
             this.skeleton = blenderContext.getSkeleton(featureOMA);
 
             Node nodeWithAnimationControl = blenderContext.getControlledNode(skeleton);
@@ -135,7 +136,7 @@ public class SimulationNode {
             animations = blenderContext.getAnimData(featureOMA) == null ? null : blenderContext.getAnimData(featureOMA).anims;
             for (Spatial child : spatial.getChildren()) {
                 if (child instanceof Node) {
-                    children.add(new SimulationNode((Long) child.getUserData("oma"), blenderContext, false));
+                    children.add(new SimulationNode((Long) blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, child), blenderContext, false));
                 }
             }
         }
@@ -199,7 +200,7 @@ public class SimulationNode {
             boolean applyStaticConstraints = true;
             if (animations != null) {
                 for (Animation animation : animations) {
-                    float[] animationTimeBoundaries = computeAnimationTimeBoundaries(animation);
+                    float[] animationTimeBoundaries = this.computeAnimationTimeBoundaries(animation);
                     int maxFrame = (int) animationTimeBoundaries[0];
                     float maxTime = animationTimeBoundaries[1];
 

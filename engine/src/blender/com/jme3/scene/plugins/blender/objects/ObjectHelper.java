@@ -83,6 +83,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
     protected static final int  OBJECT_TYPE_WAVE     = 21;
     protected static final int  OBJECT_TYPE_LATTICE  = 22;
     protected static final int  OBJECT_TYPE_ARMATURE = 25;
+    
+    public static final String OMA_MARKER = "oma";
 
     /**
      * This constructor parses the given blender version and stores the result.
@@ -214,7 +216,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     // parent-children relationships between nodes
                     Node armature = new Node(name);
                     armature.setLocalTransform(t);
-                    armature.setUserData(ArmatureHelper.ARMATURE_NODE_MARKER, Boolean.TRUE);
+                    blenderContext.addMarker(ArmatureHelper.ARMATURE_NODE_MARKER, armature, Boolean.TRUE);
 
                     if (parent instanceof Node) {
                         ((Node) parent).attachChild(armature);
@@ -233,9 +235,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
             result.updateModelBound();
             
             blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
-            // TODO: this data is only to help during loading, shall I remove it
-            // after all the loading is done ???
-            result.setUserData("oma", objectStructure.getOldMemoryAddress());
+            blenderContext.addMarker(OMA_MARKER, result, objectStructure.getOldMemoryAddress());
 
             // applying modifiers
             LOGGER.log(Level.FINE, "Reading and applying object's modifiers.");
