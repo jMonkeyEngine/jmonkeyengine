@@ -16,6 +16,9 @@ MaterialDef Unshaded {
         Int NumberOfBones
         Matrix4Array BoneMatrices
 
+        // Apha threshold for fragment discarding
+        Float AlphaDiscardThreshold (AlphaTestFallOff)
+
         //Shadows
         Int FilterMode
         Boolean HardwareShadows
@@ -61,6 +64,7 @@ MaterialDef Unshaded {
             HAS_VERTEXCOLOR : VertexColor
             HAS_COLOR : Color
             NUM_BONES : NumberOfBones
+            DISCARD_ALPHA : AlphaDiscardThreshold
         }
     }
 
