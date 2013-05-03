@@ -73,7 +73,7 @@ public class Line extends Mesh {
         setBuffer(Type.Normal, 3, new float[]{0, 0, 1,
                                               0, 0, 1});
 
-        setBuffer(Type.Index, 3, new short[]{0, 1});
+        setBuffer(Type.Index, 2, new short[]{0, 1});
 
         updateBound();
     }
