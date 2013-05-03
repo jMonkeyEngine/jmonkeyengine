@@ -15,7 +15,7 @@ MaterialDef Phong Lighting {
         // Output alpha from the diffuse map
         Boolean UseAlpha
 
-        // Apha threshold for fragment discarding
+        // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
 
         // Normal map is in BC5/ATI2n/LATC/3Dc compression format

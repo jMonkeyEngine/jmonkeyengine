@@ -16,7 +16,7 @@ MaterialDef Unshaded {
         Int NumberOfBones
         Matrix4Array BoneMatrices
 
-        // Apha threshold for fragment discarding
+        // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
 
         //Shadows
