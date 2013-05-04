@@ -63,6 +63,8 @@ public class DistanceLodCalculator implements LodCalculator {
     }
     
     public boolean calculateLod(TerrainPatch terrainPatch, List<Vector3f> locations, HashMap<String, UpdatedTerrainPatch> updates) {
+        if (locations == null || locations.isEmpty())
+            return false;// no camera yet
         float distance = getCenterLocation(terrainPatch).distance(locations.get(0));
 
         if (turnOffLod) {
