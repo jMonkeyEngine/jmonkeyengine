@@ -99,13 +99,13 @@ public class ChaseCamera implements ActionListener, AnalogListener, Control {
     protected Vector3f temp = new Vector3f(0, 0, 0);
     protected boolean invertYaxis = false;
     protected boolean invertXaxis = false;
-    protected final static String ChaseCamDown = "ChaseCamDown";
-    protected final static String ChaseCamUp = "ChaseCamUp";
-    protected final static String ChaseCamZoomIn = "ChaseCamZoomIn";
-    protected final static String ChaseCamZoomOut = "ChaseCamZoomOut";
-    protected final static String ChaseCamMoveLeft = "ChaseCamMoveLeft";
-    protected final static String ChaseCamMoveRight = "ChaseCamMoveRight";
-    protected final static String ChaseCamToggleRotate = "ChaseCamToggleRotate";
+    public final static String ChaseCamDown = "ChaseCamDown";
+    public final static String ChaseCamUp = "ChaseCamUp";
+    public final static String ChaseCamZoomIn = "ChaseCamZoomIn";
+    public final static String ChaseCamZoomOut = "ChaseCamZoomOut";
+    public final static String ChaseCamMoveLeft = "ChaseCamMoveLeft";
+    public final static String ChaseCamMoveRight = "ChaseCamMoveRight";
+    public final static String ChaseCamToggleRotate = "ChaseCamToggleRotate";
     protected boolean zoomin;
     protected boolean hideCursorOnRotate = true;
 
