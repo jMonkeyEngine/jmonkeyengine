@@ -150,8 +150,7 @@ public class PhysicsSpace {
      * Has to be called from the (designated) physics thread
      */
     public void create() {
-        //TODO: boroadphase!
-        physicsSpaceId = createPhysicsSpace(worldMin.x, worldMin.y, worldMin.z, worldMax.x, worldMax.y, worldMax.z, 3, false);
+        physicsSpaceId = createPhysicsSpace(worldMin.x, worldMin.y, worldMin.z, worldMax.x, worldMax.y, worldMax.z, broadphaseType.ordinal(), false);
         pQueueTL.set(pQueue);
         physicsSpaceTL.set(this);
 
