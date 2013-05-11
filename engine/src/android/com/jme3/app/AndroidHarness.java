@@ -243,67 +243,16 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected void onResume() {
         logger.fine("onResume");
         super.onResume();
-        if (view != null) {
-            view.onResume();
-        }
-        if (app != null) {
-            //resume the audio
-            AudioRenderer result = app.getAudioRenderer();
-            if (result != null) {
-                if (result instanceof AndroidAudioRenderer) {
-                    AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
-                    renderer.resumeAll();
-                }
-            }
-            //resume the sensors (aka joysticks)
-            if (app.getContext() != null) {
-                JoyInput joyInput = app.getContext().getJoyInput();
-                if (joyInput != null) {
-                    if (joyInput instanceof AndroidSensorJoyInput) {
-                        AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
-                        androidJoyInput.resumeSensors();
-                    }
-                }
-            }
-        }
-
-        isGLThreadPaused = false;
 
         gainFocus();
     }
 
     @Override
     protected void onPause() {
+        logger.fine("onPause");
         loseFocus();
 
-        logger.fine("onPause");
         super.onPause();
-        if (view != null) {
-            view.onPause();
-        }
-
-        if (app != null) {
-            //pause the audio
-            AudioRenderer result = app.getAudioRenderer();
-            if (result != null) {
-                logger.log(Level.FINE, "pause: {0}", result.getClass().getSimpleName());
-                if (result instanceof AndroidAudioRenderer) {
-                    AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
-                    renderer.pauseAll();
-                }
-            }
-            //pause the sensors (aka joysticks)
-            if (app.getContext() != null) {
-                JoyInput joyInput = app.getContext().getJoyInput();
-                if (joyInput != null) {
-                    if (joyInput instanceof AndroidSensorJoyInput) {
-                        AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
-                        androidJoyInput.pauseSensors();
-                    }
-                }
-            }
-        }
-        isGLThreadPaused = true;
     }
 
     @Override
@@ -524,14 +473,70 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     }
 
     public void gainFocus() {
+        logger.fine("gainFocus");
+        if (view != null) {
+            view.onResume();
+        }
+
+        if (app != null) {
+            //resume the audio
+            AudioRenderer result = app.getAudioRenderer();
+            if (result != null) {
+                if (result instanceof AndroidAudioRenderer) {
+                    AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
+                    renderer.resumeAll();
+                }
+            }
+            //resume the sensors (aka joysticks)
+            if (app.getContext() != null) {
+                JoyInput joyInput = app.getContext().getJoyInput();
+                if (joyInput != null) {
+                    if (joyInput instanceof AndroidSensorJoyInput) {
+                        AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
+                        androidJoyInput.resumeSensors();
+                    }
+                }
+            }
+        }
+
+        isGLThreadPaused = false;
+
         if (app != null) {
             app.gainFocus();
         }
     }
 
     public void loseFocus() {
+        logger.fine("loseFocus");
         if (app != null) {
             app.loseFocus();
         }
+
+        if (view != null) {
+            view.onPause();
+        }
+
+        if (app != null) {
+            //pause the audio
+            AudioRenderer result = app.getAudioRenderer();
+            if (result != null) {
+                logger.log(Level.FINE, "pause: {0}", result.getClass().getSimpleName());
+                if (result instanceof AndroidAudioRenderer) {
+                    AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
+                    renderer.pauseAll();
+                }
+            }
+            //pause the sensors (aka joysticks)
+            if (app.getContext() != null) {
+                JoyInput joyInput = app.getContext().getJoyInput();
+                if (joyInput != null) {
+                    if (joyInput instanceof AndroidSensorJoyInput) {
+                        AndroidSensorJoyInput androidJoyInput = (AndroidSensorJoyInput) joyInput;
+                        androidJoyInput.pauseSensors();
+                    }
+                }
+            }
+        }
+        isGLThreadPaused = true;
     }
 }
