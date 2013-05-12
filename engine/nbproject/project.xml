@@ -32,6 +32,7 @@
                 <root id="src.lwjgl.dir" name="LWJGL Renderer"/>
                 <root id="src.jogl.dir" name="JOGL Renderer"/>
                 <root id="src.android.dir" name="Android Renderer"/>
+                <root id="src.openal-soft-native.dir" name="OpenAL Soft C++"/>
                 <root id="src.ios.dir" name="iOS Renderer"/>
             </source-roots>
             <test-roots>

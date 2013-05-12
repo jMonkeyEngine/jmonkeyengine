@@ -19,6 +19,10 @@
         </exec>
     </target>
 
+    <target name="build-openal-soft-natives" description="uses native build tools to build the openalsoftjme shared library for Android" depends="jar">
+        <ant antfile="nbproject/build-openal-soft-natives.xml" target="build-openal-soft-natives"/>
+    </target>
+
     <target name="-do-compile" description="Overrides default compile target to separate the build into folders" depends="init,deps-jar,-pre-pre-compile,-pre-compile, -copy-persistence-xml,-compile-depend" if="have.sources">
         <mkdir dir="${build.dir}/core"/>
         <mkdir dir="${build.dir}/effects"/>
