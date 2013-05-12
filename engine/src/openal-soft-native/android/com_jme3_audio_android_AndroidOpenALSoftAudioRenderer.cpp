@@ -324,8 +324,158 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRendere
     alListener3f((ALenum)param, (ALfloat)value1, (ALfloat)value2, (ALfloat)value3);
 }
 
+JNIEXPORT jboolean JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alcIsExtensionPresent
+  (JNIEnv* env, jclass, jstring extension)
+{
 
+    ALCdevice *device;
+    ALCcontext *ctx;
+    ALboolean result;
+//    char buf[128];
+    const char* strExtension;
+    jsize strLength = env->GetStringUTFLength(extension);
 
+    ctx = alcGetCurrentContext();
+    if(ctx != NULL) {
+        device = alcGetContextsDevice(ctx);
+
+        if (device != NULL) {
+            strExtension = env->GetStringUTFChars(extension, NULL);
+            if (strExtension == NULL) {
+                return JNI_FALSE; /* OutOfMemoryError already thrown */
+            }
+//            __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alcIsExtensionPresent for param: %s with size: %d", strExtension, strLength);
+
+            result = alcIsExtensionPresent(device, strExtension);
+//            __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alcIsExtensionPresent found: %d", result);
+
+            env->ReleaseStringUTFChars(extension, strExtension);
+
+            return (jboolean)result;
+        } else {
+            __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "device is null in alcIsExtensionPresent");
+        }
+
+    } else {
+        __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "current context is null in alcIsExtensionPresent");
+    }
+
+    return JNI_FALSE;
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alcGetInteger
+  (JNIEnv* env, jclass, jint param, jobject buffer, jint bufferSize)
+{
+    ALCdevice *device;
+    ALCcontext *ctx;
+
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alcGetInteger for param: %d", param);
+    ALCint* pBuffers = (ALCint*) env->GetDirectBufferAddress(buffer);
+
+    ctx = alcGetCurrentContext();
+    if(ctx != NULL) {
+        device = alcGetContextsDevice(ctx);
+
+        if (device != NULL) {
+            alcGetIntegerv(device, (ALCenum)param, (ALCsizei)bufferSize, pBuffers);
+        } else {
+            __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "device is null in alcGetInteger");
+        }
+
+    } else {
+        __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "current context is null in alcGetInteger");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alGenAuxiliaryEffectSlots
+  (JNIEnv* env, jclass, jint numSlots, jobject buffer)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alGenAuxiliaryEffectSlots for numSlots: %d", numSlots);
+    ALuint* pBuffers = (ALuint*) env->GetDirectBufferAddress(buffer);
+    alGenAuxiliaryEffectSlots((ALsizei)numSlots, pBuffers);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alGenEffects
+  (JNIEnv* env, jclass, jint numEffects, jobject buffer)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alGenEffects for numEffects: %d", numEffects);
+    ALuint* pBuffers = (ALuint*) env->GetDirectBufferAddress(buffer);
+    alGenEffects((ALsizei)numEffects, pBuffers);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alEffecti
+  (JNIEnv *, jclass, jint effect, jint param, jint value)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alEffecti for effect: %d, param: %d, value: %d", effect, param, value);
+    alEffecti((ALuint)effect, (ALenum)param, (ALint)value);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alAuxiliaryEffectSloti
+  (JNIEnv *, jclass, jint effectSlot, jint param, jint value)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alAuxiliaryEffectSloti for effect: %d, param: %d, value: %d", effectSlot, param, value);
+    alAuxiliaryEffectSloti((ALuint)effectSlot, (ALenum)param, (ALint)value);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alDeleteEffects
+  (JNIEnv* env, jclass, jint numEffects, jobject buffer)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alDeleteEffects for numEffects: %d", numEffects);
+    ALuint* pBuffers = (ALuint*) env->GetDirectBufferAddress(buffer);
+    alDeleteEffects((ALsizei)numEffects, pBuffers);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alDeleteAuxiliaryEffectSlots
+  (JNIEnv* env, jclass, jint numEffectSlots, jobject buffer)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alDeleteAuxiliaryEffectSlots for numEffectSlots: %d", numEffectSlots);
+    ALuint* pBuffers = (ALuint*) env->GetDirectBufferAddress(buffer);
+    alDeleteAuxiliaryEffectSlots((ALsizei)numEffectSlots, pBuffers);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alGenFilters
+  (JNIEnv* env, jclass, jint numFilters, jobject buffer)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alGenFilters for numFilters: %d", numFilters);
+    ALuint* pBuffers = (ALuint*) env->GetDirectBufferAddress(buffer);
+    alGenFilters((ALsizei)numFilters, pBuffers);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alFilteri
+  (JNIEnv *, jclass, jint filter, jint param, jint value)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alFilteri for filter: %d, param: %d, value: %d", filter, param, value);
+    alFilteri((ALuint)filter, (ALenum)param, (ALint)value);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alFilterf
+  (JNIEnv *, jclass, jint filter, jint param, jfloat value)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alFilterf for filter: %d, param: %d, value: %f", filter, param, value);
+    alFilterf((ALuint)filter, (ALenum)param, (ALfloat)value);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alSource3i
+  (JNIEnv *, jclass, jint source, jint param, jint value1, jint value2, jint value3)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alSource3i for source: %d, param: %d, value1: %d, value2: %d, value3: %d", source, param, value1, value2, value3);
+    alSource3i((ALuint)source, (ALenum)param, (ALint)value1, (ALint)value2, (ALint)value3);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alDeleteFilters
+  (JNIEnv* env, jclass, jint numFilters, jobject buffer)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alDeleteFilters for numFilters: %d", numFilters);
+    ALuint* pBuffers = (ALuint*) env->GetDirectBufferAddress(buffer);
+    alDeleteFilters((ALsizei)numFilters, pBuffers);
+}
+
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alEffectf
+  (JNIEnv *, jclass, jint effect, jint param, jfloat value)
+{
+//    __android_log_print(ANDROID_LOG_INFO, "OpenAL Soft", "alEffectf for effect: %d, param: %d, value: %d", effect, param, value);
+    alEffectf((ALuint)effect, (ALenum)param, (ALfloat)value);
+}
 
 
 #ifdef __cplusplus

@@ -201,6 +201,118 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRendere
 JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alListener3f
   (JNIEnv *, jclass, jint, jfloat, jfloat, jfloat);
 
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alcIsExtensionPresent
+ * Signature: (Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alcIsExtensionPresent
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alcGetInteger
+ * Signature: (ILjava/nio/IntBuffer;I)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alcGetInteger
+  (JNIEnv *, jclass, jint, jobject, jint);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alGenAuxiliaryEffectSlots
+ * Signature: (ILjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alGenAuxiliaryEffectSlots
+  (JNIEnv *, jclass, jint, jobject);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alGenEffects
+ * Signature: (ILjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alGenEffects
+  (JNIEnv *, jclass, jint, jobject);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alEffecti
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alEffecti
+  (JNIEnv *, jclass, jint, jint, jint);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alAuxiliaryEffectSloti
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alAuxiliaryEffectSloti
+  (JNIEnv *, jclass, jint, jint, jint);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alDeleteEffects
+ * Signature: (ILjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alDeleteEffects
+  (JNIEnv *, jclass, jint, jobject);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alDeleteAuxiliaryEffectSlots
+ * Signature: (ILjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alDeleteAuxiliaryEffectSlots
+  (JNIEnv *, jclass, jint, jobject);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alGenFilters
+ * Signature: (ILjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alGenFilters
+  (JNIEnv *, jclass, jint, jobject);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alFilteri
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alFilteri
+  (JNIEnv *, jclass, jint, jint, jint);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alFilterf
+ * Signature: (IIF)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alFilterf
+  (JNIEnv *, jclass, jint, jint, jfloat);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alSource3i
+ * Signature: (IIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alSource3i
+  (JNIEnv *, jclass, jint, jint, jint, jint, jint);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alDeleteFilters
+ * Signature: (ILjava/nio/IntBuffer;)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alDeleteFilters
+  (JNIEnv *, jclass, jint, jobject);
+
+/*
+ * Class:     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer
+ * Method:    alEffectf
+ * Signature: (IIF)V
+ */
+JNIEXPORT void JNICALL Java_com_jme3_audio_android_AndroidOpenALSoftAudioRenderer_alEffectf
+  (JNIEnv *, jclass, jint, jint, jfloat);
+
 #ifdef __cplusplus
 }
 #endif

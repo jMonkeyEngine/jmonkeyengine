@@ -169,12 +169,9 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
         // Find maximum # of sources supported by this implementation
         ArrayList<Integer> channelList = new ArrayList<Integer>();
         for (int i = 0; i < MAX_NUM_CHANNELS; i++) {
-//            logger.log(Level.INFO, "Generating Source for index: {0}", i);
             int chan = alGenSources();
-//            logger.log(Level.INFO, "chan: {0}", chan);
             //if (alGetError() != 0) {
             if (checkError(false) != 0) {
-//                logger.log(Level.INFO, "alGetError detected an error");
                 break;
             } else {
                 channelList.add(chan);
@@ -191,36 +188,47 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
 
         logger.log(Level.INFO, "AudioRenderer supports {0} channels", channels.length);
 
-//        supportEfx = ALC10.alcIsExtensionPresent(device, "ALC_EXT_EFX");
-//        if (supportEfx) {
-//            ib.position(0).limit(1);
-//            ALC10.alcGetInteger(device, EFX10.ALC_EFX_MAJOR_VERSION, ib);
-//            int major = ib.get(0);
-//            ib.position(0).limit(1);
-//            ALC10.alcGetInteger(device, EFX10.ALC_EFX_MINOR_VERSION, ib);
-//            int minor = ib.get(0);
-//            logger.log(Level.INFO, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
-//
-//            ALC10.alcGetInteger(device, EFX10.ALC_MAX_AUXILIARY_SENDS, ib);
-//            auxSends = ib.get(0);
-//            logger.log(Level.INFO, "Audio max auxilary sends: {0}", auxSends);
-//
-//            // create slot
-//            ib.position(0).limit(1);
-//            EFX10.alGenAuxiliaryEffectSlots(ib);
-//            reverbFxSlot = ib.get(0);
-//
-//            // create effect
-//            ib.position(0).limit(1);
-//            EFX10.alGenEffects(ib);
-//            reverbFx = ib.get(0);
-//            EFX10.alEffecti(reverbFx, EFX10.AL_EFFECT_TYPE, EFX10.AL_EFFECT_REVERB);
-//
-//            // attach reverb effect to effect slot
-//            EFX10.alAuxiliaryEffectSloti(reverbFxSlot, EFX10.AL_EFFECTSLOT_EFFECT, reverbFx);
-//        } else {
-//            logger.log(Level.WARNING, "OpenAL EFX not available! Audio effects won't work.");
-//        }
+        //supportEfx = alcIsExtensionPresent(device, "ALC_EXT_EFX");
+        supportEfx = alcIsExtensionPresent(AL.ALC_EXT_EFX_NAME);
+        logger.log(Level.INFO, "{0} found: {1}",
+                new Object[]{AL.ALC_EXT_EFX_NAME, supportEfx});
+
+        if (supportEfx) {
+            ib.position(0).limit(1);
+            //ALC10.alcGetInteger(device, EFX10.ALC_EFX_MAJOR_VERSION, ib);
+            alcGetInteger(AL.ALC_EFX_MAJOR_VERSION, ib, 1);
+            int major = ib.get(0);
+            ib.position(0).limit(1);
+            //ALC10.alcGetInteger(device, EFX10.ALC_EFX_MINOR_VERSION, ib);
+            alcGetInteger(AL.ALC_EFX_MINOR_VERSION, ib, 1);
+            int minor = ib.get(0);
+            logger.log(Level.INFO, "Audio effect extension version: {0}.{1}", new Object[]{major, minor});
+
+            //ALC10.alcGetInteger(device, EFX10.ALC_MAX_AUXILIARY_SENDS, ib);
+            alcGetInteger(AL.ALC_MAX_AUXILIARY_SENDS, ib, 1);
+            auxSends = ib.get(0);
+            logger.log(Level.INFO, "Audio max auxilary sends: {0}", auxSends);
+
+            // create slot
+            ib.position(0).limit(1);
+            //EFX10.alGenAuxiliaryEffectSlots(ib);
+            alGenAuxiliaryEffectSlots(1, ib);
+            reverbFxSlot = ib.get(0);
+
+            // create effect
+            ib.position(0).limit(1);
+            //EFX10.alGenEffects(ib);
+            alGenEffects(1, ib);
+            reverbFx = ib.get(0);
+            //EFX10.alEffecti(reverbFx, EFX10.AL_EFFECT_TYPE, EFX10.AL_EFFECT_REVERB);
+            alEffecti(reverbFx, AL.AL_EFFECT_TYPE, AL.AL_EFFECT_REVERB);
+
+            // attach reverb effect to effect slot
+            //EFX10.alAuxiliaryEffectSloti(reverbFxSlot, EFX10.AL_EFFECTSLOT_EFFECT, reverbFx);
+            alAuxiliaryEffectSloti(reverbFxSlot, AL.AL_EFFECTSLOT_EFFECT, reverbFx);
+        } else {
+            logger.log(Level.WARNING, "OpenAL EFX not available! Audio effects won't work.");
+        }
     }
 
     public void cleanupInThread() {
@@ -251,22 +259,23 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
         // delete audio buffers and filters
         objManager.deleteAllObjects(this);
 
-//        if (supportEfx) {
-//            ib.position(0).limit(1);
-//            ib.put(0, reverbFx);
-//            EFX10.alDeleteEffects(ib);
-//
-//            // If this is not allocated, why is it deleted?
-//            // Commented out to fix native crash in OpenAL.
-//            ib.position(0).limit(1);
-//            ib.put(0, reverbFxSlot);
-//            EFX10.alDeleteAuxiliaryEffectSlots(ib);
-//        }
-//
+        if (supportEfx) {
+            ib.position(0).limit(1);
+            ib.put(0, reverbFx);
+            //EFX10.alDeleteEffects(ib);
+            alDeleteEffects(1, ib);
+
+            // If this is not allocated, why is it deleted?
+            // Commented out to fix native crash in OpenAL.
+            ib.position(0).limit(1);
+            ib.put(0, reverbFxSlot);
+            //EFX10.alDeleteAuxiliaryEffectSlots(ib);
+            alDeleteAuxiliaryEffectSlots(1, ib);
+        }
+
         //AL.destroy();
         logger.log(Level.INFO, "Destroying OpenAL Soft Renderer");
         alDestroy();
-//        checkError(true);
     }
 
     public void cleanup() {
@@ -279,27 +288,31 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private void updateFilter(Filter f) {
-//        int id = f.getId();
-//        if (id == -1) {
-//            ib.position(0).limit(1);
-//            EFX10.alGenFilters(ib);
-//            id = ib.get(0);
-//            f.setId(id);
-//
-//            objManager.registerForCleanup(f);
-//        }
-//
-//        if (f instanceof LowPassFilter) {
-//            LowPassFilter lpf = (LowPassFilter) f;
-//            EFX10.alFilteri(id, EFX10.AL_FILTER_TYPE, EFX10.AL_FILTER_LOWPASS);
-//            EFX10.alFilterf(id, EFX10.AL_LOWPASS_GAIN, lpf.getVolume());
-//            EFX10.alFilterf(id, EFX10.AL_LOWPASS_GAINHF, lpf.getHighFreqVolume());
-//        } else {
-//            throw new UnsupportedOperationException("Filter type unsupported: "
-//                    + f.getClass().getName());
-//        }
-//
-//        f.clearUpdateNeeded();
+        int id = f.getId();
+        if (id == -1) {
+            ib.position(0).limit(1);
+            //EFX10.alGenFilters(ib);
+            alGenFilters(1, ib);
+            id = ib.get(0);
+            f.setId(id);
+
+            objManager.registerForCleanup(f);
+        }
+
+        if (f instanceof LowPassFilter) {
+            LowPassFilter lpf = (LowPassFilter) f;
+            //EFX10.alFilteri(id, EFX10.AL_FILTER_TYPE, EFX10.AL_FILTER_LOWPASS);
+            alFilteri(id, AL.AL_FILTER_TYPE, AL.AL_FILTER_LOWPASS);
+            //EFX10.alFilterf(id, EFX10.AL_LOWPASS_GAIN, lpf.getVolume());
+            alFilterf(id, AL.AL_LOWPASS_GAIN, lpf.getVolume());
+            //EFX10.alFilterf(id, EFX10.AL_LOWPASS_GAINHF, lpf.getHighFreqVolume());
+            alFilterf(id, AL.AL_LOWPASS_GAINHF, lpf.getHighFreqVolume());
+        } else {
+            throw new UnsupportedOperationException("Filter type unsupported: "
+                    + f.getClass().getName());
+        }
+
+        f.clearUpdateNeeded();
     }
 
     public void updateSourceParam(AudioSource src, AudioParam param) {
@@ -375,15 +388,16 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
                         return;
                     }
 
-//                    int filter = EFX10.AL_FILTER_NULL;
-//                    if (src.getReverbFilter() != null) {
-//                        Filter f = src.getReverbFilter();
-//                        if (f.isUpdateNeeded()) {
-//                            updateFilter(f);
-//                        }
-//                        filter = f.getId();
-//                    }
-//                    AL11.alSource3i(id, EFX10.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
+                    int filter = AL.AL_FILTER_NULL;
+                    if (src.getReverbFilter() != null) {
+                        Filter f = src.getReverbFilter();
+                        if (f.isUpdateNeeded()) {
+                            updateFilter(f);
+                        }
+                        filter = f.getId();
+                    }
+                    //AL11.alSource3i(id, EFX10.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
+                    alSource3i(id, AL.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
                     break;
                 case ReverbEnabled:
                     if (!supportEfx || !src.isPositional()) {
@@ -393,7 +407,8 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
                     if (src.isReverbEnabled()) {
                         updateSourceParam(src, AudioParam.ReverbFilter);
                     } else {
-//                        AL11.alSource3i(id, EFX10.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX10.AL_FILTER_NULL);
+                        //AL11.alSource3i(id, EFX10.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX10.AL_FILTER_NULL);
+                        alSource3i(id, AL.AL_AUXILIARY_SEND_FILTER, 0, 0, AL.AL_FILTER_NULL);
                     }
                     break;
                 case IsPositional:
@@ -410,7 +425,8 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
                         checkError(true);
 
                         // Disable reverb
-//                        AL11.alSource3i(id, EFX10.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX10.AL_FILTER_NULL);
+                        //AL11.alSource3i(id, EFX10.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX10.AL_FILTER_NULL);
+                        alSource3i(id, AL.AL_AUXILIARY_SEND_FILTER, 0, 0, AL.AL_FILTER_NULL);
                     } else {
                         //alSourcei(id, AL_SOURCE_RELATIVE, AL_FALSE);
                         alSourcei(id, AL.AL_SOURCE_RELATIVE, AL.AL_FALSE);
@@ -470,23 +486,25 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
                         checkError(true);
                     }
                     break;
-//                case DryFilter:
-//                    if (!supportEfx) {
-//                        return;
-//                    }
-//
-//                    if (src.getDryFilter() != null) {
-//                        Filter f = src.getDryFilter();
-//                        if (f.isUpdateNeeded()) {
-//                            updateFilter(f);
-//
-//                            // NOTE: must re-attach filter for changes to apply.
-//                            alSourcei(id, EFX10.AL_DIRECT_FILTER, f.getId());
-//                        }
-//                    } else {
-//                        alSourcei(id, EFX10.AL_DIRECT_FILTER, EFX10.AL_FILTER_NULL);
-//                    }
-//                    break;
+                case DryFilter:
+                    if (!supportEfx) {
+                        return;
+                    }
+
+                    if (src.getDryFilter() != null) {
+                        Filter f = src.getDryFilter();
+                        if (f.isUpdateNeeded()) {
+                            updateFilter(f);
+
+                            // NOTE: must re-attach filter for changes to apply.
+                            //alSourcei(id, EFX10.AL_DIRECT_FILTER, f.getId());
+                            alSourcei(id, AL.AL_DIRECT_FILTER, f.getId());
+                        }
+                    } else {
+                        //alSourcei(id, EFX10.AL_DIRECT_FILTER, EFX10.AL_FILTER_NULL);
+                        alSourcei(id, AL.AL_DIRECT_FILTER, AL.AL_FILTER_NULL);
+                    }
+                    break;
                 case Looping:
                     if (src.isLooping()) {
                         if (!(src.getAudioData() instanceof AudioStream)) {
@@ -534,17 +552,19 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
             alSourcei(id, AL.AL_SOURCE_RELATIVE, AL.AL_FALSE);
             checkError(true);
 
-//            if (src.isReverbEnabled() && supportEfx) {
-//                int filter = EFX10.AL_FILTER_NULL;
-//                if (src.getReverbFilter() != null) {
-//                    Filter f = src.getReverbFilter();
-//                    if (f.isUpdateNeeded()) {
-//                        updateFilter(f);
-//                    }
-//                    filter = f.getId();
-//                }
-//                AL11.alSource3i(id, EFX10.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
-//            }
+            if (src.isReverbEnabled() && supportEfx) {
+                //int filter = EFX10.AL_FILTER_NULL;
+                int filter = AL.AL_FILTER_NULL;
+                if (src.getReverbFilter() != null) {
+                    Filter f = src.getReverbFilter();
+                    if (f.isUpdateNeeded()) {
+                        updateFilter(f);
+                    }
+                    filter = f.getId();
+                }
+                //AL11.alSource3i(id, EFX10.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
+                alSource3i(id, AL.AL_AUXILIARY_SEND_FILTER, reverbFxSlot, 0, filter);
+            }
         } else {
             // play in headspace
             //alSourcei(id, AL_SOURCE_RELATIVE, AL_TRUE);
@@ -558,16 +578,17 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
             checkError(true);
         }
 
-//        if (src.getDryFilter() != null && supportEfx) {
-//            Filter f = src.getDryFilter();
-//            if (f.isUpdateNeeded()) {
-//                updateFilter(f);
-//
-//                // NOTE: must re-attach filter for changes to apply.
-//                alSourcei(id, EFX10.AL_DIRECT_FILTER, f.getId());
-//            }
-//        }
-//
+        if (src.getDryFilter() != null && supportEfx) {
+            Filter f = src.getDryFilter();
+            if (f.isUpdateNeeded()) {
+                updateFilter(f);
+
+                // NOTE: must re-attach filter for changes to apply.
+                //alSourcei(id, EFX10.AL_DIRECT_FILTER, f.getId());
+                alSourcei(id, AL.AL_DIRECT_FILTER, f.getId());
+            }
+        }
+
         if (forceNonLoop) {
             //alSourcei(id, AL_LOOPING, AL_FALSE);
             alSourcei(id, AL.AL_LOOPING, AL.AL_FALSE);
@@ -715,26 +736,38 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_DENSITY, env.getDensity());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_DIFFUSION, env.getDiffusion());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_GAIN, env.getGain());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_GAINHF, env.getGainHf());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_DECAY_TIME, env.getDecayTime());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_DECAY_HFRATIO, env.getDecayHFRatio());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_REFLECTIONS_GAIN, env.getReflectGain());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_REFLECTIONS_DELAY, env.getReflectDelay());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_LATE_REVERB_GAIN, env.getLateReverbGain());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_LATE_REVERB_DELAY, env.getLateReverbDelay());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_AIR_ABSORPTION_GAINHF, env.getAirAbsorbGainHf());
-//            EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_ROOM_ROLLOFF_FACTOR, env.getRoomRolloffFactor());
-//
-//            // attach effect to slot
-//            EFX10.alAuxiliaryEffectSloti(reverbFxSlot, EFX10.AL_EFFECTSLOT_EFFECT, reverbFx);
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_DENSITY, env.getDensity());
+            alEffectf(reverbFx, AL.AL_REVERB_DENSITY, env.getDensity());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_DIFFUSION, env.getDiffusion());
+            alEffectf(reverbFx, AL.AL_REVERB_DIFFUSION, env.getDiffusion());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_GAIN, env.getGain());
+            alEffectf(reverbFx, AL.AL_REVERB_GAIN, env.getGain());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_GAINHF, env.getGainHf());
+            alEffectf(reverbFx, AL.AL_REVERB_GAINHF, env.getGainHf());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_DECAY_TIME, env.getDecayTime());
+            alEffectf(reverbFx, AL.AL_REVERB_DECAY_TIME, env.getDecayTime());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_DECAY_HFRATIO, env.getDecayHFRatio());
+            alEffectf(reverbFx, AL.AL_REVERB_DECAY_HFRATIO, env.getDecayHFRatio());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_REFLECTIONS_GAIN, env.getReflectGain());
+            alEffectf(reverbFx, AL.AL_REVERB_REFLECTIONS_GAIN, env.getReflectGain());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_REFLECTIONS_DELAY, env.getReflectDelay());
+            alEffectf(reverbFx, AL.AL_REVERB_REFLECTIONS_DELAY, env.getReflectDelay());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_LATE_REVERB_GAIN, env.getLateReverbGain());
+            alEffectf(reverbFx, AL.AL_REVERB_LATE_REVERB_GAIN, env.getLateReverbGain());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_LATE_REVERB_DELAY, env.getLateReverbDelay());
+            alEffectf(reverbFx, AL.AL_REVERB_LATE_REVERB_DELAY, env.getLateReverbDelay());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_AIR_ABSORPTION_GAINHF, env.getAirAbsorbGainHf());
+            alEffectf(reverbFx, AL.AL_REVERB_AIR_ABSORPTION_GAINHF, env.getAirAbsorbGainHf());
+            //EFX10.alEffectf(reverbFx, EFX10.AL_REVERB_ROOM_ROLLOFF_FACTOR, env.getRoomRolloffFactor());
+            alEffectf(reverbFx, AL.AL_REVERB_ROOM_ROLLOFF_FACTOR, env.getRoomRolloffFactor());
+
+            // attach effect to slot
+            //EFX10.alAuxiliaryEffectSloti(reverbFxSlot, EFX10.AL_EFFECTSLOT_EFFECT, reverbFx);
+            alAuxiliaryEffectSloti(reverbFxSlot, AL.AL_EFFECTSLOT_EFFECT, reverbFx);
         }
     }
 
     private boolean fillBuffer(AudioStream stream, int id) {
-//        logger.log(Level.INFO, "fillBuffer for id: {0}", id);
         int size = 0;
         int result;
 
@@ -747,9 +780,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
                 break;
             }
         }
-
-//        logger.log(Level.INFO, "data for buffer: {0} is size: {1}",
-//                new Object[]{id, size});
 
         if (size == 0) {
             return false;
@@ -767,7 +797,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private boolean fillStreamingSource(int sourceId, AudioStream stream) {
-//        logger.log(Level.INFO, "fillStreamingSource for source: {0}", sourceId);
         if (!stream.isOpen()) {
             return false;
         }
@@ -775,7 +804,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
         boolean active = true;
         //int processed = alGetSourcei(sourceId, AL_BUFFERS_PROCESSED);
         int processed = alGetSourcei(sourceId, AL.AL_BUFFERS_PROCESSED);
-//        logger.log(Level.INFO, "fillStreamingSource buffers processed: {0}", processed);
         checkError(true);
 
         //while((processed--) != 0){
@@ -783,19 +811,15 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
             int buffer;
 
             ib.position(0).limit(1);
-//            logger.log(Level.INFO, "fillStreamingSource alSourceUnqueueBuffers for source: {0}", sourceId);
             //alSourceUnqueueBuffers(sourceId, ib);
             alSourceUnqueueBuffers(sourceId, 1, ib);
             checkError(true);
             buffer = ib.get(0);
-//            logger.log(Level.INFO, "fillStreamingSource bufferID: {0}", buffer);
 
             active = fillBuffer(stream, buffer);
 
             ib.position(0).limit(1);
             ib.put(0, buffer);
-//            logger.log(Level.INFO, "fillStreamingSource alSourceQueueBuffers for source: {0}, buffer: {1}",
-//                    new Object[]{sourceId, buffer});
             //alSourceQueueBuffers(sourceId, ib);
             alSourceQueueBuffers(sourceId, 1, ib);
             checkError(true);
@@ -809,7 +833,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private boolean attachStreamToSource(int sourceId, AudioStream stream) {
-//        logger.log(Level.INFO, "attachStreamToSource for source: {0}", sourceId);
         boolean active = true;
         int activeBufferCount = 0;
         for (int id : stream.getIds()) {
@@ -822,8 +845,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
             //  does not return (crashes) so that the error code can be checked.
             // active is FALSE when the data size is 0
             if (active) {
-//                logger.log(Level.INFO, "attachStreamToSource alSourceQueueBuffers for source: {0}, buffer: {1}",
-//                        new Object[]{sourceId, id});
                 alSourceQueueBuffers(sourceId, 1, ib);
                 checkError(true);
                 activeBufferCount++;
@@ -837,15 +858,11 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
             for (int i=0; i<STREAMING_BUFFER_COUNT; i++) {
                 if (i < activeBufferCount) {
                     newIds[i] = stream.getIds()[i];
-//                    logger.log(Level.INFO, "newIds[{0}] = {1}",
-//                            new Object[]{i, newIds[i]});
                 } else {
                     ib.clear();
                     ib.put(stream.getIds()[i]).limit(1).flip();
                     alDeleteBuffers(1, ib);
                     checkError(true);
-//                    logger.log(Level.INFO, "deleting buffer at index[{0}] = {1}",
-//                            new Object[]{i, stream.getIds()[i]});
                 }
 
             }
@@ -863,7 +880,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private boolean attachAudioToSource(int sourceId, AudioData data) {
-//        logger.log(Level.INFO, "attachAudioToSource for data type: {0}", data.getClass().getName());
         if (data instanceof AudioBuffer) {
             return attachBufferToSource(sourceId, (AudioBuffer) data);
         } else if (data instanceof AudioStream) {
@@ -873,28 +889,21 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private void clearChannel(int index) {
-//        logger.log(Level.INFO, "Clearing channel for index: {0}", index);
         // make room at this channel
         if (chanSrcs[index] != null) {
             AudioSource src = chanSrcs[index];
 
             int sourceId = channels[index];
-//            logger.log(Level.INFO, "Stopping source: {0} in clearChannel", sourceId);
             alSourceStop(sourceId);
 
             if (src.getAudioData() instanceof AudioStream) {
                 AudioStream str = (AudioStream) src.getAudioData();
-//                logger.log(Level.INFO, "source is a stream with numBuffers: {0}", str.getIds().length);
                 for (int i=0; i<str.getIds().length; i++) {
-//                    logger.log(Level.INFO, "id[{0}]: {1}",
-//                            new Object[]{i, str.getIds()[i]});
                 }
                 //ib.position(0).limit(STREAMING_BUFFER_COUNT);
                 ib.position(0).limit(str.getIds().length);
                 ib.put(str.getIds()).flip();
-//                logger.log(Level.INFO, "clearChannel alSourceUnqueueBuffers for source: {0}", sourceId);
                 int processed = alGetSourcei(sourceId, AL.AL_BUFFERS_PROCESSED);
-//                logger.log(Level.INFO, "clearChannels buffers processed: {0}", processed);
                 //alSourceUnqueueBuffers(sourceId, ib);
                 alSourceUnqueueBuffers(sourceId, processed, ib);
                 checkError(true);
@@ -906,12 +915,14 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
 
             if (src.getDryFilter() != null && supportEfx) {
                 // detach filter
-//                alSourcei(sourceId, EFX10.AL_DIRECT_FILTER, EFX10.AL_FILTER_NULL);
+                //alSourcei(sourceId, EFX10.AL_DIRECT_FILTER, EFX10.AL_FILTER_NULL);
+                alSourcei(sourceId, AL.AL_DIRECT_FILTER, AL.AL_FILTER_NULL);
             }
             if (src.isPositional()) {
                 AudioSource pas = (AudioSource) src;
                 if (pas.isReverbEnabled() && supportEfx) {
-//                    AL11.alSource3i(sourceId, EFX10.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX10.AL_FILTER_NULL);
+                    //AL11.alSource3i(sourceId, EFX10.AL_AUXILIARY_SEND_FILTER, 0, 0, EFX10.AL_FILTER_NULL);
+                    alSource3i(sourceId, AL.AL_AUXILIARY_SEND_FILTER, 0, 0, AL.AL_FILTER_NULL);
                 }
             }
 
@@ -949,29 +960,20 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
             //int state = alGetSourcei(sourceId, AL_SOURCE_STATE);
             int state = alGetSourcei(sourceId, AL.AL_SOURCE_STATE);
             checkError(true);
-//            logger.log(Level.INFO, "source: {0}, state: {1}",
-//                    new Object[]{sourceId, state});
             boolean wantPlaying = src.getStatus() == Status.Playing;
-//            logger.log(Level.INFO, "sourceId: {0}, wantPlaying: {1}",
-//                    new Object[]{sourceId, wantPlaying});
             //boolean stopped = state == AL_STOPPED;
             boolean stopped = state == AL.AL_STOPPED;
-//            logger.log(Level.INFO, "sourceId: {0}, stopped: {1}",
-//                    new Object[]{sourceId, stopped});
 
             if (streaming && wantPlaying) {
                 AudioStream stream = (AudioStream) src.getAudioData();
                 if (stream.isOpen()) {
-//                    logger.log(Level.INFO, "stream is open && want playing for source: {0}", sourceId);
                     fillStreamingSource(sourceId, stream);
                     if (stopped) {
-//                        logger.log(Level.INFO, "source: {0} stopped, set playstate", sourceId);
                         alSourcePlay(sourceId);
                         checkError(true);
                     }
                 } else {
                     if (stopped) {
-//                        logger.log(Level.INFO, "stream is not open && want playing for source: {0}", sourceId);
                         // became inactive
                         src.setStatus(Status.Stopped);
                         src.setChannel(-1);
@@ -986,8 +988,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
             } else if (!streaming) {
                 //boolean paused = state == AL_PAUSED;
                 boolean paused = state == AL.AL_PAUSED;
-//                logger.log(Level.INFO, "source: {0}, pause: {1}",
-//                        new Object[]{sourceId, paused});
 
                 // make sure OAL pause state & source state coincide
                 assert (src.getStatus() == Status.Paused && paused) || (!paused);
@@ -1052,7 +1052,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
             }
 
             if (src.getAudioData().isUpdateNeeded()) {
-//                logger.log(Level.INFO, "Calling updateAudioData from playSourceInstance");
                 updateAudioData(src.getAudioData());
             }
 
@@ -1064,14 +1063,10 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
 
             int sourceId = channels[index];
 
-//            logger.log(Level.INFO, "Calling clearChannel for index[{0}] from playSourceInstance", index);
             clearChannel(index);
 
             // set parameters, like position and max distance
-//            logger.log(Level.INFO, "Calling setSourceParams for sourceID: {0} from playSourceInstance", index);
             setSourceParams(sourceId, src, true);
-//            logger.log(Level.INFO, "Calling attachAudioToSource for sourceID: {0} and data audiodata id: {1} from playSourceInstance",
-//                    new Object[]{sourceId, src.getAudioData().getId()});
             attachAudioToSource(sourceId, src.getAudioData());
             chanSrcs[index] = src;
 
@@ -1126,7 +1121,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
     }
 
     public void pauseSource(AudioSource src) {
-//        logger.log(Level.INFO, "pauseSource");
         checkDead();
         synchronized (threadLock) {
             while (!threadLock.get()) {
@@ -1139,7 +1133,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-//            logger.log(Level.INFO, "source is playing: {0}", src.getStatus() == Status.Playing);
             if (src.getStatus() == Status.Playing) {
                 assert src.getChannel() != -1;
 
@@ -1212,18 +1205,15 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
 
     private void updateAudioBuffer(AudioBuffer ab) {
         int id = ab.getId();
-//        logger.log(Level.INFO, "updateAudioBuffer for buffer id: {0}", id);
         if (ab.getId() == -1) {
             ib.position(0).limit(1);
             alGenBuffers(1, ib);
             checkError(true);
             id = ib.get(0);
             ab.setId(id);
-//            logger.log(Level.INFO, "Generated Buffer: {0}", id);
 
             objManager.registerForCleanup(ab);
         }
-//        logger.log(Level.INFO, "updateAudioBuffer new buffer id: {0}", id);
 
         ab.getData().clear();
         //alBufferData(id, convertFormat(ab), ab.getData(), ab.getSampleRate());
@@ -1233,7 +1223,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
     }
 
     private void updateAudioStream(AudioStream as) {
-//        logger.log(Level.INFO, "updateAudioStream");
         if (as.getIds() != null) {
             deleteAudioData(as);
         }
@@ -1245,9 +1234,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
         checkError(true);
         ib.position(0).limit(STREAMING_BUFFER_COUNT);
         ib.get(ids);
-//        for (int i=0; i<ids.length; i++) {
-//            logger.log(Level.INFO, "Generated Streaming Buffer: {0}", ids[i]);
-//        }
 
         // Not registered with object manager.
         // AudioStreams can be handled without object manager
@@ -1268,20 +1254,14 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
     public void deleteFilter(Filter filter) {
         int id = filter.getId();
         if (id != -1) {
-//            EFX10.alDeleteFilters(id);
+            //EFX10.alDeleteFilters(id);
+            ib.put(0, id);
+            ib.position(0).limit(1);
+            alDeleteFilters(1, ib);
         }
     }
 
     public void deleteAudioData(AudioData ad) {
-//        if (ad instanceof AudioStream) {
-//            AudioStream as = (AudioStream) ad;
-//            int[] ids = as.getIds();
-//            for (int i=0; i<ids.length; i++) {
-//                logger.log(Level.INFO, "deleteAudioData for stream buffer: {0}", ids[i]);
-//            }
-//        } else if (ad instanceof AudioBuffer) {
-//            logger.log(Level.INFO, "deleteAudioData for buffer: {0}", ad.getId());
-//        }
         synchronized (threadLock) {
             while (!threadLock.get()) {
                 try {
@@ -1322,8 +1302,6 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
     private int checkError(boolean stopOnError) {
         int errorCode = alGetError();
         String errorText = AL.GetALErrorMsg(errorCode);
-//        logger.log(Level.INFO, "alError Code: {0}, Description: {1}",
-//                new Object[]{errorCode, errorText});
 
         if (errorCode != AL.AL_NO_ERROR && stopOnError) {
             throw new IllegalStateException("AL Error Detected.  Error Code: " + errorCode + ": " + errorText);
@@ -1356,12 +1334,24 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
     public static native void alListener(int param, FloatBuffer data);
     public static native void alListenerf(int param, float value);
     public static native void alListener3f(int param, float value1, float value2, float value3);
-
+    public static native boolean alcIsExtensionPresent(String extension);
+    public static native void alcGetInteger(int param, IntBuffer buffer, int size);
+    public static native void alGenAuxiliaryEffectSlots(int numSlots, IntBuffer buffers);
+    public static native void alGenEffects(int numEffects, IntBuffer buffers);
+    public static native void alEffecti(int effect, int param, int value);
+    public static native void alAuxiliaryEffectSloti(int effectSlot, int param, int value);
+    public static native void alDeleteEffects(int numEffects, IntBuffer buffers);
+    public static native void alDeleteAuxiliaryEffectSlots(int numEffectSlots, IntBuffer buffers);
+    public static native void alGenFilters(int numFilters, IntBuffer buffers);
+    public static native void alFilteri(int filter, int param, int value);
+    public static native void alFilterf(int filter, int param, float value);
+    public static native void alSource3i(int source, int param, int value1, int value2, int value3);
+    public static native void alDeleteFilters(int numFilters, IntBuffer buffers);
+    public static native void alEffectf(int effect, int param, float value);
 
     /** Load jni .so on initialization */
     static {
          System.loadLibrary("openalsoftjme");
     }
-
 
 }
