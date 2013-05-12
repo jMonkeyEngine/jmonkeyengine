@@ -27,6 +27,7 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.animations.AnimationData;
 import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
@@ -35,7 +36,6 @@ import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.meshes.MeshContext;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
-import com.jme3.scene.plugins.ogre.AnimData;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -53,7 +53,7 @@ import com.jme3.util.BufferUtils;
     private Structure           meshStructure;
 
     /** Loaded animation data. */
-    private AnimData            animData;
+    private AnimationData       animationData;
     /** Old memory address of the mesh that will have the skeleton applied. */
     private Long                meshOMA;
 
@@ -157,7 +157,7 @@ import com.jme3.util.BufferUtils;
                     }
                 }
 
-                animData = new AnimData(skeleton, animations);
+                animationData = new AnimationData(skeleton, animations);
 
                 // store the animation data for each bone
                 for (Bone bone : bones) {
@@ -165,7 +165,7 @@ import com.jme3.util.BufferUtils;
                         BoneContext boneContext = blenderContext.getBoneContext(bone);
                         Long boneOma = boneContext.getBoneOma();
                         if (boneOma != null) {
-                            blenderContext.setAnimData(boneOma, animData);
+                            blenderContext.setAnimData(boneOma, animationData);
                         }
                     }
                 }
@@ -181,7 +181,7 @@ import com.jme3.util.BufferUtils;
         if (invalid) {
             LOGGER.log(Level.WARNING, "Armature modifier is invalid! Cannot be applied to: {0}", node.getName());
         }// if invalid, animData will be null
-        if (animData == null || skeleton == null) {
+        if (animationData == null || skeleton == null) {
             return node;
         }
 
@@ -221,8 +221,8 @@ import com.jme3.util.BufferUtils;
         }
 
         // applying animations
-        AnimControl control = new AnimControl(animData.skeleton);
-        ArrayList<Animation> animList = animData.anims;
+        AnimControl control = new AnimControl(animationData.skeleton);
+        List<Animation> animList = animationData.anims;
         if (animList != null && animList.size() > 0) {
             HashMap<String, Animation> anims = new HashMap<String, Animation>(animList.size());
             for (int i = 0; i < animList.size(); ++i) {
@@ -232,7 +232,7 @@ import com.jme3.util.BufferUtils;
             control.setAnimations(anims);
         }
         node.addControl(control);
-        node.addControl(new SkeletonControl(animData.skeleton));
+        node.addControl(new SkeletonControl(animationData.skeleton));
 
         blenderContext.setNodeForSkeleton(skeleton, node);
 

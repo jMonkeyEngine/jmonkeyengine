@@ -2,6 +2,7 @@ package com.jme3.scene.plugins.blender.modifiers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,9 +13,9 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.animations.AnimationData;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
  * This modifier allows to add animation to the object.
@@ -25,7 +26,7 @@ import com.jme3.scene.plugins.ogre.AnimData;
     private static final Logger LOGGER = Logger.getLogger(ObjectAnimationModifier.class.getName());
 
     /** Loaded animation data. */
-    private AnimData            animData;
+    private AnimationData            animationData;
 
     /**
      * This constructor reads animation of the object itself (without bones) and
@@ -59,8 +60,8 @@ import com.jme3.scene.plugins.ogre.AnimData;
         ArrayList<Animation> animations = new ArrayList<Animation>(1);
         animations.add(animation);
 
-        animData = new AnimData(null, animations);
-        blenderContext.setAnimData(objectOMA, animData);
+        animationData = new AnimationData(animations);
+        blenderContext.setAnimData(objectOMA, animationData);
     }
 
     @Override
@@ -68,10 +69,10 @@ import com.jme3.scene.plugins.ogre.AnimData;
         if (invalid) {
             LOGGER.log(Level.WARNING, "Armature modifier is invalid! Cannot be applied to: {0}", node.getName());
         }// if invalid, animData will be null
-        if (animData != null) {
+        if (animationData != null) {
             // INFO: constraints for this modifier are applied in the
             // ObjectHelper when the whole object is loaded
-            ArrayList<Animation> animList = animData.anims;
+            List<Animation> animList = animationData.anims;
             if (animList != null && animList.size() > 0) {
                 HashMap<String, Animation> anims = new HashMap<String, Animation>();
                 for (int i = 0; i < animList.size(); ++i) {

@@ -47,6 +47,7 @@ import com.jme3.asset.BlenderKey;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
+import com.jme3.scene.plugins.blender.animations.AnimationData;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
@@ -54,7 +55,6 @@ import com.jme3.scene.plugins.blender.file.DnaBlockData;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.meshes.MeshContext;
-import com.jme3.scene.plugins.ogre.AnimData;
 
 /**
  * The class that stores temporary data and manages it during loading the belnd
@@ -103,7 +103,7 @@ public class BlenderContext {
     /** A list of constraints for the specified object. */
     protected Map<Long, List<Constraint>>       constraints            = new HashMap<Long, List<Constraint>>();
     /** Anim data loaded for features. */
-    private Map<Long, AnimData>                 animData               = new HashMap<Long, AnimData>();
+    private Map<Long, AnimationData>            animData               = new HashMap<Long, AnimationData>();
     /** Loaded skeletons. */
     private Map<Long, Skeleton>                 skeletons              = new HashMap<Long, Skeleton>();
     /** A map between skeleton and node it modifies. */
@@ -406,7 +406,7 @@ public class BlenderContext {
      * @param animData
      *            the animation data for the feature specified by ownerOMA
      */
-    public void setAnimData(Long ownerOMA, AnimData animData) {
+    public void setAnimData(Long ownerOMA, AnimationData animData) {
         this.animData.put(ownerOMA, animData);
     }
 
@@ -417,7 +417,7 @@ public class BlenderContext {
      *            the old memory address of the animation data owner
      * @return the animation data or null if none exists
      */
-    public AnimData getAnimData(Long ownerOMA) {
+    public AnimationData getAnimData(Long ownerOMA) {
         return this.animData.get(ownerOMA);
     }
 

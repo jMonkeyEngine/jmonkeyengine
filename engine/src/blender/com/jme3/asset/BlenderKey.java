@@ -54,7 +54,7 @@ import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.plugins.ogre.AnimData;
+import com.jme3.scene.plugins.blender.animations.AnimationData;
 import com.jme3.texture.Texture;
 
 /**
@@ -541,7 +541,7 @@ public class BlenderKey extends ModelKey {
         /** Textures from all objects. */
         private List<Texture>    textures;
         /** Animations of all objects. */
-        private List<AnimData>   animations;
+        private List<AnimationData>   animations;
         /** All cameras from the file. */
         private List<CameraNode> cameras;
         /** All lights from the file. */
@@ -567,7 +567,7 @@ public class BlenderKey extends ModelKey {
                     }
                 }
                 if ((featuresToLoad & FeaturesToLoad.ANIMATIONS) != 0) {
-                    animations = new ArrayList<AnimData>();
+                    animations = new ArrayList<AnimationData>();
                 }
             }
             if ((featuresToLoad & FeaturesToLoad.CAMERAS) != 0) {
@@ -689,7 +689,7 @@ public class BlenderKey extends ModelKey {
          * This method returns all loaded animations.
          * @return all loaded animations
          */
-        public List<AnimData> getAnimations() {
+        public List<AnimationData> getAnimations() {
             return animations;
         }
 
