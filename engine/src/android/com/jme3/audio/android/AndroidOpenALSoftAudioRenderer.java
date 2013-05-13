@@ -1299,6 +1299,69 @@ public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
+    public void pauseAll() {
+        checkDead();
+        synchronized (threadLock) {
+            while (!threadLock.get()) {
+                try {
+                    threadLock.wait();
+                } catch (InterruptedException ex) {
+                }
+            }
+            if (audioDisabled) {
+                return;
+            }
+
+            for (int i = 0; i < channels.length; i++) {
+                AudioSource src = chanSrcs[i];
+                if (src == null) {
+                    continue;
+                }
+
+                if (src.getStatus() == Status.Playing) {
+                    assert src.getChannel() != -1;
+
+                    logger.log(Level.FINE, "Pausing Source: {0}", src.getChannel());
+                    alSourcePause(channels[src.getChannel()]);
+                    checkError(true);
+                    src.setStatus(Status.Paused);
+                }
+            }
+
+        }
+    }
+
+    public void resumeAll() {
+        checkDead();
+        synchronized (threadLock) {
+            while (!threadLock.get()) {
+                try {
+                    threadLock.wait();
+                } catch (InterruptedException ex) {
+                }
+            }
+            if (audioDisabled) {
+                return;
+            }
+
+            for (int i = 0; i < channels.length; i++) {
+                AudioSource src = chanSrcs[i];
+                if (src == null) {
+                    continue;
+                }
+
+                if (src.getStatus() == Status.Paused) {
+                    assert src.getChannel() != -1;
+
+                    logger.log(Level.FINE, "Playing/Resuming Source: {0}", src.getChannel());
+                    alSourcePlay(channels[src.getChannel()]);
+                    checkError(true);
+                    src.setStatus(Status.Playing);
+                }
+            }
+        }
+    }
+
     private int checkError(boolean stopOnError) {
         int errorCode = alGetError();
         String errorText = AL.GetALErrorMsg(errorCode);

@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
+import com.jme3.audio.android.AndroidOpenALSoftAudioRenderer;
 import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidSensorJoyInput;
@@ -486,6 +487,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                     AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
                     renderer.resumeAll();
                 }
+                if (result instanceof AndroidOpenALSoftAudioRenderer) {
+                    AndroidOpenALSoftAudioRenderer renderer = (AndroidOpenALSoftAudioRenderer) result;
+                    renderer.resumeAll();
+                }
             }
             //resume the sensors (aka joysticks)
             if (app.getContext() != null) {
@@ -523,6 +528,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 logger.log(Level.FINE, "pause: {0}", result.getClass().getSimpleName());
                 if (result instanceof AndroidAudioRenderer) {
                     AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
+                    renderer.pauseAll();
+                }
+                if (result instanceof AndroidOpenALSoftAudioRenderer) {
+                    AndroidOpenALSoftAudioRenderer renderer = (AndroidOpenALSoftAudioRenderer) result;
                     renderer.pauseAll();
                 }
             }
