@@ -46,18 +46,18 @@ import java.nio.FloatBuffer;
 public class StripBox extends AbstractBox {
     
     private static final short[] GEOMETRY_INDICES_DATA = 
-    { 1, 0, 4,
-      5, 
-      7, 
-      0, 
-      3, 
-      1, 
-      2, 
-      4, 
-      6, 
-      7, 
-      2, 
-      3 };
+        { 0, 1, 4,
+        2,
+        6,
+        7,
+        4,
+        5,
+        0,
+        7,
+        3,
+        2,
+        0,
+        1};
     
     private static final float[] GEOMETRY_TEXTURE_DATA = {
         1, 0,
@@ -155,8 +155,8 @@ public class StripBox extends AbstractBox {
                 norm.set(vert[i]).normalizeLocal();
                 
                 normals[i * 3 + 0] = norm.x;
-                normals[i * 3 + 1] = norm.x;
-                normals[i * 3 + 2] = norm.x;
+                normals[i * 3 + 1] = norm.y;
+                normals[i * 3 + 2] = norm.z;
             }
             
             setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(normals));
