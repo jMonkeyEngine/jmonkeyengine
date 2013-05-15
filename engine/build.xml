@@ -234,6 +234,7 @@
 
         <property location="test-data" name="testdata.dir.resolved"/>
         <property location="lib/android/android.jar" name="android.jar.resolved"/>
+        <property location="lib/openal-soft/jME3-openal-soft-natives-android.jar" name="openal-soft.jar.resolved"/>
 
         <pathconvert property="run.classpath.without.build.classes.dir">
             <path path="${run.classpath}"/>
@@ -253,6 +254,7 @@
             <map from="${build.dir.resolved}/lwjgl" to="${build.dir}/jME3-lwjgl.jar"/>
             <map from="${build.dir.resolved}/jogl" to="${build.dir}/jME3-jogl.jar"/>
             <map from="${build.dir.resolved}/android" to=""/>
+            <map from="${build.dir.resolved}/openal-soft" to=""/>
             <map from="${build.dir.resolved}/ios" to=""/>
             <map from="${testdata.dir.resolved}" to="${build.dir.resolved}/jME3-testdata.jar"/>
             <map from="${android.jar.resolved}" to=""/>
@@ -305,6 +307,8 @@
 
         <mkdir dir="${dist.dir}/opt/android"/>
         <copy file="${build.dir}/jME3-android.jar" todir="${dist.dir}/opt/android" overwrite="true"/>
+        <mkdir dir="${dist.dir}/opt/native-openal-soft"/>
+        <copy file="lib/openal-soft/jME3-openal-soft-natives-android.jar" todir="${dist.dir}/opt/native-openal-soft" overwrite="true"/>
         <mkdir dir="${dist.dir}/opt/ios"/>
         <copy file="${build.dir}/jME3-ios.jar" todir="${dist.dir}/opt/ios" overwrite="true"/>
     </target>

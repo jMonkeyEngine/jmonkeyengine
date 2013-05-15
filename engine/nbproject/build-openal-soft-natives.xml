@@ -75,6 +75,7 @@
         <copy todir="${openal-soft.build.dir}/jni" verbose="true" flatten="false" overwrite="true">
             <fileset dir="${openal-soft.source.dir}">
                 <include name="*.*" />
+                <!--<include name="**/*.*"/>-->
             </fileset>
         </copy>
 <!--
