@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AndroidOpenALSoftAudioRenderer implements AudioRenderer, Runnable {
+public class AndroidOpenALSoftAudioRenderer implements AndroidAudioRenderer, Runnable {
 
     private static final Logger logger = Logger.getLogger(AndroidOpenALSoftAudioRenderer.class.getName());
     private final NativeObjectManager objManager = new NativeObjectManager();

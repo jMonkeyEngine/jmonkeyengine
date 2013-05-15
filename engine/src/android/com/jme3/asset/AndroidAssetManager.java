@@ -33,8 +33,11 @@ package com.jme3.asset;
 
 import com.jme3.asset.plugins.AndroidLocator;
 import com.jme3.asset.plugins.ClasspathLocator;
+import com.jme3.audio.android.AndroidAudioRenderer;
 import com.jme3.audio.plugins.AndroidAudioLoader;
-import com.jme3.texture.Texture;
+import com.jme3.audio.plugins.WAVLoader;
+import com.jme3.system.AppSettings;
+import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.texture.plugins.AndroidImageLoader;
 import java.net.URL;
 import java.util.logging.Level;
@@ -58,7 +61,7 @@ public class AndroidAssetManager extends DesktopAssetManager {
         //this(Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/Android.cfg"));
         this(null);
     }
-    
+
     private void registerLoaderSafe(String loaderClass, String ... extensions) {
         try {
             Class<? extends AssetLoader> loader = (Class<? extends AssetLoader>) Class.forName(loaderClass);
@@ -73,22 +76,32 @@ public class AndroidAssetManager extends DesktopAssetManager {
      * If URL == null then a default list of locators and loaders for android is set
      * @param configFile
      */
-    public AndroidAssetManager(URL configFile) {        
+    public AndroidAssetManager(URL configFile) {
         System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
 
-        // Set Default Android config        	       
+        // Set Default Android config
         registerLocator("", AndroidLocator.class);
         registerLocator("", ClasspathLocator.class);
-        
+
         registerLoader(AndroidImageLoader.class, "jpg", "bmp", "gif", "png", "jpeg");
-        registerLoader(AndroidAudioLoader.class, "ogg", "mp3", "wav");
+        if (JmeAndroidSystem.getAudioRendererType().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
+            registerLoader(AndroidAudioLoader.class, "ogg", "mp3", "wav");
+        } else if (JmeAndroidSystem.getAudioRendererType().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
+            registerLoader(WAVLoader.class, "wav");
+            // TODO jogg is not in core, need to add some other way to get around compile errors, or not.
+//            registerLoader(com.jme3.audio.plugins.OGGLoader.class, "ogg");
+            registerLoaderSafe("com.jme3.audio.plugins.OGGLoader", "ogg");
+        } else {
+            throw new IllegalStateException("No Audio Renderer Type defined!");
+        }
+
         registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3m");
         registerLoader(com.jme3.material.plugins.J3MLoader.class, "j3md");
         registerLoader(com.jme3.material.plugins.ShaderNodeDefinitionLoader.class, "j3sn");
         registerLoader(com.jme3.shader.plugins.GLSLLoader.class, "vert", "frag", "glsl", "glsllib");
         registerLoader(com.jme3.export.binary.BinaryImporter.class, "j3o");
         registerLoader(com.jme3.font.plugins.BitmapFontLoader.class, "fnt");
-        
+
         // Less common loaders (especially on Android)
         registerLoaderSafe("com.jme3.texture.plugins.DDSLoader", "dds");
         registerLoaderSafe("com.jme3.texture.plugins.PFMLoader", "pfm");
@@ -100,9 +113,9 @@ public class AndroidAssetManager extends DesktopAssetManager {
         registerLoaderSafe("com.jme3.scene.plugins.ogre.SkeletonLoader", "skeleton.xml");
         registerLoaderSafe("com.jme3.scene.plugins.ogre.MaterialLoader", "material");
         registerLoaderSafe("com.jme3.scene.plugins.ogre.SceneLoader", "scene");
-        
+
 
         logger.fine("AndroidAssetManager created.");
     }
-    
+
 }

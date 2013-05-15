@@ -10,25 +10,25 @@ import com.jme3.asset.AndroidImageInfo;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
+import com.jme3.audio.android.AndroidMediaPlayerAudioRenderer;
+import com.jme3.audio.android.AndroidOpenALSoftAudioRenderer;
 import com.jme3.system.*;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.texture.Image;
 import com.jme3.texture.image.DefaultImageRaster;
 import com.jme3.texture.image.ImageRaster;
 import com.jme3.util.AndroidScreenshots;
-import com.jme3.util.JmeFormatter;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.util.logging.Handler;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class JmeAndroidSystem extends JmeSystemDelegate {
 
     private static Activity activity;
+    private static String audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
 
     static {
         try {
@@ -97,6 +97,16 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     @Override
     public JmeContext newContext(AppSettings settings, Type contextType) {
+        if (settings.getAudioRenderer().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
+            logger.log(Level.INFO, "newContext settings set to Android MediaPlayer / SoundPool");
+            audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
+        } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
+            logger.log(Level.INFO, "newContext settings set to Android OpenAL Soft");
+            audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
+        } else {
+            logger.log(Level.INFO, "AudioRenderer not set. Defaulting to Android MediaPlayer / SoundPool");
+            audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
+        }
         initialize(settings);
         JmeContext ctx = new OGLESContext();
         ctx.setSettings(settings);
@@ -105,7 +115,20 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     @Override
     public AudioRenderer newAudioRenderer(AppSettings settings) {
-        return new AndroidAudioRenderer(activity);
+
+        if (settings.getAudioRenderer().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
+            logger.log(Level.INFO, "newAudioRenderer settings set to Android MediaPlayer / SoundPool");
+            audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
+            return new AndroidMediaPlayerAudioRenderer(activity);
+        } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
+            logger.log(Level.INFO, "newAudioRenderer settings set to Android OpenAL Soft");
+            audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
+            return new AndroidOpenALSoftAudioRenderer();
+        } else {
+            logger.log(Level.INFO, "AudioRenderer not set. Defaulting to Android MediaPlayer / SoundPool");
+            audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
+            return new AndroidMediaPlayerAudioRenderer(activity);
+        }
     }
 
     @Override
@@ -197,5 +220,9 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
 
     public static Activity getActivity() {
         return activity;
+    }
+
+    public static String getAudioRendererType() {
+        return audioRendererType;
     }
 }

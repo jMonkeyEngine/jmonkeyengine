@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.jme3.audio.AudioRenderer;
 import com.jme3.audio.android.AndroidAudioRenderer;
-import com.jme3.audio.android.AndroidOpenALSoftAudioRenderer;
 import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidSensorJoyInput;
@@ -72,6 +71,20 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * set to 2, 4 to enable multisampling.
      */
     protected int antiAliasingSamples = 0;
+
+    /**
+     * Sets the type of Audio Renderer to be used.
+     * <p>
+     * Android MediaPlayer / SoundPool is the default and can be used on all
+     * supported Android platform versions (2.2+)<br>
+     * OpenAL Soft uses an OpenSL backend and is only supported on Android
+     * versions 2.3+.
+     * <p>
+     * Only use ANDROID_ static strings found in AppSettings
+     *
+     */
+    protected String audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
+
     /**
      * If true Android Sensors are used as simulated Joysticks Users can use the
      * Android sensor feedback through the RawInputListener or by registering
@@ -110,7 +123,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     /**
      * Set the screen window mode. If screenFullSize is true, then the
      * notification bar and title bar are removed and the screen covers the
-     * entire display.   If screenFullSize is false, then the notification bar
+     * entire display. If screenFullSize is false, then the notification bar
      * remains visible if screenShowTitle is true while screenFullScreen is
      * false, then the title bar is also displayed under the notification bar.
      */
@@ -200,6 +213,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             settings.setSamples(antiAliasingSamples);
             settings.setResolution(disp.getWidth(), disp.getHeight());
             settings.put(AndroidConfigChooser.SETTINGS_CONFIG_TYPE, eglConfigType);
+            settings.setAudioRenderer(audioRendererType);
 
 
             // Create application instance
@@ -487,10 +501,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                     AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
                     renderer.resumeAll();
                 }
-                if (result instanceof AndroidOpenALSoftAudioRenderer) {
-                    AndroidOpenALSoftAudioRenderer renderer = (AndroidOpenALSoftAudioRenderer) result;
-                    renderer.resumeAll();
-                }
             }
             //resume the sensors (aka joysticks)
             if (app.getContext() != null) {
@@ -528,10 +538,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 logger.log(Level.FINE, "pause: {0}", result.getClass().getSimpleName());
                 if (result instanceof AndroidAudioRenderer) {
                     AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
-                    renderer.pauseAll();
-                }
-                if (result instanceof AndroidOpenALSoftAudioRenderer) {
-                    AndroidOpenALSoftAudioRenderer renderer = (AndroidOpenALSoftAudioRenderer) result;
                     renderer.pauseAll();
                 }
             }
