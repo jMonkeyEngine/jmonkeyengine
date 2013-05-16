@@ -32,6 +32,7 @@
 package com.jme3.renderer;
 
 import com.jme3.shader.Shader;
+import com.jme3.shader.Shader.ShaderSource;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
 import com.jme3.texture.Image;
@@ -346,29 +347,30 @@ public enum Caps {
      * @return True if it is supported, false otherwise.
      */
     public static boolean supports(Collection<Caps> caps, Shader shader){
-        String lang = shader.getLanguage();
-        if (lang.startsWith("GLSL")){
-            int ver = Integer.parseInt(lang.substring(4));
-            switch (ver){
-                case 100:
-                    return caps.contains(Caps.GLSL100);
-                case 110:
-                    return caps.contains(Caps.GLSL110);
-                case 120:
-                    return caps.contains(Caps.GLSL120);
-                case 130:
-                    return caps.contains(Caps.GLSL130);
-                case 140:
-                    return caps.contains(Caps.GLSL140);
-                case 150:
-                    return caps.contains(Caps.GLSL150);
-                case 330:
-                    return caps.contains(Caps.GLSL330);
-                default:
-                    return false;
+        for (ShaderSource source : shader.getSources()) {
+            if (source.getLanguage().startsWith("GLSL")) {
+                int ver = Integer.parseInt(source.getLanguage().substring(4));
+                switch (ver) {
+                    case 100:
+                        if (!caps.contains(Caps.GLSL100)) return false;
+                    case 110:
+                        if (!caps.contains(Caps.GLSL110)) return false;
+                    case 120:
+                        if (!caps.contains(Caps.GLSL120)) return false;
+                    case 130:
+                        if (!caps.contains(Caps.GLSL130)) return false;
+                    case 140:
+                        if (!caps.contains(Caps.GLSL140)) return false;
+                    case 150:
+                        if (!caps.contains(Caps.GLSL150)) return false;
+                    case 330:
+                        if (!caps.contains(Caps.GLSL330)) return false;
+                    default:
+                        return false;
+                }
             }
         }
-        return false;
+        return true;
     }
 
 }

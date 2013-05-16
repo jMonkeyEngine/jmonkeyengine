@@ -105,15 +105,14 @@ public class GpuAnalyzerValidator implements Validator {
     }
     
     public void validate(Shader shader, StringBuilder results) {
-        String language = shader.getLanguage();
         for (ShaderSource source : shader.getSources()){
             results.append("Checking: ").append(source.getName());
             switch (source.getType()){
                 case Fragment:
-                    executeAnalyzer(source.getSource(), language, source.getDefines(), "HD5770", results);
+                    executeAnalyzer(source.getSource(), source.getLanguage(), source.getDefines(), "HD5770", results);
                     break;
                 case Vertex:
-                    executeAnalyzer(source.getSource(), language, source.getDefines(), "HD5770", results);
+                    executeAnalyzer(source.getSource(), source.getLanguage(), source.getDefines(), "HD5770", results);
                     break;
             }
         }

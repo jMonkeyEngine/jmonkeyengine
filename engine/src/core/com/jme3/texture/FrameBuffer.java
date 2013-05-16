@@ -175,7 +175,7 @@ public class FrameBuffer extends NativeObject {
      * @throws IllegalArgumentException If width or height are not positive.
      */
     public FrameBuffer(int width, int height, int samples){
-        super(FrameBuffer.class);
+        super();
         if (width <= 0 || height <= 0)
                 throw new IllegalArgumentException("FrameBuffer must have valid size.");
 
@@ -185,7 +185,7 @@ public class FrameBuffer extends NativeObject {
     }
 
     protected FrameBuffer(FrameBuffer src){
-        super(FrameBuffer.class, src.id);
+        super(src.id);
         /*
         for (RenderBuffer renderBuf : src.colorBufs){
             RenderBuffer clone = renderBuf.createDestructableClone();

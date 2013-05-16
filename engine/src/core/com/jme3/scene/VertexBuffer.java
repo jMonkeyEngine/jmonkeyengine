@@ -319,7 +319,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * Must call setupData() to initialize.
      */
     public VertexBuffer(Type type){
-        super(VertexBuffer.class);
+        super();
         this.bufType = type;
     }
 
@@ -327,13 +327,54 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
      * Serialization only. Do not use.
      */
     public VertexBuffer(){
-        super(VertexBuffer.class);
+        super();
     }
 
     protected VertexBuffer(int id){
-        super(VertexBuffer.class, id);
+        super(id);
     }
 
+    public boolean invariant() {
+        // Does the VB hold any data?
+        if (data == null) {
+            throw new AssertionError();
+        }
+        // Does offset exceed buffer limit or negative?
+        if (offset > data.limit() || offset < 0) {
+            throw new AssertionError();
+        }
+        // Are components between 1 and 4?
+        if (components < 1 || components > 4) {
+            throw new AssertionError();
+        }
+        
+        // Does usage comply with buffer directness?
+        //if (usage == Usage.CpuOnly && data.isDirect()) {
+        //    throw new AssertionError();
+        /*} else*/ if (usage != Usage.CpuOnly && !data.isDirect()) {
+            throw new AssertionError();
+        }
+
+        // Double/Char/Long buffers are not supported for VertexBuffers.
+        // For the rest, ensure they comply with the "Format" value.
+        if (data instanceof DoubleBuffer) {
+            throw new AssertionError();
+        } else if (data instanceof CharBuffer) {
+            throw new AssertionError();
+        } else if (data instanceof LongBuffer) {
+            throw new AssertionError();
+        } else if (data instanceof FloatBuffer && format != Format.Float) {
+            throw new AssertionError();
+        } else if (data instanceof IntBuffer && format != Format.Int && format != Format.UnsignedInt) {
+            throw new AssertionError();
+        } else if (data instanceof ShortBuffer && format != Format.Short && format != Format.UnsignedShort) {
+            throw new AssertionError();
+        } else if (data instanceof ByteBuffer && format != Format.Byte && format != Format.UnsignedByte) {
+            throw new AssertionError();
+        }
+        return true;
+    }
+    
     /**
      * @return The offset after which the data is sent to the GPU.
      * 
@@ -950,7 +991,14 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     public void deleteObject(Object rendererObject) {
         ((Renderer)rendererObject).deleteBuffer(this);
     }
-
+    
+    @Override
+    protected void deleteNativeBuffers() {
+        if (data != null) {
+            BufferUtils.destroyDirectBuffer(data);
+        }
+    }
+            
     @Override
     public NativeObject createDestructableClone(){
         return new VertexBuffer(id);

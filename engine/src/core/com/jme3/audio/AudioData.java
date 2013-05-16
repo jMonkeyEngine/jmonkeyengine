@@ -53,11 +53,11 @@ public abstract class AudioData extends NativeObject {
     }
     
     public AudioData(){
-        super(AudioData.class);
+        super();
     }
 
     protected AudioData(int id){
-        super(AudioData.class, id);
+        super(id);
     }
     
     /**

@@ -34,6 +34,7 @@ package com.jme3.texture;
 import com.jme3.export.*;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
+import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -376,6 +377,13 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
 
     @Override
+    protected void deleteNativeBuffers() {
+        for (ByteBuffer buf : data) {
+            BufferUtils.destroyDirectBuffer(buf);
+        }
+    }
+    
+    @Override
     public void deleteObject(Object rendererObject) {
         ((Renderer)rendererObject).deleteImage(this);
     }
@@ -402,12 +410,12 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * are undefined.
      */
     public Image() {
-        super(Image.class);
+        super();
         data = new ArrayList<ByteBuffer>(1);
     }
 
     protected Image(int id){
-        super(Image.class, id);
+        super(id);
     }
 
     /**

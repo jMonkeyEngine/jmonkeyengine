@@ -95,15 +95,14 @@ public class CgcValidator implements Validator {
     }
     
     public void validate(Shader shader, StringBuilder results) {
-        String language = shader.getLanguage();
         for (ShaderSource source : shader.getSources()){
             results.append("Checking: ").append(source.getName());
             switch (source.getType()){
                 case Fragment:
-                    executeCg(source.getSource(), language, source.getDefines(), "arbfp1", results);
+                    executeCg(source.getSource(), source.getLanguage(), source.getDefines(), "arbfp1", results);
                     break;
                 case Vertex:
-                    executeCg(source.getSource(), language, source.getDefines(), "arbvp1", results);
+                    executeCg(source.getSource(), source.getLanguage(), source.getDefines(), "arbvp1", results);
                     break;
             }
         }

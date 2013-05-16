@@ -41,14 +41,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public final class Shader extends NativeObject {
-
-    /**
-     * 
-     * @deprecated shader language now specified per shader source. See
-     * {@link ShaderSource#setLanguage(String)
-     */
-    @Deprecated
-    private String language;
     
     /**
      * A list of all shader sources currently attached.
@@ -98,7 +90,7 @@ public final class Shader extends NativeObject {
         String defines;
 
         public ShaderSource(ShaderType type){
-            super(ShaderSource.class);
+            super();
             this.sourceType = type;
             if (type == null) {
                 throw new IllegalArgumentException("The shader type must be specified");
@@ -106,13 +98,13 @@ public final class Shader extends NativeObject {
         }
         
         protected ShaderSource(ShaderSource ss){
-            super(ShaderSource.class, ss.id);
+            super(ss.id);
             // No data needs to be copied.
             // (This is a destructable clone)
         }
 
         public ShaderSource(){
-            super(ShaderSource.class);
+            super();
         }
 
         public void setName(String name){
@@ -191,17 +183,6 @@ public final class Shader extends NativeObject {
     }
 
     /**
-     * @deprecated Shader sources are now associated with the shader
-     * language.
-     */
-    @Deprecated
-    public Shader(String language){
-        super(Shader.class);
-        this.language = language;
-        initialize();
-    }
-
-    /**
      * Initializes the shader for use, must be called after the 
      * constructor without arguments is used.
      */
@@ -216,14 +197,14 @@ public final class Shader extends NativeObject {
      * after this constructor for the shader to be usable.
      */
     public Shader(){
-        super(Shader.class);
+        super();
     }
 
     /**
      * Do not use this constructor. Used for destructable clones only.
      */
     protected Shader(Shader s){
-        super(Shader.class, s.id);
+        super(s.id);
         
         // Shader sources cannot be shared, therefore they must
         // be destroyed together with the parent shader.
@@ -233,43 +214,6 @@ public final class Shader extends NativeObject {
         }
     }
 
-    /**
-     * @deprecated Use the method that takes a language argument instead. 
-     * {@link #addSource(com.jme3.shader.Shader.ShaderType, java.lang.String, java.lang.String, java.lang.String, java.lang.String) }
-     */
-    @Deprecated
-    public void addSource(ShaderType type, String name, String source, String defines) {
-        addSource(type, name, source, defines, this.language);
-    }
-    
-    /**
-     * @deprecated Use the method that takes a language argument instead. 
-     * {@link #addSource(com.jme3.shader.Shader.ShaderType, java.lang.String, java.lang.String, java.lang.String, java.lang.String) }
-     */
-    @Deprecated
-    public void addSource(ShaderType type, String source, String defines){
-        addSource(type, null, source, defines);
-    }
-
-    /**
-     * @deprecated Use the method that takes a language argument instead. 
-     * {@link #addSource(com.jme3.shader.Shader.ShaderType, java.lang.String, java.lang.String, java.lang.String, java.lang.String) }
-     */
-    @Deprecated
-    public void addSource(ShaderType type, String source){
-        addSource(type, source, null);
-    }
-
-    /**
-     * @deprecated Shader sources may not be shared.
-     * {@link #addSource(com.jme3.shader.Shader.ShaderType, java.lang.String, java.lang.String, java.lang.String, java.lang.String) }
-     */
-    @Deprecated
-    private void addSource(ShaderSource source){
-        shaderSourceList.add(source);
-        setUpdateNeeded();
-    }
-    
     /**
      * Adds source code to a certain pipeline.
      *
@@ -324,48 +268,12 @@ public final class Shader extends NativeObject {
         return shaderSourceList;
     }
 
-    /**
-     * @deprecated Shaders no longer have a language variable, 
-     * use {@link ShaderSource#getLanguage() } instead.
-     */
-    @Deprecated
-    public String getLanguage(){
-        return language;
-    }
-
     @Override
     public String toString() {
         return getClass().getSimpleName() + 
                 "[numSources=" + shaderSourceList.size() +
                 ", numUniforms=" + uniforms.size() +
                 ", shaderSources=" + getSources() + "]";
-    }
-
-    /**
-     * @deprecated This method is not needed since deleting
-     * a shader causes the sources to delete as well, thus its not required
-     * for them to be GC'd to be removed from GL.
-     */
-    @Deprecated
-    public void resetSources(){
-        shaderSourceList.clear();
-    }
-
-    /**
-     * @deprecated Unusable shaders cause the renderer to crash, 
-     * therefore this field no longer serves any purpose.
-     */
-    @Deprecated
-    public boolean isUsable(){
-        return true;
-    }
-
-    /**
-     * @deprecated Unusable shaders cause the renderer to crash, 
-     * therefore this field no longer serves any purpose.
-     */
-    @Deprecated
-    public void setUsable(boolean usable){
     }
 
     /**

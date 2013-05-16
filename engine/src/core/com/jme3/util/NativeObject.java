@@ -31,6 +31,8 @@
  */
 package com.jme3.util;
 
+import java.nio.Buffer;
+
 /**
  * Describes a native object. An encapsulation of a certain object 
  * on the native side of the graphics or audio library.
@@ -41,11 +43,13 @@ package com.jme3.util;
  */
 public abstract class NativeObject implements Cloneable {
 
+    public static final int INVALID_ID = -1;
+    
     /**
      * The ID of the object, usually depends on its type.
      * Typically returned from calls like glGenTextures, glGenBuffers, etc.
      */
-    protected int id = -1;
+    protected int id = INVALID_ID;
 
     /**
      * A reference to a "handle". By hard referencing a certain object, it's
@@ -61,18 +65,12 @@ public abstract class NativeObject implements Cloneable {
     protected boolean updateNeeded = true;
 
     /**
-     * The type of the GLObject, usually specified by a subclass.
-     */
-    protected final Class<?> type;
-
-    /**
      * Creates a new GLObject with the given type. Should be
      * called by the subclasses.
      * 
      * @param type The type that the subclass represents.
      */
-    public NativeObject(Class<?> type){
-        this.type = type;
+    public NativeObject(){
         this.handleRef = new Object();
     }
 
@@ -80,8 +78,7 @@ public abstract class NativeObject implements Cloneable {
      * Protected constructor that doesn't allocate handle ref.
      * This is used in subclasses for the createDestructableClone().
      */
-    protected NativeObject(Class<?> type, int id){
-        this.type = type;
+    protected NativeObject(int id){
         this.id = id;
     }
 
@@ -91,9 +88,9 @@ public abstract class NativeObject implements Cloneable {
      * @param id The ID to set
      */
     public void setId(int id){
-        if (this.id != -1)
+        if (this.id != INVALID_ID) {
             throw new IllegalStateException("ID has already been set for this GL object.");
-
+        }
         this.id = id;
     }
 
@@ -129,7 +126,7 @@ public abstract class NativeObject implements Cloneable {
 
     @Override
     public String toString(){
-        return "Native" + type.getSimpleName() + " " + id;
+        return "Native" + getClass().getSimpleName() + " " + id;
     }
 
     /**
@@ -137,18 +134,40 @@ public abstract class NativeObject implements Cloneable {
      * createDestructableClone().
      */
     @Override
-    protected NativeObject clone(){
-        try{
+    protected NativeObject clone() {
+        try {
             NativeObject obj = (NativeObject) super.clone();
             obj.handleRef = new Object();
-            obj.id = -1;
+            obj.id = INVALID_ID;
             obj.updateNeeded = true;
             return obj;
-        }catch (CloneNotSupportedException ex){
+        } catch (CloneNotSupportedException ex) {
             throw new AssertionError();
         }
     }
 
+    /**
+     * Deletes any associated native {@link Buffer buffers}.
+     * This is necessary because it is unlikely that native buffers
+     * will be garbage collected naturally (due to how GC works), therefore
+     * the collection must be handled manually.
+     * 
+     * Only implementations that manage native buffers need to override
+     * this method. Note that the behavior that occurs when a 
+     * deleted native buffer is used is not defined, therefore this
+     * method is protected
+     */
+    protected void deleteNativeBuffers() {
+    }
+    
+    /**
+     * Package-private version of {@link #deleteNativeBuffers() }, to be used
+     * from the {@link NativeObjectManager}.
+     */
+    void deleteNativeBuffersInternal() {
+        deleteNativeBuffers();
+    }
+    
     /**
      * Called when the GL context is restarted to reset all IDs. Prevents
      * "white textures" on display restart.
@@ -162,7 +181,7 @@ public abstract class NativeObject implements Cloneable {
      * @param rendererObject The renderer to be used to delete the object
      */
     public abstract void deleteObject(Object rendererObject);
-
+    
     /**
      * Creates a shallow clone of this GL Object. The deleteObject method
      * should be functional for this object.
