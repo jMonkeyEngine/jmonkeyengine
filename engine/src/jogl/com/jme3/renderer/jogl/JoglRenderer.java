@@ -1143,7 +1143,7 @@ public class JoglRenderer implements Renderer {
             shader.clearUpdateNeeded();
             if (needRegister) {
                 // Register shader for clean up if it was created in this method.
-                objManager.registerForCleanup(shader);
+                objManager.registerObject(shader);
                 statistics.onNewShader();
             } else {
                 // OpenGL spec: uniform locations may change after re-link
@@ -1506,7 +1506,7 @@ public class JoglRenderer implements Renderer {
             gl.glGenFramebuffers(1, intBuf1);
             id = intBuf1.get(0);
             fb.setId(id);
-            objManager.registerForCleanup(fb);
+            objManager.registerObject(fb);
 
             statistics.onNewFrameBuffer();
         }
@@ -1899,7 +1899,7 @@ public class JoglRenderer implements Renderer {
             gl.glGenTextures(1, intBuf1);
             texId = intBuf1.get(0);
             img.setId(texId);
-            objManager.registerForCleanup(img);
+            objManager.registerObject(img);
 
             statistics.onNewTexture();
         }
@@ -2141,7 +2141,7 @@ public class JoglRenderer implements Renderer {
             gl.glGenBuffers(1, intBuf1);
             bufId = intBuf1.get(0);
             vb.setId(bufId);
-            objManager.registerForCleanup(vb);
+            objManager.registerObject(vb);
 
             //statistics.onNewVertexBuffer();
 

@@ -782,7 +782,7 @@ public class JoglGL1Renderer implements GL1Renderer {
             gl.glGenTextures(1, ib1);
             texId = ib1.get(0);
             img.setId(texId);
-            objManager.registerForCleanup(img);
+            objManager.registerObject(img);
 
             statistics.onNewTexture();
         }

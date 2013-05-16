@@ -55,6 +55,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
+import com.jme3.util.NativeObject;
 import com.jme3.util.NativeObjectManager;
 import com.jme3.util.SafeArrayList;
 import java.nio.*;
@@ -129,10 +130,12 @@ public class LwjglRenderer implements Renderer {
         nameBuf.rewind();
     }
 
+    @Override
     public Statistics getStatistics() {
         return statistics;
     }
 
+    @Override
     public EnumSet<Caps> getCaps() {
         return caps;
     }
@@ -1081,7 +1084,7 @@ public class LwjglRenderer implements Renderer {
             shader.clearUpdateNeeded();
             if (needRegister) {
                 // Register shader for clean up if it was created in this method.
-                objManager.registerForCleanup(shader);
+                objManager.registerObject(shader);
                 statistics.onNewShader();
             } else {
                 // OpenGL spec: uniform locations may change after re-link
@@ -1431,7 +1434,7 @@ public class LwjglRenderer implements Renderer {
             glGenFramebuffersEXT(intBuf1);
             id = intBuf1.get(0);
             fb.setId(id);
-            objManager.registerForCleanup(fb);
+            objManager.registerObject(fb);
 
             statistics.onNewFrameBuffer();
         }
@@ -1802,7 +1805,7 @@ public class LwjglRenderer implements Renderer {
             glGenTextures(intBuf1);
             texId = intBuf1.get(0);
             img.setId(texId);
-            objManager.registerForCleanup(img);
+            objManager.registerObject(img);
 
             statistics.onNewTexture();
         }
@@ -2041,7 +2044,7 @@ public class LwjglRenderer implements Renderer {
             glGenBuffers(intBuf1);
             bufId = intBuf1.get(0);
             vb.setId(bufId);
-            objManager.registerForCleanup(vb);
+            objManager.registerObject(vb);
 
             //statistics.onNewVertexBuffer();
 

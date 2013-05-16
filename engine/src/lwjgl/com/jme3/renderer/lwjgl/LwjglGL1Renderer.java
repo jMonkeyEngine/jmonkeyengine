@@ -729,7 +729,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             glGenTextures(ib1);
             texId = ib1.get(0);
             img.setId(texId);
-            objManager.registerForCleanup(img);
+            objManager.registerObject(img);
 
             statistics.onNewTexture();
         }

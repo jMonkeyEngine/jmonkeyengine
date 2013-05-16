@@ -294,7 +294,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
             id = ib.get(0);
             f.setId(id);
 
-            objManager.registerForCleanup(f);
+            objManager.registerObject(f);
         }
 
         if (f instanceof LowPassFilter) {
@@ -1033,7 +1033,7 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
             id = ib.get(0);
             ab.setId(id);
 
-            objManager.registerForCleanup(ab);
+            objManager.registerObject(ab);
         }
 
         ab.getData().clear();

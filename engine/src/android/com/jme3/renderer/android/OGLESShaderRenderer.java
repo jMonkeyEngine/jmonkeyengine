@@ -942,7 +942,7 @@ public class OGLESShaderRenderer implements Renderer {
             shader.clearUpdateNeeded();
             if (needRegister) {
                 // Register shader for clean up if it was created in this method.
-                objManager.registerForCleanup(shader);
+                objManager.registerObject(shader);
                 statistics.onNewShader();
             } else {
                 // OpenGL spec: uniform locations may change after re-link
@@ -1318,7 +1318,7 @@ public class OGLESShaderRenderer implements Renderer {
             
             id = intBuf1.get(0);
             fb.setId(id);
-            objManager.registerForCleanup(fb);
+            objManager.registerObject(fb);
 
             statistics.onNewFrameBuffer();
         }
@@ -1673,7 +1673,7 @@ public class OGLESShaderRenderer implements Renderer {
             
             texId = intBuf1.get(0);
             img.setId(texId);
-            objManager.registerForCleanup(img);
+            objManager.registerObject(img);
 
             statistics.onNewTexture();
         }
@@ -1880,7 +1880,7 @@ public class OGLESShaderRenderer implements Renderer {
             
             bufId = intBuf1.get(0);
             vb.setId(bufId);
-            objManager.registerForCleanup(vb);
+            objManager.registerObject(vb);
 
             created = true;
         }
@@ -2252,14 +2252,9 @@ public class OGLESShaderRenderer implements Renderer {
 
     /**
      * renderMeshVertexArray renders a mesh using vertex arrays
-     * @param mesh
-     * @param lod
-     * @param count
      */
     private void renderMeshVertexArray(Mesh mesh, int lod, int count) {
-      //  IntMap<VertexBuffer> buffers = mesh.getBuffers();
-         for (VertexBuffer vb : mesh.getBufferList().getArray()){
-
+         for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {
@@ -2306,7 +2301,6 @@ public class OGLESShaderRenderer implements Renderer {
             indices = mesh.getBuffer(Type.Index);// buffers.get(Type.Index.ordinal());
         }
         for (VertexBuffer vb : mesh.getBufferList().getArray()){
-
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
                     || vb.getBufferType() == Type.Index) {

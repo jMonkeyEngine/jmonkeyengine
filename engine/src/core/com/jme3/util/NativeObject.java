@@ -46,6 +46,11 @@ public abstract class NativeObject implements Cloneable {
     public static final int INVALID_ID = -1;
     
     /**
+     * The object manager to which this NativeObject is registered to.
+     */
+    protected NativeObjectManager objectManager = null;
+    
+    /**
      * The ID of the object, usually depends on its type.
      * Typically returned from calls like glGenTextures, glGenBuffers, etc.
      */
@@ -82,9 +87,14 @@ public abstract class NativeObject implements Cloneable {
         this.id = id;
     }
 
+    void setNativeObjectManager(NativeObjectManager objectManager) {
+        this.objectManager = objectManager;
+    }
+    
     /**
-     * Sets the ID of the GLObject. This method is used in Renderer and must
+     * Sets the ID of the NativeObject. This method is used in Renderer and must
      * not be called by the user.
+     * 
      * @param id The ID to set
      */
     public void setId(int id){
@@ -138,6 +148,7 @@ public abstract class NativeObject implements Cloneable {
         try {
             NativeObject obj = (NativeObject) super.clone();
             obj.handleRef = new Object();
+            obj.objectManager = null;
             obj.id = INVALID_ID;
             obj.updateNeeded = true;
             return obj;
@@ -187,4 +198,17 @@ public abstract class NativeObject implements Cloneable {
      * should be functional for this object.
      */
     public abstract NativeObject createDestructableClone();
+    
+    /**
+     * Reclaims native resources used by this NativeObject.
+     * It should be safe to call this method or even use the object
+     * after it has been reclaimed, unless {@link NativeObjectManager#UNSAFE} is
+     * set to true, in that case native buffers are also reclaimed which may
+     * introduce instability.
+     */
+    public void dispose() {
+        if (objectManager != null) {
+            objectManager.markUnusedObject(this);
+        }
+    }
 }
