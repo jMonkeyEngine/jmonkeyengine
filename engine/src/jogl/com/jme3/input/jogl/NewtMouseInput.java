@@ -35,14 +35,12 @@ package com.jme3.input.jogl;
 import com.jme3.cursors.plugins.JmeCursor;
 import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
-import com.jme3.input.awt.AwtMouseInput;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.newt.event.MouseListener;
 import com.jogamp.newt.opengl.GLWindow;
 import java.util.ArrayList;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.media.nativewindow.util.Point;
 
@@ -50,7 +48,7 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
     
     public static int WHEEL_AMP = 40;   // arbitrary...  Java's mouse wheel seems to report something a lot lower than lwjgl's
 
-    private static final Logger logger = Logger.getLogger(AwtMouseInput.class.getName());
+    private static final Logger logger = Logger.getLogger(NewtMouseInput.class.getName());
 
     private boolean visible = true;
 
