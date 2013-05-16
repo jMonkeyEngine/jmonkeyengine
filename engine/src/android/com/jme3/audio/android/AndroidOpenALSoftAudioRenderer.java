@@ -126,7 +126,6 @@ public class AndroidOpenALSoftAudioRenderer implements AndroidAudioRenderer, Run
             }
         }
 
-        logger.log(Level.INFO, "Exiting audioThread run loop");
         synchronized (threadLock) {
             cleanupInThread();
         }
@@ -136,7 +135,6 @@ public class AndroidOpenALSoftAudioRenderer implements AndroidAudioRenderer, Run
         try {
             if (!alIsCreated()) {
                 //AL.create();
-                logger.log(Level.INFO, "Creating OpenAL Soft Renderer");
                 alCreate();
                 checkError(false);
             }
@@ -190,8 +188,6 @@ public class AndroidOpenALSoftAudioRenderer implements AndroidAudioRenderer, Run
 
         //supportEfx = alcIsExtensionPresent(device, "ALC_EXT_EFX");
         supportEfx = alcIsExtensionPresent(AL.ALC_EXT_EFX_NAME);
-        logger.log(Level.INFO, "{0} found: {1}",
-                new Object[]{AL.ALC_EXT_EFX_NAME, supportEfx});
 
         if (supportEfx) {
             ib.position(0).limit(1);
@@ -232,10 +228,8 @@ public class AndroidOpenALSoftAudioRenderer implements AndroidAudioRenderer, Run
     }
 
     public void cleanupInThread() {
-        logger.log(Level.INFO, "cleanupInThread");
         if (audioDisabled) {
             //AL.destroy();
-            logger.log(Level.INFO, "Destroying OpenAL Soft Renderer with audioDisabled");
             alDestroy();
             checkError(true);
             return;
@@ -279,10 +273,8 @@ public class AndroidOpenALSoftAudioRenderer implements AndroidAudioRenderer, Run
     }
 
     public void cleanup() {
-        logger.log(Level.INFO, "cleanup");
         // kill audio thread
         if (audioThread.isAlive()) {
-            logger.log(Level.INFO, "Interrupting audioThread");
             audioThread.interrupt();
         }
     }

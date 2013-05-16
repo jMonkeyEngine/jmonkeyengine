@@ -98,10 +98,8 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     @Override
     public JmeContext newContext(AppSettings settings, Type contextType) {
         if (settings.getAudioRenderer().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
-            logger.log(Level.INFO, "newContext settings set to Android MediaPlayer / SoundPool");
             audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
         } else if (settings.getAudioRenderer().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
-            logger.log(Level.INFO, "newContext settings set to Android OpenAL Soft");
             audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
         } else {
             logger.log(Level.INFO, "AudioRenderer not set. Defaulting to Android MediaPlayer / SoundPool");
