@@ -208,7 +208,7 @@ public abstract class NativeObject implements Cloneable {
      */
     public void dispose() {
         if (objectManager != null) {
-            objectManager.markUnusedObject(this);
+            objectManager.enqueueUnusedObject(this);
         }
     }
 }
