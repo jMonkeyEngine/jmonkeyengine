@@ -33,11 +33,11 @@
 package com.jme3.system.jogl;
 
 import com.jme3.system.AppSettings;
+import com.jogamp.newt.MonitorMode;
 import com.jogamp.newt.Screen;
-import com.jogamp.newt.ScreenMode;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
-import com.jogamp.newt.util.ScreenModeUtil;
+import com.jogamp.newt.util.MonitorModeUtil;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -120,25 +120,25 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
          */
         screen.addReference();
         if (settings.isFullscreen()) {
-            List<ScreenMode> screenModes = screen.getScreenModes();
+            List<MonitorMode> screenModes = canvas.getMainMonitor().getSupportedModes();
             //the resolution is provided by the user
             Dimension dimension = new Dimension(settings.getWidth(), settings.getHeight());
-            screenModes = ScreenModeUtil.filterByResolution(screenModes, dimension);
-            screenModes = ScreenModeUtil.getHighestAvailableBpp(screenModes);
+            screenModes = MonitorModeUtil.filterByResolution(screenModes, dimension);
+            screenModes = MonitorModeUtil.getHighestAvailableBpp(screenModes);
             if (settings.getFrequency() > 0) {
-                screenModes = ScreenModeUtil.filterByRate(screenModes, settings.getFrequency());
+                screenModes = MonitorModeUtil.filterByRate(screenModes, settings.getFrequency());
             } else {
-                screenModes = ScreenModeUtil.getHighestAvailableRate(screenModes);
+                screenModes = MonitorModeUtil.getHighestAvailableRate(screenModes);
             }
-            screen.setCurrentScreenMode(screenModes.get(0));
+            canvas.getMainMonitor().setCurrentMode(screenModes.get(0));
         }
         
-        ScreenMode currentScreenMode = screen.getCurrentScreenMode();
+        MonitorMode currentScreenMode = canvas.getMainMonitor().getCurrentMode();
         logger.log(Level.FINE, "Selected display mode: {0}x{1}x{2} @{3}",
                 new Object[]{currentScreenMode.getRotatedWidth(),
                              currentScreenMode.getRotatedHeight(),
-                             currentScreenMode.getMonitorMode().getSurfaceSize().getBitsPerPixel(),
-                             currentScreenMode.getMonitorMode().getRefreshRate()});
+                             currentScreenMode.getSurfaceSize().getBitsPerPixel(),
+                             currentScreenMode.getRefreshRate()});
     }
 
     private void privateInit(){

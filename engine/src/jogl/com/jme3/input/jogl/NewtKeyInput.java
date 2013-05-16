@@ -100,7 +100,7 @@ public class NewtKeyInput implements KeyInput, KeyListener {
     }
 
     public void keyPressed(KeyEvent evt) {
-        int code = convertAwtKey(evt.getKeyCode());
+        int code = convertNewtKey(evt.getKeySymbol());
         
         // Check if key was already pressed
         if (!keyStateSet.get(code)){
@@ -114,7 +114,7 @@ public class NewtKeyInput implements KeyInput, KeyListener {
     }
 
     public void keyReleased(KeyEvent evt) {
-        int code = convertAwtKey(evt.getKeyCode());
+        int code = convertNewtKey(evt.getKeySymbol());
         
         // Check if key was already released
         if (keyStateSet.get(code)) {
@@ -215,8 +215,8 @@ public class NewtKeyInput implements KeyInput, KeyListener {
                 return KeyEvent.VK_SEMICOLON;
             case KEY_APOSTROPHE:
                 return KeyEvent.VK_QUOTE;
-            case KEY_GRAVE:
-                return KeyEvent.VK_DEAD_GRAVE;
+            //case KEY_GRAVE:
+            //    return KeyEvent.VK_DEAD_GRAVE;
             case KEY_LSHIFT:
                 return KeyEvent.VK_SHIFT;
             case KEY_BACKSLASH:
@@ -309,8 +309,8 @@ public class NewtKeyInput implements KeyInput, KeyListener {
                 return KeyEvent.VK_F14;
             case KEY_F15:
                 return KeyEvent.VK_F15;
-            case KEY_KANA:
-                return KeyEvent.VK_KANA;
+            //case KEY_KANA:
+            //    return KeyEvent.VK_KANA;
             case KEY_CONVERT:
                 return KeyEvent.VK_CONVERT;
             case KEY_NOCONVERT:
@@ -372,7 +372,7 @@ public class NewtKeyInput implements KeyInput, KeyListener {
      * @param key awt KeyEvent key code
      * @return jme KeyInput key code
      */
-    public static int convertAwtKey(int key) {
+    public static int convertNewtKey(short key) {
         switch ( key ) {
             case KeyEvent.VK_ESCAPE:
                 return KEY_ESCAPE;
@@ -454,8 +454,8 @@ public class NewtKeyInput implements KeyInput, KeyListener {
                 return KEY_SEMICOLON;
             case KeyEvent.VK_QUOTE:
                 return KEY_APOSTROPHE;
-            case KeyEvent.VK_DEAD_GRAVE:
-                return KEY_GRAVE;
+            //case KeyEvent.VK_DEAD_GRAVE:
+            //    return KEY_GRAVE;
             case KeyEvent.VK_SHIFT:
                 return KEY_LSHIFT;
             case KeyEvent.VK_BACK_SLASH:
@@ -546,8 +546,8 @@ public class NewtKeyInput implements KeyInput, KeyListener {
                 return KEY_F14;
             case KeyEvent.VK_F15:
                 return KEY_F15;
-            case KeyEvent.VK_KANA:
-                return KEY_KANA;
+            //case KeyEvent.VK_KANA:
+            //    return KEY_KANA;
             case KeyEvent.VK_CONVERT:
                 return KEY_CONVERT;
             case KeyEvent.VK_NONCONVERT:
