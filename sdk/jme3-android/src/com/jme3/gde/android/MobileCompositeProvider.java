@@ -57,7 +57,7 @@ public class MobileCompositeProvider implements ProjectCustomizer.CompositeCateg
     private class SavePropsListener implements ActionListener {
 
         private String extensionName = "mobile";
-        private String extensionVersion = "v0.19";
+        private String extensionVersion = "v0.20";
         private String[] extensionDependencies = new String[]{"jar", "-mobile-deployment"};
         private ProjectExtensionManager manager = new ProjectExtensionManager(extensionName, extensionVersion, extensionDependencies);
         private ProjectExtensionProperties properties;
