@@ -395,8 +395,8 @@ public class AndroidSdkTool {
         String str =
                 "package " + packag + ";\n"
                 + " \n"
-                + "import com.jme3.app.AndroidHarness;\n"
                 + "import android.content.pm.ActivityInfo;\n"
+                + "import com.jme3.app.AndroidHarness;\n"
                 + "import com.jme3.system.android.AndroidConfigChooser.ConfigType;\n"
                 + "import java.util.logging.Level;\n"
                 + "import java.util.logging.LogManager;\n"
