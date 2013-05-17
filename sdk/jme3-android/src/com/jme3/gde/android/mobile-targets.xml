@@ -32,6 +32,7 @@
         <antcall target="-unzip-bullet-libs"/>
         <antcall target="-unzip-assets"/>
         <copy file="${dist.jar}" todir="mobile/libs/" verbose="false" preservelastmodified="true"/>
+        <antcall target="-unzip-openal-soft-libs"/>
     </target>
 
     <target description="create mobile/libs directory and copy project libraries" name="-copy-project-libs">
@@ -88,6 +89,22 @@
         <mkdir dir="mobile/assets"/>
         <unzip src="dist/lib/${assets.jar.name}" dest="mobile/assets"/>
         <delete file="mobile/libs/${assets.jar.name}" failonerror="true"/>
+    </target>
+
+    <target name="-unzip-openal-soft-libs" depends="-test-openalsoft-included" if="openalsoftIsIncluded">
+        <echo>Adding OpenAL Soft</echo>
+        <!-- use copy with zipfileset to enable preserving the last modified date to avoid pre-dexing -->
+        <copy todir="mobile/libs" preservelastmodified="true">
+          <zipfileset src="mobile/libs/jME3-openal-soft-natives-android.jar">
+          </zipfileset>
+        </copy>
+        <delete file="mobile/libs/jME3-openal-soft-natives-android.jar"/>
+    </target>
+
+    <target name="-test-openalsoft-included">
+        <condition property="openalsoftIsIncluded">
+            <contains string="${javac.classpath}" substring="jME3-openal-soft-natives-android.jar"/>
+        </condition>
     </target>
 
     <target name="-test-bullet-included">
