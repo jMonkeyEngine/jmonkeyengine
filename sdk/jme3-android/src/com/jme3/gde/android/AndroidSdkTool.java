@@ -290,6 +290,28 @@ public class AndroidSdkTool {
             in.close();
             in = null;
             boolean changed = false;
+            Element sdkApplication = XmlHelper.findChildElement(configuration.getDocumentElement(), "application");
+            if (sdkApplication != null) {
+                Element sdkActivity = XmlHelper.findChildElement(sdkApplication, "activity");
+                if (sdkActivity != null) {
+                    if (!sdkActivity.hasAttribute("android:launchMode")) {
+                        sdkActivity.setAttribute("android:launchMode", "singleTask");
+                        changed = true;
+                    }
+                }
+                // add the following after AndroidHarness.screenOrientation is depreciated
+                //   for jME 3.1
+//                if (sdkActivity != null) {
+//                    if (sdkActivity.hasAttribute("android:screenOrientation")) {
+//                        String attrScreenOrientation = sdkActivity.getAttribute("android:screenOrientation");
+//                    } else {
+//                        Logger.getLogger(AndroidSdkTool.class.getName()).log(Level.INFO, "creating attrScreenOrientation");
+//                        sdkActivity.setAttribute("android:screenOrientation", "landscape");
+//                        changed = true;
+//                    }
+//                }
+            }
+
             Element sdkElement = XmlHelper.findChildElement(configuration.getDocumentElement(), "uses-sdk");
             if (sdkElement == null) {
                 sdkElement = configuration.createElement("uses-sdk");
