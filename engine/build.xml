@@ -331,6 +331,7 @@
             <exclude name="**/jME3-testdata.jar"/>
             <exclude name="**/jME3-bullet-natives.jar"/>
             <exclude name="**/jME3-bullet-natives-android.jar"/>
+            <exclude name="**/jME3-openal-soft-natives-android.jar"/>
         </fileset>
         <fileset id="jme3-sdk-jars" dir="build">
             <include name="**/jME3**.jar"/>
@@ -339,9 +340,13 @@
             <exclude name="**/jME3-bullet.jar"/>
             <exclude name="**/jME3-bullet-natives.jar"/>
             <exclude name="**/jME3-bullet-natives-android.jar"/>
+            <exclude name="**/jME3-openal-soft-natives-android.jar"/>
         </fileset>
         <fileset id="jme3-bullet-native-jars" dir="${dist.dir}/opt/native-bullet">
             <include name="**/jME3-bullet-native**.jar"/>
+        </fileset>
+        <fileset id="jme3-openal-soft-natives-jars" dir="${dist.dir}/opt/native-openal-soft">
+            <include name="**/jME3-openal-soft-natives-android.jar"/>
         </fileset>
         <fileset id="jme3-testdata-jars" dir="build">
             <include name="**/jME3-testdata.jar"/>
@@ -383,6 +388,7 @@
             <fileset refid="jme3-external-libraries"/>
             <fileset refid="jme3-lwjgl-native-jars"/>
             <fileset refid="jme3-bullet-native-jars"/>
+            <fileset refid="jme3-openal-soft-natives-jars"/>
         </copy>
 
         <echo>Copying Test Project Data</echo>
@@ -419,6 +425,7 @@
             <fileset refid="jme3-external-libraries"/>
             <fileset refid="jme3-lwjgl-native-jars"/>
             <fileset refid="jme3-bullet-native-jars"/>
+            <fileset refid="jme3-openal-soft-natives-jars"/>
             <fileset dir="lib/niftygui/">
                 <include name="nifty-javadoc.jar"/>
                 <include name="nifty-default-controls-javadoc.jar"/>
