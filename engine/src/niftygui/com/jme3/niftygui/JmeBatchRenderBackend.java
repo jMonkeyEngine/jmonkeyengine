@@ -452,6 +452,7 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
 
       material.setTexture("ColorMap", textureAtlas);
       material.render(meshGeometry, renderManager);
+      renderManager.setForcedRenderState(null);
     }
 
     private RenderState.BlendMode convertBlend(final BlendMode blendMode) {
