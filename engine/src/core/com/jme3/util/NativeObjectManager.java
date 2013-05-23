@@ -135,12 +135,14 @@ public class NativeObjectManager {
 
             assert ref == null || ref == ref2;
 
+            int id = obj.getId();
+            
             // Delete object from the GL driver
             obj.deleteObject(rendererObject);
             assert obj.getId() == NativeObject.INVALID_ID;
             
             if (logger.isLoggable(Level.FINEST)) {
-                logger.log(Level.FINEST, "Deleted: {0}", obj);
+                logger.log(Level.FINEST, "Deleted: {0}", obj.getClass().getSimpleName() + "/" + id);
             }
 
             if (realObj != null){
