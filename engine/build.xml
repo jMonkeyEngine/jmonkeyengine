@@ -381,6 +381,7 @@
         <echo>Copying Project jME3 libs</echo>
         <copy toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
             <fileset refid="jme3-jars"/>
+            <fileset refid="jme3-openal-soft-natives-jars"/>
         </copy>
 
         <echo>Copying Project external libraries</echo>
@@ -388,7 +389,6 @@
             <fileset refid="jme3-external-libraries"/>
             <fileset refid="jme3-lwjgl-native-jars"/>
             <fileset refid="jme3-bullet-native-jars"/>
-            <fileset refid="jme3-openal-soft-natives-jars"/>
         </copy>
 
         <echo>Copying Test Project Data</echo>
