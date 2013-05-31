@@ -86,7 +86,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected String audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
 
     /**
-     * If true Android Sensors are used as simulated Joysticks Users can use the
+     * If true Android Sensors are used as simulated Joysticks. Users can use the
      * Android sensor feedback through the RawInputListener or by registering
      * JoyAxisTriggers.
      */
