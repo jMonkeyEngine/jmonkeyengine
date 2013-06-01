@@ -501,4 +501,9 @@ public class FrameBuffer extends NativeObject {
     public NativeObject createDestructableClone(){
         return new FrameBuffer(this);
     }
+    
+    @Override
+    public long getUniqueId() {
+        return ((long)OBJTYPE_FRAMEBUFFER << 32) | ((long)id);
+    }
 }

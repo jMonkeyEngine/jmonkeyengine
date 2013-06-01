@@ -96,4 +96,8 @@ public class LowPassFilter extends Filter {
         return new LowPassFilter(id);
     }
 
+    @Override
+    public long getUniqueId() {
+        return ((long)OBJTYPE_FILTER << 32) | ((long)id);
+    }
 }

@@ -199,5 +199,8 @@ public class AudioStream extends AudioData implements Closeable{
         }
     }
 
-    
+    @Override
+    public long getUniqueId() {
+        return ((long)OBJTYPE_AUDIOSTREAM << 32) | ((long)ids[0]);
+    }
 }

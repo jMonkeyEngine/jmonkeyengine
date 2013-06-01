@@ -37,7 +37,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Queue;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,7 +74,7 @@ public class NativeObjectManager {
     /**
      * List of currently active GLObjects.
      */
-    private IntMap<NativeObjectRef> refMap = new IntMap<NativeObjectRef>();
+    private HashMap<Long, NativeObjectRef> refMap = new HashMap<Long, NativeObjectRef>();
     
     /**
      * List of real objects requested by user for deletion.
@@ -91,7 +91,8 @@ public class NativeObjectManager {
             assert obj.handleRef != null;
 
             this.realObj = new WeakReference<NativeObject>(obj);
-            this.objClone = obj.createDestructableClone();       
+            this.objClone = obj.createDestructableClone();
+            assert objClone.getId() == obj.getId();
         }
     }
 
@@ -104,7 +105,7 @@ public class NativeObjectManager {
         }
 
         NativeObjectRef ref = new NativeObjectRef(refQueue, obj);
-        refMap.put(obj.getId(), ref);
+        refMap.put(obj.getUniqueId(), ref);
         
         obj.setNativeObjectManager(this);
 
@@ -125,30 +126,34 @@ public class NativeObjectManager {
         
         assert realObj == null || obj.getId() == realObj.getId();
         
-        if (deleteGL && obj.getId() > 0) {
-            // Unregister it from cleanup list.
-            NativeObjectRef ref2 = refMap.remove(obj.getId());
-            if (ref2 == null) {
-                throw new IllegalArgumentException("This NativeObject is not " + 
-                                                   "registered in this NativeObjectManager");
-            }
+        if (deleteGL) {
+            if (obj.getId() <= 0) {
+                logger.log(Level.WARNING, "Object already deleted: {0}", obj.getClass().getSimpleName() + "/" + obj.getId());
+            } else {
+                // Unregister it from cleanup list.
+                NativeObjectRef ref2 = refMap.remove(obj.getUniqueId());
+                if (ref2 == null) {
+                    throw new IllegalArgumentException("This NativeObject is not " + 
+                                                       "registered in this NativeObjectManager");
+                }
 
-            assert ref == null || ref == ref2;
+                assert ref == null || ref == ref2;
 
-            int id = obj.getId();
-            
-            // Delete object from the GL driver
-            obj.deleteObject(rendererObject);
-            assert obj.getId() == NativeObject.INVALID_ID;
-            
-            if (logger.isLoggable(Level.FINEST)) {
-                logger.log(Level.FINEST, "Deleted: {0}", obj.getClass().getSimpleName() + "/" + id);
-            }
+                int id = obj.getId();
 
-            if (realObj != null){
-                // Note: make sure to reset them as well
-                // They may get used in a new renderer in the future
-                realObj.resetObject();
+                // Delete object from the GL driver
+                obj.deleteObject(rendererObject);
+                assert obj.getId() == NativeObject.INVALID_ID;
+
+                if (logger.isLoggable(Level.FINEST)) {
+                    logger.log(Level.FINEST, "Deleted: {0}", obj.getClass().getSimpleName() + "/" + id);
+                }
+
+                if (realObj != null){
+                    // Note: make sure to reset them as well
+                    // They may get used in a new renderer in the future
+                    realObj.resetObject();
+                }
             }
         }
         if (deleteBufs && UNSAFE && realObj != null) {
@@ -194,8 +199,8 @@ public class NativeObjectManager {
      */
     public void deleteAllObjects(Object rendererObject){
         deleteUnused(rendererObject);
-        for (IntMap.Entry<NativeObjectRef> entry : refMap) {
-            NativeObjectRef ref = entry.getValue();
+        ArrayList<NativeObjectRef> refMapCopy = new ArrayList<NativeObjectRef>(refMap.values());
+        for (NativeObjectRef ref : refMapCopy) {
             deleteNativeObject(rendererObject, ref.objClone, ref, true, false);
         }
         assert refMap.size() == 0;
@@ -219,9 +224,9 @@ public class NativeObjectManager {
      * This is typically called when the context is restarted.
      */
     public void resetObjects(){
-        for (IntMap.Entry<NativeObjectRef> entry : refMap) {
+        for (NativeObjectRef ref : refMap.values()) {
             // Must use the real object here, for this to be effective.
-            NativeObject realObj = entry.getValue().realObj.get();
+            NativeObject realObj = ref.realObj.get();
             if (realObj == null) {
                 continue;
             }

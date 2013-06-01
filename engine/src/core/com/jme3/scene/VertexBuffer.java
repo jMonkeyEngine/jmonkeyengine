@@ -1004,6 +1004,11 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         return new VertexBuffer(id);
     }
 
+    @Override
+    public long getUniqueId() {
+        return ((long)OBJTYPE_VERTEXBUFFER << 32) | ((long)id);
+    }
+    
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(components, "components", 0);

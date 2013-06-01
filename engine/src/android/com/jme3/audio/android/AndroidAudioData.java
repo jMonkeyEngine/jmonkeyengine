@@ -59,4 +59,9 @@ public class AndroidAudioData extends AudioData {
     public NativeObject createDestructableClone() {
         return new AndroidAudioData(id);
     }
+
+    @Override
+    public long getUniqueId() {
+        return ((long)OBJTYPE_AUDIOBUFFER << 32) | ((long)id);
+    }
 }

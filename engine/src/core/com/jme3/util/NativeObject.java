@@ -45,6 +45,15 @@ public abstract class NativeObject implements Cloneable {
 
     public static final int INVALID_ID = -1;
     
+    protected static final int OBJTYPE_VERTEXBUFFER = 1,
+                               OBJTYPE_TEXTURE      = 2,
+                               OBJTYPE_FRAMEBUFFER  = 3,
+                               OBJTYPE_SHADER       = 4,
+                               OBJTYPE_SHADERSOURCE = 5,
+                               OBJTYPE_AUDIOBUFFER  = 6,
+                               OBJTYPE_AUDIOSTREAM  = 7,
+                               OBJTYPE_FILTER       = 8;
+    
     /**
      * The object manager to which this NativeObject is registered to.
      */
@@ -111,7 +120,7 @@ public abstract class NativeObject implements Cloneable {
     public int getId(){
         return id;
     }
-
+    
     /**
      * Internal use only. Indicates that the object has changed
      * and its state needs to be updated.
@@ -198,6 +207,14 @@ public abstract class NativeObject implements Cloneable {
      * should be functional for this object.
      */
     public abstract NativeObject createDestructableClone();
+    
+    /**
+     * Returns a unique ID for this NativeObject. No other NativeObject shall
+     * have the same ID.
+     * 
+     * @return unique ID for this NativeObject.
+     */
+    public abstract long getUniqueId();
     
     /**
      * Reclaims native resources used by this NativeObject.
