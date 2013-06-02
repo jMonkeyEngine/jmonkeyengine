@@ -500,8 +500,8 @@ public class LodGenerator {
         }
         
         assert (cost >= 0);
-        // TODO: use squared distance.
-        return cost * src.position.distance(dest.position);
+        
+        return cost * src.position.distanceSquared(dest.position);
     }
     int nbCollapsedTri = 0;
 

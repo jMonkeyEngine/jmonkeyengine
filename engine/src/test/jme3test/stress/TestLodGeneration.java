@@ -32,6 +32,7 @@
 package jme3test.stress;
 
 import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
@@ -79,8 +80,8 @@ public class TestLodGeneration extends SimpleApplication {
         al.setColor(ColorRGBA.White.mult(0.6f));
         rootNode.addLight(al);
 
-        model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
-        //model = (Node) assetManager.loadModel("Models/Jaime/Jaime.j3o");
+       // model = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.xml");
+       model = (Node) assetManager.loadModel("Models/Jaime/Jaime.j3o");
         BoundingBox b = ((BoundingBox) model.getWorldBound());
         model.setLocalScale(1.2f / (b.getYExtent() * 2));
         //  model.setLocalTranslation(0,-(b.getCenter().y - b.getYExtent())* model.getLocalScale().y, 0);
@@ -98,23 +99,20 @@ public class TestLodGeneration extends SimpleApplication {
 
 
 
-        //   ch = model.getControl(AnimControl.class).createChannel();
-        //  ch.setAnim("Wave");
+//           ch = model.getControl(AnimControl.class).createChannel();
+//          ch.setAnim("Wave");
         SkeletonControl c = model.getControl(SkeletonControl.class);
         if (c != null) {
             c.setEnabled(false);
         }
 
 
-        reductionvalue = 0.001f;
-        // makeLod(LodGenerator.VertexReductionMethod.PROPORTIONAL, reductionvalue, 1);
-
+        reductionvalue = 0.80f;
         lodLevel = 1;
         for (final Geometry geometry : listGeoms) {
-            LodGenerator lODGenerator = new LodGenerator(geometry);
-            lODGenerator.bakeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionvalue);
+            LodGenerator lodGenerator = new LodGenerator(geometry);          
+            lodGenerator.bakeLods(LodGenerator.TriangleReductionMethod.PROPORTIONAL, reductionvalue);
             geometry.setLodLevel(lodLevel);
-
 
         }
 
