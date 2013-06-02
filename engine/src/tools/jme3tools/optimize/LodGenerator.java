@@ -18,11 +18,11 @@
  *   without specific prior written permission.
  * 
  * This class is the java implementation of
- * the enhanced version og Ogre engine Lod generator, by Péter Szücs, originally
- * based on Stan Melax "easy mesh simplification". The MIT licences C++ source
+ * the enhanced version of Ogre engine Lod generator, by Péter Szücs, originally
+ * based on Stan Melax "easy mesh simplification". The MIT licenced C++ source
  * code can be found here
  * https://github.com/worldforge/ember/tree/master/src/components/ogre/lod
- * The licensing for the original code is : 
+ * The licencing for the original code is : 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -74,8 +74,8 @@ import java.util.logging.Logger;
  * arbitrary mesh. It computes a collapse cost for each vertex and each edges.
  * The higher the cost the most likely collapsing the edge or the vertex will
  * produce artifacts on the mesh. <p>This class is the java implementation of
- * the enhanced version og Ogre engine Lod generator, by Péter Szücs, originally
- * based on Stan Melax "easy mesh simplification". The MIT licences C++ source
+ * the enhanced version of Ogre engine Lod generator, by Péter Szücs, originally
+ * based on Stan Melax "easy mesh simplification". The MIT licenced C++ source
  * code can be found here
  * https://github.com/worldforge/ember/tree/master/src/components/ogre/lod more
  * informations can be found here http://www.melax.com/polychop
