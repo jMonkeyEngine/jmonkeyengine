@@ -333,10 +333,10 @@ public class GeometryBatchFactory {
                 makeLods(geomsForMat, mesh);
             }
             mesh.updateCounts();
-            mesh.updateBound();
-
+           
             Geometry out = new Geometry("batch[" + (batchNum++) + "]", mesh);
             out.setMaterial(mat);
+            out.updateModelBound();
             retVal.add(out);
         }
 
