@@ -896,6 +896,10 @@ public class Mesh implements Savable, Cloneable {
                            BoundingVolume worldBound,
                            CollisionResults results){
 
+        if (getVertexCount() == 0) {
+            return 0;
+        }
+        
         if (collisionTree == null){
             createCollisionData();
         }
