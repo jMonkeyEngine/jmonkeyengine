@@ -31,7 +31,9 @@
  */
 package com.jme3.scene;
 
+import com.jme3.math.Matrix4f;
 import com.jme3.math.Transform;
+import com.jme3.util.TempVars;
 
 /**
  * 
@@ -70,10 +72,24 @@ public class SimpleBatchNode extends BatchNode {
             batch.geometry.setTransformRefresh();
         }
     }
-    
-     protected Transform getTransforms(Geometry geom){
-        return geom.getLocalTransform();
+    private Matrix4f cachedLocalMat = new Matrix4f();
+
+    @Override
+    protected Matrix4f getTransformMatrix(Geometry g){
+        // Compute the Local matrix for the geometry
+        cachedLocalMat.loadIdentity();
+        cachedLocalMat.setRotationQuaternion(g.localTransform.getRotation());
+        cachedLocalMat.setTranslation(g.localTransform.getTranslation());
+
+        TempVars vars = TempVars.get();
+        Matrix4f scaleMat = vars.tempMat4;
+        scaleMat.loadIdentity();
+        scaleMat.scale(g.localTransform.getScale());
+        cachedLocalMat.multLocal(scaleMat);
+        vars.release();
+        return cachedLocalMat;
     }
+    
 
     @Override
     public void batch() {

@@ -139,28 +139,37 @@ public class BatchNode extends Node implements Savable {
         assert refreshFlags == 0;
     }
 
-    protected Transform getTransforms(Geometry geom) {
-        return geom.getWorldTransform();
+    protected Matrix4f getTransformMatrix(Geometry g){
+        return g.cachedWorldMat;
     }
-
+    
     protected void updateSubBatch(Geometry bg) {
         Batch batch = batchesByGeom.get(bg);
         if (batch != null) {
             Mesh mesh = batch.geometry.getMesh();
+            Mesh origMesh = bg.getMesh();
 
             VertexBuffer pvb = mesh.getBuffer(VertexBuffer.Type.Position);
             FloatBuffer posBuf = (FloatBuffer) pvb.getData();
             VertexBuffer nvb = mesh.getBuffer(VertexBuffer.Type.Normal);
             FloatBuffer normBuf = (FloatBuffer) nvb.getData();
-
+          
+            VertexBuffer opvb = origMesh.getBuffer(VertexBuffer.Type.Position);
+            FloatBuffer oposBuf = (FloatBuffer) opvb.getData();
+            VertexBuffer onvb = origMesh.getBuffer(VertexBuffer.Type.Normal);
+            FloatBuffer onormBuf = (FloatBuffer) onvb.getData();
+            Matrix4f transformMat = getTransformMatrix(bg);
+            
             if (mesh.getBuffer(VertexBuffer.Type.Tangent) != null) {
 
                 VertexBuffer tvb = mesh.getBuffer(VertexBuffer.Type.Tangent);
                 FloatBuffer tanBuf = (FloatBuffer) tvb.getData();
-                doTransformsTangents(posBuf, normBuf, tanBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), bg.cachedOffsetMat);
+                VertexBuffer otvb = origMesh.getBuffer(VertexBuffer.Type.Tangent);
+                FloatBuffer otanBuf = (FloatBuffer) otvb.getData();
+                doTransformsTangents(oposBuf, onormBuf, otanBuf, posBuf, normBuf, tanBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
                 tvb.updateData(tanBuf);
             } else {
-                doTransforms(posBuf, normBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), bg.cachedOffsetMat);
+                doTransforms(oposBuf, onormBuf, posBuf, normBuf, bg.startIndex, bg.startIndex + bg.getVertexCount(), transformMat);
             }
             pvb.updateData(posBuf);
             nvb.updateData(normBuf);
@@ -585,7 +594,7 @@ public class BatchNode extends Node implements Savable {
         }
     }
 
-    private void doTransforms(FloatBuffer bufPos, FloatBuffer bufNorm, int start, int end, Matrix4f transform) {
+    private void doTransforms(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bufPos, FloatBuffer bufNorm, int start, int end, Matrix4f transform) {
         TempVars vars = TempVars.get();
         Vector3f pos = vars.vect1;
         Vector3f norm = vars.vect2;
@@ -595,10 +604,12 @@ public class BatchNode extends Node implements Savable {
         // offset is given in element units
         // convert to be in component units
         int offset = start * 3;
-        bufPos.position(offset);
-        bufNorm.position(offset);
-        bufPos.get(tmpFloat, 0, length);
-        bufNorm.get(tmpFloatN, 0, length);
+        bindBufPos.rewind();
+        bindBufNorm.rewind();
+        //bufPos.position(offset);
+        //bufNorm.position(offset);
+        bindBufPos.get(tmpFloat, 0, length);
+        bindBufNorm.get(tmpFloatN, 0, length);
         int index = 0;
         while (index < length) {
             pos.x = tmpFloat[index];
@@ -629,7 +640,7 @@ public class BatchNode extends Node implements Savable {
         bufNorm.put(tmpFloatN, 0, length);
     }
 
-    private void doTransformsTangents(FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
+    private void doTransformsTangents(FloatBuffer bindBufPos, FloatBuffer bindBufNorm, FloatBuffer bindBufTangents,FloatBuffer bufPos, FloatBuffer bufNorm, FloatBuffer bufTangents, int start, int end, Matrix4f transform) {
         TempVars vars = TempVars.get();
         Vector3f pos = vars.vect1;
         Vector3f norm = vars.vect2;
@@ -643,12 +654,13 @@ public class BatchNode extends Node implements Savable {
         int offset = start * 3;
         int tanOffset = start * 4;
 
-        bufPos.position(offset);
-        bufNorm.position(offset);
-        bufTangents.position(tanOffset);
-        bufPos.get(tmpFloat, 0, length);
-        bufNorm.get(tmpFloatN, 0, length);
-        bufTangents.get(tmpFloatT, 0, tanLength);
+        
+        bindBufPos.rewind();
+        bindBufNorm.rewind();
+        bindBufTangents.rewind();
+        bindBufPos.get(tmpFloat, 0, length);
+        bindBufNorm.get(tmpFloatN, 0, length);
+        bindBufTangents.get(tmpFloatT, 0, tanLength);
 
         int index = 0;
         int tanIndex = 0;
