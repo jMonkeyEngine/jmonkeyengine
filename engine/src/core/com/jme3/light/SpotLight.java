@@ -71,7 +71,13 @@ public class SpotLight extends Light implements Savable {
         float innerCos=FastMath.cos(spotInnerAngle);
         float outerCos=FastMath.cos(spotOuterAngle);
         packedAngleCos=(int)(innerCos*1000);
+        //due to approximations, very close angles can give the same cos
+        //here we make sure outer cos is bellow inner cos.
+        if(((int)packedAngleCos)== ((int)(outerCos*1000)) ){
+            outerCos -= 0.001f;
+        }
         packedAngleCos+=outerCos;
+        System.out.println("anfle"+ packedAngleCos);
     }
 
     @Override
