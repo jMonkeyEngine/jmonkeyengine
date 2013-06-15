@@ -261,6 +261,53 @@ public final class Matrix3f implements Savable, Cloneable, java.io.Serializable 
             throw new IndexOutOfBoundsException("Array size must be 9 or 16 in Matrix3f.get().");
         }
     }
+    
+    /**
+     * Normalize this matrix and store the result in the store parameter that is
+     * returned.
+     * 
+     * Note that the original matrix is not altered.
+     *
+     * @param store the matrix to store the result of the normalization. If this
+     * parameter is null a new one is created
+     * @return the normalized matrix
+     */
+    public Matrix3f normalize(Matrix3f store) {
+        if (store == null) {
+            store = new Matrix3f();
+        }
+
+        float mag = 1.0f / FastMath.sqrt(
+                m00 * m00
+                + m10 * m10
+                + m20 * m20);
+
+        store.m00 = m00 * mag;
+        store.m10 = m10 * mag;
+        store.m20 = m20 * mag;
+
+        mag = 1.0f / FastMath.sqrt(
+                m01 * m01
+                + m11 * m11
+                + m21 * m21);
+
+        store.m01 = m01 * mag;
+        store.m11 = m11 * mag;
+        store.m21 = m21 * mag;
+
+        store.m02 = store.m10 * store.m21 - store.m11 * store.m20;
+        store.m12 = store.m01 * store.m20 - store.m00 * store.m21;
+        store.m22 = store.m00 * store.m11 - store.m01 * store.m10;
+        return store;
+    }
+
+    /**
+     * Normalize this matrix
+     * @return this matrix once normalized.
+     */
+    public Matrix3f normalizeLocal() {
+        return normalize(this);
+    }
 
     /**
      * <code>getColumn</code> returns one of three columns specified by the
