@@ -678,8 +678,10 @@ public class OGLESShaderRenderer implements Renderer {
         }
 
         if (uniform.getVarType() == null) {
-            logger.log(Level.FINEST, "Uniform value is not set yet. Shader: {0}, Uniform: {1}",
-                    new Object[]{shader.toString(), uniform.toString()});
+            // removed logging the warning to avoid flooding the log
+            // (LWJGL also doesn't post a warning)
+            //logger.log(Level.FINEST, "Uniform value is not set yet. Shader: {0}, Uniform: {1}",
+            //        new Object[]{shader.toString(), uniform.toString()});
             return; // value not set yet..
         }
 
