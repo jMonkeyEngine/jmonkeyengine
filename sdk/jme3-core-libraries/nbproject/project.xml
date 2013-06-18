@@ -27,6 +27,8 @@
                 <package>de.jarnbjo.util.io</package>
                 <package>de.jarnbjo.vorbis</package>
                 <package>de.lessvoid.nifty</package>
+                <package>de.lessvoid.nifty.batch</package>
+                <package>de.lessvoid.nifty.batch.spi</package>
                 <package>de.lessvoid.nifty.builder</package>
                 <package>de.lessvoid.nifty.controls</package>
                 <package>de.lessvoid.nifty.controls.button</package>
