@@ -48,6 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.LWJGLException;
+import org.lwjgl.Sys;
 import org.lwjgl.opengl.*;
 
 /**
@@ -73,8 +74,9 @@ public abstract class LwjglContext implements JmeContext {
         this.listener = listener;
     }
 
-    protected void printContextInitInfo(){
-        logger.log(Level.INFO, "Lwjgl context running on thread {0}", Thread.currentThread().getName());
+    protected void printContextInitInfo() {
+        logger.log(Level.INFO, "Lwjgl {0} context running on thread {1}",
+                new Object[]{Sys.getVersion(), Thread.currentThread().getName()});
 
         logger.log(Level.INFO, "Adapter: {0}", Display.getAdapter());
         logger.log(Level.INFO, "Driver Version: {0}", Display.getVersion());
