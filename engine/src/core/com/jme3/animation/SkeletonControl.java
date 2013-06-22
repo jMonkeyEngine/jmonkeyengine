@@ -122,7 +122,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
             m.setInt("NumberOfBones", numBones);
         }
         for (Mesh mesh : targets) {
-            if (isMeshAnimated(mesh)) {
+            if (mesh.isAnimated()) {
                 mesh.prepareForAnim(false);
             }
         }
@@ -135,7 +135,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
             }
         }
         for (Mesh mesh : targets) {
-            if (isMeshAnimated(mesh)) {
+            if (mesh.isAnimated()) {
                 mesh.prepareForAnim(true);
             }
         }
@@ -216,9 +216,6 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
         this.targets = new SafeArrayList<Mesh>(Mesh.class, Arrays.asList(targets));
     }
 
-    private boolean isMeshAnimated(Mesh mesh) {
-        return mesh.getBuffer(Type.BindPosePosition) != null;
-    }
 
     private void findTargets(Node node) {
         Mesh sharedMesh = null;        
@@ -232,7 +229,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
 
                 if (childSharedMesh != null) {
                     // Don’t bother with non-animated shared meshes
-                    if (isMeshAnimated(childSharedMesh)) {
+                    if (childSharedMesh.isAnimated()) {
                         // child is using shared mesh,
                         // so animate the shared mesh but ignore child
                         if (sharedMesh == null) {
@@ -244,7 +241,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
                     }
                 } else {
                     Mesh mesh = geom.getMesh();
-                    if (isMeshAnimated(mesh)) {
+                    if (mesh.isAnimated()) {
                         targets.add(mesh);
                         materials.add(geom.getMaterial());
                     }
@@ -333,7 +330,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     //only do this for software updates
     void resetToBind() {
         for (Mesh mesh : targets) {
-            if (isMeshAnimated(mesh)) {
+            if (mesh.isAnimated()) {
                 Buffer bwBuff = mesh.getBuffer(Type.BoneWeight).getData();
                 Buffer biBuff = mesh.getBuffer(Type.BoneIndex).getData();
                 if (!biBuff.hasArray() || !bwBuff.hasArray()) {

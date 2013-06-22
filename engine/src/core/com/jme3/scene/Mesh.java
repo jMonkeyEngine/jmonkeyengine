@@ -1279,6 +1279,11 @@ public class Mesh implements Savable, Cloneable {
     public SafeArrayList<VertexBuffer> getBufferList(){
         return buffersList;
     }
+    
+    public boolean isAnimated() {
+        return getBuffer(Type.BindPosePosition) != null;
+    }
+
 
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule out = ex.getCapsule(this);
@@ -1299,6 +1304,17 @@ public class Mesh implements Savable, Cloneable {
         out.write(elementLengths, "elementLengths", null);
         out.write(modeStart, "modeStart", null);
         out.write(pointSize, "pointSize", 1f);
+        
+        if(isAnimated()){
+            VertexBuffer vb = getBuffer(Type.HWBoneIndex);
+            if(vb!=null){
+                buffers.remove(Type.HWBoneIndex.ordinal());
+            }
+            vb = getBuffer(Type.HWBoneWeight);
+            if(vb!=null){
+                buffers.remove(Type.HWBoneWeight.ordinal());
+            }
+        }
 
         out.writeIntSavableMap(buffers, "buffers", null);
         out.write(lodLevels, "lodLevels", null);
@@ -1322,6 +1338,16 @@ public class Mesh implements Savable, Cloneable {
         buffers = (IntMap<VertexBuffer>) in.readIntSavableMap("buffers", null);
         for (Entry<VertexBuffer> entry : buffers){
             buffersList.add(entry.getValue());
+        }
+        
+        //creating hw animation buffers empty so that they are put in the cache
+        if(isAnimated()){
+            VertexBuffer hwBoneIndex = new VertexBuffer(Type.HWBoneIndex);
+            hwBoneIndex.setUsage(Usage.CpuOnly);
+            setBuffer(hwBoneIndex);
+            VertexBuffer hwBoneWeight = new VertexBuffer(Type.HWBoneWeight);
+            hwBoneWeight.setUsage(Usage.CpuOnly);
+            setBuffer(hwBoneWeight);
         }
         
         Savable[] lodLevelsSavable = in.readSavableArray("lodLevels", null);
