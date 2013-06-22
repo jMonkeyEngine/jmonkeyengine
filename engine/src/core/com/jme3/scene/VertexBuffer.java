@@ -135,7 +135,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          
         /** 
          * Bone weights, used with animation (4 floats).
-         * If used with software skinning, the usage should be 
+         * Only used for software skinning, the usage should be 
          * {@link Usage#CpuOnly}, and the buffer should be allocated
          * on the heap.
          */
@@ -143,10 +143,9 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
 
         /** 
          * Bone indices, used with animation (4 ubytes).
-         * If used with software skinning, the usage should be 
+         * Only used for software skinning, the usage should be 
          * {@link Usage#CpuOnly}, and the buffer should be allocated
-         * on the heap as a ubytes buffer. For Hardware skinning this should be
-         * either an int or float buffer due to shader attribute types restrictions.
+         * on the heap as a ubytes buffer.
          */
         BoneIndex,
 
@@ -193,6 +192,19 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          * on the heap.
          */
         BindPoseTangent,
+        
+        /** 
+         * Bone weights, used with animation (4 floats).
+         * for Hardware Skinning only
+         */
+        HWBoneWeight,
+
+        /** 
+         * Bone indices, used with animation (4 ubytes).
+         * for Hardware Skinning only
+         * either an int or float buffer due to shader attribute types restrictions.
+         */
+        HWBoneIndex,
     }
 
     /**

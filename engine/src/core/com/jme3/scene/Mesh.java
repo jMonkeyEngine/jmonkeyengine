@@ -353,28 +353,6 @@ public class Mesh implements Savable, Cloneable {
      */
     public void prepareForAnim(boolean forSoftwareAnim){
         if (forSoftwareAnim) {
-            // convert indices to ubytes on the heap
-            VertexBuffer indices = getBuffer(Type.BoneIndex);
-            if (!indices.getData().hasArray()) {
-                ByteBuffer originalIndex = (ByteBuffer) indices.getData();
-                ByteBuffer arrayIndex = ByteBuffer.allocate(originalIndex.capacity());
-                originalIndex.clear();
-                arrayIndex.put(originalIndex);
-                indices.updateData(arrayIndex);
-            }
-            indices.setUsage(Usage.CpuOnly);
-
-            // convert weights on the heap
-            VertexBuffer weights = getBuffer(Type.BoneWeight);
-            if (!weights.getData().hasArray()) {
-                FloatBuffer originalWeight = (FloatBuffer) weights.getData();
-                FloatBuffer arrayWeight = FloatBuffer.allocate(originalWeight.capacity());
-                originalWeight.clear();
-                arrayWeight.put(originalWeight);
-                weights.updateData(arrayWeight);
-            }
-            weights.setUsage(Usage.CpuOnly);
-            
             // position, normal, and tanget buffers to be in "Stream" mode
             VertexBuffer positions = getBuffer(Type.Position);
             VertexBuffer normals = getBuffer(Type.Normal);
@@ -387,25 +365,27 @@ public class Mesh implements Savable, Cloneable {
                 tangents.setUsage(Usage.Stream);
             }
         } else {
-            VertexBuffer indices = getBuffer(Type.BoneIndex);
-            if (!indices.getData().isDirect()) {
+            //if HWBoneIndex and HWBoneWieght are empty, we setup them as direct
+            //buffers with software anim buffers data 
+            VertexBuffer indicesHW = getBuffer(Type.HWBoneIndex);
+            if(indicesHW.getData() == null){
+                VertexBuffer indices = getBuffer(Type.BoneIndex);
                 ByteBuffer originalIndex = (ByteBuffer) indices.getData();
                 ByteBuffer directIndex = BufferUtils.createByteBuffer(originalIndex.capacity());
                 originalIndex.clear();
                 directIndex.put(originalIndex);
-                indices.updateData(directIndex);
+                indicesHW.setupData(Usage.Static, indices.getNumComponents(), indices.getFormat(), directIndex);
             }
-            indices.setUsage(Usage.Static);
             
-            VertexBuffer weights = getBuffer(Type.BoneWeight);
-            if (!weights.getData().isDirect()) {
+            VertexBuffer weightsHW = getBuffer(Type.HWBoneWeight);
+             if(weightsHW.getData() == null){
+                VertexBuffer weights = getBuffer(Type.BoneWeight);
                 FloatBuffer originalWeight = (FloatBuffer) weights.getData();
                 FloatBuffer directWeight = BufferUtils.createFloatBuffer(originalWeight.capacity());
                 originalWeight.clear();
                 directWeight.put(originalWeight);
-                weights.updateData(directWeight);
-            }
-            weights.setUsage(Usage.Static);
+                weightsHW.setupData(Usage.Static, weights.getNumComponents(), weights.getFormat(), directWeight);       
+            }           
             
             // position, normal, and tanget buffers to be in "Static" mode
             VertexBuffer positions = getBuffer(Type.Position);

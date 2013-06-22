@@ -200,6 +200,8 @@ import com.jme3.util.BufferUtils;
                     mesh.setBuffer(buffers[0]);
                     mesh.setBuffer(buffers[1]);
 
+                    //FIXME @Kaelthas this should be replaced by a call to 
+                    //mesh.generateBindPos(true)
                     VertexBuffer bindNormalBuffer = meshContext.getBindNormalBuffer(materialIndex);
                     if (bindNormalBuffer != null) {
                         mesh.setBuffer(bindNormalBuffer);
@@ -212,6 +214,14 @@ import com.jme3.util.BufferUtils;
                     // Static to Stream
                     mesh.getBuffer(Type.Position).setUsage(Usage.Stream);
                     mesh.getBuffer(Type.Normal).setUsage(Usage.Stream);
+                    
+                    
+                    //creating empty buffers for HW skinning 
+                    //the buffers will be setup if ever used.
+                    VertexBuffer verticesWeightsHW = new VertexBuffer(Type.HWBoneWeight);
+                    VertexBuffer verticesWeightsIndicesHW = new VertexBuffer(Type.HWBoneIndex);
+                    mesh.setBuffer(verticesWeightsHW);
+                    mesh.setBuffer(verticesWeightsIndicesHW);
                 }
             } catch (BlenderFileException e) {
                 LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
