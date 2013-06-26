@@ -145,12 +145,9 @@ public class HelloTerrainCollision extends SimpleApplication
     terrain.addControl(control);
     
     /** 6. Add physics: */ 
-    // We set up collision detection for the scene by creating a
-    // compound collision shape and a static RigidBodyControl with mass zero.*/
-    CollisionShape terrainShape =
-            CollisionShapeFactory.createMeshShape((Node) terrain);
-    landscape = new RigidBodyControl(terrainShape, 0);
-    terrain.addControl(landscape);
+    /* We set up collision detection for the scene by creating a static 
+     * RigidBodyControl with mass zero.*/
+    terrain.addControl(new RigidBodyControl(0));
     
     // We set up collision detection for the player by creating
     // a capsule collision shape and a CharacterControl.
