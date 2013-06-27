@@ -35,6 +35,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
 import com.jme3.scene.*;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
@@ -442,14 +443,14 @@ public class TangentBinormalGenerator {
     {
         ArrayList<VertexInfo> vertexMap = linkVertices(mesh);
         
-        FloatBuffer normalBuffer = (FloatBuffer) mesh.getBuffer(Type.Normal).getData();
+       // FloatBuffer normalBuffer = (FloatBuffer) mesh.getBuffer(Type.Normal).getData();
         
         FloatBuffer tangents = BufferUtils.createFloatBuffer(vertices.length * 4);
 //        FloatBuffer binormals = BufferUtils.createFloatBuffer(vertices.length * 3);
 
         Vector3f tangent = new Vector3f();
         Vector3f binormal = new Vector3f();
-        Vector3f normal = new Vector3f();
+        //Vector3f normal = new Vector3f();
         Vector3f givenNormal = new Vector3f();
         
         Vector3f tangentUnit = new Vector3f();
@@ -509,24 +510,24 @@ public class TangentBinormalGenerator {
                 ArrayList<TriangleData> triangles = vertices[i].triangles;
                 triangleCount += triangles.size();
                 
-                boolean flippedNormal = false;
+          //      boolean flippedNormal = false;
                 for (int j = 0; j < triangles.size(); j++) {
                     TriangleData triangleData = triangles.get(j);
                     tangent.addLocal(triangleData.tangent);
                     binormal.addLocal(triangleData.binormal);
 
-                    if (givenNormal.dot(triangleData.normal) < 0) {
-                        flippedNormal = true;
-                    }
+//                    if (givenNormal.dot(triangleData.normal) < 0) {
+//                        flippedNormal = true;
+//                    }
                 }
-                if (flippedNormal /*&& approxTangent*/) {
-                    // Generated normal is flipped for this vertex,
-                    // so binormal = normal.cross(tangent) will be flipped in the shader
-    //                log.log(Level.WARNING,
-    //                        "Binormal is flipped for vertex {0}.", i);
-
-                    wCoord = 1;
-                }
+//                if (flippedNormal /*&& approxTangent*/) {
+//                    // Generated normal is flipped for this vertex,
+//                    // so binormal = normal.cross(tangent) will be flipped in the shader
+//    //                log.log(Level.WARNING,
+//    //                        "Binormal is flipped for vertex {0}.", i);
+//
+//                    wCoord = 1;
+//                }
             }
 
             
@@ -587,19 +588,20 @@ public class TangentBinormalGenerator {
                 }
             }
             
+            Vector3f finalTangent = new Vector3f();
+            Vector3f tmp = new Vector3f();
             for (int i : vertexInfo.indices) {
                 if (approxTangent) {
-                    // This calculation ensures that normal and tagent have a 90 degree angle.
-                    // Removing this will lead to visual artifacts.
-                    givenNormal.cross(tangent, binormal);
-                    binormal.cross(givenNormal, tangent);
+                    // Gram-Schmidt orthogonalize
+                    finalTangent.set(tangent).subtractLocal(tmp.set(givenNormal).multLocal(givenNormal.dot(tangent)));                    
+                    finalTangent.normalizeLocal();
+                    
+                    wCoord = tmp.set(givenNormal).crossLocal(tangent).dot(binormal) <0f? -1f:1f;
 
-                    tangent.normalizeLocal();
-
-                    tangents.put((i * 4), tangent.x);
-                    tangents.put((i * 4) + 1, tangent.y);
-                    tangents.put((i * 4) + 2, tangent.z);
-                    tangents.put((i * 4) + 3, wCoord);
+                    tangents.put((i * 4), finalTangent.x);
+                    tangents.put((i * 4) + 1, finalTangent.y);
+                    tangents.put((i * 4) + 2, finalTangent.z);
+                    tangents.put((i * 4) + 3, wCoord);  
                 } else {
                     tangents.put((i * 4), tangent.x);
                     tangents.put((i * 4) + 1, tangent.y);
