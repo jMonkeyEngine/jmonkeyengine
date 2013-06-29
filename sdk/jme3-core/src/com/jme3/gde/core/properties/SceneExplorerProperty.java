@@ -124,7 +124,7 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
             di.setEditor(valueType, this);
         }
         //TODO: instantiates editor?
-        editable = getPropertyEditor() != null;
+        editable = this.canWrite();
         logger.log(Level.FINE, "Created SceneExplorerProperty for {0},\n cloneable = {1},\n instantiatable = {2},\n primitive = {3},\n editable = {4}", new Object[]{valueType, cloneable, instantiable, primitive, editable});
         addPropertyChangeListener(listener);
     }
@@ -134,9 +134,6 @@ public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
      * thread.
      */
     public void syncValue() {
-        if (!editable) {
-            return;
-        }
         final T realValue = getSuperValue();
         mutex.readAccess(new Runnable() {
             public void run() {
