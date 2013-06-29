@@ -33,10 +33,12 @@ package com.jme3.gde.core.appstates;
 
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.ScenePropertyChangeListener;
 import com.jme3.gde.core.scene.SceneSyncListener;
 import com.jme3.gde.core.util.PropertyUtils;
+import java.awt.Image;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -71,16 +73,16 @@ public class AppStateNode extends AbstractNode implements ScenePropertyChangeLis
 //        setIconBaseWithExtension(ICON_ENABLED);
     }
 
-//    @Override
-//    public Image getIcon(int type) {
-//        return icon;
-//
-//    }
-//
-//    @Override
-//    public Image getOpenedIcon(int type) {
-//        return icon;
-//    }
+    @Override
+    public Image getIcon(int type) {
+        return IconList.wheel.getImage();
+
+    }
+
+    @Override
+    public Image getOpenedIcon(int type) {
+        return IconList.wheel.getImage();
+    }
 //
 //    public void toggleIcon(boolean enabled) {
 //        if (enabled) {
