@@ -67,6 +67,12 @@ import org.openide.util.EditableProperties;
  * @author Jiri Skrivanek
  */
 final class CopyFiles extends Object {
+    
+    //>>> hack for http://netbeans.org/bugzilla/show_bug.cgi?id=218976
+    private static final String CSSSP = "config/Editors/text/";
+    private static final String ORIG_CSSSP = CSSSP + "x-css";
+    private static final String TARG_CSSSP = CSSSP + "css";
+    //<<<eof
 
     private File sourceRoot;
     private File targetRoot;
@@ -186,6 +192,10 @@ final class CopyFiles extends Object {
             // nothing matches
             return;
         }
+        
+        //>>> hack for http://netbeans.org/bugzilla/show_bug.cgi?id=218976
+        if(relativePath.startsWith(ORIG_CSSSP)) { relativePath = TARG_CSSSP + relativePath.substring(ORIG_CSSSP.length()); } 
+        //<<<
 
         File targetFile = new File(targetRoot, relativePath);
         LOGGER.log(Level.FINE, "Path: {0}", relativePath);  //NOI18N

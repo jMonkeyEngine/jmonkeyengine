@@ -49,7 +49,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -61,7 +60,6 @@ import org.openide.filesystems.LocalFileSystem;
 import org.openide.filesystems.MultiFileSystem;
 import org.openide.filesystems.XMLFileSystem;
 import org.openide.modules.InstalledFileLocator;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.xml.sax.SAXException;
@@ -114,14 +112,13 @@ public final class AutoUpgrade {
 
     // the order of VERSION_TO_CHECK here defines the precedence of imports
     // the first one will be choosen for import
-    //normen
     final static private List<String> VERSION_TO_CHECK = 
-            Arrays.asList (new String[] {".jmonkeyplatform/3.0Beta", ".jmonkeyplatform/3.0RC2" });//".netbeans/7.1.2",  ".netbeans/7.1.1", ".netbeans/7.1", ".netbeans/7.0", ".netbeans/6.9" });//NOI18N
+            Arrays.asList (new String[] {".jmonkeyplatform/3.0Beta", ".jmonkeyplatform/3.0RC2", ".jmonkeyplatform/3.0RC3" });//".netbeans/7.1.2",  ".netbeans/7.1.1", ".netbeans/7.1", ".netbeans/7.0", ".netbeans/6.9" });//NOI18N
 //            Arrays.asList (new String[] {"build/3.0RC2",  ".netbeans/7.1.1", ".netbeans/7.1", ".netbeans/7.0", ".netbeans/6.9" });//NOI18N
     
     // userdir on OS specific root of userdir (see issue 196075)
     static final List<String> NEWER_VERSION_TO_CHECK =
-            Arrays.asList ("3.0RC2", "3.0Beta"/*7.2, ..."*/); //NOI18N
+            Arrays.asList ("3.0RC3", "3.0RC2", "3.0Beta"/*7.2, ..."*/); //NOI18N
 
             
     private static File checkPreviousOnOsSpecificPlace (final List<String> versionsToCheck) {
@@ -140,7 +137,6 @@ public final class AutoUpgrade {
             File userHomeFile = new File (defaultUserdirRoot);
             for (String ver : versionsToCheck) {
                 sourceFolder = new File (userHomeFile.getAbsolutePath (), ver);
-                LOGGER.log(Level.INFO, "Look for {0} ", userHomeFile);
                 if (sourceFolder.exists () && sourceFolder.isDirectory ()) {
                     return sourceFolder;
                 }
@@ -160,7 +156,7 @@ public final class AutoUpgrade {
             while (it.hasNext () && sourceFolder == null) {
                 ver = it.next ();
                 sourceFolder = new File (userHomeFile.getAbsolutePath (), ver);
-                LOGGER.log(Level.INFO, "Look for previous {0} ", userHomeFile);
+                
                 if (sourceFolder.isDirectory ()) {
                     break;
                 }
@@ -307,6 +303,7 @@ public final class AutoUpgrade {
     private static void copyToUserdir(File source) throws IOException, PropertyVetoException {
         File userdir = new File(System.getProperty("netbeans.user", "")); // NOI18N
         File netBeansDir = InstalledFileLocator.getDefault().locate("modules", null, false).getParentFile().getParentFile();  //NOI18N
+        //normen
         File importFile = new File(netBeansDir, "etc/jmonkeyplatform.import");  //NOI18N
         LOGGER.fine("Import file: " + importFile);
         LOGGER.info("Importing from " + source + " to " + userdir); // NOI18N

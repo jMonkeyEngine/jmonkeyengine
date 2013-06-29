@@ -63,7 +63,6 @@ import javax.swing.KeyStroke;
 import org.netbeans.util.Util;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-
 /**
  * Displays LicensePanel to user. User must accept license to continue. 
  * if user does not accept license UserCancelException is thrown.
