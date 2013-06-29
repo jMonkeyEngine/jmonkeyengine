@@ -282,7 +282,7 @@ To make a Geometry transparent or translucent:
 <li><div> (For colored Materials) In any RGBA color, the first three are Red-Green-Blue, and the last float is the Alpha channel. For example, to replace ColorRGBA.Red with a translucent red: <pre>mat.setColor&#40;&quot;Color&quot;, new ColorRGBA&#40;1,0,0,0.5f&#41;&#41;;</pre>
 </div>
 </li>
-<li><div> (For textured Materials) Supply an AlphaMap that outlines which areas are transparent. <pre>setTexture&#40;&quot;AlphaMap&quot;, assetManager.loadTexture&#40;&quot;Textures/window_alpha.png&quot;&#41;&#41;;</pre>
+<li><div> (For textured Materials) Supply an AlphaMap that outlines which areas are transparent. <pre>mat.setTexture&#40;&quot;AlphaMap&quot;, assetManager.loadTexture&#40;&quot;Textures/window_alpha.png&quot;&#41;&#41;;</pre>
 </div>
 </li>
 <li><div> (For textured Materials) If the DiffuseMap has an alpha channel, use: <pre>mat.setBoolean&#40;&quot;UseAlpha&quot;,true&#41;;</pre>
@@ -326,7 +326,7 @@ getAdditionalRenderState().setAlphaFallOff(0.5f);</td><td>Enables Alpha Testing 
 Deactivate Alpha Testing for gradually <strong>translucent</strong> objects, such as colored glass, smoked glass, ghosts.</td>
 	</tr>
 </table></div>
-<!-- EDIT10 TABLE [10065-11453] -->
+<!-- EDIT10 TABLE [10069-11457] -->
 <p>
 
 <p><div>It is possible to load a DiffuseMap texture that has an Alpha channel, and combine it with an underlying Material Color. 
@@ -339,7 +339,7 @@ Deactivate Alpha Testing for gradually <strong>translucent</strong> objects, suc
 </p>
 
 </div>
-<!-- EDIT9 SECTION "(Optional) Transparent" [8445-12092] -->
+<!-- EDIT9 SECTION "(Optional) Transparent" [8445-12096] -->
 <h2><a>(Optional) Wireframe</a></h2>
 <div>
 
@@ -356,7 +356,7 @@ Additionally to the above settings, you can switch off and on a wireframe render
 		<td>getAdditionalRenderState().setWireframe(true);</td><td>Switch to showing the (textured) Material in wireframe mode. The wireframe optionally uses the Material&#039;s <code>Color</code> value.</td><td>Use wireframes to debug meshes, or for a &quot;matrix&quot; or &quot;holodeck&quot; effect.</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [12307-12592] --><div><span>
+<!-- EDIT12 TABLE [12311-12596] --><div><span>
 	<a href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>,
 	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>,
 	<a href="/wiki/doku.php/tag:effect?do=showtag&amp;tag=tag%3Aeffect">effect</a>,
@@ -366,5 +366,5 @@ Additionally to the above settings, you can switch off and on a wireframe render
 </span></div>
 
 </div>
-<!-- EDIT11 SECTION "(Optional) Wireframe" [12093-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:how_to_use_materials?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT11 SECTION "(Optional) Wireframe" [12097-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:intermediate:how_to_use_materials?do=export_xhtmlbody">view online version</a></em></p>

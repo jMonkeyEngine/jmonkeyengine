@@ -210,9 +210,16 @@ Note that whenever you modify the height of the terrain, you should re-generate 
 <div>
 
 <p>
-When you want to load a scene into your game that has terrain, you have to set the camera on the LOD control in order for it to work correctly:
-
+There are a few things your code needs to do to load the terrain.
 </p>
+<ul>
+<li><div> You must first use the asset manager to load the scene, see the <a href="/com/jme3/gde/docs/jme3/beginner/hello_asset.html">hello asset tutorial</a>.</div>
+</li>
+<li><div> The terrain (as you can see on the left in the editor) is a sub-node of the scene, so you have to write code to investigate the child nodes of the scene until you find the node that is the terrain, see <a href="/com/jme3/gde/docs/jme3/the_scene_graph.html">this tutorial for scene graph concepts</a>.</div>
+</li>
+<li><div> You also have to set the camera on the LOD control in order for it to work correctly:</div>
+</li>
+</ul>
 <pre>TerrainLodControl lodControl = &#40;&#40;Node&#41;terrain&#41;.getControl&#40;TerrainLodControl.class&#41;;
             if &#40;lodControl != null&#41;
                 lodControl.setCamera&#40;getCamera&#40;&#41;&#41;;</pre>
@@ -227,4 +234,4 @@ When you want to load a scene into your game that has terrain, you have to set t
 
 </div>
 <!-- EDIT17 SECTION "Loading Terrain Into Your Game" [6564-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:terrain_editor?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:terrain_editor?do=export_xhtmlbody">view online version</a></em></p>

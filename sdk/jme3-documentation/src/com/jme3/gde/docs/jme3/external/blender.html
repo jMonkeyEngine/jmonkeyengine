@@ -8,7 +8,7 @@ This section discusses how to create and import models from Blender3D (2.62+, se
 
 </div>
 <!-- EDIT1 SECTION "Creating assets in Blender3D" [1-320] -->
-<h2><a>Asset Management</a></h2>
+<h3><a>Asset Management</a></h3>
 <div>
 
 <p>
@@ -16,43 +16,43 @@ For the managing of assets in general, be sure to read the <a href="/com/jme3/gd
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Asset Management" [321-553] -->
-<h1><a>Creating Models</a></h1>
+<!-- EDIT2 SECTION "Asset Management" [321-551] -->
+<h3><a>Creating Models</a></h3>
 <div>
 
 <p>
 Game-compatible models are models that basically only consist of a mesh and UV-mapped textures, in some cases animations. All other material parameters or effects (like particles etc.) can not be expected to be transferred properly and probably would not translate to live rendering very well anyway.
 </p>
 
-<p>
-Note that BMeshes are not yet supported by the importers and exporters so please use the &quot;legacy mesh format&quot; for now in blender 2.63+
-</p>
-
 </div>
-<!-- EDIT3 SECTION "Creating Models" [554-1021] -->
+<!-- EDIT3 SECTION "Creating Models" [552-879] -->
 <h2><a>UV Mapped Textures</a></h2>
 <div>
 
 <p>
 To successfully import a texture, the texture <strong>has to</strong> be UV-mapped to the model. Heres how to assign diffuse, normal and specular maps:
+
 </p>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-material-4.png"> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-material-3.png"></div>
+</li>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-material-2.png"> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-material-1.png"></div>
+</li>
+</ul>
 
 <p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-material-4.png">
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-material-3.png">
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-material-2.png">
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender-material-1.png">
-</p>
 
-<p>
 Its important to note that each used texture will create one separate geometry. So its best to either combine the UV maps or use a premade atlas with different texture types from the start and then map the uv coords of the models to the atlas instead of painting on the texture. This works best for large models like cities and space ships.
-
 </p>
 
 </div>
-<!-- EDIT4 SECTION "UV Mapped Textures" [1022-1722] -->
+<!-- EDIT4 SECTION "UV Mapped Textures" [880-1593] -->
 <h2><a>Animations</a></h2>
 <div>
+
+<p>
+Animations for jME3 have to be bone animations, simple object movement is supported by the blender importer, mesh deformation or other forms of animation are not supported.
+</p>
 
 <p>
 To create an animation from scratch do the following:
@@ -118,10 +118,16 @@ To create an animation from scratch do the following:
 </li>
 <li><div> Each action will be an animation available via the animation control in jME after the import</div>
 </li>
+<li><div> <strong>Press the &quot;F&quot; button next to the action so it will be saved even if theres no references</strong></div>
+<ul>
+<li><div> The animation would else be deleted if its not the active animation on the armature and the file is saved</div>
+</li>
+</ul>
+</li>
 </ul>
 
 </div>
-<!-- EDIT5 SECTION "Animations" [1723-3497] -->
+<!-- EDIT5 SECTION "Animations" [1594-3751] -->
 <h3><a>Model Checklist</a></h3>
 <div>
 
@@ -133,35 +139,45 @@ Sometimes you do not create the model yourself and often times models from the w
 To export an animated model in Blender make sure the following conditions are met:
 
 </p>
-<ol>
+<ul>
 <li><div> The animation has to be a <strong>bone animation</strong></div>
 </li>
 <li><div> Apply Location, Rotation and Scale to the mesh on Blender: On 3D View editor on Blender, select the mesh in Object Mode and go to the 3D View Editor???s header ??? Object Menu ??? Apply ??? Location / Rotation / Scale.</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_apply_mesh.png"></div>
+</li>
+</ul>
 </li>
 <li><div> Apply Location, Rotation and Scale to the armature on Blender: On 3D View editor on Blender, select the armature in Object Mode and go to the 3D View Editor???s header ??? Object Menu ??? Apply ??? Location / Rotation / Scale.</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_apply_bones.png"></div>
 </li>
-<li><div> Set the mesh???s origin point in the bottom of the mesh (see the images below).</div>
+</ul>
 </li>
-<li><div> Set the armature???s origin point in the bottom of the armature (see the images below).</div>
+<li><div> Set the mesh???s origin point in the bottom of the mesh (see the image below).</div>
 </li>
-<li><div> Armature???s origin point and mesh???s origin point must be in the same location(see the images below).</div>
+<li><div> Set the armature???s origin point in the bottom of the armature (see the image below).</div>
 </li>
-<li><div> Use a root bone located in the armature???s origin. This root bone must be in vertical position (see the images below) and it is the root bone of the armature. If you rotate the root bone, the the entire armature might be rotate when you import the model into jMonkey (I???m just mentioning the result, I don???t know where is the problem (jMonkey importer or blender???s ogre exporter plugin)).</div>
+<li><div> Armature???s origin point and mesh???s origin point must be in the same location(see the image below).</div>
 </li>
-<li><div> Uncheck ???Bone Envelopes??? checkbox on the Armature modifier for the mesh (see the images below).</div>
+<li><div> Use a root bone located in the armature???s origin. This root bone must be in vertical position (see the image below) and it is the root bone of the armature. If you rotate the root bone, the the entire armature might be rotate when you import the model into jMonkey (I???m just mentioning the result, I don???t know where is the problem (jMonkey importer or blender???s ogre exporter plugin)).</div>
 </li>
-<li><div> Uncheck ???Envelopes??? checkbox on the armature (see the images below).</div>
+<li><div> Uncheck ???Bone Envelopes??? checkbox on the Armature modifier for the mesh (see the image below).</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_envelopes.png"></div>
 </li>
-</ol>
+</ul>
+</li>
+<li><div> Uncheck ???Envelopes??? checkbox on the armature (see the image below).</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_rootbone.png"></div>
+</li>
+</ul>
+</li>
+</ul>
 
 <p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_apply_mesh.png">
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_apply_bones.png">
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_envelopes.png">
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_rootbone.png">
-</p>
 
-<p>
 You can use SkeletonDebugger to show the skeleton on your game in order to check if the mesh and the skeleton are loaded correctly:
 
 </p>
@@ -185,13 +201,13 @@ You can use SkeletonDebugger to show the skeleton on your game in order to check
     mat.getAdditionalRenderState&#40;&#41;.setDepthTest&#40;false&#41;;
     skeletonDebug.setMaterial&#40;mat&#41;;
     soldier2Node.attachChild&#40;skeletonDebug&#41;;</pre>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_finished.png"></div>
+</li>
+</ul>
 
 <p>
 
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/blender_finished.png">
-</p>
-
-<p>
 Also check out these videos and resources:
 
 </p>
@@ -205,8 +221,8 @@ Also check out these videos and resources:
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Model Checklist" [3498-7032] -->
-<h1><a>NormalMap baking</a></h1>
+<!-- EDIT6 SECTION "Model Checklist" [3752-7310] -->
+<h2><a>NormalMap baking</a></h2>
 <div>
 
 <p>
@@ -215,66 +231,60 @@ Models for live rendering should have a low polygon count. To increase the perce
 </p>
 
 </div>
-<!-- EDIT7 SECTION "NormalMap baking" [7033-7364] -->
-<h2><a>Blender modeling lowPoly &amp; highPoly</a></h2>
+<!-- EDIT7 SECTION "NormalMap baking" [7311-7639] -->
+<h3><a>Blender modeling lowPoly &amp; highPoly</a></h3>
 <div>
+<ul>
+<li><div> If you use the multiresolution modifier you only need one object. Lets look at this example:</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/1.gif"></div>
+</li>
+</ul>
+</li>
+<li><div> Add a multiresolution modifier:</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/3.1.gif"></div>
+</li>
+</ul>
+</li>
+<li><div> There are two types of modifiers: Catmull-Clark and Simple. </div>
+<ul>
+<li><div> Simple is better for things like walls or floors.</div>
+</li>
+<li><div> Catmull-Clark is better for objects like spheres.</div>
+</li>
+</ul>
+</li>
+<li><div> When using Catmull-Clark with a higher &quot;subdivide&quot; value (more than 3) its good to have the &quot;preview&quot; value above 0 and less than the subdivide level. This is because Catmull-Clark smoothes the vertices, so the normalMap is not so precise.</div>
+</li>
+<li><div> Here is an example of Prewiew 1, it&#039;s more smooth than the original mesh:</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/2.gif"></div>
+</li>
+</ul>
+</li>
+<li><div> Enable &quot;Sculpt Mode&quot; in blender and design the highPoly version of your model like here:</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/3.gif"></div>
+</li>
+</ul>
+</li>
+<li><div> Now go into Render Tab, and bake a normalMap using same configuration as here:</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/4.gif"></div>
+</li>
+</ul>
+</li>
+</ul>
 
 <p>
-
-If you use the multiresolution modifier you only need one object. Lets look at this example:
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/1.gif">
-</p>
-
-<p>
-Add a multiresolution modifier:
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3.1.gif">
-</p>
-
-<p>
-There are two types of modifiers: Catmull-Clark and Simple. 
-- Simple is better for things like walls or floors.
-- Catmull-Clark is better for objects like spheres.
-</p>
-
-<p>
-When using Catmull-Clark with a higher &quot;subdivide&quot; value (more than 3) its good to have the &quot;preview&quot; value above 0 and less than the subdivide level. This is because Catmull-Clark smoothes the vertices, so the normalMap is not so precise.
-</p>
-
-<p>
-Here is an example of Prewiew 1, it&#039;s more smooth than the original mesh:
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/2.gif">
-</p>
-
-<p>
-Enable &quot;Sculpt Mode&quot; in blender and design the highPoly version of your model like here:
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3.gif">
-</p>
-
-<p>
-Now go into Render Tab, and bake a normalMap using same configuration as here:
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/4.gif">
 <p><div>Remember! The actual preview affects the baking output and mesh export!
 </div></p>
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Blender modeling lowPoly & highPoly" [7365-8434] -->
-<h2><a>Fixing the normal colors in Blender</a></h2>
+<!-- EDIT8 SECTION "Blender modeling lowPoly & highPoly" [7640-8762] -->
+<h3><a>Fixing the normal colors in Blender</a></h3>
 <div>
 
 <p>
@@ -284,46 +294,42 @@ Blender has its own normal colors standard. We need to fix the colors to prepare
 
 <p>
 To do this, go to the Blender Node Window
-</p>
 
-<p>
-Here is Blender Node example. It fixes the normal colors:
 </p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/5.gif">
-</p>
-
-<p>
-Here is the colors configuration:
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/6.gif">
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/7.gif">
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/8.gif">
-</p>
-
-<p>
-<p><div>Sometimes it will be needed to change R and G scale and add some blur for better effect. Do it like on image below
-</div></p>
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/exception2.gif">
-</p>
-
-<p>
-After rendering, save the file to a destination you want and use it with the JME Lighting Material and the lowpoly version of the model.
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/ready_normal.gif">
-</p>
+<ul>
+<li><div> Here is Blender Node example. It fixes the normal colors:</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/5.gif"></div>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><div> Here is the colors configuration:</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/6.gif"> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/7.gif"> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/8.gif"></div>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><div> Sometimes it will be needed to change R and G scale and add some blur for better effect. Do it like on image below</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/exception2.gif"></div>
+</li>
+</ul>
+</li>
+<li><div> After rendering, save the file to a destination you want and use it with the JME Lighting Material and the lowpoly version of the model.</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/ready_normal.gif"></div>
+</li>
+</ul>
+</li>
+</ul>
 
 </div>
-<!-- EDIT9 SECTION "Fixing the normal colors in Blender" [8435-9228] -->
-<h1><a>LightMap baking</a></h1>
+<!-- EDIT9 SECTION "Fixing the normal colors in Blender" [8763-9572] -->
+<h2><a>LightMap baking</a></h2>
 <div>
 
 <p>
@@ -332,98 +338,111 @@ The goal of this tutorial is to explain briefly how to bake light map in blender
 </p>
 
 </div>
-<!-- EDIT10 SECTION "LightMap baking" [9229-9432] -->
-<h2><a>Blender modeling + texturing</a></h2>
+<!-- EDIT10 SECTION "LightMap baking" [9573-9774] -->
+<h3><a>Blender modeling + texturing</a></h3>
 <div>
-
-<p>
-create a mesh in blender and unwrap it to create uvs
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/1.jpg">
-</p>
-
-<p>
-In the mesh tab you can see the sets of Uvs, it will create the first one.<br/>
-
-You can assign w/e texture on it, i used the built in checker of blender for the example.<br/>
-
-Then in this list, create a new one and click on the camera icon so that baking is made with this set. Name it LightUvMap.<br/>
-
-Then in the 3D view in edit mode select all your mesh vertice and hit &#039;U&#039;/LightMap pack then ok it will unfold the mesh for light map.<br/>
-
-Then create a new image, go to the render tab an all at the end check the &quot;Bake&quot; section and select shadows. Then click bake.<br/>
-
-If all went ok it will create a light map like this.<br/>
-
-<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/2.jpg">
-</p>
-
-<p>
-Then go to the material tab, create a new one for your model and go to the Texture Tab.<br/>
-
-Create 2 textures one for the color map, and one for the light map.<br/>
-
-In the Mapping section be sure to select coordinates : UV and select the good set of coordinates.<br/>
-
-<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/3.jpg">
-</p>
-
-<p>
-
-then the light map<br/>
-
-<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/4.jpg">
-</p>
+<ul>
+<li><div> create a mesh in blender and unwrap it to create uvs</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/1.jpg"></div>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><div> In the mesh tab you can see the sets of Uvs, it will create the first one.</div>
+<ul>
+<li><div> You can assign w/e texture on it, i used the built in checker of blender for the example.</div>
+</li>
+</ul>
+</li>
+<li><div> In this list, create a new one and click on the camera icon so that baking is made with this set. Name it LightUvMap.</div>
+</li>
+<li><div> In the 3D view in edit mode select all your mesh vertice and hit &#039;U&#039;/LightMap pack then ok it will unfold the mesh for light map.</div>
+</li>
+<li><div> Create a new image, go to the render tab an all at the end check the &quot;Bake&quot; section and select shadows. Then click bake.</div>
+</li>
+<li><div> If all went ok it will create a light map like this.</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/2.jpg"></div>
+</li>
+</ul>
+</li>
+<li><div> Go to the material tab, create a new one for your model and go to the Texture Tab.</div>
+</li>
+<li><div> Create 2 textures one for the color map, and one for the light map.</div>
+</li>
+<li><div> In the Mapping section be sure to select coordinates : UV and select the good set of coordinates.</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/3.jpg"></div>
+</li>
+</ul>
+</li>
+<li><div> Then the light map</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/4.jpg"></div>
+</li>
+</ul>
+</li>
+</ul>
 
 </div>
-<!-- EDIT11 SECTION "Blender modeling + texturing" [9433-10544] -->
-<h2><a>Importing the model in the SDK and creating the appropriate material</a></h2>
+<!-- EDIT11 SECTION "Blender modeling + texturing" [9775-10909] -->
+<h3><a>Importing the model in the SDK and creating the appropriate material</a></h3>
 <div>
 
 <p>
-Once this is done, export your model with the ogre exporter, and turn it into J3o with the <acronym title="Software Development Kit">SDK</acronym>. <br/>
+Once this is done, export your model with the ogre exporter (or import it directly via the blend importer), and turn it into J3o with the <acronym title="Software Development Kit">SDK</acronym>.
 
-Create material for it using the lighting definition.<br/>
+</p>
+<ul>
+<li><div> Create material for it using the lighting definition.</div>
+</li>
+<li><div> Add the colorMap in the diffuse map slot and the lightMap in the light map slot.</div>
+</li>
+<li><div> Make sure you check &quot;SeparateTexCoords&quot;</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/5.jpg"></div>
+</li>
+</ul>
+</li>
+<li><div> It should roughly result in something like that :</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/6.jpg"></div>
+</li>
+</ul>
+</li>
+</ul>
 
-Add the colorMap in the diffuse map slot and the lightMap in the light map slot.<br/>
+<p>
 
-Make sure you check &quot;SeparateTexCoords&quot;<br/>
-
-<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/5.jpg">
+The blend file, the ogre xml files and the textures can be found in the download section of the google code repo
 </p>
 
 <p>
-It should roughly result in something like that : <br/>
-
-<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/6.jpg">
-</p>
-
-<p>
-The blend file, the ogre xml files and the textures can be found in the download section of the google code repo<br/>
-
 <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/downloads/detail?name=LightMap.zip&amp;can=2&amp;q=#makechanges"><param name="text" value="<html><u>http://code.google.com/p/jmonkeyengine/downloads/detail?name=LightMap.zip&amp;can=2&amp;q=#makechanges</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Importing the model in the SDK and creating the appropriate material" [10545-11229] -->
-<h1><a>SkyBox baking</a></h1>
+<!-- EDIT12 SECTION "Importing the model in the SDK and creating the appropriate material" [10910-11654] -->
+<h2><a>SkyBox baking</a></h2>
 <div>
 
 <p>
-There are several ways to create static images to use for a sky in your game. This will describe the concepts used in blender and create an ugly sky <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)"/> Check the links below for other ways and prettier skies.
+There are several ways to create static images to use for a sky in your game. This will describe the concepts used in blender and create an ugly sky <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)" /> Check the links below for other ways and prettier skies.
 </p>
 
 <p>
 A sky box is a texture mapped cube, it can also, loosely, be called en EnvMap or a CubeMap. The camera is inside the cube and the clever thing that jME does is to draw the sky so it is always behind whatever else is in your scene. Imagine the monkey is the camera in the picture.
+
 </p>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/skybox-concept.png"></div>
+</li>
+</ul>
 
 <p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/skybox-concept.png">
-</p>
 
-<p>
 But a real sky is not a box around our heads, it is more like a sphere. So if we put any old image in the sky it will look strange and might even look like a box. This is not what we want. The trick is to distort the image so that it will <em>look</em> like a sphere even if it in fact is a picture pasted on a box. Luckily blender can do that tricky distortion for us.
 </p>
 
@@ -432,75 +451,72 @@ The screenshots are from Blender 2.63 but the equivalent operations have been in
 </p>
 
 <p>
-So let&#039;s get started, fire up blender and you&#039;ll see something like this.
+So let&#039;s get started
+
 </p>
+<ul>
+<li><div> Fire up blender and you&#039;ll see something like this.</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/start-screen2.png"></div>
+</li>
+</ul>
+</li>
+<li><div> The cube in the start scene is perfect for us. What we&#039;ll do is have Blender render the scene onto that cube. The resulting image is what we&#039;ll use for our sky box. So our jME sky will look like we stood inside the blender box and looked out on the scene in blender.</div>
+</li>
+<li><div> Start by selecting the box and set its material to shadeless.</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/shadeless.png"></div>
+</li>
+</ul>
+</li>
+<li><div> Now we will create a texture for the box. Make sure the texture is an <code>Environment Map</code>, that the <code>Viewpoint Object</code> is set to the cube. The resolution is how large the resulting image will be. More pixels makes the sky look better but comes at the cost of texture memory. You&#039;ll have to trim the resolution to what works in your application.</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/texture.png"></div>
+</li>
+</ul>
+</li>
+<li><div> Next up is the fun part, create the sky scene in blender. You can do whatever fits your application, include models for a city landscape, set up a texture mapped sphere in blender with a nice photographed sky, whatever you can think will make a good sky. I am not so creative so I created this scene:</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/scene.png"></div>
+</li>
+</ul>
+</li>
+<li><div> Now render the scene (press F12). It doesn&#039;t actually matter where the camera is in blender but you might see something similar to this:</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/render.png"></div>
+</li>
+</ul>
+</li>
+<li><div> You can see that Blender has actually drawn the scene onto the cube. This is exactly what we want. Now to save the image.</div>
+</li>
+<li><div> Select the texture of the cube and select save environment map.</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/saveenvmap.png"></div>
+</li>
+</ul>
+</li>
+<li><div> That is it for Blender. Open the saved image in some image editor (I use the Gimp from <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gimp.org"><param name="text" value="<html><u>http://www.gimp.org</u></html>"><param name="textColor" value="blue"></object> here).</div>
+</li>
+</ul>
 
 <p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/start-screen2.png">
-</p>
 
-<p>
-The cube in the start scene is perfect for us. What we&#039;ll do is have Blender render the scene onto that cube. The resulting image is what we&#039;ll use for our sky box. So our jME sky will look like we stood inside the blender box and looked out on the scene in blender.
-</p>
-
-<p>
-Start by selecting the box and set its material to shadeless.
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/shadeless.png">
-</p>
-
-<p>
-Now we will create a texture for the box. Make sure the texture is an <code>Environment Map</code>, that the <code>Viewpoint Object</code> is set to the cube. The resolution is how large the resulting image will be. More pixels makes the sky look better but comes at the cost of texture memory. You&#039;ll have to trim the resolution to what works in your application.
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/texture.png">
-</p>
-
-<p>
-Next up is the fun part, create the sky scene in blender. You can do whatever fits your application, include models for a city landscape, set up a texture mapped sphere in blender with a nice photographed sky, whatever you can think will make a good sky.
-I am not so creative so I created this scene:
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/scene.png">
-</p>
-
-<p>
-Now render the scene (press F12). It doesn&#039;t actually matter where the camera is in blender but you might see something similar to this:
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/render.png">
-</p>
-
-<p>
-You can see that Blender has actually drawn the scene onto the cube. This is exactly what we want. Now to save the image.
-</p>
-
-<p>
-Select the texture of the cube and select save environment map.
-</p>
-
-<p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/saveenvmap.png">
-</p>
-
-<p>
-That is it for Blender. Open the saved image in some image editor (I use the Gimp from <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gimp.org"><param name="text" value="<html><u>http://www.gimp.org</u></html>"><param name="textColor" value="blue"></object> here).
 <p><div>The <acronym title="Software Development Kit">SDK</acronym> also contains an image editor, right-click the image and select &quot;edit image&quot; to open it.
 </div></p>
-You will notice that Blender has taken the 6 sides of the cube and pasted together into one image (3x2). So now we need to cut it up again into 6 separate images. In gimp I usually set the guides to where I want to cut and then go into Filters???Web???Slice and let gimp cut it up for me.
+
 </p>
+<ul>
+<li><div> You will notice that Blender has taken the 6 sides of the cube and pasted together into one image (3x2). So now we need to cut it up again into 6 separate images. In gimp I usually set the guides to where I want to cut and then go into Filters???Web???Slice and let gimp cut it up for me.</div>
+<ul>
+<li><div> <img src="nbdocs:/com/jme3/gde/docs/jme3/external/post-slice.png"></div>
+</li>
+</ul>
+</li>
+<li><div> Next up is to move the image files into your assets directory and create the sky in jME. You can do that in the Scene Composer by right clicking the scene node, select <code>Add Spatial</code> and then select <code>Skybox</code>.</div>
+</li>
+</ul>
 
 <p>
-<img src="nbdocs:/com/jme3/gde/docs/jme3/external/post-slice.png">
-</p>
-
-<p>
-Next up is to move the image files into your assets directory and create the sky in jME. You can do that in the Scene Composer by right clicking the scene node, select <code>Add Spatial</code> and then select <code>Skybox</code>.
 If you want to do it from code, here is an example:
 </p>
 <pre>public void simpleInitApp&#40;&#41; &#123;
@@ -532,7 +548,7 @@ If you want to do it from code, here is an example:
 </p>
 
 </div>
-<!-- EDIT13 SECTION "SkyBox baking" [11230-15837] -->
+<!-- EDIT13 SECTION "SkyBox baking" [11655-16338] -->
 <h3><a>Further reading</a></h3>
 <div>
 <ul>
@@ -543,5 +559,5 @@ If you want to do it from code, here is an example:
 </ul>
 
 </div>
-<!-- EDIT14 SECTION "Further reading" [15838-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:external:blender?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT14 SECTION "Further reading" [16339-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:external:blender?do=export_xhtmlbody">view online version</a></em></p>

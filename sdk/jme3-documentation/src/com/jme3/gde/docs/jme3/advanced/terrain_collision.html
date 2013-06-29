@@ -127,12 +127,9 @@ public class HelloTerrainCollision extends SimpleApplication
     terrain.addControl&#40;control&#41;;
 &nbsp;
     /** 6. Add physics: */ 
-    // We set up collision detection for the scene by creating a
-    // compound collision shape and a static RigidBodyControl with mass zero.*/
-    CollisionShape terrainShape =
-            CollisionShapeFactory.createMeshShape&#40;&#40;Node&#41; terrain&#41;;
-    landscape = new RigidBodyControl&#40;terrainShape, 0&#41;;
-    terrain.addControl&#40;landscape&#41;;
+    // We set up collision detection for the scene by creating a static 
+    RigidBodyControl with mass zero.*/
+    terrain.addControl&#40;new RigidBodyControl&#40;0&#41;&#41;;
 &nbsp;
     // We set up collision detection for the player by creating
     // a capsule collision shape and a CharacterControl.
@@ -213,12 +210,12 @@ Compile and run the code. You should see a terrain. You can use the WASD keys an
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [402-8791] -->
+<!-- EDIT2 SECTION "Sample Code" [402-8616] -->
 <h2><a>Understanding the Code</a></h2>
 <div>
 
 </div>
-<!-- EDIT3 SECTION "Understanding the Code" [8792-8824] -->
+<!-- EDIT3 SECTION "Understanding the Code" [8617-8649] -->
 <h3><a>The Terrain Code</a></h3>
 <div>
 
@@ -236,7 +233,7 @@ Read <a href="/com/jme3/gde/docs/jme3/beginner/hello_terrain.html">Hello Terrain
 </ol>
 
 </div>
-<!-- EDIT4 SECTION "The Terrain Code" [8825-9281] -->
+<!-- EDIT4 SECTION "The Terrain Code" [8650-9106] -->
 <h3><a>The Collision Detection Code</a></h3>
 <div>
 
@@ -260,7 +257,7 @@ Read <a href="/com/jme3/gde/docs/jme3/beginner/hello_collision.html">Hello Colli
 </ol>
 
 </div>
-<!-- EDIT5 SECTION "The Collision Detection Code" [9282-10182] -->
+<!-- EDIT5 SECTION "The Collision Detection Code" [9107-10007] -->
 <h3><a>Combining the Two</a></h3>
 <div>
 
@@ -270,18 +267,13 @@ Here are the changed parts to combine the two:
 
 </p>
 <ol>
-<li><div> The CollisionShapeFactory creates the CollisionShape <code>terrainShape</code> for the <code>terrain</code> node.</div>
+<li><div> You create a static (zero-mass) RigidBodyControl. </div>
 </li>
-<li><div> Out of the <code>terrainShape</code>, you create a static (zero-mass) RigidBodyControl <code>landscape</code>. </div>
-</li>
-<li><div> Add the <code>landscape</code> control to the <code>terrain</code> to make it physical.</div>
+<li><div> Add the control to the <code>terrain</code> to make it physical.</div>
 </li>
 </ol>
 <pre>/** 6. Add physics: */ 
-    CollisionShape terrainShape =
-            CollisionShapeFactory.createMeshShape&#40;&#40;Node&#41; terrain&#41;;
-    landscape = new RigidBodyControl&#40;terrainShape, 0&#41;;
-    terrain.addControl&#40;landscape&#41;;  </pre>
+    terrain.addControl&#40;new RigidBodyControl&#40;0&#41;&#41;;  </pre>
 
 <p>
 You attach the <code>terrain</code> and the first-person <code>player</code> to the rootNode, and to the physics space, to make them appear in the game world.
@@ -290,7 +282,7 @@ You attach the <code>terrain</code> and the first-person <code>player</code> to 
     bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;player&#41;;</pre>
 
 </div>
-<!-- EDIT6 SECTION "Combining the Two" [10183-11031] -->
+<!-- EDIT6 SECTION "Combining the Two" [10008-10557] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -302,7 +294,7 @@ You see that you can combine snippets of sample code (such as HelloTerrain and H
 <p>
 You should spawn high up in the area and fall down to the map, giving you a few seconds to survey the area.  Then walk around and see how you like the lay of the land.
 </p>
-<hr/>
+<hr />
 
 <p>
 See also:
@@ -320,5 +312,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT7 SECTION "Conclusion" [11032-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:terrain_collision?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT7 SECTION "Conclusion" [10558-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:terrain_collision?do=export_xhtmlbody">view online version</a></em></p>

@@ -16,7 +16,9 @@ You can create custom model importers for the jMonkeyEngine <acronym title="Soft
 </li>
 <li><div> Change DataObject to extend SpatialAssetDataObject</div>
 </li>
-<li><div> Implement loadAsset method in DataObject (if necessary, most model formats should load normally via the loader)</div>
+<li><div> Implement getAssetKey(): if(!assetKey instanceof MyKeyType){assetKey = new MyKeyType(oldKey);} return key;</div>
+</li>
+<li><div> Maybe implement loadAsset method in DataObject (if necessary, most model formats should load normally via the loader)</div>
 </li>
 <li><div> Create AssetManagerConfigurator </div>
 </li>
@@ -39,4 +41,4 @@ See also:
 </span></div>
 
 </div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:model_loader?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:development:model_loader?do=export_xhtmlbody">view online version</a></em></p>

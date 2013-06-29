@@ -89,20 +89,21 @@ The polygon <a href="/com/jme3/gde/docs/jme3/advanced/mesh.html">Mesh</a> inside
 
 <p>
 
-Cloned spatials share the same mesh, while each cloned spatial can have its own local transformation (translation, rotation, and scale) in the scene. This means you only use <code>clone()</code> on spatials whose meshes never change. The most common use case for cloning is when you use several Spatials that are based on the same <a href="/com/jme3/gde/docs/jme3/advanced/shape.html">Shape</a>s. 
+Cloned spatials share the same mesh, while each cloned spatial can have its own local transformation (translation, rotation, and scale) in the scene. This means you only use <code>clone()</code> on spatials whose meshes never change. The most common use case for cloning is when you use several Spatials that are based on the same <a href="/com/jme3/gde/docs/jme3/advanced/shape.html">Shape</a>s (e.g. trees, crates). 
 </p>
 
 <p>
-The second use case is: When you load a model using <code>loadModel()</code> from the AssetManager, you may get a <code>clone()</code>ed object. In particular:
+The second use case is: When you load a model using <code>loadModel()</code> from the AssetManager, you may automatically get a <code>clone()</code>ed object. In particular:
 </p>
 <ul>
-<li><div> If the model is not animated (it has no <code><a href="/com/jme3/gde/docs/jme3/advanced/animation.html">AnimControl</a></code>), you get a clone. All clones share one mesh object. (Uses less memory)</div>
+<li><div> If the model is not animated (it has no <code><a href="/com/jme3/gde/docs/jme3/advanced/animation.html">AnimControl</a></code>), jME loads a clone. All clones share one mesh object in order to use less memory.</div>
 </li>
-<li><div> If the model is animated (it has a <code><a href="/com/jme3/gde/docs/jme3/advanced/animation.html">AnimControl</a></code>), then <code>loadModel()</code> duplicates the mesh for each loaded instance. (Uses more memory)</div>
+<li><div> If the model is animated (it has a <code><a href="/com/jme3/gde/docs/jme3/advanced/animation.html">AnimControl</a></code>), then <code>loadModel()</code> duplicates the mesh for each loaded instance. (Uses more memory, but can animate.)</div>
 </li>
 </ul>
 
 <p>
+
 Usually there is no need to manually use any of the <code>clone()</code> methods on models. Using the <a href="/com/jme3/gde/docs/jme3/advanced/asset_manager.html">Asset Manager</a>&#039;s <code>loadModel()</code> method will automatically do the right thing for your models.
 </p>
 
@@ -112,7 +113,7 @@ Usually there is no need to manually use any of the <code>clone()</code> methods
 </p>
 
 </div>
-<!-- EDIT5 SECTION "What is a Clone?" [3729-4984] -->
+<!-- EDIT5 SECTION "What is a Clone?" [3729-5049] -->
 <h2><a>How to Add Fields and Methods to a Spatial</a></h2>
 <div>
 
@@ -127,15 +128,15 @@ You can include custom user data ???that is, custom Java objects and methods??? 
 </p>
 
 <p>
-This first example adds an integer field named <code>health</code> to the Spatial <code>player_node</code>, and initializes it to 100.
+This first example adds an integer field named <code>health</code> to the Spatial <code>playerNode</code>, and initializes it to 100.
 
 </p>
-<pre>player_node.setUserData&#40;&quot;health&quot;, 100&#41;;</pre>
+<pre>playerNode.setUserData&#40;&quot;health&quot;, 100&#41;;</pre>
 
 <p>
 The second example adds a set of custom accessor methods to the player object. You create a <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">custom PlayerControl() class</a> and you add this control to the Spatial:
 </p>
-<pre>player_node.addControl&#40;new PlayerControl&#40;&#41;&#41;;</pre>
+<pre>playerNode.addControl&#40;new PlayerControl&#40;&#41;&#41;;</pre>
 
 <p>
 In your PlayerControl() class, you define custom methods that set and get your user data in the <code>spatial</code> object. For example, the control could add accessors that set and get the player&#039;s health:
@@ -148,11 +149,11 @@ public void setHealth&#40;int h&#41; &#123;
 &#125;</pre>
 
 <p>
-Elsewhere in your code, you can access this data wherever you have access to the Spatial <code>player_node</code>. 
+Elsewhere in your code, you can access this data wherever you have access to the Spatial <code>playerNode</code>. 
 </p>
-<pre>health = player_node.getControl&#40;PlayerControl.class&#41;.getHealth&#40;&#41;;
+<pre>health = playerNode.getControl&#40;PlayerControl.class&#41;.getHealth&#40;&#41;;
 ...
-player_node.getControl&#40;PlayerControl.class&#41;.setHealth&#40;99&#41;;</pre>
+playerNode.getControl&#40;PlayerControl.class&#41;.setHealth&#40;99&#41;;</pre>
 <ul>
 <li><div> You can add as many data objects (of String, Boolean, Integer, Float, Array types) to a Spatial as you want. Just make sure to label them with unique case-sensitive strings (<code>health</code>, <code>Inventory</code>, <code>equipment</code>, etc). </div>
 </li>
@@ -171,7 +172,7 @@ This is how you list all data keys that are already defined for one Spatial:
 &#125;</pre>
 
 </div>
-<!-- EDIT6 SECTION "How to Add Fields and Methods to a Spatial" [4985-7561] -->
+<!-- EDIT6 SECTION "How to Add Fields and Methods to a Spatial" [5050-7620] -->
 <h2><a>How to Access a Named Sub-Mesh</a></h2>
 <div>
 
@@ -196,7 +197,7 @@ In the following example, the Node <code>house</code> is the loaded model. The s
 <pre>Geometry submesh = &#40;Geometry&#41; houseScene.getChild&#40;&quot;door 12&quot;&#41;;</pre>
 
 </div>
-<!-- EDIT7 SECTION "How to Access a Named Sub-Mesh" [7562-8364] -->
+<!-- EDIT7 SECTION "How to Access a Named Sub-Mesh" [7621-8423] -->
 <h2><a>What is Culling?</a></h2>
 <div>
 
@@ -205,18 +206,22 @@ There are two types of culling: Face culling, and view frustrum culling.
 </p>
 
 <p>
-<strong>Face culling</strong> refers to not drawing certain polygons of a mesh. The &quot;inside&quot; of the mesh (the so called backface) is never visible to the player, and as an optimization, game engines skip calculating backfaces by default.  You may want to deactivate Face Culling while debugging custom meshes, so you can see them in case you turned them inside-out by accident.
+<strong>Face culling</strong> means not drawing certain polygons of a mesh. Face culling behaviour is a property of the material.
 </p>
 
 <p>
-You can switch the com.jme3.material.RenderState.FaceCullMode to
+Usage: The &quot;inside&quot; of a mesh (the so called backface) is typically never visible to the player, and as an optimization, the <code>Back</code> mode skips calculating all backfaces by default. Activating the <code>Off</code> or <code>Front</code> modes can be useful when you are debugging <a href="/com/jme3/gde/docs/jme3/advanced/custom_meshes.html">custom meshes</a> and try to identify accidental inside-out faces. 
+</p>
+
+<p>
+You can switch the com.jme3.material.RenderState.FaceCullMode to either:
 </p>
 <ul>
-<li><div> <code>FaceCullMode.Back</code> (default) ??? only the frontsides of a mesh are drawn. This is the normal behaviour. </div>
+<li><div> <code>FaceCullMode.Back</code> (default) ??? Only the frontsides of a mesh are drawn. Backface culling is the default behaviour. </div>
 </li>
-<li><div> <code>FaceCullMode.Front</code> ??? only the backsides of meshes are drawn. The mesh will probably turn invisible. Useful if you are debugging a hand-made mesh and try to identify accidental inside-out faces.</div>
+<li><div> <code>FaceCullMode.Front</code> ??? Only the backsides of a mesh are drawn. A mesh with frontface culling will most likely be invisible. Used for debugging &quot;inside-out&quot; custom meshes.</div>
 </li>
-<li><div> <code>FaceCullMode.FrontAndBack</code> ??? The mesh becomes invisible. </div>
+<li><div> <code>FaceCullMode.FrontAndBack</code> ??? Use this to make a mesh temporarily invisible. </div>
 </li>
 <li><div> <code>FaceCullMode.Off</code> ??? Every side of the mesh is drawn. Looks normal, but slows down large scenes.</div>
 </li>
@@ -255,7 +260,7 @@ Example:
 <pre>spatial.setCullHint&#40;CullHint.Never&#41;; // always drawn</pre>
 
 </div>
-<!-- EDIT8 SECTION "What is Culling?" [8365-10701] -->
+<!-- EDIT8 SECTION "What is Culling?" [8424-10857] -->
 <h2><a>See also</a></h2>
 <div>
 <ul>
@@ -273,5 +278,5 @@ Example:
 </span></div>
 
 </div>
-<!-- EDIT9 SECTION "See also" [10702-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:spatial?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT9 SECTION "See also" [10858-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:spatial?do=export_xhtmlbody">view online version</a></em></p>

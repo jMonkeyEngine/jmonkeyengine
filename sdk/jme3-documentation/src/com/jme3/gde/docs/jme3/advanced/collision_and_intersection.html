@@ -8,7 +8,7 @@ The term collision can be used to refer to <a href="/com/jme3/gde/docs/jme3/adva
 </p>
 
 <p>
-Non-physical collision detection is interesting because it uses less computing resources than physical collision detection. The non-physical calculations are faster because they do not have any side effects such as pushing other objects or bumping off of them. Tasks such as <a href="/com/jme3/gde/docs/jme3/advanced/mouse_picking.html">mouse picking</a> are easily implemented using using mathematical techniques such as ray casting and intersections.  Experienced developers optimize their games by finding ways to simulate certain (otherwise expensive physical) interactions in a non-physical way. 
+Non-physical collision detection is interesting because it uses less computing resources than physical collision detection. The non-physical calculations are faster because they do not have any side effects such as pushing other objects or bumping off of them. Tasks such as <a href="/com/jme3/gde/docs/jme3/advanced/mouse_picking.html">mouse picking</a> are easily implemented using mathematical techniques such as ray casting and intersections.  Experienced developers optimize their games by finding ways to simulate certain (otherwise expensive physical) interactions in a non-physical way. 
 </p>
 
 <p>
@@ -16,7 +16,7 @@ Non-physical collision detection is interesting because it uses less computing r
 </p>
 
 </div>
-<!-- EDIT1 SECTION "Collision and Intersection" [1-1438] -->
+<!-- EDIT1 SECTION "Collision and Intersection" [1-1432] -->
 <h2><a>Collidable</a></h2>
 <div>
 
@@ -48,7 +48,7 @@ Note that jME counts <em>all</em> collisions, this means a ray intersecting a bo
 		<td>getCollision(i)       </td><td>Returns the CollisionResult at index i.</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [2081-2409] -->
+<!-- EDIT3 TABLE [2075-2403] -->
 <p>
 A CollisionResult object contains information about the second party of the collision event.
 </p>
@@ -75,9 +75,9 @@ A CollisionResult object contains information about the second party of the coll
 		<td>getTriangleIndex()</td><td>Returns the index of the triangle on the second party&#039;s mesh that was hit.</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [2503-3036] -->
+<!-- EDIT4 TABLE [2497-3030] -->
 </div>
-<!-- EDIT2 SECTION "Collidable" [1439-3037] -->
+<!-- EDIT2 SECTION "Collidable" [1433-3031] -->
 <h3><a>Code Sample</a></h3>
 <div>
 
@@ -133,7 +133,7 @@ Knowing the distance of the collisions is useful for example when you intersect 
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Code Sample" [3038-5576] -->
+<!-- EDIT5 SECTION "Code Sample" [3032-5570] -->
 <h2><a>Bounding Volumes</a></h2>
 <div>
 
@@ -173,7 +173,7 @@ Supported types:
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Bounding Volumes" [5577-7620] -->
+<!-- EDIT6 SECTION "Bounding Volumes" [5571-7614] -->
 <h3><a>Usage</a></h3>
 <div>
 
@@ -186,7 +186,7 @@ For example you can use Bounding Volumes on custom meshes, or complex non-physic
 mesh.updateBound&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT7 SECTION "Usage" [7621-7802] -->
+<!-- EDIT7 SECTION "Usage" [7615-7796] -->
 <h2><a>Mesh and Scene Graph Collision</a></h2>
 <div>
 
@@ -196,7 +196,7 @@ One of the supported <code>Collidable</code>s are meshes and scene graph objects
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Mesh and Scene Graph Collision" [7803-8623] -->
+<!-- EDIT8 SECTION "Mesh and Scene Graph Collision" [7797-8617] -->
 <h2><a>Intersection</a></h2>
 <div>
 
@@ -224,7 +224,7 @@ Rays are used to perform line-of-sight calculations. This means you can detect w
 <p>
 Learn the details of how to implement <a href="/com/jme3/gde/docs/jme3/advanced/mouse_picking.html">Mouse Picking</a> here.
 </p>
-<hr/>
+<hr />
 
 <p>
 TODO:
@@ -237,5 +237,5 @@ TODO:
 </ul>
 
 </div>
-<!-- EDIT9 SECTION "Intersection" [8624-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:collision_and_intersection?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT9 SECTION "Intersection" [8618-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:collision_and_intersection?do=export_xhtmlbody">view online version</a></em></p>

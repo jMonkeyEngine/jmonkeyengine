@@ -101,12 +101,12 @@ setVector3(&quot;NormalScale&quot;, new Vector3f(0,0,0)); </td>
 	</tr>
 	<tr>
 		<td> Common/MatDefs/Terrain/Terrain.j3md </td><td> Splat textures for e.g. terrains. <br/>
-See also: <a href="/com/jme3/gde/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a> </td><td> setTexture(&quot;Texture1&quot;, assetManager.loadTexture(&quot;&quot;)); (red) <br/>
- setFloat(&quot;Texture1Scale&quot;,1f); <br/>
- setTexture(&quot;Texture2&quot;, assetManager.loadTexture(&quot;&quot;)); (green) <br/>
- setFloat(&quot;Texture2Scale&quot;,1f); <br/>
-setTexture(&quot;Texture3&quot;, assetManager.loadTexture(&quot;&quot;)); (blue)  <br/>
- setFloat(&quot;Texture3Scale&quot;,1f); <br/>
+See also: <a href="/com/jme3/gde/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a> </td><td> setTexture(&quot;Tex1&quot;, assetManager.loadTexture(&quot;&quot;)); (red) <br/>
+ setFloat(&quot;Tex1Scale&quot;,1f); <br/>
+ setTexture(&quot;Tex2&quot;, assetManager.loadTexture(&quot;&quot;)); (green) <br/>
+ setFloat(&quot;Tex2Scale&quot;,1f); <br/>
+setTexture(&quot;Tex3&quot;, assetManager.loadTexture(&quot;&quot;)); (blue)  <br/>
+ setFloat(&quot;Tex3Scale&quot;,1f); <br/>
 setTexture(&quot;Alpha&quot;, assetManager.loadTexture(&quot;&quot;)); </td>
 	</tr>
 	<tr>
@@ -143,9 +143,9 @@ setColor(&quot;GlowColor&quot;, ColorRGBA.White); <br/>
  setBoolean(&quot;PointSprite&quot;,true); </td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [2975-5491] -->
+<!-- EDIT5 TABLE [2975-5467] -->
 </div>
-<!-- EDIT3 SECTION "Unshaded Coloring and Textures" [1718-5492] -->
+<!-- EDIT3 SECTION "Unshaded Coloring and Textures" [1718-5468] -->
 <h3><a>Phong Illuminated</a></h3>
 <div>
 
@@ -203,7 +203,7 @@ setColor(&quot;Specular&quot;, ColorRGBA.White); <br/>
 setBoolean(&quot;WardIso&quot;,true);<sup><a href="#fn__4">4)</a></sup>  </td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [6152-7870] --><div><table>
+<!-- EDIT7 TABLE [6128-7846] --><div><table>
 	<tr>
 		<th>Special Illuminated Material Definitions </th><th> Usage </th><th> Material Parameters </th>
 	</tr>
@@ -250,9 +250,9 @@ setBoolean(&quot;WardIso&quot;,true); <br/>
  setBoolean(&quot;SphereMap&quot;,true); </td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [7872-10158] -->
+<!-- EDIT8 TABLE [7848-10134] -->
 </div>
-<!-- EDIT6 SECTION "Phong Illuminated" [5493-10159] -->
+<!-- EDIT6 SECTION "Phong Illuminated" [5469-10135] -->
 <h3><a>Other: Test and Debug</a></h3>
 <div>
 <div><table>
@@ -263,14 +263,14 @@ setBoolean(&quot;WardIso&quot;,true); <br/>
 		<td> Common/MatDefs/Misc/ShowNormals.j3md    </td><td> A color gradient calculated from the model&#039;s surface normals. You can use this built-in material to debug the generation of normals in meshes, to preview models that have no material and no lights, or as fall-back default material. This built-in material has no parameters. </td>
 	</tr>
 </table></div>
-<!-- EDIT10 TABLE [10193-10564] -->
+<!-- EDIT10 TABLE [10169-10540] -->
 </div>
-<!-- EDIT9 SECTION "Other: Test and Debug" [10160-10565] -->
+<!-- EDIT9 SECTION "Other: Test and Debug" [10136-10541] -->
 <h2><a>RenderStates</a></h2>
 <div>
 
 </div>
-<!-- EDIT11 SECTION "RenderStates" [10566-10591] -->
+<!-- EDIT11 SECTION "RenderStates" [10542-10567] -->
 <h3><a>Transparency</a></h3>
 <div>
 <div><table>
@@ -311,7 +311,7 @@ Deactivate Alpha Testing for gradually <strong>translucent</strong> objects, suc
 		<td>getAdditionalRenderState().setBlendMode(BlendMode.PremultAlpha);</td><td>Pre-multiplied alpha blending. E.g. if the color of the object has already been multiplied by its alpha, this is used instead of &quot;Alpha&quot; blend mode.</td><td>For use with Premult Alpha textures.</td>
 	</tr>
 </table></div>
-<!-- EDIT13 TABLE [10616-13066] -->
+<!-- EDIT13 TABLE [10592-13042] -->
 <p>
 
 If the DiffuseMap has an alpha channel, use:
@@ -332,7 +332,7 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 </ul>
 
 </div>
-<!-- EDIT12 SECTION "Transparency" [10592-13365] -->
+<!-- EDIT12 SECTION "Transparency" [10568-13341] -->
 <h3><a>Culling</a></h3>
 <div>
 <div><table>
@@ -352,9 +352,9 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 		<td>getAdditionalRenderState().setFaceCullMode(FaceCullMode.FrontAndBack)</td><td>Culls both backfaces and frontfaces.</td><td>Use this as an efficient way to make an object temporarily invisible, while keeping all its other in-game properties (such as node attachment, collision shapes, interactions, etc) active.</td>
 	</tr>
 </table></div>
-<!-- EDIT15 TABLE [13385-14527] -->
+<!-- EDIT15 TABLE [13361-14503] -->
 </div>
-<!-- EDIT14 SECTION "Culling" [13366-14528] -->
+<!-- EDIT14 SECTION "Culling" [13342-14504] -->
 <h3><a>Miscellaneous</a></h3>
 <div>
 <div><table>
@@ -368,7 +368,7 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 		<td>getAdditionalRenderState().setPolyOffset();</td><td>Enable polygon offset.</td><td>Use this when you have meshes that have triangles really close to each over (e.g. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Coplanarity"><param name="text" value="<html><u>Coplanar</u></html>"><param name="textColor" value="blue"></object>), it will shift the depth values to prevent <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Z-fighting"><param name="text" value="<html><u>Z-fighting</u></html>"><param name="textColor" value="blue"></object>.</td>
 	</tr>
 </table></div>
-<!-- EDIT17 TABLE [14554-15320] -->
+<!-- EDIT17 TABLE [14530-15296] -->
 <p>
 
 <strong>Related Links</strong>
@@ -389,7 +389,7 @@ Later, put the Geometry (not the Material!) in the appropriate render queue
 </span></div>
 
 </div>
-<!-- EDIT16 SECTION "Miscellaneous" [14529-] --><div>
+<!-- EDIT16 SECTION "Miscellaneous" [14505-] --><div>
 <div><sup><a href="#fnt__1">1)</a></sup> 
 UseAlpha specifies whether DiffuseMap uses the alpha channel</div>
 <div><sup><a href="#fnt__2">2)</a></sup> 
@@ -399,4 +399,4 @@ Minnaert is a shader type.</div>
 <div><sup><a href="#fnt__4">4)</a></sup> 
 WardIso is a shader type.</div>
 </div>
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:materials_overview?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:materials_overview?do=export_xhtmlbody">view online version</a></em></p>

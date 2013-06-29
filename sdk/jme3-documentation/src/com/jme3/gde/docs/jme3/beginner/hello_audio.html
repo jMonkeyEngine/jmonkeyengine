@@ -7,7 +7,7 @@ Previous: <a href="/com/jme3/gde/docs/jme3/beginner/hello_terrain.html">Hello Te
 </p>
 
 <p>
-This tutorial explains how to add 3D sound to a game, and how make sounds play together with events, such as clicking. You learn how to use an Audio Listener and Audio Nodes. You also make use of an Action Listener and a MouseButtonTrigger from the previous <a href="/com/jme3/gde/docs/jme3/beginner/hello_input_system.html">Hello Input</a> tutorial to make a mouse click trigger a gun shot sound.
+This tutorial explains how to add 3D sound to a game, and how to make sounds play together with events, such as clicking. You learn how to use an Audio Listener and Audio Nodes. You also make use of an Action Listener and a MouseButtonTrigger from the previous <a href="/com/jme3/gde/docs/jme3/beginner/hello_input_system.html">Hello Input</a> tutorial to make a mouse click trigger a gun shot sound.
 </p>
 
 <p>
@@ -17,7 +17,7 @@ This tutorial explains how to add 3D sound to a game, and how make sounds play t
 </p>
 
 </div>
-<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (11) - Hello Audio" [1-680] -->
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (11) - Hello Audio" [1-683] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <pre>package jme3test.helloworld;
@@ -110,13 +110,13 @@ When you run the sample, you should see a blue cube. You should hear a nature-li
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [681-3516] -->
+<!-- EDIT2 SECTION "Sample Code" [684-3519] -->
 <h2><a>Understanding the Code Sample</a></h2>
 <div>
 
 <p>
 
-In the <code>initSimpleApp()</code> method, you create a simple blue cube geometry called <code>player</code> and attach it to the scene ??? this just arbitrary sample content, so you see something when running the audio sample.
+In the <code>initSimpleApp()</code> method, you create a simple blue cube geometry called <code>player</code> and attach it to the scene ??? this is just arbitrary sample content, so you see something when running the audio sample.
 </p>
 
 <p>
@@ -124,7 +124,7 @@ Let&#039;s have a closer look at <code>initAudio()</code> to learn how to use <c
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Understanding the Code Sample" [3517-3851] -->
+<!-- EDIT3 SECTION "Understanding the Code Sample" [3520-3857] -->
 <h2><a>AudioNodes</a></h2>
 <div>
 
@@ -184,7 +184,7 @@ Here you make audio_nature a positional sound that comes from a certain place. F
 </p>
 
 </div>
-<!-- EDIT4 SECTION "AudioNodes" [3852-6941] -->
+<!-- EDIT4 SECTION "AudioNodes" [3858-6947] -->
 <h2><a>Triggering Sound</a></h2>
 <div>
 
@@ -216,7 +216,7 @@ Since you want to be able to shoot fast repeatedly, so you do not want to wait f
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Triggering Sound" [6942-8406] -->
+<!-- EDIT5 SECTION "Triggering Sound" [6948-8412] -->
 <h2><a>Ambient or Situational?</a></h2>
 <div>
 
@@ -265,7 +265,7 @@ Apart from the looping boolean, another difference is where <code>play().playIns
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Ambient or Situational?" [8407-9637] -->
+<!-- EDIT6 SECTION "Ambient or Situational?" [8413-9643] -->
 <h2><a>Buffered or Streaming?</a></h2>
 <div>
 
@@ -288,7 +288,7 @@ Note that streamed sounds can not loop (i.e. setLooping will not work as you exp
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Buffered or Streaming?" [9638-10219] -->
+<!-- EDIT7 SECTION "Buffered or Streaming?" [9644-10225] -->
 <h2><a>Play() or PlayInstance()?</a></h2>
 <div>
 <div><table>
@@ -305,9 +305,9 @@ Note that streamed sounds can not loop (i.e. setLooping will not work as you exp
 		<td>The same sound cannot play twice at the same time.</td><td>The same sounds can play multiple times and overlap.</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [10259-10503] -->
+<!-- EDIT9 TABLE [10265-10509] -->
 </div>
-<!-- EDIT8 SECTION "Play() or PlayInstance()?" [10220-10504] -->
+<!-- EDIT8 SECTION "Play() or PlayInstance()?" [10226-10510] -->
 <h2><a>Your Ear in the Scene</a></h2>
 <div>
 
@@ -329,7 +329,7 @@ If you don&#039;t do that, the results of 3D audio will be quite random.
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Your Ear in the Scene" [10505-11207] -->
+<!-- EDIT10 SECTION "Your Ear in the Scene" [10511-11213] -->
 <h2><a>Global, Directional, Positional?</a></h2>
 <div>
 
@@ -339,7 +339,7 @@ In this example, you defined the nature sound as coming from a certain position,
 </p>
 
 <p>
-It makes equally sense to make the gunshot positional, and let the ambient sound come from every direction. How do you decide which type of 3D sound to use from case to case?
+It makes equal sense to make the gunshot positional, and let the ambient sound come from every direction. How do you decide which type of 3D sound to use from case to case?
 </p>
 <ul>
 <li><div> In a game with moving enemies you may want to make the gun shot or footsteps positional sounds. In these cases you must move the AudioNode to the location of the enemy before <code>playInstance()</code>ing it. This way a player with stereo speakers hears from which direction the enemy is coming.</div>
@@ -356,7 +356,7 @@ In short, you must choose in every situation whether it makes sense for a sound 
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Global, Directional, Positional?" [11208-12566] -->
+<!-- EDIT11 SECTION "Global, Directional, Positional?" [11214-12570] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -373,7 +373,7 @@ You now know how to add the two most common types of sound to your game: Global 
 Want some fire and explosions to go with your sounds? Read on to learn more about <a href="/com/jme3/gde/docs/jme3/beginner/hello_effects.html">effects</a>.
 
 </p>
-<hr/>
+<hr />
 
 <p>
 
@@ -391,5 +391,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT12 SECTION "Conclusion" [12567-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_audio?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT12 SECTION "Conclusion" [12571-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_audio?do=export_xhtmlbody">view online version</a></em></p>

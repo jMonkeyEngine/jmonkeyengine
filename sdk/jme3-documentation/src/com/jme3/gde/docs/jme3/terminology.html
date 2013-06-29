@@ -425,6 +425,8 @@ E.g. the thigh Bone is connected to the upper leg Skin.</div>
 <li><div> The connection between bones and skin sections is gradual: You assign weights how much each skin polygon is affected by any bone&#039;s motion. <br/>
 E.g. when the thigh bone moves, the leg is fully affected, the hips joints less so, and the head not at all.</div>
 </li>
+<li><div> jMonkeyEngine supports hardware skinning (on the GPU, not on the CPU).</div>
+</li>
 </ul>
 </li>
 <li><div> <strong>Keyframe Animation:</strong> A keyframe is one recorded snapshot of a motion sequence.</div>
@@ -456,7 +458,7 @@ E.g. when the thigh bone moves, the leg is fully affected, the hips joints less 
 </p>
 
 </div>
-<!-- EDIT26 SECTION "Rigging and Skinning" [12903-15362] -->
+<!-- EDIT26 SECTION "Rigging and Skinning" [12903-15439] -->
 <h2><a>Kinematics</a></h2>
 <div>
 <ul>
@@ -467,16 +469,16 @@ E.g. when the thigh bone moves, the leg is fully affected, the hips joints less 
 </ul>
 
 </div>
-<!-- EDIT27 SECTION "Kinematics" [15363-15627] -->
+<!-- EDIT27 SECTION "Kinematics" [15440-15704] -->
 <h2><a>Controller and Channel</a></h2>
 <div>
 
 <p>
-In the JME3 application, you register animated models to the Animation Controller. The controller object gives you access to the available animation sequences. The controller has several channels, each channels can run one animation sequence at a time. To run several sequences, you create several channels, and run them in parallel.
+In the JME3 application, you register animated models to the Animation Controller. The controller object gives you access to the available animation sequences. The controller has several channels, each channel can run one animation sequence at a time. To run several sequences, you create several channels, and run them in parallel.
 </p>
 
 </div>
-<!-- EDIT28 SECTION "Controller and Channel" [15628-15997] -->
+<!-- EDIT28 SECTION "Controller and Channel" [15705-16073] -->
 <h1><a>Artificial Intelligence (AI)</a></h1>
 <div>
 
@@ -527,7 +529,7 @@ There are lots of resources explaining interesting AI algorithms:
 </ul>
 
 </div>
-<!-- EDIT29 SECTION "Artificial Intelligence (AI)" [15998-19483] -->
+<!-- EDIT29 SECTION "Artificial Intelligence (AI)" [16074-19559] -->
 <h1><a>Math</a></h1>
 <div>
 
@@ -536,7 +538,7 @@ There are lots of resources explaining interesting AI algorithms:
 </p>
 
 </div>
-<!-- EDIT30 SECTION "Math" [19484-19557] -->
+<!-- EDIT30 SECTION "Math" [19560-19633] -->
 <h2><a>Coordinates</a></h2>
 <div>
 
@@ -547,7 +549,7 @@ In contrast to a vector (which looks similar), a coordinate is a location, not a
 </p>
 
 </div>
-<!-- EDIT31 SECTION "Coordinates" [19558-19947] -->
+<!-- EDIT31 SECTION "Coordinates" [19634-20023] -->
 <h3><a>The Origin</a></h3>
 <div>
 
@@ -561,7 +563,7 @@ The origin is the central point in the 3D world, where the three axes meet. It&#
 </p>
 
 </div>
-<!-- EDIT32 SECTION "The Origin" [19948-20152] -->
+<!-- EDIT32 SECTION "The Origin" [20024-20228] -->
 <h2><a>Vectors</a></h2>
 <div>
 
@@ -574,10 +576,10 @@ A vector has a length and a direction, like an arrow in 3D space. A vector start
 <strong>Example:</strong> 
 </p>
 <pre>Vector3f v = new Vector3f&#40; 17f , -4f , 0f &#41;; // starts at (0/0/0)
-Vector3f v = new Vector3f&#40; 8f , 0f , 33f &#41;.add&#40;new Vector3f&#40; 0f , -2f , -2f &#41;&#41;; // starts at (8/0/33)</pre>
+Vector3f v = new Vector3f&#40; 8f , 0f , 33f &#41;.add&#40;new Vector3f&#40; 0f , -2f , -2f &#41;&#41;; // starts at (8,-2,31)</pre>
 
 </div>
-<!-- EDIT33 SECTION "Vectors" [20153-20602] -->
+<!-- EDIT33 SECTION "Vectors" [20229-20679] -->
 <h3><a>Unit Vectors</a></h3>
 <div>
 
@@ -601,7 +603,7 @@ Negate the vegator to change its direction, e.g. (-1, 0, 0) = left.
 </p>
 
 </div>
-<!-- EDIT34 SECTION "Unit Vectors" [20603-21101] -->
+<!-- EDIT34 SECTION "Unit Vectors" [20680-21178] -->
 <h3><a>Normalized Vectors</a></h3>
 <div>
 
@@ -616,7 +618,7 @@ When you normalize a vector, it still has the same direction, but you lose the i
 </p>
 
 </div>
-<!-- EDIT35 SECTION "Normalized Vectors" [21102-21445] -->
+<!-- EDIT35 SECTION "Normalized Vectors" [21179-21522] -->
 <h3><a>Surface Normal Vectors</a></h3>
 <div>
 
@@ -628,7 +630,7 @@ You calculate the Surface Normal by calculating the cross product.
 </p>
 
 </div>
-<!-- EDIT36 SECTION "Surface Normal Vectors" [21446-21658] -->
+<!-- EDIT36 SECTION "Surface Normal Vectors" [21523-21735] -->
 <h3><a>Cross Product</a></h3>
 <div>
 
@@ -645,7 +647,7 @@ In 3D space, speaking of an orthogonal only makes sense with respect to a plane.
 </p>
 
 </div>
-<!-- EDIT37 SECTION "Cross Product" [21659-22369] -->
+<!-- EDIT37 SECTION "Cross Product" [21736-22446] -->
 <h3><a>Transformation</a></h3>
 <div>
 
@@ -659,7 +661,7 @@ Examples: Falling and rotating bricks in 3D Tetris.
 </p>
 
 </div>
-<!-- EDIT38 SECTION "Transformation" [22370-22634] -->
+<!-- EDIT38 SECTION "Transformation" [22447-22711] -->
 <h3><a>Slerp</a></h3>
 <div>
 
@@ -677,7 +679,7 @@ Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1
 </p>
 
 </div>
-<!-- EDIT39 SECTION "Slerp" [22635-23404] -->
+<!-- EDIT39 SECTION "Slerp" [22712-23481] -->
 <h1><a>Game Developer Jargon</a></h1>
 <div>
 <ul>
@@ -686,7 +688,7 @@ Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1
 </ul>
 
 </div>
-<!-- EDIT40 SECTION "Game Developer Jargon" [23405-23568] -->
+<!-- EDIT40 SECTION "Game Developer Jargon" [23482-23645] -->
 <h1><a>3D graphics Terminology Wiki book</a></h1>
 <div>
 <ul>
@@ -695,5 +697,5 @@ Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1
 </ul>
 
 </div>
-<!-- EDIT41 SECTION "3D graphics Terminology Wiki book" [23569-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:terminology?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT41 SECTION "3D graphics Terminology Wiki book" [23646-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:terminology?do=export_xhtmlbody">view online version</a></em></p>

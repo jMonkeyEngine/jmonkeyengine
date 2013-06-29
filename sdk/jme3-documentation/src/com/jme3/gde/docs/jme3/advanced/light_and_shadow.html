@@ -177,11 +177,11 @@ LightControl lightControl = new LightControl&#40;myLight&#41;;
 spatial.addControl&#40;lightControl&#41;; // this spatial controls the position of this light.</pre>
 
 <p>
-Obviously, this does apply to AmbientLights which have no position.
+Obviously, this does not apply to AmbientLights, which have no position.
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Light Follows Spatial" [5326-5886] -->
+<!-- EDIT7 SECTION "Light Follows Spatial" [5326-5891] -->
 <h2><a>Simple Lighting</a></h2>
 <div>
 
@@ -240,7 +240,7 @@ These light effects update live when the object or light source moves. If you sh
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Simple Lighting" [5887-8536] -->
+<!-- EDIT8 SECTION "Simple Lighting" [5892-8541] -->
 <h2><a>BasicShadowRenderer</a></h2>
 <div>
 
@@ -280,8 +280,39 @@ airplane.setShadowMode&#40;ShadowMode.Cast&#41;;       // nothing casts shadows 
 ghost.setShadowMode&#40;ShadowMode.Off&#41;;           // ghost is translucent anyway...</pre>
 
 </div>
-<!-- EDIT9 SECTION "BasicShadowRenderer" [8537-10206] -->
-<h2><a>Parallel-Split Shadow Map</a></h2>
+<!-- EDIT9 SECTION "BasicShadowRenderer" [8542-10211] -->
+<h2><a>DirectionalLightShadowRenderer</a></h2>
+<div>
+
+<p>
+
+Full sample code
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestDirectionalLightShadow.java"><param name="text" value="<html><u>TestDirectionalLightShadow.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+<pre>        DirectionalLight sun = new DirectionalLight&#40;&#41;;
+        sun.setColor&#40;ColorRGBA.White&#41;;
+        sun.setDirection&#40;cam.getDirection&#40;&#41;&#41;;
+        rootNode.addLight&#40;sun&#41;;
+&nbsp;
+        /* Drop shadows */
+        final int SHADOWMAP_SIZE=1024;
+        DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer&#40;assetManager, SHADOWMAP_SIZE, 3&#41;;
+        dlsr.setLight&#40;sun&#41;;
+        viewPort.addProcessor&#40;dlsr&#41;;
+&nbsp;
+        DirectionalLightShadowFilter dlsf = new DirectionalLightShadowFilter&#40;assetManager, SHADOWMAP_SIZE, 3&#41;;
+        dlsf.setLight&#40;sun&#41;;
+        dlsf.setEnabled&#40;true&#41;;
+        FilterPostProcessor fpp = new FilterPostProcessor&#40;assetManager&#41;;
+        fpp.addFilter&#40;dlsf&#41;;
+        viewPort.addProcessor&#40;fpp&#41;;</pre>
+
+</div>
+<!-- EDIT10 SECTION "DirectionalLightShadowRenderer" [10212-11184] -->
+<h2><a>Parallel-Split Shadow Map (deprecated)</a></h2>
 <div>
 
 <p>
@@ -344,7 +375,7 @@ As said above, it&#039;s more efficient to specify individual shadow behaviour f
 terrain.setShadowMode&#40;ShadowMode.Receive&#41;; </pre>
 
 </div>
-<!-- EDIT10 SECTION "Parallel-Split Shadow Map" [10207-11929] -->
+<!-- EDIT11 SECTION "Parallel-Split Shadow Map (deprecated)" [11185-12920] -->
 <h2><a>Screen Space Ambient Occlusion</a></h2>
 <div>
 
@@ -376,5 +407,5 @@ viewPort.addProcessor&#40;fpp&#41;;</pre>
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Screen Space Ambient Occlusion" [11930-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:light_and_shadow?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT12 SECTION "Screen Space Ambient Occlusion" [12921-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:light_and_shadow?do=export_xhtmlbody">view online version</a></em></p>

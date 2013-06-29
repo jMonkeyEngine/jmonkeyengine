@@ -34,19 +34,19 @@ The coordinate system consists of:
 
 </p>
 <ul>
-<li><div> The origin, a single point in space.</div>
+<li><div> The <em>origin</em>, a single central point in space.</div>
 <ul>
-<li><div> This point is always at coordinate (0,0,0)</div>
+<li><div> The origin point is always at coordinate zero, in Java: <code>new Vector3f(0,0,0)</code>.</div>
 </li>
 </ul>
 </li>
-<li><div> Three coordinate axes that are mutually perpendicular, and meet in the origin. </div>
+<li><div> Three <em>coordinate axes</em> that are mutually perpendicular, and meet in the origin. </div>
 <ul>
-<li><div> The X axis is &quot;right/left&quot;</div>
+<li><div> The X axis starts left and goes right.</div>
 </li>
-<li><div> The Y axis is &quot;up/down&quot;</div>
+<li><div> The Y axis starts below and goes up.</div>
 </li>
-<li><div> The Z axis is &quot;towards you/away from you&quot;</div>
+<li><div> The Z axis starts away from you, and goes towards you.</div>
 </li>
 </ul>
 </li>
@@ -54,39 +54,109 @@ The coordinate system consists of:
 
 <p>
 
-Every point in 3D space is defined by its (x,y,z) coordinates. The data type for vectors is com.jme3.math.Vector3f. 
+Every point in 3D space is uniquely defined by its X,Y,Z coordinates. The three numeric coordinates express how many &quot;steps&quot; from each of the three axes a point is. The data type for all vectors in jME3 is <code>com.jme3.math.Vector3f</code>. All vectors are relative to the described coordinate system.  <br/>
+Example: The point <code>new Vector3f(3,-5,1)</code> is 3 steps to the right, 5 steps down, and 1 towards you.
 </p>
 
 <p>
-For your orientation, the default camera&#039;s location is (0.0f,0.0f,10.0f), and it is looking in the direction described by the unit vector (0.0f, 0.0f, -1.0f). This means your point of view is on the positive side of the Z axis, looking towards the origin, down the Z axis.
+<p><div>The unit of meassurement (&quot;one step&quot;) in jME3 is the <strong>world unit</strong>, short: wu. Typically, 1 wu is considered to be one meter. As long as you are consistant throughout your game, 1 wu can be any distance you like.
+</div></p>
 </p>
 
 <p>
-The unit of meassurement is <code>world unit</code> (wu). Typically, 1 wu is considered to be one meter. All scales, vectors and points are relative to this coordinate system.
+For your orientation:
+</p>
+<ul>
+<li><div> The default camera&#039;s location is <code>Vector3f(0.0f, 0.0f, 10.0f)</code>.</div>
+</li>
+<li><div> The default camera is looking in the direction described by the (so called) negative Z unit vector <code>Vector3f(0.0f, 0.0f, -1.0f)</code>. </div>
+</li>
+</ul>
+
+<p>
+This means the player&#039;s point of view is on the positive side of the Z axis, looking back, towards the origin, down the Z axis.
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Coordinate System" [397-1443] -->
+<!-- EDIT2 SECTION "Coordinate System" [397-1966] -->
+<h2><a>How to move yourself through the 3D scene</a></h2>
+<div>
+
+<p>
+
+When you play a 3D game, you typically want to navigate the 3D scene. Note that by default, the mouse pointer is invisible, and the mouse is set up to control the camera rotation!
+</p>
+
+<p>
+By default, jME3 uses the following common navigation inputs
+
+</p>
+<div><table>
+	<tr>
+		<th> Game Inputs </th><th> Camera Motion </th><th> Player POV </th>
+	</tr>
+	<tr>
+		<td>Press the W and S keys</td><td>move the camera forward, and backward</td><td>you walk back and forth</td>
+	</tr>
+	<tr>
+		<td>Press the A and D keys</td><td>move the camera left and right</td><td>you step left or right</td>
+	</tr>
+	<tr>
+		<td>Press the Q and Y keys</td><td>move the camera up and down</td><td>you fly up and down</td>
+	</tr>
+	<tr>
+		<td>Move the mouse left-right</td><td>rotate the camera left/right</td><td>you look left or right</td>
+	</tr>
+	<tr>
+		<td>Move the mouse forwards-backwards</td><td>rotate up/down</td><td>you look at the sky or your feet</td>
+	</tr>
+</table></div>
+<!-- EDIT4 TABLE [2265-2712] -->
+<p>
+
+These default settings are called &quot;WASD keys&quot; and &quot;Mouse Look&quot;. You can customize <a href="/com/jme3/gde/docs/jme3/advanced/input_handling.html">input handling</a> for your game. Sorry, but these settings work best on a QWERTY/QWERTZ keyboard.
+</p>
+
+</div>
+<!-- EDIT3 SECTION "How to move yourself through the 3D scene" [1967-2910] -->
 <h2><a>Scene Graph and RootNode</a></h2>
 <div>
 
 <p>
 
-The scene graph represents your 3D world. Objects in the jME3 scene graph are called <a href="/com/jme3/gde/docs/jme3/advanced/spatial.html">Spatial</a>s. Everything attached to the <em>rootNode</em> is part of the scene graph. <em>Attaching</em> a Spatial to the rootNode (or other nodes) adds the Spatial to the scene; <em>detaching</em> removes it.
+The <em>scene graph</em> represents your 3D world. Objects in the jME3 scene graph are called <a href="/com/jme3/gde/docs/jme3/advanced/spatial.html">Spatial</a>s. Everything attached to the parent <em>rootNode</em> is part of your scene. Your game inherits the <code>rootNode</code> object from the <code>SimpleApplication</code> class. 
 </p>
 
 <p>
 <img src="nbdocs:/com/jme3/gde/docs/jme3/intermediate/scene-graph.png">
+
+</p>
+<ul>
+<li><div> <em>Attaching</em> a Spatial to the rootNode (or its child nodes) adds it to the scene; </div>
+</li>
+<li><div> <em>Detaching</em> a Spatial from the rootNode (or its child nodes) removes it from the scene.</div>
+</li>
+</ul>
+
+<p>
+
+All objects in the scene graph are in a parent-child relationship. When you transform (move, rotate, scale) one parent, all its children follow.
+</p>
+
+<p>
+<p><div>The scene graph only manages the parent-child relationship of spatials. The actual location, rotation, or scale of an object is stored inside each Spatial. 
+</div></p>
+
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Scene Graph and RootNode" [1444-1820] -->
+<!-- EDIT5 SECTION "Scene Graph and RootNode" [2911-3763] -->
 <h2><a>Spatials: Node vs Geometry</a></h2>
 <div>
 
 <p>
 
-A Spatial can be transformed, loaded and saved. There are two types of Spatials, <em>Nodes</em> and <em>Geometries</em>.
+A Spatial can be transformed (in other words, it has a location, a rotation, and a scale). A Spatial can be loaded and saved as a .3jo file. There are two types of Spatials, <em>Nodes</em> and <em>Geometries</em>:
 
 </p>
 <div><table>
@@ -103,18 +173,18 @@ A Spatial can be transformed, loaded and saved. There are two types of Spatials,
 		<th> Visibility: </th><td> A visible 3-D object. </td><td> An invisible &quot;handle&quot; for a group of objects. </td>
 	</tr>
 	<tr>
-		<th> Purpose: </th><td> Represents the &quot;look&quot; of an object: Shape, color, texture, opacity/transparency. </td><td> Groups Geometries and other Nodes together: You transform a Node to affect all attached Nodes. </td>
+		<th> Purpose: </th><td> A Geometry represents the &quot;look&quot; of an object: Shape, color, texture, opacity/transparency. </td><td> A Node groups Geometries and other Nodes together: You transform a Node to affect all attached Nodes (parent-child relationship). </td>
 	</tr>
 	<tr>
 		<th> Content: </th><td> Transformations, mesh, material. </td><td> Transformations. No mesh, no material. </td>
 	</tr>
 	<tr>
-		<th> Examples: </th><td> A box, a sphere, player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc??? </td><td> The rootNode, the guiNode, an audio node, a custom grouping node, etc. </td>
+		<th> Examples: </th><td> A box, a sphere, player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc??? </td><td> The rootNode, the guiNode, an audioNode, a custom grouping node for a vehicle plus its passengers, etc. </td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [1973-2678] -->
+<!-- EDIT7 TABLE [4009-4793] -->
 </div>
-<!-- EDIT4 SECTION "Spatials: Node vs Geometry" [1821-2679] -->
+<!-- EDIT6 SECTION "Spatials: Node vs Geometry" [3764-4794] -->
 <h2><a>How to Use This Knowledge?</a></h2>
 <div>
 
@@ -128,13 +198,15 @@ The <a href="/com/jme3/gde/docs/jme3.html">intermediate and advanced documentati
 </p>
 
 </div>
-<!-- EDIT6 SECTION "How to Use This Knowledge?" [2680-3212] -->
+<!-- EDIT8 SECTION "How to Use This Knowledge?" [4795-5327] -->
 <h2><a>See also</a></h2>
 <div>
 <ul>
 <li><div> <a href="/com/jme3/gde/docs/jme3/advanced/spatial.html">Spatial</a> ??? More details about working with Nodes and Geometries</div>
 </li>
 <li><div> <a href="/com/jme3/gde/docs/jme3/advanced/traverse_scenegraph.html">Traverse SceneGraph</a> ??? Find any Node or Geometry in the scenegraph.</div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/camera.html">Camera</a> ??? Learn more about the Camera in the scene.</div>
 </li>
 </ul>
 <div><span>
@@ -147,5 +219,5 @@ The <a href="/com/jme3/gde/docs/jme3.html">intermediate and advanced documentati
 </span></div>
 
 </div>
-<!-- EDIT7 SECTION "See also" [3213-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:the_scene_graph?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT9 SECTION "See also" [5328-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:the_scene_graph?do=export_xhtmlbody">view online version</a></em></p>

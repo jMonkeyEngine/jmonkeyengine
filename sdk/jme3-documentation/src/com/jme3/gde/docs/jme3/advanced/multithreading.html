@@ -6,26 +6,25 @@
 
 jME3 is similar to Swing in that for speed and efficiency all changes to the world must be made in a single update thread. This is happening automatically if using Controls and AppSates update metod or simpleUpdate however whenever you pass work to another thread you need to hand the results back to the main jME3 thread before making any changes to the scene graph.
 </p>
-<pre>    public void rotateGeography(final Geography goe, final Quaternian rot) {
-        mainApp.enqueue(new Callable&lt;Spatial&gt;() {
-
-            public Spatial call() throws Exception {
-                return geo.rotate(rot);
-            }
-            
-        });
-    }</pre>
+<pre>public void rotateGeometry&#40;final Geometry geo, final Quaternion rot&#41; &#123;
+    mainApp.enqueue&#40;new Callable&lt;Spatial&gt;&#40;&#41; &#123;
+        public Spatial call&#40;&#41; throws Exception &#123;
+            return geo.rotate&#40;rot&#41;;
+        &#125;
+    &#125;&#41;;
+&#125;</pre>
 
 <p>
-Note that this example does not fetch the returned value by calling <code>get()</code> on the Future object returned from <code>enqueue()</code>. This means that the example method <code>rotateGeography()</code> will return immediately and will not wait for the rotation to be processed before continuing.
+Note that this example does not fetch the returned value by calling <code>get()</code> on the Future object returned from <code>enqueue()</code>. This means that the example method <code>rotateGeometry()</code> will return immediately and will not wait for the rotation to be processed before continuing.
 </p>
 
 <p>
 If the processing thread needs to wait or needs the return value then <code>get()</code> or the other methods in the returned Future object such as <code>isDone()</code> can be used.
+
 </p>
 
 </div>
-<!-- EDIT1 SECTION "The jME3 Threading Model" [1-1133] -->
+<!-- EDIT1 SECTION "The jME3 Threading Model" [1-1092] -->
 <h1><a>Multithreading Optimization</a></h1>
 <div>
 
@@ -35,7 +34,7 @@ First, make sure you know what <a href="/com/jme3/gde/docs/jme3/advanced/applica
 </p>
 
 <p>
-More complex games may feature complex mathematical operations or artificially intelligent calculations (such as path finding for several NPCs). If you make many time-intensive calls on the same thread (in the update loop), they will block one another, and thus slow down the game to a degree that makes it unplayable. If your game requires long running tasks, you should run them concurrently on separate threads, which speeds up the application considerably.
+More complex games may feature complex mathematical operations or artificial intelligence calculations (such as path finding for several NPCs). If you make many time-intensive calls on the same thread (in the update loop), they will block one another, and thus slow down the game to a degree that makes it unplayable. If your game requires long running tasks, you should run them concurrently on separate threads, which speeds up the application considerably.
 </p>
 
 <p>
@@ -47,7 +46,7 @@ Effectively, each for-loop in the main update loop might be a chance for multith
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Multithreading Optimization" [1134-2265] -->
+<!-- EDIT2 SECTION "Multithreading Optimization" [1093-2223] -->
 <h2><a>Java Multithreading</a></h2>
 <div>
 
@@ -66,7 +65,7 @@ The java.util.concurrent package provides a good foundation for multithreading a
 </ul>
 
 </div>
-<!-- EDIT3 SECTION "Java Multithreading" [2266-3338] -->
+<!-- EDIT3 SECTION "Java Multithreading" [2224-3296] -->
 <h2><a>Multithreading in jME3</a></h2>
 <div>
 
@@ -84,7 +83,7 @@ To avoid slowdown, we decide to keep the pathfinding operations in the NPC Contr
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Multithreading in jME3" [3339-4011] -->
+<!-- EDIT4 SECTION "Multithreading in jME3" [3297-3969] -->
 <h3><a>Executor</a></h3>
 <div>
 
@@ -111,7 +110,7 @@ In your simple application you can override the destroy method and shutdown the 
     &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "Executor" [4012-5087] -->
+<!-- EDIT5 SECTION "Executor" [3970-5045] -->
 <h3><a>Control Class Fields</a></h3>
 <div>
 
@@ -131,7 +130,7 @@ Here we also created the Future variable to track the state of this task.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Control Class Fields" [5088-5678] -->
+<!-- EDIT6 SECTION "Control Class Fields" [5046-5636] -->
 <h3><a>Control Update() Method</a></h3>
 <div>
 
@@ -179,7 +178,7 @@ Remember not to mess with the class fields after starting the thread, because th
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Control Update() Method" [5679-7549] -->
+<!-- EDIT7 SECTION "Control Update() Method" [5637-7507] -->
 <h3><a>The Callable</a></h3>
 <div>
 
@@ -231,7 +230,7 @@ private Callable&lt;MyWayList&gt; findWay = new Callable&lt;MyWayList&gt;&#40;&#
 &#125;;</pre>
 
 </div>
-<!-- EDIT8 SECTION "The Callable" [7550-9916] -->
+<!-- EDIT8 SECTION "The Callable" [7508-9874] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -250,5 +249,5 @@ The cool thing about this approach is that every entity creates one self-contain
 </span></div>
 
 </div>
-<!-- EDIT9 SECTION "Conclusion" [9917-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:multithreading?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT9 SECTION "Conclusion" [9875-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:multithreading?do=export_xhtmlbody">view online version</a></em></p>

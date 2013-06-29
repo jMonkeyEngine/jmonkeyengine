@@ -221,7 +221,7 @@ public class TestOgreMaxImport extends SimpleApplication &#123;
       mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Green&#41;;
       mat.getAdditionalRenderState&#40;&#41;.setDepthTest&#40;false&#41;;
       skeletonDebug.setMaterial&#40;mat&#41;;
-      model.attachChild&#40;skeletonDebug&#41;;
+      &#40;&#40;Node&#41; ac.getSpatial&#40;&#41;&#41;.attachChild&#40;skeletonDebug&#41;;
 &nbsp;
       // create a channel and start the wobble animation
       final AnimChannel channel = ac.createChannel&#40;&#41;;
@@ -284,10 +284,11 @@ You will see your worms strange movements. Have fun!
 
 <p>
 <img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-12.png">
+
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Export and Import" [3396-6885] -->
+<!-- EDIT7 SECTION "Export and Import" [3396-6903] -->
 <h1><a>3ds Max Biped Animation to JME3</a></h1>
 <div>
 
@@ -297,7 +298,7 @@ You can also use the biped operator to animate models, but you have to consider 
 </p>
 
 </div>
-<!-- EDIT8 SECTION "3ds Max Biped Animation to JME3" [6886-7030] -->
+<!-- EDIT8 SECTION "3ds Max Biped Animation to JME3" [6904-7048] -->
 <h3><a>Creating a character in 3dsMax</a></h3>
 <div>
 
@@ -336,7 +337,7 @@ I will not tell you in detail how to model a character. There I many good tutori
 </ul>
 
 </div>
-<!-- EDIT9 SECTION "Creating a character in 3dsMax" [7031-7770] -->
+<!-- EDIT9 SECTION "Creating a character in 3dsMax" [7049-7788] -->
 <h3><a>Creating a simple walk animation</a></h3>
 <div>
 <ul>
@@ -365,7 +366,7 @@ I will not tell you in detail how to model a character. There I many good tutori
 </ul>
 
 </div>
-<!-- EDIT10 SECTION "Creating a simple walk animation" [7771-8582] -->
+<!-- EDIT10 SECTION "Creating a simple walk animation" [7789-8600] -->
 <h3><a>Preparing the export and setting up OgreMax</a></h3>
 <div>
 <ul>
@@ -420,7 +421,7 @@ I will not tell you in detail how to model a character. There I many good tutori
 </ul>
 
 </div>
-<!-- EDIT11 SECTION "Preparing the export and setting up OgreMax" [8583-10257] -->
+<!-- EDIT11 SECTION "Preparing the export and setting up OgreMax" [8601-10275] -->
 <h3><a>Fixing the location</a></h3>
 <div>
 <ul>
@@ -445,7 +446,7 @@ I will not tell you in detail how to model a character. There I many good tutori
 </ul>
 
 </div>
-<!-- EDIT12 SECTION "Fixing the location" [10258-11067] -->
+<!-- EDIT12 SECTION "Fixing the location" [10276-11085] -->
 <h3><a>Export and Import</a></h3>
 <div>
 <ul>
@@ -509,7 +510,7 @@ public class TestOgreMaxImport extends SimpleApplication &#123;
       mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Green&#41;;
       mat.getAdditionalRenderState&#40;&#41;.setDepthTest&#40;false&#41;;
       skeletonDebug.setMaterial&#40;mat&#41;;
-      // model.attachChild(skeletonDebug);
+      &#40;&#40;Node&#41; ac.getSpatial&#40;&#41;&#41;.attachChild&#40;skeletonDebug&#41;;
 &nbsp;
       // create a channel and start the walk animation
       final AnimChannel channel = ac.createChannel&#40;&#41;;
@@ -612,5 +613,5 @@ As you can see, the LOD is working:
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Export and Import" [11068-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:external:3dsmax?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT13 SECTION "Export and Import" [11086-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:external:3dsmax?do=export_xhtmlbody">view online version</a></em></p>

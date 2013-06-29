@@ -32,7 +32,7 @@ HelloJME3/src
 
 <p>
 
-To install the development version of jme3, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.jmonkeyengine.com/nightly/"><param name="text" value="<html><u>download the nightly build</u></html>"><param name="textColor" value="blue"></object>, unzip the folder into a directory named <code>jme3</code>. The filenames here are just an example, but they will always be something like <code>jME3_xx-xx-2011</code>. 
+To install the development version of jme3, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://nightly.jmonkeyengine.org/"><param name="text" value="<html><u>download the nightly build</u></html>"><param name="textColor" value="blue"></object>, unzip the folder into a directory named <code>jme3</code>. The filenames here are just an example, but they will always be something like <code>jME3_xx-xx-2011</code>. 
 </p>
 <pre>mkdir jme3
 cd jme3
@@ -47,11 +47,11 @@ ant run
 cd ..</pre>
 
 <p>
-If you see a Test Chooser open now, the build was successful. <strong>Tip:</strong> Use <code>ant</code> to build the libraries without running the demos.
+If you see a Test Chooser application open now, the build was successful. <strong>Tip:</strong> Use just <code>ant</code> instead of <code>ant run</code> to build the libraries without running the demos.
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Installing the JME3 Framework" [679-1380] -->
+<!-- EDIT2 SECTION "Installing the JME3 Framework" [679-1416] -->
 <h2><a>Sample Project Directory Structure</a></h2>
 <div>
 
@@ -64,7 +64,7 @@ mkdir HelloJME3/src
 mkdir HelloJME3/src/hello</pre>
 
 </div>
-<!-- EDIT3 SECTION "Sample Project Directory Structure" [1381-1778] -->
+<!-- EDIT3 SECTION "Sample Project Directory Structure" [1417-1814] -->
 <h2><a>Libraries</a></h2>
 <div>
 
@@ -84,7 +84,7 @@ mkdir HelloJME3/lib
 cp jme3/dist/*.* HelloJME3/lib</pre>
 
 </div>
-<!-- EDIT4 SECTION "Libraries" [1779-2353] -->
+<!-- EDIT4 SECTION "Libraries" [1815-2389] -->
 <h3><a>Sample Code</a></h3>
 <div>
 
@@ -121,7 +121,7 @@ public class HelloJME3 extends SimpleApplication &#123;
 &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "Sample Code" [2354-3287] -->
+<!-- EDIT5 SECTION "Sample Code" [2390-3323] -->
 <h2><a>Build and Run</a></h2>
 <div>
 
@@ -147,13 +147,13 @@ If a settings dialog pops up, confirm the default settings. You should now see a
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Build and Run" [3288-4740] -->
+<!-- EDIT6 SECTION "Build and Run" [3324-4776] -->
 <h2><a>Recommended Asset Directory Structure</a></h2>
 <div>
 
 <p>
 
-For media files and other assets, we recommend creating the following project structure:
+For <a href="/com/jme3/gde/docs/jme3/intermediate/multi-media_asset_pipeline.html">multi-media files, models, and other assets</a>, we recommend creating the following project structure:
 </p>
 <pre>cd HelloJME3
 mkdir assets
@@ -167,12 +167,12 @@ mkdir assets/Sounds
 mkdir assets/Textures</pre>
 
 <p>
-This will allow the default assetManager to load media files stored in the <code>assets</code> directory, like in this example:
+This directory structure will allow <a href="/com/jme3/gde/docs/jme3/intermediate/simpleapplication.html">SimpleApplication</a>&#039;s default <a href="/com/jme3/gde/docs/jme3/advanced/asset_manager.html">AssetManager</a> to load media files from your <code>assets</code> directory, like in this example:
 </p>
 <pre>import com.jme3.scene.Spatial;
 ...
-Spatial elephant = assetManager.loadModel(&quot;Models/Elephant/Elephant.meshxml&quot;);
-rootNode.attachChild(elephant);
+  Spatial elephant = assetManager.loadModel(&quot;Models/Elephant/Elephant.meshxml&quot;);
+  rootNode.attachChild(elephant);
 ...</pre>
 
 <p>
@@ -180,7 +180,7 @@ You will learn more about the asset manager and how to customize it later. For n
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Recommended Asset Directory Structure" [4741-5682] -->
+<!-- EDIT7 SECTION "Recommended Asset Directory Structure" [4777-5893] -->
 <h2><a>Next Steps</a></h2>
 <div>
 
@@ -194,5 +194,5 @@ Now follow the <a href="/com/jme3/gde/docs/jme3.html">tutorials</a> and write yo
 </span></div>
 
 </div>
-<!-- EDIT8 SECTION "Next Steps" [5683-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:simpleapplication_from_the_commandline?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT8 SECTION "Next Steps" [5894-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:simpleapplication_from_the_commandline?do=export_xhtmlbody">view online version</a></em></p>

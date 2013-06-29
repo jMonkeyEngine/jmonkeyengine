@@ -251,7 +251,7 @@ If you run the app with only the code up to here, you see two cubes: A red cube 
 
 <p>
 
-You can transform (e.g. rotate) Geometries around their own center, or around a user defined center point. A user defined center point for one or more Geometries is called pivot.
+You can transform (e.g. rotate) Geometries around their own center, or around a user defined center point. A user defined center point for one or more Geometries is called a pivot.
 
 </p>
 <ul>
@@ -264,7 +264,7 @@ You can transform (e.g. rotate) Geometries around their own center, or around a 
 </ul>
 
 </div>
-<!-- EDIT7 SECTION "What is a Pivot Node?" [6875-8195] -->
+<!-- EDIT7 SECTION "What is a Pivot Node?" [6875-8197] -->
 <h2><a>How do I Populate the Scenegraph?</a></h2>
 <div>
 <div><table>
@@ -298,9 +298,9 @@ thing.setMaterial&#40;mat&#41;;</pre>
 		<td> Specify what should be loaded at the start </td><td> Everything you initialize and attach to the <code>rootNode</code> in the <code>simpleInitApp()</code> method is part of the scene at the start of the game. </td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [8243-9536] -->
+<!-- EDIT9 TABLE [8245-9538] -->
 </div>
-<!-- EDIT8 SECTION "How do I Populate the Scenegraph?" [8196-9537] -->
+<!-- EDIT8 SECTION "How do I Populate the Scenegraph?" [8198-9539] -->
 <h2><a>How do I Transform Spatials?</a></h2>
 <div>
 
@@ -324,7 +324,7 @@ To move a Spatial <em>to</em> specific coordinates, such as (0,40.2f,-2), use: <
 </td><td>+right -left</td><td>+up -down</td><td>+forward -backward</td>
 	</tr>
 </table></div>
-<!-- EDIT11 TABLE [9661-10177] --><div><table>
+<!-- EDIT11 TABLE [9663-10179] --><div><table>
 	<tr>
 		<th> Scaling resizes Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -336,7 +336,7 @@ To scale a Spatial 10 times longer, one tenth the height, and keep the same widt
 </td><td>length</td><td>height</td><td>width</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [10179-10668] --><div><table>
+<!-- EDIT12 TABLE [10181-10670] --><div><table>
 	<tr>
 		<th> Rotation turns Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
 	</tr>
@@ -352,9 +352,9 @@ To roll an object 180?? around the z axis: <pre>thing.rotate&#40; 0f , 0f , 180*
 </td><td>pitch = nodding your head</td><td>yaw = shaking your head</td><td>roll = cocking your head</td>
 	</tr>
 </table></div>
-<!-- EDIT13 TABLE [10670-11451] -->
+<!-- EDIT13 TABLE [10672-11453] -->
 </div>
-<!-- EDIT10 SECTION "How do I Transform Spatials?" [9538-11452] -->
+<!-- EDIT10 SECTION "How do I Transform Spatials?" [9540-11454] -->
 <h2><a>How do I Troubleshoot Spatials?</a></h2>
 <div>
 
@@ -384,9 +384,9 @@ Did you rotate around the right axis? </td>
 		<td> A Geometry has an unexpected Color or Material. </td><td> Did you reuse a Material from another Geometry and have inadvertently changed its properties? (If so, consider cloning it: mat2 = mat.clone(); )  </td>
 	</tr>
 </table></div>
-<!-- EDIT15 TABLE [11584-12642] -->
+<!-- EDIT15 TABLE [11586-12644] -->
 </div>
-<!-- EDIT14 SECTION "How do I Troubleshoot Spatials?" [11453-12643] -->
+<!-- EDIT14 SECTION "How do I Troubleshoot Spatials?" [11455-12645] -->
 <h2><a>How do I Add Custom Data to Spatials?</a></h2>
 <div>
 
@@ -419,7 +419,7 @@ By using different Strings keys (here the key is <code>pivot id</code>), you can
 </p>
 
 </div>
-<!-- EDIT16 SECTION "How do I Add Custom Data to Spatials?" [12644-14097] -->
+<!-- EDIT16 SECTION "How do I Add Custom Data to Spatials?" [12646-14099] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -445,5 +445,5 @@ Since standard shapes like spheres and boxes get old fast, continue with the nex
 </span></div>
 
 </div>
-<!-- EDIT17 SECTION "Conclusion" [14098-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_node?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT17 SECTION "Conclusion" [14100-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_node?do=export_xhtmlbody">view online version</a></em></p>

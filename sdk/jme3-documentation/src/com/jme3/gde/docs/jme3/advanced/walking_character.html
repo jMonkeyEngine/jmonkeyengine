@@ -4,15 +4,20 @@
 
 <p>
 
-In the <a href="/com/jme3/gde/docs/jme3/beginner/hello_collision.html">Hello Collision</a> tutorial and the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestQ3.java"><param name="text" value="<html><u>TestQ3.java</u></html>"><param name="textColor" value="blue"></object> code sample you have seen how to create collidable landscapes and walk around in a first-person perspective. The first-person camera is enclosed by a collision shape and is steered by a CharacterControl. 
+In the <a href="/com/jme3/gde/docs/jme3/beginner/hello_collision.html">Hello Collision</a> tutorial and the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestQ3.java"><param name="text" value="<html><u>TestQ3.java</u></html>"><param name="textColor" value="blue"></object> code sample you have seen how to create collidable landscapes and walk around in a first-person perspective. The first-person camera is enclosed by a collision shape and is steered by the BetterCharacterControl. 
 </p>
 
 <p>
 Other games however require a third-person perspective of the character: In these cases you use a CharacterControl on a Spatial. This example also shows how to set up custom navigation controls, so you can press WASD to make the third-person character walk; and how to implement dragging the mouse to rotate.
 </p>
 
+<p>
+<p><div>Some details on this page still need to be updated from old CharacterControl <acronym title="Application Programming Interface">API</acronym> to BetterCharacterControl <acronym title="Application Programming Interface">API</acronym>.
+</div></p>
+</p>
+
 </div>
-<!-- EDIT1 SECTION "Walking Character" [1-727] -->
+<!-- EDIT1 SECTION "Walking Character" [1-869] -->
 <h2><a>Sample Code</a></h2>
 <div>
 
@@ -42,13 +47,13 @@ The code in this tutorial is a combination of these samples.
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [728-1646] -->
-<h2><a>CharacterControl</a></h2>
+<!-- EDIT2 SECTION "Sample Code" [870-1788] -->
+<h2><a>BetterCharacterControl</a></h2>
 <div>
 
 <p>
 
-When you load a character model, give it a RigidBodyControl, and use forces to push it around, you do not get the desired behaviour: RigidBodyControl&#039;ed objects (such as cubes and spheres) roll or tip over when pushed by physical forces. This is not the behaviour that you expect of a walking character. JME3&#039;s BulletPhysics integration offers a special CharacterControl with a <code>setWalkDirection()</code> method. You use it to create simple characters that treat floors and walls as solid, and always stays locked upright while moving.
+Motivation: When you load a character model, give it a RigidBodyControl, and use forces to push it around, you do not get the desired behaviour: RigidBodyControl&#039;ed objects (such as cubes and spheres) roll or tip over when pushed by physical forces. This is not the behaviour that you expect of a walking character. JME3&#039;s BulletPhysics integration offers a BetterCharacterControl with a <code>setWalkDirection()</code> method. You use it to create simple characters that treat floors and walls as solid, and always stays locked upright while moving.
 </p>
 
 <p>
@@ -98,19 +103,19 @@ Default: 1, because for characters and vehicles, up is typically along the Y axi
 Use <code>setWalkDirection(Vector3f.ZERO)</code> to stop a directional motion. </td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [3560-4723] -->
+<!-- EDIT4 TABLE [3718-4881] -->
 <p>
 
 For best practices on how to use <code>setWalkDirection()</code>, see the Navigation Inputs example below.
 </p>
 
 </div>
-<!-- EDIT3 SECTION "CharacterControl" [1647-4823] -->
+<!-- EDIT3 SECTION "BetterCharacterControl" [1789-4981] -->
 <h2><a>Walking Character Demo</a></h2>
 <div>
 
 </div>
-<!-- EDIT5 SECTION "Walking Character Demo" [4824-4859] -->
+<!-- EDIT5 SECTION "Walking Character Demo" [4982-5017] -->
 <h3><a>Code Skeleton</a></h3>
 <div>
 <pre>public class WalkingCharacterDemo extends SimpleApplication
@@ -132,7 +137,7 @@ For best practices on how to use <code>setWalkDirection()</code>, see the Naviga
   public void onAnimChange&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123; &#125;</pre>
 
 </div>
-<!-- EDIT6 SECTION "Code Skeleton" [4860-5477] -->
+<!-- EDIT6 SECTION "Code Skeleton" [5018-5635] -->
 <h3><a>Overview</a></h3>
 <div>
 
@@ -162,7 +167,7 @@ To create a walking character:
 </ol>
 
 </div>
-<!-- EDIT7 SECTION "Overview" [5478-6001] -->
+<!-- EDIT7 SECTION "Overview" [5636-6159] -->
 <h3><a>Activate Physics</a></h3>
 <div>
 <pre>private BulletAppState bulletAppState;
@@ -175,7 +180,7 @@ public void simpleInitApp&#40;&#41; &#123;
 &#125;</pre>
 
 </div>
-<!-- EDIT8 SECTION "Activate Physics" [6002-6295] -->
+<!-- EDIT8 SECTION "Activate Physics" [6160-6453] -->
 <h3><a>Initialize the Scene</a></h3>
 <div>
 
@@ -218,7 +223,7 @@ Also, add a light source to be able to see the scene.
   rootNode.addLight&#40;light&#41;;</pre>
 
 </div>
-<!-- EDIT9 SECTION "Initialize the Scene" [6296-7762] -->
+<!-- EDIT9 SECTION "Initialize the Scene" [6454-7920] -->
 <h3><a>Create the Animated Character</a></h3>
 <div>
 
@@ -260,7 +265,7 @@ public void simpleInitApp&#40;&#41; &#123;
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Create the Animated Character" [7763-9100] -->
+<!-- EDIT10 SECTION "Create the Animated Character" [7921-9258] -->
 <h3><a>Set Up AnimControl and AnimChannels</a></h3>
 <div>
 
@@ -288,7 +293,7 @@ The attackChannel only controls one arm, while the walking channels controls the
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Set Up AnimControl and AnimChannels" [9101-10126] -->
+<!-- EDIT11 SECTION "Set Up AnimControl and AnimChannels" [9259-10284] -->
 <h3><a>Add ChaseCam / CameraNode</a></h3>
 <div>
 <pre>private ChaseCamera chaseCam;
@@ -302,7 +307,7 @@ public void simpleInitApp&#40;&#41; &#123;
   ...</pre>
 
 </div>
-<!-- EDIT12 SECTION "Add ChaseCam / CameraNode" [10127-10346] -->
+<!-- EDIT12 SECTION "Add ChaseCam / CameraNode" [10285-10504] -->
 <h3><a>Handle Navigation</a></h3>
 <div>
 
@@ -425,5 +430,5 @@ public void onAnimChange&#40;AnimControl control, AnimChannel channel, String an
 </span></div>
 
 </div>
-<!-- EDIT13 SECTION "Handle Navigation" [10347-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:walking_character?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT13 SECTION "Handle Navigation" [10505-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:walking_character?do=export_xhtmlbody">view online version</a></em></p>

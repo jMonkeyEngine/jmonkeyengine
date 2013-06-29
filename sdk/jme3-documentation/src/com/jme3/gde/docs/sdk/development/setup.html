@@ -127,21 +127,25 @@ And thats it, from now on each time you commit changes to your module it will be
 
 </div>
 
-<h4><a>Building library jar files on the server</a></h4>
+<h4><a>Building wrapped library jar files on the server</a></h4>
 <div>
 
 <p>
-You can just build your library locally and update and commit the jar file and javadoc/sources zip files to the contrib repo, the users plugins will automatically be updated with the new jar files. You can however also build the whole library project on the server.
+You can just build your library locally and update and commit the jar file and javadoc/sources zip files to the <code>release/libs</code> folder of your plugin in the contrib repo. The users plugins will automatically be updated with the new jar files. You can however also build the library project on the server.
 </p>
 
 <p>
-As only the module project is being built on the server, any projects that create the actual jar files for library plugins (&quot;normal&quot; projects from the <acronym title="Software Development Kit">SDK</acronym>/NetBeans) have to be built from the module build file. To do that simply add the following ant targets to the module build file:
+As normally only the module project is being built on the server, any projects that create the actual jar files for library plugins (&quot;normal&quot; projects from the <acronym title="Software Development Kit">SDK</acronym>/NetBeans) have to be built from the module build file. To do that simply add the following ant targets to the module build file (adapt to your project file and folder names):
 
 </p>
 <pre><span>&lt;target name=&quot;init&quot; depends=&quot;basic-init,files-init,build-init,-javac-init,-build-subproject&quot;/&gt;</span>
 <span>&lt;target name=&quot;-build-subproject&quot;&gt;</span>
-    <span>&lt;ant dir=&quot;./MySubProject&quot; inheritall=&quot;false&quot; target=&quot;jar&quot;/&gt;</span>
-    <span>&lt;copy file=&quot;./MySubProject/dist/MySubProject.jar&quot; todir=&quot;release/libs&quot;/&gt;</span>
+    <span>&lt;ant dir=&quot;./AI&quot; inheritall=&quot;false&quot; inheritrefs=&quot;false&quot; target=&quot;clean&quot;/&gt;</span>
+    <span>&lt;ant dir=&quot;./AI&quot; inheritall=&quot;false&quot; inheritrefs=&quot;false&quot; target=&quot;jar&quot;/&gt;</span>
+    <span>&lt;ant dir=&quot;./AI&quot; inheritall=&quot;false&quot; inheritrefs=&quot;false&quot; target=&quot;javadoc&quot;/&gt;</span>
+    <span>&lt;zip basedir=&quot;./AI/dist/javadoc&quot; file=&quot;release/libs/jME3-ai-javadoc.zip&quot;/&gt;</span>
+    <span>&lt;zip basedir=&quot;./AI/src&quot; file=&quot;release/libs/jME3-ai-sources.zip&quot;/&gt;</span>
+    <span>&lt;copy file=&quot;./AI/dist/jME3-ai.jar&quot; todir=&quot;release/libs&quot;/&gt;</span>
 <span><span>&lt;/target&gt;</span></span></pre>
 
 <p>
@@ -152,4 +156,4 @@ As only the module project is being built on the server, any projects that creat
 
 </div>
 <!-- EDIT3 SECTION "jMonkeyEngine SDK Contributions Update Center" [1393-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:setup?do=export_xhtmlbody">view online version</a></em></p>
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:development:setup?do=export_xhtmlbody">view online version</a></em></p>

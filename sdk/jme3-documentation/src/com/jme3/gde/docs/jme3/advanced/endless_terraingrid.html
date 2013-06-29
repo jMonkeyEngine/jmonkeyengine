@@ -63,12 +63,13 @@ HeightMapGrid adds the possibility of loading terrain tiles on demand instead of
 <div>
 
 <p>
+<img src="nbdocs:/com/jme3/gde/docs/wp-uploads/2011/06/grid-tiles.jpg">
 After playing around with the terrain in jME3, soon comes the requirement of having larger explorable lands. Increasing the size of one TerrainQuad leads to more memory usage, while it will still be easy to reach the worlds boundaries. That???s why TerrainGrid was designed. It extends the TerraindQuad class and uses 4 HeightMaps (dark blue) as the four sub-quad. This means that a terrain of size 513 will use tiles of 257. Also an LRUCache is built into the terrain package, so surrounding tiles (green) can be pre-cached on a different thread, lowering the loading time. The quads are updated as the camera approaches the boundary of the light blue section.
 
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Motivation" [2426-3108] -->
+<!-- EDIT4 SECTION "Motivation" [2426-3157] -->
 <h2><a>Rationale</a></h2>
 <div>
 
@@ -84,7 +85,7 @@ There exist also two basic HeightMapGrid implementations:
 </ul>
 
 </div>
-<!-- EDIT5 SECTION "Rationale" [3109-4319] -->
+<!-- EDIT5 SECTION "Rationale" [3158-4368] -->
 <h2><a>Usage</a></h2>
 <div>
 <ol>
@@ -111,5 +112,5 @@ Further information about terrain and TerrainQuad can be found in the wiki at:
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Usage" [4320-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:endless_terraingrid?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT6 SECTION "Usage" [4369-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:endless_terraingrid?do=export_xhtmlbody">view online version</a></em></p>

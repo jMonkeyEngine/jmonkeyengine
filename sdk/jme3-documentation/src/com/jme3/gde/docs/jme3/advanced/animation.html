@@ -21,11 +21,11 @@ JME3 only loads and plays animated models, it does not create them.
 What is required for an animated model? (<a href="/com/jme3/gde/docs/jme3/terminology#animation.html">See also: Animation terminology</a>)
 </p>
 <ol>
-<li><div> For each model, you have to segment the model into a skeleton (bone rigging). </div>
+<li><div> For each model, you have to segment the model into a skeleton (<strong>bone rigging</strong>). </div>
 </li>
-<li><div> For each motion, you have to specify how the animation distorts parts of the model (skinning). </div>
+<li><div> For each motion, you have to specify how the animation distorts parts of the model (<strong>skinning</strong>).  </div>
 </li>
-<li><div> For each animation, you have to specify a series of snapshots of how the bones are positioned (keyframes).</div>
+<li><div> For each animation, you have to specify a series of snapshots of how the bones are positioned (<strong>keyframes</strong>).</div>
 </li>
 <li><div> One model can contain several animations. You give every animation a name when you save it in the mesh editor.</div>
 </li>
@@ -62,7 +62,7 @@ What is required in your JME3-based Java class?
 </ul>
 
 </div>
-<!-- EDIT2 SECTION "Requirements" [168-2025] -->
+<!-- EDIT2 SECTION "Requirements" [168-2038] -->
 <h2><a>Code Samples</a></h2>
 <div>
 <ul>
@@ -81,12 +81,12 @@ What is required in your JME3-based Java class?
 </ul>
 
 </div>
-<!-- EDIT3 SECTION "Code Samples" [2026-2934] -->
+<!-- EDIT3 SECTION "Code Samples" [2039-2947] -->
 <h2><a>Controlling Animations</a></h2>
 <div>
 
 </div>
-<!-- EDIT4 SECTION "Controlling Animations" [2935-2970] -->
+<!-- EDIT4 SECTION "Controlling Animations" [2948-2983] -->
 <h3><a>The Animation Control</a></h3>
 <div>
 
@@ -100,7 +100,7 @@ Create one <code>com.jme3.animation.AnimControl</code> object in your JME3 appli
   playerControl.addListener&#40;this&#41;; // add listener</pre>
 
 </div>
-<!-- EDIT5 SECTION "The Animation Control" [2971-3610] -->
+<!-- EDIT5 SECTION "The Animation Control" [2984-3623] -->
 <h3><a>Animation Channels</a></h3>
 <div>
 
@@ -121,7 +121,7 @@ To reset a Control, call <code>control.clearChannels();</code>
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Animation Channels" [3611-4244] -->
+<!-- EDIT6 SECTION "Animation Channels" [3624-4257] -->
 <h2><a>Animation Control Properties</a></h2>
 <div>
 
@@ -152,7 +152,7 @@ removeListener(animEventListener) <br/>
 clearListeners() </td><td>Adds or removes listeners to receive animation related events.</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [4347-4816] --><div><table>
+<!-- EDIT8 TABLE [4360-4829] --><div><table>
 	<tr>
 		<th>AnimControl Property</th><th>Usage</th>
 	</tr>
@@ -173,7 +173,7 @@ removeAnim(boneAnim)</td><td>Adds or removes an animation from this Control.</td
 		<td>getAnimationLength(&quot;anim&quot;)</td><td>Returns the length of the given named animation in seconds</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [4818-5378] --><div><table>
+<!-- EDIT9 TABLE [4831-5391] --><div><table>
 	<tr>
 		<th>AnimControl Property</th><th>Usage</th>
 	</tr>
@@ -187,9 +187,9 @@ removeAnim(boneAnim)</td><td>Adds or removes an animation from this Control.</td
 		<td>getAttachmentsNode(&quot;bone&quot;)</td><td>Returns the attachment node of a bone. Attach models and effects to this node to make them follow this bone&#039;s motions.</td>
 	</tr>
 </table></div>
-<!-- EDIT10 TABLE [5380-5695] -->
+<!-- EDIT10 TABLE [5393-5708] -->
 </div>
-<!-- EDIT7 SECTION "Animation Control Properties" [4245-5697] -->
+<!-- EDIT7 SECTION "Animation Control Properties" [4258-5710] -->
 <h2><a>Animation Channel Properties</a></h2>
 <div>
 
@@ -218,7 +218,7 @@ The following properties are set per AnimChannel.
 		<td>setTime(1.3f); </td><td> Fast-forward or rewind to a certain moment in time of this animation. </td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [5791-6415] -->
+<!-- EDIT12 TABLE [5804-6428] -->
 <p>
 
 The following information is available for a channel.
@@ -244,7 +244,7 @@ The following information is available for a channel.
 		<td>getControl()</td><td>The AnimControl that belongs to this AnimChannel.</td>
 	</tr>
 </table></div>
-<!-- EDIT13 TABLE [6472-7105] -->
+<!-- EDIT13 TABLE [6485-7118] -->
 <p>
 
 Use the following methods to add or remove individual bones to an AnimChannel. This is useful when you play two animations in parallel on two channels, and each controls a subset of the bones (e.g. one the arms, and the other the legs).
@@ -270,9 +270,9 @@ addToRootBone(bone1) </td><td>Add a series of bones to be influenced by this ani
 addFromRootBone(bone1) </td><td>Add a series of bones to be influenced by this animation channel: Add all bones, starting from the given root bone, going towards the children bones.</td>
 	</tr>
 </table></div>
-<!-- EDIT14 TABLE [7345-7966] -->
+<!-- EDIT14 TABLE [7358-7979] -->
 </div>
-<!-- EDIT11 SECTION "Animation Channel Properties" [5698-7968] -->
+<!-- EDIT11 SECTION "Animation Channel Properties" [5711-7981] -->
 <h2><a>Playing Animations</a></h2>
 <div>
 
@@ -290,14 +290,14 @@ Animations are played by channel. <strong>Note:</strong> Whether the animation c
 The float value specifies the time how long the animation should overlap with the previous one on this channel. If set to 0f, then no blending will occur and the new animation will be applied instantly.</td>
 	</tr>
 </table></div>
-<!-- EDIT16 TABLE [8154-8480] -->
+<!-- EDIT16 TABLE [8167-8493] -->
 <p>
 
 <strong>Tip:</strong> Use the AnimEventLister below to react at the end or start of an animation cycle.
 </p>
 
 </div>
-<!-- EDIT15 SECTION "Playing Animations" [7969-8573] -->
+<!-- EDIT15 SECTION "Playing Animations" [7982-8586] -->
 <h3><a>Usage Example</a></h3>
 <div>
 
@@ -324,7 +324,7 @@ In this short example, we define the space key to trigger playing the &quot;Walk
   &#125;;</pre>
 
 </div>
-<!-- EDIT17 SECTION "Usage Example" [8574-9263] -->
+<!-- EDIT17 SECTION "Usage Example" [8587-9276] -->
 <h2><a>Animation Event Listener</a></h2>
 <div>
 
@@ -340,7 +340,7 @@ This optional Listener enables you to respond to animation start and end events,
 </p>
 
 </div>
-<!-- EDIT18 SECTION "Animation Event Listener" [9264-9667] -->
+<!-- EDIT18 SECTION "Animation Event Listener" [9277-9680] -->
 <h3><a>Responding to Animation End</a></h3>
 <div>
 
@@ -369,7 +369,7 @@ You have access to the following objects:
   &#125;</pre>
 
 </div>
-<!-- EDIT19 SECTION "Responding to Animation End" [9668-10458] -->
+<!-- EDIT19 SECTION "Responding to Animation End" [9681-10471] -->
 <h3><a>Responding to Animation Start</a></h3>
 <div>
 
@@ -398,5 +398,5 @@ You have access to the following objects
   &#125;</pre>
 
 </div>
-<!-- EDIT20 SECTION "Responding to Animation Start" [10459-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:animation?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT20 SECTION "Responding to Animation Start" [10472-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:animation?do=export_xhtmlbody">view online version</a></em></p>

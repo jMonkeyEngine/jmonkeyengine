@@ -33,28 +33,31 @@ As a quick overview, answer yourself the following questions:
 <ul>
 <li><div> Motivation</div>
 <ul>
-<li><div> Sum up your game idea in one sentence. If you can&#039;t, it&#039;s too complicated.</div>
+<li><div> Sum up your game idea in one catchy sentence. If you can&#039;t, it&#039;s too complicated. <br/>
+E.g. &quot;Craft by day, fight by night!&quot;</div>
 </li>
-<li><div> Who&#039;s the target group? Are you making it for yourself or are you trying to attract the masses?</div>
+<li><div> Who&#039;s the target group? Are you making it for your friends or are you trying to attract the masses?</div>
 </li>
 </ul>
 </li>
 <li><div> Game type</div>
 <ul>
-<li><div> Point of view (camera)? What character(s) does the player control? (if applicable)</div>
+<li><div> Point of view (first- or third-person camera)? What characters does the player control? (if applicable)</div>
 </li>
 <li><div> Time- or turn-based?</div>
 </li>
-<li><div> Genre, setting, background story? (If applicable)</div>
+<li><div> Genre (drama, horror, adventure, mystery, comedy, educational, documentary)? </div>
+</li>
+<li><div> Setting and background story? (historic, fantasy, anime, futuristic, utopia/dystopia, pirate, zombie, vampire???)? </div>
 </li>
 </ul>
 </li>
 <li><div> Gameplay</div>
 <ul>
-<li><div> What is the start state, what is the end state (if any)?</div>
+<li><div> What is the start state, what is the end state? (if applicable)</div>
 </li>
 <li><div> What resources does the player manage? How are resources gained, transformed, spent? <br/>
-E.g. speed, gold, health, &quot;points&quot;.</div>
+E.g. &quot;points&quot;, health, speed, gold, xp, mana.</div>
 </li>
 <li><div> How does the player interact? Define rules, challenges, game mechanics.</div>
 </li>
@@ -71,9 +74,9 @@ E.g. models, terrains; materials, textures; noises, music, voices; video, cutsce
 </li>
 <li><div> Interface</div>
 <ul>
-<li><div> Can you achieve a high degree of input control? Even minor navigation and interaction glitches make the game unsolvable.</div>
+<li><div> Can you achieve a high degree of input control? (Even minor navigation and interaction glitches make the game unsolvable.)</div>
 </li>
-<li><div> Decide how to reflect current status, and changes in game states. E.g. health/damage.</div>
+<li><div> Decide how to reflect current status, and changes in game states. E.g. health/damage in HUD.</div>
 </li>
 <li><div> Decide how to reward good moves and discourage bad ones.</div>
 </li>
@@ -82,7 +85,7 @@ E.g. models, terrains; materials, textures; noises, music, voices; video, cutsce
 </ul>
 
 </div>
-<!-- EDIT3 SECTION "Requirements Gathering" [635-2013] -->
+<!-- EDIT3 SECTION "Requirements Gathering" [635-2261] -->
 <h3><a>Planning Development Milestones</a></h3>
 <div>
 
@@ -144,7 +147,7 @@ How you name or number these stages is fully up to your team. Development teams 
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Planning Development Milestones" [2014-3798] -->
+<!-- EDIT4 SECTION "Planning Development Milestones" [2262-4046] -->
 <h3><a>Use File Version Control</a></h3>
 <div>
 
@@ -163,7 +166,7 @@ If you don&#039;t know which to choose, Subversion is a good choice for starters
 </ul>
 
 </div>
-<!-- EDIT5 SECTION "Use File Version Control" [3799-4631] -->
+<!-- EDIT5 SECTION "Use File Version Control" [4047-4879] -->
 <h2><a>Multi-Media Asset Pipeline</a></h2>
 <div>
 <div><table>
@@ -189,14 +192,14 @@ If you don&#039;t know which to choose, Subversion is a good choice for starters
 		<td> Convert Models to j3o format. Move j3o files into <code>assets/Models</code>. </td><td>Don&#039;t reference Blender/Ogre/OBJ files in your load() code, because these unoptimized files are not packaged into the JAR.</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [4672-5558] -->
+<!-- EDIT7 TABLE [4920-5806] -->
 <p>
 
 Learn details about the <a href="/com/jme3/gde/docs/jme3/intermediate/multi-media_asset_pipeline.html">Multi-Media Asset Pipeline</a> here.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Multi-Media Asset Pipeline" [4632-5641] -->
+<!-- EDIT6 SECTION "Multi-Media Asset Pipeline" [4880-5889] -->
 <h2><a>Development Phase</a></h2>
 <div>
 
@@ -208,7 +211,7 @@ Even for large experienced game producers, the creation of such a complex game i
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Development Phase" [5642-6291] -->
+<!-- EDIT8 SECTION "Development Phase" [5890-6539] -->
 <h3><a>Extend SimpleApplication</a></h3>
 <div>
 
@@ -233,7 +236,7 @@ Also, your own framework gives all your games a common look and feel.
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Extend SimpleApplication" [6292-7575] -->
+<!-- EDIT9 SECTION "Extend SimpleApplication" [6540-7823] -->
 <h3><a>Where to Start?</a></h3>
 <div>
 
@@ -261,7 +264,7 @@ You have a list of features that you want in game, but which one do you implemen
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Where to Start?" [7576-8943] -->
+<!-- EDIT10 SECTION "Where to Start?" [7824-9191] -->
 <h3><a>The Smart Way to Add Custom Methods and Fields</a></h3>
 <div>
 
@@ -302,7 +305,7 @@ Example: Players have <strong>methods</strong> such as <code>walk(), addGold(), 
 </p>
 
 <p>
-If your game is even more complex, you may want to learn about &quot;real&quot; Entity Systems, which form a quite different programming paradigm from object oriented coding but are scalable to very large proportions. Note however that this topic is very unintuitive to handle for an OOP programmer and you should really decide on a case basis if you really need this or not and gather some experiences before diving head first into a MMO project <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)"/>
+If your game is even more complex, you may want to learn about &quot;real&quot; Entity Systems, which form a quite different programming paradigm from object oriented coding but are scalable to very large proportions. Note however that this topic is very unintuitive to handle for an OOP programmer and you should really decide on a case basis if you really need this or not and gather some experiences before diving head first into a MMO project <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)" />
 </p>
 <ul>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://cowboyprogramming.com/2007/01/05/evolve-your-heirachy/"><param name="text" value="<html><u>http://cowboyprogramming.com/2007/01/05/evolve-your-heirachy/</u></html>"><param name="textColor" value="blue"></object> </div>
@@ -320,7 +323,7 @@ If your game is even more complex, you may want to learn about &quot;real&quot; 
 </ul>
 
 </div>
-<!-- EDIT11 SECTION "The Smart Way to Add Custom Methods and Fields" [8944-12067] -->
+<!-- EDIT11 SECTION "The Smart Way to Add Custom Methods and Fields" [9192-12315] -->
 <h3><a>The Smart Way to Access Game Features</a></h3>
 <div>
 
@@ -338,7 +341,7 @@ An AppState has access to all game features in the SimpleApplication via the <co
 this.app.getRootNode&#40;&#41;.attachChild&#40; sky &#41;;</pre>
 
 </div>
-<!-- EDIT12 SECTION "The Smart Way to Access Game Features" [12068-12905] -->
+<!-- EDIT12 SECTION "The Smart Way to Access Game Features" [12316-13153] -->
 <h3><a>The Smart Way to Implement Game Logic</a></h3>
 <div>
 
@@ -400,7 +403,7 @@ Read all about <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">C
 </p>
 
 </div>
-<!-- EDIT13 SECTION "The Smart Way to Implement Game Logic" [12906-15708] -->
+<!-- EDIT13 SECTION "The Smart Way to Implement Game Logic" [13154-15956] -->
 <h3><a>Optimize Application Performance</a></h3>
 <div>
 <ul>
@@ -413,7 +416,7 @@ Read all about <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">C
 </ul>
 
 </div>
-<!-- EDIT14 SECTION "Optimize Application Performance" [15709-16432] -->
+<!-- EDIT14 SECTION "Optimize Application Performance" [15957-16680] -->
 <h3><a>Don&#039;t Mess With Geometric State</a></h3>
 <div>
 
@@ -431,7 +434,7 @@ Read all about <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">C
 </ul>
 
 </div>
-<!-- EDIT15 SECTION "Don't Mess With Geometric State" [16433-16922] -->
+<!-- EDIT15 SECTION "Don't Mess With Geometric State" [16681-17170] -->
 <h3><a>Maintain Internal Documentation</a></h3>
 <div>
 
@@ -454,7 +457,7 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </p>
 
 </div>
-<!-- EDIT16 SECTION "Maintain Internal Documentation" [16923-17659] -->
+<!-- EDIT16 SECTION "Maintain Internal Documentation" [17171-17907] -->
 <h2><a>Debugging and Test Phase</a></h2>
 <div>
 
@@ -480,12 +483,12 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </p>
 
 </div>
-<!-- EDIT17 SECTION "Debugging and Test Phase" [17660-20276] -->
+<!-- EDIT17 SECTION "Debugging and Test Phase" [17908-20524] -->
 <h2><a>Release Phase</a></h2>
 <div>
 
 </div>
-<!-- EDIT18 SECTION "Release Phase" [20277-20303] -->
+<!-- EDIT18 SECTION "Release Phase" [20525-20551] -->
 <h3><a>Pre-Release To-Do List</a></h3>
 <div>
 <ul>
@@ -510,7 +513,7 @@ Treat javadoc as messages to your future self. &quot;genNextVal() generates the 
 </ul>
 
 </div>
-<!-- EDIT19 SECTION "Pre-Release To-Do List" [20304-21255] -->
+<!-- EDIT19 SECTION "Pre-Release To-Do List" [20552-21503] -->
 <h3><a>Distributing the Executables</a></h3>
 <div>
 
@@ -548,7 +551,7 @@ Decide whether you want to release your game as WebStart, desktop JAR, mobile AP
 (.APK)</td><td>Game runs on Android devices.</td><td>Android devices do not support post-procesor effects.</td>
 	</tr>
 </table></div>
-<!-- EDIT21 TABLE [21709-22929] -->
+<!-- EDIT21 TABLE [21957-23177] -->
 <p>
 
 Which ever method you choose, a Java-Application works on the main operating systems: Windows, Mac <acronym title="Operating System">OS</acronym>, Linux, Android.
@@ -558,7 +561,16 @@ Which ever method you choose, a Java-Application works on the main operating sys
 The distribution appears in a newly generated <code>dist</code> directory inside your project directory. These are the files that you upload or burn to CD to distribute to your customers.
 
 </p>
+<hr />
+
+<p>
+See also:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gamedev.net/page/resources/_/creative/game-design/developing-your-game-concept-by-making-a-design-document-r3004"><param name="text" value="<html><u>gamedev.net: Developing Your Game Concept By Making A Design Document</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
 
 </div>
-<!-- EDIT20 SECTION "Distributing the Executables" [21256-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:best_practices?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT20 SECTION "Distributing the Executables" [21504-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:intermediate:best_practices?do=export_xhtmlbody">view online version</a></em></p>

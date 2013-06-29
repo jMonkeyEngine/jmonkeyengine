@@ -13,7 +13,7 @@ Advantages of the AssetManager:
 <ul>
 <li><div> The paths stay the same, no matter whether the game runs on Windows, Mac, Linux, etc!</div>
 </li>
-<li><div> The AssetManager automatically optimizes the handling of OpenGL objects. <br/>
+<li><div> The AssetManager automatically caches and optimizes the handling of OpenGL objects. <br/>
 For example, the same textures are not uploaded to the graphics card multiple times when multiple models use them.</div>
 </li>
 <li><div> The <a href="/com/jme3/gde/docs/sdk/default_build_script.html">default build script</a> automatically bundles the contents of the <code>assets</code> directory into the executable. </div>
@@ -43,7 +43,7 @@ See also <a href="/com/jme3/gde/docs/jme3/intermediate/best_practices.html">Best
 </p>
 
 </div>
-<!-- EDIT1 SECTION "AssetManager" [1-1691] -->
+<!-- EDIT1 SECTION "AssetManager" [1-1702] -->
 <h2><a>Usage</a></h2>
 <div>
 
@@ -71,7 +71,7 @@ Additionally, you can configure the Asset Manager and add any path to its root. 
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Usage" [1692-2849] -->
+<!-- EDIT2 SECTION "Usage" [1703-2860] -->
 <h2><a>Asset Directory</a></h2>
 <div>
 
@@ -119,7 +119,7 @@ After the conversion, you move the .j3o file into the <code>assets/Models/</code
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Asset Directory" [2850-5279] -->
+<!-- EDIT3 SECTION "Asset Directory" [2861-5290] -->
 <h2><a>Example Code: Loading Assets</a></h2>
 <div>
 
@@ -176,7 +176,7 @@ jME3 also offers a ClasspathLocator, ZipLocator, FileLocator, HttpZipLocator, an
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Example Code: Loading Assets" [5280-6752] -->
+<!-- EDIT4 SECTION "Example Code: Loading Assets" [5291-6763] -->
 <h2><a>Common AssetManager Tasks</a></h2>
 <div>
 <div><table>
@@ -203,9 +203,9 @@ rootNode.attachChild&#40;scene&#41;;</pre>
 </td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [6792-7720] -->
+<!-- EDIT6 TABLE [6803-7731] -->
 </div>
-<!-- EDIT5 SECTION "Common AssetManager Tasks" [6753-7721] -->
+<!-- EDIT5 SECTION "Common AssetManager Tasks" [6764-7732] -->
 <h2><a>NullPointerException: Cannot locate resource?</a></h2>
 <div>
 
@@ -266,7 +266,7 @@ This ensures that the model&#039;s Texture paths keep working between your 3D me
 </p>
 
 </div>
-<!-- EDIT7 SECTION "NullPointerException: Cannot locate resource?" [7722-9798] -->
+<!-- EDIT7 SECTION "NullPointerException: Cannot locate resource?" [7733-9809] -->
 <h2><a>Asset Handling For Other IDEs: Codeless Projects</a></h2>
 <div>
 
@@ -316,5 +316,5 @@ Convert assets as described above.</div>
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Asset Handling For Other IDEs: Codeless Projects" [9799-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:asset_manager?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT8 SECTION "Asset Handling For Other IDEs: Codeless Projects" [9810-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:asset_manager?do=export_xhtmlbody">view online version</a></em></p>

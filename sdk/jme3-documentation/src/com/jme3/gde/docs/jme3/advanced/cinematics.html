@@ -4,7 +4,7 @@
 
 <p>
 
-JME3 cinematics (com.jme.cinematic) allow you to remote control nodes and cameras in a 3D game: You can script and and play cinematic scenes. Combined with screen recording software, you use cinematics to create <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Cutscene"><param name="text" value="<html><u>cutscenes</u></html>"><param name="textColor" value="blue"></object> and movies/trailers of your game. Internally, Cinematics are implemented as <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">AppStates</a>. 
+JME3 cinematics (com.jme.cinematic) allow you to remote control nodes and cameras in a 3D game: You can script and and play cinematic scenes. You can use cinematics to create <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Cutscene"><param name="text" value="<html><u>cutscenes</u></html>"><param name="textColor" value="blue"></object> and movies/trailers for your game. Internally, Cinematics are implemented as <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">AppStates</a>. 
 </p>
 
 <p>
@@ -19,12 +19,12 @@ This Node can be the rootNode, or a Node that is attached to the rootNode. </div
 </li>
 <li><div> Create a Cinematic object for this movie scene. The Cinematic will contain and manage the movie script.</div>
 </li>
-<li><div> For each line in your script (for each frame in your timeline), add a CinematicEvent to the Cinematic. </div>
+<li><div> For each line in your script (for each keyframe in your timeline), add a CinematicEvent to the Cinematic. </div>
 </li>
 </ol>
 
 </div>
-<!-- EDIT1 SECTION "JME3 Cinematics" [1-956] -->
+<!-- EDIT1 SECTION "JME3 Cinematics" [1-923] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <ul>
@@ -33,7 +33,7 @@ This Node can be the rootNode, or a Node that is attached to the rootNode. </div
 </ul>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [957-1123] -->
+<!-- EDIT2 SECTION "Sample Code" [924-1090] -->
 <h2><a>How to Use a Cinematic</a></h2>
 <div>
 
@@ -42,9 +42,9 @@ This Node can be the rootNode, or a Node that is attached to the rootNode. </div
 A Cinematic is like a movie script for a node. 
 </p>
 <pre>Cinematic cinematic = new Cinematic&#40;sceneNode, duration&#41;;
-cinematic.addCinematicEvent&#40;starttime1, track1&#41;;
-cinematic.addCinematicEvent&#40;starttime2, track2&#41;;
-cinematic.addCinematicEvent&#40;starttime2, track3&#41;;
+cinematic.addCinematicEvent&#40;starttime1, event1&#41;;
+cinematic.addCinematicEvent&#40;starttime2, event2&#41;;
+cinematic.addCinematicEvent&#40;starttime2, event3&#41;;
 ...
 stateManager.attach&#40;cinematic&#41;;</pre>
 <ol>
@@ -60,7 +60,7 @@ stateManager.attach&#40;cinematic&#41;;</pre>
 </li>
 <li><div> Create one CinematicEvent for each line of your movie script.  </div>
 <ul>
-<li><div> <code>track</code> is one motion of a moving object. You can add several tracks. More details below.</div>
+<li><div> <code>event</code> is one motion of a moving object. You can add several events. More details below.</div>
 </li>
 <li><div> <code>starttime</code> is the time when this particular cinematic event starts on the timeline. Specify the start time in seconds since the beginning of the cinematic.</div>
 </li>
@@ -85,64 +85,56 @@ stateManager.attach&#40;cinematic&#41;;</pre>
 		<td>cinematic.pause()</td><td>Pauses the cinematic.</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [2215-2427] -->
+<!-- EDIT4 TABLE [2182-2394] -->
 </div>
-<!-- EDIT3 SECTION "How to Use a Cinematic" [1124-2428] -->
-<h2><a>Tracks (CinematicEvents)</a></h2>
+<!-- EDIT3 SECTION "How to Use a Cinematic" [1091-2394] -->
+<h2><a>Events(CinematicEvents)</a></h2>
 <div>
 
 <p>
 
-Just like a movie script consists of lines with instructions to the actors, each Cinematic consists of a series of tracks.
+Just like a movie script consists of lines with instructions to the actors, each Cinematic consists of a series of events.
 </p>
 
 <p>
-Here is the list of available CinematicEvents that you use as tracks. Each track remote-controls scene objects in a different way:
+Here is the list of available CinematicEvents that you use as events. Each track remote-controls scene objects in a different way:
 
 </p>
 <div><table>
 	<tr>
-		<th>Tracks (CinematicEvents)</th><th>Description</th>
+		<th>Events(CinematicEvents)</th><th>Description</th>
 	</tr>
 	<tr>
-		<td>MotionTrack</td><td>Use a MotionTrack to move a Spatial non-linearly over time. A MotionTrack is based on a list of waypoints in a MotionPath. The curve goes through each waypoint, and you can adjust the tension of the curve to modify the roundedness of the path. This is the motion interpolation you are going to use in most cases. </td>
+		<td>MotionEvent</td><td>Use a MotionEvent to move a Spatial non-linearly over time. A MotionEvent is based on a list of waypoints in a MotionPath. The curve goes through each waypoint, and you can adjust the tension of the curve to modify the roundedness of the path. This is the motion interpolation you are going to use in most cases. </td>
 	</tr>
 	<tr>
-		<td>PositionTrack</td><td>Use a PositionTrack to move a Spatial linearly over time. This linear interpolation results in straight motion segments between the way points. Use this to make the remote-controlled objects zig-zag from one way point to the other in a straight line.</td>
+		<td>SoundEvent</td><td>Use a SoundEvent to play a <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">sound</a> at a given time for the given duration.</td>
 	</tr>
 	<tr>
-		<td>RotationTrack</td><td>Use a RotationTrack to change the rotation of a Spatial over time. It spins the Spatial to the given angle in the given amount of time by linearly interpolating the rotation.</td>
+		<td>GuiEvent</td><td>Displays a <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Nifty GUI</a> at a given time for the given duration. Use it to display subtitles or HUD elements. Bind the Nifty <acronym title="Graphical User Interface">GUI</acronym> <acronym title="Extensible Markup Language">XML</acronym> to the cinematic using <code>cinematic.bindUi(&quot;path/to/nifty/file.xml&quot;);</code></td>
 	</tr>
 	<tr>
-		<td>ScaleTrack</td><td>Use a ScaleTrack to change the size of a Spatial over time. It resizes the Spatial in the given amount of time by linearly interpolating the scale.</td>
-	</tr>
-	<tr>
-		<td>SoundTrack</td><td>Use a SoundTrack to play a <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">sound</a> at a given time for the given duration.</td>
-	</tr>
-	<tr>
-		<td>GuiTrack</td><td>Displays a <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Nifty GUI</a> at a given time for the given duration. Use it to display subtitles or HUD elements. Bind the Nifty <acronym title="Graphical User Interface">GUI</acronym> <acronym title="Extensible Markup Language">XML</acronym> to the cinematic using <code>cinematic.bindUi(&quot;path/to/nifty/file.xml&quot;);</code></td>
-	</tr>
-	<tr>
-		<td>AnimationTrack</td><td>Use this to start playing a model <a href="/com/jme3/gde/docs/jme3/advanced/animation.html">animation</a> at a given time (a character walking animation for example)</td>
+		<td>AnimationEvent</td><td>Use this to start playing a model <a href="/com/jme3/gde/docs/jme3/advanced/animation.html">animation</a> at a given time (a character walking animation for example)</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [2723-4144] -->
+<!-- EDIT6 TABLE [2688-3489] -->
 <p>
 
-The jMonkey team can add more types of tracks, just ask in the forum. 
+Of course one can make is own event implementation, by extending the AbstractCinematicEvent.
+
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Tracks (CinematicEvents)" [2429-4218] -->
-<h3><a>MotionTrack</a></h3>
+<!-- EDIT5 SECTION "Events(CinematicEvents)" [2395-3583] -->
+<h3><a>MotionEvent</a></h3>
 <div>
 
 <p>
 
-A MotionTrack moves a Spatial along a complex path.
+A MotionEvent moves a Spatial along a complex path.
 
 </p>
-<pre>MotionTrack track = new MotionTrack&#40;thingNode, path&#41;;</pre>
+<pre>MotionEvent events= new MotionEvent &#40;thingNode, path&#41;;</pre>
 
 <p>
 Details of the constructor:
@@ -156,149 +148,64 @@ Details of the constructor:
 
 <p>
 
-To create a MotionTrack, do the following:
+To create a MotionEvent, do the following:
 </p>
 <ol>
-<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/motionpath.html">Create a MotionPath</a></div>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/motiontrack.html">Create a MotionEvent</a></div>
 </li>
-<li><div> Create a MotionTrack based on the MotionPath.</div>
+<li><div> Create a MotionEvent based on the MotionPath.</div>
 </li>
-<li><div> Configure your MotionTrack (see below).</div>
+<li><div> Configure your MotionEvent (see below).</div>
 </li>
-<li><div> Add the MotionTrack to a Cinematic.</div>
+<li><div> Add the MotionEvent to a Cinematic.</div>
 </li>
 </ol>
 <div><table>
 	<tr>
-		<th>MotionTrack configuration method</th><th>Usage</th>
+		<th>MotionEvent configuration method</th><th>Usage</th>
 	</tr>
 	<tr>
-		<td>track.setLoopMode(LoopMode.Loop)</td><td>Sets whether the animation along this path should loop (LoopMode.Loop) or play only once (LoopMode.DontLoop).</td>
+		<td>event.setLoopMode(LoopMode.Loop)</td><td>Sets whether the animation along this path should loop (LoopMode.Loop) or play only once (LoopMode.DontLoop).</td>
 	</tr>
 	<tr>
-		<td>track.setDirectionType(MotionTrack.Direction.None)</td><td>Sets the direction behavior type of the controled node. Direction.None deactivates this feature. You can choose from the following options: LookAt, Path, PathAndRotation, Rotation.</td>
+		<td>event.setDirectionType(MotionEvent.Direction.None)</td><td>Sets the direction behavior type of the controlled node. Direction.None deactivates this feature. You can choose from the following options: LookAt, Path, PathAndRotation, Rotation.</td>
 	</tr>
 	<tr>
-		<td>track.setDirectionType(MotionTrack.Direction.LookAt)</td><td>The spatial turns (rotates) to keep facing a certain point while moving. Specify the point with the <code>setLookAt()</code> method.</td>
+		<td>event.setDirectionType(MotionEvent.Direction.LookAt)</td><td>The spatial turns (rotates) to keep facing a certain point while moving. Specify the point with the <code>setLookAt()</code> method.</td>
 	</tr>
 	<tr>
-		<td>track.setDirectionType(MotionTrack.Direction.Path)</td><td>The spatial always faces in the direction of the path while moving.</td>
+		<td>event.setDirectionType(MotionEvent.Direction.Path)</td><td>The spatial always faces in the direction of the path while moving.</td>
 	</tr>
 	<tr>
-		<td>track.setDirectionType(MotionTrack.Direction.PathAndRotation)</td><td>The spatial faces the direction of the path, plus an added rotation. Use together with the <code>setRotation()</code> method.</td>
+		<td>event.setDirectionType(MotionEvent.Direction.PathAndRotation)</td><td>The spatial faces the direction of the path, plus an added rotation. Use together with the <code>setRotation()</code> method.</td>
 	</tr>
 	<tr>
-		<td>track.setDirectionType(MotionTrack.Direction.Rotation)</td><td>The spatial spins (rotates) while moving. You describe the spin by a custom quaternion. Use together with the <code>setRotation()</code> method.</td>
+		<td>event.setDirectionType(MotionEvent.Direction.Rotation)</td><td>The spatial spins (rotates) while moving. You describe the spin by a custom quaternion. Use together with the <code>setRotation()</code> method.</td>
 	</tr>
 	<tr>
-		<td>track.setLookAt(teapot.getWorldTranslation(), Vector3f.UNIT_Y)</td><td>The spatial always faces towards this location. Use together with <code>MotionTrack.Direction.LookAt</code>.</td>
+		<td>event.setLookAt(teapot.getWorldTranslation(), Vector3f.UNIT_Y)</td><td>The spatial always faces towards this location. Use together with <code>MotionEvent.Direction.LookAt</code>.</td>
 	</tr>
 	<tr>
-		<td>track.setRotation(quaternion)</td><td>Sets the rotation. Use together with <code>MotionTrack.Direction.Rotation</code> or <code>MotionTrack.Direction.PathAndRotation</code>.</td>
+		<td>event.setRotation(quaternion)</td><td>Sets the rotation. Use together with <code>MotionEvent.Direction.Rotation</code> or <code>MotionEvent.Direction.PathAndRotation</code>.</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [4701-6109] -->
+<!-- EDIT8 TABLE [4069-5478] -->
 <p>
 
-<strong>Tip:</strong> Most likely you remote-control more than one object in your scene. Give the tracks and paths useful names such as <code>dragon_track</code>, <code>dragon_path</code>, <code>hero_track</code>, <code>hero_path</code>, etc.
+<strong>Tip:</strong> Most likely you remote-control more than one object in your scene. Give the events and paths useful names such as <code>dragonEvent</code>, <code>dragonPath</code>, <code>heroEvent</code>, <code>heroPath</code>, etc.
 </p>
 
 </div>
-<!-- EDIT7 SECTION "MotionTrack" [4219-6305] -->
-<h3><a>PositionTrack</a></h3>
+<!-- EDIT7 SECTION "MotionEvent" [3584-5673] -->
+<h3><a>SoundEvent</a></h3>
 <div>
 
 <p>
 
-A PositionTrack moves a Spatial in a straight line from its current position to the end position.
+A SoundEventplays a sound as part of the cinematic. 
 
 </p>
-<pre>PositionTrack track = new PositionTrack&#40;
-    thingNode, endPosition, duration, loopMode&#41;;</pre>
-
-<p>
-Details of the constructor:
-</p>
-<ul>
-<li><div> <code>thingNode</code> is the Spatial to be moved.</div>
-</li>
-<li><div> <code>endPosition</code> is the target location as Vector3f. </div>
-</li>
-<li><div> <code>duration</code> is the time that it should take from start to end point.</div>
-</li>
-<li><div> <code>loopMode</code> can be LoopMode.Loop, LoopMode.DontLoop, LoopMode.Cycle.</div>
-</li>
-</ul>
-
-<p>
-
-The start location is always the current location of the Spatial.
-</p>
-
-</div>
-<!-- EDIT9 SECTION "PositionTrack" [6306-6882] -->
-<h3><a>RotationTrack</a></h3>
-<div>
-
-<p>
-
-A RotationTrack remote-controls the rotation of a spatial.
-
-</p>
-<pre>RotationTrack thingRotationControl = new RotationTrack&#40;
-    thingNode, endRotation,  duration, loopMode&#41;;</pre>
-
-<p>
-Details of the constructor:
-</p>
-<ul>
-<li><div> <code>thingNode</code> is the Spatial to be rotated.</div>
-</li>
-<li><div> <code>endRotation</code> is the target rotation in Quaternion format. </div>
-</li>
-<li><div> <code>duration</code> is the time that it should take from start to target rotation.</div>
-</li>
-<li><div> <code>loopMode</code> can be LoopMode.Loop, LoopMode.DontLoop, LoopMode.Cycle.</div>
-</li>
-</ul>
-
-</div>
-<!-- EDIT10 SECTION "RotationTrack" [6883-7386] -->
-<h3><a>ScaleTrack</a></h3>
-<div>
-
-<p>
-
-A ScaleTrack remote-controls whether a spatial grows or shrinks.
-</p>
-<pre>ScaleTrack thingScaleControl = new ScaleTrack&#40;
-    thingNode, endScale,  duration, loopMode&#41;;</pre>
-
-<p>
-Details of the constructor:
-</p>
-<ul>
-<li><div> <code>thingNode</code> is the Spatial to be resized.</div>
-</li>
-<li><div> <code>endScale</code> is the target Scale in Vector3f format. </div>
-</li>
-<li><div> <code>duration</code> is the time that it should take from start to target scale.</div>
-</li>
-<li><div> <code>loopMode</code> can be LoopMode.Loop, LoopMode.DontLoop, LoopMode.Cycle.</div>
-</li>
-</ul>
-
-</div>
-<!-- EDIT11 SECTION "ScaleTrack" [7387-7871] -->
-<h3><a>SoundTrack</a></h3>
-<div>
-
-<p>
-
-A SoundTrack plays a sound as part of the cinematic. 
-
-</p>
-<pre>SoundTrack&#40; audioPath, isStream, duration, loopMode &#41;</pre>
+<pre>SoundEvent&#40; audioPath, isStream, duration, loopMode &#41;</pre>
 
 <p>
 
@@ -316,16 +223,16 @@ Details of the constructor:
 </ul>
 
 </div>
-<!-- EDIT12 SECTION "SoundTrack" [7872-8404] -->
-<h3><a>GuiTrack</a></h3>
+<!-- EDIT9 SECTION "SoundEvent" [5674-6204] -->
+<h3><a>GuiEvent</a></h3>
 <div>
 
 <p>
 
-A GuiTrack shows or hide a NiftyGUI as part of a cinematic.
+A GuiEventshows or hide a NiftyGUI as part of a cinematic.
 
 </p>
-<pre>GuiTrack&#40; screen, duration, loopMode &#41;</pre>
+<pre>GuiEvent&#40; screen, duration, loopMode &#41;</pre>
 
 <p>
 
@@ -347,16 +254,16 @@ Details of the constructor:
 </ul>
 
 </div>
-<!-- EDIT13 SECTION "GuiTrack" [8405-8934] -->
-<h3><a>AnimationTrack</a></h3>
+<!-- EDIT10 SECTION "GuiEvent" [6205-6732] -->
+<h3><a>AnimationEvent</a></h3>
 <div>
 
 <p>
 
-An AnimationTrack triggers an animation as part of a cinematic.
+An AnimationEvent triggers an animation as part of a cinematic.
 
 </p>
-<pre>AnimationTrack&#40; thingNode, animationName, duration, loopMode &#41;</pre>
+<pre>AnimationEvent&#40; thingNode, animationName, duration, loopMode &#41;</pre>
 
 <p>
 
@@ -374,7 +281,40 @@ Details of the constructor:
 </ul>
 
 </div>
-<!-- EDIT14 SECTION "AnimationTrack" [8935-9447] -->
+<!-- EDIT11 SECTION "AnimationEvent" [6733-7245] -->
+<h3><a>Camera Management</a></h3>
+<div>
+
+<p>
+
+There is a built in system for camera switching in Cinematics. It based on CameraNode, and the cinematic just enable the given CameraNode control at a given time.
+</p>
+
+<p>
+First you have to bind a camera to the cinematic with a unique name. You&#039;ll be provided with a CameraNode
+
+</p>
+<pre> CameraNode camNode = cinematic.bindCamera&#40;&quot;topView&quot;, cam&#41;;</pre>
+
+<p>
+
+then you can do whatever you want with this camera node : place it so that you have a the camera angle you&#039;d like, attach it to a motion event to have some camera scrolling, attach control of your own that give it whatever behavior you&#039;d like.
+In the above example, I want it to be a top view of the scene looking at the world origin.
+
+</p>
+<pre> //set its position
+ camNode.setLocalTranslation&#40;new Vector3f&#40;0, 50, 0&#41;&#41;;
+ // set it to look at the world origin
+ camNode.lookAt&#40;Vector3F.ZERO, Vector3f.UNIT_Y&#41;;</pre>
+
+<p>
+Then i just have to schedule its activation in the cinematic. I want it to get activated 3 seconds after the start of the cinematic so I just have to do 
+
+</p>
+<pre> cinematic.activateCamera&#40;3,???topView???&#41;;</pre>
+
+</div>
+<!-- EDIT12 SECTION "Camera Management" [7246-8358] -->
 <h3><a>Customizations</a></h3>
 <div>
 
@@ -388,12 +328,12 @@ You can also create new CinematicEvent by extending <object classid="java:org.ne
 </p>
 
 </div>
-<!-- EDIT15 SECTION "Customizations" [9448-10493] -->
+<!-- EDIT13 SECTION "Customizations" [8359-9404] -->
 <h2><a>Interacting with Cinematics</a></h2>
 <div>
 
 </div>
-<!-- EDIT16 SECTION "Interacting with Cinematics" [10494-10534] -->
+<!-- EDIT14 SECTION "Interacting with Cinematics" [9405-9445] -->
 <h3><a>CinematicEventListener</a></h3>
 <div>
 <pre>CinematicEventListener cel = new CinematicEventListener&#40;&#41; &#123;
@@ -415,7 +355,7 @@ You can also create new CinematicEvent by extending <object classid="java:org.ne
 cinematic.addListener&#40;cel&#41;;</pre>
 
 </div>
-<!-- EDIT17 SECTION "CinematicEventListener" [10535-11030] -->
+<!-- EDIT15 SECTION "CinematicEventListener" [9446-9941] -->
 <h3><a>Physics Interaction</a></h3>
 <div>
 
@@ -425,15 +365,5 @@ Upcoming.
 </p>
 
 </div>
-<!-- EDIT18 SECTION "Physics Interaction" [11031-11072] -->
-<h2><a>More Information</a></h2>
-<div>
-
-<p>
-See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/development-discussion-jme3/forum/topic/cinematics-system-for-jme3/"><param name="text" value="<html><u>Cinematics by Nehon</u></html>"><param name="textColor" value="blue"></object>
-
-</p>
-
-</div>
-<!-- EDIT19 SECTION "More Information" [11073-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:cinematics?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT16 SECTION "Physics Interaction" [9942-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:cinematics?do=export_xhtmlbody">view online version</a></em></p>

@@ -145,15 +145,15 @@ getRenderer();</td><td>Low-level and high-level rendering interface. Mostly used
 getGuiViewPort()</td><td>The view object for the orthogonal <acronym title="Graphical User Interface">GUI</acronym> view. Only used internally for <a href="/com/jme3/gde/docs/jme3/advanced/hud.html">HUD</a>s. </td>
 	</tr>
 	<tr>
-		<td>timer</td><td>An internally used update loop timer. You already have access to the float <code>tpf</code> in the simpleUpdate() loop to time actions according to the time per frame.</td>
+		<td>timer</td><td>An internal update loop timer, don&#039;t use. See <code>tpf</code> in <code>simpleUpdate()</code> below to learn about timers.</td>
 	</tr>
 	<tr>
 		<td>paused</td><td>Boolean is used only internally during runtime to pause/unpause a game. (You need to implement your own isRunning boolean or so.)</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [4640-5836] -->
+<!-- EDIT5 TABLE [4640-5782] -->
 </div>
-<!-- EDIT2 SECTION "Application Class" [1719-5837] -->
+<!-- EDIT2 SECTION "Application Class" [1719-5783] -->
 <h2><a>SimpleApplication Class</a></h2>
 <div>
 
@@ -192,7 +192,7 @@ getGuiNode()</td><td>Attach flat <acronym title="Graphical User Interface">GUI</
 getFlyByCamera()</td><td>The default first-person fly-by camera control. This default camera control lets you navigate the 3D scene using the preconfigured WASD and arrow keys and the mouse.</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [6405-6948] --><div><table>
+<!-- EDIT7 TABLE [6351-6894] --><div><table>
 	<tr>
 		<th>SimpleApplication Method</th><th>Purpose</th>
 	</tr>
@@ -209,7 +209,7 @@ getFlyByCamera()</td><td>The default first-person fly-by camera control. This de
 		<td>setDisplayStatView(false);</td><td>A default SimpleApplication displays mesh statistics on the screen using the com.jme3.app.StatsView class. The information is valuable during the development and debugging phase, but for the release, you should hide the statistics HUD.</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [6950-7742] --><div><table>
+<!-- EDIT8 TABLE [6896-7688] --><div><table>
 	<tr>
 		<th>SimpleApplication Interface</th><th>Purpose</th>
 	</tr>
@@ -217,13 +217,14 @@ getFlyByCamera()</td><td>The default first-person fly-by camera control. This de
 		<td>public void simpleInitApp()</td><td>Override this method to initialize the game scene. Here you load and create objects, attach Spatials to the rootNode, and bring everything in its starts position. See also <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">Application States</a> for best practices.</td>
 	</tr>
 	<tr>
-		<td>public void simpleUpdate(float tpf)</td><td>Override this method to have access to the <a href="/com/jme3/gde/docs/jme3/advanced/update_loop.html">update loop</a>. Use this loop to poll the current game state and respond to changes, or to let the game mechanics generate encounters and initiate state changes. Use tpf (time per frame) as a factor to time events. For more info on how to hook into the <a href="/com/jme3/gde/docs/jme3/advanced/update_loop.html">update loop</a>, see <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">Application States</a> and <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">Custom Controls</a>. </td>
+		<td>public void simpleUpdate(float tpf)</td><td>Override this method to hook into the <a href="/com/jme3/gde/docs/jme3/advanced/update_loop.html">update loop</a>, all code you put here is repeated in a loop. Use this loop to poll the current game state and respond to changes, or to let the game mechanics generate encounters and initiate state changes. Use the float <code>tpf</code> as a factor to time actions relative to the <em>time per frame</em> in seconds: <code>tpf</code> is large on slow PCs, and small on fast PCs. <br/>
+For more info on how to hook into the <a href="/com/jme3/gde/docs/jme3/advanced/update_loop.html">update loop</a>, see <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">Application States</a> and <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">Custom Controls</a>. </td>
 	</tr>
 	<tr>
-		<td>public void simpleRender(RenderManager rm)</td><td><strong>Optional:</strong> Override this method to implement <em>advanced</em> modifications of the frameBuffer and scene graph.</td>
+		<td>public void simpleRender(RenderManager rm)</td><td><strong>Optional:</strong> Advanced developers can override this method if the need to modify the frameBuffer and scene graph directly.</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [7744-8662] -->
+<!-- EDIT9 TABLE [7690-8760] -->
 <p>
 
 <p><div>Use <code>app.setShowSettings(true);</code> to present the user with a splashscreen and the built-in display settings dialog when starting the game; or use <code>app.setShowSettings(false);</code> to hide the buil-in screen (in this case, you may want to provide a custom splashscreen and settings panel). Set this boolean before calling <code>app.start()</code> in the <code>main()</code> method of the SimpleApplication. See also <a href="/com/jme3/gde/docs/jme3/intermediate/appsettings.html">AppSettings</a>.
@@ -231,7 +232,7 @@ getFlyByCamera()</td><td>The default first-person fly-by camera control. This de
 </p>
 
 </div>
-<!-- EDIT6 SECTION "SimpleApplication Class" [5838-9094] -->
+<!-- EDIT6 SECTION "SimpleApplication Class" [5784-9192] -->
 <h2><a>Default Input Mappings</a></h2>
 <div>
 
@@ -257,7 +258,7 @@ The following default navigational input actions are mapped by the default <code
 		<td>F5</td><td>Hides or shows the statistics the bottom left.</td>
 	</tr>
 </table></div>
-<!-- EDIT11 TABLE [9365-9630] -->
+<!-- EDIT11 TABLE [9463-9728] -->
 <p>
 
 As long as the <code>flyCam</code> is enabled, the following so-called &quot;WASD&quot; inputs, including MouseLook, are available:
@@ -307,9 +308,9 @@ As long as the <code>flyCam</code> is enabled, the following so-called &quot;WAS
 		<td>Zoom Out</td><td>AXIS_WHEEL, or scroll mouse wheel forward</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [9746-10357] -->
+<!-- EDIT12 TABLE [9844-10455] -->
 </div>
-<!-- EDIT10 SECTION "Default Input Mappings" [9095-10358] -->
+<!-- EDIT10 SECTION "Default Input Mappings" [9193-10456] -->
 <h2><a>Defaults and Customization</a></h2>
 <div>
 
@@ -323,12 +324,12 @@ The following example shows how you can remove one of the default AppStates, in 
 
 </p>
 <ul>
-<li><div> Either In your application&#039;s contructor, you create the SimpleApplication with only the AppStates you want to keep: <pre>public MyAppliction&#40;&#41; &#123;
+<li><div> Either, in your application&#039;s contructor, you create the SimpleApplication with only the AppStates you want to keep: <pre>public MyAppliction&#40;&#41; &#123;
   super&#40; new StatsAppState&#40;&#41;, new DebugKeysAppState&#40;&#41; &#41;;
 &#125;</pre>
 </div>
 </li>
-<li><div> Or in the <code>simpleInitApp()</code> method, you remove the ones you do not want to keep: <pre>  public void simpleInitApp&#40;&#41; &#123;
+<li><div> Or, in the <code>simpleInitApp()</code> method, you remove the ones you do not want to keep: <pre>  public void simpleInitApp&#40;&#41; &#123;
     stateManager.detach&#40; stateManager.getState&#40;FlyCamAppState.class&#41;&#41;;
     ...</pre>
 </div>
@@ -350,5 +351,5 @@ The following example shows how you can remove one of the default AppStates, in 
 </span></div>
 
 </div>
-<!-- EDIT13 SECTION "Defaults and Customization" [10359-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:intermediate:simpleapplication?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT13 SECTION "Defaults and Customization" [10457-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:intermediate:simpleapplication?do=export_xhtmlbody">view online version</a></em></p>

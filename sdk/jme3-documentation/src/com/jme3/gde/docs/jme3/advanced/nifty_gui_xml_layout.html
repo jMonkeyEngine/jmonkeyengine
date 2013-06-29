@@ -293,8 +293,12 @@ The font used is jME3&#039;s default font &quot;Interface/Fonts/Default.fnt&quot
 
 Before you can use any control, you must load a Control Definition first. Add the following two lines <em>before</em> your screen definitions:
 </p>
-<pre>  <span>&lt;useControls filename=&quot;nifty-default-controls.xml&quot; /&gt;</span>
-  <span>&lt;useStyles filename=&quot;nifty-default-styles.xml&quot; /&gt;</span></pre>
+<pre>  <span>&lt;useStyles filename=&quot;nifty-default-styles.xml&quot; /&gt;</span>
+  <span>&lt;useControls filename=&quot;nifty-default-controls.xml&quot; /&gt;</span></pre>
+
+<p>
+Note that the useStyles tag must be the first child of the nifty tag, otherwise you will see an error in design view.
+</p>
 
 </div>
 
@@ -347,7 +351,7 @@ Nifty additionally offers many customizable controls such as check boxes, text f
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Add Controls" [8477-10445] -->
+<!-- EDIT10 SECTION "Add Controls" [8477-10564] -->
 <h2><a>Intermediate Result</a></h2>
 <div>
 
@@ -365,7 +369,7 @@ Compare this result with the layout draft above.
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Intermediate Result" [10446-10806] -->
+<!-- EDIT11 SECTION "Intermediate Result" [10565-10925] -->
 <h2><a>Next Steps</a></h2>
 <div>
 
@@ -387,5 +391,5 @@ Integrate the <acronym title="Graphical User Interface">GUI</acronym> into the g
 </span></div>
 
 </div>
-<!-- EDIT12 SECTION "Next Steps" [10807-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_xml_layout?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT12 SECTION "Next Steps" [10926-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_xml_layout?do=export_xhtmlbody">view online version</a></em></p>

@@ -2,8 +2,13 @@
 <h1><a>The jME3 Camera</a></h1>
 <div>
 
+<p>
+
+Note that by default, the mouse pointer is invisible, and the mouse is set up to control the camera rotation.
+</p>
+
 </div>
-<!-- EDIT1 SECTION "The jME3 Camera" [1-31] -->
+<!-- EDIT1 SECTION "The jME3 Camera" [1-142] -->
 <h2><a>Default Camera</a></h2>
 <div>
 
@@ -52,7 +57,7 @@ The camera object is created with the following defaults:
 		<td>cam.getUp(), setUp()</td><td>The up axis of the camera, usually Vector3f(0,1,0)</td>
 	</tr>
 	<tr>
-		<td>cam.getDirection(), setDirection()</td><td>The vector the camera is facing</td>
+		<td>cam.getDirection()</td><td>The vector the camera is facing</td>
 	</tr>
 	<tr>
 		<td>cam.getAxes(), setAxes(left,up,dir)</td><td>One accessor for the three properties left/up/direction.</td>
@@ -82,21 +87,23 @@ The camera object is created with the following defaults:
 		<td>cam.getScreenCoordinates()</td><td>?</td>
 	</tr>
 </table></div>
-<!-- EDIT3 TABLE [583-1858] -->
+<!-- EDIT3 TABLE [694-1953] -->
 <p>
 <strong>Tip:</strong> After you change view port, frustum, or frame, call <code>cam.update();</code>
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Default Camera" [32-1940] -->
+<!-- EDIT2 SECTION "Default Camera" [143-2035] -->
 <h2><a>FlyBy Camera</a></h2>
 <div>
 
 <p>
 
-The flyby camera is an AppState that extends the default camera in com.jme3.app.SimpleApplication. It is preconfigured to respond to the WASD keys for walking forwards and backwards, and strafing to the sides; move the mouse to rotate the camera (&quot;Mouse Look&quot;), scroll the mouse wheel for zooming in or out. The QZ keys raise or lower the camera vertically.
-
+The <code>flyCam</code> class field gives you access to an AppState that extends the default camera in <code>com.jme3.app.SimpleApplication</code> with more features. The input manager of the <code>com.jme3.input.FlyByCamera</code> AppState is preconfigured to respond to the WASD keys for walking forwards and backwards, and strafing to the sides; move the mouse to rotate the camera (&quot;Mouse Look&quot;), scroll the mouse wheel for zooming in or out. The QZ keys raise or lower the camera vertically.
 </p>
+<pre>Q  W             up   forw
+A  S  D    --&gt;  left  back  right 
+Z               down  </pre>
 <div><table>
 	<tr>
 		<th>Method</th><th>Usage</th>
@@ -114,15 +121,20 @@ The flyby camera is an AppState that extends the default camera in com.jme3.app.
 		<td>flyCam.setDragToRotate(true)</td><td>Forces the player to keep mouse button pressed to rotate camera, typically used for Applets. If false (default), all mouse movement will be captured and interpreted as rotations.</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [2326-2708] -->
+<!-- EDIT5 TABLE [2634-3016] -->
+<p>
+
+The FlyByCamera is active by default, but you can change all these defaults for your game.
+</p>
+
 </div>
-<!-- EDIT4 SECTION "FlyBy Camera" [1941-2709] -->
+<!-- EDIT4 SECTION "FlyBy Camera" [2036-3109] -->
 <h2><a>Chase Camera</a></h2>
 <div>
 
 <p>
 
-jME3 also supports a Chase Cam that can follow a moving target Spatial (<code>com.jme3.input.ChaseCamera</code>). Click and hold the mouse button to rotate around the target.
+jME3 also supports an optional Chase Cam that can follow a moving target Spatial (<code>com.jme3.input.ChaseCamera</code>). When you use the chase cam, the player clicks and hold the mouse button to rotate the camera around the camera target. You can use a chase cam if you need the mouse pointer visible in your game.
 </p>
 <pre>flyCam.setEnabled&#40;false&#41;;
 ChaseCamera chaseCam = new ChaseCamera&#40;cam, target, inputManager&#41;;</pre>
@@ -164,11 +176,11 @@ ChaseCamera chaseCam = new ChaseCamera&#40;cam, target, inputManager&#41;;</pre>
 		<td>chaseCam.setDefaultHorizontalRotation(-FastMath.PI/2);</td><td>The default horizontal rotation angle of the camera around the target at the start of the application.</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [3017-4489] --><div><span>
+<!-- EDIT7 TABLE [3561-5033] --><div><span>
 	<a href="/wiki/doku.php/tag:camera?do=showtag&amp;tag=tag%3Acamera">camera</a>,
 	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
 </span></div>
 
 </div>
-<!-- EDIT6 SECTION "Chase Camera" [2710-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:camera?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT6 SECTION "Chase Camera" [3110-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:camera?do=export_xhtmlbody">view online version</a></em></p>

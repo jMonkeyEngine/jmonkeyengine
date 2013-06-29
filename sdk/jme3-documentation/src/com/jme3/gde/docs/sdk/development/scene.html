@@ -49,7 +49,7 @@ public void resultChanged&#40;LookupEvent ev&#41; &#123;
     Collection&lt;JmeSpatial&gt; items = &#40;Collection&lt;JmeSpatial&gt;&#41; result.allInstances&#40;&#41;;
     for &#40;JmeSpatial jmeSpatial : items&#41; &#123;
         //Using the JmeSpatials properties you can modify the spatial directly from the AWT thread:
-        spatial.getPropertySets&#40;&#41;&#91;0&#93;.setValue&#40;&quot;Local Translation&quot;, Vector3f.ZERO&#41;;
+        jmeSpatial.getPropertySets&#40;&#41;&#91;0&#93;.setValue&#40;&quot;Local Translation&quot;, Vector3f.ZERO&#41;;
         return;
     &#125;
 &#125;</pre>
@@ -72,7 +72,7 @@ for &#40;JmeSpatial jmeSpatial : items&#41; &#123;
 &#125;</pre>
 
 </div>
-<!-- EDIT3 SECTION "Listening for Node selection" [617-2664] -->
+<!-- EDIT3 SECTION "Listening for Node selection" [617-2667] -->
 <h2><a>Requesting the Scene</a></h2>
 <div>
 
@@ -116,7 +116,7 @@ public void sceneClosed&#40;SceneRequest request&#41; &#123;
 &#125;</pre>
 
 </div>
-<!-- EDIT4 SECTION "Requesting the Scene" [2665-4627] -->
+<!-- EDIT4 SECTION "Requesting the Scene" [2668-4630] -->
 <h2><a>Undo/Redo support</a></h2>
 <div>
 
@@ -162,5 +162,5 @@ Note: Its important that you use the method addEdit(Object source, UndoableEdit 
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Undo/Redo support" [4628-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/sdk:development:scene?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT5 SECTION "Undo/Redo support" [4631-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:development:scene?do=export_xhtmlbody">view online version</a></em></p>

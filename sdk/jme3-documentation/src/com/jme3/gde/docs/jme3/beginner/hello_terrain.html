@@ -226,14 +226,14 @@ It requires an image from a JME Texture.</div>
 <li><div> Load the heightmap.</div>
 </li>
 </ol>
-<pre>AbstractHeightMap heightmap = null;
+<pre>    AbstractHeightMap heightmap = null;
     Texture heightMapImage = assetManager.loadTexture&#40;
             &quot;Textures/Terrain/splat/mountains512.png&quot;&#41;;
     heightmap = new ImageBasedHeightMap&#40;heightMapImage.getImage&#40;&#41;&#41;;
     heightmap.load&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT4 SECTION "Looking at the Heightmap Code" [6265-7514] -->
+<!-- EDIT4 SECTION "Looking at the Heightmap Code" [6265-7518] -->
 <h2><a>What is Texture Splatting?</a></h2>
 <div>
 
@@ -301,7 +301,7 @@ Now you start painting the texture:
 </p>
 
 </div>
-<!-- EDIT5 SECTION "What is Texture Splatting?" [7515-10434] -->
+<!-- EDIT5 SECTION "What is Texture Splatting?" [7519-10438] -->
 <h3><a>Looking at the Texturing Code</a></h3>
 <div>
 
@@ -357,7 +357,7 @@ Use <code>setWrap(WrapMode.Repeat)</code> to make the small texture fill the wid
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Looking at the Texturing Code" [10435-12573] -->
+<!-- EDIT6 SECTION "Looking at the Texturing Code" [10439-12577] -->
 <h2><a>What is a Terrain?</a></h2>
 <div>
 
@@ -395,7 +395,7 @@ Create a TerrainQuad with the following arguments:
 </ol>
 
 </div>
-<!-- EDIT7 SECTION "What is a Terrain?" [12574-13657] -->
+<!-- EDIT7 SECTION "What is a Terrain?" [12578-13661] -->
 <h3><a>Looking at the Terrain Code</a></h3>
 <div>
 
@@ -430,7 +430,7 @@ You have created the terrain object.
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Looking at the Terrain Code" [13658-14420] -->
+<!-- EDIT8 SECTION "Looking at the Terrain Code" [13662-14424] -->
 <h2><a>What is LOD (Level of Detail)?</a></h2>
 <div>
 
@@ -446,12 +446,12 @@ Close parts of the terrain are rendered in full detail. Terrain parts that are f
 </p>
 
 </div>
-<!-- EDIT9 SECTION "What is LOD (Level of Detail)?" [14421-15013] -->
+<!-- EDIT9 SECTION "What is LOD (Level of Detail)?" [14425-15017] -->
 <h2><a>Exercises</a></h2>
 <div>
 
 </div>
-<!-- EDIT10 SECTION "Exercises" [15014-15036] -->
+<!-- EDIT10 SECTION "Exercises" [15018-15040] -->
 <h3><a>Exercise 1: Texture Layers</a></h3>
 <div>
 
@@ -470,15 +470,16 @@ You see it&#039;s easier to swap layers in the code, than to change the colors i
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Exercise 1: Texture Layers" [15037-15346] -->
+<!-- EDIT11 SECTION "Exercise 1: Texture Layers" [15041-15350] -->
 <h3><a>Exercise 2: Randomized Terrains</a></h3>
 <div>
 
 <p>
 
-The following two lines generate the heightmap object based on your user-defined image:
+The following three lines generate the heightmap object based on your user-defined image:
 </p>
-<pre>Texture heightMapImage = assetManager.loadTexture&#40;
+<pre>    AbstractHeightMap heightmap = null;
+    Texture heightMapImage = assetManager.loadTexture&#40;
         &quot;Textures/Terrain/splat/mountains512.png&quot;&#41;;
     heightmap = new ImageBasedHeightMap&#40;heightMapImage.getImage&#40;&#41;&#41;;</pre>
 
@@ -486,7 +487,7 @@ The following two lines generate the heightmap object based on your user-defined
 Instead, you can also let JME3 generate a random landscape for you:
 </p>
 <ol>
-<li><div> What result do you get when you replace the above two heightmap lines by the following lines and run the sample?<pre>HillHeightMap heightmap = null;
+<li><div> What result do you get when you replace the above three heightmap lines by the following lines and run the sample?<pre>HillHeightMap heightmap = null;
 HillHeightMap.NORMALIZE_RANGE = 100; // optional
 try &#123;
     heightmap = new HillHeightMap&#40;513, 1000, 50, 100, &#40;byte&#41; 3&#41;; // byte 3 is a random seed
@@ -528,10 +529,11 @@ You see the variety of hilly landscapes that can be generated using this method.
 <p>
 <p><div>For this exercise, you can keep using the splat Material from the sample code above. Just don&#039;t be surprised that the Material does not match the shape of the newly randomized landscape. If you want to generate real matching splat textures for randomized heightmaps, you need to write a custom method that, for example, creates an alphamap from the heightmap by replacing certain grayscales with certain RGB values.
 </div></p>
+
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Exercise 2: Randomized Terrains" [15347-17360] -->
+<!-- EDIT12 SECTION "Exercise 2: Randomized Terrains" [15351-17411] -->
 <h3><a>Exercise 3: Solid Terrains</a></h3>
 <div>
 
@@ -541,20 +543,20 @@ Can you combine what you learned here and in <a href="/com/jme3/gde/docs/jme3/be
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Exercise 3: Solid Terrains" [17361-17530] -->
+<!-- EDIT13 SECTION "Exercise 3: Solid Terrains" [17412-17581] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
 <p>
 
-You have learned how to create terrains that are more efficient than loading one giant model. You know how to create generate random or handmade heightmaps. You can add a LOD control to render large terrains faster. You are aware that you can combine what you learned about collison detection to make the terrain solid to a physical player. You are also able to texture a terrain &quot;like a boss&quot; using layered Materials and texture splatting. You are aware that the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> provides a TerrainEditor that helps with most of these manual tasks.
+You have learned how to create terrains that are more efficient than loading one giant model. You know how to generate random or create handmade heightmaps. You can add a LOD control to render large terrains faster. You are aware that you can combine what you learned about collision detection to make the terrain solid to a physical player. You are also able to texture a terrain &quot;like a boss&quot; using layered Materials and texture splatting. You are aware that the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> provides a TerrainEditor that helps with most of these manual tasks.
 </p>
 
 <p>
 Do you want to hear your players say &quot;ouch!&quot; when they bump into a wall or fall off a hill? Continue with learning <a href="/com/jme3/gde/docs/jme3/beginner/hello_audio.html">how to add sound</a> to your game.
 
 </p>
-<hr/>
+<hr />
 
 <p>
 See also:
@@ -572,5 +574,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT14 SECTION "Conclusion" [17531-] -->
-<p><em><a href="http://jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_terrain?do=export_xhtmlbody">view online version</a></em></p>
+<!-- EDIT14 SECTION "Conclusion" [17582-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_terrain?do=export_xhtmlbody">view online version</a></em></p>
