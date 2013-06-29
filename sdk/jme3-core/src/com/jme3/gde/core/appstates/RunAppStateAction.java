@@ -32,8 +32,11 @@
 package com.jme3.gde.core.appstates;
 
 import com.jme3.app.state.AppState;
+import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.FakeApplication;
+import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
@@ -50,6 +53,8 @@ import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.SourceUtils;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.ActionID;
@@ -69,7 +74,6 @@ id = "com.jme3.gde.core.appstates.RunAppStateAction")
 @ActionRegistration(
 displayName = "#CTL_RunAppState")
 @ActionReferences({
-    @ActionReference(path = "Toolbars/Build", position = 325),
     @ActionReference(path = "Loaders/text/x-java/Actions", position = 1050),
     @ActionReference(path = "Editors/text/x-java/Popup", position = 1740)
 })
@@ -77,22 +81,19 @@ displayName = "#CTL_RunAppState")
 public class RunAppStateAction implements ContextAwareAction {
 
     private static final Logger logger = Logger.getLogger(RunAppStateAction.class.getName());
-    private String className;
-    private JavaSource source;
+    private final ActionConfig config;
 
     public RunAppStateAction() {
-        className = null;
-        source = null;
+        config = null;
     }
 
-    public RunAppStateAction(String className, JavaSource src) {
-        this.className = className;
-        this.source = src;
+    private RunAppStateAction(ActionConfig config) {
+        this.config = config;
     }
 
     public Action createContextAwareInstance(Lookup actionContext) {
-        checkData(actionContext, "com.jme3.app.state.AppState");
-        return new RunAppStateAction(className, source);
+        ActionConfig config = checkData(actionContext, "com.jme3.app.state.AppState");
+        return new RunAppStateAction(config);
     }
 
     public Object getValue(String key) {
@@ -109,7 +110,7 @@ public class RunAppStateAction implements ContextAwareAction {
     }
 
     public boolean isEnabled() {
-        return className != null;
+        return config != null ? config.className != null : false;
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -120,47 +121,72 @@ public class RunAppStateAction implements ContextAwareAction {
 
     public void actionPerformed(ActionEvent e) {
         //TODO: better way to access scene request        
+        if (config == null) {
+            logger.log(Level.SEVERE, "Performing unconfigured RunAppState action");
+            return;
+        }
         SceneRequest req = SceneApplication.getApplication().getCurrentSceneRequest();
         if (req != null) {
             FakeApplication app = req.getFakeApp();
-            try {
-                AppState state = (AppState) app.getClassByName(className).newInstance();
-                app.getStateManager().attach(state);
-                AppStateExplorerTopComponent.openExplorer();
-            } catch (InstantiationException ex) {
-                DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error creating AppState, make sure it has an empty constructor!\n" + ex.getMessage()));
-                Exceptions.printStackTrace(ex);
-            } catch (IllegalAccessException ex) {
-                DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error creating AppState, make sure it has an empty constructor!\n" + ex.getMessage()));
-                Exceptions.printStackTrace(ex);
-            } catch (Exception ex) {
-                DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error creating AppState, exception when creating!\n" + ex.getMessage()));
-                Exceptions.printStackTrace(ex);
-            }
+            assert (app != null);
+            attachState(app);
         } else {
             DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("No Scene opened to attach to,\nopen a j3o scene."));
-            logger.log(Level.INFO, "No Scene Request available");
+            if(5==5)
+            return;
+            if (config.manager != null) {
+                logger.log(Level.INFO, "Try request scene..");
+                //TODO: rootNode is assigned in SceneApplication.. more elegant system (with scene lookup)
+                final SceneRequest sceneRequest = new SceneRequest(this, config.manager);
+                sceneRequest.setWindowTitle("New Scene");
+                sceneRequest.setDataNode(new NewSceneSaveNode(sceneRequest));
+                SceneApplication.getApplication().addSceneListener(new SceneListener() {
+                    public void sceneOpened(SceneRequest request) {
+                        if (request == sceneRequest) {
+                            FakeApplication app = request.getFakeApp();
+                            attachState(app);
+                        }
+                    }
+
+                    public void sceneClosed(SceneRequest request) {
+                        if (request == sceneRequest) {
+                            SceneApplication.getApplication().removeSceneListener(this);
+                        }
+                    }
+
+                    public void previewCreated(PreviewRequest request) {
+                    }
+                });
+                SceneApplication.getApplication().openScene(sceneRequest);
+            } else {
+                DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Not a jME project!"));
+            }
         }
     }
-    
-    private void checkData(Lookup actionContext, final String name) {
-        source = null;
-        className = null;
+
+    private ActionConfig checkData(Lookup actionContext, final String name) {
+        final ActionConfig ret = new ActionConfig();
         try {
             DataObject dObj = actionContext.lookup(DataObject.class);
             if (dObj == null) {
                 logger.log(Level.FINE, "No DataObject");
-                return;
+                return null;
+            }
+            Project proj = FileOwnerQuery.getOwner(dObj.getPrimaryFile());;
+            if (proj != null) {
+                ret.manager = proj.getLookup().lookup(ProjectAssetManager.class);
+            } else {
+                logger.log(Level.INFO, "Project null");
             }
             FileObject fObj = dObj.getPrimaryFile();
             if (fObj == null) {
                 logger.log(Level.FINE, "No FileObject");
-                return;
+                return null;
             }
             final JavaSource src = JavaSource.forFileObject(fObj);
             if (src == null) {
                 logger.log(Level.FINE, "No JavaSource");
-                return;
+                return null;
             }
             CancellableTask task = new CancellableTask<CompilationController>() {
                 public void run(CompilationController controller) throws IOException {
@@ -185,8 +211,8 @@ public class RunAppStateAction implements ContextAwareAction {
                                 TypeMirror elementType = myElement.asType();
                                 logger.log(Level.FINE, "Check {0} against {1}", new Object[]{elementType, appState});
                                 if (elementType != null && SourceUtils.checkTypesAssignable(controller, elementType, appState)) {
-                                    source = src;
-                                    className = elementName;
+                                    ret.source = src;
+                                    ret.className = elementName;
                                 }
                             }
                         }
@@ -197,8 +223,35 @@ public class RunAppStateAction implements ContextAwareAction {
                 }
             };
             src.runUserActionTask(task, true);
+            return ret;
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
+        return null;
+    }
+
+    private void attachState(FakeApplication app) {
+        try {
+            assert (config.className != null);
+            AppState state = (AppState) app.getClassByName(config.className).newInstance();
+            app.getStateManager().attach(state);
+            AppStateExplorerTopComponent.openExplorer();
+        } catch (InstantiationException ex) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error creating AppState, is the project compiled?\nAlso make sure it has an empty constructor!\n" + ex.getMessage()));
+            Exceptions.printStackTrace(ex);
+        } catch (IllegalAccessException ex) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error creating AppState, is the project compiled?\nAlso make sure it has an empty constructor!\n" + ex.getMessage()));
+            Exceptions.printStackTrace(ex);
+        } catch (Exception ex) {
+            DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("Error creating AppState, exception when creating!\n" + ex.getMessage()));
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    private static class ActionConfig {
+
+        public String className;
+        public JavaSource source;
+        public ProjectAssetManager manager;
     }
 }
