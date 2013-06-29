@@ -392,8 +392,8 @@ public class SceneApplication extends Application implements LookupProvider {
      * @param request
      */
     public void openScene(final SceneRequest request) {
-        if (failMessageShown) {
-            NotifyUtil.show("Error starting OpenGL context!", "Click here to go to troubleshooting web page.", MessageType.EXCEPTION, lst, 0);
+        if (!started) {
+            NotifyUtil.show("OpenGL context not started!", "Click here to go to troubleshooting web page.", MessageType.WARNING, lst, 0);
             return;
         }
         closeScene(currentSceneRequest, request);
