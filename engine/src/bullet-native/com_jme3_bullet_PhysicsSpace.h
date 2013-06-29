@@ -13,8 +13,6 @@ extern "C" {
 #define com_jme3_bullet_PhysicsSpace_AXIS_Y 1L
 #undef com_jme3_bullet_PhysicsSpace_AXIS_Z
 #define com_jme3_bullet_PhysicsSpace_AXIS_Z 2L
-/* Inaccessible static: pQueueTL */
-/* Inaccessible static: physicsSpaceTL */
 /*
  * Class:     com_jme3_bullet_PhysicsSpace
  * Method:    createPhysicsSpace
