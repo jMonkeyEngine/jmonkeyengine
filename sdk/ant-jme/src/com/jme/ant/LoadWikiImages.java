@@ -48,21 +48,33 @@ public class LoadWikiImages extends Task {
                             }
                             name = name.replaceAll(":", "/");
                             URL url = new URL(host + link);
-                            InputStream in = url.openStream();
-                            File file = new File(getLocation().getFileName().replaceAll("build.xml", "") + File.separator + targetFolder + File.separator + name.replaceAll("/", File.separator));
-                            log("Getting image: " + host + link);
-                            log("To: " + file);
-                            File parent = file.getParentFile();
-                            parent.mkdirs();
-                            FileOutputStream out = new FileOutputStream(file);
-                            int byte_ = in.read();
-                            while (byte_ != -1) {
-                                out.write(byte_);
-                                byte_ = in.read();
+                            InputStream in = null;
+                            FileOutputStream out = null;
+                            try {
+
+                                in = url.openStream();
+                                File file = new File(getLocation().getFileName().replaceAll("build.xml", "") + File.separator + targetFolder + File.separator + name.replaceAll("/", File.separator));
+                                log("Getting image: " + host + link);
+                                log("To: " + file);
+                                File parent = file.getParentFile();
+                                parent.mkdirs();
+                                out = new FileOutputStream(file);
+                                int byte_ = in.read();
+                                while (byte_ != -1) {
+                                    out.write(byte_);
+                                    byte_ = in.read();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } finally {
+                                if (in != null) {
+                                    in.close();
+                                }
+                                if (out != null) {
+                                    out.close();
+                                }
                             }
-                            in.close();
-                            out.close();
-                        }else if(extidx >= 0){
+                        } else if (extidx >= 0) {
                             String name = link.replaceAll("/wiki/lib/exe/fetch\\.php\\?([^>]*);media=([^>]*)\"", "");
                             int markIdx = name.indexOf("?");
                             if (markIdx >= 0) {
