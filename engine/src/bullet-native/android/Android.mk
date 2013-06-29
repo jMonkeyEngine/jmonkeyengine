@@ -250,6 +250,7 @@ LOCAL_SRC_FILES := $(JME3_PATH)/com_jme3_bullet_collision_PhysicsCollisionEvent.
     $(BULLET_PATH)/LinearMath/btGeometryUtil.cpp\
     $(BULLET_PATH)/LinearMath/btQuickprof.cpp\
     $(BULLET_PATH)/LinearMath/btSerializer.cpp\
+    $(BULLET_PATH)/LinearMath/btPolarDecomposition.cpp\
     $(BULLET_PATH)/MiniCL/MiniCL.cpp\
     $(BULLET_PATH)/MiniCL/MiniCLTaskScheduler.cpp\
     $(BULLET_PATH)/MiniCL/MiniCLTask/MiniCLTask.cpp
