@@ -32,6 +32,7 @@
 package com.jme3.gde.core.util;
 
 import com.jme3.animation.AnimControl;
+import com.jme3.animation.SkeletonControl;
 import com.jme3.gde.core.scene.ApplicationLogHandler.LogLevel;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -39,11 +40,14 @@ import com.jme3.scene.SceneGraphVisitor;
 import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Various utilities, mostly for operating on Spatials recursively.
+ * Various utilities, mostly for operating on Spatials recursively and to copy
+ * data over from "original" spatials (meshes, animations etc.). Mainly used by
+ * the "external changes" scanner for models.
  *
  * @author normenhansen
  */
@@ -79,8 +83,8 @@ public class SpatialUtil {
     }
 
     /**
-     * Stores ORIGINAL_NAME and ORIGINAL_PATH UserData to all Geometry in loaded
-     * spatial
+     * Stores ORIGINAL_NAME and ORIGINAL_PATH UserData to given Spatial and all
+     * sub-Spatials.
      *
      * @param spat
      */
@@ -231,7 +235,7 @@ public class SpatialUtil {
             if (other instanceof Node) {
                 logger.log(Level.INFO, "Attaching {0} to {1} in root {2} to add leaf {3}", new Object[]{s, other, root, leaf});
                 //set original path data to leaf and new parents
-                for(Spatial spt = leaf; spt != parent; spt = spt.getParent()){
+                for (Spatial spt = leaf; spt != parent; spt = spt.getParent()) {
                     spt.setUserData(ORIGINAL_NAME, spt.getName());
                     spt.setUserData(ORIGINAL_PATH, getSpatialPath(spt));
                     spt = spt.getParent();
@@ -254,16 +258,33 @@ public class SpatialUtil {
         original.depthFirstTraversal(new SceneGraphVisitor() {
             @Override
             public void visit(Spatial spat) {
-                AnimControl animContol = spat.getControl(AnimControl.class);
-                if (animContol != null) {
-                    Spatial otherSpatial = findTaggedSpatial(root, spat);
-                    if (otherSpatial != null) {
-                        AnimControl myControl = otherSpatial.getControl(AnimControl.class);
-                        if (myControl != null) {
-                            //copy control data
-                        } else {
-                            //copy control
+                AnimControl animControl = spat.getControl(AnimControl.class);
+                if (animControl != null) {
+                    Spatial mySpatial = findTaggedSpatial(root, spat);
+                    if (mySpatial != null) {
+                        //TODO: move attachments: have to scan through all nodes and find the ones
+                        //where UserData "AttachedBone" == Bone and move it to new Bone
+                        AnimControl myAnimControl = mySpatial.getControl(AnimControl.class);
+                        SkeletonControl mySkeletonControl = spat.getControl(SkeletonControl.class);
+                        if (mySkeletonControl != null) {
+                            mySpatial.removeControl(mySkeletonControl);
                         }
+                        if (myAnimControl != null) {
+                            mySpatial.removeControl(myAnimControl);
+                        }
+                        AnimControl newControl = (AnimControl)animControl.cloneForSpatial(mySpatial);
+                        if (mySpatial.getControl(SkeletonControl.class) == null) {
+                            logger.log(Level.INFO, "Adding control for {0}", mySpatial.getName());
+                            mySpatial.addControl(newControl);
+                        }else{
+                            logger.log(Level.INFO, "Control for {0} was added automatically", mySpatial.getName());
+                        }
+                        if (mySpatial.getControl(SkeletonControl.class) == null) {
+                            mySpatial.addControl(new SkeletonControl(animControl.getSkeleton()));
+                        } else {
+                            logger.log(Level.INFO, "SkeletonControl for {0} was added by AnimControl already", mySpatial.getName());
+                        }
+                        logger.log(LogLevel.USERINFO, "Updated animation for {0}", mySpatial.getName());
                     } else {
                         logger.log(Level.WARNING, "Could not find sibling for {0} in root {1} when trying to apply AnimControl data", new Object[]{spat, root});
                     }
@@ -276,6 +297,23 @@ public class SpatialUtil {
     public static void clearRemovedOriginals(final Spatial root, final Spatial original) {
         //TODO: Clear old stuff at all?
         return;
+    }
+
+    /**
+     * Finds out if a spatial has animations.
+     *
+     * @param root
+     */
+    public static boolean hasAnimations(final Spatial root) {
+        final AtomicBoolean animFound = new AtomicBoolean(false);
+        root.depthFirstTraversal(new SceneGraphVisitor() {
+            public void visit(Spatial spatial) {
+                if (spatial.getControl(AnimControl.class) != null) {
+                    animFound.set(true);
+                }
+            }
+        });
+        return animFound.get();
     }
 
     private static class SpatialHolder {
