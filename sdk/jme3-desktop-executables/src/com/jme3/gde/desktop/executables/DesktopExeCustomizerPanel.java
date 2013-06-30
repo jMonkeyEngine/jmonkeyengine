@@ -87,6 +87,8 @@ public class DesktopExeCustomizerPanel extends javax.swing.JPanel implements Act
         jCheckBox2 = new javax.swing.JCheckBox();
         jCheckBox3 = new javax.swing.JCheckBox();
         jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
 
         jCheckBox1.setText(org.openide.util.NbBundle.getMessage(DesktopExeCustomizerPanel.class, "DesktopExeCustomizerPanel.jCheckBox1.text")); // NOI18N
 
@@ -95,6 +97,14 @@ public class DesktopExeCustomizerPanel extends javax.swing.JPanel implements Act
         jCheckBox3.setText(org.openide.util.NbBundle.getMessage(DesktopExeCustomizerPanel.class, "DesktopExeCustomizerPanel.jCheckBox3.text")); // NOI18N
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(DesktopExeCustomizerPanel.class, "DesktopExeCustomizerPanel.jLabel1.text")); // NOI18N
+
+        jTextArea1.setEditable(false);
+        jTextArea1.setColumns(20);
+        jTextArea1.setLineWrap(true);
+        jTextArea1.setRows(5);
+        jTextArea1.setWrapStyleWord(true);
+        jTextArea1.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        jScrollPane1.setViewportView(jTextArea1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -105,7 +115,10 @@ public class DesktopExeCustomizerPanel extends javax.swing.JPanel implements Act
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
                     .addComponent(jCheckBox2, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
-                    .addComponent(jCheckBox3, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE))
+                    .addComponent(jCheckBox3, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jScrollPane1)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -118,7 +131,9 @@ public class DesktopExeCustomizerPanel extends javax.swing.JPanel implements Act
                 .addComponent(jCheckBox2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jCheckBox3)
-                .addContainerGap(191, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -126,5 +141,7 @@ public class DesktopExeCustomizerPanel extends javax.swing.JPanel implements Act
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextArea jTextArea1;
     // End of variables declaration//GEN-END:variables
 }
