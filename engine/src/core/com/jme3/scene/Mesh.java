@@ -1329,29 +1329,25 @@ public class Mesh implements Savable, Cloneable {
         //Removing HW skinning buffers to not save them
         VertexBuffer hwBoneIndex = null;
         VertexBuffer hwBoneWeight = null;
-        if (isAnimated()) {
-            hwBoneIndex = getBuffer(Type.HWBoneIndex);
-            if (hwBoneIndex != null) {
-                buffers.remove(Type.HWBoneIndex.ordinal());
-            }
-            hwBoneWeight = getBuffer(Type.HWBoneWeight);
-            if (hwBoneWeight != null) {
-                buffers.remove(Type.HWBoneWeight.ordinal());
-            }
+        hwBoneIndex = getBuffer(Type.HWBoneIndex);
+        if (hwBoneIndex != null) {
+            buffers.remove(Type.HWBoneIndex.ordinal());
         }
-        
+        hwBoneWeight = getBuffer(Type.HWBoneWeight);
+        if (hwBoneWeight != null) {
+            buffers.remove(Type.HWBoneWeight.ordinal());
+        }
+
         out.writeIntSavableMap(buffers, "buffers", null);
-        
+
         //restoring Hw skinning buffers.
-        if (isAnimated()) {
-            if (hwBoneIndex != null) {
-                buffers.put(hwBoneIndex.getBufferType().ordinal(), hwBoneIndex);               
-            }            
-            if (hwBoneWeight != null) {
-                buffers.put(hwBoneWeight.getBufferType().ordinal(), hwBoneWeight);                 
-            }
+        if (hwBoneIndex != null) {
+            buffers.put(hwBoneIndex.getBufferType().ordinal(), hwBoneIndex);
         }
-        
+        if (hwBoneWeight != null) {
+            buffers.put(hwBoneWeight.getBufferType().ordinal(), hwBoneWeight);
+        }
+
         out.write(lodLevels, "lodLevels", null);
     }
 
