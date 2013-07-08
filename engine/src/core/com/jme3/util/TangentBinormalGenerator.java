@@ -179,7 +179,7 @@ public class TangentBinormalGenerator {
                         mesh.getMode() + " is not supported.");
         }
         
-        processTriangleData(mesh, vertices, approxTangents);
+        processTriangleData(mesh, vertices, approxTangents,splitMirrored);
 
         //if the mesh has a bind pose, we need to generate the bind pose for the tangent buffer
         if (mesh.getBuffer(Type.BindPosePosition) != null) {
@@ -597,7 +597,7 @@ public class TangentBinormalGenerator {
                (FastMath.abs(u.y - v.y) < tolerance);
     }
     
-    private static ArrayList<VertexInfo> linkVertices(Mesh mesh) {
+    private static ArrayList<VertexInfo> linkVertices(Mesh mesh, boolean splitMirrored) {
         ArrayList<VertexInfo> vertexMap = new ArrayList<VertexInfo>();
         
         FloatBuffer vertexBuffer = mesh.getFloatBuffer(Type.Position);
@@ -618,19 +618,20 @@ public class TangentBinormalGenerator {
             boolean found = false;
             //Nehon 07/07/2013
             //Removed this part, joining splitted vertice to compute tangent space makes no sense to me
-            //separate vertice should have separate tangent space            
-//            for (int j = 0; j < vertexMap.size(); j++) {
-//                VertexInfo vertexInfo = vertexMap.get(j);
-//                if (approxEqual(vertexInfo.position, position) &&
-//                    approxEqual(vertexInfo.normal, normal) &&
-//                    approxEqual(vertexInfo.texCoord, texCoord))
-//                {
-//                    vertexInfo.indices.add(i);
-//                    found = true;
-//                    break;  
-//                }
-//            }
-            
+            //separate vertice should have separate tangent space   
+            if(!splitMirrored){
+                for (int j = 0; j < vertexMap.size(); j++) {
+                    VertexInfo vertexInfo = vertexMap.get(j);
+                    if (approxEqual(vertexInfo.position, position) &&
+                        approxEqual(vertexInfo.normal, normal) &&
+                        approxEqual(vertexInfo.texCoord, texCoord))
+                    {
+                        vertexInfo.indices.add(i);
+                        found = true;
+                        break;  
+                    }
+                }
+            }
             if (!found) {
                 VertexInfo vertexInfo = new VertexInfo(position.clone(), normal.clone(), texCoord.clone());
                 vertexInfo.indices.add(i);
@@ -642,8 +643,8 @@ public class TangentBinormalGenerator {
     }
     
     private static void processTriangleData(Mesh mesh, List<VertexData> vertices,
-            boolean approxTangent) {
-        ArrayList<VertexInfo> vertexMap = linkVertices(mesh);
+            boolean approxTangent, boolean splitMirrored) {
+        ArrayList<VertexInfo> vertexMap = linkVertices(mesh,splitMirrored);
 
         FloatBuffer tangents = BufferUtils.createFloatBuffer(vertices.size() * 4);
 
