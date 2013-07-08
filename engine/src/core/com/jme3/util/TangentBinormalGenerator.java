@@ -201,6 +201,10 @@ public class TangentBinormalGenerator {
         }
     }
     
+    public static void generate(Mesh mesh, boolean approxTangents) {
+        generate(mesh, approxTangents, false);
+    }
+
     private static  List<VertexData> processTriangles(Mesh mesh,
             int[] index, Vector3f[] v, Vector2f[] t, boolean splitMirrored) {
         IndexBuffer indexBuffer = mesh.getIndexBuffer();
