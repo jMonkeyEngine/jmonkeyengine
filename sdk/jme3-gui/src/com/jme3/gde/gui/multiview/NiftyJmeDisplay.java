@@ -87,11 +87,11 @@ public class NiftyJmeDisplay extends com.jme3.niftygui.NiftyJmeDisplay implement
         soundDev = new SoundDeviceJme(assetManager, audioRenderer);
         renderDev = new RenderDeviceJme(this);
         nifty = new Nifty(renderDev, soundDev, inputManager, new TimeProvider());
+        nifty.getResourceLoader().addResourceLocation(resourceLocation);
     }
 
     @Override
     public void initialize(RenderManager rm, ViewPort vp) {
-        nifty.getResourceLoader().addResourceLocation(resourceLocation);
         this.renderManager = rm;
         renderDev.setRenderManager(rm);
         inited = true;
