@@ -95,9 +95,9 @@ public class ApplicationLogHandler extends Handler implements Callable<JButton> 
     };
 
     public ApplicationLogHandler() {
-//        levelFine.putValue(Action.SMALL_ICON, IconList.chimpConfused);
-//        levelInfo.putValue(Action.SMALL_ICON, IconList.chimpSmile);
-//        levelWarning.putValue(Action.SMALL_ICON, IconList.chimpNogood);
+        levelFine.putValue(Action.SMALL_ICON, IconList.chimpConfused);
+        levelInfo.putValue(Action.SMALL_ICON, IconList.chimpSmile);
+        levelWarning.putValue(Action.SMALL_ICON, IconList.chimpNogood);
         levelFine.putValue(Action.NAME, "Fine");
         levelInfo.putValue(Action.NAME, "Normal");
         levelWarning.putValue(Action.NAME, "Warning");
