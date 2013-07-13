@@ -128,7 +128,7 @@ public class OGLESShaderRenderer implements Renderer {
     public EnumSet<Caps> getCaps() {
         return caps;
     }
-
+    
     private int extractVersion(String prefixStr, String versionStr) {
         if (versionStr != null) {
             int spaceIdx = versionStr.indexOf(" ", prefixStr.length());
@@ -137,6 +137,8 @@ public class OGLESShaderRenderer implements Renderer {
             } else {
                 versionStr = versionStr.substring(prefixStr.length()).trim();
             }
+            //some device have ":" at the end of the version.
+            versionStr = versionStr.replaceAll("\\:", "");
             float version = Float.parseFloat(versionStr);
             return (int) (version * 100);
         } else {
