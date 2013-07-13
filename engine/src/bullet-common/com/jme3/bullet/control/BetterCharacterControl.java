@@ -443,7 +443,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
     public float getPhysicsDamping() {
         return physicsDamping;
     }
-    
+
     /**
      * This actually sets a new collision shape to the character to change the
      * height of the capsule.
@@ -464,7 +464,7 @@ public class BetterCharacterControl extends AbstractPhysicsControl implements Ph
         Vector3f rayVector = vars.vect2;
         float height = getFinalHeight();
         location.set(localUp).multLocal(height).addLocal(this.location);
-        rayVector.set(localUp).multLocal(-height - FastMath.ZERO_TOLERANCE).addLocal(location);
+        rayVector.set(localUp).multLocal(-height - 0.1f).addLocal(location);
         List<PhysicsRayTestResult> results = space.rayTest(location, rayVector);
         vars.release();
         for (PhysicsRayTestResult physicsRayTestResult : results) {
