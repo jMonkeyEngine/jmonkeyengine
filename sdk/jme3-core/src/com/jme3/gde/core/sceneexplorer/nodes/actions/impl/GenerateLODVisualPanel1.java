@@ -502,10 +502,10 @@ public final class GenerateLODVisualPanel1 extends JPanel {
     private void reductionMethodActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reductionMethodActionPerformed
         switch ((LodGenerator.TriangleReductionMethod) reductionMethod.getSelectedItem()) {
             case PROPORTIONAL:
-                reductionDescription.setText("Enter float values from 0 to 1.\n each values represent the proportion of triangle to remove from the full mesh.");
+                reductionDescription.setText("Enter float values from 0 to 1.\n each value represent the proportion of triangles to remove from the full mesh.");
                 break;
             case CONSTANT:
-                reductionDescription.setText("Enter integrer values from 0 to " + triSize + " of the mesh.\n each values represent the number of triangle to remove from the full mesh. ");
+                reductionDescription.setText("Enter integrer values from 0 to " + triSize + " of the mesh.\n each value represent the number of triangles to remove from the full mesh. ");
                 break;
             case COLLAPSE_COST:
                 reductionDescription.setText("Don't use this");
