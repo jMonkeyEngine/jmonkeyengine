@@ -32,6 +32,7 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.gde.core.icons.IconList;
+import com.jme3.gde.core.properties.LodLevelProperty;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.MaterialChangeListener;
 import com.jme3.gde.core.sceneexplorer.SceneExplorerTopComponent;
@@ -43,6 +44,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Sheet;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -68,7 +70,7 @@ public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
                     SceneExplorerTopComponent.findInstance().addMaterialChangeListener(JmeGeometry.this);
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Exceptions.printStackTrace(e);
                 }
             }
         });
@@ -95,7 +97,7 @@ public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
                     SceneExplorerTopComponent.findInstance().removeMaterialChangeListener(JmeGeometry.this);
 
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Exceptions.printStackTrace(e);
                 }
             }
         });
@@ -114,7 +116,11 @@ public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
             return sheet;
         }
 
-        set.put(makeProperty(obj, int.class, "getLodLevel", "setLodLevel", "Lod Level"));
+        try {
+            set.put(new LodLevelProperty(obj, int.class, "getLodLevel", "setLodLevel", this));
+        } catch (NoSuchMethodException ex) {
+            Exceptions.printStackTrace(ex);
+        }
         set.put(makeProperty(obj, Material.class, "getMaterial", "setMaterial", "Material"));
         set.put(makeProperty(obj, Mesh.class, "getMesh", "Mesh"));
 
@@ -151,7 +157,7 @@ public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
                     try {
                         SceneExplorerTopComponent.findInstance().swapMaterialChangeListener(JmeGeometry.this, ((Material) before).getAssetName(), ((Material) after).getAssetName());
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        Exceptions.printStackTrace(e);
                     }
                 }
             });
