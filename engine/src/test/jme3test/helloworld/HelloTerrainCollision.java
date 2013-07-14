@@ -35,17 +35,14 @@ package jme3test.helloworld;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
-import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
-import com.jme3.scene.Node;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.heightmap.AbstractHeightMap;
@@ -70,6 +67,10 @@ public class HelloTerrainCollision extends SimpleApplication
   private boolean left = false, right = false, up = false, down = false;
   private TerrainQuad terrain;
   private Material mat_terrain;
+  //Temporary vectors used on each frame.
+  //They here to avoid instanciating new vectors on each frame
+  private Vector3f camDir = new Vector3f();
+  private Vector3f camLeft = new Vector3f();
 
   public static void main(String[] args) {
     HelloTerrainCollision app = new HelloTerrainCollision();
@@ -205,17 +206,25 @@ public class HelloTerrainCollision extends SimpleApplication
    * The setWalkDirection() command is what lets a physics-controlled player walk.
    * We also make sure here that the camera moves with player.
    */
-  @Override
-  public void simpleUpdate(float tpf) {
-    Vector3f camDir = cam.getDirection().clone().multLocal(0.6f);
-    Vector3f camLeft = cam.getLeft().clone().multLocal(0.4f);
-    walkDirection.set(0, 0, 0);
-    if (left)  { walkDirection.addLocal(camLeft); }
-    if (right) { walkDirection.addLocal(camLeft.negate()); }
-    if (up)    { walkDirection.addLocal(camDir); }
-    if (down)  { walkDirection.addLocal(camDir.negate()); }
-    player.setWalkDirection(walkDirection);
-    cam.setLocation(player.getPhysicsLocation());
-  }
+    @Override
+    public void simpleUpdate(float tpf) {
+        camDir.set(cam.getDirection()).multLocal(0.6f);
+        camLeft.set(cam.getLeft()).multLocal(0.4f);
+        walkDirection.set(0, 0, 0);
+        if (left) {
+            walkDirection.addLocal(camLeft);
+        }
+        if (right) {
+            walkDirection.addLocal(camLeft.negate());
+        }
+        if (up) {
+            walkDirection.addLocal(camDir);
+        }
+        if (down) {
+            walkDirection.addLocal(camDir.negate());
+        }
+        player.setWalkDirection(walkDirection);
+        cam.setLocation(player.getPhysicsLocation());
+    }
 }
 
