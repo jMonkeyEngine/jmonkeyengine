@@ -59,35 +59,36 @@ public class HelloMaterial extends SimpleApplication {
   public void simpleInitApp() {
 
     /** A simple textured cube -- in good MIP map quality. */
-    Box box1Mesh = new Box(1f,1f,1f);
-    Geometry cubePlainGeo = new Geometry("My Textured Box", box1Mesh);
-    Material stlMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    Texture monkeyTex = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
-    stlMat.setTexture("ColorMap", monkeyTex);
-    cubePlainGeo.setMaterial(stlMat);
-    cubePlainGeo.move(new Vector3f(-3f,1.1f,0f));
-    rootNode.attachChild(cubePlainGeo);
+    Box boxshape1 = new Box( 1f,1f,1f);
+    Geometry cube = new Geometry("My Textured Box", boxshape1);
+    cube.setLocalTranslation(new Vector3f(-3f,1.1f,0f));
+    Material mat_stl = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    Texture tex_ml = assetManager.loadTexture("Interface/Logo/Monkey.jpg");
+    mat_stl.setTexture("ColorMap", tex_ml);
+    cube.setMaterial(mat_stl);
+    rootNode.attachChild(cube);
 
     /** A translucent/transparent texture, similar to a window frame. */
-    Box box3Mesh = new Box(1f,1f,0.01f);
-    Geometry windowGeo = new Geometry("window frame", box3Mesh);
-    Material ttMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    ttMat.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
-    ttMat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);  // activate transparency
-    windowGeo.setQueueBucket(Bucket.Transparent);
-    windowGeo.setMaterial(ttMat);
-    rootNode.attachChild(windowGeo);
+    Box boxshape3 = new Box( 1f,1f,0.01f);
+    Geometry window_frame = new Geometry("window frame", boxshape3);
+    Material mat_tt = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    mat_tt.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
+    mat_tt.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);  // activate transparency
+    window_frame.setQueueBucket(Bucket.Transparent);
+    window_frame.setMaterial(mat_tt);
+    rootNode.attachChild(window_frame);
 
-    /** A cube with its base color "bleeding" through a partially transparent texture */
-    Box box4Mesh = new Box(1f,1f,1f);
-    Geometry bleedCubeGeo = new Geometry("bleed-through colored cube", box4Mesh);
-    Material tlMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    tlMat.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
-    tlMat.setColor("Color", new ColorRGBA(1f,0f,1f, 1f)); // purple
-    bleedCubeGeo.setMaterial(tlMat);
-    bleedCubeGeo.move(new Vector3f(3f,-1f,0f));
-    rootNode.attachChild(bleedCubeGeo);
-    //bleedCubeGeo.setMaterial((Material) assetManager.loadAsset( "Materials/BleedThrough.j3m"));
+
+    /** A cube with its base color "leaking" through a partially transparent texture */
+    Box boxshape4 = new Box(1f,1f,1f);
+    Geometry cube_leak = new Geometry("Leak-through color cube", boxshape4);
+    cube_leak.setLocalTranslation(new Vector3f(3f,-1f,0f));
+    Material mat_tl = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    mat_tl.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
+    mat_tl.setColor("Color", new ColorRGBA(1f,0f,1f, 1f)); // purple
+    cube_leak.setMaterial(mat_tl);
+    rootNode.attachChild(cube_leak);
+    // cube_leak.setMaterial((Material) assetManager.loadAsset( "Materials/LeakThrough.j3m"));
 
     /** A bumpy rock with a shiny light effect. To make bumpy objects you must create a NormalMap. */
     Sphere sphereMesh = new Sphere(32,32, 2f);
