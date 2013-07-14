@@ -40,15 +40,18 @@ import org.openide.text.ActiveEditorDrop;
  *
  * @author normenhansen
  */
-public class JmePaletteBleedCube implements ActiveEditorDrop {
+public class JmePaletteColoredCube implements ActiveEditorDrop {
 
-    public JmePaletteBleedCube() {
+    public JmePaletteColoredCube() {
     }
 
     private String createBody() {
 
-        String body = "    /** A cube with a color \"bleeding\" through  transparent texture. Uses Texture from jme3-test-data library! */ \n    Box boxshape4 = new Box(Vector3f.ZERO, 1f,1f,1f);\n    Geometry cube_leak = new Geometry(\"Bleed-through color cube\", boxshape4);\n    Material mat_tl = new Material(assetManager, \"Common/MatDefs/Misc/Unshaded.j3md\");\n    mat_tl.setTexture(\"ColorMap\", assetManager.loadTexture(\"Textures/ColoredTex/Monkey.png\"));\n    mat_tl.setColor(\"Color\", new ColorRGBA(1f,0f,1f, 1f)); // purple\n    cube_leak.setMaterial(mat_tl);\n    rootNode.attachChild(cube_leak); ";
+        String body = "/* A colored lit cube. Needs light source! */ \n    Box boxMesh = new Box(1f,1f,1f); \n    Geometry boxGeo = new Geometry(\"Colored Box\", boxMesh); \n    Material boxMat = new Material(assetManager, \"Common/MatDefs/Light/Lighting.j3md\"); \n    boxMat.setBoolean(\"UseMaterialColors\", true); \n    boxMat.setColor(\"Ambient\", ColorRGBA.Green); \n    boxMat.setColor(\"Diffuse\", ColorRGBA.Green); \n    boxGeo.setMaterial(boxMat); \n     rootNode.attachChild(boxGeo);";
         return body;
+        
+    
+    
     }
 
     public boolean handleTransfer(JTextComponent targetComponent) {

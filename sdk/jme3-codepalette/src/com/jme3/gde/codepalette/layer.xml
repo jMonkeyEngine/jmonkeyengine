@@ -12,7 +12,7 @@
             <file name="SetWireframe.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SetWireframe.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-            <file name="BleedCube.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/BleedCube.xml">
+            <file name="ColoredCube.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ColoredCube.xml">
                 <attr name="position" intvalue="150"/>
             </file>
             <file name="ShinySphere.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ShinySphere.xml">
