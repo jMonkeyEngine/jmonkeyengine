@@ -60,8 +60,8 @@ public class HelloPicking extends SimpleApplication {
     HelloPicking app = new HelloPicking();
     app.start();
   }
-  Node shootables;
-  Geometry mark;
+  private Node shootables;
+  private Geometry mark;
 
   @Override
   public void simpleInitApp() {
@@ -125,8 +125,9 @@ public class HelloPicking extends SimpleApplication {
 
   /** A cube object for target practice */
   protected Geometry makeCube(String name, float x, float y, float z) {
-    Box box = new Box(new Vector3f(x, y, z), 1, 1, 1);
+    Box box = new Box(1, 1, 1);
     Geometry cube = new Geometry(name, box);
+    cube.setLocalTranslation(x, y, z);
     Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     mat1.setColor("Color", ColorRGBA.randomColor());
     cube.setMaterial(mat1);
@@ -135,8 +136,9 @@ public class HelloPicking extends SimpleApplication {
 
   /** A floor to show that the "shot" can go through several objects. */
   protected Geometry makeFloor() {
-    Box box = new Box(new Vector3f(0, -4, -5), 15, .2f, 15);
+    Box box = new Box(15, .2f, 15);
     Geometry floor = new Geometry("the Floor", box);
+    floor.setLocalTranslation(0, -4, -5);
     Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     mat1.setColor("Color", ColorRGBA.Gray);
     floor.setMaterial(mat1);
@@ -160,7 +162,7 @@ public class HelloPicking extends SimpleApplication {
     ch.setSize(guiFont.getCharSet().getRenderedSize() * 2);
     ch.setText("+"); // crosshairs
     ch.setLocalTranslation( // center
-      settings.getWidth() / 2, settings.getHeight() / 2, 0);
+      settings.getWidth() / 2 - ch.getLineWidth()/2, settings.getHeight() / 2 + ch.getLineHeight()/2, 0);
     guiNode.attachChild(ch);
   }
 
