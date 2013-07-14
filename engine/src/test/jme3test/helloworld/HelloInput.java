@@ -75,8 +75,8 @@ public class HelloInput extends SimpleApplication {
     inputManager.addMapping("Rotate", new KeyTrigger(KeyInput.KEY_SPACE), // spacebar!
                                       new MouseButtonTrigger(MouseInput.BUTTON_LEFT) );        // left click!
     /** Add the named mappings to the action listeners. */
-    inputManager.addListener(actionListener, new String[]{"Pause"});
-    inputManager.addListener(analogListener, new String[]{"Left", "Right", "Rotate"});
+    inputManager.addListener(actionListener,"Pause");
+    inputManager.addListener(analogListener,"Left", "Right", "Rotate");
   }
 
   /** Use this listener for KeyDown/KeyUp events */
