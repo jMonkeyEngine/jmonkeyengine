@@ -64,6 +64,11 @@ public class HelloCollision extends SimpleApplication
   private CharacterControl player;
   private Vector3f walkDirection = new Vector3f();
   private boolean left = false, right = false, up = false, down = false;
+  
+  //Temporary vectors used on each frame.
+  //They here to avoid instanciating new vectors on each frame
+  private Vector3f camDir = new Vector3f();
+  private Vector3f camLeft = new Vector3f();
 
   public static void main(String[] args) {
     HelloCollision app = new HelloCollision();
@@ -164,15 +169,23 @@ public class HelloCollision extends SimpleApplication
    * We also make sure here that the camera moves with player.
    */
   @Override
-  public void simpleUpdate(float tpf) {
-    Vector3f camDir = cam.getDirection().clone().multLocal(0.6f);
-    Vector3f camLeft = cam.getLeft().clone().multLocal(0.4f);
-    walkDirection.set(0, 0, 0);
-    if (left)  { walkDirection.addLocal(camLeft); }
-    if (right) { walkDirection.addLocal(camLeft.negate()); }
-    if (up)    { walkDirection.addLocal(camDir); }
-    if (down)  { walkDirection.addLocal(camDir.negate()); }
-    player.setWalkDirection(walkDirection);
-    cam.setLocation(player.getPhysicsLocation());
-  }
+    public void simpleUpdate(float tpf) {
+        camDir.set(cam.getDirection()).multLocal(0.6f);
+        camLeft.set(cam.getLeft()).multLocal(0.4f);
+        walkDirection.set(0, 0, 0);
+        if (left) {
+            walkDirection.addLocal(camLeft);
+        }
+        if (right) {
+            walkDirection.addLocal(camLeft.negate());
+        }
+        if (up) {
+            walkDirection.addLocal(camDir);
+        }
+        if (down) {
+            walkDirection.addLocal(camDir.negate());
+        }
+        player.setWalkDirection(walkDirection);
+        cam.setLocation(player.getPhysicsLocation());
+    }
 }
