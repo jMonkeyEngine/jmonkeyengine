@@ -54,16 +54,18 @@ public class HelloNode extends SimpleApplication {
     public void simpleInitApp() {
 
         /** create a blue box at coordinates (1,-1,1) */
-        Box box1 = new Box( new Vector3f(1,-1,1), 1,1,1);
+        Box box1 = new Box(1,1,1);
         Geometry blue = new Geometry("Box", box1);
+        blue.setLocalTranslation(new Vector3f(1,-1,1));
         Material mat1 = new Material(assetManager, 
                 "Common/MatDefs/Misc/Unshaded.j3md");
         mat1.setColor("Color", ColorRGBA.Blue);
         blue.setMaterial(mat1);
 
         /** create a red box straight above the blue one at (1,3,1) */
-        Box box2 = new Box( new Vector3f(1,3,1), 1,1,1);
+        Box box2 = new Box(1,1,1);      
         Geometry red = new Geometry("Box", box2);
+        red.setLocalTranslation(new Vector3f(1,3,1));
         Material mat2 = new Material(assetManager, 
                 "Common/MatDefs/Misc/Unshaded.j3md");
         mat2.setColor("Color", ColorRGBA.Red);
