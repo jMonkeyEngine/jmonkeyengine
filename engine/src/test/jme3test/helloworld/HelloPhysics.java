@@ -87,10 +87,10 @@ public class HelloPhysics extends SimpleApplication {
     sphere = new Sphere(32, 32, 0.4f, true, false);
     sphere.setTextureMode(TextureMode.Projected);
     /** Initialize the brick geometry */
-    box = new Box(Vector3f.ZERO, brickLength, brickHeight, brickWidth);
+    box = new Box(brickLength, brickHeight, brickWidth);
     box.scaleTextureCoordinates(new Vector2f(1f, .5f));
     /** Initialize the floor geometry */
-    floor = new Box(Vector3f.ZERO, 10f, 0.1f, 5f);
+    floor = new Box(10f, 0.1f, 5f);
     floor.scaleTextureCoordinates(new Vector2f(3, 6));
   }
 
