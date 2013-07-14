@@ -600,7 +600,8 @@ public class InputManager implements RawInputListener {
     public void deleteMapping(String mappingName) {
         Mapping mapping = mappings.remove(mappingName);
         if (mapping == null) {
-            throw new IllegalArgumentException("Cannot find mapping: " + mappingName);
+            //throw new IllegalArgumentException("Cannot find mapping: " + mappingName);
+            logger.log(Level.WARNING, "Cannot find mapping to be removed, skipping: {0}", mappingName);
         }
 
         ArrayList<Integer> triggers = mapping.triggers;
