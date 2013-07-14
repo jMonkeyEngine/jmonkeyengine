@@ -102,6 +102,7 @@ public class DesktopExeCustomizerPanel extends javax.swing.JPanel implements Act
         jTextArea1.setColumns(20);
         jTextArea1.setLineWrap(true);
         jTextArea1.setRows(5);
+        jTextArea1.setText(org.openide.util.NbBundle.getMessage(DesktopExeCustomizerPanel.class, "DesktopExeCustomizerPanel.jTextArea1.text")); // NOI18N
         jTextArea1.setWrapStyleWord(true);
         jTextArea1.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         jScrollPane1.setViewportView(jTextArea1);
