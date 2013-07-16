@@ -25,7 +25,7 @@
     </target>
 
     <target name="-create-library-property" depends="-create-mac-library-property">
-        <property name="proguard.library.path" value="${java.home}/lib/rt.jar"/>
+        <property name="proguard.library.path" value="${platform.home}/jre/lib/rt.jar"/>
     </target>
 
     <target name="-create-mac-library-property" depends="-test-mac" if="is.macos">

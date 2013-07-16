@@ -64,7 +64,7 @@ public class ObfuscateCompositeProvider implements ProjectCustomizer.CompositeCa
     private class SavePropsListener implements ActionListener {
 
         private String extensionName = "obfuscate";
-        private String extensionVersion = "v0.10";
+        private String extensionVersion = "v0.11";
         private String[] extensionDependencies = new String[]{"-post-jar", "-obfuscate"};
         private ProjectExtensionManager manager = new ProjectExtensionManager(extensionName, extensionVersion, extensionDependencies);
         private ProjectExtensionProperties properties;
