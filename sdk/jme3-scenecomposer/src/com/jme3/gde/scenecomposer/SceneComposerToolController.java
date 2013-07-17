@@ -450,13 +450,11 @@ public class SceneComposerToolController extends SceneToolController {
         @Override
         public void setLocalTranslation(Vector3f location) {
             super.setLocalTranslation(location);
-            audio.setLocalTranslation(location);
         }
         
         @Override
         public void setLocalTranslation(float x, float y, float z) {
             super.setLocalTranslation(x, y, z);
-            audio.setLocalTranslation(x, y, z);
         }
     }
     
