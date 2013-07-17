@@ -122,9 +122,10 @@ public class MoveManager {
         //computing the inverse world transform to get the new localtranslation        
         newPos.subtractLocal(spatial.getParent().getWorldTranslation());
         newPos = spatial.getParent().getWorldRotation().inverse().normalizeLocal().multLocal(newPos);
+        newPos.divideLocal(spatial.getParent().getWorldScale());
        
         lastLoc = newPos;
-        spatial.setLocalTranslation(newPos);
+        spatial.setLocalTranslation(newPos);        
 
         RigidBodyControl control = spatial.getControl(RigidBodyControl.class);
         if (control != null) {
