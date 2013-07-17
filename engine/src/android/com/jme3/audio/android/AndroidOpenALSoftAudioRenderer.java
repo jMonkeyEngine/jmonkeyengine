@@ -71,6 +71,7 @@ public class AndroidOpenALSoftAudioRenderer implements AndroidAudioRenderer, Run
     private static final float UPDATE_RATE = 0.05f;
     private final Thread audioThread = new Thread(this, "jME3 Audio Thread");
     private final AtomicBoolean threadLock = new AtomicBoolean(false);
+    private boolean initialized = false;
 
     public AndroidOpenALSoftAudioRenderer() {
     }
@@ -97,6 +98,8 @@ public class AndroidOpenALSoftAudioRenderer implements AndroidAudioRenderer, Run
             threadLock.set(true);
             threadLock.notifyAll();
         }
+
+        initialized = true;
 
         long updateRateNanos = (long) (UPDATE_RATE * 1000000000);
         mainloop:
@@ -125,6 +128,8 @@ public class AndroidOpenALSoftAudioRenderer implements AndroidAudioRenderer, Run
                 }
             }
         }
+
+        initialized = false;
 
         synchronized (threadLock) {
             cleanupInThread();
@@ -1292,6 +1297,12 @@ public class AndroidOpenALSoftAudioRenderer implements AndroidAudioRenderer, Run
     }
 
     public void pauseAll() {
+        // don't try to pause all audio (mainly from Android activity) if
+        //   the renderer is already closed down
+        if (!initialized) {
+            return;
+        }
+
         checkDead();
         synchronized (threadLock) {
             while (!threadLock.get()) {
