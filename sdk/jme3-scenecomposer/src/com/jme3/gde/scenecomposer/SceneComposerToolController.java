@@ -281,8 +281,15 @@ public class SceneComposerToolController extends SceneToolController {
     }
 
     protected void refreshNonSpatialMarkers() {
-        nonSpatialMarkersNode.detachAllChildren();
-        addMarkers(rootNode.getLookup().lookup(Node.class));
+        SceneApplication.getApplication().enqueue(new Callable<Void>() {
+
+            public Void call() throws Exception {
+                   nonSpatialMarkersNode.detachAllChildren();
+                   addMarkers(rootNode.getLookup().lookup(Node.class));
+                   return null;
+            }
+        });
+        
     }
     
     private void addMarkers(Node parent) {
