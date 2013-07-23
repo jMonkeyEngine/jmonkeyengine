@@ -143,6 +143,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
+        lightReceivers.clear();
         ShadowUtil.getGeometriesInCamFrustum(sceneReceivers, shadowCam, lightReceivers);
         return lightReceivers;
     }

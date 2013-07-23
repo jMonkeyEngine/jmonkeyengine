@@ -127,6 +127,7 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers) {
+        lightReceivers.clear();
         ShadowUtil.getGeometriesInLightRadius(sceneReceivers, shadowCams, lightReceivers);
         return lightReceivers;
     }

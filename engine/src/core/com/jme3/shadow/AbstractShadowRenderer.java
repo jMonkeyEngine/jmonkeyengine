@@ -448,7 +448,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             renderManager.setForcedTechnique(postTechniqueName);
 
             //rendering the post shadow pass
-            viewPort.getQueue().renderShadowQueue(lightReceivers, renderManager, cam, flushQueues);
+            viewPort.getQueue().renderShadowQueue(lightReceivers, renderManager, cam, false);
             if (flushQueues) {
                 sceneReceivers.clear();
             }
