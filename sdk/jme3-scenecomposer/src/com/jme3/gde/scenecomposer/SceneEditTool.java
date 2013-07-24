@@ -130,7 +130,7 @@ public abstract class SceneEditTool {
     public void doUpdateToolsTransformation() {
         if (toolController.getSelectedSpatial() != null) {
             axisMarker.setLocalTranslation(toolController.getSelectedSpatial().getWorldTranslation());
-            axisMarker.setLocalRotation(toolController.getSelectedSpatial().getWorldRotation());
+            axisMarker.setLocalRotation(toolController.getSelectedSpatial().getLocalRotation());
             setAxisMarkerScale(toolController.getSelectedSpatial());
         } else {
             axisMarker.setLocalTranslation(Vector3f.ZERO);
@@ -471,8 +471,8 @@ public abstract class SceneEditTool {
 
     protected void setDefaultAxisMarkerColors() {
         axisMarker.getChild("arrowX").setMaterial(redMat);
-        axisMarker.getChild("arrowY").setMaterial(blueMat);
-        axisMarker.getChild("arrowZ").setMaterial(greenMat);
+        axisMarker.getChild("arrowY").setMaterial(greenMat);
+        axisMarker.getChild("arrowZ").setMaterial(blueMat);
         quadXY.setMaterial(yellowMat);
         quadXZ.setMaterial(magentaMat);
         quadYZ.setMaterial(cyanMat);
