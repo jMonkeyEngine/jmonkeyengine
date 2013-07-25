@@ -65,6 +65,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
     public static final String               TEXTURE_TYPE_SPECULAR = "SpecularMap";
     public static final String               TEXTURE_TYPE_GLOW     = "GlowMap";
     public static final String               TEXTURE_TYPE_ALPHA    = "AlphaMap";
+    public static final String               TEXTURE_TYPE_LIGHTMAP = "LightMap";
 
     public static final Integer              ALPHA_MASK_NONE       = Integer.valueOf(0);
     public static final Integer              ALPHA_MASK_CIRCLE     = Integer.valueOf(1);

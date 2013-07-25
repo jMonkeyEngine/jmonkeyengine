@@ -3,13 +3,16 @@ package com.jme3.scene.plugins.blender.meshes;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.plugins.blender.textures.UserUVCollection;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -17,8 +20,8 @@ import com.jme3.util.BufferUtils;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-/*package*/class MeshBuilder {
-    private static final Logger                       LOGGER          = Logger.getLogger(MeshBuilder.class.getName());
+/* package */class MeshBuilder {
+    private static final Logger                       LOGGER           = Logger.getLogger(MeshBuilder.class.getName());
 
     /** An array of reference vertices. */
     private Vector3f[][]                              verticesAndNormals;
@@ -26,25 +29,21 @@ import com.jme3.util.BufferUtils;
     private List<byte[]>                              verticesColors;
     /** A variable that indicates if the model uses generated textures. */
     private boolean                                   usesGeneratedTextures;
-
     /**
      * This map's key is the vertex index from 'vertices 'table and the value are indices from 'vertexList'
      * positions (it simply tells which vertex is referenced where in the result list).
      */
     private Map<Integer, Map<Integer, List<Integer>>> globalVertexReferenceMap;
-
-    /** A map between vertex index and its UV coordinates. */
-    private Map<Integer, Vector2f>                    uvsMap          = new HashMap<Integer, Vector2f>();
     /** The following map sorts vertices by material number (because in jme Mesh can have only one material). */
-    private Map<Integer, List<Vector3f>>              normalMap       = new HashMap<Integer, List<Vector3f>>();
+    private Map<Integer, List<Vector3f>>              normalMap        = new HashMap<Integer, List<Vector3f>>();
     /** The following map sorts vertices by material number (because in jme Mesh can have only one material). */
-    private Map<Integer, List<Vector3f>>              vertexMap       = new HashMap<Integer, List<Vector3f>>();
+    private Map<Integer, List<Vector3f>>              vertexMap        = new HashMap<Integer, List<Vector3f>>();
     /** The following map sorts vertices colors by material number (because in jme Mesh can have only one material). */
-    private Map<Integer, List<byte[]>>                vertexColorsMap = new HashMap<Integer, List<byte[]>>();
+    private Map<Integer, List<byte[]>>                vertexColorsMap  = new HashMap<Integer, List<byte[]>>();
     /** The following map sorts indexes by material number (because in jme Mesh can have only one material). */
-    private Map<Integer, List<Integer>>               indexMap        = new HashMap<Integer, List<Integer>>();
-    /** A map between material number and UV coordinates of mesh that has this material applied. */
-    private Map<Integer, List<Vector2f>>              uvCoordinates   = new HashMap<Integer, List<Vector2f>>();        // <material_number; list of uv coordinates for mesh's vertices>
+    private Map<Integer, List<Integer>>               indexMap         = new HashMap<Integer, List<Integer>>();
+    /** A collection of user defined UV coordinates (one mesh can have more than one such mappings). */
+    private UserUVCollection                          userUVCollection = new UserUVCollection();
 
     /**
      * Constructor. Stores the given array (not copying it).
@@ -100,16 +99,20 @@ import com.jme3.util.BufferUtils;
      *            indicates if this face should have smooth shading or flat shading
      * @param materialNumber
      *            the material number for this face
-     * @param uvs
-     *            a 3-element array of vertices UV coordinates
+     * @param uvsForFace
+     *            a 3-element array of vertices UV coordinates mapped to the UV's set name
      * @param quad
      *            indicates if the appended face is a part of a quad face (used for creating vertex colors buffer)
      * @param faceIndex
      *            the face index (used for creating vertex colors buffer)
      */
-    public void appendFace(int v1, int v2, int v3, boolean smooth, int materialNumber, Vector2f[] uvs, boolean quad, int faceIndex) {
-        if (uvs != null && uvs.length != 3) {
-            throw new IllegalArgumentException("UV coordinates must be a 3-element array!");
+    public void appendFace(int v1, int v2, int v3, boolean smooth, int materialNumber, Map<String, Vector2f[]> uvsForFace, boolean quad, int faceIndex) {
+        if (uvsForFace != null && uvsForFace.size() > 0) {
+            for (Entry<String, Vector2f[]> entry : uvsForFace.entrySet()) {
+                if (entry.getValue().length != 3) {
+                    throw new IllegalArgumentException("UV coordinates must be a 3-element array!" + (entry.getKey() != null ? " (UV set name: " + entry.getKey() + ')' : ""));
+                }
+            }
         }
 
         // getting the required lists
@@ -139,14 +142,6 @@ import com.jme3.util.BufferUtils;
             vertexReferenceMap = new HashMap<Integer, List<Integer>>();
             globalVertexReferenceMap.put(materialNumber, vertexReferenceMap);
         }
-        List<Vector2f> uvCoordinatesList = null;
-        if (uvs != null) {
-            uvCoordinatesList = uvCoordinates.get(Integer.valueOf(materialNumber));
-            if (uvCoordinatesList == null) {
-                uvCoordinatesList = new ArrayList<Vector2f>();
-                uvCoordinates.put(Integer.valueOf(materialNumber), uvCoordinatesList);
-            }
-        }
 
         faceIndex *= 4;
         if (quad) {
@@ -159,38 +154,55 @@ import com.jme3.util.BufferUtils;
         if (smooth && !usesGeneratedTextures) {
             for (int i = 0; i < 3; ++i) {
                 if (!vertexReferenceMap.containsKey(index[i])) {
+                    //if this index is not yet used then create another face
                     this.appendVertexReference(index[i], vertexList.size(), vertexReferenceMap);
+                    if (uvsForFace != null) {
+                        for (Entry<String, Vector2f[]> entry : uvsForFace.entrySet()) {
+                            userUVCollection.addUV(materialNumber, entry.getKey(), entry.getValue()[i], vertexList.size());
+                        }
+                    }
+
                     vertexList.add(verticesAndNormals[index[i]][0]);
                     if (verticesColors != null) {
                         vertexColorsList.add(verticesColors.get(faceIndex + vertexColorIndex[i]));
                     }
                     normalList.add(verticesAndNormals[index[i]][1]);
-                    if (uvCoordinatesList != null) {
-                        uvsMap.put(vertexList.size(), uvs[i]);
-                        uvCoordinatesList.add(uvs[i]);
-                    }
+
                     index[i] = vertexList.size() - 1;
-                } else if (uvCoordinatesList != null) {
+                } else if (uvsForFace != null) {
+                    //if the index is used then check if the vertexe's UV coordinates match, if yes then the vertex doesn't have separate UV's
+                    //in different faces so we can use it here as well, if UV's are different in separate faces the we need to add this vert
+                    //because in jme one vertex can have only on UV coordinate
                     boolean vertexAlreadyUsed = false;
                     for (Integer vertexIndex : vertexReferenceMap.get(index[i])) {
-                        if (uvs[i].equals(uvsMap.get(vertexIndex))) {
+                        int vertexUseCounter = 0;
+                        for (Entry<String, Vector2f[]> entry : uvsForFace.entrySet()) {
+                            if (entry.getValue()[i].equals(userUVCollection.getUVForVertex(entry.getKey(), vertexIndex))) {
+                                ++vertexUseCounter;
+                            }
+                        }
+                        if (vertexUseCounter == uvsForFace.size()) {
                             vertexAlreadyUsed = true;
                             index[i] = vertexIndex;
                             break;
                         }
                     }
+
                     if (!vertexAlreadyUsed) {
+                        // treat this face as a new one because its vertices have separate UV's
                         this.appendVertexReference(index[i], vertexList.size(), vertexReferenceMap);
-                        uvsMap.put(vertexList.size(), uvs[i]);
+                        for (Entry<String, Vector2f[]> entry : uvsForFace.entrySet()) {
+                            userUVCollection.addUV(materialNumber, entry.getKey(), entry.getValue()[i], vertexList.size());
+                        }
                         vertexList.add(verticesAndNormals[index[i]][0]);
                         if (verticesColors != null) {
                             vertexColorsList.add(verticesColors.get(faceIndex + vertexColorIndex[i]));
                         }
                         normalList.add(verticesAndNormals[index[i]][1]);
-                        uvCoordinatesList.add(uvs[i]);
                         index[i] = vertexList.size() - 1;
                     }
                 } else {
+                    //use this index again
                     index[i] = vertexList.indexOf(verticesAndNormals[index[i]][0]);
                 }
                 indexList.add(index[i]);
@@ -200,9 +212,10 @@ import com.jme3.util.BufferUtils;
             for (int i = 0; i < 3; ++i) {
                 indexList.add(vertexList.size());
                 this.appendVertexReference(index[i], vertexList.size(), vertexReferenceMap);
-                if (uvCoordinatesList != null) {
-                    uvCoordinatesList.add(uvs[i]);
-                    uvsMap.put(vertexList.size(), uvs[i]);
+                if (uvsForFace != null) {
+                    for (Entry<String, Vector2f[]> entry : uvsForFace.entrySet()) {
+                        userUVCollection.addUV(materialNumber, entry.getKey(), entry.getValue()[i], vertexList.size());
+                    }
                 }
                 vertexList.add(verticesAndNormals[index[i]][0]);
                 if (verticesColors != null) {
@@ -288,15 +301,15 @@ import com.jme3.util.BufferUtils;
      *            the material number that is appied to the mesh
      * @return UV coordinates of vertices that belong to the required mesh part
      */
-    public List<Vector2f> getUVCoordinates(int materialNumber) {
-        return uvCoordinates.get(materialNumber);
+    public LinkedHashMap<String, List<Vector2f>> getUVCoordinates(int materialNumber) {
+        return userUVCollection.getUVCoordinates(materialNumber);
     }
 
     /**
      * @return indicates if the mesh has UV coordinates
      */
     public boolean hasUVCoordinates() {
-        return uvCoordinates.size() > 0;
+        return userUVCollection.hasUVCoordinates();
     }
 
     /**

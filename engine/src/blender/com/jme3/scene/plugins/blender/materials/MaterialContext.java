@@ -2,9 +2,11 @@ package com.jme3.scene.plugins.blender.materials;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.material.Material;
@@ -44,6 +46,7 @@ public final class MaterialContext {
     public static final int                         MTEX_SPEC  = 0x04;
     public static final int                         MTEX_EMIT  = 0x40;
     public static final int                         MTEX_ALPHA = 0x80;
+    public static final int                         MTEX_AMB   = 0x800;
 
     /* package */final String                       name;
     /* package */final Map<Number, CombinedTexture> loadedTextures;
@@ -109,7 +112,11 @@ public final class MaterialContext {
                 textureData.mtex = p.fetchData(blenderContext.getInputStream()).get(0);
                 textureData.uvCoordinatesType = ((Number) textureData.mtex.getFieldValue("texco")).intValue();
                 textureData.projectionType = ((Number) textureData.mtex.getFieldValue("mapping")).intValue();
-
+                textureData.uvCoordinatesName = textureData.mtex.getFieldValue("uvName").toString();
+                if(textureData.uvCoordinatesName != null && textureData.uvCoordinatesName.trim().length() == 0) {
+                    textureData.uvCoordinatesName = null;
+                }
+                
                 Pointer pTex = (Pointer) textureData.mtex.getFieldValue("tex");
                 if (pTex.isNotNull()) {
                     Structure tex = pTex.fetchData(blenderContext.getInputStream()).get(0);
@@ -136,7 +143,8 @@ public final class MaterialContext {
                         float[] color = new float[] { ((Number) textureData.mtex.getFieldValue("r")).floatValue(), ((Number) textureData.mtex.getFieldValue("g")).floatValue(), ((Number) textureData.mtex.getFieldValue("b")).floatValue() };
                         float colfac = ((Number) textureData.mtex.getFieldValue("colfac")).floatValue();
                         TextureBlender textureBlender = TextureBlenderFactory.createTextureBlender(texture.getImage().getFormat(), texflag, negateTexture, blendType, diffuseColorArray, color, colfac);
-                        combinedTexture.add(texture, textureBlender, textureData.uvCoordinatesType, textureData.projectionType, textureData.textureStructure, blenderContext);
+                        combinedTexture.add(texture, textureBlender, textureData.uvCoordinatesType, textureData.projectionType,
+                        					textureData.textureStructure, textureData.uvCoordinatesName, blenderContext);
                     }
                 }
                 if (combinedTexture.getTexturesCount() > 0) {
@@ -176,7 +184,7 @@ public final class MaterialContext {
      * @param blenderContext
      *            the blender context
      */
-    public void applyMaterial(Geometry geometry, Long geometriesOMA, List<Vector2f> userDefinedUVCoordinates, BlenderContext blenderContext) {
+    public void applyMaterial(Geometry geometry, Long geometriesOMA, LinkedHashMap<String, List<Vector2f>> userDefinedUVCoordinates, BlenderContext blenderContext) {
         Material material = null;
         if (shadeless) {
             material = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
@@ -206,30 +214,24 @@ public final class MaterialContext {
 
         // applying textures
         if (loadedTextures != null && loadedTextures.size() > 0) {
-            Entry<Number, CombinedTexture> basicUVSOwner = null;
+            int textureIndex = 0;
+            if(loadedTextures.size() > 8) {
+                LOGGER.log(Level.WARNING, "The blender file has defined more than {0} different textures. JME supports only {0} UV mappings.", TextureHelper.TEXCOORD_TYPES.length);
+            }
             for (Entry<Number, CombinedTexture> entry : loadedTextures.entrySet()) {
-                CombinedTexture combinedTexture = entry.getValue();
-                combinedTexture.flatten(geometry, geometriesOMA, userDefinedUVCoordinates, blenderContext);
+                if(textureIndex < TextureHelper.TEXCOORD_TYPES.length) {
+                    CombinedTexture combinedTexture = entry.getValue();
+                    combinedTexture.flatten(geometry, geometriesOMA, userDefinedUVCoordinates, blenderContext);
 
-                if (basicUVSOwner == null) {
-                    basicUVSOwner = entry;
-                } else {
-                    combinedTexture.castToUVS(basicUVSOwner.getValue(), blenderContext);
                     this.setTexture(material, entry.getKey().intValue(), combinedTexture.getResultTexture());
+                    List<Vector2f> uvs = entry.getValue().getResultUVS();
+                    VertexBuffer uvCoordsBuffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[textureIndex++]);
+                    uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
+                    geometry.getMesh().setBuffer(uvCoordsBuffer);
+                } else {
+                    LOGGER.log(Level.WARNING, "The texture could not be applied because JME only supports up to {0} different UV's.", TextureHelper.TEXCOORD_TYPES.length);
                 }
             }
-
-            if (basicUVSOwner != null) {
-                this.setTexture(material, basicUVSOwner.getKey().intValue(), basicUVSOwner.getValue().getResultTexture());
-                List<Vector2f> basicUVS = basicUVSOwner.getValue().getResultUVS();
-                VertexBuffer uvCoordsBuffer = new VertexBuffer(VertexBuffer.Type.TexCoord);
-                uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(basicUVS.toArray(new Vector2f[basicUVS.size()])));
-                geometry.getMesh().setBuffer(uvCoordsBuffer);
-            }
-        } else if (userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
-            VertexBuffer uvCoordsBuffer = new VertexBuffer(VertexBuffer.Type.TexCoord);
-            uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(userDefinedUVCoordinates.toArray(new Vector2f[userDefinedUVCoordinates.size()])));
-            geometry.getMesh().setBuffer(uvCoordsBuffer);
         }
 
         // applying additional data
@@ -237,11 +239,7 @@ public final class MaterialContext {
         if (vertexColor) {
             material.setBoolean(shadeless ? "VertexColor" : "UseVertexColor", true);
         }
-        if (this.faceCullMode != null) {
-            material.getAdditionalRenderState().setFaceCullMode(faceCullMode);
-        } else {
-            material.getAdditionalRenderState().setFaceCullMode(blenderContext.getBlenderKey().getFaceCullMode());
-        }
+        material.getAdditionalRenderState().setFaceCullMode(faceCullMode != null ? faceCullMode : blenderContext.getBlenderKey().getFaceCullMode());
         if (transparent) {
             material.setTransparent(true);
             material.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);
@@ -282,6 +280,9 @@ public final class MaterialContext {
                     LOGGER.warning("JME does not support alpha map on unshaded material. Material name is " + name);
                 }
                 break;
+            case MTEX_AMB:
+                material.setTexture(MaterialHelper.TEXTURE_TYPE_LIGHTMAP, texture);
+                break;
             default:
                 LOGGER.severe("Unknown mapping type: " + mapTo);
         }
@@ -311,7 +312,7 @@ public final class MaterialContext {
      * @return a map with sorted and filtered textures
      */
     private Map<Number, List<TextureData>> sortAndFilterTextures(List<TextureData> textures) {
-        int[] mappings = new int[] { MTEX_COL, MTEX_NOR, MTEX_EMIT, MTEX_SPEC, MTEX_ALPHA };
+        int[] mappings = new int[] { MTEX_COL, MTEX_NOR, MTEX_EMIT, MTEX_SPEC, MTEX_ALPHA, MTEX_AMB };
         Map<Number, List<TextureData>> result = new HashMap<Number, List<TextureData>>();
         for (TextureData data : textures) {
             Number mapto = (Number) data.mtex.getFieldValue("mapto");
@@ -413,5 +414,7 @@ public final class MaterialContext {
         Structure textureStructure;
         int       uvCoordinatesType;
         int       projectionType;
+        /** The name of the user's UV coordinates that are used for this texture. */
+        String	  uvCoordinatesName;
     }
 }

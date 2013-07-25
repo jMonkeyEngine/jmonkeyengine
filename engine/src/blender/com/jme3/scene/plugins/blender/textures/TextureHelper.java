@@ -53,6 +53,7 @@ import com.jme3.asset.GeneratedTextureKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
@@ -94,11 +95,11 @@ public class TextureHelper extends AbstractBlenderHelper {
     public static final int         TEX_MUSGRAVE     = 11;
     public static final int         TEX_VORONOI      = 12;
     public static final int         TEX_DISTNOISE    = 13;
-    public static final int         TEX_POINTDENSITY = 14;                                             // v.
-                                                                                                        // 25+
-    public static final int         TEX_VOXELDATA    = 15;                                             // v.
-                                                                                                        // 25+
+    public static final int         TEX_POINTDENSITY = 14; // v. 25+
+    public static final int         TEX_VOXELDATA    = 15; // v. 25+
 
+    public static final Type[]      TEXCOORD_TYPES = new Type[] { Type.TexCoord, Type.TexCoord2, Type.TexCoord3, Type.TexCoord4, Type.TexCoord5, Type.TexCoord6, Type.TexCoord7, Type.TexCoord8 };
+    
     private TextureGeneratorFactory textureGeneratorFactory = new TextureGeneratorFactory();
 
     /**

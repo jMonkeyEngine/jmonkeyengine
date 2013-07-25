@@ -32,7 +32,10 @@
 package com.jme3.scene.plugins.blender.meshes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
@@ -55,6 +58,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialContext;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.objects.Properties;
+import com.jme3.scene.plugins.blender.textures.TextureHelper;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -63,7 +67,12 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski (Kaelthas)
  */
 public class MeshHelper extends AbstractBlenderHelper {
-    private static final Logger LOGGER = Logger.getLogger(MeshHelper.class.getName());
+    private static final Logger LOGGER                   = Logger.getLogger(MeshHelper.class.getName());
+
+    /** A type of UV data layer in traditional faced mesh (triangles or quads). */
+    private static final int    UV_DATA_LAYER_TYPE_FMESH = 5;
+    /** A type of UV data layer in bmesh type. */
+    private static final int    UV_DATA_LAYER_TYPE_BMESH = 16;
 
     /**
      * This constructor parses the given blender version and stores the result. Some functionalities may differ in different blender
@@ -213,7 +222,7 @@ public class MeshHelper extends AbstractBlenderHelper {
             for (Geometry geometry : geometries) {
                 int materialNumber = meshContext.getMaterialIndex(geometry);
                 if (materials[materialNumber] != null) {
-                    List<Vector2f> uvCoordinates = meshBuilder.getUVCoordinates(materialNumber);
+                    LinkedHashMap<String, List<Vector2f>> uvCoordinates = meshBuilder.getUVCoordinates(materialNumber);
                     MaterialContext materialContext = materials[materialNumber];
                     materialContext.applyMaterial(geometry, structure.getOldMemoryAddress(), uvCoordinates, blenderContext);
                 } else {
@@ -223,17 +232,26 @@ public class MeshHelper extends AbstractBlenderHelper {
             }
         } else {
             // add UV coordinates if they are defined even if the material is not applied to the model
-            VertexBuffer uvCoordsBuffer = null;
+            List<VertexBuffer> uvCoordsBuffer = null;
             if (meshBuilder.hasUVCoordinates()) {
-                List<Vector2f> uvs = meshBuilder.getUVCoordinates(0);
-                uvCoordsBuffer = new VertexBuffer(Type.TexCoord);
-                uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
+                Map<String, List<Vector2f>> uvs = meshBuilder.getUVCoordinates(0);
+                if (uvs != null && uvs.size() > 0) {
+                    uvCoordsBuffer = new ArrayList<VertexBuffer>(uvs.size());
+                    int uvIndex = 0;
+                    for (Entry<String, List<Vector2f>> entry : uvs.entrySet()) {
+                        VertexBuffer buffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[uvIndex++]);
+                        buffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(entry.getValue().toArray(new Vector2f[uvs.size()])));
+                        uvCoordsBuffer.add(buffer);
+                    }
+                }
             }
 
             for (Geometry geometry : geometries) {
                 geometry.setMaterial(blenderContext.getDefaultMaterial());
                 if (uvCoordsBuffer != null) {
-                    geometry.getMesh().setBuffer(uvCoordsBuffer);
+                    for (VertexBuffer buffer : uvCoordsBuffer) {
+                        geometry.getMesh().setBuffer(buffer);
+                    }
                 }
             }
         }
@@ -255,6 +273,67 @@ public class MeshHelper extends AbstractBlenderHelper {
     }
 
     /**
+     * The method loads the UV coordinates. The result is a map where the key is the user's UV set name and the values are UV coordinates.
+     * But depending on the mesh type (triangle/quads or bmesh) the lists in the map have different meaning.
+     * For bmesh they are enlisted just like they are stored in the blend file (in loops).
+     * For traditional faces every 4 UV's should be assigned for a single face.
+     * @param meshStructure
+     *            the mesh structure
+     * @param useBMesh
+     *            tells if we should load the coordinates from loops of from faces
+     * @param blenderContext
+     *            the blender context
+     * @return a map that sorts UV coordinates between different UV sets
+     * @throws BlenderFileException
+     *             an exception is thrown when problems with blend file occur
+     */
+    @SuppressWarnings("unchecked")
+    private Map<String, List<Vector2f>> loadUVCoordinates(Structure meshStructure, boolean useBMesh, BlenderContext blenderContext) throws BlenderFileException {
+        Map<String, List<Vector2f>> result = new HashMap<String, List<Vector2f>>();
+        if (useBMesh) {
+            // in this case the UV's are assigned to vertices (an array is the same length as the vertex array)
+            Structure loopData = (Structure) meshStructure.getFieldValue("ldata");
+            Pointer pLoopDataLayers = (Pointer) loopData.getFieldValue("layers");
+            List<Structure> loopDataLayers = pLoopDataLayers.fetchData(blenderContext.getInputStream());
+            for (Structure structure : loopDataLayers) {
+                Pointer p = (Pointer) structure.getFieldValue("data");
+                if (p.isNotNull() && ((Number) structure.getFieldValue("type")).intValue() == UV_DATA_LAYER_TYPE_BMESH) {
+                    String uvSetName = structure.getFieldValue("name").toString();
+                    List<Structure> uvsStructures = p.fetchData(blenderContext.getInputStream());
+                    List<Vector2f> uvs = new ArrayList<Vector2f>(uvsStructures.size());
+                    for (Structure uvStructure : uvsStructures) {
+                        DynamicArray<Number> loopUVS = (DynamicArray<Number>) uvStructure.getFieldValue("uv");
+                        uvs.add(new Vector2f(loopUVS.get(0).floatValue(), loopUVS.get(1).floatValue()));
+                    }
+                    result.put(uvSetName, uvs);
+                }
+            }
+        } else {
+            // in this case UV's are assigned to faces (the array has the same legnth as the faces count)
+            Structure facesData = (Structure) meshStructure.getFieldValue("fdata");
+            Pointer pFacesDataLayers = (Pointer) facesData.getFieldValue("layers");
+            List<Structure> facesDataLayers = pFacesDataLayers.fetchData(blenderContext.getInputStream());
+            for (Structure structure : facesDataLayers) {
+                Pointer p = (Pointer) structure.getFieldValue("data");
+                if (p.isNotNull() && ((Number) structure.getFieldValue("type")).intValue() == UV_DATA_LAYER_TYPE_FMESH) {
+                    String uvSetName = structure.getFieldValue("name").toString();
+                    List<Structure> uvsStructures = p.fetchData(blenderContext.getInputStream());
+                    List<Vector2f> uvs = new ArrayList<Vector2f>(uvsStructures.size());
+                    for (Structure uvStructure : uvsStructures) {
+                        DynamicArray<Number> mFaceUVs = (DynamicArray<Number>) uvStructure.getFieldValue("uv");
+                        uvs.add(new Vector2f(mFaceUVs.get(0).floatValue(), mFaceUVs.get(1).floatValue()));
+                        uvs.add(new Vector2f(mFaceUVs.get(2).floatValue(), mFaceUVs.get(3).floatValue()));
+                        uvs.add(new Vector2f(mFaceUVs.get(4).floatValue(), mFaceUVs.get(5).floatValue()));
+                        uvs.add(new Vector2f(mFaceUVs.get(6).floatValue(), mFaceUVs.get(7).floatValue()));
+                    }
+                    result.put(uvSetName, uvs);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * This method reads the mesh from the new BMesh system.
      * 
      * @param meshBuilder
@@ -267,33 +346,26 @@ public class MeshHelper extends AbstractBlenderHelper {
      *             an exception is thrown when there are problems with the
      *             blender file
      */
-    @SuppressWarnings("unchecked")
     private void readBMesh(MeshBuilder meshBuilder, Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
         Pointer pMLoop = (Pointer) meshStructure.getFieldValue("mloop");
         Pointer pMPoly = (Pointer) meshStructure.getFieldValue("mpoly");
         Pointer pMEdge = (Pointer) meshStructure.getFieldValue("medge");
-        Pointer pMLoopUV = (Pointer) meshStructure.getFieldValue("mloopuv");
-        Vector2f[] uvCoordinatesForFace = new Vector2f[3];
+        Map<String, Vector2f[]> uvCoordinatesForFace = new HashMap<String, Vector2f[]>();
 
         if (pMPoly.isNotNull() && pMLoop.isNotNull() && pMEdge.isNotNull()) {
+            Map<String, List<Vector2f>> uvs = this.loadUVCoordinates(meshStructure, true, blenderContext);
             int faceIndex = 0;
             List<Structure> polys = pMPoly.fetchData(blenderContext.getInputStream());
             List<Structure> loops = pMLoop.fetchData(blenderContext.getInputStream());
-            List<Structure> loopuvs = pMLoopUV.isNotNull() ? pMLoopUV.fetchData(blenderContext.getInputStream()) : null;
             for (Structure poly : polys) {
                 int materialNumber = ((Number) poly.getFieldValue("mat_nr")).intValue();
                 int loopStart = ((Number) poly.getFieldValue("loopstart")).intValue();
                 int totLoop = ((Number) poly.getFieldValue("totloop")).intValue();
                 boolean smooth = (((Number) poly.getFieldValue("flag")).byteValue() & 0x01) != 0x00;
                 int[] vertexIndexes = new int[totLoop];
-                Vector2f[] uvs = loopuvs != null ? new Vector2f[totLoop] : null;
 
                 for (int i = loopStart; i < loopStart + totLoop; ++i) {
                     vertexIndexes[i - loopStart] = ((Number) loops.get(i).getFieldValue("v")).intValue();
-                    if (uvs != null) {
-                        DynamicArray<Number> loopUVS = (DynamicArray<Number>) loopuvs.get(i).getFieldValue("uv");
-                        uvs[i - loopStart] = new Vector2f(loopUVS.get(0).floatValue(), loopUVS.get(1).floatValue());
-                    }
                 }
 
                 int i = 0;
@@ -302,15 +374,19 @@ public class MeshHelper extends AbstractBlenderHelper {
                     int v2 = vertexIndexes[i + 1];
                     int v3 = vertexIndexes[i + 2];
 
-                    if (uvs != null) {// uvs always must be added wheater we
-                                      // have texture or not
-                        uvCoordinatesForFace[0] = uvs[0];
-                        uvCoordinatesForFace[1] = uvs[i + 1];
-                        uvCoordinatesForFace[2] = uvs[i + 2];
+                    if (uvs != null) {
+                        // uvs always must be added wheater we have texture or not
+                        for (Entry<String, List<Vector2f>> entry : uvs.entrySet()) {
+                            Vector2f[] uvCoordsForASingleFace = new Vector2f[3];
+                            uvCoordsForASingleFace[0] = entry.getValue().get(loopStart);
+                            uvCoordsForASingleFace[1] = entry.getValue().get(loopStart + i + 1);
+                            uvCoordsForASingleFace[2] = entry.getValue().get(loopStart + i + 2);
+                            uvCoordinatesForFace.put(entry.getKey(), uvCoordsForASingleFace);
+                        }
                     }
 
                     meshBuilder.appendFace(v1, v2, v3, smooth, materialNumber, uvs == null ? null : uvCoordinatesForFace, false, faceIndex);
-
+                    uvCoordinatesForFace.clear();
                     ++i;
                 }
                 ++faceIndex;
@@ -332,38 +408,26 @@ public class MeshHelper extends AbstractBlenderHelper {
      *             an exception is thrown when there are problems with the
      *             blender file
      */
-    @SuppressWarnings("unchecked")
     private void readTraditionalFaces(MeshBuilder meshBuilder, Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
         Pointer pMFace = (Pointer) meshStructure.getFieldValue("mface");
         List<Structure> mFaces = pMFace.isNotNull() ? pMFace.fetchData(blenderContext.getInputStream()) : null;
         if (mFaces != null && mFaces.size() > 0) {
-            Pointer pMTFace = (Pointer) meshStructure.getFieldValue("mtface");
-            List<Structure> mtFaces = null;
-
-            if (pMTFace.isNotNull()) {
-                mtFaces = pMTFace.fetchData(blenderContext.getInputStream());
-                int facesAmount = ((Number) meshStructure.getFieldValue("totface")).intValue();
-                if (mtFaces.size() != facesAmount) {
-                    throw new BlenderFileException("The amount of faces uv coordinates is not equal to faces amount!");
-                }
-            }
-
-            // indicates if the material with the specified number should have a
-            // texture attached
-            Vector2f[] uvCoordinatesForFace = new Vector2f[3];
+            // indicates if the material with the specified number should have a texture attached
+            Map<String, List<Vector2f>> uvs = this.loadUVCoordinates(meshStructure, false, blenderContext);
+            Map<String, Vector2f[]> uvCoordinatesForFace = new HashMap<String, Vector2f[]>();
             for (int i = 0; i < mFaces.size(); ++i) {
                 Structure mFace = mFaces.get(i);
                 int materialNumber = ((Number) mFace.getFieldValue("mat_nr")).intValue();
                 boolean smooth = (((Number) mFace.getFieldValue("flag")).byteValue() & 0x01) != 0x00;
-                DynamicArray<Number> uvs = null;
-
-                if (mtFaces != null) {
-                    Structure mtFace = mtFaces.get(i);
+                if (uvs != null) {
                     // uvs always must be added wheater we have texture or not
-                    uvs = (DynamicArray<Number>) mtFace.getFieldValue("uv");
-                    uvCoordinatesForFace[0] = new Vector2f(uvs.get(0, 0).floatValue(), uvs.get(0, 1).floatValue());
-                    uvCoordinatesForFace[1] = new Vector2f(uvs.get(1, 0).floatValue(), uvs.get(1, 1).floatValue());
-                    uvCoordinatesForFace[2] = new Vector2f(uvs.get(2, 0).floatValue(), uvs.get(2, 1).floatValue());
+                    for (Entry<String, List<Vector2f>> entry : uvs.entrySet()) {
+                        Vector2f[] uvCoordsForASingleFace = new Vector2f[3];
+                        uvCoordsForASingleFace[0] = entry.getValue().get(i * 4);
+                        uvCoordsForASingleFace[1] = entry.getValue().get(i * 4 + 1);
+                        uvCoordsForASingleFace[2] = entry.getValue().get(i * 4 + 2);
+                        uvCoordinatesForFace.put(entry.getKey(), uvCoordsForASingleFace);
+                    }
                 }
 
                 int v1 = ((Number) mFace.getFieldValue("v1")).intValue();
@@ -372,13 +436,20 @@ public class MeshHelper extends AbstractBlenderHelper {
                 int v4 = ((Number) mFace.getFieldValue("v4")).intValue();
 
                 meshBuilder.appendFace(v1, v2, v3, smooth, materialNumber, uvs == null ? null : uvCoordinatesForFace, false, i);
+                uvCoordinatesForFace.clear();
                 if (v4 > 0) {
                     if (uvs != null) {
-                        uvCoordinatesForFace[0] = new Vector2f(uvs.get(0, 0).floatValue(), uvs.get(0, 1).floatValue());
-                        uvCoordinatesForFace[1] = new Vector2f(uvs.get(2, 0).floatValue(), uvs.get(2, 1).floatValue());
-                        uvCoordinatesForFace[2] = new Vector2f(uvs.get(3, 0).floatValue(), uvs.get(3, 1).floatValue());
+                        // uvs always must be added wheater we have texture or not
+                        for (Entry<String, List<Vector2f>> entry : uvs.entrySet()) {
+                            Vector2f[] uvCoordsForASingleFace = new Vector2f[3];
+                            uvCoordsForASingleFace[0] = entry.getValue().get(i * 4);
+                            uvCoordsForASingleFace[1] = entry.getValue().get(i * 4 + 2);
+                            uvCoordsForASingleFace[2] = entry.getValue().get(i * 4 + 3);
+                            uvCoordinatesForFace.put(entry.getKey(), uvCoordsForASingleFace);
+                        }
                     }
                     meshBuilder.appendFace(v1, v3, v4, smooth, materialNumber, uvs == null ? null : uvCoordinatesForFace, true, i);
+                    uvCoordinatesForFace.clear();
                 }
             }
         } else {
