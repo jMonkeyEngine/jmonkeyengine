@@ -66,7 +66,9 @@ public class LevelTerrainTool extends TerrainTool {
         if (radius == 0 || weight == 0)
             return;
         if (desiredHeight == null)
-            desiredHeight = point.clone();
+            desiredHeight = markerSecondary.getWorldTranslation().clone();
+        else
+            desiredHeight.y = markerSecondary.getWorldTranslation().y;
         if (toolParams.absolute)
             desiredHeight.y = toolParams.height;
         LevelTerrainToolAction action = new LevelTerrainToolAction(point, radius, weight, desiredHeight, toolParams.precision, getMesh());

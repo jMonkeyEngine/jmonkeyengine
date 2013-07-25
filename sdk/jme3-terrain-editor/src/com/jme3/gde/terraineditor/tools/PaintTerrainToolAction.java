@@ -166,7 +166,7 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
         int maxy = (int) Math.min(height,(uv.y*height + radius*height));
 
         float radiusSquared = radius*radius;
-        float radiusFalloff = radius*fadeFalloff;
+        float radiusFalloff = radiusSquared*fadeFalloff;
         // go through each pixel, in the radius of the tool, in the image
         for (int y = miny; y < maxy; y++){
             for (int x = minx; x < maxx; x++){
@@ -178,14 +178,15 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
                     manipulatePixel(image, x, y, color, false); // gets the color at that location (false means don't write to the buffer)
 
                     // calculate the fade falloff intensity
-                    float intensity = 0.1f;
-                    if (dist > radiusFalloff) {
+                    float intensity = (1.0f-(dist/radiusSquared))*fadeFalloff;
+                    /*if (dist > radiusFalloff) {
                         float dr = radius - radiusFalloff; // falloff to radius length
                         float d2 = dist - radiusFalloff; // dist minus falloff
                         d2 = d2/dr; // dist percentage of falloff length
                         intensity = 1-d2; // fade out more the farther away it is
-                    }
-
+                    }*/
+                    
+                    
                     //if (dragged)
                     //	intensity = intensity*0.1f; // magical divide it by 10 to reduce its intensity when mouse is dragged
 

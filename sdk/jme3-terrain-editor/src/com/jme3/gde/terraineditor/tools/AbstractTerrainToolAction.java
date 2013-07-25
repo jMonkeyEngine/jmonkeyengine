@@ -32,10 +32,12 @@
 
 package com.jme3.gde.terraineditor.tools;
 
+import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractStatefulGLToolAction;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.terrain.Terrain;
+import org.openide.loaders.DataObject;
 
 /**
  * Helps find the terrain in the scene
@@ -68,5 +70,18 @@ public abstract class AbstractTerrainToolAction extends AbstractStatefulGLToolAc
         }
 
         return null;
+    }
+    
+    @Override
+    protected void setModified(final AbstractSceneExplorerNode rootNode, final DataObject dataObject) {
+        if (dataObject.isModified())
+            return;
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                dataObject.setModified(true);
+                //rootNode.refresh(true); // we don't need to refresh the whole tree when we edit the terrain
+            }
+        });
     }
 }
