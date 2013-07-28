@@ -135,16 +135,12 @@ public class LodControl extends AbstractControl implements Cloneable {
 
     @Override
     public Control cloneForSpatial(Spatial spatial) {
-        try {
-            LodControl clone = (LodControl) super.clone();
-            clone.lastDistance = 0;
-            clone.lastLevel = 0;
-            clone.numTris = numTris != null ? numTris.clone() : null;
-            return clone;
-        } catch (CloneNotSupportedException ex) {
-            throw new AssertionError();
-        }
-    }
+        LodControl clone = (LodControl) super.cloneForSpatial(spatial);
+        clone.lastDistance = 0;
+        clone.lastLevel = 0;
+        clone.numTris = numTris != null ? numTris.clone() : null;
+        return clone;
+   }
 
     @Override
     protected void controlUpdate(float tpf) {
