@@ -31,25 +31,6 @@
  */
 package com.jme3.renderer.jogl;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GL2ES1;
-import javax.media.opengl.GL2ES2;
-import javax.media.opengl.GL2GL3;
-import javax.media.opengl.GLContext;
-
-import jme3tools.converters.MipMapGenerator;
-import jme3tools.shader.ShaderDebug;
-
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
@@ -83,7 +64,24 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
 import com.jme3.util.SafeArrayList;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.media.nativewindow.NativeWindowFactory;
+import javax.media.opengl.GL;
+import javax.media.opengl.GL2;
+import javax.media.opengl.GL2ES1;
+import javax.media.opengl.GL2ES2;
+import javax.media.opengl.GL2GL3;
+import javax.media.opengl.GL3;
+import javax.media.opengl.GLContext;
+import jme3tools.converters.MipMapGenerator;
+import jme3tools.shader.ShaderDebug;
 
 public class JoglRenderer implements Renderer {
 
@@ -376,11 +374,11 @@ public class JoglRenderer implements Renderer {
             if (gl.isExtensionAvailable("GL_ARB_texture_multisample")) {
                 caps.add(Caps.TextureMultisample);
 
-                gl.glGetIntegerv(GL2GL3.GL_MAX_COLOR_TEXTURE_SAMPLES, intBuf16);
+                gl.glGetIntegerv(GL3.GL_MAX_COLOR_TEXTURE_SAMPLES, intBuf16);
                 maxColorTexSamples = intBuf16.get(0);
                 logger.log(Level.FINER, "Texture Multisample Color Samples: {0}", maxColorTexSamples);
 
-                gl.glGetIntegerv(GL2GL3.GL_MAX_DEPTH_TEXTURE_SAMPLES, intBuf16);
+                gl.glGetIntegerv(GL3.GL_MAX_DEPTH_TEXTURE_SAMPLES, intBuf16);
                 maxDepthTexSamples = intBuf16.get(0);
                 logger.log(Level.FINER, "Texture Multisample Depth Samples: {0}", maxDepthTexSamples);
             }
@@ -1543,7 +1541,7 @@ public class JoglRenderer implements Renderer {
         GL gl = GLContext.getCurrentGL();
         if (gl.isGL2GL3()) {
             for (int i = 0; i < samplePositions.length; i++) {
-                gl.getGL2GL3().glGetMultisamplefv(GL2GL3.GL_SAMPLE_POSITION, i, samplePos);
+                gl.getGL3().glGetMultisamplefv(GL3.GL_SAMPLE_POSITION, i, samplePos);
                 samplePos.clear();
                 samplePositions[i] = new Vector2f(samplePos.get(0) - 0.5f,
                         samplePos.get(1) - 0.5f);
@@ -1754,13 +1752,13 @@ public class JoglRenderer implements Renderer {
         switch (type) {
             case TwoDimensional:
                 if (samples > 1) {
-                    return GL2GL3.GL_TEXTURE_2D_MULTISAMPLE;
+                    return GL3.GL_TEXTURE_2D_MULTISAMPLE;
                 } else {
                     return GL.GL_TEXTURE_2D;
                 }
             case TwoDimensionalArray:
                 if (samples > 1) {
-                    return GL2GL3.GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
+                    return GL3.GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
                 } else {
                     return GL.GL_TEXTURE_2D_ARRAY;
                 }

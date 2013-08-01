@@ -32,17 +32,15 @@
 
 package com.jme3.renderer.jogl;
 
+import com.jme3.renderer.RendererException;
+import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
 import java.nio.ByteBuffer;
-
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES2;
 import javax.media.opengl.GL2GL3;
 import javax.media.opengl.GLContext;
-
-import com.jme3.renderer.RendererException;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
 
 public class TextureUtil {
     
@@ -105,13 +103,13 @@ public class TextureUtil {
         // Luminance formats
         setFormat(Format.Luminance8,   GL2.GL_LUMINANCE8,  GL.GL_LUMINANCE, GL.GL_UNSIGNED_BYTE, false);
         setFormat(Format.Luminance16,  GL2.GL_LUMINANCE16, GL.GL_LUMINANCE, GL.GL_UNSIGNED_SHORT, false);
-        setFormat(Format.Luminance16F, GL.GL_LUMINANCE16F_ARB, GL.GL_LUMINANCE, GL.GL_HALF_FLOAT, false);
-        setFormat(Format.Luminance32F, GL.GL_LUMINANCE32F_ARB, GL.GL_LUMINANCE, GL.GL_FLOAT, false);
+        setFormat(Format.Luminance16F, GL2.GL_LUMINANCE16F, GL.GL_LUMINANCE, GL.GL_HALF_FLOAT, false);
+        setFormat(Format.Luminance32F, GL2.GL_LUMINANCE32F, GL.GL_LUMINANCE, GL.GL_FLOAT, false);
         
         // Luminance alpha formats
         setFormat(Format.Luminance8Alpha8, GL2.GL_LUMINANCE8_ALPHA8,  GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, false);
         setFormat(Format.Luminance16Alpha16, GL2.GL_LUMINANCE16_ALPHA16, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_SHORT, false);
-        setFormat(Format.Luminance16FAlpha16F, GL.GL_LUMINANCE_ALPHA16F_ARB, GL.GL_LUMINANCE_ALPHA, GL.GL_HALF_FLOAT, false);
+        setFormat(Format.Luminance16FAlpha16F, GL2.GL_LUMINANCE_ALPHA16F, GL.GL_LUMINANCE_ALPHA, GL.GL_HALF_FLOAT, false);
         
         // Depth formats
         setFormat(Format.Depth,    GL2ES2.GL_DEPTH_COMPONENT,    GL2ES2.GL_DEPTH_COMPONENT, GL.GL_UNSIGNED_BYTE, false);
@@ -368,7 +366,7 @@ public class TextureUtil {
                     }else{
                         if (samples > 1){
                             if (gl.isGL2GL3()) {
-                                gl.getGL2GL3().glTexImage2DMultisample(target,
+                                gl.getGL3().glTexImage2DMultisample(target,
                                         samples,
                                         glFmt.internalFormat,
                                         mipWidth,

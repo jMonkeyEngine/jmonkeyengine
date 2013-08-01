@@ -205,7 +205,8 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
 
     public void mouseWheelMoved(MouseEvent awtEvt) {
         //FIXME not sure this is the right way to handle this case
-        float dwheel = awtEvt.getWheelRotation();
+        // [0] should be used when the shift key is down
+        float dwheel = awtEvt.getRotation()[1];
         wheelPos += dwheel * WHEEL_AMP;
         cursorMoved = true;
     }

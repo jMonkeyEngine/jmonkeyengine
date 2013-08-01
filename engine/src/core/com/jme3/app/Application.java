@@ -380,6 +380,8 @@ public class Application implements SystemListener {
         if (settings == null){
             settings = new AppSettings(true);
         }
+        settings.setRenderer("JOGL");
+        settings.setAudioRenderer("JOAL");
 
         logger.log(Level.FINE, "Starting application: {0}", getClass().getName());
         context = JmeSystem.newContext(settings, contextType);
