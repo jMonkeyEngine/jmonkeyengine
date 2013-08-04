@@ -39,7 +39,6 @@ import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.newt.event.KeyListener;
 import com.jogamp.newt.opengl.GLWindow;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,7 +49,6 @@ public class NewtKeyInput implements KeyInput, KeyListener {
     private final ArrayList<KeyInputEvent> eventQueue = new ArrayList<KeyInputEvent>();
     private RawInputListener listener;
     private GLWindow component;
-    private BitSet keyStateSet = new BitSet(0xFF);
     
     public NewtKeyInput() {
     }
@@ -66,7 +64,6 @@ public class NewtKeyInput implements KeyInput, KeyListener {
             if (component != null){
                 component.removeKeyListener(this);
                 eventQueue.clear();
-                keyStateSet.clear();
             }
             component = comp;
             component.addKeyListener(this);
@@ -96,34 +93,23 @@ public class NewtKeyInput implements KeyInput, KeyListener {
     }
 
     public void keyTyped(KeyEvent evt) {
-        // key code is zero for typed events
     }
 
     public void keyPressed(KeyEvent evt) {
         int code = convertNewtKey(evt.getKeySymbol());
-        
-        // Check if key was already pressed
-        if (!keyStateSet.get(code)){
-            keyStateSet.set(code);
-            KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, false);
-            keyEvent.setTime(evt.getWhen());
-            synchronized (eventQueue){
-                eventQueue.add(keyEvent);
-            }
+        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), true, evt.isAutoRepeat());
+        keyEvent.setTime(evt.getWhen());
+        synchronized (eventQueue){
+            eventQueue.add(keyEvent);
         }
     }
 
     public void keyReleased(KeyEvent evt) {
         int code = convertNewtKey(evt.getKeySymbol());
-        
-        // Check if key was already released
-        if (keyStateSet.get(code)) {
-            keyStateSet.clear(code);
-            KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, false);
-            keyEvent.setTime(evt.getWhen());
-            synchronized (eventQueue){
-                eventQueue.add(keyEvent);
-            }
+        KeyInputEvent keyEvent = new KeyInputEvent(code, evt.getKeyChar(), false, evt.isAutoRepeat());
+        keyEvent.setTime(evt.getWhen());
+        synchronized (eventQueue) {
+            eventQueue.add(keyEvent);
         }
     }
 
