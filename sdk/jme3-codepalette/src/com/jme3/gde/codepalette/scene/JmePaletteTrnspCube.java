@@ -47,7 +47,7 @@ public class JmePaletteTrnspCube implements ActiveEditorDrop {
 
     private String createBody() {
 
-        String body = "    /** Translucent/transparent cube. Uses Texture from jme3-test-data library! */\n    Box boxshape3 = new Box(Vector3f.ZERO, 1f,1f,1f);\n    Geometry cube_translucent = new Geometry(\"translucent cube\", boxshape3);\n    Material mat_tt = new Material(assetManager, \"Common/MatDefs/Misc/Unshaded.j3md\");\n    mat_tt.setTexture(\"ColorMap\", assetManager.loadTexture(\"Textures/ColoredTex/Monkey.png\"));\n    mat_tt.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);\n    cube_translucent.setMaterial(mat_tt); \n    rootNode.attachChild(cube_translucent); ";
+        String body = "    /** Translucent/transparent cube. Uses Texture from jme3-test-data library! */\n    Box boxMesh = new Box(1f,1f,1f);\n    Geometry boxGeo = new Geometry(\"translucent cube\", boxMesh);\n    Material boxMat = new Material(assetManager, \"Common/MatDefs/Misc/Unshaded.j3md\");\n    boxMat.setTexture(\"ColorMap\", assetManager.loadTexture(\"Textures/ColoredTex/Monkey.png\"));\n    boxMat.getAdditionalRenderState().setBlendMode(BlendMode.Alpha);\n    boxGeo.setMaterial(boxMat); \n    rootNode.attachChild(boxGeo); ";
         return body;
     }
 
