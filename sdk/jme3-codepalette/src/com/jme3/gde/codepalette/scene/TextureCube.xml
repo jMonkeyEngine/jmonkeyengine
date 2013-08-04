@@ -10,8 +10,8 @@
     <icon32 urlvalue="com/jme3/gde/core/sceneviewer/jme-logo.png" />
 
     <inline-description>
-       <display-name>TextureCube</display-name>
-       <tooltip>Unshaded, textured</tooltip>
+       <display-name>Textured cube</display-name>
+       <tooltip>Unshaded, textured material.</tooltip>
     </inline-description>
 
 </editor_palette_item>
