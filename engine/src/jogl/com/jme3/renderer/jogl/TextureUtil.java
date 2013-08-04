@@ -297,7 +297,7 @@ public class TextureUtil {
                                                 mipWidth,
                                                 mipHeight,
                                                 mipDepth,
-                                                0,
+                                                data.remaining(),
                                                 border,
                                                 data);
                 }else{
@@ -307,7 +307,7 @@ public class TextureUtil {
                                                 glFmt.internalFormat,
                                                 mipWidth,
                                                 mipHeight,
-                                                0,
+                                                data.remaining(),
                                                 border,
                                                 data);
                 }
