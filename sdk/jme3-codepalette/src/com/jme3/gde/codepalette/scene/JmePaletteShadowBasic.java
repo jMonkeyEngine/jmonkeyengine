@@ -47,7 +47,7 @@ public class JmePaletteShadowBasic implements ActiveEditorDrop {
 
     private String createBody() {
 
-        String body = "  /** Basic shadow for even surfaces */ \n BasicShadowRenderer bsr = new BasicShadowRenderer(assetManager, 256);\n bsr.setDirection(new Vector3f(-.5f,-.5f,-.5f).normalizeLocal());\n viewPort.addProcessor(bsr); \n ";
+        String body = "/* this shadow needs a directional light */\nDirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, 1024, 2);\ndlsr.setLight(sun);\nviewPort.addProcessor(dlsr); \n ";
         return body;
     }
 

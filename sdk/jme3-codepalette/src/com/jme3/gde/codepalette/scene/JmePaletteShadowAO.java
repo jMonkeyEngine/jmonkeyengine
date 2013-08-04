@@ -47,7 +47,7 @@ public class JmePaletteShadowAO implements ActiveEditorDrop {
 
     private String createBody() {
 
-        String body = " /** Ambient occlusion shadows */ \n FilterPostProcessor fpp = new FilterPostProcessor(assetManager);\n SSAOFilter ssaoFilter = new SSAOFilter(12.94f, 43.92f, 0.33f, 0.61);\n fpp.addFilter(ssaoFilter);\n viewPort.addProcessor(fpp); \n";
+        String body = "FilterPostProcessor fpp = new FilterPostProcessor(assetManager);\nviewPort.addProcessor(fpp);\nSSAOFilter ssaoFilter = new SSAOFilter(12.94f, 43.93f, 0.33f, 0.60f);\nfpp.addFilter(ssaoFilter); \n";
         return body;
     }
 

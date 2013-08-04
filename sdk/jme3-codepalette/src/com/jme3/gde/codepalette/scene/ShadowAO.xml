@@ -10,8 +10,8 @@
     <icon32 urlvalue="com/jme3/gde/core/sceneviewer/jme-logo.png" />
 
     <inline-description>
-       <display-name>Shadow AO</display-name>
-       <tooltip>Ambient Occlusion Shadow</tooltip>
+       <display-name>Shadow (Ambient)</display-name>
+       <tooltip>Ambient Occlusion Shadows</tooltip>
     </inline-description>
 
 </editor_palette_item>

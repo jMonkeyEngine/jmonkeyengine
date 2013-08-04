@@ -47,7 +47,7 @@ public class JmePaletteShadowPSSM implements ActiveEditorDrop {
 
     private String createBody() {
 
-        String body = "/** Advanced shadows for uneven surfaces */ \n PssmShadowRenderer pssm = new PssmShadowRenderer(assetManager, 1024, 3);\n pssm.setDirection(new Vector3f(-.5f,-.5f,-.5f).normalizeLocal());\n viewPort.addProcessor(pssm); \n";
+        String body = "/* this shadow needs a directional light */\nFilterPostProcessor fpp = new FilterPostProcessor(assetManager);\nDirectionalLightShadowFilter dlsf = new DirectionalLightShadowFilter(assetManager, 1024, 2);\ndlsf.setLight(sun);\nfpp.addFilter(dlsf);\nviewPort.addProcessor(fpp); \n";
         return body;
     }
 

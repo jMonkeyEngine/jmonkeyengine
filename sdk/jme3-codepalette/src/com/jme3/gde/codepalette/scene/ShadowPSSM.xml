@@ -10,8 +10,8 @@
     <icon32 urlvalue="com/jme3/gde/core/sceneviewer/jme-logo.png" />
 
     <inline-description>
-       <display-name>Shadow PSSM</display-name>
-       <tooltip>Advanced shadows for uneven surfaces</tooltip>
+       <display-name>Shadow Filter</display-name>
+       <tooltip>Directional PSSM shadow filter for larger maps.</tooltip>
     </inline-description>
 
 </editor_palette_item>
