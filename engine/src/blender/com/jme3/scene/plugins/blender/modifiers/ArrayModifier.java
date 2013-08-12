@@ -199,7 +199,12 @@ import java.util.logging.Logger;
         }
 
         Vector3f translationVector = new Vector3f(offset[0] + scale[0] + objectOffset[0], offset[1] + scale[1] + objectOffset[1], offset[2] + scale[2] + objectOffset[2]);
-
+        if(blenderContext.getBlenderKey().isFixUpAxis()) {
+            float y = translationVector.y;
+            translationVector.y = translationVector.z;
+            translationVector.z = y == 0 ? 0 : -y;
+        }
+        
         // getting/calculating repeats amount
         int count = 0;
         if (fittype == 0) {// Fixed count
