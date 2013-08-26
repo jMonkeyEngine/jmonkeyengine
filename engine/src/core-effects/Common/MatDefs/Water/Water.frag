@@ -12,7 +12,7 @@ uniform sampler2D m_FoamMap;
 uniform sampler2D m_CausticsMap;
 uniform sampler2D m_ReflectionMap;
 
-uniform mat4 m_ViewProjectionMatrixInverse;
+uniform mat4 g_ViewProjectionMatrixInverse;
 uniform mat4 m_TextureProjMatrix;
 uniform vec3 m_CameraPosition;
 
@@ -107,7 +107,7 @@ vec3 saturate(in vec3 val){
 
 vec3 getPosition(in float depth, in vec2 uv){
     vec4 pos = vec4(uv, depth, 1.0) * 2.0 - 1.0;
-    pos = m_ViewProjectionMatrixInverse * pos;
+    pos = g_ViewProjectionMatrixInverse * pos;
     return pos.xyz / pos.w;
 }
 

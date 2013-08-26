@@ -151,8 +151,6 @@ public class WaterFilter extends Filter {
         biasMatrix.mult(sceneCam.getViewProjectionMatrix(), textureProjMatrix);
         material.setMatrix4("TextureProjMatrix", textureProjMatrix);
         material.setVector3("CameraPosition", sceneCam.getLocation());
-        material.setMatrix4("ViewProjectionMatrixInverse", sceneCam.getViewProjectionMatrix().invert());
-
         material.setFloat("WaterHeight", waterHeight);
 
         //update reflection cam

@@ -13,8 +13,7 @@ MaterialDef Advanced Water {
         Vector3 CameraPosition
         Float Time
         Vector3 frustumCorner
-        Matrix4 TextureProjMatrix
-        Matrix4 ViewProjectionMatrixInverse
+        Matrix4 TextureProjMatrix        
         Float WaterHeight
         Vector3 LightDir
         Float WaterTransparency
@@ -56,6 +55,7 @@ MaterialDef Advanced Water {
         FragmentShader GLSL150 : Common/MatDefs/Water/Water15.frag
 
         WorldParameters {
+            ViewProjectionMatrixInverse
         }
 
         Defines {
