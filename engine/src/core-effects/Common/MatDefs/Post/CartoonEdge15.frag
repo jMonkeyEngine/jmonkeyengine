@@ -4,7 +4,7 @@ uniform COLORTEXTURE m_Texture;
 uniform DEPTHTEXTURE m_DepthTexture;
 
 uniform sampler2D m_NormalsTexture;
-uniform vec2 g_Resolution;
+uniform vec2 g_ResolutionInverse;
 
 uniform vec4 m_EdgeColor;
 
@@ -30,7 +30,7 @@ vec4 fetchNormalDepth(vec2 tc){
 void main(){
     vec3 color = getColor(m_Texture, texCoord).rgb;
 
-    vec2 edgeOffset = vec2(m_EdgeWidth) / textureSize(m_NormalsTexture, 0);
+    vec2 edgeOffset = vec2(m_EdgeWidth) * g_ResolutionInverse;
     vec4 n1 = fetchNormalDepth(texCoord + vec2(-1.0, -1.0) * edgeOffset);
     vec4 n2 = fetchNormalDepth(texCoord + vec2( 1.0,  1.0) * edgeOffset);
     vec4 n3 = fetchNormalDepth(texCoord + vec2(-1.0,  1.0) * edgeOffset);

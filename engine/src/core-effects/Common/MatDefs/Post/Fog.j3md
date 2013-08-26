@@ -15,7 +15,6 @@ MaterialDef Fade {
         FragmentShader GLSL150: Common/MatDefs/Post/Fog15.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
         }
 
         Defines {
@@ -29,7 +28,6 @@ MaterialDef Fade {
         FragmentShader GLSL100: Common/MatDefs/Post/Fog.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
         }
     }
 }

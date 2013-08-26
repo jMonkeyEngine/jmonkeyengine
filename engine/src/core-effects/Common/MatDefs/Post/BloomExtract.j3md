@@ -14,7 +14,6 @@ MaterialDef Bloom {
         FragmentShader GLSL150: Common/MatDefs/Post/bloomExtract15.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
         }
 
         Defines {
@@ -29,7 +28,6 @@ MaterialDef Bloom {
         FragmentShader GLSL100: Common/MatDefs/Post/bloomExtract.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
         }
 
         Defines {

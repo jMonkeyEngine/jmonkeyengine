@@ -8,9 +8,10 @@ uniform float m_BlurStart;
 uniform float m_BlurWidth;
 uniform float m_LightDensity;
 uniform bool m_Display;
+uniform vec3 m_LightPosition;
 
-in vec2 lightPos;
 in vec2 texCoord;
+out vec4 fragColor;
 
 void main(void)
 {
@@ -19,12 +20,12 @@ void main(void)
        vec4 colorRes= getColor(m_Texture,texCoord);
        float factor=(m_BlurWidth/float(m_NbSamples-1.0));
        float scale;
-       vec2 texCoo=texCoord-lightPos;
+       vec2 texCoo=texCoord - m_LightPosition.xy;
        vec2 scaledCoord;
        vec4 res = vec4(0.0);
        for(int i=0; i<m_NbSamples; i++) {
             scale = i * factor + m_BlurStart ;
-            scaledCoord=texCoo*scale+lightPos;            
+            scaledCoord=texCoo*scale + m_LightPosition.xy;            
             if(fetchTextureSample(m_DepthTexture, scaledCoord,0).r==1.0){
                 res += fetchTextureSample(m_Texture,scaledCoord,0);
             }
@@ -32,8 +33,8 @@ void main(void)
         res /= m_NbSamples;
 
         //Blend the original color with the averaged pixels
-        gl_FragColor =mix( colorRes, res, m_LightDensity);
+        fragColor = mix( colorRes, res, m_LightDensity);
     }else{
-        gl_FragColor= getColor(m_Texture,texCoord);
+        fragColor = getColor(m_Texture,texCoord);
     }
 }

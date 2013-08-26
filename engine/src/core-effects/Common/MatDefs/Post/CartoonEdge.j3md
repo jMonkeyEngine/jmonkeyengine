@@ -20,9 +20,8 @@ MaterialDef Cartoon Edge {
         FragmentShader GLSL150: Common/MatDefs/Post/CartoonEdge15.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
             WorldViewMatrix
-            Resolution
+            ResolutionInverse
         }
 
         Defines {
@@ -37,9 +36,8 @@ MaterialDef Cartoon Edge {
         FragmentShader GLSL100: Common/MatDefs/Post/CartoonEdge.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
             WorldViewMatrix
-            Resolution
+            ResolutionInverse
         }
     }
 }

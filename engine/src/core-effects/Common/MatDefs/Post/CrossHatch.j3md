@@ -22,7 +22,6 @@ MaterialDef CrossHatch {
         FragmentShader GLSL150: Common/MatDefs/Post/CrossHatch15.frag
  
         WorldParameters {
-            WorldViewProjectionMatrix
         }
     }
  

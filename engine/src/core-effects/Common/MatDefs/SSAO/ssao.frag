@@ -2,6 +2,7 @@ uniform vec2 g_Resolution;
 uniform vec2 m_FrustumNearFar;
 uniform sampler2D m_Texture;
 uniform sampler2D m_Normals;
+uniform sampler2D m_RandomMap;
 uniform sampler2D m_DepthTexture;
 uniform vec3 m_FrustumCorner;
 uniform float m_SampleRadius;
@@ -32,9 +33,9 @@ vec3 getNormal(in vec2 uv){
   return normalize(texture2D(m_Normals, uv).xyz * 2.0 - 1.0);
 }
 
-vec2 getRandom(in vec2 uv){
-   float rand=(fract(uv.x*(g_Resolution.x/2.0))*0.25)+(fract(uv.y*(g_Resolution.y/2.0))*0.5);
-   return normalize(vec2(rand,rand));
+vec2 getRandom(in vec2 uv){  
+   vec4 rand=texture2D(m_RandomMap,g_Resolution.zw * uv / 128.0 * 3.0)*2.0 -1.0;
+   return normalize(rand.xy);
 }
 
 float doAmbientOcclusion(in vec2 tc, in vec3 pos, in vec3 norm){

@@ -16,6 +16,8 @@ uniform vec2[4] m_Samples;
 
 in vec2 texCoord;
 
+out vec4 fragColor;
+
 float depthv;
 
 vec3 getPosition(in vec2 uv){
@@ -36,7 +38,7 @@ vec3 getNormal(in vec2 uv){
 
 vec2 getRandom(in vec2 uv){
    //float rand=(fract(uv.x*(g_Resolution.x/2.0))*0.25)+(fract(uv.y*(g_Resolution.y/2.0))*0.5);
-   vec4 rand=texture2D(m_RandomMap,g_Resolution * uv / 128.0 * 3.0)*2.0 -1.0;
+   vec4 rand=texture2D(m_RandomMap, g_Resolution * uv / 128.0 * 3.0)*2.0 -1.0;
 
    return normalize(rand.xy);
 }
@@ -64,7 +66,7 @@ void main(){
    vec3 position = getPosition(texCoord);
     //optimization, do not calculate AO if depth is 1
    if(depthv==1.0){
-        gl_FragColor=vec4(1.0);
+        fragColor = vec4(1.0);
         return;
    }
    vec3 normal = getNormal(texCoord);
@@ -88,6 +90,6 @@ void main(){
    ao /= float(iterations) * 4.0;
    result = 1.0-ao;
 
-   gl_FragColor=vec4(result,result,result, 1.0);
+   fragColor = vec4(result,result,result, 1.0);
 
 }

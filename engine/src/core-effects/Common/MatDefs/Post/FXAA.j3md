@@ -11,8 +11,7 @@ MaterialDef FXAA {
         VertexShader GLSL100:   Common/MatDefs/Post/FXAA.vert
         FragmentShader GLSL100: Common/MatDefs/Post/FXAA.frag
         WorldParameters {
-            WorldViewProjectionMatrix
-            Resolution
+            ResolutionInverse
         }
     }
 }

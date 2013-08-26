@@ -63,8 +63,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private Texture2D filterTexture;
     private Texture2D depthTexture;
     private List<Filter> filters = new ArrayList<Filter>();
-    private AssetManager assetManager;
-    private Camera filterCam = new Camera(1, 1);
+    private AssetManager assetManager;        
     private Picture fsQuad;
     private boolean computeDepth = false;
     private FrameBuffer outputBuffer;
@@ -78,7 +77,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private int originalHeight;
     private int lastFilterIndex = -1;
     private boolean cameraInit = false;
-    private boolean clearColor= true;
+    private boolean multiView = false;
 
     /**
      * Create a FilterProcessor 
@@ -135,7 +134,9 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         renderer = rm.getRenderer();
         viewPort = vp;
         fsQuad = new Picture("filter full screen quad");
-
+        fsQuad.setWidth(1);
+        fsQuad.setHeight(1);
+        
         Camera cam = vp.getCamera();
 
         //save view port diensions
@@ -176,29 +177,23 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param mat 
      */
     private void renderProcessing(Renderer r, FrameBuffer buff, Material mat) {
-        if (buff == outputBuffer) {
-            fsQuad.setWidth(width);
-            fsQuad.setHeight(height);
-            filterCam.resize(originalWidth, originalHeight, true);
-            fsQuad.setPosition(left * originalWidth, bottom * originalHeight);
-        } else {
-            fsQuad.setWidth(buff.getWidth());
-            fsQuad.setHeight(buff.getHeight());
-            filterCam.resize(buff.getWidth(), buff.getHeight(), true);
-            fsQuad.setPosition(0, 0);
+        if (buff == outputBuffer && multiView) {
+            viewPort.getCamera().resize(originalWidth, originalHeight, false);
+            viewPort.getCamera().setViewPort(left, right, bottom, top);
+            viewPort.getCamera().update();
+            renderManager.setCamera( viewPort.getCamera(), false);            
         }
 
         if (mat.getAdditionalRenderState().isDepthWrite()) {
             mat.getAdditionalRenderState().setDepthTest(false);
             mat.getAdditionalRenderState().setDepthWrite(false);
         }
-
+        
         fsQuad.setMaterial(mat);
         fsQuad.updateGeometricState();
-
-        renderManager.setCamera(filterCam, true);
+      
         r.setFrameBuffer(buff);        
-        r.clearBuffers(clearColor, true, true);
+        r.clearBuffers(true, true, true);
         renderManager.renderGeometry(fsQuad);
 
     }
@@ -216,8 +211,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             }
         }
 
-    }
-    Picture pic = new Picture("debug");
+    }   
 
     /**
      * iterate through the filter list and renders filters
@@ -317,11 +311,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             } else {
                 viewPort.setOutputFrameBuffer(renderFrameBuffer);
             }
-            //init of the camera if it wasn't already
-            if (!cameraInit) {
-                viewPort.getCamera().resize(width, height, true);
+           //if we are ina multiview situation we need to resize the camera 
+           //to the viewportsize so that the backbuffer is rendered correctly
+           if (multiView) {
+                viewPort.getCamera().resize(width, height, false);
                 viewPort.getCamera().setViewPort(0, 1, 0, 1);
-            }
+                viewPort.getCamera().update();
+                renderManager.setCamera(viewPort.getCamera(), false);
+           }
         }
 
         for (Iterator<Filter> it = filters.iterator(); it.hasNext();) {
@@ -376,8 +373,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     }
 
     public void reshape(ViewPort vp, int w, int h) {
-        //this has no effect at first init but is useful when resizing the canvas with multi views
         Camera cam = vp.getCamera();
+        //this has no effect at first init but is useful when resizing the canvas with multi views
         cam.setViewPort(left, right, bottom, top);
         //resizing the camera to fit the new viewport and saving original dimensions
         cam.resize(w, h, false);
@@ -387,24 +384,20 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         bottom = cam.getViewPortBottom();
         originalWidth = w;
         originalHeight = h;
-        cam.setViewPort(0, 1, 0, 1);
 
-        //computing real dimension of the viewport and resizing he camera 
+        //computing real dimension of the viewport and resizing the camera 
         width = (int) (w * (Math.abs(right - left)));
         height = (int) (h * (Math.abs(bottom - top)));
         width = Math.max(1, width);
         height = Math.max(1, height);
         
         //Testing original versus actual viewport dimension.
-        //If they are different we are in a multiview situation and color from other view port must not be cleared.
-        //However, not clearing the color can cause issues when AlphaToCoverage is active on the renderer.        
+        //If they are different we are in a multiview situation and 
+        //camera must be handled differently
         if(originalWidth!=width || originalHeight!=height){
-            clearColor = false;
-        }else{
-            clearColor = true;
+            multiView = true;
         }
-        
-        cam.resize(width, height, false);
+
         cameraInit = true;
         computeDepth = false;
 

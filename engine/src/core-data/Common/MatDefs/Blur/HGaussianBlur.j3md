@@ -12,7 +12,6 @@ MaterialDef Bloom {
         FragmentShader GLSL100: Common/MatDefs/Blur/HGaussianBlur.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
         }
     }
 }

@@ -16,7 +16,6 @@ MaterialDef Depth Of Field {
         FragmentShader GLSL100: Common/MatDefs/Post/DepthOfField.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
         }
     }
 }

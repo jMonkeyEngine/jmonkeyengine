@@ -12,7 +12,6 @@ MaterialDef Default GUI {
         FragmentShader GLSL150: Common/MatDefs/Post/Overlay15.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
         }
 
         Defines {
@@ -25,8 +24,7 @@ MaterialDef Default GUI {
         VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
         FragmentShader GLSL100: Common/MatDefs/Post/Overlay.frag
 
-        WorldParameters {
-            WorldViewProjectionMatrix
+        WorldParameters {  
         }
 
     }

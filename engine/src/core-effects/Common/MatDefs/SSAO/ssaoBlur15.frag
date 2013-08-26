@@ -3,7 +3,6 @@
 uniform COLORTEXTURE m_Texture;
 uniform DEPTHTEXTURE m_DepthTexture;
 uniform sampler2D m_SSAOMap;
-uniform vec2 g_Resolution;
 uniform bool m_UseOnlyAo;
 uniform bool m_UseAo;
 uniform float m_XScale;
@@ -32,33 +31,6 @@ float readDepth(in vec2 uv){
 
  const float epsilon = 0.005;
 
-
-/*
-    const int kernelSize=7;
-   
-    vec4 bilateralFilter() {
-        vec4 color = vec4(0.0);
-
-        vec2 sample;
-        float sum = 0.0;
-        float coefZ;
-        float Zp = readDepth(texCoord);
-
-        for(int i = -(kernelSize-1); i <= (kernelSize-1); i+=2) {
-            for(int j = -(kernelSize-1); j <= (kernelSize-1); j+=2) {
-                  sample = texCoord + vec2(i,j) / g_Resolution;           
-                float zTmp =readDepth(sample);
-                coefZ = 1.0 / (epsilon + abs(Zp - zTmp));               
-                sum += coefZ;
-
-                color += coefZ * texture2D(m_SSAOMap,sample);
-             
-            }
-        }
-
-        return color / sum;
-    }
-*/
 
     vec4 convolutionFilter(){
            vec4 sum = vec4(0.0);

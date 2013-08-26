@@ -1,7 +1,7 @@
 #extension GL_EXT_gpu_shader4 : enable
 
 uniform sampler2D m_Texture;
-uniform vec2 g_Resolution;
+uniform vec2 g_ResolutionInverse;
 
 uniform float m_VxOffset;
 uniform float m_SpanMax;
@@ -83,6 +83,6 @@ vec3 FxaaPixelShader(
 
 void main()
 {
-    vec2 rcpFrame = vec2(1.0) / g_Resolution;
-    gl_FragColor = vec4(FxaaPixelShader(posPos, m_Texture, rcpFrame), 1.0);
+
+    gl_FragColor = vec4(FxaaPixelShader(posPos, m_Texture, g_ResolutionInverse), 1.0);
 }

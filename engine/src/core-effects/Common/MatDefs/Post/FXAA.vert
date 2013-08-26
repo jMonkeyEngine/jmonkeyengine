@@ -1,5 +1,5 @@
 uniform mat4 g_WorldViewProjectionMatrix;
-uniform vec2 g_Resolution;
+uniform vec2 g_ResolutionInverse;
 
 uniform float m_SubPixelShift;
 
@@ -12,8 +12,7 @@ varying vec4 posPos;
 void main() {
     vec2 pos = (g_WorldViewProjectionMatrix * inPosition).xy;
     gl_Position = vec4(pos, 0.0, 1.0);    
-    texCoord = inTexCoord;
-    vec2 rcpFrame = vec2(1.0) / g_Resolution;
+    texCoord = inTexCoord;    
     posPos.xy = inTexCoord.xy;
-    posPos.zw = inTexCoord.xy - (rcpFrame * vec2(0.5 + m_SubPixelShift));
+    posPos.zw = inTexCoord.xy - (g_ResolutionInverse * vec2(0.5 + m_SubPixelShift));
 }

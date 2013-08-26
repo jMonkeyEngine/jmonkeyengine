@@ -14,7 +14,6 @@ MaterialDef Radial Blur {
         FragmentShader GLSL150: Common/MatDefs/Blur/RadialBlur15.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
         }
 
         Defines {
@@ -27,7 +26,6 @@ MaterialDef Radial Blur {
         FragmentShader GLSL120: Common/MatDefs/Blur/RadialBlur.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
         }
     }
 }

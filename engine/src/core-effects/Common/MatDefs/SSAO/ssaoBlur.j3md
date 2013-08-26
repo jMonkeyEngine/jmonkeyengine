@@ -18,9 +18,7 @@ MaterialDef SSAOBlur {
         FragmentShader GLSL150: Common/MatDefs/SSAO/ssaoBlur15.frag
 
         WorldParameters {
-            WorldViewProjectionMatrix
             WorldViewMatrix
-            Resolution
         }
 
         Defines {
@@ -35,11 +33,8 @@ MaterialDef SSAOBlur {
         VertexShader GLSL120:   Common/MatDefs/Post/Post.vert
         FragmentShader GLSL120: Common/MatDefs/SSAO/ssaoBlur.frag
 
-        WorldParameters {
-            WorldViewProjectionMatrix
+        WorldParameters {            
             WorldViewMatrix
-            Resolution
-
         }
         
         Defines {

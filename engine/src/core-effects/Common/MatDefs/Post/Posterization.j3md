@@ -13,7 +13,6 @@ MaterialDef Posterization {
         FragmentShader GLSL150: Common/MatDefs/Post/Posterization15.frag
  
         WorldParameters {
-            WorldViewProjectionMatrix
         }
     }
  
@@ -21,8 +20,7 @@ MaterialDef Posterization {
         VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
         FragmentShader GLSL100: Common/MatDefs/Post/Posterization.frag
  
-        WorldParameters {
-            WorldViewProjectionMatrix
+        WorldParameters {   
         }
     }
 }
