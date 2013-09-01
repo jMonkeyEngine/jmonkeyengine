@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://www.netbeans.org/ns/project/1">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
@@ -9,7 +8,7 @@
                 <dependency>
                     <code-name-base>org.netbeans.modules.autoupdate.services</code-name-base>
                     <run-dependency>
-                        <specification-version>1.33.2</specification-version>
+                        <specification-version>1.39.2</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -17,7 +16,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.32.1</specification-version>
+                        <specification-version>7.35.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -25,7 +24,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>8.25.2</specification-version>
+                        <specification-version>8.29.3</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>
