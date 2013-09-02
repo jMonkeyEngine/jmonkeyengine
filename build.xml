@@ -34,8 +34,10 @@
         <ant dir="sdk" target="run"/>
     </target>
 
-    <target name="zip" description="Builds the complete SDK and packs it as a ZIP file" depends="build">
-        <propertyfile file="sdk/nbproject/project.properties"/>
+    <target name="zip" description="Builds the complete SDK and packs it as a ZIP file">
+        <ant dir="engine" target="update-sdk"/>
+        <ant dir="sdk" target="build-zip"/>
+        <property file="sdk/nbproject/project.properties"/>
         <move file="sdk/dist/${app.name}.zip" tofile="./jMonkeyEngine-SDK-${app.version}-NoBundles.zip"/>
     </target>
     
