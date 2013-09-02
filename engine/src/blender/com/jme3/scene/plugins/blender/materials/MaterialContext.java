@@ -91,15 +91,14 @@ public final class MaterialContext {
             int spec_shader = ((Number) structure.getFieldValue("spec_shader")).intValue();
             specularShader = SpecularShader.values()[spec_shader];
             specularColor = this.readSpecularColor(structure, specularShader);
-
+            float shininess = ((Number) structure.getFieldValue("har")).floatValue();//this is (probably) the specular hardness in blender
+            this.shininess = shininess > 0.0f ? shininess : MaterialHelper.DEFAULT_SHININESS;
+            
             float r = ((Number) structure.getFieldValue("ambr")).floatValue();
             float g = ((Number) structure.getFieldValue("ambg")).floatValue();
             float b = ((Number) structure.getFieldValue("ambb")).floatValue();
             float alpha = ((Number) structure.getFieldValue("alpha")).floatValue();
             ambientColor = new ColorRGBA(r, g, b, alpha);
-
-            float shininess = ((Number) structure.getFieldValue("emit")).floatValue();
-            this.shininess = shininess > 0.0f ? shininess : MaterialHelper.DEFAULT_SHININESS;
         }
 
         DynamicArray<Pointer> mtexsArray = (DynamicArray<Pointer>) structure.getFieldValue("mtex");
@@ -207,9 +206,9 @@ public final class MaterialContext {
 
             material.setBoolean("WardIso", specularShader == SpecularShader.WARDISO);
             material.setColor("Specular", specularColor);
+            material.setFloat("Shininess", shininess);
 
             material.setColor("Ambient", ambientColor);
-            material.setFloat("Shininess", shininess);
         }
 
         // applying textures
