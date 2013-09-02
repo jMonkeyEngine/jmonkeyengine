@@ -86,6 +86,7 @@
 
     <target name="hudson-stable" depends="-hudson-revert-changes, -check-platform, -update-sdk-platform-config, -hudson-build-engine">
         <!--ant dir="engine" target="dist"/-->
+        <ant dir="engine" target="create-zip-distribution"/>
         <ant dir="sdk" target="hudson-stable"/>
     </target>
 
