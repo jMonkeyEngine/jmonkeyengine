@@ -1781,18 +1781,48 @@ public final class Matrix4f implements Savable, Cloneable, java.io.Serializable 
 		float scaleY = (float) Math.sqrt(m01 * m01 + m11 * m11 + m21 * m21);
 		float scaleZ = (float) Math.sqrt(m02 * m02 + m12 * m12 + m22 * m22);
 		vector.set(scaleX, scaleY, scaleZ);
-	}
-
-    public void setScale(float x, float y, float z) {
-        m00 *= x;
-        m11 *= y;
-        m22 *= z;
     }
 
+    /**
+     * Sets the scale.
+     * 
+     * @param x
+     *            the X scale
+     * @param y
+     *            the Y scale
+     * @param z
+     *            the Z scale
+     */
+    public void setScale(float x, float y, float z) {
+        TempVars vars = TempVars.get();
+        vars.vect1.set(m00, m10, m20);
+        vars.vect1.normalizeLocal().multLocal(x);
+        m00 = vars.vect1.x;
+        m10 = vars.vect1.y;
+        m20 = vars.vect1.z;
+
+        vars.vect1.set(m01, m11, m21);
+        vars.vect1.normalizeLocal().multLocal(y);
+        m01 = vars.vect1.x;
+        m11 = vars.vect1.y;
+        m21 = vars.vect1.z;
+
+        vars.vect1.set(m02, m12, m22);
+        vars.vect1.normalizeLocal().multLocal(z);
+        m02 = vars.vect1.x;
+        m12 = vars.vect1.y;
+        m22 = vars.vect1.z;
+        vars.release();
+    }
+
+    /**
+     * Sets the scale.
+     * 
+     * @param scale
+     *            the scale vector to set
+     */
     public void setScale(Vector3f scale) {
-        m00 *= scale.x;
-        m11 *= scale.y;
-        m22 *= scale.z;
+        this.setScale(scale.x, scale.y, scale.z);
     }
 
     /**

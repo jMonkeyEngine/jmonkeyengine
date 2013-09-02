@@ -330,8 +330,31 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
     }
 
     public Quaternion fromRotationMatrix(float m00, float m01, float m02,
-            float m10, float m11, float m12,
-            float m20, float m21, float m22) {
+            float m10, float m11, float m12, float m20, float m21, float m22) {
+        // first normalize the forward (F), up (U) and side (S) vectors of the rotation matrix
+        // so that the scale does not affect the rotation
+        float lengthSquared = m00 * m00 + m10 * m10 + m20 * m20;
+        if (lengthSquared != 1f && lengthSquared != 0f) {
+            lengthSquared = 1.0f / FastMath.sqrt(lengthSquared);
+            m00 *= lengthSquared;
+            m10 *= lengthSquared;
+            m20 *= lengthSquared;
+        }
+        lengthSquared = m01 * m01 + m11 * m11 + m21 * m21;
+        if (lengthSquared != 1f && lengthSquared != 0f) {
+            lengthSquared = 1.0f / FastMath.sqrt(lengthSquared);
+            m01 *= lengthSquared;
+            m11 *= lengthSquared;
+            m21 *= lengthSquared;
+        }
+        lengthSquared = m02 * m02 + m12 * m12 + m22 * m22;
+        if (lengthSquared != 1f && lengthSquared != 0f) {
+            lengthSquared = 1.0f / FastMath.sqrt(lengthSquared);
+            m02 *= lengthSquared;
+            m12 *= lengthSquared;
+            m22 *= lengthSquared;
+        }
+
         // Use the Graphics Gems code, from 
         // ftp://ftp.cis.upenn.edu/pub/graphics/shoemake/quatut.ps.Z
         // *NOT* the "Matrix and Quaternions FAQ", which has errors!
@@ -439,7 +462,8 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @return the rotation matrix representation of this quaternion.
      */
     public Matrix4f toRotationMatrix(Matrix4f result) {
-
+        Vector3f originalScale = result.toScaleVector();
+        result.setScale(1, 1, 1);
         float norm = norm();
         // we explicitly test norm against one here, saving a division
         // at the cost of a test and branch.  Is it worth it?
@@ -471,6 +495,7 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         result.m21 = (yz + xw);
         result.m22 = 1 - (xx + yy);
 
+        result.setScale(originalScale);
         return result;
     }
 
