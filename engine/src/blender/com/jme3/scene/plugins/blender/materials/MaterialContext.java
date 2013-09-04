@@ -90,7 +90,7 @@ public final class MaterialContext {
 
             int spec_shader = ((Number) structure.getFieldValue("spec_shader")).intValue();
             specularShader = SpecularShader.values()[spec_shader];
-            specularColor = this.readSpecularColor(structure, specularShader);
+            specularColor = this.readSpecularColor(structure);
             float shininess = ((Number) structure.getFieldValue("har")).floatValue();//this is (probably) the specular hardness in blender
             this.shininess = shininess > 0.0f ? shininess : MaterialHelper.DEFAULT_SHININESS;
             
@@ -385,26 +385,12 @@ public final class MaterialContext {
      *            the material structure filled with data
      * @return a specular color used by the material
      */
-    private ColorRGBA readSpecularColor(Structure materialStructure, SpecularShader specularShader) {
-        float r = ((Number) materialStructure.getFieldValue("specr")).floatValue();
-        float g = ((Number) materialStructure.getFieldValue("specg")).floatValue();
-        float b = ((Number) materialStructure.getFieldValue("specb")).floatValue();
+    private ColorRGBA readSpecularColor(Structure materialStructure) {
+        float specularIntensity = ((Number) materialStructure.getFieldValue("spec")).floatValue();
+        float r = ((Number) materialStructure.getFieldValue("specr")).floatValue() * specularIntensity;
+        float g = ((Number) materialStructure.getFieldValue("specg")).floatValue() * specularIntensity;
+        float b = ((Number) materialStructure.getFieldValue("specb")).floatValue() * specularIntensity;
         float alpha = ((Number) materialStructure.getFieldValue("alpha")).floatValue();
-        switch (specularShader) {
-            case BLINN:
-            case COOKTORRENCE:
-            case TOON:
-            case WARDISO:// TODO: find what is the proper modification
-                break;
-            case PHONG:// TODO: check if that is correct
-                float spec = ((Number) materialStructure.getFieldValue("spec")).floatValue();
-                r *= spec * 0.5f;
-                g *= spec * 0.5f;
-                b *= spec * 0.5f;
-                break;
-            default:
-                throw new IllegalStateException("Unknown specular shader type: " + specularShader.toString());
-        }
         return new ColorRGBA(r, g, b, alpha);
     }
 
