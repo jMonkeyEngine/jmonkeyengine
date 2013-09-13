@@ -267,9 +267,13 @@ public final class BinaryImporter implements JmeImporter {
 
     public Savable load(File f, ReadListener listener) throws IOException {
         FileInputStream fis = new FileInputStream(f);
-        Savable rVal = load(fis, listener);
-        fis.close();
-        return rVal;
+        try {
+            return load(fis, listener);
+        } finally {
+            if (fis != null) {
+                fis.close();
+            }
+        }
     }
 
     public Savable load(byte[] data) throws IOException {
