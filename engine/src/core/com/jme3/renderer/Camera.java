@@ -320,33 +320,33 @@ public class Camera implements Savable, Cloneable {
         this.width = cam.width;
         this.height = cam.height;
         
-        this.planeState = cam.planeState;
-        this.viewportChanged = cam.viewportChanged;
+        this.planeState = 0;
+        this.viewportChanged = true;
         for (int i = 0; i < MAX_WORLD_PLANES; ++i) {
             worldPlane[i].setNormal(cam.worldPlane[i].getNormal());
             worldPlane[i].setConstant(cam.worldPlane[i].getConstant());
         }
         
         this.parallelProjection = cam.parallelProjection;
-        if(cam.projectionMatrixOverride != null) {
-        	if(this.projectionMatrixOverride == null) {
-        		this.projectionMatrixOverride = cam.projectionMatrixOverride.clone();
-        	} else {
-        		this.projectionMatrixOverride.set(cam.projectionMatrixOverride);
-        	}
+        if (cam.projectionMatrixOverride != null) {
+            if (this.projectionMatrixOverride == null) {
+                this.projectionMatrixOverride = cam.projectionMatrixOverride.clone();
+            } else {
+                this.projectionMatrixOverride.set(cam.projectionMatrixOverride);
+            }
         } else {
-        	this.projectionMatrixOverride = null;
+            this.projectionMatrixOverride = null;
         }
         this.viewMatrix.set(cam.viewMatrix);
         this.projectionMatrix.set(cam.projectionMatrix);
         this.viewProjectionMatrix.set(cam.viewProjectionMatrix);
-        
+
         this.guiBounding.setXExtent(cam.guiBounding.getXExtent());
         this.guiBounding.setYExtent(cam.guiBounding.getYExtent());
         this.guiBounding.setZExtent(cam.guiBounding.getZExtent());
         this.guiBounding.setCenter(cam.guiBounding.getCenter());
         this.guiBounding.setCheckPlane(cam.guiBounding.getCheckPlane());
-        
+
         this.name = cam.name;
     }
 
