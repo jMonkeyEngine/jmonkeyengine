@@ -282,6 +282,38 @@ public final class Shader extends NativeObject {
     }
 
     /**
+     * Removes the "set-by-current-material" flag from all uniforms.
+     * When a uniform is modified after this call, the flag shall
+     * become "set-by-current-material". 
+     * A call to {@link #resetUniformsNotSetByCurrent() } will reset
+     * all uniforms that do not have the "set-by-current-material" flag
+     * to their default value (usually all zeroes or false).
+     */
+    public void clearUniformsSetByCurrentFlag() {
+        int size = uniforms.size();
+        for (int i = 0; i < size; i++) {
+            Uniform u = uniforms.getValue(i);
+            u.clearSetByCurrentMaterial();
+        }
+    }
+
+    /**
+     * Resets all uniforms that do not have the "set-by-current-material" flag
+     * to their default value (usually all zeroes or false).
+     * When a uniform is modified, that flag is set, to remove the flag,
+     * use {@link #clearUniformsSetByCurrent() }.
+     */
+    public void resetUniformsNotSetByCurrent() {
+        int size = uniforms.size();
+        for (int i = 0; i < size; i++) {
+            Uniform u = uniforms.getValue(i);
+            if (!u.isSetByCurrentMaterial()) {
+                u.clearValue();
+            }
+        }
+    }
+
+    /**
      * Usually called when the shader itself changes or during any
      * time when the variable locations need to be refreshed.
      */
