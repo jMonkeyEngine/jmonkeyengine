@@ -191,6 +191,9 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
                 case Canvas:
                     ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.jogl.JoglNewtCanvas");
                     break;
+                case OffscreenSurface:
+                    ctxClazz = (Class<? extends JmeContext>) Class.forName("com.jme3.system.jogl.JoglOffscreenBuffer");
+                    break;
                 default:
                     throw new IllegalArgumentException("Unsupported context type " + type);
             }
