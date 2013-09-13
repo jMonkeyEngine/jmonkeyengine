@@ -324,28 +324,28 @@ public class InputManager implements RawInputListener {
         } else if (value < 0) {
             int hash = JoyAxisTrigger.joyAxisHash(joyId, axis, true);
             int otherHash = JoyAxisTrigger.joyAxisHash(joyId, axis, false);
-            
+
             // Clear the reverse direction's actions in case we
-            // crossed center too quickly            
+            // crossed center too quickly
             Float otherVal = axisValues.get(otherHash);
             if (otherVal != null && otherVal.floatValue() > axisDeadZone) {
                 invokeActions(otherHash, false);
             }
-            
+
             invokeAnalogsAndActions(hash, -value, true);
             axisValues.put(hash, -value);
             axisValues.remove(otherHash);
         } else {
             int hash = JoyAxisTrigger.joyAxisHash(joyId, axis, false);
             int otherHash = JoyAxisTrigger.joyAxisHash(joyId, axis, true);
-            
+
             // Clear the reverse direction's actions in case we
-            // crossed center too quickly            
+            // crossed center too quickly
             Float otherVal = axisValues.get(otherHash);
             if (otherVal != null && otherVal.floatValue() > axisDeadZone) {
                 invokeActions(otherHash, false);
             }
-            
+
             invokeAnalogsAndActions(hash, value, true);
             axisValues.put(hash, value);
             axisValues.remove(otherHash);
@@ -918,6 +918,7 @@ public class InputManager implements RawInputListener {
         if (!eventsPermitted) {
             throw new UnsupportedOperationException("TouchInput has raised an event at an illegal time.");
         }
+        cursorPos.set(evt.getX(), evt.getY());
         inputQueue.add(evt);
     }
 }
