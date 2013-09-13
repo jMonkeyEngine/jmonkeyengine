@@ -85,6 +85,7 @@ public final class Natives {
     }
 
     private static int computeNativesHash() {
+        URLConnection conn = null;
         try {
             String classpath = System.getProperty("java.class.path");
             URL url = Thread.currentThread().getContextClassLoader().getResource("com/jme3/system/Natives.class");
@@ -101,11 +102,18 @@ public final class Natives {
                 throw new UnsupportedOperationException(ex);
             }
 
-            URLConnection conn = url.openConnection();
+            conn = url.openConnection();
             int hash = classpath.hashCode() ^ (int) conn.getLastModified();
             return hash;
         } catch (IOException ex) {
             throw new UnsupportedOperationException(ex);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.getInputStream().close();
+                    conn.getOutputStream().close();
+                } catch (IOException ex) { }
+            }
         }
     }
 
@@ -233,7 +241,7 @@ public final class Natives {
 
         String libraryPath = getExtractionDir().toString();
         if (needLWJGL) {
-            logger.log(Level.FINE, "Extraction Directory: {0}", getExtractionDir().toString());
+            logger.log(Level.INFO, "Extraction Directory: {0}", getExtractionDir().toString());
 
             // LWJGL supports this feature where
             // it can load libraries from this path.
