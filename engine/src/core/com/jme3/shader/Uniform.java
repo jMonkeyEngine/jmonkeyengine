@@ -33,6 +33,7 @@ package com.jme3.shader;
 
 import com.jme3.math.*;
 import com.jme3.util.BufferUtils;
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -347,4 +348,10 @@ public class Uniform extends ShaderVariable {
         updateNeeded = true;
     }
 
+    public void deleteNativeBuffers() {
+        if (value instanceof Buffer) {
+            BufferUtils.destroyDirectBuffer((Buffer)value);
+            value = null; // ????
+        }
+    }
 }

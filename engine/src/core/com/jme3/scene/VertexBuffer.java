@@ -351,6 +351,14 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         if (data == null) {
             throw new AssertionError();
         }
+        // Position must be 0.
+        if (data.position() != 0) {
+            throw new AssertionError();
+        }
+        // Is the size of the VB == 0?
+        if (data.limit() == 0) {
+            throw new AssertionError();
+        }
         // Does offset exceed buffer limit or negative?
         if (offset > data.limit() || offset < 0) {
             throw new AssertionError();

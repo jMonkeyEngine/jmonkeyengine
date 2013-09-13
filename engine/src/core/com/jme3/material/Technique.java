@@ -222,9 +222,7 @@ public class Technique /* implements Savable */ {
            for (UniformBinding binding : def.getWorldBindings()) {
                Uniform uniform = shader.getUniform("g_" + binding.name());
                uniform.setBinding(binding);
-               if (uniform != null) {
-                   worldBindUniforms.add(uniform);
-               }
+               worldBindUniforms.add(uniform);
            }
         }        
         needReload = false;
