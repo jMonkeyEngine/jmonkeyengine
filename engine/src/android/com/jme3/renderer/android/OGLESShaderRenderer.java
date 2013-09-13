@@ -128,7 +128,7 @@ public class OGLESShaderRenderer implements Renderer {
     public EnumSet<Caps> getCaps() {
         return caps;
     }
-    
+
     private int extractVersion(String prefixStr, String versionStr) {
         if (versionStr != null) {
             int spaceIdx = versionStr.indexOf(" ", prefixStr.length());
@@ -2332,6 +2332,10 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     public void renderMesh(Mesh mesh, int lod, int count) {
+        if (mesh.getVertexCount() == 0) {
+            return;
+        }
+
         /*
          * NOTE: not supported in OpenGL ES 2.0.
         if (context.pointSize != mesh.getPointSize()) {
