@@ -1024,7 +1024,7 @@ public class WaterFilter extends Filter {
     public void setReflectionDisplace(float reflectionDisplace) {
         this.reflectionDisplace = reflectionDisplace;
         if (material != null) {
-            material.setFloat("m_ReflectionDisplace", reflectionDisplace);
+            material.setFloat("ReflectionDisplace", reflectionDisplace);
         }
     }
 
