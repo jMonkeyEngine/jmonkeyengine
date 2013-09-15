@@ -10,7 +10,7 @@ varying vec2 texCoord;
 varying vec4 posPos;
 
 void main() {
-    vec2 pos = (g_WorldViewProjectionMatrix * inPosition).xy;
+    vec2 pos = inPosition.xy * 2.0 - 1.0;
     gl_Position = vec4(pos, 0.0, 1.0);    
     texCoord = inTexCoord;    
     posPos.xy = inTexCoord.xy;
