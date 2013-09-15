@@ -177,13 +177,18 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @param mat 
      */
     private void renderProcessing(Renderer r, FrameBuffer buff, Material mat) {
-        if (buff == outputBuffer && multiView) {
+        if (buff == outputBuffer) {
             viewPort.getCamera().resize(originalWidth, originalHeight, false);
             viewPort.getCamera().setViewPort(left, right, bottom, top);
             viewPort.getCamera().update();
             renderManager.setCamera( viewPort.getCamera(), false);            
+        }else{
+            viewPort.getCamera().resize(buff.getWidth(), buff.getHeight(), false);
+            viewPort.getCamera().setViewPort(0, 1, 0, 1);
+            viewPort.getCamera().update();
+            renderManager.setCamera( viewPort.getCamera(), false);            
         }
-
+     
         if (mat.getAdditionalRenderState().isDepthWrite()) {
             mat.getAdditionalRenderState().setDepthTest(false);
             mat.getAdditionalRenderState().setDepthWrite(false);
