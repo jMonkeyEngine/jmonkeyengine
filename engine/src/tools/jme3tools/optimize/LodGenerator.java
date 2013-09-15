@@ -326,12 +326,14 @@ public class LodGenerator {
         while (b.remaining() != 0) {
             Triangle tri = new Triangle();
             tri.isRemoved = false;
-            triangleList.add(tri);
+            triangleList.add(tri);            
             for (int i = 0; i < 3; i++) {
                 if (b instanceof IntBuffer) {
                     tri.vertexId[i] = ((IntBuffer) b).get();
                 } else {
-                    tri.vertexId[i] = ((ShortBuffer) b).get();
+                    //bit shift to avoid negative values due to conversion form short to int.
+                    //we need an unsigned int here.
+                    tri.vertexId[i] = ((ShortBuffer) b).get()& 0xffff;
                 }
                // assert (tri.vertexId[i] < vertexLookup.size());
                 tri.vertex[i] = vertexLookup.get(tri.vertexId[i]);
