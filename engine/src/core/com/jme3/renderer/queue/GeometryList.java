@@ -55,7 +55,7 @@ public class GeometryList {
     /**
      * Initializes the GeometryList to use the given {@link GeometryComparator}
      * to use for comparing geometries.
-     * 
+     *
      * @param comparator The comparator to use.
      */
     public GeometryList(GeometryComparator comparator) {
@@ -65,18 +65,22 @@ public class GeometryList {
         this.comparator = comparator;
     }
 
+    public void setComparator(GeometryComparator comparator) {
+        this.comparator = comparator;
+    }
+
     /**
      * Returns the GeometryComparator that this Geometry list uses
      * for sorting.
      */
     public GeometryComparator getComparator() {
         return comparator;
-    }     
+    }
 
     /**
-     * Set the camera that will be set on the geometry comparators 
+     * Set the camera that will be set on the geometry comparators
      * via {@link GeometryComparator#setCamera(com.jme3.renderer.Camera)}.
-     * 
+     *
      * @param cam Camera to use for sorting.
      */
     public void setCamera(Camera cam){
@@ -85,7 +89,7 @@ public class GeometryList {
 
     /**
      * Returns the number of elements in this GeometryList.
-     * 
+     *
      * @return Number of elements in the list
      */
     public int size(){
@@ -94,7 +98,7 @@ public class GeometryList {
 
     /**
      * Returns the element at the given index.
-     * 
+     *
      * @param index The index to lookup
      * @return Geometry at the index
      */
@@ -103,7 +107,7 @@ public class GeometryList {
     }
 
     /**
-     * Adds a geometry to the list. 
+     * Adds a geometry to the list.
      * List size is doubled if there is no room.
      *
      * @param g
@@ -114,7 +118,7 @@ public class GeometryList {
             Geometry[] temp = new Geometry[size * 2];
             System.arraycopy(geometries, 0, temp, 0, size);
             geometries = temp; // original list replaced by double-size list
-            
+
             geometries2 = new Geometry[size * 2];
         }
         geometries[size++] = g;
@@ -137,13 +141,13 @@ public class GeometryList {
     public void sort() {
         if (size > 1) {
             // sort the spatial list using the comparator
-            
+
 //            SortUtil.qsort(geometries, 0, size, comparator);
-//            Arrays.sort(geometries, 0, size, comparator);            
-            
+//            Arrays.sort(geometries, 0, size, comparator);
+
             System.arraycopy(geometries, 0, geometries2, 0, size);
             SortUtil.msort(geometries2, geometries, 0, size-1, comparator);
-            
+
 
         }
     }
