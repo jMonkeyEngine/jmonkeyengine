@@ -263,6 +263,16 @@ public class RenderContext {
      * Use vertex color (GL1 only)
      */
     public boolean useVertexColor;
+    
+    /**
+     * depth tets function
+     */
+    public RenderState.TestFunction depthFunc = RenderState.TestFunction.LessOrEqual;
+    
+     /**
+     * alpha tets function
+     */
+    public RenderState.TestFunction alphaFunc = RenderState.TestFunction.Greater;
 
     /**
      * Reset the RenderContext to default GL state
@@ -314,5 +324,7 @@ public class RenderContext {
         ambient = diffuse = specular = color = null;
         shininess = 0;
         useVertexColor = false;
+        depthFunc = RenderState.TestFunction.LessOrEqual;    
+        alphaFunc = RenderState.TestFunction.Greater;
     }
 }

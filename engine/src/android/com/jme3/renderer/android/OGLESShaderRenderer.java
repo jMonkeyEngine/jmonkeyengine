@@ -31,7 +31,6 @@
  */
 package com.jme3.renderer.android;
 
-import android.opengl.GLES10;
 import android.opengl.GLES20;
 import android.os.Build;
 import com.jme3.asset.AndroidImageInfo;
@@ -419,13 +418,17 @@ public class OGLESShaderRenderer implements Renderer {
          */
         if (state.isDepthTest() && !context.depthTestEnabled) {
             GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-            GLES20.glDepthFunc(GLES20.GL_LEQUAL);
+            GLES20.glDepthFunc(convertTestFunction(context.depthFunc));            
             RendererUtil.checkGLError();
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
             GLES20.glDisable(GLES20.GL_DEPTH_TEST);
             RendererUtil.checkGLError();
             context.depthTestEnabled = false;
+        }
+        if (state.getDepthFunc() != context.depthFunc) {
+            GLES20.glDepthFunc(convertTestFunction(state.getDepthFunc()));
+            context.depthFunc = state.getDepthFunc();
         }
 
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
@@ -1016,6 +1019,29 @@ public class OGLESShaderRenderer implements Renderer {
         shader.resetObject();
     }
 
+     private int convertTestFunction(RenderState.TestFunction testFunc) {
+        switch (testFunc) {
+            case Never:
+                return GLES20.GL_NEVER;
+            case Less:
+                return GLES20.GL_LESS;
+            case LessOrEqual:
+                return GLES20.GL_LEQUAL;
+            case Greater:
+                return GLES20.GL_GREATER;
+            case GreaterOrEqual:
+                return GLES20.GL_GEQUAL;
+            case Equal:
+                return GLES20.GL_EQUAL;
+            case NotEqual:
+                return GLES20.GL_NOTEQUAL;
+            case Always:
+                return GLES20.GL_ALWAYS;
+            default:
+                throw new UnsupportedOperationException("Unrecognized test function: " + testFunc);
+        }
+    }
+    
     /*********************************************************************\
     |* Framebuffers                                                      *|
     \*********************************************************************/

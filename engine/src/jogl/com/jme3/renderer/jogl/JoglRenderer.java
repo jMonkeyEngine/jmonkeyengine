@@ -517,17 +517,21 @@ public class JoglRenderer implements Renderer {
 
         if (state.isDepthTest() && !context.depthTestEnabled) {
             gl.glEnable(GL.GL_DEPTH_TEST);
-            gl.glDepthFunc(GL.GL_LEQUAL);
+            gl.glDepthFunc(convertTestFunction(context.depthFunc));           
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
             gl.glDisable(GL.GL_DEPTH_TEST);
             context.depthTestEnabled = false;
         }
+        if (state.getDepthFunc() != context.depthFunc) {
+            gl.glDepthFunc(convertTestFunction(state.getDepthFunc()));
+            context.depthFunc = state.getDepthFunc();
+        }
 
         if (state.isAlphaTest() && context.alphaTestFallOff == 0) {
             gl.glEnable(GL2ES1.GL_ALPHA_TEST);
             if (gl.isGL2ES1()) {
-                gl.getGL2ES1().glAlphaFunc(GL.GL_GREATER, state.getAlphaFallOff());
+                gl.getGL2ES1().glAlphaFunc(convertTestFunction(context.alphaFunc), state.getAlphaFallOff());               
             }
             context.alphaTestFallOff = state.getAlphaFallOff();
         } else if (!state.isAlphaTest() && context.alphaTestFallOff != 0) {
@@ -535,6 +539,10 @@ public class JoglRenderer implements Renderer {
                 gl.glDisable(GL2ES1.GL_ALPHA_TEST);
             }
             context.alphaTestFallOff = 0;
+        }
+        if (state.getAlphaFunc() != context.alphaFunc && gl.isGL2ES1()) {
+            gl.getGL2ES1().glAlphaFunc(convertTestFunction(context.alphaFunc), state.getAlphaFallOff());  
+            context.alphaFunc = state.getAlphaFunc();
         }
 
         if (state.isDepthWrite() && !context.depthWriteEnabled) {

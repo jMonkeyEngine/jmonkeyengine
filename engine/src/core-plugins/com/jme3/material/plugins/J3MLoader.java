@@ -330,6 +330,10 @@ public class J3MLoader implements AssetLoader {
             renderState.setColorWrite(parseBoolean(split[1]));
         }else if (split[0].equals("PointSprite")){
             renderState.setPointSprite(parseBoolean(split[1]));
+        }else if (split[0].equals("DepthFunc")){
+            renderState.setDepthFunc(RenderState.TestFunction.valueOf(split[1]));
+        }else if (split[0].equals("AlphaFunc")){
+            renderState.setAlphaFunc(RenderState.TestFunction.valueOf(split[1]));
         } else {
             throw new MatParseException(null, split[0], statement);
         }

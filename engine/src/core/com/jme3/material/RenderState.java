@@ -296,6 +296,12 @@ public class RenderState implements Cloneable, Savable {
     boolean applyPolyOffset = true;
     boolean stencilTest = false;
     boolean applyStencilTest = false;
+    TestFunction depthFunc = TestFunction.LessOrEqual;
+    //by default depth func will be applied anyway if depth test is applied
+    boolean applyDepthFunc = false;    
+    //by default alpha func will be applied anyway if alpha test is applied
+    TestFunction alphaFunc = TestFunction.Greater;    
+    boolean applyAlphaFunc = false;
     StencilOperation frontStencilStencilFailOperation = StencilOperation.Keep;
     StencilOperation frontStencilDepthFailOperation = StencilOperation.Keep;
     StencilOperation frontStencilDepthPassOperation = StencilOperation.Keep;
@@ -341,6 +347,10 @@ public class RenderState implements Cloneable, Savable {
         oc.write(applyAlphaTest, "applyAlphaTest", true);
         oc.write(applyAlphaFallOff, "applyAlphaFallOff", true);
         oc.write(applyPolyOffset, "applyPolyOffset", true);
+        oc.write(applyDepthFunc, "applyDepthFunc", true);
+        oc.write(applyAlphaFunc, "applyAlphaFunc", false);
+        oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
+        oc.write(alphaFunc, "alphaFunc", TestFunction.Greater);  
 
     }
 
@@ -367,6 +377,8 @@ public class RenderState implements Cloneable, Savable {
         backStencilDepthPassOperation = ic.readEnum("backStencilDepthPassOperation", StencilOperation.class, StencilOperation.Keep);
         frontStencilFunction = ic.readEnum("frontStencilFunction", TestFunction.class, TestFunction.Always);
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
+        depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
+        alphaFunc = ic.readEnum("alphaFunc", TestFunction.class, TestFunction.Greater);
 
         applyPointSprite = ic.readBoolean("applyPointSprite", true);
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
@@ -378,6 +390,9 @@ public class RenderState implements Cloneable, Savable {
         applyAlphaTest = ic.readBoolean("applyAlphaTest", true);
         applyAlphaFallOff = ic.readBoolean("applyAlphaFallOff", true);
         applyPolyOffset = ic.readBoolean("applyPolyOffset", true);
+        applyDepthFunc = ic.readBoolean("applyDepthFunc", true);
+        applyAlphaFunc = ic.readBoolean("applyAlphaFunc", false);
+        
     }
 
     /**
@@ -427,6 +442,11 @@ public class RenderState implements Cloneable, Savable {
         if (depthTest != rs.depthTest) {
             return false;
         }
+        if (depthTest) {
+            if (depthFunc != rs.depthFunc) {
+                return false;
+            }
+        }
 
         if (colorWrite != rs.colorWrite) {
             return false;
@@ -438,6 +458,11 @@ public class RenderState implements Cloneable, Savable {
 
         if (alphaTest != rs.alphaTest) {
             return false;
+        }
+        if (alphaTest) {
+            if (alphaFunc != rs.alphaFunc) {
+                return false;
+            }
         }
 
         if (alphaFallOff != rs.alphaFallOff) {
@@ -515,6 +540,12 @@ public class RenderState implements Cloneable, Savable {
      * <p>If the pixel's alpha value is greater than the
      * <code>alphaFallOff</code> then the pixel will be rendered, otherwise
      * the pixel will be discarded.
+     * 
+     * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
+     * openglES 2.0.
+     * The prefered way is to use the alphaDiscardThreshold on the material
+     * Or have a shader that discards the pixel when its alpha value meets the
+     * discarding condition.
      *
      * @param alphaFallOff The alpha of all rendered pixels must be higher
      * than this value to be rendered. This value should be between 0 and 1.
@@ -536,6 +567,13 @@ public class RenderState implements Cloneable, Savable {
      * otherwise it will be discarded.
      *
      * @param alphaTest Set to true to enable alpha testing.
+     * 
+     * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
+     * openglES 2.0.
+     * The prefered way is to use the alphaDiscardThreshold on the material
+     * Or have a shader that discards the pixel when its alpha value meets the
+     * discarding condition.
+     * 
      *
      * @see RenderState#setAlphaFallOff(float)
      */
@@ -666,7 +704,7 @@ public class RenderState implements Cloneable, Savable {
             offsetUnits = units;
         }
         cachedHashCode = -1;
-    }
+    }    
 
     /**
      * Enable stencil testing.
@@ -716,6 +754,42 @@ public class RenderState implements Cloneable, Savable {
         this.backStencilFunction = _backStencilFunction;
         cachedHashCode = -1;
     }
+
+    /**
+     * Set the depth conparison function to the given TestFunction 
+     * default is LessOrEqual (GL_LEQUAL)
+     * @see TestFunction
+     * @see RenderState#setDepthTest(boolean) 
+     * @param depthFunc the depth comparison function
+     */
+    public void setDepthFunc(TestFunction depthFunc) {       
+        applyDepthFunc = true;
+        this.depthFunc = depthFunc;
+        cachedHashCode = -1;
+    }
+
+    /**
+     * Sets the alpha comparision function to the given TestFunction
+     * default is Greater (GL_GREATER)
+     * 
+     * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
+     * openglES 2.0.
+     * The prefered way is to use the alphaDiscardThreshold on the material
+     * Or have a shader taht discards the pixel when its alpha value meets the
+     * discarding condition.
+     * 
+     * @see TestFunction
+     * @see RenderState#setAlphaTest(boolean) 
+     * @see RenderState#setAlphaFallOff(float) 
+     * @param alphaFunc the alpha comparision function
+     */
+    public void setAlphaFunc(TestFunction alphaFunc) {        
+        applyAlphaFunc = true;
+        this.alphaFunc = alphaFunc;
+        cachedHashCode = -1;
+    }
+    
+    
 
     /**
      * Check if stencil test is enabled.
@@ -1008,6 +1082,30 @@ public class RenderState implements Cloneable, Savable {
         return alphaFallOff;
     }
 
+    /**
+     * Retrieve the depth comparison function
+     *
+     * @return the depth comparison function
+     *
+     * @see RenderState#setDepthFunc(com.jme3.material.RenderState.TestFunction)
+     */
+    public TestFunction getDepthFunc() {
+        return depthFunc;
+    }
+
+    /**
+     * Retrieve the alpha comparison function
+     *
+     * @return the alpha comparison function
+     *
+     * @see RenderState#setAlphaFunc(com.jme3.material.RenderState.TestFunction)
+     */
+    public TestFunction getAlphaFunc() {
+        return alphaFunc;
+    }
+    
+    
+
     public boolean isApplyAlphaFallOff() {
         return applyAlphaFallOff;
     }
@@ -1048,6 +1146,16 @@ public class RenderState implements Cloneable, Savable {
         return applyWireFrame;
     }
 
+    public boolean isApplyDepthFunc() {
+        return applyDepthFunc;
+    }
+
+    public boolean isApplyAlphaFunc() {
+        return applyAlphaFunc;
+    }
+    
+    
+
     /**
      *
      */
@@ -1059,9 +1167,11 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.cullMode != null ? this.cullMode.hashCode() : 0);
             hash = 79 * hash + (this.depthWrite ? 1 : 0);
             hash = 79 * hash + (this.depthTest ? 1 : 0);
+            hash = 79 * hash + (this.depthFunc != null ? this.depthFunc.hashCode() : 0);
             hash = 79 * hash + (this.colorWrite ? 1 : 0);
             hash = 79 * hash + (this.blendMode != null ? this.blendMode.hashCode() : 0);
             hash = 79 * hash + (this.alphaTest ? 1 : 0);
+            hash = 79 * hash + (this.alphaFunc != null ? this.alphaFunc.hashCode() : 0);
             hash = 79 * hash + Float.floatToIntBits(this.alphaFallOff);
             hash = 79 * hash + Float.floatToIntBits(this.offsetFactor);
             hash = 79 * hash + Float.floatToIntBits(this.offsetUnits);
@@ -1132,6 +1242,11 @@ public class RenderState implements Cloneable, Savable {
         } else {
             state.depthTest = depthTest;
         }
+        if (additionalState.applyDepthFunc) {
+            state.depthFunc = additionalState.depthFunc;
+        } else {
+            state.depthFunc = depthFunc;
+        }
         if (additionalState.applyColorWrite) {
             state.colorWrite = additionalState.colorWrite;
         } else {
@@ -1146,6 +1261,11 @@ public class RenderState implements Cloneable, Savable {
             state.alphaTest = additionalState.alphaTest;
         } else {
             state.alphaTest = alphaTest;
+        }
+        if (additionalState.applyAlphaFunc) {
+            state.alphaFunc = additionalState.alphaFunc;
+        } else {
+            state.alphaFunc = alphaFunc;
         }
 
         if (additionalState.applyAlphaFallOff) {
@@ -1205,19 +1325,21 @@ public class RenderState implements Cloneable, Savable {
                 + "\ndepthWrite=" + depthWrite
                 + "\napplyDepthWrite=" + applyDepthWrite
                 + "\ndepthTest=" + depthTest
+                + "\ndepthFunc=" + depthFunc
                 + "\napplyDepthTest=" + applyDepthTest
                 + "\ncolorWrite=" + colorWrite
                 + "\napplyColorWrite=" + applyColorWrite
                 + "\nblendMode=" + blendMode
                 + "\napplyBlendMode=" + applyBlendMode
                 + "\nalphaTest=" + alphaTest
+                + "\nalphaFunc=" + alphaFunc
                 + "\napplyAlphaTest=" + applyAlphaTest
                 + "\nalphaFallOff=" + alphaFallOff
                 + "\napplyAlphaFallOff=" + applyAlphaFallOff
                 + "\noffsetEnabled=" + offsetEnabled
                 + "\napplyPolyOffset=" + applyPolyOffset
                 + "\noffsetFactor=" + offsetFactor
-                + "\noffsetUnits=" + offsetUnits
+                + "\noffsetUnits=" + offsetUnits      
                 + "\n]";
     }
 }
