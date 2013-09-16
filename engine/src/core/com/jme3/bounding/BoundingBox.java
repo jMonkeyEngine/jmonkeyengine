@@ -869,19 +869,55 @@ public class BoundingBox extends BoundingVolume {
         // plane. Otherwise 'false' is returned in which case the line segment
         // is entirely clipped.
         if (denom > 0.0f) {
-            if (numer > denom * t[1]) {
+            // This is the old if statement...
+            // if (numer > denom * t[1]) {
+            //
+            // The problem is that what is actually stored is
+            // numer/denom.  In non-floating point, this math should
+            // work out the same but in floating point there can
+            // be subtle math errors.  The multiply will exaggerate
+            // errors that may have been introduced when the value
+            // was originally divided.  
+            //
+            // This is especially true when the bounding box has zero
+            // extents in some plane because the error rate is critical.
+            // comparing a to b * c is not the same as comparing a/b to c
+            // in this case.  In fact, I tried converting this method to 
+            // double and the and the error was in the last decimal place. 
+            //
+            // So, instead, we now compare the divided version to the divided
+            // version.  We lose some slight performance here as divide
+            // will be more expensive than the divide.  Some microbenchmarks
+            // show divide to be 3x slower than multiple on Java 1.6.
+            // BUT... we also saved a multiply in the non-clipped case because 
+            // we can reuse the divided version in both if checks.
+            // I think it's better to be right in this case.
+            //
+            // Bug that I'm fixing: rays going right through quads at certain
+            // angles and distances because they fail the bounding box test.
+            // Many Bothans died bring you this fix. 
+            //    -pspeed            
+            float newT = numer / denom;
+            if (newT > t[1]) {
                 return false;
             }
-            if (numer > denom * t[0]) {
-                t[0] = numer / denom;
+            if (newT > t[0]) {
+                t[0] = newT;
             }
             return true;
         } else if (denom < 0.0f) {
-            if (numer > denom * t[0]) {
+            // Old if statement... see above
+            // if (numer > denom * t[0]) {
+            //
+            // Note though that denom is always negative in this block.
+            // When we move it over to the other side we have to flip
+            // the comparison.  Algebra for the win.
+            float newT = numer / denom;
+            if (newT < t[0]) {            
                 return false;
             }
-            if (numer > denom * t[1]) {
-                t[1] = numer / denom;
+            if (newT < t[1]) {
+                t[1] = newT;
             }
             return true;
         } else {
