@@ -9,11 +9,12 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.particles.ParticlesHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;

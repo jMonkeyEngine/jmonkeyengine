@@ -8,7 +8,7 @@ import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.constraints.definitions.ConstraintDefinition;
 import com.jme3.scene.plugins.blender.constraints.definitions.ConstraintDefinitionFactory;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 

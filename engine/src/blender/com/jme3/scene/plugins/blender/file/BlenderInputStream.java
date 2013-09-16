@@ -38,8 +38,6 @@ import java.io.InputStream;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-
 /**
  * An input stream with random access to data.
  * @author Marcin Roguski

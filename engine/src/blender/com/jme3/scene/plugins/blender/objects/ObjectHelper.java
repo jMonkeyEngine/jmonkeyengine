@@ -55,7 +55,7 @@ import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.curves.CurvesHelper;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;

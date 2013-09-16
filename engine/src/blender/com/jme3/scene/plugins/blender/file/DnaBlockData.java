@@ -32,7 +32,7 @@
 package com.jme3.scene.plugins.blender.file;
 
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+
 import java.util.HashMap;
 import java.util.Map;
 

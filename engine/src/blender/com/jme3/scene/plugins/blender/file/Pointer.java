@@ -32,7 +32,7 @@
 package com.jme3.scene.plugins.blender.file;
 
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,7 +91,7 @@ public class Pointer {
         List<Structure> structures = null;
         FileBlockHeader dataFileBlock = blenderContext.getFileBlock(oldMemoryAddress);
         if (dataFileBlock == null) {
-            throw new BlenderFileException("No data stored for address: " + oldMemoryAddress + ". Rarely blender makes mistakes when storing data. Try resaving the model after making minor changes. This usually helps.");
+            throw new BlenderFileException("No data stored for address: " + oldMemoryAddress + ". Make sure you did not open the newer blender file with older blender version.");
         }
         if (pointerLevel > 1) {
             int pointersAmount = dataFileBlock.getSize() / inputStream.getPointerSize() * dataFileBlock.getCount();

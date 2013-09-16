@@ -32,7 +32,6 @@
 package com.jme3.scene.plugins.blender.file;
 
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 
 /**
  * A class that holds the header data of a file block. The file block itself is not implemented. This class holds its

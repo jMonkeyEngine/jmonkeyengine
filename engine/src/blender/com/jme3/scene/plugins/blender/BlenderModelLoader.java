@@ -42,7 +42,7 @@ import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 
 /**
@@ -84,8 +84,7 @@ public class BlenderModelLoader extends BlenderLoader {
             blenderContext.dispose();
             return modelRoot;
         } catch (BlenderFileException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getLocalizedMessage(), e);
         }
-        return null;
     }
 }

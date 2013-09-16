@@ -1,8 +1,8 @@
 package com.jme3.scene.plugins.blender.file;
 
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure.DataType;
+
 import java.util.ArrayList;
 import java.util.List;
 

@@ -11,10 +11,11 @@ import com.jme3.effect.shapes.EmitterMeshVertexShape;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+
 import java.util.logging.Logger;
 
 public class ParticlesHelper extends AbstractBlenderHelper {

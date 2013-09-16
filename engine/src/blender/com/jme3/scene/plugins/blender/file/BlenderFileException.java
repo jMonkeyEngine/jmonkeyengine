@@ -29,7 +29,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.jme3.scene.plugins.blender.exceptions;
+package com.jme3.scene.plugins.blender.file;
 
 /**
  * This exception is thrown when blend file data is somehow invalid.

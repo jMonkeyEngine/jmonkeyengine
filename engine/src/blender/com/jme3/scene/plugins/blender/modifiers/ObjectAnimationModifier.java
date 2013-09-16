@@ -15,7 +15,7 @@ import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.AnimationData;
 import com.jme3.scene.plugins.blender.animations.Ipo;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.BlenderFileException;
 
 /**
  * This modifier allows to add animation to the object.

@@ -31,8 +31,6 @@
  */
 package com.jme3.scene.plugins.blender.file;
 
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
-
 /**
  * An array that can be dynamically modified/
  * @author Marcin Roguski
@@ -54,15 +52,15 @@ public class DynamicArray<T> implements Cloneable {
      * Constructor. Builds an empty array of the specified sizes.
      * @param tableSizes
      *            the sizes of the table
-     * @throws BlenderFileException
+     * @throws IllegalArgumentException
      *             an exception is thrown if one of the sizes is not a positive number
      */
-    public DynamicArray(int[] tableSizes, T[] data) throws BlenderFileException {
+    public DynamicArray(int[] tableSizes, T[] data) {
         this.tableSizes = tableSizes;
         int totalSize = 1;
         for (int size : tableSizes) {
             if (size <= 0) {
-                throw new BlenderFileException("The size of the table must be positive!");
+                throw new IllegalArgumentException("The size of the table must be positive!");
             }
             totalSize *= size;
         }

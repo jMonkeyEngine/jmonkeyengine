@@ -52,7 +52,7 @@ import com.jme3.scene.plugins.blender.animations.IpoHelper;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.curves.CurvesHelper;
-import com.jme3.scene.plugins.blender.exceptions.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -135,9 +135,8 @@ public class BlenderLoader extends AbstractBlenderLoader {
             blenderContext.dispose();
             return loadingResults;
         } catch (BlenderFileException e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            throw new IOException(e.getLocalizedMessage(), e);
         }
-        return null;
     }
 
     /**
