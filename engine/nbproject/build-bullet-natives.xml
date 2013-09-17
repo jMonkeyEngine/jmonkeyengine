@@ -537,6 +537,7 @@
             <arg value="."/>
             <arg value="-DLIBRARY_OUTPUT_PATH='${build.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_MULTITHREADING=ON"/>
             <arg value="-DBUILD_EXTRAS:BOOL=OFF"/>
             <arg value="-DBUILD_DEMOS:BOOL=OFF"/>
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
@@ -555,6 +556,7 @@
         <exec executable="${cmake.osx}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DLIBRARY_OUTPUT_PATH='${build.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_MULTITHREADING=ON"/>
             <arg value="-DCMAKE_OSX_ARCHITECTURES='i386;x86_64'"/>
             <arg value="-DBUILD_EXTRAS=off"/>
             <arg value="-DBUILD_DEMOS=off"/>
@@ -577,6 +579,7 @@
             <arg value="-DLIBRARY_OUTPUT_PATH='${build.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_STATIC_LIBS=ON"/>
+            <arg value="-DBUILD_MULTITHREADING=ON"/>
             <!--arg value="-DCMAKE_C_FLAGS=-fPIC"/>
             <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/-->
             <arg value="-DCMAKE_C_FLAGS=-m32"/>
@@ -615,6 +618,7 @@
             <arg value="-DLIBRARY_OUTPUT_PATH='${build64.folder.resolved}'"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_STATIC_LIBS=ON"/>
+            <arg value="-DBUILD_MULTITHREADING=ON"/>
             <arg value="-DCMAKE_C_FLAGS=-fPIC"/>
             <arg value="-DCMAKE_CXX_FLAGS=-fPIC"/>
             <arg value="-DBUILD_EXTRAS=off"/>
@@ -643,6 +647,7 @@
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_MULTITHREADING=ON"/>
             <arg value="-DBUILD_EXTRAS=OFF"/>
             <arg value="-DBUILD_DEMOS=OFF"/>
             <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw.folder.resolved}'"/>
@@ -684,6 +689,7 @@
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_MULTITHREADING=ON"/>
             <arg value="-DBUILD_EXTRAS=OFF"/>
             <arg value="-DBUILD_DEMOS=OFF"/>
             <arg value="-DCMAKE_CXX_FLAGS=-fpermissive"/>
