@@ -160,6 +160,17 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         return result;
     }
 
+    private void logEGLConfigAttrib (EGLConfig conf, EGLDisplay display, EGL10 egl,
+            Level level, String configName, int eglConfigAttrib) {
+
+        int[] value = new int[1];
+        if (egl.eglGetConfigAttrib(display, conf, eglConfigAttrib, value)) {
+            logger.log(level, "{0} = {1}", new Object[]{configName, value[0]});
+        } else {
+            logger.log(level, "Error getting {0} = {1}",
+                    new Object[]{configName, egl.eglGetError()});
+        }
+    }
     /**
      * log output with egl config details
      *
@@ -168,37 +179,25 @@ public class AndroidConfigChooser implements EGLConfigChooser {
      * @param egl
      */
     public void logEGLConfig(EGLConfig conf, EGLDisplay display, EGL10 egl, Level level) {
-        int[] value = new int[1];
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RED_SIZE, value);
-        logger.log(level, String.format("EGL_RED_SIZE  = %d", value[0]));
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_GREEN_SIZE, value);
-        logger.log(level, String.format("EGL_GREEN_SIZE  = %d", value[0]));
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_BLUE_SIZE, value);
-        logger.log(level, String.format("EGL_BLUE_SIZE  = %d", value[0]));
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
-        logger.log(level, String.format("EGL_ALPHA_SIZE  = %d", value[0]));
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_DEPTH_SIZE, value);
-        logger.log(level, String.format("EGL_DEPTH_SIZE  = %d", value[0]));
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_STENCIL_SIZE, value);
-        logger.log(level, String.format("EGL_STENCIL_SIZE  = %d", value[0]));
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RENDERABLE_TYPE, value);
-        logger.log(level, String.format("EGL_RENDERABLE_TYPE  = %d", value[0]));
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SURFACE_TYPE, value);
-        logger.log(level, String.format("EGL_SURFACE_TYPE  = %d", value[0]));
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SAMPLE_BUFFERS, value);
-        logger.log(level, String.format("EGL_SAMPLE_BUFFERS  = %d", value[0]));
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_SAMPLES, value);
-        logger.log(level, String.format("EGL_SAMPLES  = %d", value[0]));
+        logger.log(level, "Logging EGLConfig Attributes");
+        logEGLConfigAttrib(conf, display, egl, level,
+                "EGL_RED_SIZE", EGL10.EGL_RED_SIZE);
+        logEGLConfigAttrib(conf, display, egl, level,
+                "EGL_GREEN_SIZE", EGL10.EGL_GREEN_SIZE);
+        logEGLConfigAttrib(conf, display, egl, level,
+                "EGL_BLUE_SIZE", EGL10.EGL_BLUE_SIZE);
+        logEGLConfigAttrib(conf, display, egl, level,
+                "EGL_ALPHA_SIZE", EGL10.EGL_ALPHA_SIZE);
+        logEGLConfigAttrib(conf, display, egl, level,
+                "EGL_STENCIL_SIZE", EGL10.EGL_STENCIL_SIZE);
+        logEGLConfigAttrib(conf, display, egl, level,
+                "EGL_RENDERABLE_TYPE", EGL10.EGL_RENDERABLE_TYPE);
+        logEGLConfigAttrib(conf, display, egl, level,
+                "EGL_SURFACE_TYPE", EGL10.EGL_SURFACE_TYPE);
+        logEGLConfigAttrib(conf, display, egl, level,
+                "EGL_SAMPLE_BUFFERS", EGL10.EGL_SAMPLE_BUFFERS);
+        logEGLConfigAttrib(conf, display, egl, level,
+                "EGL_SAMPLES", EGL10.EGL_SAMPLES);
     }
 
     public int getClientOpenGLESVersion() {
@@ -344,7 +343,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                     return keptConfig;
                 }
             }
-            
+
             logger.log(Level.WARNING, "Failed to find a suitable display configuration for FASTEST, hoping for the best...");
 
             // failsafe. pick the 1st config with a 16 bit depth buffer.
