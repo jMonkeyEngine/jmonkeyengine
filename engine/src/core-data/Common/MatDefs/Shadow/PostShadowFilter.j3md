@@ -43,8 +43,7 @@ MaterialDef Post Shadow {
         VertexShader GLSL150:   Common/MatDefs/Shadow/PostShadowFilter15.vert
         FragmentShader GLSL150: Common/MatDefs/Shadow/PostShadowFilter15.frag
 
-        WorldParameters {
-            WorldViewProjectionMatrix          
+        WorldParameters {           
         }
 
         Defines {
@@ -65,8 +64,7 @@ MaterialDef Post Shadow {
         VertexShader GLSL100:   Common/MatDefs/Shadow/PostShadowFilter.vert
         FragmentShader GLSL100: Common/MatDefs/Shadow/PostShadowFilter.frag
 
-        WorldParameters {
-            WorldViewProjectionMatrix            
+        WorldParameters {         
         }
 
         Defines {
