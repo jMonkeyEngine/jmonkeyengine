@@ -38,9 +38,9 @@ import com.jme3.scene.Mesh;
 
 /**
  * A <code>CollisionResult</code> represents a single collision instance
- * between two {@link Collidable}. A collision check can result in many 
+ * between two {@link Collidable}. A collision check can result in many
  * collision instances (places where collision has occured).
- * 
+ *
  * @author Kirill Vainer
  */
 public class CollisionResult implements Comparable<CollisionResult> {
@@ -108,7 +108,7 @@ public class CollisionResult implements Comparable<CollisionResult> {
         }
         return super.equals(obj);
     }
-    
+
     public Vector3f getContactPoint() {
         return contactPoint;
     }
@@ -129,4 +129,12 @@ public class CollisionResult implements Comparable<CollisionResult> {
         return triangleIndex;
     }
 
+    public String toString() {
+        return "CollisionResult[geometry=" + geometry
+                                + ", contactPoint=" + contactPoint
+                                + ", contactNormal=" + contactNormal
+                                + ", distance=" + distance
+                                + ", triangleIndex=" + triangleIndex
+                                + "]";
+    }
 }
