@@ -2,10 +2,9 @@ package com.jme3.system.android;
 
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView.EGLConfigChooser;
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.android.RendererUtil;
 import com.jme3.system.AppSettings;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.microedition.khronos.egl.EGL10;
@@ -25,6 +24,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
     protected EGLConfig bestConfig = null;
     protected EGLConfig fastestConfig = null;
     protected EGLConfig choosenConfig = null;
+    protected EGLDisplay configForDisplay = null;
     protected AppSettings settings;
     protected int pixelFormat;
     protected boolean verbose = false;
@@ -106,6 +106,9 @@ public class AndroidConfigChooser implements EGLConfigChooser {
      */
     @Override
     public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
+        if (configForDisplay != display) {
+            throw new RendererException("The display used for finding config is not the same as the render display");
+        }
         logger.fine("GLSurfaceView asks for egl config, returning: ");
         logEGLConfig(choosenConfig, display, egl, Level.FINE);
         return choosenConfig;
@@ -126,6 +129,8 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         logger.log(Level.FINE, "JME3 using {0} EGL configuration available here: ", type.name());
 
         if (choosenConfig != null) {
+            // Remember the display for which we have the EGLConfig for
+            configForDisplay = display;
             logger.info("JME3 using choosen config: ");
             logEGLConfig(choosenConfig, display, egl, Level.INFO);
             pixelFormat = getPixelFormat(choosenConfig, display, egl);
