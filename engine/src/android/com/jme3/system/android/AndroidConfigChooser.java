@@ -2,6 +2,7 @@ package com.jme3.system.android;
 
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView.EGLConfigChooser;
+import com.jme3.renderer.android.RendererUtil;
 import com.jme3.system.AppSettings;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,15 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         this.settings = settings;
     }
 
+    private static int eglGetConfigAttribSafe(EGL10 egl, EGLDisplay display, EGLConfig config, int attribute) {
+        int[] value = new int[1];
+        if (!egl.eglGetConfigAttrib(display, config, attribute, value)) {
+            RendererUtil.checkEGLError(egl);
+            throw new AssertionError();
+        }
+        return value[0];
+    }
+    
     /**
      * Gets called by the GLSurfaceView class to return the best config
      */
@@ -130,17 +140,16 @@ public class AndroidConfigChooser implements EGLConfigChooser {
     }
 
     private int getPixelFormat(EGLConfig conf, EGLDisplay display, EGL10 egl) {
-        int[] value = new int[1];
-
         //Android Pixel format is not very well documented.
         //From what i gathered, the format is chosen automatically except for the alpha channel
         //if the alpha channel has 8 bit or more, e set the pixel format to Transluscent, as it allow transparent view background
         //if it's 0 bit, the format is OPAQUE otherwise it's TRANSPARENT
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_ALPHA_SIZE, value);
-        if (value[0] >= 8) {
+        int result = eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_ALPHA_SIZE);
+
+        if (result >= 8) {
             return PixelFormat.TRANSLUCENT;
         }
-        if (value[0] >= 1) {
+        if (result >= 1) {
             return PixelFormat.TRANSPARENT;
         }
 
@@ -148,29 +157,15 @@ public class AndroidConfigChooser implements EGLConfigChooser {
     }
 
     private int getOpenGLVersion(EGLConfig conf, EGLDisplay display, EGL10 egl) {
-        int[] value = new int[1];
-        int result = 1;
-
-        egl.eglGetConfigAttrib(display, conf, EGL10.EGL_RENDERABLE_TYPE, value);
+        int val = eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_RENDERABLE_TYPE);
         // Check if conf is OpenGL ES 2.0
-        if ((value[0] & EGL_OPENGL_ES2_BIT) != 0) {
-            result = 2;
-        }
-
-        return result;
-    }
-
-    private void logEGLConfigAttrib (EGLConfig conf, EGLDisplay display, EGL10 egl,
-            Level level, String configName, int eglConfigAttrib) {
-
-        int[] value = new int[1];
-        if (egl.eglGetConfigAttrib(display, conf, eglConfigAttrib, value)) {
-            logger.log(level, "{0} = {1}", new Object[]{configName, value[0]});
+        if ((val & EGL_OPENGL_ES2_BIT) != 0) {
+            return 2;
         } else {
-            logger.log(level, "Error getting {0} = {1}",
-                    new Object[]{configName, egl.eglGetError()});
+            return 1;
         }
     }
+
     /**
      * log output with egl config details
      *
@@ -179,25 +174,36 @@ public class AndroidConfigChooser implements EGLConfigChooser {
      * @param egl
      */
     public void logEGLConfig(EGLConfig conf, EGLDisplay display, EGL10 egl, Level level) {
-        logger.log(level, "Logging EGLConfig Attributes");
-        logEGLConfigAttrib(conf, display, egl, level,
-                "EGL_RED_SIZE", EGL10.EGL_RED_SIZE);
-        logEGLConfigAttrib(conf, display, egl, level,
-                "EGL_GREEN_SIZE", EGL10.EGL_GREEN_SIZE);
-        logEGLConfigAttrib(conf, display, egl, level,
-                "EGL_BLUE_SIZE", EGL10.EGL_BLUE_SIZE);
-        logEGLConfigAttrib(conf, display, egl, level,
-                "EGL_ALPHA_SIZE", EGL10.EGL_ALPHA_SIZE);
-        logEGLConfigAttrib(conf, display, egl, level,
-                "EGL_STENCIL_SIZE", EGL10.EGL_STENCIL_SIZE);
-        logEGLConfigAttrib(conf, display, egl, level,
-                "EGL_RENDERABLE_TYPE", EGL10.EGL_RENDERABLE_TYPE);
-        logEGLConfigAttrib(conf, display, egl, level,
-                "EGL_SURFACE_TYPE", EGL10.EGL_SURFACE_TYPE);
-        logEGLConfigAttrib(conf, display, egl, level,
-                "EGL_SAMPLE_BUFFERS", EGL10.EGL_SAMPLE_BUFFERS);
-        logEGLConfigAttrib(conf, display, egl, level,
-                "EGL_SAMPLES", EGL10.EGL_SAMPLES);
+
+        logger.log(level, "EGL_RED_SIZE = {0}",
+                eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_RED_SIZE));
+
+        logger.log(level, "EGL_GREEN_SIZE = {0}",
+                eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_GREEN_SIZE));
+
+        logger.log(level, "EGL_BLUE_SIZE = {0}",
+                eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_BLUE_SIZE));
+
+        logger.log(level, "EGL_ALPHA_SIZE = {0}",
+                eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_ALPHA_SIZE));
+
+        logger.log(level, "EGL_DEPTH_SIZE = {0}",
+                eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_DEPTH_SIZE));
+
+        logger.log(level, "EGL_STENCIL_SIZE = {0}",
+                eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_STENCIL_SIZE));
+
+        logger.log(level, "EGL_RENDERABLE_TYPE = {0}",
+                eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_RENDERABLE_TYPE));
+
+        logger.log(level, "EGL_SURFACE_TYPE = {0}",
+                eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_SURFACE_TYPE));
+
+        logger.log(level, "EGL_SAMPLE_BUFFERS = {0}",
+                eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_SAMPLE_BUFFERS));
+
+        logger.log(level, "EGL_SAMPLES = {0}",
+                eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_SAMPLES));
     }
 
     public int getClientOpenGLESVersion() {
@@ -225,11 +231,17 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                 EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
                 EGL10.EGL_NONE};
 
-            egl.eglChooseConfig(display, configSpec, null, 0, num_config);
+            if (!egl.eglChooseConfig(display, configSpec, null, 0, num_config)) {
+                RendererUtil.checkEGLError(egl);
+                throw new AssertionError();
+            }
 
             int numConfigs = num_config[0];
             EGLConfig[] configs = new EGLConfig[numConfigs];
-            egl.eglChooseConfig(display, configSpec, configs, numConfigs, num_config);
+            if (!egl.eglChooseConfig(display, configSpec, configs, numConfigs, num_config)) {
+                RendererUtil.checkEGLError(egl);
+                throw new AssertionError();
+            }
 
             logger.fine("--------------Display Configurations---------------");
             for (EGLConfig eGLConfig : configs) {
@@ -251,12 +263,10 @@ public class AndroidConfigChooser implements EGLConfigChooser {
      */
     private class ComponentSizeChooser extends BaseConfigChooser {
 
-        private int[] mValue;
         private ConfigType configType;
         protected int mSamples;
 
         public ComponentSizeChooser(ConfigType configType, int samples) {
-            mValue = new int[1];
             mSamples = samples;
             this.configType = configType;
         }
@@ -271,22 +281,22 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
             // first pass through config list.  Try to find an exact match.
             for (EGLConfig config : configs) {
-                int r = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_RED_SIZE, 0);
-                int g = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_GREEN_SIZE, 0);
-                int b = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_BLUE_SIZE, 0);
-                int a = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_ALPHA_SIZE, 0);
-                int d = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_DEPTH_SIZE, 0);
-                int s = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_STENCIL_SIZE, 0);
-                int isMs = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_SAMPLE_BUFFERS, 0);
-                int nbMs = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_SAMPLES, 0);
+                int r = eglGetConfigAttribSafe(egl, display, config,
+                        EGL10.EGL_RED_SIZE);
+                int g = eglGetConfigAttribSafe(egl, display, config,
+                        EGL10.EGL_GREEN_SIZE);
+                int b = eglGetConfigAttribSafe(egl, display, config,
+                        EGL10.EGL_BLUE_SIZE);
+                int a = eglGetConfigAttribSafe(egl, display, config,
+                        EGL10.EGL_ALPHA_SIZE);
+                int d = eglGetConfigAttribSafe(egl, display, config,
+                        EGL10.EGL_DEPTH_SIZE);
+                int s = eglGetConfigAttribSafe(egl, display, config,
+                        EGL10.EGL_STENCIL_SIZE);
+                int isMs = eglGetConfigAttribSafe(egl, display, config,
+                        EGL10.EGL_SAMPLE_BUFFERS);
+                int nbMs = eglGetConfigAttribSafe(egl, display, config,
+                        EGL10.EGL_SAMPLES);
 
                 if (inRange(r, configType.mr, configType.r)
                         && inRange(g, configType.mg, configType.g)
@@ -348,8 +358,8 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
             // failsafe. pick the 1st config with a 16 bit depth buffer.
             for (EGLConfig config : configs) {
-                int d = findConfigAttrib(egl, display, config,
-                        EGL10.EGL_DEPTH_SIZE, 0);
+                int d = eglGetConfigAttribSafe(egl, display, config,
+                        EGL10.EGL_DEPTH_SIZE);
                 if (d >= 16) {
                     return config;
                 }
@@ -361,15 +371,6 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
         private boolean inRange(int val, int min, int max) {
             return min <= val && val <= max;
-        }
-
-        private int findConfigAttrib(EGL10 egl, EGLDisplay display,
-                EGLConfig config, int attribute, int defaultValue) {
-
-            if (egl.eglGetConfigAttrib(display, config, attribute, mValue)) {
-                return mValue[0];
-            }
-            return defaultValue;
         }
     }
 //DON'T REMOVE THIS, USED FOR UNIT TESTING FAILING CONFIGURATION LISTS.

@@ -48,7 +48,9 @@ import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.android.OGLESShaderRenderer;
+import com.jme3.renderer.android.RendererUtil;
 import com.jme3.system.*;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -145,11 +147,16 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         } else {
             EGL10 egl = (EGL10) EGLContext.getEGL();
             EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
-
-            int[] version = new int[2];
-            if (egl.eglInitialize(display, version) == true) {
-                logger.log(Level.INFO, "Display EGL Version: {0}.{1}", new Object[]{version[0], version[1]});
+            if (display == EGL10.EGL_NO_DISPLAY) {
+                throw new RendererException("No default EGL display is available");
             }
+            
+            int[] version = new int[2];
+            if (!egl.eglInitialize(display, version)) {
+                RendererUtil.checkEGLError(egl);
+            }
+            
+            logger.log(Level.INFO, "Display EGL Version: {0}.{1}", new Object[]{version[0], version[1]});
 
             try {
                 // Create a config chooser
@@ -172,7 +179,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 view.setEGLConfigChooser(configChooser);
                 view.getHolder().setFormat(configChooser.getPixelFormat());
             } finally {
-                if (display != null) {
+                if (display != null && display != EGL10.EGL_NO_DISPLAY) {
                     egl.eglTerminate(display);
                 }
             }
