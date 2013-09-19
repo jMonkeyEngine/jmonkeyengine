@@ -854,7 +854,7 @@ public final class Vector3f implements Savable, Cloneable, java.io.Serializable 
      * @param changeAmnt An amount between 0.0 - 1.0 representing a precentage
      *  change from this towards finalVec
      */
-    public Vector3f interpolate(Vector3f finalVec, float changeAmnt) {
+    public Vector3f interpolateLocal(Vector3f finalVec, float changeAmnt) {
         this.x=(1-changeAmnt)*this.x + changeAmnt*finalVec.x;
         this.y=(1-changeAmnt)*this.y + changeAmnt*finalVec.y;
         this.z=(1-changeAmnt)*this.z + changeAmnt*finalVec.z;

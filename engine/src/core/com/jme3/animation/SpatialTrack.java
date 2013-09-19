@@ -149,8 +149,8 @@ public class SpatialTrack implements Track {
                 scales.get(endFrame, tempS2);
             }
             tempQ.nlerp(tempQ2, blend);
-            tempV.interpolate(tempV2, blend);
-            tempS.interpolate(tempS2, blend);
+            tempV.interpolateLocal(tempV2, blend);
+            tempS.interpolateLocal(tempS2, blend);
         }
         
         if (translations != null)

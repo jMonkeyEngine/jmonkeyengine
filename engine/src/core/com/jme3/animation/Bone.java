@@ -342,8 +342,8 @@ public final class Bone implements Savable {
             } else {
                 float invWeightSum = 1f - currentWeightSum;
                 localRot.nlerp(initialRot, invWeightSum);
-                localPos.interpolate(initialPos, invWeightSum);
-                localScale.interpolate(initialScale, invWeightSum);
+                localPos.interpolateLocal(initialPos, invWeightSum);
+                localScale.interpolateLocal(initialScale, invWeightSum);
             }
             
             // Future invocations of transform blend will start over.
@@ -598,14 +598,14 @@ public final class Bone implements Savable {
             Quaternion tmpQ = vars.quat1;
             
             tmpV.set(initialPos).addLocal(translation);
-            localPos.interpolate(tmpV, weight);
+            localPos.interpolateLocal(tmpV, weight);
 
             tmpQ.set(initialRot).multLocal(rotation);
             localRot.nlerp(tmpQ, weight);
 
             if (scale != null) {
                 tmpV2.set(initialScale).multLocal(scale);
-                localScale.interpolate(tmpV2, weight);
+                localScale.interpolateLocal(tmpV2, weight);
             }
         
             // Ensures no new weights will be blended in the future.

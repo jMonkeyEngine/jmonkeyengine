@@ -76,7 +76,7 @@ public class DefaultParticleInfluencer implements ParticleInfluencer {
         temp.multLocal(2f);
         temp.subtractLocal(1f, 1f, 1f);
         temp.multLocal(initialVelocity.length());
-        particle.velocity.interpolate(temp, velocityVariation);
+        particle.velocity.interpolateLocal(temp, velocityVariation);
     }
 
     @Override
