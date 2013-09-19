@@ -336,7 +336,7 @@ public class BoundingSphere extends BoundingVolume {
     private void setSphere(Vector3f O, Vector3f A) {
         radius = FastMath.sqrt(((A.x - O.x) * (A.x - O.x) + (A.y - O.y)
                 * (A.y - O.y) + (A.z - O.z) * (A.z - O.z)) / 4f) + RADIUS_EPSILON - 1f;
-        center.interpolate(O, A, .5f);
+        center.interpolateLocal(O, A, .5f);
     }
 
     /**
