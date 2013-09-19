@@ -1,8 +1,8 @@
 package com.jme3.system.android;
 
 import android.graphics.PixelFormat;
+import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.EGLConfigChooser;
-import com.jme3.renderer.RendererException;
 import com.jme3.renderer.android.RendererUtil;
 import com.jme3.system.AppSettings;
 import java.util.logging.Level;
@@ -20,12 +20,10 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
     private static final Logger logger = Logger.getLogger(AndroidConfigChooser.class.getName());
     public final static String SETTINGS_CONFIG_TYPE = "configType";
-    protected int clientOpenGLESVersion = 0;
-    protected EGLConfig bestConfig = null;
-    protected EGLConfig fastestConfig = null;
     protected EGLConfig choosenConfig = null;
     protected EGLDisplay configForDisplay = null;
     protected AppSettings settings;
+    protected GLSurfaceView view;
     protected int pixelFormat;
     protected boolean verbose = false;
     private final static int EGL_OPENGL_ES2_BIT = 4;
@@ -92,6 +90,11 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         this.settings = settings;
     }
 
+    public AndroidConfigChooser(AppSettings settings, GLSurfaceView view) {
+        this(settings);
+        this.view = view;
+    }
+
     private static int eglGetConfigAttribSafe(EGL10 egl, EGLDisplay display, EGLConfig config, int attribute) {
         int[] value = new int[1];
         if (!egl.eglGetConfigAttrib(display, config, attribute, value)) {
@@ -100,18 +103,23 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         }
         return value[0];
     }
-    
+
     /**
      * Gets called by the GLSurfaceView class to return the best config
      */
     @Override
     public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
-        if (configForDisplay != display) {
-            throw new RendererException("The display used for finding config is not the same as the render display");
+        logger.fine("GLSurfaceView asking for egl config");
+        boolean configFound = findConfig(egl, display);
+        if (configFound) {
+            logger.fine("GLSurfaceView asks for egl config, returning: ");
+            logEGLConfig(choosenConfig, display, egl, Level.FINE);
+            view.getHolder().setFormat(pixelFormat);
+            return choosenConfig;
+        } else {
+            logger.fine("GLSurfaceView asks for egl config, No config found");
+            return null;
         }
-        logger.fine("GLSurfaceView asks for egl config, returning: ");
-        logEGLConfig(choosenConfig, display, egl, Level.FINE);
-        return choosenConfig;
     }
 
     /**
@@ -121,7 +129,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
      * @param display
      * @return true if successfull, false if no config was found
      */
-    public boolean findConfig(EGL10 egl, EGLDisplay display) {
+    private boolean findConfig(EGL10 egl, EGLDisplay display) {
         ConfigType type = (ConfigType) settings.get(SETTINGS_CONFIG_TYPE);
 
         ComponentSizeChooser compChooser = new ComponentSizeChooser(type, settings.getSamples());
@@ -134,11 +142,12 @@ public class AndroidConfigChooser implements EGLConfigChooser {
             logger.info("JME3 using choosen config: ");
             logEGLConfig(choosenConfig, display, egl, Level.INFO);
             pixelFormat = getPixelFormat(choosenConfig, display, egl);
-            clientOpenGLESVersion = getOpenGLVersion(choosenConfig, display, egl);
+            if (pixelFormat == PixelFormat.TRANSLUCENT) {
+                view.setZOrderOnTop(true);
+            }
             return true;
         } else {
             logger.severe("ERROR: Unable to get a valid OpenGL ES 2.0 config, neither Fastest nor Best found! Bug. Please report this.");
-            clientOpenGLESVersion = 1;
             pixelFormat = PixelFormat.UNKNOWN;
             return false;
         }
@@ -152,12 +161,15 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         int result = eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_ALPHA_SIZE);
 
         if (result >= 8) {
+            logger.log(Level.FINE, "Pixel Format: TRANSLUCENT");
             return PixelFormat.TRANSLUCENT;
         }
         if (result >= 1) {
+            logger.log(Level.FINE, "Pixel Format: TRANSPARENT");
             return PixelFormat.TRANSPARENT;
         }
 
+        logger.log(Level.FINE, "Pixel Format: OPAQUE");
         return PixelFormat.OPAQUE;
     }
 
@@ -178,7 +190,7 @@ public class AndroidConfigChooser implements EGLConfigChooser {
      * @param display
      * @param egl
      */
-    public void logEGLConfig(EGLConfig conf, EGLDisplay display, EGL10 egl, Level level) {
+    private void logEGLConfig(EGLConfig conf, EGLDisplay display, EGL10 egl, Level level) {
 
         logger.log(level, "EGL_RED_SIZE = {0}",
                 eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_RED_SIZE));
@@ -209,18 +221,6 @@ public class AndroidConfigChooser implements EGLConfigChooser {
 
         logger.log(level, "EGL_SAMPLES = {0}",
                 eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_SAMPLES));
-    }
-
-    public int getClientOpenGLESVersion() {
-        return clientOpenGLESVersion;
-    }
-
-    public void setClientOpenGLESVersion(int clientOpenGLESVersion) {
-        this.clientOpenGLESVersion = clientOpenGLESVersion;
-    }
-
-    public int getPixelFormat() {
-        return pixelFormat;
     }
 
     private abstract class BaseConfigChooser implements EGLConfigChooser {

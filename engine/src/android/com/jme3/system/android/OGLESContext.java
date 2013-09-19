@@ -32,11 +32,14 @@
 package com.jme3.system.android;
 
 import android.app.Activity;
-import com.jme3.renderer.android.AndroidGLSurfaceView;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ConfigurationInfo;
 import android.opengl.GLSurfaceView;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.ViewGroup.LayoutParams;
@@ -48,6 +51,7 @@ import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
+import com.jme3.renderer.android.AndroidGLSurfaceView;
 import com.jme3.renderer.RendererException;
 import com.jme3.renderer.android.OGLESShaderRenderer;
 import com.jme3.renderer.android.RendererUtil;
@@ -56,10 +60,7 @@ import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.egl.EGLContext;
-import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.opengles.GL10;
 
 public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTextDialogInput {
@@ -93,7 +94,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     public Type getType() {
         return Type.Display;
     }
-    
+
     /**
      * <code>createView</code> creates the GLSurfaceView that the renderer will
      * draw to. <p> The result GLSurfaceView will receive input events and
@@ -106,27 +107,27 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      * ConfigType.BEST
      * @param eglConfigVerboseLogging if true show all found configs
      * @return GLSurfaceView The newly created view
-     * @deprecated AndroidGLSurfaceView createView() 
+     * @deprecated AndroidGLSurfaceView createView()
      * and put the configType in the appSettigs with the key AndroidConfigChoose.SETTINGS_CONFIG_TYPE
      */
     @Deprecated
     public AndroidGLSurfaceView createView(ConfigType configType, boolean eglConfigVerboseLogging) {
         settings.put(AndroidConfigChooser.SETTINGS_CONFIG_TYPE, configType);
-        return this.createView();        
+        return this.createView();
     }
     /**
      * <code>createView</code> creates the GLSurfaceView that the renderer will
      * draw to. <p> The result GLSurfaceView will receive input events and
      * forward them to the Application. Any rendering will be done into the
      * GLSurfaceView. Only one GLSurfaceView can be created at this time. The
-     * given configType specifies how to determine the display configuration.    
+     * given configType specifies how to determine the display configuration.
      *
-     * 
+     *
      * @param eglConfigVerboseLogging if true show all found configs
      * @return GLSurfaceView The newly created view
      */
     public AndroidGLSurfaceView createView() {
-        AndroidGLSurfaceView view;       
+        AndroidGLSurfaceView view;
         ConfigType configType = (ConfigType)settings.get(AndroidConfigChooser.SETTINGS_CONFIG_TYPE);
 
         // Start to set up the view
@@ -137,64 +138,38 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         androidInput.setView(view);
         androidInput.loadSettings(settings);
 
-        if (configType == ConfigType.LEGACY) {
-            // Hardcoded egl setup
-            clientOpenGLESVersion = 2;
-            view.setEGLContextClientVersion(2);
-            // RGB565, Depth16
-            view.setEGLConfigChooser(5, 6, 5, 0, 16, 0);
-            logger.fine("ConfigType.LEGACY using RGB565");
+        int rawOpenGLESVersion = getOpenGLESVersion();
+        logger.log(Level.FINE, "clientOpenGLESVersion {0}.{1}",
+                new Object[]{clientOpenGLESVersion>>16, clientOpenGLESVersion<<16});
+        if (rawOpenGLESVersion < 0x20000) {
+            throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
         } else {
-            EGL10 egl = (EGL10) EGLContext.getEGL();
-            EGLDisplay display = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
-            if (display == EGL10.EGL_NO_DISPLAY) {
-                throw new RendererException("No default EGL display is available");
-            }
-            
-            int[] version = new int[2];
-            if (!egl.eglInitialize(display, version)) {
-                RendererUtil.checkEGLError(egl);
-            }
-            
-            logger.log(Level.INFO, "Display EGL Version: {0}.{1}", new Object[]{version[0], version[1]});
-
-            try {
-                // Create a config chooser
-                AndroidConfigChooser configChooser = new AndroidConfigChooser(settings);
-                // Init chooser
-                if (!configChooser.findConfig(egl, display)) {
-                    listener.handleError("Unable to find suitable EGL config", null);
-                    return null;
-                }
-
-                clientOpenGLESVersion = configChooser.getClientOpenGLESVersion();
-                if (clientOpenGLESVersion < 2) {
-                    listener.handleError("OpenGL ES 2.0 is not supported on this device", null);
-                    return null;
-                }
-
-                // Requesting client version from GLSurfaceView which is extended by
-                // AndroidInput.
-                view.setEGLContextClientVersion(clientOpenGLESVersion);
-                view.setEGLConfigChooser(configChooser);
-                view.getHolder().setFormat(configChooser.getPixelFormat());
-            } finally {
-                if (display != null && display != EGL10.EGL_NO_DISPLAY) {
-                    egl.eglTerminate(display);
-                }
-            }
+            clientOpenGLESVersion = 2;
+            view.setEGLContextClientVersion(clientOpenGLESVersion);
         }
 
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
         view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
-        if (configType == ConfigType.BEST_TRANSLUCENT) {
-            //This is important to allow the GL surface to have a translucent background
-            view.setZOrderOnTop(true);
-        }
+
+        AndroidConfigChooser configChooser = new AndroidConfigChooser(settings, view);
+        view.setEGLConfigChooser(configChooser);
+
         view.setRenderer(this);
 
         return view;
+    }
+    /**
+     * Get the  OpenGL ES version
+     * @return version returns the int value of the GLES version
+     */
+    public int getOpenGLESVersion() {
+        ActivityManager am =
+                (ActivityManager) JmeAndroidSystem.getActivity().getApplication().getSystemService(Context.ACTIVITY_SERVICE);
+        ConfigurationInfo info = am.getDeviceConfigurationInfo();
+        logger.log(Level.FINE, "OpenGL Version {0}:", info.getGlEsVersion());
+        return info.reqGlEsVersion;
+//        return (info.reqGlEsVersion >= 0x20000);
     }
 
     // renderer:initialize
@@ -224,10 +199,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 listener.handleError("Exception thrown in " + thread.toString(), thrown);
             }
         });
-
-        if (clientOpenGLESVersion < 2) {
-            throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
-        }
 
         timer = new AndroidTimer();
         renderer = new OGLESShaderRenderer();
@@ -410,10 +381,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             } catch (InterruptedException ex) {
             }
         }
-    }
-
-    public int getClientOpenGLESVersion() {
-        return clientOpenGLESVersion;
     }
 
     public void requestDialog(final int id, final String title, final String initialValue, final SoftTextDialogInputListener listener) {
