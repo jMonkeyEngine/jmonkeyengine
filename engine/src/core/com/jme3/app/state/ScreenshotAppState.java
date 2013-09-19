@@ -63,7 +63,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private RenderManager rm;
     private ByteBuffer outBuf;
     private String appName;
-    private int shotIndex = 0;
+    private long shotIndex = 0;
     private int width, height;
 
     /**
@@ -86,6 +86,21 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     }
 
     /**
+     * This constructor allows you to specify the output file path of the screenshot and
+     * a base index for the shot index.
+     * Include the seperator at the end of the path.
+     * Use an emptry string to use the application folder. Use NULL to use the system
+     * default storage folder.
+     * @param file The screenshot file path to use. Include the seperator at the end of the path.
+     * @param shotIndex The base index for screen shots.  The first screen shot will have
+     *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
+     */
+    public ScreenshotAppState(String filePath, long shotIndex) {
+        this.filePath = filePath;
+        this.shotIndex = shotIndex;
+    }
+    
+    /**
      * Set the file path to store the screenshot.
      * Include the seperator at the end of the path.
      * Use an emptry string to use the application folder. Use NULL to use the system
@@ -94,6 +109,13 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      */
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    /**
+     * Sets the base index that will used for subsequent screen shots. 
+     */
+    public void setShotIndex(long index) {
+        this.shotIndex = index;
     }
 
     @Override
