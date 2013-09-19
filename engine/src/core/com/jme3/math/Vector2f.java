@@ -237,7 +237,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      *            An amount between 0.0 - 1.0 representing a percentage change
      *            from this towards finalVec
      */
-    public Vector2f interpolate(Vector2f finalVec, float changeAmnt) {
+    public Vector2f interpolateLocal(Vector2f finalVec, float changeAmnt) {
         this.x = (1 - changeAmnt) * this.x + changeAmnt * finalVec.x;
         this.y = (1 - changeAmnt) * this.y + changeAmnt * finalVec.y;
         return this;
@@ -255,7 +255,7 @@ public final class Vector2f implements Savable, Cloneable, java.io.Serializable 
      *            An amount between 0.0 - 1.0 representing a precentage change
      *            from beginVec towards finalVec
      */
-    public Vector2f interpolate(Vector2f beginVec, Vector2f finalVec,
+    public Vector2f interpolateLocal(Vector2f beginVec, Vector2f finalVec,
             float changeAmnt) {
         this.x = (1 - changeAmnt) * beginVec.x + changeAmnt * finalVec.x;
         this.y = (1 - changeAmnt) * beginVec.y + changeAmnt * finalVec.y;

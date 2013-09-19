@@ -783,7 +783,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @param changeAmnt An amount between 0.0 - 1.0 representing a precentage
      *  change from this towards finalVec
      */
-    public Vector4f interpolate(Vector4f finalVec, float changeAmnt) {
+    public Vector4f interpolateLocal(Vector4f finalVec, float changeAmnt) {
         this.x=(1-changeAmnt)*this.x + changeAmnt*finalVec.x;
         this.y=(1-changeAmnt)*this.y + changeAmnt*finalVec.y;
         this.z=(1-changeAmnt)*this.z + changeAmnt*finalVec.z;
@@ -799,7 +799,7 @@ public final class Vector4f implements Savable, Cloneable, java.io.Serializable 
      * @param changeAmnt An amount between 0.0 - 1.0 representing a precentage
      *  change from beginVec towards finalVec
      */
-    public Vector4f interpolate(Vector4f beginVec,Vector4f finalVec, float changeAmnt) {
+    public Vector4f interpolateLocal(Vector4f beginVec,Vector4f finalVec, float changeAmnt) {
         this.x=(1-changeAmnt)*beginVec.x + changeAmnt*finalVec.x;
         this.y=(1-changeAmnt)*beginVec.y + changeAmnt*finalVec.y;
         this.z=(1-changeAmnt)*beginVec.z + changeAmnt*finalVec.z;
