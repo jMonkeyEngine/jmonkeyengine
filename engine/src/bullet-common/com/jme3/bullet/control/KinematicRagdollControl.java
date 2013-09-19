@@ -270,7 +270,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
 
                 //interpolating between ragdoll position/rotation and keyframed position/rotation
                 tmpRot2.set(tmpRot1).nlerp(link.bone.getModelSpaceRotation(), blendStart / blendTime);
-                position2.set(position).interpolate(link.bone.getModelSpacePosition(), blendStart / blendTime);
+                position2.set(position).interpolateLocal(link.bone.getModelSpacePosition(), blendStart / blendTime);
                 tmpRot1.set(tmpRot2);
                 position.set(position2);
 
