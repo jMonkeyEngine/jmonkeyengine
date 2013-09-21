@@ -1166,7 +1166,9 @@ public class Mesh implements Savable, Cloneable {
         // Now, create the vertex buffers
         SafeArrayList<VertexBuffer> oldVertexData = other.getBufferList();
         for (VertexBuffer oldVb : oldVertexData) {
-            if (oldVb.getBufferType() == VertexBuffer.Type.Index) {
+            if (oldVb.getBufferType() == VertexBuffer.Type.Index
+                    ||oldVb.getBufferType() == VertexBuffer.Type.HWBoneIndex 
+                    || oldVb.getBufferType() == VertexBuffer.Type.HWBoneWeight  ) {
                 // ignore the index buffer
                 continue;
             }
