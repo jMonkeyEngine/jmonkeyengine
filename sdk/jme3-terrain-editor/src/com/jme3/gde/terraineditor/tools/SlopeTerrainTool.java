@@ -171,7 +171,7 @@ public class SlopeTerrainTool extends TerrainTool {
         float angle = ((FastMath.asin(temp.distance(higher) / lower.distance(higher))) * FastMath.RAD_TO_DEG);
 
         angleText.setText(angle + " degrees");
-        angleText.setLocalTranslation(new Vector3f().interpolate(point1, point2, 0.5f));
+        angleText.setLocalTranslation(new Vector3f().interpolateLocal(point1, point2, 0.5f));
 
         if (line.getParent() == null) {
             parent.attachChild(line);
