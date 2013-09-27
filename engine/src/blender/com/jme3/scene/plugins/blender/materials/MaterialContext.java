@@ -158,7 +158,7 @@ public final class MaterialContext {
         boolean transparent = false;
         if (diffuseColor != null) {
             transparent = diffuseColor.a < 1.0f;
-            if (textureDataMap.size() > 0) {// texutre covers the material color
+            if (loadedTextures.size() > 0) {// texutre covers the material color
                 diffuseColor.set(1, 1, 1, 1);
             }
         }
