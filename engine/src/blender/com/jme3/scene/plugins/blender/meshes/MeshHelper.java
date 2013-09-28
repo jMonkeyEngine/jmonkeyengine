@@ -37,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
@@ -106,18 +107,18 @@ public class MeshHelper extends AbstractBlenderHelper {
             return copiedGeometries;
         }
 
-        // reading mesh data
         String name = structure.getName();
         MeshContext meshContext = new MeshContext();
+        LOGGER.log(Level.FINE, "Reading mesh: {0}.", name);
 
-        // reading materials
+        LOGGER.fine("Loading materials.");
         MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
         MaterialContext[] materials = null;
         if ((blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
             materials = materialHelper.getMaterials(structure, blenderContext);
         }
 
-        // reading vertices and their colors
+        LOGGER.fine("Reading vertices and their colors.");
         Vector3f[][] verticesAndNormals = this.getVerticesAndNormals(structure, blenderContext);
         List<byte[]> verticesColors = this.getVerticesColors(structure, blenderContext);
 
@@ -130,6 +131,7 @@ public class MeshHelper extends AbstractBlenderHelper {
         }
 
         if (meshBuilder.isEmpty()) {
+            LOGGER.fine("The geometry is empty.");
             geometries = new ArrayList<Geometry>(0);
             blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, geometries);
             blenderContext.setMeshContext(structure.getOldMemoryAddress(), meshContext);
@@ -138,7 +140,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 
         meshContext.setVertexReferenceMap(meshBuilder.getVertexReferenceMap());
 
-        // reading vertices groups (from the parent)
+        LOGGER.fine("Reading vertices groups (from the Object structure).");
         Structure parent = blenderContext.peekParent();
         Structure defbase = (Structure) parent.getFieldValue("defbase");
         List<Structure> defs = defbase.evaluateListBase(blenderContext);
@@ -148,13 +150,11 @@ public class MeshHelper extends AbstractBlenderHelper {
             verticesGroups[defIndex++] = def.getFieldValue("name").toString();
         }
 
-        // creating the result meshes
-        geometries = new ArrayList<Geometry>(meshBuilder.getMeshesPartAmount());
-
-        // reading custom properties
+        LOGGER.fine("Reading custom properties.");
         Properties properties = this.loadProperties(structure, blenderContext);
 
-        // generating meshes
+        LOGGER.fine("Generating meshes.");
+        geometries = new ArrayList<Geometry>(meshBuilder.getMeshesPartAmount());
         for (Entry<Integer, List<Integer>> meshEntry : meshBuilder.getMeshesMap().entrySet()) {
             int materialIndex = meshEntry.getKey();
             // key is the material index (or -1 if the material has no texture)
@@ -177,34 +177,23 @@ public class MeshHelper extends AbstractBlenderHelper {
                 mesh.setBuffer(Type.Index, 1, indices);
             }
 
+            LOGGER.fine("Creating vertices buffer.");
             VertexBuffer verticesBuffer = new VertexBuffer(Type.Position);
             verticesBuffer.setupData(Usage.Static, 3, Format.Float, BufferUtils.createFloatBuffer(meshBuilder.getVertices(materialIndex)));
-
-            // initial vertex position (used with animation)
-            VertexBuffer verticesBind = new VertexBuffer(Type.BindPosePosition);
-            verticesBind.setupData(Usage.CpuOnly, 3, Format.Float, BufferUtils.createFloatBuffer(meshBuilder.getVertices(materialIndex)));
-
+            mesh.setBuffer(verticesBuffer);
+            
+            LOGGER.fine("Creating normals buffer.");
             VertexBuffer normalsBuffer = new VertexBuffer(Type.Normal);
             normalsBuffer.setupData(Usage.Static, 3, Format.Float, BufferUtils.createFloatBuffer(meshBuilder.getNormals(materialIndex)));
+            mesh.setBuffer(normalsBuffer);
 
-            // initial normals position (used with animation)
-            VertexBuffer normalsBind = new VertexBuffer(Type.BindPoseNormal);
-            normalsBind.setupData(Usage.CpuOnly, 3, Format.Float, BufferUtils.createFloatBuffer(meshBuilder.getNormals(materialIndex)));
-
-            mesh.setBuffer(verticesBuffer);
-            meshContext.setBindPoseBuffer(materialIndex, verticesBind);// this is stored in the context and applied when needed (when animation is applied to the mesh)
-
-            // setting vertices colors
             if (verticesColors != null) {
+                LOGGER.fine("Setting vertices colors.");
                 mesh.setBuffer(Type.Color, 4, meshBuilder.getVertexColorsBuffer(materialIndex));
                 mesh.getBuffer(Type.Color).setNormalized(true);
             }
 
-            // setting faces' normals
-            mesh.setBuffer(normalsBuffer);
-            meshContext.setBindNormalBuffer(materialIndex, normalsBind);// this is stored in the context and applied when needed (when animation is applied to the mesh)
-
-            // creating the result
+            LOGGER.fine("Preparing the result part.");
             Geometry geometry = new Geometry(name + (geometries.size() + 1), mesh);
             if (properties != null && properties.getValue() != null) {
                 this.applyProperties(geometry, properties);
@@ -347,6 +336,7 @@ public class MeshHelper extends AbstractBlenderHelper {
      *             blender file
      */
     private void readBMesh(MeshBuilder meshBuilder, Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+        LOGGER.fine("Reading BMesh.");
         Pointer pMLoop = (Pointer) meshStructure.getFieldValue("mloop");
         Pointer pMPoly = (Pointer) meshStructure.getFieldValue("mpoly");
         Pointer pMEdge = (Pointer) meshStructure.getFieldValue("medge");
@@ -409,6 +399,7 @@ public class MeshHelper extends AbstractBlenderHelper {
      *             blender file
      */
     private void readTraditionalFaces(MeshBuilder meshBuilder, Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+        LOGGER.fine("Reading traditional faces.");
         Pointer pMFace = (Pointer) meshStructure.getFieldValue("mface");
         List<Structure> mFaces = pMFace.isNotNull() ? pMFace.fetchData(blenderContext.getInputStream()) : null;
         if (mFaces != null && mFaces.size() > 0) {

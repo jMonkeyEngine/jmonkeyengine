@@ -46,7 +46,6 @@ import com.jme3.util.BufferUtils;
 /* package */class ArmatureModifier extends Modifier {
     private static final Logger LOGGER                     = Logger.getLogger(ArmatureModifier.class.getName());
     private static final int    MAXIMUM_WEIGHTS_PER_VERTEX = 4;                                                 // JME
-                                                                                                                 // limitation
 
     private Skeleton            skeleton;
     private Structure           objectStructure;
@@ -197,16 +196,9 @@ import com.jme3.util.BufferUtils;
                         mesh.setBuffer(buffers[0]);
                         mesh.setBuffer(buffers[1]);
     
-                        //FIXME @Kaelthas this should be replaced by a call to 
-                        //mesh.generateBindPos(true)
-                        VertexBuffer bindNormalBuffer = meshContext.getBindNormalBuffer(materialIndex);
-                        if (bindNormalBuffer != null) {
-                            mesh.setBuffer(bindNormalBuffer);
-                        }
-                        VertexBuffer bindPoseBuffer = meshContext.getBindPoseBuffer(materialIndex);
-                        if (bindPoseBuffer != null) {
-                            mesh.setBuffer(bindPoseBuffer);
-                        }
+                        LOGGER.fine("Generating bind pose and normal buffers.");
+                        mesh.generateBindPose(true);
+                        
                         // change the usage type of vertex and normal buffers from
                         // Static to Stream
                         mesh.getBuffer(Type.Position).setUsage(Usage.Stream);

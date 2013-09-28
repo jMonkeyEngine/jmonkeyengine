@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.jme3.scene.Geometry;
-import com.jme3.scene.VertexBuffer;
 
 /**
  * Class that holds information about the mesh.
@@ -18,10 +17,6 @@ public class MeshContext {
     private Map<Integer, Geometry>                    geometries       = new HashMap<Integer, Geometry>();
     /** The vertex reference map. */
     private Map<Integer, Map<Integer, List<Integer>>> vertexReferenceMap;
-    /** Bind buffer for vertices is stored here and applied when required. */
-    private Map<Integer, VertexBuffer>                bindPoseBuffer   = new HashMap<Integer, VertexBuffer>();
-    /** Bind buffer for normals is stored here and applied when required. */
-    private Map<Integer, VertexBuffer>                bindNormalBuffer = new HashMap<Integer, VertexBuffer>();
 
     /**
      * Adds a geometry for the specified material index.
@@ -77,47 +72,5 @@ public class MeshContext {
      */
     public void setVertexReferenceMap(Map<Integer, Map<Integer, List<Integer>>> vertexReferenceMap) {
         this.vertexReferenceMap = vertexReferenceMap;
-    }
-
-    /**
-     * This method sets the bind buffer for vertices.
-     * 
-     * @param materialIndex
-     *            the index of the mesh's material
-     * @param bindNormalBuffer
-     *            the bind buffer for vertices
-     */
-    public void setBindNormalBuffer(int materialIndex, VertexBuffer bindNormalBuffer) {
-        this.bindNormalBuffer.put(materialIndex, bindNormalBuffer);
-    }
-
-    /**
-     * @param materialIndex
-     *            the index of the mesh's material
-     * @return the bind buffer for vertices
-     */
-    public VertexBuffer getBindNormalBuffer(int materialIndex) {
-        return bindNormalBuffer.get(materialIndex);
-    }
-
-    /**
-     * This method sets the bind buffer for normals.
-     * 
-     * @param materialIndex
-     *            the index of the mesh's material
-     * @param bindNormalBuffer
-     *            the bind buffer for normals
-     */
-    public void setBindPoseBuffer(int materialIndex, VertexBuffer bindPoseBuffer) {
-        this.bindPoseBuffer.put(materialIndex, bindPoseBuffer);
-    }
-
-    /**
-     * @param materialIndex
-     *            the index of the mesh's material
-     * @return the bind buffer for normals
-     */
-    public VertexBuffer getBindPoseBuffer(int materialIndex) {
-        return bindPoseBuffer.get(materialIndex);
     }
 }
