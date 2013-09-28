@@ -42,9 +42,7 @@ import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
@@ -72,18 +70,6 @@ import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
 public class ObjectHelper extends AbstractBlenderHelper {
     private static final Logger LOGGER               = Logger.getLogger(ObjectHelper.class.getName());
 
-    protected static final int  OBJECT_TYPE_EMPTY    = 0;
-    protected static final int  OBJECT_TYPE_MESH     = 1;
-    protected static final int  OBJECT_TYPE_CURVE    = 2;
-    protected static final int  OBJECT_TYPE_SURF     = 3;
-    protected static final int  OBJECT_TYPE_TEXT     = 4;
-    protected static final int  OBJECT_TYPE_METABALL = 5;
-    protected static final int  OBJECT_TYPE_LAMP     = 10;
-    protected static final int  OBJECT_TYPE_CAMERA   = 11;
-    protected static final int  OBJECT_TYPE_WAVE     = 21;
-    protected static final int  OBJECT_TYPE_LATTICE  = 22;
-    protected static final int  OBJECT_TYPE_ARMATURE = 25;
-    
     public static final String OMA_MARKER = "oma";
 
     /**
@@ -121,12 +107,12 @@ public class ObjectHelper extends AbstractBlenderHelper {
 
         // get object data
         int type = ((Number) objectStructure.getFieldValue("type")).intValue();
+        ObjectType objectType = ObjectType.valueOf(type);
         String name = objectStructure.getName();
         LOGGER.log(Level.FINE, "Loading obejct: {0}", name);
 
         int restrictflag = ((Number) objectStructure.getFieldValue("restrictflag")).intValue();
         boolean visible = (restrictflag & 0x01) != 0;
-        Node result = null;
 
         Pointer pParent = (Pointer) objectStructure.getFieldValue("parent");
         Object parent = blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
@@ -136,120 +122,94 @@ public class ObjectHelper extends AbstractBlenderHelper {
         }
 
         Transform t = this.getTransformation(objectStructure, blenderContext);
-
+        LOGGER.log(Level.FINE, "Importing object of type: {0}", objectType);
+        Node result = null;
         try {
-            switch (type) {
-                case OBJECT_TYPE_EMPTY:
-                    LOGGER.log(Level.FINE, "Importing empty.");
-                    Node empty = new Node(name);
-                    empty.setLocalTransform(t);
-                    if (parent instanceof Node) {
-                        ((Node) parent).attachChild(empty);
-                    }
-                    result = empty;
+            switch (objectType) {
+                case EMPTY:
+                case ARMATURE:
+                    // need to use an empty node to properly create
+                    // parent-children relationships between nodes
+                    result = new Node(name);
                     break;
-                case OBJECT_TYPE_MESH:
-                    LOGGER.log(Level.FINE, "Importing mesh.");
-                    Node node = new Node(name);
-                    node.setCullHint(visible ? CullHint.Always : CullHint.Inherit);
-
-                    // reading mesh
+                case MESH:
+                    result = new Node(name);
                     MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
                     Pointer pMesh = (Pointer) objectStructure.getFieldValue("data");
                     List<Structure> meshesArray = pMesh.fetchData(blenderContext.getInputStream());
                     List<Geometry> geometries = meshHelper.toMesh(meshesArray.get(0), blenderContext);
                     if (geometries != null) {
                         for (Geometry geometry : geometries) {
-                            node.attachChild(geometry);
+                            result.attachChild(geometry);
                         }
                     }
-                    node.setLocalTransform(t);
-
-                    // setting the parent
-                    if (parent instanceof Node) {
-                        ((Node) parent).attachChild(node);
-                    }
-                    result = node;
                     break;
-                case OBJECT_TYPE_SURF:
-                case OBJECT_TYPE_CURVE:
-                    LOGGER.log(Level.FINE, "Importing curve/nurb.");
+                case SURF:
+                case CURVE:
+                    result = new Node(name);
                     Pointer pCurve = (Pointer) objectStructure.getFieldValue("data");
                     if (pCurve.isNotNull()) {
                         CurvesHelper curvesHelper = blenderContext.getHelper(CurvesHelper.class);
                         Structure curveData = pCurve.fetchData(blenderContext.getInputStream()).get(0);
                         List<Geometry> curves = curvesHelper.toCurve(curveData, blenderContext);
-                        result = new Node(name);
                         for (Geometry curve : curves) {
                             result.attachChild(curve);
                         }
-                        result.setLocalTransform(t);
                     }
                     break;
-                case OBJECT_TYPE_LAMP:
-                    LOGGER.log(Level.FINE, "Importing lamp.");
+                case LAMP:
                     Pointer pLamp = (Pointer) objectStructure.getFieldValue("data");
                     if (pLamp.isNotNull()) {
                         LightHelper lightHelper = blenderContext.getHelper(LightHelper.class);
                         List<Structure> lampsArray = pLamp.fetchData(blenderContext.getInputStream());
-                        LightNode light = lightHelper.toLight(lampsArray.get(0), blenderContext);
-                        if (light != null) {
-                            light.setName(name);
-                            light.setLocalTransform(t);
-                        }
-                        result = light;
+                        result = lightHelper.toLight(lampsArray.get(0), blenderContext);
                     }
                     break;
-                case OBJECT_TYPE_CAMERA:
+                case CAMERA:
                     Pointer pCamera = (Pointer) objectStructure.getFieldValue("data");
                     if (pCamera.isNotNull()) {
                         CameraHelper cameraHelper = blenderContext.getHelper(CameraHelper.class);
                         List<Structure> camerasArray = pCamera.fetchData(blenderContext.getInputStream());
-                        CameraNode camera = cameraHelper.toCamera(camerasArray.get(0), blenderContext);
-                        camera.setName(name);
-                        camera.setLocalTransform(t);
-                        result = camera;
+                        result = cameraHelper.toCamera(camerasArray.get(0), blenderContext);
                     }
-                    break;
-                case OBJECT_TYPE_ARMATURE:
-                    // need to create an empty node to properly create
-                    // parent-children relationships between nodes
-                    Node armature = new Node(name);
-                    armature.setLocalTransform(t);
-                    blenderContext.addMarker(ArmatureHelper.ARMATURE_NODE_MARKER, armature, Boolean.TRUE);
-
-                    if (parent instanceof Node) {
-                        ((Node) parent).attachChild(armature);
-                    }
-                    result = armature;
                     break;
                 default:
-                    LOGGER.log(Level.WARNING, "Unknown object type: {0}", type);
+                    LOGGER.log(Level.WARNING, "Unsupported object type: {0}", type);
             }
         } finally {
             blenderContext.popParent();
         }
 
         if (result != null) {
-         // I prefer do compute bounding box here than read it from the file
-            result.updateModelBound();
-            
             blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
-            blenderContext.addMarker(OMA_MARKER, result, objectStructure.getOldMemoryAddress());
-
-            // applying modifiers
-            LOGGER.log(Level.FINE, "Reading and applying object's modifiers.");
+            
+            result.setLocalTransform(t);
+            result.setCullHint(visible ? CullHint.Always : CullHint.Inherit);
+            if (parent instanceof Node) {
+                ((Node) parent).attachChild(result);
+            }
+            
+            LOGGER.fine("Reading and applying object's modifiers.");
             ModifierHelper modifierHelper = blenderContext.getHelper(ModifierHelper.class);
             Collection<Modifier> modifiers = modifierHelper.readModifiers(objectStructure, blenderContext);
             for (Modifier modifier : modifiers) {
                 modifier.apply(result, blenderContext);
             }
-
-            // loading constraints connected with this object
+            
+            // I prefer do compute bounding box here than read it from the file
+            result.updateModelBound();
+            
+            LOGGER.fine("Applying markers (those will be removed before the final result is released).");
+            blenderContext.addMarker(OMA_MARKER, result, objectStructure.getOldMemoryAddress());
+            if(objectType == ObjectType.ARMATURE) {
+                blenderContext.addMarker(ArmatureHelper.ARMATURE_NODE_MARKER, result, Boolean.TRUE);
+            }
+            
+            LOGGER.fine("Loading constraints connected with this object.");
             ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
             constraintHelper.loadConstraints(objectStructure, blenderContext);
 
-            // reading custom properties
+            LOGGER.fine("Loading custom properties.");
             if (blenderContext.getBlenderKey().isLoadObjectProperties()) {
                 Properties properties = this.loadProperties(objectStructure, blenderContext);
                 // the loaded property is a group property, so we need to get
@@ -392,5 +352,34 @@ public class ObjectHelper extends AbstractBlenderHelper {
     public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
         int lay = ((Number) structure.getFieldValue("lay")).intValue();
         return (lay & blenderContext.getBlenderKey().getLayersToLoad()) != 0 && (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0;
+    }
+    
+    private static enum ObjectType {
+        EMPTY(0),
+        MESH(1),
+        CURVE(2),
+        SURF(3),
+        TEXT(4),
+        METABALL(5),
+        LAMP(10),
+        CAMERA(11),
+        WAVE(21),
+        LATTICE(22),
+        ARMATURE(25);
+        
+        private int blenderTypeValue;
+        
+        private ObjectType(int blenderTypeValue) {
+            this.blenderTypeValue = blenderTypeValue;
+        }
+        
+        public static ObjectType valueOf(int blenderTypeValue) throws BlenderFileException {
+            for(ObjectType type : ObjectType.values()) {
+                if(type.blenderTypeValue == blenderTypeValue) {
+                    return type;
+                }
+            }
+            throw new BlenderFileException("Unknown type value: " + blenderTypeValue);
+        }
     }
 }
