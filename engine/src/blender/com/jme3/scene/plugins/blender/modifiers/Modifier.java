@@ -37,9 +37,8 @@ public abstract class Modifier {
      *            the node that will have modifier applied
      * @param blenderContext
      *            the blender context
-     * @return the node with applied modifier
      */
-    public abstract Node apply(Node node, BlenderContext blenderContext);
+    public abstract void apply(Node node, BlenderContext blenderContext);
 
     /**
      * Determines if the modifier can be applied multiple times over one mesh.

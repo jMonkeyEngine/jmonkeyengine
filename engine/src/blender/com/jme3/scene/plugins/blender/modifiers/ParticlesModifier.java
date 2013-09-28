@@ -55,42 +55,40 @@ import java.util.logging.Logger;
     }
 
     @Override
-    public Node apply(Node node, BlenderContext blenderContext) {
+    public void apply(Node node, BlenderContext blenderContext) {
         if (invalid) {
             LOGGER.log(Level.WARNING, "Particles modifier is invalid! Cannot be applied to: {0}", node.getName());
-            return node;
-        }
+        } else {
+            MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
+            ParticleEmitter emitter = particleEmitter.clone();
 
-        MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
-        ParticleEmitter emitter = particleEmitter.clone();
+            // veryfying the alpha function for particles' texture
+            Integer alphaFunction = MaterialHelper.ALPHA_MASK_HYPERBOLE;
+            char nameSuffix = emitter.getName().charAt(emitter.getName().length() - 1);
+            if (nameSuffix == 'B' || nameSuffix == 'N') {
+                alphaFunction = MaterialHelper.ALPHA_MASK_NONE;
+            }
+            // removing the type suffix from the name
+            emitter.setName(emitter.getName().substring(0, emitter.getName().length() - 1));
 
-        // veryfying the alpha function for particles' texture
-        Integer alphaFunction = MaterialHelper.ALPHA_MASK_HYPERBOLE;
-        char nameSuffix = emitter.getName().charAt(emitter.getName().length() - 1);
-        if (nameSuffix == 'B' || nameSuffix == 'N') {
-            alphaFunction = MaterialHelper.ALPHA_MASK_NONE;
-        }
-        // removing the type suffix from the name
-        emitter.setName(emitter.getName().substring(0, emitter.getName().length() - 1));
-
-        // applying emitter shape
-        EmitterShape emitterShape = emitter.getShape();
-        List<Mesh> meshes = new ArrayList<Mesh>();
-        for (Spatial spatial : node.getChildren()) {
-            if (spatial instanceof Geometry) {
-                Mesh mesh = ((Geometry) spatial).getMesh();
-                if (mesh != null) {
-                    meshes.add(mesh);
-                    Material material = materialHelper.getParticlesMaterial(((Geometry) spatial).getMaterial(), alphaFunction, blenderContext);
-                    emitter.setMaterial(material);// TODO: divide into several pieces
+            // applying emitter shape
+            EmitterShape emitterShape = emitter.getShape();
+            List<Mesh> meshes = new ArrayList<Mesh>();
+            for (Spatial spatial : node.getChildren()) {
+                if (spatial instanceof Geometry) {
+                    Mesh mesh = ((Geometry) spatial).getMesh();
+                    if (mesh != null) {
+                        meshes.add(mesh);
+                        Material material = materialHelper.getParticlesMaterial(((Geometry) spatial).getMaterial(), alphaFunction, blenderContext);
+                        emitter.setMaterial(material);// TODO: divide into several pieces
+                    }
                 }
             }
-        }
-        if (meshes.size() > 0 && emitterShape instanceof EmitterMeshVertexShape) {
-            ((EmitterMeshVertexShape) emitterShape).setMeshes(meshes);
-        }
+            if (meshes.size() > 0 && emitterShape instanceof EmitterMeshVertexShape) {
+                ((EmitterMeshVertexShape) emitterShape).setMeshes(meshes);
+            }
 
-        node.attachChild(emitter);
-        return node;
+            node.attachChild(emitter);
+        }
     }
 }

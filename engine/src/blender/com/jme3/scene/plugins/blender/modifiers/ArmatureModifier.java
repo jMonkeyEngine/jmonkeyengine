@@ -177,76 +177,73 @@ import com.jme3.util.BufferUtils;
 
     @Override
     @SuppressWarnings("unchecked")
-    public Node apply(Node node, BlenderContext blenderContext) {
+    public void apply(Node node, BlenderContext blenderContext) {
         if (invalid) {
             LOGGER.log(Level.WARNING, "Armature modifier is invalid! Cannot be applied to: {0}", node.getName());
         }// if invalid, animData will be null
-        if (animationData == null || skeleton == null) {
-            return node;
-        }
-
-        // setting weights for bones
-        List<Geometry> geomList = (List<Geometry>) blenderContext.getLoadedFeature(meshOMA, LoadedFeatureDataType.LOADED_FEATURE);
-        MeshContext meshContext = blenderContext.getMeshContext(meshOMA);
-        int[] bonesGroups = new int[] { 0 };
-        for (Geometry geom : geomList) {
-            int materialIndex = meshContext.getMaterialIndex(geom);
-            Mesh mesh = geom.getMesh();
-
-            try {
-                VertexBuffer[] buffers = this.readVerticesWeightsData(objectStructure, meshStructure, skeleton, materialIndex, bonesGroups, blenderContext);
-                if (buffers != null) {
-                    mesh.setMaxNumWeights(bonesGroups[0]);
-                    mesh.setBuffer(buffers[0]);
-                    mesh.setBuffer(buffers[1]);
-
-                    //FIXME @Kaelthas this should be replaced by a call to 
-                    //mesh.generateBindPos(true)
-                    VertexBuffer bindNormalBuffer = meshContext.getBindNormalBuffer(materialIndex);
-                    if (bindNormalBuffer != null) {
-                        mesh.setBuffer(bindNormalBuffer);
+        if(animationData != null && skeleton != null) {
+            // setting weights for bones
+            List<Geometry> geomList = (List<Geometry>) blenderContext.getLoadedFeature(meshOMA, LoadedFeatureDataType.LOADED_FEATURE);
+            MeshContext meshContext = blenderContext.getMeshContext(meshOMA);
+            int[] bonesGroups = new int[] { 0 };
+            for (Geometry geom : geomList) {
+                int materialIndex = meshContext.getMaterialIndex(geom);
+                Mesh mesh = geom.getMesh();
+    
+                try {
+                    VertexBuffer[] buffers = this.readVerticesWeightsData(objectStructure, meshStructure, skeleton, materialIndex, bonesGroups, blenderContext);
+                    if (buffers != null) {
+                        mesh.setMaxNumWeights(bonesGroups[0]);
+                        mesh.setBuffer(buffers[0]);
+                        mesh.setBuffer(buffers[1]);
+    
+                        //FIXME @Kaelthas this should be replaced by a call to 
+                        //mesh.generateBindPos(true)
+                        VertexBuffer bindNormalBuffer = meshContext.getBindNormalBuffer(materialIndex);
+                        if (bindNormalBuffer != null) {
+                            mesh.setBuffer(bindNormalBuffer);
+                        }
+                        VertexBuffer bindPoseBuffer = meshContext.getBindPoseBuffer(materialIndex);
+                        if (bindPoseBuffer != null) {
+                            mesh.setBuffer(bindPoseBuffer);
+                        }
+                        // change the usage type of vertex and normal buffers from
+                        // Static to Stream
+                        mesh.getBuffer(Type.Position).setUsage(Usage.Stream);
+                        mesh.getBuffer(Type.Normal).setUsage(Usage.Stream);
+                        
+                        
+                        //creating empty buffers for HW skinning 
+                        //the buffers will be setup if ever used.
+                        VertexBuffer verticesWeightsHW = new VertexBuffer(Type.HWBoneWeight);
+                        VertexBuffer verticesWeightsIndicesHW = new VertexBuffer(Type.HWBoneIndex);
+                        mesh.setBuffer(verticesWeightsHW);
+                        mesh.setBuffer(verticesWeightsIndicesHW);
                     }
-                    VertexBuffer bindPoseBuffer = meshContext.getBindPoseBuffer(materialIndex);
-                    if (bindPoseBuffer != null) {
-                        mesh.setBuffer(bindPoseBuffer);
-                    }
-                    // change the usage type of vertex and normal buffers from
-                    // Static to Stream
-                    mesh.getBuffer(Type.Position).setUsage(Usage.Stream);
-                    mesh.getBuffer(Type.Normal).setUsage(Usage.Stream);
-                    
-                    
-                    //creating empty buffers for HW skinning 
-                    //the buffers will be setup if ever used.
-                    VertexBuffer verticesWeightsHW = new VertexBuffer(Type.HWBoneWeight);
-                    VertexBuffer verticesWeightsIndicesHW = new VertexBuffer(Type.HWBoneIndex);
-                    mesh.setBuffer(verticesWeightsHW);
-                    mesh.setBuffer(verticesWeightsIndicesHW);
+                } catch (BlenderFileException e) {
+                    LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+                    invalid = true;
                 }
-            } catch (BlenderFileException e) {
-                LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-                this.invalid = true;
-                return node;
+            }
+    
+            if(!invalid) {
+                // applying animations
+                AnimControl control = new AnimControl(animationData.skeleton);
+                List<Animation> animList = animationData.anims;
+                if (animList != null && animList.size() > 0) {
+                    HashMap<String, Animation> anims = new HashMap<String, Animation>(animList.size());
+                    for (int i = 0; i < animList.size(); ++i) {
+                        Animation animation = animList.get(i);
+                        anims.put(animation.getName(), animation);
+                    }
+                    control.setAnimations(anims);
+                }
+                node.addControl(control);
+                node.addControl(new SkeletonControl(animationData.skeleton));
+        
+                blenderContext.setNodeForSkeleton(skeleton, node);
             }
         }
-
-        // applying animations
-        AnimControl control = new AnimControl(animationData.skeleton);
-        List<Animation> animList = animationData.anims;
-        if (animList != null && animList.size() > 0) {
-            HashMap<String, Animation> anims = new HashMap<String, Animation>(animList.size());
-            for (int i = 0; i < animList.size(); ++i) {
-                Animation animation = animList.get(i);
-                anims.put(animation.getName(), animation);
-            }
-            control.setAnimations(anims);
-        }
-        node.addControl(control);
-        node.addControl(new SkeletonControl(animationData.skeleton));
-
-        blenderContext.setNodeForSkeleton(skeleton, node);
-
-        return node;
     }
 
     /**

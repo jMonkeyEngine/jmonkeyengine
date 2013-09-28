@@ -65,7 +65,7 @@ import com.jme3.scene.plugins.blender.file.BlenderFileException;
     }
 
     @Override
-    public Node apply(Node node, BlenderContext blenderContext) {
+    public void apply(Node node, BlenderContext blenderContext) {
         if (invalid) {
             LOGGER.log(Level.WARNING, "Armature modifier is invalid! Cannot be applied to: {0}", node.getName());
         }// if invalid, animData will be null
@@ -85,6 +85,5 @@ import com.jme3.scene.plugins.blender.file.BlenderFileException;
                 node.addControl(control);
             }
         }
-        return node;
     }
 }

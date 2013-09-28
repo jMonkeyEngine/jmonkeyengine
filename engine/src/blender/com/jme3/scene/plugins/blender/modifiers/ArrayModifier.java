@@ -127,122 +127,121 @@ import java.util.logging.Logger;
     }
 
     @Override
-    public Node apply(Node node, BlenderContext blenderContext) {
+    public void apply(Node node, BlenderContext blenderContext) {
         if (invalid) {
             LOGGER.log(Level.WARNING, "Array modifier is invalid! Cannot be applied to: {0}", node.getName());
-            return node;
-        }
-        int fittype = ((Number) modifierData.get("fittype")).intValue();
-        float[] offset = (float[]) modifierData.get("offset");
-        if (offset == null) {// the node will be repeated several times in the same place
-            offset = new float[] { 0.0f, 0.0f, 0.0f };
-        }
-        float[] scale = (float[]) modifierData.get("scale");
-        if (scale == null) {// the node will be repeated several times in the same place
-            scale = new float[] { 0.0f, 0.0f, 0.0f };
         } else {
-            // getting bounding box
-            node.updateModelBound();
-            BoundingVolume boundingVolume = node.getWorldBound();
-            if (boundingVolume instanceof BoundingBox) {
-                scale[0] *= ((BoundingBox) boundingVolume).getXExtent() * 2.0f;
-                scale[1] *= ((BoundingBox) boundingVolume).getYExtent() * 2.0f;
-                scale[2] *= ((BoundingBox) boundingVolume).getZExtent() * 2.0f;
-            } else if (boundingVolume instanceof BoundingSphere) {
-                float radius = ((BoundingSphere) boundingVolume).getRadius();
-                scale[0] *= radius * 2.0f;
-                scale[1] *= radius * 2.0f;
-                scale[2] *= radius * 2.0f;
+            int fittype = ((Number) modifierData.get("fittype")).intValue();
+            float[] offset = (float[]) modifierData.get("offset");
+            if (offset == null) {// the node will be repeated several times in the same place
+                offset = new float[] { 0.0f, 0.0f, 0.0f };
+            }
+            float[] scale = (float[]) modifierData.get("scale");
+            if (scale == null) {// the node will be repeated several times in the same place
+                scale = new float[] { 0.0f, 0.0f, 0.0f };
             } else {
-                throw new IllegalStateException("Unknown bounding volume type: " + boundingVolume.getClass().getName());
-            }
-        }
-
-        // adding object's offset
-        float[] objectOffset = new float[] { 0.0f, 0.0f, 0.0f };
-        Pointer pOffsetObject = (Pointer) modifierData.get("offsetob");
-        if (pOffsetObject != null) {
-            FileBlockHeader offsetObjectBlock = blenderContext.getFileBlock(pOffsetObject.getOldMemoryAddress());
-            ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-            try {// we take the structure in case the object was not yet loaded
-                Structure offsetStructure = offsetObjectBlock.getStructure(blenderContext);
-                Vector3f translation = objectHelper.getTransformation(offsetStructure, blenderContext).getTranslation();
-                objectOffset[0] = translation.x;
-                objectOffset[1] = translation.y;
-                objectOffset[2] = translation.z;
-            } catch (BlenderFileException e) {
-                LOGGER.log(Level.WARNING, "Problems in blender file structure! Object offset cannot be applied! The problem: {0}", e.getMessage());
-            }
-        }
-
-        // getting start and end caps
-        Node[] caps = new Node[] { null, null };
-        Pointer[] pCaps = new Pointer[] { (Pointer) modifierData.get("startcap"), (Pointer) modifierData.get("endcap") };
-        for (int i = 0; i < pCaps.length; ++i) {
-            if (pCaps[i] != null) {
-                caps[i] = (Node) blenderContext.getLoadedFeature(pCaps[i].getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
-                if (caps[i] != null) {
-                    caps[i] = (Node) caps[i].clone();
+                // getting bounding box
+                node.updateModelBound();
+                BoundingVolume boundingVolume = node.getWorldBound();
+                if (boundingVolume instanceof BoundingBox) {
+                    scale[0] *= ((BoundingBox) boundingVolume).getXExtent() * 2.0f;
+                    scale[1] *= ((BoundingBox) boundingVolume).getYExtent() * 2.0f;
+                    scale[2] *= ((BoundingBox) boundingVolume).getZExtent() * 2.0f;
+                } else if (boundingVolume instanceof BoundingSphere) {
+                    float radius = ((BoundingSphere) boundingVolume).getRadius();
+                    scale[0] *= radius * 2.0f;
+                    scale[1] *= radius * 2.0f;
+                    scale[2] *= radius * 2.0f;
                 } else {
-                    FileBlockHeader capBlock = blenderContext.getFileBlock(pOffsetObject.getOldMemoryAddress());
-                    try {// we take the structure in case the object was not yet loaded
-                        Structure capStructure = capBlock.getStructure(blenderContext);
-                        ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-                        caps[i] = (Node) objectHelper.toObject(capStructure, blenderContext);
-                        if (caps[i] == null) {
-                            LOGGER.log(Level.WARNING, "Cap object ''{0}'' couldn''t be loaded!", capStructure.getName());
+                    throw new IllegalStateException("Unknown bounding volume type: " + boundingVolume.getClass().getName());
+                }
+            }
+    
+            // adding object's offset
+            float[] objectOffset = new float[] { 0.0f, 0.0f, 0.0f };
+            Pointer pOffsetObject = (Pointer) modifierData.get("offsetob");
+            if (pOffsetObject != null) {
+                FileBlockHeader offsetObjectBlock = blenderContext.getFileBlock(pOffsetObject.getOldMemoryAddress());
+                ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+                try {// we take the structure in case the object was not yet loaded
+                    Structure offsetStructure = offsetObjectBlock.getStructure(blenderContext);
+                    Vector3f translation = objectHelper.getTransformation(offsetStructure, blenderContext).getTranslation();
+                    objectOffset[0] = translation.x;
+                    objectOffset[1] = translation.y;
+                    objectOffset[2] = translation.z;
+                } catch (BlenderFileException e) {
+                    LOGGER.log(Level.WARNING, "Problems in blender file structure! Object offset cannot be applied! The problem: {0}", e.getMessage());
+                }
+            }
+    
+            // getting start and end caps
+            Node[] caps = new Node[] { null, null };
+            Pointer[] pCaps = new Pointer[] { (Pointer) modifierData.get("startcap"), (Pointer) modifierData.get("endcap") };
+            for (int i = 0; i < pCaps.length; ++i) {
+                if (pCaps[i] != null) {
+                    caps[i] = (Node) blenderContext.getLoadedFeature(pCaps[i].getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+                    if (caps[i] != null) {
+                        caps[i] = (Node) caps[i].clone();
+                    } else {
+                        FileBlockHeader capBlock = blenderContext.getFileBlock(pOffsetObject.getOldMemoryAddress());
+                        try {// we take the structure in case the object was not yet loaded
+                            Structure capStructure = capBlock.getStructure(blenderContext);
+                            ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+                            caps[i] = (Node) objectHelper.toObject(capStructure, blenderContext);
+                            if (caps[i] == null) {
+                                LOGGER.log(Level.WARNING, "Cap object ''{0}'' couldn''t be loaded!", capStructure.getName());
+                            }
+                        } catch (BlenderFileException e) {
+                            LOGGER.log(Level.WARNING, "Problems in blender file structure! Cap object cannot be applied! The problem: {0}", e.getMessage());
                         }
-                    } catch (BlenderFileException e) {
-                        LOGGER.log(Level.WARNING, "Problems in blender file structure! Cap object cannot be applied! The problem: {0}", e.getMessage());
                     }
                 }
             }
+    
+            Vector3f translationVector = new Vector3f(offset[0] + scale[0] + objectOffset[0], offset[1] + scale[1] + objectOffset[1], offset[2] + scale[2] + objectOffset[2]);
+            if(blenderContext.getBlenderKey().isFixUpAxis()) {
+                float y = translationVector.y;
+                translationVector.y = translationVector.z;
+                translationVector.z = y == 0 ? 0 : -y;
+            }
+            
+            // getting/calculating repeats amount
+            int count = 0;
+            if (fittype == 0) {// Fixed count
+                count = ((Number) modifierData.get("count")).intValue() - 1;
+            } else if (fittype == 1) {// Fixed length
+                float length = ((Number) modifierData.get("length")).floatValue();
+                if (translationVector.length() > 0.0f) {
+                    count = (int) (length / translationVector.length()) - 1;
+                }
+            } else if (fittype == 2) {// Fit curve
+                throw new IllegalStateException("Fit curve should be transformed to Fixed Length array type!");
+            } else {
+                throw new IllegalStateException("Unknown fit type: " + fittype);
+            }
+    
+            // adding translated nodes and caps
+            if (count > 0) {
+                Node[] arrayNodes = new Node[count];
+                Vector3f newTranslation = new Vector3f();
+                for (int i = 0; i < count; ++i) {
+                    newTranslation.addLocal(translationVector);
+                    Node nodeClone = (Node) node.clone();
+                    nodeClone.setLocalTranslation(newTranslation);
+                    arrayNodes[i] = nodeClone;
+                }
+                for (Node nodeClone : arrayNodes) {
+                    node.attachChild(nodeClone);
+                }
+                if (caps[0] != null) {
+                    caps[0].getLocalTranslation().set(node.getLocalTranslation()).subtractLocal(translationVector);
+                    node.attachChild(caps[0]);
+                }
+                if (caps[1] != null) {
+                    caps[1].getLocalTranslation().set(newTranslation).addLocal(translationVector);
+                    node.attachChild(caps[1]);
+                }
+            }
         }
-
-        Vector3f translationVector = new Vector3f(offset[0] + scale[0] + objectOffset[0], offset[1] + scale[1] + objectOffset[1], offset[2] + scale[2] + objectOffset[2]);
-        if(blenderContext.getBlenderKey().isFixUpAxis()) {
-            float y = translationVector.y;
-            translationVector.y = translationVector.z;
-            translationVector.z = y == 0 ? 0 : -y;
-        }
-        
-        // getting/calculating repeats amount
-        int count = 0;
-        if (fittype == 0) {// Fixed count
-            count = ((Number) modifierData.get("count")).intValue() - 1;
-        } else if (fittype == 1) {// Fixed length
-            float length = ((Number) modifierData.get("length")).floatValue();
-            if (translationVector.length() > 0.0f) {
-                count = (int) (length / translationVector.length()) - 1;
-            }
-        } else if (fittype == 2) {// Fit curve
-            throw new IllegalStateException("Fit curve should be transformed to Fixed Length array type!");
-        } else {
-            throw new IllegalStateException("Unknown fit type: " + fittype);
-        }
-
-        // adding translated nodes and caps
-        if (count > 0) {
-            Node[] arrayNodes = new Node[count];
-            Vector3f newTranslation = new Vector3f();
-            for (int i = 0; i < count; ++i) {
-                newTranslation.addLocal(translationVector);
-                Node nodeClone = (Node) node.clone();
-                nodeClone.setLocalTranslation(newTranslation);
-                arrayNodes[i] = nodeClone;
-            }
-            for (Node nodeClone : arrayNodes) {
-                node.attachChild(nodeClone);
-            }
-            if (caps[0] != null) {
-                caps[0].getLocalTranslation().set(node.getLocalTranslation()).subtractLocal(translationVector);
-                node.attachChild(caps[0]);
-            }
-            if (caps[1] != null) {
-                caps[1].getLocalTranslation().set(newTranslation).addLocal(translationVector);
-                node.attachChild(caps[1]);
-            }
-        }
-        return node;
     }
 }
