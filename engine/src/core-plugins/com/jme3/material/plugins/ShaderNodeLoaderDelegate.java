@@ -256,7 +256,11 @@ public class ShaderNodeLoaderDelegate {
             } else if (line.startsWith("Output")) {
                 varNames = "";
                 for (Statement statement1 : statement.getContents()) {
-                    shaderNodeDefinition.getOutputs().add(readVariable(statement1));
+                    if(statement1.getLine().trim().equals("None")){
+                        shaderNodeDefinition.setNoOutput(true);
+                    }else{
+                        shaderNodeDefinition.getOutputs().add(readVariable(statement1));
+                    }
                 }
             } else {
                 throw new MatParseException("one of Type, Shader, Documentation, Input, Output", split[0], statement);
@@ -314,7 +318,10 @@ public class ShaderNodeLoaderDelegate {
             String[] split = statement.getLine().split("[ \\{]");
             if (line.startsWith("Definition")) {
                 ShaderNodeDefinition def = findDefinition(statement);
-                shaderNode.setDefinition(def);
+                shaderNode.setDefinition(def);                
+                if(def.isNoOutput()){
+                    techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(shaderNode.getName());
+                }
             } else if (line.startsWith("Condition")) {
                 String condition = line.substring(line.lastIndexOf(":") + 1).trim();
                 extractCondition(condition, statement);
@@ -325,12 +332,12 @@ public class ShaderNodeLoaderDelegate {
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(mapping.getRightVariable().getNameSpace());
                     shaderNode.getInputMapping().add(mapping);
                 }
-            } else if (line.startsWith("OutputMapping")) {
+            } else if (line.startsWith("OutputMapping")) {                
                 for (Statement statement1 : statement.getContents()) {
                     VariableMapping mapping = readOutputMapping(statement1);
                     techniqueDef.getShaderGenerationInfo().getUnusedNodes().remove(shaderNode.getName());
                     shaderNode.getOutputMapping().add(mapping);
-                }
+                }               
             } else {
                 throw new MatParseException("ShaderNodeDefinition", split[0], statement);
             }

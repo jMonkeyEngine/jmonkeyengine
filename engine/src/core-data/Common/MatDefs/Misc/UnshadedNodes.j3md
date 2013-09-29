@@ -6,11 +6,14 @@ MaterialDef UnshadedNodes {
         Color Color (Color)
         Boolean VertexColor (UseVertexColor)
         Boolean SeparateTexCoord
-     
-        //FOG parameters
-        Boolean UseFog
-        Float FogDensity :1
-        Color FogColor : 1 1 1 1
+
+        // Alpha threshold for fragment discarding
+        Float AlphaDiscardThreshold (AlphaTestFallOff)
+
+        // For hardware skinning
+        Int NumberOfBones
+        Matrix4Array BoneMatrices
+   
     }
 
     Technique {
@@ -21,16 +24,20 @@ MaterialDef UnshadedNodes {
             WorldViewMatrix
         }
       
-        VertexShaderNodes{            
-            ShaderNode FogFactor{
-                Definition: FogFactor : Common/MatDefs/ShaderNodes/Fog/Fog.j3sn
-                Condition: UseFog
-                InputMapping{  
-                    modelViewMatrix = WorldParam.WorldViewMatrix
-                    modelPosition = Global.position
-                    fogDensity = MatParam.FogDensity
-                }                
-            }           
+        VertexShaderNodes{    
+            ShaderNode GpuSkinning{
+                Definition: BasicGPUSkinning : Common/MatDefs/ShaderNodes/HardwareSkinning/HardwareSkinning.j3sn
+                Condition : NumberOfBones
+                InputMapping{
+                    modelPosition = Global.position;
+                    boneMatrices = MatParam.BoneMatrices
+                    boneWeight = Attr.inHWBoneWeight
+                    boneIndex = Attr.inHWBoneIndex
+                }
+                OutputMapping{
+                    Global.position = modModelPosition
+                }
+            }
             ShaderNode UnshadedVert{
                 Definition: CommonVert : Common/MatDefs/ShaderNodes/Common/CommonVert.j3sn
                 InputMapping{
@@ -44,8 +51,6 @@ MaterialDef UnshadedNodes {
                     Global.position = projPosition
                 }
             }
-           
-           
         }
         FragmentShaderNodes{
             ShaderNode UnshadedFrag{
@@ -61,6 +66,15 @@ MaterialDef UnshadedNodes {
                     Global.outColor = color
                 }
             }
+
+            ShaderNode AlphaDiscardThreshold{
+                Definition: AlphaDiscard : Common/MatDefs/ShaderNodes/Basic/AlphaDiscard.j3sn
+                Condition : AlphaDiscardThreshold
+                InputMapping{
+                    alpha = Global.outColor.a
+                    threshold =  MatParam.AlphaDiscardThreshold                  
+                }                
+            }
             ShaderNode LightMap{
                 Definition: LightMapping : Common/MatDefs/ShaderNodes/LightMapping/LightMapping.j3sn
                 Condition: LightMap
@@ -74,19 +88,7 @@ MaterialDef UnshadedNodes {
                     Global.outColor = color
                 }
             }            
-            
-            ShaderNode FogOutput{
-                Definition: FogOutput : Common/MatDefs/ShaderNodes/Fog/Fog.j3sn
-                Condition: UseFog
-                InputMapping{  
-                    fogFactor = FogFactor.fogFactor
-                    color = Global.outColor
-                    fogColor = MatParam.FogColor
-                }
-                OutputMapping{
-                    Global.outColor = color
-                }
-            }
+                      
         }        
 
     }

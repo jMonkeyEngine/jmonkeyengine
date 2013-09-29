@@ -58,6 +58,7 @@ public class ShaderNodeDefinition implements Savable {
     private List<ShaderNodeVariable> inputs = new ArrayList<ShaderNodeVariable>();
     private List<ShaderNodeVariable> outputs = new ArrayList<ShaderNodeVariable>();
     private String path = null;
+    private boolean noOutput = false;
 
     /**
      * creates a ShaderNodeDefinition
@@ -208,6 +209,14 @@ public class ShaderNodeDefinition implements Savable {
 
     public List<String> getShadersPath() {
         return shadersPath;
+    }
+
+    public boolean isNoOutput() {
+        return noOutput;
+    }
+
+    public void setNoOutput(boolean noOutput) {
+        this.noOutput = noOutput;
     }
 
     
