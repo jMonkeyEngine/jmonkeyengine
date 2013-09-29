@@ -69,11 +69,11 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
             LOGGER.log(Level.WARNING, "Mirror modifier is invalid! Cannot be applied to: {0}", node.getName());
         } else {
             int flag = ((Number) modifierData.get("flag")).intValue();
-            float[] mirrorFactor = new float[] { (flag & 0x08) != 0 ? -1.0f : 1.0f, (flag & 0x10) != 0 ? -1.0f : 1.0f, (flag & 0x20) != 0 ? -1.0f : 1.0f };
+            boolean[] isMirrored = new boolean[] { (flag & 0x08) != 0, (flag & 0x10) != 0, (flag & 0x20) != 0 };
             if (blenderContext.getBlenderKey().isFixUpAxis()) {
-                float temp = mirrorFactor[1];
-                mirrorFactor[1] = mirrorFactor[2];
-                mirrorFactor[2] = temp;
+                boolean temp = isMirrored[1];
+                isMirrored[1] = isMirrored[2];
+                isMirrored[2] = temp;
             }
             float[] center = new float[] { 0.0f, 0.0f, 0.0f };
             Pointer pObject = (Pointer) modifierData.get("mirrorob");
@@ -101,7 +101,7 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
             Set<Integer> modifiedIndexes = new HashSet<Integer>();
             List<Geometry> geometriesToAdd = new ArrayList<Geometry>();
             for (int mirrorIndex = 0; mirrorIndex < 3; ++mirrorIndex) {
-                if (mirrorFactor[mirrorIndex] == -1.0f) {
+                if (isMirrored[mirrorIndex]) {
                     for (Spatial spatial : node.getChildren()) {
                         if (spatial instanceof Geometry) {
                             Mesh mesh = ((Geometry) spatial).getMesh();
@@ -135,15 +135,21 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
                                         if (bindPosePosition != null) {
                                             bindPosePosition.put(valueIndex, center[mirrorIndex]);
                                         }
+                                        
+                                        cloneNormals.put(valueIndex, 0);
+                                        if (cloneBindPoseNormals != null) {
+                                            cloneBindPoseNormals.put(valueIndex, 0);
+                                        }
                                     } else {
                                         clonePosition.put(valueIndex, value + 2.0f * d);
                                         if (cloneBindPosePosition != null) {
                                             cloneBindPosePosition.put(valueIndex, value + 2.0f * d);
                                         }
-                                    }
-                                    cloneNormals.put(valueIndex, -cloneNormals.get(valueIndex));
-                                    if (cloneBindPoseNormals != null) {
-                                        cloneBindPoseNormals.put(valueIndex, -cloneNormals.get(valueIndex));
+                                        
+                                        cloneNormals.put(valueIndex, -cloneNormals.get(valueIndex));
+                                        if (cloneBindPoseNormals != null) {
+                                            cloneBindPoseNormals.put(valueIndex, -cloneNormals.get(valueIndex));
+                                        }
                                     }
                                 }
                             }
