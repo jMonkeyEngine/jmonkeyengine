@@ -620,6 +620,25 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * Android Only
+     * Sets the number of alpha bits to use.
+     * <p>
+     * The number of alpha bits specifies the precision of the surface view
+     * background alpha value.  To set the surface view to opaque (fastest setting),
+     * leave the number of alpha bits = 0.  This will cause faster rendering,
+     * but android views located behind the surface view will not be viewable.
+     * To set the surface view to translucent, set the number of alphaBits to 8
+     * or higher.  Values less than 8 (except 0) will set the surface view pixel
+     * format to transparent. <p>
+     * (Default: 0)
+     *
+     * @param value The alpha bits
+     */
+    public void setAlphaBits(int value){
+        putInteger("AlphaBits", value);
+    }
+
+    /**
      * Set the number of stencil bits.
      * <p>
      * This value is only relevant when the stencil buffer is being used.
@@ -805,6 +824,15 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public int getDepthBits() {
         return getInteger("DepthBits");
+    }
+
+    /**
+     * Android Only
+     * Get the number of alpha bits for the surface view to use.
+     * @see #setAlphaBits(int)
+     */
+    public int getAlphaBits() {
+        return getInteger("AlphaBits");
     }
 
     /**
