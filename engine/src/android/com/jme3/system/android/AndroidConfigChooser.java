@@ -1,7 +1,5 @@
 package com.jme3.system.android;
 
-import android.graphics.PixelFormat;
-import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.EGLConfigChooser;
 import com.jme3.renderer.android.RendererUtil;
 import com.jme3.system.AppSettings;
@@ -14,20 +12,16 @@ import javax.microedition.khronos.egl.EGLDisplay;
 /**
  * AndroidConfigChooser is used to determine the best suited EGL Config
  *
- * @author larynx
+ * @author iwgeric
  */
 public class AndroidConfigChooser implements EGLConfigChooser {
 
     private static final Logger logger = Logger.getLogger(AndroidConfigChooser.class.getName());
-    public final static String SETTINGS_CONFIG_TYPE = "configType";
-    protected EGLConfig choosenConfig = null;
-    protected EGLDisplay configForDisplay = null;
     protected AppSettings settings;
-    protected GLSurfaceView view;
-    protected int pixelFormat;
-    protected boolean verbose = false;
     private final static int EGL_OPENGL_ES2_BIT = 4;
 
+
+    @Deprecated
     public enum ConfigType {
 
         /**
@@ -75,24 +69,224 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         }
     }
 
-    /**
-     *
-     * @param type
-     * @deprecated use AndroidConfigChooser(AppSettings settings)
-     */
-    @Deprecated
-    public AndroidConfigChooser(ConfigType type) {
-        this.settings = new AppSettings(true);
-        settings.put(SETTINGS_CONFIG_TYPE, type);
-    }
-
     public AndroidConfigChooser(AppSettings settings) {
         this.settings = settings;
     }
 
-    public AndroidConfigChooser(AppSettings settings, GLSurfaceView view) {
-        this(settings);
-        this.view = view;
+    /**
+     * Gets called by the GLSurfaceView class to return the best config
+     */
+    @Override
+    public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
+        logger.fine("GLSurfaceView asking for egl config");
+        Config requestedConfig = getRequestedConfig();
+        EGLConfig[] configs = getConfigs(egl, display);
+
+        // First try to find an exact match, but allowing a higher stencil
+        EGLConfig choosenConfig = chooseConfig(egl, display, configs, requestedConfig, false, false, false, true);
+        if (choosenConfig == null && requestedConfig.d > 16) {
+            logger.log(Level.INFO, "EGL configuration not found, reducing depth");
+            requestedConfig.d = 16;
+            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, false, false, false, true);
+        }
+
+        if (choosenConfig == null) {
+            logger.log(Level.INFO, "EGL configuration not found, allowing higher RGB");
+            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
+        }
+
+        if (choosenConfig == null && requestedConfig.a > 0) {
+            logger.log(Level.INFO, "EGL configuration not found, allowing higher alpha");
+            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
+        }
+
+        if (choosenConfig == null && requestedConfig.s > 0) {
+            logger.log(Level.INFO, "EGL configuration not found, allowing higher samples");
+            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, true, true);
+        }
+
+        if (choosenConfig == null && requestedConfig.a > 0) {
+            logger.log(Level.INFO, "EGL configuration not found, reducing alpha");
+            requestedConfig.a = 1;
+            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
+        }
+
+        if (choosenConfig == null && requestedConfig.s > 0) {
+            logger.log(Level.INFO, "EGL configuration not found, reducing samples");
+            requestedConfig.s = 1;
+            if (requestedConfig.a > 0) {
+                choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, true, true);
+            } else {
+                choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, true, true);
+            }
+        }
+
+        if (choosenConfig == null && requestedConfig.getBitsPerPixel() > 16) {
+            logger.log(Level.INFO, "EGL configuration not found, setting to RGB565");
+            requestedConfig.r = 5;
+            requestedConfig.g = 6;
+            requestedConfig.b = 5;
+            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
+
+            if (choosenConfig == null) {
+                logger.log(Level.INFO, "EGL configuration not found, allowing higher alpha");
+                choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, true, false, true);
+            }
+        }
+
+        if (choosenConfig == null) {
+            logger.log(Level.INFO, "EGL configuration not found, looking for best config with >= 16 bit Depth");
+            //failsafe, should pick best config with at least 16 depth
+            requestedConfig = new Config(0, 0, 0, 0, 16, 0, 0);
+            choosenConfig = chooseConfig(egl, display, configs, requestedConfig, true, false, false, true);
+        }
+
+        if (choosenConfig != null) {
+            logger.fine("GLSurfaceView asks for egl config, returning: ");
+            logEGLConfig(choosenConfig, display, egl, Level.FINE);
+
+            storeSelectedConfig(egl, display, choosenConfig);
+            return choosenConfig;
+        } else {
+            logger.severe("No EGL Config found");
+            return null;
+        }
+    }
+
+    private Config getRequestedConfig() {
+        int r, g, b;
+        if (settings.getBitsPerPixel() == 24) {
+            r = g = b = 8;
+        } else {
+            if (settings.getBitsPerPixel() != 16) {
+                logger.log(Level.SEVERE, "Invalid bitsPerPixel setting: {0}, setting to RGB565 (16)", settings.getBitsPerPixel());
+                settings.setBitsPerPixel(16);
+            }
+            r = 5;
+            g = 6;
+            b = 5;
+        }
+        logger.log(Level.FINE, "Requested Display Config:");
+        logger.log(Level.FINE, "RGB: {0}, alpha: {1}, depth: {2}, samples: {3}, stencil: {4}",
+                new Object[]{settings.getBitsPerPixel(),
+                    settings.getAlphaBits(), settings.getDepthBits(),
+                    settings.getSamples(), settings.getStencilBits()});
+        return new Config(
+                r, g, b,
+                settings.getAlphaBits(),
+                settings.getDepthBits(),
+                settings.getSamples(),
+                settings.getStencilBits());
+    }
+
+    /**
+     * Query egl for the available configs
+     * @param egl
+     * @param display
+     * @return
+     */
+    private EGLConfig[] getConfigs(EGL10 egl, EGLDisplay display) {
+
+        int[] num_config = new int[1];
+        int[] configSpec = new int[]{
+            EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+            EGL10.EGL_NONE};
+
+        if (!egl.eglChooseConfig(display, configSpec, null, 0, num_config)) {
+            RendererUtil.checkEGLError(egl);
+            throw new AssertionError();
+        }
+
+        int numConfigs = num_config[0];
+        EGLConfig[] configs = new EGLConfig[numConfigs];
+        if (!egl.eglChooseConfig(display, configSpec, configs, numConfigs, num_config)) {
+            RendererUtil.checkEGLError(egl);
+            throw new AssertionError();
+        }
+
+        logger.fine("--------------Display Configurations---------------");
+        for (EGLConfig eGLConfig : configs) {
+            logEGLConfig(eGLConfig, display, egl, Level.FINE);
+            logger.fine("----------------------------------------");
+        }
+
+        return configs;
+    }
+
+    private EGLConfig chooseConfig(
+            EGL10 egl, EGLDisplay display, EGLConfig[] configs, Config requestedConfig,
+            boolean higherRGB, boolean higherAlpha,
+            boolean higherSamples, boolean higherStencil) {
+
+        EGLConfig keptConfig = null;
+        int kr = 0;
+        int kg = 0;
+        int kb = 0;
+        int ka = 0;
+        int kd = 0;
+        int ks = 0;
+        int kst = 0;
+
+
+        // first pass through config list.  Try to find an exact match.
+        for (EGLConfig config : configs) {
+            int r = eglGetConfigAttribSafe(egl, display, config,
+                    EGL10.EGL_RED_SIZE);
+            int g = eglGetConfigAttribSafe(egl, display, config,
+                    EGL10.EGL_GREEN_SIZE);
+            int b = eglGetConfigAttribSafe(egl, display, config,
+                    EGL10.EGL_BLUE_SIZE);
+            int a = eglGetConfigAttribSafe(egl, display, config,
+                    EGL10.EGL_ALPHA_SIZE);
+            int d = eglGetConfigAttribSafe(egl, display, config,
+                    EGL10.EGL_DEPTH_SIZE);
+            int s = eglGetConfigAttribSafe(egl, display, config,
+                    EGL10.EGL_SAMPLES);
+            int st = eglGetConfigAttribSafe(egl, display, config,
+                    EGL10.EGL_STENCIL_SIZE);
+
+            logger.log(Level.FINE, "Checking Config r: {0}, g: {1}, b: {2}, alpha: {3}, depth: {4}, samples: {5}, stencil: {6}",
+                    new Object[]{r, g, b, a, d, s, st});
+
+            if (higherRGB && r < requestedConfig.r) { continue; }
+            if (!higherRGB && r != requestedConfig.r) { continue; }
+
+            if (higherRGB && g < requestedConfig.g) { continue; }
+            if (!higherRGB && g != requestedConfig.g) { continue; }
+
+            if (higherRGB && b < requestedConfig.b) { continue; }
+            if (!higherRGB && b != requestedConfig.b) { continue; }
+
+            if (higherAlpha && a < requestedConfig.a) { continue; }
+            if (!higherAlpha && a != requestedConfig.a) { continue; }
+
+            if (d < requestedConfig.d) { continue; } // always allow higher depth
+
+            if (higherSamples && s < requestedConfig.s) { continue; }
+            if (!higherSamples && s != requestedConfig.s) { continue; }
+
+            if (higherStencil && st < requestedConfig.st) { continue; }
+            if (!higherStencil && !inRange(st, 0, requestedConfig.st)) { continue; }
+
+            //we keep the config if it is better
+            if (    r >= kr || g >= kg || b >= kb || a >= ka ||
+                    d >= kd || s >= ks || st >= kst ) {
+                kr = r; kg = g; kb = b; ka = a;
+                kd = d; ks = s; kst = st;
+                keptConfig = config;
+                logger.log(Level.FINE, "Keeping Config r: {0}, g: {1}, b: {2}, alpha: {3}, depth: {4}, samples: {5}, stencil: {6}",
+                        new Object[]{r, g, b, a, d, s, st});
+            }
+
+        }
+
+        if (keptConfig != null) {
+            return keptConfig;
+        }
+
+        //no match found
+        logger.log(Level.SEVERE, "No egl config match found");
+        return null;
     }
 
     private static int eglGetConfigAttribSafe(EGL10 egl, EGLDisplay display, EGLConfig config, int attribute) {
@@ -104,83 +298,20 @@ public class AndroidConfigChooser implements EGLConfigChooser {
         return value[0];
     }
 
-    /**
-     * Gets called by the GLSurfaceView class to return the best config
-     */
-    @Override
-    public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
-        logger.fine("GLSurfaceView asking for egl config");
-        boolean configFound = findConfig(egl, display);
-        if (configFound) {
-            logger.fine("GLSurfaceView asks for egl config, returning: ");
-            logEGLConfig(choosenConfig, display, egl, Level.FINE);
-            view.getHolder().setFormat(pixelFormat);
-            return choosenConfig;
-        } else {
-            logger.fine("GLSurfaceView asks for egl config, No config found");
-            return null;
-        }
-    }
+    private void storeSelectedConfig(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
+        int r = eglGetConfigAttribSafe(egl, display, eglConfig, EGL10.EGL_RED_SIZE);
+        int g = eglGetConfigAttribSafe(egl, display, eglConfig, EGL10.EGL_GREEN_SIZE);
+        int b = eglGetConfigAttribSafe(egl, display, eglConfig, EGL10.EGL_BLUE_SIZE);
+        settings.setBitsPerPixel(r+g+b);
 
-    /**
-     * findConfig is used to locate the best config and init the chooser with
-     *
-     * @param egl
-     * @param display
-     * @return true if successfull, false if no config was found
-     */
-    private boolean findConfig(EGL10 egl, EGLDisplay display) {
-        ConfigType type = (ConfigType) settings.get(SETTINGS_CONFIG_TYPE);
-
-        ComponentSizeChooser compChooser = new ComponentSizeChooser(type, settings.getSamples());
-        choosenConfig = compChooser.chooseConfig(egl, display);
-        logger.log(Level.FINE, "JME3 using {0} EGL configuration available here: ", type.name());
-
-        if (choosenConfig != null) {
-            // Remember the display for which we have the EGLConfig for
-            configForDisplay = display;
-            logger.info("JME3 using choosen config: ");
-            logEGLConfig(choosenConfig, display, egl, Level.INFO);
-            pixelFormat = getPixelFormat(choosenConfig, display, egl);
-            if (pixelFormat == PixelFormat.TRANSLUCENT) {
-                view.setZOrderOnTop(true);
-            }
-            return true;
-        } else {
-            logger.severe("ERROR: Unable to get a valid OpenGL ES 2.0 config, neither Fastest nor Best found! Bug. Please report this.");
-            pixelFormat = PixelFormat.UNKNOWN;
-            return false;
-        }
-    }
-
-    private int getPixelFormat(EGLConfig conf, EGLDisplay display, EGL10 egl) {
-        //Android Pixel format is not very well documented.
-        //From what i gathered, the format is chosen automatically except for the alpha channel
-        //if the alpha channel has 8 bit or more, e set the pixel format to Transluscent, as it allow transparent view background
-        //if it's 0 bit, the format is OPAQUE otherwise it's TRANSPARENT
-        int result = eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_ALPHA_SIZE);
-
-        if (result >= 8) {
-            logger.log(Level.FINE, "Pixel Format: TRANSLUCENT");
-            return PixelFormat.TRANSLUCENT;
-        }
-        if (result >= 1) {
-            logger.log(Level.FINE, "Pixel Format: TRANSPARENT");
-            return PixelFormat.TRANSPARENT;
-        }
-
-        logger.log(Level.FINE, "Pixel Format: OPAQUE");
-        return PixelFormat.OPAQUE;
-    }
-
-    private int getOpenGLVersion(EGLConfig conf, EGLDisplay display, EGL10 egl) {
-        int val = eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_RENDERABLE_TYPE);
-        // Check if conf is OpenGL ES 2.0
-        if ((val & EGL_OPENGL_ES2_BIT) != 0) {
-            return 2;
-        } else {
-            return 1;
-        }
+        settings.setAlphaBits(
+                eglGetConfigAttribSafe(egl, display, eglConfig, EGL10.EGL_ALPHA_SIZE));
+        settings.setDepthBits(
+                eglGetConfigAttribSafe(egl, display, eglConfig, EGL10.EGL_DEPTH_SIZE));
+        settings.setSamples(
+                eglGetConfigAttribSafe(egl, display, eglConfig, EGL10.EGL_SAMPLES));
+        settings.setStencilBits(
+                eglGetConfigAttribSafe(egl, display, eglConfig, EGL10.EGL_STENCIL_SIZE));
     }
 
     /**
@@ -223,161 +354,31 @@ public class AndroidConfigChooser implements EGLConfigChooser {
                 eglGetConfigAttribSafe(egl, display, conf, EGL10.EGL_SAMPLES));
     }
 
-    private abstract class BaseConfigChooser implements EGLConfigChooser {
-
-        public BaseConfigChooser() {
-        }
-
-        @Override
-        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
-
-            int[] num_config = new int[1];
-            int[] configSpec = new int[]{
-                EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-                EGL10.EGL_NONE};
-
-            if (!egl.eglChooseConfig(display, configSpec, null, 0, num_config)) {
-                RendererUtil.checkEGLError(egl);
-                throw new AssertionError();
-            }
-
-            int numConfigs = num_config[0];
-            EGLConfig[] configs = new EGLConfig[numConfigs];
-            if (!egl.eglChooseConfig(display, configSpec, configs, numConfigs, num_config)) {
-                RendererUtil.checkEGLError(egl);
-                throw new AssertionError();
-            }
-
-            logger.fine("--------------Display Configurations---------------");
-            for (EGLConfig eGLConfig : configs) {
-                logEGLConfig(eGLConfig, display, egl, Level.FINE);
-                logger.fine("----------------------------------------");
-            }
-
-            EGLConfig config = chooseConfig(egl, display, configs);
-            return config;
-        }
-
-        abstract EGLConfig chooseConfig(EGL10 egl, EGLDisplay display,
-                EGLConfig[] configs);
+    private boolean inRange(int val, int min, int max) {
+        return min <= val && val <= max;
     }
 
-    /**
-     * Choose a configuration with exactly the specified r,g,b,a sizes, and at
-     * least the specified depth and stencil sizes.
-     */
-    private class ComponentSizeChooser extends BaseConfigChooser {
+    private class Config {
+        /**
+         * red, green, blue, alpha, depth, samples, stencil
+         */
+        int r, g, b, a, d, s, st;
 
-        private ConfigType configType;
-        protected int mSamples;
-
-        public ComponentSizeChooser(ConfigType configType, int samples) {
-            mSamples = samples;
-            this.configType = configType;
+        private Config(int r, int g, int b, int a, int d, int s, int st) {
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+            this.d = d;
+            this.s = s;
+            this.st = st;
         }
 
-        @Override
-        public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display, EGLConfig[] configs) {
-
-            EGLConfig keptConfig = null;
-            int kd = 0;
-            int knbMs = 0;
-
-
-            // first pass through config list.  Try to find an exact match.
-            for (EGLConfig config : configs) {
-                int r = eglGetConfigAttribSafe(egl, display, config,
-                        EGL10.EGL_RED_SIZE);
-                int g = eglGetConfigAttribSafe(egl, display, config,
-                        EGL10.EGL_GREEN_SIZE);
-                int b = eglGetConfigAttribSafe(egl, display, config,
-                        EGL10.EGL_BLUE_SIZE);
-                int a = eglGetConfigAttribSafe(egl, display, config,
-                        EGL10.EGL_ALPHA_SIZE);
-                int d = eglGetConfigAttribSafe(egl, display, config,
-                        EGL10.EGL_DEPTH_SIZE);
-                int s = eglGetConfigAttribSafe(egl, display, config,
-                        EGL10.EGL_STENCIL_SIZE);
-                int isMs = eglGetConfigAttribSafe(egl, display, config,
-                        EGL10.EGL_SAMPLE_BUFFERS);
-                int nbMs = eglGetConfigAttribSafe(egl, display, config,
-                        EGL10.EGL_SAMPLES);
-
-                if (inRange(r, configType.mr, configType.r)
-                        && inRange(g, configType.mg, configType.g)
-                        && inRange(b, configType.mb, configType.b)
-                        && inRange(a, configType.ma, configType.a)
-                        && inRange(d, configType.md, configType.d)
-                        && inRange(s, configType.ms, configType.s)) {
-                    if (mSamples == 0 && isMs != 0) {
-                        continue;
-                    }
-                    boolean keep;
-                    //we keep the config if the depth is better or if the AA setting is better
-                    if (d >= kd) {
-                        kd = d;
-                        keep = true;
-                    } else {
-                        keep = false;
-                    }
-
-                    if (mSamples != 0) {
-                        if (nbMs >= knbMs && nbMs <= mSamples) {
-                            knbMs = nbMs;
-                            keep = true;
-                        } else {
-                            keep = false;
-                        }
-                    }
-
-                    if (keep) {
-                        keptConfig = config;
-                    }
-                }
-            }
-
-            if (keptConfig != null) {
-                return keptConfig;
-            }
-
-            if (configType == ConfigType.BEST) {
-                logger.log(Level.WARNING, "Failed to find a suitable display configuration for BEST, attempting BEST_TRANSLUCENT");
-                configType = ConfigType.BEST_TRANSLUCENT;
-                keptConfig = chooseConfig(egl, display, configs);
-                if (keptConfig != null) {
-                    return keptConfig;
-                }
-            }
-
-            if (configType == ConfigType.BEST_TRANSLUCENT) {
-                logger.log(Level.WARNING, "Failed to find a suitable display configuration for BEST_TRANSLUCENT, attempting FASTEST");
-                configType = ConfigType.FASTEST;
-                keptConfig = chooseConfig(egl, display, configs);
-
-                if (keptConfig != null) {
-                    return keptConfig;
-                }
-            }
-
-            logger.log(Level.WARNING, "Failed to find a suitable display configuration for FASTEST, hoping for the best...");
-
-            // failsafe. pick the 1st config with a 16 bit depth buffer.
-            for (EGLConfig config : configs) {
-                int d = eglGetConfigAttribSafe(egl, display, config,
-                        EGL10.EGL_DEPTH_SIZE);
-                if (d >= 16) {
-                    return config;
-                }
-            }
-
-            //nothing much we can do...
-            return null;
-        }
-
-        private boolean inRange(int val, int min, int max) {
-            return min <= val && val <= max;
+        private int getBitsPerPixel() {
+            return r+g+b;
         }
     }
+
 //DON'T REMOVE THIS, USED FOR UNIT TESTING FAILING CONFIGURATION LISTS.
 //    private static class Config {
 //

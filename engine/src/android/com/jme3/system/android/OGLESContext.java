@@ -37,9 +37,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ConfigurationInfo;
+import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.ViewGroup.LayoutParams;
@@ -52,11 +52,8 @@ import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.android.AndroidGLSurfaceView;
-import com.jme3.renderer.RendererException;
 import com.jme3.renderer.android.OGLESShaderRenderer;
-import com.jme3.renderer.android.RendererUtil;
 import com.jme3.system.*;
-import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -102,33 +99,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      * GLSurfaceView. Only one GLSurfaceView can be created at this time. The
      * given configType specifies how to determine the display configuration.
      *
-     *
-     * @param configType ConfigType.FASTEST (Default) | ConfigType.LEGACY |
-     * ConfigType.BEST
-     * @param eglConfigVerboseLogging if true show all found configs
-     * @return GLSurfaceView The newly created view
-     * @deprecated AndroidGLSurfaceView createView()
-     * and put the configType in the appSettigs with the key AndroidConfigChoose.SETTINGS_CONFIG_TYPE
-     */
-    @Deprecated
-    public AndroidGLSurfaceView createView(ConfigType configType, boolean eglConfigVerboseLogging) {
-        settings.put(AndroidConfigChooser.SETTINGS_CONFIG_TYPE, configType);
-        return this.createView();
-    }
-    /**
-     * <code>createView</code> creates the GLSurfaceView that the renderer will
-     * draw to. <p> The result GLSurfaceView will receive input events and
-     * forward them to the Application. Any rendering will be done into the
-     * GLSurfaceView. Only one GLSurfaceView can be created at this time. The
-     * given configType specifies how to determine the display configuration.
-     *
-     *
-     * @param eglConfigVerboseLogging if true show all found configs
      * @return GLSurfaceView The newly created view
      */
     public AndroidGLSurfaceView createView() {
         AndroidGLSurfaceView view;
-        ConfigType configType = (ConfigType)settings.get(AndroidConfigChooser.SETTINGS_CONFIG_TYPE);
 
         // Start to set up the view
         view = new AndroidGLSurfaceView(JmeAndroidSystem.getActivity().getApplication());
@@ -138,9 +112,11 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         androidInput.setView(view);
         androidInput.loadSettings(settings);
 
+        // setEGLContextClientVersion must be set before calling setRenderer
+        // this means it cannot be set in AndroidConfigChooser (too late)
         int rawOpenGLESVersion = getOpenGLESVersion();
-        logger.log(Level.FINE, "clientOpenGLESVersion {0}.{1}",
-                new Object[]{clientOpenGLESVersion>>16, clientOpenGLESVersion<<16});
+//        logger.log(Level.FINE, "clientOpenGLESVersion {0}.{1}",
+//                new Object[]{clientOpenGLESVersion>>16, clientOpenGLESVersion<<16});
         if (rawOpenGLESVersion < 0x20000) {
             throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
         } else {
@@ -152,9 +128,29 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         view.setFocusable(true);
         view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
 
-        AndroidConfigChooser configChooser = new AndroidConfigChooser(settings, view);
-        view.setEGLConfigChooser(configChooser);
+        // setFormat must be set before AndroidConfigChooser is called by the surfaceview.
+        // if setFormat is called after ConfigChooser is called, then execution
+        // stops at the setFormat call without a crash.
+        // We look at the user setting for alpha bits and set the surfaceview
+        // PixelFormat to either Opaque, Transparent, or Translucent.
+        // ConfigChooser will do it's best to honor the alpha requested by the user
+        // For best rendering performance, use Opaque (alpha bits = 0).
+        int curAlphaBits = settings.getAlphaBits();
+        logger.log(Level.FINE, "curAlphaBits: {0}", curAlphaBits);
+        if (curAlphaBits >= 8) {
+            logger.log(Level.FINE, "Pixel Format: TRANSLUCENT");
+            view.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+            view.setZOrderOnTop(true);
+        } else if (curAlphaBits >= 1) {
+            logger.log(Level.FINE, "Pixel Format: TRANSPARENT");
+            view.getHolder().setFormat(PixelFormat.TRANSPARENT);
+        } else {
+            logger.log(Level.FINE, "Pixel Format: OPAQUE");
+            view.getHolder().setFormat(PixelFormat.OPAQUE);
+        }
 
+        AndroidConfigChooser configChooser = new AndroidConfigChooser(settings);
+        view.setEGLConfigChooser(configChooser);
         view.setRenderer(this);
 
         return view;
