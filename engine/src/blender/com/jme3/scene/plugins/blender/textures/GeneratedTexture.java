@@ -147,7 +147,6 @@ import com.jme3.texture.TextureCubeMap;
         float delta = 1 / (float) (size - 1);
         float sideV, sideS = 1, forwardU = 1, forwardV, upS;
 
-        long time = System.currentTimeMillis();
         for (int x = 0; x < size; ++x) {
             sideV = 1;
             forwardV = 1;
@@ -178,8 +177,6 @@ import com.jme3.texture.TextureCubeMap;
             sideS = FastMath.clamp(sideS - delta, 0, 1);
             forwardU = FastMath.clamp(forwardU - delta, 0, 1);
         }
-
-        System.out.println(System.currentTimeMillis() - time);
 
         return new TextureCubeMap(image);
     }
