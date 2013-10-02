@@ -31,6 +31,7 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
@@ -38,6 +39,7 @@ import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -59,7 +61,45 @@ public class ColorBand {
     public static final int     IPO_CONSTANT = 4;
 
     private int                 cursorsAmount, ipoType;
+    /** The default amount of possible cursor positions. */
+    private int                 resultSize   = 1001;
     private ColorBandData[]     data;
+
+    /**
+     * A constructor used to instantiate color band by hand instead of reading it from the blend file.
+     * @param ipoType
+     *            the interpolation type
+     * @param colors
+     *            the colorband colors
+     * @param positions
+     *            the positions for colors' cursors
+     * @param resultSize
+     *            the size of the result table
+     */
+    public ColorBand(int ipoType, List<ColorRGBA> colors, List<Integer> positions, int resultSize) {
+        if (colors == null || colors.size() < 1) {
+            throw new IllegalArgumentException("The amount of colorband's colors must be at least 1.");
+        }
+        if (ipoType < IPO_LINEAR || ipoType > IPO_CONSTANT) {
+            throw new IllegalArgumentException("Unknown colorband interpolation type: " + ipoType);
+        }
+        if (positions == null || positions.size() != colors.size()) {
+            throw new IllegalArgumentException("The size of positions and colors list should be equal!");
+        }
+        for (Integer position : positions) {
+            if (position.intValue() < 0 || position.intValue() >= resultSize) {
+                throw new IllegalArgumentException("Invalid position value: " + position + "! Should be from range: [0, " + resultSize + "]!");
+            }
+        }
+
+        cursorsAmount = colors.size();
+        this.ipoType = ipoType;
+        this.resultSize = resultSize;
+        data = new ColorBandData[this.cursorsAmount];
+        for (int i = 0; i < cursorsAmount; ++i) {
+            data[i] = new ColorBandData(colors.get(i), positions.get(i));
+        }
+    }
 
     /**
      * Constructor. Loads the data from the given structure.
@@ -113,11 +153,8 @@ public class ColorBand {
     public float[][] computeValues() {
         float[][] result = null;
         if (data != null) {
-            result = new float[1001][4];// 1001 - amount of possible cursor
-                                        // positions; 4 = [r, g, b, a]
-
-            if (data.length == 1) {// special case; use only one color for all
-                                   // types of colorband interpolation
+            result = new float[resultSize][4];// resultSize - amount of possible cursor positions; 4 = [r, g, b, a]
+            if (data.length == 1) {// special case; use only one color for all types of colorband interpolation
                 for (int i = 0; i < result.length; ++i) {
                     result[i][0] = data[0].r;
                     result[i][1] = data[0].g;
@@ -167,7 +204,7 @@ public class ColorBand {
                         if (data[0].pos == 0) {
                             cbDataMap.put(Integer.valueOf(-1), data[0]);
                         } else {
-                            ColorBandData cbData = data[0].clone();
+                            ColorBandData cbData = new ColorBandData(data[0]);
                             cbData.pos = 0;
                             cbDataMap.put(Integer.valueOf(-1), cbData);
                             cbDataMap.put(Integer.valueOf(-2), cbData);
@@ -176,7 +213,7 @@ public class ColorBand {
                         if (data[data.length - 1].pos == 1000) {
                             cbDataMap.put(Integer.valueOf(data.length), data[data.length - 1]);
                         } else {
-                            ColorBandData cbData = data[data.length - 1].clone();
+                            ColorBandData cbData = new ColorBandData(data[data.length - 1]);
                             cbData.pos = 1000;
                             cbDataMap.put(Integer.valueOf(data.length), cbData);
                             cbDataMap.put(Integer.valueOf(data.length + 1), cbData);
@@ -307,13 +344,28 @@ public class ColorBand {
      * 
      * @author Marcin Roguski (Kaelthas)
      */
-    private static class ColorBandData implements Cloneable {
+    private static class ColorBandData {
         public final float r, g, b, a;
         public int         pos;
 
         public ColorBandData() {
             r = g = b = 0;
             a = 1;
+        }
+
+        /**
+         * Constructor that stores the color and position of the cursor.
+         * @param color
+         *            the cursor's color
+         * @param pos
+         *            the cursor's position
+         */
+        public ColorBandData(ColorRGBA color, int pos) {
+            r = color.r;
+            g = color.g;
+            b = color.b;
+            a = color.a;
+            this.pos = pos;
         }
 
         /**
@@ -339,15 +391,6 @@ public class ColorBand {
             this.b = ((Number) cbdataStructure.getFieldValue("b")).floatValue();
             this.a = ((Number) cbdataStructure.getFieldValue("a")).floatValue();
             this.pos = (int) (((Number) cbdataStructure.getFieldValue("pos")).floatValue() * 1000.0f);
-        }
-
-        @Override
-        public ColorBandData clone() {
-            try {
-                return (ColorBandData) super.clone();
-            } catch (CloneNotSupportedException e) {
-                return new ColorBandData(this);
-            }
         }
 
         @Override

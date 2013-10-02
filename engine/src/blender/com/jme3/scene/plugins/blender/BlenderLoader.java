@@ -41,7 +41,6 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.LoadingResults;
-import com.jme3.asset.BlenderKey.WorldData;
 import com.jme3.asset.ModelKey;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.LightNode;
@@ -56,6 +55,7 @@ import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.landscape.LandscapeHelper;
 import com.jme3.scene.plugins.blender.lights.LightHelper;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
 import com.jme3.scene.plugins.blender.meshes.MeshHelper;
@@ -82,7 +82,6 @@ public class BlenderLoader extends AbstractBlenderLoader {
             List<FileBlockHeader> sceneBlocks = new ArrayList<FileBlockHeader>();
             BlenderKey blenderKey = blenderContext.getBlenderKey();
             LoadingResults loadingResults = blenderKey.prepareLoadingResults();
-            WorldData worldData = null;// a set of data used in different scene aspects
             for (FileBlockHeader block : blocks) {
                 switch (block.getCode()) {
                     case FileBlockHeader.BLOCK_OB00:// Object
@@ -109,14 +108,14 @@ public class BlenderLoader extends AbstractBlenderLoader {
                         }
                         break;
                     case FileBlockHeader.BLOCK_WO00:// World
-                        if (blenderKey.isLoadUnlinkedAssets() && worldData == null) {// onlu one world data is used
+                        if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.WORLD) != 0) {
                             Structure worldStructure = block.getStructure(blenderContext);
                             String worldName = worldStructure.getName();
                             if (blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
-                                worldData = this.toWorldData(worldStructure);
-                                if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
-                                    loadingResults.addLight(worldData.getAmbientLight());
-                                }
+                                LandscapeHelper landscapeHelper = blenderContext.getHelper(LandscapeHelper.class);
+                                loadingResults.addLight(landscapeHelper.toAmbientLight(worldStructure));
+                                loadingResults.setSky(landscapeHelper.toSky(worldStructure));
+                                loadingResults.setBackgroundColor(landscapeHelper.toBackgroundColor(worldStructure));
                             }
                         }
                         break;
@@ -206,7 +205,8 @@ public class BlenderLoader extends AbstractBlenderLoader {
         blenderContext.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber(), blenderContext));
-
+        blenderContext.putHelper(LandscapeHelper.class, new LandscapeHelper(inputStream.getVersionNumber(), blenderContext));
+        
         // reading the blocks (dna block is automatically saved in the blender context when found)
         FileBlockHeader sceneFileBlock = null;
         do {

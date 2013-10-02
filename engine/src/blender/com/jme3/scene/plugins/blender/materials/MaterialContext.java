@@ -1,7 +1,5 @@
 package com.jme3.scene.plugins.blender.materials;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,15 +19,11 @@ import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.DynamicArray;
-import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper.DiffuseShader;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper.SpecularShader;
 import com.jme3.scene.plugins.blender.textures.CombinedTexture;
 import com.jme3.scene.plugins.blender.textures.TextureHelper;
-import com.jme3.scene.plugins.blender.textures.blending.TextureBlender;
-import com.jme3.scene.plugins.blender.textures.blending.TextureBlenderFactory;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 
@@ -63,7 +57,6 @@ public final class MaterialContext {
     /* package */final boolean                      vTangent;
     /* package */FaceCullMode                       faceCullMode;
 
-    @SuppressWarnings("unchecked")
     /* package */MaterialContext(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
         name = structure.getName();
 
@@ -101,56 +94,8 @@ public final class MaterialContext {
             ambientColor = new ColorRGBA(r, g, b, alpha);
         }
 
-        DynamicArray<Pointer> mtexsArray = (DynamicArray<Pointer>) structure.getFieldValue("mtex");
-        int separatedTextures = ((Number) structure.getFieldValue("septex")).intValue();
-        List<TextureData> texturesList = new ArrayList<TextureData>();
-        for (int i = 0; i < mtexsArray.getTotalSize(); ++i) {
-            Pointer p = mtexsArray.get(i);
-            if (p.isNotNull() && (separatedTextures & 1 << i) == 0) {
-                TextureData textureData = new TextureData();
-                textureData.mtex = p.fetchData(blenderContext.getInputStream()).get(0);
-                textureData.uvCoordinatesType = ((Number) textureData.mtex.getFieldValue("texco")).intValue();
-                textureData.projectionType = ((Number) textureData.mtex.getFieldValue("mapping")).intValue();
-                textureData.uvCoordinatesName = textureData.mtex.getFieldValue("uvName").toString();
-                if(textureData.uvCoordinatesName != null && textureData.uvCoordinatesName.trim().length() == 0) {
-                    textureData.uvCoordinatesName = null;
-                }
-                
-                Pointer pTex = (Pointer) textureData.mtex.getFieldValue("tex");
-                if (pTex.isNotNull()) {
-                    Structure tex = pTex.fetchData(blenderContext.getInputStream()).get(0);
-                    textureData.textureStructure = tex;
-                    texturesList.add(textureData);
-                }
-            }
-        }
-
-        // loading the textures and merging them
-        Map<Number, List<TextureData>> textureDataMap = this.sortAndFilterTextures(texturesList);
-        loadedTextures = new HashMap<Number, CombinedTexture>();
-        float[] diffuseColorArray = new float[] { diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a };
         TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
-        for (Entry<Number, List<TextureData>> entry : textureDataMap.entrySet()) {
-            if (entry.getValue().size() > 0) {
-                CombinedTexture combinedTexture = new CombinedTexture(entry.getKey().intValue());
-                for (TextureData textureData : entry.getValue()) {
-                    int texflag = ((Number) textureData.mtex.getFieldValue("texflag")).intValue();
-                    boolean negateTexture = (texflag & 0x04) != 0;
-                    Texture texture = textureHelper.getTexture(textureData.textureStructure, textureData.mtex, blenderContext);
-                    if (texture != null) {
-                        int blendType = ((Number) textureData.mtex.getFieldValue("blendtype")).intValue();
-                        float[] color = new float[] { ((Number) textureData.mtex.getFieldValue("r")).floatValue(), ((Number) textureData.mtex.getFieldValue("g")).floatValue(), ((Number) textureData.mtex.getFieldValue("b")).floatValue() };
-                        float colfac = ((Number) textureData.mtex.getFieldValue("colfac")).floatValue();
-                        TextureBlender textureBlender = TextureBlenderFactory.createTextureBlender(texture.getImage().getFormat(), texflag, negateTexture, blendType, diffuseColorArray, color, colfac);
-                        combinedTexture.add(texture, textureBlender, textureData.uvCoordinatesType, textureData.projectionType,
-                        					textureData.textureStructure, textureData.uvCoordinatesName, blenderContext);
-                    }
-                }
-                if (combinedTexture.getTexturesCount() > 0) {
-                    loadedTextures.put(entry.getKey(), combinedTexture);
-                }
-            }
-        }
+        loadedTextures = textureHelper.readTextureData(structure, new float[] { diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a }, false);
 
         // veryfying if the transparency is present
         // (in blender transparent mask is 0x10000 but its better to verify it because blender can indicate transparency when
@@ -302,34 +247,6 @@ public final class MaterialContext {
     }
 
     /**
-     * This method sorts the textures by their mapping type. In each group only
-     * textures of one type are put (either two- or three-dimensional). If the
-     * mapping type is MTEX_COL then if the texture has no alpha channel then
-     * all textures before it are discarded and will not be loaded and merged
-     * because texture with no alpha will cover them anyway.
-     * 
-     * @return a map with sorted and filtered textures
-     */
-    private Map<Number, List<TextureData>> sortAndFilterTextures(List<TextureData> textures) {
-        int[] mappings = new int[] { MTEX_COL, MTEX_NOR, MTEX_EMIT, MTEX_SPEC, MTEX_ALPHA, MTEX_AMB };
-        Map<Number, List<TextureData>> result = new HashMap<Number, List<TextureData>>();
-        for (TextureData data : textures) {
-            Number mapto = (Number) data.mtex.getFieldValue("mapto");
-            for (int i = 0; i < mappings.length; ++i) {
-                if ((mappings[i] & mapto.intValue()) != 0) {
-                    List<TextureData> datas = result.get(mappings[i]);
-                    if (datas == null) {
-                        datas = new ArrayList<TextureData>();
-                        result.put(mappings[i], datas);
-                    }
-                    datas.add(data);
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
      * This method sets the face cull mode.
      * @param faceCullMode
      *            the face cull mode
@@ -392,14 +309,5 @@ public final class MaterialContext {
         float b = ((Number) materialStructure.getFieldValue("specb")).floatValue() * specularIntensity;
         float alpha = ((Number) materialStructure.getFieldValue("alpha")).floatValue();
         return new ColorRGBA(r, g, b, alpha);
-    }
-
-    private static class TextureData {
-        Structure mtex;
-        Structure textureStructure;
-        int       uvCoordinatesType;
-        int       projectionType;
-        /** The name of the user's UV coordinates that are used for this texture. */
-        String	  uvCoordinatesName;
     }
 }

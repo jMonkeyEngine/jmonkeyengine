@@ -275,6 +275,20 @@ public class TexturePixel implements Cloneable {
         this.blue = oneMinusAlpha * this.blue + pixel.alpha * pixel.blue;
         this.alpha = (this.alpha + pixel.alpha) * 0.5f;
     }
+    
+    /**
+     * Mixes two pixels.
+     * 
+     * @param pixel
+     *            the pixel we mix with
+     */
+    public void mix(TexturePixel pixel) {
+        this.red = 0.5f * (this.red + pixel.red);
+        this.green = 0.5f * (this.green + pixel.green);
+        this.blue = 0.5f * (this.blue + pixel.blue);
+        this.alpha = 0.5f * (this.alpha + pixel.alpha);
+        this.intensity = 0.5f * (this.intensity + pixel.intensity);
+    }
 
     /**
      * This method negates the colors.
@@ -305,6 +319,19 @@ public class TexturePixel implements Cloneable {
         this.blue += pixel.blue;
         this.alpha += pixel.alpha;
         this.intensity += pixel.intensity;
+    }
+    
+    /**
+     * This method adds the calues of the given pixel to the current pixel.
+     * 
+     * @param pixel
+     *            the pixel we add
+     */
+    public void add(ColorRGBA pixel) {
+        this.red += pixel.r;
+        this.green += pixel.g;
+        this.blue += pixel.b;
+        this.alpha += pixel.a;
     }
 
     /**

@@ -169,33 +169,6 @@ import com.jme3.util.BufferUtils;
     }
 
     /**
-     * This method merges the current texture with the given one. The given
-     * texture is not changed.
-     * 
-     * @param triangulatedTexture
-     *            the texture we merge current texture with
-     */
-    public void merge(TriangulatedTexture triangulatedTexture) {
-        TexturePixel sourcePixel = new TexturePixel();
-        TexturePixel targetPixel = new TexturePixel();
-        for (TriangleTextureElement triangleTextureElement : this.faceTextures) {
-            Image sourceImage = triangulatedTexture.getFaceTextureElement(triangleTextureElement.faceIndex).image;
-            Image targetImage = triangleTextureElement.image;
-            PixelInputOutput sourceIO = PixelIOFactory.getPixelIO(sourceImage.getFormat());
-            PixelInputOutput targetIO = PixelIOFactory.getPixelIO(targetImage.getFormat());
-
-            for (int x = 0; x < sourceImage.getWidth(); ++x) {
-                for (int y = 0; y < sourceImage.getHeight(); ++y) {
-                    sourceIO.read(sourceImage, 0, sourcePixel, x, y);
-                    targetIO.read(targetImage, 0, targetPixel, x, y);
-                    targetPixel.merge(sourcePixel);
-                    targetIO.write(targetImage, 0, targetPixel, x, y);
-                }
-            }
-        }
-    }
-
-    /**
      * This method returns the flat texture. It is calculated if required or if
      * it was not created before. Images that are identical are discarded to
      * reduce the texture size.

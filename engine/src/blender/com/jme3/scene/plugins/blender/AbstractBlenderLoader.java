@@ -37,9 +37,6 @@ import java.util.logging.Logger;
 
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
-import com.jme3.asset.BlenderKey.WorldData;
-import com.jme3.light.AmbientLight;
-import com.jme3.math.ColorRGBA;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.LightNode;
@@ -166,25 +163,4 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
     // }
     // return null;
     // }
-
-    /**
-     * This method returns the data read from the WORLD file block. The block contains data that can be stored as
-     * separate jme features and therefore cannot be returned as a single jME scene feature.
-     * @param structure
-     *            the structure with WORLD block data
-     * @return data read from the WORLD block that can be added to the scene
-     */
-    public WorldData toWorldData(Structure structure) {
-        WorldData result = new WorldData();
-
-        // reading ambient light
-        AmbientLight ambientLight = new AmbientLight();
-        float ambr = ((Number) structure.getFieldValue("ambr")).floatValue();
-        float ambg = ((Number) structure.getFieldValue("ambg")).floatValue();
-        float ambb = ((Number) structure.getFieldValue("ambb")).floatValue();
-        ambientLight.setColor(new ColorRGBA(ambr, ambg, ambb, 0.0f));
-        result.setAmbientLight(ambientLight);
-
-        return result;
-    }
 }

@@ -3,13 +3,16 @@ package com.jme3.scene.plugins.blender.textures;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jme3tools.converters.ImageToAwt;
 
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -30,6 +33,8 @@ import com.jme3.texture.Texture.MagFilter;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.TextureCubeMap;
+import com.jme3.util.BufferUtils;
 
 /**
  * This class represents a texture that is defined for the material. It can be
@@ -43,6 +48,11 @@ public class CombinedTexture {
 
     /** The mapping type of the texture. Defined bu MaterialContext.MTEX_COL, MTEX_NOR etc. */
     private final int           mappingType;
+    /**
+     * If set to true then if a texture without alpha is added then all textures below are discarded because
+     * the new one will cover them anyway. If set to false then all textures are stored.
+     */
+    private boolean             discardCoveredTextures;
     /** The data for each of the textures. */
     private List<TextureData>   textureDatas = new ArrayList<TextureData>();
     /** The result texture. */
@@ -55,9 +65,13 @@ public class CombinedTexture {
      * 
      * @param mappingType
      *            texture mapping type
+     * @param discardCoveredTextures
+     *            if set to true then if a texture without alpha is added then all textures below are discarded because
+     *            the new one will cover them anyway, if set to false then all textures are stored
      */
-    public CombinedTexture(int mappingType) {
+    public CombinedTexture(int mappingType, boolean discardCoveredTextures) {
         this.mappingType = mappingType;
+        this.discardCoveredTextures = discardCoveredTextures;
     }
 
     /**
@@ -75,7 +89,7 @@ public class CombinedTexture {
      * @param textureStructure
      *            the texture sructure
      * @param uvCoordinatesName
-     * 			  the name of the used user's UV coordinates for this texture
+     *            the name of the used user's UV coordinates for this texture
      * @param blenderContext
      *            the blender context
      */
@@ -93,7 +107,7 @@ public class CombinedTexture {
                 textureData.textureStructure = textureStructure;
                 textureData.uvCoordinatesName = uvCoordinatesName;
 
-                if (textureDatas.size() > 0 && this.isWithoutAlpha(textureData, blenderContext)) {
+                if (discardCoveredTextures && textureDatas.size() > 0 && this.isWithoutAlpha(textureData, blenderContext)) {
                     textureDatas.clear();// clear previous textures, they will be covered anyway
                 }
                 textureDatas.add(textureData);
@@ -120,7 +134,6 @@ public class CombinedTexture {
      */
     @SuppressWarnings("unchecked")
     public void flatten(Geometry geometry, Long geometriesOMA, LinkedHashMap<String, List<Vector2f>> userDefinedUVCoordinates, BlenderContext blenderContext) {
-        TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
         Mesh mesh = geometry.getMesh();
         Texture previousTexture = null;
         UVCoordinatesType masterUVCoordinatesType = null;
@@ -128,7 +141,7 @@ public class CombinedTexture {
         for (TextureData textureData : textureDatas) {
             // decompress compressed textures (all will be merged into one texture anyway)
             if (textureDatas.size() > 1 && textureData.texture.getImage().getFormat().isCompressed()) {
-                textureData.texture.setImage(textureHelper.decompress(textureData.texture.getImage()));
+                textureData.texture.setImage(ImageUtils.decompress(textureData.texture.getImage()));
                 textureData.textureBlender = TextureBlenderFactory.alterTextureType(textureData.texture.getImage().getFormat(), textureData.textureBlender);
             }
 
@@ -139,8 +152,8 @@ public class CombinedTexture {
                     resultTexture = textureData.texture;
 
                     if (textureData.uvCoordinatesType == UVCoordinatesType.TEXCO_UV && userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
-                        if(textureData.uvCoordinatesName == null) {
-                            resultUVS = userDefinedUVCoordinates.values().iterator().next();//get the first UV available
+                        if (textureData.uvCoordinatesName == null) {
+                            resultUVS = userDefinedUVCoordinates.values().iterator().next();// get the first UV available
                         } else {
                             resultUVS = userDefinedUVCoordinates.get(textureData.uvCoordinatesName);
                         }
@@ -167,11 +180,9 @@ public class CombinedTexture {
                     triangulatedTexture.blend(textureData.textureBlender, (TriangulatedTexture) resultTexture, blenderContext);
                     resultTexture = previousTexture = triangulatedTexture;
                 } else if (textureData.texture instanceof Texture2D) {
-                    if (this.isUVTypesMatch(masterUVCoordinatesType, masterUserUVSetName,
-                                             textureData.uvCoordinatesType, textureData.uvCoordinatesName) &&
-                        resultTexture instanceof Texture2D) {
+                    if (this.isUVTypesMatch(masterUVCoordinatesType, masterUserUVSetName, textureData.uvCoordinatesType, textureData.uvCoordinatesName) && resultTexture instanceof Texture2D) {
                         this.scale((Texture2D) textureData.texture, resultTexture.getImage().getWidth(), resultTexture.getImage().getHeight());
-                        this.merge((Texture2D) resultTexture, (Texture2D) textureData.texture);
+                        ImageUtils.merge(resultTexture.getImage(), textureData.texture.getImage());
                         previousTexture = resultTexture;
                     } else {
                         if (!(resultTexture instanceof TriangulatedTexture)) {
@@ -181,8 +192,8 @@ public class CombinedTexture {
                         // first triangulate the current texture
                         List<Vector2f> textureUVS = null;
                         if (textureData.uvCoordinatesType == UVCoordinatesType.TEXCO_UV && userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
-                            if(textureData.uvCoordinatesName == null) {
-                                textureUVS = userDefinedUVCoordinates.values().iterator().next();//get the first UV available
+                            if (textureData.uvCoordinatesName == null) {
+                                textureUVS = userDefinedUVCoordinates.values().iterator().next();// get the first UV available
                             } else {
                                 textureUVS = userDefinedUVCoordinates.get(textureData.uvCoordinatesName);
                             }
@@ -193,7 +204,10 @@ public class CombinedTexture {
                         TriangulatedTexture triangulatedTexture = new TriangulatedTexture((Texture2D) textureData.texture, textureUVS, blenderContext);
                         // then move the texture to different UV's
                         triangulatedTexture.castToUVS((TriangulatedTexture) resultTexture, blenderContext);
-                        ((TriangulatedTexture) resultTexture).merge(triangulatedTexture);
+                        // merge triangulated textures
+                        for (int i = 0; i < ((TriangulatedTexture) resultTexture).getFaceTextureCount(); ++i) {
+                            ImageUtils.merge(((TriangulatedTexture) resultTexture).getFaceTextureElement(i).image, triangulatedTexture.getImage());
+                        }
                     }
                 }
             }
@@ -203,7 +217,7 @@ public class CombinedTexture {
             if (mappingType == MaterialContext.MTEX_NOR) {
                 for (int i = 0; i < ((TriangulatedTexture) resultTexture).getFaceTextureCount(); ++i) {
                     TriangleTextureElement triangleTextureElement = ((TriangulatedTexture) resultTexture).getFaceTextureElement(i);
-                    triangleTextureElement.image = textureHelper.convertToNormalMapTexture(triangleTextureElement.image, 1);// TODO: get proper strength factor
+                    triangleTextureElement.image = ImageUtils.convertToNormalMapTexture(triangleTextureElement.image, 1);// TODO: get proper strength factor
                 }
             }
             resultUVS = ((TriangulatedTexture) resultTexture).getResultUVS();
@@ -219,21 +233,101 @@ public class CombinedTexture {
     }
 
     /**
+     * Generates a texture that will be used by the sky spatial.
+     * The result texture has 6 layers. Every image in each layer has equal size and its shape is a square.
+     * The size of each image is the maximum size (width or height) of the textures given.
+     * The default sky generated texture size is used (this value is set in the BlenderKey) if no picture textures
+     * are present or their sizes is lower than the generated texture size.
+     * The textures of lower sizes are properly scaled.
+     * All the textures are mixed into one and put as layers in the result texture.
+     * 
+     * @param horizontalColor
+     *            the horizon color
+     * @param zenithColor
+     *            the zenith color
+     * @param blenderContext
+     *            the blender context
+     * @return texture for the sky
+     */
+    public TextureCubeMap generateSkyTexture(ColorRGBA horizontalColor, ColorRGBA zenithColor, BlenderContext blenderContext) {
+        LOGGER.log(Level.FINE, "Preparing sky texture from {0} applied textures.", textureDatas.size());
+
+        LOGGER.fine("Computing the texture size.");
+        int size = -1;
+        for (TextureData textureData : textureDatas) {
+            if (textureData.texture instanceof Texture2D) {
+                size = Math.max(textureData.texture.getImage().getWidth(), size);
+                size = Math.max(textureData.texture.getImage().getHeight(), size);
+            }
+        }
+        if (size < 0) {
+            size = blenderContext.getBlenderKey().getSkyGeneratedTextureSize();
+        }
+        LOGGER.log(Level.FINE, "The sky texture size will be: {0}x{0}.", size);
+
+        TextureCubeMap result = null;
+        for (TextureData textureData : textureDatas) {
+            TextureCubeMap texture = null;
+            if (textureData.texture instanceof GeneratedTexture) {
+                texture = ((GeneratedTexture) textureData.texture).generateSkyTexture(size, horizontalColor, zenithColor);
+            } else {
+                // first create a grayscale version of the image
+                Image image = textureData.texture.getImage();
+                if (image.getWidth() != image.getHeight() || image.getWidth() != size) {
+                    image = ImageUtils.resizeTo(image, size, size);
+                }
+                Image grayscaleImage = ImageUtils.convertToGrayscaleTexture(image);
+
+                // add the sky colors to the image
+                PixelInputOutput sourcePixelIO = PixelIOFactory.getPixelIO(grayscaleImage.getFormat());
+                PixelInputOutput targetPixelIO = PixelIOFactory.getPixelIO(image.getFormat());
+                TexturePixel texturePixel = new TexturePixel();
+                for (int x = 0; x < image.getWidth(); ++x) {
+                    for (int y = 0; y < image.getHeight(); ++y) {
+                        sourcePixelIO.read(grayscaleImage, 0, texturePixel, x, y);
+                        texturePixel.intensity = texturePixel.red;// no matter which factor we use here, in grayscale they are all equal
+                        ImageUtils.color(texturePixel, horizontalColor, zenithColor);
+                        targetPixelIO.write(image, 0, texturePixel, x, y);
+                    }
+                }
+
+                // create the cubemap texture from the coloured image
+                ByteBuffer sourceData = image.getData(0);
+                ArrayList<ByteBuffer> data = new ArrayList<ByteBuffer>(6);
+                for (int i = 0; i < 6; ++i) {
+                    data.add(BufferUtils.clone(sourceData));
+                }
+                texture = new TextureCubeMap(new Image(image.getFormat(), image.getWidth(), image.getHeight(), 6, data));
+            }
+
+            if (result == null) {
+                result = texture;
+            } else {
+                ImageUtils.mix(result.getImage(), texture.getImage());
+            }
+        }
+        return result;
+    }
+
+    /**
      * The method checks if the texture UV coordinates match.
      * It the types are equal and different then UVCoordinatesType.TEXCO_UV then we consider them a match.
      * If they are both UVCoordinatesType.TEXCO_UV then they match only when their UV sets names are equal.
      * In other cases they are considered NOT a match.
-     * @param type1 the UV coord type
-     * @param uvSetName1 the user's UV coords set name (considered only for UVCoordinatesType.TEXCO_UV)
-     * @param type2 the UV coord type
-     * @param uvSetName2 the user's UV coords set name (considered only for UVCoordinatesType.TEXCO_UV)
+     * @param type1
+     *            the UV coord type
+     * @param uvSetName1
+     *            the user's UV coords set name (considered only for UVCoordinatesType.TEXCO_UV)
+     * @param type2
+     *            the UV coord type
+     * @param uvSetName2
+     *            the user's UV coords set name (considered only for UVCoordinatesType.TEXCO_UV)
      * @return <b>true</b> if the types match and <b>false</b> otherwise
      */
-    private boolean isUVTypesMatch(UVCoordinatesType type1, String uvSetName1,
-                                     UVCoordinatesType type2, String uvSetName2) {
-        if(type1 == type2) {
-            if(type1 == UVCoordinatesType.TEXCO_UV) {
-                if(uvSetName1 != null && uvSetName2 != null && uvSetName1.equals(uvSetName2)) {
+    private boolean isUVTypesMatch(UVCoordinatesType type1, String uvSetName1, UVCoordinatesType type2, String uvSetName2) {
+        if (type1 == type2) {
+            if (type1 == UVCoordinatesType.TEXCO_UV) {
+                if (uvSetName1 != null && uvSetName2 != null && uvSetName1.equals(uvSetName2)) {
                     return true;
                 }
             } else {
@@ -242,7 +336,7 @@ public class CombinedTexture {
         }
         return false;
     }
-    
+
     /**
      * This method blends the texture.
      * 
@@ -298,40 +392,7 @@ public class CombinedTexture {
         }
         return false;
     }
-
-    /**
-     * This method merges two given textures. The result is stored in the
-     * 'target' texture.
-     * 
-     * @param target
-     *            the target texture
-     * @param source
-     *            the source texture
-     */
-    private void merge(Texture2D target, Texture2D source) {
-        if (target.getImage().getDepth() != source.getImage().getDepth()) {
-            throw new IllegalArgumentException("Cannot merge images with different depths!");
-        }
-        Image sourceImage = source.getImage();
-        Image targetImage = target.getImage();
-        PixelInputOutput sourceIO = PixelIOFactory.getPixelIO(sourceImage.getFormat());
-        PixelInputOutput targetIO = PixelIOFactory.getPixelIO(targetImage.getFormat());
-        TexturePixel sourcePixel = new TexturePixel();
-        TexturePixel targetPixel = new TexturePixel();
-        int depth = target.getImage().getDepth() == 0 ? 1 : target.getImage().getDepth();
-
-        for (int layerIndex = 0; layerIndex < depth; ++layerIndex) {
-            for (int x = 0; x < sourceImage.getWidth(); ++x) {
-                for (int y = 0; y < sourceImage.getHeight(); ++y) {
-                    sourceIO.read(sourceImage, layerIndex, sourcePixel, x, y);
-                    targetIO.read(targetImage, layerIndex, targetPixel, x, y);
-                    targetPixel.merge(sourcePixel);
-                    targetIO.write(targetImage, layerIndex, targetPixel, x, y);
-                }
-            }
-        }
-    }
-
+    
     /**
      * This method determines if the given texture has no alpha channel.
      * 
@@ -460,6 +521,6 @@ public class CombinedTexture {
         /** The texture sructure. */
         public Structure         textureStructure;
         /** The name of the user's UV coordinates that are used for this texture. */
-        public String	  		 uvCoordinatesName;
+        public String            uvCoordinatesName;
     }
 }

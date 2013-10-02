@@ -31,21 +31,17 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
-import com.jme3.asset.AssetInfo;
-
-import java.awt.color.ColorSpace;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import jme3tools.converters.ImageToAwt;
-import jme3tools.converters.RGB565;
-
+import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.BlenderKey;
@@ -53,20 +49,23 @@ import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.GeneratedTextureKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.materials.MaterialContext;
+import com.jme3.scene.plugins.blender.textures.UVCoordinatesGenerator.UVCoordinatesType;
+import com.jme3.scene.plugins.blender.textures.blending.TextureBlender;
+import com.jme3.scene.plugins.blender.textures.blending.TextureBlenderFactory;
 import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorFactory;
 import com.jme3.scene.plugins.blender.textures.io.PixelIOFactory;
 import com.jme3.scene.plugins.blender.textures.io.PixelInputOutput;
 import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
@@ -203,280 +202,6 @@ public class TextureHelper extends AbstractBlenderHelper {
             blenderContext.addLoadedFeatures(tex.getOldMemoryAddress(), tex.getName(), tex, result);
         }
         return result;
-    }
-
-    /**
-     * This method converts the given texture into normal-map texture.
-     * 
-     * @param source
-     *            the source texture
-     * @param strengthFactor
-     *            the normal strength factor
-     * @return normal-map texture
-     */
-    public Image convertToNormalMapTexture(Image source, float strengthFactor) {
-        BufferedImage sourceImage = ImageToAwt.convert(source, false, false, 0);
-
-        BufferedImage heightMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        BufferedImage bumpMap = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        ColorConvertOp gscale = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
-        gscale.filter(sourceImage, heightMap);
-
-        Vector3f S = new Vector3f();
-        Vector3f T = new Vector3f();
-        Vector3f N = new Vector3f();
-
-        for (int x = 0; x < bumpMap.getWidth(); ++x) {
-            for (int y = 0; y < bumpMap.getHeight(); ++y) {
-                // generating bump pixel
-                S.x = 1;
-                S.y = 0;
-                S.z = strengthFactor * this.getHeight(heightMap, x + 1, y) - strengthFactor * this.getHeight(heightMap, x - 1, y);
-                T.x = 0;
-                T.y = 1;
-                T.z = strengthFactor * this.getHeight(heightMap, x, y + 1) - strengthFactor * this.getHeight(heightMap, x, y - 1);
-
-                float den = (float) Math.sqrt(S.z * S.z + T.z * T.z + 1);
-                N.x = -S.z;
-                N.y = -T.z;
-                N.z = 1;
-                N.divideLocal(den);
-
-                // setting thge pixel in the result image
-                bumpMap.setRGB(x, y, this.vectorToColor(N.x, N.y, N.z));
-            }
-        }
-        ByteBuffer byteBuffer = BufferUtils.createByteBuffer(source.getWidth() * source.getHeight() * 3);
-        ImageToAwt.convert(bumpMap, Format.RGB8, byteBuffer);
-        return new Image(Format.RGB8, source.getWidth(), source.getHeight(), byteBuffer);
-    }
-
-    /**
-     * This method decompresses the given image. If the given image is already
-     * decompressed nothing happens and it is simply returned.
-     * 
-     * @param image
-     *            the image to decompress
-     * @return the decompressed image
-     */
-    public Image decompress(Image image) {
-        Format format = image.getFormat();
-        int depth = image.getDepth();
-        if (depth == 0) {
-            depth = 1;
-        }
-        ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(depth);
-        int[] sizes = image.getMipMapSizes() != null ? image.getMipMapSizes() : new int[1];
-        int[] newMipmapSizes = image.getMipMapSizes() != null ? new int[image.getMipMapSizes().length] : null;
-
-        for (int dataLayerIndex = 0; dataLayerIndex < depth; ++dataLayerIndex) {
-            ByteBuffer data = image.getData(dataLayerIndex);
-            data.rewind();
-            if (sizes.length == 1) {
-                sizes[0] = data.remaining();
-            }
-            float widthToHeightRatio = image.getWidth() / image.getHeight();// this should always be constant for each mipmap
-            List<DDSTexelData> texelDataList = new ArrayList<DDSTexelData>(sizes.length);
-            int maxPosition = 0, resultSize = 0;
-
-            for (int sizeIndex = 0; sizeIndex < sizes.length; ++sizeIndex) {
-                maxPosition += sizes[sizeIndex];
-                DDSTexelData texelData = new DDSTexelData(sizes[sizeIndex], widthToHeightRatio, format);
-                texelDataList.add(texelData);
-                switch (format) {
-                    case DXT1:// BC1
-                    case DXT1A:
-                        while (data.position() < maxPosition) {
-                            TexturePixel[] colors = new TexturePixel[] { new TexturePixel(), new TexturePixel(), new TexturePixel(), new TexturePixel() };
-                            short c0 = data.getShort();
-                            short c1 = data.getShort();
-                            int col0 = RGB565.RGB565_to_ARGB8(c0);
-                            int col1 = RGB565.RGB565_to_ARGB8(c1);
-                            colors[0].fromARGB8(col0);
-                            colors[1].fromARGB8(col1);
-
-                            if (col0 > col1) {
-                                // creating color2 = 2/3color0 + 1/3color1
-                                colors[2].fromPixel(colors[0]);
-                                colors[2].mult(2);
-                                colors[2].add(colors[1]);
-                                colors[2].divide(3);
-
-                                // creating color3 = 1/3color0 + 2/3color1;
-                                colors[3].fromPixel(colors[1]);
-                                colors[3].mult(2);
-                                colors[3].add(colors[0]);
-                                colors[3].divide(3);
-                            } else {
-                                // creating color2 = 1/2color0 + 1/2color1
-                                colors[2].fromPixel(colors[0]);
-                                colors[2].add(colors[1]);
-                                colors[2].mult(0.5f);
-
-                                colors[3].fromARGB8(0);
-                            }
-                            int indexes = data.getInt();// 4-byte table with color indexes in decompressed table
-                            texelData.add(colors, indexes);
-                        }
-                        break;
-                    case DXT3:// BC2
-                        while (data.position() < maxPosition) {
-                            TexturePixel[] colors = new TexturePixel[] { new TexturePixel(), new TexturePixel(), new TexturePixel(), new TexturePixel() };
-                            long alpha = data.getLong();
-                            float[] alphas = new float[16];
-                            long alphasIndex = 0;
-                            for (int i = 0; i < 16; ++i) {
-                                alphasIndex |= i << i * 4;
-                                byte a = (byte) ((alpha >> i * 4 & 0x0F) << 4);
-                                alphas[i] = a >= 0 ? a / 255.0f : 1.0f - ~a / 255.0f;
-                            }
-
-                            short c0 = data.getShort();
-                            short c1 = data.getShort();
-                            int col0 = RGB565.RGB565_to_ARGB8(c0);
-                            int col1 = RGB565.RGB565_to_ARGB8(c1);
-                            colors[0].fromARGB8(col0);
-                            colors[1].fromARGB8(col1);
-
-                            // creating color2 = 2/3color0 + 1/3color1
-                            colors[2].fromPixel(colors[0]);
-                            colors[2].mult(2);
-                            colors[2].add(colors[1]);
-                            colors[2].divide(3);
-
-                            // creating color3 = 1/3color0 + 2/3color1;
-                            colors[3].fromPixel(colors[1]);
-                            colors[3].mult(2);
-                            colors[3].add(colors[0]);
-                            colors[3].divide(3);
-
-                            int indexes = data.getInt();// 4-byte table with color indexes in decompressed table
-                            texelData.add(colors, indexes, alphas, alphasIndex);
-                        }
-                        break;
-                    case DXT5:// BC3
-                        float[] alphas = new float[8];
-                        while (data.position() < maxPosition) {
-                            TexturePixel[] colors = new TexturePixel[] { new TexturePixel(), new TexturePixel(), new TexturePixel(), new TexturePixel() };
-                            alphas[0] = data.get() * 255.0f;
-                            alphas[1] = data.get() * 255.0f;
-                            long alphaIndices = data.get() | data.get() << 8 | data.get() << 16 | data.get() << 24 | data.get() << 32 | data.get() << 40;
-                            if (alphas[0] > alphas[1]) {// 6 interpolated alpha values.
-                                alphas[2] = (6 * alphas[0] + alphas[1]) / 7;
-                                alphas[3] = (5 * alphas[0] + 2 * alphas[1]) / 7;
-                                alphas[4] = (4 * alphas[0] + 3 * alphas[1]) / 7;
-                                alphas[5] = (3 * alphas[0] + 4 * alphas[1]) / 7;
-                                alphas[6] = (2 * alphas[0] + 5 * alphas[1]) / 7;
-                                alphas[7] = (alphas[0] + 6 * alphas[1]) / 7;
-                            } else {
-                                alphas[2] = (4 * alphas[0] + alphas[1]) * 0.2f;
-                                alphas[3] = (3 * alphas[0] + 2 * alphas[1]) * 0.2f;
-                                alphas[4] = (2 * alphas[0] + 3 * alphas[1]) * 0.2f;
-                                alphas[5] = (alphas[0] + 4 * alphas[1]) * 0.2f;
-                                alphas[6] = 0;
-                                alphas[7] = 1;
-                            }
-
-                            short c0 = data.getShort();
-                            short c1 = data.getShort();
-                            int col0 = RGB565.RGB565_to_ARGB8(c0);
-                            int col1 = RGB565.RGB565_to_ARGB8(c1);
-                            colors[0].fromARGB8(col0);
-                            colors[1].fromARGB8(col1);
-
-                            // creating color2 = 2/3color0 + 1/3color1
-                            colors[2].fromPixel(colors[0]);
-                            colors[2].mult(2);
-                            colors[2].add(colors[1]);
-                            colors[2].divide(3);
-
-                            // creating color3 = 1/3color0 + 2/3color1;
-                            colors[3].fromPixel(colors[1]);
-                            colors[3].mult(2);
-                            colors[3].add(colors[0]);
-                            colors[3].divide(3);
-
-                            int indexes = data.getInt();// 4-byte table with color indexes in decompressed table
-                            texelData.add(colors, indexes, alphas, alphaIndices);
-                        }
-                        break;
-                    default:
-                        throw new IllegalStateException("Unknown compressed format: " + format);
-                }
-                newMipmapSizes[sizeIndex] = texelData.getSizeInBytes();
-                resultSize += texelData.getSizeInBytes();
-            }
-            byte[] bytes = new byte[resultSize];
-            int offset = 0;
-            byte[] pixelBytes = new byte[4];
-            for (DDSTexelData texelData : texelDataList) {
-                for (int i = 0; i < texelData.getPixelWidth(); ++i) {
-                    for (int j = 0; j < texelData.getPixelHeight(); ++j) {
-                        if (texelData.getRGBA8(i, j, pixelBytes)) {
-                            bytes[offset + (j * texelData.getPixelWidth() + i) * 4] = pixelBytes[0];
-                            bytes[offset + (j * texelData.getPixelWidth() + i) * 4 + 1] = pixelBytes[1];
-                            bytes[offset + (j * texelData.getPixelWidth() + i) * 4 + 2] = pixelBytes[2];
-                            bytes[offset + (j * texelData.getPixelWidth() + i) * 4 + 3] = pixelBytes[3];
-                        } else {
-                            break;
-                        }
-                    }
-                }
-                offset += texelData.getSizeInBytes();
-            }
-            dataArray.add(BufferUtils.createByteBuffer(bytes));
-        }
-
-        Image result = depth > 1 ? new Image(Format.RGBA8, image.getWidth(), image.getHeight(), depth, dataArray) : new Image(Format.RGBA8, image.getWidth(), image.getHeight(), dataArray.get(0));
-        if (newMipmapSizes != null) {
-            result.setMipMapSizes(newMipmapSizes);
-        }
-        return result;
-    }
-
-    /**
-     * This method returns the height represented by the specified pixel in the
-     * given texture. The given texture should be a height-map.
-     * 
-     * @param image
-     *            the height-map texture
-     * @param x
-     *            pixel's X coordinate
-     * @param y
-     *            pixel's Y coordinate
-     * @return height reprezented by the given texture in the specified location
-     */
-    protected int getHeight(BufferedImage image, int x, int y) {
-        if (x < 0) {
-            x = 0;
-        } else if (x >= image.getWidth()) {
-            x = image.getWidth() - 1;
-        }
-        if (y < 0) {
-            y = 0;
-        } else if (y >= image.getHeight()) {
-            y = image.getHeight() - 1;
-        }
-        return image.getRGB(x, y) & 0xff;
-    }
-
-    /**
-     * This method transforms given vector's coordinates into ARGB color (A is
-     * always = 255).
-     * 
-     * @param x
-     *            X factor of the vector
-     * @param y
-     *            Y factor of the vector
-     * @param z
-     *            Z factor of the vector
-     * @return color representation of the given vector
-     */
-    protected int vectorToColor(float x, float y, float z) {
-        int r = Math.round(255 * (x + 1f) / 2f);
-        int g = Math.round(255 * (y + 1f) / 2f);
-        int b = Math.round(255 * (z + 1f) / 2f);
-        return (255 << 24) + (r << 16) + (g << 8) + b;
     }
 
     /**
@@ -797,9 +522,96 @@ public class TextureHelper extends AbstractBlenderHelper {
 
         return result;
     }
+    
+    @SuppressWarnings("unchecked")
+    public Map<Number, CombinedTexture> readTextureData(Structure structure, float[] diffuseColorArray, boolean skyTexture) throws BlenderFileException {
+        DynamicArray<Pointer> mtexsArray = (DynamicArray<Pointer>) structure.getFieldValue("mtex");
+        int separatedTextures = skyTexture ? 0 : ((Number) structure.getFieldValue("septex")).intValue();
+        List<TextureData> texturesList = new ArrayList<TextureData>();
+        for (int i = 0; i < mtexsArray.getTotalSize(); ++i) {
+            Pointer p = mtexsArray.get(i);
+            if (p.isNotNull() && (separatedTextures & 1 << i) == 0) {
+                TextureData textureData = new TextureData();
+                textureData.mtex = p.fetchData(blenderContext.getInputStream()).get(0);
+                textureData.uvCoordinatesType = skyTexture ? UVCoordinatesType.TEXCO_ORCO.blenderValue : ((Number) textureData.mtex.getFieldValue("texco")).intValue();
+                textureData.projectionType = ((Number) textureData.mtex.getFieldValue("mapping")).intValue();
+                textureData.uvCoordinatesName = textureData.mtex.getFieldValue("uvName").toString();
+                if(textureData.uvCoordinatesName != null && textureData.uvCoordinatesName.trim().length() == 0) {
+                    textureData.uvCoordinatesName = null;
+                }
+                
+                Pointer pTex = (Pointer) textureData.mtex.getFieldValue("tex");
+                if (pTex.isNotNull()) {
+                    Structure tex = pTex.fetchData(blenderContext.getInputStream()).get(0);
+                    textureData.textureStructure = tex;
+                    texturesList.add(textureData);
+                }
+            }
+        }
+
+        // loading the textures and merging them
+        Map<Number, List<TextureData>> textureDataMap = this.sortTextures(texturesList);
+        Map<Number, CombinedTexture> loadedTextures = new HashMap<Number, CombinedTexture>();
+        for (Entry<Number, List<TextureData>> entry : textureDataMap.entrySet()) {
+            if (entry.getValue().size() > 0) {
+                CombinedTexture combinedTexture = new CombinedTexture(entry.getKey().intValue(), !skyTexture);
+                for (TextureData textureData : entry.getValue()) {
+                    int texflag = ((Number) textureData.mtex.getFieldValue("texflag")).intValue();
+                    boolean negateTexture = (texflag & 0x04) != 0;
+                    Texture texture = this.getTexture(textureData.textureStructure, textureData.mtex, blenderContext);
+                    if (texture != null) {
+                        int blendType = ((Number) textureData.mtex.getFieldValue("blendtype")).intValue();
+                        float[] color = new float[] { ((Number) textureData.mtex.getFieldValue("r")).floatValue(), ((Number) textureData.mtex.getFieldValue("g")).floatValue(), ((Number) textureData.mtex.getFieldValue("b")).floatValue() };
+                        float colfac = ((Number) textureData.mtex.getFieldValue("colfac")).floatValue();
+                        TextureBlender textureBlender = TextureBlenderFactory.createTextureBlender(texture.getImage().getFormat(), texflag, negateTexture, blendType, diffuseColorArray, color, colfac);
+                        combinedTexture.add(texture, textureBlender, textureData.uvCoordinatesType, textureData.projectionType,
+                                            textureData.textureStructure, textureData.uvCoordinatesName, blenderContext);
+                    }
+                }
+                if (combinedTexture.getTexturesCount() > 0) {
+                    loadedTextures.put(entry.getKey(), combinedTexture);
+                }
+            }
+        }
+        return loadedTextures;
+    }
+    
+    /**
+     * This method sorts the textures by their mapping type. In each group only
+     * textures of one type are put (either two- or three-dimensional).
+     * 
+     * @return a map with sorted textures
+     */
+    private Map<Number, List<TextureData>> sortTextures(List<TextureData> textures) {
+        int[] mappings = new int[] { MaterialContext.MTEX_COL, MaterialContext.MTEX_NOR, MaterialContext.MTEX_EMIT, MaterialContext.MTEX_SPEC, MaterialContext.MTEX_ALPHA, MaterialContext.MTEX_AMB };
+        Map<Number, List<TextureData>> result = new HashMap<Number, List<TextureData>>();
+        for (TextureData data : textures) {
+            Number mapto = (Number) data.mtex.getFieldValue("mapto");
+            for (int i = 0; i < mappings.length; ++i) {
+                if ((mappings[i] & mapto.intValue()) != 0) {
+                    List<TextureData> datas = result.get(mappings[i]);
+                    if (datas == null) {
+                        datas = new ArrayList<TextureData>();
+                        result.put(mappings[i], datas);
+                    }
+                    datas.add(data);
+                }
+            }
+        }
+        return result;
+    }
 
     @Override
     public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
         return (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.TEXTURES) != 0;
+    }
+    
+    public static class TextureData {
+        public Structure mtex;
+        public Structure textureStructure;
+        public int       uvCoordinatesType;
+        public int       projectionType;
+        /** The name of the user's UV coordinates that are used for this texture. */
+        public String    uvCoordinatesName;
     }
 }
