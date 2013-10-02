@@ -34,7 +34,7 @@ import com.jme3.texture.TextureCubeMap;
 /* package */class GeneratedTexture extends Texture {
     private static final int       POSITIVE_X       = 0;
     private static final int       NEGATIVE_X       = 1;
-    // private static final int POSITIVE_Y = 2;
+    private static final int       POSITIVE_Y       = 2;
     private static final int       NEGATIVE_Y       = 3;
     private static final int       POSITIVE_Z       = 4;
     private static final int       NEGATIVE_Z       = 5;
@@ -167,8 +167,8 @@ import com.jme3.texture.TextureCubeMap;
                 textureGenerator.getPixel(pixel, forwardU, 0, upS);
                 pixelIO.write(image, NEGATIVE_Y, ImageUtils.color(pixel, horizontalColor, zenithColor), x, y);// top
 
-                // textureGenerator.getPixel(pixel, forwardU, 1, upS);
-                // pixelIO.write(image, POSITIVE_Y, ImageUtils.color(pixel, horizontalColor, zenithColor), x, y);//bottom
+                textureGenerator.getPixel(pixel, forwardU, 1, 1 - upS);
+                pixelIO.write(image, POSITIVE_Y, ImageUtils.color(pixel, horizontalColor, zenithColor), x, y);// bottom
 
                 sideV = FastMath.clamp(sideV - delta, 0, 1);
                 forwardV = FastMath.clamp(forwardV - delta, 0, 1);

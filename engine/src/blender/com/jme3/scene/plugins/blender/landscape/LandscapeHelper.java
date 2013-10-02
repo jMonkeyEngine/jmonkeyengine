@@ -169,6 +169,14 @@ public class LandscapeHelper extends AbstractBlenderHelper {
                     pixelIO.write(image, 3, pixel, x, y);
                 }
             }
+            
+            LOGGER.fine("Creating bottom texture.");
+            pixelIO.read(image, 0, pixel, 0, 0);
+            for (int y = 0; y < size; ++y) {
+                for (int x = 0; x < size; ++x) {
+                    pixelIO.write(image, 2, pixel, x, y);
+                }
+            }
 
             texture = new TextureCubeMap(image);
         }
