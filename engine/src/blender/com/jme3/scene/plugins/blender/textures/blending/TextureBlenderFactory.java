@@ -34,6 +34,7 @@ package com.jme3.scene.plugins.blender.textures.blending;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,12 +47,26 @@ public class TextureBlenderFactory {
     private static final Logger LOGGER = Logger.getLogger(TextureBlenderFactory.class.getName());
 
     /**
+     * A blender that does not change the image. Used for none supported image types.
+     */
+    private static final TextureBlender NON_CHANGING_BLENDER = new TextureBlender() {
+        @Override
+        public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
+            return image;
+        }
+
+        @Override
+        public void copyBlendingData(TextureBlender textureBlender) { }
+    };
+    
+    /**
      * This method creates the blending class.
      * 
      * @param format
      *            the texture format
      * @return texture blending class
      */
+    @SuppressWarnings("deprecation")
     public static TextureBlender createTextureBlender(Format format, int flag, boolean negate, int blendType, float[] materialColor, float[] color, float colfac) {
         switch (format) {
             case Luminance8:
@@ -97,15 +112,9 @@ public class TextureBlenderFactory {
             case Intensity8:
             case LATC:
             case LTC:
+            case Depth24Stencil8:
                 LOGGER.log(Level.WARNING, "Image type not yet supported for blending: {0}. Returning a blender that does not change the texture.", format);
-                return new TextureBlender() {
-                    public Image blend(Image image, Image baseImage, BlenderContext blenderContext) {
-                        return image;
-                    }
-
-                    public void copyBlendingData(TextureBlender textureBlender) {
-                    }
-                };
+                return NON_CHANGING_BLENDER;
             default:
                 throw new IllegalStateException("Unknown image format type: " + format);
         }

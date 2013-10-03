@@ -55,9 +55,10 @@ public class UVCoordinatesGenerator {
     private static final Logger LOGGER = Logger.getLogger(UVCoordinatesGenerator.class.getName());
 
     public static enum UVCoordinatesType {
-        TEXCO_ORCO(1), TEXCO_REFL(2), TEXCO_NORM(4), TEXCO_GLOB(8), TEXCO_UV(16), TEXCO_OBJECT(32), TEXCO_LAVECTOR(64), TEXCO_VIEW(128), TEXCO_STICKY(256), TEXCO_OSA(512), TEXCO_WINDOW(1024), NEED_UV(2048), TEXCO_TANGENT(4096),
-        // still stored in vertex->accum, 1 D
-        TEXCO_PARTICLE_OR_STRAND(8192), TEXCO_STRESS(16384), TEXCO_SPEED(32768);
+        TEXCO_ORCO(1), TEXCO_REFL(2), TEXCO_NORM(4), TEXCO_GLOB(8), TEXCO_UV(16), TEXCO_OBJECT(32), TEXCO_LAVECTOR(64), TEXCO_VIEW(128), 
+        TEXCO_STICKY(256), TEXCO_OSA(512), TEXCO_WINDOW(1024), NEED_UV(2048), TEXCO_TANGENT(4096),
+        TEXCO_PARTICLE_OR_STRAND(8192), //TEXCO_PARTICLE (since blender 2.6x) has also the value of: 8192 but is used for halo materials instead of normal materials
+        TEXCO_STRESS(16384), TEXCO_SPEED(32768);
 
         public final int blenderValue;
 
