@@ -214,7 +214,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
                 Properties properties = this.loadProperties(objectStructure, blenderContext);
                 // the loaded property is a group property, so we need to get
                 // each value and set it to Spatial
-                if (result instanceof Spatial && properties != null && properties.getValue() != null) {
+                if (properties != null && properties.getValue() != null) {
                     this.applyProperties(result, properties);
                 }
             }

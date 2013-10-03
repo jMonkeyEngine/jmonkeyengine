@@ -102,7 +102,8 @@ import jme3tools.converters.RGB565;
                 alphas = new float[8];
                 alphas[0] = data.get() * 255.0f;
                 alphas[1] = data.get() * 255.0f;
-                alphaIndexes = data.get() | data.get() << 8 | data.get() << 16 | data.get() << 24 | data.get() << 32 | data.get() << 40;
+                // the casts to long must be done here because otherwise 32-bit integers would be shifetd by 32 and 40 bits which would result in improper values
+                alphaIndexes = (long)data.get() | (long)data.get() << 8 | (long)data.get() << 16 | (long)data.get() << 24 | (long)data.get() << 32 | (long)data.get() << 40;
                 if (alphas[0] > alphas[1]) {// 6 interpolated alpha values.
                     alphas[2] = (6 * alphas[0] + alphas[1]) / 7;
                     alphas[3] = (5 * alphas[0] + 2 * alphas[1]) / 7;

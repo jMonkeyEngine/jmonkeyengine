@@ -238,11 +238,13 @@ public class CurvesHelper extends AbstractBlenderHelper {
         }
 
         // reading custom properties
-        if (blenderContext.getBlenderKey().isLoadObjectProperties()) {
+        if (blenderContext.getBlenderKey().isLoadObjectProperties() && result.size() > 0) {
             Properties properties = this.loadProperties(curveStructure, blenderContext);
-            // the loaded property is a group property, so we need to get each value and set it to Spatial
-            if (result instanceof Spatial && properties != null && properties.getValue() != null) {
-                this.applyProperties((Spatial) result, properties);
+            // the loaded property is a group property, so we need to get each value and set it to every geometry of the curve
+            if (properties != null && properties.getValue() != null) {
+                for(Geometry geom : result) {
+                    this.applyProperties(geom, properties);
+                }
             }
         }
 
