@@ -97,6 +97,7 @@ public class TextureHelper extends AbstractBlenderHelper {
     public static final int         TEX_DISTNOISE    = 13;
     public static final int         TEX_POINTDENSITY = 14; // v. 25+
     public static final int         TEX_VOXELDATA    = 15; // v. 25+
+    public static final int         TEX_OCEAN        = 16; // v. 26+
 
     public static final Type[]      TEXCOORD_TYPES = new Type[] { Type.TexCoord, Type.TexCoord2, Type.TexCoord3, Type.TexCoord4, Type.TexCoord5, Type.TexCoord6, Type.TexCoord7, Type.TexCoord8 };
     
@@ -167,6 +168,7 @@ public class TextureHelper extends AbstractBlenderHelper {
             case TEX_VOXELDATA:
             case TEX_PLUGIN:
             case TEX_ENVMAP:
+            case TEX_OCEAN:
                 LOGGER.log(Level.WARNING, "Unsupported texture type: {0} for texture: {1}", new Object[] { type, tex.getName() });
                 break;
             default:
