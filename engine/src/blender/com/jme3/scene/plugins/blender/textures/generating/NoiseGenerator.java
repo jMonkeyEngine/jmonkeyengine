@@ -46,6 +46,7 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
  * This generator is responsible for creating various noises used to create
  * generated textures loaded from blender.
  * It is only used by TextureHelper.
+ * Take note that these functions are not thread safe.
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class NoiseGenerator {
@@ -137,71 +138,71 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
             }
         });
         noiseFunctions.put(Integer.valueOf(3), new NoiseFunction() {
+            private float[] da = new float[4];
+            private float[] pa = new float[12];
             // voronoi_F1
             public float execute(float x, float y, float z) {
-                float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[0];
             }
 
             public float executeSigned(float x, float y, float z) {
-                float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return 2.0f * da[0] - 1.0f;
             }
         });
         noiseFunctions.put(Integer.valueOf(4), new NoiseFunction() {
+            private float[] da = new float[4];
+            private float[] pa = new float[12];
             // voronoi_F2
             public float execute(float x, float y, float z) {
-                float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[1];
             }
 
             public float executeSigned(float x, float y, float z) {
-                float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return 2.0f * da[1] - 1.0f;
             }
         });
         noiseFunctions.put(Integer.valueOf(5), new NoiseFunction() {
+            private float[] da = new float[4];
+            private float[] pa = new float[12];
             // voronoi_F3
             public float execute(float x, float y, float z) {
-                float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[2];
             }
 
             public float executeSigned(float x, float y, float z) {
-                float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return 2.0f * da[2] - 1.0f;
             }
         });
         noiseFunctions.put(Integer.valueOf(6), new NoiseFunction() {
+            private float[] da = new float[4];
+            private float[] pa = new float[12];
             // voronoi_F4
             public float execute(float x, float y, float z) {
-                float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[3];
             }
 
             public float executeSigned(float x, float y, float z) {
-                float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return 2.0f * da[3] - 1.0f;
             }
         });
         noiseFunctions.put(Integer.valueOf(7), new NoiseFunction() {
+            private float[] da = new float[4];
+            private float[] pa = new float[12];
             // voronoi_F1F2
             public float execute(float x, float y, float z) {
-                float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return da[1] - da[0];
             }
 
             public float executeSigned(float x, float y, float z) {
-                float[] da = new float[4], pa = new float[12];
                 NoiseFunctions.voronoi(x, y, z, da, pa, 1, 0);
                 return 2.0f * (da[1] - da[0]) - 1.0f;
             }
@@ -221,9 +222,9 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
         noiseFunctions.put(Integer.valueOf(14), new NoiseFunction() {
             // cellNoise
             public float execute(float x, float y, float z) {
-                int xi = (int) Math.floor(x);
-                int yi = (int) Math.floor(y);
-                int zi = (int) Math.floor(z);
+                int xi = (int) FastMath.floor(x);
+                int yi = (int) FastMath.floor(y);
+                int zi = (int) FastMath.floor(z);
                 long n = xi + yi * 1301 + zi * 314159;
                 n ^= n << 13;
                 return (n * (n * n * 15731 + 789221) + 1376312589) / 4294967296.0f;
@@ -308,7 +309,7 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
                     y *= musgraveData.lacunarity;
                     z *= musgraveData.lacunarity;
                 }
-                rmd = (float) (musgraveData.octaves - Math.floor(musgraveData.octaves));
+                rmd = (float) (musgraveData.octaves - FastMath.floor(musgraveData.octaves));
                 if (rmd != 0.0f) {
                     value *= rmd * abstractNoiseFunc.executeSigned(x, y, z) * pwr + 1.0f;
                 }
@@ -381,7 +382,7 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
                     z *= musgraveData.lacunarity;
                 }
 
-                rmd = musgraveData.octaves - (float) Math.floor(musgraveData.octaves);
+                rmd = musgraveData.octaves - (float) FastMath.floor(musgraveData.octaves);
                 if (rmd != 0.0f) {
                     result += rmd * (abstractNoiseFunc.executeSigned(x, y, z) + musgraveData.offset) * pwr;
                 }
@@ -406,7 +407,7 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
                     z *= musgraveData.lacunarity;
                 }
 
-                rmd = (float) (musgraveData.octaves - Math.floor(musgraveData.octaves));
+                rmd = (float) (musgraveData.octaves - FastMath.floor(musgraveData.octaves));
                 if (rmd != 0.f) {
                     value += rmd * abstractNoiseFunc.executeSigned(x, y, z) * pwr;
                 }
@@ -438,7 +439,7 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
                     z *= musgraveData.lacunarity;
                 }
 
-                rmd = musgraveData.octaves - (float) Math.floor(musgraveData.octaves);
+                rmd = musgraveData.octaves - (float) FastMath.floor(musgraveData.octaves);
                 if (rmd != 0.0) {
                     increment = (abstractNoiseFunc.executeSigned(x, y, z) + musgraveData.offset) * pwr * value;
                     value += rmd * increment;
@@ -469,7 +470,7 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
                 z *= noiseSize;
             }
             float result = abstractNoiseFunc.execute(x, y, z);
-            return isHard ? Math.abs(2.0f * result - 1.0f) : result;
+            return isHard ? FastMath.abs(2.0f * result - 1.0f) : result;
         }
 
         public static float turbulence(float x, float y, float z, float noiseSize, int noiseDepth, int noiseBasis, boolean isHard) {
@@ -492,7 +493,7 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
             }
 
             float sum = 0, t, amp = 1, fscale = 1;
-            for (int i = 0; i <= noiseDepth; ++i, amp *= 0.5, fscale *= 2) {
+            for (int i = 0; i <= noiseDepth; ++i, amp *= 0.5f, fscale *= 2f) {
                 t = abstractNoiseFunc.execute(fscale * x, fscale * y, fscale * z);
                 if (isHard) {
                     t = FastMath.abs(2.0f * t - 1.0f);
@@ -504,11 +505,9 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
             return sum;
         }
 
-        /**
-         * Not 'pure' Worley, but the results are virtually the same. Returns distances in da and point coords in pa
-         */
+        private static float[] voronoiP = new float[3];
         public static void voronoi(float x, float y, float z, float[] da, float[] pa, float distanceExponent, int distanceType) {
-            float xd, yd, zd, d, p[] = new float[3];
+            float xd, yd, zd, d;
 
             DistanceFunction distanceFunc = distanceFunctions.get(Integer.valueOf(distanceType));
             if (distanceFunc == null) {
@@ -522,10 +521,10 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
             for (int i = xi - 1; i <= xi + 1; ++i) {
                 for (int j = yi - 1; j <= yi + 1; ++j) {
                     for (int k = zi - 1; k <= zi + 1; ++k) {
-                        NoiseMath.hash(i, j, k, p);
-                        xd = x - (p[0] + i);
-                        yd = y - (p[1] + j);
-                        zd = z - (p[2] + k);
+                        NoiseMath.hash(i, j, k, voronoiP);
+                        xd = x - (voronoiP[0] + i);
+                        yd = y - (voronoiP[1] + j);
+                        zd = z - (voronoiP[2] + k);
                         d = distanceFunc.execute(xd, yd, zd, distanceExponent);
                         if (d < da[0]) {
                             da[3] = da[2];
@@ -541,9 +540,9 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
                             pa[3] = pa[0];
                             pa[4] = pa[1];
                             pa[5] = pa[2];
-                            pa[0] = p[0] + i;
-                            pa[1] = p[1] + j;
-                            pa[2] = p[2] + k;
+                            pa[0] = voronoiP[0] + i;
+                            pa[1] = voronoiP[1] + j;
+                            pa[2] = voronoiP[2] + k;
                         } else if (d < da[1]) {
                             da[3] = da[2];
                             da[2] = da[1];
@@ -554,23 +553,23 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
                             pa[6] = pa[3];
                             pa[7] = pa[4];
                             pa[8] = pa[5];
-                            pa[3] = p[0] + i;
-                            pa[4] = p[1] + j;
-                            pa[5] = p[2] + k;
+                            pa[3] = voronoiP[0] + i;
+                            pa[4] = voronoiP[1] + j;
+                            pa[5] = voronoiP[2] + k;
                         } else if (d < da[2]) {
                             da[3] = da[2];
                             da[2] = d;
                             pa[9] = pa[6];
                             pa[10] = pa[7];
                             pa[11] = pa[8];
-                            pa[6] = p[0] + i;
-                            pa[7] = p[1] + j;
-                            pa[8] = p[2] + k;
+                            pa[6] = voronoiP[0] + i;
+                            pa[7] = voronoiP[1] + j;
+                            pa[8] = voronoiP[2] + k;
                         } else if (d < da[3]) {
                             da[3] = d;
-                            pa[9] = p[0] + i;
-                            pa[10] = p[1] + j;
-                            pa[11] = p[2] + k;
+                            pa[9] = voronoiP[0] + i;
+                            pa[10] = voronoiP[1] + j;
+                            pa[11] = voronoiP[2] + k;
                         }
                     }
                 }
@@ -580,7 +579,7 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
         // instead of adding another permutation array, just use hash table defined above
         public static float newPerlin(float x, float y, float z) {
             int A, AA, AB, B, BA, BB;
-            float floorX = (float) Math.floor(x), floorY = (float) Math.floor(y), floorZ = (float) Math.floor(z);
+            float floorX = (float) FastMath.floor(x), floorY = (float) FastMath.floor(y), floorZ = (float) FastMath.floor(z);
             int intX = (int) floorX & 0xFF, intY = (int) floorY & 0xFF, intZ = (int) floorZ & 0xFF;
             x -= floorX;
             y -= floorY;
@@ -659,13 +658,19 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
             float d = NoiseMath.lerp(sy, a, b);
             return 1.5f * NoiseMath.lerp(sz, c, d);
         }
-
+        
+        private static float[] cn = new float[8];
+        private static int[] b1 = new int[8];
+        private static int[] b2 = new int[2];
+        private static float[] xFactor = new float[8];
+        private static float[] yFactor = new float[8];
+        private static float[] zFactor = new float[8];
         public static float originalBlenderNoise(float x, float y, float z) {
             float n = 0.5f;
-
-            int ix = (int) Math.floor(x);
-            int iy = (int) Math.floor(y);
-            int iz = (int) Math.floor(z);
+            
+            int ix = (int) FastMath.floor(x);
+            int iy = (int) FastMath.floor(y);
+            int iz = (int) FastMath.floor(z);
 
             float ox = x - ix;
             float oy = y - iy;
@@ -688,21 +693,32 @@ import com.jme3.scene.plugins.blender.textures.generating.TextureGeneratorMusgra
             cn4 = 1.0f - 3.0f * cn4 - 2.0f * cn4 * jx;
             cn5 = 1.0f - 3.0f * cn5 - 2.0f * cn5 * jy;
             cn6 = 1.0f - 3.0f * cn6 - 2.0f * cn6 * jz;
-            float[] cn = new float[] { cn1 * cn2 * cn3, cn1 * cn2 * cn6, cn1 * cn5 * cn3, cn1 * cn5 * cn6, cn4 * cn2 * cn3, cn4 * cn2 * cn6, cn4 * cn5 * cn3, cn4 * cn5 * cn6, };
+            
+            cn[0] = cn1 * cn2 * cn3;
+            cn[1] = cn1 * cn2 * cn6;
+            cn[2] = cn1 * cn5 * cn3;
+            cn[3] = cn1 * cn5 * cn6;
+            cn[4] = cn4 * cn2 * cn3;
+            cn[5] = cn4 * cn2 * cn6;
+            cn[6] = cn4 * cn5 * cn3;
+            cn[7] = cn4 * cn5 * cn6;
+            
+            b1[0] = b1[1] = hash[hash[ix & 0xFF] + (iy & 0xFF)];
+            b1[2] = b1[3] = hash[hash[ix & 0xFF] + (iy + 1 & 0xFF)];
+            b1[4] = b1[5] = hash[hash[ix + 1 & 0xFF] + (iy & 0xFF)];
+            b1[6] = b1[7] = hash[hash[ix + 1 & 0xFF] + (iy + 1 & 0xFF)];
 
-            int b00 = hash[hash[ix & 0xFF] + (iy & 0xFF)];
-            int b01 = hash[hash[ix & 0xFF] + (iy + 1 & 0xFF)];
-            int b10 = hash[hash[ix + 1 & 0xFF] + (iy & 0xFF)];
-            int b11 = hash[hash[ix + 1 & 0xFF] + (iy + 1 & 0xFF)];
-            int[] b1 = new int[] { b00, b00, b01, b01, b10, b10, b11, b11 };
+            b2[0] = iz & 0xFF;
+            b2[1] = iz + 1 & 0xFF;
+            
+            xFactor[0] = xFactor[1] = xFactor[2] = xFactor[3] = ox;
+            xFactor[4] = xFactor[5] = xFactor[6] = xFactor[7] = jx;
+            yFactor[0] = yFactor[1] = yFactor[4] = yFactor[5] = oy;
+            yFactor[2] = yFactor[3] = yFactor[6] = yFactor[7] = jy;
+            zFactor[0] = zFactor[2] = zFactor[4] = zFactor[6] = oz;
+            zFactor[1] = zFactor[3] = zFactor[5] = zFactor[7] = jz;
 
-            int[] b2 = new int[] { iz & 0xFF, iz + 1 & 0xFF };
-
-            float[] xFactor = new float[] { ox, ox, ox, ox, jx, jx, jx, jx };
-            float[] yFactor = new float[] { oy, oy, jy, jy, oy, oy, jy, jy };
-            float[] zFactor = new float[] { oz, jz, oz, jz, oz, jz, oz, jz };
-
-            for (int i = 0; i < 8; ++i) {
+            for (int i = 0; i < cn.length; ++i) {
                 int hIndex = 3 * hash[b1[i] + b2[i % 2]];
                 n += cn[i] * (hashvectf[hIndex] * xFactor[i] + hashvectf[hIndex + 1] * yFactor[i] + hashvectf[hIndex + 2] * zFactor[i]);
             }
