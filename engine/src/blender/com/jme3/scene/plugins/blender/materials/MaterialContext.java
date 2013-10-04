@@ -159,7 +159,7 @@ public final class MaterialContext {
         // applying textures
         if (loadedTextures != null && loadedTextures.size() > 0) {
             int textureIndex = 0;
-            if(loadedTextures.size() > 8) {
+            if(loadedTextures.size() > TextureHelper.TEXCOORD_TYPES.length) {
                 LOGGER.log(Level.WARNING, "The blender file has defined more than {0} different textures. JME supports only {0} UV mappings.", TextureHelper.TEXCOORD_TYPES.length);
             }
             for (Entry<Number, CombinedTexture> entry : loadedTextures.entrySet()) {
@@ -169,6 +169,22 @@ public final class MaterialContext {
 
                     this.setTexture(material, entry.getKey().intValue(), combinedTexture.getResultTexture());
                     List<Vector2f> uvs = entry.getValue().getResultUVS();
+                    VertexBuffer uvCoordsBuffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[textureIndex++]);
+                    uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
+                    geometry.getMesh().setBuffer(uvCoordsBuffer);
+                } else {
+                    LOGGER.log(Level.WARNING, "The texture could not be applied because JME only supports up to {0} different UV's.", TextureHelper.TEXCOORD_TYPES.length);
+                }
+            }
+        } else if(userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
+            LOGGER.fine("No textures found for the mesh, but UV coordinates are applied.");
+            int textureIndex = 0;
+            if(userDefinedUVCoordinates.size() > TextureHelper.TEXCOORD_TYPES.length) {
+                LOGGER.log(Level.WARNING, "The blender file has defined more than {0} different UV coordinates for the mesh. JME supports only {0} UV coordinates buffers.", TextureHelper.TEXCOORD_TYPES.length);
+            }
+            for(Entry<String, List<Vector2f>> entry : userDefinedUVCoordinates.entrySet()) {
+                if(textureIndex < TextureHelper.TEXCOORD_TYPES.length) {
+                    List<Vector2f> uvs = entry.getValue();
                     VertexBuffer uvCoordsBuffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[textureIndex++]);
                     uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
                     geometry.getMesh().setBuffer(uvCoordsBuffer);
