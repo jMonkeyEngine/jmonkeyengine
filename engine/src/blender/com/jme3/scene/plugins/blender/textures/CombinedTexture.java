@@ -269,7 +269,7 @@ public class CombinedTexture {
         for (TextureData textureData : textureDatas) {
             TextureCubeMap texture = null;
             if (textureData.texture instanceof GeneratedTexture) {
-                texture = ((GeneratedTexture) textureData.texture).generateSkyTexture(size, horizontalColor, zenithColor);
+                texture = ((GeneratedTexture) textureData.texture).generateSkyTexture(size, horizontalColor, zenithColor, blenderContext);
             } else {
                 // first create a grayscale version of the image
                 Image image = textureData.texture.getImage();
