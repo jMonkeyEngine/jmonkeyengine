@@ -38,6 +38,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetLoader;
 import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.LoadingResults;
@@ -54,6 +55,7 @@ import com.jme3.scene.plugins.blender.curves.CurvesHelper;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.landscape.LandscapeHelper;
 import com.jme3.scene.plugins.blender.lights.LightHelper;
@@ -68,12 +70,13 @@ import com.jme3.scene.plugins.blender.textures.TextureHelper;
  * This is the main loading class. Have in notice that asset manager needs to have loaders for resources like textures.
  * @author Marcin Roguski (Kaelthas)
  */
-public class BlenderLoader extends AbstractBlenderLoader {
-
+public class BlenderLoader implements AssetLoader {
     private static final Logger     LOGGER = Logger.getLogger(BlenderLoader.class.getName());
 
     /** The blocks read from the file. */
     protected List<FileBlockHeader> blocks;
+    /** The blender context. */
+    protected BlenderContext        blenderContext;
 
     public Spatial load(AssetInfo assetInfo) throws IOException {
         try {
@@ -85,30 +88,35 @@ public class BlenderLoader extends AbstractBlenderLoader {
             for (FileBlockHeader block : blocks) {
                 switch (block.getCode()) {
                     case FileBlockHeader.BLOCK_OB00:// Object
-                        Object object = this.toObject(block.getStructure(blenderContext));
-                        if (object instanceof LightNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
+                        ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+                        Object object = objectHelper.toObject(block.getStructure(blenderContext), blenderContext);
+                        if (object instanceof LightNode) {
                             loadingResults.addLight((LightNode) object);
-                        } else if (object instanceof CameraNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.CAMERAS) != 0) {
+                        } else if (object instanceof CameraNode) {
                             loadingResults.addCamera((CameraNode) object);
-                        } else if (object instanceof Node && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
-                            LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+                        } else if (object instanceof Node) {
+                            if (LOGGER.isLoggable(Level.FINE)) {
+                                LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+                            }
                             if (this.isRootObject(loadingResults, (Node) object)) {
                                 loadingResults.addObject((Node) object);
                             }
                         }
                         break;
-                    // case FileBlockHeader.BLOCK_MA00:// Material
-                    // if (blenderKey.isLoadUnlinkedAssets() && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
-                    // loadingResults.addMaterial(this.toMaterial(block.getStructure(blenderContext)));
-                    // }
-                    // break;
+//                    case FileBlockHeader.BLOCK_MA00:// Material
+//                        MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
+//                        MaterialContext materialContext = materialHelper.toMaterialContext(block.getStructure(blenderContext), blenderContext);
+//                        if (blenderKey.isLoadUnlinkedAssets() && blenderKey.shouldLoad(FeaturesToLoad.MATERIALS)) {
+//                            loadingResults.addMaterial(this.toMaterial(block.getStructure(blenderContext)));
+//                        }
+//                        break;
                     case FileBlockHeader.BLOCK_SC00:// Scene
-                        if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.SCENES) != 0) {
+                        if (blenderKey.shouldLoad(FeaturesToLoad.SCENES)) {
                             sceneBlocks.add(block);
                         }
                         break;
                     case FileBlockHeader.BLOCK_WO00:// World
-                        if ((blenderKey.getFeaturesToLoad() & FeaturesToLoad.WORLD) != 0) {
+                        if (blenderKey.shouldLoad(FeaturesToLoad.WORLD)) {
                             Structure worldStructure = block.getStructure(blenderContext);
                             String worldName = worldStructure.getName();
                             if (blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
@@ -163,6 +171,42 @@ public class BlenderLoader extends AbstractBlenderLoader {
     }
 
     /**
+     * This method converts the given structure to a scene node.
+     * @param structure
+     *            structure of a scene
+     * @return scene's node
+     */
+    private Node toScene(Structure structure) {
+        ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+        Node result = new Node(structure.getName());
+        try {
+            List<Structure> base = ((Structure) structure.getFieldValue("base")).evaluateListBase(blenderContext);
+            for (Structure b : base) {
+                Pointer pObject = (Pointer) b.getFieldValue("object");
+                if (pObject.isNotNull()) {
+                    Structure objectStructure = pObject.fetchData(blenderContext.getInputStream()).get(0);
+
+                    Object object = objectHelper.toObject(objectStructure, blenderContext);
+                    if (object instanceof LightNode) {
+                        result.addLight(((LightNode) object).getLight());
+                        result.attachChild((LightNode) object);
+                    } else if (object instanceof Node) {
+                        if (LOGGER.isLoggable(Level.FINE)) {
+                            LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
+                        }
+                        if (((Node) object).getParent() == null) {
+                            result.attachChild((Spatial) object);
+                        }
+                    }
+                }
+            }
+        } catch (BlenderFileException e) {
+            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        }
+        return result;
+    }
+
+    /**
      * This method sets up the loader.
      * @param assetInfo
      *            the asset info
@@ -206,7 +250,7 @@ public class BlenderLoader extends AbstractBlenderLoader {
         blenderContext.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(LandscapeHelper.class, new LandscapeHelper(inputStream.getVersionNumber(), blenderContext));
-        
+
         // reading the blocks (dna block is automatically saved in the blender context when found)
         FileBlockHeader sceneFileBlock = null;
         do {

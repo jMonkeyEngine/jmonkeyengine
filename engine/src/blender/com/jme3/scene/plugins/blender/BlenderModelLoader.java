@@ -44,10 +44,12 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
+import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 
 /**
  * This is the main loading class. Have in notice that asset manager needs to have loaders for resources like textures.
- * @author Marcin Roguski
+ * 
+ * @author Marcin Roguski (Kaelthas)
  */
 public class BlenderModelLoader extends BlenderLoader {
 
@@ -63,8 +65,8 @@ public class BlenderModelLoader extends BlenderLoader {
 
             for (FileBlockHeader block : blocks) {
                 if (block.getCode() == FileBlockHeader.BLOCK_OB00) {
-                    Object object = this.toObject(block.getStructure(blenderContext));
-
+                    ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+                    Object object = objectHelper.toObject(block.getStructure(blenderContext), blenderContext);
                     if (object instanceof LightNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
                         modelRoot.addLight(((LightNode) object).getLight());
                         modelRoot.attachChild((LightNode) object);

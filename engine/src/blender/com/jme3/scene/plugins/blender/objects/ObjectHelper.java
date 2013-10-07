@@ -44,7 +44,6 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -93,21 +92,36 @@ public class ObjectHelper extends AbstractBlenderHelper {
      *            the object's structure
      * @param blenderContext
      *            the blender context
-     * @return blener's object representation
+     * @return blener's object representation or null if its type is excluded from loading
      * @throws BlenderFileException
      *             an exception is thrown when the given data is inapropriate
      */
     public Object toObject(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
+        LOGGER.fine("Loading blender object.");
+        
+        int type = ((Number) objectStructure.getFieldValue("type")).intValue();
+        ObjectType objectType = ObjectType.valueOf(type);
+        LOGGER.log(Level.FINE, "Type of the object: {0}.", objectType);
+        if(objectType == ObjectType.LAMP && !blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.LIGHTS)) {
+            LOGGER.fine("Lamps are not included in loading.");
+            return null;
+        }
+        if(objectType == ObjectType.CAMERA && !blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.CAMERAS)) {
+            LOGGER.fine("Cameras are not included in loading.");
+            return null;
+        }
+        if(!blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.OBJECTS)) {
+            LOGGER.fine("Objects are not included in loading.");
+            return null;
+        }
+        
+        LOGGER.fine("Checking if the object has not been already loaded.");
         Object loadedResult = blenderContext.getLoadedFeature(objectStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
         if (loadedResult != null) {
             return loadedResult;
         }
 
         blenderContext.pushParent(objectStructure);
-
-        // get object data
-        int type = ((Number) objectStructure.getFieldValue("type")).intValue();
-        ObjectType objectType = ObjectType.valueOf(type);
         String name = objectStructure.getName();
         LOGGER.log(Level.FINE, "Loading obejct: {0}", name);
 

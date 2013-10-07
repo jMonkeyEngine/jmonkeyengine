@@ -273,6 +273,10 @@ public class BlenderKey extends ModelKey {
     public void excludeFromLoading(int featuresNotToLoad) {
         featuresToLoad &= ~featuresNotToLoad;
     }
+    
+    public boolean shouldLoad(int featureToLoad) {
+        return (featuresToLoad & featureToLoad) != 0;
+    }
 
     /**
      * This method returns bitwise value of FeaturesToLoad interface value. It describes features that will be loaded by
