@@ -42,7 +42,7 @@ public interface PhysicsControl extends Control {
 
     /**
      * Only used internally, do not call.
-     * @param space 
+     * @param space
      */
     public void setPhysicsSpace(PhysicsSpace space);
 
@@ -56,4 +56,10 @@ public interface PhysicsControl extends Control {
      * @param state
      */
     public void setEnabled(boolean state);
+
+    /**
+     * Returns the current enabled state of the physics control
+     * @return current enabled state
+     */
+    public boolean isEnabled();
 }
