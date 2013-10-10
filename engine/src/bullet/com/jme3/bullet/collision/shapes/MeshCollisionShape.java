@@ -31,6 +31,13 @@
  */
 package com.jme3.bullet.collision.shapes;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.bullet.util.NativeMeshUtil;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
@@ -40,41 +47,91 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.BufferUtils;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Basic mesh collision shape
+ *
  * @author normenhansen
  */
 public class MeshCollisionShape extends CollisionShape {
 
+    private static final String VERTEX_BASE = "vertexBase";
+    private static final String TRIANGLE_INDEX_BASE = "triangleIndexBase";
+    private static final String TRIANGLE_INDEX_STRIDE = "triangleIndexStride";
+    private static final String VERTEX_STRIDE = "vertexStride";
+    private static final String NUM_TRIANGLES = "numTriangles";
+    private static final String NUM_VERTICES = "numVertices";
+    private static final String NATIVE_BVH = "nativeBvh";
     protected int numVertices, numTriangles, vertexStride, triangleIndexStride;
     protected ByteBuffer triangleIndexBase, vertexBase;
     protected long meshId = 0;
+    protected long nativeBVHBuffer = 0;
+    private boolean memoryOptimized;
 
     public MeshCollisionShape() {
     }
 
     /**
-     * creates a collision shape from the given TriMesh
-     * @param mesh the TriMesh to use
+     * Creates a collision shape from the given Mesh. 
+     * Default behavior, more optimized for memory usage.
+     *
+     * @param mesh
      */
     public MeshCollisionShape(Mesh mesh) {
-        createCollisionMesh(mesh);
+        this(mesh, true);
     }
 
+    /**
+     * Creates a collision shape from the given Mesh.
+     * <code>memoryOptimized</code> determines if optimized instead of 
+     * quantized BVH will be used.
+     * Internally, <code>memoryOptimized</code> BVH is slower to calculate (~4x) 
+     * but also smaller (~0.5x). 
+     * It is preferable to use the memory optimized version and then serialize
+     * the resulting MeshCollisionshape as this will also save the
+     * generated BVH. 
+     * An exception can be procedurally / generated collision shapes, where
+     * the generation time is more of a concern
+     *
+     * @param mesh the Mesh to use
+     * @param memoryOptimized True to generate a memory optimized BVH,
+     * false to generate quantized BVH.
+     */
+    public MeshCollisionShape(final Mesh mesh, final boolean memoryOptimized) {
+        this.memoryOptimized = memoryOptimized;
+        this.createCollisionMesh(mesh);
+    }
+
+    /**
+     * Advanced constructor, usually you don’t want to use this, but the Mesh
+     * based one. Passing false values can lead to a crash, use at own risk
+     *
+     * This constructor bypasses all copy logic normally used, this allows for
+     * faster bullet shape generation when using procedurally generated Meshes.
+     *
+     *
+     * @param indices the raw index buffer
+     * @param vertices the raw vertex buffer
+     * @param memoryOptimized use quantisize BVH, uses less memory, but slower
+     */
+    public MeshCollisionShape(ByteBuffer indices, ByteBuffer vertices, boolean memoryOptimized) {
+        this.triangleIndexBase = indices;
+        this.vertexBase = vertices;
+        this.numVertices = vertices.limit() / 4 / 3;
+        this.numTriangles = this.triangleIndexBase.limit() / 4 / 3;
+        this.vertexStride = 12;
+        this.triangleIndexStride = 12;
+        this.memoryOptimized = memoryOptimized;
+        this.createShape(true);
+    }
+    
     private void createCollisionMesh(Mesh mesh) {
-        triangleIndexBase = BufferUtils.createByteBuffer(mesh.getTriangleCount() * 3 * 4);
-        vertexBase = BufferUtils.createByteBuffer(mesh.getVertexCount() * 3 * 4);
-        numVertices = mesh.getVertexCount();
-        vertexStride = 12; //3 verts * 4 bytes per.
-        numTriangles = mesh.getTriangleCount();
-        triangleIndexStride = 12; //3 index entries * 4 bytes each.
+        this.triangleIndexBase = BufferUtils.createByteBuffer(mesh.getTriangleCount() * 3 * 4);
+        this.vertexBase = BufferUtils.createByteBuffer(mesh.getVertexCount() * 3 * 4);
+        this.numVertices = mesh.getVertexCount();
+        this.vertexStride = 12; // 3 verts * 4 bytes per.
+        this.numTriangles = mesh.getTriangleCount();
+        this.triangleIndexStride = 12; // 3 index entries * 4 bytes each.
 
         IndexBuffer indices = mesh.getIndicesAsList();
         FloatBuffer vertices = mesh.getFloatBuffer(Type.Position);
@@ -93,69 +150,86 @@ public class MeshCollisionShape extends CollisionShape {
         vertices.rewind();
         vertices.clear();
 
-        createShape();
+        this.createShape(true);
+    }
+
+    @Override
+    public void write(final JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule capsule = ex.getCapsule(this);
+        capsule.write(numVertices, MeshCollisionShape.NUM_VERTICES, 0);
+        capsule.write(numTriangles, MeshCollisionShape.NUM_TRIANGLES, 0);
+        capsule.write(vertexStride, MeshCollisionShape.VERTEX_STRIDE, 0);
+        capsule.write(triangleIndexStride, MeshCollisionShape.TRIANGLE_INDEX_STRIDE, 0);
+
+        triangleIndexBase.position(0);
+        byte[] triangleIndexBasearray = new byte[triangleIndexBase.limit()];
+        triangleIndexBase.get(triangleIndexBasearray);
+        capsule.write(triangleIndexBasearray, MeshCollisionShape.TRIANGLE_INDEX_BASE, null);
+
+        vertexBase.position(0);
+        byte[] vertexBaseArray = new byte[vertexBase.limit()];
+        vertexBase.get(vertexBaseArray);
+        capsule.write(vertexBaseArray, MeshCollisionShape.VERTEX_BASE, null);
+
+        if (memoryOptimized) {
+            byte[] data = saveBVH(objectId);
+            capsule.write(data, MeshCollisionShape.NATIVE_BVH, null);
+        }
+    }
+
+    @Override
+    public void read(final JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule capsule = im.getCapsule(this);
+        this.numVertices = capsule.readInt(MeshCollisionShape.NUM_VERTICES, 0);
+        this.numTriangles = capsule.readInt(MeshCollisionShape.NUM_TRIANGLES, 0);
+        this.vertexStride = capsule.readInt(MeshCollisionShape.VERTEX_STRIDE, 0);
+        this.triangleIndexStride = capsule.readInt(MeshCollisionShape.TRIANGLE_INDEX_STRIDE, 0);
+
+        this.triangleIndexBase = BufferUtils.createByteBuffer(capsule.readByteArray(MeshCollisionShape.TRIANGLE_INDEX_BASE, null));
+        this.vertexBase = BufferUtils.createByteBuffer(capsule.readByteArray(MeshCollisionShape.VERTEX_BASE, null));
+
+        byte[] nativeBvh = capsule.readByteArray(MeshCollisionShape.NATIVE_BVH, null);
+        if (nativeBvh == null) {
+            // Either using non memory optimized BVH or old J3O file
+            memoryOptimized = false;
+            createShape(true);
+        } else {
+            // Using memory optimized BVH, load from J3O, then assign it.
+            memoryOptimized = true;
+            createShape(false);
+            nativeBVHBuffer = setBVH(nativeBvh, this.objectId);
+        }
+    }
+
+    private void createShape(boolean buildBvt) {
+        this.meshId = NativeMeshUtil.createTriangleIndexVertexArray(this.triangleIndexBase, this.vertexBase, this.numTriangles, this.numVertices, this.vertexStride, this.triangleIndexStride);
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Mesh {0}", Long.toHexString(this.meshId));
+        this.objectId = createShape(memoryOptimized, buildBvt, this.meshId);
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(this.objectId));
+        this.setScale(this.scale);
+        this.setMargin(this.margin);
     }
 
     /**
-     * creates a jme mesh from the collision shape, only needed for debugging
+     * returns the pointer to the native buffer used by the in place
+     * de-serialized shape, must be freed when not used anymore!
      */
-//    public Mesh createJmeMesh(){
-//        return Converter.convert(bulletMesh);
-//    }
-    public void write(JmeExporter ex) throws IOException {
-        super.write(ex);
-        OutputCapsule capsule = ex.getCapsule(this);
-        capsule.write(numVertices, "numVertices", 0);
-        capsule.write(numTriangles, "numTriangles", 0);
-        capsule.write(vertexStride, "vertexStride", 0);
-        capsule.write(triangleIndexStride, "triangleIndexStride", 0);
-
-        capsule.write(triangleIndexBase.array(), "triangleIndexBase", new byte[0]);
-        capsule.write(vertexBase.array(), "vertexBase", new byte[0]);
-    }
-
-    public void read(JmeImporter im) throws IOException {
-        super.read(im);
-        InputCapsule capsule = im.getCapsule(this);
-        numVertices = capsule.readInt("numVertices", 0);
-        numTriangles = capsule.readInt("numTriangles", 0);
-        vertexStride = capsule.readInt("vertexStride", 0);
-        triangleIndexStride = capsule.readInt("triangleIndexStride", 0);
-
-        triangleIndexBase = ByteBuffer.wrap(capsule.readByteArray("triangleIndexBase", new byte[0]));
-        vertexBase = ByteBuffer.wrap(capsule.readByteArray("vertexBase", new byte[0])).order(ByteOrder.nativeOrder());
-        createShape();
-    }
-
-    protected void createShape() {
-//        bulletMesh = new IndexedMesh();
-//        bulletMesh.numVertices = numVertices;
-//        bulletMesh.numTriangles = numTriangles;
-//        bulletMesh.vertexStride = vertexStride;
-//        bulletMesh.triangleIndexStride = triangleIndexStride;
-//        bulletMesh.triangleIndexBase = triangleIndexBase;
-//        bulletMesh.vertexBase = vertexBase;
-//        bulletMesh.triangleIndexBase = triangleIndexBase;
-//        TriangleIndexVertexArray tiv = new TriangleIndexVertexArray(numTriangles, triangleIndexBase, triangleIndexStride, numVertices, vertexBase, vertexStride);
-//        objectId = new BvhTriangleMeshShape(tiv, true);
-//        objectId.setLocalScaling(Converter.convert(getScale()));
-//        objectId.setMargin(margin);
-        meshId = NativeMeshUtil.createTriangleIndexVertexArray(triangleIndexBase, vertexBase, numTriangles, numVertices, vertexStride, triangleIndexStride);
-        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Mesh {0}", Long.toHexString(meshId));
-        objectId = createShape(meshId);
-        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Created Shape {0}", Long.toHexString(objectId));
-        setScale(scale);
-        setMargin(margin);
-    }
-
-    private native long createShape(long meshId);
+    private native long setBVH(byte[] buffer, long objectid);
+    
+    private native byte[] saveBVH(long objectId);
+    
+    private native long createShape(boolean memoryOptimized, boolean buildBvt, long meshId);
 
     @Override
-    protected void finalize() throws Throwable {
+    public void finalize() throws Throwable {
         super.finalize();
-        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing Mesh {0}", Long.toHexString(meshId));
-        finalizeNative(meshId);
+        Logger.getLogger(this.getClass().getName()).log(Level.FINE, "Finalizing Mesh {0}", Long.toHexString(this.meshId));
+        if (this.meshId > 0) {
+            this.finalizeNative(this.meshId, this.nativeBVHBuffer);
+        }
     }
 
-    private native void finalizeNative(long objectId);
+    private native void finalizeNative(long objectId, long nativeBVHBuffer);
 }

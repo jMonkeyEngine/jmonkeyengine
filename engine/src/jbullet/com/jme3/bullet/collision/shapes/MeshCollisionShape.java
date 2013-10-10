@@ -57,14 +57,26 @@ public class MeshCollisionShape extends CollisionShape {
     public MeshCollisionShape() {
     }
 
-    /**
-     * creates a collision shape from the given TriMesh
-     * @param mesh the TriMesh to use
+    /** 
+     * Creates a collision shape from the given TriMesh
+     *
+     * @param mesh
+     *            the TriMesh to use
      */
     public MeshCollisionShape(Mesh mesh) {
+        this(mesh, false);
+    }
+ 
+    /**
+     * API compatibility with native bullet.
+     *
+     * @param mesh the TriMesh to use
+     * @param dummy Unused
+     */
+    public MeshCollisionShape(Mesh mesh, boolean dummy) {
         createCollisionMesh(mesh, new Vector3f(1, 1, 1));
     }
-
+    
     private void createCollisionMesh(Mesh mesh, Vector3f worldScale) {
         this.scale = worldScale;
         bulletMesh = Converter.convert(mesh);
