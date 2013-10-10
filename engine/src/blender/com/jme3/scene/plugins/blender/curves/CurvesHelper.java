@@ -53,7 +53,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
@@ -837,10 +836,5 @@ public class CurvesHelper extends AbstractBlenderHelper {
         } else {
             return new Vector3f(locArray.get(0).floatValue(), locArray.get(2).floatValue(), locArray.get(1).floatValue());
         }
-    }
-
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        return true;
     }
 }

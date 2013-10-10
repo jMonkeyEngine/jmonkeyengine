@@ -128,11 +128,6 @@ public class ModifierHelper extends AbstractBlenderHelper {
         return result;
     }
 
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        return true;
-    }
-
     /**
      * This method reads the object's animation modifier for blender version
      * 2.49 and lower.

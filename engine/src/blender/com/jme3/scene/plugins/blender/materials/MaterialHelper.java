@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -368,10 +367,5 @@ public class MaterialHelper extends AbstractBlenderHelper {
                     break;
             }
         }
-    }
-
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        return (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0;
     }
 }

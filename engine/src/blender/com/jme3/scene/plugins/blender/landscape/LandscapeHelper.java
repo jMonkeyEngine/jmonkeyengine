@@ -184,9 +184,4 @@ public class LandscapeHelper extends AbstractBlenderHelper {
         LOGGER.fine("Sky texture created. Creating sky.");
         return SkyFactory.createSky(blenderContext.getAssetManager(), texture, false);
     }
-
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        return true;
-    }
 }

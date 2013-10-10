@@ -413,11 +413,6 @@ public class ConstraintHelper extends AbstractBlenderHelper {
         return result;
     }
 
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        return true;
-    }
-
     /**
      * The space of target or owner transformation.
      * 

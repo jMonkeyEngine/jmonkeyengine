@@ -76,30 +76,6 @@ public abstract class AbstractBlenderHelper {
     }
 
     /**
-     * This method clears the state of the helper so that it can be used for different calculations of another feature.
-     */
-    public void clearState() {
-    }
-
-    /**
-     * This method should be used to check if the text is blank. Avoid using text.trim().length()==0. This causes that more strings are
-     * being created and stored in the memory. It can be unwise especially inside loops.
-     * @param text
-     *            the text to be checked
-     * @return <b>true</b> if the text is blank and <b>false</b> otherwise
-     */
-    protected boolean isBlank(String text) {
-        if (text != null) {
-            for (int i = 0; i < text.length(); ++i) {
-                if (!Character.isWhitespace(text.charAt(i))) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
      * This method loads the properties if they are available and defined for the structure.
      * @param structure
      *            the structure we read the properties from
@@ -153,15 +129,4 @@ public abstract class AbstractBlenderHelper {
             }
         }
     }
-
-    /**
-     * This method analyzes the given structure and the data contained within
-     * blender context and decides if the feature should be loaded.
-     * @param structure
-     *            structure to be analyzed
-     * @param blenderContext
-     *            the blender context
-     * @return <b>true</b> if the feature should be loaded and false otherwise
-     */
-    public abstract boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext);
 }

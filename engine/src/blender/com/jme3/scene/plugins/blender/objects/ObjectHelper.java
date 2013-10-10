@@ -113,6 +113,11 @@ public class ObjectHelper extends AbstractBlenderHelper {
         if(!blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.OBJECTS)) {
             LOGGER.fine("Objects are not included in loading.");
             return null;
+        }        
+        int lay = ((Number) objectStructure.getFieldValue("lay")).intValue();
+        if((lay & blenderContext.getBlenderKey().getLayersToLoad()) == 0) {
+            LOGGER.fine("The layer this object is located in is not included in loading.");
+            return null;
         }
         
         LOGGER.fine("Checking if the object has not been already loaded.");
@@ -355,17 +360,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
         }
 
         return result;
-    }
-
-    @Override
-    public void clearState() {
-        fixUpAxis = false;
-    }
-
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        int lay = ((Number) structure.getFieldValue("lay")).intValue();
-        return (lay & blenderContext.getBlenderKey().getLayersToLoad()) != 0 && (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0;
     }
     
     private static enum ObjectType {

@@ -112,7 +112,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
             int groupIndex = 0;
             for (Structure deformGroup : deformGroups) {
                 String deformGroupName = deformGroup.getFieldValue("name").toString();
-                int boneIndex = this.getBoneIndex(skeleton, deformGroupName);
+                int boneIndex = skeleton.getBoneIndex(deformGroupName);
                 if (boneIndex >= 0) {
                     result.put(groupIndex, boneIndex);
                 }
@@ -120,11 +120,6 @@ public class ArmatureHelper extends AbstractBlenderHelper {
             }
         }
         return result;
-    }
-
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        return true;
     }
 
     /**
@@ -169,7 +164,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         List<BoneTrack> tracks = new ArrayList<BoneTrack>();
         for (Structure actionGroup : actionGroups) {
             String name = actionGroup.getFieldValue("name").toString();
-            int boneIndex = this.getBoneIndex(skeleton, name);
+            int boneIndex = skeleton.getBoneIndex(name);
             if (boneIndex >= 0) {
                 List<Structure> channels = ((Structure) actionGroup.getFieldValue("channels")).evaluateListBase(blenderContext);
                 BezierCurve[] bezierCurves = new BezierCurve[channels.size()];
@@ -211,7 +206,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         List<BoneTrack> tracks = new ArrayList<BoneTrack>();
         for (Structure bActionChannel : actionChannels) {
             String name = bActionChannel.getFieldValue("name").toString();
-            int boneIndex = this.getBoneIndex(skeleton, name);
+            int boneIndex = skeleton.getBoneIndex(name);
             if (boneIndex >= 0) {
                 Pointer p = (Pointer) bActionChannel.getFieldValue("ipo");
                 if (!p.isNull()) {
@@ -226,24 +221,5 @@ public class ArmatureHelper extends AbstractBlenderHelper {
             }
         }
         return tracks.toArray(new BoneTrack[tracks.size()]);
-    }
-
-    /**
-     * This method returns the index of the bone in the given skeleton.
-     * 
-     * @param skeleton
-     *            the skeleton
-     * @param boneName
-     *            the name of the bone
-     * @return the index of the bone
-     */
-    private int getBoneIndex(Skeleton skeleton, String boneName) {
-        int result = -1;
-        for (int i = 0; i < skeleton.getBoneCount() && result == -1; ++i) {
-            if (boneName.equals(skeleton.getBone(i).getName())) {
-                result = i;
-            }
-        }
-        return result;
     }
 }

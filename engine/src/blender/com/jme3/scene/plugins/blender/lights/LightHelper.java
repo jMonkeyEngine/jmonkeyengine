@@ -31,7 +31,9 @@
  */
 package com.jme3.scene.plugins.blender.lights;
 
-import com.jme3.asset.BlenderKey.FeaturesToLoad;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
 import com.jme3.light.PointLight;
@@ -44,9 +46,6 @@ import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A class that is used in light calculations.
@@ -115,10 +114,5 @@ public class LightHelper extends AbstractBlenderHelper {
             result = new LightNode(null, light);
         }
         return result;
-    }
-
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        return (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0;
     }
 }

@@ -45,7 +45,6 @@ import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.BlenderKey;
-import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.GeneratedTextureKey;
 import com.jme3.asset.TextureKey;
 import com.jme3.math.Vector2f;
@@ -602,13 +601,8 @@ public class TextureHelper extends AbstractBlenderHelper {
         }
         return result;
     }
-
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        return (blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.TEXTURES) != 0;
-    }
     
-    public static class TextureData {
+    private static class TextureData {
         public Structure mtex;
         public Structure textureStructure;
         public int       uvCoordinatesType;

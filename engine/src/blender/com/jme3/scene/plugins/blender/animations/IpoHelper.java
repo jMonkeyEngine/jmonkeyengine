@@ -152,17 +152,12 @@ public class IpoHelper extends AbstractBlenderHelper {
         return new ConstIpo(constValue);
     }
 
-    @Override
-    public boolean shouldBeLoaded(Structure structure, BlenderContext blenderContext) {
-        return true;
-    }
-
     /**
      * Ipo constant curve. This is a curve with only one value and no specified
      * type. This type of ipo cannot be used to calculate tracks. It should only
      * be used to calculate single value for a given frame.
      * 
-     * @author Marcin Roguski
+     * @author Marcin Roguski (Kaelthas)
      */
     private class ConstIpo extends Ipo {
 
