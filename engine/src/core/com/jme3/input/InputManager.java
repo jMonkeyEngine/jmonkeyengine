@@ -602,6 +602,7 @@ public class InputManager implements RawInputListener {
         if (mapping == null) {
             //throw new IllegalArgumentException("Cannot find mapping: " + mappingName);
             logger.log(Level.WARNING, "Cannot find mapping to be removed, skipping: {0}", mappingName);
+            return;
         }
 
         ArrayList<Integer> triggers = mapping.triggers;
