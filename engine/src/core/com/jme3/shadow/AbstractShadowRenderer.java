@@ -104,6 +104,8 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
     private String[] shadowMapStringCache;
     private String[] lightViewStringCache;
+    //used to skip the post pass when there are no shadow casters.
+    protected boolean skipPostPass;
 
     
     /**
@@ -350,7 +352,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     public void postQueue(RenderQueue rq) {
         GeometryList occluders = rq.getShadowQueueContent(ShadowMode.Cast);
         sceneReceivers = rq.getShadowQueueContent(ShadowMode.Receive);
+        skipPostPass = false;
         if (sceneReceivers.size() == 0 || occluders.size() == 0) {
+            skipPostPass = true;
             return;
         }
 
@@ -427,7 +431,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     abstract GeometryList getReceivers(GeometryList sceneReceivers, GeometryList lightReceivers);
 
     public void postFrame(FrameBuffer out) {
-
+        if (skipPostPass) {
+            return;
+        }
         if (debug) {
             displayShadowMap(renderManager.getRenderer());
         }

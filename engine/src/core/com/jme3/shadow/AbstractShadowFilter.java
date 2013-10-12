@@ -71,7 +71,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     @SuppressWarnings("all")
     protected AbstractShadowFilter(AssetManager manager, int shadowMapSize, T shadowRenderer) {
         super("Post Shadow");
-        material = new Material(manager, "Common/MatDefs/Shadow/PostShadowFilter.j3md");
+        material = new Material(manager, "Common/MatDefs/Shadow/PostShadowFilter.j3md");       
         this.shadowRenderer = shadowRenderer;
         this.shadowRenderer.setPostShadowMaterial(material);
     }
@@ -86,7 +86,7 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
         return true;
     }
 
-    public Material getShadowMaterial() {
+    public Material getShadowMaterial() {       
         return material;
     }
     Vector4f tmpv = new Vector4f();
@@ -103,11 +103,17 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
     @Override
     protected void postQueue(RenderQueue queue) {
         shadowRenderer.postQueue(queue);
+         if(shadowRenderer.skipPostPass){
+             //removing the shadow map so that the post pass is skipped
+             material.setTexture("ShadowMap0", null);
+         }
     }
 
     @Override
     protected void postFrame(RenderManager renderManager, ViewPort viewPort, FrameBuffer prevFilterBuffer, FrameBuffer sceneBuffer) {
-        shadowRenderer.setPostShadowParams();
+        if(!shadowRenderer.skipPostPass){
+            shadowRenderer.setPostShadowParams();
+        }
     }
 
     @Override
