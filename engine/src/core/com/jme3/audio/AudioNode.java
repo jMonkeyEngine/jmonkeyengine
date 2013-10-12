@@ -45,15 +45,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * An <code>AudioNode</code> is used in jME3 for playing audio files.
- * <br/>
- * First, an {@link AudioNode} is loaded from file, and then assigned
- * to an audio node for playback. Once the audio node is attached to the 
- * scene, its location will influence the position it is playing from relative
- * to the {@link Listener}.
- * <br/>
- * An audio node can also play in "headspace", meaning its location
- * or velocity does not influence how it is played. 
+ * An <code>AudioNode</code> is a scene Node which can play audio assets. 
+ * 
+ * An AudioNode is either positional or ambient, with positional being the 
+ * default. Once a positional node is attached to the scene, its location and 
+ * velocity relative to the {@link Listener} affect how it sounds when played. 
+ * Positional nodes can only play monoaural (single-channel) assets, not stereo 
+ * ones. 
+ * 
+ * An ambient AudioNode plays in "headspace", meaning that the node's location 
+ * and velocity do not affect how it sounds when played. Ambient audio nodes can 
+ * play stereo assets. 
+ * 
  * The "positional" property of an AudioNode can be set via 
  * {@link AudioNode#setPositional(boolean) }.
  * 
