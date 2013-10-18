@@ -19,7 +19,7 @@ ALL PLATFORMS
 - Android NDK (optional): http://developer.android.com/sdk/ndk/index.html
 
 WINDOWS
-- Install mingw GNU C++ Compiler: http://www.mingw.org/
+- Install mingw-w64 GNU C++ Compiler: http://mingw-w64.sourceforge.net/
 - Install CMake: http://www.cmake.org/
 
 Mac OSX
@@ -136,9 +136,13 @@ Commands:
 Building on WINDOWS (MinGW/GCC, Recommended)
 -----------------------------------
 Requirements:
-- GNU C++ Compiler: http://www.mingw.org/
-                    http://mingw-w64.sourceforge.net/
+- GNU C++ Compiler: http://mingw-w64.sourceforge.net/
+                    http://sourceforge.net/projects/mingwbuilds/
 - CMake: http://www.cmake.org/
+
+NOTE: At this time compiling with GCC 4.8.1 fails with a segmentation fault. 
+You must use an older GCC version like 4.7.3. 
+The second link above (mingwbuilds) offers snapshots of MinGW for GCC 4.7.3.
 
 Commands:
 > cd bullet-trunk

@@ -441,11 +441,12 @@
             <includepath path="${bullet.java.include}"/>
             <includepath path="${bullet.java.include}/win32"/>
             <includepath path="${bullet.bullet.include}"/>
-            <!--compilerarg value="-m32"/-->
+            <compilerarg value="-m32"/>
             <linker name="${bullet.windows.compiler}" debug="${bullet.compile.debug}" >
                 <linkerarg value="-o${bullet.library.name}.dll" />
                 <linkerarg value="--kill-at" />
                 <linkerarg value="-static"/>
+                <linkerarg value="-m32"/>
                 <libset dir="build/bullet-base" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/> 
             </linker>
         </cc>
@@ -455,7 +456,7 @@
     <target name="-nativelib-windows-64" if="doBuildWindowsBinary64">
         <echo message="Building Windows 64bit version of native bullet"/>
         <mkdir dir="${bullet.output.dir}/windows"/>
-        <cc multithreaded="" name="${bullet.windows.compiler}" warnings="none" debug="${bullet.compile.debug}" outtype="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}64" objdir="build/bullet-native">
+        <cc multithreaded="" name="${bullet.windows.compiler}" warnings="none" debug="${bullet.compile.debug}" outtype="shared" outfile="${bullet.output.dir}/windows/${bullet.library.name}64" objdir="build/bullet-native-64">
             <compilerarg value="-fpermissive"/>
             <fileset dir="${bullet.source.dir}">
                 <include name="*.cpp">
@@ -464,12 +465,13 @@
             <includepath path="${bullet.java.include}"/>
             <includepath path="${bullet.java.include}/win32"/>
             <includepath path="${bullet.bullet.include}"/>
-            <!--compilerarg value="-m32"/-->
+            <compilerarg value="-m64"/>
             <linker name="${bullet.windows.compiler}" debug="${bullet.compile.debug}" >
                 <linkerarg value="-o${bullet.library.name}64.dll" />
                 <linkerarg value="--kill-at" />
                 <linkerarg value="-static"/>
-                <libset dir="build/bullet-base" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
+                <linkerarg value="-m64"/>
+                <libset dir="build/bullet-base-64" libs="BulletMultiThreaded,BulletDynamics,BulletCollision,LinearMath"/>
             </linker>
         </cc>
         <delete file="${bullet.output.dir}/windows/history.xml"/>
@@ -520,7 +522,7 @@
         <available file="${ndk.dir}/${ndk-build-name}" property="haveAndoidNdk"/>
     </target>
     
-    <target name="compile-bullet-sources" description="downloads and compiles the bullet native library to static binaries to be included in the final libbulletjme" depends="-check-conditions-pre, -get-bullet-sources, -compile-bullet-sources-windows, -compile-bullet-sources-macosx, -compile-bullet-sources-linux, -compile-bullet-sources-linux-64, -compile-bullet-sources-linux-mingw, -compile-bullet-sources-linux-mingw-64"/>
+    <target name="compile-bullet-sources" description="downloads and compiles the bullet native library to static binaries to be included in the final libbulletjme" depends="-check-conditions-pre, -get-bullet-sources, -compile-bullet-sources-windows, -compile-bullet-sources-windows-64, -compile-bullet-sources-macosx, -compile-bullet-sources-linux, -compile-bullet-sources-linux-64, -compile-bullet-sources-linux-mingw, -compile-bullet-sources-linux-mingw-64"/>
 
     <target name="-get-bullet-sources" unless="haveBulletSource">
         <echo>Downloading bullet source..</echo>
@@ -541,8 +543,33 @@
             <arg value="-DBUILD_EXTRAS:BOOL=OFF"/>
             <arg value="-DBUILD_DEMOS:BOOL=OFF"/>
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
-            <arg value="-DCMAKE_CXX_FLAGS=-fpermissive"/>
-
+            <arg value="-DCMAKE_C_FLAGS=-m32 -fpermissive"/>
+            <arg value="-DCMAKE_CXX_FLAGS=-m32 -fpermissive"/>
+            <arg value="-DCMAKE_LD_FLAGS=-m32"/>
+            
+            <arg value="."/>
+            <arg value="-G"/>
+            <arg value="MinGW Makefiles"/>
+        </exec>
+        <exec executable="${make.windows}" dir="${bullet.folder}"/>
+    </target>
+    
+    <target name="-compile-bullet-sources-windows-64" if="doBuildWindowsBase64">
+        <mkdir dir="build/bullet-base-64"/>
+        <property location="build/bullet-base-64" name="build64.folder.resolved"/>
+        <replace file="${bullet.folder}/CMakeLists.txt" token="#TODO add better GLUT detection for MinGW" value="           INCLUDE_DIRECTORIES($${BULLET_PHYSICS_SOURCE_DIR}/Glut)${line.separator}SET(GLUT_glut_LIBRARY $${BULLET_PHYSICS_SOURCE_DIR}/Glut/glut32.lib)"/>
+        <exec executable="${cmake.windows}" dir="${bullet.folder}" failonerror="true">
+            <arg value="."/>
+            <arg value="-DLIBRARY_OUTPUT_PATH='${build64.folder.resolved}'"/>
+            <arg value="-DBUILD_SHARED_LIBS=OFF"/>
+            <arg value="-DBUILD_MULTITHREADING=ON"/>
+            <arg value="-DBUILD_EXTRAS:BOOL=OFF"/>
+            <arg value="-DBUILD_DEMOS:BOOL=OFF"/>
+            <arg value="-DCMAKE_BUILD_TYPE=Release"/>
+            <arg value="-DCMAKE_C_FLAGS=-m64 -fpermissive"/>
+            <arg value="-DCMAKE_CXX_FLAGS=-m64 -fpermissive"/>
+            <arg value="-DCMAKE_LD_FLAGS=-m64"/>
+            
             <arg value="."/>
             <arg value="-G"/>
             <arg value="MinGW Makefiles"/>
