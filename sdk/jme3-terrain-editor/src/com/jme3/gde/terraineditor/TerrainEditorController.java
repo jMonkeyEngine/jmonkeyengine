@@ -42,7 +42,9 @@ import com.jme3.gde.core.sceneexplorer.nodes.JmeSpatial;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
 import com.jme3.gde.core.util.TerrainUtils;
+import com.jme3.gde.terraineditor.tools.PaintTerrainToolAction;
 import com.jme3.material.MatParam;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
@@ -50,6 +52,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.terrain.ProgressMonitor;
 import com.jme3.terrain.Terrain;
+import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.util.SkyFactory;
@@ -62,6 +65,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import jme3tools.converters.ImageToAwt;
@@ -107,15 +112,15 @@ public class TerrainEditorController implements NodeListener {
                     currentFileObject.saveAsset();
                     //TerrainSaveCookie sc = currentFileObject.getCookie(TerrainSaveCookie.class);
                     //if (sc != null) {
-                        Node root = rootNode.getLookup().lookup(Node.class);
-                        doSaveAlphaImages((Terrain)getTerrain(root));
+                        //Node root = rootNode.getLookup().lookup(Node.class);
+                        doSaveAlphaImages();
                     //}
                     return null;
                 }
             });
         }
     }
-    protected TerrainSaveCookie terrainSaveCookie = new TerrainSaveCookie();
+    private TerrainSaveCookie terrainSaveCookie = new TerrainSaveCookie();
 
     
     public TerrainEditorController(JmeSpatial jmeRootNode, AssetDataObject currentFileObject, TerrainEditorTopComponent topComponent) {
@@ -501,6 +506,7 @@ public class TerrainEditorController implements NodeListener {
         if (SceneApplication.getApplication().isOgl()) {
             doRemoveDiffuseTexture(layer);
             doRemoveNormalMap(layer);
+            doClearAlphaMap(layer);
         } else {
             try {
                 SceneApplication.getApplication().enqueue(new Callable() {
@@ -539,6 +545,43 @@ public class TerrainEditorController implements NodeListener {
         else
             terrain.getMaterial().clearParam("NormalMap_"+layer);
 
+        setNeedsSave(true);
+    }
+    
+    private void doClearAlphaMap(int selectedTextureIndex) {
+        Terrain terrain = (Terrain) getTerrain(null);
+        if (terrain == null)
+            return;
+        
+        int alphaIdx = selectedTextureIndex/4; // 4 = rgba = 4 textures
+        int texIndex = selectedTextureIndex - ((selectedTextureIndex/4)*4); // selectedTextureIndex/4 is an int floor
+        //selectedTextureIndex - (alphaIdx * 4)
+        Texture tex = doGetAlphaTexture(terrain, alphaIdx);
+        Image image = tex.getImage();
+        
+        PaintTerrainToolAction paint = new PaintTerrainToolAction();
+        
+        ColorRGBA color = ColorRGBA.Black;
+        for (int y=0; y<image.getHeight(); y++) {
+            for (int x=0; x<image.getWidth(); x++) {
+        
+                paint.manipulatePixel(image, x, y, color, false); // gets the color at that location (false means don't write to the buffer)
+                switch (texIndex) {
+                    case 0:
+                        color.r = 0; break;
+                    case 1:
+                        color.g = 0; break;
+                    case 2:
+                        color.b = 0; break;
+                    case 3:
+                        color.a = 0; break;
+                }
+                color.clamp();
+                paint.manipulatePixel(image, x, y, color, true); // set the new color
+            }
+        }
+        image.getData(0).rewind();
+        tex.getImage().setUpdateNeeded();
         setNeedsSave(true);
     }
 
@@ -713,12 +756,12 @@ public class TerrainEditorController implements NodeListener {
      * Save the terrain's alpha maps to disk, in the Textures/terrain-alpha/ directory
      * @throws IOException
      */
-    private synchronized void doSaveAlphaImages(Terrain terrain) {
+    private synchronized void doSaveAlphaImages() {
 
-        if (terrain == null) {
-            getTerrain(rootNode);
-            return;
-        }
+        terrainNode = null;
+        // re-look it up
+        Terrain terrain = (Terrain)getTerrain(rootNode);
+        
         
         AssetManager manager = SceneApplication.getApplication().getAssetManager();
         String assetFolder = null;
@@ -726,22 +769,53 @@ public class TerrainEditorController implements NodeListener {
             assetFolder = ((ProjectAssetManager)manager).getAssetFolderName();
         if (assetFolder == null)
             throw new IllegalStateException("AssetManager was not a ProjectAssetManager. Could not locate image save directories.");
-
+        
+        
         Texture alpha1 = doGetAlphaTexture(terrain, 0);
         BufferedImage bi1 = ImageToAwt.convert(alpha1.getImage(), false, true, 0);
-        File imageFile1 = new File(assetFolder+alpha1.getKey().getName());
+        File imageFile1 = new File(assetFolder+"/"+alpha1.getKey().getName());
         Texture alpha2 = doGetAlphaTexture(terrain, 1);
         BufferedImage bi2 = ImageToAwt.convert(alpha2.getImage(), false, true, 0);
-        File imageFile2 = new File(assetFolder+alpha2.getKey().getName());
+        File imageFile2 = new File(assetFolder+"/"+alpha2.getKey().getName());
         Texture alpha3 = doGetAlphaTexture(terrain, 2);
         BufferedImage bi3 = ImageToAwt.convert(alpha3.getImage(), false, true, 0);
-        File imageFile3 = new File(assetFolder+alpha3.getKey().getName());
+        File imageFile3 = new File(assetFolder+"/"+alpha3.getKey().getName());
+        
+        ImageOutputStream ios1 = null;
+        ImageOutputStream ios2 = null;
+        ImageOutputStream ios3 = null;
         try {
-            ImageIO.write(bi1, "png", imageFile1);
+            ios1 = new FileImageOutputStream(imageFile1);
+            ios2 = new FileImageOutputStream(imageFile2);
+            ios3 = new FileImageOutputStream(imageFile3);
+            ImageIO.write(bi1, "png", ios1);
             ImageIO.write(bi2, "png", imageFile2);
             ImageIO.write(bi3, "png", imageFile3);
         } catch (IOException ex) {
+            System.out.println("Failed saving alphamaps");
+            System.out.println("    "+imageFile1);
+            System.out.println("    "+imageFile2);
+            System.out.println("    "+imageFile3);
             Exceptions.printStackTrace(ex);
+        } finally {
+            try {
+                if (ios1 != null)
+                    ios1.close();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            try {
+                if (ios2 != null)
+                    ios2.close();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            try {
+                if (ios3 != null)
+                    ios3.close();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
         
     }

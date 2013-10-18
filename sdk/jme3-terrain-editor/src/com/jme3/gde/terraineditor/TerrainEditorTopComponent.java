@@ -264,7 +264,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         remainingTexTitleLabel = new javax.swing.JLabel();
         remainingTexturesLabel = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
-        wardIsoCheckBox = new javax.swing.JCheckBox();
         shininessField = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         triPlanarCheckBox = new javax.swing.JCheckBox();
@@ -273,7 +272,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         hintTextArea = new javax.swing.JTextArea();
 
         textureFileChooser.setApproveButtonText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.textureFileChooser.approveButtonText_1")); // NOI18N
-        textureFileChooser.setCurrentDirectory(new java.io.File("C:\\Assets\\Textures"));
+        textureFileChooser.setCurrentDirectory(new java.io.File("F:\\Assets\\Textures"));
         textureFileChooser.setDialogTitle(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.textureFileChooser.dialogTitle_1")); // NOI18N
         textureFileChooser.setFileFilter(new ImageFilter());
 
@@ -590,13 +589,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.jPanel2.border.title"))); // NOI18N
         jPanel2.setOpaque(false);
 
-        org.openide.awt.Mnemonics.setLocalizedText(wardIsoCheckBox, org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.wardIsoCheckBox.text")); // NOI18N
-        wardIsoCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                wardIsoCheckBoxActionPerformed(evt);
-            }
-        });
-
         shininessField.setText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.shininessField.text")); // NOI18N
         shininessField.setToolTipText(org.openide.util.NbBundle.getMessage(TerrainEditorTopComponent.class, "TerrainEditorTopComponent.shininessField.toolTipText")); // NOI18N
         shininessField.setInputVerifier(new ShininessVerifier());
@@ -625,7 +617,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(wardIsoCheckBox, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addComponent(shininessField, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -635,8 +626,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(wardIsoCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(triPlanarCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -818,10 +807,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         
     }//GEN-LAST:event_shininessFieldActionPerformed
 
-    private void wardIsoCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_wardIsoCheckBoxActionPerformed
-        editorController.setWardIsoEnabled(wardIsoCheckBox.isSelected());
-    }//GEN-LAST:event_wardIsoCheckBoxActionPerformed
-
     private void shininessFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_shininessFieldKeyTyped
         if (KeyEvent.VK_ENTER == evt.getKeyCode() ||
             KeyEvent.VK_TAB == evt.getKeyCode() ){
@@ -946,7 +931,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private javax.swing.JTable textureTable;
     private javax.swing.JPanel toolSettingsPanel;
     private javax.swing.JCheckBox triPlanarCheckBox;
-    private javax.swing.JCheckBox wardIsoCheckBox;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -1448,7 +1432,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
         editorController.enableTextureButtons();
         triPlanarCheckBox.setSelected(editorController.isTriPlanarEnabled());
-        wardIsoCheckBox.setSelected(editorController.isWardIsoEnabled());
+        //wardIsoCheckBox.setSelected(editorController.isWardIsoEnabled());
         shininessField.setText(""+editorController.getShininess());
     }
 
@@ -1493,6 +1477,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             return; // abort
         }
         getTableModel().removeTexture(selectedIndex);
+        editorController.removeTextureLayer(selectedIndex);
     }
 
     private TextureTableModel getTableModel() {

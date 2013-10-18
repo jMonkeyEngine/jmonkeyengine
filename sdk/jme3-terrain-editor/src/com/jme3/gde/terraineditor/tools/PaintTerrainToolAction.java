@@ -54,6 +54,8 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
     private float weight;
     private int selectedTextureIndex;
     
+    public PaintTerrainToolAction() {}
+    
     public PaintTerrainToolAction(Vector3f markerLocation, float radius, float weight, int selectedTextureIndex) {
         this.worldLoc = markerLocation.clone();
         this.radius = radius;
@@ -232,7 +234,7 @@ public class PaintTerrainToolAction extends AbstractTerrainToolAction {
      * @param color color to get/set
      * @param write to write the color or not
      */
-    protected void manipulatePixel(Image image, int x, int y, ColorRGBA color, boolean write){
+    public void manipulatePixel(Image image, int x, int y, ColorRGBA color, boolean write){
         ByteBuffer buf = image.getData(0);
         int width = image.getWidth();
 
