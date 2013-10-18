@@ -63,5 +63,10 @@ public interface ClientStateListener
     {
         public String reason;
         public Throwable error;
+        
+        @Override
+        public String toString() {
+            return "DisconnectInfo[" + reason + ", " + error + "]";
+        }
     }
 }
