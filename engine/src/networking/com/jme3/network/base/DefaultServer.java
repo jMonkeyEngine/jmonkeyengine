@@ -143,8 +143,10 @@ public class DefaultServer implements Server
 
     protected void checkChannel( int channel )
     {
-        if( channel < 0 || channel >= alternatePorts.size() )
-            throw new IllegalArgumentException( "Channel is undefined:" + channel );              
+        if( channel < MessageConnection.CHANNEL_DEFAULT_RELIABLE 
+            || channel >= alternatePorts.size() ) {
+            throw new IllegalArgumentException( "Channel is undefined:" + channel );
+        }              
     }
 
     public void start()

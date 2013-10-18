@@ -212,9 +212,19 @@ public class DefaultClient implements Client
  
     public void send( int channel, Message message )
     {
-        if( channel < 0 || channel + CH_FIRST >= channels.size() )
+        if( channel >= 0 ) {
+            // Make sure we aren't still connecting.  Channels
+            // won't be valid until we are fully connected since
+            // we receive the channel list from the server.
+            // The default channels don't require the connection
+            // to be fully up before sending.  
+            waitForConnected();
+        }
+    
+        if( channel < CHANNEL_DEFAULT_RELIABLE || channel + CH_FIRST >= channels.size() ) {
             throw new IllegalArgumentException( "Channel is undefined:" + channel );
-        send( channel + CH_FIRST, message, true );
+        }
+        send(channel + CH_FIRST, message, true);
     }
     
     protected void send( int channel, Message message, boolean waitForConnected )
