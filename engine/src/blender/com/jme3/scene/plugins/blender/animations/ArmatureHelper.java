@@ -41,7 +41,6 @@ import java.util.logging.Logger;
 import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
-import com.jme3.math.Matrix4f;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.curves.BezierCurve;
@@ -76,21 +75,25 @@ public class ArmatureHelper extends AbstractBlenderHelper {
     /**
      * This method builds the object's bones structure.
      * 
+     * @param armatureObjectOMA
+     *            the OMa of the armature node
      * @param boneStructure
      *            the structure containing the bones' data
      * @param parent
      *            the parent bone
      * @param result
      *            the list where the newly created bone will be added
+     * @param spatialOMA
+     *            the OMA of the spatial that will own the skeleton
      * @param blenderContext
      *            the blender context
      * @throws BlenderFileException
      *             an exception is thrown when there is problem with the blender
      *             file
      */
-    public void buildBones(Long armatureObjectOMA, Structure boneStructure, Bone parent, List<Bone> result, Matrix4f objectToArmatureTransformation, BlenderContext blenderContext) throws BlenderFileException {
+    public void buildBones(Long armatureObjectOMA, Structure boneStructure, Bone parent, List<Bone> result, Long spatialOMA, BlenderContext blenderContext) throws BlenderFileException {
         BoneContext bc = new BoneContext(armatureObjectOMA, boneStructure, blenderContext);
-        bc.buildBone(result, objectToArmatureTransformation, blenderContext);
+        bc.buildBone(result, spatialOMA, blenderContext);
     }
 
     /**

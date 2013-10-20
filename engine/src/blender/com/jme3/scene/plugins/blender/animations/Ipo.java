@@ -1,5 +1,6 @@
 package com.jme3.scene.plugins.blender.animations;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.animation.BoneTrack;
@@ -148,6 +149,11 @@ public class Ipo {
             if (blenderVersion < 250) {// in blender earlier than 2.50 the values are stored in degrees
                 degreeToRadiansFactor *= FastMath.DEG_TO_RAD * 10;// the values in blender are divided by 10, so we need to mult it here
             }
+            int yIndex = 1, zIndex = 2;
+            if(spatialTrack && fixUpAxis) {
+                yIndex = 2;
+                zIndex = 1;
+            }
 
             // calculating track data
             for (int frame = startFrame; frame <= stopFrame; ++frame) {
@@ -157,36 +163,30 @@ public class Ipo {
                 for (int j = 0; j < bezierCurves.length; ++j) {
                     double value = bezierCurves[j].evaluate(frame, BezierCurve.Y_VALUE);
                     switch (bezierCurves[j].getType()) {
-                    // LOCATION
+                        // LOCATION
                         case AC_LOC_X:
                             translation[0] = (float) value;
                             break;
                         case AC_LOC_Y:
-                            if (fixUpAxis) {
-                                translation[2] = value == 0.0f ? 0 : (float) -value;
-                            } else {
-                                translation[1] = (float) value;
-                            }
+                            translation[yIndex] = (float) value;
                             break;
                         case AC_LOC_Z:
-                            translation[fixUpAxis ? 1 : 2] = (float) value;
+                            translation[zIndex] = (float) value;
                             break;
 
                         // ROTATION (used with object animation)
-                        // the value here is in degrees divided by 10 (so in
-                        // example: 9 = PI/2)
                         case OB_ROT_X:
                             objectRotation[0] = (float) value * degreeToRadiansFactor;
                             break;
                         case OB_ROT_Y:
                             if (fixUpAxis) {
-                                objectRotation[2] = value == 0.0f ? 0 : (float) -value * degreeToRadiansFactor;
+                                objectRotation[yIndex] = value == 0.0f ? 0 : (float) -value * degreeToRadiansFactor;
                             } else {
-                                objectRotation[1] = (float) value * degreeToRadiansFactor;
+                                objectRotation[yIndex] = (float) value * degreeToRadiansFactor;
                             }
                             break;
                         case OB_ROT_Z:
-                            objectRotation[fixUpAxis ? 1 : 2] = (float) value * degreeToRadiansFactor;
+                            objectRotation[zIndex] = (float) value * degreeToRadiansFactor;
                             break;
 
                         // SIZE
@@ -200,9 +200,7 @@ public class Ipo {
                             scale[fixUpAxis ? 1 : 2] = (float) value;
                             break;
 
-                        // QUATERNION ROTATION (used with bone animation), dunno
-                        // why but here we shouldn't check the
-                        // spatialTrack flag value
+                        // QUATERNION ROTATION (used with bone animation)
                         case AC_QUAT_W:
                             quaternionRotation[3] = (float) value;
                             break;
@@ -210,17 +208,13 @@ public class Ipo {
                             quaternionRotation[0] = (float) value;
                             break;
                         case AC_QUAT_Y:
-                            if (fixUpAxis) {
-                                quaternionRotation[2] = value == 0.0f ? 0 : -(float) value;
-                            } else {
-                                quaternionRotation[1] = (float) value;
-                            }
-                            break;
-                        case AC_QUAT_Z:
                             quaternionRotation[fixUpAxis ? 1 : 2] = (float) value;
                             break;
+                        case AC_QUAT_Z:
+                            quaternionRotation[fixUpAxis ? 2 : 1] = (float) value;
+                            break;
                         default:
-                            LOGGER.warning("Unknown ipo curve type: " + bezierCurves[j].getType());
+                            LOGGER.log(Level.WARNING, "Unknown ipo curve type: {0}.", bezierCurves[j].getType());
                     }
                 }
                 translations[index] = localQuaternionRotation.multLocal(new Vector3f(translation[0], translation[1], translation[2]));

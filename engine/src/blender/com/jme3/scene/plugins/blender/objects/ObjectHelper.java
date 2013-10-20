@@ -44,6 +44,7 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -67,9 +68,9 @@ import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
  * @author Marcin Roguski (Kaelthas)
  */
 public class ObjectHelper extends AbstractBlenderHelper {
-    private static final Logger LOGGER               = Logger.getLogger(ObjectHelper.class.getName());
+    private static final Logger LOGGER     = Logger.getLogger(ObjectHelper.class.getName());
 
-    public static final String OMA_MARKER = "oma";
+    public static final String  OMA_MARKER = "oma";
 
     /**
      * This constructor parses the given blender version and stores the result.
@@ -98,28 +99,28 @@ public class ObjectHelper extends AbstractBlenderHelper {
      */
     public Object toObject(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
         LOGGER.fine("Loading blender object.");
-        
+
         int type = ((Number) objectStructure.getFieldValue("type")).intValue();
         ObjectType objectType = ObjectType.valueOf(type);
         LOGGER.log(Level.FINE, "Type of the object: {0}.", objectType);
-        if(objectType == ObjectType.LAMP && !blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.LIGHTS)) {
+        if (objectType == ObjectType.LAMP && !blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.LIGHTS)) {
             LOGGER.fine("Lamps are not included in loading.");
             return null;
         }
-        if(objectType == ObjectType.CAMERA && !blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.CAMERAS)) {
+        if (objectType == ObjectType.CAMERA && !blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.CAMERAS)) {
             LOGGER.fine("Cameras are not included in loading.");
             return null;
         }
-        if(!blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.OBJECTS)) {
+        if (!blenderContext.getBlenderKey().shouldLoad(FeaturesToLoad.OBJECTS)) {
             LOGGER.fine("Objects are not included in loading.");
             return null;
-        }        
+        }
         int lay = ((Number) objectStructure.getFieldValue("lay")).intValue();
-        if((lay & blenderContext.getBlenderKey().getLayersToLoad()) == 0) {
+        if ((lay & blenderContext.getBlenderKey().getLayersToLoad()) == 0) {
             LOGGER.fine("The layer this object is located in is not included in loading.");
             return null;
         }
-        
+
         LOGGER.fine("Checking if the object has not been already loaded.");
         Object loadedResult = blenderContext.getLoadedFeature(objectStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
         if (loadedResult != null) {
@@ -201,29 +202,29 @@ public class ObjectHelper extends AbstractBlenderHelper {
 
         if (result != null) {
             blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
-            
+
             result.setLocalTransform(t);
             result.setCullHint(visible ? CullHint.Always : CullHint.Inherit);
             if (parent instanceof Node) {
                 ((Node) parent).attachChild(result);
             }
-            
+
             LOGGER.fine("Reading and applying object's modifiers.");
             ModifierHelper modifierHelper = blenderContext.getHelper(ModifierHelper.class);
             Collection<Modifier> modifiers = modifierHelper.readModifiers(objectStructure, blenderContext);
             for (Modifier modifier : modifiers) {
                 modifier.apply(result, blenderContext);
             }
-            
+
             // I prefer do compute bounding box here than read it from the file
             result.updateModelBound();
-            
+
             LOGGER.fine("Applying markers (those will be removed before the final result is released).");
             blenderContext.addMarker(OMA_MARKER, result, objectStructure.getOldMemoryAddress());
-            if(objectType == ObjectType.ARMATURE) {
+            if (objectType == ObjectType.ARMATURE) {
                 blenderContext.addMarker(ArmatureHelper.ARMATURE_NODE_MARKER, result, Boolean.TRUE);
             }
-            
+
             LOGGER.fine("Loading constraints connected with this object.");
             ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
             constraintHelper.loadConstraints(objectStructure, blenderContext);
@@ -239,6 +240,31 @@ public class ObjectHelper extends AbstractBlenderHelper {
             }
         }
         return result;
+    }
+
+    /**
+     * Checks if the first given OMA points to a parent of the second one.
+     * The parent need not to be the direct one. This method should be called when we are sure
+     * that both of the features are alred loaded because it does not check it.
+     * The OMA's should point to a spatials, otherwise the function will throw ClassCastException.
+     * @param supposedParentOMA
+     *            the OMA of the node that we suppose might be a parent of the second one
+     * @param spatialOMA
+     *            the OMA of the scene's node
+     * @return <b>true</b> if the first given OMA points to a parent of the second one and <b>false</b> otherwise
+     */
+    public boolean isParent(Long supposedParentOMA, Long spatialOMA) {
+        Spatial supposedParent = (Spatial) blenderContext.getLoadedFeature(supposedParentOMA, LoadedFeatureDataType.LOADED_FEATURE);
+        Spatial spatial = (Spatial) blenderContext.getLoadedFeature(spatialOMA, LoadedFeatureDataType.LOADED_FEATURE);
+
+        Spatial parent = spatial.getParent();
+        while (parent != null) {
+            if (parent.equals(supposedParent)) {
+                return true;
+            }
+            parent = parent.getParent();
+        }
+        return false;
     }
 
     /**
@@ -320,7 +346,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
     public Matrix4f getMatrix(Structure structure, String matrixName, boolean applyFixUpAxis) {
         Matrix4f result = new Matrix4f();
         DynamicArray<Number> obmat = (DynamicArray<Number>) structure.getFieldValue(matrixName);
-        //the matrix must be square
+        // the matrix must be square
         int rowAndColumnSize = Math.abs((int) Math.sqrt(obmat.getTotalSize()));
         for (int i = 0; i < rowAndColumnSize; ++i) {
             for (int j = 0; j < rowAndColumnSize; ++j) {
@@ -361,29 +387,19 @@ public class ObjectHelper extends AbstractBlenderHelper {
 
         return result;
     }
-    
+
     private static enum ObjectType {
-        EMPTY(0),
-        MESH(1),
-        CURVE(2),
-        SURF(3),
-        TEXT(4),
-        METABALL(5),
-        LAMP(10),
-        CAMERA(11),
-        WAVE(21),
-        LATTICE(22),
-        ARMATURE(25);
-        
+        EMPTY(0), MESH(1), CURVE(2), SURF(3), TEXT(4), METABALL(5), LAMP(10), CAMERA(11), WAVE(21), LATTICE(22), ARMATURE(25);
+
         private int blenderTypeValue;
-        
+
         private ObjectType(int blenderTypeValue) {
             this.blenderTypeValue = blenderTypeValue;
         }
-        
+
         public static ObjectType valueOf(int blenderTypeValue) throws BlenderFileException {
-            for(ObjectType type : ObjectType.values()) {
-                if(type.blenderTypeValue == blenderTypeValue) {
+            for (ObjectType type : ObjectType.values()) {
+                if (type.blenderTypeValue == blenderTypeValue) {
                     return type;
                 }
             }

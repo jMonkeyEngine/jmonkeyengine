@@ -17,7 +17,6 @@ import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
-import com.jme3.math.Matrix4f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -35,7 +34,6 @@ import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.meshes.MeshContext;
-import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -85,17 +83,10 @@ import com.jme3.util.BufferUtils;
 
                 // load skeleton
                 Structure armatureStructure = ((Pointer) armatureObject.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
-
-                ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-                boolean fixUpAxis = blenderContext.getBlenderKey().isFixUpAxis();
-                Matrix4f armatureObjectMatrix = objectHelper.getMatrix(armatureObject, "obmat", fixUpAxis);
-                Matrix4f inverseMeshObjectMatrix = objectHelper.getMatrix(objectStructure, "imat", fixUpAxis);
-                Matrix4f objectToArmatureTransformation = armatureObjectMatrix.multLocal(inverseMeshObjectMatrix);
-
                 List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase(blenderContext);
                 List<Bone> bonesList = new ArrayList<Bone>();
                 for (int i = 0; i < bonebase.size(); ++i) {
-                    armatureHelper.buildBones(armatureObject.getOldMemoryAddress(), bonebase.get(i), null, bonesList, objectToArmatureTransformation, blenderContext);
+                    armatureHelper.buildBones(armatureObject.getOldMemoryAddress(), bonebase.get(i), null, bonesList, objectStructure.getOldMemoryAddress(), blenderContext);
                 }
                 bonesList.add(0, new Bone(""));
                 Bone[] bones = bonesList.toArray(new Bone[bonesList.size()]);
@@ -105,7 +96,7 @@ import com.jme3.util.BufferUtils;
                 this.meshStructure = meshStructure;
 
                 // read mesh indexes
-                this.meshOMA = meshStructure.getOldMemoryAddress();
+                meshOMA = meshStructure.getOldMemoryAddress();
 
                 // read animations
                 ArrayList<Animation> animations = new ArrayList<Animation>();
