@@ -390,7 +390,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      *            the transform to be converted
      * @return 4x4 matrix that represents the given transform
      */
-    private Matrix4f toMatrix(Transform transform) {
+    public Matrix4f toMatrix(Transform transform) {
         Matrix4f result = Matrix4f.IDENTITY;
         if (transform != null) {
             result = this.toMatrix(transform.getTranslation(), transform.getRotation(), transform.getScale());
