@@ -32,6 +32,8 @@
 package com.jme3.scene.plugins.blender;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,19 +63,17 @@ public class BlenderModelLoader extends BlenderLoader {
             this.setup(assetInfo);
 
             BlenderKey blenderKey = blenderContext.getBlenderKey();
-            Node modelRoot = new Node(blenderKey.getName());
-
+            List<Node> rootObjects = new ArrayList<Node>();
             for (FileBlockHeader block : blocks) {
                 if (block.getCode() == FileBlockHeader.BLOCK_OB00) {
                     ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
                     Object object = objectHelper.toObject(block.getStructure(blenderContext), blenderContext);
                     if (object instanceof LightNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
-                        modelRoot.addLight(((LightNode) object).getLight());
-                        modelRoot.attachChild((LightNode) object);
+                        rootObjects.add((LightNode)object);
                     } else if (object instanceof Node && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
                         LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
                         if (((Node) object).getParent() == null) {
-                            modelRoot.attachChild((Node) object);
+                            rootObjects.add((Node)object);
                         }
                     }
                 }
@@ -83,6 +83,16 @@ public class BlenderModelLoader extends BlenderLoader {
             ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
             constraintHelper.bakeConstraints(blenderContext);
 
+            //attach the nodes to the root node at the very end so that the root objects have no parents during constraint applying
+            LOGGER.fine("Creating the root node of the model and applying loaded nodes of the scene to it.");
+            Node modelRoot = new Node(blenderKey.getName());
+            for(Node node : rootObjects) {
+                if(node instanceof LightNode) {
+                    modelRoot.addLight(((LightNode) node).getLight());
+                }
+                modelRoot.attachChild(node);
+            }
+            
             blenderContext.dispose();
             return modelRoot;
         } catch (BlenderFileException e) {
