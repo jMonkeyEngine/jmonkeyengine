@@ -1304,7 +1304,8 @@ public class Mesh implements Savable, Cloneable {
     }
     
     public boolean isAnimated() {
-        return getBuffer(Type.BindPosePosition) != null;
+        //TODO this won't work once we have pose animations, we should find a better way to check for animation
+        return getBuffer(Type.BindPosePosition) != null && getBuffer(Type.BoneIndex) != null && getBuffer(Type.BoneWeight) != null;
     }
 
 
