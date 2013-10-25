@@ -656,32 +656,27 @@
     </target>
 
     <target name="-compile-bullet-sources-linux-mingw" depends="-fix-bullet-sources" if="doBuildLinuxBaseMingw">
+        <mkdir dir="build/bullet-base-mingw"/>
+        <property location="build/bullet-base-mingw" name="build-mingw.folder.resolved"/>
+        
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DCMAKE_SYSTEM_NAME=Windows"/>
-            <arg value="-DCMAKE_C_COMPILER=${cross.compile.target}-gcc"/>
-            <arg value="-DCMAKE_CXX_COMPILER=${cross.compile.target}-g++"/>
-            <arg value="-DCMAKE_RC_COMPILER=${cross.compile.target}-windres"/>
+            <arg value="-DCMAKE_C_COMPILER=/usr/bin/${cross.compile.target}-gcc"/>
+            <arg value="-DCMAKE_CXX_COMPILER=/usr/bin/${cross.compile.target}-g++"/>
+            <arg value="-DCMAKE_RC_COMPILER=/usr/bin/${cross.compile.target}-windres"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH=/usr/${cross.compile.target}"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"/>
-            <arg value="-DCMAKE_SKIP_RPATH=ON"/>
-            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
-            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
-        </exec>
-        <mkdir dir="build/bullet-base-mingw"/>
-        <property location="build/bullet-base-mingw" name="build-mingw.folder.resolved"/>
-        <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
+
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_MULTITHREADING=ON"/>
             <arg value="-DBUILD_EXTRAS=OFF"/>
             <arg value="-DBUILD_DEMOS=OFF"/>
             <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw.folder.resolved}'"/>
-            <arg value="-DCMAKE_SKIP_RPATH=ON"/>
-            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
-            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
+        
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
         <exec executable="${cross.compile.target}-ranlib">
             <arg value="${basedir}/build/bullet-base-mingw/libBulletMultiThreaded.a"/>
@@ -698,22 +693,19 @@
     </target>
     
     <target name="-compile-bullet-sources-linux-mingw-64" depends="-fix-bullet-sources" if="doBuildLinuxBaseMingw64">
+        <mkdir dir="build/bullet-base-mingw-64"/>
+        <property location="build/bullet-base-mingw-64" name="build-mingw64.folder.resolved"/>
+        
         <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
             <arg value="-DCMAKE_SYSTEM_NAME=Windows"/>
-            <arg value="-DCMAKE_C_COMPILER=${cross.compile.target64}-gcc"/>
-            <arg value="-DCMAKE_CXX_COMPILER=${cross.compile.target64}-g++"/>
-            <arg value="-DCMAKE_RC_COMPILER=${cross.compile.target64}-windres"/>
+            <arg value="-DCMAKE_C_COMPILER=/usr/bin/${cross.compile.target64}-gcc"/>
+            <arg value="-DCMAKE_CXX_COMPILER=/usr/bin/${cross.compile.target64}-g++"/>
+            <arg value="-DCMAKE_RC_COMPILER=/usr/bin/${cross.compile.target64}-windres"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH=/usr/${cross.compile.target64}"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY"/>
             <arg value="-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY"/>
-            <arg value="-DCMAKE_SKIP_RPATH=ON"/>
-            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
-            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
-        </exec>
-        <mkdir dir="build/bullet-base-mingw-64"/>
-        <property location="build/bullet-base-mingw-64" name="build-mingw64.folder.resolved"/>
-        <exec executable="${cmake.linux}" dir="${bullet.folder}" failonerror="true">
+            
             <arg value="-DCMAKE_BUILD_TYPE=Release"/>
             <arg value="-DBUILD_SHARED_LIBS=OFF"/>
             <arg value="-DBUILD_MULTITHREADING=ON"/>
@@ -721,10 +713,8 @@
             <arg value="-DBUILD_DEMOS=OFF"/>
             <arg value="-DCMAKE_CXX_FLAGS=-fpermissive"/>
             <arg value="-DLIBRARY_OUTPUT_PATH='${build-mingw64.folder.resolved}'"/>
-            <arg value="-DCMAKE_SKIP_RPATH=ON"/>
-            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_C_FLAGS=''"/>
-            <arg value="-DCMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS=''"/>
         </exec>
+        
         <exec executable="${make.linux}" dir="${bullet.folder}"/>
         <exec executable="${cross.compile.target64}-ranlib">
             <arg value="${basedir}/build/bullet-base-mingw-64/libBulletMultiThreaded.a"/>
