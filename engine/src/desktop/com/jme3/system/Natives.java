@@ -45,7 +45,7 @@ import java.util.logging.Logger;
 public final class Natives {
 
     private static final Logger logger = Logger.getLogger(Natives.class.getName());
-    private static final byte[] buf = new byte[1024];
+    private static final byte[] buf = new byte[1024 * 100];
     private static File extractionDirOverride = null;
     private static File extractionDir = null;
 
@@ -258,7 +258,7 @@ public final class Natives {
                     extractNativeLib("windows", "lwjgl64");
                 }
                 if (needOAL) {
-                    extractNativeLib("windows", "OpenAL64");
+                    extractNativeLib("windows", "OpenAL64", true, false);
                 }
                 if (needJInput) {
                     extractNativeLib("windows", "jinput-dx8_64");
@@ -273,7 +273,7 @@ public final class Natives {
                     extractNativeLib("windows", "lwjgl");
                 }
                 if (needOAL) {
-                    extractNativeLib("windows", "OpenAL32");
+                    extractNativeLib("windows", "OpenAL32", true, false);
                 }
                 if (needJInput) {
                     extractNativeLib("windows", "jinput-dx8");
