@@ -1,8 +1,10 @@
 package com.jme3.scene.plugins.blender.constraints;
 
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
@@ -58,15 +60,15 @@ public abstract class Constraint {
      */
     public Constraint(Structure constraintStructure, Long ownerOMA, Ipo influenceIpo, BlenderContext blenderContext) throws BlenderFileException {
         this.blenderContext = blenderContext;
-        this.name = constraintStructure.getFieldValue("name").toString();
+        name = constraintStructure.getFieldValue("name").toString();
         Pointer pData = (Pointer) constraintStructure.getFieldValue("data");
         if (pData.isNotNull()) {
             Structure data = pData.fetchData(blenderContext.getInputStream()).get(0);
             constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(data, ownerOMA, blenderContext);
             Pointer pTar = (Pointer) data.getFieldValue("tar");
             if (pTar != null && pTar.isNotNull()) {
-                this.targetOMA = pTar.getOldMemoryAddress();
-                this.targetSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("tarspace")).byteValue());
+                targetOMA = pTar.getOldMemoryAddress();
+                targetSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("tarspace")).byteValue());
                 Object subtargetValue = data.getFieldValue("subtarget");
                 if (subtargetValue != null) {// not all constraint data have the
                                              // subtarget field
@@ -77,10 +79,10 @@ public abstract class Constraint {
             // Null constraint has no data, so create it here
             constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(null, null, blenderContext);
         }
-        this.ownerSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("ownspace")).byteValue());
-        this.ipo = influenceIpo;
+        ownerSpace = Space.valueOf(((Number) constraintStructure.getFieldValue("ownspace")).byteValue());
+        ipo = influenceIpo;
         this.ownerOMA = ownerOMA;
-        this.constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+        constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
         LOGGER.log(Level.INFO, "Created constraint: {0} with definition: {1}", new Object[] { name, constraintDefinition });
     }
 
@@ -101,20 +103,35 @@ public abstract class Constraint {
     }
 
     /**
+     * @return the OMAs of the features whose transform had been altered beside the constraint owner
+     */
+    public Set<Long> getAlteredOmas() {
+        return constraintDefinition.getAlteredOmas();
+    }
+
+    /**
      * Performs validation before baking. Checks factors that can prevent
      * constraint from baking that could not be checked during constraint
      * loading.
      */
     public abstract boolean validate();
 
-    public abstract void apply(int frame);
+    /**
+     * Applies the constraint to owner (and in some cases can alter other bones of the skeleton).
+     * @param frame
+     *            the frame of the animation
+     */
+    public void apply(int frame) {
+        Transform targetTransform = targetOMA != null ? constraintHelper.getTransform(targetOMA, subtargetName, targetSpace) : null;
+        constraintDefinition.bake(ownerSpace, targetSpace, targetTransform, ipo.calculateValue(frame));
+    }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result + ((ownerOMA == null) ? 0 : ownerOMA.hashCode());
+        result = prime * result + (name == null ? 0 : name.hashCode());
+        result = prime * result + (ownerOMA == null ? 0 : ownerOMA.hashCode());
         return result;
     }
 
@@ -126,7 +143,7 @@ public abstract class Constraint {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (this.getClass() != obj.getClass()) {
             return false;
         }
         Constraint other = (Constraint) obj;

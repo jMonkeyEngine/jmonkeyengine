@@ -228,11 +228,14 @@ public class ConstraintHelper extends AbstractBlenderHelper {
 
             switch (space) {
                 case CONSTRAINT_SPACE_WORLD:
-                    return new Transform(bone.getModelSpacePosition(), bone.getModelSpaceRotation(), bone.getModelSpaceScale());
+                    Spatial model = (Spatial) blenderContext.getLoadedFeature(targetBoneContext.getSkeletonOwnerOma(), LoadedFeatureDataType.LOADED_FEATURE);
+                    Transform worldTransform = new Transform(bone.getModelSpacePosition(), bone.getModelSpaceRotation(), bone.getModelSpaceScale());
+                    worldTransform.getTranslation().addLocal(model.getWorldTranslation());
+                    worldTransform.getRotation().multLocal(model.getWorldRotation());
+                    worldTransform.getScale().multLocal(model.getWorldScale());
+                    return worldTransform;
                 case CONSTRAINT_SPACE_LOCAL:
-                    Transform localTransform = new Transform(bone.getLocalPosition(), bone.getLocalRotation());
-                    localTransform.setScale(bone.getLocalScale());
-                    return localTransform;
+                    return new Transform(bone.getLocalPosition(), bone.getLocalRotation(), bone.getLocalScale());
                 case CONSTRAINT_SPACE_POSE:
                     Node nodeWithAnimationControl = blenderContext.getControlledNode(targetBoneContext.getSkeleton());
                     Matrix4f m = this.toMatrix(nodeWithAnimationControl.getWorldTransform());
@@ -313,15 +316,16 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                     bone.setBindTransforms(transform.getTranslation(), transform.getRotation(), transform.getScale());
                     break;
                 case CONSTRAINT_SPACE_WORLD:
-                    Matrix4f boneMatrix = this.toMatrix(transform);
+                    Matrix4f boneMatrixInWorldSpace = this.toMatrix(transform);
+                    Matrix4f invertedModelMatrix = this.toMatrix(this.getTransform(targetBoneContext.getSkeletonOwnerOma(), null, Space.CONSTRAINT_SPACE_WORLD)).invertLocal();
+                    Matrix4f boneMatrixInModelSpace = invertedModelMatrix.mult(boneMatrixInWorldSpace);
                     Bone parent = bone.getParent();
                     if (parent != null) {
-                        Matrix4f invertedParentWorldMatrix = this.toMatrix(parent.getModelSpacePosition(), parent.getModelSpaceRotation(), parent.getModelSpaceScale()).invertLocal();
-                        boneMatrix = invertedParentWorldMatrix.multLocal(boneMatrix);
-                    }
+                        Matrix4f invertedParentMatrixInModelSpace = this.toMatrix(parent.getModelSpacePosition(), parent.getModelSpaceRotation(), parent.getModelSpaceScale()).invertLocal();
 
-                    boneMatrix = invertedNodeMatrix.multLocal(boneMatrix);
-                    bone.setBindTransforms(boneMatrix.toTranslationVector(), boneMatrix.toRotationQuat(), boneMatrix.toScaleVector());
+                        boneMatrixInModelSpace = invertedParentMatrixInModelSpace.mult(boneMatrixInModelSpace);
+                    }
+                    bone.setBindTransforms(boneMatrixInModelSpace.toTranslationVector(), boneMatrixInModelSpace.toRotationQuat(), boneMatrixInModelSpace.toScaleVector());
                     break;
                 case CONSTRAINT_SPACE_POSE:
                     Matrix4f armatureWorldMatrix = this.toMatrix(feature.getWorldTransform());
@@ -391,11 +395,10 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      * @return 4x4 matrix that represents the given transform
      */
     public Matrix4f toMatrix(Transform transform) {
-        Matrix4f result = Matrix4f.IDENTITY;
         if (transform != null) {
-            result = this.toMatrix(transform.getTranslation(), transform.getRotation(), transform.getScale());
+            return this.toMatrix(transform.getTranslation(), transform.getRotation(), transform.getScale());
         }
-        return result;
+        return Matrix4f.IDENTITY.clone();
     }
 
     /**

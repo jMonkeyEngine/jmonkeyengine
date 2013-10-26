@@ -34,6 +34,8 @@ public class BoneContext {
     private BlenderContext        blenderContext;
     /** The OMA of the bone's armature object. */
     private Long                  armatureObjectOMA;
+    /** The OMA of the model that owns the bone's skeleton. */
+    private Long skeletonOwnerOma;
     /** The structure of the bone. */
     private Structure             boneStructure;
     /** Bone's name. */
@@ -128,6 +130,7 @@ public class BoneContext {
      * @return newly created bone
      */
     public Bone buildBone(List<Bone> bones, Long skeletonOwnerOma, BlenderContext blenderContext) {
+        this.skeletonOwnerOma = skeletonOwnerOma;
         Long boneOMA = boneStructure.getOldMemoryAddress();
         bone = new Bone(boneName);
         bones.add(bone);
@@ -183,6 +186,13 @@ public class BoneContext {
     public Long getArmatureObjectOMA() {
         return armatureObjectOMA;
     }
+    
+    /**
+     * @return the OMA of the model that owns the bone's skeleton
+     */
+    public Long getSkeletonOwnerOma() {
+        return skeletonOwnerOma;
+    }
 
     /**
      * @return the skeleton the bone of this context belongs to
@@ -199,5 +209,10 @@ public class BoneContext {
      */
     private boolean is(int flagMask) {
         return (flag & flagMask) != 0;
+    }
+    
+    @Override
+    public String toString() {
+        return "BoneContext: " + bone.getName();
     }
 }

@@ -2,6 +2,7 @@ package com.jme3.scene.plugins.blender.constraints.definitions;
 
 import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
@@ -16,7 +17,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
     }
 
     @Override
-    public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+    public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
         // null constraint does nothing so no need to implement this one
     }
 

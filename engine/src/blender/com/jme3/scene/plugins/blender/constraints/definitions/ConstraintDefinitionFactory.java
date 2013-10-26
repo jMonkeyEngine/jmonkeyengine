@@ -50,6 +50,7 @@ public class ConstraintDefinitionFactory {
         CONSTRAINT_CLASSES.put("bRotLimitConstraint", ConstraintDefinitionRotLimit.class);
         CONSTRAINT_CLASSES.put("bSizeLikeConstraint", ConstraintDefinitionSizeLike.class);
         CONSTRAINT_CLASSES.put("bSizeLimitConstraint", ConstraintDefinitionSizeLimit.class);
+        CONSTRAINT_CLASSES.put("bKinematicConstraint", ConstraintDefinitionIK.class);
     }
 
     private static final Map<String, String>                                UNSUPPORTED_CONSTRAINTS = new HashMap<String, String>();
@@ -58,7 +59,6 @@ public class ConstraintDefinitionFactory {
         UNSUPPORTED_CONSTRAINTS.put("bChildOfConstraint", "Child of");
         UNSUPPORTED_CONSTRAINTS.put("bClampToConstraint", "Clamp to");
         UNSUPPORTED_CONSTRAINTS.put("bFollowPathConstraint", "Follow path");
-        UNSUPPORTED_CONSTRAINTS.put("bKinematicConstraint", "Inverse kinematic");
         UNSUPPORTED_CONSTRAINTS.put("bLockTrackConstraint", "Lock track");
         UNSUPPORTED_CONSTRAINTS.put("bMinMaxConstraint", "Min max");
         UNSUPPORTED_CONSTRAINTS.put("bPythonConstraint", "Python/Script");

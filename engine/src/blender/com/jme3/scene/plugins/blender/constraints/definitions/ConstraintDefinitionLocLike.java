@@ -4,6 +4,8 @@ import com.jme3.animation.Bone;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
@@ -40,14 +42,18 @@ import com.jme3.scene.plugins.blender.file.Structure;
             flag |= invZ >> 1;
         }
     }
-
+    
     @Override
-    public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+    public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
         if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null) {
             // cannot copy the location of a bone attached to its parent,
             // Blender forbids that
             return;
         }
+        
+        BoneContext boneContext = blenderContext.getBoneContext(ownerOMA);
+        Transform ownerTransform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace);
+        
         Vector3f ownerLocation = ownerTransform.getTranslation();
         Vector3f targetLocation = targetTransform.getTranslation();
 
@@ -82,6 +88,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
             startLocation.subtractLocal(ownerLocation).normalizeLocal().mult(influence);
             ownerLocation.addLocal(startLocation);
         }
+        
+        constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace, ownerTransform);
     }
 
     @Override

@@ -1,8 +1,12 @@
 package com.jme3.scene.plugins.blender.constraints.definitions;
 
+import java.util.Set;
+
 import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
@@ -11,14 +15,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
  * @author Marcin Roguski (Kaelthas)
  */
 public abstract class ConstraintDefinition {
+    protected ConstraintHelper constraintHelper;
     /** Constraints flag. Used to load user's options applied to the constraint. */
-    protected int          flag;
+    protected int              flag;
     /** The constraint's owner. Loaded during runtime. */
-    private Object         owner;
+    private Object             owner;
     /** The blender context. */
-    private BlenderContext blenderContext;
+    protected BlenderContext   blenderContext;
     /** The constraint's owner OMA. */
-    private Long           ownerOMA;
+    protected Long             ownerOMA;
+    /** Stores the OMA addresses of all features whose transform had been altered beside the constraint owner. */
+    protected Set<Long>        alteredOmas;
 
     /**
      * Loads a constraint definition based on the constraint definition
@@ -39,6 +46,7 @@ public abstract class ConstraintDefinition {
             }
         }
         this.blenderContext = blenderContext;
+        constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
         this.ownerOMA = ownerOMA;
     }
 
@@ -68,6 +76,13 @@ public abstract class ConstraintDefinition {
     }
 
     /**
+     * @return a list of all OMAs of the features that the constraint had altered beside its owner
+     */
+    public Set<Long> getAlteredOmas() {
+        return alteredOmas;
+    }
+
+    /**
      * @return the type name of the constraint
      */
     public abstract String getConstraintTypeName();
@@ -75,12 +90,14 @@ public abstract class ConstraintDefinition {
     /**
      * Bakes the constraint for the current feature (bone or spatial) position.
      * 
-     * @param ownerTransform
-     *            the input transform (here the result is stored)
+     * @param ownerSpace
+     *            the space where owner transform will be evaluated in
+     * @param targetSpace
+     *            the space where target transform will be evaluated in
      * @param targetTransform
      *            the target transform used by some of the constraints
      * @param influence
      *            the influence of the constraint (from range <0; 1>)
      */
-    public abstract void bake(Transform ownerTransform, Transform targetTransform, float influence);
+    public abstract void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence);
 }

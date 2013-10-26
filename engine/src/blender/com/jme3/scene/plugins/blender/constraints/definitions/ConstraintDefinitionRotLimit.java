@@ -3,6 +3,8 @@ package com.jme3.scene.plugins.blender.constraints.definitions;
 import com.jme3.math.FastMath;
 import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
@@ -65,9 +67,12 @@ import com.jme3.scene.plugins.blender.file.Structure;
          * limits[i][0] = limits[i][1]; limits[i][1] = temp; } }
          */
     }
-
+    
     @Override
-    public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+    public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
+        BoneContext boneContext = blenderContext.getBoneContext(ownerOMA);
+        Transform ownerTransform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace);
+        
         ownerTransform.getRotation().toAngles(angles);
         // make sure that the rotations are always in range [0, 2PI)
         // TODO: same comment as in constructor
@@ -105,6 +110,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
             angles[2] -= difference;
         }
         ownerTransform.getRotation().fromAngles(angles);
+        
+        constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace, ownerTransform);
     }
 
     @Override

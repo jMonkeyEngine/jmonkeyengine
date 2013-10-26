@@ -1,6 +1,7 @@
 package com.jme3.scene.plugins.blender.constraints.definitions;
 
 import com.jme3.math.Transform;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 
 /**
  * This class represents a constraint that is defined by blender but not
@@ -18,7 +19,7 @@ import com.jme3.math.Transform;
     }
 
     @Override
-    public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+    public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
     }
 
     @Override

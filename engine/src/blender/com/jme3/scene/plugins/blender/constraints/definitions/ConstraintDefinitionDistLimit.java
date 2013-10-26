@@ -4,6 +4,8 @@ import com.jme3.animation.Bone;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
@@ -24,17 +26,19 @@ import com.jme3.scene.plugins.blender.file.Structure;
         mode = ((Number) constraintData.getFieldValue("mode")).intValue();
         dist = ((Number) constraintData.getFieldValue("dist")).floatValue();
     }
-
+    
     @Override
-    public void bake(Transform ownerTransform, Transform targetTransform, float influence) {
+    public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
         if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null) {
             // distance limit does not work on bones who have parent
             return;
         }
+        
+        BoneContext boneContext = blenderContext.getBoneContext(ownerOMA);
+        Transform ownerTransform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace);
 
         Vector3f v = ownerTransform.getTranslation().subtract(targetTransform.getTranslation());
         float currentDistance = v.length();
-
         switch (mode) {
             case LIMITDIST_INSIDE:
                 if (currentDistance >= dist) {
@@ -62,6 +66,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
             default:
                 throw new IllegalStateException("Unknown distance limit constraint mode: " + mode);
         }
+        
+        constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace, ownerTransform);
     }
 
     @Override

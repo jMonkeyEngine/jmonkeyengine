@@ -3,7 +3,6 @@ package com.jme3.scene.plugins.blender.constraints;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jme3.math.Transform;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
@@ -20,8 +19,6 @@ import com.jme3.scene.plugins.blender.file.Structure;
  */
 /* package */class BoneConstraint extends Constraint {
     private static final Logger LOGGER = Logger.getLogger(BoneConstraint.class.getName());
-
-    protected boolean           isNodeTarget;
 
     /**
      * The bone constraint constructor.
@@ -45,14 +42,14 @@ import com.jme3.scene.plugins.blender.file.Structure;
     public boolean validate() {
         if (targetOMA != null) {
             Spatial nodeTarget = (Spatial) blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
-            if(nodeTarget == null) {
+            if (nodeTarget == null) {
                 LOGGER.log(Level.WARNING, "Cannot find target for constraint: {0}.", name);
                 return false;
             }
             // the second part of the if expression verifies if the found node
             // (if any) is an armature node
             if (blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, nodeTarget) != null) {
-                if(subtargetName.trim().isEmpty()) {
+                if (subtargetName.trim().isEmpty()) {
                     LOGGER.log(Level.WARNING, "No bone target specified for constraint: {0}.", name);
                     return false;
                 }
@@ -63,28 +60,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
                     LOGGER.log(Level.WARNING, "Bone constraint {0} must target bone in the its own skeleton! Targeting bone in another skeleton is not supported!", name);
                     return false;
                 }
-            } else {
-                isNodeTarget = true;
             }
         }
         return true;
-    }
-
-    @Override
-    public void apply(int frame) {
-        BoneContext boneContext = blenderContext.getBoneContext(ownerOMA);
-        Transform ownerTransform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace);
-        if (targetOMA != null) {
-            if (isNodeTarget) {
-                Transform targetTransform = targetOMA != null ? constraintHelper.getTransform(targetOMA, subtargetName, targetSpace) : null;
-                constraintDefinition.bake(ownerTransform, targetTransform, this.ipo.calculateValue(frame));
-            } else {
-                Transform targetTransform = constraintHelper.getTransform(targetOMA, subtargetName, targetSpace);
-                constraintDefinition.bake(ownerTransform, targetTransform, this.ipo.calculateValue(frame));
-            }
-        } else {
-            constraintDefinition.bake(ownerTransform, null, this.ipo.calculateValue(frame));
-        }
-        constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace, ownerTransform);
     }
 }
