@@ -4,6 +4,7 @@ import com.jme3.animation.Bone;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.Structure;
 
@@ -31,10 +32,9 @@ import com.jme3.scene.plugins.blender.file.Structure;
             int invY = flag & LOCLIKE_Y_INVERT;
             int z = flag & LOCLIKE_Z;
             int invZ = flag & LOCLIKE_Z_INVERT;
-            flag &= LOCLIKE_X | LOCLIKE_X_INVERT | LOCLIKE_OFFSET;// clear the
-                                                                  // other flags
-                                                                  // to swap
-                                                                  // them
+            // clear the other flags to swap them
+            flag &= LOCLIKE_X | LOCLIKE_X_INVERT | LOCLIKE_OFFSET;
+            
             flag |= y << 1;
             flag |= invY << 1;
             flag |= z >> 1;
@@ -44,9 +44,9 @@ import com.jme3.scene.plugins.blender.file.Structure;
     
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null) {
-            // cannot copy the location of a bone attached to its parent,
-            // Blender forbids that
+        if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null &&
+            blenderContext.getBoneContext(ownerOMA).is(BoneContext.CONNECTED_TO_PARENT)) {
+            // location copy does not work on bones who are connected to their parent
             return;
         }
         
@@ -57,8 +57,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
         Vector3f startLocation = ownerTransform.getTranslation().clone();
         Vector3f offset = Vector3f.ZERO;
-        if ((flag & LOCLIKE_OFFSET) != 0) {// we add the original location to
-                                           // the copied location
+        if ((flag & LOCLIKE_OFFSET) != 0) {// we add the original location to the copied location
             offset = startLocation;
         }
 

@@ -23,7 +23,7 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
  */
 public class BoneContext {
     // the flags of the bone
-    private static final int      CONNECTED_TO_PARENT                 = 0x10;
+    public static final int       CONNECTED_TO_PARENT                 = 0x10;
 
     /**
      * The bones' matrices have, unlike objects', the coordinate system identical to JME's (Y axis is UP, X to the right and Z toward us).
@@ -35,7 +35,7 @@ public class BoneContext {
     /** The OMA of the bone's armature object. */
     private Long                  armatureObjectOMA;
     /** The OMA of the model that owns the bone's skeleton. */
-    private Long skeletonOwnerOma;
+    private Long                  skeletonOwnerOma;
     /** The structure of the bone. */
     private Structure             boneStructure;
     /** Bone's name. */
@@ -186,7 +186,7 @@ public class BoneContext {
     public Long getArmatureObjectOMA() {
         return armatureObjectOMA;
     }
-    
+
     /**
      * @return the OMA of the model that owns the bone's skeleton
      */
@@ -207,10 +207,10 @@ public class BoneContext {
      *            the mask of the flag (constants defined in this class)
      * @return <b>true</b> if the bone IS of specified proeprty and <b>false</b> otherwise
      */
-    private boolean is(int flagMask) {
+    public boolean is(int flagMask) {
         return (flag & flagMask) != 0;
     }
-    
+
     @Override
     public String toString() {
         return "BoneContext: " + bone.getName();

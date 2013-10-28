@@ -4,6 +4,7 @@ import com.jme3.animation.Bone;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.Structure;
 
@@ -55,8 +56,9 @@ import com.jme3.scene.plugins.blender.file.Structure;
     
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null) {
-            // location limit does not work on bones who have parent
+        if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null &&
+            blenderContext.getBoneContext(ownerOMA).is(BoneContext.CONNECTED_TO_PARENT)) {
+            // location limit does not work on bones who are connected to their parent
             return;
         }
         
