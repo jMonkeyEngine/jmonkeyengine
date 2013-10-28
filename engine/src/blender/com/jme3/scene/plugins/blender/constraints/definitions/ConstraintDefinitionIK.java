@@ -40,7 +40,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
     
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if (needToCompute) {
+        if (needToCompute && influence != 0) {
             ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
             BoneContext[] boneContexts = this.getBones();
             float b = chainLength;
@@ -73,6 +73,8 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                 } else {
                     theta = vectorA.angleBetween(vectorC) - FastMath.acos(-(b * b - a * a - c * c) / (2 * a * c));
                 }
+                
+                theta *= influence;
 
                 if (theta != 0) {
                     Vector3f vectorR = vectorA.cross(vectorC);
