@@ -70,11 +70,7 @@ import com.jme3.util.BufferUtils;
      */
     public ArmatureModifier(Structure objectStructure, Structure modifierStructure, BlenderContext blenderContext) throws BlenderFileException {
         Structure meshStructure = ((Pointer) objectStructure.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
-        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
-
-        // if pDvert==null then there are not vertex groups and no need to load
-        // skeleton (untill bone envelopes are supported)
-        if (this.validate(modifierStructure, blenderContext) && pDvert.isNotNull()) {
+        if (this.validate(modifierStructure, blenderContext)) {
             Pointer pArmatureObject = (Pointer) modifierStructure.getFieldValue("object");
             if (pArmatureObject.isNotNull()) {
                 ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
