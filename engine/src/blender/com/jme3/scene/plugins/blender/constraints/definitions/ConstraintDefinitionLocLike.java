@@ -4,7 +4,6 @@ import com.jme3.animation.Bone;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.Structure;
 
@@ -51,8 +50,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
             return;
         }
         
-        BoneContext boneContext = blenderContext.getBoneContext(ownerOMA);
-        Transform ownerTransform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace);
+        Transform ownerTransform = this.getOwnerTransform(ownerSpace);
         
         Vector3f ownerLocation = ownerTransform.getTranslation();
         Vector3f targetLocation = targetTransform.getTranslation();
@@ -89,7 +87,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
             ownerLocation.addLocal(startLocation);
         }
         
-        constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace, ownerTransform);
+        this.applyOwnerTransform(ownerTransform, ownerSpace);
     }
 
     @Override

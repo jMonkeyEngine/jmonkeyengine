@@ -3,7 +3,6 @@ package com.jme3.scene.plugins.blender.constraints.definitions;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.Structure;
 
@@ -55,8 +54,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
     
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        BoneContext boneContext = blenderContext.getBoneContext(ownerOMA);
-        Transform ownerTransform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace);
+        Transform ownerTransform = this.getOwnerTransform(ownerSpace);
         
         Vector3f scale = ownerTransform.getScale();
         if ((flag & LIMIT_XMIN) != 0 && scale.x < limits[0][0]) {
@@ -78,7 +76,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
             scale.z -= (scale.z - limits[2][1]) * influence;
         }
         
-        constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace, ownerTransform);
+        this.applyOwnerTransform(ownerTransform, ownerSpace);
     }
 
     @Override

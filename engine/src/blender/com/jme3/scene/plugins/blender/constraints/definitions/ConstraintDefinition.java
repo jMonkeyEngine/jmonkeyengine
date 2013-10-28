@@ -2,9 +2,11 @@ package com.jme3.scene.plugins.blender.constraints.definitions;
 
 import java.util.Set;
 
+import com.jme3.animation.Bone;
 import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -65,6 +67,36 @@ public abstract class ConstraintDefinition {
             }
         }
         return owner;
+    }
+
+    /**
+     * The method gets the owner's transformation. The owner can be either bone or spatial.
+     * @param ownerSpace
+     *            the space in which the computed transformation is given
+     * @return the constraint owner's transformation
+     */
+    protected Transform getOwnerTransform(Space ownerSpace) {
+        if (this.getOwner() instanceof Bone) {
+            BoneContext boneContext = blenderContext.getBoneContext(ownerOMA);
+            return constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace);
+        }
+        return constraintHelper.getTransform(ownerOMA, null, ownerSpace);
+    }
+
+    /**
+     * The method applies the given transformation to the owner.
+     * @param ownerTransform
+     *            the transformation to apply to the owner
+     * @param ownerSpace
+     *            the space that defines which owner's transformation (ie. global, local, etc. will be set)
+     */
+    protected void applyOwnerTransform(Transform ownerTransform, Space ownerSpace) {
+        if (this.getOwner() instanceof Bone) {
+            BoneContext boneContext = blenderContext.getBoneContext(ownerOMA);
+            constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), ownerSpace, ownerTransform);
+        } else {
+            constraintHelper.applyTransform(ownerOMA, null, ownerSpace, ownerTransform);
+        }
     }
 
     /**
