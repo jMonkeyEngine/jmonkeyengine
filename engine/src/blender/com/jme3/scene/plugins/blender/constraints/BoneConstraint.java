@@ -64,4 +64,10 @@ import com.jme3.scene.plugins.blender.file.Structure;
         }
         return true;
     }
+    
+    @Override
+    public void apply(int frame) {
+        super.apply(frame);
+        blenderContext.getBoneContext(ownerOMA).getBone().updateWorldVectors();
+    }
 }

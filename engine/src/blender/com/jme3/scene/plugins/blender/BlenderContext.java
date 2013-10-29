@@ -115,8 +115,8 @@ public class BlenderContext {
     /** A map og helpers that perform loading. */
     private Map<String, AbstractBlenderHelper>  helpers                = new HashMap<String, AbstractBlenderHelper>();
     /** Markers used by loading classes to store some custom data. This is made to avoid putting this data into user properties. */
-    private Map<String, Map<Object, Object>>    markers                = new HashMap<String, Map<Object,Object>>();
-    
+    private Map<String, Map<Object, Object>>    markers                = new HashMap<String, Map<Object, Object>>();
+
     /**
      * This method sets the blender file version.
      * 
@@ -388,6 +388,16 @@ public class BlenderContext {
     }
 
     /**
+     * Returns constraints applied to the feature of the given OMA.
+     * @param ownerOMA
+     *            the constraints' owner OMA
+     * @return a list of constraints or <b>null</b> if no constraints are applied to the feature
+     */
+    public List<Constraint> getConstraints(Long ownerOMA) {
+        return constraints.get(ownerOMA);
+    }
+
+    /**
      * @return all available constraints
      */
     public List<Constraint> getAllConstraints() {
@@ -418,7 +428,7 @@ public class BlenderContext {
      * @return the animation data or null if none exists
      */
     public AnimationData getAnimData(Long ownerOMA) {
-        return this.animData.get(ownerOMA);
+        return animData.get(ownerOMA);
     }
 
     /**
@@ -430,7 +440,7 @@ public class BlenderContext {
      *            the skeleton specified by the given OMA
      */
     public void setSkeleton(Long skeletonOMA, Skeleton skeleton) {
-        this.skeletons.put(skeletonOMA, skeleton);
+        skeletons.put(skeletonOMA, skeleton);
     }
 
     /**
@@ -465,7 +475,7 @@ public class BlenderContext {
      * @return the skeleton specified by the given OMA
      */
     public Skeleton getSkeleton(Long skeletonOMA) {
-        return this.skeletons.get(skeletonOMA);
+        return skeletons.get(skeletonOMA);
     }
 
     /**
@@ -478,7 +488,7 @@ public class BlenderContext {
      *            the mesh's context
      */
     public void setMeshContext(Long meshOMA, MeshContext meshContext) {
-        this.meshContexts.put(meshOMA, meshContext);
+        meshContexts.put(meshOMA, meshContext);
     }
 
     /**
@@ -490,7 +500,7 @@ public class BlenderContext {
      * @return mesh's context
      */
     public MeshContext getMeshContext(Long meshOMA) {
-        return this.meshContexts.get(meshOMA);
+        return meshContexts.get(meshOMA);
     }
 
     /**
@@ -503,7 +513,7 @@ public class BlenderContext {
      *            the bones's context
      */
     public void setBoneContext(Long boneOMA, BoneContext boneContext) {
-        this.boneContexts.put(boneOMA, boneContext);
+        boneContexts.put(boneOMA, boneContext);
     }
 
     /**
@@ -564,7 +574,7 @@ public class BlenderContext {
         }
         return blenderKey.getDefaultMaterial();
     }
-    
+
     /**
      * Adds a custom marker for scene's feature.
      * 

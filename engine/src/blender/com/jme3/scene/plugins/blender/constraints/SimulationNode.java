@@ -274,12 +274,13 @@ public class SimulationNode {
                             track.setTime(time, 1, animControl, animChannel, vars);
                             skeleton.updateWorldVectors();
                         }
+                        
 
-                        // ... and then apply constraints ...
-                        for (Constraint constraint : constraints) {
-                            constraint.apply(frame);
-                            if (constraint.getAlteredOmas() != null) {
-                                alteredOmas.addAll(constraint.getAlteredOmas());
+                        // ... and then apply constraints from the root bone to the last child ...
+                        for (Bone rootBone : skeleton.getRoots()) {
+                            if(skeleton.getBoneIndex(rootBone) > 0) {
+                                //ommit the 0 - indexed root bone as it is the bone added by importer
+                                this.applyConstraints(rootBone, alteredOmas, frame);
                             }
                         }
 
@@ -354,6 +355,32 @@ public class SimulationNode {
     }
 
     /**
+     * Applies constraints to the given bone and its children.
+     * The goal is to apply constraint from root bone to the last child.
+     * @param bone
+     *            the bone whose constraints will be applied
+     * @param alteredOmas
+     *            the set of OMAS of the altered bones (is populated if necessary)
+     * @param frame
+     *            the current frame of the animation
+     */
+    private void applyConstraints(Bone bone, Set<Long> alteredOmas, int frame) {
+        BoneContext boneContext = blenderContext.getBoneContext(bone);
+        List<Constraint> constraints = this.findConstraints(boneContext.getBoneOma(), blenderContext);
+        if (constraints != null && constraints.size() > 0) {
+            for (Constraint constraint : constraints) {
+                constraint.apply(frame);
+                if (constraint.getAlteredOmas() != null) {
+                    alteredOmas.addAll(constraint.getAlteredOmas());
+                }
+            }
+        }
+        for (Bone child : bone.getChildren()) {
+            this.applyConstraints(child, alteredOmas, frame);
+        }
+    }
+
+    /**
      * Simulates the node.
      */
     public void simulate() {
@@ -401,9 +428,10 @@ public class SimulationNode {
      */
     private List<Constraint> findConstraints(Long ownerOMA, BlenderContext blenderContext) {
         List<Constraint> result = new ArrayList<Constraint>();
-        for (Constraint constraint : blenderContext.getAllConstraints()) {
-            if (constraint.ownerOMA.longValue() == ownerOMA.longValue()) {
-                if (constraint.isImplemented()) {
+        List<Constraint> constraints = blenderContext.getConstraints(ownerOMA);
+        if(constraints != null) {
+            for (Constraint constraint : constraints) {
+                if (constraint.isImplemented() && constraint.validate()) {
                     result.add(constraint);
                 } else {
                     LOGGER.log(Level.WARNING, "Constraint named: ''{0}'' of type ''{1}'' is not implemented and will NOT be applied!", new Object[] { constraint.name, constraint.getConstraintTypeName() });
