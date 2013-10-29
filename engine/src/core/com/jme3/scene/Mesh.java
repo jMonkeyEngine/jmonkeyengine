@@ -1166,28 +1166,30 @@ public class Mesh implements Savable, Cloneable {
         // Now, create the vertex buffers
         SafeArrayList<VertexBuffer> oldVertexData = other.getBufferList();
         for (VertexBuffer oldVb : oldVertexData) {
-            if (oldVb.getBufferType() == VertexBuffer.Type.Index
-                    ||oldVb.getBufferType() == VertexBuffer.Type.HWBoneIndex 
-                    || oldVb.getBufferType() == VertexBuffer.Type.HWBoneWeight  ) {
+            if (oldVb.getBufferType() == VertexBuffer.Type.Index) {
                 // ignore the index buffer
                 continue;
             }
 
-            // Create a new vertex buffer with similar configuration, but
-            // with the capacity of number of unique vertices
-            Buffer buffer = VertexBuffer.createBuffer(oldVb.getFormat(), oldVb.getNumComponents(), newNumVerts);
-
             VertexBuffer newVb = new VertexBuffer(oldVb.getBufferType());
             newVb.setNormalized(oldVb.isNormalized());
-            newVb.setupData(oldVb.getUsage(), oldVb.getNumComponents(), oldVb.getFormat(), buffer);
+            //check for data before copying, some buffers are just empty shells 
+            //for caching purpose (HW skinning buffers), and will be filled when
+            //needed
+            if(oldVb.getData()!=null){
+                // Create a new vertex buffer with similar configuration, but
+                // with the capacity of number of unique vertices
+                Buffer buffer = VertexBuffer.createBuffer(oldVb.getFormat(), oldVb.getNumComponents(), newNumVerts);
+                newVb.setupData(oldVb.getUsage(), oldVb.getNumComponents(), oldVb.getFormat(), buffer);
 
-            // Copy the vertex data from the old buffer into the new buffer
-            for (int i = 0; i < newNumVerts; i++) {
-                int oldIndex = newIndicesToOldIndices.get(i);
+                // Copy the vertex data from the old buffer into the new buffer
+                for (int i = 0; i < newNumVerts; i++) {
+                    int oldIndex = newIndicesToOldIndices.get(i);
 
-                // Copy the vertex attribute from the old index
-                // to the new index
-                oldVb.copyElement(oldIndex, newVb, i);
+                    // Copy the vertex attribute from the old index
+                    // to the new index
+                    oldVb.copyElement(oldIndex, newVb, i);
+                }
             }
             
             // Set the buffer on the mesh
