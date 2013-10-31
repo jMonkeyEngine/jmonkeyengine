@@ -1077,4 +1077,22 @@ public class ShaderNodeLoaderDelegate {
             declaredVariable.makeCondition();
         }
     }
+  
+    public void clear() {
+        nodeDefinitions.clear();
+        nodes.clear();
+        shaderNodeDefinition = null;
+        shaderNode = null;
+        techniqueDef = null;
+        attributes.clear();
+        vertexDeclaredUniforms.clear();
+        fragmentDeclaredUniforms.clear();
+        varyings.clear();
+        materialDef = null;
+        shaderLanguage = "";
+        shaderName = "";
+        varNames = "";
+        assetManager = null;
+        nulledConditions.clear();
+    }
 }

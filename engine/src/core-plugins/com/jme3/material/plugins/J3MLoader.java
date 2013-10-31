@@ -431,6 +431,7 @@ public class J3MLoader implements AssetLoader {
     }
 
     private void readTechnique(Statement techStat) throws IOException{
+        isUseNodes = false;
         String[] split = techStat.getLine().split(whitespacePattern);
         if (split.length == 1) {
             technique = new TechniqueDef(null);
@@ -468,8 +469,7 @@ public class J3MLoader implements AssetLoader {
         fragLanguage = null;
     }
 
-    private void loadFromRoot(List<Statement> roots) throws IOException{
-        isUseNodes = false;
+    private void loadFromRoot(List<Statement> roots) throws IOException{       
         if (roots.size() == 2){
             Statement exception = roots.get(0);
             String line = exception.getLine();
@@ -585,13 +585,17 @@ public class J3MLoader implements AssetLoader {
     protected void initNodesLoader() {
         if (!isUseNodes) {
             isUseNodes = fragName == null && vertName == null;
-            if (isUseNodes) {                
-                nodesLoaderDelegate = new ShaderNodeLoaderDelegate();
+            if (isUseNodes) { 
+                if(nodesLoaderDelegate == null){
+                    nodesLoaderDelegate = new ShaderNodeLoaderDelegate();
+                }else{
+                    nodesLoaderDelegate.clear();
+                }
                 nodesLoaderDelegate.setTechniqueDef(technique);
                 nodesLoaderDelegate.setMaterialDef(materialDef);
                 nodesLoaderDelegate.setAssetManager(assetManager);
             }
         }
-    }
+    }   
 
 }
