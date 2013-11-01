@@ -73,13 +73,15 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
         if (depth == 0) {
             depth = 1;
         }
+        int bytesPerPixel = image.getFormat().getBitsPerPixel() >> 3;
         ArrayList<ByteBuffer> dataArray = new ArrayList<ByteBuffer>(depth);
 
         float[] resultPixel = new float[4];
         for (int dataLayerIndex = 0; dataLayerIndex < depth; ++dataLayerIndex) {
             ByteBuffer data = image.getData(dataLayerIndex);
             data.rewind();
-            ByteBuffer newData = BufferUtils.createByteBuffer(data.limit());
+            int imagePixelCount = data.limit() / bytesPerPixel;
+            ByteBuffer newData = BufferUtils.createByteBuffer(imagePixelCount * 4);
 
             int dataIndex = 0, x = 0, y = 0, index = 0;
             while (index < data.limit()) {
@@ -87,11 +89,16 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
                 if (basePixelIO != null) {
                     basePixelIO.read(baseImage, dataLayerIndex, basePixel, x, y);
                     basePixel.toRGBA(materialColor);
+                    ++x;
+                    if (x >= width) {
+                        x = 0;
+                        ++y;
+                    }
                 }
 
                 // reading the current texture's pixel
                 pixelReader.read(image, dataLayerIndex, pixel, index);
-                index += image.getFormat().getBitsPerPixel() >> 3;
+                index += bytesPerPixel;
                 pixel.toRGBA(pixelColor);
                 if (negateTexture) {
                     pixel.negate();
@@ -102,12 +109,6 @@ public class TextureBlenderAWT extends AbstractTextureBlender {
                 newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
                 newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
                 newData.put(dataIndex++, (byte) (pixelColor[3] * 255.0f));
-
-                ++x;
-                if (x >= width) {
-                    x = 0;
-                    ++y;
-                }
             }
             dataArray.add(newData);
         }

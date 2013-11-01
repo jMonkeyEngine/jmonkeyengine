@@ -50,7 +50,7 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
         for (int dataLayerIndex = 0; dataLayerIndex < depth; ++dataLayerIndex) {
             ByteBuffer data = image.getData(dataLayerIndex);
             data.rewind();
-            ByteBuffer newData = BufferUtils.createByteBuffer(data.limit());
+            ByteBuffer newData = BufferUtils.createByteBuffer(data.limit() * 4);
 
             int dataIndex = 0, x = 0, y = 0;
             while (data.hasRemaining()) {
@@ -58,6 +58,12 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
                 if (basePixelIO != null) {
                     basePixelIO.read(baseImage, dataLayerIndex, basePixel, x, y);
                     basePixel.toRGBA(materialColor);
+                    
+                    ++x;
+                    if (x >= width) {
+                        x = 0;
+                        ++y;
+                    }
                 }
 
                 this.getTinAndAlpha(data, format, negateTexture, tinAndAlpha);
@@ -66,12 +72,6 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
                 newData.put(dataIndex++, (byte) (resultPixel[1] * 255.0f));
                 newData.put(dataIndex++, (byte) (resultPixel[2] * 255.0f));
                 newData.put(dataIndex++, (byte) (tinAndAlpha[1] * 255.0f));
-
-                ++x;
-                if (x >= width) {
-                    x = 0;
-                    ++y;
-                }
             }
             dataArray.add(newData);
         }
