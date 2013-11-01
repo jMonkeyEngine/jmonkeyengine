@@ -48,7 +48,7 @@ public abstract class ConstraintDefinition {
             }
         }
         this.blenderContext = blenderContext;
-        constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+        constraintHelper = (ConstraintHelper) (blenderContext == null ? null : blenderContext.getHelper(ConstraintHelper.class));
         this.ownerOMA = ownerOMA;
     }
 
