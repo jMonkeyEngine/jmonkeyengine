@@ -1,5 +1,7 @@
-uniform sampler2D m_Texture;
-uniform sampler2D m_DepthTexture;
+#import "Common/ShaderLib/MultiSample.glsllib"
+
+uniform COLORTEXTURE m_Texture;
+uniform DEPTHTEXTURE m_DepthTexture;
 varying vec2 texCoord;
 
 uniform float m_FocusRange;
@@ -11,9 +13,9 @@ vec2 m_NearFar = vec2( 0.1, 1000.0 );
 
 void main() {
 
-    vec4 texVal = texture2D( m_Texture, texCoord );
+    vec4 texVal = getColor( m_Texture, texCoord );
 
-    float zBuffer = texture2D( m_DepthTexture, texCoord ).r;
+    float zBuffer = getDepth( m_DepthTexture, texCoord ).r;
 
     //
     // z_buffer_value = a + b / z;
@@ -66,18 +68,18 @@ void main() {
     float yScale = m_YScale;
 
     // In order from lower left to right, depending on how you look at it
-    sum += texture2D( m_Texture, vec2(x - 2.0 * xScale, y - 2.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x - 0.0 * xScale, y - 2.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x + 2.0 * xScale, y - 2.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x - 1.0 * xScale, y - 1.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x + 1.0 * xScale, y - 1.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x - 2.0 * xScale, y - 0.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x + 2.0 * xScale, y - 0.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x - 1.0 * xScale, y + 1.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x + 1.0 * xScale, y + 1.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x - 2.0 * xScale, y + 2.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x - 0.0 * xScale, y + 2.0 * yScale) );
-    sum += texture2D( m_Texture, vec2(x + 2.0 * xScale, y + 2.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x - 2.0 * xScale, y - 2.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x - 0.0 * xScale, y - 2.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x + 2.0 * xScale, y - 2.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x - 1.0 * xScale, y - 1.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x + 1.0 * xScale, y - 1.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x - 2.0 * xScale, y - 0.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x + 2.0 * xScale, y - 0.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x - 1.0 * xScale, y + 1.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x + 1.0 * xScale, y + 1.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x - 2.0 * xScale, y + 2.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x - 0.0 * xScale, y + 2.0 * yScale) );
+    sum += getColor( m_Texture, vec2(x + 2.0 * xScale, y + 2.0 * yScale) );
 
     sum = sum / 12.0;
 

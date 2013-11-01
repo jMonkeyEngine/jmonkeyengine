@@ -12,6 +12,19 @@ MaterialDef Depth Of Field {
     }
 
     Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/Post/DepthOfField15.frag
+
+        WorldParameters {
+        }
+        
+        Defines {
+            RESOLVE_MS : NumSamples
+            RESOLVE_DEPTH_MS : NumSamplesDepth
+        }
+    }
+
+    Technique {
         VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
         FragmentShader GLSL100: Common/MatDefs/Post/DepthOfField.frag
 
