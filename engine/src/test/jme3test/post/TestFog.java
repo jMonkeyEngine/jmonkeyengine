@@ -98,6 +98,10 @@ public class TestFog extends SimpleApplication {
 
         fpp=new FilterPostProcessor(assetManager);
         //fpp.setNumSamples(4);
+        int numSamples = getContext().getSettings().getSamples();
+        if( numSamples > 0 ) {
+            fpp.setNumSamples(numSamples); 
+        }
         fog=new FogFilter();
         fog.setFogColor(new ColorRGBA(0.9f, 0.9f, 0.9f, 1.0f));
         fog.setFogDistance(155);

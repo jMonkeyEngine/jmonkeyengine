@@ -118,6 +118,12 @@ public class TestCrossHatch extends SimpleApplication {
         rootNode.attachChild(sky);
 
         fpp=new FilterPostProcessor(assetManager);
+        
+        int numSamples = getContext().getSettings().getSamples();
+        if( numSamples > 0 ) {
+            fpp.setNumSamples(numSamples); 
+        }
+        
         CrossHatchFilter chf=new CrossHatchFilter();
         
    

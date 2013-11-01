@@ -119,6 +119,11 @@ public class TestBloom extends SimpleApplication {
 
         fpp=new FilterPostProcessor(assetManager);
        // fpp.setNumSamples(4);
+        int numSamples = getContext().getSettings().getSamples();
+        if( numSamples > 0 ) {
+            fpp.setNumSamples(numSamples); 
+        }
+        
         BloomFilter bloom=new BloomFilter();
         bloom.setDownSamplingFactor(2);
         bloom.setBlurScale(1.37f);

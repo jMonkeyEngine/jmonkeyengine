@@ -73,6 +73,10 @@ public class TestDepthOfField extends SimpleApplication {
 
         fpp = new FilterPostProcessor(assetManager);
         //     fpp.setNumSamples(4);
+        int numSamples = getContext().getSettings().getSamples();
+        if( numSamples > 0 ) {
+            fpp.setNumSamples(numSamples); 
+        }
 
         dofFilter = new DepthOfFieldFilter();
         dofFilter.setFocusDistance(0);
