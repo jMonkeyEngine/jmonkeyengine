@@ -27,6 +27,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.CameraControl;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.debug.Grid;
 import com.jme3.scene.debug.WireBox;
@@ -48,6 +49,7 @@ public class SceneToolController implements AppState {
     protected Spatial selectionShape;
     protected AssetManager manager;
     protected Material blueMat;
+    protected AbstractCameraController camController;
 
     public SceneToolController(AssetManager manager) {
         this.toolsNode = new Node("ToolsNode");
@@ -60,6 +62,10 @@ public class SceneToolController implements AppState {
         this.manager = manager;
         initTools();
         SceneApplication.getApplication().getStateManager().attach(this);
+    }
+
+    public void setCamController(AbstractCameraController camController) {
+        this.camController = camController;
     }
 
     protected void initTools() {
@@ -167,6 +173,8 @@ public class SceneToolController implements AppState {
 
     public void doSetCursorLocation(Vector3f location) {
         cursor.setLocalTranslation(location);
+        if (camController != null)
+            camController.doSetCamFocus(location);
     }
 
     public void snapCursorToSelection() {

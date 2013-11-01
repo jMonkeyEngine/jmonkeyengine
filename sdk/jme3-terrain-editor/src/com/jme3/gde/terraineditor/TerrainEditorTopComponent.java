@@ -66,6 +66,7 @@ import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -91,6 +92,8 @@ import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.Lookup.Result;
 import org.openide.util.*;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -121,12 +124,23 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
     private DDSPreview ddsPreview;
     private Map<String, JButton> buttons = new HashMap<String, JButton>();
     private JPanel insideToolSettings;
+    
+    //private InstanceContent content;
 
     public TerrainEditorTopComponent() {
         initComponents();
         setName(NbBundle.getMessage(TerrainEditorTopComponent.class, "CTL_TerrainEditorTopComponent"));
         setToolTipText(NbBundle.getMessage(TerrainEditorTopComponent.class, "HINT_TerrainEditorTopComponent"));
-        associateLookup(ExplorerUtils.createLookup(new ExplorerManager(), getActionMap()));
+        //content = new InstanceContent();
+        
+        /*ActionMap actionMap = getActionMap();
+        for (Object key : actionMap.allKeys() ) {
+            System.out.println("key: "+key+ actionMap.get(key));
+            Action value = actionMap.get(key);
+        }*/
+        //actionMap.put(, terrainWizard);
+        Lookup lookup = ExplorerUtils.createLookup(new ExplorerManager(), getActionMap());
+        associateLookup(lookup);
         setIcon(ImageUtilities.loadImage(ICON_PATH, true));
         result = Utilities.actionsGlobalContext().lookupResult(JmeSpatial.class);
     }
@@ -745,7 +759,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
     private void paintButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paintButtonActionPerformed
         if (paintButton.isSelected()) {
-            PaintTerrainTool tool = new PaintTerrainTool();
+            PaintTerrainTool tool = new PaintTerrainTool(editorController);
             toolController.setTerrainEditButtonState(tool);
             setHintText(tool);
         } else {
@@ -802,7 +816,8 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             Float f = new Float(shininessField.getText());
             editorController.setShininess(Math.max(0, f));
         } catch (Exception e) {
-            return;
+            Logger.getLogger(TerrainEditorTopComponent.class.getName()).log(Level.WARNING,
+                    "Error accessing shininess field in terrain material.", e);
         }
         
     }//GEN-LAST:event_shininessFieldActionPerformed
@@ -1283,12 +1298,17 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
         //SceneUndoRedoManager m = Lookup.getDefault().lookup(SceneUndoRedoManager.class);//TODO remove this line
 
-        Logger.getLogger(TerrainEditorTopComponent.class.getName()).finer("Terrain openScene " + file.getName());
+        Logger.getLogger(TerrainEditorTopComponent.class.getName()).log(Level.FINER, "Terrain openScene {0}", file.getName());
 
         if (editorController != null) {
             editorController.cleanup();
         }
+        
+        //this.associateLookup( new AbstractLookup(content) ); // for saving alpha images
+        
         editorController = new TerrainEditorController(jmeNode, file, this);
+        
+        
         this.sentRequest = request;
         request.setWindowTitle("TerrainEditor - " + manager.getRelativeAssetPath(file.getPrimaryFile().getPath()));
         request.setToolNode(new Node("TerrainEditorToolNode"));
@@ -1339,14 +1359,13 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
             toolController.setEditorController(editorController);
             toolController.setCameraController(camController);
             toolController.setTopComponent(this);
-            editorController.setToolController(toolController);
 
             toolController.setHeightToolRadius((float) radiusSlider.getValue() / (float) radiusSlider.getMaximum());
             toolController.setHeightToolHeight((float) heightSlider.getValue() / (float) heightSlider.getMaximum());
             //toolController.setToolMesh(meshForm.isSelected()); // future for adding brush shape
 
             editorController.setTerrainLodCamera();
-
+            
             reinitTextureTable(); // update the UI
             if (editorController.getTerrain(null) != null) {
                 //createTerrainButton.setEnabled(false); // only let the user add one terrain
@@ -1449,10 +1468,6 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         while (textureTable.getModel().getRowCount() > 0) {
             ((TextureTableModel) textureTable.getModel()).removeRow(0);
         }
-
-        if (editorController.getTerrain(null) == null) {
-            return;
-        }
     }
 
     /**
@@ -1513,7 +1528,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
 
                 Float scale = editorController.getTextureScale(i);
                 if (scale == null) {
-                    scale = editorController.DEFAULT_TEXTURE_SCALE;
+                    scale = TerrainEditorController.DEFAULT_TEXTURE_SCALE;
                 }
                 addRow(new Object[]{"", i, i, scale});
             }
@@ -1540,7 +1555,7 @@ public final class TerrainEditorTopComponent extends TopComponent implements Sce
         }
 
         protected void addNewTexture(int newIndex) {
-            float scale = editorController.DEFAULT_TEXTURE_SCALE;
+            float scale = TerrainEditorController.DEFAULT_TEXTURE_SCALE;
 
             // add it to the table model
             addRow(new Object[]{"", newIndex, null, scale}); // add to the table model

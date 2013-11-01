@@ -34,7 +34,10 @@ package com.jme3.gde.core.sceneexplorer.nodes;
 import com.jme3.gde.core.icons.IconList;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import java.awt.Image;
+import java.io.IOException;
+import org.openide.cookies.SaveCookie;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
 
 /**

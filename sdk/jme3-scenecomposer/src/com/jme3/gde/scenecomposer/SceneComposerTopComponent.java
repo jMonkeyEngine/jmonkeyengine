@@ -571,7 +571,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
     }//GEN-LAST:event_resetCursorButtonActionPerformed
 
     private void camToCursorSelectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_camToCursorSelectionButtonActionPerformed
-        camController.setCamFocus(toolController.getCursorLocation());
+        camController.setCamFocus(toolController.getCursorLocation(), true);
     }//GEN-LAST:event_camToCursorSelectionButtonActionPerformed
 
     private void cursorToSelectionButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cursorToSelectionButtonActionPerformed
@@ -1017,7 +1017,8 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
 
             editorController.setToolController(toolController);
             toolController.refreshNonSpatialMarkers();
-
+            toolController.setCamController(camController);
+            
             editorController.setTerrainLodCamera();
             final SpatialAssetDataObject dobj = ((SpatialAssetDataObject) currentRequest.getDataObject());
             listener = new ProjectAssetManager.ClassPathChangeListener() {

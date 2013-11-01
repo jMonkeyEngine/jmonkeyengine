@@ -79,6 +79,7 @@ import org.openide.nodes.NodeMemberEvent;
 import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.lookup.InstanceContent;
 
 /**
  * Modifies the actual terrain in the scene.
@@ -101,40 +102,46 @@ public class TerrainEditorController implements NodeListener {
     protected final int MAX_DIFFUSE = 12;
     protected final int MAX_TEXTURES = 16-NUM_ALPHA_TEXTURES; // 16 max (diffuse and normal), minus the ones we are reserving
 
+    private boolean alphaLayersChanged = false;
+    //private InstanceContent content;
     
     class TerrainSaveCookie implements SaveCookie {
         JmeSpatial rootNode;
         
         public void save() throws IOException {
-            SceneApplication.getApplication().enqueue(new Callable() {
+            if (alphaLayersChanged) {
+                SceneApplication.getApplication().enqueue(new Callable() {
 
-                public Object call() throws Exception {
-                    currentFileObject.saveAsset();
-                    //TerrainSaveCookie sc = currentFileObject.getCookie(TerrainSaveCookie.class);
-                    //if (sc != null) {
-                        //Node root = rootNode.getLookup().lookup(Node.class);
-                        doSaveAlphaImages();
-                    //}
-                    return null;
-                }
-            });
+                    public Object call() throws Exception {
+                        //currentFileObject.saveAsset();
+                        //TerrainSaveCookie sc = currentFileObject.getCookie(TerrainSaveCookie.class);
+                        //if (sc != null) {
+                            //Node root = rootNode.getLookup().lookup(Node.class);
+                            doSaveAlphaImages();
+                            //content.remove(TerrainSaveCookie.this);
+                        //}
+                        return null;
+                    }
+                });
+                alphaLayersChanged = false;
+            }
         }
     }
     private TerrainSaveCookie terrainSaveCookie = new TerrainSaveCookie();
 
     
-    public TerrainEditorController(JmeSpatial jmeRootNode, AssetDataObject currentFileObject, TerrainEditorTopComponent topComponent) {
+    public TerrainEditorController(JmeSpatial jmeRootNode, 
+                                    AssetDataObject currentFileObject, 
+                                    TerrainEditorTopComponent topComponent) 
+    {
         this.jmeRootNode = jmeRootNode;
         rootNode = this.jmeRootNode.getLookup().lookup(Node.class);
         this.currentFileObject = currentFileObject;
+        //this.content = content;
         terrainSaveCookie.rootNode = jmeRootNode;
         this.currentFileObject.setSaveCookie(terrainSaveCookie);
         this.topComponent = topComponent;
         this.jmeRootNode.addNodeListener(this);
-    }
-
-    public void setToolController(TerrainToolController toolController) {
-        
     }
 
     public FileObject getCurrentFileObject() {
@@ -217,6 +224,15 @@ public class TerrainEditorController implements NodeListener {
         }
         
         return null;
+    }
+
+    /**
+     * Painting happened and the alpha maps need saving.
+     */
+    public void alphaLayersChanged() {
+        //if (!alphaLayersChanged)
+        //    content.add(terrainSaveCookie);
+        alphaLayersChanged = true;
     }
     
     /**
@@ -583,6 +599,7 @@ public class TerrainEditorController implements NodeListener {
         image.getData(0).rewind();
         tex.getImage().setUpdateNeeded();
         setNeedsSave(true);
+        alphaLayersChanged();
     }
 
     /**

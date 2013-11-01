@@ -32,9 +32,9 @@
 package com.jme3.gde.terraineditor.tools;
 
 import com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode;
-import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractStatefulGLToolAction;
 import com.jme3.gde.core.undoredo.AbstractUndoableSceneEdit;
 import com.jme3.gde.core.undoredo.SceneUndoRedoManager;
+import com.jme3.gde.terraineditor.TerrainEditorController;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
@@ -55,7 +55,11 @@ public class PaintTerrainTool extends TerrainTool {
 
     private boolean painting = false; // to check when undo actions need to be set
     List<PaintTerrainToolAction> actions = new ArrayList<PaintTerrainToolAction>();
+    TerrainEditorController controller; // used to we can flag when alpha maps changed
 
+    public PaintTerrainTool(TerrainEditorController controller) {
+        this.controller = controller;
+    }
     
     @Override
     public void actionPrimary(Vector3f point, int textureIndex, AbstractSceneExplorerNode rootNode, DataObject dataObject) {
@@ -83,6 +87,7 @@ public class PaintTerrainTool extends TerrainTool {
             action = new PaintTerrainToolAction(point, radius, -weight, textureIndex);
         action.doActionPerformed(rootNode, dataObject, false);
         actions.add(action);
+        setModified(rootNode, dataObject);
     }
     
     @Override
@@ -149,6 +154,7 @@ public class PaintTerrainTool extends TerrainTool {
     }
     
     protected void setModified(final AbstractSceneExplorerNode rootNode, final DataObject dataObject) {
+        controller.alphaLayersChanged();
         if (dataObject.isModified())
             return;
         java.awt.EventQueue.invokeLater(new Runnable() {

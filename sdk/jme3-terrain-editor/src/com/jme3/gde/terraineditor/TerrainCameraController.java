@@ -44,6 +44,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 
+
 /**
  * Runs in the JME thread, not awt thread.
  * Listens to mouse/camera input and relays the movements
@@ -124,14 +125,19 @@ public class TerrainCameraController extends AbstractCameraController {
         if (button == 0) {
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 toolController.setPrimary(pressed);
-                System.out.println("primary "+pressed);
+                //System.out.println("primary "+pressed);
+            } else if (!isTerrainEditButtonEnabled() && !forceCameraControls) {
+                if (!pressed) {
+                    Vector3f pick = getTerrainCollisionPoint();
+                    toolController.setCursorLocation(pick);
+                }
             }
         }
         
         if (button == 1) {
             if (isTerrainEditButtonEnabled() && !forceCameraControls) {
                 toolController.setAlternate(pressed);
-                System.out.println("alternate "+pressed);
+                //System.out.println("alternate "+pressed);
             }
         }
     }

@@ -149,11 +149,11 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
         });
     }
 
-    public void setCamFocus(final Vector3f focus) {
+    public void setCamFocus(final Vector3f focus, final boolean moveCamera) {
         SceneApplication.getApplication().enqueue(new Callable<Object>() {
 
             public Object call() throws Exception {
-                doSetCamFocus(focus);
+                doSetCamFocus(focus, moveCamera);
                 return null;
             }
         });
@@ -161,7 +161,12 @@ public abstract class AbstractCameraController extends AbstractAppState implemen
     }
 
     public void doSetCamFocus(Vector3f focus) {
-        cam.setLocation(cam.getLocation().add(focus.subtract(this.focus)));
+        doSetCamFocus(focus, false);
+    }
+    
+    public void doSetCamFocus(Vector3f focus, boolean moveCamera) {
+        if (moveCamera)
+            cam.setLocation(cam.getLocation().add(focus.subtract(this.focus)));
         this.focus.set(focus);
     }
 

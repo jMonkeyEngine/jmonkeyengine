@@ -80,6 +80,7 @@ public class TerrainToolController extends SceneToolController {
 
     public void setCameraController(TerrainCameraController cameraController) {
         this.cameraController = cameraController;
+        super.setCamController(cameraController);
     }
 
     public void setTopComponent(TerrainEditorTopComponent topComponent) {

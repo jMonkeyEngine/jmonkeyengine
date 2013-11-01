@@ -421,7 +421,7 @@ public class SelectTool extends SceneEditTool {
                         if (toolController.isSnapToGrid()) {
                             result.set(Math.round(result.x), result.y, Math.round(result.z));
                         }
-                        toolController.doSetCursorLocation(result);
+                        toolController.setCursorLocation(result);
                     }
                 }
             }
