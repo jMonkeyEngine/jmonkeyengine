@@ -50,7 +50,7 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
         for (int dataLayerIndex = 0; dataLayerIndex < depth; ++dataLayerIndex) {
             ByteBuffer data = image.getData(dataLayerIndex);
             data.rewind();
-            ByteBuffer newData = BufferUtils.createByteBuffer(width * height * 4);
+            ByteBuffer newData = BufferUtils.createByteBuffer(data.limit());
 
             int dataIndex = 0, x = 0, y = 0;
             while (data.hasRemaining()) {
