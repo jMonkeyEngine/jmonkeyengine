@@ -275,61 +275,15 @@ public class ObjectHelper extends AbstractBlenderHelper {
      *            the object's structure
      * @return objects transformation relative to its parent
      */
-    @SuppressWarnings("unchecked")
     public Transform getTransformation(Structure objectStructure, BlenderContext blenderContext) {
-        // these are transformations in global space
-        DynamicArray<Number> loc = (DynamicArray<Number>) objectStructure.getFieldValue("loc");
-        DynamicArray<Number> size = (DynamicArray<Number>) objectStructure.getFieldValue("size");
-        DynamicArray<Number> rot = (DynamicArray<Number>) objectStructure.getFieldValue("rot");
-
-        // load parent inverse matrix
+        // load parent inverse matrix only if the object has parent
         Pointer pParent = (Pointer) objectStructure.getFieldValue("parent");
-        Matrix4f parentInv = pParent.isNull() ? Matrix4f.IDENTITY : this.getMatrix(objectStructure, "parentinv");
+        Matrix4f parentInv = pParent.isNull() ? Matrix4f.IDENTITY : this.getMatrix(objectStructure, "parentinv", fixUpAxis);
 
-        // create the global matrix (without the scale)
-        Matrix4f globalMatrix = new Matrix4f();
-        globalMatrix.setTranslation(loc.get(0).floatValue(), loc.get(1).floatValue(), loc.get(2).floatValue());
-        globalMatrix.setRotationQuaternion(new Quaternion().fromAngles(rot.get(0).floatValue(), rot.get(1).floatValue(), rot.get(2).floatValue()));
-        // compute local matrix
+        Matrix4f globalMatrix = this.getMatrix(objectStructure, "obmat", fixUpAxis);
         Matrix4f localMatrix = parentInv.mult(globalMatrix);
 
-        Vector3f translation = localMatrix.toTranslationVector();
-        Quaternion rotation = localMatrix.toRotationQuat();
-        Vector3f scale = parentInv.toScaleVector().multLocal(size.get(0).floatValue(), size.get(1).floatValue(), size.get(2).floatValue());
-
-        if (fixUpAxis) {
-            float y = translation.y;
-            translation.y = translation.z;
-            translation.z = y == 0 ? 0 : -y;
-
-            y = rotation.getY();
-            float z = rotation.getZ();
-            rotation.set(rotation.getX(), z, y == 0 ? 0 : -y, rotation.getW());
-
-            y = scale.y;
-            scale.y = scale.z;
-            scale.z = y;
-        }
-
-        // create the result
-        Transform t = new Transform(translation, rotation);
-        t.setScale(scale);
-        return t;
-    }
-
-    /**
-     * This method returns the matrix of a given name for the given structure.
-     * The matrix is NOT transformed if Y axis is up - the raw data is loaded
-     * from the blender file.
-     * 
-     * @param structure
-     *            the structure with matrix data
-     * @param matrixName
-     *            the name of the matrix
-     * @return the required matrix
-     */
-    public Matrix4f getMatrix(Structure structure, String matrixName) {
-        return this.getMatrix(structure, matrixName, false);
+        return new Transform(localMatrix.toTranslationVector(), localMatrix.toRotationQuat(), localMatrix.toScaleVector());
     }
 
     /**
@@ -340,10 +294,12 @@ public class ObjectHelper extends AbstractBlenderHelper {
      *            the structure with matrix data
      * @param matrixName
      *            the name of the matrix
+     * @param fixUpAxis
+     *            tells if the Y axis is a UP axis
      * @return the required matrix
      */
     @SuppressWarnings("unchecked")
-    public Matrix4f getMatrix(Structure structure, String matrixName, boolean applyFixUpAxis) {
+    public Matrix4f getMatrix(Structure structure, String matrixName, boolean fixUpAxis) {
         Matrix4f result = new Matrix4f();
         DynamicArray<Number> obmat = (DynamicArray<Number>) structure.getFieldValue(matrixName);
         // the matrix must be square
@@ -353,7 +309,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
                 result.set(i, j, obmat.get(j, i).floatValue());
             }
         }
-        if (applyFixUpAxis && fixUpAxis) {
+        if (fixUpAxis) {
             Vector3f translation = result.toTranslationVector();
             Quaternion rotation = result.toRotationQuat();
             Vector3f scale = result.toScaleVector();
