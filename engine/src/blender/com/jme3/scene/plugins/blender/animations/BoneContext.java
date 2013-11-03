@@ -29,7 +29,7 @@ public class BoneContext {
      * The bones' matrices have, unlike objects', the coordinate system identical to JME's (Y axis is UP, X to the right and Z toward us).
      * So in order to have them loaded properly we need to transform their armature matrix (which blender sees as rotated) to make sure we get identical results.
      */
-    private static final Matrix4f BONE_ARMATURE_TRANSFORMATION_MATRIX = new Matrix4f(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
+    public static final Matrix4f  BONE_ARMATURE_TRANSFORMATION_MATRIX = new Matrix4f(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
 
     private BlenderContext        blenderContext;
     /** The OMA of the bone's armature object. */
@@ -102,7 +102,7 @@ public class BoneContext {
         // then make sure it is rotated in a proper way to fit the jme bone transformation conventions
         globalBoneMatrix.multLocal(BONE_ARMATURE_TRANSFORMATION_MATRIX);
 
-        Spatial armature = (Spatial) blenderContext.getLoadedFeature(armatureObjectOMA, LoadedFeatureDataType.LOADED_FEATURE);
+        Spatial armature = (Spatial) objectHelper.toObject(blenderContext.getFileBlock(armatureObjectOMA).getStructure(blenderContext), blenderContext);
         ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
         Matrix4f armatureWorldMatrix = constraintHelper.toMatrix(armature.getWorldTransform());
 
@@ -177,7 +177,7 @@ public class BoneContext {
      * @return the length of the bone
      */
     public float getLength() {
-        return length;
+        return length * bone.getModelSpaceScale().y;
     }
 
     /**

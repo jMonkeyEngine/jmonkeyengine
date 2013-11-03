@@ -250,7 +250,6 @@ public class SimulationNode {
      */
     private void simulateSkeleton() {
         if (constraints != null && constraints.size() > 0) {
-            boolean applyStaticConstraints = true;
             Set<Long> alteredOmas = new HashSet<Long>();
 
             if (animations != null) {
@@ -335,21 +334,11 @@ public class SimulationNode {
                                 animation.addTrack(newTrack);
                             }
                         }
-                        applyStaticConstraints = false;
                     }
                 }
                 vars.release();
                 animControl.clearChannels();
                 this.reset();
-            }
-
-            // if there are no animations then just constraint the static
-            // object's transformation
-            if (applyStaticConstraints) {
-                for (Constraint constraint : constraints) {
-                    constraint.apply(0);
-                }
-                skeleton.updateWorldVectors();
             }
         }
     }
@@ -373,6 +362,7 @@ public class SimulationNode {
                 if (constraint.getAlteredOmas() != null) {
                     alteredOmas.addAll(constraint.getAlteredOmas());
                 }
+                alteredOmas.add(boneContext.getBoneOma());
             }
         }
         for (Bone child : bone.getChildren()) {

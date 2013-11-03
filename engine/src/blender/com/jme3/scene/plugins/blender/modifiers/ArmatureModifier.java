@@ -17,6 +17,8 @@ import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Transform;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
@@ -29,12 +31,16 @@ import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.AnimationData;
 import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.meshes.MeshContext;
+import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.util.BufferUtils;
+import com.jme3.util.TempVars;
 
 /**
  * This modifier allows to add bone animation to the object.
@@ -45,6 +51,7 @@ import com.jme3.util.BufferUtils;
     private static final Logger LOGGER                     = Logger.getLogger(ArmatureModifier.class.getName());
     private static final int    MAXIMUM_WEIGHTS_PER_VERTEX = 4;                                                 // JME
 
+    private Structure           armatureObject;
     private Skeleton            skeleton;
     private Structure           objectStructure;
     private Structure           meshStructure;
@@ -75,7 +82,7 @@ import com.jme3.util.BufferUtils;
             if (pArmatureObject.isNotNull()) {
                 ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
 
-                Structure armatureObject = pArmatureObject.fetchData(blenderContext.getInputStream()).get(0);
+                armatureObject = pArmatureObject.fetchData(blenderContext.getInputStream()).get(0);
 
                 // load skeleton
                 Structure armatureStructure = ((Pointer) armatureObject.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
@@ -147,7 +154,7 @@ import com.jme3.util.BufferUtils;
 
                 // store the animation data for each bone
                 for (Bone bone : bones) {
-                    if(bone.getName().length() > 0) {
+                    if (bone.getName().length() > 0) {
                         BoneContext boneContext = blenderContext.getBoneContext(bone);
                         Long boneOma = boneContext.getBoneOma();
                         if (boneOma != null) {
@@ -167,7 +174,7 @@ import com.jme3.util.BufferUtils;
         if (invalid) {
             LOGGER.log(Level.WARNING, "Armature modifier is invalid! Cannot be applied to: {0}", node.getName());
         }// if invalid, animData will be null
-        if(animationData != null && skeleton != null) {
+        if (animationData != null && skeleton != null) {
             // setting weights for bones
             List<Geometry> geomList = (List<Geometry>) blenderContext.getLoadedFeature(meshOMA, LoadedFeatureDataType.LOADED_FEATURE);
             MeshContext meshContext = blenderContext.getMeshContext(meshOMA);
@@ -175,25 +182,24 @@ import com.jme3.util.BufferUtils;
             for (Geometry geom : geomList) {
                 int materialIndex = meshContext.getMaterialIndex(geom);
                 Mesh mesh = geom.getMesh();
-    
+
                 try {
                     VertexBuffer[] buffers = this.readVerticesWeightsData(objectStructure, meshStructure, skeleton, materialIndex, bonesGroups, blenderContext);
                     if (buffers != null) {
                         mesh.setMaxNumWeights(bonesGroups[0]);
                         mesh.setBuffer(buffers[0]);
                         mesh.setBuffer(buffers[1]);
-    
+
                         LOGGER.fine("Generating bind pose and normal buffers.");
                         mesh.generateBindPose(true);
-                        
+
                         // change the usage type of vertex and normal buffers from
                         // Static to Stream
                         mesh.getBuffer(Type.Position).setUsage(Usage.Stream);
                         mesh.getBuffer(Type.Normal).setUsage(Usage.Stream);
-                        
-                        
-                        //creating empty buffers for HW skinning 
-                        //the buffers will be setup if ever used.
+
+                        // creating empty buffers for HW skinning
+                        // the buffers will be setup if ever used.
                         VertexBuffer verticesWeightsHW = new VertexBuffer(Type.HWBoneWeight);
                         VertexBuffer verticesWeightsIndicesHW = new VertexBuffer(Type.HWBoneIndex);
                         mesh.setBuffer(verticesWeightsHW);
@@ -204,8 +210,8 @@ import com.jme3.util.BufferUtils;
                     invalid = true;
                 }
             }
-    
-            if(!invalid) {
+
+            if (!invalid) {
                 // applying animations
                 AnimControl control = new AnimControl(animationData.skeleton);
                 List<Animation> animList = animationData.anims;
@@ -219,8 +225,51 @@ import com.jme3.util.BufferUtils;
                 }
                 node.addControl(control);
                 node.addControl(new SkeletonControl(animationData.skeleton));
-        
                 blenderContext.setNodeForSkeleton(skeleton, node);
+
+                TempVars tempVars = TempVars.get();
+                try {
+                    Pointer pPose = (Pointer) armatureObject.getFieldValue("pose");
+                    if (pPose.isNotNull()) {
+                        LOGGER.fine("Loading the pose of the armature.");
+                        ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
+                        ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+
+                        Structure pose = pPose.fetchData(blenderContext.getInputStream()).get(0);
+                        Structure chanbase = (Structure) pose.getFieldValue("chanbase");
+                        List<Structure> chans = chanbase.evaluateListBase(blenderContext);
+                        Transform transform = new Transform();
+                        for (Structure poseChannel : chans) {
+                            Pointer pBone = (Pointer) poseChannel.getFieldValue("bone");
+                            if (pBone.isNull()) {
+                                throw new BlenderFileException("Cannot find bone for pose channel named: " + poseChannel.getName());
+                            }
+                            BoneContext boneContext = blenderContext.getBoneContext(pBone.getOldMemoryAddress());
+
+                            LOGGER.log(Level.FINEST, "Getting the global pose transformation for bone: {0}", boneContext);
+                            Matrix4f poseMat = objectHelper.getMatrix(poseChannel, "pose_mat", blenderContext.getBlenderKey().isFixUpAxis());
+                            poseMat.multLocal(BoneContext.BONE_ARMATURE_TRANSFORMATION_MATRIX);
+
+                            Matrix4f armatureWorldMat = objectHelper.getMatrix(armatureObject, "obmat", blenderContext.getBlenderKey().isFixUpAxis());
+                            Matrix4f boneWorldMat = armatureWorldMat.multLocal(poseMat);
+
+                            boneWorldMat.toTranslationVector(tempVars.vect1);
+                            boneWorldMat.toRotationQuat(tempVars.quat1);
+                            boneWorldMat.toScaleVector(tempVars.vect2);
+                            transform.setTranslation(tempVars.vect1);
+                            transform.setRotation(tempVars.quat1);
+                            transform.setScale(tempVars.vect2);
+
+                            constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD, transform);
+                        }
+                    }
+                } catch (BlenderFileException e) {
+                    LOGGER.log(Level.WARNING, "Problems occured during pose loading: {0}.", e.getLocalizedMessage());
+                } finally {
+                    tempVars.release();
+                }
+
+                node.updateModelBound();
             }
         }
     }
@@ -277,8 +326,7 @@ import com.jme3.util.BufferUtils;
      *             this exception is thrown when the blend file structure is
      *             somehow invalid or corrupted
      */
-    private VertexBuffer[] getBoneWeightAndIndexBuffer(Structure meshStructure, int vertexListSize, int[] bonesGroups, Map<Integer, List<Integer>> vertexReferenceMap, Map<Integer, Integer> groupToBoneIndexMap, BlenderContext blenderContext)
-            throws BlenderFileException {
+    private VertexBuffer[] getBoneWeightAndIndexBuffer(Structure meshStructure, int vertexListSize, int[] bonesGroups, Map<Integer, List<Integer>> vertexReferenceMap, Map<Integer, Integer> groupToBoneIndexMap, BlenderContext blenderContext) throws BlenderFileException {
         bonesGroups[0] = 0;
         Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert
                                                                         // =
@@ -295,7 +343,7 @@ import com.jme3.util.BufferUtils;
             TreeMap<Float, Integer> weightToIndexMap = new TreeMap<Float, Integer>();
 
             for (Structure dvert : dverts) {
-                //we fetch the referenced vertices here
+                // we fetch the referenced vertices here
                 List<Integer> vertexIndices = vertexReferenceMap.get(Integer.valueOf(vertexIndex));
                 if (vertexIndices != null) {
                     // total amount of wights assigned to the vertex (max. 4 in JME)
