@@ -2340,11 +2340,11 @@ public class JoglRenderer implements Renderer {
                 int elementLength = elementLengths[i];
 
                 if (useInstancing) {
-                    if (gl.isGL2GL3()) {
+                    if (gl.isGL2()) {
                         indexBuf.getData().position(curOffset);
                         indexBuf.getData().limit(curOffset + elementLength);
 
-                        gl.getGL2GL3().glDrawElementsInstanced(elMode,
+                        gl.getGL2().glDrawElementsInstanced(elMode,
                                 elementLength,
                                 fmt,
                                 indexBuf.getData(),
@@ -2363,7 +2363,7 @@ public class JoglRenderer implements Renderer {
                                 curOffset);
                     } else {
                         indexBuf.getData().position(curOffset);
-                        gl.glDrawElements(elMode, elementLength, fmt,
+                        gl.getGL2().glDrawElements(elMode, elementLength, fmt,
                                 indexBuf.getData());
                     }
                 }
@@ -2373,8 +2373,8 @@ public class JoglRenderer implements Renderer {
             }
         } else {
             if (useInstancing) {
-                if (gl.isGL2GL3()) {
-                    gl.getGL2GL3().glDrawElementsInstanced(convertElementMode(mesh.getMode()),
+                if (gl.isGL2()) {
+                    gl.getGL2().glDrawElementsInstanced(convertElementMode(mesh.getMode()),
                             indexBuf.getData().limit(),
                             convertFormat(indexBuf.getFormat()),
                             indexBuf.getData(),

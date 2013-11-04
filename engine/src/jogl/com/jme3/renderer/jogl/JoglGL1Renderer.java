@@ -1069,13 +1069,13 @@ public class JoglGL1Renderer implements GL1Renderer {
         GL gl = GLContext.getCurrentGL();
         switch (format) {
             case GL.GL_UNSIGNED_BYTE:
-                gl.glDrawElements(mode, data.limit(), format, (ByteBuffer) data);
+                gl.getGL2().glDrawElements(mode, data.limit(), format, (ByteBuffer) data);
                 break;
             case GL.GL_UNSIGNED_SHORT:
-                gl.glDrawElements(mode, data.limit(), format, (ShortBuffer) data);
+                gl.getGL2().glDrawElements(mode, data.limit(), format, (ShortBuffer) data);
                 break;
             case GL.GL_UNSIGNED_INT:
-                gl.glDrawElements(mode, data.limit(), format, (IntBuffer) data);
+                gl.getGL2().glDrawElements(mode, data.limit(), format, (IntBuffer) data);
                 break;
             default:
                 throw new UnsupportedOperationException();
