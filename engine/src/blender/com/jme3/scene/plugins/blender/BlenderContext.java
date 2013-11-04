@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
-import java.util.logging.Logger;
 
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
@@ -64,8 +63,6 @@ import com.jme3.scene.plugins.blender.meshes.MeshContext;
  * @author Marcin Roguski (Kaelthas)
  */
 public class BlenderContext {
-    private static final Logger                 LOGGER                 = Logger.getLogger(BlenderContext.class.getName());
-
     /** The blender file version. */
     private int                                 blenderVersion;
     /** The blender key. */
@@ -78,9 +75,10 @@ public class BlenderContext {
     private BlenderInputStream                  inputStream;
     /** The asset manager. */
     private AssetManager                        assetManager;
+    /** The blocks read from the file. */
+    protected List<FileBlockHeader> blocks;
     /**
-     * A map containing the file block headers. The key is the old pointer
-     * address.
+     * A map containing the file block headers. The key is the old memory address.
      */
     private Map<Long, FileBlockHeader>          fileBlockHeadersByOma  = new HashMap<Long, FileBlockHeader>();
     /** A map containing the file block headers. The key is the block code. */
@@ -611,26 +609,6 @@ public class BlenderContext {
     public Object getMarkerValue(String marker, Object feature) {
         Map<Object, Object> markersMap = markers.get(marker);
         return markersMap == null ? null : markersMap.get(feature);
-    }
-
-    /**
-     * Clears all sotred resources and closes the blender input stream.
-     */
-    public void dispose() {
-        LOGGER.fine("Disposing blender context resources.");
-        inputStream.forceClose();
-        loadedFeatures.clear();
-        loadedFeaturesByName.clear();
-        parentStack.clear();
-        constraints.clear();
-        animData.clear();
-        skeletons.clear();
-        meshContexts.clear();
-        boneContexts.clear();
-        helpers.clear();
-        fileBlockHeadersByOma.clear();
-        fileBlockHeadersByCode.clear();
-        markers.clear();
     }
 
     /**

@@ -139,10 +139,11 @@ public class BlenderLoader implements AssetLoader {
                 loadingResults.addScene(this.toScene(sceneBlock.getStructure(blenderContext)));
             }
 
-            blenderContext.dispose();
             return loadingResults;
         } catch (BlenderFileException e) {
             throw new IOException(e.getLocalizedMessage(), e);
+        } finally {
+            this.clear();
         }
     }
 
@@ -266,5 +267,14 @@ public class BlenderLoader implements AssetLoader {
         if (sceneFileBlock != null) {
             blenderContext.setSceneStructure(sceneFileBlock.getStructure(blenderContext));
         }
+    }
+
+    /**
+     * The internal data is only needed during loading so make it unreachable so that the GC can release
+     * that memory (which can be quite large amount).
+     */
+    protected void clear() {
+        blenderContext = null;
+        blocks = null;
     }
 }

@@ -69,11 +69,11 @@ public class BlenderModelLoader extends BlenderLoader {
                     ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
                     Object object = objectHelper.toObject(block.getStructure(blenderContext), blenderContext);
                     if (object instanceof LightNode && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.LIGHTS) != 0) {
-                        rootObjects.add((LightNode)object);
+                        rootObjects.add((LightNode) object);
                     } else if (object instanceof Node && (blenderKey.getFeaturesToLoad() & FeaturesToLoad.OBJECTS) != 0) {
                         LOGGER.log(Level.FINE, "{0}: {1}--> {2}", new Object[] { ((Node) object).getName(), ((Node) object).getLocalTranslation().toString(), ((Node) object).getParent() == null ? "null" : ((Node) object).getParent().getName() });
                         if (((Node) object).getParent() == null) {
-                            rootObjects.add((Node)object);
+                            rootObjects.add((Node) object);
                         }
                     }
                 }
@@ -83,20 +83,21 @@ public class BlenderModelLoader extends BlenderLoader {
             ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
             constraintHelper.bakeConstraints(blenderContext);
 
-            //attach the nodes to the root node at the very end so that the root objects have no parents during constraint applying
+            // attach the nodes to the root node at the very end so that the root objects have no parents during constraint applying
             LOGGER.fine("Creating the root node of the model and applying loaded nodes of the scene to it.");
             Node modelRoot = new Node(blenderKey.getName());
-            for(Node node : rootObjects) {
-                if(node instanceof LightNode) {
+            for (Node node : rootObjects) {
+                if (node instanceof LightNode) {
                     modelRoot.addLight(((LightNode) node).getLight());
                 }
                 modelRoot.attachChild(node);
             }
-            
-            blenderContext.dispose();
+
             return modelRoot;
         } catch (BlenderFileException e) {
             throw new IOException(e.getLocalizedMessage(), e);
+        } finally {
+            this.clear();
         }
     }
 }
