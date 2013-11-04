@@ -582,7 +582,44 @@
             </fileset>
         </copy>
     </target>
-
+    
+    <!-- example of value for an archived post build: http://jogamp.org/deployment/archive/master/gluegen_737-joal_492-jogl_1120-jocl_867/jar -->
+    <!-- example of value for the current release or release candidate: http://jogamp.org/deployment/jogamp-current/jar/orig -->
+    <!-- example of value for a released version: http://jogamp.org/deployment/v2.1.1 -->
+    <property name="jogamp-unsigned-jars-url" value="http://jogamp.org/deployment/archive/master/gluegen_741-joal_495-jogl_1133-jocl_872/jar" />
+    <target name="update-jogamp">
+        <get src="${jogamp-unsigned-jars-url}/gluegen-rt.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-linux-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-linux-armv6.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-linux-armv6hf.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-linux-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-macosx-universal.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-solaris-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-solaris-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-windows-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-windows-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />		
+	<get src="${jogamp-unsigned-jars-url}/joal.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-linux-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/joal-natives-linux-armv6.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/joal-natives-linux-armv6hf.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-linux-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-macosx-universal.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-solaris-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-solaris-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-windows-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-windows-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-linux-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/jogl-all-natives-linux-armv6.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/jogl-all-natives-linux-armv6hf.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-linux-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-macosx-universal.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-solaris-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-solaris-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-windows-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-windows-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+    </target>
+        
     <!--
        ****************************************************************
        Only Relevant for building nightly on Hudson server from here on
