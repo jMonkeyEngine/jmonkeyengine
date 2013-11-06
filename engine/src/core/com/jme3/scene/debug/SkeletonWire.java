@@ -31,6 +31,10 @@
  */
 package com.jme3.scene.debug;
 
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
+import java.util.Map;
+
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
 import com.jme3.math.Vector3f;
@@ -40,69 +44,123 @@ import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.util.BufferUtils;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
+/**
+ * The class that displays either wires between the bones' heads if no length data is supplied and
+ * full bones' shapes otherwise.
+ */
 public class SkeletonWire extends Mesh {
+    /** The number of bones' connections. Used in non-length mode. */
+    private int                 numConnections;
+    /** The skeleton to be displayed. */
+    private Skeleton            skeleton;
+    /** The map between the bone index and its length. */
+    private Map<Integer, Float> boneLengths;
 
-    private int numConnections = 0;
-    private Skeleton skeleton;
-
-    private void countConnections(Bone bone){
-        for (Bone child : bone.getChildren()){
-            numConnections ++;
-            countConnections(child);
-        }
+    /**
+     * Creates a wire with no length data. The wires will be a connection between the bones' heads only.
+     * @param skeleton
+     *            the skeleton that will be shown
+     */
+    public SkeletonWire(Skeleton skeleton) {
+        this(skeleton, null);
     }
 
-    private void writeConnections(ShortBuffer indexBuf, Bone bone){
-        for (Bone child : bone.getChildren()){
-            // write myself
-            indexBuf.put( (short) skeleton.getBoneIndex(bone) );
-            // write the child
-            indexBuf.put( (short) skeleton.getBoneIndex(child) );
-
-            writeConnections(indexBuf, child);
-        }
-    }
-
-    public SkeletonWire(Skeleton skeleton){
+    /**
+     * Creates a wire with bone lengths data. If the data is supplied then the wires will show each full bone (from head to tail).
+     * @param skeleton
+     *            the skeleton that will be shown
+     * @param boneLengths
+     *            a map between the bone's index and the bone's length
+     */
+    public SkeletonWire(Skeleton skeleton, Map<Integer, Float> boneLengths) {
         this.skeleton = skeleton;
-        for (Bone bone : skeleton.getRoots())
-            countConnections(bone);
 
-        setMode(Mode.Lines);
+        for (Bone bone : skeleton.getRoots()) {
+            this.countConnections(bone);
+        }
+
+        this.setMode(Mode.Lines);
+        int lineVerticesCount = skeleton.getBoneCount();
+        if (boneLengths != null) {
+            this.boneLengths = boneLengths;
+            lineVerticesCount *= 2;
+        }
 
         VertexBuffer pb = new VertexBuffer(Type.Position);
-        FloatBuffer fpb = BufferUtils.createFloatBuffer(skeleton.getBoneCount() * 3);
+        FloatBuffer fpb = BufferUtils.createFloatBuffer(lineVerticesCount * 3);
         pb.setupData(Usage.Stream, 3, Format.Float, fpb);
-        setBuffer(pb);
+        this.setBuffer(pb);
 
         VertexBuffer ib = new VertexBuffer(Type.Index);
-        ShortBuffer sib = BufferUtils.createShortBuffer(numConnections * 2);
+        ShortBuffer sib = BufferUtils.createShortBuffer(boneLengths != null ? lineVerticesCount : numConnections * 2);
         ib.setupData(Usage.Static, 2, Format.UnsignedShort, sib);
-        setBuffer(ib);
+        this.setBuffer(ib);
 
-        for (Bone bone : skeleton.getRoots())
-            writeConnections(sib, bone);
+        if (boneLengths != null) {
+            for (int i = 0; i < lineVerticesCount; ++i) {
+                sib.put((short) i);
+            }
+        } else {
+            for (Bone bone : skeleton.getRoots()) {
+                this.writeConnections(sib, bone);
+            }
+        }
         sib.flip();
 
-        updateCounts();
+        this.updateCounts();
     }
 
-    public void updateGeometry(){
-        VertexBuffer vb = getBuffer(Type.Position);
-        FloatBuffer posBuf = getFloatBuffer(Type.Position);
+    /**
+     * The method updates the geometry according to the poitions of the bones.
+     */
+    public void updateGeometry() {
+        VertexBuffer vb = this.getBuffer(Type.Position);
+        FloatBuffer posBuf = this.getFloatBuffer(Type.Position);
         posBuf.clear();
-        for (int i = 0; i < skeleton.getBoneCount(); i++){
+        for (int i = 0; i < skeleton.getBoneCount(); ++i) {
             Bone bone = skeleton.getBone(i);
-            Vector3f bonePos = bone.getModelSpacePosition();
+            Vector3f head = bone.getModelSpacePosition();
 
-            posBuf.put(bonePos.getX()).put(bonePos.getY()).put(bonePos.getZ());
+            posBuf.put(head.getX()).put(head.getY()).put(head.getZ());
+            if (boneLengths != null) {
+                Vector3f tail = head.add(bone.getModelSpaceRotation().mult(Vector3f.UNIT_Y.mult(boneLengths.get(i))));
+                posBuf.put(tail.getX()).put(tail.getY()).put(tail.getZ());
+            }
         }
         posBuf.flip();
         vb.updateData(posBuf);
 
-        updateBound();
+        this.updateBound();
+    }
+
+    /**
+     * Th method couns the connections between bones.
+     * @param bone
+     *            the bone where counting starts
+     */
+    private void countConnections(Bone bone) {
+        for (Bone child : bone.getChildren()) {
+            numConnections++;
+            this.countConnections(child);
+        }
+    }
+
+    /**
+     * The method writes the indexes for the connection vertices. Used in non-length mode.
+     * @param indexBuf
+     *            the index buffer
+     * @param bone
+     *            the bone
+     */
+    private void writeConnections(ShortBuffer indexBuf, Bone bone) {
+        for (Bone child : bone.getChildren()) {
+            // write myself
+            indexBuf.put((short) skeleton.getBoneIndex(bone));
+            // write the child
+            indexBuf.put((short) skeleton.getBoneIndex(child));
+
+            this.writeConnections(indexBuf, child);
+        }
     }
 }
