@@ -220,8 +220,8 @@ public class TerrainTestAdvanced extends SimpleApplication {
         inputManager.addListener(actionListener, "triPlanar");
         inputManager.addMapping("WardIso", new KeyTrigger(KeyInput.KEY_9));
         inputManager.addListener(actionListener, "WardIso");
-        inputManager.addMapping("Minnaert", new KeyTrigger(KeyInput.KEY_0));
-        inputManager.addListener(actionListener, "Minnaert");
+        inputManager.addMapping("DetachControl", new KeyTrigger(KeyInput.KEY_0));
+        inputManager.addListener(actionListener, "DetachControl");
     }
     private ActionListener actionListener = new ActionListener() {
 
@@ -253,6 +253,15 @@ public class TerrainTestAdvanced extends SimpleApplication {
                     matTerrain.setFloat("DiffuseMap_3_scale", rockScale);
                     matTerrain.setFloat("DiffuseMap_4_scale", rockScale);
                 }
+            } if (name.equals("DetachControl") && !pressed) {
+                TerrainLodControl control = terrain.getControl(TerrainLodControl.class);
+                if (control != null)
+                    control.detachAndCleanUpControl();
+                else {
+                    control = new TerrainLodControl(terrain, cam);
+                    terrain.addControl(control);
+                }
+                    
             }
         }
     };

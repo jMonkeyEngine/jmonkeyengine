@@ -156,6 +156,16 @@ public class TerrainLodControl extends AbstractControl {
             updateLOD(cameraLocations, lodCalculator);
         }
     }
+    
+    /**
+     * Call this when you remove the terrain or this control from the scene.
+     * It will clear up any threads it had.
+     */
+    public void detachAndCleanUpControl() {
+        if (executor != null)
+            executor.shutdownNow();
+        getSpatial().removeControl(this);
+    }
 
     // do all of the LOD calculations
     protected void updateLOD(List<Vector3f> locations, LodCalculator lodCalculator) {
