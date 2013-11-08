@@ -73,6 +73,11 @@ import java.util.logging.Logger;
  * This camera reference has to be manually added in when you load the
  * terrain to the scene!
  * 
+ * When the control or the terrain are removed from the scene, you should call
+ * TerrainLodControl.detachAndCleanUpControl() to remove any threads it created
+ * to handle the LOD processing. If you supply your own executor service, then
+ * you have to handle its thread termination yourself.
+ * 
  * @author Brent Owens
  */
 public class TerrainLodControl extends AbstractControl {
@@ -118,6 +123,14 @@ public class TerrainLodControl extends AbstractControl {
 
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
+    }
+
+    /**
+     * Set your own custom executor to be used. The control will use
+     * this instead of creating its own.
+     */
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
     }
     
     protected ExecutorService createExecutorService() {
