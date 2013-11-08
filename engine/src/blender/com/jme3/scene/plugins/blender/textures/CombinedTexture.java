@@ -206,7 +206,7 @@ public class CombinedTexture {
                         triangulatedTexture.castToUVS((TriangulatedTexture) resultTexture, blenderContext);
                         // merge triangulated textures
                         for (int i = 0; i < ((TriangulatedTexture) resultTexture).getFaceTextureCount(); ++i) {
-                            ImageUtils.merge(((TriangulatedTexture) resultTexture).getFaceTextureElement(i).image, triangulatedTexture.getImage());
+                            ImageUtils.merge(((TriangulatedTexture) resultTexture).getFaceTextureElement(i).image, triangulatedTexture.getFaceTextureElement(i).image);
                         }
                     }
                 }
