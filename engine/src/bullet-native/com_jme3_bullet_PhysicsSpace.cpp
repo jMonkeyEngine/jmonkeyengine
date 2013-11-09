@@ -419,7 +419,7 @@ extern "C" {
     }
     
     JNIEXPORT void JNICALL Java_com_jme3_bullet_PhysicsSpace_rayTest_1native
-    (JNIEnv * env, jobject object, jobject from, jobject to, jlong spaceId, jobject resultlist) {
+    (JNIEnv * env, jobject object, jobject from, jobject to, jlong spaceId, jobject resultlist, jint flags) {
 
         jmePhysicsSpace* space = reinterpret_cast<jmePhysicsSpace*> (spaceId);
         if (space == NULL) {
@@ -463,6 +463,7 @@ extern "C" {
         AllRayResultCallback resultCallback(native_from, native_to);
         resultCallback.env = env;
         resultCallback.resultlist = resultlist;
+        resultCallback.m_flags = flags;
         space->getDynamicsWorld()->rayTest(native_from, native_to, resultCallback);
         return;
     }

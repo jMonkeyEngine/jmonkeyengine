@@ -99,7 +99,7 @@ public class PhysicsSpace {
     private Vector3f worldMin = new Vector3f(-10000f, -10000f, -10000f);
     private Vector3f worldMax = new Vector3f(10000f, 10000f, 10000f);
     private float accuracy = 1f / 60f;
-    private int maxSubSteps = 4;
+    private int maxSubSteps = 4, rayTestFlags = 1 << 2;
     private AssetManager debugManager;
 
     static {
@@ -788,16 +788,33 @@ public class PhysicsSpace {
     }
 
     /**
+     * Sets m_flags for raytest, see https://code.google.com/p/bullet/source/browse/trunk/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h
+     * for possible options. Defaults to using the faster, approximate raytest.
+     */
+    public void SetRayTestFlags(int flags) {
+        rayTestFlags = flags;
+    }
+    
+    /**
+     * Gets m_flags for raytest, see https://code.google.com/p/bullet/source/browse/trunk/src/BulletCollision/NarrowPhaseCollision/btRaycastCallback.h
+     * for possible options.
+     * @return rayTestFlags
+     */
+    public int GetRayTestFlags() {
+        return rayTestFlags;
+    }
+    
+    /**
      * Performs a ray collision test and returns the results as a list of
      * PhysicsRayTestResults
      */
     public List<PhysicsRayTestResult> rayTest(Vector3f from, Vector3f to, List<PhysicsRayTestResult> results) {
         results.clear();
-        rayTest_native(from, to, physicsSpaceId, results);
+        rayTest_native(from, to, physicsSpaceId, results, rayTestFlags);
         return results;
     }
 
-    public native void rayTest_native(Vector3f from, Vector3f to, long physicsSpaceId, List<PhysicsRayTestResult> results);
+    public native void rayTest_native(Vector3f from, Vector3f to, long physicsSpaceId, List<PhysicsRayTestResult> results, int flags);
 
 //    private class InternalRayListener extends CollisionWorld.RayResultCallback {
 //
