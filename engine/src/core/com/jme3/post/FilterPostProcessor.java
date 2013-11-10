@@ -311,11 +311,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             }
 
         } else {
-            if (renderFrameBufferMS != null) {
-                viewPort.setOutputFrameBuffer(renderFrameBufferMS);
-            } else {
-                viewPort.setOutputFrameBuffer(renderFrameBuffer);
-            }
+           setupViewPortFrameBuffer();
            //if we are ina multiview situation we need to resize the camera 
            //to the viewportsize so that the backbuffer is rendered correctly
            if (multiView) {
@@ -355,11 +351,20 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         for (int i = filters.size() - 1; i >= 0 && lastFilterIndex == -1; i--) {
             if (filters.get(i).isEnabled()) {
                 lastFilterIndex = i;
+                //the Fpp is initialized, but the viwport framebuffer is the 
+                //original out framebuffer so we must recover from a situation 
+                //where no filter was enabled. So we set th correc framebuffer 
+                //on the viewport
+                if(isInitialized() && viewPort.getOutputFrameBuffer()==outputBuffer){
+                    setupViewPortFrameBuffer();
+                }
                 return;
             }
         }
         if (lastFilterIndex == -1) {
-            cleanup();
+            //There is no enabled filter, we restore the original framebuffer 
+            //to the viewport to bypass the fpp.
+            viewPort.setOutputFrameBuffer(outputBuffer);
         }
     }
 
@@ -439,12 +444,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             Filter filter = it.next();
             initFilter(filter, vp);
         }
-
-        if (renderFrameBufferMS != null) {
-            viewPort.setOutputFrameBuffer(renderFrameBufferMS);
-        } else {
-            viewPort.setOutputFrameBuffer(renderFrameBuffer);
-        }
+        setupViewPortFrameBuffer();
     }
 
     /**
@@ -540,5 +540,13 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      */
     public List<Filter> getFilterList(){
         return Collections.unmodifiableList(filters);
+    }
+
+    private void setupViewPortFrameBuffer() {
+        if (renderFrameBufferMS != null) {
+            viewPort.setOutputFrameBuffer(renderFrameBufferMS);
+        } else {
+            viewPort.setOutputFrameBuffer(renderFrameBuffer);
+        }
     }
 }
