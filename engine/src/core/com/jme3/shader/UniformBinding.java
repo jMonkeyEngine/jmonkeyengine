@@ -171,7 +171,31 @@ public enum UniformBinding {
      * Frames per second.
      * Type: float
      */
-    FrameRate("float");
+    FrameRate("float"),
+    
+    /**
+     * The light position when rendering in multi pass mode
+     * Type: vec4
+     */
+    LightDirection("vec4"),
+    
+    /**
+     * The light direction when rendering in multi pass mode
+     * Type: vec4
+     */
+    LightPosition("vec4"),
+    
+    /**
+     * Ambient light color
+     * Type: vec4
+     */
+    AmbientLightColor("vec4"),
+    
+    /**
+     * The light color when rendering in multi pass mode
+     * Type: vec4
+     */
+    LightColor("vec4");
     
     String glslType;
 
