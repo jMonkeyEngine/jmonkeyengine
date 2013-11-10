@@ -142,6 +142,8 @@ public class BlenderLoader implements AssetLoader {
             return loadingResults;
         } catch (BlenderFileException e) {
             throw new IOException(e.getLocalizedMessage(), e);
+        } catch (Exception e) {
+            throw new IOException("Unexpected importer exception occured: " + e.getLocalizedMessage(), e);
         } finally {
             this.clear();
         }
