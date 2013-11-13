@@ -237,6 +237,7 @@ public class NativeObjectManager {
             }
         }
         refMap.clear();
+        refQueue = new ReferenceQueue<Object>();
     }
 
 //    public void printObjects(){
