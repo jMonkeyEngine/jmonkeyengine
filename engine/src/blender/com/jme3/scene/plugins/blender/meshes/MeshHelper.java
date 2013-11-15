@@ -485,13 +485,12 @@ public class MeshHelper extends AbstractBlenderHelper {
      * @throws BlenderFileException
      *             this exception is thrown when the blend file structure is somehow invalid or corrupted
      */
-    public List<byte[]> getVerticesColors(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
-        Pointer pMCol = (Pointer) meshStructure.getFieldValue("mcol");
+    private List<byte[]> getVerticesColors(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+        Pointer pMCol = (Pointer) meshStructure.getFieldValue(this.isBMeshCompatible(meshStructure) ? "mloopcol" : "mcol");
         List<byte[]> verticesColors = null;
-        List<Structure> mCol = null;
         if (pMCol.isNotNull()) {
-            verticesColors = new ArrayList<byte[]>();
-            mCol = pMCol.fetchData(blenderContext.getInputStream());
+            List<Structure> mCol = pMCol.fetchData(blenderContext.getInputStream());
+            verticesColors = new ArrayList<byte[]>(mCol.size());
             for (Structure color : mCol) {
                 byte r = ((Number) color.getFieldValue("r")).byteValue();
                 byte g = ((Number) color.getFieldValue("g")).byteValue();
