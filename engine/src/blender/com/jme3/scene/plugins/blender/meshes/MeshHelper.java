@@ -496,7 +496,7 @@ public class MeshHelper extends AbstractBlenderHelper {
                 byte g = ((Number) color.getFieldValue("g")).byteValue();
                 byte b = ((Number) color.getFieldValue("b")).byteValue();
                 byte a = ((Number) color.getFieldValue("a")).byteValue();
-                verticesColors.add(new byte[] { b, g, r, a });
+                verticesColors.add(new byte[] { r, g, b, a });
             }
         }
         return verticesColors;
@@ -523,7 +523,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 
         Pointer pMVert = (Pointer) meshStructure.getFieldValue("mvert");
         List<Structure> mVerts = pMVert.fetchData(blenderContext.getInputStream());
-        if (this.fixUpAxis) {
+        if (fixUpAxis) {
             for (int i = 0; i < count; ++i) {
                 DynamicArray<Number> coordinates = (DynamicArray<Number>) mVerts.get(i).getFieldValue("co");
                 result[i][0] = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(2).floatValue(), -coordinates.get(1).floatValue());
