@@ -143,7 +143,7 @@ import com.jme3.util.BufferUtils;
             globalVertexReferenceMap.put(materialNumber, vertexReferenceMap);
         }
 
-        faceIndex *= 4;
+        faceIndex *= 3;
         if (quad) {
             vertexColorIndex[1] = 2;
             vertexColorIndex[2] = 3;
