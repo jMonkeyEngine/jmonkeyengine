@@ -488,6 +488,9 @@ public class MeshHelper extends AbstractBlenderHelper {
     private List<byte[]> getVerticesColors(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
         Pointer pMCol = (Pointer) meshStructure.getFieldValue(this.isBMeshCompatible(meshStructure) ? "mloopcol" : "mcol");
         List<byte[]> verticesColors = null;
+        //it was likely a bug in blender untill version 2.63 (the blue and red factors were misplaced in their structure)
+        //so we need to put them right
+        boolean useBGRA = blenderContext.getBlenderVersion() < 263;
         if (pMCol.isNotNull()) {
             List<Structure> mCol = pMCol.fetchData(blenderContext.getInputStream());
             verticesColors = new ArrayList<byte[]>(mCol.size());
@@ -496,7 +499,7 @@ public class MeshHelper extends AbstractBlenderHelper {
                 byte g = ((Number) color.getFieldValue("g")).byteValue();
                 byte b = ((Number) color.getFieldValue("b")).byteValue();
                 byte a = ((Number) color.getFieldValue("a")).byteValue();
-                verticesColors.add(new byte[] { r, g, b, a });
+                verticesColors.add(useBGRA ? new byte[] { b, g, r, a } : new byte[] { r, g, b, a });
             }
         }
         return verticesColors;
