@@ -34,6 +34,7 @@ package com.jme3.scene.plugins.blender.textures.generating;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
+import com.jme3.scene.plugins.blender.textures.generating.NoiseGenerator.NoiseFunction;
 import com.jme3.texture.Image.Format;
 
 /**
@@ -45,6 +46,7 @@ public class TextureGeneratorStucci extends TextureGenerator {
 
     protected float            noisesize;
     protected int              noisebasis;
+    protected NoiseFunction    noiseFunction;
     protected int              noisetype;
     protected float            turbul;
     protected boolean          isHard;
@@ -63,7 +65,14 @@ public class TextureGeneratorStucci extends TextureGenerator {
     public void readData(Structure tex, BlenderContext blenderContext) {
         super.readData(tex, blenderContext);
         noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
+
         noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
+        noiseFunction = NoiseGenerator.noiseFunctions.get(noisebasis);
+        if (noiseFunction == null) {
+            noiseFunction = NoiseGenerator.noiseFunctions.get(0);
+            noisebasis = 0;
+        }
+
         noisetype = ((Number) tex.getFieldValue("noisetype")).intValue();
         turbul = ((Number) tex.getFieldValue("turbul")).floatValue();
         isHard = noisetype != TEX_NOISESOFT;
@@ -75,13 +84,18 @@ public class TextureGeneratorStucci extends TextureGenerator {
 
     @Override
     public void getPixel(TexturePixel pixel, float x, float y, float z) {
-        float noiseValue = NoiseGenerator.NoiseFunctions.noise(x, y, z, noisesize, 0, noisebasis, isHard);
+        if (noisebasis == 0) {
+            ++x;
+            ++y;
+            ++z;
+        }
+        float noiseValue = NoiseGenerator.NoiseFunctions.noise(x, y, z, noisesize, 0, noiseFunction, isHard);
         float ofs = turbul / 200.0f;
         if (stype != 0) {
             ofs *= noiseValue * noiseValue;
         }
 
-        pixel.intensity = NoiseGenerator.NoiseFunctions.noise(x, y, z + ofs, noisesize, 0, noisebasis, isHard);
+        pixel.intensity = NoiseGenerator.NoiseFunctions.noise(x, y, z + ofs, noisesize, 0, noiseFunction, isHard);
         if (colorBand != null) {
             int colorbandIndex = (int) (pixel.intensity * 1000.0f);
             pixel.red = colorBand[colorbandIndex][0];

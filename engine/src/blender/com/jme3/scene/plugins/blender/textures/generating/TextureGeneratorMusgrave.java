@@ -35,6 +35,7 @@ import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
 import com.jme3.scene.plugins.blender.textures.generating.NoiseGenerator.MusgraveFunction;
+import com.jme3.scene.plugins.blender.textures.generating.NoiseGenerator.NoiseFunction;
 import com.jme3.texture.Image.Format;
 
 /**
@@ -91,14 +92,15 @@ public class TextureGeneratorMusgrave extends TextureGenerator {
     }
 
     protected static class MusgraveData {
-        public final int   stype;
-        public final float outscale;
-        public final float h;
-        public final float lacunarity;
-        public final float octaves;
-        public final int   noisebasis;
-        public final float offset;
-        public final float gain;
+        public final int           stype;
+        public final float         outscale;
+        public final float         h;
+        public final float         lacunarity;
+        public final float         octaves;
+        public final int           noisebasis;
+        public final NoiseFunction noiseFunction;
+        public final float         offset;
+        public final float         gain;
 
         public MusgraveData(Structure tex) {
             stype = ((Number) tex.getFieldValue("stype")).intValue();
@@ -106,9 +108,17 @@ public class TextureGeneratorMusgrave extends TextureGenerator {
             h = ((Number) tex.getFieldValue("mg_H")).floatValue();
             lacunarity = ((Number) tex.getFieldValue("mg_lacunarity")).floatValue();
             octaves = ((Number) tex.getFieldValue("mg_octaves")).floatValue();
-            noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
             offset = ((Number) tex.getFieldValue("mg_offset")).floatValue();
             gain = ((Number) tex.getFieldValue("mg_gain")).floatValue();
+
+            int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
+            NoiseFunction noiseFunction = NoiseGenerator.noiseFunctions.get(noisebasis);
+            if (noiseFunction == null) {
+                noiseFunction = NoiseGenerator.noiseFunctions.get(0);
+                noisebasis = 0;
+            }
+            this.noisebasis = noisebasis;
+            this.noiseFunction = noiseFunction;
         }
     }
 }

@@ -35,6 +35,7 @@ import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
+import com.jme3.scene.plugins.blender.textures.generating.NoiseGenerator.NoiseFunction;
 import com.jme3.texture.Image.Format;
 
 /**
@@ -53,6 +54,7 @@ public class TextureGeneratorClouds extends TextureGenerator {
     protected float            noisesize;
     protected int              noiseDepth;
     protected int              noiseBasis;
+    protected NoiseFunction    noiseFunction;
     protected int              noiseType;
     protected boolean          isHard;
     protected int              sType;
@@ -76,14 +78,24 @@ public class TextureGeneratorClouds extends TextureGenerator {
         isHard = noiseType != TEX_NOISESOFT;
         sType = ((Number) tex.getFieldValue("stype")).intValue();
         if (sType == TEX_COLOR) {
-            this.imageFormat = Format.RGBA8;
+            imageFormat = Format.RGBA8;
+        }
+
+        noiseFunction = NoiseGenerator.noiseFunctions.get(noiseBasis);
+        if (noiseFunction == null) {
+            noiseFunction = NoiseGenerator.noiseFunctions.get(0);
+            noiseBasis = 0;
         }
     }
 
     @Override
     public void getPixel(TexturePixel pixel, float x, float y, float z) {
-        pixel.intensity = NoiseGenerator.NoiseFunctions.turbulence(x, y, z, noisesize, noiseDepth, noiseBasis, isHard);
-        pixel.intensity = FastMath.clamp(pixel.intensity, 0.0f, 1.0f);
+        if (noiseBasis == 0) {
+            ++x;
+            ++y;
+            ++z;
+        }
+        pixel.intensity = NoiseGenerator.NoiseFunctions.turbulence(x, y, z, noisesize, noiseDepth, noiseFunction, isHard);
         if (colorBand != null) {
             int colorbandIndex = (int) (pixel.intensity * 1000.0f);
             pixel.red = colorBand[colorbandIndex][0];
@@ -94,8 +106,8 @@ public class TextureGeneratorClouds extends TextureGenerator {
             this.applyBrightnessAndContrast(bacd, pixel);
         } else if (sType == TEX_COLOR) {
             pixel.red = pixel.intensity;
-            pixel.green = NoiseGenerator.NoiseFunctions.turbulence(y, x, z, noisesize, noiseDepth, noiseBasis, isHard);
-            pixel.blue = NoiseGenerator.NoiseFunctions.turbulence(y, z, x, noisesize, noiseDepth, noiseBasis, isHard);
+            pixel.green = NoiseGenerator.NoiseFunctions.turbulence(y, x, z, noisesize, noiseDepth, noiseFunction, isHard);
+            pixel.blue = NoiseGenerator.NoiseFunctions.turbulence(y, z, x, noisesize, noiseDepth, noiseFunction, isHard);
 
             pixel.green = FastMath.clamp(pixel.green, 0.0f, 1.0f);
             pixel.blue = FastMath.clamp(pixel.blue, 0.0f, 1.0f);

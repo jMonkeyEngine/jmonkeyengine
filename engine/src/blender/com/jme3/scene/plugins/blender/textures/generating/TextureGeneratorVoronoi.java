@@ -35,6 +35,7 @@ import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
+import com.jme3.scene.plugins.blender.textures.generating.NoiseGenerator.DistanceFunction;
 import com.jme3.scene.plugins.blender.textures.generating.NoiseGenerator.NoiseMath;
 import com.jme3.texture.Image.Format;
 
@@ -43,15 +44,15 @@ import com.jme3.texture.Image.Format;
  * @author Marcin Roguski (Kaelthas)
  */
 public class TextureGeneratorVoronoi extends TextureGenerator {
-    protected float noisesize;
-    protected float outscale;
-    protected float mexp;
-    protected int   distanceType;
-    protected int   voronoiColorType;
-    protected float[] da = new float[4], pa = new float[12];
-    protected float[] hashPoint;
-    protected float[] voronoiWeights;
-    protected float   weightSum;
+    protected float            noisesize;
+    protected float            outscale;
+    protected float            mexp;
+    protected DistanceFunction distanceFunction;
+    protected int              voronoiColorType;
+    protected float[]          da = new float[4], pa = new float[12];
+    protected float[]          hashPoint;
+    protected float[]          voronoiWeights;
+    protected float            weightSum;
 
     /**
      * Constructor stores the given noise generator.
@@ -73,7 +74,8 @@ public class TextureGeneratorVoronoi extends TextureGenerator {
         noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
         outscale = ((Number) tex.getFieldValue("ns_outscale")).floatValue();
         mexp = ((Number) tex.getFieldValue("vn_mexp")).floatValue();
-        distanceType = ((Number) tex.getFieldValue("vn_distm")).intValue();
+        int distanceType = ((Number) tex.getFieldValue("vn_distm")).intValue();
+        distanceFunction = NoiseGenerator.distanceFunctions.get(distanceType);
         voronoiColorType = ((Number) tex.getFieldValue("vn_coltype")).intValue();
         hashPoint = voronoiColorType != 0 ? new float[3] : null;
         weightSum = voronoiWeights[0] + voronoiWeights[1] + voronoiWeights[2] + voronoiWeights[3];
@@ -81,14 +83,14 @@ public class TextureGeneratorVoronoi extends TextureGenerator {
             weightSum = outscale / weightSum;
         }
         if (voronoiColorType != 0 || colorBand != null) {
-            this.imageFormat = Format.RGBA8;
+            imageFormat = Format.RGBA8;
         }
     }
 
     @Override
     public void getPixel(TexturePixel pixel, float x, float y, float z) {
         // for voronoi we need to widen the range a little
-        NoiseGenerator.NoiseFunctions.voronoi(x * 4, y * 4, z * 4, da, pa, mexp, distanceType);
+        NoiseGenerator.NoiseFunctions.voronoi(x * 4, y * 4, z * 4, da, pa, mexp, distanceFunction);
         pixel.intensity = weightSum * FastMath.abs(voronoiWeights[0] * da[0] + voronoiWeights[1] * da[1] + voronoiWeights[2] * da[2] + voronoiWeights[3] * da[3]);
         if (pixel.intensity > 1.0f) {
             pixel.intensity = 1.0f;

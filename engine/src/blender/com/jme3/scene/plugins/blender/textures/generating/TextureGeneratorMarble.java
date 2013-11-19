@@ -34,6 +34,7 @@ package com.jme3.scene.plugins.blender.textures.generating;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
+import com.jme3.scene.plugins.blender.textures.generating.NoiseGenerator.NoiseFunction;
 
 /**
  * This class generates the 'marble' texture.
@@ -46,6 +47,8 @@ public class TextureGeneratorMarble extends TextureGeneratorWood {
     protected static final int TEX_SHARPER = 2;
 
     protected MarbleData       marbleData;
+    protected int              noisebasis;
+    protected NoiseFunction    noiseFunction;
 
     /**
      * Constructor stores the given noise generator.
@@ -60,6 +63,12 @@ public class TextureGeneratorMarble extends TextureGeneratorWood {
     public void readData(Structure tex, BlenderContext blenderContext) {
         super.readData(tex, blenderContext);
         marbleData = new MarbleData(tex);
+        noisebasis = marbleData.noisebasis;
+        noiseFunction = NoiseGenerator.noiseFunctions.get(noisebasis);
+        if (noiseFunction == null) {
+            noiseFunction = NoiseGenerator.noiseFunctions.get(0);
+            noisebasis = 0;
+        }
     }
 
     @Override
@@ -87,7 +96,12 @@ public class TextureGeneratorMarble extends TextureGeneratorWood {
         }
 
         float n = 5.0f * (x + y + z);
-        float mi = n + marbleData.turbul * NoiseGenerator.NoiseFunctions.turbulence(x, y, z, marbleData.noisesize, marbleData.noisedepth, marbleData.noisebasis, marbleData.isHard);
+        if (noisebasis == 0) {
+            ++x;
+            ++y;
+            ++z;
+        }
+        float mi = n + marbleData.turbul * NoiseGenerator.NoiseFunctions.turbulence(x, y, z, marbleData.noisesize, marbleData.noisedepth, noiseFunction, marbleData.isHard);
 
         if (marbleData.stype >= TEX_SOFT) {
             mi = waveformFunctions[waveform].execute(mi);

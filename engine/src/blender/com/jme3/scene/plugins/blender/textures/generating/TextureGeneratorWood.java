@@ -34,6 +34,7 @@ import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.textures.TexturePixel;
+import com.jme3.scene.plugins.blender.textures.generating.NoiseGenerator.NoiseFunction;
 import com.jme3.texture.Image.Format;
 
 /**
@@ -139,11 +140,21 @@ public class TextureGeneratorWood extends TextureGenerator {
                 result = woodIntData.waveformFunction.execute((float) Math.sqrt(x * x + y * y + z * z) * 20.0f);
                 break;
             case TEX_BANDNOISE:
-                result = woodIntData.turbul * NoiseGenerator.NoiseFunctions.noise(x, y, z, woodIntData.noisesize, 0, woodIntData.noisebasis, woodIntData.isHard);
+                if (woodIntData.noisebasis == 0) {
+                    ++x;
+                    ++y;
+                    ++z;
+                }
+                result = woodIntData.turbul * NoiseGenerator.NoiseFunctions.noise(x, y, z, woodIntData.noisesize, 0, woodIntData.noiseFunction, woodIntData.isHard);
                 result = woodIntData.waveformFunction.execute((x + y + z) * 10.0f + result);
                 break;
             case TEX_RINGNOISE:
-                result = woodIntData.turbul * NoiseGenerator.NoiseFunctions.noise(x, y, z, woodIntData.noisesize, 0, woodIntData.noisebasis, woodIntData.isHard);
+                if (woodIntData.noisebasis == 0) {
+                    ++x;
+                    ++y;
+                    ++z;
+                }
+                result = woodIntData.turbul * NoiseGenerator.NoiseFunctions.noise(x, y, z, woodIntData.noisesize, 0, woodIntData.noiseFunction, woodIntData.isHard);
                 result = woodIntData.waveformFunction.execute((float) Math.sqrt(x * x + y * y + z * z) * 20.0f + result);
                 break;
             default:
@@ -159,6 +170,8 @@ public class TextureGeneratorWood extends TextureGenerator {
     private static class WoodIntensityData {
         public final WaveForm waveformFunction;
         public final int      noisebasis;
+        public NoiseFunction  noiseFunction;
+
         public final float    noisesize;
         public final float    turbul;
         public final int      noiseType;
@@ -171,7 +184,13 @@ public class TextureGeneratorWood extends TextureGenerator {
                 waveform = 0; // check to be sure noisebasis2 is initialized ahead of time
             }
             waveformFunction = waveformFunctions[waveform];
-            noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
+            int noisebasis = ((Number) tex.getFieldValue("noisebasis")).intValue();
+            if (noiseFunction == null) {
+                noiseFunction = NoiseGenerator.noiseFunctions.get(0);
+                noisebasis = 0;
+            }
+            this.noisebasis = noisebasis;
+
             woodType = ((Number) tex.getFieldValue("stype")).intValue();
             noisesize = ((Number) tex.getFieldValue("noisesize")).floatValue();
             turbul = ((Number) tex.getFieldValue("turbul")).floatValue();
