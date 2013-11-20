@@ -226,5 +226,12 @@ public class TouchEvent extends InputEvent {
     public void setScaleSpanInProgress(boolean scaleSpanInProgress) {
         this.scaleSpanInProgress = scaleSpanInProgress;
     }
+
+    @Override
+    public String toString(){
+        return "TouchEvent(PointerId="+pointerId+", Type="+type+
+                ", X="+posX+", Y="+posY+", DX="+deltaX+", DY="+deltaY+
+                ", ScaleSpan="+scaleSpan+", dScaleSpan="+deltaScaleSpan+")";
+    }
     
 }
