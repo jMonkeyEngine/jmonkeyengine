@@ -679,4 +679,8 @@ public class AndroidInput implements
         return mouseEventsEnabled;
     }
 
+    public void showVirtualKeyboard(boolean visible) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

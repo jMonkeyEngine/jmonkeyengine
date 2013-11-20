@@ -100,4 +100,10 @@ public interface TouchInput extends Input {
      */
     public void setOmitHistoricEvents(boolean dontSendHistory);
     
+    /**
+     * Displays or hides the onscreen soft keyboard
+     * @param visible 
+     */
+    public void showVirtualKeyboard (final boolean visible);
+    
 }
