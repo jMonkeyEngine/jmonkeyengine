@@ -229,7 +229,7 @@ public class Node extends Spatial implements Savable {
      * @param child
      *            the child to attach to this node.
      * @return the number of children maintained by this node.
-     * @throws NullPointerException If child is null.
+     * @throws IllegalArgumentException if child is null.
      */
     public int attachChild(Spatial child) {
         if (child == null)
