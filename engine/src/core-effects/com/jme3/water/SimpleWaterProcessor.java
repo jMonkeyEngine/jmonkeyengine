@@ -48,6 +48,7 @@ import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+import com.jme3.util.TempVars;
 
 /**
  *
@@ -119,15 +120,12 @@ public class SimpleWaterProcessor implements SceneProcessor {
     private Plane reflectionClipPlane;
     private Plane refractionClipPlane;
     private float refractionClippingOffset = 0.3f;
-    private float reflectionClippingOffset = -5f;
-    private Vector3f vect1 = new Vector3f();
-    private Vector3f vect2 = new Vector3f();
-    private Vector3f vect3 = new Vector3f();
+    private float reflectionClippingOffset = -5f;        
     private float distortionScale = 0.2f;
     private float distortionMix = 0.5f;
     private float texScale = 1f;
     
-
+       
     /**
      * Creates a SimpleWaterProcessor
      * @param manager the asset manager
@@ -190,10 +188,6 @@ public class SimpleWaterProcessor implements SceneProcessor {
     public void postQueue(RenderQueue rq) {
         Camera sceneCam = rm.getCurrentCamera();
 
-        //update ray
-        ray.setOrigin(sceneCam.getLocation());
-        ray.setDirection(sceneCam.getDirection());
-
         //update refraction cam
         refractionCam.setLocation(sceneCam.getLocation());
         refractionCam.setRotation(sceneCam.getRotation());
@@ -203,40 +197,11 @@ public class SimpleWaterProcessor implements SceneProcessor {
                 sceneCam.getFrustumRight(),
                 sceneCam.getFrustumTop(),
                 sceneCam.getFrustumBottom());
-        refractionCam.setParallelProjection(false);
+        refractionCam.setParallelProjection(sceneCam.isParallelProjection());
 
         //update reflection cam
-        boolean inv = false;
-        if (!ray.intersectsWherePlane(plane, targetLocation)) {
-            ray.setDirection(ray.getDirection().negateLocal());
-            ray.intersectsWherePlane(plane, targetLocation);
-            inv = true;
-        }
-        Vector3f loc = plane.reflect(sceneCam.getLocation(), new Vector3f());
-        reflectionCam.setLocation(loc);
-        reflectionCam.setFrustum(sceneCam.getFrustumNear(),
-                sceneCam.getFrustumFar(),
-                sceneCam.getFrustumLeft(),
-                sceneCam.getFrustumRight(),
-                sceneCam.getFrustumTop(),
-                sceneCam.getFrustumBottom());
-        reflectionCam.setParallelProjection(false);
-        // tempVec and calcVect are just temporary vector3f objects
-        vect1.set(sceneCam.getLocation()).addLocal(sceneCam.getUp());
-        float planeDistance = plane.pseudoDistance(vect1);
-        vect2.set(plane.getNormal()).multLocal(planeDistance * 2.0f);
-        vect3.set(vect1.subtractLocal(vect2)).subtractLocal(loc).normalizeLocal().negateLocal();
-        // now set the up vector
-        reflectionCam.lookAt(targetLocation, vect3);
-        if (inv) {
-            reflectionCam.setAxes(reflectionCam.getLeft().negateLocal(), reflectionCam.getUp(), reflectionCam.getDirection().negateLocal());
-        }
-
-        //we are rendering a sub part of the scene so the camera planeState may never be reseted to 0.
-//        reflectionCam.setPlaneState(0);
-//        refractionCam.setPlaneState(0);
-
-
+        WaterUtils.updateReflectionCam(reflectionCam, plane, sceneCam);
+        
         //Rendering reflection and refraction
         rm.renderViewPort(reflectionView, savedTpf);
         rm.renderViewPort(refractionView, savedTpf);

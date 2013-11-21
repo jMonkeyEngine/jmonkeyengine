@@ -153,40 +153,11 @@ public class WaterFilter extends Filter {
         material.setVector3("CameraPosition", sceneCam.getLocation());
         material.setFloat("WaterHeight", waterHeight);
 
-        //update reflection cam
-        ray.setOrigin(sceneCam.getLocation());
-        ray.setDirection(sceneCam.getDirection());
+        //update reflection cam      
         plane = new Plane(Vector3f.UNIT_Y, new Vector3f(0, waterHeight, 0).dot(Vector3f.UNIT_Y));
-        reflectionProcessor.setReflectionClipPlane(plane);
-        boolean inv = false;
-        if (!ray.intersectsWherePlane(plane, targetLocation)) {
-            ray.setDirection(ray.getDirection().negateLocal());
-            ray.intersectsWherePlane(plane, targetLocation);
-            inv = true;
-        }
-        Vector3f loc = plane.reflect(sceneCam.getLocation(), new Vector3f());
-        reflectionCam.setLocation(loc);
-        reflectionCam.setFrustum(sceneCam.getFrustumNear(),
-                sceneCam.getFrustumFar(),
-                sceneCam.getFrustumLeft(),
-                sceneCam.getFrustumRight(),
-                sceneCam.getFrustumTop(),
-                sceneCam.getFrustumBottom());
-        reflectionCam.setParallelProjection(false);
-        TempVars vars = TempVars.get();
-
-
-        vars.vect1.set(sceneCam.getLocation()).addLocal(sceneCam.getUp());
-        float planeDistance = plane.pseudoDistance(vars.vect1);
-        vars.vect2.set(plane.getNormal()).multLocal(planeDistance * 2.0f);
-        vars.vect3.set(vars.vect1.subtractLocal(vars.vect2)).subtractLocal(loc).normalizeLocal().negateLocal();
-
-        reflectionCam.lookAt(targetLocation, vars.vect3);
-        vars.release();
-
-        if (inv) {
-            reflectionCam.setAxes(reflectionCam.getLeft().negateLocal(), reflectionCam.getUp(), reflectionCam.getDirection().negateLocal());
-        }
+        reflectionProcessor.setReflectionClipPlane(plane);        
+        WaterUtils.updateReflectionCam(reflectionCam, plane, sceneCam);
+      
 
         //if we're under water no need to compute reflection
         if (sceneCam.getLocation().y >= waterHeight) {
