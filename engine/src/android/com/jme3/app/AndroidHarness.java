@@ -530,6 +530,13 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     public void initialize() {
         app.initialize();
         if (handleExitHook) {
+            // remove existing mapping from SimpleApplication that stops the app
+            // when the esc key is pressed (esc key = android back key) so that
+            // AndroidHarness can produce the exit app dialog box.
+            if (app.getInputManager().hasMapping(SimpleApplication.INPUT_MAPPING_EXIT)) {
+                app.getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
+            }
+            
             app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
             app.getInputManager().addListener(this, new String[]{ESCAPE_EVENT});
         }
