@@ -57,8 +57,13 @@ public enum EdgeFilteringMode {
      */
     PCF4(3),
     /**
-     * 8x8 percentage-closer filtering is used. Shadows will be smoother at the
-     * cost of performance
+     * 12 samples percentage-closer filtering with a POISON disc distribution 
+     * is used. 
+     * http://devmag.org.za/2009/05/03/poisson-disk-sampling/
+     * The principle is to eliminate the regular blurring pattern that can be 
+     * seen with pcf4x4 by randomizing the samble position with a poisson disc.
+     * Shadows will look smoother than 4x4 PCF but with slightly better or 
+     * similar performance.
      */
     PCFPOISSON(4),
     /**
