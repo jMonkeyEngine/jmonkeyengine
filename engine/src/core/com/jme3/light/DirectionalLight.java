@@ -69,8 +69,8 @@ public class DirectionalLight extends Light {
     /**
      * Sets the direction of the light.
      * <p>
-     * Represents the vector direction the light is coming from.
-     * (1, 0, 0) would represent a directional light coming from the X axis.
+     * Represents the direction the light is shining.
+     * (1, 0, 0) would represent light shining in the +X direction.
      * 
      * @param dir the direction of the light.
      */
