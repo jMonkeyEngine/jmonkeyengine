@@ -48,6 +48,7 @@ import android.widget.FrameLayout;
 import com.jme3.input.*;
 import com.jme3.input.android.AndroidInput;
 import com.jme3.input.android.AndroidSensorJoyInput;
+import com.jme3.input.android.AndroidInputHandler;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
@@ -75,7 +76,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected Timer timer;
     protected SystemListener listener;
     protected boolean autoFlush = true;
-    protected AndroidInput androidInput;
+    protected AndroidInputHandler androidInput;
     protected int minFrameDuration = 0;                   // No FPS cap
     protected JoyInput androidSensorJoyInput = null;
     /**
@@ -107,7 +108,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         // Start to set up the view
         view = new AndroidGLSurfaceView(JmeAndroidSystem.getActivity().getApplication());
         if (androidInput == null) {
-            androidInput = new AndroidInput();
+            androidInput = new AndroidInputHandler();
         }
         androidInput.setView(view);
         androidInput.loadSettings(settings);
@@ -394,6 +395,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 editTextDialogInput.setHeight(LayoutParams.FILL_PARENT);
                 editTextDialogInput.setPadding(20, 20, 20, 20);
                 editTextDialogInput.setGravity(Gravity.FILL_HORIZONTAL);
+                //editTextDialogInput.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
 
                 editTextDialogInput.setText(initialValue);
 
