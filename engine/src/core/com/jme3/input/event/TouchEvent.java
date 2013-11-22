@@ -64,6 +64,22 @@ public class TouchEvent extends InputEvent {
         TAP,
         DOUBLETAP,
         LONGPRESSED,
+        /**
+         * Finger started hovering over the screen without touching
+         * Requires Android OS rev 14 or higher (Android 4.0 or higher)
+         */
+        HOVER_START,
+        /**
+         * Finger moved while still hovering over the screen without touching
+         * Requires Android OS rev 14 or higher (Android 4.0 or higher)
+         */
+        HOVER_MOVE,
+        /**
+         * Finger was pulled away from the screen or touched the screen
+         * Requires Android OS rev 14 or higher (Android 4.0 or higher)
+         */
+        HOVER_END,
+        
         // Two finger scale events
         /**
          * Two finger scale event start, fields: posX/posY = getFocusX/Y, scaleFactor, scaleSpan  
