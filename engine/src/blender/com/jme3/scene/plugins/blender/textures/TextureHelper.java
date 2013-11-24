@@ -77,29 +77,29 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski
  */
 public class TextureHelper extends AbstractBlenderHelper {
-    private static final Logger     LOGGER           = Logger.getLogger(TextureHelper.class.getName());
+    private static final Logger     LOGGER                  = Logger.getLogger(TextureHelper.class.getName());
 
     // texture types
-    public static final int         TEX_NONE         = 0;
-    public static final int         TEX_CLOUDS       = 1;
-    public static final int         TEX_WOOD         = 2;
-    public static final int         TEX_MARBLE       = 3;
-    public static final int         TEX_MAGIC        = 4;
-    public static final int         TEX_BLEND        = 5;
-    public static final int         TEX_STUCCI       = 6;
-    public static final int         TEX_NOISE        = 7;
-    public static final int         TEX_IMAGE        = 8;
-    public static final int         TEX_PLUGIN       = 9;
-    public static final int         TEX_ENVMAP       = 10;
-    public static final int         TEX_MUSGRAVE     = 11;
-    public static final int         TEX_VORONOI      = 12;
-    public static final int         TEX_DISTNOISE    = 13;
-    public static final int         TEX_POINTDENSITY = 14; // v. 25+
-    public static final int         TEX_VOXELDATA    = 15; // v. 25+
-    public static final int         TEX_OCEAN        = 16; // v. 26+
+    public static final int         TEX_NONE                = 0;
+    public static final int         TEX_CLOUDS              = 1;
+    public static final int         TEX_WOOD                = 2;
+    public static final int         TEX_MARBLE              = 3;
+    public static final int         TEX_MAGIC               = 4;
+    public static final int         TEX_BLEND               = 5;
+    public static final int         TEX_STUCCI              = 6;
+    public static final int         TEX_NOISE               = 7;
+    public static final int         TEX_IMAGE               = 8;
+    public static final int         TEX_PLUGIN              = 9;
+    public static final int         TEX_ENVMAP              = 10;
+    public static final int         TEX_MUSGRAVE            = 11;
+    public static final int         TEX_VORONOI             = 12;
+    public static final int         TEX_DISTNOISE           = 13;
+    public static final int         TEX_POINTDENSITY        = 14;                                                                                                                                          // v. 25+
+    public static final int         TEX_VOXELDATA           = 15;                                                                                                                                          // v. 25+
+    public static final int         TEX_OCEAN               = 16;                                                                                                                                          // v. 26+
 
-    public static final Type[]      TEXCOORD_TYPES = new Type[] { Type.TexCoord, Type.TexCoord2, Type.TexCoord3, Type.TexCoord4, Type.TexCoord5, Type.TexCoord6, Type.TexCoord7, Type.TexCoord8 };
-    
+    public static final Type[]      TEXCOORD_TYPES          = new Type[] { Type.TexCoord, Type.TexCoord2, Type.TexCoord3, Type.TexCoord4, Type.TexCoord5, Type.TexCoord6, Type.TexCoord7, Type.TexCoord8 };
+
     private TextureGeneratorFactory textureGeneratorFactory = new TextureGeneratorFactory();
 
     /**
@@ -523,9 +523,9 @@ public class TextureHelper extends AbstractBlenderHelper {
 
         return result;
     }
-    
+
     @SuppressWarnings("unchecked")
-    public Map<Number, CombinedTexture> readTextureData(Structure structure, float[] diffuseColorArray, boolean skyTexture) throws BlenderFileException {
+    public List<CombinedTexture> readTextureData(Structure structure, float[] diffuseColorArray, boolean skyTexture) throws BlenderFileException {
         DynamicArray<Pointer> mtexsArray = (DynamicArray<Pointer>) structure.getFieldValue("mtex");
         int separatedTextures = skyTexture ? 0 : ((Number) structure.getFieldValue("septex")).intValue();
         List<TextureData> texturesList = new ArrayList<TextureData>();
@@ -537,10 +537,10 @@ public class TextureHelper extends AbstractBlenderHelper {
                 textureData.uvCoordinatesType = skyTexture ? UVCoordinatesType.TEXCO_ORCO.blenderValue : ((Number) textureData.mtex.getFieldValue("texco")).intValue();
                 textureData.projectionType = ((Number) textureData.mtex.getFieldValue("mapping")).intValue();
                 textureData.uvCoordinatesName = textureData.mtex.getFieldValue("uvName").toString();
-                if(textureData.uvCoordinatesName != null && textureData.uvCoordinatesName.trim().length() == 0) {
+                if (textureData.uvCoordinatesName != null && textureData.uvCoordinatesName.trim().length() == 0) {
                     textureData.uvCoordinatesName = null;
                 }
-                
+
                 Pointer pTex = (Pointer) textureData.mtex.getFieldValue("tex");
                 if (pTex.isNotNull()) {
                     Structure tex = pTex.fetchData(blenderContext.getInputStream()).get(0);
@@ -550,33 +550,62 @@ public class TextureHelper extends AbstractBlenderHelper {
             }
         }
 
-        // loading the textures and merging them
-        Map<Number, List<TextureData>> textureDataMap = this.sortTextures(texturesList);
-        Map<Number, CombinedTexture> loadedTextures = new HashMap<Number, CombinedTexture>();
-        for (Entry<Number, List<TextureData>> entry : textureDataMap.entrySet()) {
-            if (entry.getValue().size() > 0) {
-                CombinedTexture combinedTexture = new CombinedTexture(entry.getKey().intValue(), !skyTexture);
-                for (TextureData textureData : entry.getValue()) {
-                    int texflag = ((Number) textureData.mtex.getFieldValue("texflag")).intValue();
-                    boolean negateTexture = (texflag & 0x04) != 0;
-                    Texture texture = this.getTexture(textureData.textureStructure, textureData.mtex, blenderContext);
-                    if (texture != null) {
-                        int blendType = ((Number) textureData.mtex.getFieldValue("blendtype")).intValue();
-                        float[] color = new float[] { ((Number) textureData.mtex.getFieldValue("r")).floatValue(), ((Number) textureData.mtex.getFieldValue("g")).floatValue(), ((Number) textureData.mtex.getFieldValue("b")).floatValue() };
-                        float colfac = ((Number) textureData.mtex.getFieldValue("colfac")).floatValue();
-                        TextureBlender textureBlender = TextureBlenderFactory.createTextureBlender(texture.getImage().getFormat(), texflag, negateTexture, blendType, diffuseColorArray, color, colfac);
-                        combinedTexture.add(texture, textureBlender, textureData.uvCoordinatesType, textureData.projectionType,
-                                            textureData.textureStructure, textureData.uvCoordinatesName, blenderContext);
+        LOGGER.info("Loading model's textures.");
+        List<CombinedTexture> loadedTextures = new ArrayList<CombinedTexture>();
+        if (blenderContext.getBlenderKey().isOptimiseTextures()) {
+            LOGGER.fine("Optimising the useage of model's textures.");
+            Map<Number, List<TextureData>> textureDataMap = this.sortTextures(texturesList);
+            for (Entry<Number, List<TextureData>> entry : textureDataMap.entrySet()) {
+                if (entry.getValue().size() > 0) {
+                    CombinedTexture combinedTexture = new CombinedTexture(entry.getKey().intValue(), !skyTexture);
+                    for (TextureData textureData : entry.getValue()) {
+                        int texflag = ((Number) textureData.mtex.getFieldValue("texflag")).intValue();
+                        boolean negateTexture = (texflag & 0x04) != 0;
+                        Texture texture = this.getTexture(textureData.textureStructure, textureData.mtex, blenderContext);
+                        if (texture != null) {
+                            int blendType = ((Number) textureData.mtex.getFieldValue("blendtype")).intValue();
+                            float[] color = new float[] { ((Number) textureData.mtex.getFieldValue("r")).floatValue(), ((Number) textureData.mtex.getFieldValue("g")).floatValue(), ((Number) textureData.mtex.getFieldValue("b")).floatValue() };
+                            float colfac = ((Number) textureData.mtex.getFieldValue("colfac")).floatValue();
+                            TextureBlender textureBlender = TextureBlenderFactory.createTextureBlender(texture.getImage().getFormat(), texflag, negateTexture, blendType, diffuseColorArray, color, colfac);
+                            combinedTexture.add(texture, textureBlender, textureData.uvCoordinatesType, textureData.projectionType, textureData.textureStructure, textureData.uvCoordinatesName, blenderContext);
+                        }
+                    }
+                    if (combinedTexture.getTexturesCount() > 0) {
+                        loadedTextures.add(combinedTexture);
                     }
                 }
-                if (combinedTexture.getTexturesCount() > 0) {
-                    loadedTextures.put(entry.getKey(), combinedTexture);
+            }
+        } else {
+            LOGGER.fine("No textures optimisation applied.");
+            int[] mappings = new int[] { MaterialContext.MTEX_COL, MaterialContext.MTEX_NOR, MaterialContext.MTEX_EMIT, MaterialContext.MTEX_SPEC, MaterialContext.MTEX_ALPHA, MaterialContext.MTEX_AMB };
+            for (TextureData textureData : texturesList) {
+                Texture texture = this.getTexture(textureData.textureStructure, textureData.mtex, blenderContext);
+                if (texture != null) {
+                    Number mapto = (Number) textureData.mtex.getFieldValue("mapto");
+                    int texflag = ((Number) textureData.mtex.getFieldValue("texflag")).intValue();
+                    boolean negateTexture = (texflag & 0x04) != 0;
+
+                    for (int i = 0; i < mappings.length; ++i) {
+                        if ((mappings[i] & mapto.intValue()) != 0) {
+                            CombinedTexture combinedTexture = new CombinedTexture(mappings[i], !skyTexture);
+                            int blendType = ((Number) textureData.mtex.getFieldValue("blendtype")).intValue();
+                            float[] color = new float[] { ((Number) textureData.mtex.getFieldValue("r")).floatValue(), ((Number) textureData.mtex.getFieldValue("g")).floatValue(), ((Number) textureData.mtex.getFieldValue("b")).floatValue() };
+                            float colfac = ((Number) textureData.mtex.getFieldValue("colfac")).floatValue();
+                            TextureBlender textureBlender = TextureBlenderFactory.createTextureBlender(texture.getImage().getFormat(), texflag, negateTexture, blendType, diffuseColorArray, color, colfac);
+                            combinedTexture.add(texture, textureBlender, textureData.uvCoordinatesType, textureData.projectionType, textureData.textureStructure, textureData.uvCoordinatesName, blenderContext);
+                            if (combinedTexture.getTexturesCount() > 0) {// the added texture might not have been accepted (if for example loading generated textures is disabled)
+                                loadedTextures.add(combinedTexture);
+                            }
+                        }
+                    }
                 }
+
             }
         }
+
         return loadedTextures;
     }
-    
+
     /**
      * This method sorts the textures by their mapping type. In each group only
      * textures of one type are put (either two- or three-dimensional).
@@ -601,7 +630,7 @@ public class TextureHelper extends AbstractBlenderHelper {
         }
         return result;
     }
-    
+
     private static class TextureData {
         public Structure mtex;
         public Structure textureStructure;

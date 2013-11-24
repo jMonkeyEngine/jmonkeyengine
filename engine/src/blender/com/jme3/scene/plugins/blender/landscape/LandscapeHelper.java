@@ -2,7 +2,6 @@ package com.jme3.scene.plugins.blender.landscape;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -101,7 +100,7 @@ public class LandscapeHelper extends AbstractBlenderHelper {
         blenderContext.getBlenderKey().setLoadGeneratedTextures(true);
 
         TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
-        Map<Number, CombinedTexture> loadedTextures = null;
+        List<CombinedTexture> loadedTextures = null;
         try {
             loadedTextures = textureHelper.readTextureData(worldStructure, new float[] { horizontalColor.r, horizontalColor.g, horizontalColor.b, horizontalColor.a }, true);
         } finally {
@@ -113,7 +112,7 @@ public class LandscapeHelper extends AbstractBlenderHelper {
             if (loadedTextures.size() > 1) {
                 throw new IllegalStateException("There should be only one combined texture for sky!");
             }
-            CombinedTexture combinedTexture = loadedTextures.get(1);
+            CombinedTexture combinedTexture = loadedTextures.get(0);
             texture = combinedTexture.generateSkyTexture(horizontalColor, zenithColor, blenderContext);
         } else {
             LOGGER.fine("Preparing colors for colorband.");
@@ -169,7 +168,7 @@ public class LandscapeHelper extends AbstractBlenderHelper {
                     pixelIO.write(image, 3, pixel, x, y);
                 }
             }
-            
+
             LOGGER.fine("Creating bottom texture.");
             pixelIO.read(image, 0, pixel, 0, 0);
             for (int y = 0; y < size; ++y) {

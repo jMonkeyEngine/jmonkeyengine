@@ -380,6 +380,13 @@ public class CombinedTexture {
     }
 
     /**
+     * @return the texture's mapping type
+     */
+    public int getMappingType() {
+        return mappingType;
+    }
+
+    /**
      * @return <b>true</b> if the texture has at least one generated texture component and <b>false</b> otherwise
      */
     public boolean hasGeneratedTextures() {
@@ -392,7 +399,7 @@ public class CombinedTexture {
         }
         return false;
     }
-    
+
     /**
      * This method determines if the given texture has no alpha channel.
      * 

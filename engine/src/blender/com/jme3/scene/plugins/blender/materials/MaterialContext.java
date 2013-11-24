@@ -2,7 +2,6 @@ package com.jme3.scene.plugins.blender.materials;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,30 +31,30 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski (Kaelthas)
  */
 public final class MaterialContext {
-    private static final Logger                     LOGGER     = Logger.getLogger(MaterialContext.class.getName());
+    private static final Logger              LOGGER     = Logger.getLogger(MaterialContext.class.getName());
 
     // texture mapping types
-    public static final int                         MTEX_COL   = 0x01;
-    public static final int                         MTEX_NOR   = 0x02;
-    public static final int                         MTEX_SPEC  = 0x04;
-    public static final int                         MTEX_EMIT  = 0x40;
-    public static final int                         MTEX_ALPHA = 0x80;
-    public static final int                         MTEX_AMB   = 0x800;
+    public static final int                  MTEX_COL   = 0x01;
+    public static final int                  MTEX_NOR   = 0x02;
+    public static final int                  MTEX_SPEC  = 0x04;
+    public static final int                  MTEX_EMIT  = 0x40;
+    public static final int                  MTEX_ALPHA = 0x80;
+    public static final int                  MTEX_AMB   = 0x800;
 
-    /* package */final String                       name;
-    /* package */final Map<Number, CombinedTexture> loadedTextures;
+    /* package */final String                name;
+    /* package */final List<CombinedTexture> loadedTextures;
 
-    /* package */final ColorRGBA                    diffuseColor;
-    /* package */final DiffuseShader                diffuseShader;
-    /* package */final SpecularShader               specularShader;
-    /* package */final ColorRGBA                    specularColor;
-    /* package */final ColorRGBA                    ambientColor;
-    /* package */final float                        shininess;
-    /* package */final boolean                      shadeless;
-    /* package */final boolean                      vertexColor;
-    /* package */final boolean                      transparent;
-    /* package */final boolean                      vTangent;
-    /* package */FaceCullMode                       faceCullMode;
+    /* package */final ColorRGBA             diffuseColor;
+    /* package */final DiffuseShader         diffuseShader;
+    /* package */final SpecularShader        specularShader;
+    /* package */final ColorRGBA             specularColor;
+    /* package */final ColorRGBA             ambientColor;
+    /* package */final float                 shininess;
+    /* package */final boolean               shadeless;
+    /* package */final boolean               vertexColor;
+    /* package */final boolean               transparent;
+    /* package */final boolean               vTangent;
+    /* package */FaceCullMode                faceCullMode;
 
     /* package */MaterialContext(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
         name = structure.getName();
@@ -68,7 +67,7 @@ public final class MaterialContext {
         int diff_shader = ((Number) structure.getFieldValue("diff_shader")).intValue();
         diffuseShader = DiffuseShader.values()[diff_shader];
 
-        if (this.shadeless) {
+        if (shadeless) {
             float r = ((Number) structure.getFieldValue("r")).floatValue();
             float g = ((Number) structure.getFieldValue("g")).floatValue();
             float b = ((Number) structure.getFieldValue("b")).floatValue();
@@ -84,9 +83,9 @@ public final class MaterialContext {
             int spec_shader = ((Number) structure.getFieldValue("spec_shader")).intValue();
             specularShader = SpecularShader.values()[spec_shader];
             specularColor = this.readSpecularColor(structure);
-            float shininess = ((Number) structure.getFieldValue("har")).floatValue();//this is (probably) the specular hardness in blender
+            float shininess = ((Number) structure.getFieldValue("har")).floatValue();// this is (probably) the specular hardness in blender
             this.shininess = shininess > 0.0f ? shininess : MaterialHelper.DEFAULT_SHININESS;
-            
+
             float r = ((Number) structure.getFieldValue("ambr")).floatValue();
             float g = ((Number) structure.getFieldValue("ambg")).floatValue();
             float b = ((Number) structure.getFieldValue("ambb")).floatValue();
@@ -159,16 +158,15 @@ public final class MaterialContext {
         // applying textures
         if (loadedTextures != null && loadedTextures.size() > 0) {
             int textureIndex = 0;
-            if(loadedTextures.size() > TextureHelper.TEXCOORD_TYPES.length) {
+            if (loadedTextures.size() > TextureHelper.TEXCOORD_TYPES.length) {
                 LOGGER.log(Level.WARNING, "The blender file has defined more than {0} different textures. JME supports only {0} UV mappings.", TextureHelper.TEXCOORD_TYPES.length);
             }
-            for (Entry<Number, CombinedTexture> entry : loadedTextures.entrySet()) {
-                if(textureIndex < TextureHelper.TEXCOORD_TYPES.length) {
-                    CombinedTexture combinedTexture = entry.getValue();
+            for (CombinedTexture combinedTexture : loadedTextures) {
+                if (textureIndex < TextureHelper.TEXCOORD_TYPES.length) {
                     combinedTexture.flatten(geometry, geometriesOMA, userDefinedUVCoordinates, blenderContext);
 
-                    this.setTexture(material, entry.getKey().intValue(), combinedTexture.getResultTexture());
-                    List<Vector2f> uvs = entry.getValue().getResultUVS();
+                    this.setTexture(material, combinedTexture.getMappingType(), combinedTexture.getResultTexture());
+                    List<Vector2f> uvs = combinedTexture.getResultUVS();
                     VertexBuffer uvCoordsBuffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[textureIndex++]);
                     uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
                     geometry.getMesh().setBuffer(uvCoordsBuffer);
@@ -176,14 +174,14 @@ public final class MaterialContext {
                     LOGGER.log(Level.WARNING, "The texture could not be applied because JME only supports up to {0} different UV's.", TextureHelper.TEXCOORD_TYPES.length);
                 }
             }
-        } else if(userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
+        } else if (userDefinedUVCoordinates != null && userDefinedUVCoordinates.size() > 0) {
             LOGGER.fine("No textures found for the mesh, but UV coordinates are applied.");
             int textureIndex = 0;
-            if(userDefinedUVCoordinates.size() > TextureHelper.TEXCOORD_TYPES.length) {
+            if (userDefinedUVCoordinates.size() > TextureHelper.TEXCOORD_TYPES.length) {
                 LOGGER.log(Level.WARNING, "The blender file has defined more than {0} different UV coordinates for the mesh. JME supports only {0} UV coordinates buffers.", TextureHelper.TEXCOORD_TYPES.length);
             }
-            for(Entry<String, List<Vector2f>> entry : userDefinedUVCoordinates.entrySet()) {
-                if(textureIndex < TextureHelper.TEXCOORD_TYPES.length) {
+            for (Entry<String, List<Vector2f>> entry : userDefinedUVCoordinates.entrySet()) {
+                if (textureIndex < TextureHelper.TEXCOORD_TYPES.length) {
                     List<Vector2f> uvs = entry.getValue();
                     VertexBuffer uvCoordsBuffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[textureIndex++]);
                     uvCoordsBuffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(uvs.toArray(new Vector2f[uvs.size()])));
@@ -253,8 +251,8 @@ public final class MaterialContext {
      */
     public boolean hasGeneratedTextures() {
         if (loadedTextures != null) {
-            for (Entry<Number, CombinedTexture> entry : loadedTextures.entrySet()) {
-                if (entry.getValue().hasGeneratedTextures()) {
+            for (CombinedTexture generatedTextures : loadedTextures) {
+                if (generatedTextures.hasGeneratedTextures()) {
                     return true;
                 }
             }

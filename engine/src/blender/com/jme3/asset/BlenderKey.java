@@ -114,7 +114,12 @@ public class BlenderKey extends ModelKey {
     /** The radius of a shape that will be used while creating the generated texture for the sky. The higher it is the larger part of the texture will be seen. */
     protected float                    skyGeneratedTextureRadius = 1;
     /** The shape against which the generated texture for the sky will be created. */
-    protected SkyGeneratedTextureShape skyGeneratedTextureShape     = SkyGeneratedTextureShape.SPHERE;
+    protected SkyGeneratedTextureShape skyGeneratedTextureShape  = SkyGeneratedTextureShape.SPHERE;
+    /**
+     * This field tells if the importer should optimise the use of textures or not. If set to true, then textures of the same mapping type will be merged together
+     * and textures that in the final result will never be visible - will be discarded.
+     */
+    protected boolean                  optimiseTextures;
 
     /**
      * Constructor used by serialization mechanisms.
@@ -273,7 +278,7 @@ public class BlenderKey extends ModelKey {
     public void excludeFromLoading(int featuresNotToLoad) {
         featuresToLoad &= ~featuresNotToLoad;
     }
-    
+
     public boolean shouldLoad(int featureToLoad) {
         return (featuresToLoad & featureToLoad) != 0;
     }
@@ -414,10 +419,27 @@ public class BlenderKey extends ModelKey {
      *            the shape against which the generated texture for the sky will be created
      */
     public void setSkyGeneratedTextureShape(SkyGeneratedTextureShape skyGeneratedTextureShape) {
-        if(skyGeneratedTextureShape == null) {
+        if (skyGeneratedTextureShape == null) {
             throw new IllegalArgumentException("The sky generated shape type cannot be null!");
         }
         this.skyGeneratedTextureShape = skyGeneratedTextureShape;
+    }
+
+    /**
+     * If set to true, then textures of the same mapping type will be merged together
+     * and textures that in the final result will never be visible - will be discarded.
+     * @param optimiseTextures
+     *            the variable that tells if the textures should be optimised or not
+     */
+    public void setOptimiseTextures(boolean optimiseTextures) {
+        this.optimiseTextures = optimiseTextures;
+    }
+
+    /**
+     * @return the variable that tells if the textures should be optimised or not (by default the optimisation is disabled)
+     */
+    public boolean isOptimiseTextures() {
+        return optimiseTextures;
     }
 
     /**
@@ -474,6 +496,7 @@ public class BlenderKey extends ModelKey {
         oc.write(skyGeneratedTextureSize, "sky-generated-texture-size", 1000);
         oc.write(skyGeneratedTextureRadius, "sky-generated-texture-radius", 1f);
         oc.write(skyGeneratedTextureShape, "sky-generated-texture-shape", SkyGeneratedTextureShape.SPHERE);
+        oc.write(optimiseTextures, "optimise-textures", false);
     }
 
     @Override
@@ -494,6 +517,7 @@ public class BlenderKey extends ModelKey {
         skyGeneratedTextureSize = ic.readInt("sky-generated-texture-size", 1000);
         skyGeneratedTextureRadius = ic.readFloat("sky-generated-texture-radius", 1f);
         skyGeneratedTextureShape = ic.readEnum("sky-generated-texture-shape", SkyGeneratedTextureShape.class, SkyGeneratedTextureShape.SPHERE);
+        optimiseTextures = ic.readBoolean("optimise-textures", false);
     }
 
     @Override
@@ -507,14 +531,15 @@ public class BlenderKey extends ModelKey {
         result = prime * result + (fixUpAxis ? 1231 : 1237);
         result = prime * result + fps;
         result = prime * result + generatedTexturePPU;
-        result = prime * result + (skyGeneratedTextureShape == null ? 0 : skyGeneratedTextureShape.hashCode());
         result = prime * result + layersToLoad;
         result = prime * result + (loadGeneratedTextures ? 1231 : 1237);
         result = prime * result + (loadObjectProperties ? 1231 : 1237);
         result = prime * result + (loadUnlinkedAssets ? 1231 : 1237);
         result = prime * result + maxTextureSize;
         result = prime * result + (mipmapGenerationMethod == null ? 0 : mipmapGenerationMethod.hashCode());
+        result = prime * result + (optimiseTextures ? 1231 : 1237);
         result = prime * result + Float.floatToIntBits(skyGeneratedTextureRadius);
+        result = prime * result + (skyGeneratedTextureShape == null ? 0 : skyGeneratedTextureShape.hashCode());
         result = prime * result + skyGeneratedTextureSize;
         result = prime * result + (usedWorld == null ? 0 : usedWorld.hashCode());
         return result;
@@ -561,9 +586,6 @@ public class BlenderKey extends ModelKey {
         if (generatedTexturePPU != other.generatedTexturePPU) {
             return false;
         }
-        if (skyGeneratedTextureShape != other.skyGeneratedTextureShape) {
-            return false;
-        }
         if (layersToLoad != other.layersToLoad) {
             return false;
         }
@@ -582,7 +604,13 @@ public class BlenderKey extends ModelKey {
         if (mipmapGenerationMethod != other.mipmapGenerationMethod) {
             return false;
         }
+        if (optimiseTextures != other.optimiseTextures) {
+            return false;
+        }
         if (Float.floatToIntBits(skyGeneratedTextureRadius) != Float.floatToIntBits(other.skyGeneratedTextureRadius)) {
+            return false;
+        }
+        if (skyGeneratedTextureShape != other.skyGeneratedTextureShape) {
             return false;
         }
         if (skyGeneratedTextureSize != other.skyGeneratedTextureSize) {
@@ -597,6 +625,8 @@ public class BlenderKey extends ModelKey {
         }
         return true;
     }
+
+
 
     /**
      * This enum tells the importer if the mipmaps for textures will be generated by jme. <li>NEVER_GENERATE and ALWAYS_GENERATE are quite understandable <li>GENERATE_WHEN_NEEDED is an option that checks if the texture had 'Generate mipmaps' option set in blender, mipmaps are generated only when the option is set
