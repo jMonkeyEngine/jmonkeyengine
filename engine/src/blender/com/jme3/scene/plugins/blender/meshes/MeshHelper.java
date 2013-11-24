@@ -40,9 +40,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Usage;
@@ -68,10 +71,12 @@ public class MeshHelper extends AbstractBlenderHelper {
     private static final Logger LOGGER                   = Logger.getLogger(MeshHelper.class.getName());
 
     /** A type of UV data layer in traditional faced mesh (triangles or quads). */
-    public static final int                          UV_DATA_LAYER_TYPE_FMESH = 5;
+    public static final int     UV_DATA_LAYER_TYPE_FMESH = 5;
     /** A type of UV data layer in bmesh type. */
-    public static final int                          UV_DATA_LAYER_TYPE_BMESH = 16;
-    
+    public static final int     UV_DATA_LAYER_TYPE_BMESH = 16;
+    /** A material used for single lines and points. */
+    private Material            blackUnshadedMaterial;
+
     /**
      * This constructor parses the given blender version and stores the result. Some functionalities may differ in different blender
      * versions.
@@ -143,9 +148,9 @@ public class MeshHelper extends AbstractBlenderHelper {
         LOGGER.fine("Generating meshes.");
         Map<Integer, List<Mesh>> meshes = meshBuilder.buildMeshes();
         geometries = new ArrayList<Geometry>(meshes.size());
-        for(Entry<Integer, List<Mesh>> meshEntry : meshes.entrySet()) {
+        for (Entry<Integer, List<Mesh>> meshEntry : meshes.entrySet()) {
             int materialIndex = meshEntry.getKey();
-            for(Mesh mesh : meshEntry.getValue()) {
+            for (Mesh mesh : meshEntry.getValue()) {
                 LOGGER.fine("Preparing the result part.");
                 Geometry geometry = new Geometry(name + (geometries.size() + 1), mesh);
                 if (properties != null && properties.getValue() != null) {
@@ -164,7 +169,9 @@ public class MeshHelper extends AbstractBlenderHelper {
         if (materials != null) {
             for (Geometry geometry : geometries) {
                 int materialNumber = meshContext.getMaterialIndex(geometry);
-                if (materials[materialNumber] != null) {
+                if (materialNumber < 0) {
+                    geometry.setMaterial(this.getBlackUnshadedMaterial(blenderContext));
+                } else if (materials[materialNumber] != null) {
                     LinkedHashMap<String, List<Vector2f>> uvCoordinates = meshBuilder.getUVCoordinates(materialNumber);
                     MaterialContext materialContext = materials[materialNumber];
                     materialContext.applyMaterial(geometry, structure.getOldMemoryAddress(), uvCoordinates, blenderContext);
@@ -190,7 +197,12 @@ public class MeshHelper extends AbstractBlenderHelper {
             }
 
             for (Geometry geometry : geometries) {
-                geometry.setMaterial(blenderContext.getDefaultMaterial());
+                Mode mode = geometry.getMesh().getMode();
+                if (mode != Mode.Triangles && mode != Mode.TriangleFan && mode != Mode.TriangleStrip) {
+                    geometry.setMaterial(this.getBlackUnshadedMaterial(blenderContext));
+                } else {
+                    geometry.setMaterial(blenderContext.getDefaultMaterial());
+                }
                 if (uvCoordsBuffer != null) {
                     for (VertexBuffer buffer : uvCoordsBuffer) {
                         geometry.getMesh().setBuffer(buffer);
@@ -201,7 +213,7 @@ public class MeshHelper extends AbstractBlenderHelper {
 
         return geometries;
     }
-    
+
     /**
      * Tells if the given mesh structure supports BMesh.
      * 
@@ -213,5 +225,13 @@ public class MeshHelper extends AbstractBlenderHelper {
         Pointer pMLoop = (Pointer) meshStructure.getFieldValue("mloop");
         Pointer pMPoly = (Pointer) meshStructure.getFieldValue("mpoly");
         return pMLoop != null && pMPoly != null && pMLoop.isNotNull() && pMPoly.isNotNull();
+    }
+
+    private synchronized Material getBlackUnshadedMaterial(BlenderContext blenderContext) {
+        if (blackUnshadedMaterial == null) {
+            blackUnshadedMaterial = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
+            blackUnshadedMaterial.setColor("Color", ColorRGBA.Black);
+        }
+        return blackUnshadedMaterial;
     }
 }

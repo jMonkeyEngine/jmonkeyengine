@@ -119,8 +119,8 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 
                             for (int i = 0; i < cloneIndexes.limit(); ++i) {
                                 int index = cloneIndexes instanceof ShortBuffer ? ((ShortBuffer) cloneIndexes).get(i) : ((IntBuffer) cloneIndexes).get(i);
-                                if (!modifiedIndexes.contains((int) index)) {
-                                    modifiedIndexes.add((int) index);
+                                if (!modifiedIndexes.contains(index)) {
+                                    modifiedIndexes.add(index);
                                     int valueIndex = index * 3 + mirrorIndex;
 
                                     float value = clonePosition.get(valueIndex);
@@ -155,17 +155,39 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
                             }
                             modifiedIndexes.clear();
 
-                            // flipping index order
-                            for (int i = 0; i < cloneIndexes.limit(); i += 3) {
-                                if (cloneIndexes instanceof ShortBuffer) {
-                                    short index = ((ShortBuffer) cloneIndexes).get(i + 2);
-                                    ((ShortBuffer) cloneIndexes).put(i + 2, ((ShortBuffer) cloneIndexes).get(i + 1));
-                                    ((ShortBuffer) cloneIndexes).put(i + 1, index);
-                                } else {
-                                    int index = ((IntBuffer) cloneIndexes).get(i + 2);
-                                    ((IntBuffer) cloneIndexes).put(i + 2, ((IntBuffer) cloneIndexes).get(i + 1));
-                                    ((IntBuffer) cloneIndexes).put(i + 1, index);
-                                }
+                            LOGGER.finer("Flipping index order.");
+                            switch(mesh.getMode()) {
+                                case Points:
+                                    cloneIndexes.flip();
+                                    break;
+                                case Lines:
+                                    for (int i = 0; i < cloneIndexes.limit(); i += 2) {
+                                        if (cloneIndexes instanceof ShortBuffer) {
+                                            short index = ((ShortBuffer) cloneIndexes).get(i + 1);
+                                            ((ShortBuffer) cloneIndexes).put(i + 1, ((ShortBuffer) cloneIndexes).get(i));
+                                            ((ShortBuffer) cloneIndexes).put(i, index);
+                                        } else {
+                                            int index = ((IntBuffer) cloneIndexes).get(i + 1);
+                                            ((IntBuffer) cloneIndexes).put(i + 1, ((IntBuffer) cloneIndexes).get(i));
+                                            ((IntBuffer) cloneIndexes).put(i, index);
+                                        }
+                                    }
+                                    break;
+                                case Triangles:
+                                    for (int i = 0; i < cloneIndexes.limit(); i += 3) {
+                                        if (cloneIndexes instanceof ShortBuffer) {
+                                            short index = ((ShortBuffer) cloneIndexes).get(i + 2);
+                                            ((ShortBuffer) cloneIndexes).put(i + 2, ((ShortBuffer) cloneIndexes).get(i + 1));
+                                            ((ShortBuffer) cloneIndexes).put(i + 1, index);
+                                        } else {
+                                            int index = ((IntBuffer) cloneIndexes).get(i + 2);
+                                            ((IntBuffer) cloneIndexes).put(i + 2, ((IntBuffer) cloneIndexes).get(i + 1));
+                                            ((IntBuffer) cloneIndexes).put(i + 1, index);
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    throw new IllegalStateException("Invalid mesh mode: " + mesh.getMode());
                             }
 
                             if (mirrorU && clone.getBuffer(Type.TexCoord) != null) {

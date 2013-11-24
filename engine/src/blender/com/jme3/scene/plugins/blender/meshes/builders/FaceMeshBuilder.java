@@ -32,7 +32,7 @@ import com.jme3.util.BufferUtils;
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class FaceMeshBuilder {
-    private static final Logger                       LOGGER                   = Logger.getLogger(FaceMeshBuilder.class.getName());
+    private static final Logger                       LOGGER           = Logger.getLogger(FaceMeshBuilder.class.getName());
 
     /** An array of reference vertices. */
     private Vector3f[][]                              verticesAndNormals;
@@ -46,15 +46,15 @@ import com.jme3.util.BufferUtils;
      */
     private Map<Integer, Map<Integer, List<Integer>>> globalVertexReferenceMap;
     /** The following map sorts vertices by material number (because in jme Mesh can have only one material). */
-    private Map<Integer, List<Vector3f>>              normalMap                = new HashMap<Integer, List<Vector3f>>();
+    private Map<Integer, List<Vector3f>>              normalMap        = new HashMap<Integer, List<Vector3f>>();
     /** The following map sorts vertices by material number (because in jme Mesh can have only one material). */
-    private Map<Integer, List<Vector3f>>              vertexMap                = new HashMap<Integer, List<Vector3f>>();
+    private Map<Integer, List<Vector3f>>              vertexMap        = new HashMap<Integer, List<Vector3f>>();
     /** The following map sorts vertices colors by material number (because in jme Mesh can have only one material). */
-    private Map<Integer, List<byte[]>>                vertexColorsMap          = new HashMap<Integer, List<byte[]>>();
+    private Map<Integer, List<byte[]>>                vertexColorsMap  = new HashMap<Integer, List<byte[]>>();
     /** The following map sorts indexes by material number (because in jme Mesh can have only one material). */
-    private Map<Integer, List<Integer>>               indexMap                 = new HashMap<Integer, List<Integer>>();
+    private Map<Integer, List<Integer>>               indexMap         = new HashMap<Integer, List<Integer>>();
     /** A collection of user defined UV coordinates (one mesh can have more than one such mappings). */
-    private UserUVCollection                          userUVCollection         = new UserUVCollection();
+    private UserUVCollection                          userUVCollection = new UserUVCollection();
 
     /**
      * Constructor. Stores the given array (not copying it).
@@ -74,7 +74,7 @@ import com.jme3.util.BufferUtils;
     public void readMesh(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
         verticesColors = this.getVerticesColors(structure, blenderContext);
         MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
-        
+
         if (meshHelper.isBMeshCompatible(structure)) {
             this.readBMesh(structure, blenderContext);
         } else {
@@ -91,7 +91,7 @@ import com.jme3.util.BufferUtils;
 
         for (Entry<Integer, List<Integer>> meshEntry : indexMap.entrySet()) {
             int materialIndex = meshEntry.getKey();
-            // key is the material index (or -1 if the material has no texture)
+            // key is the material index
             // value is a list of vertex indices
             Mesh mesh = new Mesh();
 
@@ -148,10 +148,9 @@ import com.jme3.util.BufferUtils;
         LOGGER.fine("Reading BMesh.");
         Pointer pMLoop = (Pointer) meshStructure.getFieldValue("mloop");
         Pointer pMPoly = (Pointer) meshStructure.getFieldValue("mpoly");
-        Pointer pMEdge = (Pointer) meshStructure.getFieldValue("medge");
         Map<String, Vector2f[]> uvCoordinatesForFace = new HashMap<String, Vector2f[]>();
 
-        if (pMPoly.isNotNull() && pMLoop.isNotNull() && pMEdge.isNotNull()) {
+        if (pMPoly.isNotNull() && pMLoop.isNotNull()) {
             Map<String, List<Vector2f>> uvs = this.loadUVCoordinates(meshStructure, true, blenderContext);
             List<Structure> polys = pMPoly.fetchData(blenderContext.getInputStream());
             List<Structure> loops = pMLoop.fetchData(blenderContext.getInputStream());
@@ -172,7 +171,7 @@ import com.jme3.util.BufferUtils;
                     int v1 = vertexIndexes[0];
                     int v2 = vertexIndexes[i + 1];
                     int v3 = vertexIndexes[i + 2];
-                    if(vertexColorIndex != null) {
+                    if (vertexColorIndex != null) {
                         vertexColorIndex[0] = loopStart;
                         vertexColorIndex[1] = loopStart + i + 1;
                         vertexColorIndex[2] = loopStart + i + 2;
@@ -237,7 +236,7 @@ import com.jme3.util.BufferUtils;
                 int v2 = ((Number) mFace.getFieldValue("v2")).intValue();
                 int v3 = ((Number) mFace.getFieldValue("v3")).intValue();
                 int v4 = ((Number) mFace.getFieldValue("v4")).intValue();
-                if(vertexColorIndex != null) {
+                if (vertexColorIndex != null) {
                     vertexColorIndex[0] = i * 4;
                     vertexColorIndex[1] = i * 4 + 1;
                     vertexColorIndex[2] = i * 4 + 2;
@@ -256,7 +255,7 @@ import com.jme3.util.BufferUtils;
                             uvCoordinatesForFace.put(entry.getKey(), uvCoordsForASingleFace);
                         }
                     }
-                    if(vertexColorIndex != null) {
+                    if (vertexColorIndex != null) {
                         vertexColorIndex[0] = i * 4;
                         vertexColorIndex[1] = i * 4 + 2;
                         vertexColorIndex[2] = i * 4 + 3;
@@ -282,6 +281,8 @@ import com.jme3.util.BufferUtils;
      *            the material number for this face
      * @param uvsForFace
      *            a 3-element array of vertices UV coordinates mapped to the UV's set name
+     * @param vertexColorIndex
+     *            a table of 3 elements that indicates the verts' colors indexes
      */
     private void appendFace(int v1, int v2, int v3, boolean smooth, int materialNumber, Map<String, Vector2f[]> uvsForFace, int[] vertexColorIndex) {
         if (uvsForFace != null && uvsForFace.size() > 0) {
