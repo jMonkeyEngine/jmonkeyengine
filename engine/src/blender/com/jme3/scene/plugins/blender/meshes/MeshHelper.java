@@ -48,6 +48,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -120,7 +121,7 @@ public class MeshHelper extends AbstractBlenderHelper {
             materials = materialHelper.getMaterials(structure, blenderContext);
         }
 
-        LOGGER.fine("Reading vertices and their colors.");
+        LOGGER.fine("Reading vertices.");
         MeshBuilder meshBuilder = new MeshBuilder(structure, materials, blenderContext);
         if (meshBuilder.isEmpty()) {
             LOGGER.fine("The geometry is empty.");
@@ -201,7 +202,12 @@ public class MeshHelper extends AbstractBlenderHelper {
                 if (mode != Mode.Triangles && mode != Mode.TriangleFan && mode != Mode.TriangleStrip) {
                     geometry.setMaterial(this.getBlackUnshadedMaterial(blenderContext));
                 } else {
-                    geometry.setMaterial(blenderContext.getDefaultMaterial());
+                    Material defaultMaterial = blenderContext.getDefaultMaterial();
+                    if(geometry.getMesh().getBuffer(Type.Color) != null) {
+                        defaultMaterial = defaultMaterial.clone();
+                        defaultMaterial.setBoolean("VertexColor", true);
+                    }
+                    geometry.setMaterial(defaultMaterial);
                 }
                 if (uvCoordsBuffer != null) {
                     for (VertexBuffer buffer : uvCoordsBuffer) {
