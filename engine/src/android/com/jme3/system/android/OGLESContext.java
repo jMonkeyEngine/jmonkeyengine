@@ -176,7 +176,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             renderer.resetGLObjects();
         } else {
             if (!created.get()) {
-                logger.fine("GL Surface created, doing JME3 init");
+                logger.fine("GL Surface created, initializing JME3 renderer");
                 initInThread();
             } else {
                 logger.warning("GL Surface already created");
@@ -201,12 +201,10 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         renderer = new OGLESShaderRenderer();
 
         renderer.initialize();
-        listener.initialize();
 
         JmeSystem.setSoftTextDialogInput(this);
 
         needClose.set(false);
-        renderable.set(true);
     }
 
     /**
@@ -302,8 +300,17 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         logger.log(Level.FINE, "GL Surface changed, width: {0} height: {1}", new Object[]{width, height});
+        // update the application settings with the new resolution
         settings.setResolution(width, height);
-        listener.reshape(width, height);
+        // reload settings in androidInput so the correct touch event scaling can be
+        // calculated in case the surface resolution is different than the view
+        androidInput.loadSettings(settings);
+        // if the application has already been initialized (ie renderable is set)
+        // then call reshape so the app can adjust to the new resolution.
+        if (renderable.get()) {
+            logger.log(Level.FINE, "App already initialized, calling reshape");
+            listener.reshape(width, height);
+        }
     }
 
     // SystemListener:update
@@ -314,7 +321,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             return;
         }
 
-        if (renderable.get()) {
+        if (!renderable.get()) {
+            if (created.get()) {
+                logger.fine("GL Surface is setup, initializing application");
+                listener.initialize();
+                renderable.set(true);
+            }
+        } else {
             if (!created.get()) {
                 throw new IllegalStateException("onDrawFrame without create");
             }
