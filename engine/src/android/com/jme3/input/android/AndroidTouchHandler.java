@@ -112,6 +112,8 @@ public class AndroidTouchHandler implements View.OnTouchListener {
         int pointerIndex = getPointerIndex(event);
         int pointerId = getPointerId(event);
         Vector2f lastPos = lastPositions.get(pointerId);
+        float jmeX;
+        float jmeY;
         
         numPointers = event.getPointerCount();
 
@@ -120,13 +122,15 @@ public class AndroidTouchHandler implements View.OnTouchListener {
         switch (getAction(event)) {
             case MotionEvent.ACTION_POINTER_DOWN:
             case MotionEvent.ACTION_DOWN:
+                jmeX = androidInput.getJmeX(event.getX(pointerIndex));
+                jmeY = androidInput.invertY(androidInput.getJmeY(event.getY(pointerIndex)));
                 touch = androidInput.getFreeTouchEvent();
-                touch.set(TouchEvent.Type.DOWN, event.getX(pointerIndex), androidInput.invertY(event.getY(pointerIndex)), 0, 0);
+                touch.set(TouchEvent.Type.DOWN, jmeX, jmeY, 0, 0);
                 touch.setPointerId(pointerId);
                 touch.setTime(event.getEventTime());
                 touch.setPressure(event.getPressure(pointerIndex));
 
-                lastPos = new Vector2f(event.getX(pointerIndex), androidInput.invertY(event.getY(pointerIndex)));
+                lastPos = new Vector2f(jmeX, jmeY);
                 lastPositions.put(pointerId, lastPos);
 
                 processEvent(touch);
@@ -136,8 +140,10 @@ public class AndroidTouchHandler implements View.OnTouchListener {
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
+                jmeX = androidInput.getJmeX(event.getX(pointerIndex));
+                jmeY = androidInput.invertY(androidInput.getJmeY(event.getY(pointerIndex)));
                 touch = androidInput.getFreeTouchEvent();
-                touch.set(TouchEvent.Type.UP, event.getX(pointerIndex), androidInput.invertY(event.getY(pointerIndex)), 0, 0);
+                touch.set(TouchEvent.Type.UP, jmeX, jmeY, 0, 0);
                 touch.setPointerId(pointerId);
                 touch.setTime(event.getEventTime());
                 touch.setPressure(event.getPressure(pointerIndex));
@@ -150,21 +156,23 @@ public class AndroidTouchHandler implements View.OnTouchListener {
             case MotionEvent.ACTION_MOVE:
                 // Convert all pointers into events
                 for (int p = 0; p < event.getPointerCount(); p++) {
+                    jmeX = androidInput.getJmeX(event.getX(p));
+                    jmeY = androidInput.invertY(androidInput.getJmeY(event.getY(p)));
                     lastPos = lastPositions.get(event.getPointerId(p));
                     if (lastPos == null) {
-                        lastPos = new Vector2f(event.getX(p), androidInput.invertY(event.getY(p)));
+                        lastPos = new Vector2f(jmeX, jmeY);
                         lastPositions.put(event.getPointerId(p), lastPos);
                     }
 
-                    float dX = event.getX(p) - lastPos.x;
-                    float dY = androidInput.invertY(event.getY(p)) - lastPos.y;
+                    float dX = jmeX - lastPos.x;
+                    float dY = jmeY - lastPos.y;
                     if (dX != 0 || dY != 0) {
                         touch = androidInput.getFreeTouchEvent();
-                        touch.set(TouchEvent.Type.MOVE, event.getX(p), androidInput.invertY(event.getY(p)), dX, dY);
+                        touch.set(TouchEvent.Type.MOVE, jmeX, jmeY, dX, dY);
                         touch.setPointerId(event.getPointerId(p));
                         touch.setTime(event.getEventTime());
                         touch.setPressure(event.getPressure(p));
-                        lastPos.set(event.getX(p), androidInput.invertY(event.getY(p)));
+                        lastPos.set(jmeX, jmeY);
 
                         processEvent(touch);
 

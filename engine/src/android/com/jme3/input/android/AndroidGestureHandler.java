@@ -157,8 +157,8 @@ public class AndroidGestureHandler implements
         // of a series of gesture events.
 //        logger.log(Level.INFO, "onDown pointerId: {0}, action: {1}, x: {2}, y: {3}", 
 //                new Object[]{getPointerId(event), getAction(event), event.getX(), event.getY()});
-        gestureDownX = event.getX();
-        gestureDownY = androidInput.invertY(event.getY());
+        gestureDownX = androidInput.getJmeX(event.getX());
+        gestureDownY = androidInput.invertY(androidInput.getJmeY(event.getY()));
         return true;
     }
 
@@ -173,8 +173,10 @@ public class AndroidGestureHandler implements
     public void onShowPress(MotionEvent event) {
 //        logger.log(Level.INFO, "onShowPress pointerId: {0}, action: {1}, x: {2}, y: {3}", 
 //                new Object[]{getPointerId(event), getAction(event), event.getX(), event.getY()});
+        float jmeX = androidInput.getJmeX(event.getX());
+        float jmeY = androidInput.invertY(androidInput.getJmeY(event.getY()));
         TouchEvent touchEvent = androidInput.getFreeTouchEvent();
-        touchEvent.set(TouchEvent.Type.SHOWPRESS, event.getX(), androidInput.invertY(event.getY()), 0, 0);
+        touchEvent.set(TouchEvent.Type.SHOWPRESS, jmeX, jmeY, 0, 0);
         touchEvent.setPointerId(getPointerId(event));
         touchEvent.setTime(event.getEventTime());
         touchEvent.setPressure(event.getPressure());
@@ -184,8 +186,10 @@ public class AndroidGestureHandler implements
     public void onLongPress(MotionEvent event) {
 //        logger.log(Level.INFO, "onLongPress pointerId: {0}, action: {1}, x: {2}, y: {3}", 
 //                new Object[]{getPointerId(event), getAction(event), event.getX(), event.getY()});
+        float jmeX = androidInput.getJmeX(event.getX());
+        float jmeY = androidInput.invertY(androidInput.getJmeY(event.getY()));
         TouchEvent touchEvent = androidInput.getFreeTouchEvent();
-        touchEvent.set(TouchEvent.Type.LONGPRESSED, event.getX(), androidInput.invertY(event.getY()), 0, 0);
+        touchEvent.set(TouchEvent.Type.LONGPRESSED, jmeX, jmeY, 0, 0);
         touchEvent.setPointerId(getPointerId(event));
         touchEvent.setTime(event.getEventTime());
         touchEvent.setPressure(event.getPressure());
@@ -205,8 +209,10 @@ public class AndroidGestureHandler implements
 //            logger.log(Level.INFO, "onScroll pointerId: {0}, startAction: {1}, startX: {2}, startY: {3}, endAction: {4}, endX: {5}, endY: {6}, dx: {7}, dy: {8}", 
 //                    new Object[]{getPointerId(startEvent), getAction(startEvent), startEvent.getX(), startEvent.getY(), getAction(endEvent), endEvent.getX(), endEvent.getY(), distX, distY});
 
+            float jmeX = androidInput.getJmeX(endEvent.getX());
+            float jmeY = androidInput.invertY(androidInput.getJmeY(endEvent.getY()));
             TouchEvent touchEvent = androidInput.getFreeTouchEvent();
-            touchEvent.set(TouchEvent.Type.SCROLL, endEvent.getX(), androidInput.invertY(endEvent.getY()), -distX, distY);
+            touchEvent.set(TouchEvent.Type.SCROLL, jmeX, jmeY, androidInput.getJmeX(-distX), androidInput.getJmeY(distY));
             touchEvent.setPointerId(getPointerId(endEvent));
             touchEvent.setTime(endEvent.getEventTime());
             touchEvent.setPressure(endEvent.getPressure());
@@ -224,8 +230,10 @@ public class AndroidGestureHandler implements
 //        logger.log(Level.INFO, "onFling pointerId: {0}, startAction: {1}, startX: {2}, startY: {3}, endAction: {4}, endX: {5}, endY: {6}, velocityX: {7}, velocityY: {8}", 
 //                new Object[]{getPointerId(startEvent), getAction(startEvent), startEvent.getX(), startEvent.getY(), getAction(endEvent), endEvent.getX(), endEvent.getY(), velocityX, velocityY});
 
+        float jmeX = androidInput.getJmeX(startEvent.getX());
+        float jmeY = androidInput.invertY(androidInput.getJmeY(startEvent.getY()));
         TouchEvent touchEvent = androidInput.getFreeTouchEvent();
-        touchEvent.set(TouchEvent.Type.FLING, startEvent.getX(), androidInput.invertY(startEvent.getY()), velocityX, velocityY);
+        touchEvent.set(TouchEvent.Type.FLING, jmeX, jmeY, velocityX, velocityY);
         touchEvent.setPointerId(getPointerId(endEvent));
         touchEvent.setTime(endEvent.getEventTime());
         touchEvent.setPressure(endEvent.getPressure());
@@ -239,8 +247,10 @@ public class AndroidGestureHandler implements
         // Up of single tap when no double tap followed.
 //        logger.log(Level.INFO, "onSingleTapConfirmed pointerId: {0}, action: {1}, x: {2}, y: {3}", 
 //                new Object[]{getPointerId(event), getAction(event), event.getX(), event.getY()});
+        float jmeX = androidInput.getJmeX(event.getX());
+        float jmeY = androidInput.invertY(androidInput.getJmeY(event.getY()));
         TouchEvent touchEvent = androidInput.getFreeTouchEvent();
-        touchEvent.set(TouchEvent.Type.TAP, event.getX(), androidInput.invertY(event.getY()), 0, 0);
+        touchEvent.set(TouchEvent.Type.TAP, jmeX, jmeY, 0, 0);
         touchEvent.setPointerId(getPointerId(event));
         touchEvent.setTime(event.getEventTime());
         touchEvent.setPressure(event.getPressure());
@@ -254,8 +264,10 @@ public class AndroidGestureHandler implements
         // DoubleTapEvent with a check for the UP action
 //        logger.log(Level.INFO, "onDoubleTap pointerId: {0}, action: {1}, x: {2}, y: {3}", 
 //                new Object[]{getPointerId(event), getAction(event), event.getX(), event.getY()});
+        float jmeX = androidInput.getJmeX(event.getX());
+        float jmeY = androidInput.invertY(androidInput.getJmeY(event.getY()));
         TouchEvent touchEvent = androidInput.getFreeTouchEvent();
-        touchEvent.set(TouchEvent.Type.DOUBLETAP, event.getX(), androidInput.invertY(event.getY()), 0, 0);
+        touchEvent.set(TouchEvent.Type.DOUBLETAP, jmeX, jmeY, 0, 0);
         touchEvent.setPointerId(getPointerId(event));
         touchEvent.setTime(event.getEventTime());
         touchEvent.setPressure(event.getPressure());

@@ -76,6 +76,8 @@ public class AndroidTouchHandler14 extends AndroidTouchHandler implements
         int pointerId = getPointerId(event);
         int pointerIndex = getPointerIndex(event);
         Vector2f lastPos = lastHoverPositions.get(pointerId);
+        float jmeX;
+        float jmeY;
         
         numPointers = event.getPointerCount();
         
@@ -85,13 +87,15 @@ public class AndroidTouchHandler14 extends AndroidTouchHandler implements
         TouchEvent touchEvent;
         switch (action) {
             case MotionEvent.ACTION_HOVER_ENTER:
+                jmeX = androidInput.getJmeX(event.getX(pointerIndex));
+                jmeY = androidInput.invertY(androidInput.getJmeY(event.getY(pointerIndex)));
                 touchEvent = androidInput.getFreeTouchEvent();
-                touchEvent.set(TouchEvent.Type.HOVER_START, event.getX(pointerIndex), androidInput.invertY(event.getY(pointerIndex)), 0, 0);
+                touchEvent.set(TouchEvent.Type.HOVER_START, jmeX, jmeY, 0, 0);
                 touchEvent.setPointerId(pointerId);
                 touchEvent.setTime(event.getEventTime());
                 touchEvent.setPressure(event.getPressure(pointerIndex));
                 
-                lastPos = new Vector2f(event.getX(pointerIndex), androidInput.invertY(event.getY(pointerIndex)));
+                lastPos = new Vector2f(jmeX, jmeY);
                 lastHoverPositions.put(pointerId, lastPos);
                 
                 processEvent(touchEvent);
@@ -100,21 +104,23 @@ public class AndroidTouchHandler14 extends AndroidTouchHandler implements
             case MotionEvent.ACTION_HOVER_MOVE:
                 // Convert all pointers into events
                 for (int p = 0; p < event.getPointerCount(); p++) {
+                    jmeX = androidInput.getJmeX(event.getX(p));
+                    jmeY = androidInput.invertY(androidInput.getJmeY(event.getY(p)));
                     lastPos = lastHoverPositions.get(event.getPointerId(p));
                     if (lastPos == null) {
-                        lastPos = new Vector2f(event.getX(p), androidInput.invertY(event.getY(p)));
+                        lastPos = new Vector2f(jmeX, jmeY);
                         lastHoverPositions.put(event.getPointerId(p), lastPos);
                     }
 
-                    float dX = event.getX(p) - lastPos.x;
-                    float dY = androidInput.invertY(event.getY(p)) - lastPos.y;
+                    float dX = jmeX - lastPos.x;
+                    float dY = jmeY - lastPos.y;
                     if (dX != 0 || dY != 0) {
                         touchEvent = androidInput.getFreeTouchEvent();
-                        touchEvent.set(TouchEvent.Type.HOVER_MOVE, event.getX(p), androidInput.invertY(event.getY(p)), dX, dY);
+                        touchEvent.set(TouchEvent.Type.HOVER_MOVE, jmeX, jmeY, dX, dY);
                         touchEvent.setPointerId(event.getPointerId(p));
                         touchEvent.setTime(event.getEventTime());
                         touchEvent.setPressure(event.getPressure(p));
-                        lastPos.set(event.getX(p), androidInput.invertY(event.getY(p)));
+                        lastPos.set(jmeX, jmeY);
 
                         processEvent(touchEvent);
 
@@ -123,8 +129,10 @@ public class AndroidTouchHandler14 extends AndroidTouchHandler implements
                 consumed = true;
                 break;
             case MotionEvent.ACTION_HOVER_EXIT:
+                jmeX = androidInput.getJmeX(event.getX(pointerIndex));
+                jmeY = androidInput.invertY(androidInput.getJmeY(event.getY(pointerIndex)));
                 touchEvent = androidInput.getFreeTouchEvent();
-                touchEvent.set(TouchEvent.Type.HOVER_END, event.getX(pointerIndex), androidInput.invertY(event.getY(pointerIndex)), 0, 0);
+                touchEvent.set(TouchEvent.Type.HOVER_END, jmeX, jmeY, 0, 0);
                 touchEvent.setPointerId(pointerId);
                 touchEvent.setTime(event.getEventTime());
                 touchEvent.setPressure(event.getPressure(pointerIndex));

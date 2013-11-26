@@ -41,6 +41,7 @@ import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.input.event.TouchEvent;
+import com.jme3.renderer.android.AndroidGLSurfaceView;
 import com.jme3.system.AppSettings;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
@@ -66,15 +67,18 @@ public class AndroidInputHandler implements TouchInput {
     
     
     // Internal
-    private View view;
+    private AndroidGLSurfaceView view;
     private AndroidTouchHandler touchHandler;
     private AndroidKeyHandler keyHandler;
     private AndroidGestureHandler gestureHandler;
     private boolean initialized = false;
     private RawInputListener listener = null;
     private ConcurrentLinkedQueue<InputEvent> inputEventQueue = new ConcurrentLinkedQueue<InputEvent>();
-    final private static int MAX_TOUCH_EVENTS = 1024;
+    private final static int MAX_TOUCH_EVENTS = 1024;
     private final TouchEventPool touchEventPool = new TouchEventPool(MAX_TOUCH_EVENTS);
+    private float scaleX = 1f;
+    private float scaleY = 1f;
+    
     
     public AndroidInputHandler() {
         int buildVersion = Build.VERSION.SDK_INT;
@@ -108,7 +112,7 @@ public class AndroidInputHandler implements TouchInput {
         if (gestureHandler != null) {
             gestureHandler.setView(view);
         }
-        this.view = view;
+        this.view = (AndroidGLSurfaceView)view;
     }
     
     public View getView() {
@@ -116,11 +120,19 @@ public class AndroidInputHandler implements TouchInput {
     }
     
     public float invertX(float origX) {
-        return view.getWidth()-origX;
+        return getJmeX(view.getWidth()) - origX;
     }
     
     public float invertY(float origY) {
-        return view.getHeight()-origY;
+        return getJmeY(view.getHeight()) - origY;
+    }
+    
+    public float getJmeX(float origX) {
+        return origX * scaleX;
+    }
+    
+    public float getJmeY(float origY) {
+        return origY * scaleY;
     }
     
     public void loadSettings(AppSettings settings) {
@@ -130,6 +142,15 @@ public class AndroidInputHandler implements TouchInput {
         mouseEventsInvertX = settings.isEmulateMouseFlipX();
         mouseEventsInvertY = settings.isEmulateMouseFlipY();
         joystickEventsEnabled = settings.useJoysticks();
+        
+        // view width and height are 0 until the view is displayed on the screen
+        if (view.getWidth() != 0 && view.getHeight() != 0) {
+            scaleX = (float)settings.getWidth() / (float)view.getWidth();
+            scaleY = (float)settings.getHeight() / (float)view.getHeight();
+        }
+        logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}", 
+                new Object[]{scaleX, scaleY});
+        
     }
 
         // -----------------------------------------
