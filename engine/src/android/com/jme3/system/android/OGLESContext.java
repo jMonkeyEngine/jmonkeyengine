@@ -39,6 +39,7 @@ import android.content.DialogInterface;
 import android.content.pm.ConfigurationInfo;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.SurfaceHolder;
@@ -104,6 +105,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      */
     public AndroidGLSurfaceView createView() {
         AndroidGLSurfaceView view;
+        int buildVersion = Build.VERSION.SDK_INT;
 
         // Start to set up the view
         view = new AndroidGLSurfaceView(JmeAndroidSystem.getActivity().getApplication());
@@ -153,6 +155,14 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         AndroidConfigChooser configChooser = new AndroidConfigChooser(settings);
         view.setEGLConfigChooser(configChooser);
         view.setRenderer(this);
+        
+        // Attempt to preserve the EGL Context on app pause/resume.
+        // Not destroying and recreating the EGL context 
+        // will help with resume time by reusing the existing context to avoid
+        // reloading all the OpenGL objects.
+        if (buildVersion >= 11) {
+            view.setPreserveEGLContextOnPause(true);
+        }
 
         return view;
     }
