@@ -43,23 +43,22 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 public class BitmapFontLoader implements AssetLoader {
 
     private BitmapFont load(AssetManager assetManager, String folder, InputStream in) throws IOException{
         MaterialDef spriteMat = 
                 (MaterialDef) assetManager.loadAsset(new AssetKey("Common/MatDefs/Misc/Unshaded.j3md"));
-
         BitmapCharacterSet charSet = new BitmapCharacterSet();
         Material[] matPages = null;
         BitmapFont font = new BitmapFont();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String regex = "[\\s=]+";
-
+        String regex = "[\\s=]+";      
         font.setCharSet(charSet);
-        while (reader.ready()){
-            String line = reader.readLine();
+        String line;
+        while ((line = reader.readLine())!=null){                        
             String[] tokens = line.split(regex);
             if (tokens[0].equals("info")){
                 // Get rendered size
