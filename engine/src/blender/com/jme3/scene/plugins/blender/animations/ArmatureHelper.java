@@ -41,6 +41,8 @@ import java.util.logging.Logger;
 import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.curves.BezierCurve;
@@ -184,6 +186,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
                 tracks.add((BoneTrack) ipo.calculateTrack(boneIndex, bone.getLocalRotation(), 0, ipo.getLastFrame(), fps, false));
             }
         }
+        this.equaliseBoneTracks(tracks);
         return tracks.toArray(new BoneTrack[tracks.size()]);
     }
 
@@ -223,6 +226,51 @@ public class ArmatureHelper extends AbstractBlenderHelper {
                 }
             }
         }
+        this.equaliseBoneTracks(tracks);
         return tracks.toArray(new BoneTrack[tracks.size()]);
+    }
+
+    /**
+     * The method makes all the tracks to have equal frame lengths.
+     * @param tracks
+     *            the tracks to be equalized
+     */
+    private void equaliseBoneTracks(List<BoneTrack> tracks) {
+        // first compute the maximum amount of frames
+        int maximumFrameCount = -1;
+        float[] maximumTrackTimes = null;
+        for (BoneTrack track : tracks) {
+            if (track.getTimes().length > maximumFrameCount) {
+                maximumTrackTimes = track.getTimes();
+                maximumFrameCount = maximumTrackTimes.length;
+            }
+        }
+
+        // now widen all the tracks that have less frames by repeating the last values in the frame
+        for (BoneTrack track : tracks) {
+            int currentTrackLength = track.getTimes().length;
+            if (currentTrackLength < maximumFrameCount) {
+                Vector3f[] translations = new Vector3f[maximumFrameCount];
+                Quaternion[] rotations = new Quaternion[maximumFrameCount];
+                Vector3f[] scales = new Vector3f[maximumFrameCount];
+
+                Vector3f[] currentTranslations = track.getTranslations();
+                Quaternion[] currentRotations = track.getRotations();
+                Vector3f[] currentScales = track.getScales();
+                for (int i = 0; i < currentTrackLength; ++i) {
+                    translations[i] = currentTranslations[i];
+                    rotations[i] = currentRotations[i];
+                    scales[i] = currentScales[i];
+                }
+
+                for (int i = currentTrackLength; i < maximumFrameCount; ++i) {
+                    translations[i] = currentTranslations[currentTranslations.length - 1];
+                    rotations[i] = currentRotations[currentRotations.length - 1];
+                    scales[i] = currentScales[currentScales.length - 1];
+                }
+
+                track.setKeyframes(maximumTrackTimes, translations, rotations, scales);
+            }
+        }
     }
 }
