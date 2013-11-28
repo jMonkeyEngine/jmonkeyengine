@@ -276,13 +276,15 @@ public class ObjectHelper extends AbstractBlenderHelper {
      * @return objects transformation relative to its parent
      */
     public Transform getTransformation(Structure objectStructure, BlenderContext blenderContext) {
-        // load parent inverse matrix only if the object has parent
+        Matrix4f parentInv = Matrix4f.IDENTITY;
         Pointer pParent = (Pointer) objectStructure.getFieldValue("parent");
-        Matrix4f parentInv = pParent.isNull() ? Matrix4f.IDENTITY : this.getMatrix(objectStructure, "parentinv", fixUpAxis);
+        if(pParent.isNotNull()) {
+            Structure parentObjectStructure = (Structure) blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_STRUCTURE);
+            parentInv = this.getMatrix(parentObjectStructure, "obmat", fixUpAxis).invertLocal();
+        }
 
         Matrix4f globalMatrix = this.getMatrix(objectStructure, "obmat", fixUpAxis);
-        Matrix4f localMatrix = parentInv.mult(globalMatrix);
-
+        Matrix4f localMatrix = parentInv.multLocal(globalMatrix);
         return new Transform(localMatrix.toTranslationVector(), localMatrix.toRotationQuat(), localMatrix.toScaleVector());
     }
 
