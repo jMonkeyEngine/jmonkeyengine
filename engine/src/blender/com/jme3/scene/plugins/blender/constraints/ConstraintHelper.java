@@ -221,7 +221,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
         boolean isArmature = blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, feature) != null;
         if (isArmature) {
             blenderContext.getSkeleton(oma).updateWorldVectors();
-            BoneContext targetBoneContext = blenderContext.getBoneByName(subtargetName);
+            BoneContext targetBoneContext = blenderContext.getBoneByName(oma, subtargetName);
             Bone bone = targetBoneContext.getBone();
             
             if(bone.getParent() == null && (space == Space.CONSTRAINT_SPACE_LOCAL || space == Space.CONSTRAINT_SPACE_PARLOCAL)) {
@@ -298,7 +298,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
         boolean isArmature = blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, feature) != null;
         if (isArmature) {
             Skeleton skeleton = blenderContext.getSkeleton(oma);
-            BoneContext targetBoneContext = blenderContext.getBoneByName(subtargetName);
+            BoneContext targetBoneContext = blenderContext.getBoneByName(oma, subtargetName);
             Bone bone = targetBoneContext.getBone();
             
             if(bone.getParent() == null && (space == Space.CONSTRAINT_SPACE_LOCAL || space == Space.CONSTRAINT_SPACE_PARLOCAL)) {

@@ -529,15 +529,18 @@ public class BlenderContext {
     /**
      * Returns bone by given name.
      * 
+     * @param skeletonOMA the OMA of the skeleton where the bone will be searched
      * @param name
      *            the name of the bone
      * @return found bone or null if none bone of a given name exists
      */
-    public BoneContext getBoneByName(String name) {
+    public BoneContext getBoneByName(Long skeletonOMA, String name) {
         for (Entry<Long, BoneContext> entry : boneContexts.entrySet()) {
-            Bone bone = entry.getValue().getBone();
-            if (bone != null && name.equals(bone.getName())) {
-                return entry.getValue();
+            if(entry.getValue().getArmatureObjectOMA().equals(skeletonOMA)) {
+                Bone bone = entry.getValue().getBone();
+                if (bone != null && name.equals(bone.getName())) {
+                    return entry.getValue();
+                }
             }
         }
         return null;
