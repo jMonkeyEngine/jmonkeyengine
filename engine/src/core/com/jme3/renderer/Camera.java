@@ -1059,6 +1059,9 @@ public class Camera implements Savable, Cloneable {
      * @return True if the camera contains the gui element bounding volume.
      */
     public boolean containsGui(BoundingVolume bound) {
+        if (bound == null) {
+            return true;
+        }
         return guiBounding.intersects(bound);
     }
 
