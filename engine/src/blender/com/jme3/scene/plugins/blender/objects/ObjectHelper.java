@@ -276,7 +276,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
      * @return objects transformation relative to its parent
      */
     public Transform getTransformation(Structure objectStructure, BlenderContext blenderContext) {
-        Matrix4f parentInv = Matrix4f.IDENTITY;
+        Matrix4f parentInv = Matrix4f.IDENTITY.clone();
         Pointer pParent = (Pointer) objectStructure.getFieldValue("parent");
         if(pParent.isNotNull()) {
             Structure parentObjectStructure = (Structure) blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_STRUCTURE);
