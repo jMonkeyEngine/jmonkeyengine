@@ -59,10 +59,11 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private static final Logger logger = Logger.getLogger(ScreenshotAppState.class.getName());
     private String filePath = null;
     private boolean capture = false;
+    private boolean numbered = true;
     private Renderer renderer;
     private RenderManager rm;
     private ByteBuffer outBuf;
-    private String appName;
+    private String shotName;
     private long shotIndex = 0;
     private int width, height;
 
@@ -79,10 +80,23 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * Include the seperator at the end of the path.
      * Use an emptry string to use the application folder. Use NULL to use the system
      * default storage folder.
-     * @param file The screenshot file path to use. Include the seperator at the end of the path.
+     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
      */
     public ScreenshotAppState(String filePath) {
         this.filePath = filePath;
+    }
+
+    /**
+     * This constructor allows you to specify the output file path of the screenshot.
+     * Include the seperator at the end of the path.
+     * Use an emptry string to use the application folder. Use NULL to use the system
+     * default storage folder.
+     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
+     * @param fileName The name of the file to save the screeshot as.
+     */
+    public ScreenshotAppState(String filePath, String fileName) {
+        this.filePath = filePath;
+        this.shotName = fileName;
     }
 
     /**
@@ -91,12 +105,29 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * Include the seperator at the end of the path.
      * Use an emptry string to use the application folder. Use NULL to use the system
      * default storage folder.
-     * @param file The screenshot file path to use. Include the seperator at the end of the path.
+     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
      * @param shotIndex The base index for screen shots.  The first screen shot will have
      *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, long shotIndex) {
         this.filePath = filePath;
+        this.shotIndex = shotIndex;
+    }
+
+    /**
+     * This constructor allows you to specify the output file path of the screenshot and
+     * a base index for the shot index.
+     * Include the seperator at the end of the path.
+     * Use an emptry string to use the application folder. Use NULL to use the system
+     * default storage folder.
+     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
+     * @param fileName The name of the file to save the screeshot as.
+     * @param shotIndex The base index for screen shots.  The first screen shot will have
+     *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
+     */
+    public ScreenshotAppState(String filePath, String fileName, long shotIndex) {
+        this.filePath = filePath;
+        this.shotName = fileName;
         this.shotIndex = shotIndex;
     }
     
@@ -105,10 +136,18 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * Include the seperator at the end of the path.
      * Use an emptry string to use the application folder. Use NULL to use the system
      * default storage folder.
-     * @param file File path to use to store the screenshot. Include the seperator at the end of the path.
+     * @param filePath File path to use to store the screenshot. Include the seperator at the end of the path.
      */
     public void setFilePath(String filePath) {
         this.filePath = filePath;
+    }
+
+    /**
+     * Set the file name of the screenshot.
+     * @param fileName File name to save the screenshot as.
+     */
+    public void setFileName(String fileName) {
+        this.shotName = fileName;
     }
 
     /**
@@ -116,6 +155,15 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      */
     public void setShotIndex(long index) {
         this.shotIndex = index;
+    }
+
+    /**
+     * Sets if the filename should be appended with a number representing the 
+     * current sequence.
+     * @param numberedWanted If numbering is wanted.
+     */
+    public void setIsNumbered(boolean numberedWanted) {
+        this.numbered = numberedWanted;
     }
 
     @Override
@@ -129,7 +177,9 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             ViewPort last = vps.get(vps.size()-1);
             last.addProcessor(this);
 
-            appName = app.getClass().getSimpleName();
+            if (shotName == null) {
+                shotName = app.getClass().getSimpleName();
+            }
         }
 
         super.initialize(stateManager, app);
@@ -171,7 +221,6 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     public void postFrame(FrameBuffer out) {
         if (capture){
             capture = false;
-            shotIndex++;
 
             Camera curCamera = rm.getCurrentCamera();
             int viewX = (int) (curCamera.getViewPortLeft() * curCamera.getWidth());
@@ -184,10 +233,18 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
 
             File file;
-            if (filePath == null) {
-                file = new File(JmeSystem.getStorageFolder() + File.separator + appName + shotIndex + ".png").getAbsoluteFile();
+            String filename;
+            if (numbered) {
+                shotIndex++;
+                filename = shotName + shotIndex;
             } else {
-                file = new File(filePath + appName + shotIndex + ".png").getAbsoluteFile();
+                filename = shotName;
+            }
+
+            if (filePath == null) {
+                file = new File(JmeSystem.getStorageFolder() + File.separator + filename + ".png").getAbsoluteFile();
+            } else {
+                file = new File(filePath + filename + ".png").getAbsoluteFile();
             }
             logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
 
