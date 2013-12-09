@@ -61,7 +61,6 @@
 
     vec2 classicParallaxOffset(sampler2D parallaxMap, vec3 vViewDir,vec2 texCoord,float parallaxScale){ 
        float h;
-       h = texture2D(parallaxMap, texCoord).a;
        #ifdef NORMALMAP_PARALLAX
                //parallax map is stored in the alpha channel of the normal map         
                h = texture2D(parallaxMap, texCoord).a;               
