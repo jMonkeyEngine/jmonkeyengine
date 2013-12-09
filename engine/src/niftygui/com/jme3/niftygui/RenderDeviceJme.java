@@ -333,15 +333,22 @@ public class RenderDeviceJme implements RenderDevice {
     }
     
     public void renderQuad(int x, int y, int width, int height, Color color) {
-        colorMaterial.setColor("Color", convertColor(color, tempColor));                        
+        //We test for alpha >0 as an optimization to prevent the render of completely transparent quads.
+        //Nifty use layers that are often used for logical positionning and not rendering.
+        //each layer is rendered as a quad, but that can bump up the number of geometry rendered by a lot.
+        //Since we disable depth write, there is absolutely no point in rendering those quads
+        //This optimization can result in a huge increase of perfs on complex Nifty UIs.
+        if(color.getAlpha() >0){
+            colorMaterial.setColor("Color", convertColor(color, tempColor));                        
 
-        tempMat.loadIdentity();
-        tempMat.setTranslation(x, getHeight() - y, 0);
-        tempMat.setScale(width, height, 0);
+            tempMat.loadIdentity();
+            tempMat.setTranslation(x, getHeight() - y, 0);
+            tempMat.setScale(width, height, 0);
 
-        rm.setWorldMatrix(tempMat);
-        rm.setForcedRenderState(renderState);
-        colorMaterial.render(quadGeom, rm);
+            rm.setWorldMatrix(tempMat);
+            rm.setForcedRenderState(renderState);
+            colorMaterial.render(quadGeom, rm);
+        }
         
         //System.out.format("renderQuad1(%d, %d, %d, %d, %s)\n", x, y, width, height, color.toString());
     }
