@@ -23,37 +23,37 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
  */
 public class BoneContext {
     // the flags of the bone
-    public static final int       CONNECTED_TO_PARENT                 = 0x10;
+    public static final int      CONNECTED_TO_PARENT                 = 0x10;
 
     /**
      * The bones' matrices have, unlike objects', the coordinate system identical to JME's (Y axis is UP, X to the right and Z toward us).
      * So in order to have them loaded properly we need to transform their armature matrix (which blender sees as rotated) to make sure we get identical results.
      */
-    public static final Matrix4f  BONE_ARMATURE_TRANSFORMATION_MATRIX = new Matrix4f(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
+    public static final Matrix4f BONE_ARMATURE_TRANSFORMATION_MATRIX = new Matrix4f(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1);
 
-    private BlenderContext        blenderContext;
+    private BlenderContext       blenderContext;
     /** The OMA of the bone's armature object. */
-    private Long                  armatureObjectOMA;
+    private Long                 armatureObjectOMA;
     /** The OMA of the model that owns the bone's skeleton. */
-    private Long                  skeletonOwnerOma;
+    private Long                 skeletonOwnerOma;
     /** The structure of the bone. */
-    private Structure             boneStructure;
+    private Structure            boneStructure;
     /** Bone's name. */
-    private String                boneName;
+    private String               boneName;
     /** The bone's flag. */
-    private int                   flag;
+    private int                  flag;
     /** The bone's matrix in world space. */
-    private Matrix4f              globalBoneMatrix;
+    private Matrix4f             globalBoneMatrix;
     /** The bone's matrix in the model space. */
-    private Matrix4f              boneMatrixInModelSpace;
+    private Matrix4f             boneMatrixInModelSpace;
     /** The parent context. */
-    private BoneContext           parent;
+    private BoneContext          parent;
     /** The children of this context. */
-    private List<BoneContext>     children                            = new ArrayList<BoneContext>();
+    private List<BoneContext>    children                            = new ArrayList<BoneContext>();
     /** Created bone (available after calling 'buildBone' method). */
-    private Bone                  bone;
+    private Bone                 bone;
     /** The length of the bone. */
-    private float                 length;
+    private float                length;
 
     /**
      * Constructor. Creates the basic set of bone's data.
@@ -174,10 +174,15 @@ public class BoneContext {
     }
 
     /**
+     * The method returns the length of the bone.
+     * If you want to use it for bone debugger take model space scale into account and do
+     * something like this:
+     * <b>boneContext.getLength() * boneContext.getBone().getModelSpaceScale().y</b>.
+     * Otherwise the bones might not look as they should in the bone debugger.
      * @return the length of the bone
      */
     public float getLength() {
-        return length * bone.getModelSpaceScale().y;
+        return length;
     }
 
     /**
