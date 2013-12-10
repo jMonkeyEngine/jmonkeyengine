@@ -104,7 +104,7 @@ public class BoneContext {
 
         Spatial armature = (Spatial) objectHelper.toObject(blenderContext.getFileBlock(armatureObjectOMA).getStructure(blenderContext), blenderContext);
         ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
-        Matrix4f armatureWorldMatrix = constraintHelper.toMatrix(armature.getWorldTransform());
+        Matrix4f armatureWorldMatrix = constraintHelper.toMatrix(armature.getWorldTransform(), new Matrix4f());
 
         // and now compute the final bone matrix in world space
         globalBoneMatrix = armatureWorldMatrix.mult(globalBoneMatrix);
