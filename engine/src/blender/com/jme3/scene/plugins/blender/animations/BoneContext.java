@@ -218,6 +218,6 @@ public class BoneContext {
 
     @Override
     public String toString() {
-        return "BoneContext: " + bone.getName();
+        return "BoneContext: " + boneName;
     }
 }
