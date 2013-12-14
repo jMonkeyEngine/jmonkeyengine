@@ -31,6 +31,10 @@
  */
 package com.jme3.scene.plugins.blender.objects;
 
+import java.nio.Buffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -39,13 +43,14 @@ import java.util.logging.Logger;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
@@ -61,6 +66,7 @@ import com.jme3.scene.plugins.blender.lights.LightHelper;
 import com.jme3.scene.plugins.blender.meshes.MeshHelper;
 import com.jme3.scene.plugins.blender.modifiers.Modifier;
 import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
+import com.jme3.util.TempVars;
 
 /**
  * A class that is used in object calculations.
@@ -209,6 +215,14 @@ public class ObjectHelper extends AbstractBlenderHelper {
                 ((Node) parent).attachChild(result);
             }
 
+            if (result.getChildren() != null) {
+                for (Spatial child : result.getChildren()) {
+                    if (child instanceof Geometry) {
+                        this.flipMeshIfRequired((Geometry) child, child.getWorldScale());
+                    }
+                }
+            }
+
             LOGGER.fine("Reading and applying object's modifiers.");
             ModifierHelper modifierHelper = blenderContext.getHelper(ModifierHelper.class);
             Collection<Modifier> modifiers = modifierHelper.readModifiers(objectStructure, blenderContext);
@@ -240,6 +254,53 @@ public class ObjectHelper extends AbstractBlenderHelper {
             }
         }
         return result;
+    }
+
+    /**
+     * The method flips the mesh if the scale is mirroring it. Mirroring scale has either 1 or all 3 factors negative.
+     * If two factors are negative then there is no mirroring because a rotation and translation can be found that will
+     * lead to the same transform when all scales are positive.
+     * 
+     * @param geometry
+     *            the geometry that is being flipped if necessary
+     * @param scale
+     *            the scale vector of the given geometry
+     */
+    private void flipMeshIfRequired(Geometry geometry, Vector3f scale) {
+        float s = scale.x * scale.y * scale.z;
+
+        if (s < 0 && geometry.getMesh() != null) {// negative s means that the scale is mirroring the object
+            FloatBuffer normals = geometry.getMesh().getFloatBuffer(Type.Normal);
+            if (normals != null) {
+                for (int i = 0; i < normals.limit(); i += 3) {
+                    if (scale.x < 0) {
+                        normals.put(i, -normals.get(i));
+                    }
+                    if (scale.y < 0) {
+                        normals.put(i + 1, -normals.get(i + 1));
+                    }
+                    if (scale.z < 0) {
+                        normals.put(i + 2, -normals.get(i + 2));
+                    }
+                }
+            }
+
+            if (geometry.getMesh().getMode() == Mode.Triangles) {// there is no need to flip the indexes for lines and points
+                LOGGER.finer("Flipping index order in triangle mesh.");
+                Buffer indexBuffer = geometry.getMesh().getBuffer(Type.Index).getData();
+                for (int i = 0; i < indexBuffer.limit(); i += 3) {
+                    if (indexBuffer instanceof ShortBuffer) {
+                        short index = ((ShortBuffer) indexBuffer).get(i + 1);
+                        ((ShortBuffer) indexBuffer).put(i + 1, ((ShortBuffer) indexBuffer).get(i + 2));
+                        ((ShortBuffer) indexBuffer).put(i + 2, index);
+                    } else {
+                        int index = ((IntBuffer) indexBuffer).get(i + 1);
+                        ((IntBuffer) indexBuffer).put(i + 1, ((IntBuffer) indexBuffer).get(i + 2));
+                        ((IntBuffer) indexBuffer).put(i + 2, index);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -276,16 +337,123 @@ public class ObjectHelper extends AbstractBlenderHelper {
      * @return objects transformation relative to its parent
      */
     public Transform getTransformation(Structure objectStructure, BlenderContext blenderContext) {
-        Matrix4f parentInv = Matrix4f.IDENTITY.clone();
+        TempVars tempVars = TempVars.get();
+
+        Matrix4f parentInv = tempVars.tempMat4;
         Pointer pParent = (Pointer) objectStructure.getFieldValue("parent");
-        if(pParent.isNotNull()) {
+        if (pParent.isNotNull()) {
             Structure parentObjectStructure = (Structure) blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_STRUCTURE);
-            parentInv = this.getMatrix(parentObjectStructure, "obmat", fixUpAxis).invertLocal();
+            this.getMatrix(parentObjectStructure, "obmat", fixUpAxis, parentInv).invertLocal();
+        } else {
+            parentInv.loadIdentity();
         }
 
-        Matrix4f globalMatrix = this.getMatrix(objectStructure, "obmat", fixUpAxis);
+        Matrix4f globalMatrix = this.getMatrix(objectStructure, "obmat", fixUpAxis, tempVars.tempMat42);
         Matrix4f localMatrix = parentInv.multLocal(globalMatrix);
-        return new Transform(localMatrix.toTranslationVector(), localMatrix.toRotationQuat(), localMatrix.toScaleVector());
+
+        this.getSizeSignums(objectStructure, tempVars.vect1);
+
+        localMatrix.toTranslationVector(tempVars.vect2);
+        localMatrix.toRotationQuat(tempVars.quat1);
+        localMatrix.toScaleVector(tempVars.vect3);
+
+        Transform t = new Transform(tempVars.vect2, tempVars.quat1.normalizeLocal(), tempVars.vect3.multLocal(tempVars.vect1));
+        tempVars.release();
+        return t;
+    }
+
+    /**
+     * The method gets the signs of the scale factors and stores them properly in the given vector.
+     * @param objectStructure
+     *            the object's structure
+     * @param store
+     *            the vector where the result will be stored
+     */
+    @SuppressWarnings("unchecked")
+    private void getSizeSignums(Structure objectStructure, Vector3f store) {
+        DynamicArray<Number> size = (DynamicArray<Number>) objectStructure.getFieldValue("size");
+        if (fixUpAxis) {
+            store.x = Math.signum(size.get(0).floatValue());
+            store.y = Math.signum(size.get(2).floatValue());
+            store.z = Math.signum(size.get(1).floatValue());
+        } else {
+            store.x = Math.signum(size.get(0).floatValue());
+            store.y = Math.signum(size.get(1).floatValue());
+            store.z = Math.signum(size.get(2).floatValue());
+        }
+    }
+
+    /**
+     * This method returns the matrix of a given name for the given structure.
+     * It takes up axis into consideration.
+     * 
+     * The method that moves the matrix from Z-up axis to Y-up axis space is as follows:
+     * - load the matrix directly from blender (it has the Z-up axis orientation)
+     * - switch the second and third rows in the matrix
+     * - switch the second and third column in the matrix
+     * - multiply the values in the third row by -1
+     * - multiply the values in the third column by -1
+     * 
+     * The result matrix is now in Y-up axis orientation.
+     * The procedure was discovered by experimenting but it looks like it's working :)
+     * The previous procedure transformet the loaded matrix into component (loc, rot, scale),
+     * switched several values and pu the back into the matrix.
+     * It worked fine until models with negative scale are used.
+     * The current method is not touched by that flaw.
+     * 
+     * @param structure
+     *            the structure with matrix data
+     * @param matrixName
+     *            the name of the matrix
+     * @param fixUpAxis
+     *            tells if the Y axis is a UP axis
+     * @param store
+     *            the matrix where the result will pe placed
+     * @return the required matrix
+     */
+    @SuppressWarnings("unchecked")
+    private Matrix4f getMatrix(Structure structure, String matrixName, boolean fixUpAxis, Matrix4f store) {
+        DynamicArray<Number> obmat = (DynamicArray<Number>) structure.getFieldValue(matrixName);
+        // the matrix must be square
+        int rowAndColumnSize = Math.abs((int) Math.sqrt(obmat.getTotalSize()));
+        for (int i = 0; i < rowAndColumnSize; ++i) {
+            for (int j = 0; j < rowAndColumnSize; ++j) {
+                float value = obmat.get(j, i).floatValue();
+                if (Math.abs(value) <= FastMath.FLT_EPSILON) {
+                    value = 0;
+                }
+                store.set(i, j, value);
+            }
+        }
+        if (fixUpAxis) {
+            // first switch the second and third row
+            for (int i = 0; i < 4; ++i) {
+                float temp = store.get(1, i);
+                store.set(1, i, store.get(2, i));
+                store.set(2, i, temp);
+            }
+
+            // then switch the second and third column
+            for (int i = 0; i < 4; ++i) {
+                float temp = store.get(i, 1);
+                store.set(i, 1, store.get(i, 2));
+                store.set(i, 2, temp);
+            }
+
+            // multiply the values in the third row by -1
+            store.m20 *= -1;
+            store.m21 *= -1;
+            store.m22 *= -1;
+            store.m23 *= -1;
+
+            // multiply the values in the third column by -1
+            store.m02 *= -1;
+            store.m12 *= -1;
+            store.m22 *= -1;
+            store.m32 *= -1;
+        }
+
+        return store;
     }
 
     /**
@@ -300,50 +468,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
      *            tells if the Y axis is a UP axis
      * @return the required matrix
      */
-    @SuppressWarnings("unchecked")
     public Matrix4f getMatrix(Structure structure, String matrixName, boolean fixUpAxis) {
-        Matrix4f result = new Matrix4f();
-        DynamicArray<Number> obmat = (DynamicArray<Number>) structure.getFieldValue(matrixName);
-        // the matrix must be square
-        int rowAndColumnSize = Math.abs((int) Math.sqrt(obmat.getTotalSize()));
-        for (int i = 0; i < rowAndColumnSize; ++i) {
-            for (int j = 0; j < rowAndColumnSize; ++j) {
-                result.set(i, j, obmat.get(j, i).floatValue());
-            }
-        }
-        if (fixUpAxis) {
-            Vector3f translation = result.toTranslationVector();
-            Quaternion rotation = result.toRotationQuat();
-            Vector3f scale = result.toScaleVector();
-
-            float y = translation.y;
-            translation.y = translation.z;
-            translation.z = y == 0 ? 0 : -y;
-
-            y = rotation.getY();
-            float z = rotation.getZ();
-            rotation.set(rotation.getX(), z, y == 0 ? 0 : -y, rotation.getW());
-
-            y = scale.y;
-            scale.y = scale.z;
-            scale.z = y;
-
-            result.loadIdentity();
-            result.setTranslation(translation);
-            result.setRotationQuaternion(rotation);
-            result.setScale(scale);
-        }
-
-        for (int i = 0; i < 4; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                float value = result.get(i, j);
-                if (Math.abs(value) <= FastMath.FLT_EPSILON) {
-                    result.set(i, j, 0);
-                }
-            }
-        }
-
-        return result;
+        return this.getMatrix(structure, matrixName, fixUpAxis, new Matrix4f());
     }
 
     private static enum ObjectType {
