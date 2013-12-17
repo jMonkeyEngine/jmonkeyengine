@@ -95,6 +95,10 @@ public class BloomFilter extends Filter {
     private RenderManager renderManager;
     private ViewPort viewPort;
 
+    private AssetManager assetManager;
+    private int initalWidth;
+    private int initalHeight;
+    
     /**
      * Creates a Bloom filter
      */
@@ -115,6 +119,11 @@ public class BloomFilter extends Filter {
     protected void initFilter(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
              this.renderManager = renderManager;
         this.viewPort = vp;
+
+        this.assetManager = manager;
+        this.initalWidth = w;
+        this.initalHeight = h;
+                
         screenWidth = (int) Math.max(1, (w / downSamplingFactor));
         screenHeight = (int) Math.max(1, (h / downSamplingFactor));
         //    System.out.println(screenWidth + " " + screenHeight);
@@ -184,6 +193,10 @@ public class BloomFilter extends Filter {
     }
 
 
+    protected void reInitFilter() {
+        initFilter(assetManager, renderManager, viewPort, initalWidth, initalHeight);
+    }
+    
     @Override
     protected Material getMaterial() {
         material.setFloat("BloomIntensity", bloomIntensity);
@@ -286,6 +299,8 @@ public class BloomFilter extends Filter {
      */
     public void setDownSamplingFactor(float downSamplingFactor) {
         this.downSamplingFactor = downSamplingFactor;
+        if (assetManager != null) // dirty isInitialised check
+            reInitFilter();
     }
 
     @Override
