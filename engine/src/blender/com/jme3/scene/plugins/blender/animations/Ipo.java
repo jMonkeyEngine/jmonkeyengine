@@ -168,6 +168,9 @@ public class Ipo {
                             translation[0] = (float) value;
                             break;
                         case AC_LOC_Y:
+                            if(fixUpAxis && value != 0) {
+                                value = -value;
+                            }
                             translation[yIndex] = (float) value;
                             break;
                         case AC_LOC_Z:
@@ -179,11 +182,10 @@ public class Ipo {
                             objectRotation[0] = (float) value * degreeToRadiansFactor;
                             break;
                         case OB_ROT_Y:
-                            if (fixUpAxis) {
-                                objectRotation[yIndex] = value == 0.0f ? 0 : (float) -value * degreeToRadiansFactor;
-                            } else {
-                                objectRotation[yIndex] = (float) value * degreeToRadiansFactor;
+                            if(fixUpAxis && value != 0) {
+                                value = -value;
                             }
+                            objectRotation[yIndex] = (float) value * degreeToRadiansFactor;
                             break;
                         case OB_ROT_Z:
                             objectRotation[zIndex] = (float) value * degreeToRadiansFactor;
@@ -208,10 +210,13 @@ public class Ipo {
                             quaternionRotation[0] = (float) value;
                             break;
                         case AC_QUAT_Y:
-                            quaternionRotation[fixUpAxis ? 1 : 2] = (float) value;
+                            if(fixUpAxis && value != 0) {
+                                value = -value;
+                            }
+                            quaternionRotation[yIndex] = (float)value;
                             break;
                         case AC_QUAT_Z:
-                            quaternionRotation[fixUpAxis ? 2 : 1] = (float) value;
+                            quaternionRotation[zIndex] = (float) value;
                             break;
                         default:
                             LOGGER.log(Level.WARNING, "Unknown ipo curve type: {0}.", bezierCurves[j].getType());
