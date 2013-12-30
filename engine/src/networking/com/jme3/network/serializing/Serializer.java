@@ -61,6 +61,7 @@ public abstract class Serializer {
 
     private static final Map<Short, SerializerRegistration> idRegistrations         = new HashMap<Short, SerializerRegistration>();
     private static final Map<Class, SerializerRegistration> classRegistrations      = new HashMap<Class, SerializerRegistration>();
+    private static final List<SerializerRegistration> registrations                 = new ArrayList<SerializerRegistration>();
 
     private static final Serializer                         fieldSerializer         = new FieldSerializer();
     private static final Serializer                         serializableSerializer  = new SerializableSerializer();
@@ -167,7 +168,12 @@ public abstract class Serializer {
         return nextAvailableId--;
     }
  
-    protected static SerializerRegistration registerClassForId( short id, Class cls, Serializer serializer ) {
+    /**
+     *  Directly registers a class for a specific ID.  Generally, use the regular
+     *  registerClass() method.  This method is intended for framework code that might
+     *  be maintaining specific ID maps across client and server.
+     */
+    public static SerializerRegistration registerClassForId( short id, Class cls, Serializer serializer ) {
  
         SerializerRegistration reg = new SerializerRegistration(serializer, cls, id);
 
@@ -177,6 +183,10 @@ public abstract class Serializer {
         log.log( Level.FINE, "Registered class[" + id + "]:{0} to:" + serializer, cls );
 
         serializer.initialize(cls);
+
+        // Add the class after so that dependency order is preserved if the
+        // serializer registers its own classes.
+        registrations.add(reg);
 
         return reg;    
     }
@@ -283,6 +293,10 @@ public abstract class Serializer {
     
     public static Serializer getSerializer(Class cls, boolean failOnMiss) {
         return getSerializerRegistration(cls, failOnMiss).getSerializer();
+    }
+
+    public static Collection<SerializerRegistration> getSerializerRegistrations() {
+        return registrations;
     }
 
     public static SerializerRegistration getExactSerializerRegistration(Class cls) {
