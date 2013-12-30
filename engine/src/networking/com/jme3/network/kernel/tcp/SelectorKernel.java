@@ -455,11 +455,15 @@ public class SelectorKernel extends AbstractKernel
 
                 // Check for available keys and process them
                 try {
-                    select();
+                    select();                    
                 } catch( ClosedSelectorException e ) {
                     if( !go.get() )
                         return;  // it's because we're shutting down
                     throw new KernelException( "Premature selector closing", e );
+                } catch( CancelledKeyException e ) {
+                    if( !go.get() )
+                        return;  // it's because we're shutting down
+                    throw new KernelException( "Invalid key state", e );
                 } catch( IOException e ) {
                     if( !go.get() )
                         return;  // error likely due to shutting down
