@@ -888,6 +888,15 @@ public class Mesh implements Savable, Cloneable {
     }
 
     /**
+     * Clears any previously generated collision data.  Use this if
+     * the mesh has changed in some way that invalidates any previously
+     * generated BIHTree.
+     */
+    public void clearCollisionData() {
+        collisionTree = null;
+    }
+
+    /**
      * Handles collision detection, internal use only.
      * User code should only use collideWith() on scene
      * graph elements such as {@link Spatial}s.
