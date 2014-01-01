@@ -31,12 +31,13 @@
  */
 package com.jme3.scene.plugins.blender.file;
 
-import com.jme3.scene.plugins.blender.BlenderContext;
-
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import com.jme3.scene.plugins.blender.BlenderContext;
 
 /**
  * A class representing a single structure in the file.
@@ -71,7 +72,7 @@ public class Structure implements Cloneable {
             fields[i] = (Field) structure.fields[i].clone();
         }
         this.blenderContext = blenderContext;
-        this.oldMemoryAddress = structure.oldMemoryAddress;
+        oldMemoryAddress = structure.oldMemoryAddress;
     }
 
     /**
@@ -93,7 +94,7 @@ public class Structure implements Cloneable {
         this.blenderContext = blenderContext;
         int fieldsAmount = inputStream.readShort();
         if (fieldsAmount < 0) {
-            throw new BlenderFileException("The amount of fields of " + this.type + " structure cannot be negative!");
+            throw new BlenderFileException("The amount of fields of " + type + " structure cannot be negative!");
         }
         if (fieldsAmount > 0) {
             fields = new Field[fieldsAmount];
@@ -103,7 +104,7 @@ public class Structure implements Cloneable {
                 fields[i] = new Field(names[nameIndex], types[typeIndex], blenderContext);
             }
         }
-        this.oldMemoryAddress = Long.valueOf(-1L);
+        oldMemoryAddress = Long.valueOf(-1L);
     }
 
     /**
@@ -117,7 +118,7 @@ public class Structure implements Cloneable {
     public void fill(BlenderInputStream inputStream) throws BlenderFileException {
         int position = inputStream.getPosition();
         inputStream.setPosition(position - 8 - inputStream.getPointerSize());
-        this.oldMemoryAddress = Long.valueOf(inputStream.readPointer());
+        oldMemoryAddress = Long.valueOf(inputStream.readPointer());
         inputStream.setPosition(position);
         for (Field field : fields) {
             field.fill(inputStream);
@@ -173,7 +174,7 @@ public class Structure implements Cloneable {
      *             this exception is thrown if the type of the structure is not 'ListBase'
      */
     public List<Structure> evaluateListBase(BlenderContext blenderContext) throws BlenderFileException {
-        if (!"ListBase".equals(this.type)) {
+        if (!"ListBase".equals(type)) {
             throw new IllegalStateException("This structure is not of type: 'ListBase'");
         }
         Pointer first = (Pointer) this.getFieldValue("first");
@@ -270,7 +271,7 @@ public class Structure implements Cloneable {
      * This enum enumerates all known data types that can be found in the blend file.
      * @author Marcin Roguski (Kaelthas)
      */
-    /* package */ static enum DataType {
+    /* package */static enum DataType {
 
         CHARACTER, SHORT, INTEGER, LONG, FLOAT, DOUBLE, VOID, STRUCTURE, POINTER;
         /** The map containing the known primary types. */
@@ -310,6 +311,13 @@ public class Structure implements Cloneable {
                 return STRUCTURE;
             }
             throw new BlenderFileException("Unknown data type: " + type);
+        }
+
+        /**
+         * @return a collection of known primary types names
+         */
+        /* package */Collection<String> getKnownPrimaryTypesNames() {
+            return PRIMARY_TYPES.keySet();
         }
     }
 }
