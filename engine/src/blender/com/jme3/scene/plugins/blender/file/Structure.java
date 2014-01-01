@@ -316,7 +316,7 @@ public class Structure implements Cloneable {
         /**
          * @return a collection of known primary types names
          */
-        /* package */Collection<String> getKnownPrimaryTypesNames() {
+        /* package */static Collection<String> getKnownPrimaryTypesNames() {
             return PRIMARY_TYPES.keySet();
         }
     }
