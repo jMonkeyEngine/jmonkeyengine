@@ -1,7 +1,11 @@
 package com.jme3.scene.plugins.blender.animations;
 
+import java.util.List;
+import java.util.logging.Logger;
+
 import com.jme3.animation.BoneTrack;
 import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.curves.BezierCurve;
@@ -10,9 +14,6 @@ import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
-
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * This class helps to compute values from interpolation curves for features
@@ -186,7 +187,7 @@ public class IpoHelper extends AbstractBlenderHelper {
         }
 
         @Override
-        public BoneTrack calculateTrack(int boneIndex, Quaternion localQuaternionRotation, int startFrame, int stopFrame, int fps, boolean boneTrack) {
+        public BoneTrack calculateTrack(int boneIndex, Vector3f localTranslation, Quaternion localRotation, Vector3f localScale, int startFrame, int stopFrame, int fps, boolean boneTrack) {
             throw new IllegalStateException("Constatnt ipo object cannot be used for calculating bone tracks!");
         }
     }

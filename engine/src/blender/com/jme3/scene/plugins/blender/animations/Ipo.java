@@ -115,23 +115,29 @@ public class Ipo {
      *            the index of the target for which the method calculates the
      *            tracks IMPORTANT! Aet to -1 (or any negative number) if you
      *            want to load spatial animation.
-     * @param localQuaternionRotation
+     * @param localTranslation
+     *            the local translation of the object/bone that will be animated by
+     *            the track
+     * @param localRotation
      *            the local rotation of the object/bone that will be animated by
      *            the track
+     * @param localScale
+     *            the local scale of the object/bone that will be animated by
+     *            the track
      * @param startFrame
-     *            the firs frame of tracks (inclusive)
+     *            the first frame of tracks (inclusive)
      * @param stopFrame
      *            the last frame of the tracks (inclusive)
      * @param fps
      *            frame rate (frames per second)
      * @param spatialTrack
      *            this flag indicates if the track belongs to a spatial or to a
-     *            bone; the diference is important because it appears that bones
+     *            bone; the difference is important because it appears that bones
      *            in blender have the same type of coordinate system (Y as UP)
      *            as jme while other features have different one (Z is UP)
      * @return bone track for the specified bone
      */
-    public Track calculateTrack(int targetIndex, Quaternion localQuaternionRotation, int startFrame, int stopFrame, int fps, boolean spatialTrack) {
+    public Track calculateTrack(int targetIndex, Vector3f localTranslation, Quaternion localRotation, Vector3f localScale, int startFrame, int stopFrame, int fps, boolean spatialTrack) {
         if (calculatedTrack == null) {
             // preparing data for track
             int framesAmount = stopFrame - startFrame;
@@ -139,18 +145,18 @@ public class Ipo {
 
             float[] times = new float[framesAmount + 1];
             Vector3f[] translations = new Vector3f[framesAmount + 1];
-            float[] translation = new float[3];
+            float[] translation = new float[] { localTranslation.x, localTranslation.y, localTranslation.z };
             Quaternion[] rotations = new Quaternion[framesAmount + 1];
-            float[] quaternionRotation = new float[] { 0, 0, 0, 1 };
-            float[] objectRotation = new float[3];
+            float[] quaternionRotation = new float[] { localRotation.getX(), localRotation.getY(), localRotation.getZ(), localRotation.getW(), };
+            float[] objectRotation = localRotation.toAngles(null);
             Vector3f[] scales = new Vector3f[framesAmount + 1];
-            float[] scale = new float[] { 1.0f, 1.0f, 1.0f };
+            float[] scale = new float[] { localScale.x, localScale.y, localScale.z };
             float degreeToRadiansFactor = 1;
             if (blenderVersion < 250) {// in blender earlier than 2.50 the values are stored in degrees
                 degreeToRadiansFactor *= FastMath.DEG_TO_RAD * 10;// the values in blender are divided by 10, so we need to mult it here
             }
             int yIndex = 1, zIndex = 2;
-            if(spatialTrack && fixUpAxis) {
+            if (spatialTrack && fixUpAxis) {
                 yIndex = 2;
                 zIndex = 1;
             }
@@ -163,12 +169,12 @@ public class Ipo {
                 for (int j = 0; j < bezierCurves.length; ++j) {
                     double value = bezierCurves[j].evaluate(frame, BezierCurve.Y_VALUE);
                     switch (bezierCurves[j].getType()) {
-                        // LOCATION
+                    // LOCATION
                         case AC_LOC_X:
                             translation[0] = (float) value;
                             break;
                         case AC_LOC_Y:
-                            if(fixUpAxis && value != 0) {
+                            if (fixUpAxis && value != 0) {
                                 value = -value;
                             }
                             translation[yIndex] = (float) value;
@@ -182,7 +188,7 @@ public class Ipo {
                             objectRotation[0] = (float) value * degreeToRadiansFactor;
                             break;
                         case OB_ROT_Y:
-                            if(fixUpAxis && value != 0) {
+                            if (fixUpAxis && value != 0) {
                                 value = -value;
                             }
                             objectRotation[yIndex] = (float) value * degreeToRadiansFactor;
@@ -210,10 +216,10 @@ public class Ipo {
                             quaternionRotation[0] = (float) value;
                             break;
                         case AC_QUAT_Y:
-                            if(fixUpAxis && value != 0) {
+                            if (fixUpAxis && value != 0) {
                                 value = -value;
                             }
-                            quaternionRotation[yIndex] = (float)value;
+                            quaternionRotation[yIndex] = (float) value;
                             break;
                         case AC_QUAT_Z:
                             quaternionRotation[zIndex] = (float) value;
@@ -222,7 +228,7 @@ public class Ipo {
                             LOGGER.log(Level.WARNING, "Unknown ipo curve type: {0}.", bezierCurves[j].getType());
                     }
                 }
-                translations[index] = localQuaternionRotation.multLocal(new Vector3f(translation[0], translation[1], translation[2]));
+                translations[index] = localRotation.multLocal(new Vector3f(translation[0], translation[1], translation[2]));
                 rotations[index] = spatialTrack ? new Quaternion().fromAngles(objectRotation) : new Quaternion(quaternionRotation[0], quaternionRotation[1], quaternionRotation[2], quaternionRotation[3]);
                 scales[index] = new Vector3f(scale[0], scale[1], scale[2]);
             }
