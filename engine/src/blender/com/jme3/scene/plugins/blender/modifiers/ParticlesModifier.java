@@ -48,8 +48,8 @@ import java.util.logging.Logger;
             Pointer pParticleSystem = (Pointer) modifierStructure.getFieldValue("psys");
             if (pParticleSystem.isNotNull()) {
                 ParticlesHelper particlesHelper = blenderContext.getHelper(ParticlesHelper.class);
-                Structure particleSystem = pParticleSystem.fetchData(blenderContext.getInputStream()).get(0);
-                particleEmitter = particlesHelper.toParticleEmitter(particleSystem, blenderContext);
+                Structure particleSystem = pParticleSystem.fetchData().get(0);
+                particleEmitter = particlesHelper.toParticleEmitter(particleSystem);
             }
         }
     }

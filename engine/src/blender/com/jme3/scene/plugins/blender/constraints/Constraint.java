@@ -63,7 +63,7 @@ public abstract class Constraint {
         name = constraintStructure.getFieldValue("name").toString();
         Pointer pData = (Pointer) constraintStructure.getFieldValue("data");
         if (pData.isNotNull()) {
-            Structure data = pData.fetchData(blenderContext.getInputStream()).get(0);
+            Structure data = pData.fetchData().get(0);
             constraintDefinition = ConstraintDefinitionFactory.createConstraintDefinition(data, ownerOMA, blenderContext);
             Pointer pTar = (Pointer) data.getFieldValue("tar");
             if (pTar != null && pTar.isNotNull()) {

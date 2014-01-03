@@ -31,10 +31,10 @@
  */
 package com.jme3.scene.plugins.blender.file;
 
-import com.jme3.scene.plugins.blender.BlenderContext;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.jme3.scene.plugins.blender.BlenderContext;
 
 /**
  * A class that represents a pointer of any level that can be stored in the file.
@@ -78,13 +78,11 @@ public class Pointer {
 
     /**
      * This method fetches the data stored under the given address.
-     * @param inputStream
-     *            the stream we read data from
      * @return the data read from the file
      * @throws BlenderFileException
      *             this exception is thrown when the blend file structure is somehow invalid or corrupted
      */
-    public List<Structure> fetchData(BlenderInputStream inputStream) throws BlenderFileException {
+    public List<Structure> fetchData() throws BlenderFileException {
         if (oldMemoryAddress == 0) {
             throw new NullPointerException("The pointer points to nothing!");
         }
@@ -93,18 +91,19 @@ public class Pointer {
         if (dataFileBlock == null) {
             throw new BlenderFileException("No data stored for address: " + oldMemoryAddress + ". Make sure you did not open the newer blender file with older blender version.");
         }
+        BlenderInputStream inputStream = blenderContext.getInputStream();
         if (pointerLevel > 1) {
             int pointersAmount = dataFileBlock.getSize() / inputStream.getPointerSize() * dataFileBlock.getCount();
             for (int i = 0; i < pointersAmount; ++i) {
                 inputStream.setPosition(dataFileBlock.getBlockPosition() + inputStream.getPointerSize() * i);
                 long oldMemoryAddress = inputStream.readPointer();
                 if (oldMemoryAddress != 0L) {
-                    Pointer p = new Pointer(pointerLevel - 1, this.function, blenderContext);
+                    Pointer p = new Pointer(pointerLevel - 1, function, blenderContext);
                     p.oldMemoryAddress = oldMemoryAddress;
                     if (structures == null) {
-                        structures = p.fetchData(inputStream);
+                        structures = p.fetchData();
                     } else {
-                        structures.addAll(p.fetchData(inputStream));
+                        structures.addAll(p.fetchData());
                     }
                 } else {
                     // it is necessary to put null's if the pointer is null, ie. in materials array that is attached to the mesh, the index
@@ -120,7 +119,7 @@ public class Pointer {
             structures = new ArrayList<Structure>(dataFileBlock.getCount());
             for (int i = 0; i < dataFileBlock.getCount(); ++i) {
                 Structure structure = blenderContext.getDnaBlockData().getStructure(dataFileBlock.getSdnaIndex());
-                structure.fill(inputStream);
+                structure.fill(blenderContext.getInputStream());
                 structures.add(structure);
             }
             return structures;

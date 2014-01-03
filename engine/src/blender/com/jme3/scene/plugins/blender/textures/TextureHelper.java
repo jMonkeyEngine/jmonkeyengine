@@ -141,7 +141,7 @@ public class TextureHelper extends AbstractBlenderHelper {
             case TEX_IMAGE:// (it is first because probably this will be most commonly used)
                 Pointer pImage = (Pointer) tex.getFieldValue("ima");
                 if (pImage.isNotNull()) {
-                    Structure image = pImage.fetchData(blenderContext.getInputStream()).get(0);
+                    Structure image = pImage.fetchData().get(0);
                     Texture loadedTexture = this.loadTexture(image, imaflag, blenderContext);
                     if (loadedTexture != null) {
                         result = loadedTexture;
@@ -232,7 +232,7 @@ public class TextureHelper extends AbstractBlenderHelper {
                 result = this.loadImageFromFile(texturePath, imaflag, blenderContext);
             } else {
                 LOGGER.fine("Packed texture. Reading directly from the blend file!");
-                Structure packedFile = pPackedFile.fetchData(blenderContext.getInputStream()).get(0);
+                Structure packedFile = pPackedFile.fetchData().get(0);
                 Pointer pData = (Pointer) packedFile.getFieldValue("data");
                 FileBlockHeader dataFileBlock = blenderContext.getFileBlock(pData.getOldMemoryAddress());
                 blenderContext.getInputStream().setPosition(dataFileBlock.getBlockPosition());
@@ -533,7 +533,7 @@ public class TextureHelper extends AbstractBlenderHelper {
             Pointer p = mtexsArray.get(i);
             if (p.isNotNull() && (separatedTextures & 1 << i) == 0) {
                 TextureData textureData = new TextureData();
-                textureData.mtex = p.fetchData(blenderContext.getInputStream()).get(0);
+                textureData.mtex = p.fetchData().get(0);
                 textureData.uvCoordinatesType = skyTexture ? UVCoordinatesType.TEXCO_ORCO.blenderValue : ((Number) textureData.mtex.getFieldValue("texco")).intValue();
                 textureData.projectionType = ((Number) textureData.mtex.getFieldValue("mapping")).intValue();
                 textureData.uvCoordinatesName = textureData.mtex.getFieldValue("uvName").toString();
@@ -543,7 +543,7 @@ public class TextureHelper extends AbstractBlenderHelper {
 
                 Pointer pTex = (Pointer) textureData.mtex.getFieldValue("tex");
                 if (pTex.isNotNull()) {
-                    Structure tex = pTex.fetchData(blenderContext.getInputStream()).get(0);
+                    Structure tex = pTex.fetchData().get(0);
                     textureData.textureStructure = tex;
                     texturesList.add(textureData);
                 }

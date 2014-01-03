@@ -76,17 +76,17 @@ import com.jme3.util.TempVars;
      *             corrupted
      */
     public ArmatureModifier(Structure objectStructure, Structure modifierStructure, BlenderContext blenderContext) throws BlenderFileException {
-        Structure meshStructure = ((Pointer) objectStructure.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
+        Structure meshStructure = ((Pointer) objectStructure.getFieldValue("data")).fetchData().get(0);
         if (this.validate(modifierStructure, blenderContext)) {
             Pointer pArmatureObject = (Pointer) modifierStructure.getFieldValue("object");
             if (pArmatureObject.isNotNull()) {
                 ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
 
-                armatureObject = pArmatureObject.fetchData(blenderContext.getInputStream()).get(0);
+                armatureObject = pArmatureObject.fetchData().get(0);
 
                 // load skeleton
-                Structure armatureStructure = ((Pointer) armatureObject.getFieldValue("data")).fetchData(blenderContext.getInputStream()).get(0);
-                List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase(blenderContext);
+                Structure armatureStructure = ((Pointer) armatureObject.getFieldValue("data")).fetchData().get(0);
+                List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase();
                 List<Bone> bonesList = new ArrayList<Bone>();
                 for (int i = 0; i < bonebase.size(); ++i) {
                     armatureHelper.buildBones(armatureObject.getOldMemoryAddress(), bonebase.get(i), null, bonesList, objectStructure.getOldMemoryAddress(), blenderContext);
@@ -130,7 +130,7 @@ import com.jme3.util.TempVars;
                 // fetching action defined in object
                 Pointer pAction = (Pointer) objectStructure.getFieldValue("action");
                 if (pAction.isNotNull()) {
-                    Structure actionStructure = pAction.fetchData(blenderContext.getInputStream()).get(0);
+                    Structure actionStructure = pAction.fetchData().get(0);
                     String actionName = actionStructure.getName();
 
                     BoneTrack[] tracks = armatureHelper.getTracks(actionStructure, skeleton, blenderContext);
@@ -235,9 +235,9 @@ import com.jme3.util.TempVars;
                         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
                         ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
 
-                        Structure pose = pPose.fetchData(blenderContext.getInputStream()).get(0);
+                        Structure pose = pPose.fetchData().get(0);
                         Structure chanbase = (Structure) pose.getFieldValue("chanbase");
-                        List<Structure> chans = chanbase.evaluateListBase(blenderContext);
+                        List<Structure> chans = chanbase.evaluateListBase();
                         Transform transform = new Transform();
                         for (Structure poseChannel : chans) {
                             Pointer pBone = (Pointer) poseChannel.getFieldValue("bone");
@@ -290,11 +290,11 @@ import com.jme3.util.TempVars;
     private VertexBuffer[] readVerticesWeightsData(Structure objectStructure, Structure meshStructure, Skeleton skeleton, int materialIndex, int[] bonesGroups, BlenderContext blenderContext) throws BlenderFileException {
         ArmatureHelper armatureHelper = blenderContext.getHelper(ArmatureHelper.class);
         Structure defBase = (Structure) objectStructure.getFieldValue("defbase");
-        Map<Integer, Integer> groupToBoneIndexMap = armatureHelper.getGroupToBoneIndexMap(defBase, skeleton, blenderContext);
+        Map<Integer, Integer> groupToBoneIndexMap = armatureHelper.getGroupToBoneIndexMap(defBase, skeleton);
 
         MeshContext meshContext = blenderContext.getMeshContext(meshStructure.getOldMemoryAddress());
 
-        return this.getBoneWeightAndIndexBuffer(meshStructure, meshContext.getVertexCount(materialIndex), bonesGroups, meshContext.getVertexReferenceMap(materialIndex), groupToBoneIndexMap, blenderContext);
+        return this.getBoneWeightAndIndexBuffer(meshStructure, meshContext.getVertexCount(materialIndex), bonesGroups, meshContext.getVertexReferenceMap(materialIndex), groupToBoneIndexMap);
     }
 
     /**
@@ -318,15 +318,13 @@ import com.jme3.util.TempVars;
      * @param groupToBoneIndexMap
      *            this object maps the group index (to which a vertices in
      *            blender belong) to bone index of the model
-     * @param blenderContext
-     *            the blender context
      * @return arrays of vertices weights and their bone indices and (as an
      *         output parameter) the maximum amount of weights for a vertex
      * @throws BlenderFileException
      *             this exception is thrown when the blend file structure is
      *             somehow invalid or corrupted
      */
-    private VertexBuffer[] getBoneWeightAndIndexBuffer(Structure meshStructure, int vertexListSize, int[] bonesGroups, Map<Integer, List<Integer>> vertexReferenceMap, Map<Integer, Integer> groupToBoneIndexMap, BlenderContext blenderContext) throws BlenderFileException {
+    private VertexBuffer[] getBoneWeightAndIndexBuffer(Structure meshStructure, int vertexListSize, int[] bonesGroups, Map<Integer, List<Integer>> vertexReferenceMap, Map<Integer, Integer> groupToBoneIndexMap) throws BlenderFileException {
         bonesGroups[0] = 0;
         Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert
                                                                         // =
@@ -337,7 +335,7 @@ import com.jme3.util.TempVars;
         if (pDvert.isNotNull()) {// assigning weights and bone indices
             boolean warnAboutTooManyVertexWeights = false;
             // dverts.size() = verticesAmount (one dvert per vertex in blender)
-            List<Structure> dverts = pDvert.fetchData(blenderContext.getInputStream());
+            List<Structure> dverts = pDvert.fetchData();
             int vertexIndex = 0;
             // use tree map to sort weights from the lowest to the highest ones
             TreeMap<Float, Integer> weightToIndexMap = new TreeMap<Float, Integer>();
@@ -352,7 +350,7 @@ import com.jme3.util.TempVars;
                     if (totweight > 0 && groupToBoneIndexMap != null) {
                         weightToIndexMap.clear();
                         int weightIndex = 0;
-                        List<Structure> dw = pDW.fetchData(blenderContext.getInputStream());
+                        List<Structure> dw = pDW.fetchData();
                         for (Structure deformWeight : dw) {
                             Integer boneIndex = groupToBoneIndexMap.get(((Number) deformWeight.getFieldValue("def_nr")).intValue());
                             float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();

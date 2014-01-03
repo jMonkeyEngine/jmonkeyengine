@@ -136,7 +136,7 @@ public class MeshHelper extends AbstractBlenderHelper {
         LOGGER.fine("Reading vertices groups (from the Object structure).");
         Structure parent = blenderContext.peekParent();
         Structure defbase = (Structure) parent.getFieldValue("defbase");
-        List<Structure> defs = defbase.evaluateListBase(blenderContext);
+        List<Structure> defs = defbase.evaluateListBase();
         String[] verticesGroups = new String[defs.size()];
         int defIndex = 0;
         for (Structure def : defs) {

@@ -84,7 +84,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
         Set<String> alreadyReadModifiers = new HashSet<String>();
         Collection<Modifier> result = new ArrayList<Modifier>();
         Structure modifiersListBase = (Structure) objectStructure.getFieldValue("modifiers");
-        List<Structure> modifiers = modifiersListBase.evaluateListBase(blenderContext);
+        List<Structure> modifiers = modifiersListBase.evaluateListBase();
         for (Structure modifierStructure : modifiers) {
             String modifierType = modifierStructure.getType();
             if (!Modifier.canBeAppliedMultipleTimes(modifierType) && alreadyReadModifiers.contains(modifierType)) {
@@ -146,7 +146,7 @@ public class ModifierHelper extends AbstractBlenderHelper {
         Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
         if (pIpo.isNotNull()) {
             IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
-            Structure ipoStructure = pIpo.fetchData(blenderContext.getInputStream()).get(0);
+            Structure ipoStructure = pIpo.fetchData().get(0);
             Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
             if (ipo != null) {
                 result = new ObjectAnimationModifier(ipo, objectStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
@@ -172,10 +172,10 @@ public class ModifierHelper extends AbstractBlenderHelper {
         Modifier result = null;
         Pointer pAnimData = (Pointer) objectStructure.getFieldValue("adt");
         if (pAnimData.isNotNull()) {
-            Structure animData = pAnimData.fetchData(blenderContext.getInputStream()).get(0);
+            Structure animData = pAnimData.fetchData().get(0);
             Pointer pAction = (Pointer) animData.getFieldValue("action");
             if (pAction.isNotNull()) {
-                Structure actionStructure = pAction.fetchData(blenderContext.getInputStream()).get(0);
+                Structure actionStructure = pAction.fetchData().get(0);
                 IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
                 Ipo ipo = ipoHelper.fromAction(actionStructure, blenderContext);
                 if (ipo != null) {// ipo can be null if it has no curves applied, ommit such modifier then

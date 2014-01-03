@@ -15,7 +15,6 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
-import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -59,19 +58,17 @@ import com.jme3.util.BufferUtils;
      * anywhere or not, we need to check all vertices and use here only those that are not used.
      * @param meshStructure
      *            the mesh structure
-     * @param blenderContext
-     *            the blender context
      * @throws BlenderFileException
      *             an exception thrown when reading from the blend file fails
      */
-    public void readMesh(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+    public void readMesh(Structure meshStructure) throws BlenderFileException {
         LOGGER.fine("Reading points mesh.");
         Pointer pMEdge = (Pointer) meshStructure.getFieldValue("medge");
 
         if (pMEdge.isNotNull()) {
             int count = ((Number) meshStructure.getFieldValue("totvert")).intValue();
             Set<Vector3f> usedVertices = new HashSet<Vector3f>(count);
-            List<Structure> edges = pMEdge.fetchData(blenderContext.getInputStream());
+            List<Structure> edges = pMEdge.fetchData();
 
             for (Structure edge : edges) {
                 int v1 = ((Number) edge.getFieldValue("v1")).intValue();

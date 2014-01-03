@@ -67,19 +67,19 @@ public class ConstraintHelper extends AbstractBlenderHelper {
         Map<String, Map<String, Ipo>> constraintsIpos = new HashMap<String, Map<String, Ipo>>();
         Pointer pActions = (Pointer) objectStructure.getFieldValue("action");
         if (pActions.isNotNull()) {
-            List<Structure> actions = pActions.fetchData(blenderContext.getInputStream());
+            List<Structure> actions = pActions.fetchData();
             for (Structure action : actions) {
                 Structure chanbase = (Structure) action.getFieldValue("chanbase");
-                List<Structure> actionChannels = chanbase.evaluateListBase(blenderContext);
+                List<Structure> actionChannels = chanbase.evaluateListBase();
                 for (Structure actionChannel : actionChannels) {
                     Map<String, Ipo> ipos = new HashMap<String, Ipo>();
                     Structure constChannels = (Structure) actionChannel.getFieldValue("constraintChannels");
-                    List<Structure> constraintChannels = constChannels.evaluateListBase(blenderContext);
+                    List<Structure> constraintChannels = constChannels.evaluateListBase();
                     for (Structure constraintChannel : constraintChannels) {
                         Pointer pIpo = (Pointer) constraintChannel.getFieldValue("ipo");
                         if (pIpo.isNotNull()) {
                             String constraintName = constraintChannel.getFieldValue("name").toString();
-                            Ipo ipo = ipoHelper.fromIpoStructure(pIpo.fetchData(blenderContext.getInputStream()).get(0), blenderContext);
+                            Ipo ipo = ipoHelper.fromIpoStructure(pIpo.fetchData().get(0), blenderContext);
                             ipos.put(constraintName, ipo);
                         }
                     }
@@ -92,7 +92,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
         // loading constraints connected with the object's bones
         Pointer pPose = (Pointer) objectStructure.getFieldValue("pose");
         if (pPose.isNotNull()) {
-            List<Structure> poseChannels = ((Structure) pPose.fetchData(blenderContext.getInputStream()).get(0).getFieldValue("chanbase")).evaluateListBase(blenderContext);
+            List<Structure> poseChannels = ((Structure) pPose.fetchData().get(0).getFieldValue("chanbase")).evaluateListBase();
             for (Structure poseChannel : poseChannels) {
                 List<Constraint> constraintsList = new ArrayList<Constraint>();
                 Long boneOMA = Long.valueOf(((Pointer) poseChannel.getFieldValue("bone")).getOldMemoryAddress());
@@ -100,7 +100,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                 // the name is read directly from structure because bone might
                 // not yet be loaded
                 String name = blenderContext.getFileBlock(boneOMA).getStructure(blenderContext).getFieldValue("name").toString();
-                List<Structure> constraints = ((Structure) poseChannel.getFieldValue("constraints")).evaluateListBase(blenderContext);
+                List<Structure> constraints = ((Structure) poseChannel.getFieldValue("constraints")).evaluateListBase();
                 for (Structure constraint : constraints) {
                     String constraintName = constraint.getFieldValue("name").toString();
                     Map<String, Ipo> ipoMap = constraintsIpos.get(name);
@@ -116,10 +116,10 @@ public class ConstraintHelper extends AbstractBlenderHelper {
         }
 
         // loading constraints connected with the object itself
-        List<Structure> constraints = ((Structure) objectStructure.getFieldValue("constraints")).evaluateListBase(blenderContext);
+        List<Structure> constraints = ((Structure) objectStructure.getFieldValue("constraints")).evaluateListBase();
         if (constraints != null && constraints.size() > 0) {
             Pointer pData = (Pointer) objectStructure.getFieldValue("data");
-            String dataType = pData.isNotNull() ? pData.fetchData(blenderContext.getInputStream()).get(0).getType() : null;
+            String dataType = pData.isNotNull() ? pData.fetchData().get(0).getType() : null;
             List<Constraint> constraintsList = new ArrayList<Constraint>(constraints.size());
 
             for (Structure constraint : constraints) {

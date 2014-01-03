@@ -241,7 +241,7 @@ public class MaterialHelper extends AbstractBlenderHelper {
         Pointer ppMaterials = (Pointer) structureWithMaterials.getFieldValue("mat");
         MaterialContext[] materials = null;
         if (ppMaterials.isNotNull()) {
-            List<Structure> materialStructures = ppMaterials.fetchData(blenderContext.getInputStream());
+            List<Structure> materialStructures = ppMaterials.fetchData();
             if (materialStructures != null && materialStructures.size() > 0) {
                 MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
                 materials = new MaterialContext[materialStructures.size()];

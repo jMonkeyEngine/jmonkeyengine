@@ -13,7 +13,6 @@ import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
-import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -58,17 +57,15 @@ import com.jme3.util.BufferUtils;
      * The method reads the mesh. It loads only edges that are marked as not belonging to any face in their flag field.
      * @param meshStructure
      *            the mesh structure
-     * @param blenderContext
-     *            the blender context
      * @throws BlenderFileException
      *             an exception thrown when reading from the blend file fails
      */
-    public void readMesh(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+    public void readMesh(Structure meshStructure) throws BlenderFileException {
         LOGGER.fine("Reading line mesh.");
         Pointer pMEdge = (Pointer) meshStructure.getFieldValue("medge");
 
         if (pMEdge.isNotNull()) {
-            List<Structure> edges = pMEdge.fetchData(blenderContext.getInputStream());
+            List<Structure> edges = pMEdge.fetchData();
             int vertexIndex = 0;//vertex index in the result mesh
             for (Structure edge : edges) {
                 int flag = ((Number) edge.getFieldValue("flag")).intValue();

@@ -110,7 +110,7 @@ public class BoneContext {
         globalBoneMatrix = armatureWorldMatrix.mult(globalBoneMatrix);
 
         // create the children
-        List<Structure> childbase = ((Structure) boneStructure.getFieldValue("childbase")).evaluateListBase(blenderContext);
+        List<Structure> childbase = ((Structure) boneStructure.getFieldValue("childbase")).evaluateListBase();
         for (Structure child : childbase) {
             children.add(new BoneContext(child, armatureObjectOMA, this, blenderContext));
         }

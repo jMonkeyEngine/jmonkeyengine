@@ -76,9 +76,9 @@ import com.jme3.util.BufferUtils;
         MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
 
         if (meshHelper.isBMeshCompatible(structure)) {
-            this.readBMesh(structure, blenderContext);
+            this.readBMesh(structure);
         } else {
-            this.readTraditionalFaces(structure, blenderContext);
+            this.readTraditionalFaces(structure);
         }
     }
 
@@ -138,22 +138,20 @@ import com.jme3.util.BufferUtils;
      * 
      * @param meshStructure
      *            the mesh structure
-     * @param blenderContext
-     *            the blender context
      * @throws BlenderFileException
      *             an exception is thrown when there are problems with the
      *             blender file
      */
-    private void readBMesh(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+    private void readBMesh(Structure meshStructure) throws BlenderFileException {
         LOGGER.fine("Reading BMesh.");
         Pointer pMLoop = (Pointer) meshStructure.getFieldValue("mloop");
         Pointer pMPoly = (Pointer) meshStructure.getFieldValue("mpoly");
         Map<String, Vector2f[]> uvCoordinatesForFace = new HashMap<String, Vector2f[]>();
 
         if (pMPoly.isNotNull() && pMLoop.isNotNull()) {
-            Map<String, List<Vector2f>> uvs = this.loadUVCoordinates(meshStructure, true, blenderContext);
-            List<Structure> polys = pMPoly.fetchData(blenderContext.getInputStream());
-            List<Structure> loops = pMLoop.fetchData(blenderContext.getInputStream());
+            Map<String, List<Vector2f>> uvs = this.loadUVCoordinates(meshStructure, true);
+            List<Structure> polys = pMPoly.fetchData();
+            List<Structure> loops = pMLoop.fetchData();
             int[] vertexColorIndex = verticesColors == null ? null : new int[3];
             for (Structure poly : polys) {
                 int materialNumber = ((Number) poly.getFieldValue("mat_nr")).intValue();
@@ -202,19 +200,17 @@ import com.jme3.util.BufferUtils;
      * 
      * @param meshStructure
      *            the mesh structure
-     * @param blenderContext
-     *            the blender context
      * @throws BlenderFileException
      *             an exception is thrown when there are problems with the
      *             blender file
      */
-    private void readTraditionalFaces(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+    private void readTraditionalFaces(Structure meshStructure) throws BlenderFileException {
         LOGGER.fine("Reading traditional faces.");
         Pointer pMFace = (Pointer) meshStructure.getFieldValue("mface");
-        List<Structure> mFaces = pMFace.isNotNull() ? pMFace.fetchData(blenderContext.getInputStream()) : null;
+        List<Structure> mFaces = pMFace.isNotNull() ? pMFace.fetchData() : null;
         if (mFaces != null && mFaces.size() > 0) {
             // indicates if the material with the specified number should have a texture attached
-            Map<String, List<Vector2f>> uvs = this.loadUVCoordinates(meshStructure, false, blenderContext);
+            Map<String, List<Vector2f>> uvs = this.loadUVCoordinates(meshStructure, false);
             Map<String, Vector2f[]> uvCoordinatesForFace = new HashMap<String, Vector2f[]>();
             int[] vertexColorIndex = verticesColors == null ? null : new int[3];
             for (int i = 0; i < mFaces.size(); ++i) {
@@ -406,25 +402,23 @@ import com.jme3.util.BufferUtils;
      *            the mesh structure
      * @param useBMesh
      *            tells if we should load the coordinates from loops of from faces
-     * @param blenderContext
-     *            the blender context
      * @return a map that sorts UV coordinates between different UV sets
      * @throws BlenderFileException
      *             an exception is thrown when problems with blend file occur
      */
     @SuppressWarnings("unchecked")
-    private Map<String, List<Vector2f>> loadUVCoordinates(Structure meshStructure, boolean useBMesh, BlenderContext blenderContext) throws BlenderFileException {
+    private Map<String, List<Vector2f>> loadUVCoordinates(Structure meshStructure, boolean useBMesh) throws BlenderFileException {
         Map<String, List<Vector2f>> result = new HashMap<String, List<Vector2f>>();
         if (useBMesh) {
             // in this case the UV's are assigned to vertices (an array is the same length as the vertex array)
             Structure loopData = (Structure) meshStructure.getFieldValue("ldata");
             Pointer pLoopDataLayers = (Pointer) loopData.getFieldValue("layers");
-            List<Structure> loopDataLayers = pLoopDataLayers.fetchData(blenderContext.getInputStream());
+            List<Structure> loopDataLayers = pLoopDataLayers.fetchData();
             for (Structure structure : loopDataLayers) {
                 Pointer p = (Pointer) structure.getFieldValue("data");
                 if (p.isNotNull() && ((Number) structure.getFieldValue("type")).intValue() == MeshHelper.UV_DATA_LAYER_TYPE_BMESH) {
                     String uvSetName = structure.getFieldValue("name").toString();
-                    List<Structure> uvsStructures = p.fetchData(blenderContext.getInputStream());
+                    List<Structure> uvsStructures = p.fetchData();
                     List<Vector2f> uvs = new ArrayList<Vector2f>(uvsStructures.size());
                     for (Structure uvStructure : uvsStructures) {
                         DynamicArray<Number> loopUVS = (DynamicArray<Number>) uvStructure.getFieldValue("uv");
@@ -437,12 +431,12 @@ import com.jme3.util.BufferUtils;
             // in this case UV's are assigned to faces (the array has the same legnth as the faces count)
             Structure facesData = (Structure) meshStructure.getFieldValue("fdata");
             Pointer pFacesDataLayers = (Pointer) facesData.getFieldValue("layers");
-            List<Structure> facesDataLayers = pFacesDataLayers.fetchData(blenderContext.getInputStream());
+            List<Structure> facesDataLayers = pFacesDataLayers.fetchData();
             for (Structure structure : facesDataLayers) {
                 Pointer p = (Pointer) structure.getFieldValue("data");
                 if (p.isNotNull() && ((Number) structure.getFieldValue("type")).intValue() == MeshHelper.UV_DATA_LAYER_TYPE_FMESH) {
                     String uvSetName = structure.getFieldValue("name").toString();
-                    List<Structure> uvsStructures = p.fetchData(blenderContext.getInputStream());
+                    List<Structure> uvsStructures = p.fetchData();
                     List<Vector2f> uvs = new ArrayList<Vector2f>(uvsStructures.size());
                     for (Structure uvStructure : uvsStructures) {
                         DynamicArray<Number> mFaceUVs = (DynamicArray<Number>) uvStructure.getFieldValue("uv");
@@ -477,7 +471,7 @@ import com.jme3.util.BufferUtils;
         // so we need to put them right
         boolean useBGRA = blenderContext.getBlenderVersion() < 263;
         if (pMCol.isNotNull()) {
-            List<Structure> mCol = pMCol.fetchData(blenderContext.getInputStream());
+            List<Structure> mCol = pMCol.fetchData();
             verticesColors = new ArrayList<byte[]>(mCol.size());
             for (Structure color : mCol) {
                 byte r = ((Number) color.getFieldValue("r")).byteValue();

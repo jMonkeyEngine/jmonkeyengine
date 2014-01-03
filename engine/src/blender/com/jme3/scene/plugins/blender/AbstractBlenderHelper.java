@@ -69,7 +69,7 @@ public abstract class AbstractBlenderHelper {
     public AbstractBlenderHelper(String blenderVersion, BlenderContext blenderContext) {
         this.blenderVersion = Integer.parseInt(blenderVersion);
         this.blenderContext = blenderContext;
-        this.fixUpAxis = blenderContext.getBlenderKey().isFixUpAxis();
+        fixUpAxis = blenderContext.getBlenderKey().isFixUpAxis();
         if (fixUpAxis) {
             upAxisRotationQuaternion = new Quaternion().fromAngles(-FastMath.HALF_PI, 0, 0);
         }
@@ -91,7 +91,7 @@ public abstract class AbstractBlenderHelper {
         if (id != null) {
             Pointer pProperties = (Pointer) id.getFieldValue("properties");
             if (pProperties.isNotNull()) {
-                Structure propertiesStructure = pProperties.fetchData(blenderContext.getInputStream()).get(0);
+                Structure propertiesStructure = pProperties.fetchData().get(0);
                 properties = new Properties();
                 properties.load(propertiesStructure, blenderContext);
             }

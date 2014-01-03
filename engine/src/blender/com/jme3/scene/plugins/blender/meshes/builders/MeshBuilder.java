@@ -30,14 +30,14 @@ public class MeshBuilder {
     
     public MeshBuilder(Structure meshStructure, MaterialContext[] materials, BlenderContext blenderContext) throws BlenderFileException {
         fixUpAxis = blenderContext.getBlenderKey().isFixUpAxis();
-        Vector3f[][] verticesAndNormals = this.getVerticesAndNormals(meshStructure, blenderContext);
+        Vector3f[][] verticesAndNormals = this.getVerticesAndNormals(meshStructure);
 
         faceMeshBuilder = new FaceMeshBuilder(verticesAndNormals, this.areGeneratedTexturesPresent(materials));
         faceMeshBuilder.readMesh(meshStructure, blenderContext);
         lineMeshBuilder = new LineMeshBuilder(verticesAndNormals);
-        lineMeshBuilder.readMesh(meshStructure, blenderContext);
+        lineMeshBuilder.readMesh(meshStructure);
         pointMeshBuilder = new PointMeshBuilder(verticesAndNormals);
-        pointMeshBuilder.readMesh(meshStructure, blenderContext);
+        pointMeshBuilder.readMesh(meshStructure);
     }
 
     public Map<Integer, List<Mesh>> buildMeshes() {
@@ -111,14 +111,12 @@ public class MeshBuilder {
      * 
      * @param meshStructure
      *            the structure containing the mesh data
-     * @param blenderContext
-     *            the blender context
      * @return a list of two - element arrays, the first element is the vertex and the second - its normal
      * @throws BlenderFileException
      *             this exception is thrown when the blend file structure is somehow invalid or corrupted
      */
     @SuppressWarnings("unchecked")
-    private Vector3f[][] getVerticesAndNormals(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+    private Vector3f[][] getVerticesAndNormals(Structure meshStructure) throws BlenderFileException {
         int count = ((Number) meshStructure.getFieldValue("totvert")).intValue();
         Vector3f[][] result = new Vector3f[count][2];
         if (count == 0) {
@@ -126,7 +124,7 @@ public class MeshBuilder {
         }
 
         Pointer pMVert = (Pointer) meshStructure.getFieldValue("mvert");
-        List<Structure> mVerts = pMVert.fetchData(blenderContext.getInputStream());
+        List<Structure> mVerts = pMVert.fetchData();
         if (fixUpAxis) {
             for (int i = 0; i < count; ++i) {
                 DynamicArray<Number> coordinates = (DynamicArray<Number>) mVerts.get(i).getFieldValue("co");

@@ -67,7 +67,7 @@ import java.util.logging.Logger;
                     Pointer pCurveOb = (Pointer) modifierStructure.getFieldValue("curve_ob");
                     float length = 0;
                     if (pCurveOb.isNotNull()) {
-                        Structure curveStructure = pCurveOb.fetchData(blenderContext.getInputStream()).get(0);
+                        Structure curveStructure = pCurveOb.fetchData().get(0);
                         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
                         Node curveObject = (Node) objectHelper.toObject(curveStructure, blenderContext);
                         Set<Number> referencesToCurveLengths = new HashSet<Number>(curveObject.getChildren().size());

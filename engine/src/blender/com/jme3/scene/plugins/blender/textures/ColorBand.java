@@ -95,7 +95,7 @@ public class ColorBand {
         cursorsAmount = colors.size();
         this.ipoType = ipoType;
         this.resultSize = resultSize;
-        data = new ColorBandData[this.cursorsAmount];
+        data = new ColorBandData[cursorsAmount];
         for (int i = 0; i < cursorsAmount; ++i) {
             data[i] = new ColorBandData(colors.get(i), positions.get(i));
         }
@@ -112,12 +112,12 @@ public class ColorBand {
         if ((flag & GeneratedTexture.TEX_COLORBAND) != 0) {
             Pointer pColorband = (Pointer) tex.getFieldValue("coba");
             try {
-                Structure colorbandStructure = pColorband.fetchData(blenderContext.getInputStream()).get(0);
-                this.cursorsAmount = ((Number) colorbandStructure.getFieldValue("tot")).intValue();
-                this.ipoType = ((Number) colorbandStructure.getFieldValue("ipotype")).intValue();
-                this.data = new ColorBandData[this.cursorsAmount];
+                Structure colorbandStructure = pColorband.fetchData().get(0);
+                cursorsAmount = ((Number) colorbandStructure.getFieldValue("tot")).intValue();
+                ipoType = ((Number) colorbandStructure.getFieldValue("ipotype")).intValue();
+                data = new ColorBandData[cursorsAmount];
                 DynamicArray<Structure> data = (DynamicArray<Structure>) colorbandStructure.getFieldValue("data");
-                for (int i = 0; i < this.cursorsAmount; ++i) {
+                for (int i = 0; i < cursorsAmount; ++i) {
                     this.data[i] = new ColorBandData(data.get(i));
                 }
             } catch (BlenderFileException e) {
@@ -372,11 +372,11 @@ public class ColorBand {
          * Copy constructor.
          */
         private ColorBandData(ColorBandData data) {
-            this.r = data.r;
-            this.g = data.g;
-            this.b = data.b;
-            this.a = data.a;
-            this.pos = data.pos;
+            r = data.r;
+            g = data.g;
+            b = data.b;
+            a = data.a;
+            pos = data.pos;
         }
 
         /**
@@ -386,16 +386,16 @@ public class ColorBand {
          *            the structure containing the CBData object
          */
         public ColorBandData(Structure cbdataStructure) {
-            this.r = ((Number) cbdataStructure.getFieldValue("r")).floatValue();
-            this.g = ((Number) cbdataStructure.getFieldValue("g")).floatValue();
-            this.b = ((Number) cbdataStructure.getFieldValue("b")).floatValue();
-            this.a = ((Number) cbdataStructure.getFieldValue("a")).floatValue();
-            this.pos = (int) (((Number) cbdataStructure.getFieldValue("pos")).floatValue() * 1000.0f);
+            r = ((Number) cbdataStructure.getFieldValue("r")).floatValue();
+            g = ((Number) cbdataStructure.getFieldValue("g")).floatValue();
+            b = ((Number) cbdataStructure.getFieldValue("b")).floatValue();
+            a = ((Number) cbdataStructure.getFieldValue("a")).floatValue();
+            pos = (int) (((Number) cbdataStructure.getFieldValue("pos")).floatValue() * 1000.0f);
         }
 
         @Override
         public String toString() {
-            return "P: " + this.pos + " [" + this.r + ", " + this.g + ", " + this.b + ", " + this.a + "]";
+            return "P: " + pos + " [" + r + ", " + g + ", " + b + ", " + a + "]";
         }
     }
 }

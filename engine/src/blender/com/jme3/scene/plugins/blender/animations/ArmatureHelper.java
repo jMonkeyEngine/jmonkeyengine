@@ -109,11 +109,11 @@ public class ArmatureHelper extends AbstractBlenderHelper {
      *             this exception is thrown when the blender file is somehow
      *             corrupted
      */
-    public Map<Integer, Integer> getGroupToBoneIndexMap(Structure defBaseStructure, Skeleton skeleton, BlenderContext blenderContext) throws BlenderFileException {
+    public Map<Integer, Integer> getGroupToBoneIndexMap(Structure defBaseStructure, Skeleton skeleton) throws BlenderFileException {
         Map<Integer, Integer> result = null;
         if (skeleton.getBoneCount() != 0) {
             result = new HashMap<Integer, Integer>();
-            List<Structure> deformGroups = defBaseStructure.evaluateListBase(blenderContext);// bDeformGroup
+            List<Structure> deformGroups = defBaseStructure.evaluateListBase();// bDeformGroup
             int groupIndex = 0;
             for (Structure deformGroup : deformGroups) {
                 String deformGroupName = deformGroup.getFieldValue("name").toString();
@@ -165,19 +165,19 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
         int fps = blenderContext.getBlenderKey().getFps();
         Structure groups = (Structure) actionStructure.getFieldValue("groups");
-        List<Structure> actionGroups = groups.evaluateListBase(blenderContext);// bActionGroup
+        List<Structure> actionGroups = groups.evaluateListBase();// bActionGroup
         List<BoneTrack> tracks = new ArrayList<BoneTrack>();
         for (Structure actionGroup : actionGroups) {
             String name = actionGroup.getFieldValue("name").toString();
             int boneIndex = skeleton.getBoneIndex(name);
             if (boneIndex >= 0) {
-                List<Structure> channels = ((Structure) actionGroup.getFieldValue("channels")).evaluateListBase(blenderContext);
+                List<Structure> channels = ((Structure) actionGroup.getFieldValue("channels")).evaluateListBase();
                 BezierCurve[] bezierCurves = new BezierCurve[channels.size()];
                 int channelCounter = 0;
                 for (Structure c : channels) {
                     int type = ipoHelper.getCurveType(c, blenderContext);
                     Pointer pBezTriple = (Pointer) c.getFieldValue("bezt");
-                    List<Structure> bezTriples = pBezTriple.fetchData(blenderContext.getInputStream());
+                    List<Structure> bezTriples = pBezTriple.fetchData();
                     bezierCurves[channelCounter++] = new BezierCurve(type, bezTriples, 2);
                 }
 
@@ -208,7 +208,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
         IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
         int fps = blenderContext.getBlenderKey().getFps();
         Structure chanbase = (Structure) actionStructure.getFieldValue("chanbase");
-        List<Structure> actionChannels = chanbase.evaluateListBase(blenderContext);// bActionChannel
+        List<Structure> actionChannels = chanbase.evaluateListBase();// bActionChannel
         List<BoneTrack> tracks = new ArrayList<BoneTrack>();
         for (Structure bActionChannel : actionChannels) {
             String name = bActionChannel.getFieldValue("name").toString();
@@ -216,7 +216,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
             if (boneIndex >= 0) {
                 Pointer p = (Pointer) bActionChannel.getFieldValue("ipo");
                 if (!p.isNull()) {
-                    Structure ipoStructure = p.fetchData(blenderContext.getInputStream()).get(0);
+                    Structure ipoStructure = p.fetchData().get(0);
 
                     Bone bone = skeleton.getBone(boneIndex);
                     Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);

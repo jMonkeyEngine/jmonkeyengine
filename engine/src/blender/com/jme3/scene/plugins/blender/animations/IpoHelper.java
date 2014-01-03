@@ -55,13 +55,13 @@ public class IpoHelper extends AbstractBlenderHelper {
 
         // preparing bezier curves
         Ipo result = null;
-        List<Structure> curves = curvebase.evaluateListBase(blenderContext);// IpoCurve
+        List<Structure> curves = curvebase.evaluateListBase();// IpoCurve
         if (curves.size() > 0) {
             BezierCurve[] bezierCurves = new BezierCurve[curves.size()];
             int frame = 0;
             for (Structure curve : curves) {
                 Pointer pBezTriple = (Pointer) curve.getFieldValue("bezt");
-                List<Structure> bezTriples = pBezTriple.fetchData(blenderContext.getInputStream());
+                List<Structure> bezTriples = pBezTriple.fetchData();
                 int type = ((Number) curve.getFieldValue("adrcode")).intValue();
                 bezierCurves[frame++] = new BezierCurve(type, bezTriples, 2);
             }
@@ -87,13 +87,13 @@ public class IpoHelper extends AbstractBlenderHelper {
      */
     public Ipo fromAction(Structure actionStructure, BlenderContext blenderContext) throws BlenderFileException {
         Ipo result = null;
-        List<Structure> curves = ((Structure) actionStructure.getFieldValue("curves")).evaluateListBase(blenderContext);// FCurve
+        List<Structure> curves = ((Structure) actionStructure.getFieldValue("curves")).evaluateListBase();// FCurve
         if (curves.size() > 0) {
             BezierCurve[] bezierCurves = new BezierCurve[curves.size()];
             int frame = 0;
             for (Structure curve : curves) {
                 Pointer pBezTriple = (Pointer) curve.getFieldValue("bezt");
-                List<Structure> bezTriples = pBezTriple.fetchData(blenderContext.getInputStream());
+                List<Structure> bezTriples = pBezTriple.fetchData();
                 int type = this.getCurveType(curve, blenderContext);
                 bezierCurves[frame++] = new BezierCurve(type, bezTriples, 2);
             }

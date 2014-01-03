@@ -45,8 +45,6 @@ import com.jme3.scene.plugins.blender.BlenderContext;
  */
 public class Structure implements Cloneable {
 
-    /** The blender context. */
-    private BlenderContext blenderContext;
     /** The address of the block that fills the structure. */
     private transient Long oldMemoryAddress;
     /** The type of the structure. */
@@ -60,18 +58,15 @@ public class Structure implements Cloneable {
      * Constructor that copies the data of the structure.
      * @param structure
      *            the structure to copy.
-     * @param blenderContext
-     *            the blender context of the structure
      * @throws CloneNotSupportedException
      *             this exception should never be thrown
      */
-    private Structure(Structure structure, BlenderContext blenderContext) throws CloneNotSupportedException {
+    private Structure(Structure structure) throws CloneNotSupportedException {
         type = structure.type;
         fields = new Field[structure.fields.length];
         for (int i = 0; i < fields.length; ++i) {
             fields[i] = (Field) structure.fields[i].clone();
         }
-        this.blenderContext = blenderContext;
         oldMemoryAddress = structure.oldMemoryAddress;
     }
 
@@ -91,7 +86,6 @@ public class Structure implements Cloneable {
     public Structure(BlenderInputStream inputStream, String[] names, String[] types, BlenderContext blenderContext) throws BlenderFileException {
         int nameIndex = inputStream.readShort();
         type = types[nameIndex];
-        this.blenderContext = blenderContext;
         int fieldsAmount = inputStream.readShort();
         if (fieldsAmount < 0) {
             throw new BlenderFileException("The amount of fields of " + type + " structure cannot be negative!");
@@ -165,15 +159,13 @@ public class Structure implements Cloneable {
     /**
      * This methos should be used on structures that are of a 'ListBase' type. It creates a List of structures that are
      * held by this structure within the blend file.
-     * @param blenderContext
-     *            the blender context
      * @return a list of filled structures
      * @throws BlenderFileException
      *             this exception is thrown when the blend file structure is somehow invalid or corrupted
      * @throws IllegalArgumentException
      *             this exception is thrown if the type of the structure is not 'ListBase'
      */
-    public List<Structure> evaluateListBase(BlenderContext blenderContext) throws BlenderFileException {
+    public List<Structure> evaluateListBase() throws BlenderFileException {
         if (!"ListBase".equals(type)) {
             throw new IllegalStateException("This structure is not of type: 'ListBase'");
         }
@@ -184,7 +176,7 @@ public class Structure implements Cloneable {
         List<Structure> result = new LinkedList<Structure>();
         while (currentAddress != lastAddress) {
             currentAddress = first.getOldMemoryAddress();
-            Structure structure = first.fetchData(blenderContext.getInputStream()).get(0);
+            Structure structure = first.fetchData().get(0);
             result.add(structure);
             first = (Pointer) structure.getFlatFieldValue("next");
         }
@@ -264,7 +256,7 @@ public class Structure implements Cloneable {
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        return new Structure(this, blenderContext);
+        return new Structure(this);
     }
 
     /**

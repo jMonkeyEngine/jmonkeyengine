@@ -119,7 +119,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
         }
 
         // reading nurbs (and sorting them by material)
-        List<Structure> nurbStructures = ((Structure) curveStructure.getFieldValue("nurb")).evaluateListBase(blenderContext);
+        List<Structure> nurbStructures = ((Structure) curveStructure.getFieldValue("nurb")).evaluateListBase();
         Map<Number, List<Structure>> nurbs = new HashMap<Number, List<Structure>>();
         for (Structure nurb : nurbStructures) {
             Number matNumber = (Number) nurb.getFieldValue("mat_nr");
@@ -148,8 +148,8 @@ public class CurvesHelper extends AbstractBlenderHelper {
         List<Geometry> bevelObject = null;
         Pointer pBevelObject = (Pointer) curveStructure.getFieldValue("bevobj");
         if (pBevelObject.isNotNull()) {
-            Pointer pBevelStructure = (Pointer) pBevelObject.fetchData(blenderContext.getInputStream()).get(0).getFieldValue("data");
-            Structure bevelStructure = pBevelStructure.fetchData(blenderContext.getInputStream()).get(0);
+            Pointer pBevelStructure = (Pointer) pBevelObject.fetchData().get(0).getFieldValue("data");
+            Structure bevelStructure = pBevelStructure.fetchData().get(0);
             bevelObject = this.toCurve(bevelStructure, blenderContext);
         } else {
             int bevResol = ((Number) curveStructure.getFieldValue("bevresol")).intValue();
@@ -205,9 +205,9 @@ public class CurvesHelper extends AbstractBlenderHelper {
         Spline taperObject = null;
         Pointer pTaperObject = (Pointer) curveStructure.getFieldValue("taperobj");
         if (bevelObject != null && pTaperObject.isNotNull()) {
-            Pointer pTaperStructure = (Pointer) pTaperObject.fetchData(blenderContext.getInputStream()).get(0).getFieldValue("data");
-            Structure taperStructure = pTaperStructure.fetchData(blenderContext.getInputStream()).get(0);
-            taperObject = this.loadTaperObject(taperStructure, blenderContext);
+            Pointer pTaperStructure = (Pointer) pTaperObject.fetchData().get(0).getFieldValue("data");
+            Structure taperStructure = pTaperStructure.fetchData().get(0);
+            taperObject = this.loadTaperObject(taperStructure);
         }
 
         Vector3f loc = this.getLoc(curveStructure);
@@ -275,7 +275,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
             boolean cyclic = (((Number) nurb.getFieldValue("flagu")).intValue() & 0x01) != 0;
 
             // creating the curve object
-            BezierCurve bezierCurve = new BezierCurve(0, pBezierTriple.fetchData(blenderContext.getInputStream()), 3);
+            BezierCurve bezierCurve = new BezierCurve(0, pBezierTriple.fetchData(), 3);
             List<Vector3f> controlPoints = bezierCurve.getControlPoints();
             if (fixUpAxis) {
                 for (Vector3f v : controlPoints) {
@@ -361,7 +361,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
         // loading control points and their weights
         int pntsU = ((Number) nurb.getFieldValue("pntsu")).intValue();
         int pntsV = ((Number) nurb.getFieldValue("pntsv")).intValue();
-        List<Structure> bPoints = ((Pointer) nurb.getFieldValue("bp")).fetchData(blenderContext.getInputStream());
+        List<Structure> bPoints = ((Pointer) nurb.getFieldValue("bp")).fetchData();
         List<List<Vector4f>> controlPoints = new ArrayList<List<Vector4f>>(pntsV);
         for (int i = 0; i < pntsV; ++i) {
             List<Vector4f> uControlPoints = new ArrayList<Vector4f>(pntsU);
@@ -793,19 +793,17 @@ public class CurvesHelper extends AbstractBlenderHelper {
      * 
      * @param taperStructure
      *            the taper structure
-     * @param blenderContext
-     *            the blender context
      * @return the taper object
      * @throws BlenderFileException
      */
-    protected Spline loadTaperObject(Structure taperStructure, BlenderContext blenderContext) throws BlenderFileException {
+    protected Spline loadTaperObject(Structure taperStructure) throws BlenderFileException {
         // reading nurbs
-        List<Structure> nurbStructures = ((Structure) taperStructure.getFieldValue("nurb")).evaluateListBase(blenderContext);
+        List<Structure> nurbStructures = ((Structure) taperStructure.getFieldValue("nurb")).evaluateListBase();
         for (Structure nurb : nurbStructures) {
             Pointer pBezierTriple = (Pointer) nurb.getFieldValue("bezt");
             if (pBezierTriple.isNotNull()) {
                 // creating the curve object
-                BezierCurve bezierCurve = new BezierCurve(0, pBezierTriple.fetchData(blenderContext.getInputStream()), 3);
+                BezierCurve bezierCurve = new BezierCurve(0, pBezierTriple.fetchData(), 3);
                 List<Vector3f> controlPoints = bezierCurve.getControlPoints();
                 // removing the first and last handles
                 controlPoints.remove(0);

@@ -183,11 +183,11 @@ public class BlenderLoader implements AssetLoader {
         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
         Node result = new Node(structure.getName());
         try {
-            List<Structure> base = ((Structure) structure.getFieldValue("base")).evaluateListBase(blenderContext);
+            List<Structure> base = ((Structure) structure.getFieldValue("base")).evaluateListBase();
             for (Structure b : base) {
                 Pointer pObject = (Pointer) b.getFieldValue("object");
                 if (pObject.isNotNull()) {
-                    Structure objectStructure = pObject.fetchData(blenderContext.getInputStream()).get(0);
+                    Structure objectStructure = pObject.fetchData().get(0);
 
                     Object object = objectHelper.toObject(objectStructure, blenderContext);
                     if (object instanceof LightNode) {

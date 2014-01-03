@@ -119,7 +119,7 @@ public class Properties implements Cloneable {
             }
             case IDP_GROUP:
                 Structure group = (Structure) data.getFieldValue("group");
-                List<Structure> dataList = group.evaluateListBase(blenderContext);
+                List<Structure> dataList = group.evaluateListBase();
                 List<Properties> subProperties = new ArrayList<Properties>(len);
                 for (Structure d : dataList) {
                     Properties properties = new Properties();
@@ -136,14 +136,14 @@ public class Properties implements Cloneable {
                 break;
             case IDP_IDPARRAY: {
                 Pointer pointer = (Pointer) data.getFieldValue("pointer");
-                List<Structure> arrays = pointer.fetchData(blenderContext.getInputStream());
+                List<Structure> arrays = pointer.fetchData();
                 List<Object> result = new ArrayList<Object>(arrays.size());
                 Properties temp = new Properties();
                 for (Structure array : arrays) {
                     temp.load(array, blenderContext);
                     result.add(temp.value);
                 }
-                this.value = result;
+                value = result;
                 break;
             }
             case IDP_NUMTYPES:
@@ -180,8 +180,8 @@ public class Properties implements Cloneable {
     @SuppressWarnings("unchecked")
     public List<String> getSubPropertiesNames() {
         List<String> result = null;
-        if (this.type == IDP_GROUP) {
-            List<Properties> properties = (List<Properties>) this.value;
+        if (type == IDP_GROUP) {
+            List<Properties> properties = (List<Properties>) value;
             if (properties != null && properties.size() > 0) {
                 result = new ArrayList<String>(properties.size());
                 for (Properties property : properties) {
@@ -272,8 +272,8 @@ public class Properties implements Cloneable {
      */
     @SuppressWarnings("unchecked")
     protected void completeLoading() {
-        if (this.type == IDP_GROUP) {
-            List<Properties> groupProperties = (List<Properties>) this.value;
+        if (type == IDP_GROUP) {
+            List<Properties> groupProperties = (List<Properties>) value;
             Properties rnaUI = null;
             for (Properties properties : groupProperties) {
                 if (properties.name.equals(RNA_PROPERTY_NAME) && properties.type == IDP_GROUP) {

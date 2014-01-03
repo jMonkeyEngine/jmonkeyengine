@@ -143,7 +143,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
         Pointer pParent = (Pointer) objectStructure.getFieldValue("parent");
         Object parent = blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
         if (parent == null && pParent.isNotNull()) {
-            Structure parentStructure = pParent.fetchData(blenderContext.getInputStream()).get(0);
+            Structure parentStructure = pParent.fetchData().get(0);
             parent = this.toObject(parentStructure, blenderContext);
         }
 
@@ -162,7 +162,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     result = new Node(name);
                     MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
                     Pointer pMesh = (Pointer) objectStructure.getFieldValue("data");
-                    List<Structure> meshesArray = pMesh.fetchData(blenderContext.getInputStream());
+                    List<Structure> meshesArray = pMesh.fetchData();
                     List<Geometry> geometries = meshHelper.toMesh(meshesArray.get(0), blenderContext);
                     if (geometries != null) {
                         for (Geometry geometry : geometries) {
@@ -176,7 +176,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     Pointer pCurve = (Pointer) objectStructure.getFieldValue("data");
                     if (pCurve.isNotNull()) {
                         CurvesHelper curvesHelper = blenderContext.getHelper(CurvesHelper.class);
-                        Structure curveData = pCurve.fetchData(blenderContext.getInputStream()).get(0);
+                        Structure curveData = pCurve.fetchData().get(0);
                         List<Geometry> curves = curvesHelper.toCurve(curveData, blenderContext);
                         for (Geometry curve : curves) {
                             result.attachChild(curve);
@@ -187,7 +187,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     Pointer pLamp = (Pointer) objectStructure.getFieldValue("data");
                     if (pLamp.isNotNull()) {
                         LightHelper lightHelper = blenderContext.getHelper(LightHelper.class);
-                        List<Structure> lampsArray = pLamp.fetchData(blenderContext.getInputStream());
+                        List<Structure> lampsArray = pLamp.fetchData();
                         result = lightHelper.toLight(lampsArray.get(0), blenderContext);
                     }
                     break;
@@ -195,7 +195,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     Pointer pCamera = (Pointer) objectStructure.getFieldValue("data");
                     if (pCamera.isNotNull()) {
                         CameraHelper cameraHelper = blenderContext.getHelper(CameraHelper.class);
-                        List<Structure> camerasArray = pCamera.fetchData(blenderContext.getInputStream());
+                        List<Structure> camerasArray = pCamera.fetchData();
                         result = cameraHelper.toCamera(camerasArray.get(0), blenderContext);
                     }
                     break;

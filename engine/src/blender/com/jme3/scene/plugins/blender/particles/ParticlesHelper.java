@@ -95,11 +95,11 @@ public class ParticlesHelper extends AbstractBlenderHelper {
     }
 
     @SuppressWarnings("unchecked")
-    public ParticleEmitter toParticleEmitter(Structure particleSystem, BlenderContext blenderContext) throws BlenderFileException {
+    public ParticleEmitter toParticleEmitter(Structure particleSystem) throws BlenderFileException {
         ParticleEmitter result = null;
         Pointer pParticleSettings = (Pointer) particleSystem.getFieldValue("part");
         if (pParticleSettings.isNotNull()) {
-            Structure particleSettings = pParticleSettings.fetchData(blenderContext.getInputStream()).get(0);
+            Structure particleSettings = pParticleSettings.fetchData().get(0);
 
             int totPart = ((Number) particleSettings.getFieldValue("totpart")).intValue();
 

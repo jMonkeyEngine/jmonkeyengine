@@ -91,7 +91,7 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
             if (pMirrorObject.isNotNull()) {
                 Structure objectStructure;
                 try {
-                    objectStructure = pMirrorObject.fetchData(blenderContext.getInputStream()).get(0);
+                    objectStructure = pMirrorObject.fetchData().get(0);
                     ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
                     Node object = (Node) objectHelper.toObject(objectStructure, blenderContext);
                     if (object != null) {

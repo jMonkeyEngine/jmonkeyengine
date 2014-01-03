@@ -180,13 +180,13 @@ class Field implements Cloneable {
             case STRUCTURE:
                 if (dataToRead == 1) {
                     Structure structure = blenderContext.getDnaBlockData().getStructure(type);
-                    structure.fill(blenderInputStream);
+                    structure.fill(blenderContext.getInputStream());
                     value = structure;
                 } else {
                     Structure[] data = new Structure[dataToRead];
                     for (int i = 0; i < dataToRead; ++i) {
                         Structure structure = blenderContext.getDnaBlockData().getStructure(type);
-                        structure.fill(blenderInputStream);
+                        structure.fill(blenderContext.getInputStream());
                         data[i] = structure;
                     }
                     value = new DynamicArray<Structure>(tableSizes, data);
