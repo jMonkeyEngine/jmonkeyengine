@@ -725,6 +725,7 @@ public class BoundingSphere extends BoundingVolume {
         float radiusSquared = getRadius() * getRadius();
         float a = diff.dot(diff) - radiusSquared;
         if (a <= 0.0) {
+            vars.release();
             // in sphere
             return true;
         }
