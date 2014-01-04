@@ -181,18 +181,20 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             viewPort.getCamera().resize(originalWidth, originalHeight, false);
             viewPort.getCamera().setViewPort(left, right, bottom, top);
             viewPort.getCamera().update();
-            renderManager.setCamera( viewPort.getCamera(), false);            
+            renderManager.setCamera( viewPort.getCamera(), false);        
+            if (mat.getAdditionalRenderState().isDepthWrite()) {
+                mat.getAdditionalRenderState().setDepthTest(false);
+                mat.getAdditionalRenderState().setDepthWrite(false);
+            }
         }else{
             viewPort.getCamera().resize(buff.getWidth(), buff.getHeight(), false);
             viewPort.getCamera().setViewPort(0, 1, 0, 1);
             viewPort.getCamera().update();
             renderManager.setCamera( viewPort.getCamera(), false);            
+            mat.getAdditionalRenderState().setDepthTest(true);
+            mat.getAdditionalRenderState().setDepthWrite(true);
         }
      
-        if (mat.getAdditionalRenderState().isDepthWrite()) {
-            mat.getAdditionalRenderState().setDepthTest(false);
-            mat.getAdditionalRenderState().setDepthWrite(false);
-        }
         
         fsQuad.setMaterial(mat);
         fsQuad.updateGeometricState();
@@ -292,7 +294,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }
         renderFilterChain(renderer, sceneBuffer);
         renderer.setFrameBuffer(outputBuffer);
-
+        
         //viewport can be null if no filters are enabled
         if (viewPort != null) {
             renderManager.setCamera(viewPort.getCamera(), false);
@@ -375,6 +377,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             viewPort.getCamera().setViewPort(left, right, bottom, top);
             viewPort.setOutputFrameBuffer(outputBuffer);
             viewPort = null;
+            renderManager.getRenderer().deleteFrameBuffer(renderFrameBuffer);
+            if(depthTexture!=null){
+                renderManager.getRenderer().deleteImage(depthTexture.getImage());
+            }
+            renderManager.getRenderer().deleteImage(filterTexture.getImage());
+            if(renderFrameBufferMS != null){
+               renderManager.getRenderer().deleteFrameBuffer(renderFrameBufferMS);
+            }
             for (Filter filter : filters) {
                 filter.cleanup(renderer);
             }
@@ -549,4 +559,4 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             viewPort.setOutputFrameBuffer(renderFrameBuffer);
         }
     }
-}
+    }

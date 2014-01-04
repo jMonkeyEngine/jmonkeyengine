@@ -44,6 +44,7 @@ import com.jme3.post.Filter;
 import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -280,6 +281,11 @@ public class WaterFilter extends Filter {
         }
 
 
+    }
+
+    @Override
+    protected void cleanUpFilter(Renderer r) {
+        reflectionPass.cleanup(r);
     }
 
     @Override

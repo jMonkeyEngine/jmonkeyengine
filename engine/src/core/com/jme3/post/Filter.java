@@ -191,6 +191,11 @@ public abstract class Filter implements Savable {
         }
 
         public void cleanup(Renderer r) {
+            r.deleteFrameBuffer(renderFrameBuffer);
+            r.deleteImage(renderedTexture.getImage());
+            if(depthTexture!=null){
+                r.deleteImage(depthTexture.getImage());
+            }  
         }
     }
 
@@ -437,4 +442,4 @@ public abstract class Filter implements Savable {
     protected void setProcessor(FilterPostProcessor proc) {
         processor = proc;
     }
-}
+    }

@@ -40,6 +40,7 @@ import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.post.Filter;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.Image.Format;
@@ -214,6 +215,13 @@ public class BloomFilter extends Filter {
             renderManager.setForcedTechnique(null);
             renderManager.getRenderer().setFrameBuffer(viewPort.getOutputFrameBuffer());
         }
+    }
+
+    @Override
+    protected void cleanUpFilter(Renderer r) {
+         if (glowMode != GlowMode.Scene) {   
+               preGlowPass.cleanup(r);
+         }
     }
 
     /**

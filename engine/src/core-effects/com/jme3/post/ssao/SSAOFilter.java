@@ -188,6 +188,11 @@ public class SSAOFilter extends Filter {
 
     }
 
+    @Override
+    protected void cleanUpFilter(Renderer r) {
+        normalPass.cleanup(r);
+    }    
+    
     /**
      * Return the bias<br>
      * see {@link  #setBias(float bias)}

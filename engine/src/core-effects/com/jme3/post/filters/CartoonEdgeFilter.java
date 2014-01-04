@@ -105,6 +105,13 @@ public class CartoonEdgeFilter extends Filter {
         material.setColor("EdgeColor", edgeColor);
     }
 
+    @Override
+    protected void cleanUpFilter(Renderer r) {
+        normalPass.cleanup(r);
+    }
+
+    
+    
     /**
      * Return the depth sensitivity<br>
      * for more details see {@link #setDepthSensitivity(float depthSensitivity)}
