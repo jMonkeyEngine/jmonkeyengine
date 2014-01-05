@@ -9,19 +9,35 @@ extern "C" {
 #endif
 /*
  * Class:     com_jme3_bullet_collision_shapes_MeshCollisionShape
- * Method:    createShape
- * Signature: (J)J
+ * Method:    setBVH
+ * Signature: ([BJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_MeshCollisionShape_createShape
+JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_MeshCollisionShape_setBVH
+  (JNIEnv *, jobject, jbyteArray, jlong);
+
+/*
+ * Class:     com_jme3_bullet_collision_shapes_MeshCollisionShape
+ * Method:    saveBVH
+ * Signature: (J)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_jme3_bullet_collision_shapes_MeshCollisionShape_saveBVH
   (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_jme3_bullet_collision_shapes_MeshCollisionShape
+ * Method:    createShape
+ * Signature: (ZZJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_jme3_bullet_collision_shapes_MeshCollisionShape_createShape
+  (JNIEnv *, jobject, jboolean, jboolean, jlong);
+
+/*
+ * Class:     com_jme3_bullet_collision_shapes_MeshCollisionShape
  * Method:    finalizeNative
- * Signature: (J)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_jme3_bullet_collision_shapes_MeshCollisionShape_finalizeNative
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *, jobject, jlong, jlong);
 
 #ifdef __cplusplus
 }
