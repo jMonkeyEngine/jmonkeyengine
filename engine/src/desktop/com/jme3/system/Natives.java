@@ -152,7 +152,7 @@ public final class Natives {
         // Also check for binaries that are not packed in folders by jme team, e.g. maven artifacts
         if(url == null){
             path = fullname;
-            if(sysName.equals("macosx") && !fullname.contains(".")){
+            if(sysName.equals("macosx") && !name.contains(".")){
                 path = path.replaceAll("dylib","jnilib");
             }
             url = Thread.currentThread().getContextClassLoader().getResource(path);
