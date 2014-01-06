@@ -149,10 +149,29 @@ public final class Natives {
 
         URL url = Thread.currentThread().getContextClassLoader().getResource(path);
 
-        if (url == null) {
+        // Also check for binaries that are not packed in folders by jme team, e.g. maven artifacts
+        if(url == null){
+            path = fullname;
+            if(sysName.equals("macosx") && !fullname.contains(".")){
+                path = path.replaceAll("dylib","jnilib");
+            }
+            url = Thread.currentThread().getContextClassLoader().getResource(path);
+        }
+        
+        if(url == null){
             if (!warning) {
-                logger.log(Level.WARNING, "Cannot locate native library: {0}/{1}",
+                logger.log(Level.WARNING, "Cannot locate native library in classpath: {0}/{1}",
                         new String[]{sysName, fullname});
+            }
+            // Still try loading the library without a filename, maybe it is
+            // accessible otherwise
+            try{
+                System.loadLibrary(name);
+            } catch(UnsatisfiedLinkError e){
+                if (!warning) {
+                    logger.log(Level.WARNING, "Cannot load native library: {0}/{1}",
+                            new String[]{sysName, fullname});
+                }
             }
             return;
         }
