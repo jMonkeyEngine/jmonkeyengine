@@ -53,7 +53,7 @@ import com.jme3.scene.plugins.blender.file.BlenderFileException;
 
         Spatial object = (Spatial) blenderContext.getLoadedFeature(objectOMA, LoadedFeatureDataType.LOADED_FEATURE);
         // calculating track
-        SpatialTrack track = (SpatialTrack) ipo.calculateTrack(-1, object.getLocalTranslation(), object.getLocalRotation(), object.getLocalScale(), 0, ipo.getLastFrame(), fps, true);
+        SpatialTrack track = (SpatialTrack) ipo.calculateTrack(-1, object.getLocalTranslation(), object.getLocalRotation(), object.getLocalScale(), 1, ipo.getLastFrame(), fps, true);
 
         Animation animation = new Animation(objectAnimationName, ipo.getLastFrame() / (float) fps);
         animation.setTracks(new SpatialTrack[] { track });

@@ -183,7 +183,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
 
                 Bone bone = skeleton.getBone(boneIndex);
                 Ipo ipo = new Ipo(bezierCurves, fixUpAxis, blenderContext.getBlenderVersion());
-                tracks.add((BoneTrack) ipo.calculateTrack(boneIndex, bone.getLocalPosition(), bone.getLocalRotation(), bone.getLocalScale(), 0, ipo.getLastFrame(), fps, false));
+                tracks.add((BoneTrack) ipo.calculateTrack(boneIndex, bone.getLocalPosition(), bone.getLocalRotation(), bone.getLocalScale(), 1, ipo.getLastFrame(), fps, false));
             }
         }
         this.equaliseBoneTracks(tracks);
@@ -221,7 +221,7 @@ public class ArmatureHelper extends AbstractBlenderHelper {
                     Bone bone = skeleton.getBone(boneIndex);
                     Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
                     if (ipo != null) {
-                        tracks.add((BoneTrack) ipo.calculateTrack(boneIndex, bone.getLocalPosition(), bone.getLocalRotation(), bone.getLocalScale(), 0, ipo.getLastFrame(), fps, false));
+                        tracks.add((BoneTrack) ipo.calculateTrack(boneIndex, bone.getLocalPosition(), bone.getLocalRotation(), bone.getLocalScale(), 1, ipo.getLastFrame(), fps, false));
                     }
                 }
             }
