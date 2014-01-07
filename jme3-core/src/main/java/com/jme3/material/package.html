@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+
+The <code>com.jme3.material</code> package contains classes for manipulating
+jMonkeyEngine materials.
+Materials are applied to {@link com.jme3.scene.Geometry geometries} in the
+scene. 
+Each geometry has a single material which is used to render that
+geometry.
+<p>
+Materials (also known as material instances) are extended from
+material definitions.
+
+<h3>Material definitions</h3>
+<p>
+Material definitions provide the "logic" for the material. Usually a shader that 
+will handle drawing the object, and corresponding parameters that allow
+configuration of the shader.
+Material definitions can be created through J3MD files.
+The J3MD file abstracts the shader and its configuration away from the user, allowing a
+simple interface where one can simply set a few parameters on the material to change its
+appearance and the way its handled.
+
+<h3>Techniques</h3>
+<p>
+Techniques specify a specific way of rendering a material. Typically
+a technique is used to implement the same material for each configuration
+of the system. For GPUs that do not support shaders, a "fixed function pipeline"
+technique could exist to take care of rendering for that configuration
+
+<h3>Render states</h3>
+<p>
+See {@link com.jme3.material.RenderState}.
+
+<h3>Example Usage</h3>
+<p>
+Creating a textured material
+<code>
+// Create a material instance
+Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+
+// Load the texture. 
+Texture tex = assetManager.loadTexture("Textures/Test/Test.jpg");
+
+// Set the parameters
+mat.setTexture("ColorMap", tex);
+</code>
+
+
+
+</body>
+</html>

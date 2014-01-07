@@ -1,0 +1,72 @@
+material Sinbad/Blade
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 1 1 1 10.5
+			
+			texture_unit
+			{
+				texture sinbad_sword.jpg
+			}
+		}
+	}
+}
+material Sinbad/Ruby
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.75 0.75 0.75 20.5
+			
+			texture_unit
+			{
+				texture sinbad_sword.jpg
+			}
+		}
+	}
+}
+material Sinbad/Hilt
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 0.8 0.8 0.8 1
+			specular 0.3 0.3 0.2 5.5
+			
+			texture_unit
+			{
+				texture sinbad_sword.jpg
+			}
+		}
+	}
+}
+material Sinbad/Handle
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.05 0.05 0.05 12.5
+			
+			texture_unit
+			{
+				texture sinbad_sword.jpg
+			}
+		}
+	}
+}

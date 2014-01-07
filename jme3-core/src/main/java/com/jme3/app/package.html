@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+
+The <code>com.jme3.application</code> provides a toolset for jME3 applications
+to interact with various components of the engine. Typically, the
+{@link com.jme3.app.Application} class will be extended and the update() method
+implemented to provide functionality for the main loop. <br>
+<p>
+An <code>Application</code> will typically provide the following services:
+<ul>
+    <li>{@link com.jme3.asset.AssetManager} - A system for finding and loading
+    data assets included with the application, such as models and textures.</li>
+    <li>{@link com.jme3.renderer.RenderManager} - A high-level rendering
+        interface for 3D graphics, manages viewports and scenes assigned
+        to the viewports, as well as general high-level rendering.</li>
+    <li>{@link com.jme3.input.InputManager} - An interface for handling input
+        from devices such as keyboard, mouse, and gamepad/joystick.</li>
+    <li>{@link com.jme3.app.state.AppStateManager} - Manager for
+        {@link com.jme3.app.state.AppState}s, which are specific application
+        functionality to be executed inside the main loop.</li>
+    <li>{@link com.jme3.audio.AudioRenderer} - Allows playing sound effects and 
+        music.</li>
+    <li>{@link com.jme3.system.Timer} - The timer keeps track of time and allows
+        computing the time since the last frame (TPF) that is neccessary
+        for framerate-independent updates and motion.</li>
+    <li>{@link com.jme3.system.AppSettings} - A database containing various
+        settings for the application. These settings may be set by the user
+        or the application itself.</li>
+</ul>
+
+
+<h3>Usage</h3>
+
+An example use of the Application class is as follows<br>
+<br>
+
+<code>
+public class ExampleUse extends Application {<br>
+<br>
+    private Node rootNode = new Node("Root Node");<br>
+<br>
+    public static void main(String[] args){<br>
+        ExampleUse app = new ExampleUse();<br>
+        app.start();<br>
+    }<br>
+<br>
+    @Override<br>
+    public void initialize(){<br>
+        super.initialize();<br>
+<br>
+        // attach root node to viewport<br>
+        viewPort.attachScene(rootNode);<br>
+    }<br>
+<br>
+    @Override<br>
+    public void update(){<br>
+        super.update();<br>
+<br>
+        float tpf = timer.getTimePerFrame();<br>
+<br>
+        // update rootNode<br>
+        rootNode.updateLogicalState(tpf);<br>
+        rootNode.updateGeometricState();<br>
+<br>
+        // render the viewports<br>
+        renderManager.render(tpf);<br>
+    }<br>
+}<br>
+<br>
+</code>
+
+</body>
+</html>
+

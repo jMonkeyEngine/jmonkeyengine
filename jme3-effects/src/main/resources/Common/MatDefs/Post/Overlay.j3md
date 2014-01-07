@@ -1,0 +1,31 @@
+MaterialDef Default GUI {
+
+    MaterialParameters {
+        Int NumSamples
+        Int NumSamplesDepth
+        Texture2D Texture
+        Color Color        
+    }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/Post/Overlay15.frag
+
+        WorldParameters {
+        }
+
+        Defines {
+            RESOLVE_MS : NumSamples
+        }
+
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100: Common/MatDefs/Post/Overlay.frag
+
+        WorldParameters {  
+        }
+
+    }
+}

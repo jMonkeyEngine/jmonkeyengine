@@ -1,0 +1,97 @@
+MaterialDef UnshadedNodes {
+
+    MaterialParameters {
+        Texture2D ColorMap
+        Texture2D LightMap
+        Color Color (Color)
+        Boolean VertexColor (UseVertexColor)
+        Boolean SeparateTexCoord
+
+        // Alpha threshold for fragment discarding
+        Float AlphaDiscardThreshold (AlphaTestFallOff)
+
+        // For hardware skinning
+        Int NumberOfBones
+        Matrix4Array BoneMatrices
+   
+    }
+
+    Technique {
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            //used for fog
+            WorldViewMatrix
+        }
+      
+        VertexShaderNodes{    
+            ShaderNode GpuSkinning{
+                Definition: BasicGPUSkinning : Common/MatDefs/ShaderNodes/HardwareSkinning/HardwareSkinning.j3sn
+                Condition : NumberOfBones
+                InputMapping{
+                    modelPosition = Global.position;
+                    boneMatrices = MatParam.BoneMatrices
+                    boneWeight = Attr.inHWBoneWeight
+                    boneIndex = Attr.inHWBoneIndex
+                }
+                OutputMapping{
+                    Global.position = modModelPosition
+                }
+            }
+            ShaderNode UnshadedVert{
+                Definition: CommonVert : Common/MatDefs/ShaderNodes/Common/CommonVert.j3sn
+                InputMapping{
+                    worldViewProjectionMatrix = WorldParam.WorldViewProjectionMatrix
+                    modelPosition = Global.position.xyz
+                    texCoord1 = Attr.inTexCoord: ColorMap || (LightMap && !SeparateTexCoord)
+                    texCoord2 = Attr.inTexCoord2: SeparateTexCoord
+                    vertColor = Attr.inColor: VertexColor
+                }
+                OutputMapping{
+                    Global.position = projPosition
+                }
+            }
+        }
+        FragmentShaderNodes{
+            ShaderNode UnshadedFrag{
+                Definition: Unshaded : Common/MatDefs/ShaderNodes/Common/Unshaded.j3sn
+                InputMapping{
+                    texCoord = UnshadedVert.texCoord1: ColorMap
+                    vertColor = UnshadedVert.vertColor: VertexColor
+                    matColor = MatParam.Color: Color
+                    colorMap = MatParam.ColorMap: ColorMap
+                    color = Global.outColor
+                }
+                OutputMapping{
+                    Global.outColor = color
+                }
+            }
+
+            ShaderNode AlphaDiscardThreshold{
+                Definition: AlphaDiscard : Common/MatDefs/ShaderNodes/Basic/AlphaDiscard.j3sn
+                Condition : AlphaDiscardThreshold
+                InputMapping{
+                    alpha = Global.outColor.a
+                    threshold =  MatParam.AlphaDiscardThreshold                  
+                }                
+            }
+            ShaderNode LightMap{
+                Definition: LightMapping : Common/MatDefs/ShaderNodes/LightMapping/LightMapping.j3sn
+                Condition: LightMap
+                InputMapping{
+                    texCoord = UnshadedVert.texCoord1: !SeparateTexCoord  
+                    texCoord = UnshadedVert.texCoord2: SeparateTexCoord               
+                    lightMap = MatParam.LightMap   
+                    color = Global.outColor  
+                }
+                OutputMapping{
+                    Global.outColor = color
+                }
+            }            
+                      
+        }        
+
+    }
+
+   
+}

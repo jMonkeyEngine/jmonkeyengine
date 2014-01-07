@@ -1,0 +1,6 @@
+Material TangentBinormal : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+         Shininess: 8.0
+         DiffuseMap: Textures/BumpMapTest/Tangent.png
+     }
+}

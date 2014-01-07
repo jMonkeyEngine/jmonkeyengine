@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+
+The <code>com.jme3.animation</code> package contains various classes
+for managing animation inside a jME3 application. Currently, the majority
+of classes are for handling skeletal animation. The primary control class is
+the {@link com.jme3.animation.AnimControl}, through which animations can be played,
+looped, combined, transitioned, etc.
+
+<h3>Usage</h3>
+
+<p>
+<code>
+// Create or load a model with skeletal animation:<br>
+Spatial model = assetManager.loadModel("...");<br>
+<br>
+// Retrieve the AnimControl.<br>
+AnimControl animCtrl = model.getControl(AnimControl.class);<br>
+<br>
+// Create an animation channel, by default assigned to all bones.<br>
+AnimChannel animChan = animCtrl.createChannel();<br>
+<br>
+// Play an animation<br>
+animChan.setAnim("MyAnim");<br>
+</code>
+<br>
+<h3>Skeletal Animation System</h3>
+<br>
+<p>
+jME3 uses a system of bone-weights: A vertex is assigned up to 4 bones by which
+it is influenced and 4 weights that describe how much the bone influences the
+vertex. The maximum weight value being 1.0, and the requirement that all 4 weights
+for a given vertex <em>must</em> sum to 1.0. This data is specified
+for each skin/mesh that is influenced by the animation control via the
+{link com.jme3.scene.VertexBuffer}s <code>BoneWeight</code> and <code>BoneIndex</code>.
+The BoneIndex buffer must be of the format <code>UnsignedByte</code>, thus
+placing the limit of up to 256 bones for a skeleton. The BoneWeight buffer
+should be of the format <code>Float</code>. Both buffers should reference 4
+bones, even if the maximum number of bones any vertex is influenced is less or more
+than 4.<br>
+If a vertex is influenced by less than 4 bones, the indices following the last
+valid bone should be 0 and the weights following the last valid bone should be 0.0.
+The buffers are designed in such a way so as to permit hardware skinning.<br>
+<p>
+The {@link com.jme3.animation.Skeleton} class describes a bone heirarchy with one
+or more root bones having children, thus containing all bones of the skeleton.
+In addition to accessing the bones in the skeleton via the tree heirarchy, it
+is also possible to access bones via index. The index for any given bone is
+arbitrary and does not depend on the bone's location in the tree hierarchy.
+It is this index that is specified in the BoneIndex VertexBuffer mentioned above
+, and is also used to apply transformations to the bones through the animations.<br>
+<p>
+Every bone has a local and model space transformation. The local space
+transformation is relative to its parent, if it has one, otherwise it is relative
+to the model. The model space transformation is relative to model space.
+The bones additionally have a bind pose transformation, which describes
+the transformations for bones when no animated pose is applied to the skeleton.
+All bones <em>must</em> have a bind pose transformation before they can be
+animated. To set the bind pose for the skeleton, set the local (relative
+to parent) transformations for all the bones using the call
+{@link com.jme3.animation.Bone#setBindTransforms(com.jme3.math.Vector3f, com.jme3.math.Quaternion, com.jme3.math.Vector3f) }.
+Then call {@link com.jme3.animation.Skeleton#updateWorldVectors() } followed by
+{@link com.jme3.animation.Skeleton#setBindingPose() }. <br>
+<p>
+Animations are stored in a HashMap object, accessed by name. An animation
+is simply a list of tracks, each track describes a timeline with each keyframe
+having a transformation. For bone animations, every track is assigned to a bone,
+while for morph animations, every track is assigned to a mesh.<br>
+<p>
+
+</body>
+</html>

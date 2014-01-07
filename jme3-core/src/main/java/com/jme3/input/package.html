@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+
+The <code>com.jme3.input</code> package is used for all input handling in
+jMonkeyEngine. User code should use the {@link com.jme3.input.InputManager} to register
+for and receive input events. The <code>InputManager</code> can be
+retrieved for an application by using {@link com.jme3.app.Application#getInputManager()}.
+
+<h3>Usage</h3>
+
+<p>
+Using ActionListener:<br>
+<code>
+// Retrieve an input manager for the application "app"<br>
+InputManager inputManager = app.getInputManager();<br>
+<br>
+// Adds a new mapping "PrintHello" that will be invoked when the Return/Enter key is pressed<br>
+inputManager.addMapping("PrintHello", new KeyTrigger(KeyInput.KEY_RETURN));<br>
+// Adds a new ActionListener to get an event when enter is pressed.<br>
+inputManager.addListener(new ActionListener() {<br>
+    public void onAction(String name, boolean isPressed, float tpf) {<br>
+        // Only invoke the event when the mapping is "PrintHello" <br>
+        // and isPressed is true, meaning it was a key press and not release.<br>
+        if (name.equals("PrintHello") && isPressed){<br>
+            System.out.println("Hello!");<br>
+        }<br>
+    }<br>
+}, "PrintHello");<br>
+</code>
+
+</body>
+</html>

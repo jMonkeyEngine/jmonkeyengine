@@ -1,0 +1,72 @@
+#ifdef NUM_BONES
+
+#if NUM_BONES < 1 || NUM_BONES > 255
+#error NUM_BONES must be between 1 and 255.
+#endif
+
+#define NUM_WEIGHTS_PER_VERT 4
+ 
+attribute vec4 inHWBoneWeight;
+attribute vec4 inHWBoneIndex;
+uniform mat4 m_BoneMatrices[NUM_BONES];
+
+void Skinning_Compute(inout vec4 position){
+    if (inHWBoneWeight.x != 0.0) {
+#if NUM_WEIGHTS_PER_VERT == 1
+        position = m_BoneMatrices[int(inHWBoneIndex.x)] * position;
+#else
+        mat4 mat = mat4(0.0);
+        mat += m_BoneMatrices[int(inHWBoneIndex.x)] * inHWBoneWeight.x;
+        mat += m_BoneMatrices[int(inHWBoneIndex.y)] * inHWBoneWeight.y;
+        mat += m_BoneMatrices[int(inHWBoneIndex.z)] * inHWBoneWeight.z;
+        mat += m_BoneMatrices[int(inHWBoneIndex.w)] * inHWBoneWeight.w;
+        position = mat * position;
+#endif
+    }
+}
+ 
+void Skinning_Compute(inout vec4 position, inout vec3 normal){
+    if (inHWBoneWeight.x != 0.0) {
+#if NUM_WEIGHTS_PER_VERT == 1
+        position = m_BoneMatrices[int(inHWBoneIndex.x)] * position;
+        normal = (mat3(m_BoneMatrices[int(inHWBoneIndex.x)][0].xyz,
+                       m_BoneMatrices[int(inHWBoneIndex.x)][1].xyz,
+                       m_BoneMatrices[int(inHWBoneIndex.x)][2].xyz) * normal);
+#else
+        mat4 mat = mat4(0.0);
+        mat += m_BoneMatrices[int(inHWBoneIndex.x)] * inHWBoneWeight.x;
+        mat += m_BoneMatrices[int(inHWBoneIndex.y)] * inHWBoneWeight.y;
+        mat += m_BoneMatrices[int(inHWBoneIndex.z)] * inHWBoneWeight.z;
+        mat += m_BoneMatrices[int(inHWBoneIndex.w)] * inHWBoneWeight.w;
+        position = mat * position;
+
+        mat3 rotMat = mat3(mat[0].xyz, mat[1].xyz, mat[2].xyz);
+        normal = rotMat * normal;
+#endif
+    }
+}
+ 
+void Skinning_Compute(inout vec4 position, inout vec3 tangent, inout vec3 normal){
+    if (inHWBoneWeight.x != 0.0) {
+#if NUM_WEIGHTS_PER_VERT == 1
+        position = m_BoneMatrices[int(inHWBoneIndex.x)] * position;
+        tangent = m_BoneMatrices[int(inHWBoneIndex.x)] * tangent;
+        normal = (mat3(m_BoneMatrices[int(inHWBoneIndex.x)][0].xyz,
+                       m_BoneMatrices[int(inHWBoneIndex.x)][1].xyz,
+                       m_BoneMatrices[int(inHWBoneIndex.x)][2].xyz) * normal);
+#else
+        mat4 mat = mat4(0.0);
+        mat += m_BoneMatrices[int(inHWBoneIndex.x)] * inHWBoneWeight.x;
+        mat += m_BoneMatrices[int(inHWBoneIndex.y)] * inHWBoneWeight.y;
+        mat += m_BoneMatrices[int(inHWBoneIndex.z)] * inHWBoneWeight.z;
+        mat += m_BoneMatrices[int(inHWBoneIndex.w)] * inHWBoneWeight.w;
+        position = mat * position;
+
+        mat3 rotMat = mat3(mat[0].xyz, mat[1].xyz, mat[2].xyz);
+        tangent = rotMat * tangent;
+        normal = rotMat * normal;
+#endif
+    }
+}
+
+#endif

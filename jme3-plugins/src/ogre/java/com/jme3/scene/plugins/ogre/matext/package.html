@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+
+<code>com.jme3.scene.plugins.ogre.matext</code> allows loading of more advanced
+Ogre3D materials that use "base" materials to abstract functionality.
+<br/><br/>
+E.g. example of an Ogre3D material instance:<br/>
+<code>
+import * from "materials/baselighting.material"
+
+material MyMaterial : BaseLightingMaterial
+{
+    set_texture_alias MyTexture textures/mytex.png
+}
+</code>
+
+<h3>Usage</h3>
+
+<p>
+Example code of loading the above material:<br/>
+<code>
+MaterialExtensionSet matExts = new MaterialExtensionSet();<br/>
+MaterialExtension baseLightExt = new MaterialExtension("BaseLightingMaterial", <br/>
+                                                       "Common/MatDefs/Light/Lighting.j3md");<br/>
+baseLightExt.setTextureMapping("MyTexture", "m_DiffuseMap");<br/>
+matExts.addMaterialExtension(baseLightExt);<br/>
+<br/>
+OgreMaterialKey matKey = new OgreMaterialKey("materials/mymaterial.material");<br/>
+matKey.setMaterialExtensionSet(matExts);<br/>
+MaterialList ogreMats = assetManager.loadAsset(matKey);<br/>
+</code>
+
+</body>
+</html>

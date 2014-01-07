@@ -1,0 +1,15 @@
+
+
+#ifdef ENABLE_UBO
+    // #version 140
+    #extension GL_ARB_uniform_buffer_object : enable
+
+    #define START_MATPARAMS layout(std140) uniform matparams {
+    #define END_MATPARAMS }
+    #define MATPARAM
+    #define attribute in
+#else
+    #define START_MATPARAMS
+    #define END_MATPARAMS
+    #define MATPARAM uniform
+#endif

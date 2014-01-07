@@ -1,0 +1,12 @@
+<scene formatVersion="1.0.0">
+  <nodes>
+    <node name="TestNode">
+      <userData>
+        <property type="BOOL" name="IsMainCam" data="1"/>
+        <property type="FLOAT" name="DisplayTime" data="123.320999146"/>
+        <property type="STRING" name="PlayerName" data="Bobby"/>
+        <property type="INT" name="CamID" data="987"/>
+      </userData>
+    </node>
+  </nodes>
+</scene>

@@ -1,0 +1,105 @@
+#ifdef NO_SHADOW2DPROJ
+#define SHADOWMAP sampler2D
+#define SHADOWTEX texture2D
+#define SHADCOORD(coord) coord.xy
+#else
+#define SHADOWMAP sampler2DShadow
+#define SHADOWTEX shadow2D
+#define SHADCOORD(coord) vec3(coord.xy,0.0)
+#endif
+
+//float shadowDepth = texture2DProj(tex, projCoord);
+
+const float texSize = 1024.0;
+const float pixSize = 1.0 / texSize;
+const vec2 pixSize2 = vec2(pixSize);
+
+float Shadow_DoShadowCompareOffset(in SHADOWMAP tex, vec4 projCoord, vec2 offset){
+     return step(projCoord.z, SHADOWTEX(tex, SHADCOORD(projCoord.xy + offset * pixSize2)).r);
+}
+
+float Shadow_DoShadowCompare(in SHADOWMAP tex, vec4 projCoord){
+    return step(projCoord.z, SHADOWTEX(tex, SHADCOORD(projCoord.xy)).r);
+}
+
+float Shadow_BorderCheck(in vec2 coord){
+    // Very slow method (uses 24 instructions)
+    //if (coord.x >= 1.0)
+    //    return 1.0;
+    //else if (coord.x <= 0.0)
+    //    return 1.0;
+    //else if (coord.y >= 1.0)
+    //    return 1.0;
+    //else if (coord.y <= 0.0)
+    //    return 1.0;
+    //else
+    //    return 0.0;
+
+    // Fastest, "hack" method (uses 4-5 instructions)
+    vec4 t = vec4(coord.xy, 0.0, 1.0);
+    t = step(t.wwxy, t.xyzz);
+    return dot(t,t);
+}
+
+float Shadow_DoDither_2x2(in SHADOWMAP tex, in vec4 projCoord){
+    float shadow = 0.0;
+    vec2 o = mod(floor(gl_FragCoord.xy), 2.0);
+    shadow += Shadow_DoShadowCompareOffset(tex,projCoord,vec2(-1.5, 1.5) + o);
+    shadow += Shadow_DoShadowCompareOffset(tex,projCoord,vec2( 0.5, 1.5) + o);
+    shadow += Shadow_DoShadowCompareOffset(tex,projCoord,vec2(-1.5, -0.5) + o);
+    shadow += Shadow_DoShadowCompareOffset(tex,projCoord,vec2( 0.5, -0.5) + o);
+    shadow *= 0.25 ;
+    return shadow;
+}
+
+float Shadow_DoBilinear(in SHADOWMAP tex, in vec4 projCoord){
+    const vec2 size  = vec2(256.0);
+    const vec2 pixel = vec2(1.0) / vec2(256.0);
+
+    vec2 tc = projCoord.xy * size;
+    vec2 bl = fract(tc);
+    vec2 dn = floor(tc) * pixel;
+    vec2 up = dn + pixel;
+   
+    vec4 coord = vec4(dn.xy, projCoord.zw);
+    float s_00 = Shadow_DoShadowCompare(tex, coord);
+    s_00 = clamp(s_00, 0.0, 1.0);
+
+    coord = vec4(up.x, dn.y, projCoord.zw);
+    float s_10 = Shadow_DoShadowCompare(tex, coord);
+    s_10 = clamp(s_10, 0.0, 1.0);
+
+    coord = vec4(dn.x, up.y, projCoord.zw);
+    float s_01 = Shadow_DoShadowCompare(tex, coord);
+    s_01 = clamp(s_01, 0.0, 1.0);
+
+    coord = vec4(up.xy, projCoord.zw);
+    float s_11 = Shadow_DoShadowCompare(tex, coord);
+    s_11 = clamp(s_11, 0.0, 1.0);
+
+    float xb0   = mix(s_00, s_10, clamp(bl.x, 0.0, 1.0));
+    float xb1   = mix(s_01, s_11, clamp(bl.x, 0.0, 1.0));
+    float yb    = mix(xb0, xb1,   clamp(bl.y, 0.0, 1.0));
+    return yb;
+}
+
+float Shadow_DoPCF_2x2(in SHADOWMAP tex, in vec4 projCoord){
+
+    float shadow = 0.0;
+    float x,y;
+    for (y = -1.5 ; y <=1.5 ; y+=1.0)
+            for (x = -1.5 ; x <=1.5 ; x+=1.0)
+                    shadow += clamp(Shadow_DoShadowCompareOffset(tex,projCoord,vec2(x,y)) +
+                                    Shadow_BorderCheck(projCoord.xy),
+                                    0.0, 1.0);
+
+    shadow /= 16.0 ;
+    return shadow;
+}
+
+
+float Shadow_GetShadow(in SHADOWMAP tex, in vec4 projCoord){
+    return clamp(Shadow_DoDither_2x2(tex, projCoord) + Shadow_BorderCheck(projCoord.xy), 0.0, 1.0);
+}
+
+

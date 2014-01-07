@@ -1,0 +1,11 @@
+Material Pong Rock : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+         Shininess: 8.0
+         NormalMap: Textures/BumpMapTest/Simple_normal.png
+         ParallaxMap : Textures/BumpMapTest/Simple_height.png
+         UseMaterialColors : true
+         Ambient  : 0 0 0 1
+         Diffuse  : 1 1 1 1
+         Specular : 0 0 0 1
+     }
+}

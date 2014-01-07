@@ -1,0 +1,14 @@
+Material My Material : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {   
+        DiffuseMap : Models/Buggy/buggy_diffuse.jpg
+        GlowMap : Models/Buggy/buggy_glow.jpg
+        SpecularMap : Models/Buggy/buggy_specular.jpg
+        NormalMap : Models/Buggy/buggy_normals.png
+        Shininess : 10
+        
+        UseMaterialColors : true
+        Ambient : 0.5 0.5 0.5 1
+        Diffuse : 1 1 1 1
+        Specular : 1 1 1 1
+     }
+}

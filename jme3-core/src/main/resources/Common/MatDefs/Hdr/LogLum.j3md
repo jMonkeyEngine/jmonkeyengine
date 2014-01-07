@@ -1,0 +1,31 @@
+MaterialDef Log Lum 2D {
+
+    MaterialParameters {
+        Texture2D Texture
+        Vector2 BlockSize
+        Vector2 PixelSize
+        Float NumPixels
+        Boolean DecodeLum
+        Boolean EncodeLum
+        Boolean Blocks
+        Boolean ComputeMax
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Gui/Gui.vert
+        FragmentShader GLSL100: Common/MatDefs/Hdr/LogLum.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            TEXTURE
+            ENCODE_LUM : EncodeLum
+            DECODE_LUM : DecodeLum
+            BLOCKS : Blocks
+            COMPUTE_MAX : ComputeMax
+        }
+    }
+
+}

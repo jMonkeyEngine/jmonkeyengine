@@ -1,0 +1,125 @@
+material Sinbad/Body
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			
+			texture_unit
+			{
+				texture sinbad_body.jpg
+			}
+		}
+	}
+}
+material Sinbad/Gold
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 0.8 0.8 0.8 1
+			specular 0.3 0.3 0.2 5.5
+			
+			texture_unit
+			{
+				texture sinbad_clothes.jpg
+			}
+		}
+	}
+}
+material Sinbad/Sheaths
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.2 0.1 0.1 1.0 50.0
+			
+			texture_unit
+			{
+				texture sinbad_sword.jpg
+			}
+		}
+	}
+}
+material Sinbad/Clothes
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.05 0.05 0.05 12.5
+			
+			texture_unit
+			{
+				texture sinbad_clothes.jpg
+			}
+		}
+	}
+}
+material Sinbad/Teeth
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.25 0.25 0.25 10.5
+			
+			texture_unit
+			{
+				texture sinbad_body.jpg
+			}
+		}
+	}
+}
+material Sinbad/Eyes
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.75 0.75 0.75 55.5
+			
+			texture_unit
+			{
+				texture sinbad_body.jpg
+			}
+		}
+	}
+}
+material Sinbad/Spikes
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.75 0.75 0.75 20.5
+			
+			texture_unit
+			{
+				texture sinbad_clothes.jpg
+			}
+		}
+	}
+}

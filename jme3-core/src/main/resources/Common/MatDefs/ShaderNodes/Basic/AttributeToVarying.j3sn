@@ -1,0 +1,29 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition AttributeToVarying{
+        Type : Vertex   
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Basic/null.vert         
+        Documentation{
+            This node can pass an attribute value to a varying value.
+            @input floatVariable a float attribute
+            @input vec2Variable a vec2 attribute                   
+            @input vec3Variable a vec3 attribute
+            @input vec4Variable a vec4 attribute
+            @output floatVariable a float varying
+            @output vec2Variable a vec2 varying                    
+            @output vec3Variable a vec3 varying
+            @output vec4Variable a vec4 varying
+        }
+        Input {
+            float floatVariable
+            vec2 vec2Variable                    
+            vec3 vec3Variable
+            vec4 vec4Variable
+        }
+        Output {
+            float floatVariable
+            vec2 vec2Variable                    
+            vec3 vec3Variable
+            vec4 vec4Variable
+        }
+    }
+}

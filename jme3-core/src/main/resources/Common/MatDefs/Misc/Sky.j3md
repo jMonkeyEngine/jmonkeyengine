@@ -1,0 +1,27 @@
+MaterialDef Sky Plane {
+    MaterialParameters {
+        TextureCubeMap Texture
+        Boolean SphereMap
+        Vector3 NormalScale
+    }
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Misc/Sky.vert
+        FragmentShader GLSL100: Common/MatDefs/Misc/Sky.frag
+
+        RenderState {
+            FaceCull Off
+        }
+
+        WorldParameters {
+            ViewMatrix
+            ProjectionMatrix
+            WorldMatrix
+        }
+
+        Defines {
+            SPHERE_MAP : SphereMap
+        }
+    }
+    Technique {
+    }
+}

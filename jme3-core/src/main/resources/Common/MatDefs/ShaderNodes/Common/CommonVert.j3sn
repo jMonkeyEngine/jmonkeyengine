@@ -1,0 +1,32 @@
+ShaderNodesDefinitions {
+    ShaderNodeDefinition CommonVert {
+        Type: Vertex
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Common/commonVert.vert
+        Documentation {
+            This Node is responsible for computing vertex position in projection space.
+            It also can pass texture coordinates 1 & 2, and vertexColor to the frgment shader as varying (or inputs for glsl >=1.3)                   
+            @input modelPosition the vertex position in model space (usually assigned with Attr.inPosition or Global.position)
+            @input worldViewProjectionMatrix the World View Projection Matrix transforms model space to projection space.
+            @input texCoord1 The first texture coordinates of the vertex (usually assigned with Attr.inTexCoord)
+            @input texCoord2 The second texture coordinates of the vertex (usually assigned with Attr.inTexCoord2)
+            @input vertColor The color of the vertex (usually assigned with Attr.inColor)                    
+            @output projPosition Position of the vertex in projection space.(usually assigned to Global.position)
+            @output vec2 texCoord1 The first texture coordinates of the vertex (output as a varying)
+            @output vec2 texCoord2 The second texture coordinates of the vertex (output as a varying)
+            @output vec4 vertColor The color of the vertex (output as a varying)
+        }                
+        Input{
+            vec3 modelPosition                    
+            mat4 worldViewProjectionMatrix                    
+            vec2 texCoord1
+            vec2 texCoord2
+            vec4 vertColor
+        }
+        Output{
+            vec4 projPosition
+            vec2 texCoord1
+            vec2 texCoord2
+            vec4 vertColor
+        }
+    }
+}

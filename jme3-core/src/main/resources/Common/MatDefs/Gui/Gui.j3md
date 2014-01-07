@@ -1,0 +1,26 @@
+MaterialDef Default GUI {
+
+    MaterialParameters {
+        Texture2D Texture
+        Color Color (Color)
+        Boolean VertexColor (UseVertexColor)
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Gui/Gui.vert
+        FragmentShader GLSL100: Common/MatDefs/Gui/Gui.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            TEXTURE : Texture
+            VERTEX_COLOR : VertexColor
+        }
+    }
+
+    Technique {
+    }
+
+}

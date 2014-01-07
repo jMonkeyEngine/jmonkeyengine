@@ -1,0 +1,15 @@
+material Signpost/SOLID/TEX/signpost_color.jpg
+{
+	technique
+	{
+		pass
+		{
+			diffuse 1.000000 1.000000 1.000000
+			specular 0.500000 0.500000 0.500000 12.500000
+			texture_unit
+			{
+				texture signpost_color.jpg
+			}
+		}
+	}
+}

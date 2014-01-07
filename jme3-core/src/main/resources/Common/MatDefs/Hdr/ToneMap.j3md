@@ -1,0 +1,23 @@
+MaterialDef Tone Mapper {
+    MaterialParameters {
+        Texture2D Texture
+        Texture2D Lum
+        Texture2D Lum2
+        Float BlendFactor
+        Float White
+        Float A
+        Float Gamma
+    }
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Gui/Gui.vert
+        FragmentShader GLSL100: Common/MatDefs/Hdr/ToneMap.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+
+        Defines {
+            TEXTURE
+        }
+    }
+}

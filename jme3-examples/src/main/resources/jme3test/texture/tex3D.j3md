@@ -1,0 +1,16 @@
+MaterialDef My MaterialDef {
+
+    MaterialParameters {
+        Texture3D Texture
+    }
+
+    Technique {
+        VertexShader GLSL100:   jme3test/texture/tex3D.vert
+        FragmentShader GLSL100: jme3test/texture/tex3D.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+        }
+    }
+
+}

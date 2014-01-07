@@ -1,0 +1,41 @@
+#ifdef FOG
+
+#ifdef FOG_TEXTURE
+uniform sampler2D m_FogTexture;
+#endif
+
+uniform vec3 m_FogColor;
+
+// x == density
+// y == factor
+// z == ystart
+// w == yend
+uniform vec4 m_FogParams;
+
+varying vec3 fogCoord;
+
+void Fog_PerVertex(inout vec4 color, in vec3 wvPosition){
+    float density = g_FogParams.x;
+    float factor  = g_FogParams.y;
+    float dist    = length(wvPosition.xyz);
+
+    float yf = wvPosition.y;
+    float y0 = g_FogParams.z;
+    float y1 = g_FogParams.w;
+    float yh = (y1 - y0) * 0.5;
+
+    float fogAmt1 = max(step(yh, 0.0), smoothstep(0, yh, max(y1-yf, yf-y0)));
+    float fogAmt2 = exp(-density * density * dist * dist);
+
+    color.rgb = mix(color.rgb, m_FogColor, fogAmt1 * fogAmt2);
+}
+
+void Fog_PerPixel(inout vec4 color){
+    Fog_PerVertex(color, fogCoord);
+}
+
+void Fog_WVPos(in vec4 wvPosition){
+    fogCoord = wvPosition.xyz;
+}
+
+#endif
