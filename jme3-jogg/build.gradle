@@ -1,0 +1,8 @@
+if (!hasProperty('mainClass')) {
+    ext.mainClass = ''
+}
+
+dependencies {
+    compile project(':jme3-core')
+    compile files('../lib/j-ogg-oggd.jar', '../lib/j-ogg-vorbisd.jar')
+}

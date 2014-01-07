@@ -1,0 +1,149 @@
+apply plugin: 'cpp'
+
+String bulletUrl = 'http://bullet.googlecode.com/files/bullet-2.82-r2704.zip'
+String bulletFolder = 'bullet-2.82-r2704'
+
+if (!hasProperty('mainClass')) {
+    ext.mainClass = ''
+}
+
+dependencies {
+    compile project(':jme3-bullet')
+}
+
+// C++ sources for binary compilation
+sources {
+    bulletjme {
+        cpp {
+            source {
+                srcDir 'src/native/cpp'
+                srcDir "${bulletFolder}/src"
+                exclude 'BulletMultiThreaded/GpuSoftBodySolvers/**'
+                include '**/*.cpp'
+            }
+            exportedHeaders {
+                srcDir 'src/native/cpp'
+                srcDir "${bulletFolder}/src"
+                include '**/*.h'            
+            }
+        }
+    }
+}
+
+// Java source sets for IDE acces and source jar bundling / mavenization
+sourceSets {
+    main {
+        java {
+            srcDir 'src/native/cpp'
+            srcDir 'src/native/android'
+        }
+    }
+}
+
+// Set of target platforms, will be available based on build system
+targetPlatforms {
+//    osx_universal { // TODO: universal binary doesn't work?
+//        architecture 'x86_64'
+//        architecture 'x86'
+//        operatingSystem 'osx'
+//    }
+    osx_x86 {
+        architecture "x86"
+        operatingSystem "osx"
+    }
+    osx_x64 {
+        architecture "x86_64"
+        operatingSystem "osx"
+    }
+    linux_x86 {
+        architecture "x86"
+        operatingSystem "linux"
+    }
+    linux_x86_64 {
+        architecture "x86_64"
+        operatingSystem "linux"
+    }
+    windows_x86 {
+        architecture "x86"
+        operatingSystem "windows"
+    }
+    windows_x86_64 {
+        architecture "x86_64"
+        operatingSystem "windows"
+    }
+}
+
+// Defines created C++ libraries
+libraries {
+    bulletjme {
+    }
+    all {
+        binaries.all {
+            cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+            if (targetPlatform.operatingSystem.name == "osx") {
+                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
+            } else if (targetPlatform.operatingSystem.name == "linux") {
+                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+                cppCompiler.args "-fPIC"
+                cppCompiler.args "-fpermissive"
+                cppCompiler.args "-static-libgcc"
+                linker.args "-static"
+            } else if (targetPlatform.operatingSystem.name == "windows") {
+                cppCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+//                cppCompiler.define('WIN32')
+//                linker.args 'Shlwapi.lib', 'Advapi32.lib'
+            }
+        }
+    }
+}
+
+// Download bullet if not available
+task downloadBullet(type: MyDownload) {
+    sourceUrl = bulletUrl
+    target = file('bullet.zip')
+}
+
+// Unzip bullet if not available
+task unzipBullet(type: Copy, dependsOn:downloadBullet) {
+    def zipFile = file('bullet.zip')
+    def outputDir = file(".")
+
+    from zipTree(zipFile)
+    into outputDir
+}
+
+compileJava.dependsOn unzipBullet
+
+//task buildAllExecutables {
+//    dependsOn binaries.withType(SharedLibraryBinary).matching {
+//        it.buildable
+//    }
+//}
+
+// Adds all built binaries to java jar task
+binaries.withType(SharedLibraryBinary) { binary ->
+    if (!buildable) {
+        //TODO: obtain elsewhere if not available
+        return
+    }
+    // Get builder of this binary
+    def builderTask = binary.tasks.builder
+    // Add output to jar file
+    jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") { from builderTask.outputFile }
+    // Add depend on build
+    jar.dependsOn builderTask
+}
+
+// Helper class to wrap ant dowload task
+class MyDownload extends DefaultTask {
+    @Input
+    String sourceUrl
+
+    @OutputFile
+    File target
+
+    @TaskAction
+    void download() {
+       ant.get(src: sourceUrl, dest: target)
+    }
+}
