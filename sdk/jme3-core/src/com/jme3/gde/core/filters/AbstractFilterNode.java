@@ -35,6 +35,7 @@ import com.jme3.gde.core.filters.actions.EnableFiterAction;
 import com.jme3.gde.core.icons.IconList;
 import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.ScenePropertyChangeListener;
+import com.jme3.gde.core.scene.SceneSyncListener;
 import com.jme3.gde.core.util.PropertyUtils;
 import com.jme3.post.Filter;
 import java.awt.Image;
@@ -59,7 +60,7 @@ import org.openide.util.actions.SystemAction;
  * @author normenhansen
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractFilterNode extends AbstractNode implements FilterNode, ScenePropertyChangeListener {
+public abstract class AbstractFilterNode extends AbstractNode implements FilterNode, ScenePropertyChangeListener, SceneSyncListener {
 
     protected boolean readOnly = false;
     protected DataObject dataObject;
@@ -110,6 +111,18 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
                     SystemAction.get(DeleteAction.class),
                     
                 };
+    }
+    
+    public void syncSceneData(float tpf) {
+        //TODO: precache structure to avoid locks? Do it backwards, sending the actual bean value?
+        for (PropertySet propertySet : getPropertySets()) {
+            for (Property<?> property : propertySet.getProperties()) {
+                if(property instanceof SceneExplorerProperty){
+                    SceneExplorerProperty prop = (SceneExplorerProperty)property;
+                    prop.syncValue();
+                }
+            }
+        }
     }
     
     @Override
@@ -222,7 +235,13 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         if (name.equals("Name")) {
             setName((String)after);
         }
-        fireSave(true);
+        firePropertyChange(name, before, after);
+        if (!SceneExplorerProperty.PROP_INIT_CHANGE.equals(type)) {
+            fireSave(true);
+        }
+    }
+
+    public void propertyChange(final String type, final String name, final Object before, final Object after) {
         firePropertyChange(name, before, after);
     }
 
