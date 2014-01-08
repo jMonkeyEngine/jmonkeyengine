@@ -241,10 +241,6 @@ public abstract class AbstractFilterNode extends AbstractNode implements FilterN
         }
     }
 
-    public void propertyChange(final String type, final String name, final Object before, final Object after) {
-        firePropertyChange(name, before, after);
-    }
-
     public Filter getFilter() {
         return filter;
     }
