@@ -37,11 +37,18 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
+import com.jogamp.common.nio.Buffers;
+import com.jogamp.newt.Display.PointerIcon;
 import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.newt.event.MouseListener;
 import com.jogamp.newt.opengl.GLWindow;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+import javax.media.nativewindow.util.Dimension;
+import javax.media.nativewindow.util.DimensionImmutable;
+import javax.media.nativewindow.util.PixelFormat;
+import javax.media.nativewindow.util.PixelRectangle;
 import javax.media.nativewindow.util.Point;
 
 public class NewtMouseInput  implements MouseInput, MouseListener {
@@ -175,9 +182,9 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
 //        listener.onMouseButtonEvent(evt);
     }
 
-    public void mousePressed(MouseEvent awtEvt) {
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), true, awtEvt.getX(), awtEvt.getY());
-        evt.setTime(awtEvt.getWhen());
+    public void mousePressed(MouseEvent newtEvt) {
+        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(newtEvt), true, newtEvt.getX(), newtEvt.getY());
+        evt.setTime(newtEvt.getWhen());
         synchronized (eventQueue) {
             eventQueue.add(evt);
         }
@@ -281,5 +288,11 @@ public class NewtMouseInput  implements MouseInput, MouseListener {
     }
 
     public void setNativeCursor(JmeCursor cursor) {
+        final ByteBuffer pixels = Buffers.copyIntBufferAsByteBuffer(cursor.getImagesData());
+        final DimensionImmutable size = new Dimension(cursor.getWidth(), cursor.getHeight());
+        final PixelFormat pixFormat = PixelFormat.RGBA8888;
+        final PixelRectangle.GenericPixelRect rec = new PixelRectangle.GenericPixelRect(pixFormat, size, 0, true, pixels);
+        final PointerIcon joglCursor = component.getScreen().getDisplay().createPointerIcon(rec, cursor.getXHotSpot(), cursor.getYHotSpot());
+        component.setPointerIcon(joglCursor);
     }
 }
