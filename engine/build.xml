@@ -586,7 +586,7 @@
     <!-- example of value for an archived post build: http://jogamp.org/deployment/archive/master/gluegen_737-joal_492-jogl_1120-jocl_867/jar -->
     <!-- example of value for the current release or release candidate: http://jogamp.org/deployment/jogamp-current/jar/orig -->
     <!-- example of value for a released version: http://jogamp.org/deployment/v2.1.1 -->
-    <property name="jogamp-unsigned-jars-url" value="http://jogamp.org/deployment/archive/master/gluegen_741-joal_495-jogl_1133-jocl_872/jar" />
+    <property name="jogamp-unsigned-jars-url" value="http://jogamp.org/deployment/archive/master/gluegen_760-joal_510-jogl_1198-jocl_902/jar" />
     <target name="update-jogamp">
         <get src="${jogamp-unsigned-jars-url}/gluegen-rt.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
 	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-linux-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
