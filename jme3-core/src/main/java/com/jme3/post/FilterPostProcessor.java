@@ -378,13 +378,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             viewPort.getCamera().setViewPort(left, right, bottom, top);
             viewPort.setOutputFrameBuffer(outputBuffer);
             viewPort = null;
-            renderManager.getRenderer().deleteFrameBuffer(renderFrameBuffer);
+            
+            renderFrameBuffer.dispose();
             if(depthTexture!=null){
-                renderManager.getRenderer().deleteImage(depthTexture.getImage());
+               depthTexture.getImage().dispose();
             }
-            renderManager.getRenderer().deleteImage(filterTexture.getImage());
+            filterTexture.getImage().dispose();
             if(renderFrameBufferMS != null){
-               renderManager.getRenderer().deleteFrameBuffer(renderFrameBufferMS);
+               renderFrameBufferMS.dispose();
             }
             for (Filter filter : filters) {
                 filter.cleanup(renderer);
@@ -560,4 +561,4 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             viewPort.setOutputFrameBuffer(renderFrameBuffer);
         }
     }
-    }
+}

@@ -192,10 +192,10 @@ public abstract class Filter implements Savable {
         }
 
         public void cleanup(Renderer r) {
-            r.deleteFrameBuffer(renderFrameBuffer);
-            r.deleteImage(renderedTexture.getImage());
+            renderFrameBuffer.dispose();
+            renderedTexture.getImage().dispose();
             if(depthTexture!=null){
-                r.deleteImage(depthTexture.getImage());
+                depthTexture.getImage().dispose();
             }  
         }
     }
