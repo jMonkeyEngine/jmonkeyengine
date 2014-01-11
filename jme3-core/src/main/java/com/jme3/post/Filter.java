@@ -64,11 +64,12 @@ public abstract class Filter implements Savable {
 
 
     private String name;
-    protected Pass defaultPass;
-    protected List<Pass> postRenderPasses;
+    protected Filter.Pass defaultPass;
+    protected List<Filter.Pass> postRenderPasses;
     protected Material material;
     protected boolean enabled = true;
     protected FilterPostProcessor processor;
+    protected boolean debug;
 
     public Filter(String name) {
         this.name = name;
@@ -234,7 +235,7 @@ public abstract class Filter implements Savable {
      */
     protected final void init(AssetManager manager, RenderManager renderManager, ViewPort vp, int w, int h) {
         //  cleanup(renderManager.getRenderer());
-        defaultPass = new Pass();
+        defaultPass = new Filter.Pass();
         defaultPass.init(renderManager.getRenderer(), w, h, getDefaultPassTextureFormat(), getDefaultPassDepthFormat());
         initFilter(manager, renderManager, vp, w, h);
     }
@@ -249,8 +250,8 @@ public abstract class Filter implements Savable {
             defaultPass.cleanup(r);
         }
         if (postRenderPasses != null) {
-            for (Iterator<Pass> it = postRenderPasses.iterator(); it.hasNext();) {
-                Pass pass = it.next();
+            for (Iterator<Filter.Pass> it = postRenderPasses.iterator(); it.hasNext();) {
+                Filter.Pass pass = it.next();
                 pass.cleanup(r);
             }
         }
@@ -411,7 +412,7 @@ public abstract class Filter implements Savable {
      * returns the list of the postRender passes
      * @return
      */
-    protected List<Pass> getPostRenderPasses() {
+    protected List<Filter.Pass> getPostRenderPasses() {
         return postRenderPasses;
     }
 
@@ -442,4 +443,37 @@ public abstract class Filter implements Savable {
     protected void setProcessor(FilterPostProcessor proc) {
         processor = proc;
     }
+
+    /**
+     * return true if this filter is in debug mode
+     * @return 
+     */
+    public boolean isDisplayDebug() {
+        return debug;
     }
+
+    /**
+     * set to true if you want this filtre in debig mode.
+     * The method displayDebug will be called by the FilterPostProcessor after
+     * the filter has been rendered.allowing you to output anything.
+     * @param displayDebug 
+     */
+    public void setDisplayDebug(boolean displayDebug) {
+        this.debug = displayDebug;
+    }
+    
+    /**
+     * internal use only
+     */
+    protected void outputdebug(){
+        if(debug){
+            displayDebug();
+        }
+    }
+    
+    /**
+     * override this method if you want to diplay some debugging info on screen.
+     */
+    protected void displayDebug(){        
+    }
+}

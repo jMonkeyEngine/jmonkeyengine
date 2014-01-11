@@ -280,6 +280,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
                 }
                 renderProcessing(r, buff, mat);
+                filter.outputdebug();
             }
         }
     }
