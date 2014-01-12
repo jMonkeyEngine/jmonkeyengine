@@ -69,7 +69,6 @@ public abstract class Filter implements Savable {
     protected Material material;
     protected boolean enabled = true;
     protected FilterPostProcessor processor;
-    protected boolean debug;
 
     public Filter(String name) {
         this.name = name;
@@ -445,35 +444,13 @@ public abstract class Filter implements Savable {
     }
 
     /**
-     * return true if this filter is in debug mode
-     * @return 
+     * This method is called right after the filter has been rendered to the 
+     * framebuffer.
+     * Note that buffer will be null if the filter is the last one in the stack 
+     * and has been rendered to screen
+     * @param r the renderer
+     * @param buffer the framebuffer on hich the filtre has been rendered.
      */
-    public boolean isDisplayDebug() {
-        return debug;
-    }
-
-    /**
-     * set to true if you want this filtre in debig mode.
-     * The method displayDebug will be called by the FilterPostProcessor after
-     * the filter has been rendered.allowing you to output anything.
-     * @param displayDebug 
-     */
-    public void setDisplayDebug(boolean displayDebug) {
-        this.debug = displayDebug;
-    }
-    
-    /**
-     * internal use only
-     */
-    protected void outputdebug(){
-        if(debug){
-            displayDebug();
-        }
-    }
-    
-    /**
-     * override this method if you want to diplay some debugging info on screen.
-     */
-    protected void displayDebug(){        
+    protected void postFilter(Renderer r, FrameBuffer buffer){        
     }
 }
