@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 
+import com.jme3.animation.Animation;
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
 import com.jme3.asset.AssetManager;
@@ -46,7 +47,6 @@ import com.jme3.asset.BlenderKey;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
-import com.jme3.scene.plugins.blender.animations.AnimationData;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
@@ -100,8 +100,8 @@ public class BlenderContext {
     private Stack<Structure>                    parentStack            = new Stack<Structure>();
     /** A list of constraints for the specified object. */
     protected Map<Long, List<Constraint>>       constraints            = new HashMap<Long, List<Constraint>>();
-    /** Anim data loaded for features. */
-    private Map<Long, AnimationData>            animData               = new HashMap<Long, AnimationData>();
+    /** Animations loaded for features. */
+    private Map<Long, List<Animation>>          animations             = new HashMap<Long, List<Animation>>();
     /** Loaded skeletons. */
     private Map<Long, Skeleton>                 skeletons              = new HashMap<Long, Skeleton>();
     /** A map between skeleton and node it modifies. */
@@ -405,28 +405,33 @@ public class BlenderContext {
         }
         return result;
     }
-
+    
     /**
-     * This method sets the anim data for the specified OMA of its owner.
+     * This method adds the animation for the specified OMA of its owner.
      * 
      * @param ownerOMA
      *            the owner's old memory address
-     * @param animData
-     *            the animation data for the feature specified by ownerOMA
+     * @param animation
+     *            the animation for the feature specified by ownerOMA
      */
-    public void setAnimData(Long ownerOMA, AnimationData animData) {
-        this.animData.put(ownerOMA, animData);
+    public void addAnimation(Long ownerOMA, Animation animation) {
+        List<Animation> animList = animations.get(ownerOMA);
+        if(animList == null) {
+            animList = new ArrayList<Animation>();
+            animations.put(ownerOMA, animList);
+        }
+        animations.put(ownerOMA, animList);
     }
-
+    
     /**
      * This method returns the animation data for the specified owner.
      * 
      * @param ownerOMA
      *            the old memory address of the animation data owner
-     * @return the animation data or null if none exists
+     * @return the animation or null if none exists
      */
-    public AnimationData getAnimData(Long ownerOMA) {
-        return animData.get(ownerOMA);
+    public List<Animation> getAnimations(Long ownerOMA) {
+        return animations.get(ownerOMA);
     }
 
     /**

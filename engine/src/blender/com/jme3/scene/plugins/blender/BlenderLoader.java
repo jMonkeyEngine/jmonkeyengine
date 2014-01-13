@@ -47,8 +47,7 @@ import com.jme3.scene.CameraNode;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
-import com.jme3.scene.plugins.blender.animations.IpoHelper;
+import com.jme3.scene.plugins.blender.animations.AnimationHelper;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.curves.CurvesHelper;
@@ -85,6 +84,10 @@ public class BlenderLoader implements AssetLoader {
             List<FileBlockHeader> sceneBlocks = new ArrayList<FileBlockHeader>();
             BlenderKey blenderKey = blenderContext.getBlenderKey();
             LoadingResults loadingResults = blenderKey.prepareLoadingResults();
+            
+            AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
+            animationHelper.loadAnimations();
+            
             for (FileBlockHeader block : blocks) {
                 switch (block.getCode()) {
                     case FileBlockHeader.BLOCK_OB00:// Object
@@ -240,7 +243,7 @@ public class BlenderLoader implements AssetLoader {
         blenderContext.setBlenderKey(blenderKey);
 
         // creating helpers
-        blenderContext.putHelper(ArmatureHelper.class, new ArmatureHelper(inputStream.getVersionNumber(), blenderContext));
+        blenderContext.putHelper(AnimationHelper.class, new AnimationHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(TextureHelper.class, new TextureHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(MeshHelper.class, new MeshHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(ObjectHelper.class, new ObjectHelper(inputStream.getVersionNumber(), blenderContext));
@@ -250,10 +253,9 @@ public class BlenderLoader implements AssetLoader {
         blenderContext.putHelper(ModifierHelper.class, new ModifierHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(MaterialHelper.class, new MaterialHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(ConstraintHelper.class, new ConstraintHelper(inputStream.getVersionNumber(), blenderContext));
-        blenderContext.putHelper(IpoHelper.class, new IpoHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(ParticlesHelper.class, new ParticlesHelper(inputStream.getVersionNumber(), blenderContext));
         blenderContext.putHelper(LandscapeHelper.class, new LandscapeHelper(inputStream.getVersionNumber(), blenderContext));
-
+        
         // reading the blocks (dna block is automatically saved in the blender context when found)
         FileBlockHeader sceneFileBlock = null;
         do {

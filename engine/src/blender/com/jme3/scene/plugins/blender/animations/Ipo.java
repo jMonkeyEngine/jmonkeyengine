@@ -156,7 +156,8 @@ public class Ipo {
                 degreeToRadiansFactor *= FastMath.DEG_TO_RAD * 10;// the values in blender are divided by 10, so we need to mult it here
             }
             int yIndex = 1, zIndex = 2;
-            if (spatialTrack && fixUpAxis) {
+            boolean swapAxes = spatialTrack && fixUpAxis;
+            if (swapAxes) {
                 yIndex = 2;
                 zIndex = 1;
             }
@@ -164,8 +165,7 @@ public class Ipo {
             // calculating track data
             for (int frame = startFrame; frame <= stopFrame; ++frame) {
                 int index = frame - startFrame;
-                times[index] = index * timeBetweenFrames;// start + (frame - 1)
-                                                         // * timeBetweenFrames;
+                times[index] = index * timeBetweenFrames;// start + (frame - 1) * timeBetweenFrames;
                 for (int j = 0; j < bezierCurves.length; ++j) {
                     double value = bezierCurves[j].evaluate(frame, BezierCurve.Y_VALUE);
                     switch (bezierCurves[j].getType()) {
@@ -174,7 +174,7 @@ public class Ipo {
                             translation[0] = (float) value;
                             break;
                         case AC_LOC_Y:
-                            if (fixUpAxis && value != 0) {
+                            if (swapAxes && value != 0) {
                                 value = -value;
                             }
                             translation[yIndex] = (float) value;
@@ -188,7 +188,7 @@ public class Ipo {
                             objectRotation[0] = (float) value * degreeToRadiansFactor;
                             break;
                         case OB_ROT_Y:
-                            if (fixUpAxis && value != 0) {
+                            if (swapAxes && value != 0) {
                                 value = -value;
                             }
                             objectRotation[yIndex] = (float) value * degreeToRadiansFactor;
@@ -202,10 +202,10 @@ public class Ipo {
                             scale[0] = (float) value;
                             break;
                         case AC_SIZE_Y:
-                            scale[fixUpAxis ? 2 : 1] = (float) value;
+                            scale[yIndex] = (float) value;
                             break;
                         case AC_SIZE_Z:
-                            scale[fixUpAxis ? 1 : 2] = (float) value;
+                            scale[zIndex] = (float) value;
                             break;
 
                         // QUATERNION ROTATION (used with bone animation)
@@ -216,7 +216,7 @@ public class Ipo {
                             quaternionRotation[0] = (float) value;
                             break;
                         case AC_QUAT_Y:
-                            if (fixUpAxis && value != 0) {
+                            if (swapAxes && value != 0) {
                                 value = -value;
                             }
                             quaternionRotation[yIndex] = (float) value;

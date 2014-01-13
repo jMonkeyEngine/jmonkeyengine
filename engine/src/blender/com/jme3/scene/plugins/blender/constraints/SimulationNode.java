@@ -25,7 +25,6 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
-import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.util.TempVars;
@@ -95,7 +94,7 @@ public class SimulationNode {
     private SimulationNode(Long featureOMA, BlenderContext blenderContext, boolean rootNode) {
         this.blenderContext = blenderContext;
         Node spatial = (Node) blenderContext.getLoadedFeature(featureOMA, LoadedFeatureDataType.LOADED_FEATURE);
-        if (blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, spatial) != null) {
+        if (blenderContext.getMarkerValue(ObjectHelper.ARMATURE_NODE_MARKER, spatial) != null) {
             skeleton = blenderContext.getSkeleton(featureOMA);
 
             Node nodeWithAnimationControl = blenderContext.getControlledNode(skeleton);
@@ -136,9 +135,9 @@ public class SimulationNode {
             // each bone of the skeleton has the same anim data applied
             BoneContext boneContext = blenderContext.getBoneContext(skeleton.getBone(1));
             Long boneOma = boneContext.getBoneOma();
-            animations = blenderContext.getAnimData(boneOma) == null ? null : blenderContext.getAnimData(boneOma).anims;
+            animations = blenderContext.getAnimations(boneOma);
         } else {
-            animations = blenderContext.getAnimData(featureOMA) == null ? null : blenderContext.getAnimData(featureOMA).anims;
+            animations = blenderContext.getAnimations(featureOMA);
             for (Spatial child : spatial.getChildren()) {
                 if (child instanceof Node) {
                     children.add(new SimulationNode((Long) blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, child), blenderContext, false));
@@ -273,12 +272,11 @@ public class SimulationNode {
                             track.setTime(time, 1, animControl, animChannel, vars);
                             skeleton.updateWorldVectors();
                         }
-                        
 
                         // ... and then apply constraints from the root bone to the last child ...
                         for (Bone rootBone : skeleton.getRoots()) {
-                            if(skeleton.getBoneIndex(rootBone) > 0) {
-                                //ommit the 0 - indexed root bone as it is the bone added by importer
+                            if (skeleton.getBoneIndex(rootBone) > 0) {
+                                // ommit the 0 - indexed root bone as it is the bone added by importer
                                 this.applyConstraints(rootBone, alteredOmas, frame);
                             }
                         }
@@ -419,7 +417,7 @@ public class SimulationNode {
     private List<Constraint> findConstraints(Long ownerOMA, BlenderContext blenderContext) {
         List<Constraint> result = new ArrayList<Constraint>();
         List<Constraint> constraints = blenderContext.getConstraints(ownerOMA);
-        if(constraints != null) {
+        if (constraints != null) {
             for (Constraint constraint : constraints) {
                 if (constraint.isImplemented() && constraint.validate()) {
                     result.add(constraint);

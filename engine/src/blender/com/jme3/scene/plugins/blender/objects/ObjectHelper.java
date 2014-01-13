@@ -54,7 +54,7 @@ import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
-import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
+import com.jme3.scene.plugins.blender.animations.AnimationHelper;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.curves.CurvesHelper;
@@ -74,9 +74,10 @@ import com.jme3.util.TempVars;
  * @author Marcin Roguski (Kaelthas)
  */
 public class ObjectHelper extends AbstractBlenderHelper {
-    private static final Logger LOGGER     = Logger.getLogger(ObjectHelper.class.getName());
+    private static final Logger LOGGER               = Logger.getLogger(ObjectHelper.class.getName());
 
-    public static final String  OMA_MARKER = "oma";
+    public static final String  OMA_MARKER           = "oma";
+    public static final String  ARMATURE_NODE_MARKER = "armature-node";
 
     /**
      * This constructor parses the given blender version and stores the result.
@@ -236,8 +237,12 @@ public class ObjectHelper extends AbstractBlenderHelper {
             LOGGER.fine("Applying markers (those will be removed before the final result is released).");
             blenderContext.addMarker(OMA_MARKER, result, objectStructure.getOldMemoryAddress());
             if (objectType == ObjectType.ARMATURE) {
-                blenderContext.addMarker(ArmatureHelper.ARMATURE_NODE_MARKER, result, Boolean.TRUE);
+                blenderContext.addMarker(ARMATURE_NODE_MARKER, result, Boolean.TRUE);
             }
+
+            LOGGER.fine("Applying animations to the object if such are defined.");
+            AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
+            animationHelper.applyAnimations(result, blenderContext.getBlenderKey().getNodeAnimationNames(name));
 
             LOGGER.fine("Loading constraints connected with this object.");
             ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
