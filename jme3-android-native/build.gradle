@@ -20,6 +20,7 @@ String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/be25e6802da
 // Typically, the downloaded OpenAL Soft zip file will extract to a directory
 // called "openal-soft"
 String openALSoftFolder = 'openal-soft'
+String openALSoftZipFile = 'OpenALSoft.zip'
 
 //Working directory for the ndk build.
 //Must be the parent directory of the jni directory
@@ -61,25 +62,42 @@ dependencies {
 // Download bullet if not available
 task downloadOpenALSoft(type: MyDownload) {
     sourceUrl = openALSoftUrl
-    target = file('OpenALSoft.zip')
+    target = file(openALSoftZipFile)
 }
 
 // Unzip OpenALSoft
-task unzipOpenALSoft(type: Copy, dependsOn:downloadOpenALSoft) {
-    def zipFile = file('OpenALSoft.zip')
+task unzipOpenALSoft(type: Copy) {
+    def zipFile = file(openALSoftZipFile)
     def outputDir = file(".")
 
     from zipTree(zipFile)
     into outputDir
 }
+unzipOpenALSoft.dependsOn {
+    def zipFilePath = project.projectDir.absolutePath + File.separator + openALSoftZipFile
+    def zipFile = new File(zipFilePath)
+//    println "zipFile path: " + zipFile.absolutePath
+//    println "zipFile exists: " + zipFile.exists()
+    if (!zipFile.exists()) {
+        downloadOpenALSoft
+    }
+}
 
 // Copy OpenALSoft files to jni directory
-task copyOpenALSoft(type: Copy, dependsOn:unzipOpenALSoft) {
+task copyOpenALSoft(type: Copy) {
     def sourceDir = file(openALSoftFolder)
     def outputDir = file(jniPath)
 
     from sourceDir
     into outputDir
+}
+copyOpenALSoft.dependsOn {
+    def openALSoftUnzipDir = new File(project.projectDir.absolutePath + File.separator + openALSoftFolder)
+//    println "openALSoftUnzipDir path: " + openALSoftUnzipDir.absolutePath
+//    println "openALSoftUnzipDir exists: " + openALSoftUnzipDir.isDirectory()
+    if (!openALSoftUnzipDir.isDirectory()) {
+        unzipOpenALSoft
+    }
 }
 
 // Copy jME Android native files to jni directory
@@ -98,6 +116,7 @@ task buildNative(type: Exec, dependsOn:copyJmeOpenALSoft) {
         ndkBuildFile = "ndk-build.cmd"
     }
 
+    // ndkPath is defined in the root project gradle.properties file
     String ndkBuildPath = ndkPath + File.separator + ndkBuildFile
     //Use the environment variable for the NDK location if defined
     if (System.env.ANDROID_NDK != null) {
@@ -113,8 +132,9 @@ task buildNative(type: Exec, dependsOn:copyJmeOpenALSoft) {
 jar.into("lib") { from ndkOutputPath }
 
 compileJava.dependsOn {
-    def ndkFile = new File(ndkPath)
-    if (ndkFile.exists()) {
+    // ndkPath is defined in the root project gradle.properties file
+    def ndkDir = new File(ndkPath)
+    if (ndkDir.isDirectory()) {
         buildNative
     }
 }
