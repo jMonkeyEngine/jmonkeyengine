@@ -2,6 +2,15 @@ apply plugin: 'cpp'
 
 String bulletUrl = 'http://bullet.googlecode.com/files/bullet-2.82-r2704.zip'
 String bulletFolder = 'bullet-2.82-r2704'
+String bulletSrcPath = bulletFolder + '/src'
+String bulletZipFile = 'bullet.zip'
+
+//Directories for the android ndk build.
+String ndkWorkingPath = 'src/native'
+String jmeAndroidPath = ndkWorkingPath + '/android'
+String jmeCppPath = ndkWorkingPath + '/cpp'
+String jniPath = ndkWorkingPath + '/jni'
+String ndkOutputPath = ndkWorkingPath + '/libs'
 
 if (!hasProperty('mainClass')) {
     ext.mainClass = ''
@@ -17,14 +26,14 @@ sources {
         cpp {
             source {
                 srcDir 'src/native/cpp'
-                srcDir "${bulletFolder}/src"
+                srcDir bulletSrcPath
                 exclude 'BulletMultiThreaded/GpuSoftBodySolvers/**'
                 include '**/*.cpp'
             }
             exportedHeaders {
                 srcDir 'src/native/cpp'
-                srcDir "${bulletFolder}/src"
-                include '**/*.h'            
+                srcDir bulletSrcPath
+                include '**/*.h'
             }
         }
     }
@@ -100,19 +109,35 @@ libraries {
 // Download bullet if not available
 task downloadBullet(type: MyDownload) {
     sourceUrl = bulletUrl
-    target = file('bullet.zip')
+    target = file(bulletZipFile)
 }
 
 // Unzip bullet if not available
-task unzipBullet(type: Copy, dependsOn:downloadBullet) {
-    def zipFile = file('bullet.zip')
+task unzipBullet(type: Copy) {
+    def zipFile = file(bulletZipFile)
     def outputDir = file(".")
 
     from zipTree(zipFile)
     into outputDir
 }
+unzipBullet.dependsOn {
+    def zipFilePath = project.projectDir.absolutePath + File.separator + bulletZipFile
+    def zipFile = new File(zipFilePath)
+//    println "zipFile path: " + zipFile.absolutePath
+//    println "zipFile exists: " + zipFile.exists()
+    if (!zipFile.exists()) {
+        downloadBullet
+    }
+}
 
-compileJava.dependsOn unzipBullet
+compileJava.dependsOn {
+    def bulletUnzipDir = new File(project.projectDir.absolutePath + File.separator + bulletFolder)
+//    println "bulletUnzipDir path: " + bulletUnzipDir.absolutePath
+//    println "bulletUnzipDir exists: " + bulletUnzipDir.isDirectory()
+    if (!bulletUnzipDir.isDirectory()) {
+        unzipBullet
+    }
+}
 
 //task buildAllExecutables {
 //    dependsOn binaries.withType(SharedLibraryBinary).matching {
@@ -147,3 +172,68 @@ class MyDownload extends DefaultTask {
        ant.get(src: sourceUrl, dest: target)
     }
 }
+
+
+// ANDROID NDK BUILD
+
+// Copy Bullet files to jni directory
+task copyBullet(type: Copy) {
+    def sourceDir = file(bulletSrcPath)
+    def outputDir = file(jniPath)
+
+    from sourceDir
+    into outputDir
+}
+copyBullet.dependsOn {
+    def bulletUnzipDir = new File(project.projectDir.absolutePath + File.separator + bulletFolder)
+    if (!bulletUnzipDir.isDirectory()) {
+        unzipBullet
+    }
+}
+
+// Copy jME cpp native files to jni directory
+task copyJmeCpp(type: Copy, dependsOn:copyBullet) {
+    def sourceDir = file(jmeCppPath)
+    def outputDir = file(jniPath)
+
+    from sourceDir
+    into outputDir
+}
+
+// Copy jME android native files to jni directory
+task copyJmeAndroid(type: Copy, dependsOn:copyJmeCpp) {
+    def sourceDir = file(jmeAndroidPath)
+    def outputDir = file(jniPath)
+
+    from sourceDir
+    into outputDir
+}
+
+task buildNative(type: Exec, dependsOn:copyJmeAndroid) {
+    String ndkBuildFile = "ndk-build"
+    // if windows, use ndk-build.cmd instead
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+        ndkBuildFile = "ndk-build.cmd"
+    }
+
+    String ndkBuildPath = ndkPath + File.separator + ndkBuildFile
+    //Use the environment variable for the NDK location if defined
+    if (System.env.ANDROID_NDK != null) {
+        ndkBuildPath = System.env.ANDROID_NDK + File.separator + ndkBuildFile
+    }
+
+    // need to target android-9 so the ndk can pull in the opensl library
+    args 'TARGET_PLATFORM=android-9'
+    workingDir ndkWorkingPath
+    executable ndkBuildPath
+}
+
+jar.dependsOn {
+    def ndkDir = new File(ndkPath)
+    if (ndkDir.isDirectory()) {
+        buildNative
+    }
+}
+
+//jar.into("lib") { from ndkOutputPath }
+
