@@ -228,12 +228,31 @@ task buildNative(type: Exec, dependsOn:copyJmeAndroid) {
     executable ndkBuildPath
 }
 
+task jarAndroidLibs(type: Jar, dependsOn:buildNative) {
+    String jarName = project.name + '-android'
+    from ndkOutputPath
+    into('lib')
+    baseName = jarName
+}
+//println jar.archiveName
+//println relativePath(jar.destinationDir)
+//println relativePath(jar.archivePath)
+//println jarAndroidLibs.archiveName
+//println relativePath(jarAndroidLibs.destinationDir)
+//println relativePath(jarAndroidLibs.archivePath)
+
 jar.dependsOn {
     def ndkDir = new File(ndkPath)
     if (ndkDir.isDirectory()) {
         buildNative
     }
 }
+jar.dependsOn jarAndroidLibs
 
+//adds files into existing jar file
 //jar.into("lib") { from ndkOutputPath }
 
+
+artifacts {
+    archives jarAndroidLibs
+}
