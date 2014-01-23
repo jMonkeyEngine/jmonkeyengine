@@ -553,20 +553,28 @@ public class BlenderKey extends ModelKey {
         oc.write(skyGeneratedTextureShape, "sky-generated-texture-shape", SkyGeneratedTextureShape.SPHERE);
         oc.write(optimiseTextures, "optimise-textures", false);
 
-        oc.write(nodeAnimationMap.size(), "node-anims-map-size", 0);
-        int counter = 0;
-        for (Entry<String, List<String>> entry : nodeAnimationMap.entrySet()) {
-            oc.write(entry.getKey(), "node-anim-" + counter, null);
-            oc.write(entry.getValue().toArray(new String[entry.getValue().size()]), "node-anims-" + counter, null);
-            ++counter;
+        if (nodeAnimationMap == null) {
+            oc.write(0, "node-anims-map-size", 0);
+        } else {
+            oc.write(nodeAnimationMap.size(), "node-anims-map-size", 0);
+            int counter = 0;
+            for (Entry<String, List<String>> entry : nodeAnimationMap.entrySet()) {
+                oc.write(entry.getKey(), "node-anim-" + counter, null);
+                oc.write(entry.getValue().toArray(new String[entry.getValue().size()]), "node-anims-" + counter, null);
+                ++counter;
+            }
         }
 
-        oc.write(skeletonAnimationMap.size(), "skeleton-anims-map-size", 0);
-        counter = 0;
-        for (Entry<String, List<String>> entry : skeletonAnimationMap.entrySet()) {
-            oc.write(entry.getKey(), "skeleton-anim-" + counter, null);
-            oc.write(entry.getValue().toArray(new String[entry.getValue().size()]), "skeleton-anims-" + counter, null);
-            ++counter;
+        if (skeletonAnimationMap == null) {
+            oc.write(0, "skeleton-anims-map-size", 0);
+        } else {
+            oc.write(skeletonAnimationMap.size(), "skeleton-anims-map-size", 0);
+            int counter = 0;
+            for (Entry<String, List<String>> entry : skeletonAnimationMap.entrySet()) {
+                oc.write(entry.getKey(), "skeleton-anim-" + counter, null);
+                oc.write(entry.getValue().toArray(new String[entry.getValue().size()]), "skeleton-anims-" + counter, null);
+                ++counter;
+            }
         }
     }
 
