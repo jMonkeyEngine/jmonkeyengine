@@ -274,8 +274,10 @@ public class AnimationHelper extends AbstractBlenderHelper {
             if (!p.isNull()) {
                 Structure ipoStructure = p.fetchData().get(0);
                 Ipo ipo = this.fromIpoStructure(ipoStructure, blenderContext);
-                lastFrame = Math.max(lastFrame, ipo.getLastFrame());
-                blenderAction.featuresTracks.put(animatedFeatureName, ipo);
+                if(ipo != null) {//this can happen when ipo with no curves appear in blender file
+                    lastFrame = Math.max(lastFrame, ipo.getLastFrame());
+                    blenderAction.featuresTracks.put(animatedFeatureName, ipo);
+                }
             }
         }
         blenderAction.stopFrame = lastFrame;
@@ -364,9 +366,8 @@ public class AnimationHelper extends AbstractBlenderHelper {
         public BoneTrack[] toTracks(Skeleton skeleton) {
             List<BoneTrack> tracks = new ArrayList<BoneTrack>(featuresTracks.size());
             for (Entry<String, Ipo> entry : featuresTracks.entrySet()) {
-                Bone bone = skeleton.getBone(entry.getKey());
                 int boneIndex = skeleton.getBoneIndex(entry.getKey());
-                tracks.add((BoneTrack) entry.getValue().calculateTrack(boneIndex, bone.getLocalPosition(), bone.getLocalRotation(), bone.getLocalScale(), 1, stopFrame, fps, false));
+                tracks.add((BoneTrack) entry.getValue().calculateTrack(boneIndex, Vector3f.ZERO, Quaternion.IDENTITY, Vector3f.UNIT_XYZ, 1, stopFrame, fps, false));
             }
             return tracks.toArray(new BoneTrack[tracks.size()]);
         }
