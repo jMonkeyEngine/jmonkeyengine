@@ -31,14 +31,6 @@
  */
 package com.jme3.scene.plugins.blender.modifiers;
 
-import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
-import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.animations.Ipo;
-import com.jme3.scene.plugins.blender.animations.IpoHelper;
-import com.jme3.scene.plugins.blender.file.BlenderFileException;
-import com.jme3.scene.plugins.blender.file.Pointer;
-import com.jme3.scene.plugins.blender.file.Structure;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -46,6 +38,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.file.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.Structure;
 
 /**
  * A class that is used in modifiers calculations.
@@ -110,76 +107,6 @@ public class ModifierHelper extends AbstractBlenderHelper {
                     }
                 } else {
                     LOGGER.log(Level.WARNING, "Unsupported modifier type: {0}", modifierStructure.getType());
-                }
-            }
-        }
-
-        // at the end read object's animation modifier (object animation is
-        // either described by action or by ipo of the object)
-        Modifier modifier;
-        if (blenderVersion <= 249) {
-            modifier = this.readAnimationModifier249(objectStructure, blenderContext);
-        } else {
-            modifier = this.readAnimationModifier250(objectStructure, blenderContext);
-        }
-        if (modifier != null) {
-            result.add(modifier);
-        }
-        return result;
-    }
-
-    /**
-     * This method reads the object's animation modifier for blender version
-     * 2.49 and lower.
-     * 
-     * @param objectStructure
-     *            the object's structure
-     * @param blenderContext
-     *            the blender context
-     * @return loaded modifier
-     * @throws BlenderFileException
-     *             this exception is thrown when the blender file is somehow
-     *             corrupted
-     */
-    private Modifier readAnimationModifier249(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
-        Modifier result = null;
-        Pointer pIpo = (Pointer) objectStructure.getFieldValue("ipo");
-        if (pIpo.isNotNull()) {
-            IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
-            Structure ipoStructure = pIpo.fetchData().get(0);
-            Ipo ipo = ipoHelper.fromIpoStructure(ipoStructure, blenderContext);
-            if (ipo != null) {
-                result = new ObjectAnimationModifier(ipo, objectStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * This method reads the object's animation modifier for blender version
-     * 2.50 and higher.
-     * 
-     * @param objectStructure
-     *            the object's structure
-     * @param blenderContext
-     *            the blender context
-     * @return loaded modifier
-     * @throws BlenderFileException
-     *             this exception is thrown when the blender file is somehow
-     *             corrupted
-     */
-    private Modifier readAnimationModifier250(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
-        Modifier result = null;
-        Pointer pAnimData = (Pointer) objectStructure.getFieldValue("adt");
-        if (pAnimData.isNotNull()) {
-            Structure animData = pAnimData.fetchData().get(0);
-            Pointer pAction = (Pointer) animData.getFieldValue("action");
-            if (pAction.isNotNull()) {
-                Structure actionStructure = pAction.fetchData().get(0);
-                IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
-                Ipo ipo = ipoHelper.fromAction(actionStructure, blenderContext);
-                if (ipo != null) {// ipo can be null if it has no curves applied, ommit such modifier then
-                    result = new ObjectAnimationModifier(ipo, actionStructure.getName(), objectStructure.getOldMemoryAddress(), blenderContext);
                 }
             }
         }

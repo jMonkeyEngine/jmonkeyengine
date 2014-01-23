@@ -6,11 +6,11 @@ import java.util.logging.Logger;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
-import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 
 /**
  * Constraint applied on the bone.
@@ -48,7 +48,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
             }
             // the second part of the if expression verifies if the found node
             // (if any) is an armature node
-            if (blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, nodeTarget) != null) {
+            if (blenderContext.getMarkerValue(ObjectHelper.ARMATURE_NODE_MARKER, nodeTarget) != null) {
                 if (subtargetName.trim().isEmpty()) {
                     LOGGER.log(Level.WARNING, "No bone target specified for constraint: {0}.", name);
                     return false;
@@ -64,7 +64,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
         }
         return true;
     }
-    
+
     @Override
     public void apply(int frame) {
         super.apply(frame);

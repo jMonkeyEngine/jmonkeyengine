@@ -99,8 +99,10 @@ public class BoneContext {
 
         // first get the bone matrix in its armature space
         globalBoneMatrix = objectHelper.getMatrix(boneStructure, "arm_mat", blenderContext.getBlenderKey().isFixUpAxis());
-        // then make sure it is rotated in a proper way to fit the jme bone transformation conventions
-        globalBoneMatrix.multLocal(BONE_ARMATURE_TRANSFORMATION_MATRIX);
+        if(blenderContext.getBlenderKey().isFixUpAxis()) {
+            // then make sure it is rotated in a proper way to fit the jme bone transformation conventions
+            globalBoneMatrix.multLocal(BONE_ARMATURE_TRANSFORMATION_MATRIX);
+        }
 
         Spatial armature = (Spatial) objectHelper.toObject(blenderContext.getFileBlock(armatureObjectOMA).getStructure(blenderContext), blenderContext);
         ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);

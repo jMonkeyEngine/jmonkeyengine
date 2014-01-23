@@ -43,6 +43,7 @@ import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.plugins.blender.animations.AnimationHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
@@ -62,6 +63,9 @@ public class BlenderModelLoader extends BlenderLoader {
         try {
             this.setup(assetInfo);
 
+            AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
+            animationHelper.loadAnimations();
+            
             BlenderKey blenderKey = blenderContext.getBlenderKey();
             List<Node> rootObjects = new ArrayList<Node>();
             for (FileBlockHeader block : blocks) {

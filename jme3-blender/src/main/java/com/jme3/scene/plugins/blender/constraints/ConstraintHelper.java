@@ -17,10 +17,9 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
-import com.jme3.scene.plugins.blender.animations.ArmatureHelper;
+import com.jme3.scene.plugins.blender.animations.AnimationHelper;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.animations.Ipo;
-import com.jme3.scene.plugins.blender.animations.IpoHelper;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -63,7 +62,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
     public void loadConstraints(Structure objectStructure, BlenderContext blenderContext) throws BlenderFileException {
         LOGGER.fine("Loading constraints.");
         // reading influence ipos for the constraints
-        IpoHelper ipoHelper = blenderContext.getHelper(IpoHelper.class);
+        AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
         Map<String, Map<String, Ipo>> constraintsIpos = new HashMap<String, Map<String, Ipo>>();
         Pointer pActions = (Pointer) objectStructure.getFieldValue("action");
         if (pActions.isNotNull()) {
@@ -79,7 +78,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                         Pointer pIpo = (Pointer) constraintChannel.getFieldValue("ipo");
                         if (pIpo.isNotNull()) {
                             String constraintName = constraintChannel.getFieldValue("name").toString();
-                            Ipo ipo = ipoHelper.fromIpoStructure(pIpo.fetchData().get(0), blenderContext);
+                            Ipo ipo = animationHelper.fromIpoStructure(pIpo.fetchData().get(0), blenderContext);
                             ipos.put(constraintName, ipo);
                         }
                     }
@@ -107,7 +106,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                     Ipo ipo = ipoMap == null ? null : ipoMap.get(constraintName);
                     if (ipo == null) {
                         float enforce = ((Number) constraint.getFieldValue("enforce")).floatValue();
-                        ipo = ipoHelper.fromValue(enforce);
+                        ipo = animationHelper.fromValue(enforce);
                     }
                     constraintsList.add(new BoneConstraint(constraint, boneOMA, ipo, blenderContext));
                 }
@@ -130,7 +129,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
                 Ipo ipo = objectConstraintsIpos != null ? objectConstraintsIpos.get(constraintName) : null;
                 if (ipo == null) {
                     float enforce = ((Number) constraint.getFieldValue("enforce")).floatValue();
-                    ipo = ipoHelper.fromValue(enforce);
+                    ipo = animationHelper.fromValue(enforce);
                 }
 
                 constraintsList.add(this.createConstraint(dataType, constraint, objectStructure.getOldMemoryAddress(), ipo, blenderContext));
@@ -219,7 +218,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      */
     public Transform getTransform(Long oma, String subtargetName, Space space) {
         Spatial feature = (Spatial) blenderContext.getLoadedFeature(oma, LoadedFeatureDataType.LOADED_FEATURE);
-        boolean isArmature = blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, feature) != null;
+        boolean isArmature = blenderContext.getMarkerValue(ObjectHelper.ARMATURE_NODE_MARKER, feature) != null;
         if (isArmature) {
             blenderContext.getSkeleton(oma).updateWorldVectors();
             BoneContext targetBoneContext = blenderContext.getBoneByName(oma, subtargetName);
@@ -301,7 +300,7 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      */
     public void applyTransform(Long oma, String subtargetName, Space space, Transform transform) {
         Spatial feature = (Spatial) blenderContext.getLoadedFeature(oma, LoadedFeatureDataType.LOADED_FEATURE);
-        boolean isArmature = blenderContext.getMarkerValue(ArmatureHelper.ARMATURE_NODE_MARKER, feature) != null;
+        boolean isArmature = blenderContext.getMarkerValue(ObjectHelper.ARMATURE_NODE_MARKER, feature) != null;
         if (isArmature) {
             Skeleton skeleton = blenderContext.getSkeleton(oma);
             BoneContext targetBoneContext = blenderContext.getBoneByName(oma, subtargetName);
