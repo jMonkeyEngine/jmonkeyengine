@@ -242,7 +242,6 @@ public class PhysicsSpace {
             public void internalTick(DynamicsWorld dw, float f) {
                 //execute task list
                 AppTask task = pQueue.poll();
-                task = pQueue.poll();
                 while (task != null) {
                     while (task.isCancelled()) {
                         task = pQueue.poll();

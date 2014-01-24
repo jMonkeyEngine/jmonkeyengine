@@ -190,7 +190,6 @@ public class PhysicsSpace {
 
     private void preTick_native(float f) {
         AppTask task = pQueue.poll();
-        task = pQueue.poll();
         while (task != null) {
             while (task.isCancelled()) {
                 task = pQueue.poll();
