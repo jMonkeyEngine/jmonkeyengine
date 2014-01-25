@@ -184,12 +184,11 @@ import com.jme3.util.BufferUtils;
                     LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
                     invalid = true;
                 }
-
-                AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
-                animationHelper.applyAnimations(node, skeleton, blenderContext.getBlenderKey().getSkeletonAnimationNames(node.getName()));
-
-                node.updateModelBound();
             }
+            
+            AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
+            animationHelper.applyAnimations(node, skeleton, blenderContext.getBlenderKey().getSkeletonAnimationNames(node.getName()));
+            node.updateModelBound();
         }
     }
 
