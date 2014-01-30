@@ -290,6 +290,9 @@ public class AssetDataObject extends MultiDataObject {
                 return null;
             }
             String assetKey = mgr.getRelativeAssetPath(getPrimaryFile().getPath());
+            if(assetKey != null && assetKey.equals(getPrimaryFile().getPath())){
+                DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("File is not in the assets folder!\nPut file in a place that can be\naccessed by the ProjectAssetManager."));
+            }
             this.assetKey = new AssetKey<Object>(assetKey);
         }
         return assetKey;
