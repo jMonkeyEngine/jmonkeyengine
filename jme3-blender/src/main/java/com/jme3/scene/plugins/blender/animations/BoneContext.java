@@ -140,7 +140,9 @@ public class BoneContext {
         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
 
         Structure skeletonOwnerObjectStructure = (Structure) blenderContext.getLoadedFeature(skeletonOwnerOma, LoadedFeatureDataType.LOADED_STRUCTURE);
-        Matrix4f invertedObjectOwnerGlobalMatrix = objectHelper.getMatrix(skeletonOwnerObjectStructure, "imat", blenderContext.getBlenderKey().isFixUpAxis());
+        // I could load 'imat' here, but apparently in some older blenders there were bugs or unfinished functionalities that stored ZERO matrix in imat field
+        // loading 'obmat' and inverting it makes us avoid errors in such cases
+        Matrix4f invertedObjectOwnerGlobalMatrix = objectHelper.getMatrix(skeletonOwnerObjectStructure, "obmat", blenderContext.getBlenderKey().isFixUpAxis()).invertLocal();
         if (objectHelper.isParent(skeletonOwnerOma, armatureObjectOMA)) {
             boneMatrixInModelSpace = globalBoneMatrix.mult(invertedObjectOwnerGlobalMatrix);
         } else {

@@ -208,8 +208,13 @@ public class ObjectHelper extends AbstractBlenderHelper {
         }
 
         if (result != null) {
+            LOGGER.fine("Storing loaded feature in blender context and applying markers (those will be removed before the final result is released).");
             blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
-
+            blenderContext.addMarker(OMA_MARKER, result, objectStructure.getOldMemoryAddress());
+            if (objectType == ObjectType.ARMATURE) {
+                blenderContext.addMarker(ARMATURE_NODE_MARKER, result, Boolean.TRUE);
+            }
+            
             result.setLocalTransform(t);
             result.setCullHint(visible ? CullHint.Always : CullHint.Inherit);
             if (parent instanceof Node) {
@@ -233,12 +238,6 @@ public class ObjectHelper extends AbstractBlenderHelper {
 
             // I prefer do compute bounding box here than read it from the file
             result.updateModelBound();
-
-            LOGGER.fine("Applying markers (those will be removed before the final result is released).");
-            blenderContext.addMarker(OMA_MARKER, result, objectStructure.getOldMemoryAddress());
-            if (objectType == ObjectType.ARMATURE) {
-                blenderContext.addMarker(ARMATURE_NODE_MARKER, result, Boolean.TRUE);
-            }
 
             LOGGER.fine("Applying animations to the object if such are defined.");
             AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
