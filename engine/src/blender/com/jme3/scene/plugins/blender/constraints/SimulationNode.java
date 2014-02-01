@@ -131,11 +131,9 @@ public class SimulationNode {
                     constraints.addAll(boneConstraints);
                 }
             }
-
-            // each bone of the skeleton has the same anim data applied
-            BoneContext boneContext = blenderContext.getBoneContext(skeleton.getBone(1));
-            Long boneOma = boneContext.getBoneOma();
-            animations = blenderContext.getAnimations(boneOma);
+            Node node = blenderContext.getControlledNode(skeleton);
+            Long animatedNodeOMA = ((Number)blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, node)).longValue();
+            animations = blenderContext.getAnimations(animatedNodeOMA);
         } else {
             animations = blenderContext.getAnimations(featureOMA);
             for (Spatial child : spatial.getChildren()) {

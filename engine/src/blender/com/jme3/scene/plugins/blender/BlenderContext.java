@@ -420,7 +420,7 @@ public class BlenderContext {
             animList = new ArrayList<Animation>();
             animations.put(ownerOMA, animList);
         }
-        animations.put(ownerOMA, animList);
+        animList.add(animation);
     }
     
     /**

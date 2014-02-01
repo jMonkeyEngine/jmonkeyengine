@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.Animation;
-import com.jme3.animation.Bone;
 import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
@@ -121,11 +120,8 @@ public class AnimationHelper extends AbstractBlenderHelper {
                         Animation boneAnimation = new Animation(animationName, action.getAnimationTime());
                         boneAnimation.setTracks(tracks);
                         animations.add(boneAnimation);
-                        for (BoneTrack track : tracks) {
-                            Bone bone = skeleton.getBone(track.getTargetBoneIndex());
-                            BoneContext boneContext = blenderContext.getBoneContext(bone);
-                            blenderContext.addAnimation(boneContext.getBoneOma(), boneAnimation);
-                        }
+                        Long animatedNodeOMA = ((Number)blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, node)).longValue();
+                        blenderContext.addAnimation(animatedNodeOMA, boneAnimation);
                     }
                 } else {
                     LOGGER.log(Level.WARNING, "Cannot find animation named: {0}.", animationName);
