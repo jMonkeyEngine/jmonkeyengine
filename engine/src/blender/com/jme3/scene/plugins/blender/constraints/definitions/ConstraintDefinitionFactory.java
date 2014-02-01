@@ -51,6 +51,7 @@ public class ConstraintDefinitionFactory {
         CONSTRAINT_CLASSES.put("bSizeLikeConstraint", ConstraintDefinitionSizeLike.class);
         CONSTRAINT_CLASSES.put("bSizeLimitConstraint", ConstraintDefinitionSizeLimit.class);
         CONSTRAINT_CLASSES.put("bKinematicConstraint", ConstraintDefinitionIK.class);
+        CONSTRAINT_CLASSES.put("bTransLikeConstraint", ConstraintDefinitionTransLike.class);// since blender 2.51
     }
 
     private static final Map<String, String>                                UNSUPPORTED_CONSTRAINTS = new HashMap<String, String>();
@@ -73,7 +74,6 @@ public class ConstraintDefinitionFactory {
         // Blender 2.56+
         UNSUPPORTED_CONSTRAINTS.put("bTrackToConstraint", "Track to");
         UNSUPPORTED_CONSTRAINTS.put("bSameVolumeConstraint", "Same volume");
-        UNSUPPORTED_CONSTRAINTS.put("bTransLikeConstraint", "Trans like");
         // Blender 2.62+
         UNSUPPORTED_CONSTRAINTS.put("bCameraSolverConstraint", "Camera solver");
         UNSUPPORTED_CONSTRAINTS.put("bObjectSolverConstraint", "Object solver");
