@@ -43,6 +43,7 @@ import com.jme3.asset.BlenderKey;
 import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.asset.BlenderKey.LoadingResults;
 import com.jme3.asset.ModelKey;
+import com.jme3.light.Light;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
@@ -124,7 +125,8 @@ public class BlenderLoader implements AssetLoader {
                             String worldName = worldStructure.getName();
                             if (blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
                                 LandscapeHelper landscapeHelper = blenderContext.getHelper(LandscapeHelper.class);
-                                loadingResults.addLight(landscapeHelper.toAmbientLight(worldStructure));
+                                Light ambientLight = landscapeHelper.toAmbientLight(worldStructure);
+                                loadingResults.addLight(new LightNode(null, ambientLight));
                                 loadingResults.setSky(landscapeHelper.toSky(worldStructure));
                                 loadingResults.setBackgroundColor(landscapeHelper.toBackgroundColor(worldStructure));
                             }
