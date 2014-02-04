@@ -126,7 +126,9 @@ public class BlenderLoader implements AssetLoader {
                             if (blenderKey.getUsedWorld() == null || blenderKey.getUsedWorld().equals(worldName)) {
                                 LandscapeHelper landscapeHelper = blenderContext.getHelper(LandscapeHelper.class);
                                 Light ambientLight = landscapeHelper.toAmbientLight(worldStructure);
-                                loadingResults.addLight(new LightNode(null, ambientLight));
+                                if(ambientLight != null) {
+                                    loadingResults.addLight(new LightNode(null, ambientLight));
+                                }
                                 loadingResults.setSky(landscapeHelper.toSky(worldStructure));
                                 loadingResults.setBackgroundColor(landscapeHelper.toBackgroundColor(worldStructure));
                             }

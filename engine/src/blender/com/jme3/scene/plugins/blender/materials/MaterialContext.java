@@ -48,7 +48,7 @@ public final class MaterialContext {
     /* package */final DiffuseShader         diffuseShader;
     /* package */final SpecularShader        specularShader;
     /* package */final ColorRGBA             specularColor;
-    /* package */final ColorRGBA             ambientColor;
+    /* package */final float                 ambientFactor;
     /* package */final float                 shininess;
     /* package */final boolean               shadeless;
     /* package */final boolean               vertexColor;
@@ -66,7 +66,8 @@ public final class MaterialContext {
 
         int diff_shader = ((Number) structure.getFieldValue("diff_shader")).intValue();
         diffuseShader = DiffuseShader.values()[diff_shader];
-
+        ambientFactor = ((Number) structure.getFieldValue("amb")).floatValue();
+        
         if (shadeless) {
             float r = ((Number) structure.getFieldValue("r")).floatValue();
             float g = ((Number) structure.getFieldValue("g")).floatValue();
@@ -75,7 +76,7 @@ public final class MaterialContext {
 
             diffuseColor = new ColorRGBA(r, g, b, alpha);
             specularShader = null;
-            specularColor = ambientColor = null;
+            specularColor = null;
             shininess = 0.0f;
         } else {
             diffuseColor = this.readDiffuseColor(structure, diffuseShader);
@@ -85,12 +86,6 @@ public final class MaterialContext {
             specularColor = this.readSpecularColor(structure);
             float shininess = ((Number) structure.getFieldValue("har")).floatValue();// this is (probably) the specular hardness in blender
             this.shininess = shininess > 0.0f ? shininess : MaterialHelper.DEFAULT_SHININESS;
-
-            float r = ((Number) structure.getFieldValue("ambr")).floatValue();
-            float g = ((Number) structure.getFieldValue("ambg")).floatValue();
-            float b = ((Number) structure.getFieldValue("ambb")).floatValue();
-            float alpha = ((Number) structure.getFieldValue("alpha")).floatValue();
-            ambientColor = new ColorRGBA(r, g, b, alpha);
         }
 
         TextureHelper textureHelper = blenderContext.getHelper(TextureHelper.class);
@@ -108,9 +103,6 @@ public final class MaterialContext {
         }
         if (specularColor != null) {
             transparent = transparent || specularColor.a < 1.0f;
-        }
-        if (ambientColor != null) {
-            transparent = transparent || ambientColor.a < 1.0f;
         }
         this.transparent = transparent;
     }
@@ -152,7 +144,7 @@ public final class MaterialContext {
             material.setColor("Specular", specularColor);
             material.setFloat("Shininess", shininess);
 
-            material.setColor("Ambient", ambientColor);
+            material.setColor("Ambient", new ColorRGBA(ambientFactor, ambientFactor, ambientFactor, 1f));
         }
 
         // applying textures
