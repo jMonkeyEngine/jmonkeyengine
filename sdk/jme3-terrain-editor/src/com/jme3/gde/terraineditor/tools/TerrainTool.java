@@ -75,7 +75,7 @@ public abstract class TerrainTool {
     protected Geometry markerSecondary;
     protected float radius;
     protected float weight;
-    protected float maxToolSize = 20; // override in sub classes
+    protected float maxToolSize = 50; // override in sub classes
     private boolean doStraightline = false;
     private Vector3f startPress;
     private Vector3f axis;
@@ -212,7 +212,7 @@ public abstract class TerrainTool {
     }
     
     /**
-     * Changes the appearence of the markers according to the {@code mesh} param.
+     * Changes the appearance of the markers according to the {@code mesh} param.
      * @param mesh possible values are: {@code sphere, box}.
      */
     public void setMesh(Meshes mesh) {

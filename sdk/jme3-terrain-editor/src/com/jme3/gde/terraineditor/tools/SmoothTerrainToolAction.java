@@ -113,19 +113,19 @@ public class SmoothTerrainToolAction extends AbstractTerrainToolAction {
                     float down = terrain.getHeightmapHeight(new Vector2f(terrainLoc.x, terrainLoc.y-1));
                     int count = 1;
                     float amount = center;
-                    if (left != Float.NaN) {
+                    if ( !isNaN(left) ) {
                         amount += left;
                         count++;
                     }
-                    if (right != Float.NaN) {
+                    if ( !isNaN(right) ) {
                         amount += right;
                         count++;
                     }
-                    if (up != Float.NaN) {
+                    if ( !isNaN(up) ) {
                         amount += up;
                         count++;
                     }
-                    if (down != Float.NaN) {
+                    if ( !isNaN(down) ) {
                         amount += down;
                         count++;
                     }
@@ -149,6 +149,10 @@ public class SmoothTerrainToolAction extends AbstractTerrainToolAction {
         terrain.adjustHeight(locs, heights);
 
         ((Node)terrain).updateModelBound(); // or else we won't collide with it where we just edited
+    }
+    
+    private boolean isNaN(float val) {
+        return val != val;
     }
     
     private void resetHeight(Terrain terrain, List<Vector2f> undoLocs, List<Float> undoHeights) {
