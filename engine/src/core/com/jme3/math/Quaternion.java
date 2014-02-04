@@ -462,7 +462,10 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
      * @return the rotation matrix representation of this quaternion.
      */
     public Matrix4f toRotationMatrix(Matrix4f result) {
-        Vector3f originalScale = result.toScaleVector();
+        TempVars tempv = TempVars.get();
+        Vector3f originalScale = tempv.vect1;
+        
+        result.toScaleVector(originalScale);
         result.setScale(1, 1, 1);
         float norm = norm();
         // we explicitly test norm against one here, saving a division
@@ -496,6 +499,9 @@ public final class Quaternion implements Savable, Cloneable, java.io.Serializabl
         result.m22 = 1 - (xx + yy);
 
         result.setScale(originalScale);
+        
+        tempv.release();
+        
         return result;
     }
 
