@@ -49,13 +49,18 @@ public class LandscapeHelper extends AbstractBlenderHelper {
      */
     public Light toAmbientLight(Structure worldStructure) {
         LOGGER.fine("Loading ambient light.");
-        AmbientLight ambientLight = new AmbientLight();
+        AmbientLight ambientLight = null;
         float ambr = ((Number) worldStructure.getFieldValue("ambr")).floatValue();
         float ambg = ((Number) worldStructure.getFieldValue("ambg")).floatValue();
         float ambb = ((Number) worldStructure.getFieldValue("ambb")).floatValue();
-        ColorRGBA ambientLightColor = new ColorRGBA(ambr, ambg, ambb, 0.0f);
-        ambientLight.setColor(ambientLightColor);
-        LOGGER.log(Level.FINE, "Loaded ambient light: {0}.", ambientLightColor);
+        if(ambr > 0 || ambg > 0 || ambb > 0) {
+            ambientLight = new AmbientLight();
+            ColorRGBA ambientLightColor = new ColorRGBA(ambr, ambg, ambb, 0.0f);
+            ambientLight.setColor(ambientLightColor);
+            LOGGER.log(Level.FINE, "Loaded ambient light: {0}.", ambientLightColor);
+        } else {
+            LOGGER.finer("Ambient light is set to BLACK which means: no ambient light! The ambient light node will not be included in the result.");
+        }
         return ambientLight;
     }
 
