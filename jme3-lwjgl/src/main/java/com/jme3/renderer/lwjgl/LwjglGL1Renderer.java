@@ -1081,7 +1081,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count) {
-        VertexBuffer indices = null;
+        VertexBuffer indices;
 
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {

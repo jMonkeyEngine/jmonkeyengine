@@ -1172,13 +1172,13 @@ public class LwjglRenderer implements Renderer {
         if (GLContext.getCapabilities().GL_EXT_framebuffer_blit) {
             int srcX0 = 0;
             int srcY0 = 0;
-            int srcX1 = 0;
-            int srcY1 = 0;
+            int srcX1;
+            int srcY1;
 
             int dstX0 = 0;
             int dstY0 = 0;
-            int dstX1 = 0;
-            int dstY1 = 0;
+            int dstX1;
+            int dstY1;
 
             int prevFBO = context.boundFBO;
 
@@ -2410,7 +2410,7 @@ public class LwjglRenderer implements Renderer {
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count) {
-        VertexBuffer indices = null;
+        VertexBuffer indices;
 
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
@@ -2418,7 +2418,7 @@ public class LwjglRenderer implements Renderer {
         }
 
 //        IntMap<VertexBuffer> buffers = mesh.getBuffers();
-        SafeArrayList<VertexBuffer> buffersList = mesh.getBufferList();
+//        SafeArrayList<VertexBuffer> buffersList = mesh.getBufferList();
 
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);

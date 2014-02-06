@@ -2307,7 +2307,7 @@ public class OGLESShaderRenderer implements Renderer {
             }
         }
 
-        VertexBuffer indices = null;
+        VertexBuffer indices;
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {
@@ -2324,7 +2324,7 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count) {
-        VertexBuffer indices = null;
+        VertexBuffer indices;
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
