@@ -85,6 +85,7 @@ public class HumanoidRagdollPreset extends RagdollPreset {
         entry = new LexiconEntry();
         entry.addSynonym("lowerleg", 100);
         entry.addSynonym("calf", 100);
+        entry.addSynonym("shin", 100);
         entry.addSynonym("knee", 75);
         entry.addSynonym("leg", 50);
         entry.addSynonym("low", 10);
