@@ -102,6 +102,10 @@ public class LwjglGL1Renderer implements GL1Renderer {
             gl12 = true;
         }
         
+        //workaround, always assume we support GLSL100
+        //some cards just don't report this correctly
+        caps.add(Caps.GLSL100);
+        
         // Default values for certain GL state.
         glShadeModel(GL_SMOOTH);
         glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);

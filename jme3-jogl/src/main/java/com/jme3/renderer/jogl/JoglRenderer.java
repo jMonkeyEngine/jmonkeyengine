@@ -164,6 +164,10 @@ public class JoglRenderer implements Renderer {
             }
         }
 
+        //workaround, always assume we support GLSL100
+        //some cards just don't report this correctly
+        caps.add(Caps.GLSL100);
+        
         String versionStr = null;
         if (caps.contains(Caps.OpenGL20) || gl.isGL2ES2()) {
             versionStr = gl.glGetString(GL2ES2.GL_SHADING_LANGUAGE_VERSION);

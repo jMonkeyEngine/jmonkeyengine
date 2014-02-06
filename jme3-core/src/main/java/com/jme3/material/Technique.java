@@ -34,8 +34,8 @@ package com.jme3.material;
 import com.jme3.asset.AssetManager;
 import com.jme3.renderer.Caps;
 import com.jme3.shader.*;
+import com.jme3.util.ListMap;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Logger;
@@ -182,12 +182,13 @@ public class Technique /* implements Savable */ {
             // If the technique was switched, check if the define list changed
             // based on material parameters.
             
-            Collection<MatParam> params = owner.getParams();
-                        
-            if (!defines.equalsParams(params,def)) {
+            ListMap params = owner.getParamsMap();
+            
+            if (!defines.equalsParams(params, def)) {
                 // Defines were changed, update define list
                 defines.clear();
-                for (MatParam param : params) {
+                for(int i=0;i<params.size();i++) {
+                    MatParam param = (MatParam)params.getValue(i);
                     String defineName = def.getShaderParamDefine(param.getName());
                     if (defineName != null) {
                         defines.set(defineName, param.getVarType(), param.getValue());

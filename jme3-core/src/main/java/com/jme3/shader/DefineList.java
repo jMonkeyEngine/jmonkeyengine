@@ -34,9 +34,9 @@ package com.jme3.shader;
 import com.jme3.export.*;
 import com.jme3.material.MatParam;
 import com.jme3.material.TechniqueDef;
+import com.jme3.util.ListMap;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -182,11 +182,12 @@ public class DefineList implements Savable, Cloneable {
         return defines.equals(other.defines);
     }
     
-    public boolean equalsParams(Collection<MatParam> params, TechniqueDef def) {
-
+    public boolean equalsParams(ListMap params, TechniqueDef def) {
+        
         int size = 0;
 
-        for (MatParam param : params) {
+        for(int i = 0; i < params.size() ; i++ ) {
+            MatParam param = (MatParam)params.getValue(i);
             String key = def.getShaderParamDefine(param.getName());
             if (key != null) {
                 Object val = param.getValue();

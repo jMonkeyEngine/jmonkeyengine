@@ -434,6 +434,17 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     public Collection<MatParam> getParams() {
         return paramValues.values();
     }
+    
+    /**
+     * Returns the ListMap of all parameters set on this material.
+     *
+     * @return a ListMap of all parameters set on this material.
+     *
+     * @see #setParam(java.lang.String, com.jme3.shader.VarType, java.lang.Object)
+     */
+    public ListMap getParamsMap() {
+        return paramValues;
+    }
 
     /**
      * Check if setting the parameter given the type and name is allowed.

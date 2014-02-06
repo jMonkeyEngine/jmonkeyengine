@@ -153,6 +153,11 @@ public class OGLESShaderRenderer implements Renderer {
 
         powerVr = GLES20.glGetString(GLES20.GL_RENDERER).contains("PowerVR");
 
+        
+        //workaround, always assume we support GLSL100
+        //some cards just don't report this correctly
+        caps.add(Caps.GLSL100);
+        
         /*
         // Fix issue in TestRenderToMemory when GL_FRONT is the main
         // buffer being used.

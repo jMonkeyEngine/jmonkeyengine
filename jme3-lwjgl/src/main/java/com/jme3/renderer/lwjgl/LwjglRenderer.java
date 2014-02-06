@@ -158,7 +158,11 @@ public class LwjglRenderer implements Renderer {
                 }
             }
         }
-
+        
+        //workaround, always assume we support GLSL100
+        //some cards just don't report this correctly
+        caps.add(Caps.GLSL100);
+        
         String versionStr = null;
         if (ctxCaps.OpenGL20) {
             versionStr = glGetString(GL_SHADING_LANGUAGE_VERSION);
