@@ -209,6 +209,13 @@ public class BoneContext {
     public Skeleton getSkeleton() {
         return blenderContext.getSkeleton(armatureObjectOMA);
     }
+    
+    /**
+     * @return the initial bone's matrix in model space
+     */
+    public Matrix4f getBoneMatrixInModelSpace() {
+        return boneMatrixInModelSpace;
+    }
 
     /**
      * Tells if the bone is of specified property defined by its flag.
