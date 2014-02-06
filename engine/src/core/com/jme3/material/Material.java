@@ -893,12 +893,6 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         // When choosing technique, we choose one that
         // supports all the caps.
         EnumSet<Caps> rendererCaps = renderManager.getRenderer().getCaps();
-        
-        //workaround, always assume we support GLSL100
-        //some cards just don't report this correctly
-        if( rendererCaps.contains(Caps.GLSL100) == false )
-            rendererCaps.add(Caps.GLSL100);
-        
         if (tech == null) {
 
             if (name.equals("Default")) {

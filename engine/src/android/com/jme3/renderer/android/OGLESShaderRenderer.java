@@ -153,6 +153,11 @@ public class OGLESShaderRenderer implements Renderer {
 
         powerVr = GLES20.glGetString(GLES20.GL_RENDERER).contains("PowerVR");
 
+        
+        //workaround, always assume we support GLSL100
+        //some cards just don't report this correctly
+        caps.add(Caps.GLSL100);
+        
         /*
         // Fix issue in TestRenderToMemory when GL_FRONT is the main
         // buffer being used.
@@ -2302,7 +2307,7 @@ public class OGLESShaderRenderer implements Renderer {
             }
         }
 
-        VertexBuffer indices = null;
+        VertexBuffer indices;
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {
@@ -2319,7 +2324,7 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count) {
-        VertexBuffer indices = null;
+        VertexBuffer indices;
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);

@@ -138,6 +138,10 @@ public class JoglGL1Renderer implements GL1Renderer {
             gl12 = true;
         }
         
+        //workaround, always assume we support GLSL100
+        //some cards just don't report this correctly
+        caps.add(Caps.GLSL100);
+        
         // Default values for certain GL state.
         gl.getGL2ES1().glShadeModel(GLLightingFunc.GL_SMOOTH);
         gl.getGL2().glColorMaterial(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_DIFFUSE);
@@ -1136,7 +1140,7 @@ public class JoglGL1Renderer implements GL1Renderer {
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count) {
-        VertexBuffer indices = null;
+        VertexBuffer indices;
 
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {

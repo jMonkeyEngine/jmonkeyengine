@@ -55,7 +55,9 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
+import com.jme3.util.NativeObject;
 import com.jme3.util.NativeObjectManager;
+import com.jme3.util.SafeArrayList;
 import java.nio.*;
 import java.util.EnumSet;
 import java.util.List;
@@ -156,7 +158,11 @@ public class LwjglRenderer implements Renderer {
                 }
             }
         }
-
+        
+        //workaround, always assume we support GLSL100
+        //some cards just don't report this correctly
+        caps.add(Caps.GLSL100);
+        
         String versionStr = null;
         if (ctxCaps.OpenGL20) {
             versionStr = glGetString(GL_SHADING_LANGUAGE_VERSION);
@@ -480,7 +486,7 @@ public class LwjglRenderer implements Renderer {
         }
 
         if (state.isDepthTest() && !context.depthTestEnabled) {
-            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_DEPTH_TEST);      
             glDepthFunc(convertTestFunction(context.depthFunc));
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
@@ -501,9 +507,9 @@ public class LwjglRenderer implements Renderer {
             context.alphaTestEnabled = false;
         }
         if (state.getAlphaFallOff() != context.alphaTestFallOff) {
-            glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);
+            glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);   
             context.alphaTestFallOff = state.getAlphaFallOff();
-        }
+        }         
         if (state.getAlphaFunc() != context.alphaFunc) {
             glAlphaFunc(convertTestFunction(state.getAlphaFunc()), context.alphaTestFallOff);
             context.alphaFunc = state.getAlphaFunc();
@@ -1766,7 +1772,7 @@ public class LwjglRenderer implements Renderer {
         if (context.pointSprite) {
             return; // Attempt to fix glTexParameter crash for some ATI GPUs
         }
-
+        
         // repeat modes
         switch (tex.getType()) {
             case ThreeDimensional:
@@ -1787,7 +1793,7 @@ public class LwjglRenderer implements Renderer {
             // R to Texture compare mode
             if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
                 glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-                glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
+                glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);            
                 if (tex.getShadowCompareMode() == Texture.ShadowCompareMode.GreaterOrEqual) {
                     glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_GEQUAL);
                 } else {
@@ -1795,7 +1801,7 @@ public class LwjglRenderer implements Renderer {
                 }
             }else{
                  //restoring default value
-                 glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+                 glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_NONE);          
             }
             tex.compareModeUpdated();
         }
@@ -1803,7 +1809,7 @@ public class LwjglRenderer implements Renderer {
 
     /**
      * Uploads the given image to the GL driver.
-     *
+     * 
      * @param img The image to upload
      * @param type How the data in the image argument should be interpreted.
      * @param unit The texture slot to be used to upload the image, not important
@@ -1820,7 +1826,7 @@ public class LwjglRenderer implements Renderer {
             statistics.onNewTexture();
         }
 
-        // bind texture
+        // bind texture       
         int target = convertTextureType(type, img.getMultiSamples(), -1);
         if (context.boundTextureUnit != unit) {
             glActiveTexture(GL_TEXTURE0 + unit);
@@ -1877,7 +1883,7 @@ public class LwjglRenderer implements Renderer {
                 throw new RendererException("Multisample textures not supported by graphics hardware");
             }
         }
-
+        
         if (target == GL_TEXTURE_CUBE_MAP) {
             // Check max texture size before upload
             if (img.getWidth() > maxCubeTexSize || img.getHeight() > maxCubeTexSize) {
@@ -1903,12 +1909,12 @@ public class LwjglRenderer implements Renderer {
             if (!caps.contains(Caps.TextureArray)) {
                 throw new RendererException("Texture arrays not supported by graphics hardware");
             }
-
+            
             List<ByteBuffer> data = img.getData();
-
+            
             // -1 index specifies prepare data for 2D Array
             TextureUtil.uploadTexture(img, target, -1, 0);
-
+            
             for (int i = 0; i < data.size(); i++) {
                 // upload each slice of 2D array in turn
                 // this time with the appropriate index
