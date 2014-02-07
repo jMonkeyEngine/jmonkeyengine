@@ -44,7 +44,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.util.TempVars;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -172,14 +171,16 @@ public class ShadowUtil {
      */
     public static BoundingBox computeUnionBound(GeometryList list, Transform transform) {
         BoundingBox bbox = new BoundingBox();
+        TempVars tempv = TempVars.get();
         for (int i = 0; i < list.size(); i++) {
             BoundingVolume vol = list.get(i).getWorldBound();
-            BoundingVolume newVol = vol.transform(transform);
+            BoundingVolume newVol = vol.transform(transform, tempv.bbox);
             //Nehon : prevent NaN and infinity values to screw the final bounding box
             if (!Float.isNaN(newVol.getCenter().x) && !Float.isInfinite(newVol.getCenter().x)) {
                 bbox.mergeLocal(newVol);
             }
         }
+        tempv.release();
         return bbox;
     }
 
@@ -191,15 +192,16 @@ public class ShadowUtil {
      */
     public static BoundingBox computeUnionBound(GeometryList list, Matrix4f mat) {
         BoundingBox bbox = new BoundingBox();
-        BoundingVolume store = null;
+        TempVars tempv = TempVars.get();
         for (int i = 0; i < list.size(); i++) {
             BoundingVolume vol = list.get(i).getWorldBound();
-            store = vol.clone().transform(mat, null);
+            BoundingVolume store = vol.clone().transform(mat, tempv.bbox);
             //Nehon : prevent NaN and infinity values to screw the final bounding box
             if (!Float.isNaN(store.getCenter().x) && !Float.isInfinite(store.getCenter().x)) {
                 bbox.mergeLocal(store);
             }
         }
+        tempv.release();
         return bbox;
     }
 
@@ -356,7 +358,7 @@ public class ShadowUtil {
             Vector3f[] points,
             GeometryList splitOccluders,
             float shadowMapSize) {
-
+        
         boolean ortho = shadowCam.isParallelProjection();
 
         shadowCam.setProjectionMatrix(null);
@@ -370,24 +372,30 @@ public class ShadowUtil {
 
         BoundingBox splitBB = computeBoundForPoints(points, viewProjMatrix);
 
-        ArrayList<BoundingVolume> visRecvList = new ArrayList<BoundingVolume>();
+        TempVars vars = TempVars.get();
+        
+        BoundingBox casterBB = new BoundingBox();
+        BoundingBox receiverBB = new BoundingBox();
+        
+        int casterCount = 0, receiverCount = 0;
+        
         for (int i = 0; i < receivers.size(); i++) {
             // convert bounding box to light's viewproj space
             Geometry receiver = receivers.get(i);
             BoundingVolume bv = receiver.getWorldBound();
-            BoundingVolume recvBox = bv.transform(viewProjMatrix, null);
+            BoundingVolume recvBox = bv.transform(viewProjMatrix, vars.bbox);
 
             if (splitBB.intersects(recvBox)) {
-                visRecvList.add(recvBox);
+                receiverBB.mergeLocal(recvBox);
+                receiverCount++;
             }
         }
 
-        ArrayList<BoundingVolume> visOccList = new ArrayList<BoundingVolume>();
         for (int i = 0; i < occluders.size(); i++) {
             // convert bounding box to light's viewproj space
             Geometry occluder = occluders.get(i);
             BoundingVolume bv = occluder.getWorldBound();
-            BoundingVolume occBox = bv.transform(viewProjMatrix, null);
+            BoundingVolume occBox = bv.transform(viewProjMatrix, vars.bbox);
 
             boolean intersects = splitBB.intersects(occBox);
             if (!intersects && occBox instanceof BoundingBox) {
@@ -406,30 +414,27 @@ public class ShadowUtil {
                     // Before adding it
                     occBB.setZExtent(occBB.getZExtent() - 50);
                     occBB.setCenter(occBB.getCenter().subtractLocal(0, 0, 25));
-                    visOccList.add(occBox);
+                    casterBB.mergeLocal(occBox);
+                    casterCount++;
                     if (splitOccluders != null) {
                         splitOccluders.add(occluder);
                     }
                 }
             } else if (intersects) {
-                visOccList.add(occBox);
+                casterBB.mergeLocal(occBox);
+                casterCount++;
                 if (splitOccluders != null) {
                     splitOccluders.add(occluder);
                 }
             }
         }
 
-        BoundingBox casterBB = computeUnionBound(visOccList);
-        BoundingBox receiverBB = computeUnionBound(visRecvList);
-
         //Nehon 08/18/2010 this is to avoid shadow bleeding when the ground is set to only receive shadows
-        if (visOccList.size() != visRecvList.size()) {
+        if (casterCount != receiverCount) {
             casterBB.setXExtent(casterBB.getXExtent() + 2.0f);
             casterBB.setYExtent(casterBB.getYExtent() + 2.0f);
             casterBB.setZExtent(casterBB.getZExtent() + 2.0f);
         }
-
-        TempVars vars = TempVars.get();
 
         Vector3f casterMin = casterBB.getMin(vars.vect1);
         Vector3f casterMax = casterBB.getMax(vars.vect2);
