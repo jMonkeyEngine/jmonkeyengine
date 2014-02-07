@@ -1778,6 +1778,7 @@ public class LwjglRenderer implements Renderer {
             case ThreeDimensional:
             case CubeMap: // cubemaps use 3D coords
                 glTexParameteri(target, GL_TEXTURE_WRAP_R, convertWrapMode(tex.getWrap(WrapAxis.R)));
+                //There is no break statement on purpose here
             case TwoDimensional:
             case TwoDimensionalArray:
                 glTexParameteri(target, GL_TEXTURE_WRAP_T, convertWrapMode(tex.getWrap(WrapAxis.T)));
