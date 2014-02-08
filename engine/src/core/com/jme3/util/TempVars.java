@@ -148,7 +148,7 @@ public class TempVars {
     /**
      * BoundingVolumes (for shadows etc.)
      */
-    public final BoundingVolume bbox = new BoundingBox();
+    public final BoundingBox bbox = new BoundingBox();
     /**
      * Skinning buffers
      */
