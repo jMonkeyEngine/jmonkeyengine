@@ -754,4 +754,24 @@ public class BatchNode extends Node implements Savable {
     public int getOffsetIndex(Geometry batchedGeometry) {
         return batchedGeometry.startIndex;
     }
+        
+    @Override
+    public Node clone(boolean cloneMaterials) {
+        BatchNode clone = (BatchNode)super.clone(cloneMaterials);
+        if ( batches.size() > 0) {
+            for ( Batch b : batches ) {
+                for ( int i =0; i < clone.children.size(); i++ ) {
+                    if ( clone.children.get(i).getName().equals(b.geometry.getName())) {
+                        clone.children.remove(i);
+                        break;
+                    }
+                }
+            }
+            clone.needsFullRebatch = true;
+            clone.batches.clear();
+            clone.batchesByGeom.clear();
+            clone.batch();
+        }
+        return clone;
+    }
 }
