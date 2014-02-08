@@ -6,8 +6,6 @@ uniform mat4 m_LightViewProjectionMatrix3;
 
 uniform mat4 g_WorldViewProjectionMatrix;
 uniform mat4 g_WorldMatrix;
-uniform mat4 g_ViewMatrix;
-uniform vec3 m_LightPos; 
 
 out vec4 projCoord0;
 out vec4 projCoord1;
@@ -15,11 +13,17 @@ out vec4 projCoord2;
 out vec4 projCoord3;
 
 #ifdef POINTLIGHT
-uniform mat4 m_LightViewProjectionMatrix4;
-uniform mat4 m_LightViewProjectionMatrix5;
-out vec4 projCoord4;
-out vec4 projCoord5;
-out vec4 worldPos;
+    uniform mat4 m_LightViewProjectionMatrix4;
+    uniform mat4 m_LightViewProjectionMatrix5;
+    out vec4 projCoord4;
+    out vec4 projCoord5;
+    out vec4 worldPos;
+#else
+    #ifndef PSSM
+        uniform vec3 m_LightPos; 
+        uniform vec3 m_LightDir; 
+        out float lightDot;
+    #endif
 #endif
 
 #ifdef PSSM
@@ -69,10 +73,10 @@ void main(){
     #ifdef POINTLIGHT
         projCoord4 = biasMat * m_LightViewProjectionMatrix4 * worldPos;
         projCoord5 = biasMat * m_LightViewProjectionMatrix5 * worldPos;
-    #else
-        
-        vec4 vLightPos = g_ViewMatrix * vec4(m_LightPos,1.0);
-        vec4 vPos = g_ViewMatrix * worldPos;        
-        lightVec = vLightPos.xyz - vPos.xyz;
+    #else        
+        #ifndef PSSM
+            vec3 lightDir = worldPos.xyz - m_LightPos;
+            lightDot = dot(m_LightDir,lightDir);
+        #endif
     #endif
 }

@@ -124,6 +124,7 @@ MaterialDef Phong Lighting {
         Matrix4 LightViewProjectionMatrix4
         Matrix4 LightViewProjectionMatrix5   
         Vector3 LightPos
+        Vector3 LightDir
 
         Float PCFEdge
         Float ShadowMapSize
@@ -268,6 +269,25 @@ MaterialDef Phong Lighting {
 
         VertexShader GLSL100 :   Common/MatDefs/SSAO/normal.vert
         FragmentShader GLSL100 : Common/MatDefs/SSAO/normal.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            NormalMatrix
+        }
+
+        Defines {
+            DIFFUSEMAP_ALPHA : DiffuseMap
+            NUM_BONES : NumberOfBones
+        }
+
+    }
+
+
+    Technique PreNormalPassDerivative {
+
+        VertexShader GLSL100 :   Common/MatDefs/MSSAO/normal.vert
+        FragmentShader GLSL100 : Common/MatDefs/MSSAO/normal.frag
 
         WorldParameters {
             WorldViewProjectionMatrix
