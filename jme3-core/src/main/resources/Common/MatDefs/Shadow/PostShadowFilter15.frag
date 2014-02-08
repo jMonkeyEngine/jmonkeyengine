@@ -24,6 +24,11 @@ uniform mat4 m_LightViewProjectionMatrix3;
     uniform vec3 m_LightPos;
     uniform mat4 m_LightViewProjectionMatrix4;
     uniform mat4 m_LightViewProjectionMatrix5;
+#else
+    #ifndef PSSM    
+        uniform vec3 m_LightPos;    
+        uniform vec3 m_LightDir;       
+    #endif
 #endif
 
 #ifdef FADE
@@ -48,6 +53,13 @@ vec4 main_multiSample(in int numSample){
     // get the vertex in world space
     vec4 worldPos = vec4(getPosition(depth,texCoord),1.0);
   
+    #if (!defined(POINTLIGHT) && !defined(PSSM))
+          vec3 lightDir = worldPos.xyz - m_LightPos;
+          if( dot(m_LightDir,lightDir)<0){
+             return color;
+          }         
+    #endif
+
     // populate the light view matrices array and convert vertex to light viewProj space
     vec4 projCoord0 = biasMat * m_LightViewProjectionMatrix0 * worldPos;
     vec4 projCoord1 = biasMat * m_LightViewProjectionMatrix1 * worldPos;

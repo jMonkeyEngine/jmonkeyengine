@@ -16,6 +16,10 @@ in vec4 projCoord3;
     in vec4 projCoord5;
     in vec4 worldPos;
     uniform vec3 m_LightPos; 
+#else
+    #ifndef PSSM        
+        in float lightDot;
+    #endif
 #endif
 
 #ifdef DISCARD_ALPHA
@@ -33,7 +37,7 @@ uniform vec2 m_FadeInfo;
 #endif
 
 void main(){
-    
+
     #ifdef DISCARD_ALPHA
         #ifdef COLOR_MAP
              float alpha = texture2D(m_ColorMap,texCoord).a;
@@ -56,8 +60,12 @@ void main(){
             shadow = getDirectionalLightShadows(m_Splits, shadowPosition,
                            m_ShadowMap0,m_ShadowMap1,m_ShadowMap2,m_ShadowMap3,
                            projCoord0, projCoord1, projCoord2, projCoord3);
-       #else 
+       #else
             //spotlight
+            if(lightDot < 0){
+                outFragColor =  vec4(1.0);
+                return;
+            }
             shadow = getSpotLightShadows(m_ShadowMap0,projCoord0);
        #endif
     #endif   

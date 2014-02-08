@@ -14,6 +14,10 @@ varying vec4 projCoord3;
     varying vec4 projCoord5;
     uniform vec3 m_LightPos;
     varying vec4 worldPos;
+#else
+    #ifndef PSSM        
+        varying float lightDot;
+    #endif
 #endif
 
 #ifdef DISCARD_ALPHA
@@ -57,6 +61,10 @@ void main(){
                            projCoord0, projCoord1, projCoord2, projCoord3);
        #else 
             //spotlight
+            if(lightDot < 0){
+                outFragColor =  vec4(1.0);
+                return;
+            }
             shadow = getSpotLightShadows(m_ShadowMap0,projCoord0);
        #endif
     #endif   
