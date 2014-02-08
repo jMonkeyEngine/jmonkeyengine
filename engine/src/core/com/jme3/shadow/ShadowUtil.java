@@ -195,7 +195,7 @@ public class ShadowUtil {
         TempVars tempv = TempVars.get();
         for (int i = 0; i < list.size(); i++) {
             BoundingVolume vol = list.get(i).getWorldBound();
-            BoundingVolume store = vol.clone().transform(mat, tempv.bbox);
+            BoundingVolume store = vol.transform(mat, tempv.bbox);
             //Nehon : prevent NaN and infinity values to screw the final bounding box
             if (!Float.isNaN(store.getCenter().x) && !Float.isInfinite(store.getCenter().x)) {
                 bbox.mergeLocal(store);
@@ -386,8 +386,11 @@ public class ShadowUtil {
             BoundingVolume recvBox = bv.transform(viewProjMatrix, vars.bbox);
 
             if (splitBB.intersects(recvBox)) {
-                receiverBB.mergeLocal(recvBox);
-                receiverCount++;
+                //Nehon : prevent NaN and infinity values to screw the final bounding box
+                if (!Float.isNaN(recvBox.getCenter().x) && !Float.isInfinite(recvBox.getCenter().x)) {
+                    receiverBB.mergeLocal(recvBox);
+                    receiverCount++;
+                }
             }
         }
 
@@ -409,16 +412,20 @@ public class ShadowUtil {
                 occBB.setZExtent(occBB.getZExtent() + 50);
                 occBB.setCenter(occBB.getCenter().addLocal(0, 0, 25));
                 if (splitBB.intersects(occBB)) {
-                    // To prevent extending the depth range too much
-                    // We return the bound to its former shape
-                    // Before adding it
-                    occBB.setZExtent(occBB.getZExtent() - 50);
-                    occBB.setCenter(occBB.getCenter().subtractLocal(0, 0, 25));
-                    casterBB.mergeLocal(occBox);
-                    casterCount++;
+                    //Nehon : prevent NaN and infinity values to screw the final bounding box
+                    if (!Float.isNaN(occBox.getCenter().x) && !Float.isInfinite(occBox.getCenter().x)) {
+                        // To prevent extending the depth range too much
+                        // We return the bound to its former shape
+                        // Before adding it
+                        occBB.setZExtent(occBB.getZExtent() - 50);
+                        occBB.setCenter(occBB.getCenter().subtractLocal(0, 0, 25));                    
+                        casterBB.mergeLocal(occBox);
+                        casterCount++;
+                    }
                     if (splitOccluders != null) {
                         splitOccluders.add(occluder);
                     }
+                    
                 }
             } else if (intersects) {
                 casterBB.mergeLocal(occBox);
