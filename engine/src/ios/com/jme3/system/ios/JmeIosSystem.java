@@ -89,7 +89,7 @@ public class JmeIosSystem extends JmeSystemDelegate {
             ctx = new NullContext();
             ctx.setSettings(settings);
         } else {
-            ctx = new NullContext();
+            ctx = new IGLESContext();
             ctx.setSettings(settings);
         }
         return ctx;
