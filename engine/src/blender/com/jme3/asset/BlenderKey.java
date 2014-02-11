@@ -52,6 +52,7 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.FaceCullMode;
 import com.jme3.math.ColorRGBA;
+import com.jme3.post.Filter;
 import com.jme3.scene.CameraNode;
 import com.jme3.scene.LightNode;
 import com.jme3.scene.Node;
@@ -796,6 +797,8 @@ public class BlenderKey extends ModelKey {
         private List<LightNode>  lights;
         /** Loaded sky. */
         private Spatial          sky;
+        /** Scene filters (ie. FOG). */
+        private List<Filter>     filters;
         /**
          * The background color of the render loaded from the horizon color of the world. If no world is used than the gray color
          * is set to default (as in blender editor.
@@ -918,6 +921,21 @@ public class BlenderKey extends ModelKey {
         }
 
         /**
+         * This method adds a scene filter. Filters are used to load FOG or other
+         * scene effects that blender can define.
+         * @param filter
+         *            the filter to be added
+         */
+        public void addFilter(Filter filter) {
+            if (filter != null) {
+                if (filters == null) {
+                    filters = new ArrayList<Filter>(5);
+                }
+                filters.add(filter);
+            }
+        }
+
+        /**
          * @param backgroundColor
          *            the background color
          */
@@ -982,12 +1000,20 @@ public class BlenderKey extends ModelKey {
         }
 
         /**
+         * @return scene filters
+         */
+        public List<Filter> getFilters() {
+            return filters;
+        }
+
+        /**
          * @return the background color
          */
         public ColorRGBA getBackgroundColor() {
             return backgroundColor;
         }
 
+        @Override
         public int collideWith(Collidable other, CollisionResults results) throws UnsupportedCollisionException {
             return 0;
         }

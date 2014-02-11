@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.Light;
 import com.jme3.math.ColorRGBA;
+import com.jme3.post.filters.FogFilter;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
@@ -37,6 +38,8 @@ public class LandscapeHelper extends AbstractBlenderHelper {
     private static final int    SKYTYPE_REAL  = 2;
     private static final int    SKYTYPE_PAPER = 4;
 
+    private static final int    MODE_MIST     = 0x01;
+
     public LandscapeHelper(String blenderVersion, BlenderContext blenderContext) {
         super(blenderVersion, blenderContext);
     }
@@ -53,7 +56,7 @@ public class LandscapeHelper extends AbstractBlenderHelper {
         float ambr = ((Number) worldStructure.getFieldValue("ambr")).floatValue();
         float ambg = ((Number) worldStructure.getFieldValue("ambg")).floatValue();
         float ambb = ((Number) worldStructure.getFieldValue("ambb")).floatValue();
-        if(ambr > 0 || ambg > 0 || ambb > 0) {
+        if (ambr > 0 || ambg > 0 || ambb > 0) {
             ambientLight = new AmbientLight();
             ColorRGBA ambientLightColor = new ColorRGBA(ambr, ambg, ambb, 0.0f);
             ambientLight.setColor(ambientLightColor);
@@ -62,6 +65,25 @@ public class LandscapeHelper extends AbstractBlenderHelper {
             LOGGER.finer("Ambient light is set to BLACK which means: no ambient light! The ambient light node will not be included in the result.");
         }
         return ambientLight;
+    }
+
+    /**
+     * The method loads fog for the scene.
+     * NOTICE! Remember to manually set the distance and density of the fog.
+     * Unfortunately blender's fog parameters in no way fit to the JME.
+     * @param worldStructure
+     *            the world's structure
+     * @return fog filter or null if scene does not define it
+     */
+    public FogFilter toFog(Structure worldStructure) {
+        FogFilter result = null;
+        int mode = ((Number) worldStructure.getFieldValue("mode")).intValue();
+        if ((mode & MODE_MIST) != 0) {
+            LOGGER.fine("Loading fog.");
+            result = new FogFilter();
+            result.setFogColor(this.toBackgroundColor(worldStructure));
+        }
+        return result;
     }
 
     /**

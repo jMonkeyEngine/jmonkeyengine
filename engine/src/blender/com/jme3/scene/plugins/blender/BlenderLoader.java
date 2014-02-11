@@ -78,6 +78,7 @@ public class BlenderLoader implements AssetLoader {
     /** The blender context. */
     protected BlenderContext        blenderContext;
 
+    @Override
     public Spatial load(AssetInfo assetInfo) throws IOException {
         try {
             this.setup(assetInfo);
@@ -130,6 +131,7 @@ public class BlenderLoader implements AssetLoader {
                                     loadingResults.addLight(new LightNode(null, ambientLight));
                                 }
                                 loadingResults.setSky(landscapeHelper.toSky(worldStructure));
+                                loadingResults.addFilter(landscapeHelper.toFog(worldStructure));
                                 loadingResults.setBackgroundColor(landscapeHelper.toBackgroundColor(worldStructure));
                             }
                         }
