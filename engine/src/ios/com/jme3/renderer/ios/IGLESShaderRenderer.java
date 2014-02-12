@@ -67,7 +67,7 @@ public class IGLESShaderRenderer implements Renderer {
 
     private FrameBuffer lastFb = null;
     private FrameBuffer mainFbOverride = null;
-    private boolean useVBO = false;
+    private boolean useVBO = true;
     private boolean powerVr = false;
 
     private Shader boundShader;
