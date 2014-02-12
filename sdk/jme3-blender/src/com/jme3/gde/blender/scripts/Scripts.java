@@ -30,6 +30,7 @@ public class Scripts {
         }
         checkScript(folder, "import_3ds.py");
         checkScript(folder, "import_dae.py");
+        checkScript(folder, "import_fbx.py");
     }
 
     private static void checkScript(FileObject folder, String name) {
