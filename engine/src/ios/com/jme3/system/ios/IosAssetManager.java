@@ -35,6 +35,7 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.TextureKey;
 import com.jme3.asset.plugins.ClasspathLocator;
+import com.jme3.audio.plugins.WAVLoader;
 import com.jme3.texture.Texture;
 import java.io.InputStream;
 import java.net.URL;
@@ -87,8 +88,10 @@ public class IosAssetManager extends DesktopAssetManager {
         registerLoader(com.jme3.shader.plugins.GLSLLoader.class, "vert", "frag", "glsl", "glsllib");
         registerLoader(com.jme3.export.binary.BinaryImporter.class, "j3o");
         registerLoader(com.jme3.font.plugins.BitmapFontLoader.class, "fnt");
+        registerLoader(WAVLoader.class, "wav");
         
-        // Less common loaders (especially on Android)
+        // Less common loaders (especially on iOS)
+        registerLoaderSafe("com.jme3.audio.plugins.OGGLoader", "ogg");
         registerLoaderSafe("com.jme3.texture.plugins.DDSLoader", "dds");
         registerLoaderSafe("com.jme3.texture.plugins.PFMLoader", "pfm");
         registerLoaderSafe("com.jme3.texture.plugins.HDRLoader", "hdr");

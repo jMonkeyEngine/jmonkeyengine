@@ -51,4 +51,11 @@ public abstract class IosHarness extends ObjcNativeObject {
     public abstract void appReactivated();
 
     public abstract void appClosed();
+
+    public abstract void appUpdate();
+
+    public abstract void appDraw();
+    
+    public abstract void appReshape(int width, int height);
+
 }

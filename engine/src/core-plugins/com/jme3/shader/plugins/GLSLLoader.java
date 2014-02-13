@@ -82,8 +82,8 @@ public class GLSLLoader implements AssetLoader {
         StringBuilder sb = new StringBuilder();
         BufferedReader bufReader = new BufferedReader(reader);
         try {
-            while (bufReader.ready()) {
-                String ln = bufReader.readLine();
+            String ln;
+            while ((ln = bufReader.readLine()) != null) {                
                 if (ln.trim().startsWith("#import ")) {
                     ln = ln.trim().substring(8).trim();
                     if (ln.startsWith("\"") && ln.endsWith("\"") && ln.length() > 3) {
