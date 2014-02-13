@@ -161,16 +161,16 @@ public class IGLESShaderRenderer implements Renderer {
         }
          */
         
-//        if (state.isDepthTest() && !context.depthTestEnabled) {
-//            JmeIosGLES.glEnable(JmeIosGLES.GL_DEPTH_TEST);
-//            JmeIosGLES.glDepthFunc(convertTestFunction(context.depthFunc));
-//            JmeIosGLES.checkGLError();
-//            context.depthTestEnabled = true;
-//        } else if (!state.isDepthTest() && context.depthTestEnabled) {
-//            JmeIosGLES.glDisable(JmeIosGLES.GL_DEPTH_TEST);
-//            JmeIosGLES.checkGLError();
-//            context.depthTestEnabled = false;
-//        }
+        if (state.isDepthTest() && !context.depthTestEnabled) {
+            JmeIosGLES.glEnable(JmeIosGLES.GL_DEPTH_TEST);
+            JmeIosGLES.glDepthFunc(convertTestFunction(context.depthFunc));
+            JmeIosGLES.checkGLError();
+            context.depthTestEnabled = true;
+        } else if (!state.isDepthTest() && context.depthTestEnabled) {
+            JmeIosGLES.glDisable(JmeIosGLES.GL_DEPTH_TEST);
+            JmeIosGLES.checkGLError();
+            context.depthTestEnabled = false;
+        }
 //		if (state.getDepthFunc() != context.depthFunc) {
 //			JmeIosGLES.glDepthFunc(convertTestFunction(state.getDepthFunc()));
 //			context.depthFunc = state.getDepthFunc();
