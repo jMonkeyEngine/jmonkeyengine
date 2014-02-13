@@ -107,7 +107,7 @@
         <j2seproject3:javac
             destdir="${build.dir}/blender"
             srcdir="${src.blender.dir}"
-            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/plugins:${build.dir}/desktop"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/plugins:${build.dir}/desktop:${build.dir}/effects"
             gensrcdir="${build.generated.sources.dir}"/>
         <copy todir="${build.dir}/blender">
             <fileset dir="${src.blender.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
