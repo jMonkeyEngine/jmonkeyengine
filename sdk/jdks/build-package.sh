@@ -10,11 +10,11 @@ source="$2"
 if [ -z "$1" ]; then
     echo "No platform supplied"
     echo "Specify a platform like macosx, windows-x86, linux-x64 and a source like /path/to/jdk/home"
-    echo "If no source is specified, local/jdk7u11-platform will be used"
+    echo "If no source is specified, local/jdk-(platform) will be used"
     exit 1
 fi
 if [ -z "$2" ]; then
-	source="local/jdk7u11-$os"
+	source="local/jdk-$os"
 fi
 if [ ! -d "$source" ]; then
     echo "Source JDK directory $source was not found, specify another source folder as second parameter or copy the needed JDK to $source"
