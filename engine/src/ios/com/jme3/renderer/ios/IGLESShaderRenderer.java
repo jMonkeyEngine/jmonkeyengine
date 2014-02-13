@@ -163,7 +163,7 @@ public class IGLESShaderRenderer implements Renderer {
         
         if (state.isDepthTest() && !context.depthTestEnabled) {
             JmeIosGLES.glEnable(JmeIosGLES.GL_DEPTH_TEST);
-            JmeIosGLES.glDepthFunc(convertTestFunction(context.depthFunc));
+            JmeIosGLES.glDepthFunc(convertTestFunction(JmeIosGLES.GL_LEQUAL));
             JmeIosGLES.checkGLError();
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
