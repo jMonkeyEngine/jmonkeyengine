@@ -83,7 +83,7 @@ public class BlenderFbxDataObject extends AbstractBlenderImportDataObject {
 
     public BlenderFbxDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
-        SUFFIX = "3ds";
+        SUFFIX = "fbx";
 //        registerEditor("application/fbx", false);
     }
 //    @Override
