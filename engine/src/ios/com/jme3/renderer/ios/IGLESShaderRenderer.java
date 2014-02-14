@@ -69,6 +69,7 @@ public class IGLESShaderRenderer implements Renderer {
     private FrameBuffer mainFbOverride = null;
     private boolean useVBO = true;
     private boolean powerVr = false;
+    private boolean uintIndexSupport = false;
 
     private Shader boundShader;
 
@@ -1220,6 +1221,9 @@ public class IGLESShaderRenderer implements Renderer {
 
         logger.log(Level.FINE, "Caps: {0}", caps);
         logger.setLevel(store);
+
+        uintIndexSupport = extensions.contains("GL_OES_element_index_uint");
+        logger.log(Level.FINE, "Support for UInt index: {0}", uintIndexSupport);
     }
     
     
@@ -1922,7 +1926,7 @@ public class IGLESShaderRenderer implements Renderer {
 
         Buffer indexData = indexBuf.getData();
 
-        if (indexBuf.getFormat() == Format.UnsignedInt) {
+        if (!uintIndexSupport && (indexBuf.getFormat() == Format.UnsignedInt)) {
             throw new RendererException("OpenGL ES does not support 32-bit index buffers." +
                                         "Split your models to avoid going over 65536 vertices.");
         }
