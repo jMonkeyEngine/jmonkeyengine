@@ -33,7 +33,8 @@ void main(void)
         res /= m_NbSamples;
 
         //Blend the original color with the averaged pixels
-        fragColor = mix( colorRes, res, m_LightDensity);
+        float mean = (res.r + res.g + res.b)/3;
+        fragColor =mix(colorRes ,mix( colorRes, res, m_LightDensity),mean);  
     }else{
         fragColor = getColor(m_Texture,texCoord);
     }

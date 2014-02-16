@@ -29,7 +29,8 @@ void main(void)
         res /= m_NbSamples;
 
         //Blend the original color with the averaged pixels
-        gl_FragColor =mix( colorRes, res, m_LightDensity);
+        float mean = (res.r + res.g + res.b)/3;
+        fragColor =mix(colorRes ,mix( colorRes, res, m_LightDensity),mean);  
     }else{
         gl_FragColor= texture2D(m_Texture,texCoord);
     }
