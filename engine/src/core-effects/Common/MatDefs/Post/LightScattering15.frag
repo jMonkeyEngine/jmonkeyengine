@@ -28,12 +28,13 @@ void main(void)
             scaledCoord=texCoo*scale + m_LightPosition.xy;            
             if(fetchTextureSample(m_DepthTexture, scaledCoord,0).r==1.0){
                 res += fetchTextureSample(m_Texture,scaledCoord,0);
+                }
             }
-        }
         res /= m_NbSamples;
-
+        
         //Blend the original color with the averaged pixels
-        fragColor = mix( colorRes, res, m_LightDensity);
+        float mean = (res.r + res.g + res.b)/3;
+        fragColor =mix(colorRes ,mix( colorRes, res, m_LightDensity),mean);        
     }else{
         fragColor = getColor(m_Texture,texCoord);
     }
