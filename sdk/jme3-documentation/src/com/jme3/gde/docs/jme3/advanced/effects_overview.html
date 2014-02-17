@@ -298,6 +298,57 @@ Thanks for your awesome contributions! Keep them coming!
 </ul>
 <hr />
 
+</div>
+<!-- EDIT20 SECTION "Particle Emitters: Explosions, Fire, Smoke" [8466-9440] -->
+<h3><a>Creating your own Filters</a></h3>
+<div>
+
+<p>
+
+Here is an extract taken from @nehon in the forum thread (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://hub.jmonkeyengine.org/forum/topic/how-exactly-do-filters-work/"><param name="text" value="<html><u>http://hub.jmonkeyengine.org/forum/topic/how-exactly-do-filters-work/</u></html>"><param name="textColor" value="blue"></object>)
+</p>
+
+<p>
+The methods are called in this order (pretty much the same flow as processors):
+- initFilter() is called once when the FilterPostPorcessor is initialized or when the filter is added to the processor and this one as already been initialized.
+</p>
+
+<p>
+for each frame the methods are called in that sequence :
+- preFrame() occurs before anything happens
+- postQueue() occcurs once the queues have been populated (there is one queue per bucket and 2 additional queues for the shadows, casters and recievers). Note that geometries in the queues are the one in the view frustum.
+- postFrame occurs once the main frame has been rendered (the back buffer)
+</p>
+
+<p>
+Those methods are optional in a filter, they are only there if you want to hook in the rendering process.
+</p>
+
+<p>
+The material variable is here for convenience. You have a getMaterial method that returns the material that???s gonna be used to render the full screen quad. It just happened that in every implementation I had a material attribute in all my sub-classes, so I just put it back in the abstract class. Most of the time getMaterial returns this attribute.
+</p>
+
+<p>
+Forced-technique can be any technique really, they are more related with the material system than to the filters but anyway. When you use a forced technique the renderer tries to select it on the material of each geometry, if the technique does not exists for the material the geometry is not rendered.
+You assume well about the SSAO filer, the normal of the scene are rendered to a texture in a pre pass.
+</p>
+
+<p>
+Passes : these are filters in filters in a way. First they are a convenient way to initialize a FrameBuffer and the associated textures it needs, then you can use them for what ever you want.
+For example, a Pass can be (as in the SSAO filter) an extra render of the scene with a forced technique, and you have to handle the render yourself in the postQueue method.
+It can be a post pass to do after the main filter has been rendered to screen (for example an additional blur pass used in SSAO again). You have a list of passes called postRenderPass in the Filter abstract class. If you add a pass to this list, it???ll be automatically rendered by the FilterPostProcessor during the filter chain.
+</p>
+
+<p>
+The bloom Filter does an intensive use of passes.
+</p>
+
+<p>
+Filters in a nutshell.
+
+</p>
+<hr />
+
 <p>
 See also:
 </p>
@@ -317,5 +368,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT20 SECTION "Particle Emitters: Explosions, Fire, Smoke" [8466-] -->
+<!-- EDIT21 SECTION "Creating your own Filters" [9441-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:effects_overview?do=export_xhtmlbody">view online version</a></em></p>

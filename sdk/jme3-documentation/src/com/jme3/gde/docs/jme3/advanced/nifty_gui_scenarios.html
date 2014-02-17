@@ -104,8 +104,22 @@ public StartScreenState&#40;SimpleApplication app&#41;&#123;
 &nbsp;
 &#125;</pre>
 
+<p>
+
+<p><div>It is not sufficient to just inherit from AbstractAppState. You need to instantiate your controller class, register it with app&#039;s stateManager and then pass it to nifty. See code sample below.
+</div></p>
+</p>
+<pre>public class TestNiftyGui extends SimpleApplication &#123;
+  public void simpleInitApp&#40;&#41; &#123;
+     StartScreenState startScreenState = new StartScreenState&#40;this&#41;;
+     stateManager.attach&#40;startScreenState&#41;;
+     // [...] boilerplate init nifty omitted
+     nifty.fromXml&#40;&quot;Interface/myGui.xml&quot;, &quot;start&quot;, startScreenState&#41;; //one of the XML screen elements needs to reference StartScreenState controller class
+  &#125;
+&#125;</pre>
+
 </div>
-<!-- EDIT3 SECTION "Get Access to Application and Update Loop" [2044-3599] -->
+<!-- EDIT3 SECTION "Get Access to Application and Update Loop" [2044-4243] -->
 <h2><a>Know Your Variables</a></h2>
 <div>
 <div><table>
@@ -125,14 +139,14 @@ public StartScreenState&#40;SimpleApplication app&#41;&#123;
 		<td>${PROP.key}</td><td> looks up <code>key</code> in the Nifty properties. Use Nifty.setGlobalproperties(properties) and Nifty.getGlobalproperties(&quot;key&quot;). Or SystemGetProperties(key);</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [3632-4163] -->
+<!-- EDIT5 TABLE [4276-4807] -->
 <p>
 
 See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=MarkUp"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=MarkUp</u></html>"><param name="textColor" value="blue"></object>
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Know Your Variables" [3600-4246] -->
+<!-- EDIT4 SECTION "Know Your Variables" [4244-4890] -->
 <h2><a>Use ScreenControllers for Mutally Exclusive Functionality</a></h2>
 <div>
 
@@ -152,7 +166,7 @@ For example, create a <code>MyHudScreen.java</code> for the <code>hud</code> scr
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Use ScreenControllers for Mutally Exclusive Functionality" [4247-5629] -->
+<!-- EDIT6 SECTION "Use ScreenControllers for Mutally Exclusive Functionality" [4891-6273] -->
 <h2><a>Create a &quot;Loading...&quot; Screen</a></h2>
 <div>
 
@@ -162,7 +176,7 @@ Get the full <a href="/com/jme3/gde/docs/jme3/advanced/loading_screen.html">Load
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Create a Loading... Screen" [5630-5734] -->
+<!-- EDIT7 SECTION "Create a Loading... Screen" [6274-6378] -->
 <h2><a>Create a Popup Menu</a></h2>
 <div>
 
@@ -172,7 +186,7 @@ Get the full <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_popup_menu.html
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Create a Popup Menu" [5735-5837] -->
+<!-- EDIT8 SECTION "Create a Popup Menu" [6379-6481] -->
 <h2><a>Add Visual Effects</a></h2>
 <div>
 
@@ -206,7 +220,7 @@ Learn more from the NiftyGUI page:
 </ul>
 
 </div>
-<!-- EDIT9 SECTION "Add Visual Effects" [5838-6550] -->
+<!-- EDIT9 SECTION "Add Visual Effects" [6482-7194] -->
 <h2><a>Add Sound Effects</a></h2>
 <div>
 
@@ -223,7 +237,7 @@ Playing sounds using Nifty is also possible with a <code>playSound</code> effect
 <span><span>&lt;/label&gt;</span></span></pre>
 
 </div>
-<!-- EDIT10 SECTION "Add Sound Effects" [6551-6913] -->
+<!-- EDIT10 SECTION "Add Sound Effects" [7195-7557] -->
 <h2><a>Pass ClickLoc From Nifty to Java</a></h2>
 <div>
 
@@ -253,7 +267,7 @@ You can name the method (here <code>clicked</code>) what ever you like, as long 
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Pass ClickLoc From Nifty to Java" [6914-7675] -->
+<!-- EDIT11 SECTION "Pass ClickLoc From Nifty to Java" [7558-8319] -->
 <h2><a>Load Several XML Files</a></h2>
 <div>
 
@@ -274,7 +288,7 @@ stateManager.attach&#40;optionsControl&#41;;
 guiViewPort.addProcessor&#40;niftyDisplay&#41;;</pre>
 
 </div>
-<!-- EDIT12 SECTION "Load Several XML Files" [7676-8724] -->
+<!-- EDIT12 SECTION "Load Several XML Files" [8320-9368] -->
 <h2><a>Register additional explicit screen controllers</a></h2>
 <div>
 
@@ -293,7 +307,7 @@ nifty.registerScreenController&#40;new OptionsScreenController&#40;randomConstru
 nifty.addXml&#40;&quot;Interface/Screens/OptionsScreen.xml&quot;&#41;;</pre>
 
 </div>
-<!-- EDIT13 SECTION "Register additional explicit screen controllers" [8725-9493] -->
+<!-- EDIT13 SECTION "Register additional explicit screen controllers" [9369-10137] -->
 <h2><a>Design Your Own Styles</a></h2>
 <div>
 
@@ -345,5 +359,5 @@ Learn more from the NiftyGUI page:
 </span></div>
 
 </div>
-<!-- EDIT14 SECTION "Design Your Own Styles" [9494-] -->
+<!-- EDIT14 SECTION "Design Your Own Styles" [10138-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_scenarios?do=export_xhtmlbody">view online version</a></em></p>

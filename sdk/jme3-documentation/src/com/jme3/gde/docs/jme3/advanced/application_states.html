@@ -4,16 +4,16 @@
 
 <p>
 
-The <code>com.jme3.app.state.AppState</code> class is a customizable jME3 interface that allows you to control the global game logic ??? the overall game mechanics. (To control the behaviour of a Spatial, see <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">Custom Controls</a> instead. Controls and AppStates can be used together.)
+The <code>com.jme3.app.state.AppState</code> class is a customizable jME3 interface that allows you to control the global game logic, the overall game mechanics. (To control the behaviour of a Spatial, see <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">Custom Controls</a> instead. Controls and AppStates can be used together.)
 </p>
 
 </div>
-<!-- EDIT1 SECTION "Application States" [1-324] -->
+<!-- EDIT1 SECTION "Application States" [1-322] -->
 <h2><a>Overview</a></h2>
 <div>
 
 </div>
-<!-- EDIT2 SECTION "Overview" [325-346] -->
+<!-- EDIT2 SECTION "Overview" [323-344] -->
 <h3><a>Use Case Examples</a></h3>
 <div>
 
@@ -56,7 +56,7 @@ You can! This is what AppStates are there for. An AppState class is subset of (o
 </ul>
 
 </div>
-<!-- EDIT3 SECTION "Use Case Examples" [347-2034] -->
+<!-- EDIT3 SECTION "Use Case Examples" [345-2032] -->
 <h3><a>Supported Features</a></h3>
 <div>
 
@@ -86,7 +86,7 @@ Each AppState has its own update loop, which hooks into the main simpleUpdate() 
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Supported Features" [2035-3763] -->
+<!-- EDIT4 SECTION "Supported Features" [2033-3761] -->
 <h3><a>Usage</a></h3>
 <div>
 
@@ -109,7 +109,7 @@ To implement game logic:
 </li>
 <li><div> Enable and disable (unpause and pause) the AppStates that you need during the game.</div>
 </li>
-<li><div> Detach the AppState from the AppStateManager (<code>stateManager.detach(myAppState);</code>) and clean it up it.</div>
+<li><div> Detach the AppState from the AppStateManager (<code>stateManager.detach(myAppState);</code>) and clean it up.</div>
 </li>
 </ol>
 
@@ -119,7 +119,7 @@ When you add several AppStates to one Application and activate them, their initi
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Usage" [3764-4625] -->
+<!-- EDIT5 SECTION "Usage" [3762-4620] -->
 <h3><a>Code Samples</a></h3>
 <div>
 
@@ -139,7 +139,7 @@ JME3 comes with a BulletAppState that implements Physical behaviour (using the j
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Code Samples" [4626-5406] -->
+<!-- EDIT6 SECTION "Code Samples" [4621-5401] -->
 <h2><a>AppState</a></h2>
 <div>
 
@@ -184,9 +184,9 @@ stateDetached(asm)</td><td>The AppState knows when it is attached to, or detache
 		<td>postRender()</td><td>Called after all rendering commands are flushed, including your optional customizations. (Typically not used.)</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [5555-7117] -->
+<!-- EDIT8 TABLE [5550-7112] -->
 </div>
-<!-- EDIT7 SECTION "AppState" [5407-7118] -->
+<!-- EDIT7 SECTION "AppState" [5402-7113] -->
 <h2><a>AbstractAppState</a></h2>
 <div>
 
@@ -249,7 +249,7 @@ Definition:
 &#125;</pre>
 
 </div>
-<!-- EDIT9 SECTION "AbstractAppState" [7119-9291] -->
+<!-- EDIT9 SECTION "AbstractAppState" [7114-9286] -->
 <h2><a>Pausing and Unpausing</a></h2>
 <div>
 
@@ -259,7 +259,7 @@ You define what an AppState does when Paused or Unpaused, in the <code>setEnable
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Pausing and Unpausing" [9292-9582] -->
+<!-- EDIT10 SECTION "Pausing and Unpausing" [9287-9577] -->
 <h2><a>AppStateManager</a></h2>
 <div>
 
@@ -279,7 +279,7 @@ The com.jme3.app.state.AppStateManager holds the list of AppStates for an applic
 		<td>getState(MyAppState.class)</td><td>Returns the first attached state that is an instance of a subclass of <code>MyAppState.class</code>.</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [9990-10200] -->
+<!-- EDIT12 TABLE [9985-10195] -->
 <p>
 
 The AppStateManager&#039;s <code>render(), postRender(), cleanup()</code> methods are internal, ignore them, users never call them directly.
@@ -299,12 +299,12 @@ The AppStateManager&#039;s <code>render(), postRender(), cleanup()</code> method
 </ul>
 
 </div>
-<!-- EDIT11 SECTION "AppStateManager" [9583-10966] -->
+<!-- EDIT11 SECTION "AppStateManager" [9578-10961] -->
 <h2><a>Best Practices</a></h2>
 <div>
 
 </div>
-<!-- EDIT13 SECTION "Best Practices" [10967-10994] -->
+<!-- EDIT13 SECTION "Best Practices" [10962-10989] -->
 <h3><a>Communication Among AppStates</a></h3>
 <div>
 
@@ -320,7 +320,7 @@ You can use custom accessors to get data from AppStates, to set data in AppState
 <pre>this.app.getStateManager&#40;&#41;.getState&#40;MyAppState.class&#41;.doSomeCustomStuffInThisState&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT14 SECTION "Communication Among AppStates" [10995-11750] -->
+<!-- EDIT14 SECTION "Communication Among AppStates" [10990-11745] -->
 <h3><a>Initialize Familiar Class Fields</a></h3>
 <div>
 
@@ -351,5 +351,5 @@ public class MyAppState extends AbstractAppState &#123;
 &#125;</pre>
 
 </div>
-<!-- EDIT15 SECTION "Initialize Familiar Class Fields" [11751-] -->
+<!-- EDIT15 SECTION "Initialize Familiar Class Fields" [11746-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states?do=export_xhtmlbody">view online version</a></em></p>

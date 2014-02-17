@@ -282,8 +282,54 @@ Models for live rendering should have a low polygon count. To increase the perce
 </div></p>
 </p>
 
+<p>
+<p><div>Be careful: The steps above lead to terrible normal maps - use this procedure instead:
+</div></p>
+</p>
+<ul>
+<li><div> uncheck &quot;[ ] Bake from Multires&quot;</div>
+</li>
+<li><div> switch to object mode</div>
+</li>
+<li><div> make a copy of your mesh (SHIFT+D)</div>
+</li>
+<li><div> remove the Multires modifier from the copied model</div>
+</li>
+<li><div> remove any materials from the copied model</div>
+</li>
+<li><div> remove the armature modifier from the copied model</div>
+</li>
+<li><div> select the original (highres) model</div>
+</li>
+<li><div> go into pose mode, clear any pose transformations</div>
+</li>
+<li><div> the highres and lowres models should be on top of each other now</div>
+</li>
+<li><div> select the original (highres) model</div>
+</li>
+<li><div> hold SHIFT and select the copied (lowres) model</div>
+</li>
+<li><div> in the properties menu go to render</div>
+</li>
+<li><div> use Bake &gt; Normal</div>
+</li>
+<li><div> check &quot;[x] Selected to Active&quot;</div>
+</li>
+<li><div> use a reasonably high value for &quot;Margin&quot; (4+ pixels at least for 1024x1024 maps)</div>
+</li>
+<li><div> don&#039;t forget to safe the normal map image</div>
+</li>
+</ul>
+
+<p>
+
+<p><div>Be careful: in the Outliner the camera symbol (Restrict Render) must be on!
+</div></p>
+
+</p>
+
 </div>
-<!-- EDIT8 SECTION "Blender modeling lowPoly & highPoly" [7640-8762] -->
+<!-- EDIT8 SECTION "Blender modeling lowPoly & highPoly" [7640-9694] -->
 <h3><a>Fixing the normal colors in Blender</a></h3>
 <div>
 
@@ -328,7 +374,7 @@ To do this, go to the Blender Node Window
 </ul>
 
 </div>
-<!-- EDIT9 SECTION "Fixing the normal colors in Blender" [8763-9572] -->
+<!-- EDIT9 SECTION "Fixing the normal colors in Blender" [9695-10504] -->
 <h2><a>LightMap baking</a></h2>
 <div>
 
@@ -338,7 +384,7 @@ The goal of this tutorial is to explain briefly how to bake light map in blender
 </p>
 
 </div>
-<!-- EDIT10 SECTION "LightMap baking" [9573-9774] -->
+<!-- EDIT10 SECTION "LightMap baking" [10505-10706] -->
 <h3><a>Blender modeling + texturing</a></h3>
 <div>
 <ul>
@@ -387,7 +433,7 @@ The goal of this tutorial is to explain briefly how to bake light map in blender
 </ul>
 
 </div>
-<!-- EDIT11 SECTION "Blender modeling + texturing" [9775-10909] -->
+<!-- EDIT11 SECTION "Blender modeling + texturing" [10707-11841] -->
 <h3><a>Importing the model in the SDK and creating the appropriate material</a></h3>
 <div>
 
@@ -424,7 +470,27 @@ The blend file, the ogre xml files and the textures can be found in the download
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Importing the model in the SDK and creating the appropriate material" [10910-11654] -->
+<!-- EDIT12 SECTION "Importing the model in the SDK and creating the appropriate material" [11842-12586] -->
+<h2><a>Modelling racing tracks and cars</a></h2>
+<div>
+
+<p>
+Follow the link below to a pdf tutorial by rhymez where I guide you to modelling a car and importing it to the jMonkeyengine correctly and edit it in the vehicle editor.Plus how to model a simple racing track.
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.indiedb.com/games/street-rally-3d/downloads/modelling-in-blender-to-the-jmonkeyengine"><param name="text" value="<html><u>http://www.indiedb.com/games/street-rally-3d/downloads/modelling-in-blender-to-the-jmonkeyengine</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+<!-- EDIT13 SECTION "Modelling racing tracks and cars" [12587-12943] -->
+<h2><a>Optimizing Models for 3D games</a></h2>
+<div>
+
+<p>
+Follow the link below to a pdf tutorial by rhymez where I guide you on how you can optimize your models for faster rendering.
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.indiedb.com/games/street-rally-3d/downloads/optimizing-3d-models-for-games"><param name="text" value="<html><u>http://www.indiedb.com/games/street-rally-3d/downloads/optimizing-3d-models-for-games</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+<!-- EDIT14 SECTION "Optimizing Models for 3D games" [12944-13203] -->
 <h2><a>SkyBox baking</a></h2>
 <div>
 
@@ -548,10 +614,12 @@ If you want to do it from code, here is an example:
 </p>
 
 </div>
-<!-- EDIT13 SECTION "SkyBox baking" [11655-16338] -->
+<!-- EDIT15 SECTION "SkyBox baking" [13204-17887] -->
 <h3><a>Further reading</a></h3>
 <div>
 <ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/external/blender-example.html">Warg - from cube to animated and textured game model Example</a></div>
+</li>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:sky"><param name="text" value="<html><u>http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:sky</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
 <li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/contribution-depot-jme3/forum/topic/jmonkeyengine-tutorial-how-to-create-skymaps-using-blender/"><param name="text" value="<html><u>http://jmonkeyengine.org/groups/contribution-depot-jme3/forum/topic/jmonkeyengine-tutorial-how-to-create-skymaps-using-blender/</u></html>"><param name="textColor" value="blue"></object></div>
@@ -559,5 +627,5 @@ If you want to do it from code, here is an example:
 </ul>
 
 </div>
-<!-- EDIT14 SECTION "Further reading" [16339-] -->
+<!-- EDIT16 SECTION "Further reading" [17888-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:external:blender?do=export_xhtmlbody">view online version</a></em></p>

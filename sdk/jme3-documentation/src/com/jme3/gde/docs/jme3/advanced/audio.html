@@ -50,7 +50,7 @@ AudioNode boom = new AudioNode&#40;assetManager, &quot;Sound/boom.wav&quot;, fal
 		<th>AudioNode Method</th><th>Usage</th>
 	</tr>
 	<tr>
-		<td>getStatus()</td><td>Returns either Status.Playing, Status.Stopped, or Status.Paused. </td>
+		<td>getStatus()</td><td>Returns either AudioSource.Status.Playing, AudioSource.Status.Stopped, or AudioSource.Status.Paused. </td>
 	</tr>
 	<tr>
 		<td>getVolume()</td><td>Returns the volume. </td>
@@ -59,14 +59,13 @@ AudioNode boom = new AudioNode&#40;assetManager, &quot;Sound/boom.wav&quot;, fal
 		<td>getPitch()</td><td>Returns the pitch. </td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [1882-2054] -->
+<!-- EDIT5 TABLE [1882-2090] -->
 <p>
-
 Note: There are other obvious getters to poll the status of all corresponding setters listed here.
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Getting AudioNode Properties" [1840-2155] -->
+<!-- EDIT4 SECTION "Getting AudioNode Properties" [1840-2192] -->
 <h2><a>Setting AudioNode Properties</a></h2>
 <div>
 <div><table>
@@ -92,9 +91,9 @@ Note: There are other obvious getters to poll the status of all corresponding se
 		<td>setLooping(false)</td><td>Configures the sound so that, if it is played, it plays once and stops. No looping is the default.</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [2198-3327] -->
+<!-- EDIT7 TABLE [2235-3364] -->
 </div>
-<!-- EDIT6 SECTION "Setting AudioNode Properties" [2156-3328] -->
+<!-- EDIT6 SECTION "Setting AudioNode Properties" [2193-3365] -->
 <h3><a>Looping &amp; Ambient Sounds</a></h3>
 <div>
 <div><table>
@@ -110,9 +109,9 @@ setDirectional(false)</td><td>All 3D effects switched off. This sound is global 
 <strong>Looping does not work on streamed sounds.</strong> </td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [3365-3846] -->
+<!-- EDIT9 TABLE [3402-3883] -->
 </div>
-<!-- EDIT8 SECTION "Looping & Ambient Sounds" [3329-3847] -->
+<!-- EDIT8 SECTION "Looping & Ambient Sounds" [3366-3884] -->
 <h3><a>Positional 3D Sounds</a></h3>
 <div>
 <div><table>
@@ -127,7 +126,7 @@ setLocalTranslation(???)</td><td>Activates 3D audio: The sound appears to come f
 		<td>setReverbEnabled(true)</td><td>Reverb is a 3D echo effect that only makes sense with positional AudioNodes. Use Audio Environments to make scenes sound as if they were &quot;outdoors&quot;, or &quot;indoors&quot; in a large or small room, etc. The reverb effect is defined by the <code>com.jme3.audio.Environment</code> that the <code>audioRenderer</code> is in. See &quot;Setting Audio Environment Properties&quot; below. </td>
 	</tr>
 </table></div>
-<!-- EDIT11 TABLE [3880-4496] -->
+<!-- EDIT11 TABLE [3917-4533] -->
 <p>
 
 <p><div>Positional 3D sounds require an <code>AudioListener</code> object in the scene (representing the player&#039;s ears).
@@ -135,7 +134,7 @@ setLocalTranslation(???)</td><td>Activates 3D audio: The sound appears to come f
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Positional 3D Sounds" [3848-4625] -->
+<!-- EDIT10 SECTION "Positional 3D Sounds" [3885-4662] -->
 <h3><a>Directional 3D Sounds</a></h3>
 <div>
 <div><table>
@@ -151,7 +150,7 @@ setDirection(???) </td><td>Activates 3D audio: This sound can only be heard from
 setOuterAngle()</td><td>Set the angle in degrees for the directional audio. The angle is relative to the direction. Note: By default, both angles are 360?? and the sound can be heard from all directions!</td>
 	</tr>
 </table></div>
-<!-- EDIT13 TABLE [4659-5186] -->
+<!-- EDIT13 TABLE [4696-5223] -->
 <p>
 
 <p><div>Directional 3D sounds require an AudioListener object in the scene (representing the player&#039;s ears). 
@@ -159,7 +158,7 @@ setOuterAngle()</td><td>Set the angle in degrees for the directional audio. The 
 </p>
 
 </div>
-<!-- EDIT12 SECTION "Directional 3D Sounds" [4626-5313] -->
+<!-- EDIT12 SECTION "Directional 3D Sounds" [4663-5350] -->
 <h2><a>Play, Pause, Stop</a></h2>
 <div>
 
@@ -181,7 +180,7 @@ You can also start playing instances of an AudioNode. Use the <code>playInstance
 <pre>myAudioNode.playInstance&#40;&#41;;</pre>
 
 </div>
-<!-- EDIT14 SECTION "Play, Pause, Stop" [5314-6018] -->
+<!-- EDIT14 SECTION "Play, Pause, Stop" [5351-6055] -->
 <h2><a>The Audio Listener</a></h2>
 <div>
 
@@ -197,7 +196,7 @@ The default AudioListener object <code>listener</code> in <code>SimpleApplicatio
   &#125;</pre>
 
 </div>
-<!-- EDIT15 SECTION "The Audio Listener" [6019-6655] -->
+<!-- EDIT15 SECTION "The Audio Listener" [6056-6692] -->
 <h2><a>Setting Audio Environment Properties</a></h2>
 <div>
 
@@ -226,7 +225,7 @@ Optionally, You can choose from the following environmental presets from <code>c
 		<td>Closet      </td><td>1.00f</td><td>1.0f</td><td>1.0f</td><td>1.00f</td><td>0.15f</td><td>1.0f</td><td>0.600f</td><td>0.0025f</td><td>0.500f</td><td>0.0006f</td>
 	</tr>
 </table></div>
-<!-- EDIT17 TABLE [7098-7587] --><ol>
+<!-- EDIT17 TABLE [7135-7624] --><ol>
 <li><div> Activate a Environment preset</div>
 <ul>
 <li><div> Either use a default, e.g. make you scene sounds like a dungeon environment: <pre>audioRenderer.setEnvironment&#40;new Environment&#40;Environment.Dungeon&#41;&#41;;</pre>
@@ -266,5 +265,5 @@ Advanced users find more info about OpenAL and its features here: <object classi
 </span></div>
 
 </div>
-<!-- EDIT16 SECTION "Setting Audio Environment Properties" [6656-] -->
+<!-- EDIT16 SECTION "Setting Audio Environment Properties" [6693-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:audio?do=export_xhtmlbody">view online version</a></em></p>

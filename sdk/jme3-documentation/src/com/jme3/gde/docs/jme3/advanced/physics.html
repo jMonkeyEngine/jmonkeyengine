@@ -360,12 +360,12 @@ Click the links for details on the special PhysicsControls. This article is abou
 
 </div>
 <!-- EDIT10 SECTION "Create PhysicsControl" [13625-15611] -->
-<h3><a>PhysicsControls Code Samples</a></h3>
+<h3><a>Physics Control Code Samples</a></h3>
 <div>
 
 <p>
 
-The PhysicsControl constructors expect a Collision Shape and a mass (a float in kilogram). The most commonly used PhysicsControl is the RigidBodyControl:
+The most commonly used physics control is RigidBodyControl.  The RigidBodyControl constructor takes up to two parameters:  a collision shape and a mass (a float in kilograms).  The mass parameter also determines whether the object is dynamic (movable) or static (fixed). For a static object such as a floor or wall, specify zero mass. 
 </p>
 <pre>RigidBodyControl myThing_phys = 
     new RigidBodyControl&#40; myThing_shape , 123.0f &#41;; // dynamic</pre>
@@ -373,7 +373,7 @@ The PhysicsControl constructors expect a Collision Shape and a mass (a float in 
     new RigidBodyControl&#40; myDungeon_shape , 0.0f &#41;; // static </pre>
 
 <p>
-<p><div>When you create the PhysicsControl, the mass value makes an important distinction: Set the mass to a non-zero value to create a dynamic object that can fall or roll, etc. Set the mass value to zero to create a static object, such as floor, wall, etc. If you give your floor a mass, it will fall out of the scene! 
+<p><div>If you give your floor a non-zero mass, it will fall out of the scene!
 </div></p>
 </p>
 
@@ -395,10 +395,11 @@ gameLevel.addControl&#40;new RigidBodyControl&#40;0.0f&#41;&#41;; // explicit ze
 <p>
 <p><div>Spheres and Boxes automatically fall back on the correct default CollisionShape if you do not specify a CollisionShape in the RigidBodyControl constructor. Complex static objects can fall back on MeshCollisionShapes, unless it is a Node, in which case it will become a CompoundCollisionShape containing a MeshCollisionShape
 </div></p>
+
 </p>
 
 </div>
-<!-- EDIT13 SECTION "PhysicsControls Code Samples" [15612-17191] -->
+<!-- EDIT13 SECTION "Physics Control Code Samples" [15612-17129] -->
 <h2><a>Add PhysicsControl to Spatial</a></h2>
 <div>
 
@@ -415,7 +416,7 @@ For each physical Spatial in the scene:
 </ol>
 
 </div>
-<!-- EDIT14 SECTION "Add PhysicsControl to Spatial" [17192-17439] -->
+<!-- EDIT14 SECTION "Add PhysicsControl to Spatial" [17130-17377] -->
 <h2><a>Add PhysicsControl to PhysicsSpace</a></h2>
 <div>
 
@@ -442,7 +443,7 @@ myThing_geo.removeFromParent&#40;&#41;;</pre>
 </p>
 
 </div>
-<!-- EDIT15 SECTION "Add PhysicsControl to PhysicsSpace" [17440-18255] -->
+<!-- EDIT15 SECTION "Add PhysicsControl to PhysicsSpace" [17378-18193] -->
 <h2><a>Changing the Scale of a PhysicsControl</a></h2>
 <div>
 
@@ -481,7 +482,7 @@ With the corresponding output below:
 </p>
 
 </div>
-<!-- EDIT16 SECTION "Changing the Scale of a PhysicsControl" [18256-20006] -->
+<!-- EDIT16 SECTION "Changing the Scale of a PhysicsControl" [18194-19944] -->
 <h3><a>PhysicsSpace Code Samples</a></h3>
 <div>
 
@@ -511,9 +512,9 @@ setWorldMin(new Vector3f(-10000f, -10000f, -10000f));</td><td>Specifies the size
 		<td>setCcdMotionThreshold()</td><td>The amount of motion in 1 physics tick to trigger the continuous motion detection in moving objects that push one another. Rarely used, but necessary if your moving objects get stuck or roll through one another.</td>
 	</tr>
 </table></div>
-<!-- EDIT18 TABLE [20233-21440] -->
+<!-- EDIT18 TABLE [20171-21378] -->
 </div>
-<!-- EDIT17 SECTION "PhysicsSpace Code Samples" [20007-21441] -->
+<!-- EDIT17 SECTION "PhysicsSpace Code Samples" [19945-21379] -->
 <h2><a>Specify Physical Properties</a></h2>
 <div>
 
@@ -553,7 +554,7 @@ This setting has an impact on performance, so use it sparingly. </td><td> Brick:
 Rubber ball: 1.0f </td>
 	</tr>
 </table></div>
-<!-- EDIT20 TABLE [21666-23176] -->
+<!-- EDIT20 TABLE [21604-23114] -->
 <p>
 
 On a RigidBodyControl, you can apply the following physical forces:
@@ -574,9 +575,9 @@ On a RigidBodyControl, you can apply the following physical forces:
 (See detailed explanation below.) </td>
 	</tr>
 </table></div>
-<!-- EDIT21 TABLE [23247-23857] -->
+<!-- EDIT21 TABLE [23185-23795] -->
 </div>
-<!-- EDIT19 SECTION "Specify Physical Properties" [21442-23857] -->
+<!-- EDIT19 SECTION "Specify Physical Properties" [21380-23795] -->
 <h3><a>Kinematic vs Dynamic vs Static</a></h3>
 <div>
 
@@ -626,7 +627,7 @@ setKinematic(true);</td><td>setMass(1f); <br/>
 setKinematic(false);</td>
 	</tr>
 </table></div>
-<!-- EDIT23 TABLE [24094-25153] -->
+<!-- EDIT23 TABLE [24032-25091] -->
 </div>
 
 <h4><a>When Do I Use Kinematic Objects?</a></h4>
@@ -649,7 +650,7 @@ setKinematic(false);</td>
 </p>
 
 </div>
-<!-- EDIT22 SECTION "Kinematic vs Dynamic vs Static" [23858-26259] -->
+<!-- EDIT22 SECTION "Kinematic vs Dynamic vs Static" [23796-26197] -->
 <h2><a>Forces: Moving Dynamic Objects</a></h2>
 <div>
 
@@ -687,7 +688,7 @@ Use the following methods to move dynamic physical objects.
 		<td> clearForces()</td><td>Cancels out all forces (force, torque) etc and stops the motion.</td>
 	</tr>
 </table></div>
-<!-- EDIT25 TABLE [26365-27354] -->
+<!-- EDIT25 TABLE [26303-27292] -->
 <p>
 
 <p><div>It is technically possible to position PhysicsControls using setLocalTranslation(), e.g. to place them in their start position in the scene. However you must be very careful not to cause an &quot;impossible state&quot; where one physical object overlaps with another! Within the game, you typically use the setters shown here exclusively.
@@ -727,7 +728,7 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 		<td> setCcdSweptSphereRadius(.5f)</td><td>Bullet does not use the full collision shape for continuous collision detection, instead it uses a &quot;swept sphere&quot; shape to approximate a motion, which can be imprecise and cause strange behaviors such as objects passing through one another or getting stuck. Only relevant for fast moving dynamic bodies. </td>
 	</tr>
 </table></div>
-<!-- EDIT26 TABLE [27772-29727] -->
+<!-- EDIT26 TABLE [27710-29665] -->
 <p>
 
 <p><div> You can <code>setApplyPhysicsLocal(true)</code> for an object to make it move relatively to its local physics space. You would do that if you need a physics space that moves with a node (e.g. a spaceship with artificial gravity surrounded by zero-g space). By default, it&#039;s set to false, and all movement is relative to the world.
@@ -735,7 +736,7 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 </p>
 
 </div>
-<!-- EDIT24 SECTION "Forces: Moving Dynamic Objects" [26260-30069] -->
+<!-- EDIT24 SECTION "Forces: Moving Dynamic Objects" [26198-30007] -->
 <h2><a>Best Practices</a></h2>
 <div>
 <ul>
@@ -771,7 +772,7 @@ removeCollideWithGroup(COLLISION_GROUP_01)</td><td>Collision Groups are integer 
 </span></div>
 
 </div>
-<!-- EDIT27 SECTION "Best Practices" [30070-] --><div>
+<!-- EDIT27 SECTION "Best Practices" [30008-] --><div>
 <div><sup><a href="#fnt__1">1)</a></sup> 
 Inertia is calculated for kinematic objects, and you need mass to do that.</div>
 </div>

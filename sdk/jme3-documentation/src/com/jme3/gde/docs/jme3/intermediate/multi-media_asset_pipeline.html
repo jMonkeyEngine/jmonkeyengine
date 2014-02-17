@@ -20,7 +20,7 @@ Assets are files that are not code. Your multi-media assets includes, for exampl
 		<th>DO</th><th>DON&#039;T</th>
 	</tr>
 	<tr>
-		<td> Save original models plus textures into <code>assets/Textures</code>. </td><td> Don&#039;t leave textures or models in a folder outside your JME project: The game cannot load or reference them from there. </td>
+		<td> Import original models plus textures into <code>assets/Textures</code>. </td><td> Don&#039;t leave textures or models in a folder outside your JME project: The game cannot load or reference them from there. </td>
 	</tr>
 	<tr>
 		<td> Save sounds into <code>assets/Sounds</code>. </td><td> Don&#039;t leave audio files in a folder outside your JME project: The game cannot load or reference them from there. </td>
@@ -41,14 +41,14 @@ Assets are files that are not code. Your multi-media assets includes, for exampl
 		<td>Agree on naming schemes and folder schemes with your artists early on to avoid confusion. E.g. keep naming schemes for bones and certain model parts. Try to keep your assets folder clean, its like your codes class structure.</td><td>Don&#039;t mindlessly import downloaded models and other assets into your project without keeping a structure and knowing the files work. You can reimport, delete junk.</td>
 	</tr>
 </table></div>
-<!-- EDIT2 TABLE [623-2089] -->
+<!-- EDIT2 TABLE [623-2091] -->
 <p>
 
 Read on for details.
 </p>
 
 </div>
-<!-- EDIT1 SECTION "Multi-Media Asset Pipeline" [1-2112] -->
+<!-- EDIT1 SECTION "Multi-Media Asset Pipeline" [1-2114] -->
 <h2><a>Use The Assets Folder</a></h2>
 <div>
 
@@ -59,7 +59,7 @@ Store your assets in subfolders of your project&#039;s <code>assets</code> direc
 <pre>jMonkeyProjects/MyGame/assets/Interface/ # .font, .jpg, .png, .xml
 jMonkeyProjects/MyGame/assets/MatDefs/   # .j3md
 jMonkeyProjects/MyGame/assets/Materials/ # .j3m
-jMonkeyProjects/MyGame/assets/Models/    # .j3o
+jMonkeyProjects/MyGame/assets/Models/    # .blend, .j3o
 jMonkeyProjects/MyGame/assets/Scenes/    # .j3o
 jMonkeyProjects/MyGame/assets/Shaders/   # .j3f, .vert, .frag
 jMonkeyProjects/MyGame/assets/Sounds/    # .ogg, .wav
@@ -105,7 +105,7 @@ See also:
 </ul>
 
 </div>
-<!-- EDIT3 SECTION "Use The Assets Folder" [2113-3997] -->
+<!-- EDIT3 SECTION "Use The Assets Folder" [2115-4007] -->
 <h2><a>Create Textures and Materials</a></h2>
 <div>
 
@@ -140,7 +140,7 @@ Storing the textures inside your project directory is necessary for the paths in
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Create Textures and Materials" [3998-5259] -->
+<!-- EDIT4 SECTION "Create Textures and Materials" [4008-5269] -->
 <h2><a>Create 3D Models</a></h2>
 <div>
 
@@ -189,7 +189,7 @@ See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Create 3D Models" [5260-7588] -->
+<!-- EDIT5 SECTION "Create 3D Models" [5270-7598] -->
 <h2><a>Convert 3D Models to .j3o Format</a></h2>
 <div>
 
@@ -216,7 +216,7 @@ This process ensures that the texture paths are correct, and it also keeps your 
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Convert 3D Models to .j3o Format" [7589-8388] -->
+<!-- EDIT6 SECTION "Convert 3D Models to .j3o Format" [7599-8398] -->
 <h3><a>Must I convert to .j3o? Yes!</a></h3>
 <div>
 
@@ -245,7 +245,7 @@ Use Java commands, or use the <a href="/com/jme3/gde/docs/sdk/scene_composer.htm
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Must I convert to .j3o? Yes!" [8389-9851] -->
+<!-- EDIT7 SECTION "Must I convert to .j3o? Yes!" [8399-9861] -->
 <h2><a>See Also</a></h2>
 <div>
 <ul>
@@ -264,5 +264,5 @@ Use Java commands, or use the <a href="/com/jme3/gde/docs/sdk/scene_composer.htm
 </span></div>
 
 </div>
-<!-- EDIT8 SECTION "See Also" [9852-] -->
+<!-- EDIT8 SECTION "See Also" [9862-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:intermediate:multi-media_asset_pipeline?do=export_xhtmlbody">view online version</a></em></p>

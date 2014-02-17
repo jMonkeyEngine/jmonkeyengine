@@ -24,11 +24,11 @@ This tutorial explains how to add 3D sound to a game, and how to make sounds pla
 &nbsp;
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
+import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 &nbsp;
@@ -49,10 +49,9 @@ public class HelloAudio extends SimpleApplication &#123;
     flyCam.setMoveSpeed&#40;40&#41;;
 &nbsp;
     /** just a blue box floating in space */
-    Box box1 = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+    Box box1 = new Box&#40;1, 1, 1&#41;;
     player = new Geometry&#40;&quot;Player&quot;, box1&#41;;
-    Material mat1 = new Material&#40;assetManager, 
-            &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    Material mat1 = new Material&#40;assetManager,&quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     mat1.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
     player.setMaterial&#40;mat1&#41;;
     rootNode.attachChild&#40;player&#41;;
@@ -66,23 +65,23 @@ public class HelloAudio extends SimpleApplication &#123;
   private void initAudio&#40;&#41; &#123;
     /* gun shot sound is to be triggered by a mouse click. */
     audio_gun = new AudioNode&#40;assetManager, &quot;Sound/Effects/Gun.wav&quot;, false&#41;;
+    audio_gun.setPositional&#40;false&#41;;
     audio_gun.setLooping&#40;false&#41;;
     audio_gun.setVolume&#40;2&#41;;
     rootNode.attachChild&#40;audio_gun&#41;;
 &nbsp;
     /* nature sound - keeps playing in a loop. */
-    audio_nature = new AudioNode&#40;assetManager, &quot;Sound/Environment/Nature.ogg&quot;, false&#41;;
+    audio_nature = new AudioNode&#40;assetManager, &quot;Sound/Environment/Ocean Waves.ogg&quot;, true&#41;;
     audio_nature.setLooping&#40;true&#41;;  // activate continuous playing
-    audio_nature.setPositional&#40;true&#41;;
-    audio_nature.setLocalTranslation&#40;Vector3f.ZERO.clone&#40;&#41;&#41;;
+    audio_nature.setPositional&#40;true&#41;;   
     audio_nature.setVolume&#40;3&#41;;
     rootNode.attachChild&#40;audio_nature&#41;;
     audio_nature.play&#40;&#41;; // play continuously!
   &#125;
 &nbsp;
-  /** Declaring &quot;Shoot&quot; action, mapping it to a trigger (mouse click). */
+  /** Declaring &quot;Shoot&quot; action, mapping it to a trigger (mouse left click). */
   private void initKeys&#40;&#41; &#123;
-    inputManager.addMapping&#40;&quot;Shoot&quot;, new MouseButtonTrigger&#40;0&#41;&#41;;
+    inputManager.addMapping&#40;&quot;Shoot&quot;, new MouseButtonTrigger&#40;MouseInput.BUTTON_LEFT&#41;&#41;;
     inputManager.addListener&#40;actionListener, &quot;Shoot&quot;&#41;;
   &#125;
 &nbsp;
@@ -110,7 +109,7 @@ When you run the sample, you should see a blue cube. You should hear a nature-li
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [684-3519] -->
+<!-- EDIT2 SECTION "Sample Code" [684-3501] -->
 <h2><a>Understanding the Code Sample</a></h2>
 <div>
 
@@ -124,7 +123,7 @@ Let&#039;s have a closer look at <code>initAudio()</code> to learn how to use <c
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Understanding the Code Sample" [3520-3857] -->
+<!-- EDIT3 SECTION "Understanding the Code Sample" [3502-3839] -->
 <h2><a>AudioNodes</a></h2>
 <div>
 
@@ -153,9 +152,16 @@ These two lines create new sound nodes from the given audio files in the AssetMa
 <p>
 You want the gunshot sound to play <em>once</em> (you don&#039;t want it to loop). You also specify its volume as gain factor (at 0, sound is muted, at 2, it is twice as loud, etc.).
 </p>
-<pre>    audio_gun.setLooping&#40;false&#41;;
+<pre>    audio_gun.setPositional&#40;false&#41;;
+    audio_gun.setLooping&#40;false&#41;;
     audio_gun.setVolume&#40;2&#41;;
     rootNode.attachChild&#40;audio_gun&#41;;</pre>
+
+<p>
+
+<p><div>Note that setPositional(false) is pretty important when you use stereo sounds. Positional sounds must always be mono audio files, otherwise the engine will remind it to you with a crash.
+</div></p>
+</p>
 
 <p>
 The nature sound is different: You want it to loop <em>continuously</em> as background sound. This is why you set looping to true, and immediately call the play() method on the node. You also choose to set its volume to 3.
@@ -184,7 +190,7 @@ Here you make audio_nature a positional sound that comes from a certain place. F
 </p>
 
 </div>
-<!-- EDIT4 SECTION "AudioNodes" [3858-6947] -->
+<!-- EDIT4 SECTION "AudioNodes" [3840-7174] -->
 <h2><a>Triggering Sound</a></h2>
 <div>
 
@@ -192,9 +198,9 @@ Here you make audio_nature a positional sound that comes from a certain place. F
 
 Let&#039;s have a closer look at <code>initKeys()</code>: As you learned in previous tutorials, you use the <code>inputManager</code> to respond to user input. Here you add a mapping for a left mouse button click, and name this new action <code>Shoot</code>.
 </p>
-<pre>  /** Declaring &quot;Shoot&quot; action, mapping it to a trigger (mouse click). */
+<pre>  /** Declaring &quot;Shoot&quot; action, mapping it to a trigger (mouse left click). */
   private void initKeys&#40;&#41; &#123;
-    inputManager.addMapping&#40;&quot;Shoot&quot;, new MouseButtonTrigger&#40;0&#41;&#41;;
+    inputManager.addMapping&#40;&quot;Shoot&quot;, new MouseButtonTrigger&#40;MouseInput.BUTTON_LEFT&#41;&#41;;
     inputManager.addListener&#40;actionListener, &quot;Shoot&quot;&#41;;
   &#125;</pre>
 
@@ -213,10 +219,11 @@ Setting up the ActionListener should also be familiar from previous tutorials. Y
 
 <p>
 Since you want to be able to shoot fast repeatedly, so you do not want to wait for the previous gunshot sound to end before the next one can start. This is why you play this sound using the <code>playInstance()</code> method. This means that every click starts a new instance of the sound, so two instances can overlap. You set this sound not to loop, so each instance only plays once. As you would expect it of a gunshot.
+
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Triggering Sound" [6948-8412] -->
+<!-- EDIT5 SECTION "Triggering Sound" [7175-8664] -->
 <h2><a>Ambient or Situational?</a></h2>
 <div>
 
@@ -265,7 +272,7 @@ Apart from the looping boolean, another difference is where <code>play().playIns
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Ambient or Situational?" [8413-9643] -->
+<!-- EDIT6 SECTION "Ambient or Situational?" [8665-9895] -->
 <h2><a>Buffered or Streaming?</a></h2>
 <div>
 
@@ -274,7 +281,7 @@ Apart from the looping boolean, another difference is where <code>play().playIns
 The Boolean in the AudioNode constructor defines whether the audio is buffered (false) or streamed (true). For example:
 
 </p>
-<pre>audio_nature = new AudioNode&#40;assetManager, &quot;Sound/Effects/Gun.wav&quot;, false&#41;; // buffered
+<pre>audio_gunshot = new AudioNode&#40;assetManager, &quot;Sound/Effects/Gun.wav&quot;, false&#41;; // buffered
 ...
 audio_nature = new AudioNode&#40;assetManager, &quot;Sound/Environment/Nature.ogg&quot;, true&#41;; // streamed </pre>
 
@@ -288,7 +295,7 @@ Note that streamed sounds can not loop (i.e. setLooping will not work as you exp
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Buffered or Streaming?" [9644-10225] -->
+<!-- EDIT7 SECTION "Buffered or Streaming?" [9896-10478] -->
 <h2><a>Play() or PlayInstance()?</a></h2>
 <div>
 <div><table>
@@ -305,9 +312,9 @@ Note that streamed sounds can not loop (i.e. setLooping will not work as you exp
 		<td>The same sound cannot play twice at the same time.</td><td>The same sounds can play multiple times and overlap.</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [10265-10509] -->
+<!-- EDIT9 TABLE [10518-10762] -->
 </div>
-<!-- EDIT8 SECTION "Play() or PlayInstance()?" [10226-10510] -->
+<!-- EDIT8 SECTION "Play() or PlayInstance()?" [10479-10763] -->
 <h2><a>Your Ear in the Scene</a></h2>
 <div>
 
@@ -329,7 +336,7 @@ If you don&#039;t do that, the results of 3D audio will be quite random.
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Your Ear in the Scene" [10511-11213] -->
+<!-- EDIT10 SECTION "Your Ear in the Scene" [10764-11466] -->
 <h2><a>Global, Directional, Positional?</a></h2>
 <div>
 
@@ -356,7 +363,7 @@ In short, you must choose in every situation whether it makes sense for a sound 
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Global, Directional, Positional?" [11214-12570] -->
+<!-- EDIT11 SECTION "Global, Directional, Positional?" [11467-12823] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -391,5 +398,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT12 SECTION "Conclusion" [12571-] -->
+<!-- EDIT12 SECTION "Conclusion" [12824-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_audio?do=export_xhtmlbody">view online version</a></em></p>

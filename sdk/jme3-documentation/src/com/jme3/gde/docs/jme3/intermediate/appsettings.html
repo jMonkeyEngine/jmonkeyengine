@@ -8,7 +8,7 @@ Every class that extends jme3.app.SimpleApplication has properties that can be c
 </p>
 
 <p>
-<p><div>Configure application settings in <code>main()</code>, before you call <code>app.start()</code> on the application object. If you change display settings during runtime, for eyample in <code>simpleInitApp()</code>, you must call <code>app.restart()</code> to make them take effect.
+<p><div>Configure application settings in <code>main()</code>, before you call <code>app.start()</code> on the application object. If you change display settings during runtime, for example in <code>simpleInitApp()</code>, you must call <code>app.restart()</code> to make them take effect.
 </div></p>
 </p>
 
@@ -47,14 +47,14 @@ This example toggles the settings to fullscreen while the game is already runnin
   int i=0; // note: there are usually several, let's pick the first
   settings.setResolution&#40;modes&#91;i&#93;.getWidth&#40;&#41;,modes&#91;i&#93;.getHeight&#40;&#41;&#41;;
   settings.setFrequency&#40;modes&#91;i&#93;.getRefreshRate&#40;&#41;&#41;;
-  settings.setDepthBits&#40;modes&#91;i&#93;.getBitDepth&#40;&#41;&#41;;
+  settings.setBitsPerPixel&#40;modes&#91;i&#93;.getBitDepth&#40;&#41;&#41;;
   settings.setFullscreen&#40;device.isFullScreenSupported&#40;&#41;&#41;;
   app.setSettings&#40;settings&#41;;
   app.restart&#40;&#41;; // restart the context to apply changes
 &#125;</pre>
 
 </div>
-<!-- EDIT2 SECTION "Code Samples" [559-2059] -->
+<!-- EDIT2 SECTION "Code Samples" [559-2062] -->
 <h2><a>Properties</a></h2>
 <div>
 <div><table>
@@ -94,7 +94,7 @@ Set VSync to false to deactivate vertical syncing (faster, but possible page tea
 60 fps</td>
 	</tr>
 </table></div>
-<!-- EDIT4 TABLE [2084-4305] --><div><table>
+<!-- EDIT4 TABLE [2087-4308] --><div><table>
 	<tr>
 		<th>Settings Property (Input)</th><th>Description</th><th>Default</th>
 	</tr>
@@ -111,7 +111,7 @@ Set VSync to false to deactivate vertical syncing (faster, but possible page tea
 		<td>setEmulateMouseFlipAxis(true,true)</td><td>Flips the X or Y (or both) axes for the emulated mouse. Set the first parameter to true to flip the x axis, and the second to flip the y axis.</td><td>false,false</td>
 	</tr>
 </table></div>
-<!-- EDIT5 TABLE [4307-5021] --><div><table>
+<!-- EDIT5 TABLE [4310-5024] --><div><table>
 	<tr>
 		<th>Settings Property (Audio)</th><th>Description</th><th>Default</th>
 	</tr>
@@ -122,7 +122,7 @@ Set VSync to false to deactivate vertical syncing (faster, but possible page tea
 		<td>setStereo3D(true)</td><td>Enable 3D stereo. This feature requires hardware support from the GPU driver. See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Quad_buffering"><param name="text" value="<html><u>Quad Buffering</u></html>"><param name="textColor" value="blue"></object>. Currently, your everday user&#039;s hardware does not support this, so you can ignore it for now.</td><td>false</td>
 	</tr>
 </table></div>
-<!-- EDIT6 TABLE [5023-5447] --><div><table>
+<!-- EDIT6 TABLE [5026-5450] --><div><table>
 	<tr>
 		<th>Settings Property (Branding)</th><th>Description</th><th>Default</th>
 	</tr>
@@ -137,7 +137,7 @@ ImageIO.read(new File(&quot;&quot;)), ???});</td><td>This specifies the little a
 		<td>setSettingsDialogImage(&quot;Interface/mysplashscreen.png&quot;)</td><td>A custom splashscreen image in the <code>assets/Interface</code> directory which is displayed when the settings dialog is shown.</td><td>&quot;/com/jme3/app/Monkey.png&quot;</td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [5449-6156] -->
+<!-- EDIT7 TABLE [5452-6159] -->
 <p>
 
 <p><div>You can use <code>app.setShowSettings(true);</code> and <code>setSettingsDialogImage(&quot;Interface/mysplashscreen.png&quot;)</code> to present the user with jme3&#039;s default display settings dialog when starting the game. Use <code>app.setShowSettings(false);</code> to hide the default settings screen. Set this boolean before calling <code>app.start()</code> on the SimpleApplication.
@@ -145,7 +145,7 @@ ImageIO.read(new File(&quot;&quot;)), ???});</td><td>This specifies the little a
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Properties" [2060-6516] -->
+<!-- EDIT3 SECTION "Properties" [2063-6519] -->
 <h2><a>Toggling and Activating Settings</a></h2>
 <div>
 <div><table>
@@ -165,9 +165,9 @@ ImageIO.read(new File(&quot;&quot;)), ???});</td><td>This specifies the little a
 		<td>app.restart()</td><td>Restart()ing a running game restarts the game context and applies the updated settings object. (This does not restart or reinitialize the whole game.)</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [6563-7444] -->
+<!-- EDIT9 TABLE [6566-7447] -->
 </div>
-<!-- EDIT8 SECTION "Toggling and Activating Settings" [6517-7445] -->
+<!-- EDIT8 SECTION "Toggling and Activating Settings" [6520-7448] -->
 <h2><a>Saving and Loading Settings</a></h2>
 <div>
 
@@ -207,5 +207,5 @@ Provide the unique name of your jME3 application as the String argument. For exa
 </ul>
 
 </div>
-<!-- EDIT10 SECTION "Saving and Loading Settings" [7446-] -->
+<!-- EDIT10 SECTION "Saving and Loading Settings" [7449-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:intermediate:appsettings?do=export_xhtmlbody">view online version</a></em></p>

@@ -109,10 +109,10 @@ public class HelloPhysics extends SimpleApplication &#123;
     sphere = new Sphere&#40;32, 32, 0.4f, true, false&#41;;
     sphere.setTextureMode&#40;TextureMode.Projected&#41;;
     /** Initialize the brick geometry */
-    box = new Box&#40;Vector3f.ZERO, brickLength, brickHeight, brickWidth&#41;;
+    box = new Box&#40;brickLength, brickHeight, brickWidth&#41;;
     box.scaleTextureCoordinates&#40;new Vector2f&#40;1f, .5f&#41;&#41;;
     /** Initialize the floor geometry */
-    floor = new Box&#40;Vector3f.ZERO, 10f, 0.1f, 5f&#41;;
+    floor = new Box&#40;10f, 0.1f, 5f&#41;;
     floor.scaleTextureCoordinates&#40;new Vector2f&#40;3, 6&#41;&#41;;
   &#125;
 &nbsp;
@@ -251,7 +251,7 @@ You should see a brick wall. Click to shoot cannon balls. Watch the bricks fall 
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [1379-8764] -->
+<!-- EDIT2 SECTION "Sample Code" [1379-8734] -->
 <h2><a>A Basic Physics Application</a></h2>
 <div>
 
@@ -279,12 +279,12 @@ The BulletAppState gives the game access to a PhysicsSpace. The PhysicsSpace let
 </p>
 
 </div>
-<!-- EDIT3 SECTION "A Basic Physics Application" [8765-9748] -->
+<!-- EDIT3 SECTION "A Basic Physics Application" [8735-9718] -->
 <h2><a>Creating Bricks and Cannon Balls</a></h2>
 <div>
 
 </div>
-<!-- EDIT4 SECTION "Creating Bricks and Cannon Balls" [9749-9794] -->
+<!-- EDIT4 SECTION "Creating Bricks and Cannon Balls" [9719-9764] -->
 <h3><a>Geometries</a></h3>
 <div>
 
@@ -305,15 +305,15 @@ In this &quot;shoot at the wall&quot; example, you use Geometries such as cannon
     sphere = new Sphere&#40;32, 32, 0.4f, true, false&#41;;
     sphere.setTextureMode&#40;TextureMode.Projected&#41;;
     /** Initialize the brick geometry */
-    box = new Box&#40;Vector3f.ZERO, brickLength, brickHeight, brickWidth&#41;;
+    box = new Box&#40;brickLength, brickHeight, brickWidth&#41;;
     box.scaleTextureCoordinates&#40;new Vector2f&#40;1f, .5f&#41;&#41;;
     /** Initialize the floor geometry */
-    floor = new Box&#40;Vector3f.ZERO, 10f, 0.1f, 5f&#41;;
+    floor = new Box&#40;10f, 0.1f, 5f&#41;;
     floor.scaleTextureCoordinates&#40;new Vector2f&#40;3, 6&#41;&#41;;
   &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "Geometries" [9795-10890] -->
+<!-- EDIT5 SECTION "Geometries" [9765-10830] -->
 <h3><a>RigidBodyControl: Brick</a></h3>
 <div>
 
@@ -375,7 +375,7 @@ This code sample does the following:
 </ol>
 
 </div>
-<!-- EDIT6 SECTION "RigidBodyControl: Brick" [10891-12413] -->
+<!-- EDIT6 SECTION "RigidBodyControl: Brick" [10831-12353] -->
 <h3><a>RigidBodyControl: Cannonball</a></h3>
 <div>
 
@@ -438,7 +438,7 @@ Since you are shooting cannon balls, the last line accelerates the ball in the d
 </p>
 
 </div>
-<!-- EDIT7 SECTION "RigidBodyControl: Cannonball" [12414-14010] -->
+<!-- EDIT7 SECTION "RigidBodyControl: Cannonball" [12354-13950] -->
 <h3><a>RigidBodyControl: Floor</a></h3>
 <div>
 
@@ -493,7 +493,7 @@ This code sample does the following:
 </ol>
 
 </div>
-<!-- EDIT8 SECTION "RigidBodyControl: Floor" [14011-15435] -->
+<!-- EDIT8 SECTION "RigidBodyControl: Floor" [13951-15375] -->
 <h2><a>Creating the Scene</a></h2>
 <div>
 
@@ -518,7 +518,7 @@ These methods are each called once from the <code>simpleInitApp()</code> method 
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Creating the Scene" [15436-16264] -->
+<!-- EDIT9 SECTION "Creating the Scene" [15376-16204] -->
 <h2><a>The Cannon Ball Shooting Action</a></h2>
 <div>
 
@@ -548,7 +548,7 @@ In the moment the cannonball appears in the scene, it flies off with the velocit
 </p>
 
 </div>
-<!-- EDIT10 SECTION "The Cannon Ball Shooting Action" [16265-17305] -->
+<!-- EDIT10 SECTION "The Cannon Ball Shooting Action" [16205-17245] -->
 <h2><a>Moving a Physical Spatial</a></h2>
 <div>
 
@@ -575,12 +575,12 @@ Learn more about static versus kinematic versus dynamic in the <a href="/com/jme
 </p>
 
 </div>
-<!-- EDIT11 SECTION "Moving a Physical Spatial" [17306-18275] -->
+<!-- EDIT11 SECTION "Moving a Physical Spatial" [17246-18215] -->
 <h2><a>Excercises</a></h2>
 <div>
 
 </div>
-<!-- EDIT12 SECTION "Excercises" [18276-18299] -->
+<!-- EDIT12 SECTION "Excercises" [18216-18239] -->
 <h3><a>Exercise 1: Debug Shapes</a></h3>
 <div>
 
@@ -597,7 +597,7 @@ Now you see the collisionShapes of the bricks and spheres, and the floor highlig
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Exercise 1: Debug Shapes" [18300-18565] -->
+<!-- EDIT13 SECTION "Exercise 1: Debug Shapes" [18240-18505] -->
 <h3><a>Exercise 2: No Mo&#039; Static</a></h3>
 <div>
 
@@ -607,7 +607,7 @@ What happens if you give a static node, such as the floor, a mass of more than 0
 </p>
 
 </div>
-<!-- EDIT14 SECTION "Exercise 2: No Mo' Static" [18566-18686] -->
+<!-- EDIT14 SECTION "Exercise 2: No Mo' Static" [18506-18626] -->
 <h3><a>Exercise 3: Behind the Curtain</a></h3>
 <div>
 
@@ -625,7 +625,7 @@ Using physics everywhere in a game sounds like a cool idea, but it is easily ove
 </p>
 
 </div>
-<!-- EDIT15 SECTION "Exercise 3: Behind the Curtain" [18687-19692] -->
+<!-- EDIT15 SECTION "Exercise 3: Behind the Curtain" [18627-19632] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -649,5 +649,5 @@ You have learned how to activate the jBullet PhysicsSpace in an application by a
 </span></div>
 
 </div>
-<!-- EDIT16 SECTION "Conclusion" [19693-] -->
+<!-- EDIT16 SECTION "Conclusion" [19633-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_physics?do=export_xhtmlbody">view online version</a></em></p>

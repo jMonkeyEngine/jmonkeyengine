@@ -4,30 +4,6 @@
 
 </div>
 <!-- EDIT1 SECTION "Troubleshooting jMonkeyEngine3 SDK" [1-47] -->
-<h3><a>Specifying the JDK location</a></h3>
-<div>
-
-<p>
-
-You should install the <acronym title="Java Development Kit">JDK</acronym> (the one from Oracle, not OpenJDK) first, and then the jMonkey <acronym title="Software Development Kit">SDK</acronym>. If jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> cannot find a valid <acronym title="Java Development Kit">JDK</acronym> although you have it installed, then you have to specify the location manually.
-
-</p>
-<ol>
-<li><div> Go to your jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> installation directory. <br/>
-Mac users right-click jMonkeyApplication.app (which actually is a directory) in the Finder and select &quot;Show package contents&quot;. </div>
-</li>
-<li><div> Navigate to the <code>etc</code> directory. <br/>
-Mac users navigate to <code>Contents/Resources/jmonkeyplatform/etc/</code>.</div>
-</li>
-<li><div> Open the file <code>jmonkeyplatform.conf</code> in a text editor.</div>
-</li>
-<li><div> Uncomment the following line and enter the path to the <acronym title="Java Development Kit">JDK</acronym>: <pre>jdkhome=&quot;/path/to/jdk&quot;</pre>
-</div>
-</li>
-</ol>
-
-</div>
-<!-- EDIT2 SECTION "Specifying the JDK location" [48-766] -->
 <h3><a>Graphics Card Driver</a></h3>
 <div>
 
@@ -37,7 +13,7 @@ Mac users navigate to <code>Contents/Resources/jmonkeyplatform/etc/</code>.</div
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Graphics Card Driver" [767-1020] -->
+<!-- EDIT2 SECTION "Graphics Card Driver" [48-301] -->
 <h3><a>Stability / Graphics issues</a></h3>
 <div>
 
@@ -80,7 +56,7 @@ Compiz on Linux might cause issues, if you set its rendering quality to &quot;me
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Stability / Graphics issues" [1021-2353] -->
+<!-- EDIT3 SECTION "Stability / Graphics issues" [302-1634] -->
 <h3><a>Updating problems</a></h3>
 <div>
 
@@ -89,7 +65,7 @@ If you have problems updating the <acronym title="Software Development Kit">SDK<
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Updating problems" [2354-2601] -->
+<!-- EDIT4 SECTION "Updating problems" [1635-1882] -->
 <h3><a>Preferences and Settings</a></h3>
 <div>
 
@@ -108,7 +84,7 @@ To completely remove and/or reinstall the <acronym title="Software Development K
 </ul>
 
 </div>
-<!-- EDIT6 SECTION "Preferences and Settings" [2602-3090] -->
+<!-- EDIT5 SECTION "Preferences and Settings" [1883-2371] -->
 <h3><a>Log</a></h3>
 <div>
 
@@ -117,7 +93,7 @@ To see or post the error output of the <acronym title="Software Development Kit"
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Log" [3091-3280] -->
+<!-- EDIT6 SECTION "Log" [2372-2561] -->
 <h3><a>Getting error messages and reporting issues</a></h3>
 <div>
 
@@ -126,7 +102,31 @@ When an exception happens in the <acronym title="Software Development Kit">SDK</
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Getting error messages and reporting issues" [3281-3670] -->
+<!-- EDIT7 SECTION "Getting error messages and reporting issues" [2562-2951] -->
+<h3><a>Specifying the JDK location</a></h3>
+<div>
+
+<p>
+
+You can install another <acronym title="Java Development Kit">JDK</acronym> for use with the jMonkey <acronym title="Software Development Kit">SDK</acronym>. You then have to specify the location manually.
+
+</p>
+<ol>
+<li><div> Go to your jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> installation directory. <br/>
+Mac users right-click jMonkeyApplication.app (which actually is a directory) in the Finder and select &quot;Show package contents&quot;. </div>
+</li>
+<li><div> Navigate to the <code>etc</code> directory. <br/>
+Mac users navigate to <code>Contents/Resources/jmonkeyplatform/etc/</code>.</div>
+</li>
+<li><div> Open the file <code>jmonkeyplatform.conf</code> in a text editor.</div>
+</li>
+<li><div> Uncomment the following line and enter the path to the <acronym title="Java Development Kit">JDK</acronym>: <pre>jdkhome=&quot;/path/to/jdk&quot;</pre>
+</div>
+</li>
+</ol>
+
+</div>
+<!-- EDIT8 SECTION "Specifying the JDK location" [2952-3556] -->
 <h3><a>Known Issues</a></h3>
 <div>
 
@@ -142,5 +142,5 @@ For a list of known issues and possible workarounds see the following link:
 </span></div>
 
 </div>
-<!-- EDIT9 SECTION "Known Issues" [3671-] -->
+<!-- EDIT9 SECTION "Known Issues" [3557-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:troubleshooting?do=export_xhtmlbody">view online version</a></em></p>

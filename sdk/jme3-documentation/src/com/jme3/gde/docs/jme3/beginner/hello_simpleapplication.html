@@ -56,7 +56,7 @@ If you have questions, read more about <a href="/com/jme3/gde/docs/sdk/project_c
 
 </div>
 <!-- EDIT2 SECTION "Create a Project" [727-1588] -->
-<h2><a>Write a SimpleApplication</a></h2>
+<h2><a>Extend SimpleApplication</a></h2>
 <div>
 
 <p>
@@ -85,7 +85,7 @@ The <acronym title="Software Development Kit">SDK</acronym> creates the file Hel
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Write a SimpleApplication" [1589-2061] -->
+<!-- EDIT3 SECTION "Extend SimpleApplication" [1589-2060] -->
 <h2><a>Sample Code</a></h2>
 <div>
 
@@ -114,7 +114,7 @@ public class HelloJME3 extends SimpleApplication &#123;
 &nbsp;
     @Override
     public void simpleInitApp&#40;&#41; &#123;
-        Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // create cube shape at the origin
+        Box b = new Box&#40;1, 1, 1&#41;; // create cube shape
         Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;  // create cube geometry from the shape
         Material mat = new Material&#40;assetManager,
           &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;  // create a simple material
@@ -143,7 +143,7 @@ Congratulations! Now let&#039;s find out how it works!
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Sample Code" [2062-3976] -->
+<!-- EDIT4 SECTION "Sample Code" [2061-3946] -->
 <h2><a>Understanding the Code</a></h2>
 <div>
 
@@ -153,20 +153,20 @@ The code above has initialized the scene, and started the application.
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Understanding the Code" [3977-4084] -->
+<!-- EDIT5 SECTION "Understanding the Code" [3947-4054] -->
 <h3><a>Start the SimpleApplication</a></h3>
 <div>
 
 <p>
 
-Look at the first line. The HelloJME3.java class extends <code>com.jme3.app.SimpleApplication</code>. 
+Look at the first line. Your HelloJME3.java class extends <code>com.jme3.app.SimpleApplication</code>. 
 </p>
 <pre>public class HelloJME3 extends SimpleApplication &#123;
   // your code...
 &#125;</pre>
 
 <p>
-Every JME3 game is an instance of <code>com.jme3.app.SimpleApplication</code>. The SimpleApplication class manages your 3D scene graph and automatically draws it to the screen ??? that is, in short, what a game engine does for you! 
+Every JME3 game is an instance of the <code>com.jme3.app.SimpleApplication</code> class. The SimpleApplication class is the simplest example of an application: It manages a 3D scene graph, checks for user input, updates the game state, and automatically draws the scene to the screen. These are the core features of a game engine. You extend this simple application and customize it to create your game.
 </p>
 
 <p>
@@ -184,11 +184,11 @@ You start every JME3 game from the main() method, as every standard Java applica
     &#125;</pre>
 
 <p>
-This code opens your application window. Let&#039;s learn how you put something into the window next.
+The <code>app.start();</code> line opens the application window. Let&#039;s learn how you put something into this window (the scene) next.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Start the SimpleApplication" [4085-5044] -->
+<!-- EDIT6 SECTION "Start the SimpleApplication" [4055-5215] -->
 <h3><a>Understanding the Terminology</a></h3>
 <div>
 <div><table>
@@ -211,14 +211,14 @@ This code opens your application window. Let&#039;s learn how you put something 
 		<td>You want the cube to appear in the center.</td><td>I create the Box at the origin = at <code>Vector3f.ZERO</code>.</td>
 	</tr>
 </table></div>
-<!-- EDIT8 TABLE [5086-5559] -->
+<!-- EDIT8 TABLE [5257-5730] -->
 <p>
 
 If you are unfamiliar with the vocabulary, read more about <a href="/com/jme3/gde/docs/jme3/the_scene_graph.html">the Scene Graph</a> here.
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Understanding the Terminology" [5045-5652] -->
+<!-- EDIT7 SECTION "Understanding the Terminology" [5216-5823] -->
 <h3><a>Initialize the Scene</a></h3>
 <div>
 
@@ -234,7 +234,7 @@ Look at rest of the code sample. The <code>simpleInitApp()</code> method is auto
 The initialization code of a blue cube looks as follows:
 </p>
 <pre>    public void simpleInitApp&#40;&#41; &#123;
-        Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // create a 1x1x1 box shape at the origin
+        Box b = new Box&#40;1, 1, 1&#41;; // create a 1x1x1 box shape
         Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;  // create a cube geometry from the box shape
         Material mat = new Material&#40;assetManager,
           &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;  // create a simple material
@@ -288,7 +288,7 @@ A typical JME3 game has the following initialization process:
 </ol>
 
 </div>
-<!-- EDIT9 SECTION "Initialize the Scene" [5653-7652] -->
+<!-- EDIT9 SECTION "Initialize the Scene" [5824-7794] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -349,5 +349,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT10 SECTION "Conclusion" [7653-] -->
+<!-- EDIT10 SECTION "Conclusion" [7795-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_simpleapplication?do=export_xhtmlbody">view online version</a></em></p>

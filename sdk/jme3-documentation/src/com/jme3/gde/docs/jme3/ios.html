@@ -7,16 +7,22 @@ To use iOS deployment you need a computer running MacOSX and a version of Xcode 
 </p>
 
 <p>
+<p><div>Note that at the moment iOS deployment is in alpha state.
+</div></p>
+</p>
+
+<p>
 iOS deployment works via cross-compilation to native iOS ARM code, there is no virtual machine running on the device. The Avian JVM supports this feature while maintaining general compatibility to OpenJDK and JNI for native access. The minimum compatible iOS deployment target is 4.3.
 </p>
 
 <p>
-<p><div>Note that at the moment this option is in pre-alpha state and the system runs on a null renderer. This means there is no visual or audio output. You can however use the current system to explore the options and test cross-compiling your applications.
+<p><div>To install the iOS deployment plugin, go to Tools???Plugins and under &quot;Available plugins&quot; select the &quot;iOS Support&quot; plugin.
 </div></p>
+
 </p>
 
 </div>
-<!-- EDIT1 SECTION "iOS Deployment" [1-764] -->
+<!-- EDIT1 SECTION "iOS Deployment" [1-710] -->
 <h3><a>Enabling iOS deployment</a></h3>
 <div>
 
@@ -39,7 +45,7 @@ After enabling deployment, a new <code>ios</code> directory is created in the pr
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Enabling iOS deployment" [765-1685] -->
+<!-- EDIT2 SECTION "Enabling iOS deployment" [711-1631] -->
 <h3><a>Building the iOS binaries</a></h3>
 <div>
 
@@ -56,7 +62,7 @@ After the iOS classpath has been created the avian compiler is used to create a 
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Building the iOS binaries" [1686-2507] -->
+<!-- EDIT3 SECTION "Building the iOS binaries" [1632-2453] -->
 <h3><a>Running and deploying the application</a></h3>
 <div>
 
@@ -68,7 +74,7 @@ To run the application, open the Xcode project under <code>ios/project</code> in
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Running and deploying the application" [2508-2996] -->
+<!-- EDIT4 SECTION "Running and deploying the application" [2454-2942] -->
 <h3><a>Creating native and java code for iOS</a></h3>
 <div>
 
@@ -97,5 +103,5 @@ Java code for iOS should be in the <code>ios/src</code> folder as well for clean
 </span></div>
 
 </div>
-<!-- EDIT5 SECTION "Creating native and java code for iOS" [2997-] -->
+<!-- EDIT5 SECTION "Creating native and java code for iOS" [2943-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:ios?do=export_xhtmlbody">view online version</a></em></p>
