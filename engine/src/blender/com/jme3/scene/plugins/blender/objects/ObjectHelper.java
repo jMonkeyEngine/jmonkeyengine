@@ -190,6 +190,10 @@ public class ObjectHelper extends AbstractBlenderHelper {
                         LightHelper lightHelper = blenderContext.getHelper(LightHelper.class);
                         List<Structure> lampsArray = pLamp.fetchData();
                         result = lightHelper.toLight(lampsArray.get(0), blenderContext);
+                        if(result == null) {
+                            //probably some light type is not supported, just create a node so that we can maintain child-parent relationship for nodes
+                            result = new Node(name);
+                        }
                     }
                     break;
                 case CAMERA:
