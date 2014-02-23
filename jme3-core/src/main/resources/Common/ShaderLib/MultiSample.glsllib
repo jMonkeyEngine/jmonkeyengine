@@ -46,17 +46,17 @@ vec4 getDepth(in sampler2DMS tex,in vec2 texC){
 #endif
 
 vec4 fetchTextureSample(in sampler2D tex,in vec2 texC,in int sample){
-    return texture2D(tex,texC);
+    return texture(tex,texC);
 }
 
 vec4 getColor(in sampler2D tex, in vec2 texC){
-    return texture2D(tex,texC);
+    return texture(tex,texC);
 }
 
 vec4 getColorSingle(in sampler2D tex, in vec2 texC){
-    return texture2D(tex, texC);
+    return texture(tex, texC);
 }
 
 vec4 getDepth(in sampler2D tex,in vec2 texC){
-    return texture2D(tex,texC);
+    return texture(tex,texC);
 }
