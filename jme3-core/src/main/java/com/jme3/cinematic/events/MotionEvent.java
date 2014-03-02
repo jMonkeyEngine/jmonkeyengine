@@ -31,6 +31,7 @@
  */
 package com.jme3.cinematic.events;
 
+import com.jme3.animation.AnimationUtils;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.cinematic.Cinematic;
@@ -67,6 +68,7 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
     protected Direction directionType = Direction.None;
     protected MotionPath path;
     private boolean isControl = true;
+    private int travelDirection = 1;
     /**
      * the distance traveled by the spatial on the path
      */
@@ -171,13 +173,18 @@ public class MotionEvent extends AbstractCinematicEvent implements Control {
             time = time + (tpf * speed);
             if (loopMode == loopMode.Loop && time < 0) {
                 time = initialDuration;
-            }
+            }            
             if ((time >= initialDuration || time < 0) && loopMode == loopMode.DontLoop) {
                 if (time >= initialDuration) {
                     path.triggerWayPointReach(path.getNbWayPoints() - 1, this);
                 }
                 stop();
             } else {
+                time = AnimationUtils.clampWrapTime(time, initialDuration, loopMode);
+                if(time<0){
+                    speed = - speed;
+                    time = - time;
+                }
                 onUpdate(tpf);
             }
         }
