@@ -68,64 +68,6 @@ public final class AnimChannel {
     private float blendAmount = 1f;
     private float blendRate   = 0;
     
-    private static float clampWrapTime(float t, float max, LoopMode loopMode){
-        if (t == 0) {
-            return 0; // prevent division by 0 errors
-        }
-        
-        switch (loopMode) {
-            case Cycle:
-                boolean sign = ((int) (t / max) % 2) != 0;
-                float result;
-                
-//                if (t < 0){
-//                    result = sign ? t % max : -(max + (t % max));
-//                } else {
-                    // NOTE: This algorithm seems stable for both high and low
-                    // tpf so for now its a keeper.
-                    result = sign ? -(max - (t % max)) : t % max;
-//                }
-                    
-//                if (result <= 0 || result >= max) {
-//                    System.out.println("SIGN: " + sign + ", RESULT: " + result + ", T: " + t + ", M: " + max);
-//                }
-                
-                return result;
-            case DontLoop:
-                return t > max ? max : (t < 0 ? 0 : t);
-            case Loop:
-                return t % max;
-        }
-        return t;
-        
-        
-//        if (max == Float.POSITIVE_INFINITY)
-//            return t;
-//        
-//        if (t < 0f){
-//            //float tMod = -(-t % max);
-//            switch (loopMode){
-//                case DontLoop:
-//                    return 0;
-//                case Cycle:
-//                    return t;
-//                case Loop:
-//                    return max - t;
-//            }
-//        }else if (t > max){
-//            switch (loopMode){
-//                case DontLoop:
-//                    return max;
-//                case Cycle:
-//                    return -(2f * max - t) % max;
-//                case Loop:
-//                    return t % max;
-//            }
-//        }
-//
-//        return t;
-    }
-
     AnimChannel(AnimControl control){
         this.control = control;
     }
@@ -385,7 +327,7 @@ public final class AnimChannel {
             blendFrom.setTime(timeBlendFrom, 1f - blendAmount, control, this, vars);
             
             timeBlendFrom += tpf * speedBlendFrom;
-            timeBlendFrom = clampWrapTime(timeBlendFrom,
+            timeBlendFrom = AnimationUtils.clampWrapTime(timeBlendFrom,
                                           blendFrom.getLength(),
                                           loopModeBlendFrom);
             if (timeBlendFrom < 0){
@@ -414,7 +356,7 @@ public final class AnimChannel {
             } 
         }
         time += tpf * speed;      
-        time = clampWrapTime(time, animation.getLength(), loopMode);
+        time = AnimationUtils.clampWrapTime(time, animation.getLength(), loopMode);
         if (time < 0){
             // Negative time indicates that speed should be inverted
             // (for cycle loop mode only)

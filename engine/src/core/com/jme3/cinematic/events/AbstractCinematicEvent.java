@@ -31,6 +31,7 @@
  */
 package com.jme3.cinematic.events;
 
+import com.jme3.animation.AnimationUtils;
 import com.jme3.animation.LoopMode;
 import com.jme3.app.Application;
 import com.jme3.cinematic.Cinematic;
@@ -138,6 +139,12 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
                 stop();
             } else if(time >= initialDuration && loopMode == LoopMode.Loop){
                 setTime(0);
+            }else{
+                time = AnimationUtils.clampWrapTime(time, initialDuration, loopMode);
+                if(time<0){
+                    speed = - speed;
+                    time = - time;
+                }
             }
         }
 
