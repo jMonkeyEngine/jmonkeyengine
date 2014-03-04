@@ -1,0 +1,45 @@
+package com.jme3.scene.plugins.blender.constraints.definitions;
+
+import com.jme3.math.Transform;
+import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
+import com.jme3.scene.plugins.blender.file.Structure;
+
+public class ConstraintDefinitionMaintainVolume extends ConstraintDefinition {
+    private static final int FLAG_MASK_X = 0;
+    private static final int FLAG_MASK_Y = 1;
+    private static final int FLAG_MASK_Z = 2;
+
+    private float            volume;
+
+    public ConstraintDefinitionMaintainVolume(Structure constraintData, Long ownerOMA, BlenderContext blenderContext) {
+        super(constraintData, ownerOMA, blenderContext);
+        volume = (float) Math.sqrt(((Number) constraintData.getFieldValue("volume")).floatValue());
+    }
+
+    @Override
+    public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
+        if (volume != 1 && influence > 0) {
+            Transform ownerTransform = this.getOwnerTransform(ownerSpace);
+            switch (flag) {
+                case FLAG_MASK_X:
+                    ownerTransform.getScale().multLocal(1, volume, volume);
+                    break;
+                case FLAG_MASK_Y:
+                    ownerTransform.getScale().multLocal(volume, 1, volume);
+                    break;
+                case FLAG_MASK_Z:
+                    ownerTransform.getScale().multLocal(volume, volume, 1);
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown flag value: " + flag);
+            }
+            this.applyOwnerTransform(ownerTransform, ownerSpace);
+        }
+    }
+
+    @Override
+    public String getConstraintTypeName() {
+        return "Maintain volume";
+    }
+}
