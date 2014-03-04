@@ -136,6 +136,13 @@ public class AnimationHelper extends AbstractBlenderHelper {
                 }
                 control.setAnimations(anims);
                 node.addControl(control);
+                
+                //make sure that SkeletonControl is added AFTER the AnimControl
+                SkeletonControl skeletonControl = node.getControl(SkeletonControl.class);
+                if(skeletonControl != null) {
+                    node.removeControl(SkeletonControl.class);
+                    node.addControl(skeletonControl);
+                }
             }
         }
     }
