@@ -149,7 +149,7 @@ public class KeyNames {
         KEY_NAMES[KEY_BACK] = "Backspace";
         KEY_NAMES[KEY_TAB] = "Tab";
         
-        KEY_NAMES[KEY_SYSRQ] = "SysEq";
+        KEY_NAMES[KEY_SYSRQ] = "SysRq";
         KEY_NAMES[KEY_PAUSE] = "Pause";
         
         KEY_NAMES[KEY_HOME] = "Home";
