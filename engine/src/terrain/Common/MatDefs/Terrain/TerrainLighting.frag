@@ -208,53 +208,56 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
     vec4 diffuseColor = texture2D(m_DiffuseMap, texCoord * m_DiffuseMap_0_scale);
     diffuseColor *= alphaBlend.r;
     #ifdef DIFFUSEMAP_1
-      vec4 diffuseColor1 = texture2D(m_DiffuseMap_1, texCoord * m_DiffuseMap_1_scale);
-      diffuseColor = mix( diffuseColor, diffuseColor1, alphaBlend.g );
-      #ifdef DIFFUSEMAP_2
+        vec4 diffuseColor1 = texture2D(m_DiffuseMap_1, texCoord * m_DiffuseMap_1_scale);
+        diffuseColor = mix( diffuseColor, diffuseColor1, alphaBlend.g );
+    #endif
+    #ifdef DIFFUSEMAP_2
         vec4 diffuseColor2 = texture2D(m_DiffuseMap_2, texCoord * m_DiffuseMap_2_scale);
         diffuseColor = mix( diffuseColor, diffuseColor2, alphaBlend.b );
-        #ifdef DIFFUSEMAP_3
-          vec4 diffuseColor3 = texture2D(m_DiffuseMap_3, texCoord * m_DiffuseMap_3_scale);
-          diffuseColor = mix( diffuseColor, diffuseColor3, alphaBlend.a );
-          #ifdef ALPHAMAP_1
-              #ifdef DIFFUSEMAP_4
-                vec4 diffuseColor4 = texture2D(m_DiffuseMap_4, texCoord * m_DiffuseMap_4_scale);
-                diffuseColor = mix( diffuseColor, diffuseColor4, alphaBlend1.r );
-                #ifdef DIFFUSEMAP_5
-                  vec4 diffuseColor5 = texture2D(m_DiffuseMap_5, texCoord * m_DiffuseMap_5_scale);
-                  diffuseColor = mix( diffuseColor, diffuseColor5, alphaBlend1.g );
-                  #ifdef DIFFUSEMAP_6
-                    vec4 diffuseColor6 = texture2D(m_DiffuseMap_6, texCoord * m_DiffuseMap_6_scale);
-                    diffuseColor = mix( diffuseColor, diffuseColor6, alphaBlend1.b );
-                    #ifdef DIFFUSEMAP_7
-                      vec4 diffuseColor7 = texture2D(m_DiffuseMap_7, texCoord * m_DiffuseMap_7_scale);
-                      diffuseColor = mix( diffuseColor, diffuseColor7, alphaBlend1.a );
-                      #ifdef ALPHAMAP_2
-                          #ifdef DIFFUSEMAP_8
-                            vec4 diffuseColor8 = texture2D(m_DiffuseMap_8, texCoord * m_DiffuseMap_8_scale);
-                            diffuseColor = mix( diffuseColor, diffuseColor8, alphaBlend2.r );
-                            #ifdef DIFFUSEMAP_9
-                              vec4 diffuseColor9 = texture2D(m_DiffuseMap_9, texCoord * m_DiffuseMap_9_scale);
-                              diffuseColor = mix( diffuseColor, diffuseColor9, alphaBlend2.g );
-                              #ifdef DIFFUSEMAP_10
-                                vec4 diffuseColor10 = texture2D(m_DiffuseMap_10, texCoord * m_DiffuseMap_10_scale);
-                                diffuseColor = mix( diffuseColor, diffuseColor10, alphaBlend2.b );
-                                #ifdef DIFFUSEMAP_11
-                                  vec4 diffuseColor11 = texture2D(m_DiffuseMap_11, texCoord * m_DiffuseMap_11_scale);
-                                  diffuseColor = mix( diffuseColor, diffuseColor11, alphaBlend2.a );
-                                #endif
-                              #endif
-                            #endif
-                          #endif
-                      #endif
-                    #endif
-                  #endif
-                #endif
-              #endif
-          #endif
-        #endif
-      #endif
     #endif
+    #ifdef DIFFUSEMAP_3
+        vec4 diffuseColor3 = texture2D(m_DiffuseMap_3, texCoord * m_DiffuseMap_3_scale);
+        diffuseColor = mix( diffuseColor, diffuseColor3, alphaBlend.a );
+    #endif
+
+    #ifdef ALPHAMAP_1
+        #ifdef DIFFUSEMAP_4
+            vec4 diffuseColor4 = texture2D(m_DiffuseMap_4, texCoord * m_DiffuseMap_4_scale);
+            diffuseColor = mix( diffuseColor, diffuseColor4, alphaBlend1.r );
+        #endif
+        #ifdef DIFFUSEMAP_5
+            vec4 diffuseColor5 = texture2D(m_DiffuseMap_5, texCoord * m_DiffuseMap_5_scale);
+            diffuseColor = mix( diffuseColor, diffuseColor5, alphaBlend1.g );
+        #endif
+        #ifdef DIFFUSEMAP_6
+            vec4 diffuseColor6 = texture2D(m_DiffuseMap_6, texCoord * m_DiffuseMap_6_scale);
+            diffuseColor = mix( diffuseColor, diffuseColor6, alphaBlend1.b );
+        #endif
+        #ifdef DIFFUSEMAP_7
+            vec4 diffuseColor7 = texture2D(m_DiffuseMap_7, texCoord * m_DiffuseMap_7_scale);
+            diffuseColor = mix( diffuseColor, diffuseColor7, alphaBlend1.a );
+        #endif
+    #endif
+
+    #ifdef ALPHAMAP_2
+        #ifdef DIFFUSEMAP_8
+            vec4 diffuseColor8 = texture2D(m_DiffuseMap_8, texCoord * m_DiffuseMap_8_scale);
+            diffuseColor = mix( diffuseColor, diffuseColor8, alphaBlend2.r );
+        #endif
+        #ifdef DIFFUSEMAP_9
+            vec4 diffuseColor9 = texture2D(m_DiffuseMap_9, texCoord * m_DiffuseMap_9_scale);
+            diffuseColor = mix( diffuseColor, diffuseColor9, alphaBlend2.g );
+        #endif
+        #ifdef DIFFUSEMAP_10
+            vec4 diffuseColor10 = texture2D(m_DiffuseMap_10, texCoord * m_DiffuseMap_10_scale);
+            diffuseColor = mix( diffuseColor, diffuseColor10, alphaBlend2.b );
+        #endif
+        #ifdef DIFFUSEMAP_11
+            vec4 diffuseColor11 = texture2D(m_DiffuseMap_11, texCoord * m_DiffuseMap_11_scale);
+            diffuseColor = mix( diffuseColor, diffuseColor11, alphaBlend2.a );
+        #endif                   
+    #endif
+
     return diffuseColor;
   }
 
@@ -428,41 +431,41 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
 
         vec4 diffuseColor = tex0 * alphaBlend.r;
         #ifdef DIFFUSEMAP_1
-          diffuseColor = mix( diffuseColor, tex1, alphaBlend.g );
-          #ifdef DIFFUSEMAP_2
+            diffuseColor = mix( diffuseColor, tex1, alphaBlend.g );
+        #endif
+        #ifdef DIFFUSEMAP_2
             diffuseColor = mix( diffuseColor, tex2, alphaBlend.b );
-            #ifdef DIFFUSEMAP_3
-              diffuseColor = mix( diffuseColor, tex3, alphaBlend.a );
-              #ifdef ALPHAMAP_1
-                  #ifdef DIFFUSEMAP_4
-                    diffuseColor = mix( diffuseColor, tex4, alphaBlend1.r );
-                    #ifdef DIFFUSEMAP_5
-                      diffuseColor = mix( diffuseColor, tex5, alphaBlend1.g );
-                      #ifdef DIFFUSEMAP_6
-                        diffuseColor = mix( diffuseColor, tex6, alphaBlend1.b );
-                        #ifdef DIFFUSEMAP_7
-                          diffuseColor = mix( diffuseColor, tex7, alphaBlend1.a );
-                          #ifdef ALPHAMAP_2
-                              #ifdef DIFFUSEMAP_8
-                                diffuseColor = mix( diffuseColor, tex8, alphaBlend2.r );
-                                #ifdef DIFFUSEMAP_9
-                                  diffuseColor = mix( diffuseColor, tex9, alphaBlend2.g );
-                                  #ifdef DIFFUSEMAP_10
-                                    diffuseColor = mix( diffuseColor, tex10, alphaBlend2.b );
-                                    #ifdef DIFFUSEMAP_11
-                                      diffuseColor = mix( diffuseColor, tex11, alphaBlend2.a );
-                                    #endif
-                                  #endif
-                                #endif
-                              #endif
-                          #endif
-                        #endif
-                      #endif
-                    #endif
-                  #endif
-              #endif
+        #endif
+        #ifdef DIFFUSEMAP_3
+            diffuseColor = mix( diffuseColor, tex3, alphaBlend.a );
+        #endif
+        #ifdef ALPHAMAP_1
+            #ifdef DIFFUSEMAP_4
+                diffuseColor = mix( diffuseColor, tex4, alphaBlend1.r );
             #endif
-          #endif
+            #ifdef DIFFUSEMAP_5
+                diffuseColor = mix( diffuseColor, tex5, alphaBlend1.g );
+            #endif
+            #ifdef DIFFUSEMAP_6
+                diffuseColor = mix( diffuseColor, tex6, alphaBlend1.b );
+            #endif
+            #ifdef DIFFUSEMAP_7
+                diffuseColor = mix( diffuseColor, tex7, alphaBlend1.a );
+            #endif
+        #endif
+        #ifdef ALPHAMAP_2
+            #ifdef DIFFUSEMAP_8
+                diffuseColor = mix( diffuseColor, tex8, alphaBlend2.r );
+            #endif
+            #ifdef DIFFUSEMAP_9
+                diffuseColor = mix( diffuseColor, tex9, alphaBlend2.g );
+            #endif
+            #ifdef DIFFUSEMAP_10
+                diffuseColor = mix( diffuseColor, tex10, alphaBlend2.b );
+            #endif
+            #ifdef DIFFUSEMAP_11
+                diffuseColor = mix( diffuseColor, tex11, alphaBlend2.a );
+            #endif
         #endif
 
         return diffuseColor;
