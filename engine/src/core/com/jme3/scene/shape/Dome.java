@@ -250,7 +250,7 @@ public class Dome extends Mesh {
                 BufferUtils.populateFromBuffer(tempVa, vb, i);
                 kNormal = tempVa.subtractLocal(center);
                 kNormal.normalizeLocal();
-                if (insideView) {
+                if (!insideView) {
                     nb.put(kNormal.x).put(kNormal.y).put(kNormal.z);
                 } else {
                     nb.put(-kNormal.x).put(-kNormal.y).put(-kNormal.z);
@@ -267,7 +267,7 @@ public class Dome extends Mesh {
 
         // pole
         vb.put(center.x).put(center.y + radius).put(center.z);
-        nb.put(0).put(insideView ? 1 : -1).put(0);
+        nb.put(0).put(insideView ? -1 : 1).put(0);
         tb.put(0.5f).put(1.0f);
 
         // allocate connectivity
