@@ -240,8 +240,8 @@ public class Mesh implements Savable, Cloneable {
             }
             
             clone.vertexArrayID = -1;
-            clone.vertCount = -1;
-            clone.elementCount = -1;
+            clone.vertCount = vertCount;
+            clone.elementCount = elementCount;
             
             // although this could change
             // if the bone weight/index buffers are modified
