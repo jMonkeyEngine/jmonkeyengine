@@ -610,7 +610,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         InputCapsule ic = (InputCapsule) im.getCapsule(this);
         assetManager = im.getAssetManager();
         nbShadowMaps = ic.readInt("nbShadowMaps", 1);
-        shadowMapSize = ic.readInt("shadowMapSize", 0);
+        shadowMapSize = ic.readFloat("shadowMapSize", 0f);
         shadowIntensity = ic.readFloat("shadowIntensity", 0.7f);
         edgeFilteringMode = ic.readEnum("edgeFilteringMode", EdgeFilteringMode.class, EdgeFilteringMode.Bilinear);
         shadowCompareMode = ic.readEnum("shadowCompareMode", CompareMode.class, CompareMode.Hardware);
