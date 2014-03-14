@@ -341,7 +341,11 @@ public class FlyByCamera implements AnalogListener, ActionListener {
 
         float fovY = FastMath.atan(h / near)
                   / (FastMath.DEG_TO_RAD * .5f);
-        fovY += value * 0.1f * zoomSpeed;
+        float newFovY = fovY + value * 0.1f * zoomSpeed;
+        if (newFovY > 0f) {
+            // Don't let the FOV go zero or negative.
+            fovY = newFovY;
+        }
 
         h = FastMath.tan( fovY * FastMath.DEG_TO_RAD * .5f) * near;
         w = h * aspect;
