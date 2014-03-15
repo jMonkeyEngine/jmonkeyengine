@@ -32,6 +32,8 @@
 package com.jme3.scene.debug;
 
 import com.jme3.bounding.BoundingBox;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
@@ -100,8 +102,23 @@ public class WireBox extends Mesh {
         updateBound();
     }
 
-    public void fromBoundingBox(BoundingBox bbox){
-        updatePositions(bbox.getXExtent(), bbox.getYExtent(), bbox.getZExtent());
+    /**
+     * Create a geometry suitable for visualizing the specified bounding box.
+     *
+     * @param bbox the bounding box (not null)
+     * @return a new Geometry instance in world space
+     */
+    public static Geometry fromBoundingBox(BoundingBox bbox) {
+        float xExtent = bbox.getXExtent();
+        float yExtent = bbox.getYExtent();
+        float zExtent = bbox.getZExtent();
+        WireBox mesh = new WireBox(xExtent, yExtent, zExtent);
+        Geometry result = new Geometry("bounding box", mesh);
+
+        Vector3f center = bbox.getCenter();
+        result.setLocalTranslation(center);
+
+        return result;
     }
 
 }
