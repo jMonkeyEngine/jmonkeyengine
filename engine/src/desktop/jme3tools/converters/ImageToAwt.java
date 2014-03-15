@@ -172,6 +172,14 @@ public class ImageToAwt {
         params.put(Format.RGBA8,        new DecodeParams(4, m___x, mx___, m_x__, m__x_,
                                                             s___x, sx___, s_x__, s__x_,
                                                             mxxxx, sxxxx));
+        params.put(Format.BGRA8,        new DecodeParams(4, m___x, m__x_, m_x__, mx___,
+                                                            s___x, s__x_, s_x__, sx___,
+                                                            mxxxx, sxxxx));
+
+        params.put(Format.ARGB8,        new DecodeParams(4, mx___, m_x__, m__x_, m___x,
+                                                            sx___, s_x__, s__x_, s___x,
+                                                            mxxxx, sxxxx));
+        
     }
 
     private static int Ix(int x, int y, int w){
