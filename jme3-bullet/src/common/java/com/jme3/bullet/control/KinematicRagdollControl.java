@@ -355,6 +355,9 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         //I remove the skeletonControl and readd it to the spatial to make sure it's after the ragdollControl in the stack
         //Find a proper way to order the controls.
         SkeletonControl sc = model.getControl(SkeletonControl.class);
+        if(sc == null){
+            throw new IllegalArgumentException("The root node of the model should have a SkeletonControl. Make sure the control is there and that it's not on a sub node.");
+        }
         model.removeControl(sc);
         model.addControl(sc);
 
