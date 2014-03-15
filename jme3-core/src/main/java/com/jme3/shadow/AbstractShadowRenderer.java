@@ -92,19 +92,26 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     protected CompareMode shadowCompareMode = CompareMode.Hardware;
     protected Picture[] dispPic;
     protected boolean flushQueues = true;
-    // define if the fallback material should be used.
+    /**
+     * true if the fallback material should be used, otherwise false
+     */
     protected boolean needsfallBackMaterial = false;
-    //Name of the post material technique
+    /**
+     * name of the post material technique
+     */
     protected String postTechniqueName = "PostShadow";
-    //flags to know when to change params in the materials
-    //a list of material of the post shadow queue geometries.
+    /**
+     * list of materials for post shadow queue geometries
+     */
     protected List<Material> matCache = new ArrayList<Material>();
     protected GeometryList sceneReceivers;
     protected GeometryList lightReceivers = new GeometryList(new OpaqueComparator());
     protected GeometryList shadowMapOccluders = new GeometryList(new OpaqueComparator());
     private String[] shadowMapStringCache;
     private String[] lightViewStringCache;
-    //used to skip the post pass when there are no shadow casters.
+    /**
+     * true to skip the post pass when there are no shadow casters
+     */
     protected boolean skipPostPass;
 
     
@@ -115,14 +122,13 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }    
     
     /**
-     * Create an abstract shadow renderer, this is to be called in extending
-     * classes
+     * Create an abstract shadow renderer. Subclasses invoke this constructor.
      *
      * @param assetManager the application asset manager
-     * @param shadowMapSize the size of the rendered shadowmaps (512,1024,2048,
+     * @param shadowMapSize the size of the rendered shadow maps (512,1024,2048,
      * etc...)
      * @param nbShadowMaps the number of shadow maps rendered (the more shadow
-     * maps the more quality, the less fps).
+     * maps the more quality, the fewer fps).
      */
     protected AbstractShadowRenderer(AssetManager assetManager, int shadowMapSize, int nbShadowMaps) {
 
@@ -189,10 +195,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * Sets the filtering mode for shadow edges see {@link EdgeFilteringMode}
-     * for more info
+     * Sets the filtering mode for shadow edges. See {@link EdgeFilteringMode}
+     * for more info.
      *
-     * @param EdgeFilteringMode
+     * @param filterMode the desired filter mode (not null)
      */
     final public void setEdgeFilteringMode(EdgeFilteringMode filterMode) {
         if (filterMode == null) {
@@ -216,7 +222,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * returns the the edge filtering mode
+     * returns the edge filtering mode
      *
      * @see EdgeFilteringMode
      * @return
@@ -226,9 +232,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * sets the shadow compare mode see {@link CompareMode} for more info
+     * Sets the shadow compare mode. See {@link CompareMode} for more info.
      *
-     * @param compareMode
+     * @param compareMode the desired compare mode (not null)
      */
     final public void setShadowCompareMode(CompareMode compareMode) {
         if (compareMode == null) {
@@ -265,7 +271,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         return shadowCompareMode;
     }
 
-    //debug function that create a displayable frustrum
+    /**
+     * debug function to create a visible frustum
+     */
     protected Geometry createFrustum(Vector3f[] pts, int i) {
         WireFrustum frustum = new WireFrustum(pts);
         Geometry frustumMdl = new Geometry("f", frustum);
@@ -296,6 +304,12 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         return frustumMdl;
     }
 
+    /**
+     * Initialize this shadow renderer prior to its first update.
+     *
+     * @param rm the render manager
+     * @param vp the viewport
+     */
     public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         viewPort = vp;
@@ -307,25 +321,31 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         }
     }
 
+    /**
+     * Test whether this shadow renderer has been initialized.
+     *
+     * @return true if initialized, otherwise false
+     */
     public boolean isInitialized() {
         return viewPort != null;
     }
 
     /**
-     * This mehtod is called once per frame. it is responsible for updating the
-     * shadow cams according to the light view.
-     *
+     * Invoked once per frame to update the shadow cams according to the light
+     * view.
+     * 
      * @param viewCam the scene cam
      */
     protected abstract void updateShadowCams(Camera viewCam);
 
     /**
-     * this method must return the geomtryList that contains the oclluders to be
+     * Returns a subclass-specific geometryList containing the occluders to be
      * rendered in the shadow map
      *
      * @param shadowMapIndex the index of the shadow map being rendered
      * @param sceneOccluders the occluders of the whole scene
-     * @param sceneReceivers the recievers of the whole scene
+     * @param sceneReceivers the receivers of the whole scene
+     * @param shadowMapOcculders
      * @return
      */
     protected abstract GeometryList getOccludersToRender(int shadowMapIndex, GeometryList sceneOccluders, GeometryList sceneReceivers, GeometryList shadowMapOccluders);
@@ -405,7 +425,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         debugfrustums = true;
     }
 
-    //debug only : displays depth shadow maps
+    /**
+     * For debugging purposes, display depth shadow maps.
+     */
     protected void displayShadowMap(Renderer r) {
         Camera cam = viewPort.getCamera();
         renderManager.setCamera(cam, true);
@@ -421,8 +443,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * For dubuging purpose Allow to "snapshot" the current frustrum to the
-     * scene
+     * For debugging purposes, "snapshot" the current frustum to the scene.
      */
     public void displayDebug() {
         debug = true;
@@ -469,10 +490,10 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * This method is called once per frame and is responsible of setting the
-     * material parameters than sub class may need to set on the post material
+     * This method is called once per frame and is responsible for setting any
+     * material parameters than subclass may need to set on the post material.
      *
-     * @param material the materail to use for the post shadow pass
+     * @param material the material to use for the post shadow pass
      */
     protected abstract void setMaterialParameters(Material material);
 
@@ -543,7 +564,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * returns the shdaow intensity
+     * Returns the shadow intensity.
      *
      * @see #setShadowIntensity(float shadowIntensity)
      * @return shadowIntensity
@@ -553,9 +574,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * Set the shadowIntensity, the value should be between 0 and 1, a 0 value
-     * gives a bright and invisilble shadow, a 1 value gives a pitch black
-     * shadow, default is 0.7
+     * Set the shadowIntensity. The value should be between 0 and 1. A 0 value
+     * gives a bright and invisible shadow, a 1 value gives a pitch black
+     * shadow. The default is 0.7
      *
      * @param shadowIntensity the darkness of the shadow
      */
@@ -587,7 +608,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * returns true if the PssmRenderer flushed the shadow queues
+     * returns true if the shadow renderer flushes the shadow queues
      *
      * @return flushQueues
      */
@@ -596,9 +617,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     }
 
     /**
-     * Set this to false if you want to use several PssmRederers to have
-     * multiple shadows cast by multiple light sources. Make sure the last
-     * PssmRenderer in the stack DO flush the queues, but not the others
+     * Set flushQueues to false if you have multiple shadow renderers, in order
+     * for multiple light sources to cast shadows. Make sure the last shadow
+     * renderer in the stack DOES flush the queues, but not the others.
      *
      * @param flushQueues
      */
@@ -606,6 +627,11 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         this.flushQueues = flushQueues;
     }
 
+    /**
+     * De-serialize this instance, for example when loading from a J3O file.
+     *
+     * @param im importer (not null)
+     */
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = (InputCapsule) im.getCapsule(this);
         assetManager = im.getAssetManager();
@@ -621,6 +647,11 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
 
     }
 
+    /**
+     * Serialize this instance, for example when saving to a J3O file.
+     *
+     * @param ex exporter (not null)
+     */
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
         oc.write(nbShadowMaps, "nbShadowMaps", 1);
