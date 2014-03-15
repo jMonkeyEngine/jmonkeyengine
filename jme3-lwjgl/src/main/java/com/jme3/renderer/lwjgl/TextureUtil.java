@@ -107,6 +107,8 @@ class TextureUtil {
         
         // RGB formats
         setFormat(Format.BGR8,       GL11.GL_RGB8,  EXTBgra.GL_BGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.ARGB8,       GL11.GL_RGBA8,  EXTBgra.GL_BGRA_EXT, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, false);
+        setFormat(Format.BGRA8,       GL11.GL_RGBA8,  EXTBgra.GL_BGRA_EXT, GL11.GL_UNSIGNED_BYTE, false);
         setFormat(Format.RGB8,       GL11.GL_RGB8,  GL11.GL_RGB,        GL11.GL_UNSIGNED_BYTE, false);
 //        setFormat(Format.RGB10,      GL11.GL_RGB10, GL11.GL_RGB,        GL12.GL_UNSIGNED_INT_10_10_10_2, false); 
         setFormat(Format.RGB16,      GL11.GL_RGB16, GL11.GL_RGB,        GL11.GL_UNSIGNED_SHORT, false); 

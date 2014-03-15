@@ -148,6 +148,16 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * 8-bit alpha, blue, green, and red.
          */
         ABGR8(32),
+
+        /**
+         * 8-bit alpha, red, blue and green
+         */
+        ARGB8(32),
+        
+        /**
+         * 8-bit blue, green, red and alpha.
+         */
+        BGRA8(32),
         
         /**
          * 16-bit red, green, blue and alpha

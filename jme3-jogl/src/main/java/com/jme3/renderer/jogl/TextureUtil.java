@@ -123,6 +123,8 @@ public class TextureUtil {
         
         // RGB formats
         setFormat(Format.BGR8,       GL.GL_RGB8,  GL2GL3.GL_BGR, GL.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.ARGB8,       GL.GL_RGBA8,  GL.GL_BGRA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, false);
+        setFormat(Format.BGRA8,       GL.GL_RGBA8,  GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, false);
         setFormat(Format.RGB8,       GL.GL_RGB8,  GL.GL_RGB,        GL.GL_UNSIGNED_BYTE, false);
 //        setFormat(Format.RGB10,      GL11.GL_RGB10, GL11.GL_RGB,        GL12.GL_UNSIGNED_INT_10_10_10_2, false); 
         setFormat(Format.RGB16,      GL2GL3.GL_RGB16, GL.GL_RGB,        GL.GL_UNSIGNED_SHORT, false); 

@@ -134,6 +134,10 @@ abstract class ImageCodec {
         
         params.put(Format.ABGR8, new ByteOffsetImageCodec(4, 0, 0, 3, 2, 1));
         
+        params.put(Format.ARGB8, new ByteOffsetImageCodec(4, 0, 0, 1, 2, 3));
+        
+        params.put(Format.BGRA8, new ByteOffsetImageCodec(4, 0, 3, 2, 1, 0));
+        
         params.put(Format.ARGB4444, new BitMaskImageCodec(2, 0,
                                                           4, 4, 4, 4,
                                                           12, 0, 4, 8));
