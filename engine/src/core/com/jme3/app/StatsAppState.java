@@ -81,7 +81,7 @@ public class StatsAppState extends AbstractAppState {
      *  is because several applications expect to directly access
      *  fpsText... unfortunately.
      */
-    void setFont( BitmapFont guiFont ) {
+    public void setFont( BitmapFont guiFont ) {
         this.guiFont = guiFont;
         this.fpsText = new BitmapText(guiFont, false);
     }
