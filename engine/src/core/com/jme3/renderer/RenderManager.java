@@ -107,6 +107,24 @@ public class RenderManager {
     }
 
     /**
+     * Removes the pre ViewPort with the specified name.
+     *
+     * @param viewName The name of the pre ViewPort to remove
+     * @return True if the ViewPort was removed successfully.
+     *
+     * @see #createPreView(java.lang.String, com.jme3.renderer.Camera)
+     */
+    public boolean removePreView(String viewName) {
+        for (int i = 0; i < preViewPorts.size(); i++) {
+            if (preViewPorts.get(i).getName().equals(viewName)) {
+                preViewPorts.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Removes the specified pre ViewPort.
      * 
      * @param view The pre ViewPort to remove
