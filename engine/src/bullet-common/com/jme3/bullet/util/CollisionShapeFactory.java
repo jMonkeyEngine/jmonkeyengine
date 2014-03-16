@@ -210,7 +210,7 @@ public class CollisionShapeFactory {
     private static MeshCollisionShape createSingleMeshShape(Geometry geom, Spatial parent) {
         Mesh mesh = geom.getMesh();
         Transform trans = getTransform(geom, parent);
-        if (mesh != null) {
+        if (mesh != null && mesh.getMode() == Mesh.Mode.Triangles) {
             MeshCollisionShape mColl = new MeshCollisionShape(mesh);
             mColl.setScale(trans.getScale());
             return mColl;
