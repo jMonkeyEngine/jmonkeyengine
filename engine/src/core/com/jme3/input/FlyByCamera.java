@@ -53,24 +53,24 @@ import com.jme3.renderer.Camera;
 public class FlyByCamera implements AnalogListener, ActionListener {
 
     private static String[] mappings = new String[]{
-            "FLYCAM_Left",
-            "FLYCAM_Right",
-            "FLYCAM_Up",
-            "FLYCAM_Down",
+            CameraInput.FLYCAM_LEFT,
+            CameraInput.FLYCAM_RIGHT,
+            CameraInput.FLYCAM_UP,
+            CameraInput.FLYCAM_DOWN,
 
-            "FLYCAM_StrafeLeft",
-            "FLYCAM_StrafeRight",
-            "FLYCAM_Forward",
-            "FLYCAM_Backward",
+            CameraInput.FLYCAM_STRAFELEFT,
+            CameraInput.FLYCAM_STRAFERIGHT,
+            CameraInput.FLYCAM_FORWARD,
+            CameraInput.FLYCAM_BACKWARD,
 
-            "FLYCAM_ZoomIn",
-            "FLYCAM_ZoomOut",
-            "FLYCAM_RotateDrag",
+            CameraInput.FLYCAM_ZOOMIN,
+            CameraInput.FLYCAM_ZOOMOUT,
+            CameraInput.FLYCAM_ROTATEDRAG,
 
-            "FLYCAM_Rise",
-            "FLYCAM_Lower",
+            CameraInput.FLYCAM_RISE,
+            CameraInput.FLYCAM_LOWER,
             
-            "FLYCAM_InvertY"
+            CameraInput.FLYCAM_INVERTY
         };
 
     protected Camera cam;
@@ -211,30 +211,30 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         this.inputManager = inputManager;
         
         // both mouse and button - rotation of cam
-        inputManager.addMapping("FLYCAM_Left", new MouseAxisTrigger(MouseInput.AXIS_X, true),
+        inputManager.addMapping(CameraInput.FLYCAM_LEFT, new MouseAxisTrigger(MouseInput.AXIS_X, true),
                                                new KeyTrigger(KeyInput.KEY_LEFT));
 
-        inputManager.addMapping("FLYCAM_Right", new MouseAxisTrigger(MouseInput.AXIS_X, false),
+        inputManager.addMapping(CameraInput.FLYCAM_RIGHT, new MouseAxisTrigger(MouseInput.AXIS_X, false),
                                                 new KeyTrigger(KeyInput.KEY_RIGHT));
 
-        inputManager.addMapping("FLYCAM_Up", new MouseAxisTrigger(MouseInput.AXIS_Y, false),
+        inputManager.addMapping(CameraInput.FLYCAM_UP, new MouseAxisTrigger(MouseInput.AXIS_Y, false),
                                              new KeyTrigger(KeyInput.KEY_UP));
 
-        inputManager.addMapping("FLYCAM_Down", new MouseAxisTrigger(MouseInput.AXIS_Y, true),
+        inputManager.addMapping(CameraInput.FLYCAM_DOWN, new MouseAxisTrigger(MouseInput.AXIS_Y, true),
                                                new KeyTrigger(KeyInput.KEY_DOWN));
 
         // mouse only - zoom in/out with wheel, and rotate drag
-        inputManager.addMapping("FLYCAM_ZoomIn", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
-        inputManager.addMapping("FLYCAM_ZoomOut", new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
-        inputManager.addMapping("FLYCAM_RotateDrag", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        inputManager.addMapping(CameraInput.FLYCAM_ZOOMIN, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, false));
+        inputManager.addMapping(CameraInput.FLYCAM_ZOOMOUT, new MouseAxisTrigger(MouseInput.AXIS_WHEEL, true));
+        inputManager.addMapping(CameraInput.FLYCAM_ROTATEDRAG, new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
 
         // keyboard only WASD for movement and WZ for rise/lower height
-        inputManager.addMapping("FLYCAM_StrafeLeft", new KeyTrigger(KeyInput.KEY_A));
-        inputManager.addMapping("FLYCAM_StrafeRight", new KeyTrigger(KeyInput.KEY_D));
-        inputManager.addMapping("FLYCAM_Forward", new KeyTrigger(KeyInput.KEY_W));
-        inputManager.addMapping("FLYCAM_Backward", new KeyTrigger(KeyInput.KEY_S));
-        inputManager.addMapping("FLYCAM_Rise", new KeyTrigger(KeyInput.KEY_Q));
-        inputManager.addMapping("FLYCAM_Lower", new KeyTrigger(KeyInput.KEY_Z));
+        inputManager.addMapping(CameraInput.FLYCAM_STRAFELEFT, new KeyTrigger(KeyInput.KEY_A));
+        inputManager.addMapping(CameraInput.FLYCAM_STRAFERIGHT, new KeyTrigger(KeyInput.KEY_D));
+        inputManager.addMapping(CameraInput.FLYCAM_FORWARD, new KeyTrigger(KeyInput.KEY_W));
+        inputManager.addMapping(CameraInput.FLYCAM_BACKWARD, new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping(CameraInput.FLYCAM_RISE, new KeyTrigger(KeyInput.KEY_Q));
+        inputManager.addMapping(CameraInput.FLYCAM_LOWER, new KeyTrigger(KeyInput.KEY_Z));
 
         inputManager.addListener(this, mappings);
         inputManager.setCursorVisible(dragToRotate || !isEnabled());
@@ -253,26 +253,26 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         if( joystick.getAxis( JoystickAxis.Z_ROTATION ) != null && joystick.getAxis( JoystickAxis.Z_AXIS ) != null ) {
  
             // Make the left stick move
-            joystick.getXAxis().assignAxis( "FLYCAM_StrafeRight", "FLYCAM_StrafeLeft" );
-            joystick.getYAxis().assignAxis( "FLYCAM_Backward", "FLYCAM_Forward" );
+            joystick.getXAxis().assignAxis( CameraInput.FLYCAM_STRAFERIGHT, CameraInput.FLYCAM_STRAFELEFT );
+            joystick.getYAxis().assignAxis( CameraInput.FLYCAM_BACKWARD, CameraInput.FLYCAM_FORWARD );
             
             // And the right stick control the camera                       
-            joystick.getAxis( JoystickAxis.Z_ROTATION ).assignAxis( "FLYCAM_Down", "FLYCAM_Up" );
-            joystick.getAxis( JoystickAxis.Z_AXIS ).assignAxis(  "FLYCAM_Right", "FLYCAM_Left" );
+            joystick.getAxis( JoystickAxis.Z_ROTATION ).assignAxis( CameraInput.FLYCAM_DOWN, CameraInput.FLYCAM_UP );
+            joystick.getAxis( JoystickAxis.Z_AXIS ).assignAxis(  CameraInput.FLYCAM_RIGHT, CameraInput.FLYCAM_LEFT );
  
             // And let the dpad be up and down           
-            joystick.getPovYAxis().assignAxis("FLYCAM_Rise", "FLYCAM_Lower");
+            joystick.getPovYAxis().assignAxis(CameraInput.FLYCAM_RISE, CameraInput.FLYCAM_LOWER);
  
             if( joystick.getButton( "Button 8" ) != null ) { 
                 // Let the stanard select button be the y invert toggle
-                joystick.getButton( "Button 8" ).assignButton( "FLYCAM_InvertY" );
+                joystick.getButton( "Button 8" ).assignButton( CameraInput.FLYCAM_INVERTY );
             }                
             
         } else {             
-            joystick.getPovXAxis().assignAxis("FLYCAM_StrafeRight", "FLYCAM_StrafeLeft");
-            joystick.getPovYAxis().assignAxis("FLYCAM_Forward", "FLYCAM_Backward");
-            joystick.getXAxis().assignAxis("FLYCAM_Right", "FLYCAM_Left");
-            joystick.getYAxis().assignAxis("FLYCAM_Down", "FLYCAM_Up");
+            joystick.getPovXAxis().assignAxis(CameraInput.FLYCAM_STRAFERIGHT, CameraInput.FLYCAM_STRAFELEFT);
+            joystick.getPovYAxis().assignAxis(CameraInput.FLYCAM_FORWARD, CameraInput.FLYCAM_BACKWARD);
+            joystick.getXAxis().assignAxis(CameraInput.FLYCAM_RIGHT, CameraInput.FLYCAM_LEFT);
+            joystick.getYAxis().assignAxis(CameraInput.FLYCAM_DOWN, CameraInput.FLYCAM_UP);
         }                
     }
 
@@ -391,29 +391,29 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         if (!enabled)
             return;
 
-        if (name.equals("FLYCAM_Left")){
+        if (name.equals(CameraInput.FLYCAM_LEFT)){
             rotateCamera(value, initialUpVec);
-        }else if (name.equals("FLYCAM_Right")){
+        }else if (name.equals(CameraInput.FLYCAM_RIGHT)){
             rotateCamera(-value, initialUpVec);
-        }else if (name.equals("FLYCAM_Up")){
+        }else if (name.equals(CameraInput.FLYCAM_UP)){
             rotateCamera(-value * (invertY ? -1 : 1), cam.getLeft());
-        }else if (name.equals("FLYCAM_Down")){
+        }else if (name.equals(CameraInput.FLYCAM_DOWN)){
             rotateCamera(value * (invertY ? -1 : 1), cam.getLeft());
-        }else if (name.equals("FLYCAM_Forward")){
+        }else if (name.equals(CameraInput.FLYCAM_FORWARD)){
             moveCamera(value, false);
-        }else if (name.equals("FLYCAM_Backward")){
+        }else if (name.equals(CameraInput.FLYCAM_BACKWARD)){
             moveCamera(-value, false);
-        }else if (name.equals("FLYCAM_StrafeLeft")){
+        }else if (name.equals(CameraInput.FLYCAM_STRAFELEFT)){
             moveCamera(value, true);
-        }else if (name.equals("FLYCAM_StrafeRight")){
+        }else if (name.equals(CameraInput.FLYCAM_STRAFERIGHT)){
             moveCamera(-value, true);
-        }else if (name.equals("FLYCAM_Rise")){
+        }else if (name.equals(CameraInput.FLYCAM_RISE)){
             riseCamera(value);
-        }else if (name.equals("FLYCAM_Lower")){
+        }else if (name.equals(CameraInput.FLYCAM_LOWER)){
             riseCamera(-value);
-        }else if (name.equals("FLYCAM_ZoomIn")){
+        }else if (name.equals(CameraInput.FLYCAM_ZOOMIN)){
             zoomCamera(value);
-        }else if (name.equals("FLYCAM_ZoomOut")){
+        }else if (name.equals(CameraInput.FLYCAM_ZOOMOUT)){
             zoomCamera(-value);
         }
     }
@@ -422,10 +422,10 @@ public class FlyByCamera implements AnalogListener, ActionListener {
         if (!enabled)
             return;
 
-        if (name.equals("FLYCAM_RotateDrag") && dragToRotate){
+        if (name.equals(CameraInput.FLYCAM_ROTATEDRAG) && dragToRotate){
             canRotate = value;
             inputManager.setCursorVisible(!value);
-        } else if (name.equals("FLYCAM_InvertY")) {
+        } else if (name.equals(CameraInput.FLYCAM_INVERTY)) {
             // Toggle on the up.
             if( !value ) {  
                 invertY = !invertY;
