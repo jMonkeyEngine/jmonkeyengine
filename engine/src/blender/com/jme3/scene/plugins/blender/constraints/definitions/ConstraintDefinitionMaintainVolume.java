@@ -1,5 +1,6 @@
 package com.jme3.scene.plugins.blender.constraints.definitions;
 
+import com.jme3.animation.Bone;
 import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
@@ -20,21 +21,25 @@ public class ConstraintDefinitionMaintainVolume extends ConstraintDefinition {
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
         if (volume != 1 && influence > 0) {
-            Transform ownerTransform = this.getOwnerTransform(ownerSpace);
-            switch (flag) {
-                case FLAG_MASK_X:
-                    ownerTransform.getScale().multLocal(1, volume, volume);
-                    break;
-                case FLAG_MASK_Y:
-                    ownerTransform.getScale().multLocal(volume, 1, volume);
-                    break;
-                case FLAG_MASK_Z:
-                    ownerTransform.getScale().multLocal(volume, volume, 1);
-                    break;
-                default:
-                    throw new IllegalStateException("Unknown flag value: " + flag);
+            // the maintain volume constraint is applied directly to object's scale, so no need to do it again
+            // but in case of bones we need to make computations
+            if (this.getOwner() instanceof Bone) {
+                Transform ownerTransform = this.getOwnerTransform(ownerSpace);
+                switch (flag) {
+                    case FLAG_MASK_X:
+                        ownerTransform.getScale().multLocal(1, volume, volume);
+                        break;
+                    case FLAG_MASK_Y:
+                        ownerTransform.getScale().multLocal(volume, 1, volume);
+                        break;
+                    case FLAG_MASK_Z:
+                        ownerTransform.getScale().multLocal(volume, volume, 1);
+                        break;
+                    default:
+                        throw new IllegalStateException("Unknown flag value: " + flag);
+                }
+                this.applyOwnerTransform(ownerTransform, ownerSpace);
             }
-            this.applyOwnerTransform(ownerTransform, ownerSpace);
         }
     }
 
