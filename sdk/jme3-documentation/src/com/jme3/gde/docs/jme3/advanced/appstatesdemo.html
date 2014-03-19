@@ -1,0 +1,404 @@
+
+<h1><a>Simple AppStates Demo</a></h1>
+<div>
+
+<p>
+
+<p><div>
+THIS DEMO IS OUT OF DATE AND NEEDS CORRECTING
+
+</div></p>
+
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Simple AppStates Demo" [1-108] -->
+<h1><a>THIS DEMO IS OUT OF DATE AND NEEDS CORRECTING FOR NOW PLEASE SEE</a></h1>
+<div>
+
+<p>
+ <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states"><param name="text" value="<html><u>http://jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+Note: this tutorial needs to be fixed and is currently not correct.  One should almost never override stateDetached and stateAttached??? and should certainly never do anything scene related in them.
+</p>
+
+<p>
+This demo is a simple example of how you use AppStates to toggle between a StartScreen and a SettingsScreen (press RETURN) while the game is paused, and start the game by switching to a GameRunning state (press BACKSPACE). 
+</p>
+
+<p>
+There are four files, Main.java, GameRunningState.java, StartScreenState.java, SettingsScreenState.java. 
+
+</p>
+
+</div>
+<!-- EDIT2 SECTION "THIS DEMO IS OUT OF DATE AND NEEDS CORRECTING FOR NOW PLEASE SEE" [109-793] -->
+<h2><a>Main.java</a></h2>
+<div>
+<pre>package chapter04.appstatedemo;
+&nbsp;
+import com.jme3.app.SimpleApplication;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.Trigger;
+&nbsp;
+<span>/**
+ * This demo shows a simple &quot;game&quot; with three AppStates. Instead of game content, 
+ * it just displays three cubes on different backgrounds.
+ * &lt;ul&gt;
+ * &lt;li&gt;StartScreenState: This state is enabled 
+ *     when the user starts the application, or the the game is paused. 
+ *     Press BACKSPACE to return to the game, press RETURN to go to Settings.&lt;/li&gt;
+ * &lt;li&gt;GameRunningState: This state shows the game content and is enabled while the game is running. 
+ *     Press BACKSPACE to pause and return to the start screen.&lt;/li&gt;
+ * &lt;li&gt;SettingsScreenState: This Settings screen state can be reached from the start screen
+ *     Press RETURN to toggle it on and off.&lt;/li&gt;
+ * &lt;/ul&gt;
+ */</span>
+public class Main extends SimpleApplication &#123;
+&nbsp;
+  private Trigger pause_trigger = new KeyTrigger&#40;KeyInput.KEY_BACK&#41;;
+  private Trigger save_trigger = new KeyTrigger&#40;KeyInput.KEY_RETURN&#41;;
+  private boolean isRunning = false; // starts at startscreen
+  private GameRunningState gameRunningState;
+  private StartScreenState startScreenState;
+  private SettingsScreenState settingsScreenState;
+&nbsp;
+&nbsp;
+  /** Start the jMonkeyEngine application */
+  public static void main&#40;String&#91;&#93; args&#41; &#123;
+    Main app = new Main&#40;&#41;;
+    app.start&#40;&#41;;
+  &#125;
+&nbsp;
+  <span>/**
+   * initialize the scene here
+   */</span>
+  @Override
+  public void simpleInitApp&#40;&#41; &#123;
+    setDisplayFps&#40;false&#41;;
+    setDisplayStatView&#40;false&#41;;
+&nbsp;
+    gameRunningState    = new GameRunningState&#40;this&#41;;
+    startScreenState    = new StartScreenState&#40;this&#41;;
+    settingsScreenState = new SettingsScreenState&#40;this&#41;;
+&nbsp;
+    stateManager.attach&#40;startScreenState&#41;;
+&nbsp;
+    inputManager.addMapping&#40;&quot;Game Pause Unpause&quot;, pause_trigger&#41;;
+    inputManager.addListener&#40;actionListener, new String&#91;&#93;&#123;&quot;Game Pause Unpause&quot;&#125;&#41;;
+    inputManager.addMapping&#40;&quot;Toggle Settings&quot;, save_trigger&#41;;
+    inputManager.addListener&#40;actionListener, new String&#91;&#93;&#123;&quot;Toggle Settings&quot;&#125;&#41;;
+  &#125;
+&nbsp;
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+    public void onAction&#40;String name, boolean isPressed, float tpf&#41; &#123;
+      System.out.println&#40;&quot;key&quot; + name&#41;;
+      if &#40;name.equals&#40;&quot;Game Pause Unpause&quot;&#41; &amp;&amp; !isPressed&#41; &#123;
+        if &#40;isRunning&#41; &#123;
+          stateManager.detach&#40;gameRunningState&#41;;
+          stateManager.attach&#40;startScreenState&#41;;
+          System.out.println&#40;&quot;switching to startscreen...&quot;&#41;;
+&nbsp;
+        &#125; else &#123;
+          stateManager.detach&#40;startScreenState&#41;;
+          stateManager.attach&#40;gameRunningState&#41;;
+          System.out.println&#40;&quot;switching to game...&quot;&#41;;
+        &#125;
+        isRunning = !isRunning;
+      &#125; else if &#40;name.equals&#40;&quot;Toggle Settings&quot;&#41; &amp;&amp; !isPressed &amp;&amp; !isRunning&#41; &#123;
+        if &#40;!isRunning &amp;&amp; stateManager.hasState&#40;startScreenState&#41;&#41; &#123;
+          stateManager.detach&#40;startScreenState&#41;;
+          stateManager.attach&#40;settingsScreenState&#41;;
+          System.out.println&#40;&quot;switching to settings...&quot;&#41;;
+        &#125; else if &#40;!isRunning &amp;&amp; stateManager.hasState&#40;settingsScreenState&#41;&#41; &#123;
+          stateManager.detach&#40;settingsScreenState&#41;;
+          stateManager.attach&#40;startScreenState&#41;;
+          System.out.println&#40;&quot;switching to startscreen...&quot;&#41;;
+        &#125;
+      &#125;
+    &#125;
+  &#125;;
+&nbsp;
+  @Override
+  public void simpleUpdate&#40;float tpf&#41; &#123;&#125;
+&nbsp;
+&#125;
+&nbsp;</pre>
+
+</div>
+<!-- EDIT3 SECTION "Main.java" [794-4202] -->
+<h2><a>GameRunningState.java</a></h2>
+<div>
+<pre>package chapter04.appstatedemo;
+&nbsp;
+import com.jme3.app.Application;
+import com.jme3.app.SimpleApplication;
+import com.jme3.app.state.AbstractAppState;
+import com.jme3.app.state.AppStateManager;
+import com.jme3.asset.AssetManager;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.shape.Box;
+&nbsp;
+<span>/**
+ * A template how to create an Application State. This example state simply
+ * changes the background color depending on the camera position.
+ */</span>
+public class GameRunningState extends AbstractAppState &#123;
+&nbsp;
+  private ViewPort viewPort;
+  private Node rootNode;
+  private Node guiNode;
+  private AssetManager assetManager;
+  private Node localRootNode = new Node&#40;&quot;Game Screen RootNode&quot;&#41;;
+  private Node localGuiNode = new Node&#40;&quot;Game Screen GuiNode&quot;&#41;;
+  private final ColorRGBA backgroundColor = ColorRGBA.Blue;
+&nbsp;
+  public GameRunningState&#40;SimpleApplication app&#41;&#123;
+    this.rootNode     = app.getRootNode&#40;&#41;;
+    this.viewPort      = app.getViewPort&#40;&#41;;
+    this.guiNode       = app.getGuiNode&#40;&#41;;
+    this.assetManager  = app.getAssetManager&#40;&#41;;  
+  &#125;
+&nbsp;
+  @Override
+  public void initialize&#40;AppStateManager stateManager, Application app&#41; &#123;
+    super.initialize&#40;stateManager, app&#41;;
+&nbsp;
+    /** Load this scene */
+    viewPort.setBackgroundColor&#40;backgroundColor&#41;;
+&nbsp;
+    Box mesh = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+    Geometry geom = new Geometry&#40;&quot;Box&quot;, mesh&#41;;
+    Material mat = new Material&#40;assetManager,
+            &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Green&#41;;
+    geom.setMaterial&#40;mat&#41;;
+    geom.setLocalTranslation&#40;1, 0, 0&#41;;
+    localRootNode.attachChild&#40;geom&#41;;
+&nbsp;
+    /** Load the HUD*/
+    BitmapFont guiFont = assetManager.loadFont&#40;
+            &quot;Interface/Fonts/Default.fnt&quot;&#41;;
+    BitmapText displaytext = new BitmapText&#40;guiFont&#41;;
+    displaytext.setSize&#40;guiFont.getCharSet&#40;&#41;.getRenderedSize&#40;&#41;&#41;;
+    displaytext.move&#40;10, displaytext.getLineHeight&#40;&#41; + 20, 0&#41;;
+    displaytext.setText&#40;&quot;Game running. Press BACKSPACE to pause and return to the start screen.&quot;&#41;;
+    localGuiNode.attachChild&#40;displaytext&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void update&#40;float tpf&#41; &#123;
+    /** the action happens here */
+    Vector3f v = viewPort.getCamera&#40;&#41;.getLocation&#40;&#41;;
+    viewPort.setBackgroundColor&#40;new ColorRGBA&#40;v.getX&#40;&#41; / 10, v.getY&#40;&#41; / 10, v.getZ&#40;&#41; / 10, 1&#41;&#41;;
+    rootNode.getChild&#40;&quot;Box&quot;&#41;.rotate&#40;tpf, tpf, tpf&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void stateAttached&#40;AppStateManager stateManager&#41; &#123;
+    rootNode.attachChild&#40;localRootNode&#41;;
+    guiNode.attachChild&#40;localGuiNode&#41;;
+    viewPort.setBackgroundColor&#40;backgroundColor&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void stateDetached&#40;AppStateManager stateManager&#41; &#123;
+    rootNode.detachChild&#40;localRootNode&#41;;
+    guiNode.detachChild&#40;localGuiNode&#41;;
+&nbsp;
+  &#125;
+&nbsp;
+&#125;</pre>
+
+</div>
+<!-- EDIT4 SECTION "GameRunningState.java" [4203-7170] -->
+<h2><a>SettingsScreenState.java</a></h2>
+<div>
+<pre>package chapter04.appstatedemo;
+&nbsp;
+import com.jme3.app.Application;
+import com.jme3.app.SimpleApplication;
+import com.jme3.app.state.AbstractAppState;
+import com.jme3.app.state.AppStateManager;
+import com.jme3.asset.AssetManager;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.shape.Box;
+&nbsp;
+<span>/**
+ * A template how to create an Application State. This example state simply
+ * changes the background color depending on the camera position.
+ */</span>
+public class SettingsScreenState extends AbstractAppState &#123;
+&nbsp;
+  private ViewPort viewPort;
+  private Node rootNode;
+  private Node guiNode;
+  private AssetManager assetManager;
+  private Node localRootNode = new Node&#40;&quot;Settings Screen RootNode&quot;&#41;;
+  private Node localGuiNode = new Node&#40;&quot;Settings Screen GuiNode&quot;&#41;;
+  private final ColorRGBA backgroundColor = ColorRGBA.DarkGray;
+&nbsp;
+  public SettingsScreenState&#40;SimpleApplication app&#41; &#123;
+    this.rootNode     = app.getRootNode&#40;&#41;;
+    this.viewPort      = app.getViewPort&#40;&#41;;
+    this.guiNode       = app.getGuiNode&#40;&#41;;
+    this.assetManager  = app.getAssetManager&#40;&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void initialize&#40;AppStateManager stateManager, Application app&#41; &#123;
+    super.initialize&#40;stateManager, app&#41;;
+&nbsp;
+    /** Load this scene */
+    viewPort.setBackgroundColor&#40;backgroundColor&#41;;
+&nbsp;
+    Box mesh = new Box&#40;new Vector3f&#40;-1, -1, 0&#41;, .5f, .5f, .5f&#41;;
+    Geometry geom = new Geometry&#40;&quot;Box&quot;, mesh&#41;;
+    Material mat = new Material&#40;assetManager,
+            &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Red&#41;;
+    geom.setMaterial&#40;mat&#41;;
+    geom.setLocalTranslation&#40;1, 0, 0&#41;;
+    localRootNode.attachChild&#40;geom&#41;;
+&nbsp;
+    /** Load the HUD */
+    BitmapFont guiFont = assetManager.loadFont&#40;
+            &quot;Interface/Fonts/Default.fnt&quot;&#41;;
+    BitmapText displaytext = new BitmapText&#40;guiFont&#41;;
+    displaytext.setSize&#40;guiFont.getCharSet&#40;&#41;.getRenderedSize&#40;&#41;&#41;;
+    displaytext.move&#40;10, displaytext.getLineHeight&#40;&#41; + 20, 0&#41;;
+    displaytext.setText&#40;&quot;Settings screen. Press RETURN to save &quot;
+            + &quot;and return to start screen.&quot;&#41;;
+    localGuiNode.attachChild&#40;displaytext&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void update&#40;float tpf&#41; &#123;
+     /** the action happens here */
+  &#125;
+&nbsp;
+  @Override
+  public void stateAttached&#40;AppStateManager stateManager&#41; &#123;
+    rootNode.attachChild&#40;localRootNode&#41;;
+    guiNode.attachChild&#40;localGuiNode&#41;;
+    viewPort.setBackgroundColor&#40;backgroundColor&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void stateDetached&#40;AppStateManager stateManager&#41; &#123;
+    rootNode.detachChild&#40;localRootNode&#41;;
+    guiNode.detachChild&#40;localGuiNode&#41;;
+  &#125;
+&nbsp;
+&#125;</pre>
+
+</div>
+<!-- EDIT5 SECTION "SettingsScreenState.java" [7171-9985] -->
+<h2><a>StartScreenState.java</a></h2>
+<div>
+<pre>package chapter04.appstatedemo;
+&nbsp;
+import com.jme3.app.Application;
+import com.jme3.app.SimpleApplication;
+import com.jme3.app.state.AbstractAppState;
+import com.jme3.app.state.AppStateManager;
+import com.jme3.asset.AssetManager;
+import com.jme3.font.BitmapFont;
+import com.jme3.font.BitmapText;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.shape.Box;
+&nbsp;
+<span>/**
+ * A template how to create an Application State. This example state simply
+ * changes the background color depending on the camera position.
+ */</span>
+public class StartScreenState extends AbstractAppState &#123;
+&nbsp;
+  private ViewPort viewPort;
+  private Node rootNode;
+  private Node guiNode;
+  private AssetManager assetManager;
+  private Node localRootNode = new Node&#40;&quot;Start Screen RootNode&quot;&#41;;
+  private Node localGuiNode = new Node&#40;&quot;Start Screen GuiNode&quot;&#41;;
+  private final ColorRGBA backgroundColor = ColorRGBA.Gray;  
+&nbsp;
+public StartScreenState&#40;SimpleApplication app&#41;&#123;
+    this.rootNode     = app.getRootNode&#40;&#41;;
+    this.viewPort     = app.getViewPort&#40;&#41;;
+    this.guiNode      = app.getGuiNode&#40;&#41;;
+    this.assetManager = app.getAssetManager&#40;&#41;;  
+  &#125;
+&nbsp;
+  @Override
+  public void initialize&#40;AppStateManager stateManager, Application app&#41; &#123;
+    super.initialize&#40;stateManager, app&#41;;
+&nbsp;
+    /** Init this scene */
+    viewPort.setBackgroundColor&#40;backgroundColor&#41;;
+&nbsp;
+    Box mesh = new Box&#40;new Vector3f&#40;-1,1,0&#41;, .5f,.5f,.5f&#41;;
+    Geometry geom = new Geometry&#40;&quot;Box&quot;, mesh&#41;;
+    Material mat = new Material&#40;assetManager,
+            &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Yellow&#41;;
+    geom.setMaterial&#40;mat&#41;;
+    geom.setLocalTranslation&#40;1, 0, 0&#41;;
+    localRootNode.attachChild&#40;geom&#41;;
+&nbsp;
+    /** Load a HUD */
+    BitmapFont guiFont = assetManager.loadFont&#40;
+            &quot;Interface/Fonts/Default.fnt&quot;&#41;;
+    BitmapText displaytext = new BitmapText&#40;guiFont&#41;;
+    displaytext.setSize&#40;guiFont.getCharSet&#40;&#41;.getRenderedSize&#40;&#41;&#41;;
+    displaytext.move&#40; 10, displaytext.getLineHeight&#40;&#41; + 20,  0&#41;;
+    displaytext.setText&#40;&quot;Start screen. Press BACKSPACE to resume the game, &quot;
+            + &quot;press RETURN to edit Settings.&quot;&#41;;
+    localGuiNode.attachChild&#40;displaytext&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void update&#40;float tpf&#41; &#123;
+    /** the action happens here */
+  &#125;
+&nbsp;
+  @Override
+  public void stateAttached&#40;AppStateManager stateManager&#41; &#123;
+    rootNode.attachChild&#40;localRootNode&#41;;
+    guiNode.attachChild&#40;localGuiNode&#41;;
+    viewPort.setBackgroundColor&#40;backgroundColor&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void stateDetached&#40;AppStateManager stateManager&#41; &#123;
+    rootNode.detachChild&#40;localRootNode&#41;;
+    guiNode.detachChild&#40;localGuiNode&#41;;
+  &#125;
+&nbsp;
+&#125;</pre>
+
+</div>
+<!-- EDIT6 SECTION "StartScreenState.java" [9986-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:appstatesdemo?do=export_xhtmlbody">view online version</a></em></p>

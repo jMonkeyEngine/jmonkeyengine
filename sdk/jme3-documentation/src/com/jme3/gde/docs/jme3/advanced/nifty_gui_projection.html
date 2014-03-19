@@ -1,0 +1,111 @@
+
+<h1><a>Integrating Nifty GUI: Projection</a></h1>
+<div>
+<ol>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Nifty GUI Concepts</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_best_practices.html">Nifty GUI Best Practices</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a> or <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_java_layout.html">Nifty GUI Java Layout</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_overlay.html">Nifty GUI Overlay</a> or <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> Projection</strong></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div>
+</li>
+</ol>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/nifty-gui.png">
+</p>
+
+<p>
+Typically you define a key (for example escape) to switch the <acronym title="Graphical User Interface">GUI</acronym> on and off. Then you <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_overlay.html">overlay</a> the running game with the <acronym title="Graphical User Interface">GUI</acronym> (you will most likely pause the game then). 
+</p>
+
+<p>
+Alternatively, you can also project the <acronym title="Graphical User Interface">GUI</acronym> as a texture onto a mesh textures inside the game. Allthough this looks cool and &quot;immersive&quot;, this approach is rarely used since it is difficult to record clicks this way. You can only interact with this projected <acronym title="Graphical User Interface">GUI</acronym> by keyboard, or programmatically. You can select input fields using the arrow keys, and trigger actions using the return key. 
+</p>
+
+<p>
+This <acronym title="Graphical User Interface">GUI</acronym> projection variant is less commonly used than the <acronym title="Graphical User Interface">GUI</acronym> overlay variant. Usecases for <acronym title="Graphical User Interface">GUI</acronym> projection are, for example, a player avatar using an in-game computer screen.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Integrating Nifty GUI: Projection" [1-1192] -->
+<h2><a>Sample Code</a></h2>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/niftygui/TestNiftyToMesh.java"><param name="text" value="<html><u>TestNiftyToMesh.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Sample Code" [1193-1360] -->
+<h2><a>Projecting the User Interface Onto a Texture</a></h2>
+<div>
+
+<p>
+
+You can project the Nifty <acronym title="Graphical User Interface">GUI</acronym> onto a texture, load the texture into a material, and assign it to a Geometry (Quads or Boxes are best). 
+</p>
+<pre>/** Create a special viewport for the Nifty GUI */
+ViewPort niftyView = renderManager.createPreView&#40;&quot;NiftyView&quot;, new Camera&#40;1024, 768&#41;&#41;;
+niftyView.setClearEnabled&#40;true&#41;;
+/** Create a new NiftyJmeDisplay for the integration */
+NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay&#40;
+  assetManager,  inputManager,  audioRenderer,  niftyView&#41;;
+/** Create a new NiftyGUI object */
+Nifty nifty = niftyDisplay.getNifty&#40;&#41;;
+/** Read your XML and initialize your custom ScreenController */
+nifty.fromXml&#40;&quot;Interface/helloworld.xml&quot;, &quot;start&quot;, new MySettingsScreen&#40;data&#41;&#41;;
+&nbsp;
+/** Prepare a framebuffer for the texture niftytex */
+niftyView.addProcessor&#40;niftyDisplay&#41;;
+FrameBuffer fb = new FrameBuffer&#40;1024, 768, 0&#41;;
+fb.setDepthBuffer&#40;Format.Depth&#41;;
+Texture2D niftytex = new Texture2D&#40;1024, 768, Format.RGB8&#41;;
+fb.setColorTexture&#40;niftytex&#41;;
+niftyView.setClearEnabled&#40;true&#41;;
+niftyView.setOutputFrameBuffer&#40;fb&#41;;
+&nbsp;
+/** This is the 3D cube we project the GUI on */
+Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;
+Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+mat.setTexture&#40;&quot;m_ColorMap&quot;, niftytex&#41;; /** Here comes the texture! */
+geom.setMaterial&#40;mat&#41;;
+rootNode.attachChild&#40;geom&#41;;</pre>
+
+<p>
+The MySettingsScreen class is a custom de.lessvoid.nifty.screen.ScreenController in which you implement your <acronym title="Graphical User Interface">GUI</acronym> behaviour.  The variable <code>data</code> contains an object that you use to exchange state info with the game. See <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_java_interaction.html">Nifty GUI Java Interaction</a> for details on how to create this class.
+</p>
+
+<p>
+Run the code sample. You select buttons on this <acronym title="Graphical User Interface">GUI</acronym> with the arrow keys and then press return. Note that clicking on the texture will not work!
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Projecting the User Interface Onto a Texture" [1361-3239] -->
+<h2><a>Next Steps</a></h2>
+<div>
+
+<p>
+
+Now that you have layed out and integrated the <acronym title="Graphical User Interface">GUI</acronym> in your app, you want to respond to user input and display the current game.
+</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:nifty?do=showtag&amp;tag=tag%3Anifty">nifty</a>,
+	<a href="/wiki/doku.php/tag:hud?do=showtag&amp;tag=tag%3Ahud">hud</a>,
+	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>
+</span></div>
+
+</div>
+<!-- EDIT4 SECTION "Next Steps" [3240-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_projection?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+<fontscolors>
+    <fontcolor name="glsl-keyword" default="keyword"/>
+    <fontcolor name="glsl-name" default="identifier"/>
+    <fontcolor name="glsl-function" default="identifier">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor name="glsl-brace" default="operator"/>
+    <fontcolor name="glsl-value" default="number"/>
+    <fontcolor name="glsl-curly-brace" default="operator"/>
+    <fontcolor name="glsl-string-value" default="default"/>
+    <fontcolor name="glsl-comment" default="comment"/>
+    <fontcolor name="glsl-separator" default="operator"/>
+    <fontcolor name="glsl-whitespace" default="whitespace"/>
+    <fontcolor name="glsl-end-of-line" default="whitespace"/>
+    <fontcolor name="glsl-build-in-var" default="string">
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor name="glsl-build-in-func" default="identifier">
+        <font style="bold,italic"/>
+    </fontcolor>
+    <fontcolor name="glsl-preprocessor" foreColor="ff6060D0">
+        <font style="bold,italic" />
+    </fontcolor>
+</fontscolors>

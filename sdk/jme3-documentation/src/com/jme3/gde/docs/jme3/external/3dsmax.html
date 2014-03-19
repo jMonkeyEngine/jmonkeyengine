@@ -1,0 +1,617 @@
+
+<h1><a>3ds Max Bone Animation to JME3 using OgreMax plugin</a></h1>
+<div>
+
+</div>
+<!-- EDIT1 SECTION "3ds Max Bone Animation to JME3 using OgreMax plugin" [1-67] -->
+<h2><a>Asset Management</a></h2>
+<div>
+
+<p>
+For the managing of assets in general, be sure to read the <a href="/com/jme3/gde/docs/jme3/intermediate/multi-media_asset_pipeline.html">Asset Pipeline Documentation</a>. It contains vital information on how to manage your asset files.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Asset Management" [68-300] -->
+<h2><a>Creating models in 3dsMax</a></h2>
+<div>
+
+<p>
+For this tutorial I used 3D Studio Max 2012 and OgreMax 2.4.3 free edition
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Creating models in 3dsMax" [301-414] -->
+<h3><a>Create Model and Bones</a></h3>
+<div>
+<ul>
+<li><div> Create a new file</div>
+</li>
+<li><div> Select the ???Create??? tab &gt; ???Geometry??? &gt; ???Cylinder???</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-0.png">
+</p>
+<ul>
+<li><div> Draw a cylinder, lets say with 8 height segments (must be enough for a smooth deformation)</div>
+</li>
+<li><div> Also check ???Generate Mapping Coords.???</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-1.png">
+</p>
+<ul>
+<li><div> Click ???Create??? tab &gt; ???Systems??? &gt; ???Bones???</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-2.png">
+</p>
+<ul>
+<li><div> Add some bones in the center of the cylinder</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-3.png">
+</p>
+<ul>
+<li><div> Select the cylinder, right click it and click ???Convert To:??? &gt; ???Convert to Editable Mesh??? to prevent issues with OgreMax</div>
+</li>
+<li><div> Click the ???Modify??? tab &gt; ???Modifier List??? and add the ???Skin??? modifier</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-4.png">
+</p>
+<ul>
+<li><div> Beneath ???Bones:??? click ???Add??? and select all of your bones</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-5.png">
+</p>
+<ul>
+<li><div> You may also edit the envelopes, but for a small test the default settings are ok</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT4 SECTION "Create Model and Bones" [415-1354] -->
+<h3><a>Create the animation</a></h3>
+<div>
+<ul>
+<li><div> Select the cylinder, and click ???Display??? tab &gt; ???Freeze Selected??? so it is easier to select the bones during animation</div>
+</li>
+<li><div> Select the two top bones and enable the ???Auto Key??? mode</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-6.png">
+</p>
+<ul>
+<li><div> The first key frame will be created automatically. Move the animation track slider to frame 5</div>
+</li>
+<li><div> Move the selected bones a bit. The cylinder mesh will be deformed. Because you are in the ???Auto Key??? mode, a key frame will be created</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-7.png">
+</p>
+<ul>
+<li><div> Create some additional key frames. You may also select more bones and move or rotate them. I???ve created 25 frames and the last key frame equals the first, so the animation is loopable</div>
+</li>
+<li><div> After creating the animation, disable the ???Auto Key??? mode</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT5 SECTION "Create the animation" [1355-2141] -->
+<h3><a>OgreMax settings</a></h3>
+<div>
+<ul>
+<li><div> Open the ???OgreMax Scene Settings??? dialog from the menu</div>
+</li>
+<li><div> In the ???Meshes??? tab, enable ???Export <acronym title="Extensible Markup Language">XML</acronym> Files??? and disable ???Export Binary Files??? as well as ???Export Vertex Colors???</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-8.png">
+</p>
+<ul>
+<li><div> Click the ???Environment??? tab and uncheck ???Export Environment Settings???. Otherwise the JME importer will throw a NullPointerException</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-9.png">
+</p>
+<ul>
+<li><div> If you have textured your model, you may also check ???Copy Bitmaps to Export Directory??? in the ???Bitmaps??? tab</div>
+</li>
+<li><div> Unfreeze the cylinder by clicking ???Display??? tab &gt; ???Unfreeze All??? and select it</div>
+</li>
+<li><div> While having the cylinder selected, open the ???OgreMax Object Settings??? dialog from the menu</div>
+</li>
+<li><div> Open the ???Mesh Animations??? tab and select type ???Skeleton???, ???Export Skeleton??? : ???Yes???</div>
+</li>
+<li><div> Below ???Mesh Animations??? hit the ???Add?????? button</div>
+</li>
+<li><div> Assign a name to the track, maybe ???wobble???. The track type must be ???Skin. Set the right ???Start/End Frames??? for your animation</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-10.png">
+</p>
+<ul>
+<li><div> Hit ok and you will see the animation in the table. You may add additional animations by selecting other frame ranges, if desired</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-11.png">
+</p>
+
+</div>
+<!-- EDIT6 SECTION "OgreMax settings" [2142-3395] -->
+<h3><a>Export and Import</a></h3>
+<div>
+<ul>
+<li><div> When all animations are in the list, select ???OgreMax??? &gt; ???Export??? &gt; ???Export Scene??? and name the file ???worm.scene???</div>
+</li>
+<li><div> Create a JME test class that imports the file, get the animation controller and start the ???wobble??? animation</div>
+</li>
+</ul>
+<pre>import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.Skeleton;
+import com.jme3.app.SimpleApplication;
+import com.jme3.asset.plugins.FileLocator;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.PointLight;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.control.LodControl;
+import com.jme3.scene.debug.SkeletonDebugger;
+&nbsp;
+<span>/**
+ * This is a test class for loading a Ogre XML scene exported by OgreMax.
+ * 
+ * @author Stephan Dreyer
+ * 
+ */</span>
+public class TestOgreMaxImport extends SimpleApplication &#123;
+&nbsp;
+  @Override
+  public void simpleInitApp&#40;&#41; &#123;
+    assetManager.registerLocator&#40;&quot;Assets/model/ogre/test/&quot;, FileLocator.class&#41;;
+&nbsp;
+    // create the geometry and attach it
+    final Node model = &#40;Node&#41; assetManager.loadModel&#40;&quot;worm.scene&quot;&#41;;
+    // resize it, because of the large 3dsmax scales
+    model.setLocalScale&#40;.001f&#41;;
+&nbsp;
+    // attach to root node
+    rootNode.attachChild&#40;model&#41;;
+    addLodControl&#40;model&#41;;
+&nbsp;
+    final AnimControl ac = findAnimControl&#40;model&#41;;
+&nbsp;
+    try &#123;
+      // add a skeleton debugger to make bones visible
+      final Skeleton skel = ac.getSkeleton&#40;&#41;;
+      final SkeletonDebugger skeletonDebug = new SkeletonDebugger&#40;&quot;skeleton&quot;,
+          skel&#41;;
+      final Material mat = new Material&#40;assetManager,
+          &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+      mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Green&#41;;
+      mat.getAdditionalRenderState&#40;&#41;.setDepthTest&#40;false&#41;;
+      skeletonDebug.setMaterial&#40;mat&#41;;
+      &#40;&#40;Node&#41; ac.getSpatial&#40;&#41;&#41;.attachChild&#40;skeletonDebug&#41;;
+&nbsp;
+      // create a channel and start the wobble animation
+      final AnimChannel channel = ac.createChannel&#40;&#41;;
+      channel.setAnim&#40;&quot;wobble&quot;&#41;;
+    &#125; catch &#40;final Exception e&#41; &#123;
+      e.printStackTrace&#40;&#41;;
+    &#125;
+&nbsp;
+    // add some lights
+    rootNode.addLight&#40;new AmbientLight&#40;&#41;&#41;;
+    rootNode.addLight&#40;new PointLight&#40;&#41;&#41;;
+  &#125;
+&nbsp;
+  public void addLodControl&#40;final Spatial parent&#41; &#123;
+    if &#40;parent instanceof Node&#41; &#123;
+      for &#40;final Spatial s : &#40;&#40;Node&#41; parent&#41;.getChildren&#40;&#41;&#41; &#123;
+        addLodControl&#40;s&#41;;
+      &#125;
+    &#125; else if &#40;parent instanceof Geometry&#41; &#123;
+      final LodControl lc = new LodControl&#40;&#41;;
+      lc.setDistTolerance&#40;1f&#41;;
+      parent.addControl&#40;lc&#41;;
+    &#125;
+  &#125;
+&nbsp;
+  <span>/**
+   * Method to find the animation control, because it is not on the models root
+   * node.
+   * 
+   * @param parent
+   *          The spatial to search.
+   * @return The {@link AnimControl} or null if it does not exist.
+   */</span>
+  public AnimControl findAnimControl&#40;final Spatial parent&#41; &#123;
+    final AnimControl animControl = parent.getControl&#40;AnimControl.class&#41;;
+    if &#40;animControl != null&#41; &#123;
+      return animControl;
+    &#125;
+&nbsp;
+    if &#40;parent instanceof Node&#41; &#123;
+      for &#40;final Spatial s : &#40;&#40;Node&#41; parent&#41;.getChildren&#40;&#41;&#41; &#123;
+        final AnimControl animControl2 = findAnimControl&#40;s&#41;;
+        if &#40;animControl2 != null&#41; &#123;
+          return animControl2;
+        &#125;
+      &#125;
+    &#125;
+&nbsp;
+    return null;
+  &#125;
+&nbsp;
+  public static void main&#40;final String&#91;&#93; args&#41; &#123;
+    new TestOgreMaxImport&#40;&#41;.start&#40;&#41;;
+  &#125;
+&#125;</pre>
+
+<p>
+You will see your worms strange movements. Have fun!
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax-12.png">
+
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Export and Import" [3396-6903] -->
+<h1><a>3ds Max Biped Animation to JME3</a></h1>
+<div>
+
+<p>
+
+You can also use the biped operator to animate models, but you have to consider a lot of things.
+</p>
+
+</div>
+<!-- EDIT8 SECTION "3ds Max Biped Animation to JME3" [6904-7048] -->
+<h3><a>Creating a character in 3dsMax</a></h3>
+<div>
+
+<p>
+
+I will not tell you in detail how to model a character. There I many good tutorials on the web, I used <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://majoh.deviantart.com/art/Mandi-s-3dsmax-Biped-Tutorial-26515784"><param name="text" value="<html><u>that one</u></html>"><param name="textColor" value="blue"></object>.
+
+</p>
+<ul>
+<li><div> You may create a biped before you start modeling, so it is quite easier to fit the proportions of the biped.</div>
+</li>
+<li><div> After creating a model and a biped I got something like that:</div>
+</li>
+</ul>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/1.png">
+
+</p>
+<ul>
+<li><div> I added the &quot;Meshmooth&quot; modifier with 2 iterations and got this result:</div>
+</li>
+</ul>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax_biped_2.png">
+
+</p>
+<ul>
+<li><div> After smoothing your mesh you could correct vertices with the &quot;Edit Mesh&quot; modifier. Finally you add the &quot;Physique&quot; modifier.</div>
+</li>
+<li><div> Now you can edit your envelopes to fit your model.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT9 SECTION "Creating a character in 3dsMax" [7049-7788] -->
+<h3><a>Creating a simple walk animation</a></h3>
+<div>
+<ul>
+<li><div> Select the chest of your biped, choose &quot;Motion&quot; (1) tab &gt; &quot;Foot Step Mode&quot; (2) &gt; &quot;Create Multiple Footsteps&quot; (3)</div>
+</li>
+<li><div> You need to select the &quot;In Place Mode&quot; (4), so the character moves in place without changing its location.</div>
+</li>
+</ul>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax_biped_3_1.png">
+
+</p>
+<ul>
+<li><div> You can now play a bit with the settings, I adjusted &quot;Actual Stride Length&quot; and &quot;Actual Stride Height&quot;. </div>
+</li>
+<li><div> For the &quot;Number of Footsteps&quot; 6 will be sufficient because the animation is cycled later.</div>
+</li>
+<li><div> <strong>Note:</strong> You can also create or edit footsteps by hand and move or rotate them.</div>
+</li>
+<li><div> After all footsteps are created, hit the &quot;Create Keys for Inactive Footsteps&quot; button in the &quot;Footstep Operations&quot; panel</div>
+</li>
+<li><div> You can now check your animation by pressing the &quot;Play&quot; button in the timeline.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT10 SECTION "Creating a simple walk animation" [7789-8600] -->
+<h3><a>Preparing the export and setting up OgreMax</a></h3>
+<div>
+<ul>
+<li><div> The &quot;OgreMax Scene Settings&quot; should be the same as shown above.</div>
+</li>
+<li><div> Because you want your animation to be looped, you&#039;ve got to find two key frames where the legs are nearly in the same position. For my settings I&#039;ve chosen the frames 48-78 for the walk animation.</div>
+</li>
+<li><div> Select the character mesh and open the &quot;OgreMax Scene Settings&quot; dialog. </div>
+</li>
+<li><div> Open the ???Mesh Animations??? tab and select type ???Skeleton???, ???Export Skeleton??? : ???Yes???</div>
+</li>
+<li><div> Below ???Mesh Animations??? hit the ???Add?????? button</div>
+</li>
+</ul>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax_biped_4.png">
+
+</p>
+<ul>
+<li><div> Enter a name for the track, e.g. &quot;walk&quot;.</div>
+</li>
+<li><div> Assure the track type is set to &quot;Physique&quot;.</div>
+</li>
+<li><div> Set the start and end frames, for me it is 48-78.</div>
+</li>
+<li><div> Close the dialog by pushing &quot;Ok&quot;.</div>
+</li>
+<li><div> <strong>Note:</strong> It could be useful to create also a track &quot;start_run&quot;, that blends between the stand and walk animation. I would use frame 0-47 for that.</div>
+</li>
+<li><div> Because you have a smooth model with a lot of polygons, it may be useful to create <a href="/com/jme3/gde/docs/jme3/advanced/mesh.html">levels of detail (LOD)</a>. When the camera is farther away, a low-poly mesh of your character will be rendered.</div>
+</li>
+</ul>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax_biped_5.png">
+
+</p>
+<ul>
+<li><div> Open the &quot;Mesh LOD&quot; tab in object settings.</div>
+</li>
+<li><div> It will suffice to select the &quot;Automatic&quot; setting, but if your animation starts to look weird, you can create them by hand.</div>
+</li>
+<li><div> I used 4 levels of LOD with a distance of 1. Don&#039;t worry about the distance setting, you can change it later in JME.</div>
+</li>
+<li><div> For the level reduction, I used 20 percent, which produce good results. You may adjust all the settings depending on your needs.</div>
+</li>
+<li><div> Close the dialoque by clicking &quot;Ok&quot;.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT11 SECTION "Preparing the export and setting up OgreMax" [8601-10275] -->
+<h3><a>Fixing the location</a></h3>
+<div>
+<ul>
+<li><div> Before you export you need to do a little fix, because your model is not really located where you see it. JME will get into a lot of trouble, if you don&#039;t change that.</div>
+</li>
+<li><div> Assure to save the max file. Sometimes OgreMax crashes the whole application during export. If you want to change the animation after export, you should reload this file because fixing the location changes something I can&#039;t really figure out.</div>
+</li>
+</ul>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax_biped_6.png">
+
+</p>
+<ul>
+<li><div> Right click the &quot;Select and Move&quot; tool in the upper toolbar. A dialog will pop up.</div>
+</li>
+<li><div> Set the X and Y location to 0 and close the dialog.</div>
+</li>
+<li><div> There is another way to achieve this. If you have scaled, moved or rotated your model, just open the &quot;Hierarchy&quot; tab and click &quot;Transform&quot; and &quot;Scale&quot; on the &quot;Reset&quot; panel.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT12 SECTION "Fixing the location" [10276-11085] -->
+<h3><a>Export and Import</a></h3>
+<div>
+<ul>
+<li><div> Now you can export your scene. Select only the mesh and use &quot;Export selected objects&quot;. You will not need the whole scene including the biped object, but the bones are created automatically during export.</div>
+</li>
+<li><div> Create a JME test class for the scene import.</div>
+</li>
+</ul>
+
+<p>
+
+For that, I extended the first class:
+</p>
+<pre>import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.Skeleton;
+import com.jme3.app.SimpleApplication;
+import com.jme3.asset.plugins.FileLocator;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.PointLight;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.scene.control.LodControl;
+import com.jme3.scene.debug.SkeletonDebugger;
+import com.jme3.scene.shape.Box;
+&nbsp;
+<span>/**
+ * This is a test class for loading a Ogre XML scene exported by OgreMax.
+ * 
+ * @author Stephan Dreyer
+ * 
+ */</span>
+public class TestOgreMaxImport extends SimpleApplication &#123;
+&nbsp;
+  @Override
+  public void simpleInitApp&#40;&#41; &#123;
+    assetManager.registerLocator&#40;&quot;Assets/model/ogre/test/&quot;, FileLocator.class&#41;;
+&nbsp;
+    // create the geometry and attach it
+    final Node model = &#40;Node&#41; assetManager.loadModel&#40;&quot;guy.scene&quot;&#41;;
+    // resize it, because of the large 3dsmax scales
+    model.setLocalScale&#40;.02f&#41;;
+&nbsp;
+    // attach to root node
+    rootNode.attachChild&#40;model&#41;;
+    addLodControl&#40;model&#41;;
+&nbsp;
+    final AnimControl ac = findAnimControl&#40;model&#41;;
+&nbsp;
+    try &#123;
+      // add a skeleton debugger to make bones visible
+      final Skeleton skel = ac.getSkeleton&#40;&#41;;
+      final SkeletonDebugger skeletonDebug = new SkeletonDebugger&#40;&quot;skeleton&quot;,
+          skel&#41;;
+      final Material mat = new Material&#40;assetManager,
+          &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+      mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Green&#41;;
+      mat.getAdditionalRenderState&#40;&#41;.setDepthTest&#40;false&#41;;
+      skeletonDebug.setMaterial&#40;mat&#41;;
+      &#40;&#40;Node&#41; ac.getSpatial&#40;&#41;&#41;.attachChild&#40;skeletonDebug&#41;;
+&nbsp;
+      // create a channel and start the walk animation
+      final AnimChannel channel = ac.createChannel&#40;&#41;;
+      channel.setAnim&#40;&quot;walk&quot;&#41;;
+    &#125; catch &#40;final Exception e&#41; &#123;
+      e.printStackTrace&#40;&#41;;
+    &#125;
+&nbsp;
+    flyCam.setMoveSpeed&#40;40f&#41;;
+    cam.setLocation&#40;new Vector3f&#40;15, 10, 15&#41;&#41;;
+    cam.lookAt&#40;Vector3f.ZERO, Vector3f.UNIT_Y&#41;;
+    cam.setFrustumNear&#40;1f&#41;;
+&nbsp;
+    // add some lights
+    rootNode.addLight&#40;new AmbientLight&#40;&#41;&#41;;
+&nbsp;
+    final PointLight pl = new PointLight&#40;&#41;;
+    pl.setPosition&#40;new Vector3f&#40;-3f, 3f, 1f&#41;&#41;;
+    rootNode.addLight&#40;pl&#41;;
+&nbsp;
+    // add a box as floor
+    final Box b = new Box&#40;100f, 0.1f, 100f&#41;;
+    final Geometry geo = new Geometry&#40;&quot;floor&quot;, b&#41;;
+&nbsp;
+    final Material mat = new Material&#40;assetManager,
+        &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    mat.setColor&#40;&quot;Color&quot;, ColorRGBA.LightGray&#41;;
+    geo.setMaterial&#40;mat&#41;;
+&nbsp;
+    rootNode.attachChild&#40;geo&#41;;
+  &#125;
+&nbsp;
+  <span>/**
+   * Method to traverse through the scene graph and add a {@link LodControl} to
+   * the mesh.
+   * 
+   * @param parent
+   *          The Node to add the control to.
+   */</span>
+  public void addLodControl&#40;final Spatial parent&#41; &#123;
+    if &#40;parent instanceof Node&#41; &#123;
+      for &#40;final Spatial s : &#40;&#40;Node&#41; parent&#41;.getChildren&#40;&#41;&#41; &#123;
+        addLodControl&#40;s&#41;;
+      &#125;
+    &#125; else if &#40;parent instanceof Geometry&#41; &#123;
+      final LodControl lc = new LodControl&#40;&#41;;
+&nbsp;
+      // the distance for LOD changes is set here, you may adjust this
+      lc.setDistTolerance&#40;1f&#41;;
+      parent.addControl&#40;lc&#41;;
+    &#125;
+  &#125;
+&nbsp;
+  <span>/**
+   * Method to find the animation control, because it is not on the models root
+   * node.
+   * 
+   * @param parent
+   *          The spatial to search.
+   * @return The {@link AnimControl} or null if it does not exist.
+   */</span>
+  public AnimControl findAnimControl&#40;final Spatial parent&#41; &#123;
+    final AnimControl animControl = parent.getControl&#40;AnimControl.class&#41;;
+    if &#40;animControl != null&#41; &#123;
+      return animControl;
+    &#125;
+&nbsp;
+    if &#40;parent instanceof Node&#41; &#123;
+      for &#40;final Spatial s : &#40;&#40;Node&#41; parent&#41;.getChildren&#40;&#41;&#41; &#123;
+        final AnimControl animControl2 = findAnimControl&#40;s&#41;;
+        if &#40;animControl2 != null&#41; &#123;
+          return animControl2;
+        &#125;
+      &#125;
+    &#125;
+&nbsp;
+    return null;
+  &#125;
+&nbsp;
+  public static void main&#40;final String&#91;&#93; args&#41; &#123;
+    new TestOgreMaxImport&#40;&#41;.start&#40;&#41;;
+  &#125;
+&#125;</pre>
+
+<p>
+After starting the class, you can see a nice smooth walk animation (if it&#039;s not smooth, you need to adjust your track frames):
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax_biped_7.png">
+</p>
+
+<p>
+As you can see, the LOD is working:
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/external/3dsmax_biped_8.png">
+
+</p>
+
+</div>
+<!-- EDIT13 SECTION "Export and Import" [11086-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:external:3dsmax?do=export_xhtmlbody">view online version</a></em></p>

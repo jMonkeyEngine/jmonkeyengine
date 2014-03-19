@@ -1,0 +1,394 @@
+
+<h1><a>Custom Mesh Shapes</a></h1>
+<div>
+
+<p>
+<img src="/wiki/lib/exe/fetch.php">
+Use the Mesh class to create custom shapes that go beyond Quad, Box, Cylinder, and Sphere, even procedural shapes are possible. Thank you to KayTrance for providing the sample code!
+</p>
+
+<p>
+<strong>Note:</strong> In this tutorial, we (re)create a very simple rectangular mesh (a quad), and we have a look at different ways of coloring it. Coding a custom quad may not be very useful because it&#039;s exactly the same as the built-in <code>com.jme3.scene.shape.Quad</code>. We chose a simple quad to teach you how to build any shape out of triangles, without the distractions of more complex shapes.
+
+</p>
+<ul>
+<li><div> Full code sample: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/branches/stable-alpha4/engine/src/test/jme3test/model/shape/TestCustomMesh.java"><param name="text" value="<html><u>TestCustomMesh.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT1 SECTION "Custom Mesh Shapes" [1-834] -->
+<h2><a>Polygon Meshes</a></h2>
+<div>
+
+<p>
+
+Polygon <a href="/com/jme3/gde/docs/jme3/advanced/mesh.html">mesh</a>es are made up of triangles. The corners of the triangles are called vertices. When ever you create any new shape, you break it down into triangles.
+</p>
+
+<p>
+<strong>Example:</strong> Let&#039;s look at a cube. A cube is made up of 6 rectangles. Each rectangle can be broken down into two triangles. This means you need 12 triangles to describe a cube mesh. Therefor you must provide the coordinates of the triangles&#039; 8 corners (called vertices). 
+</p>
+
+<p>
+The important thing is that you have to specify the vertices of each triangle in the right order: Each triangle separately, counter-clockwise. 
+</p>
+
+<p>
+Sounds harder than it is ??? let&#039;s create a simple custom mesh, a quad.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Polygon Meshes" [835-1518] -->
+<h2><a>Creating a Quad Mesh</a></h2>
+<div>
+
+<p>
+
+In this tutorial we want to create a 3x3 Quad. The quad has four vertices, and is made up of two triangles. In our example, we decide that the bottom left corner is at 0/0/0 and the top right is at 3/3/0. 
+</p>
+<pre>0,3,0--3,3,0
+| \        |
+|   \      |
+|     \    |
+|       \  |
+|         \|
+0,0,0--3,0,0</pre>
+
+</div>
+<!-- EDIT3 SECTION "Creating a Quad Mesh" [1519-1864] -->
+<h3><a>The Mesh Object</a></h3>
+<div>
+
+<p>
+
+The base class for creating meshes is <code>com.jme3.scene.Mesh</code>.
+
+</p>
+<pre>Mesh mesh = new Mesh&#40;&#41;;</pre>
+
+<p>
+Tip: If you create your own Mesh-based class (<code>public class MyMesh extends Mesh {  }</code>), replace the variable <code>mesh</code> by <code>this</code> in the following examples.
+</p>
+
+</div>
+<!-- EDIT4 SECTION "The Mesh Object" [1865-2157] -->
+<h3><a>Vertex Coordinates</a></h3>
+<div>
+
+<p>
+
+To define your own shape, determine the shape&#039;s <strong>vertex coordinates</strong> in 3D space. Store the list of corner positions in an <code>com.jme3.math.Vector3f</code> array. For a Quad, we need four vertices: Bottom left, bottom right, top left, top right. We name the array <code>vertices[]</code>.
+
+</p>
+<pre>Vector3f &#91;&#93; vertices = new Vector3f&#91;4&#93;;
+vertices&#91;0&#93; = new Vector3f&#40;0,0,0&#41;;
+vertices&#91;1&#93; = new Vector3f&#40;3,0,0&#41;;
+vertices&#91;2&#93; = new Vector3f&#40;0,3,0&#41;;
+vertices&#91;3&#93; = new Vector3f&#40;3,3,0&#41;;</pre>
+
+</div>
+<!-- EDIT5 SECTION "Vertex Coordinates" [2158-2664] -->
+<h3><a>Texture Coordinates</a></h3>
+<div>
+
+<p>
+Next, we define the Quad&#039;s 2D <strong>texture coordinates</strong> for each vertex, in the same order as the vertices: Bottom left, bottom right, top left, top right. We name this Vector2f array <code>texCoord[]</code>
+
+</p>
+<pre>Vector2f&#91;&#93; texCoord = new Vector2f&#91;4&#93;;
+texCoord&#91;0&#93; = new Vector2f&#40;0,0&#41;;
+texCoord&#91;1&#93; = new Vector2f&#40;1,0&#41;;
+texCoord&#91;2&#93; = new Vector2f&#40;0,1&#41;;
+texCoord&#91;3&#93; = new Vector2f&#40;1,1&#41;;</pre>
+
+<p>
+
+This syntax means, when you apply a texture to this mesh, the texture will fill the quad from corner to corner at 100% percent size. Especially when you stitch together a larger mesh, you use this to tell the renderer whether, and how exactly, you want to cover the whole mesh. E.g. if you use .5f or 2f as texture coordinates instead of 1f, textures will be stretched or shrunk accordingly.
+</p>
+
+</div>
+<!-- EDIT6 SECTION "Texture Coordinates" [2665-3475] -->
+<h3><a>Connecting the Dots</a></h3>
+<div>
+
+<p>
+Next we turn these unrelated coordinates into <strong>triangles</strong>: We define the order in which each triangle is constructed. Think of these indexes as coming in groups of three. Each group of indexes describes one triangle. If the corners are identical, you can (and should!) reuse an index for several triangles. 
+</p>
+
+<p>
+Remember that you must specify the vertices counter-clockwise. 
+
+</p>
+<pre>int &#91;&#93; indexes = &#123; 2,0,1, 1,3,2 &#125;;</pre>
+
+<p>
+
+This syntax means:
+</p>
+<ul>
+<li><div> The indices 0,1,2,3 stand for the four vertices that you specified for the quad in <code>vertices[]</code>.</div>
+</li>
+<li><div> The 2,0,1 triangle starts at top left, continues bottom left, and ends at bottom right.</div>
+</li>
+<li><div> The 1,3,2 triangle start at bottom right, continues top right, and ends at top left.</div>
+</li>
+</ul>
+<pre>2\2--3
+| \  | Counter-clockwise
+|  \ |
+0--1\1</pre>
+
+<p>
+
+If the shape is more complex, it has more triangles, and therefor also more vertices/indices. Just continue expanding the list by adding groups of three indices for each triangle. (For example a three-triangle &quot;house&quot; shape has 5 vertices/indices and you&#039;d specify three groups: <code>int [] indexes = { 2,0,1, 1,3,2, 2,3,4 };</code>.) 
+</p>
+
+<p>
+<p><div>If you get the order wrong (clockwise) for some of the triangles, then these triangles face backwards. If the <a href="/com/jme3/gde/docs/jme3/advanced/spatial.html">Spatial</a>&#039;s material uses the default <code>FaceCullMode.Back</code> (see &quot;face culling&quot;), the broken triangles appear as holes in the rendered mesh. You need to identify and fix them in your code.
+</div></p>
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Connecting the Dots" [3476-4947] -->
+<h3><a>Setting the Mesh Buffer</a></h3>
+<div>
+
+<p>
+You store the Mesh data in a buffer.
+</p>
+<ol>
+<li><div> Using <code>com.jme3.util.BufferUtils</code>, we create three buffers for the three types of information we have:</div>
+<ul>
+<li><div> vertex coordinates,</div>
+</li>
+<li><div> texture coordinates,</div>
+</li>
+<li><div> indices.</div>
+</li>
+</ul>
+</li>
+<li><div> We assign the data to the appropriate type of buffer inside the <code>Mesh</code> object. The three buffer types (<code>Position</code>, <code>TextCoord</code>, <code>Index</code>) are taken from an enum in <code>com.jme3.scene.VertexBuffer.Type</code>.</div>
+</li>
+<li><div> The integer parameter describes the number of components of the values. Vertex postions are 3 float values, texture coordinates are 2 float values, and the indices are 3 ints representing 3 vertices in a triangle.</div>
+</li>
+<li><div> To render the mesh in the scene, we need to pre-calculate the bounding volume of our new mesh: Call the <code>updateBound()</code> method on it.</div>
+</li>
+</ol>
+<pre>mesh.setBuffer&#40;Type.Position, 3, BufferUtils.createFloatBuffer&#40;vertices&#41;&#41;;
+mesh.setBuffer&#40;Type.TexCoord, 2, BufferUtils.createFloatBuffer&#40;texCoord&#41;&#41;;
+mesh.setBuffer&#40;Type.Index,    3, BufferUtils.createIntBuffer&#40;indexes&#41;&#41;;
+mesh.updateBound&#40;&#41;;</pre>
+
+<p>
+
+Our Mesh is ready! Now we want to see it.
+</p>
+
+</div>
+<!-- EDIT8 SECTION "Setting the Mesh Buffer" [4948-6071] -->
+<h2><a>Using the Mesh in a Scene</a></h2>
+<div>
+
+<p>
+We create a <code>com.jme3.scene.Geometry</code> from our <code>mesh</code>, apply a simple color material to it, and attach it to the rootNode to make it appear in the scene.
+
+</p>
+<pre>Geometry geo = new Geometry&#40;&quot;OurMesh&quot;, mesh&#41;; // using our custom mesh object
+Material mat = new Material&#40;assetManager, 
+    &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
+geo.setMaterial&#40;mat&#41;;
+rootNode.attachChild&#40;geo&#41;;</pre>
+
+<p>
+
+Ta-daa!
+</p>
+
+</div>
+<!-- EDIT9 SECTION "Using the Mesh in a Scene" [6072-6547] -->
+<h2><a>Dynamic Meshes</a></h2>
+<div>
+
+<p>
+
+If you are modifying a mesh dynamically in a way which changes the model&#039;s bounds, you need to update it:
+</p>
+<ol>
+<li><div> Call <code>updateBounds()</code> on the mesh object, and then </div>
+</li>
+<li><div> call <code>updateModelBound()</code> on the Geometry object containing the mesh. </div>
+</li>
+</ol>
+
+<p>
+The updateModelBounds() method warns you about not usually needing to use it, but that can be ignored in this special case.
+</p>
+
+</div>
+<!-- EDIT10 SECTION "Dynamic Meshes" [6548-6942] -->
+<h2><a>Optional Mesh Features</a></h2>
+<div>
+
+<p>
+There are more vertex buffers in a Mesh than the three shown above. For an overview, see also <a href="/com/jme3/gde/docs/jme3/advanced/mesh.html">mesh</a>.
+</p>
+
+</div>
+<!-- EDIT11 SECTION "Optional Mesh Features" [6943-7082] -->
+<h3><a>Example: Vertex Colors</a></h3>
+<div>
+
+<p>
+Vertex coloring is a simple way of coloring meshes. Instead of just assigning one solid color, each vertex (corner) has a color assigned. The faces between the vertices are then colored with a gradient. For this demo, you can use the same mesh <code>mesh</code> object that you defined above.
+</p>
+<pre>Geometry geo = new Geometry &#40;&quot;ColoredMesh&quot;, mesh&#41;; // using the custom mesh
+Material matVC = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+matVC.setBoolean&#40;&quot;VertexColor&quot;, true&#41;;</pre>
+
+<p>
+You create a float array color buffer:
+</p>
+<ul>
+<li><div> Assign 4 color values, RGBA, to each vertex.</div>
+<ul>
+<li><div> To loop over the 4 color values, use a color index <pre>int colorIndex = 0;</pre>
+</div>
+</li>
+</ul>
+</li>
+<li><div> The color buffer contains four color values for each vertex.</div>
+<ul>
+<li><div> The Quad in this example has 4 vertices. <pre>float&#91;&#93; colorArray = new float&#91;4*4&#93;;</pre>
+</div>
+</li>
+<li><div> Tip: If your mesh has a different number of vertices, you would write: <pre>float&#91;&#93; colorArray = new float&#91;yourVertexCount * 4&#93;</pre>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+Loop over the colorArray buffer to quickly set some RGBA value for each vertex. As usual, RGBA color values range from 0.0f to 1.0f. <strong>Note that the color values in this example are arbitrarily chosen.</strong> It&#039;s just a quick loop to give every vertex a different RGBA value (a purplish gray, purple, a greenish gray, green, see screenshot), without writing too much code. For your own mesh, you&#039;d assign meaningful values for the color buffer depending on which color you want your mesh to have.
+</p>
+<pre>// note: the red and green values are arbitray in this example
+for&#40;int i = 0; i &lt; 4; i++&#41;&#123;
+   // Red value (is increased by .2 on each next vertex here)
+   colorArray&#91;colorIndex++&#93;= 0.1f+&#40;.2f*i&#41;;
+   // Green value (is reduced by .2 on each next vertex)
+   colorArray&#91;colorIndex++&#93;= 0.9f-&#40;0.2f*i&#41;;
+   // Blue value (remains the same in our case)
+   colorArray&#91;colorIndex++&#93;= 0.5f;
+   // Alpha value (no transparency set here)
+   colorArray&#91;colorIndex++&#93;= 1.0f;
+&#125;</pre>
+
+<p>
+Next, set the color buffer. An RGBA color value contains four float components, thus the parameter <code>4</code>.
+
+</p>
+<pre>mesh.setBuffer&#40;Type.Color, 4, colorArray&#41;;
+geo.setMaterial&#40;matVC&#41;;</pre>
+
+<p>
+
+When you run this code, you see a gradient color extending from each vertex.
+</p>
+
+</div>
+<!-- EDIT12 SECTION "Example: Vertex Colors" [7083-9361] -->
+<h3><a>Example: Using Meshes With Lighting.j3md</a></h3>
+<div>
+
+<p>
+
+The previous examples used the mesh together with the <code>Unshaded.j3md</code> material. If you want to use the mesh with a Phong illuminated material (such as <code>Lighting.j3md</code>), the mesh must include information about its Normals. (Normal Vectors encode in which direction a mesh polygon is facing, which is important for calculating light and shadow!)
+</p>
+<pre>float&#91;&#93; normals = new float&#91;12&#93;;
+normals = new float&#91;&#93;&#123;0,0,1, 0,0,1, 0,0,1, 0,0,1&#125;;
+mesh.setBuffer&#40;Type.Normal, 3, BufferUtils.createFloatBuffer&#40;normals&#41;&#41;;</pre>
+
+<p>
+You need to specify as many normals as the polygon has vertices. For a flat quad, the four normals point in the same direction. In this case, the direction is the Z unit vector (0,0,1), this means our quad is facing the camera. 
+</p>
+
+<p>
+If the mesh is more complex or rounded, calculate cross products of neighbouring vertices to identify normal vectors!
+</p>
+
+</div>
+<!-- EDIT13 SECTION "Example: Using Meshes With Lighting.j3md" [9362-10288] -->
+<h3><a>Example: Point Mode</a></h3>
+<div>
+
+<p>
+
+Additionally to coloring the faces as just described, you can hide the faces and show only the vertices as colored corner points. 
+</p>
+<pre>Geometry coloredMesh = new Geometry &#40;&quot;ColoredMesh&quot;, cMesh&#41;;
+...
+mesh.setMode&#40;Mesh.Mode.Points&#41;;
+mesh.setPointSize&#40;10f&#41;;
+mesh.updateBound&#40;&#41;;
+mesh.setStatic&#40;&#41;;
+Geometry points = new Geometry&#40;&quot;Points&quot;, mesh&#41;;
+points.setMaterial&#40;mat&#41;;
+rootNode.attachChild&#40;points&#41;;
+rootNode.attachChild&#40;geo&#41;;</pre>
+
+<p>
+
+This will result in a 10 px dot being rendered for each of the four vertices. The dot has the vertex color you specified above. The Quad&#039;s faces are not rendered at all in this mode. You can use this to visualize a special debugging or editing mode in your game.
+</p>
+
+</div>
+<!-- EDIT14 SECTION "Example: Point Mode" [10289-11022] -->
+<h2><a>Debugging Tip: Culling</a></h2>
+<div>
+
+<p>
+
+By default, jME3 optimizes a mesh by &quot;backface culling&quot;, this means not drawing the inside. It determines the side of a triangle by the order of the vertices: The frontface is the face where the vertices are specified counter-clockwise.
+</p>
+
+<p>
+This means for you that, by default, your custom mesh is invisible when seen from &quot;behind&quot; or from the inside. This may not be a problem, typically this is even intended, because it&#039;s faster. The player will not look at the inside of most things anyway. For example, if your custom mesh is a closed polyhedron, or a flat wallpaper-like object, then rendering the backfaces (the inside of the pillar, the back of the painting, etc) would indeed be a waste of resources.
+</p>
+
+<p>
+In case however that your usecase requires the backfaces be visible, you have two options:
+</p>
+<ul>
+<li><div> If you have a very simple scene, you can simply deactivate backface culling for this one mesh&#039;s material. <pre>mat.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off);</pre>
+</div>
+</li>
+<li><div> Another solution for truly double-sided meshes is to specify each triangle twice, the second time with the opposite order of vertices. The second (reversed) triangle is a second frontface that covers up the culled backface. <pre>int[] indexes = { 2,0,1, 1,3,2, 2,3,1, 1,0,2 };</pre>
+</div>
+</li>
+</ul>
+<hr />
+
+<p>
+See also: 
+
+</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/spatial.html">Spatial</a> ??? contains more info about how to debug custom meshes (that do not render as expected) by changing the default culling behaviour.</div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/mesh.html">Mesh</a> ??? more details about advanced Mesh properties</div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:spatial?do=showtag&amp;tag=tag%3Aspatial">spatial</a>,
+	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
+	<a href="/wiki/doku.php/tag:mesh?do=showtag&amp;tag=tag%3Amesh">mesh</a>,
+	<a href="/wiki/doku.php/tag:geometry?do=showtag&amp;tag=tag%3Ageometry">geometry</a>,
+	<a href="/wiki/doku.php/tag:scenegraph?do=showtag&amp;tag=tag%3Ascenegraph">scenegraph</a>
+</span></div>
+
+</div>
+<!-- EDIT15 SECTION "Debugging Tip: Culling" [11023-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:custom_meshes?do=export_xhtmlbody">view online version</a></em></p>

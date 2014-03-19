@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="org-netbeans-api-project-libraries">
+        <folder name="Libraries">
+            <file name="jme3-libraries-blender.xml" url="jme3-libraries-blender.xml"/>
+            <file name="jme3-libraries-gui-style-black.xml" url="jme3-libraries-gui-style-black.xml"/>
+            <file name="jme3-libraries-gui.xml" url="jme3-libraries-gui.xml"/>
+            <file name="jme3-libraries-lwjgl-minimum.xml" url="jme3-libraries-lwjgl-minimum.xml"/>
+            <file name="jme3-libraries-oggvorbis.xml" url="jme3-libraries-oggvorbis.xml"/>
+            <file name="jme3-libraries-physics-native.xml" url="jme3-libraries-physics-native.xml"/>
+            <file name="jme3-libraries-physics.xml" url="jme3-libraries-physics.xml"/>
+            <file name="jme3-libraries-plugins.xml" url="jme3-libraries-plugins.xml"/>
+            <file name="jme3-libraries-terrain.xml" url="jme3-libraries-terrain.xml"/>
+            <file name="jme3-libraries-effects.xml" url="jme3-libraries-effects.xml"/>
+            <file name="jme3-libraries-networking.xml" url="jme3-libraries-networking.xml"/>
+            <file name="jme3-libraries.xml" url="jme3-libraries.xml"/>
+        </folder>
+    </folder>
+</filesystem>

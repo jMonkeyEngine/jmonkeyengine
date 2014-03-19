@@ -1,0 +1,361 @@
+
+<h1><a>jMonkeyEngine 3 Tutorial (7) - Hello Animation</a></h1>
+<div>
+
+<p>
+
+Previous: <a href="/com/jme3/gde/docs/jme3/beginner/hello_material.html">Hello Material</a>,
+Next: <a href="/com/jme3/gde/docs/jme3/beginner/hello_picking.html">Hello Picking</a>
+</p>
+
+<p>
+This tutorial shows how to add an animation controller and channels, and how to respond to user input by triggering an animation in a loaded model.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/beginner/beginner-animation.png">
+</p>
+
+<p>
+<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+</div></p>
+
+</p>
+
+</div>
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (7) - Hello Animation" [1-514] -->
+<h2><a>Sample Code</a></h2>
+<div>
+<pre>package jme3test.helloworld;
+&nbsp;
+import com.jme3.animation.AnimChannel;
+import com.jme3.animation.AnimControl;
+import com.jme3.animation.AnimEventListener;
+import com.jme3.animation.LoopMode;
+import com.jme3.app.SimpleApplication;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.light.DirectionalLight;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
+&nbsp;
+<span>/** Sample 7 - how to load an OgreXML model and play an animation,
+ * using channels, a controller, and an AnimEventListener. */</span>
+public class HelloAnimation extends SimpleApplication
+  implements AnimEventListener &#123;
+  private AnimChannel channel;
+  private AnimControl control;
+  Node player;
+  public static void main&#40;String&#91;&#93; args&#41; &#123;
+    HelloAnimation app = new HelloAnimation&#40;&#41;;
+    app.start&#40;&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void simpleInitApp&#40;&#41; &#123;
+    viewPort.setBackgroundColor&#40;ColorRGBA.LightGray&#41;;
+    initKeys&#40;&#41;;
+    DirectionalLight dl = new DirectionalLight&#40;&#41;;
+    dl.setDirection&#40;new Vector3f&#40;-0.1f, -1f, -1&#41;.normalizeLocal&#40;&#41;&#41;;
+    rootNode.addLight&#40;dl&#41;;
+    player = &#40;Node&#41; assetManager.loadModel&#40;&quot;Models/Oto/Oto.mesh.xml&quot;&#41;;
+    player.setLocalScale&#40;0.5f&#41;;
+    rootNode.attachChild&#40;player&#41;;
+    control = player.getControl&#40;AnimControl.class&#41;;
+    control.addListener&#40;this&#41;;
+    channel = control.createChannel&#40;&#41;;
+    channel.setAnim&#40;&quot;stand&quot;&#41;;
+  &#125;
+&nbsp;
+  public void onAnimCycleDone&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123;
+    if &#40;animName.equals&#40;&quot;Walk&quot;&#41;&#41; &#123;
+      channel.setAnim&#40;&quot;stand&quot;, 0.50f&#41;;
+      channel.setLoopMode&#40;LoopMode.DontLoop&#41;;
+      channel.setSpeed&#40;1f&#41;;
+    &#125;
+  &#125;
+&nbsp;
+  public void onAnimChange&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123;
+    // unused
+  &#125;
+&nbsp;
+  /** Custom Keybinding: Map named actions to inputs. */
+  private void initKeys&#40;&#41; &#123;
+    inputManager.addMapping&#40;&quot;Walk&quot;, new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
+    inputManager.addListener&#40;actionListener, &quot;Walk&quot;&#41;;
+  &#125;
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+    public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
+      if &#40;name.equals&#40;&quot;Walk&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
+        if &#40;!channel.getAnimationName&#40;&#41;.equals&#40;&quot;Walk&quot;&#41;&#41; &#123;
+          channel.setAnim&#40;&quot;Walk&quot;, 0.50f&#41;;
+          channel.setLoopMode&#40;LoopMode.Loop&#41;;
+        &#125;
+      &#125;
+    &#125;
+  &#125;;
+&#125;</pre>
+
+</div>
+<!-- EDIT2 SECTION "Sample Code" [515-2941] -->
+<h2><a>Creating and Loading Animated Models</a></h2>
+<div>
+
+<p>
+
+You create animated models with a tool such as Blender. Take some time and learn how to create your own models in these <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.blender.org/education-help/tutorials/animation/"><param name="text" value="<html><u>Blender Animation Tutorials</u></html>"><param name="textColor" value="blue"></object>. For now, download and use a free model, such as the one included here as an example (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/test-data/Models/Oto/"><param name="text" value="<html><u>Oto Golem</u></html>"><param name="textColor" value="blue"></object>, and <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.googlecode.com/svn/trunk/engine/test-data/Models/Ninja/"><param name="text" value="<html><u>Ninja</u></html>"><param name="textColor" value="blue"></object>).
+</p>
+
+<p>
+Loading an animated model is pretty straight-forward, just as you have learned in the previous chapters. Animated Ogre models come as a set of files: The model is in <code>Oto.mesh.xml</code>, and the animation details are in <code>Oto.skeleton.xml</code>, plus the usual files for materials and textures. Check that all files of the model are together in the same <code>Model</code> subdirectory.
+</p>
+<pre>  public void simpleInitApp&#40;&#41; &#123;
+    /* Displaying the model requires a light source */
+    DirectionalLight dl = new DirectionalLight&#40;&#41;;
+    dl.setDirection&#40;new Vector3f&#40;-0.1f, -1f, -1&#41;.normalizeLocal&#40;&#41;&#41;;
+    rootNode.addLight&#40;dl&#41;;
+    /* load and attach the model as usual */
+    player = assetManager.loadModel&#40;&quot;Models/Oto/Oto.mesh.xml&quot;&#41;;
+    player.setLocalScale&#40;0.5f&#41;; // resize
+    rootNode.attachChild&#40;player&#41;;
+    ...
+    &#125;</pre>
+
+<p>
+Don&#039;t forget to add a light source to make the material visible.
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Creating and Loading Animated Models" [2942-4362] -->
+<h2><a>Animation Controller and Channel</a></h2>
+<div>
+
+<p>
+
+After you load the animated model, you register it to the Animation Controller.
+</p>
+<ul>
+<li><div> The controller object gives you access to the available animation sequences.</div>
+</li>
+<li><div> The controller can have several channels, each channel can run one animation sequence at a time.</div>
+</li>
+<li><div> To run several sequences, you create several channels, and set them each to their animation.</div>
+</li>
+</ul>
+<pre>  private AnimChannel channel;
+  private AnimControl control;
+&nbsp;
+  public void simpleInitApp&#40;&#41; &#123;
+    ...
+    <span>/* Load the animation controls, listen to animation events,
+     * create an animation channel, and bring the model in its default position.  */</span>
+    control = player.getControl&#40;AnimControl.class&#41;;
+    control.addListener&#40;this&#41;;
+    channel = control.createChannel&#40;&#41;;
+    channel.setAnim&#40;&quot;stand&quot;&#41;;
+    ...</pre>
+
+<p>
+<p><div>In response to a question about animations on different channels interefering with each other, <strong>Nehon on the jME forum <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/general-2/forum/topic/helloanimation-animations-seem-to-be-clashing/#post-180994"><param name="text" value="<html><u>wrote</u></html>"><param name="textColor" value="blue"></object>,</strong>
+</p>
+
+<p>
+&quot;You have to consider channels as part of the skeleton that are animated. The default behavior is to use the whole skeleton for a channel.
+In your example the first channel plays the walk anim, then the second channel plays the dodge animation.
+Arms and feet are probably not affected by the doge animation so you can see the walk anim for them, but the rest of the body plays the dodge animation.
+</p>
+
+<p>
+Usually multiple channels are used to animate different part of the body. For example you create one channel for the lower part of the body and one for the upper part. This allow you to play a walk animation with the lower part and for example a shoot animation with the upper part. This way your character can walk while shooting.
+</p>
+
+<p>
+In your case, where you want animations to chain for the whole skeleton, you just have to use one channel.&quot;
+</div></p>
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Animation Controller and Channel" [4363-6302] -->
+<h2><a>Responding to Animation Events</a></h2>
+<div>
+
+<p>
+
+Add <code>implements AnimEventListener</code> to the class declaration. This interface gives you access to events that notify you when a sequence is done, or when you change from one sequence to another, so you can respond to it. In this example, you reset the character to a standing position after a <code>Walk</code> cycle is done.
+</p>
+<pre>public class HelloAnimation extends SimpleApplication
+                         implements AnimEventListener &#123;
+  ...
+&nbsp;
+  public void onAnimCycleDone&#40;AnimControl control, 
+                              AnimChannel channel, String animName&#41; &#123;
+    if &#40;animName.equals&#40;&quot;Walk&quot;&#41;&#41; &#123;
+      channel.setAnim&#40;&quot;stand&quot;, 0.50f&#41;;
+      channel.setLoopMode&#40;LoopMode.DontLoop&#41;;
+      channel.setSpeed&#40;1f&#41;;
+    &#125;
+  &#125;
+  public void onAnimChange&#40;AnimControl control, AnimChannel channel, String animName&#41; &#123;
+    // unused
+  &#125;</pre>
+
+</div>
+<!-- EDIT5 SECTION "Responding to Animation Events" [6303-7190] -->
+<h2><a>Trigger Animations After User Input</a></h2>
+<div>
+
+<p>
+
+There are ambient animations like animals or trees that you may want to trigger in the main event loop. In other cases, animations are triggered by user interaction, such as key input. You want to play the Walk animation when the player presses a certain key (here the spacebar), at the same time as the avatar performs the walk action and changes its location.
+</p>
+<ol>
+<li><div> Initialize a new input controller (in <code>simpleInitApp()</code>).</div>
+<ul>
+<li><div> Write the <code>initKey()</code> convenience method and call it from <code>simpleInitApp()</code>.</div>
+</li>
+</ul>
+</li>
+<li><div> Add a key mapping with the name as the action you want to trigger.</div>
+<ul>
+<li><div> Here for example, you map <code>Walk</code> to the Spacebar key.</div>
+</li>
+</ul>
+</li>
+<li><div> Add an input listener for the <code>Walk</code> action.</div>
+</li>
+</ol>
+<pre>  private void initKeys&#40;&#41; &#123;
+    inputManager.addMapping&#40;&quot;Walk&quot;, new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;&#41;;
+    inputManager.addListener&#40;actionListener, &quot;Walk&quot;&#41;;
+  &#125;</pre>
+
+<p>
+To use the input controller, you need to implement the actionLister:
+Test for each action by name, and set the channel to the corresponding animation to run.
+
+</p>
+<ul>
+<li><div> The second parameter of setAnim() is the blendTime (how long the current animation should overlap with the last one).</div>
+</li>
+<li><div> LoopMode can be Loop (repeat), Cycle (forward then backward), and DontLoop (only once).</div>
+</li>
+<li><div> If needed, use channel.setSpeed() to set the speed of this animation.</div>
+</li>
+<li><div> Optionally, use channel.setTime() to Fast-forward or rewind to a certain moment in time of this animation.</div>
+</li>
+</ul>
+<pre>  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+    public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
+        if &#40;name.equals&#40;&quot;Walk&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
+            if &#40;!channel.getAnimationName&#40;&#41;.equals&#40;&quot;Walk&quot;&#41;&#41;&#123;
+                channel.setAnim&#40;&quot;Walk&quot;, 0.50f&#41;;
+                channel.setLoopMode&#40;LoopMode.Cycle&#41;;
+            &#125;
+        &#125;
+    &#125;
+  &#125;;</pre>
+
+</div>
+<!-- EDIT6 SECTION "Trigger Animations After User Input" [7191-9079] -->
+<h2><a>Exercises</a></h2>
+<div>
+
+</div>
+
+<h4><a>Exercise 1: Two Animations</a></h4>
+<div>
+
+<p>
+
+Make a mouse click trigger another animation sequence!
+</p>
+<ol>
+<li><div> Create a second channel in the controller</div>
+</li>
+<li><div> Create a new key trigger mapping and action (see: <a href="/com/jme3/gde/docs/jme3/beginner/hello_input_system.html">Hello Input</a>)</div>
+</li>
+<li><div> Tip: Do you want to find out what animation sequences are available in the model? Use: <pre>for &#40;String anim : control.getAnimationNames&#40;&#41;&#41; &#123; System.out.println&#40;anim&#41;; &#125;</pre>
+</div>
+</li>
+</ol>
+
+</div>
+
+<h4><a>Exercise 2: Revealing the Skeleton (1)</a></h4>
+<div>
+
+<p>
+
+Open the <code>skeleton.xml</code> file in a text editor of your choice. You don&#039;t have to be able to read or write these xml files (Blender does that for you) ??? but it is good to know how skeletons work. &quot;There&#039;s no magic to it!&quot;
+</p>
+<ul>
+<li><div> Note how the bones are numbered and named. All names of animated models follow a naming scheme.</div>
+</li>
+<li><div> Note the bone hierarchy that specifies how the bones are connected.</div>
+</li>
+<li><div> Note the list of animations: Each animation has a name, and several tracks. Each track tells individual bones how and when to transform. These animation steps are called keyframes.</div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Exercise 3: Revealing the Skeleton (2)</a></h4>
+<div>
+
+<p>
+
+Add the following import statements for the SkeletonDebugger and Material classes:
+</p>
+<pre>     import com.jme3.scene.debug.SkeletonDebugger;
+     import com.jme3.material.Material;</pre>
+
+<p>
+Add the following code snippet to <code>simpleInitApp()</code> to make the bones (that you just read about) visible!
+</p>
+<pre>     SkeletonDebugger skeletonDebug = 
+         new SkeletonDebugger&#40;&quot;skeleton&quot;, control.getSkeleton&#40;&#41;&#41;;
+     Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+     mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Green&#41;;
+     mat.getAdditionalRenderState&#40;&#41;.setDepthTest&#40;false&#41;;
+     skeletonDebug.setMaterial&#40;mat&#41;;
+     player.attachChild&#40;skeletonDebug&#41;;</pre>
+
+<p>
+Can you identify individual bones in the skeleton?
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Exercises" [9080-10947] -->
+<h2><a>Conclusion</a></h2>
+<div>
+
+<p>
+
+Now you can load animated models, identify stored animations, and trigger animations by using onAnimCycleDone() and onAnimChange(). You also learned that you can play several animations simultaneously, by starting each in a channel of its own. This could be useful if you ever want to animate the lower and upper part of the characters body independently, for example the legs run, while the arms use a weapon.
+</p>
+
+<p>
+Now that your character can walk, wouldn&#039;t it be cool if it could also pick up things, or aim a weapon at things, or open doors? Time to reveal the secrets of <a href="/com/jme3/gde/docs/jme3/beginner/hello_picking.html">mouse picking</a>!
+
+</p>
+<hr />
+
+<p>
+See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://docs.google.com/leaf?id=0B9hhZie2D-fEYmRkMTYwN2YtMzQ0My00NTM4LThhOTYtZTk1MTRlYTNjYTc3&amp;hl=en"><param name="text" value="<html><u>Creating Animated OgreXML Models in Blender</u></html>"><param name="textColor" value="blue"></object>
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
+	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
+	<a href="/wiki/doku.php/tag:animation?do=showtag&amp;tag=tag%3Aanimation">animation</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:keyinput?do=showtag&amp;tag=tag%3Akeyinput">keyinput</a>,
+	<a href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>,
+	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
+	<a href="/wiki/doku.php/tag:model?do=showtag&amp;tag=tag%3Amodel">model</a>
+</span></div>
+
+</div>
+<!-- EDIT8 SECTION "Conclusion" [10948-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_animation?do=export_xhtmlbody">view online version</a></em></p>

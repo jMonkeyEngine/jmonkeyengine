@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.jme3.gde.textureeditor/1
+OpenIDE-Module-Implementation-Version: 0
+OpenIDE-Module-Layer: com/jme3/gde/textureeditor/layer.xml
+OpenIDE-Module-Localizing-Bundle: com/jme3/gde/textureeditor/Bundle.properties
+

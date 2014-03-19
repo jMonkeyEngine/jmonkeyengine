@@ -1,0 +1,447 @@
+
+<h1><a>jMonkeyEngine 3 Tutorial (2) - Hello Node</a></h1>
+<div>
+
+<p>
+
+Previous: <a href="/com/jme3/gde/docs/jme3/beginner/hello_simpleapplication.html">Hello SimpleApplication</a>,
+Next: <a href="/com/jme3/gde/docs/jme3/beginner/hello_asset.html">Hello Assets</a>. 
+</p>
+
+<p>
+In this tutorial we will have a look at the creation of a 3D scene.
+</p>
+<ul>
+<li><div> This tutorial assumes that you know what <a href="/com/jme3/gde/docs/jme3/the_scene_graph.html">the Scene Graph</a> is.</div>
+</li>
+<li><div> For a visual introduction, check out <a href="/com/jme3/gde/docs/jme3/scenegraph_for_dummies.html">Scene Graph for Dummies</a>.</div>
+</li>
+</ul>
+
+<p>
+
+When creating a 3D game
+</p>
+<ol>
+<li><div> You create some scene objects like players, buildings, etc. </div>
+</li>
+<li><div> You add the objects to the scene.</div>
+</li>
+<li><div> You move, resize, rotate, color, and animate them. </div>
+</li>
+</ol>
+
+<p>
+
+You will learn that the scene graph represents the 3D world, and why the rootNode is important. You will learn how to create simple objects, how to let them carry custom data (such as health points), and how to &quot;transform&quot; them by moving, scaling, and rotating. You will understand the difference between the two types of &quot;Spatials&quot; in the scene graph: Nodes and Geometries. 
+</p>
+
+</div>
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (2) - Hello Node" [1-996] -->
+<h2><a>Code Sample</a></h2>
+<div>
+<pre>package jme3test.helloworld;
+&nbsp;
+import com.jme3.app.SimpleApplication;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.shape.Box;
+&nbsp;
+<span>/** Sample 2 - How to use nodes as handles to manipulate objects in the scene.
+ * You can rotate, translate, and scale objects by manipulating their parent nodes.
+ * The Root Node is special: Only what is attached to the Root Node appears in the scene. */</span>
+public class HelloNode extends SimpleApplication &#123;
+&nbsp;
+    public static void main&#40;String&#91;&#93; args&#41;&#123;
+        HelloNode app = new HelloNode&#40;&#41;;
+        app.start&#40;&#41;;
+    &#125;
+&nbsp;
+    @Override
+    public void simpleInitApp&#40;&#41; &#123;
+&nbsp;
+        /** create a blue box at coordinates (1,-1,1) */
+        Box box1 = new Box&#40;1,1,1&#41;;
+        Geometry blue = new Geometry&#40;&quot;Box&quot;, box1&#41;;
+        blue.setLocalTranslation&#40;new Vector3f&#40;1,-1,1&#41;&#41;;
+        Material mat1 = new Material&#40;assetManager, 
+                &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+        mat1.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
+        blue.setMaterial&#40;mat1&#41;;
+&nbsp;
+        /** create a red box straight above the blue one at (1,3,1) */
+        Box box2 = new Box&#40;1,1,1&#41;;      
+        Geometry red = new Geometry&#40;&quot;Box&quot;, box2&#41;;
+        red.setLocalTranslation&#40;new Vector3f&#40;1,3,1&#41;&#41;;
+        Material mat2 = new Material&#40;assetManager, 
+                &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+        mat2.setColor&#40;&quot;Color&quot;, ColorRGBA.Red&#41;;
+        red.setMaterial&#40;mat2&#41;;
+&nbsp;
+        /** Create a pivot node at (0,0,0) and attach it to the root node */
+        Node pivot = new Node&#40;&quot;pivot&quot;&#41;;
+        rootNode.attachChild&#40;pivot&#41;; // put this node in the scene
+&nbsp;
+        /** Attach the two boxes to the *pivot* node. (And transitively to the root node.) */
+        pivot.attachChild&#40;blue&#41;;
+        pivot.attachChild&#40;red&#41;;
+        /** Rotate the pivot node: Note that both boxes have rotated! */
+        pivot.rotate&#40;.4f,.4f,0f&#41;;
+    &#125;
+&#125;</pre>
+
+<p>
+Build and run the code sample. You should see two colored boxes tilted at the same angle.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Code Sample" [997-3108] -->
+<h2><a>Understanding the Terminology</a></h2>
+<div>
+
+<p>
+
+In this tutorial, you learn some new terms:
+
+</p>
+<div><table>
+	<tr>
+		<th>What you want to do</th><th>How you say it in JME3 terminology</th>
+	</tr>
+	<tr>
+		<td>Lay out the 3D scene</td><td>Populate the scene graph</td>
+	</tr>
+	<tr>
+		<td>Create scene objects</td><td>Create Spatials (e.g. create Geometries)</td>
+	</tr>
+	<tr>
+		<td>Make an object appear in the scene</td><td>Attach a Spatial to the rootNode</td>
+	</tr>
+	<tr>
+		<td>Make an object disappear from the scene</td><td>Detach the Spatial from the rootNode</td>
+	</tr>
+	<tr>
+		<td>Position/move, turn, or resize an object</td><td>Translate, or rotate, or scale an object = transform an object.</td>
+	</tr>
+</table></div>
+<!-- EDIT4 TABLE [3197-3621] -->
+<p>
+
+Every JME3 application has a rootNode: Your game automatically inherits the <code>rootNode</code> object from SimpleApplication. Everything attached to the rootNode is part of the scene graph. The elements of the scene graph are Spatials.
+</p>
+<ul>
+<li><div> A Spatial contains the location, rotation, and scale of an object.</div>
+</li>
+<li><div> A Spatial can be loaded, transformed, and saved.</div>
+</li>
+<li><div> There are two types of Spatials: Nodes and Geometries.</div>
+</li>
+</ul>
+<div><table>
+	<tr>
+		<td>  </td><th> Geometry </th><th> Node </th>
+	</tr>
+	<tr>
+		<th> Visibility: </th><td> A Geometry is a visible scene object. </td><td> A Node is an invisible &quot;handle&quot; for scene objects. </td>
+	</tr>
+	<tr>
+		<th> Purpose: </th><td> A Geometry stores an object&#039;s looks. </td><td> A Node groups Geometries and other Nodes together. </td>
+	</tr>
+	<tr>
+		<th> Examples: </th><td> A box, a sphere, a player, a building, a piece of terrain, a vehicle, missiles, NPCs, etc??? </td><td> The <code>rootNode</code>, a floor node grouping several terrains, a custom vehicle-with-passengers node, a player-with-weapon node, an audio node, etc??? </td>
+	</tr>
+</table></div>
+<!-- EDIT5 TABLE [4037-4530] -->
+</div>
+<!-- EDIT3 SECTION "Understanding the Terminology" [3109-4531] -->
+<h2><a>Understanding the Code</a></h2>
+<div>
+
+<p>
+
+What happens in the code snippet? You use the <code>simpleInitApp()</code> method that was introduced in the first tutorial to initialize the scene.
+
+</p>
+<ol>
+<li><div> You create the first box Geometry.</div>
+<ul>
+<li><div> Create a Box shape with extents of (1,1,1), that makes the box 2x2x2 world units big.</div>
+</li>
+<li><div> Position the box at (1,-1,1) using the setLocalTranslation() method.</div>
+</li>
+<li><div> Wrap the Box shape into a Geometry.</div>
+</li>
+<li><div> Create a blue material. </div>
+</li>
+<li><div> Apply the blue material to the Box Geometry. <pre>    Box box1 = new Box&#40;1,1,1&#41;;
+    Geometry blue = new Geometry&#40;&quot;Box&quot;, box1&#41;;
+    blue.setLocalTranslation&#40;new Vector3f&#40;1,-1,1&#41;&#41;;
+    Material mat1 = new Material&#40;assetManager,&quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    mat1.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
+    blue.setMaterial&#40;mat1&#41;;</pre>
+</div>
+</li>
+</ul>
+</li>
+<li><div> You create a second box Geometry.</div>
+<ul>
+<li><div> Create a second Box shape with the same size.</div>
+</li>
+<li><div> Position the second box at (1,3,1). This is straight above the first box, with a gap of 2 world units inbetween.</div>
+</li>
+<li><div> Wrap the Box shape into a Geometry.</div>
+</li>
+<li><div> Create a red material. </div>
+</li>
+<li><div> Apply the red material to the Box Geometry. <pre>    Box box2 = new Box&#40;1,1,1&#41;;
+    Geometry red = new Geometry&#40;&quot;Box&quot;, box2&#41;;
+    red.setLocalTranslation&#40;new Vector3f&#40;1,3,1&#41;&#41;;
+    Material mat2 = new Material&#40;assetManager,
+      &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    mat2.setColor&#40;&quot;Color&quot;, ColorRGBA.Red&#41;;
+    red.setMaterial&#40;mat2&#41;;</pre>
+</div>
+</li>
+</ul>
+</li>
+<li><div> You create a pivot Node. </div>
+<ul>
+<li><div> Name the Node &quot;pivot&quot;.</div>
+</li>
+<li><div> By default the Node is positioned at (0,0,0). </div>
+</li>
+<li><div> Attach the Node to the rootNode.</div>
+</li>
+<li><div> The Node has no visible appearance in the scene. <pre>    Node pivot = new Node&#40;&quot;pivot&quot;&#41;;
+    rootNode.attachChild&#40;pivot&#41;;</pre>
+
+<p>
+If you run the application with only the code up to here, the scene appears empty. This is because a Node is invisible, and you have not yet attached any visible Geometries to the rootNode. 
+</p>
+</div>
+</li>
+</ul>
+</li>
+<li><div> Attach the two boxes to the pivot node. <pre>        pivot.attachChild&#40;blue&#41;;
+        pivot.attachChild&#40;red&#41;;</pre>
+
+<p>
+If you run the app with only the code up to here, you see two cubes: A red cube straight above a blue cube.
+</p>
+</div>
+</li>
+<li><div> Rotate the pivot node.<pre>        pivot.rotate&#40; 0.4f , 0.4f , 0.0f &#41;;</pre>
+
+<p>
+ If you run the app now, you see two boxes on top of each other ??? both tilted at the same angle.
+</p>
+</div>
+</li>
+</ol>
+
+</div>
+<!-- EDIT6 SECTION "Understanding the Code" [4532-6885] -->
+<h3><a>What is a Pivot Node?</a></h3>
+<div>
+
+<p>
+
+You can transform (e.g. rotate) Geometries around their own center, or around a user defined center point. A user defined center point for one or more Geometries is called a pivot.
+
+</p>
+<ul>
+<li><div> In this example, you have grouped two Geometries by attaching them to one pivot Node. You use the pivot Node as a handle to rotate the two Geometries together around one common center. Rotating the pivot Node rotates all attached Geometries, in one step. The pivot node is the center of the rotation. Before attaching the other Geometries, make certain that the pivot node is at (0,0,0). Transforming a parent Node to transform all attached child Spatials is a common task. You will use this method a lot in your games when you move Spatials around. <br/>
+<strong>Examples:</strong> A vehicle and its driver move together; a planet with its moon orbits the sun. </div>
+</li>
+<li><div> Contrast this case with the other option: If you don&#039;t create an extra pivot node and transform a Geometry, then every transformation is done relative to the Geometry&#039;s origin (typically the center). <br/>
+<strong>Examples:</strong> If you rotate each cube directly (using <code>red.rotate(0.1f , 0.2f , 0.3f);</code> and <code>blue.rotate(0.5f , 0.0f , 0.25f);</code>), then each cube is rotated individually around its center. This is similar to a planet rotating around its own center.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT7 SECTION "What is a Pivot Node?" [6886-8208] -->
+<h2><a>How do I Populate the Scenegraph?</a></h2>
+<div>
+<div><table>
+	<tr>
+		<th> Task???? </th><th> Solution! </th>
+	</tr>
+	<tr>
+		<td> Create a Spatial </td><td> Create a Mesh shape, wrap it into a Geometry, and give it a Material. For example: <pre>Box mesh = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;; // a cuboid default mesh
+Geometry thing = new Geometry&#40;&quot;thing&quot;, mesh&#41;; 
+Material mat = new Material&#40;assetManager,
+   &quot;Common/MatDefs/Misc/ShowNormals.j3md&quot;&#41;;
+thing.setMaterial&#40;mat&#41;;</pre>
+</td>
+	</tr>
+	<tr>
+		<td> Make an object appear in the scene </td><td> Attach the Spatial to the <code>rootNode</code>, or to any node that is attached to the rootNode. <pre>rootNode.attachChild&#40;thing&#41;;</pre>
+</td>
+	</tr>
+	<tr>
+		<td> Remove objects from the scene </td><td> Detach the Spatial from the <code>rootNode</code>, and from any node that is attached to the rootNode. <pre>rootNode.detachChild&#40;thing&#41;;</pre>
+<pre>rootNode.detachAllChildren&#40;&#41;;</pre>
+</td>
+	</tr>
+	<tr>
+		<td> Find a Spatial in the scene by the object&#039;s name, or ID, or by its position in the parent-child hierarchy. </td><td> Look at the node&#039;s children or parent: <pre>Spatial thing = rootNode.getChild&#40;&quot;thing&quot;&#41;;</pre>
+<pre>Spatial twentyThird = rootNode.getChild&#40;22&#41;;</pre>
+<pre>Spatial parent = myNode.getParent&#40;&#41;;</pre>
+</td>
+	</tr>
+	<tr>
+		<td> Specify what should be loaded at the start </td><td> Everything you initialize and attach to the <code>rootNode</code> in the <code>simpleInitApp()</code> method is part of the scene at the start of the game. </td>
+	</tr>
+</table></div>
+<!-- EDIT9 TABLE [8256-9549] -->
+</div>
+<!-- EDIT8 SECTION "How do I Populate the Scenegraph?" [8209-9550] -->
+<h2><a>How do I Transform Spatials?</a></h2>
+<div>
+
+<p>
+
+There are three types of 3D transformation: Translation, Scaling, and Rotation.
+
+</p>
+<div><table>
+	<tr>
+		<th> Translation moves Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
+	</tr>
+	<tr>
+		<td> Specify the new location in three dimensions: How far away is it from the origin going right-up-forward? <br/>
+To move a Spatial <em>to</em> specific coordinates, such as (0,40.2f,-2), use: <pre>thing.setLocalTranslation&#40; new Vector3f&#40; 0.0f, 40.2f, -2.0f &#41; &#41;;</pre>
+
+<p>
+ To move a Spatial <em>by</em> a certain amount, e.g. higher up (y=40.2f) and further back (z=-2.0f): 
+</p>
+<pre>thing.move&#40; 0.0f, 40.2f, -2.0f &#41;;</pre>
+</td><td>+right -left</td><td>+up -down</td><td>+forward -backward</td>
+	</tr>
+</table></div>
+<!-- EDIT11 TABLE [9674-10190] --><div><table>
+	<tr>
+		<th> Scaling resizes Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
+	</tr>
+	<tr>
+		<td>Specify the scaling factor in each dimension: length, height, width. <br/>
+A value between 0.0f and 1.0f shrinks the Spatial; bigger than 1.0f stretches it; 1.0f keeps it the same. <br/>
+Using the same value for each dimension scales proportionally, different values stretch it. <br/>
+To scale a Spatial 10 times longer, one tenth the height, and keep the same width: <pre>thing.scale&#40; 10.0f, 0.1f, 1.0f &#41;;</pre>
+</td><td>length</td><td>height</td><td>width</td>
+	</tr>
+</table></div>
+<!-- EDIT12 TABLE [10192-10681] --><div><table>
+	<tr>
+		<th> Rotation turns Spatials </th><th> X-axis </th><th> Y-axis </th><th> Z-axis </th>
+	</tr>
+	<tr>
+		<td>3-D rotation is a bit tricky (<a href="/com/jme3/gde/docs/jme3/rotate.html">learn details here</a>). In short: You can rotate around three axes: Pitch, yaw, and roll. You can specify angles in degrees by multiplying the degrees value with <code>FastMath.DEG_TO_RAD</code>. <br/>
+To roll an object 180?? around the z axis: <pre>thing.rotate&#40; 0f , 0f , 180*FastMath.DEG_TO_RAD &#41;;</pre>
+
+<p>
+ Tip: If your game idea calls for a serious amount of rotations, it is worth looking into <a href="/com/jme3/gde/docs/jme3/quaternion.html">quaternion</a>s, a data structure that can combine and store rotations efficiently. 
+</p>
+<pre>thing.setLocalRotation&#40; 
+  new Quaternion&#40;&#41;.fromAngleAxis&#40;180*FastMath.DEG_TO_RAD, new Vector3f&#40;1,0,0&#41;&#41;&#41;;</pre>
+</td><td>pitch = nodding your head</td><td>yaw = shaking your head</td><td>roll = cocking your head</td>
+	</tr>
+</table></div>
+<!-- EDIT13 TABLE [10683-11464] -->
+</div>
+<!-- EDIT10 SECTION "How do I Transform Spatials?" [9551-11465] -->
+<h2><a>How do I Troubleshoot Spatials?</a></h2>
+<div>
+
+<p>
+
+If you get unexpected results, check whether you made the following common mistakes:
+
+</p>
+<div><table>
+	<tr>
+		<th> Problem? </th><th> Solution! </th>
+	</tr>
+	<tr>
+		<td> A created Geometry does not appear in the scene. </td><td> Have you attached it to (a node that is attached to) the rootNode? <br/>
+Does it have a Material? <br/>
+What is its translation (position)? Is it behind the camera or covered up by another Geometry? <br/>
+Is it too tiny or too gigantic to see? <br/>
+Is it too far from the camera? (Try <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/javadoc/com/jme3/renderer/Camera.html#setFrustumFar%28float%29"><param name="text" value="<html><u>cam.setFrustumFar</u></html>"><param name="textColor" value="blue"></object>(111111f); to see further) </td>
+	</tr>
+	<tr>
+		<td> A Spatial rotates in unexpected ways. </td><td> Did you use radian values, and not degrees? (If you used degrees, multiply them with FastMath.DEG_TO_RAD to convert them to radians)  <br/>
+Did you create the Spatial at the origin (Vector.ZERO) before moving it? <br/>
+Did you rotate around the intended pivot node or around something else? <br/>
+Did you rotate around the right axis? </td>
+	</tr>
+	<tr>
+		<td> A Geometry has an unexpected Color or Material. </td><td> Did you reuse a Material from another Geometry and have inadvertently changed its properties? (If so, consider cloning it: mat2 = mat.clone(); )  </td>
+	</tr>
+</table></div>
+<!-- EDIT15 TABLE [11597-12656] -->
+</div>
+<!-- EDIT14 SECTION "How do I Troubleshoot Spatials?" [11466-12657] -->
+<h2><a>How do I Add Custom Data to Spatials?</a></h2>
+<div>
+
+<p>
+
+Many Spatials represent game characters or other entities that the player can interact with. The above code that rotates the two boxes around a common center (pivot) could be used for a spacecraft docked to a orbiting space station, for example.
+</p>
+
+<p>
+Depending on your game, game entities do not only change their position, rotation, or scale (the transformations that you just learned about). Game entities also have custom properties, such as health, inventory carried, equipment worn for a character, or hull strength and fuel left for a spacecraft. In Java, you represent entity data as class variables, e.g. floats, Strings, or Arrays. 
+</p>
+
+<p>
+You can add custom data directly to any Node or Geometry. <strong>You do not need to extend the Node class to include variables</strong>!
+For example, to add a custom id number to a node, you would use:
+
+</p>
+<pre>pivot.setUserData&#40; &quot;pivot id&quot;, 42 &#41;;</pre>
+
+<p>
+
+To read this Node&#039;s id number elsewhere, you would use:
+
+</p>
+<pre>int id = pivot.getUserData&#40; &quot;pivot id&quot; &#41;; </pre>
+
+<p>
+
+By using different Strings keys (here the key is <code>pivot id</code>), you can get and set several values for whatever data the Spatial needs to carry. When you start writing your game, you might add a fuel value to a car node, speed value to an airplane node, or number of gold coins to a player node, and much more. However, one should note that only custom objects that implements Savable can be passed.
+</p>
+
+</div>
+<!-- EDIT16 SECTION "How do I Add Custom Data to Spatials?" [12658-14111] -->
+<h2><a>Conclusion</a></h2>
+<div>
+
+<p>
+
+You have learned that your 3D scene is a scene graph made up of Spatials: Visible Geometries and invisible Nodes. You can transform Spatials, or attach them to nodes and transform the nodes. You know the easiest way how to add custom entity properties (such as player health or vehicle speed) to Spatials.
+</p>
+
+<p>
+Since standard shapes like spheres and boxes get old fast, continue with the next chapter where you learn to <a href="/com/jme3/gde/docs/jme3/beginner/hello_asset.html">load assets such as 3-D models</a>.
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
+	<a href="/wiki/doku.php/tag:rootnode?do=showtag&amp;tag=tag%3Arootnode">rootNode</a>,
+	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
+	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:color?do=showtag&amp;tag=tag%3Acolor">color</a>,
+	<a href="/wiki/doku.php/tag:spatial?do=showtag&amp;tag=tag%3Aspatial">spatial</a>,
+	<a href="/wiki/doku.php/tag:geometry?do=showtag&amp;tag=tag%3Ageometry">geometry</a>,
+	<a href="/wiki/doku.php/tag:scenegraph?do=showtag&amp;tag=tag%3Ascenegraph">scenegraph</a>,
+	<a href="/wiki/doku.php/tag:mesh?do=showtag&amp;tag=tag%3Amesh">mesh</a>
+</span></div>
+
+</div>
+<!-- EDIT17 SECTION "Conclusion" [14112-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_node?do=export_xhtmlbody">view online version</a></em></p>

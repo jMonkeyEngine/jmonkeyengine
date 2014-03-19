@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="org-netbeans-api-project-libraries">
+        <folder name="Libraries">
+            <file name="jme3.xml" url="jme3.xml"/>
+            <file name="android-base.xml" url="android-base.xml"/>
+            <file name="android-openal-soft.xml" url="android-openal-soft.xml"/>
+            <file name="ios-base.xml" url="ios-base.xml"/>
+        </folder>
+    </folder>
+</filesystem>

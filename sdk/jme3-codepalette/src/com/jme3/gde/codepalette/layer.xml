@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="JavaPalette">
+        <folder name="JME Material">
+            <file name="SetJ3M.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SetJ3M.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="SetShowNormals.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SetShowNormals.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="SetWireframe.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SetWireframe.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ColoredCube.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ColoredCube.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ShinySphere.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ShinySphere.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="TextureCube.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/TextureCube.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="TrnspCube.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/TrnspCube.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+        <folder name="JME Scene">
+            <file name="Node.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Node.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Model.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Model.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="J3OLoad.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/J3OLoad.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="J3OSave.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/J3OSave.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="BackgroundColor.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/BackgroundColor.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Enqueue.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Enqueue.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+        <folder name="Interface">
+            <file name="InputMapping.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/InputMapping.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="InputListener.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/InputListener.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ClickPointer.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ClickPointer.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ClickCrosshairs.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ClickCrosshairs.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="HUDText.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/HUDText.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="AppSettings.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/AppSettings.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+        <folder name="Light and Shadow">
+            <file name="SunLight.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SunLight.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="SpotLight.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/SpotLight.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="AmbLight.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/AmbLight.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="PointLight.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/PointLight.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="LightScatter.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/LightScatter.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ShadowBasic.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ShadowBasic.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ShadowPSSM.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ShadowPSSM.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="ShadowAO.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/ShadowAO.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+        <folder name="Special Effects">
+            <file name="Fog.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Fog.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Explosion.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Explosion.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Fire.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Fire.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+        <folder name="Rotation Quaternions">
+            <file name="Yaw270.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Yaw270.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Yaw180.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Yaw180.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Yaw090.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Yaw090.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Yaw045.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Yaw045.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Roll270.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Roll270.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Roll180.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Roll180.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Roll090.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Roll090.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Roll045.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Roll045.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Pitch045.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Pitch045.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Pitch090.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Pitch090.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Pitch180.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Pitch180.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Pitch270.xml" url="nbresloc:/com/jme3/gde/codepalette/scene/Pitch270.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+         </folder>
+   </folder>
+   <folder name="Editors">
+      <folder name="text">
+            <folder name="x-java">
+              <file name="PaletteFactory.instance">
+                 <attr name="instanceOf" stringvalue="org.netbeans.spi.palette.PaletteController"/>
+                 <attr name="instanceCreate" methodvalue="com.jme3.gde.codepalette.JavaSourceFileLayerPaletteFactory.createPalette"/>
+              </file>
+          </folder>
+        </folder>
+   </folder>
+</filesystem>

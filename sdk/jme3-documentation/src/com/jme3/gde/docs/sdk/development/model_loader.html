@@ -1,0 +1,44 @@
+
+<h1><a>jMonkeyEngine SDK: Creating a model importer</a></h1>
+<div>
+
+<p>
+
+You can create custom model importers for the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>. The <acronym title="Software Development Kit">SDK</acronym> supports NBM plugins.
+
+</p>
+<ol>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://platform.netbeans.org/tutorials/nbm-filetype.html"><param name="text" value="<html><u>Create an NBM plugin</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> Add importer jar file (wrap jar file)</div>
+</li>
+<li><div> Add filetype (Template)</div>
+</li>
+<li><div> Change DataObject to extend SpatialAssetDataObject</div>
+</li>
+<li><div> Implement getAssetKey(): if(!assetKey instanceof MyKeyType){assetKey = new MyKeyType(oldKey);} return key;</div>
+</li>
+<li><div> Maybe implement loadAsset method in DataObject (if necessary, most model formats should load normally via the loader)</div>
+</li>
+<li><div> Create AssetManagerConfigurator </div>
+</li>
+</ol>
+
+<p>
+
+See also:
+</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/sdk/development/projects_assets.html">Projects and Assets</a></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://platform.netbeans.org/tutorials/nbm-filetype.html"><param name="text" value="<html><u>http://platform.netbeans.org/tutorials/nbm-filetype.html</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>
+</span></div>
+
+</div>
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:development:model_loader?do=export_xhtmlbody">view online version</a></em></p>

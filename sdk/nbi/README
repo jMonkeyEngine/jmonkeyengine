@@ -1,0 +1,24 @@
+DO NOT TRY TO FIX THE IMPORT ERRORS IN THE PROJECTS!!
+
+See also http://platform.netbeans.org/tutorials/nbm-nbi.html#bundling
+
+The product has to be a zip file with a single folder containing the needed files.
+
+To make a new product item, copy an existing item by copying a folder from
+stub/ext/components/products and stub/ext/infra/build/products and adapt
+the properties files, especially the path to the zip file (product.data.1.path)
+as well as the subfolder in the zip containing the files (product.data.sub.dir).
+
+The folder in stub/ext/infra/build/products can be duplicated and adapted for
+each platform w/o copying the main project under stub/ext/components/products.
+
+Do not use the helloworld item as a template, this is the main item and has
+some more stuff going!
+
+Then adapt the main stub/build.xml in the -build and -clean targets by duplicating
+the entries.
+
+The existing JDK item is only used on MacOSX! On other platforms the jdk that is
+bundled with the installer is used instead.
+
+Normen

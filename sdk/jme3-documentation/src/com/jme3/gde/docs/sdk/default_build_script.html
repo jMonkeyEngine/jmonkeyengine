@@ -1,0 +1,123 @@
+
+<h1><a>Default Build Script</a></h1>
+<div>
+
+<p>
+
+If you use jMonkeyEngine libraries together with the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> (recommended) then you benefit from the provided build script. Every new project comes with a default Ant script. The toolbar buttons and clean/build/run actions in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> are already pre-configured.  
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Default Build Script" [1-325] -->
+<h2><a>Default Targets</a></h2>
+<div>
+
+<p>
+
+The build script includes targets for the following tasks:
+
+</p>
+<ul>
+<li><div> clean ??? deletes the built classes and executables in the dist directory.</div>
+</li>
+<li><div> jar ??? compiles the classes, bundles the assets, builds the executable JAR in the dist directory, copies libraries.</div>
+</li>
+<li><div> run ??? builds and runs the executable JAR (e.g. for the developers to test it).</div>
+</li>
+<li><div> javadoc ??? compiles javadoc from your java files into html files.</div>
+</li>
+<li><div> debug ??? used by the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Debugger plugin.</div>
+</li>
+<li><div> test ??? Used by the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> JUnit Test plugin.</div>
+</li>
+</ul>
+
+<p>
+
+You can call these targets on the command line using default Ant commands:
+
+</p>
+<pre>ant clean
+ant jar
+ant run</pre>
+
+<p>
+<p><div>We recommended to use the user-friendly menu items, F-keys, or toolbar buttons in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> to trigger clean, build, and run actions.
+</div></p>
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Default Targets" [326-1167] -->
+<h2><a>Browsing the Build Script</a></h2>
+<div>
+
+<p>
+
+To see the build script and the predefined tasks
+</p>
+<ol>
+<li><div> Open your project in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> if it isn&#039;t already open (File &gt; Open Project???)</div>
+</li>
+<li><div> Open the Files window (Window &gt; Files)</div>
+</li>
+<li><div> Open the project node. You see <code>build.xml</code> listed.</div>
+<ol>
+<li><div> Double-click <code>build.xml</code> to see how the jme3-specify build targets were defined. You typically do not need to edit the existing ones, but you can.</div>
+</li>
+<li><div> Click the triangle next to <code>build.xml</code> to see all targets.</div>
+<ol>
+<li><div> Double-click a target in the Files window, or the Navigator, to see how the target was defined. <br/>
+You will notice that the file <code>nbproject/build-impl.xml</code> opens. It contains very generic targets that you typically will never need to edit. Note that <code>build.xml</code> includes <code>build-impl.xml</code>!</div>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+
+</div>
+<!-- EDIT3 SECTION "Browsing the Build Script" [1168-1979] -->
+<h2><a>Adding Custom Targets</a></h2>
+<div>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/sdk/build-impl.png">
+The build script is a non-proprietary Apache Ant script. It will work out-of-the-box, but if necessary, you can extend and customize it. 
+</p>
+
+<p>
+Read the comments in <code>build.xml</code>, they explain how to override targets, or extend them, to customize the build process without breaking the existing functionality.
+</p>
+
+<p>
+Additionally, you can manually override the targets in the <code>*-impl.xml</code> files that are created when you change the deployment settings:
+</p>
+<ul>
+<li><div> linuxlauncher-impl.xml,</div>
+</li>
+<li><div> macapp-impl.xml, </div>
+</li>
+<li><div> mobile-impl.xml, </div>
+</li>
+<li><div> jnlp-impl.xml, etc. </div>
+</li>
+</ul>
+
+<p>
+Simply copy&amp;paste a target from these files into the main build.xml and that will be run instead with all modifications.
+</p>
+
+<p>
+Don&#039;t edit the base <code>*-impl.xml</code> files directly, if you deactivate and reactivate a deployment setting, the <acronym title="Software Development Kit">SDK</acronym> resets these files, so you have to copy the whole target and its dependencies, else your build script will become invalid when you disable the deployment option.
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:builds?do=showtag&amp;tag=tag%3Abuilds">builds</a>,
+	<a href="/wiki/doku.php/tag:project?do=showtag&amp;tag=tag%3Aproject">project</a>,
+	<a href="/wiki/doku.php/tag:deployment?do=showtag&amp;tag=tag%3Adeployment">deployment</a>
+</span></div>
+
+</div>
+<!-- EDIT4 SECTION "Adding Custom Targets" [1980-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:default_build_script?do=export_xhtmlbody">view online version</a></em></p>

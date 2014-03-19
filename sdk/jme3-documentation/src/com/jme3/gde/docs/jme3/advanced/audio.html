@@ -1,0 +1,269 @@
+
+<h1><a>Audio in jME3</a></h1>
+<div>
+
+<p>
+
+Place audio files in the <code>assets/Sound/</code> directory of your project. jME3 supports Ogg Vorbis audio compression (.ogg) and uncompressed PCM Wave (.wav) formats. You can use for example <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://audacity.sourceforge.net/"><param name="text" value="<html><u>Audacity</u></html>"><param name="textColor" value="blue"></object> to convert from other formats.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Audio in jME3" [1-293] -->
+<h2><a>Audio Terminology</a></h2>
+<div>
+<ul>
+<li><div> <strong>Streaming:</strong> There are two ways to load audio data: Short audio files are to be stored entirely in memory (prebuffered), while long audio files, such as music, are streamed from the hard drive as it is played.</div>
+</li>
+<li><div> <strong>Looping:</strong> You can play a sound either once and then stop, or repeatedly (continuously) in a loop. <br/>
+You cannot loop streamed sounds.</div>
+</li>
+<li><div> <strong>Instance:</strong> If you play the same audio twice, the playing is queued up and jME plays one after the other. If you play instances of sounds, several instances of the same sound can play at the same time.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Audio Terminology" [294-891] -->
+<h2><a>Creating Audio Nodes: Streamed or Buffered</a></h2>
+<div>
+
+<p>
+
+The main jME audio class to look at is <code>com.jme3.audio.AudioNode</code>. When creating a new audio node you need to declare whether how you want to load this sound:
+
+</p>
+<ul>
+<li><div> <strong>Buffered:</strong> By default, a new audio node is buffered. This means jME3 loads the whole file into memory before playing. Use this for short sounds. You create a buffered sound  by setting the boolean to false, or using no boolean at all: <pre>AudioNode boom = new AudioNode&#40;assetManager, &quot;Sound/boom.wav&quot;&#41;;
+AudioNode boom = new AudioNode&#40;assetManager, &quot;Sound/boom.wav&quot;, false&#41;;</pre>
+</div>
+</li>
+<li><div> <strong>Streamed:</strong> If it is a long file such as music or a dialog, you stream the audio. Streaming means, you load and play in parallel until the sound is done. You cannot loop streams. You create a streamed sound by setting the boolean to true:<pre>AudioNode music = new AudioNode&#40;assetManager, &quot;Sound/music.wav&quot;, true&#41;;</pre>
+</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT3 SECTION "Creating Audio Nodes: Streamed or Buffered" [892-1839] -->
+<h2><a>Getting AudioNode Properties</a></h2>
+<div>
+<div><table>
+	<tr>
+		<th>AudioNode Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>getStatus()</td><td>Returns either AudioSource.Status.Playing, AudioSource.Status.Stopped, or AudioSource.Status.Paused. </td>
+	</tr>
+	<tr>
+		<td>getVolume()</td><td>Returns the volume. </td>
+	</tr>
+	<tr>
+		<td>getPitch()</td><td>Returns the pitch. </td>
+	</tr>
+</table></div>
+<!-- EDIT5 TABLE [1882-2090] -->
+<p>
+Note: There are other obvious getters to poll the status of all corresponding setters listed here.
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Getting AudioNode Properties" [1840-2192] -->
+<h2><a>Setting AudioNode Properties</a></h2>
+<div>
+<div><table>
+	<tr>
+		<th>AudioNode Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>setTimeOffset(0.5f)</td><td>Play the sound starting at a 0.5 second offset from the beginning. Default is 0.</td>
+	</tr>
+	<tr>
+		<td>setPitch(1)</td><td>Makes the sound play in a higher or lower pitch. Default is 1. 2 is twice as high, .5f is half as high. </td>
+	</tr>
+	<tr>
+		<td>setVolume(1)</td><td>Sets the volume gain. 1 is the default volume, 2 is twice as loud, etc. 0 is silent/mute. </td>
+	</tr>
+	<tr>
+		<td>setRefDistance(50f)</td><td>The reference distance controls how far a sound can still be heard at 50% of its original volume (<em>this is assuming an exponential fall-off!</em>). A sound with a high RefDist can be heard loud over wide distances; a sound with a low refDist can only be heard when the listener is close by. Default is 10 world units.</td>
+	</tr>
+	<tr>
+		<td>setMaxDistance(100f)</td><td> The &#039;maximum attenuation distance&#039; specifies how far from the source the sound stops growing more quiet (sounds in nature don&#039;t do that). Set this to a smaller value to keep the sound loud even at a distance; set this to higher value to let the sound fade out quickly. Default is 20 world units.</td>
+	</tr>
+	<tr>
+		<td>setLooping(false)</td><td>Configures the sound so that, if it is played, it plays once and stops. No looping is the default.</td>
+	</tr>
+</table></div>
+<!-- EDIT7 TABLE [2235-3364] -->
+</div>
+<!-- EDIT6 SECTION "Setting AudioNode Properties" [2193-3365] -->
+<h3><a>Looping &amp; Ambient Sounds</a></h3>
+<div>
+<div><table>
+	<tr>
+		<th>AudioNode Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>setPositional(false) <br/>
+setDirectional(false)</td><td>All 3D effects switched off. This sound is global and plays in headspace (it appears to come from everywhere). Good for environmental ambient sounds and background music.</td>
+	</tr>
+	<tr>
+		<td>setLooping(true)</td><td>Configures the sound to be a loop: After the sound plays, it repeats from the beginning, until you call stop() or pause(). Good for music and ambient background noises. <br/>
+<strong>Looping does not work on streamed sounds.</strong> </td>
+	</tr>
+</table></div>
+<!-- EDIT9 TABLE [3402-3883] -->
+</div>
+<!-- EDIT8 SECTION "Looping & Ambient Sounds" [3366-3884] -->
+<h3><a>Positional 3D Sounds</a></h3>
+<div>
+<div><table>
+	<tr>
+		<th>AudioNode Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>setPositional(true) <br/>
+setLocalTranslation(???)</td><td>Activates 3D audio: The sound appears to come from a certain position, where it is loudest. Position the AudioNode in the 3D scene, or move it with mobile players or NPCs.</td>
+	</tr>
+	<tr>
+		<td>setReverbEnabled(true)</td><td>Reverb is a 3D echo effect that only makes sense with positional AudioNodes. Use Audio Environments to make scenes sound as if they were &quot;outdoors&quot;, or &quot;indoors&quot; in a large or small room, etc. The reverb effect is defined by the <code>com.jme3.audio.Environment</code> that the <code>audioRenderer</code> is in. See &quot;Setting Audio Environment Properties&quot; below. </td>
+	</tr>
+</table></div>
+<!-- EDIT11 TABLE [3917-4533] -->
+<p>
+
+<p><div>Positional 3D sounds require an <code>AudioListener</code> object in the scene (representing the player&#039;s ears).
+</div></p>
+</p>
+
+</div>
+<!-- EDIT10 SECTION "Positional 3D Sounds" [3885-4662] -->
+<h3><a>Directional 3D Sounds</a></h3>
+<div>
+<div><table>
+	<tr>
+		<th>AudioNode Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>setDirectional(true) <br/>
+setDirection(???) </td><td>Activates 3D audio: This sound can only be heard from a certain direction. Specify the direction and angle in the 3D scene if you have setDirectional() true. Use this to restrict noises that should not be heard, for example, through a wall.</td>
+	</tr>
+	<tr>
+		<td>setInnerAngle() <br/>
+setOuterAngle()</td><td>Set the angle in degrees for the directional audio. The angle is relative to the direction. Note: By default, both angles are 360?? and the sound can be heard from all directions!</td>
+	</tr>
+</table></div>
+<!-- EDIT13 TABLE [4696-5223] -->
+<p>
+
+<p><div>Directional 3D sounds require an AudioListener object in the scene (representing the player&#039;s ears). 
+</div></p>
+</p>
+
+</div>
+<!-- EDIT12 SECTION "Directional 3D Sounds" [4663-5350] -->
+<h2><a>Play, Pause, Stop</a></h2>
+<div>
+
+<p>
+
+You play, pause, and stop a node called myAudioNode by using the respective of the following three methods:
+</p>
+<pre>myAudioNode.play&#40;&#41;;</pre>
+<pre>myAudioNode.pause&#40;&#41;;</pre>
+<pre>myAudioNode.stop&#40;&#41;;</pre>
+
+<p>
+<strong>Note:</strong> Whether an Audio Node plays continuously or only once, depends on the Loop properties you have set above!
+</p>
+
+<p>
+You can also start playing instances of an AudioNode. Use the <code>playInstance()</code> method if you need to play the same AudioNode multiple times, possibly simulatenously. Note that changes to the parameters of the original AudioNode do not affect the instances that are already playing!
+</p>
+<pre>myAudioNode.playInstance&#40;&#41;;</pre>
+
+</div>
+<!-- EDIT14 SECTION "Play, Pause, Stop" [5351-6055] -->
+<h2><a>The Audio Listener</a></h2>
+<div>
+
+<p>
+
+The default AudioListener object <code>listener</code> in <code>SimpleApplication</code> is the user&#039;s ear in the scene. If you use 3D audio (positional or directional sounds), you must move the AudioListener with the player: For example, for a first-person player, you move the listener with the camera. For a third-person player, you move the listener with the player avatar Geometry.
+</p>
+<pre>  @Override
+  public void simpleUpdate&#40;float tpf&#41; &#123;
+    // first-person: keep the audio listener moving with the camera
+    listener.setLocation&#40;cam.getLocation&#40;&#41;&#41;;
+    listener.setRotation&#40;cam.getRotation&#40;&#41;&#41;;
+  &#125;</pre>
+
+</div>
+<!-- EDIT15 SECTION "The Audio Listener" [6056-6692] -->
+<h2><a>Setting Audio Environment Properties</a></h2>
+<div>
+
+<p>
+
+Optionally, You can choose from the following environmental presets from <code>com.jme3.audio.Environment</code>. This presets influence subtle echo effects (reverb) that evoke associations of different environments in your users. That is, it makes you scene sound &quot;indoors&quot; or &quot;outdoors&quot; etc. You use Audio Environments together with <code>setReverbEnabled(true)</code> on positional AudioNodes (see above).
+
+</p>
+<div><table>
+	<tr>
+		<th>Environment</th><th>density</th><th>diffusion</th><th>gain</th><th>gainHf</th><th>decayTime</th><th>decayHf</th><th>reflGain</th><th>reflDelay</th><th>lateGain</th><th>lateDelay</th>
+	</tr>
+	<tr>
+		<td>Garage      </td><td>1.00f</td><td>1.0f</td><td>1.0f</td><td>1.00f</td><td>0.90f</td><td>0.5f</td><td>0.751f</td><td>0.0039f</td><td>0.661f</td><td>0.0137f</td>
+	</tr>
+	<tr>
+		<td>Dungeon     </td><td>0.75f</td><td>1.0f</td><td>1.0f</td><td>0.75f</td><td>1.60f</td><td>1.0f</td><td>0.950f</td><td>0.0026f</td><td>0.930f</td><td>0.0103f</td>
+	</tr>
+	<tr>
+		<td>Cavern      </td><td>0.50f</td><td>1.0f</td><td>1.0f</td><td>0.50f</td><td>2.25f</td><td>1.0f</td><td>0.908f</td><td>0.0103f</td><td>0.930f</td><td>0.0410f</td>
+	</tr>
+	<tr>
+		<td>AcousticLab </td><td>0.50f</td><td>1.0f</td><td>1.0f</td><td>1.00f</td><td>0.28f</td><td>1.0f</td><td>0.870f</td><td>0.0020f</td><td>0.810f</td><td>0.0080f</td>
+	</tr>
+	<tr>
+		<td>Closet      </td><td>1.00f</td><td>1.0f</td><td>1.0f</td><td>1.00f</td><td>0.15f</td><td>1.0f</td><td>0.600f</td><td>0.0025f</td><td>0.500f</td><td>0.0006f</td>
+	</tr>
+</table></div>
+<!-- EDIT17 TABLE [7135-7624] --><ol>
+<li><div> Activate a Environment preset</div>
+<ul>
+<li><div> Either use a default, e.g. make you scene sounds like a dungeon environment: <pre>audioRenderer.setEnvironment&#40;new Environment&#40;Environment.Dungeon&#41;&#41;;</pre>
+</div>
+</li>
+<li><div> Or activate <a href="/com/jme3/gde/docs/jme3/advanced/audio_environment_presets.html">custom environment settings</a> in the Environment constructor:<pre>audioRenderer.setEnvironment&#40;
+        new Environment&#40; density, diffusion, gain, gainHf, decayTime, decayHf,
+                reflGain, reflDelay, lateGain, lateDelay &#41; &#41;;</pre>
+</div>
+</li>
+</ul>
+</li>
+<li><div> Activate 3D audio for certain sounds: <pre>footstepsAudio.setPositional&#40;true&#41;;
+footstepsAudio.setReverbEnabled&#40;true&#41;;</pre>
+</div>
+</li>
+</ol>
+
+<p>
+
+<p><div>A sound engineer can create a custom <code>com.???jme3.???audio.Environment</code> object and specify custom environment values such as density, diffusion, gain, decay, delay??? You can find many <a href="/com/jme3/gde/docs/jme3/advanced/audio_environment_presets.html">examples of custom audio environment presets</a> here.
+</div></p>
+</p>
+
+<p>
+Advanced users find more info about OpenAL and its features here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://connect.creativelabs.com/openal/Documentation/OpenAL%201.1%20Specification.pdf"><param name="text" value="<html><u>OpenAL 1.1 Specification</u></html>"><param name="textColor" value="blue"></object>. 
+</p>
+
+<p>
+<p><div>It depends on the hardware whether audio effects are supported (if not, you get the message <code>OpenAL EFX not available! Audio effects won&#039;t work.</code>)
+</div></p>
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:sound?do=showtag&amp;tag=tag%3Asound">sound</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:environment?do=showtag&amp;tag=tag%3Aenvironment">environment</a>
+</span></div>
+
+</div>
+<!-- EDIT16 SECTION "Setting Audio Environment Properties" [6693-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:audio?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,0 +1,80 @@
+
+<h1><a>Creating an extension library plugin</a></h1>
+<div>
+
+<p>
+This page describes how you can wrap any jar library into a plugin that a jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> user can download, install and then use the contained library in his own game projects.
+</p>
+
+<p>
+Make sure you have your <acronym title="Software Development Kit">SDK</acronym> set up for plugin development <a href="/com/jme3/gde/docs/sdk/development/setup.html">as described here</a>.
+</p>
+
+<p>
+Creating the plugin project (in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>):
+</p>
+<ul>
+<li><div> Create a new Module Suite (or use an existing one)</div>
+</li>
+<li><div> Open the suite, right-click the &quot;Modules&quot; folder and select &quot;Add new..&quot;</div>
+</li>
+<li><div> For &quot;Project Name&quot; enter an all-lowercase name without spaces like <code>my-library</code></div>
+</li>
+<li><div> Make sure the &quot;Project Location&quot; is inside the module suite folder and press &quot;Next&quot;</div>
+</li>
+<li><div> Enter the base java package for your plugin in &quot;Code Name Base&quot; like <code>com.mycompany.plugins.mylibrary</code></div>
+</li>
+<li><div> Enter a &quot;Module Display Name&quot; for your plugin like &quot;My Library&quot;</div>
+</li>
+<li><div> Press Finish</div>
+</li>
+</ul>
+
+<p>
+
+Adding the library:
+</p>
+<ul>
+<li><div> Right click the Module Project and select &quot;New???Other&quot;</div>
+</li>
+<li><div> Under &quot;Module Development&quot; select the &quot;Java SE Library Descriptor&quot; template and press &quot;Next&quot;</div>
+</li>
+<li><div> If you dont have the external library registered in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> yet, click &quot;Manage Libraries&quot; and do the following:</div>
+<ul>
+<li><div> Click &quot;New Library&quot;, enter a name for the library and press OK</div>
+</li>
+<li><div> In the &quot;Classpath&quot; tab, press &quot;Add JAR/Folder&quot; and select the jar file(s) needed for the library</div>
+</li>
+<li><div> In the &quot;JavaDoc&quot; tab, press &quot;Add ZIP/Folder&quot; and add the javadoc for the library (zipped or folder)</div>
+</li>
+<li><div> In the &quot;Sources&quot; tab you can add a folder or jar file containing the source files of the library if available</div>
+</li>
+<li><div> Press OK</div>
+</li>
+</ul>
+</li>
+<li><div> Select the external library from the list and press &quot;Next&quot;</div>
+</li>
+<li><div> Enter a name for the Library (used as filename for the description file)</div>
+</li>
+<li><div> Enter a display name for the Library (This is the name the user later sees in his library list)</div>
+</li>
+<li><div> Press OK</div>
+</li>
+</ul>
+
+<p>
+
+You will notice a new file &quot;MyLibrary.xml&quot; is created in the plugins base package and linked to in the layer.xml file. Additionally the jar file and sources /javadoc are copied into a &quot;release&quot; folder in the project root. This is basically it, you can configure a version number, license file (should be placed in Module root folder) and more via the Module Properties.
+</p>
+
+<p>
+Note that the files in the release folder are <strong>not</strong> automatically updated when the library changes, you have to pack and replace the jar and zip files manually. See the build script extension in the link below on how you can make your module build script do that automatically.
+</p>
+
+<p>
+After you are done, you can <a href="/com/jme3/gde/docs/sdk/development/setup#jmonkeyengine_sdk_contributions_update_center.html">contribute the plugin in the jMonkeyEngine SDK contribution update center</a>.
+</p>
+
+</div>
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:development:extension_library?do=export_xhtmlbody">view online version</a></em></p>

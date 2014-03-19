@@ -1,0 +1,98 @@
+
+<h1><a>jMonkeyEngine SDK: Post-Processor Filters</a></h1>
+<div>
+
+<p>
+
+Filters are used for scene-wide effects such as glow, fog, blur. The <acronym title="Software Development Kit">SDK</acronym> lets you create a file storing combinations of filters. You can preview the filter settings on a loaded scene in the <acronym title="Software Development Kit">SDK</acronym>. You can load them into your application (add them to the viewPort) to activate your preconfigured set of several filters in one step.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "jMonkeyEngine SDK: Post-Processor Filters" [1-387] -->
+<h2><a>Creating Filters</a></h2>
+<div>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/sdk/filterexplorer.png">
+To create a new filter:
+</p>
+<ul>
+<li><div> In the Projects window, right-click Assets???Effects.</div>
+</li>
+<li><div> Select File???New File???</div>
+</li>
+<li><div> Select Filter???Empty FilterPostProcessor File in the New File Wizard. <br/>
+An empty filter file appears in the Assets???Effects directory.</div>
+</li>
+<li><div> Double-click the created file. <br/>
+The file opens in the FilterExplorer window.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Creating Filters" [388-779] -->
+<h2><a>Editing Filters</a></h2>
+<div>
+
+<p>
+
+To add filters or modify existing filters
+</p>
+<ol>
+<li><div> Double-click a j3f file to open it in the FilterExplorer window.</div>
+</li>
+<li><div> Right-click the j3f file&#039;s root node to add a filter. <br/>
+Added filters are listed under the filter&#039;s root node.</div>
+</li>
+<li><div> Open the Properties window and select a filter in the FilterExplorer. Configure filter options like intensity etc.</div>
+</li>
+</ol>
+
+<p>
+
+View the filter in the SceneComposer to see what you are doing:
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Editing Filters" [780-1220] -->
+<h2><a>Viewing Filters</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/sdk/p3wuv.png">
+</p>
+
+<p>
+To see a loaded filter
+</p>
+<ol>
+<li><div> Open a model or scene in the SceneComposer. </div>
+</li>
+<li><div> Double-click a j3f file to open it in the FilterExplorer window.</div>
+</li>
+<li><div> Press the &quot;show filter&quot; button in the OpenGL window.</div>
+</li>
+</ol>
+
+</div>
+<!-- EDIT4 SECTION "Viewing Filters" [1221-1469] -->
+<h2><a>Loading filters in a game</a></h2>
+<div>
+
+<p>
+
+To load a filter in a game (that is, to add it to your game&#039;s viewport), add the following lines to your game&#039;s simpleInit() method (or some other place):
+</p>
+<pre>FilterPostProcessor processor = &#40;FilterPostProcessor&#41; assetManager.loadAsset&#40;&quot;Filters/MyFilter.j3f&quot;&#41;;
+viewPort.addProcessor&#40;processor&#41;;</pre>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:effect?do=showtag&amp;tag=tag%3Aeffect">effect</a>,
+	<a href="/wiki/doku.php/tag:file?do=showtag&amp;tag=tag%3Afile">file</a>
+</span></div>
+
+</div>
+<!-- EDIT5 SECTION "Loading filters in a game" [1470-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:filters?do=export_xhtmlbody">view online version</a></em></p>

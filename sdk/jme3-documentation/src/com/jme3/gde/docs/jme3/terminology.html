@@ -1,0 +1,701 @@
+
+<h1><a>3D Game Development Terminology</a></h1>
+<div>
+
+<p>
+
+Before you start, make certain you are familiar with the following concepts and terminology. 
+</p>
+
+</div>
+<!-- EDIT1 SECTION "3D Game Development Terminology" [1-142] -->
+<h1><a>3D Graphics and Audio</a></h1>
+<div>
+
+<p>
+
+<strong>OpenGL</strong> is the Open Graphics Library, a platform-independent specification for rendering 2D/3D computer graphics. For Java, there are two implementations of OpenGL-based renderers:
+</p>
+<ol>
+<li><div> Lightweight Java Game Library (LWJGL) ??? jme3 uses lwjgl.</div>
+</li>
+<li><div> Java OpenGL (JOGL)</div>
+</li>
+</ol>
+
+<p>
+<strong>OpenAL</strong> is the Open Audio Library, a platform-independent 3D audio <acronym title="Application Programming Interface">API</acronym>.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "3D Graphics and Audio" [143-524] -->
+<h1><a>Context, Display, Renderer</a></h1>
+<div>
+
+<p>
+
+The <strong>jME Context</strong> makes settings, renderer, timer, input and event listeners, display system, accessible to a JME game.
+</p>
+<ul>
+<li><div> The <strong>jME Display System</strong> is what draws the custom JME window (instead of Java Swing).</div>
+</li>
+<li><div> The <strong>Input System</strong> is the component that lets you respond to user input: Mouse clicks and movements, keyboard presses, and joystick motions.</div>
+</li>
+<li><div> The <strong>Renderer</strong> is what does all the work of calculating how to draw the 3D scenegraph to the 2D screen.</div>
+<ul>
+<li><div> The <strong>Shader</strong> is a programmable part of the rendering pipeline. The jME3 game engine uses it to offer advanced customizable materials.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!-- EDIT3 SECTION "Context, Display, Renderer" [525-1180] -->
+<h1><a>Geometry</a></h1>
+<div>
+
+</div>
+<!-- EDIT4 SECTION "Geometry" [1181-1204] -->
+<h2><a>Polygon, Mesh, Vertex</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/dolphin-mesh.png">
+</p>
+
+<p>
+Most visible objects in a 3D scene are made up of polygon meshes ??? characters, terrains, buildings, etc. A mesh is a grid-like structure that represents a complex shape. The advantage of a mesh is that it is mathematically simple enough to render in real time, and detailed enough to be recognizable.
+</p>
+
+<p>
+Every shape is reduced to a number of connected polygons, usually triangles; even round surfaces such as spheres are reduced to a grid of triangles. The polygons&#039; corner points are called vertices. Every vertex is positioned at a coordinate, all vertices together describe the outline of the shape.
+</p>
+
+<p>
+You create 3D meshes in tools called mesh editors, e.g in Blender. The jMonkeyEngine can load finished meshes (=models) and arrange them to scenes, but it cannot edit the mesh itself.
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Polygon, Mesh, Vertex" [1205-2108] -->
+<h1><a>Materials: Color, Lighting/Shading</a></h1>
+<div>
+
+<p>
+
+What we call &quot;color&quot; is merely part of an object&#039;s light reflection. The onlooker&#039;s brain uses shading and reflecting properties to infer an object&#039;s shape and material. Factors like these make all the difference between chalk vs milk, skin vs paper, water vs plastic, etc! (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.shaders.org/ifw2_textures/whatsin10.htm"><param name="text" value="<html><u>External examples</u></html>"><param name="textColor" value="blue"></object>)
+</p>
+
+</div>
+<!-- EDIT6 SECTION "Materials: Color, Lighting/Shading" [2109-2508] -->
+<h2><a>Color</a></h2>
+<div>
+
+</div>
+<!-- EDIT7 SECTION "Color" [2509-2525] -->
+<h3><a>Ambient color</a></h3>
+<div>
+<ul>
+<li><div>  The uniform base color of the mesh ??? what it looks like when not influenced by any light source.</div>
+</li>
+<li><div> Usually similar to the Diffuse color.</div>
+</li>
+<li><div> This is the minimum color you need for an object to be visible.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT8 SECTION "Ambient color" [2526-2760] -->
+<h3><a>Diffuse color</a></h3>
+<div>
+<ul>
+<li><div> The base color of the mesh plus shattered light and shadows that are caused by a light source.</div>
+</li>
+<li><div> Usually similar to the Ambient color.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT9 SECTION "Diffuse color" [2761-2925] -->
+<h2><a>Light Sources</a></h2>
+<div>
+
+</div>
+<!-- EDIT10 SECTION "Light Sources" [2926-2950] -->
+<h3><a>Emissive color</a></h3>
+<div>
+<ul>
+<li><div> The color of light emitted by a light source or glowing material.</div>
+</li>
+<li><div> Only glowing materials such as lights have an emissive color, normal objects don&#039;t have this property.</div>
+</li>
+<li><div> Often white (sun light).</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT11 SECTION "Emissive color" [2951-3181] -->
+<h2><a>Reflections</a></h2>
+<div>
+
+</div>
+<!-- EDIT12 SECTION "Reflections" [3182-3205] -->
+<h3><a>Shininess</a></h3>
+<div>
+<ul>
+<li><div> Degree of shininess of a surface (1-128).</div>
+</li>
+<li><div> Shiny objects have small, clearly outlined specular highlights. (E.g. glass, water, silver)</div>
+</li>
+<li><div> Normal objects have wide, blurry specular highlights. (E.g. metal, plastic, stone, polished materials)</div>
+</li>
+<li><div> Uneven objects are not shiny and have no specular highlights. (E.g. cloth, paper, wood, snow) <br/>
+Set the Specular color to ColorRGBA.Black to switch off shininess.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT13 SECTION "Shininess" [3206-3640] -->
+<h3><a>Specular Color</a></h3>
+<div>
+<ul>
+<li><div> If the material is shiny, then the Specular Color is the color of the reflected highlights.</div>
+</li>
+<li><div> Usually the same as the emissive color of the light source (e.g. white).</div>
+</li>
+<li><div> You can use colors to achieve special specular effects, such as metallic or iridescent reflections.</div>
+</li>
+<li><div> Non-shiny objects have a black specular color.</div>
+</li>
+</ul>
+
+<p>
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+
+</div>
+<!-- EDIT14 SECTION "Specular Color" [3641-4062] -->
+<h1><a>Materials: Textures</a></h1>
+<div>
+
+<p>
+
+Textures are part of Materials. In the simplest case, an object could have just one texture, the Color Map, loaded from one image file. When you think back of old computer games you&#039;ll remember this looks quite plain.
+</p>
+
+<p>
+The more information you (the game designer) provide additionally to the Color Map, the higher the degree of detail and realism. Whether you want photo-realistic rendering or &quot;toon&quot; rendering (Cel Shading), everything depends on the quality of your materials and textures. Modern 3D graphics use several layers of information to describe one material, each mapped layer is a texture.
+</p>
+
+<p>
+<p><div>Got no textures? <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://opengameart.org"><param name="text" value="<html><u>Download free textures from opengameart.org</u></html>"><param name="textColor" value="blue"></object>. Remember to keep the copyright notice together with the textures!
+</div></p>
+</p>
+
+</div>
+<!-- EDIT15 SECTION "Materials: Textures" [4063-4874] -->
+<h2><a>Texture Mapping</a></h2>
+<div>
+
+</div>
+<!-- EDIT16 SECTION "Texture Mapping" [4875-4901] -->
+<h3><a>Color Map / Diffuse Map</a></h3>
+<div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+<ul>
+<li><div> A plain image file or a procedural texture that describes an object&#039;s visible surface.</div>
+</li>
+<li><div> The image can have alpha channels for transparency.</div>
+</li>
+<li><div> <strong>A Color Map is the minimum texture.</strong> You can map more textures as optional improvements. </div>
+</li>
+<li><div> Color Maps are unshaded. The same is called Diffuse Map in a Phong-illuminated material, because this texture defines the basic colors of light that are <em>diffused</em> by this object.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT17 SECTION "Color Map / Diffuse Map" [4902-5476] -->
+<h3><a>Bump Map</a></h3>
+<div>
+
+<p>
+
+Bump maps are used to describe detailed shapes that would be too hard or simply too inefficient to sculpt in a mesh editor. There are two types:
+</p>
+<ul>
+<li><div> You use Normal Maps to model tiny details such as cracks in walls, rust, skin texture, or a canvas weave ( (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Bump_mapping"><param name="text" value="<html><u>More on BumpMaps</u></html>"><param name="textColor" value="blue"></object>). </div>
+</li>
+<li><div> You use Height Maps to model large terrains with valleys and mountains.</div>
+</li>
+</ul>
+
+<p>
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+
+</div>
+
+<h4><a>Height Map</a></h4>
+<div>
+<ul>
+<li><div> A height map is a grayscale image looking similar to a terrain map used in topography. Brighter grays represent higher areas and darker grays lower areas.</div>
+</li>
+<li><div> A heightmap can represent 256 height levels and is mostly used to roughly outline terrains.</div>
+</li>
+<li><div> You can draw a heightmap by hand in any image editor.</div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Normal Map</a></h4>
+<div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+<ul>
+<li><div> A well-done Normal Map makes a shape more detailed ??? without the need to add costly polygons to the mesh. It contains shading information that makes the object appear smoother and more fine-grained.</div>
+</li>
+<li><div> When you open a Normal Map in an image editor, it looks like a false-color version of the Color Map. Normal maps however are never used for coloring, instead, each the color values encode displacement data of bumps and cracks on the surface. Displacement data is represented by the Surface Normals of the slopes, hence the name.</div>
+</li>
+<li><div> You cannot draw or edit normal maps by hand, professional designers use software to calculate them off high-quality 3D models. You can either buy a professional texture set, or find free collections that include Normal Maps.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT18 SECTION "Bump Map" [5477-7238] -->
+<h3><a>Specular Map</a></h3>
+<div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+<ul>
+<li><div> A Specular Map further improves the realism of an object&#039;s surface: It contains extra information about shininess and makes the shape appear more realistically illumated.</div>
+</li>
+<li><div> Start out with a copy of the Diffuse Map in a medium gray that corresponds to the average shininess/dullness of this material. Then add ligher grays for smoother, shinier, more reflective areas; and darker grays for duller, rougher, worn-out areas. The resulting image file looks similar to a grayscale version of the Diffuse Map.</div>
+</li>
+<li><div> You can use colors in a Specular map to create certain reflective effects (fake iridiscence, metallic effect).</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT19 SECTION "Specular Map" [7239-7997] -->
+<h2><a>Seamless Tiled Textures</a></h2>
+<div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php">
+Tiles are a very simple, commonly used type of texture. When texturing a wide area (e.g. walls, floors), you don&#039;t create one huge texture ??? instead you tile a small texture repeatedly to fill the area.
+</p>
+
+<p>
+A seamless texture is an image file that has been designed or modified so that it can be used as tiles: The right edge matches the left edge, and the top edge matches the bottom edge. The onlooker cannot easily tell where one starts and the next one ends, thus creating an illusion of a huge texture. The downside is that the tiling becomes painfully obvious when the area is viewed from a distance. Also you cannot use it on more complex models such as characters. 
+</p>
+
+<p>
+See also this tutorial on <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.photoshoptextures.com/texture-tutorials/seamless-textures.htm"><param name="text" value="<html><u>How to make seamless textures in Photoshop</u></html>"><param name="textColor" value="blue"></object>.
+</p>
+
+</div>
+<!-- EDIT20 SECTION "Seamless Tiled Textures" [7998-8970] -->
+<h2><a>UV Maps / Texture Atlas</a></h2>
+<div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+
+<p>
+Creating a texture for a cube is easy ??? but what about a character with a face and extremities? For more complex objects, you design the texture in the same ways as a flat sewing pattern: One image file contains the outline of the front, back, and side of the object, next to one another. Specific areas of the flat texture (UV coordinates) map onto certain areas of your 3D model (XYZ coordinates), hence the name UV map. Using UV Maps (also known as Texture Atlas), one model can have different textures on each side. You create one corresponding UV map for each texture.
+</p>
+
+<p>
+Getting the seams and mappings right is crucial: You must use a graphic tool like Blender to create UV Maps (Texture Atlas) and store the coordinates correctly. It&#039;s worth the while to learn this, UV mapped models look a lot more professional.
+</p>
+
+</div>
+<!-- EDIT21 SECTION "UV Maps / Texture Atlas" [8971-9926] -->
+<h2><a>Environment Mapping</a></h2>
+<div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+
+<p>
+Environment Mapping or Reflection Mapping is used to create the impression of reflections and refractions in real time. It&#039;s faster (but less accurate) than the raytracing methods used in offline rendering applications. 
+</p>
+
+<p>
+You create a Cube Map to represent your environment; Sphere Maps are also possible, but often look distorted. Basically you give the environment map a set of images showing a &quot;360?? view&quot; of the background scene ??? very similar to a skybox. The renderer maps the environment on the texture of the reflective surface, which results in an acceptable &quot;glass/mirror/water&quot; effect. Just like a skybox, the reflection map is static, so dynamic things (such as the player walking) are not part of the reflection. (!) 
+</p>
+
+<p>
+See also: <a href="/com/jme3/gde/docs/jme3/advanced/water.html">Water</a>.
+</p>
+
+</div>
+<!-- EDIT22 SECTION "Environment Mapping" [9927-10811] -->
+<h2><a>MIP Map Texture</a></h2>
+<div>
+
+<p>
+
+MIP Map means that you provide one texture in two or three resolutions in one file (MIP = &quot;multum in parvo&quot; = &quot;many in one&quot;). Depending on how close (or far) the camera is, the engine automatically renders a more (or less) detailed texture for the object. Thus objects look detailed at close up, but also look good when viewed from far away. Good for everything, but requires more time to create and more space to store textures. If you don&#039;t provide custom ones, the jMonkeyEngine creates basic MIP maps automatically as an optimization.
+</p>
+
+</div>
+<!-- EDIT23 SECTION "MIP Map Texture" [10812-11378] -->
+<h2><a>Procedural Textures</a></h2>
+<div>
+
+<p>
+
+A procedural texture is generated from repeating one small image, plus some pseudo-random, gradient variations (called Perlin noise). Procedural textures look more natural than static rectangular textures, and they look less distorted on spheres. On big meshes, their repetitiveness is much less noticable than with tiled seamless textures. Procedural textures are ideal for irregular large-area textures like grass, soil, rock, rust, and walls. Use the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/wiki/doku.php/sdk:neotexture"><param name="text" value="<html><u>jMonkeyEngine SDK NeoTexture plugin</u></html>"><param name="textColor" value="blue"></object> to create them.
+</p>
+
+<p>
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+
+<p>
+See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.blender.org/education-help/tutorials/materials/"><param name="text" value="<html><u>Creating Materials in Blender</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikibooks.org/wiki/Blender_3D:_Noob_to_Pro/Every_Material_Known_to_Man"><param name="text" value="<html><u>Blender: Every Material Known to Man</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+<!-- EDIT24 SECTION "Procedural Textures" [11379-12285] -->
+<h1><a>Animation</a></h1>
+<div>
+
+<p>
+
+In 3D games, Skeletal Animation is used for animated characters, but in principle the skeleton approach can be extended to any 3D mesh (for example, an opening crate&#039;s hinge can be considered a primitive joint).
+</p>
+
+<p>
+Unless you animate a 3D cartoon, realism of animated characters is generally a problem: Movement can look alien-like mechanical or broken, the character appears hollow, or as if floating. Professional game designers invest a lot of effort to make characters animate in a natural way, including <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/Motion_capture"><param name="text" value="<html><u>motion capture</u></html>"><param name="textColor" value="blue"></object>.
+</p>
+
+</div>
+<!-- EDIT25 SECTION "Animation" [12286-12882] -->
+<h2><a>Rigging and Skinning</a></h2>
+<div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+
+<p>
+An animated character has an armature: An internal skeleton (Bones) and an external surface (Skin). The Skin is the visible outside of the character and it includes clothing. The Bones are not visible and are used to interpolate (calculate) the morphing steps of the skin.
+</p>
+
+<p>
+JME3, the game engine, only loads and plays your recorded animations. You must use a tool (such as Blender) to set up (rig, skin, and animate) a character.
+</p>
+<ol>
+<li><div> <strong>Rigging:</strong> The Construction of a character&#039;s skeleton.</div>
+<ul>
+<li><div> Create as few Bones as possible to decrease complexity.</div>
+</li>
+<li><div> Bones are connected in a parent-child hierarchy: Moving one bone can pull another bone with it (e.g. arm pulls hand).</div>
+</li>
+<li><div> Bones follow a certain naming scheme so the 3D engines know what&#039;s what.</div>
+</li>
+</ul>
+</li>
+<li><div> <strong>Skinning:</strong> The association of individual bones with the corresponding skin sections.</div>
+<ul>
+<li><div> Each Bone is connected to a part of the Skin. Animating the (invisible) Bone pulls the (visible) Skin with it. <br/>
+E.g. the thigh Bone is connected to the upper leg Skin.</div>
+</li>
+<li><div> One part of the Skin can be affected by more than one bone (e.g. knee, elbow).</div>
+</li>
+<li><div> The connection between bones and skin sections is gradual: You assign weights how much each skin polygon is affected by any bone&#039;s motion. <br/>
+E.g. when the thigh bone moves, the leg is fully affected, the hips joints less so, and the head not at all.</div>
+</li>
+<li><div> jMonkeyEngine supports hardware skinning (on the GPU, not on the CPU).</div>
+</li>
+</ul>
+</li>
+<li><div> <strong>Keyframe Animation:</strong> A keyframe is one recorded snapshot of a motion sequence.</div>
+<ul>
+<li><div> A series of keyframes makes up one animation.</div>
+</li>
+<li><div> Each model can have several animations. Each animation has a name to identify it (e.g. &quot;walk&quot;, &quot;attack&quot;, &quot;jump&quot;).</div>
+</li>
+<li><div> You specify in your game code which keyframe animation to load, and when to play it.</div>
+</li>
+</ul>
+</li>
+</ol>
+
+<p>
+
+<p><div>What is the difference between animation (rigging, skinning, keyframes) and transformation (rotation, scaling, moving, &quot;slerp&quot;)?
+</p>
+<ul>
+<li><div> Transformation is simpler than animation. Sometimes, transforming a geometry already makes it look like it is animated: For example, a spinning windmill, a pulsating alien ball of energy, moving rods of a machine. Transformations can be easily done with JME3 methods. </div>
+</li>
+<li><div> Animations however are more complex and are encoded in a special format (keyframes). They distort the skin of the mesh, and complex series of motions be &quot;recorded&quot; (in external tools) and played (in JME3).</div>
+</li>
+</ul>
+
+<p>
+
+</div></p>
+</p>
+
+</div>
+<!-- EDIT26 SECTION "Rigging and Skinning" [12883-15419] -->
+<h2><a>Kinematics</a></h2>
+<div>
+<ul>
+<li><div> Forward kinematics: &quot;Given the angles of all the character&#039;s joints, what is the position of the character&#039;s hand?&quot;</div>
+</li>
+<li><div> Inverse kinematics: &quot;Given the position of the character&#039;s hand, what are the angles of all the character&#039;s joints?&quot;</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT27 SECTION "Kinematics" [15420-15684] -->
+<h2><a>Controller and Channel</a></h2>
+<div>
+
+<p>
+In the JME3 application, you register animated models to the Animation Controller. The controller object gives you access to the available animation sequences. The controller has several channels, each channel can run one animation sequence at a time. To run several sequences, you create several channels, and run them in parallel.
+</p>
+
+</div>
+<!-- EDIT28 SECTION "Controller and Channel" [15685-16053] -->
+<h1><a>Artificial Intelligence (AI)</a></h1>
+<div>
+
+<p>
+Non-player (computer-controlled) characters (NPCs) are only fun in a game if they do not stupidly bump into walls, or blindly run into the line of fire. You want to make NPCs &quot;aware&quot; of their surroundings and let them make decisions based on the game state ??? otherwise the player can just ignore them. The most common use case is that you want to make enemies interact in a way so they offer a more interesting challenge for the player.
+</p>
+
+<p>
+&quot;Smart&quot; game elements are called artificially intelligent agents (AI agents). An AI agent can be used to implement enemy NPCs as well as trained pets; you also use them to create automatic alarm systems that lock doors and &quot;call the guards&quot; after the player triggers an intruder alert.
+</p>
+
+<p>
+The domain of artificial intelligence deals, among other things, with:
+</p>
+<ul>
+<li><div> <strong>Knowledge</strong> ??? Knowledge is <em>the data</em> to which the AI agent has access, and on which the AI bases its decisions. Realistic agents only &quot;know&quot; what they &quot;see and hear&quot;. This implies that information can be hidden from the AI to keep the game fair. You can have an all-knowing AI, or you can let only some AI agents share information, or you let only AI agents who are close know the current state. <br/>
+Example: After the player trips the wire, only a few AI guards with two-way radios start moving towards the player&#039;s position, while many other guards don&#039;t suspect anything yet.</div>
+</li>
+<li><div> <strong>Goal Planning</strong> ??? Planning is about how an AI agent <em>takes action</em>. Each agent has the priority to achieve a specific goal, to reach a future state. When programming, you split the agent&#039;s goal into several subgoals. The agent consults its knowledge about the current state, chooses from available tactics and strategies, and prioritizes them. The agent repeatedly tests whether the current state is closer to its goal. If unsuccessful, the agent must discard the current tactics/strategy and try another one. <br/>
+Example: An agent searches the best path to reach the player base in a changing environment, avoiding traps. An agent chases the player with the goal of eliminating him. An agent hides from the player with the goal of murdering a VIP. </div>
+</li>
+<li><div> <strong>Problem Solving</strong> ??? Problem solving is about how the agent <em>reacts to interruptions</em>, obstacles that stand between it and its goal. The agent uses a given set of facts and rules to deduct what state it is in ??? triggered by perceptions similar to pain, agony, boredom, or being trapped. In each state, only a specific subset of reactions makes sense. The actual reaction also depends on the agent&#039;s, goal since the agent&#039;s reaction must not block its own goal! <br/>
+Examples: If player approaches, does the agent attack or conceal himself or raise alarm? While agent is idle, does he lay traps or heal self or recharge magic runes? If danger to own life, does the agent try to escape or kamikaze?</div>
+</li>
+</ul>
+
+<p>
+
+More advanced AIs can also learn, for example using neural networks.
+</p>
+
+<p>
+There are lots of resources explaining interesting AI algorithms:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.policyalmanac.org/games/aStarTutorial.htm"><param name="text" value="<html><u>A* (A-Star) pathfinding for beginners</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://theory.stanford.edu/~amitp/GameProgramming/"><param name="text" value="<html><u>A* (A-star) pathfinding theory</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://hem.fyristorg.com/dawnbringer/z-path.html"><param name="text" value="<html><u>&quot;Z-Path&quot; algorithm</u></html>"><param name="textColor" value="blue"></object> (backwards pathfinding)</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://web.media.mit.edu/~jorkin/goap.html"><param name="text" value="<html><u>GOAP -- Goal-Oriented Action Planning</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://neuroph.sourceforge.net/"><param name="text" value="<html><u>Neuroph -- Java Neural Networks</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> ???</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT29 SECTION "Artificial Intelligence (AI)" [16054-19539] -->
+<h1><a>Math</a></h1>
+<div>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/intermediate/coordinate-system.png">
+</p>
+
+</div>
+<!-- EDIT30 SECTION "Math" [19540-19613] -->
+<h2><a>Coordinates</a></h2>
+<div>
+
+<p>
+
+Coordinates represent a location in a coordinate system. Coordinates are relative to the origin at (0,0,0). In 3D space, you need to specify three coordinate values to locate a point: X (right), Y (up), Z (towards you). Similarly, -X (left), -Y (down), -Z (away from you).
+In contrast to a vector (which looks similar), a coordinate is a location, not a direction.
+</p>
+
+</div>
+<!-- EDIT31 SECTION "Coordinates" [19614-20003] -->
+<h3><a>The Origin</a></h3>
+<div>
+
+<p>
+
+The origin is the central point in the 3D world, where the three axes meet. It&#039;s always at the coordinates (0,0,0).
+</p>
+
+<p>
+<strong>Example:</strong> <code>Vector3f origin = new Vector3f( Vector3f.ZERO );</code>
+</p>
+
+</div>
+<!-- EDIT32 SECTION "The Origin" [20004-20208] -->
+<h2><a>Vectors</a></h2>
+<div>
+
+<p>
+
+A vector has a length and a direction, like an arrow in 3D space. A vector starts at a coordinate (x1,y1,z1) or at the origin, and ends at the target coordinate (x2,y2,z2). Backwards directions are expressed with negative values.
+</p>
+
+<p>
+<strong>Example:</strong> 
+</p>
+<pre>Vector3f v = new Vector3f&#40; 17f , -4f , 0f &#41;; // starts at (0/0/0)
+Vector3f v = new Vector3f&#40; 8f , 0f , 33f &#41;.add&#40;new Vector3f&#40; 0f , -2f , -2f &#41;&#41;; // starts at (8,-2,31)</pre>
+
+</div>
+<!-- EDIT33 SECTION "Vectors" [20209-20659] -->
+<h3><a>Unit Vectors</a></h3>
+<div>
+
+<p>
+
+A <em>unit vector</em> is a basic vector with a length of 1 world unit. Since its length is fixed (and it thus can only point at one location anyway), the only interesting thing about this vector is its direction.
+</p>
+<ul>
+<li><div> <code>Vector3f.UNIT_X</code>  = ( 1, 0, 0) = right</div>
+</li>
+<li><div> <code>Vector3f.UNIT_Y</code>  = ( 0, 1, 0) = up</div>
+</li>
+<li><div> <code>Vector3f.UNIT_Z</code>  = ( 0, 0, 1) = forwards</div>
+</li>
+<li><div> <code>Vector3f.UNIT_XYZ</code> = 1 wu diagonal right-up-forewards</div>
+</li>
+</ul>
+
+<p>
+Negate the vegator to change its direction, e.g. (-1, 0, 0) = left.
+</p>
+
+</div>
+<!-- EDIT34 SECTION "Unit Vectors" [20660-21158] -->
+<h3><a>Normalized Vectors</a></h3>
+<div>
+
+<p>
+
+A <em>normalized vector</em> is a custom <em>unit vector</em>. A normalized vector is not the same as a <em>(surface) normal vector</em>.
+When you normalize a vector, it still has the same direction, but you lose the information where the vector originally pointed.
+</p>
+
+<p>
+<strong>Example:</strong> You normalize vectors before calculating angles. 
+</p>
+
+</div>
+<!-- EDIT35 SECTION "Normalized Vectors" [21159-21502] -->
+<h3><a>Surface Normal Vectors</a></h3>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/300px-surface_normal.png">
+A surface normal is a vector that is perpendicular (orthogonal) to a plane. 
+You calculate the Surface Normal by calculating the cross product.
+</p>
+
+</div>
+<!-- EDIT36 SECTION "Surface Normal Vectors" [21503-21715] -->
+<h3><a>Cross Product</a></h3>
+<div>
+
+<p>
+
+The cross product is a calculation that you use to find a perpendicular vector (an orthogonal, a &quot;right angle&quot; at 90??).
+In 3D space, speaking of an orthogonal only makes sense with respect to a plane. You need two vectors to uniquely define a plane. The cross product of the two vectors, <code>v1 ?? v2</code>, is a new vector that is perpendicular to this plane. A vector perpendicular to a plane is a called <em>Surface Normal</em>.
+</p>
+
+<p>
+<strong>Example:</strong> The x unit vector and the y unit vector together define the x/y plane. The vector perpendicular to them is the z axis. JME can calculate that this equation is true: <br/>
+
+<code>( Vector3f.UNIT_X.cross( Vector3f.UNIT_Y ) ).equals( Vector3f.UNIT_Z )</code> == true
+</p>
+
+</div>
+<!-- EDIT37 SECTION "Cross Product" [21716-22426] -->
+<h3><a>Transformation</a></h3>
+<div>
+
+<p>
+
+Transformation means rotating (turning), scaling (resizing), or translating (moving) objects in 3D scenes. 3D engines offer simple methods so you can write code that transforms nodes. 
+</p>
+
+<p>
+Examples: Falling and rotating bricks in 3D Tetris.
+</p>
+
+</div>
+<!-- EDIT38 SECTION "Transformation" [22427-22691] -->
+<h3><a>Slerp</a></h3>
+<div>
+
+<p>
+
+Slerp is how we pronounce spherical linear interpolation when we are in a hurry. A slerp is an interpolated transformation that is used as a simple &quot;animation&quot; in 3D engines. You define a start and end state, and the slerp interpolates a constant-speed transition from one state to the other. You can play the motion, pause it at various percentages (values between 0.0 and 1.0), and play it backwards and forwards. <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/javadoc/com/jme3/math/Quaternion.html#slerp(com.jme3.math.Quaternion,%20com.jme3.math.Quaternion,%20float)"><param name="text" value="<html><u>JavaDoc: slerp()</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1, scale s1&quot; in the sky down to &quot;p2, r2, s2&quot; into a crater.
+</p>
+
+<p>
+<a href="/com/jme3/gde/docs/jme3/math.html">Learn more about 3D maths here.</a>
+</p>
+
+</div>
+<!-- EDIT39 SECTION "Slerp" [22692-23461] -->
+<h1><a>Game Developer Jargon</a></h1>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gamasutra.com/view/feature/6504/a_game_studio_culture_dictionary.php?print=1"><param name="text" value="<html><u>A Game Studio Culture Dictionary</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT40 SECTION "Game Developer Jargon" [23462-23625] -->
+<h1><a>3D graphics Terminology Wiki book</a></h1>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://en.wikipedia.org/wiki/User:Jreynaga/Books/3D_Graphics_Terms"><param name="text" value="<html><u>http://en.wikipedia.org/wiki/User:Jreynaga/Books/3D_Graphics_Terms</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT41 SECTION "3D graphics Terminology Wiki book" [23626-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:terminology?do=export_xhtmlbody">view online version</a></em></p>

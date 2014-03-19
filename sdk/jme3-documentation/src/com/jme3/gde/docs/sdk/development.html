@@ -1,0 +1,141 @@
+
+<h2><a>Developing for jMonkeyEngine SDK</a></h2>
+<div>
+
+<p>
+<em>Note that all info is subject to change while jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is still in beta!</em>
+</p>
+
+<p>
+In general, developing plugins for jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is not much different than creating plugins for the NetBeans Platform which in turn is not much different than creating Swing applications. You can use jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> to develop plugins, be it for personal use or to contribute to the community.
+</p>
+
+<p>
+If you feel like you want to make an addition to jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, don&#039;t hesitate to contact the jme team regardless of your knowledge in NetBeans platform development. For new plugins, the basic project creation and layout of the plugin can always be handled by a core developer and you can go on from there fleshing out the plugin. By using the Platform functions, your plugin feels more like a Platform application (global save button, file type support etc.).
+</p>
+
+</div>
+
+<h4><a>Creating plugins and components</a></h4>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/sdk/development/setup.html">Creating a plugin</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/sdk/development/general.html">Creating components</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/sdk/build_platform.html">Building the jME SDK from scratch</a> (not necessary for plugin development, only for contributors)</div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Extending jMonkeyEngine SDK</a></h4>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/sdk/development/scene.html">The Main Scene</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/sdk/development/sceneexplorer.html">The Scene Explorer</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/sdk/development/projects_assets.html">Projects and Assets</a></div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Recipes</a></h4>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/sdk/development/extension_library.html">Create a library plugin from a jar file</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/sdk/development/model_loader.html">Create a new or custom model filetype and loader</a></div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>General Notes</a></h4>
+<div>
+<ul>
+<li><div> <strong>Remember the scene runs on the render thread and most everything you do in the plugin (button events etc.) runs on the AWT thread, always encapsulate calls to either side correctly via Callables/Runnables or register as an AppState to the SceneApplication to have an update() call by the render thread.</strong></div>
+</li>
+<li><div> Although the scene can be accessed at any time via SceneApplication.getApplication() it is not recommended to modify the scene like that. Other plugins might be accessing the scene and updates will not be properly recognized. Use the sceneRequest object and the lookup of selected nodes and files to access things like the assetManager etc.</div>
+</li>
+<li><div> It became a standard in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> to start the name of methods that execute directly on the OpenGL thread with &quot;do&quot; e.g &quot;doMoveSpatial&quot;, this makes identifying threading issues easier.</div>
+</li>
+<li><div> The AssetManager of jme3 is threadsafe and can be used from any thread to load assets</div>
+</li>
+<li><div> You can get access to the ProjectAssetManager via the Lookup of a JmeSpatial and other objects</div>
+</li>
+<li><div> Use org.openide.filesystems.FileObject instead of java.io.File for file access, it always uses system-independent &quot;/&quot; path separators and has some more advanced functions that make file handling easier.</div>
+</li>
+<li><div> You can get a file from a string using Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(&quot;aaa/bbb/ccc/whatever&quot;);</div>
+</li>
+<li><div> You can convert a regular java File to a FileObject and vice versa using org.openide.filesystems.FileUtil</div>
+</li>
+<li><div> If you have problems with unresolved classes, check if all needed Libraries are registered in the settings of your Project. To find out which library contains a certain class, just enter the name in the library search field.</div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Teminology used here</a></h4>
+<div>
+<ul>
+<li><div> A ???plugin??? is anything you can tick in the plugin manager of the <acronym title="Software Development Kit">SDK</acronym>. It can contain editors, simple ???Java SE Libraries??? that you can add to your projects as jar files and other things like project templates etc.</div>
+</li>
+<li><div> A ???module??? is the project type that allows you to create plugins, strictly speaking all plugins are modules but there can be modules that are never shown in the plugin list and only exist as dependencies of other modules.</div>
+</li>
+<li><div> A ???library??? is an entry for a jar file (and optionally sources and javadocs) which can be added to a <acronym title="Software Development Kit">SDK</acronym> project to be used and distributed with it</div>
+</li>
+<li><div> An ???extension??? is a generic name for stuff that extends the jME engine, like pathfinding algorithms or anything that can be used at the game runtime..</div>
+</li>
+</ul>
+
+<p>
+
+So if you have some cool code that others can use in their games too, you would make your extension a library by creating a module that the users can download as a plugin :)
+</p>
+
+</div>
+
+<h4><a>Handy things in jMonkeyEngine SDK Core</a></h4>
+<div>
+<ul>
+<li><div> com.jme3.gde.core.scene.controller</div>
+<ul>
+<li><div> AbstractCameraController ??? A basic camera control for plugins, used by SimpleSceneComposer and &quot;View Model&quot;</div>
+</li>
+<li><div> SceneToolController ??? A basic controller for having selection, cursor etc. displayed in the scene, used by SimpleSceneComposer</div>
+</li>
+</ul>
+</li>
+<li><div> com.jme3.gde.core.scene</div>
+<ul>
+<li><div> OffViewPanel ??? A panel that renders a 3d scene in a preview and displays it in a lightweight swing panel</div>
+</li>
+</ul>
+</li>
+<li><div> com.jme3.gde.core.util</div>
+<ul>
+<li><div> DataObjectSaveNode ??? Allows enabling the save all button by using any file and implementing the SvaeCookie yourself.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+Learn more about NetBeans Plugin Development at <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://platform.netbeans.org"><param name="text" value="<html><u>http://platform.netbeans.org</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+Also check out this Essential NetBeans Platform Refcard: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://refcardz.dzone.com/refcardz/essential-netbeans-platform"><param name="text" value="<html><u>http://refcardz.dzone.com/refcardz/essential-netbeans-platform</u></html>"><param name="textColor" value="blue"></object>
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:contribute?do=showtag&amp;tag=tag%3Acontribute">contribute</a>
+</span></div>
+
+</div>
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:development?do=export_xhtmlbody">view online version</a></em></p>

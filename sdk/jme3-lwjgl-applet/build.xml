@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="com.jme3.gde.lwjgl.applet" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project com.jme3.gde.lwjgl.applet.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <target name="init" depends="-zip-appletloader,basic-init,files-init,build-init,-javac-init"/>
+    <target name="-zip-appletloader" description="Zips applet loader">
+        <zip destfile="release/libs/applet-loader.zip">
+            <zipfileset dir="applet-loader" prefix=""/>
+        </zip>
+    </target>
+</project>

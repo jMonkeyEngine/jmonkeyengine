@@ -1,0 +1,372 @@
+
+<h1><a>jME3 Special Effects Overview</a></h1>
+<div>
+
+<p>
+
+jME3 supports several types of special effects: Post-Processor Filters, SceneProcessors, and Particle Emitters (also known as particle systems). This list contains screenshots and links to sample code that demonstrates how to add the effect to a scene.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "jME3 Special Effects Overview" [1-299] -->
+<h2><a>Sample Code</a></h2>
+<div>
+<ul>
+<li><div> There is one <code>com.jme3.effect.ParticleEmitter</code> class for all Particle Systems. </div>
+</li>
+<li><div> There is one <code>com.jme3.post.FilterPostProcessor</code> class and several <code>com.jme3.post.filters.*</code> classes (all Filters have <code>*Filter</code> in their names). </div>
+</li>
+<li><div> There are several <code>SceneProcessor</code> classes in various packages, including e.g. <code>com.jme3.shadow.*</code> and <code>com.jme3.water.*</code> (SceneProcessor have <code>*Processor</code> or <code>*Renderer</code> in their names).</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Sample Code" [300-768] -->
+<h3><a>Particle Emitter</a></h3>
+<div>
+<pre>public class MyGame extends SimpleApplication &#123;
+  public void simpleInitApp&#40;&#41; &#123;
+    ParticleEmitter pm = new ParticleEmitter&#40;&quot;my particle effect&quot;, Type.Triangle, 60&#41;;
+    Material pmMat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Particle.j3md&quot;&#41;;
+    pmMat.setTexture&#40;&quot;Texture&quot;, assetManager.loadTexture&#40;&quot;Effects/spark.png&quot;&#41;&#41;;
+    pm.setMaterial&#40;pmMat&#41;;
+    pm.setImagesX&#40;1&#41;;
+    pm.setImagesY&#40;1&#41;;
+    rootNode.attachChild&#40;pm&#41;; // attach one or more emitters to any node
+  &#125;
+&#125;</pre>
+
+</div>
+<!-- EDIT3 SECTION "Particle Emitter" [769-1298] -->
+<h3><a>Scene Processor</a></h3>
+<div>
+<pre>public class MyGame extends SimpleApplication &#123;
+    private BasicShadowRenderer bsr;
+&nbsp;
+    public void simpleInitApp&#40;&#41; &#123;
+        bsr = new BasicShadowRenderer&#40;assetManager, 1024&#41;;
+        bsr.setDirection&#40;new Vector3f&#40;.3f, -0.5f, -0.5f&#41;&#41;;
+        viewPort.addProcessor&#40;bsr&#41;; // add one or more sceneprocessor to viewport
+    &#125;</pre>
+
+</div>
+<!-- EDIT4 SECTION "Scene Processor" [1299-1674] -->
+<h3><a>Post-Processor Filter</a></h3>
+<div>
+<pre>public class MyGame extends SimpleApplication &#123;
+    private FilterPostProcessor fpp; // one FilterPostProcessor per app
+    private SomeFilter sf;           // one or more Filters per app
+&nbsp;
+    public void simpleInitApp&#40;&#41; &#123;
+        fpp = new FilterPostProcessor&#40;assetManager&#41;;
+        viewPort.addProcessor&#40;fpp&#41;; // add one FilterPostProcessor to viewPort
+&nbsp;
+        sf = new SomeFilter&#40;&#41;;
+        fpp.addFilter&#40;sf&#41;;  // add one or more Filters to FilterPostProcessor
+    &#125;</pre>
+
+</div>
+<!-- EDIT5 SECTION "Post-Processor Filter" [1675-2201] -->
+<h2><a>Water</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/water-post.png"><img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/water.png">
+The jMonkeyEngine&#039;s <a href="/com/jme3/gde/docs/jme3/advanced/water.html">&quot;SeaMonkey&quot; WaterFilter</a> simulates ocean waves, foam, including cool underwater caustics. 
+Use the SimpleWaterProcessor (SceneProcessor) for small, limited bodies of water, such as puddles, drinking troughs, pools, fountains.
+</p>
+
+<p>
+See also the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/2011/01/15/new-advanced-water-effect-for-jmonkeyengine-3"><param name="text" value="<html><u>Rendering Water as Post-Process Effect</u></html>"><param name="textColor" value="blue"></object> announcement with video.
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestSceneWater.java"><param name="text" value="<html><u>jme3/src/test/jme3test/water/TestSceneWater.java</u></html>"><param name="textColor" value="blue"></object> ??? SimpleWaterProcessor (SceneProcessor)</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestSimpleWater.java"><param name="text" value="<html><u>jme3/src/test/jme3test/water/TestSimpleWater.java</u></html>"><param name="textColor" value="blue"></object> ??? SimpleWaterProcessor (SceneProcessor)</div>
+</li>
+</ul>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/water-reflection-muddy.png"><img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/underwater2.jpg">
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestPostWater.java"><param name="text" value="<html><u>jme3/src/test/jme3test/water/TestPostWater.java</u></html>"><param name="textColor" value="blue"></object> ??? WaterFilter</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/water/TestPostWaterLake.java"><param name="text" value="<html><u>jme3/src/test/jme3test/water/TestPostWaterLake.java</u></html>"><param name="textColor" value="blue"></object> ??? WaterFilter</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT6 SECTION "Water" [2202-3620] -->
+<h2><a>Environment Effects</a></h2>
+<div>
+
+</div>
+<!-- EDIT7 SECTION "Environment Effects" [3621-3653] -->
+<h3><a>Depth of Field Blur</a></h3>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/dof-blur.png"><img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/light-scattering-filter.png">
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestDepthOfField.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestDepthOfField.java</u></html>"><param name="textColor" value="blue"></object> ??? DepthOfFieldFilter</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT8 SECTION "Depth of Field Blur" [3654-3972] -->
+<h3><a>Fog</a></h3>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestFog.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestFog.java</u></html>"><param name="textColor" value="blue"></object> ??? FogFilter</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT9 SECTION "Fog" [3973-4152] -->
+<h3><a>Light Scattering</a></h3>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestLightScattering.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestLightScattering.java</u></html>"><param name="textColor" value="blue"></object> ??? LightScatteringFilter</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT10 SECTION "Light Scattering" [4153-4381] -->
+<h3><a>Vegetation</a></h3>
+<div>
+<ul>
+<li><div> Contribution: <a href="/com/jme3/gde/docs/jme3/contributions/vegetationsystem/grass.html">Grass System</a></div>
+</li>
+<li><div> Contribution: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/user-code-projects/forum/topic/generating-vegetation-paged-geometry-style/"><param name="text" value="<html><u>Trees (WIP)</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT11 SECTION "Vegetation" [4382-4619] -->
+<h2><a>Light and Shadows</a></h2>
+<div>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/tanlglow1.png"><img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shadow-sponza-ssao.png">
+</p>
+
+</div>
+<!-- EDIT12 SECTION "Light and Shadows" [4620-4743] -->
+<h3><a>Bloom and Glow</a></h3>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestBloom.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestBloom.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> More details: <a href="/com/jme3/gde/docs/jme3/advanced/bloom_and_glow.html">Bloom and Glow</a> ??? BloomFilter</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT13 SECTION "Bloom and Glow" [4744-4990] -->
+<h3><a>Light</a></h3>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestSimpleLighting.java"><param name="text" value="<html><u>jme3/src/test/jme3test/light/TestSimpleLighting.java</u></html>"><param name="textColor" value="blue"></object> ??? DirectionalLight, PointLight</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestLightRadius.java"><param name="text" value="<html><u>jme3/src/test/jme3test/light/TestLightRadius.java</u></html>"><param name="textColor" value="blue"></object> ??? DirectionalLight, PointLight</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestManyLights.java"><param name="text" value="<html><u>jme3/src/test/jme3test/light/TestManyLights.java</u></html>"><param name="textColor" value="blue"></object> ??? .j3o scene</div>
+</li>
+<li><div> More details: <a href="/com/jme3/gde/docs/jme3/advanced/light_and_shadow.html">Light and Shadow</a></div>
+</li>
+</ul>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shadow.png"><img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/light-sources.png">
+</p>
+
+</div>
+<!-- EDIT14 SECTION "Light" [4991-5735] -->
+<h3><a>Shadow</a></h3>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestShadow.java"><param name="text" value="<html><u>jme3/src/test/jme3test/light/TestShadow.java</u></html>"><param name="textColor" value="blue"></object> ??? BasicShadowRenderer (SceneProcessor)</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/light/TestPssmShadow.java"><param name="text" value="<html><u>jme3/src/test/jme3test/light/TestPssmShadow.java</u></html>"><param name="textColor" value="blue"></object> ??? PssmShadowRenderer (SceneProcessor), also known as Parallel-Split Shadow Mapping (PSSM).</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestSSAO.java</u></html>"><param name="textColor" value="blue"></object>, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestSSAO2.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestSSAO2.java</u></html>"><param name="textColor" value="blue"></object> ??? SSAOFilter, also known as Screen-Space Ambient Occlusion shadows (SSOA).</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestTransparentSSAO.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestTransparentSSAO.java</u></html>"><param name="textColor" value="blue"></object> ??? SSAOFilter, also known as Screen-Space Ambient Occlusion shadows (SSOA), plus transparancy</div>
+</li>
+<li><div> More details: <a href="/com/jme3/gde/docs/jme3/advanced/light_and_shadow.html">Light and Shadow</a></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT15 SECTION "Shadow" [5736-6917] -->
+<h2><a>Special: Glass, Metal, Dissolve, Toon</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/toon-dino.png">
+
+</p>
+
+</div>
+<!-- EDIT16 SECTION "Special: Glass, Metal, Dissolve, Toon" [6918-7010] -->
+<h3><a>Toon Effect</a></h3>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestCartoonEdge.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestCartoonEdge.java</u></html>"><param name="textColor" value="blue"></object> ??? CartoonEdgeFilter</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/post/TestTransparentCartoonEdge.java"><param name="text" value="<html><u>jme3/src/test/jme3test/post/TestTransparentCartoonEdge.java</u></html>"><param name="textColor" value="blue"></object> ??? CartoonEdgeFilter</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT17 SECTION "Toon Effect" [7011-7431] -->
+<h3><a>Fade in / Fade out</a></h3>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/fade.html">Fade</a> ??? FadeFilter</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT18 SECTION "Fade in / Fade out" [7432-7503] -->
+<h3><a>User Contributed</a></h3>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shaderblow_light1.jpg"><img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shaderblow_glass.jpg"><img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shaderblow_matcap.jpg"><img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/shaderblow_light2.jpg">
+</p>
+
+<p>
+<a href="/com/jme3/gde/docs/sdk/plugin/shaderblow.html">ShaderBlow - GLSL Shader Library</a>
+</p>
+<ul>
+<li><div> LightBlow Shader ??? blend material texture maps</div>
+</li>
+<li><div> FakeParticleBlow Shader ??? jet, fire effect</div>
+</li>
+<li><div> ToonBlow Shader ??? Toon Shading, toon edges </div>
+</li>
+<li><div> Dissolve Shader ??? Scifi teleportation/dissolve effect</div>
+</li>
+<li><div> MatCap Shader ??? Gold, metals, glass, toons???!</div>
+</li>
+<li><div> Glass Shader ??? Glass</div>
+</li>
+<li><div> Force Shield Shader ??? Scifi impact-on-force-field effect</div>
+</li>
+<li><div> SimpleSprite Shader ??? Animated textures</div>
+</li>
+<li><div> SimpleSpriteParticle Shader ??? Sprite library</div>
+</li>
+<li><div> MovingTexture Shader ??? Animated cloud/mist texture</div>
+</li>
+<li><div> SoftParticles Shader ??? Fire, clouds, smoke etc</div>
+</li>
+<li><div> Displace Shader ??? Deformation effect: Ripple, wave, pulse, swell!</div>
+</li>
+</ul>
+
+<p>
+
+Thanks for your awesome contributions! Keep them coming!
+</p>
+
+</div>
+<!-- EDIT19 SECTION "User Contributed" [7504-8465] -->
+<h2><a>Particle Emitters: Explosions, Fire, Smoke</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/explosion-5.png"><img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/particle.png">
+<a href="/com/jme3/gde/docs/jme3/advanced/particle_emitters.html">Particle emitter effects</a> are highly configurable and can have any texture. They can simulate smoke, dust, leaves, meteors, snowflakes, mosquitos, fire, explosions, clusters, embers, sparks???
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/effect/TestExplosionEffect.java"><param name="text" value="<html><u>jme3/src/test/jme3test/effect/TestExplosionEffect.java</u></html>"><param name="textColor" value="blue"></object> ??? debris, flame, flash, shockwave, smoke, sparks</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/effect/TestPointSprite.java"><param name="text" value="<html><u>jme3/src/test/jme3test/effect/TestPointSprite.java</u></html>"><param name="textColor" value="blue"></object> ??? cluster of points </div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/effect/TestMovingParticle.java"><param name="text" value="<html><u>jme3/src/test/jme3test/effect/TestMovingParticle.java</u></html>"><param name="textColor" value="blue"></object> ??? dust, smoke</div>
+</li>
+</ul>
+<hr />
+
+</div>
+<!-- EDIT20 SECTION "Particle Emitters: Explosions, Fire, Smoke" [8466-9440] -->
+<h3><a>Creating your own Filters</a></h3>
+<div>
+
+<p>
+
+Here is an extract taken from @nehon in the forum thread (<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://hub.jmonkeyengine.org/forum/topic/how-exactly-do-filters-work/"><param name="text" value="<html><u>http://hub.jmonkeyengine.org/forum/topic/how-exactly-do-filters-work/</u></html>"><param name="textColor" value="blue"></object>)
+</p>
+
+<p>
+The methods are called in this order (pretty much the same flow as processors):
+- initFilter() is called once when the FilterPostPorcessor is initialized or when the filter is added to the processor and this one as already been initialized.
+</p>
+
+<p>
+for each frame the methods are called in that sequence :
+- preFrame() occurs before anything happens
+- postQueue() occcurs once the queues have been populated (there is one queue per bucket and 2 additional queues for the shadows, casters and recievers). Note that geometries in the queues are the one in the view frustum.
+- postFrame occurs once the main frame has been rendered (the back buffer)
+</p>
+
+<p>
+Those methods are optional in a filter, they are only there if you want to hook in the rendering process.
+</p>
+
+<p>
+The material variable is here for convenience. You have a getMaterial method that returns the material that???s gonna be used to render the full screen quad. It just happened that in every implementation I had a material attribute in all my sub-classes, so I just put it back in the abstract class. Most of the time getMaterial returns this attribute.
+</p>
+
+<p>
+Forced-technique can be any technique really, they are more related with the material system than to the filters but anyway. When you use a forced technique the renderer tries to select it on the material of each geometry, if the technique does not exists for the material the geometry is not rendered.
+You assume well about the SSAO filer, the normal of the scene are rendered to a texture in a pre pass.
+</p>
+
+<p>
+Passes : these are filters in filters in a way. First they are a convenient way to initialize a FrameBuffer and the associated textures it needs, then you can use them for what ever you want.
+For example, a Pass can be (as in the SSAO filter) an extra render of the scene with a forced technique, and you have to handle the render yourself in the postQueue method.
+It can be a post pass to do after the main filter has been rendered to screen (for example an additional blur pass used in SSAO again). You have a list of passes called postRenderPass in the Filter abstract class. If you add a pass to this list, it???ll be automatically rendered by the FilterPostProcessor during the filter chain.
+</p>
+
+<p>
+The bloom Filter does an intensive use of passes.
+</p>
+
+<p>
+Filters in a nutshell.
+
+</p>
+<hr />
+
+<p>
+See also:
+</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/particle_emitters.html">Particle Emitters</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/bloom_and_glow.html">Bloom and Glow</a></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.smashingmagazine.com/2008/08/07/50-photoshop-tutorials-for-sky-and-space-effects/"><param name="text" value="<html><u>Photoshop Tutorial for Sky and space effects (article)</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:effect?do=showtag&amp;tag=tag%3Aeffect">effect</a>,
+	<a href="/wiki/doku.php/tag:light?do=showtag&amp;tag=tag%3Alight">light</a>,
+	<a href="/wiki/doku.php/tag:water?do=showtag&amp;tag=tag%3Awater">water</a>
+</span></div>
+
+</div>
+<!-- EDIT21 SECTION "Creating your own Filters" [9441-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:effects_overview?do=export_xhtmlbody">view online version</a></em></p>

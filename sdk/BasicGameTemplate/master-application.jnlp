@@ -1,0 +1,22 @@
+<jnlp spec="1.0+" codebase="${jnlp.codebase}" href="launch.jnlp">
+    <information>
+        <title>${APPLICATION.TITLE}</title>
+        <vendor>${APPLICATION.VENDOR}</vendor>
+        <homepage href="${APPLICATION.HOMEPAGE}"/>
+        <description>${APPLICATION.DESC}</description>
+        <description kind="short">${APPLICATION.DESC.SHORT}</description>
+<!--${JNLP.ICONS}-->
+<!--${JNLP.OFFLINE.ALLOWED}-->
+    </information>
+<!--${JNLP.SECURITY}-->
+    <resources>
+<!--${JNLP.RESOURCES.RUNTIME}-->
+<!--${JNLP.RESOURCES.MAIN.JAR}-->
+<!--${JNLP.RESOURCES.JARS}-->
+<jar href='lib/assets.jar'/>
+<!--${JNLP.RESOURCES.EXTENSIONS}-->
+    </resources>
+    <application-desc main-class="${jnlp.main.class}">
+<!--${JNLP.APPLICATION.ARGS}-->
+    </application-desc>
+</jnlp>

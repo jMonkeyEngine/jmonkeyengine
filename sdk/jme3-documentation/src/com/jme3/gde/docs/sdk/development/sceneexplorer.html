@@ -1,0 +1,405 @@
+
+<h1><a>The SceneExplorer</a></h1>
+<div>
+
+</div>
+<!-- EDIT1 SECTION "The SceneExplorer" [1-32] -->
+<h2><a>Adding Node types to SceneExplorer</a></h2>
+<div>
+
+<p>
+
+If your plugin brings in its own SceneGraph objects you can still have them work like any other SceneExplorer item, including its special properties.
+</p>
+
+<p>
+If you want to support special properties of your objects that are not exposed by the <acronym title="Software Development Kit">SDK</acronym> automatically, you will have to create your own class that extends org.openide.nodes.Node and implement the interface com.jme3.gde.core.sceneexplorer.nodes.AbstractSceneExplorerNode. Then you register that class by adding 
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)</pre>
+
+<p>
+ above the body of your class. Thats all, your Spatial type will automatically be used and displayed in the SceneExplorer. Make sure you register a jar with the used classes in the plugin preferences under &quot;wrapped libraries&quot;, otherwise the IDE cannot access those classes.
+</p>
+
+<p>
+AbstractSceneExplorerNode brings some other useful features you might want to include like automatic creation of properly threaded properties etc. JmeSpatial for example bases on it. A simple SceneExplorerNode example for an object extending Spatial would be JmeGeometry (see below). Editors for special variable types can be added using the SceneExplorerPropertyEditor interface, which can be registered as a ServiceProvider as well.
+</p>
+
+<p>
+The SceneExplorerNode can be used for Spatial and Control type objects.
+
+</p>
+<ul>
+<li><div><em>Add the &quot;Nodes <acronym title="Application Programming Interface">API</acronym>&quot; and &quot;Lookup <acronym title="Application Programming Interface">API</acronym>&quot; libraries to your project when you want to use this</em></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Adding Node types to SceneExplorer" [33-1510] -->
+<h3><a>Spatial Example</a></h3>
+<div>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
+public class JmeGeometry extends JmeSpatial &#123;
+&nbsp;
+    private static Image smallImage =
+            ImageUtilities.loadImage&#40;&quot;com/jme3/gde/core/sceneexplorer/nodes/icons/geometry.gif&quot;&#41;;
+    private Geometry geom;
+&nbsp;
+    public JmeGeometry&#40;&#41; &#123;
+    &#125;
+&nbsp;
+    public JmeGeometry&#40;Geometry spatial, SceneExplorerChildren children&#41; &#123;
+        super&#40;spatial, children&#41;;
+        getLookupContents&#40;&#41;.add&#40;spatial&#41;;
+        this.geom = spatial;
+        setName&#40;spatial.getName&#40;&#41;&#41;;
+    &#125;
+&nbsp;
+    @Override
+    public Image getIcon&#40;int type&#41; &#123;
+        return smallImage;
+    &#125;
+&nbsp;
+    @Override
+    public Image getOpenedIcon&#40;int type&#41; &#123;
+        return smallImage;
+    &#125;
+&nbsp;
+    @Override
+    protected Sheet createSheet&#40;&#41; &#123;
+        Sheet sheet = super.createSheet&#40;&#41;;
+        Sheet.Set set = Sheet.createPropertiesSet&#40;&#41;;
+        set.setDisplayName&#40;&quot;Geometry&quot;&#41;;
+        set.setName&#40;Geometry.class.getName&#40;&#41;&#41;;
+        Geometry obj = geom;//getLookup().lookup(Geometry.class);
+        if &#40;obj == null&#41; &#123;
+            return sheet;
+        &#125;
+&nbsp;
+        set.put&#40;makeProperty&#40;obj, int.class, &quot;getLodLevel&quot;, &quot;setLodLevel&quot;, &quot;Lod Level&quot;&#41;&#41;;
+        set.put&#40;makeProperty&#40;obj, Material.class, &quot;getMaterial&quot;, &quot;setMaterial&quot;, &quot;Material&quot;&#41;&#41;;
+        set.put&#40;makeProperty&#40;obj, Mesh.class, &quot;getMesh&quot;, &quot;Mesh&quot;&#41;&#41;;
+&nbsp;
+        sheet.put&#40;set&#41;;
+        return sheet;
+&nbsp;
+    &#125;
+&nbsp;
+    public Class getExplorerObjectClass&#40;&#41; &#123;
+        return Geometry.class;
+    &#125;
+&nbsp;
+    public Class getExplorerNodeClass&#40;&#41; &#123;
+        return JmeGeometry.class;
+    &#125;
+&nbsp;
+    public org.openide.nodes.Node&#91;&#93; createNodes&#40;Object key, Object key2, boolean readOnly&#41; &#123;
+        SceneExplorerChildren children=new SceneExplorerChildren&#40;&#40;com.jme3.scene.Spatial&#41;key&#41;;
+        children.setReadOnly&#40;readOnly&#41;;
+        return new org.openide.nodes.Node&#91;&#93;&#123;new JmeGeometry&#40;&#40;Geometry&#41; key, children&#41;.setReadOnly&#40;readOnly&#41;&#125;;
+    &#125;
+&#125;</pre>
+
+</div>
+<!-- EDIT3 SECTION "Spatial Example" [1511-3452] -->
+<h3><a>Control Example</a></h3>
+<div>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service=SceneExplorerNode.class&#41;
+public class JmeGhostControl extends AbstractSceneExplorerNode &#123;
+&nbsp;
+    private static Image smallImage =
+            ImageUtilities.loadImage&#40;&quot;com/jme3/gde/core/sceneexplorer/nodes/icons/ghostcontrol.gif&quot;&#41;;
+    private GhostControl control;
+&nbsp;
+    public JmeGhostControl&#40;&#41; &#123;
+    &#125;
+&nbsp;
+    public JmeGhostControl&#40;GhostControl control, DataObject dataObject&#41; &#123;
+        super&#40;dataObject&#41;;
+        getLookupContents&#40;&#41;.add&#40;this&#41;;
+        getLookupContents&#40;&#41;.add&#40;control&#41;;
+        this.control = control;
+        setName&#40;&quot;GhostControl&quot;&#41;;
+    &#125;
+&nbsp;
+    @Override
+    public Image getIcon&#40;int type&#41; &#123;
+        return smallImage;
+    &#125;
+&nbsp;
+    @Override
+    public Image getOpenedIcon&#40;int type&#41; &#123;
+        return smallImage;
+    &#125;
+&nbsp;
+    protected SystemAction&#91;&#93; createActions&#40;&#41; &#123;
+        return new SystemAction&#91;&#93;&#123;
+                    //                    SystemAction.get(CopyAction.class),
+                    //                    SystemAction.get(CutAction.class),
+                    //                    SystemAction.get(PasteAction.class),
+                    SystemAction.get&#40;DeleteAction.class&#41;
+                &#125;;
+    &#125;
+&nbsp;
+    @Override
+    public boolean canDestroy&#40;&#41; &#123;
+        return !readOnly;
+    &#125;
+&nbsp;
+    @Override
+    public void destroy&#40;&#41; throws IOException &#123;
+        super.destroy&#40;&#41;;
+        final Spatial spat=getParentNode&#40;&#41;.getLookup&#40;&#41;.lookup&#40;Spatial.class&#41;;
+        try &#123;
+            SceneApplication.getApplication&#40;&#41;.enqueue&#40;new Callable&lt;Void&gt;&#40;&#41; &#123;
+&nbsp;
+                public Void call&#40;&#41; throws Exception &#123;
+                    spat.removeControl&#40;control&#41;;
+                    return null;
+                &#125;
+            &#125;&#41;.get&#40;&#41;;
+            &#40;&#40;AbstractSceneExplorerNode&#41;getParentNode&#40;&#41;&#41;.refresh&#40;true&#41;;
+        &#125; catch &#40;InterruptedException ex&#41; &#123;
+            Exceptions.printStackTrace&#40;ex&#41;;
+        &#125; catch &#40;ExecutionException ex&#41; &#123;
+            Exceptions.printStackTrace&#40;ex&#41;;
+        &#125;
+    &#125;
+&nbsp;
+    @Override
+    protected Sheet createSheet&#40;&#41; &#123;
+        Sheet sheet = super.createSheet&#40;&#41;;
+        Sheet.Set set = Sheet.createPropertiesSet&#40;&#41;;
+        set.setDisplayName&#40;&quot;GhostControl&quot;&#41;;
+        set.setName&#40;GhostControl.class.getName&#40;&#41;&#41;;
+        GhostControl obj = control;//getLookup().lookup(Spatial.class);
+        if &#40;obj == null&#41; &#123;
+            return sheet;
+        &#125;
+&nbsp;
+        set.put&#40;makeProperty&#40;obj, Vector3f.class, &quot;getPhysicsLocation&quot;, &quot;setPhysicsLocation&quot;, &quot;Physics Location&quot;&#41;&#41;;
+        set.put&#40;makeProperty&#40;obj, Quaternion.class, &quot;getPhysicsRotation&quot;, &quot;setPhysicsRotation&quot;, &quot;Physics Rotation&quot;&#41;&#41;;
+&nbsp;
+        set.put&#40;makeProperty&#40;obj, CollisionShape.class, &quot;getCollisionShape&quot;, &quot;setCollisionShape&quot;, &quot;Collision Shape&quot;&#41;&#41;;
+        set.put&#40;makeProperty&#40;obj, int.class, &quot;getCollisionGroup&quot;, &quot;setCollisionGroup&quot;, &quot;Collision Group&quot;&#41;&#41;;
+        set.put&#40;makeProperty&#40;obj, int.class, &quot;getCollideWithGroups&quot;, &quot;setCollideWithGroups&quot;, &quot;Collide With Groups&quot;&#41;&#41;;
+&nbsp;
+        sheet.put&#40;set&#41;;
+        return sheet;
+&nbsp;
+    &#125;
+&nbsp;
+    public Class getExplorerObjectClass&#40;&#41; &#123;
+        return GhostControl.class;
+    &#125;
+&nbsp;
+    public Class getExplorerNodeClass&#40;&#41; &#123;
+        return JmeGhostControl.class;
+    &#125;
+&nbsp;
+    public org.openide.nodes.Node&#91;&#93; createNodes&#40;Object key, DataObject key2, boolean cookie&#41; &#123;
+        return new org.openide.nodes.Node&#91;&#93;&#123;new JmeGhostControl&#40;&#40;GhostControl&#41; key, key2&#41;.setReadOnly&#40;cookie&#41;&#125;;
+    &#125;
+&#125;</pre>
+
+</div>
+<!-- EDIT4 SECTION "Control Example" [3453-6864] -->
+<h2><a>Adding items to the add and tools menus</a></h2>
+<div>
+
+<p>
+For adding Spatials, Contols and for general tools theres premade abstract classes that you can use to extend the options. Undo/Redo is handled by the abstract class. AbstractNewSpatial<strong>Wizard</strong>Action allows you to show an AWT wizard before creating the Spatial. You can also just implement the base ServiceProvider class and return any kind of action (such as a wizard), in this case you have to handle the threading yourself!
+</p>
+
+<p>
+<p><div>Note that the classes you create are singletons which are used across multiple nodes and you should not store any data in local variables!
+</div></p>
+</p>
+
+<p>
+To add a new Tool, create a new AbstractToolAction:
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service = ToolAction.class&#41;
+public class GenerateTangentsTool extends AbstractToolAction &#123;
+&nbsp;
+    public GenerateTangentsTool&#40;&#41; &#123;
+        name = &quot;Generate Tangents&quot;;
+    &#125;
+&nbsp;
+    @Override
+    protected Object doApplyTool&#40;AbstractSceneExplorerNode rootNode&#41; &#123;
+        Geometry geom = rootNode.getLookup&#40;&#41;.lookup&#40;Geometry.class&#41;;
+        Mesh mesh = geom.getMesh&#40;&#41;;
+        if &#40;mesh != null&#41; &#123;
+            TangentBinormalGenerator.generate&#40;mesh&#41;;
+        &#125;
+        return geom;
+    &#125;
+&nbsp;
+    @Override
+    protected void doUndoTool&#40;AbstractSceneExplorerNode rootNode, Object undoObject&#41; &#123;
+        Geometry geom = rootNode.getLookup&#40;&#41;.lookup&#40;Geometry.class&#41;;
+        Mesh mesh = geom.getMesh&#40;&#41;;
+        if &#40;mesh != null&#41; &#123;
+            mesh.clearBuffer&#40;Type.Tangent&#41;;
+        &#125;
+    &#125;
+&nbsp;
+    public Class&lt;?&gt; getNodeClass&#40;&#41; &#123;
+        return JmeGeometry.class;
+    &#125;
+&nbsp;
+&#125;</pre>
+
+<p>
+For a new Spatial or Control, use AbstractNewSpatialAction
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewSpatialAction.class&#41;
+public class NewSpecialSpatialAction extends AbstractNewSpatialAction &#123;
+&nbsp;
+    public NewSpecialSpatialAction&#40;&#41; &#123;
+        name = &quot;Spatial&quot;;
+    &#125;
+&nbsp;
+    @Override
+    protected Spatial doCreateSpatial&#40;Node parent&#41; &#123;
+        Spatial spatial=new Node&#40;&#41;;
+        return spatial;
+    &#125;
+&#125;</pre>
+
+<p>
+or AbstractNewControlAction:
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewControlAction.class&#41;
+public class NewRigidBodyAction extends AbstractNewControlAction &#123;
+&nbsp;
+    public NewRigidBodyAction&#40;&#41; &#123;
+        name = &quot;Static RigidBody&quot;;
+    &#125;
+&nbsp;
+    @Override
+    protected Control doCreateControl&#40;Spatial spatial&#41; &#123;
+        RigidBodyControl control = spatial.getControl&#40;RigidBodyControl.class&#41;;
+        if &#40;control != null&#41; &#123;
+            spatial.removeControl&#40;control&#41;;
+        &#125;
+        Node parent = spatial.getParent&#40;&#41;;
+        spatial.removeFromParent&#40;&#41;;
+        control = new RigidBodyControl&#40;0&#41;;
+        if &#40;parent != null&#41; &#123;
+            parent.attachChild&#40;spatial&#41;;
+        &#125;
+        return control;
+    &#125;
+&#125;</pre>
+
+</div>
+
+<h4><a>Adding using a Wizard</a></h4>
+<div>
+
+<p>
+You can create a new wizard using the wizard template in the <acronym title="Software Development Kit">SDK</acronym> (New File???Module Development???Wizard). The Action that the template creates can easily be changed to one for adding a Control or Spatial or for applying a Tool. Note that we extend AbstractNewSpatial<strong>Wizard</strong>Action here.
+</p>
+
+<p>
+A good example is the &quot;Add SkyBox&quot; Wizard:
+
+</p>
+<pre>@org.openide.util.lookup.ServiceProvider&#40;service = NewSpatialAction.class&#41;
+public class AddSkyboxAction extends AbstractNewSpatialWizardAction &#123;
+&nbsp;
+    private WizardDescriptor.Panel&#91;&#93; panels;
+&nbsp;
+    public AddSkyboxAction&#40;&#41; &#123;
+        name = &quot;Skybox..&quot;;
+    &#125;
+&nbsp;
+    @Override
+    protected Object showWizard&#40;org.openide.nodes.Node node&#41; &#123;
+        WizardDescriptor wizardDescriptor = new WizardDescriptor&#40;getPanels&#40;&#41;&#41;;
+        wizardDescriptor.setTitleFormat&#40;new MessageFormat&#40;&quot;{0}&quot;&#41;&#41;;
+        wizardDescriptor.setTitle&#40;&quot;Skybox Wizard&quot;&#41;;
+        Dialog dialog = DialogDisplayer.getDefault&#40;&#41;.createDialog&#40;wizardDescriptor&#41;;
+        dialog.setVisible&#40;true&#41;;
+        dialog.toFront&#40;&#41;;
+        boolean cancelled = wizardDescriptor.getValue&#40;&#41; != WizardDescriptor.FINISH_OPTION;
+        if &#40;!cancelled&#41; &#123;
+            return wizardDescriptor;
+        &#125;
+        return null;
+    &#125;
+&nbsp;
+    @Override
+    protected Spatial doCreateSpatial&#40;Node parent, Object properties&#41; &#123;
+        if &#40;properties != null&#41; &#123;
+            return generateSkybox&#40;&#40;WizardDescriptor&#41; properties&#41;;
+        &#125;
+        return null;
+    &#125;
+&nbsp;
+    private Spatial generateSkybox&#40;WizardDescriptor wiz&#41; &#123;
+        if &#40;&#40;Boolean&#41; wiz.getProperty&#40;&quot;multipleTextures&quot;&#41;&#41; &#123;
+            Texture south = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureSouth&quot;&#41;;
+            Texture north = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureNorth&quot;&#41;;
+            Texture east = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureEast&quot;&#41;;
+            Texture west = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureWest&quot;&#41;;
+            Texture top = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureTop&quot;&#41;;
+            Texture bottom = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureBottom&quot;&#41;;
+            Vector3f normalScale = &#40;Vector3f&#41; wiz.getProperty&#40;&quot;normalScale&quot;&#41;;
+            return SkyFactory.createSky&#40;pm, west, east, north, south, top, bottom, normalScale&#41;;
+        &#125; else &#123;
+            Texture textureSingle = &#40;Texture&#41; wiz.getProperty&#40;&quot;textureSingle&quot;&#41;;
+            Vector3f normalScale = &#40;Vector3f&#41; wiz.getProperty&#40;&quot;normalScale&quot;&#41;;
+            boolean useSpheremap = &#40;Boolean&#41; wiz.getProperty&#40;&quot;useSpheremap&quot;&#41;;
+            return SkyFactory.createSky&#40;pm, textureSingle, normalScale, useSpheremap&#41;;
+        &#125;
+    &#125;
+&nbsp;
+    <span>/**
+     * Initialize panels representing individual wizard's steps and sets
+     * various properties for them influencing wizard appearance.
+     */</span>
+    private WizardDescriptor.Panel&#91;&#93; getPanels&#40;&#41; &#123;
+        if &#40;panels == null&#41; &#123;
+            panels = new WizardDescriptor.Panel&#91;&#93;&#123;
+                        new SkyboxWizardPanel1&#40;&#41;,
+                        new SkyboxWizardPanel2&#40;&#41;
+                    &#125;;
+            String&#91;&#93; steps = new String&#91;panels.length&#93;;
+            for &#40;int i = 0; i &lt; panels.length; i++&#41; &#123;
+                Component c = panels&#91;i&#93;.getComponent&#40;&#41;;
+                // Default step name to component name of panel. Mainly useful
+                // for getting the name of the target chooser to appear in the
+                // list of steps.
+                steps&#91;i&#93; = c.getName&#40;&#41;;
+                if &#40;c instanceof JComponent&#41; &#123; // assume Swing components
+                    JComponent jc = &#40;JComponent&#41; c;
+                    // Sets step number of a component
+                    // TODO if using org.openide.dialogs &gt;= 7.8, can use WizardDescriptor.PROP_*:
+                    jc.putClientProperty&#40;&quot;WizardPanel_contentSelectedIndex&quot;, new Integer&#40;i&#41;&#41;;
+                    // Sets steps names for a panel
+                    jc.putClientProperty&#40;&quot;WizardPanel_contentData&quot;, steps&#41;;
+                    // Turn on subtitle creation on each step
+                    jc.putClientProperty&#40;&quot;WizardPanel_autoWizardStyle&quot;, Boolean.TRUE&#41;;
+                    // Show steps on the left side with the image on the background
+                    jc.putClientProperty&#40;&quot;WizardPanel_contentDisplayed&quot;, Boolean.TRUE&#41;;
+                    // Turn on numbering of all steps
+                    jc.putClientProperty&#40;&quot;WizardPanel_contentNumbered&quot;, Boolean.TRUE&#41;;
+                &#125;
+            &#125;
+        &#125;
+        return panels;
+    &#125;
+&#125;</pre>
+
+<p>
+
+<p><div>The abstract spatial and control actions implement undo/redo automatically, for the ToolActions you have to implement it yourself.
+</div></p>
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Adding items to the add and tools menus" [6865-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:development:sceneexplorer?do=export_xhtmlbody">view online version</a></em></p>

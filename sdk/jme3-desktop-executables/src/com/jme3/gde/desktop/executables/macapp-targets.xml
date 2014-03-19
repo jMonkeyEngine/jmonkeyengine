@@ -1,0 +1,35 @@
+    <target name="-mac-app" depends="-test-mac-app-enabled" if="is.mac.app.enabled">
+        <echo>MacOSX Application Creation</echo>
+        <!--replace -->
+        <loadresource property="jfxdeploy.jvmargs">
+            <propertyresource name="run.jvmargs"/>
+            <filterchain>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replacestring from=" " to="&lt;/string&gt;&lt;string&gt;"/>
+                </tokenfilter>
+            </filterchain>
+        </loadresource>
+        <copy file="resources/macapp/Info.plist" tofile="resources/macapp/_Info.plist">
+            <filterchain>
+                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${run.jvmargs}" to="${jfxdeploy.jvmargs}"/>
+                <replacestring from="$${application.title}" to="${application.title}"/>
+                <replacestring from="$${jfxdeploy.jvmargs}" to="-Xnoagent"/>
+            </filterchain>
+        </copy>
+        <zip destfile="${dist.dir}/${application.title}-MacOSX.zip">
+            <zipfileset file="resources/macapp/osx-stub" filemode="755" fullpath="${application.title}.app/Contents/MacOS/JavaAppLauncher"/>
+            <zipfileset file="resources/macapp/_Info.plist" fullpath="${application.title}.app/Contents/Info.plist"/>
+            <zipfileset file="resources/macapp/osx-icon.icns" fullpath="${application.title}.app/Contents/Resources/GenericApp.icns"/>
+            <zipfileset file="${dist.jar}" prefix="${application.title}.app/Contents/Java"/>
+            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}.app/Contents/Java/lib"/>
+        </zip>
+        <delete file="resources/macapp/_Info.plist"/>
+    </target>
+    
+    <target name="-test-mac-app-enabled">
+        <condition property="is.mac.app.enabled">
+            <istrue value="${mac.app.enabled}"/>
+        </condition>
+    </target>

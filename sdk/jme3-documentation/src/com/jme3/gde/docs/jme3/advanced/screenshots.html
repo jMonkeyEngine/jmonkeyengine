@@ -1,0 +1,27 @@
+
+<h1><a>Taking Screenshots</a></h1>
+<div>
+
+<p>
+
+The com.jme3.app.state.ScreenshotAppState enables your users to take screenshots of the running game.
+</p>
+
+<p>
+You activate this feature as follows in your simpleInitApp() method:
+
+</p>
+<pre>ScreenshotAppState screenShotState = new ScreenshotAppState&#40;&#41;;
+this.stateManager.attach&#40;screenShotState&#41;;</pre>
+
+<p>
+The default screenshot key is KeyInput.KEY_SYSRQ, alos known as &quot;System Request / Print Screen&quot; key. On Mac keyboards, this key does not exist, so on Mac <acronym title="Operating System">OS</acronym> you take screenshots using Command+Shift+3 (fullscreen) or Command+Shift+4 (windowed: press space to select a window and then click).
+</p>
+
+<p>
+The screenshot is saved to the user directory.
+
+</p>
+
+</div>
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:screenshots?do=export_xhtmlbody">view online version</a></em></p>

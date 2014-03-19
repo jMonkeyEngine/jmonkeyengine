@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.jme3.gde.codecheck
+OpenIDE-Module-Implementation-Version: 0
+OpenIDE-Module-Layer: com/jme3/gde/codecheck/layer.xml
+OpenIDE-Module-Localizing-Bundle: com/jme3/gde/codecheck/Bundle.properties
+

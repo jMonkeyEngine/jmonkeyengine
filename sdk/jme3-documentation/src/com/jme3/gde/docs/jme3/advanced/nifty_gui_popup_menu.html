@@ -1,0 +1,94 @@
+
+<h1><a>Nifty GUI: Create a PopUp Menu</a></h1>
+<div>
+
+<p>
+
+Even though you create and populate the popup menu in Java, you still need a &quot;placeholder&quot; in your <acronym title="Extensible Markup Language">XML</acronym> file.
+The popup element needs to be placed <em>outside</em> of any screen!
+</p>
+<pre><span>&lt;useControls filename=&quot;nifty-default-controls.xml&quot;/&gt;</span>
+...
+<span>&lt;popup id=&quot;niftyPopupMenu&quot; childLayout=&quot;absolute-inside&quot;</span>
+<span>       controller=&quot;ControllerOfYourChoice&quot; width=&quot;10%&quot;&gt;</span>
+  <span>&lt;interact onClick=&quot;closePopup()&quot; onSecondaryClick=&quot;closePopup()&quot; onTertiaryClick=&quot;closePopup()&quot; /&gt;</span>
+  <span>&lt;control id=&quot;#menu&quot; name=&quot;niftyMenu&quot; /&gt;</span>
+<span><span>&lt;/popup&gt;</span></span>
+...</pre>
+
+<p>
+A brief explanation of some the attributes above:
+</p>
+<ul>
+<li><div> The popup id is used within your Java code so that nifty knows which popup placeholder to create.</div>
+</li>
+<li><div> The Controller tells Nifty which Java class handles MenuItemActivatedEvent.</div>
+</li>
+<li><div> The on(Secondary/Tertiary)Click tells Nifty to close the popup if the user clicks anywhere except on the menu items (in this example; you have to define the closePopup()-method yourself, in the screen controller)</div>
+</li>
+<li><div> The control id is used by the Java class to define a control type (i.e. Menu)</div>
+</li>
+</ul>
+
+<p>
+
+The Java code within your defined ScreenController implementation:
+</p>
+<pre>private Element popup;
+...
+public void createMyPopupMenu&#40;&#41;&#123;
+  popup = nifty.createPopup&#40;&quot;niftyPopupMenu&quot;&#41;;
+  Menu myMenu = popup.findNiftyControl&#40;&quot;#menu&quot;, Menu.class&#41;;
+  myMenu.setWidth&#40;new SizeValue&#40;&quot;100px&quot;&#41;&#41;; // must be set
+  myMenu.addMenuItem&#40;&quot;Click me!&quot;, &quot;menuItemIcon.png&quot;, 
+    new menuItem&#40;&quot;menuItemid&quot;, &quot;blah blah&quot;&#41;&#41;; // menuItem is a custom class
+  nifty.subscribe&#40;
+    nifty.getCurrentScreen&#40;&#41;, 
+    myMenu.getId&#40;&#41;, 
+    MenuItemActivatedEvent.class, 
+    new MenuItemActivatedEventSubscriber&#40;&#41;&#41;;
+&#125;
+&nbsp;
+public void showMenu&#40;&#41; &#123; // the method to trigger the menu
+  // If this is a menu that is going to be used many times, then
+  // call this in your constructor rather than here   
+  createMyPopupMenu&#40;&#41; 
+  // call the popup to screen of your choice:
+  nifty.showPopup&#40;nifty.getCurrentScreen&#40;&#41;, popup.getId&#40;&#41;, null&#41;; 
+&#125;
+&nbsp;
+private class menuItem &#123;
+  public String id;
+  public String name;
+  public menuItem&#40;String id, String name&#41;&#123;
+    this.id= id;
+    this.name = name;
+  &#125;
+&#125;</pre>
+<ul>
+<li><div> The createMyPopupMenu() method creates the menu with set width so that you can populate it.</div>
+</li>
+<li><div> The showMenu() method is called by something to trigger the menu (i.e. could be a Key or some other method).</div>
+</li>
+<li><div> Note: if you want to be able to access the popup via your id, use createPopupWithId(id, id) instead.</div>
+</li>
+</ul>
+
+<p>
+
+To handle menu item events (i.e. calling a method when you click on a menu item), you register (subscribe) a EventTopicSubscriber&lt;MenuItemActivatedEvent&gt; class implementation to a nifty screen and element.
+</p>
+<pre>  private class MenuItemActivatedEventSubscriber 
+    implements EventTopicSubscriber&lt;MenuItemActivatedEvent&gt; &#123;
+&nbsp;
+    @Override
+    public void onEvent&#40;final String id, final MenuItemActivatedEvent event&#41; &#123;
+    	menuItem item = &#40;menuItem&#41; event.getItem&#40;&#41;;
+       if &#40;&quot;menuItemid&quot;.equals&#40;item.id&#41;&#41; &#123;
+		//do something !!!
+       &#125;
+    &#125;
+  &#125;;</pre>
+
+</div>
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_popup_menu?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="CodelessProjects">
+            <file name="com-jme3-gde-core-codeless-CodelessProjectWizardAction.instance">
+                <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.codeless.Bundle#CTL_Codeless_Project"/>
+                <attr name="iconBase" stringvalue="com/jme3/gde/core/assets/actions/jme-logo.png"/>
+                <attr name="injectable" stringvalue="com.jme3.gde.core.codeless.CodelessProjectWizardAction"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+        </folder>
+        <folder name="SceneComposer">
+            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAcction.instance_hidden"/>
+            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAction.instance">
+                <attr name="iconBase" stringvalue="com/jme3/gde/core/sceneviewer/actions/32_bit.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchFrontViewAction.instance"/>
+            <file name="com-jme3-gde-core-sceneviewer-actions-SwitchToFrontViewAction.instance_hidden"/>
+        </folder>
+        <folder name="jMonkeyPlatform">
+            <file name="com-jme3-gde-core-assets-actions-OpenModel.instance">
+                <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.assets.actions.Bundle#CTL_OpenModel"/>
+                <attr name="iconBase" stringvalue="com/jme3/gde/core/assets/actions/jme-logo.png"/>
+                <attr name="injectable" stringvalue="com.jme3.gde.core.assets.actions.OpenModel"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+                <attr name="selectionType" stringvalue="EXACTLY_ONE"/>
+                <attr name="type" stringvalue="com.jme3.gde.core.assets.SpatialAssetDataObject"/>
+            </file>
+            <file name="com-jme3-gde-core-assets-actions-ConvertModel.instance">
+                <attr name="delegate" methodvalue="org.openide.awt.Actions.inject"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.assets.actions.Bundle#CTL_ConvertModel"/>
+                <attr name="iconBase" stringvalue="com/jme3/gde/core/assets/actions/Computer_File_057.gif"/>
+                <attr name="injectable" stringvalue="com.jme3.gde.core.assets.actions.ConvertModel"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.context"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+                <attr name="selectionType" stringvalue="ANY"/>
+                <attr name="type" stringvalue="com.jme3.gde.core.assets.SpatialAssetDataObject"/>
+            </file>
+            <file name="com-jme3-gde-core-errorreport-RendererInfoAction.instance">
+                <attr name="delegate" newvalue="com.jme3.gde.core.errorreport.RendererInfoAction"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.errorreport.Bundle#CTL_RendererInfoAction"/>
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="noIconInMenu" boolvalue="false"/>
+            </file>
+        </folder>
+        <folder name="Window">
+            <file name="com-jme3-gde-core-sceneexplorer-SceneExplorerAction.instance">
+                <attr name="component" methodvalue="com.jme3.gde.core.sceneexplorer.SceneExplorerTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.sceneexplorer.Bundle#CTL_SceneExplorerAction"/>
+                <attr name="iconBase" stringvalue="com/jme3/gde/core/sceneexplorer/jme-logo.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            </file>
+            <file name="com-jme3-gde-core-sceneviewer-SceneViewerAction.instance">
+                <attr name="component" methodvalue="com.jme3.gde.core.sceneviewer.SceneViewerTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.sceneviewer.Bundle#CTL_SceneViewerAction"/>
+                <attr name="iconBase" stringvalue="com/jme3/gde/core/sceneviewer/jme-logo.png"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="SceneExplorerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/com-jme3-gde-core-sceneexplorer-SceneExplorerAction.instance"/>
+            </file>
+            <file name="SceneViewerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/com-jme3-gde-core-sceneviewer-SceneViewerAction.instance"/>
+            </file>
+        </folder>
+        <folder name="File">
+            <folder name="Import">
+                <file name="CodelessProject.shadow">
+                    <attr name="originalFile" stringvalue="Actions/CodelessProjects/com-jme3-gde-core-codeless-CodelessProjectWizardAction.instance"/>
+                    <attr name="position" intvalue="0"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="Help">
+            <file name="com-jme3-gde-core-errorreport-RendererInfoAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/jMonkeyPlatform/com-jme3-gde-core-errorreport-RendererInfoAction.instance"/>
+                <attr name="position" intvalue="1225"/>
+            </file>
+            <file name="jmewiki.url" url="jmewiki.url">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.jme3.gde.core.Bundle"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.Bundle#Menu/Help/jmewiki.url"/>
+                <attr name="position" intvalue="200"/>
+            </file>
+            <file name="help-main.xml" url="help-main.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.jme3.gde.core.Bundle"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.Bundle#Menu/Help/help-main.xml"/>
+                <attr name="position" intvalue="100"/>
+            </file>
+            <file name="org-netbeans-modules-usersguide-master.xml_hidden"/>
+            <file name="shortcuts.xml_hidden"/>
+            <file name="netbeans-kb.url_hidden"/>
+            <file name="org-netbeans-modules-bugzilla-ReportNBIssueAction.shadow_hidden"/>
+        </folder>
+    </folder>
+    <!--TODO: Lookup for SceneViewer-->
+<!-- <folder name="Services">
+        <folder name="Hidden">
+            <file name="com-jme3-gde-core-sceneviewer-SceneVieverApplication.instance">
+                <attr name="instanceCreate" methodvalue="com.jme3.gde.core.sceneviewer.SceneVieverApplication.getApplication"/>
+            </file>
+        </folder>
+    </folder>
+-->
+    <folder name="Projects">
+        <folder name="org-netbeans-modules-ant-freeform">
+            <folder name="Lookup">
+                <file name="com.jme3.gde.core.assets.AssetsLookupProvider.instance"/>
+            </folder>
+            <folder name="Nodes">
+                <file name="com.jme3.gde.core.assets.ProjectAssetsNodeFactory.instance"/>
+            </folder>
+        </folder>
+        <folder name="org-netbeans-modules-java-j2seproject">
+            <folder name="Lookup">
+                <file name="com.jme3.gde.core.assets.AssetsLookupProvider.instance"/>
+            </folder>
+            <folder name="Nodes">
+                <file name="com.jme3.gde.core.assets.ProjectAssetsNodeFactory.instance">
+                    <attr name="position" intvalue="10"/>
+                </file>
+                <file name="com.jme3.gde.core.importantfiles.ImportantFilesNode$ImportantFilesNodeFactoryImpl.instance">
+                    <attr name="position" intvalue="10000"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="org-netbeans-modules-maven">
+            <folder name="Lookup">
+                <file name="com.jme3.gde.core.assets.AssetsLookupProvider.instance"/>
+            </folder>
+            <folder name="Nodes">
+                <file name="com.jme3.gde.core.assets.ProjectAssetsNodeFactory.instance"/>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="application">
+            <folder name="jme3filterpostprocessor">
+                <folder name="Actions">
+                    <file name="org-openide-actions-CopyAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CopyAction.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="org-openide-actions-CutAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CutAction.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-openide-actions-DeleteAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-DeleteAction.instance"/>
+                        <attr name="position" intvalue="500"/>
+                    </file>
+                    <file name="org-openide-actions-FileSystemAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-FileSystemAction.instance"/>
+                        <attr name="position" intvalue="1000"/>
+                    </file>
+                    <file name="org-openide-actions-PropertiesAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-PropertiesAction.instance"/>
+                        <attr name="position" intvalue="1300"/>
+                    </file>
+                    <file name="org-openide-actions-RenameAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-RenameAction.instance"/>
+                        <attr name="position" intvalue="600"/>
+                    </file>
+                    <file name="org-openide-actions-SaveAsTemplateAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-SaveAsTemplateAction.instance"/>
+                        <attr name="position" intvalue="800"/>
+                    </file>
+                    <file name="org-openide-actions-ToolsAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-ToolsAction.instance"/>
+                        <attr name="position" intvalue="1200"/>
+                    </file>
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="sep-2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="400"/>
+                    </file>
+                    <file name="sep-3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="700"/>
+                    </file>
+                    <file name="sep-4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="900"/>
+                    </file>
+                    <file name="sep-5.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1100"/>
+                    </file>
+                </folder>
+                <folder name="Factories">
+                    <file name="FilterPostProcessorDataLoader.instance">
+                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:com/jme3/gde/core/filters/icons/eye.gif"/>
+                        <attr name="dataObjectClass" stringvalue="com.jme3.gde.core.assets.FilterDataObject"/>
+                        <attr name="instanceCreate" methodvalue="org.openide.loaders.DataLoaderPool.factory"/>
+                        <attr name="mimeType" stringvalue="application/jme3filterpostprocessor"/>
+                    </file>
+                </folder>
+            </folder>
+            <folder name="jme3model">
+                <folder name="Actions">
+                    <!--file name="org-openide-actions-OpenAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-OpenAction.instance"/>
+                        <attr name="position" intvalue="100"/>
+                    </file-->
+                    <file name="org-openide-actions-CopyAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CopyAction.instance"/>
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="org-openide-actions-CutAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-CutAction.instance"/>
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-openide-actions-DeleteAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-DeleteAction.instance"/>
+                        <attr name="position" intvalue="500"/>
+                    </file>
+                    <file name="org-openide-actions-FileSystemAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-FileSystemAction.instance"/>
+                        <attr name="position" intvalue="1000"/>
+                    </file>
+                    <file name="org-openide-actions-PropertiesAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-PropertiesAction.instance"/>
+                        <attr name="position" intvalue="1300"/>
+                    </file>
+                    <file name="org-openide-actions-RenameAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-RenameAction.instance"/>
+                        <attr name="position" intvalue="600"/>
+                    </file>
+                    <file name="org-openide-actions-SaveAsTemplateAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-SaveAsTemplateAction.instance"/>
+                        <attr name="position" intvalue="800"/>
+                    </file>
+                    <file name="org-openide-actions-ToolsAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-ToolsAction.instance"/>
+                        <attr name="position" intvalue="1200"/>
+                    </file>
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="sep-2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="400"/>
+                    </file>
+                    <file name="sep-3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="700"/>
+                    </file>
+                    <file name="sep-4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="900"/>
+                    </file>
+                    <file name="sep-5.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1100"/>
+                    </file>
+                </folder>
+                <folder name="Factories">
+                    <file name="com-jme3-gde-core-assets-BinaryModelFileLoader.instance">
+                        <attr name="dataObjectClass" stringvalue="com.jme3.gde.core.assets.BinaryModelDataObject"/>
+                        <attr name="iconBase" stringvalue="com/jme3/gde/core/assets/jme-logo.png"/>
+                        <attr name="mimeType" stringvalue="application/jme3model"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="jMonkeyPlatform-Tools">
+            <attr name="position" intvalue="175"/>
+            <file name="com-jme3-gde-core-assets-actions-OpenModel.shadow">
+                <attr name="originalFile" stringvalue="Actions/jMonkeyPlatform/com-jme3-gde-core-assets-actions-OpenModel.instance"/>
+                <attr name="position" intvalue="20"/>
+            </file>
+        </folder>
+        <!--folder name="Memory_hidden">
+        </folder-->
+        <folder name="File">
+            <attr name="position" intvalue="100"/>
+            <file name="com-jme3-gde-core-assets-actions-ConvertModel.shadow">
+                <attr name="originalFile" stringvalue="Actions/jMonkeyPlatform/com-jme3-gde-core-assets-actions-ConvertModel.instance"/>
+                <attr name="position" intvalue="315"/>
+            </file>
+            <file name="org-openide-actions-SaveAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/System/org-openide-actions-SaveAction.instance"/>
+                <attr name="position" intvalue="355"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <folder name="Filters">
+            <file name="filter.j3f" url="filter.j3f">
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.Bundle#Templates/Other/filter.j3f"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+        </folder>
+        <folder name="Project">
+            <folder name="Samples">
+                <file name="Standard_hidden"/>
+            </folder>
+            <folder name="Standard">
+                <file name="desktopApp.xml_hidden"/>
+                <file name="emptyJ2SE.xml_hidden"/>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="core-helpset.xml" url="core-helpset.xml">
+                <attr name="position" intvalue="3358"/>
+            </file>
+            <file name="org-netbeans-modules-java-helpset.xml_hidden"/>
+        </folder>
+        <folder name="MIMEResolver">
+            <file name="FilterPostProcessorResolver.xml" url="FilterPostProcessorResolver.xml">
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.Bundle#Services/MIMEResolver/FilterPostProcessorResolver.xml"/>
+            </file>
+            <file name="JMEBinaryModelResolver.xml" url="JMEBinaryModelResolver.xml">
+                <attr name="displayName" bundlevalue="com.jme3.gde.core.Bundle#Services/MIMEResolver/JMEBinaryModelResolver.xml"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="SceneExplorerTopComponent.settings" url="SceneExplorerTopComponentSettings.xml"/>
+            <file name="SceneViewerTopComponent.settings" url="SceneViewerTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="SceneViewerTopComponent.wstcref" url="SceneViewerTopComponentWstcref.xml"/>
+            </folder>
+            <folder name="navigator">
+                <file name="SceneExplorerTopComponent.wstcref" url="SceneExplorerTopComponentWstcref.xml"/>
+            </folder>
+            <folder name="explorer">
+                <file name="projectTabLogical_tc.wstcref" url="projectTabLogical_tcWstcref.xml"/>
+            </folder>
+            <folder name="output">
+                <file name="output.wstcref" url="outputWstcref.xml"/>
+            </folder>
+            <folder name="properties">
+                <file name="properties.wstcref" url="propertiesWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

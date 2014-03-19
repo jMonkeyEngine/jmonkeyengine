@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE editor_palette_item PUBLIC "-//NetBeans//Editor Palette Item 1.1//EN"
+  "http://www.netbeans.org/dtds/editor-palette-item-1_1.dtd">
+
+<editor_palette_item version="1.0">
+
+    <class name="com.jme3.gde.codepalette.scene.JmePaletteShadowBasic" />
+
+    <icon16 urlvalue="com/jme3/gde/core/sceneviewer/jme-logo.png" />
+    <icon32 urlvalue="com/jme3/gde/core/sceneviewer/jme-logo.png" />
+
+    <inline-description>
+       <display-name>Shadows Renderer</display-name>
+       <tooltip>Directional PSSM shadow renderer for smaller maps.</tooltip>
+    </inline-description>
+
+</editor_palette_item>

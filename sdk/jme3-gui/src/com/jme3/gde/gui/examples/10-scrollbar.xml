@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
+  <useStyles filename="nifty-default-styles.xml" />
+  <useControls filename="nifty-default-controls.xml" />
+
+  <screen id="start">
+    <layer childLayout="center">
+      <panel childLayout="horizontal" align="center" valign="center" width="50%" height="50%" backgroundColor="#55a5" padding="10">
+        <!-- simple vertical scrollbar -->
+        <control name="verticalScrollbar" worldMax="1000.0" worldPageSize="100.0" initial="10.0" buttonStepSize="10.0" pageStepSize="100.0" />
+
+        <panel width="10px" />
+
+        <!-- simple horizontal scrollbar -->
+        <control name="horizontalScrollbar" worldMax="1000.0" worldPageSize="100.0" initial="10.0" buttonStepSize="10.0" pageStepSize="100.0" />
+      </panel>
+    </layer>
+  </screen>
+</nifty>

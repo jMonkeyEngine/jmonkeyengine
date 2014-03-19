@@ -1,0 +1,657 @@
+
+<h1><a>Capture Audio/Video to a File</a></h1>
+<div>
+
+<p>
+
+So you&#039;ve made your cool new JMonkeyEngine3 game and you want to
+create a demo video to show off your hard work. Or maybe you want to
+make a cutscene for your game using the physics and characters in the
+game itself.  Screen capturing is the most straightforward way to do
+this, but it can slow down your game and produce low-quality video and
+audio as a result. A better way is to record video and audio directly
+from the game while it is running using VideoRecorderAppState.
+</p>
+
+<p>
+<p><div>Combine this method with jMonkeyEngine&#039;s 
+<a href="/com/jme3/gde/docs/jme3/advanced/cinematics.html">Cinematics</a>
+feature to record high-quality game trailers!
+</div></p>
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Capture Audio/Video to a File" [1-658] -->
+<h2><a>Simple Way</a></h2>
+<div>
+
+<p>
+
+First off, if all you need is to record video at 30fps with no sound, then look
+no further than jMonkeyEngine 3&#039;s built in <code>VideoRecorderAppState</code>
+class.
+</p>
+
+<p>
+Add the following code to your <code>simpleInitApp()</code> method. 
+</p>
+<pre>stateManager.attach&#40;new VideoRecorderAppState&#40;&#41;&#41;; //start recording</pre>
+
+<p>
+The game will run slow, but the recording will be in high-quality and
+normal speed. Recording starts when the state is
+attached, and ends when the application quits or the state is detached.
+</p>
+
+<p>
+The video files will be stored in your <strong>user home directory</strong>. 
+If you want to save to another path, specify a File object in the
+VideoRecorderAppState constructor. 
+</p>
+
+<p>
+That&#039;s all!
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Simple Way" [659-1362] -->
+<h2><a>Advanced Way</a></h2>
+<div>
+
+<p>
+
+<p><div>This way of A/V recording is still in development.  
+It works for all of jMonkeyEngine&#039;s test cases. 
+If you experience any problems or
+if something isn&#039;t clear, please <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/members/bortreb/"><param name="text" value="<html><u>let me know</u></html>"><param name="textColor" value="blue"></object>. ??? bortreb
+</div></p>
+</p>
+
+<p>
+If you want to record audio as well, record at different framerates,
+or record from multiple viewpoints at once, then there&#039;s a full
+solution for doing this already made for you here:
+</p>
+
+<p>
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.aurellem.com/releases/jmeCapture-latest.zip"><param name="text" value="<html><u>http://www.aurellem.com/releases/jmeCapture-latest.zip</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.aurellem.com/releases/jmeCapture-latest.tar.bz2"><param name="text" value="<html><u>http://www.aurellem.com/releases/jmeCapture-latest.tar.bz2</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+Download the archive in your preferred format, extract,
+add the jars to your project, and you are ready to go.
+</p>
+
+<p>
+The javadoc is here:
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.aurellem.com/jmeCapture/docs/"><param name="text" value="<html><u>http://www.aurellem.com/jmeCapture/docs/</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+To capture video and audio you use the
+<code>com.aurellem.capture.Capture</code> class, which has two methods,
+<code>captureAudio()</code> and <code>captureVideo()</code>, and the
+<code>com.aurellem.capture.IsoTimer</code> class, which sets the audio and
+video framerate.
+</p>
+
+<p>
+The steps are:
+</p>
+<pre>yourApp.setTimer&#40;new IsoTimer&#40;desiredFramesPerSecond&#41;&#41;;</pre>
+
+<p>
+This causes jMonkeyEngine to take as much time as it needs to fully
+calculate every frame of the video and audio.  You will see your game
+speed up and slow down depending on how computationally demanding your
+game is, but the final recorded audio and video will be perfectly
+sychronized and will run at exactly the fps which you specified.
+</p>
+<pre>captureVideo&#40;yourApp, targetVideoFile&#41;;
+captureAudio&#40;yourApp, targetAudioFile&#41;;</pre>
+
+<p>
+These will cause the app to record audio and video when it is run.
+Audio and video will stop being recorded when the app stops. Your
+audio will be recorded as a 44,100 Hz linear PCM wav file, while the
+video will be recorded according to the following rules:
+</p>
+
+<p>
+1.) (Preferred) If you supply an empty directory as the file, then
+the video will be saved as a sequence of .png files, one file per
+frame.  The files start at 0000000.png and increment from there.
+You can then combine the frames into your preferred
+container/codec. If the directory is not empty, then writing
+video frames to it will fail, and nothing will be written.
+</p>
+
+<p>
+2.) If the filename ends in &quot;.avi&quot; then the frames will be encoded as
+a RAW stream inside an AVI 1.0 container.  The resulting file
+will be quite large and you will probably want to re-encode it to
+your preferred container/codec format.  Be advised that some
+video payers cannot process AVI with a RAW stream, and that AVI
+1.0 files generated by this method that exceed 2.0GB are invalid
+according to the AVI 1.0 <acronym title="specification">spec</acronym> (but many programs can still deal
+with them.)  Thanks to 
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.randelshofer.ch/blog/2008/08/writing-avi-videos-in-pure-java/"><param name="text" value="<html><u>Werner Randelshofer</u></html>"><param name="textColor" value="blue"></object>
+for his excellent work which made the AVI file writer option possible.
+</p>
+
+<p>
+3.) Any non-directory file ending in anything other than &quot;.avi&quot; will
+be processed through Xuggle.  Xuggle provides the option to use
+many codecs/containers, but you will have to install it on your
+system yourself in order to use this option. Please visit
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.xuggle.com/"><param name="text" value="<html><u>http://www.xuggle.com/</u></html>"><param name="textColor" value="blue"></object> to learn how to do this.
+</p>
+
+<p>
+Note that you will not hear any sound if you choose to record sound to
+a file.
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Advanced Way" [1363-4555] -->
+<h3><a>Basic Example</a></h3>
+<div>
+
+<p>
+
+Here is a complete example showing how to capture both audio and video
+from one of jMonkeyEngine3&#039;s advanced demo applications.
+</p>
+<pre>import java.io.File;
+import java.io.IOException;
+&nbsp;
+import jme3test.water.TestPostWater;
+&nbsp;
+import com.aurellem.capture.Capture;
+import com.aurellem.capture.IsoTimer;
+import com.jme3.app.SimpleApplication;
+&nbsp;
+&nbsp;
+<span>/**
+ * Demonstrates how to use basic Audio/Video capture with a
+ * jMonkeyEngine application. You can use these techniques to make
+ * high quality cutscenes or demo videos, even on very slow laptops.
+ * 
+ * @author Robert McIntyre
+ */</span>
+&nbsp;
+public class Basic &#123;
+&nbsp;
+    public static void main&#40;String&#91;&#93; ignore&#41; throws IOException&#123;
+	File video = File.createTempFile&#40;&quot;JME-water-video&quot;, &quot;.avi&quot;&#41;;
+	File audio = File.createTempFile&#40;&quot;JME-water-audio&quot;, &quot;.wav&quot;&#41;;
+&nbsp;
+	SimpleApplication app = new TestPostWater&#40;&#41;;
+	app.setTimer&#40;new IsoTimer&#40;60&#41;&#41;;
+	app.setShowSettings&#40;false&#41;;
+&nbsp;
+	Capture.captureVideo&#40;app, video&#41;;
+	Capture.captureAudio&#40;app, audio&#41;;
+&nbsp;
+	app.start&#40;&#41;;
+&nbsp;
+	System.out.println&#40;video.getCanonicalPath&#40;&#41;&#41;;
+	System.out.println&#40;audio.getCanonicalPath&#40;&#41;&#41;;
+    &#125;
+&#125;</pre>
+
+</div>
+<!-- EDIT4 SECTION "Basic Example" [4556-5688] -->
+<h3><a>How it works</a></h3>
+<div>
+
+<p>
+
+A standard JME3 application that extends <code>SimpleApplication</code> or
+<code>Application</code> tries as hard as it can to keep in sync with
+<em>user-time</em>.  If a ball is rolling at 1 game-mile per game-hour in the
+game, and you wait for one user-hour as measured by the clock on your
+wall, then the ball should have traveled exactly one game-mile. In
+order to keep sync with the real world, the game throttles its physics
+engine and graphics display.  If the computations involved in running
+the game are too intense, then the game will first skip frames, then
+sacrifice physics accuracy.  If there are particuraly demanding
+computations, then you may only get 1 fps, and the ball may tunnel
+through the floor or obstacles due to inaccurate physics simulation,
+but after the end of one user-hour, that ball will have traveled one
+game-mile.
+</p>
+
+<p>
+When we&#039;re recording video, we don&#039;t care if the game-time syncs with
+user-time, but instead whether the time in the recorded video
+(video-time) syncs with user-time. To continue the analogy, if we
+recorded the ball rolling at 1 game-mile per game-hour and watched the
+video later, we would want to see 30 fps video of the ball rolling at
+1 video-mile per <em>user-hour</em>. It doesn&#039;t matter how much user-time it
+took to simulate that hour of game-time to make the high-quality
+recording.
+</p>
+
+<p>
+The IsoTimer ignores real-time and always reports that the same amount
+of time has passed every time it is called. That way, one can put code
+to write each video/audio frame to a file without worrying about that
+code itself slowing down the game to the point where the recording
+would be useless.
+</p>
+
+</div>
+<!-- EDIT5 SECTION "How it works" [5689-7327] -->
+<h3><a>Advanced Example</a></h3>
+<div>
+
+<p>
+
+The package from aurellem.com was made for AI research and can do more
+than just record a single stream of audio and video. You can use it
+to:
+</p>
+
+<p>
+1.) Create multiple independent listeners that each hear the world
+from their own perspective.
+</p>
+
+<p>
+2.) Process the sound data in any way you wish.
+</p>
+
+<p>
+3.) Do the same for visual data.
+</p>
+
+<p>
+Here is a more advanced example, which can also be found along with
+other examples in the jmeCapture.jar file included in the
+distribution.
+</p>
+<pre>package com.aurellem.capture.examples;
+&nbsp;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
+&nbsp;
+import javax.sound.sampled.AudioFormat;
+&nbsp;
+import org.tritonus.share.sampled.FloatSampleTools;
+&nbsp;
+import com.aurellem.capture.AurellemSystemDelegate;
+import com.aurellem.capture.Capture;
+import com.aurellem.capture.IsoTimer;
+import com.aurellem.capture.audio.CompositeSoundProcessor;
+import com.aurellem.capture.audio.MultiListener;
+import com.aurellem.capture.audio.SoundProcessor;
+import com.aurellem.capture.audio.WaveFileWriter;
+import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioNode;
+import com.jme3.audio.Listener;
+import com.jme3.cinematic.MotionPath;
+import com.jme3.cinematic.events.AbstractCinematicEvent;
+import com.jme3.cinematic.events.MotionTrack;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
+import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Sphere;
+import com.jme3.system.AppSettings;
+import com.jme3.system.JmeSystem;
+&nbsp;
+<span>/**
+ * 
+ * Demonstrates advanced use of the audio capture and recording
+ * features.  Multiple perspectives of the same scene are
+ * simultaneously rendered to different sound files.
+ * 
+ * A key limitation of the way multiple listeners are implemented is
+ * that only 3D positioning effects are realized for listeners other
+ * than the main LWJGL listener.  This means that audio effects such
+ * as environment settings will *not* be heard on any auxiliary
+ * listeners, though sound attenuation will work correctly.
+ * 
+ * Multiple listeners as realized here might be used to make AI
+ * entities that can each hear the world from their own perspective.
+ * 
+ * @author Robert McIntyre
+ */</span>
+&nbsp;
+public class Advanced extends SimpleApplication &#123;
+&nbsp;
+	<span>/**
+	 * You will see three grey cubes, a blue sphere, and a path which
+	 * circles each cube.  The blue sphere is generating a constant
+	 * monotone sound as it moves along the track.  Each cube is
+	 * listening for sound; when a cube hears sound whose intensity is
+	 * greater than a certain threshold, it changes its color from
+	 * grey to green.
+	 * 
+	 *  Each cube is also saving whatever it hears to a file.  The
+	 *  scene from the perspective of the viewer is also saved to a
+	 *  video file.  When you listen to each of the sound files
+	 *  alongside the video, the sound will get louder when the sphere
+	 *  approaches the cube that generated that sound file.  This
+	 *  shows that each listener is hearing the world from its own
+	 *  perspective.
+	 * 
+	 */</span>
+	public static void main&#40;String&#91;&#93; args&#41; &#123;
+		Advanced app = new Advanced&#40;&#41;;
+		AppSettings settings = new AppSettings&#40;true&#41;;
+		settings.setAudioRenderer&#40;AurellemSystemDelegate.SEND&#41;;
+		JmeSystem.setSystemDelegate&#40;new AurellemSystemDelegate&#40;&#41;&#41;;
+		app.setSettings&#40;settings&#41;;
+		app.setShowSettings&#40;false&#41;;
+		app.setPauseOnLostFocus&#40;false&#41;;
+&nbsp;
+&nbsp;
+		try &#123;
+			Capture.captureVideo&#40;app, File.createTempFile&#40;&quot;advanced&quot;,&quot;.avi&quot;&#41;&#41;;
+			Capture.captureAudio&#40;app, File.createTempFile&#40;&quot;advanced&quot;, &quot;.wav&quot;&#41;&#41;;
+		&#125;
+		catch &#40;IOException e&#41; &#123;e.printStackTrace&#40;&#41;;&#125;
+&nbsp;
+		app.start&#40;&#41;;
+	&#125;
+&nbsp;
+&nbsp;
+	private Geometry bell;
+	private Geometry ear1;
+	private Geometry ear2;
+	private Geometry ear3;
+	private AudioNode music;
+	private MotionTrack motionControl;
+	private IsoTimer motionTimer = new IsoTimer&#40;60&#41;;
+&nbsp;
+	private Geometry makeEar&#40;Node root, Vector3f position&#41;&#123;
+		Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+		Geometry ear = new Geometry&#40;&quot;ear&quot;, new Box&#40;1.0f, 1.0f, 1.0f&#41;&#41;;
+		ear.setLocalTranslation&#40;position&#41;;
+		mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Green&#41;;
+		ear.setMaterial&#40;mat&#41;;
+		root.attachChild&#40;ear&#41;;
+		return ear;
+	&#125; 
+&nbsp;
+	private Vector3f&#91;&#93; path = new Vector3f&#91;&#93;&#123;
+			// loop 1
+			new Vector3f&#40;0, 0, 0&#41;,
+			new Vector3f&#40;0, 0, -10&#41;,
+			new Vector3f&#40;-2, 0, -14&#41;,
+			new Vector3f&#40;-6, 0, -20&#41;,
+			new Vector3f&#40;0, 0, -26&#41;,
+			new Vector3f&#40;6, 0, -20&#41;,
+			new Vector3f&#40;0, 0, -14&#41;,
+			new Vector3f&#40;-6, 0, -20&#41;,
+			new Vector3f&#40;0, 0, -26&#41;,
+			new Vector3f&#40;6, 0, -20&#41;,
+			// loop 2
+			new Vector3f&#40;5, 0, -5&#41;,
+			new Vector3f&#40;7, 0, 1.5f&#41;,
+			new Vector3f&#40;14, 0, 2&#41;,
+			new Vector3f&#40;20, 0, 6&#41;,
+			new Vector3f&#40;26, 0, 0&#41;,
+			new Vector3f&#40;20, 0, -6&#41;,
+			new Vector3f&#40;14, 0, 0&#41;,
+			new Vector3f&#40;20, 0, 6&#41;,
+			new Vector3f&#40;26, 0, 0&#41;,
+			new Vector3f&#40;20, 0, -6&#41;,
+			new Vector3f&#40;14, 0, 0&#41;,
+			// loop 3
+			new Vector3f&#40;8, 0, 7.5f&#41;,
+			new Vector3f&#40;7, 0, 10.5f&#41;,
+			new Vector3f&#40;6, 0, 20&#41;,
+			new Vector3f&#40;0, 0, 26&#41;,
+			new Vector3f&#40;-6, 0, 20&#41;,
+			new Vector3f&#40;0, 0, 14&#41;,
+			new Vector3f&#40;6, 0, 20&#41;,
+			new Vector3f&#40;0, 0, 26&#41;,
+			new Vector3f&#40;-6, 0, 20&#41;,
+			new Vector3f&#40;0, 0, 14&#41;,
+			// begin ellipse
+			new Vector3f&#40;16, 5, 20&#41;,
+			new Vector3f&#40;0, 0, 26&#41;,
+			new Vector3f&#40;-16, -10, 20&#41;,
+			new Vector3f&#40;0, 0, 14&#41;,
+			new Vector3f&#40;16, 20, 20&#41;,
+			new Vector3f&#40;0, 0, 26&#41;,
+			new Vector3f&#40;-10, -25, 10&#41;,
+			new Vector3f&#40;-10, 0, 0&#41;,
+			// come at me!
+			new Vector3f&#40;-28.00242f, 48.005623f, -34.648228f&#41;,
+			new Vector3f&#40;0, 0 , -20&#41;,
+	&#125;;
+&nbsp;
+	private void createScene&#40;&#41; &#123;
+		Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+		bell = new Geometry&#40; &quot;sound-emitter&quot; , new Sphere&#40;15,15,1&#41;&#41;;
+		mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
+		bell.setMaterial&#40;mat&#41;;
+		rootNode.attachChild&#40;bell&#41;;
+&nbsp;
+		ear1 = makeEar&#40;rootNode, new Vector3f&#40;0, 0 ,-20&#41;&#41;;
+		ear2 = makeEar&#40;rootNode, new Vector3f&#40;0, 0 ,20&#41;&#41;;
+		ear3 = makeEar&#40;rootNode, new Vector3f&#40;20, 0 ,0&#41;&#41;;
+&nbsp;
+		MotionPath track = new MotionPath&#40;&#41;;
+&nbsp;
+		for &#40;Vector3f v : path&#41;&#123;
+			track.addWayPoint&#40;v&#41;;
+		&#125;
+		track.setCurveTension&#40;0.80f&#41;;
+&nbsp;
+		motionControl = new MotionTrack&#40;bell,track&#41;;
+		// for now, use reflection to change the timer... 
+		// motionControl.setTimer(new IsoTimer(60));
+&nbsp;
+		try &#123;
+			Field timerField;
+			timerField = AbstractCinematicEvent.class.getDeclaredField&#40;&quot;timer&quot;&#41;;
+			timerField.setAccessible&#40;true&#41;;
+			try &#123;timerField.set&#40;motionControl, motionTimer&#41;;&#125; 
+			catch &#40;IllegalArgumentException e&#41; &#123;e.printStackTrace&#40;&#41;;&#125; 
+			catch &#40;IllegalAccessException e&#41; &#123;e.printStackTrace&#40;&#41;;&#125;
+		&#125; 
+		catch &#40;SecurityException e&#41; &#123;e.printStackTrace&#40;&#41;;&#125; 
+		catch &#40;NoSuchFieldException e&#41; &#123;e.printStackTrace&#40;&#41;;&#125;
+&nbsp;
+&nbsp;
+		motionControl.setDirectionType&#40;MotionTrack.Direction.PathAndRotation&#41;;
+		motionControl.setRotation&#40;new Quaternion&#40;&#41;.fromAngleNormalAxis&#40;-FastMath.HALF_PI, Vector3f.UNIT_Y&#41;&#41;;
+		motionControl.setInitialDuration&#40;20f&#41;;
+		motionControl.setSpeed&#40;1f&#41;;
+&nbsp;
+		track.enableDebugShape&#40;assetManager, rootNode&#41;;
+		positionCamera&#40;&#41;;
+	&#125;
+&nbsp;
+&nbsp;
+	private void positionCamera&#40;&#41;&#123;
+		this.cam.setLocation&#40;new Vector3f&#40;-28.00242f, 48.005623f, -34.648228f&#41;&#41;;
+		this.cam.setRotation&#40;new Quaternion&#40;0.3359635f, 0.34280345f, -0.13281013f, 0.8671653f&#41;&#41;;
+	&#125;
+&nbsp;
+	private void initAudio&#40;&#41; &#123;
+		org.lwjgl.input.Mouse.setGrabbed&#40;false&#41;;	
+		music = new AudioNode&#40;assetManager, &quot;Sound/Effects/Beep.ogg&quot;, false&#41;;
+&nbsp;
+		rootNode.attachChild&#40;music&#41;;
+		audioRenderer.playSource&#40;music&#41;;
+		music.setPositional&#40;true&#41;;
+		music.setVolume&#40;1f&#41;;
+		music.setReverbEnabled&#40;false&#41;;
+		music.setDirectional&#40;false&#41;;
+		music.setMaxDistance&#40;200.0f&#41;;
+		music.setRefDistance&#40;1f&#41;;
+		//music.setRolloffFactor(1f);
+		music.setLooping&#40;false&#41;;
+		audioRenderer.pauseSource&#40;music&#41;; 
+	&#125;
+&nbsp;
+	public class Dancer implements SoundProcessor &#123;
+		Geometry entity;
+		float scale = 2;
+		public Dancer&#40;Geometry entity&#41;&#123;
+			this.entity = entity;
+		&#125;
+&nbsp;
+		<span>/**
+		 * this method is irrelevant since there is no state to cleanup.
+		 */</span>
+		public void cleanup&#40;&#41; &#123;&#125;
+&nbsp;
+&nbsp;
+		<span>/**
+		 * Respond to sound!  This is the brain of an AI entity that 
+		 * hears its surroundings and reacts to them.
+		 */</span>
+		public void process&#40;ByteBuffer audioSamples, int numSamples, AudioFormat format&#41; &#123;
+			audioSamples.clear&#40;&#41;;
+			byte&#91;&#93; data = new byte&#91;numSamples&#93;;
+			float&#91;&#93; out = new float&#91;numSamples&#93;;
+			audioSamples.get&#40;data&#41;;
+			FloatSampleTools.byte2floatInterleaved&#40;data, 0, out, 0, 
+					numSamples/format.getFrameSize&#40;&#41;, format&#41;;
+&nbsp;
+			float max = Float.NEGATIVE_INFINITY;
+			for &#40;float f : out&#41;&#123;if &#40;f &gt; max&#41; max = f;&#125;
+			audioSamples.clear&#40;&#41;;
+&nbsp;
+			if &#40;max &gt; 0.1&#41;&#123;entity.getMaterial&#40;&#41;.setColor&#40;&quot;Color&quot;, ColorRGBA.Green&#41;;&#125;
+			else &#123;entity.getMaterial&#40;&#41;.setColor&#40;&quot;Color&quot;, ColorRGBA.Gray&#41;;&#125;
+		&#125;
+	&#125;
+&nbsp;
+	private void prepareEar&#40;Geometry ear, int n&#41;&#123;
+		if &#40;this.audioRenderer instanceof MultiListener&#41;&#123;
+			MultiListener rf = &#40;MultiListener&#41;this.audioRenderer;
+&nbsp;
+			Listener auxListener = new Listener&#40;&#41;;
+			auxListener.setLocation&#40;ear.getLocalTranslation&#40;&#41;&#41;;
+&nbsp;
+			rf.addListener&#40;auxListener&#41;;
+			WaveFileWriter aux = null;
+&nbsp;
+			try &#123;aux = new WaveFileWriter&#40;File.createTempFile&#40;&quot;advanced-audio-&quot; + n, &quot;.wav&quot;&#41;&#41;;&#125; 
+			catch &#40;IOException e&#41; &#123;e.printStackTrace&#40;&#41;;&#125;
+&nbsp;
+			rf.registerSoundProcessor&#40;auxListener, 
+					new CompositeSoundProcessor&#40;new Dancer&#40;ear&#41;, aux&#41;&#41;;
+&nbsp;
+		&#125;   
+	&#125;
+&nbsp;
+&nbsp;
+	public void simpleInitApp&#40;&#41; &#123;
+		this.setTimer&#40;new IsoTimer&#40;60&#41;&#41;;
+		initAudio&#40;&#41;;
+&nbsp;
+		createScene&#40;&#41;;
+&nbsp;
+		prepareEar&#40;ear1, 1&#41;;
+		prepareEar&#40;ear2, 1&#41;;
+		prepareEar&#40;ear3, 1&#41;;
+&nbsp;
+		motionControl.play&#40;&#41;;
+&nbsp;
+	&#125;
+&nbsp;
+	public void simpleUpdate&#40;float tpf&#41; &#123;
+		motionTimer.update&#40;&#41;;
+		if &#40;music.getStatus&#40;&#41; != AudioSource.Status.Playing&#41;&#123;
+			music.play&#40;&#41;;
+		&#125;
+		Vector3f loc = cam.getLocation&#40;&#41;;
+		Quaternion rot = cam.getRotation&#40;&#41;;
+		listener.setLocation&#40;loc&#41;;
+		listener.setRotation&#40;rot&#41;;
+		music.setLocalTranslation&#40;bell.getLocalTranslation&#40;&#41;&#41;;
+	&#125;
+&nbsp;
+&#125;</pre>
+
+<p>
+
+<!--[if !IE]> -->
+<object class="media" width="400" height="350" type="application/x-shockwave-flash" data="/wiki/lib/exe/fetch.php?hash=568504&amp;media=http%3A%2F%2Fwww.youtube.com%2Fv%2FoCEfK0yhDrY%3F.swf" >
+<!-- <![endif]-->
+<!--[if IE]>
+<object class="media" width="400" height="350" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" >
+    <param name="movie" value="/wiki/lib/exe/fetch.php?hash=568504&amp;media=http%3A%2F%2Fwww.youtube.com%2Fv%2FoCEfK0yhDrY%3F.swf" />
+<!--><!-- -->
+  <param name="quality" value="high" />
+The <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.adobe.com/products/flashplayer/"><param name="text" value="<html><u>Adobe Flash Plugin</u></html>"><param name="textColor" value="blue"></object> is needed to display this content.
+</object>
+<!-- <![endif]-->
+
+</p>
+
+</div>
+<!-- EDIT6 SECTION "Advanced Example" [7328-17233] -->
+<h3><a>Using Advanced features to Record from more than one perspective at once</a></h3>
+<div>
+
+<p>
+
+<!--[if !IE]> -->
+<object class="media" width="400" height="350" type="application/x-shockwave-flash" data="/wiki/lib/exe/fetch.php?hash=6921c2&amp;media=http%3A%2F%2Fwww.youtube.com%2Fv%2FWIJt9aRGusc%3F.swf" >
+<!-- <![endif]-->
+<!--[if IE]>
+<object class="media" width="400" height="350" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" >
+    <param name="movie" value="/wiki/lib/exe/fetch.php?hash=6921c2&amp;media=http%3A%2F%2Fwww.youtube.com%2Fv%2FWIJt9aRGusc%3F.swf" />
+<!--><!-- -->
+  <param name="quality" value="high" />
+The <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.adobe.com/products/flashplayer/"><param name="text" value="<html><u>Adobe Flash Plugin</u></html>"><param name="textColor" value="blue"></object> is needed to display this content.
+</object>
+<!-- <![endif]-->
+
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Using Advanced features to Record from more than one perspective at once" [17234-17375] -->
+<h2><a>More Information</a></h2>
+<div>
+
+<p>
+
+This is the old page showing the first version of this idea
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://aurellem.org/cortex/html/capture-video.html"><param name="text" value="<html><u>http://aurellem.org/cortex/html/capture-video.html</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+All source code can be found here:
+</p>
+
+<p>
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://hg.bortreb.com/audio-send"><param name="text" value="<html><u>http://hg.bortreb.com/audio-send</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://hg.bortreb.com/jmeCapture"><param name="text" value="<html><u>http://hg.bortreb.com/jmeCapture</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+More information on the modifications to OpenAL to support multiple
+listeners can be found here.
+</p>
+
+<p>
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://aurellem.org/audio-send/html/ear.html"><param name="text" value="<html><u>http://aurellem.org/audio-send/html/ear.html</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+<!-- EDIT8 SECTION "More Information" [17376-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:capture_audio_video_to_a_file?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,0 +1,390 @@
+################################################################################
+# OpenGL Shading Language 1.30 GLF file ########################################
+################################################################################
+# @date 10.09.2007                                                             #
+# @author Michael Bien                                                         #
+# @email mbien@fh-landshut.de                                                  #
+################################################################################
+
+BUNDLE "net.java.nboglpack.glsleditor.glsl.Bundle"
+
+SKIP:WHITESPACE
+SKIP:END_OF_LINE
+SKIP:COMMENT
+SKIP:ML_COMMENT
+
+## error highlighting ##########################################################
+MARK:ERROR: {
+    type:"Error";
+    message:"LBL_SYNTAX_ERROR";
+}
+MARK:error: {
+    type:"Error";
+    message:"LBL_UNEXPECTED_CHARACTER";
+}
+MARK:reserved: {
+    type:"Warning";
+    message:"LBL_RESERVED_KEYWORD";
+}
+
+FOLD:function_body: {
+    fold_display_name:"{...}";
+}
+FOLD:struct_body: {
+    fold_display_name:"{...}";
+}
+FOLD:ML_COMMENT: {
+    fold_display_name:"/*...*/";
+}
+
+BRACE "(:)"
+BRACE "{:}"
+BRACE "[:]"
+
+COMPLETE "(:)"
+COMPLETE "{:}"
+COMPLETE "[:]"
+
+INDENT "(:)"
+INDENT "{:}"
+INDENT "[:]"
+INDENT "\\s*(((if|while)\\s*\\(|else\\s*|else\\s+if\\s*\\(|for\\s*\\(.*\\))[^{;]*)"
+
+SELECTION ( ["a"-"z" "A"-"Z" "0"-"9" "_"] )
+
+AST {
+    process: net.java.nboglpack.glsleditor.glsl.Glsl.process;
+}
+NAVIGATOR:global_preprocessor: {
+    display_name: net.java.nboglpack.glsleditor.glsl.Glsl.createPreprocessorString;
+    icon: "net/java/nboglpack/glsleditor/resources/preprocessor.png";
+    isLeaf: "true";
+}
+NAVIGATOR:global_declared_identifier: {
+    display_name: net.java.nboglpack.glsleditor.glsl.Glsl.createFieldDeclarationString;
+    icon: "net/java/nboglpack/glsleditor/resources/field.gif";
+    isLeaf: "true";
+}
+NAVIGATOR:function: {
+    display_name: net.java.nboglpack.glsleditor.glsl.Glsl.createFunctionDeclarationString;
+    icon: "net/java/nboglpack/glsleditor/resources/function.gif";
+    isLeaf: "true";
+}
+#PROPERTIES {
+#    traceSteps:"true";
+#    printRules:"true";
+#    printFirst:"true";
+#}
+
+##### GLSL 1.3 grammar #########################################################
+
+S = declaration*;
+
+
+## constants ###################################################################
+type_specifier = "float"
+               | "int"
+               | "uint"
+               | "bool"
+               | "vec2"
+               | "vec3"
+               | "vec4"
+               | "bvec2"
+               | "bvec3"
+               | "bvec4"
+               | "ivec2"
+               | "ivec3"
+               | "ivec4"
+               | "uvec2"
+               | "uvec3"
+               | "uvec4"
+               | "mat2"
+               | "mat3"
+               | "mat4"
+               | "mat2x2"
+               | "mat2x3"
+               | "mat2x4"
+               | "mat3x2"
+               | "mat3x3"
+               | "mat3x4"
+               | "mat4x2"
+               | "mat4x3"
+               | "mat4x4"
+               | "sampler1D"
+               | "sampler2D"
+               | "sampler3D"
+               | "samplerCube"
+               | "sampler1DShadow"
+               | "sampler2DShadow"
+               | "sampler1DArray"
+               | "sampler2DArray"
+               | "sampler1DArrayShadow"
+               | "sampler2DArrayShadow"
+               | "isampler1D"
+               | "isampler2D"
+               | "isampler3D"
+               | "isamplerCube"
+               | "isampler1DArray"
+               | "isampler2DArray"
+               | "usampler1D"
+               | "usampler2D"
+               | "usampler3D"
+               | "usamplerCube"
+               | "usampler1DArray"
+               | "usampler2DArray";
+
+type_specifier_or_identifier = type_specifier | <IDENTIFIER>;
+
+type_qualifier = "const";
+
+interpolation_type_qualifier = "smooth"
+                             | "flat"
+                             | "noperspective";
+
+inout_type_qualifier = "in" | "out";
+
+global_type_qualifier = type_qualifier
+                      | (inout_type_qualifier ["invariant"] ["centroid"])
+                      | (interpolation_type_qualifier ["invariant"] ["centroid"] [inout_type_qualifier])
+                      | ("centroid" [interpolation_type_qualifier] [inout_type_qualifier])
+                      | ("invariant" ["centroid"] [inout_type_qualifier])
+                      | "attribute" # Vertex only.
+                      | "varying"
+                      | ("centroid" "varying")
+                      | ("invariant" ["centroid"] "varying")
+                      | "uniform";
+
+parameter_declaration_qualifier = "in" | "out" | "inout";
+
+boolean_literal = "true" | "false"; # TODO move boolean literal to lexer?
+
+precision_qualifier = "highp"
+                    | "mediump"
+                    | "lowp";
+
+assignment_operator = <EQ>
+                    | <MUL_ASSIGN>
+                    | <DIV_ASSIGN>
+                    | <ADD_ASSIGN>
+                    | <SUB_ASSIGN>
+                    | <MOD_ASSIGN>            # reserved
+                    | <LEFT_BITSHIFT_ASSIGN>  # reserved
+                    | <RIGHT_BITSHIFT_ASSIGN> # reserved
+                    | <AND_ASSIGN>            # reserved
+                    | <XOR_ASSIGN>            # reserved
+                    | <OR_ASSIGN>;            # reserved
+
+comperator = <LEFT_ANGLE> | <RIGHT_ANGLE> | <LE> | <GE> | <EQEQ> | <NE>;
+
+operator = <PLUS>
+         | <MINUS>
+         | <STAR>
+         | <SLASH>
+         | <AMP>
+         | <AMPAMP>
+         | <BAR>            # reserved
+         | <BARBAR>
+         | <CARETCARET>
+         | <CARET>          # reserved
+         | <PERCENT>        # reserved
+         | <RIGHT_BITSHIFT> # reserved
+         | <LEFT_BITSHIFT>; # reserved
+
+unary_operator = <PLUS>
+               | <MINUS>
+               | <BANG>
+               | <TILDE>; # reserved
+
+increment_or_decrement_operator = <PLUSPLUS> | <MINUSMINUS>;
+
+reserved = "asm"
+         | "common"
+         | "partition"
+         | "active"
+         | "class"
+         | "union"
+         | "enum"
+         | "typedef"
+         | "template"
+         | "this"
+         | "packed"
+         | "goto"
+         | "inline"
+         | "noinline"
+         | "volatile"
+         | "public"
+         | "static"
+         | "extern"
+         | "external"
+         | "interface"
+         | "long"
+         | "short"
+         | "double"
+         | "half"
+         | "fixed"
+         | "unsigned"
+         | "superp"
+         | "input"
+         | "output"
+         | "hvec2"
+         | "hvec3"
+         | "hvec4"
+         | "dvec2"
+         | "dvec3"
+         | "dvec4"
+         | "fvec2"
+         | "fvec3"
+         | "fvec4"
+         | "sampler2DRect"
+         | "sampler3DRect"
+         | "sampler2DRectShadow"
+         | "samplerBuffer"
+         | "filter"
+         | "image1D"
+         | "image2D"
+         | "image3D"
+         | "imageCube"
+         | "iimage1D"
+         | "iimage2D"
+         | "iimage3D"
+         | "iimageCube"
+         | "uimage1D"
+         | "uimage2D"
+         | "uimage3D"
+         | "uimageCube"
+         | "image1DArray"
+         | "image2DArray"
+         | "iimage1DArray"
+         | "iimage2DArray"
+         | "uimage1DArray"
+         | "uimage2DArray"
+         | "image1DShadow"
+         | "image2DShadow"
+         | "image1DArrayShadow"
+         | "image2DArrayShadow"
+         | "imageBuffer"
+         | "iimageBuffer"
+         | "uimageBuffer"
+         | "sizeof"
+         | "cast"
+         | "namespace"
+         | "using"
+         | "row_major";
+
+
+## declarations ################################################################
+declaration = [precision_qualifier] type_specifier_or_identifier [array_index] (function | (global_identifier_list [assignment2] <SEMICOLON>));
+declaration = "void" function;
+declaration = field_declaration <SEMICOLON>;
+declaration = struct_declaration <SEMICOLON>;
+declaration = precision_declaration <SEMICOLON>;
+declaration = global_preprocessor;
+
+global_identifier_list = global_declared_identifier [array_index] (<COMMA> global_declared_identifier [array_index])*;
+global_declared_identifier = <IDENTIFIER>;
+global_preprocessor = <PREPROCESSOR>;
+
+field_declaration = ("in" | "uniform") type_specifier_or_identifier <BUILD_IN_VAR> ;
+field_declaration = global_type_qualifier struct_declaration;
+field_declaration = global_type_qualifier global_type_declaration [assignment2];
+
+struct_declaration = "struct" <IDENTIFIER> struct_body [global_identifier_list];
+struct_body = "{" (local_type_declaration <SEMICOLON>)+ "}";
+
+global_type_declaration = [precision_qualifier] type_specifier_or_identifier [array_index] global_identifier_list [<EQ> expression];
+type_declaration        = [precision_qualifier] type_specifier_or_identifier [array_index] <IDENTIFIER> [array_index] (<COMMA> <IDENTIFIER> [array_index])*;
+
+local_type_declaration = [type_qualifier] type_declaration;
+
+precision_declaration = "precision" precision_qualifier type_specifier;
+
+## function ####################################################################
+function = <FUNCTION> "(" [parameter_declaration_list] ")" (function_body | <SEMICOLON>);
+function_body = code_block;
+
+parameter_declaration = [type_qualifier] [parameter_declaration_qualifier] [precision_qualifier] type_specifier_or_identifier ((array_index <IDENTIFIER>) | (<IDENTIFIER> [array_index]));
+parameter_declaration_list = "void" | (parameter_declaration (<COMMA> parameter_declaration)*);
+
+statement = <PREPROCESSOR>;
+statement = expression_hack <SEMICOLON>;  # statement = local_type_declaration [<EQ> expression] <SEMICOLON>;
+statement = conditional_statement;
+statement = "return" [expression] <SEMICOLON>;
+statement = "break" <SEMICOLON>;   # break just in loops allowed
+statement = "continue" <SEMICOLON>;# continue just in loops allowed
+statement = "discard" <SEMICOLON>; # Fragment shader only.
+
+code_block = "{" code_block* "}";
+code_block = "{" statement* "}";
+
+## expresstions and operations #################################################
+# ternary operator
+expression = expression1  ["?" expression1 ":" expression1];
+
+expression1 = [unary_operator] expression2 operation_or_comparison*;
+expression1 = [unary_operator] "(" expression ")" operation_or_comparison*;
+
+expression2 = ( [increment_or_decrement_operator] (<IDENTIFIER> | <BUILD_IN_VAR>) (field_access)* [increment_or_decrement_operator] [assignment])
+            | ((function_call | constructor_call) (field_access)*)
+            | <INTEGER_LITERAL>
+            | <FLOAT_LITERAL>
+            | boolean_literal;
+
+
+
+expression_hack = unary_operator expression1_hack   operation_or_comparison*;
+expression_hack = unary_operator "(" expression ")" operation_or_comparison*;
+expression_hack = expression1_hack   operation_or_comparison*;
+expression_hack = "(" expression ")" operation_or_comparison*;
+
+expression_hack = <IDENTIFIER> (field_access)* [increment_or_decrement_operator] [assignment];
+expression_hack = <IDENTIFIER> (field_access)* <IDENTIFIER> [array_index] (<COMMA> <IDENTIFIER> [array_index])*;
+expression_hack = type_specifier (field_access)* <IDENTIFIER> [array_index] (<COMMA> <IDENTIFIER> [array_index])*;
+
+expression1_hack = (increment_or_decrement_operator (<IDENTIFIER> | <BUILD_IN_VAR>) (field_access)* [increment_or_decrement_operator] [assignment])
+                 | (<BUILD_IN_VAR> (field_access)* [increment_or_decrement_operator] [assignment])
+                 | ((function_call | constructor_call) (field_access)*)
+                 | <INTEGER_LITERAL>
+                 | <FLOAT_LITERAL>
+                 | boolean_literal;
+
+
+
+assignment = assignment_operator expression;
+assignment2 = <EQ> expression;
+operation_or_comparison = (comperator | operator) expression;
+
+field_access = array_index;
+field_access = <DOT> <IDENTIFIER>;
+
+array_index = "[" [expression] "]";
+
+function_call = (<FUNCTION> | <BUILD_IN_FUNC>) "(" [expression_list] ")";
+# Note constructor call is something like that: vec2(1.0, 2.0) or float[2] (1.0, 2.0)
+constructor_call = type_specifier [array_index] "(" [expression_list] ")"; #TODO custom structs
+
+expression_list = "void" | (expression (<COMMA> expression)*);
+
+## code flow ###################################################################
+conditional_statement = if_statement
+                      | for_statement
+                      | while_statement
+                      | do_while_statement
+                      | switch_statement;
+
+# TODO if rule not 100% correct, multiple else allowed even before else if
+if_statement = "if" condition statement_or_code_block ("else" ["if" condition] statement_or_code_block)*;
+
+while_statement = "while" condition statement_or_code_block;
+do_while_statement = "do" statement_or_code_block "while" condition <SEMICOLON>;
+
+# TODO for rule could be more restrictive
+for_statement = "for" "(" [[type_specifier] <IDENTIFIER> assignment] <SEMICOLON> [expression] <SEMICOLON> [expression] ")" statement_or_code_block;
+
+switch_statement = "switch" condition "{" case* "}";
+case = ("case" expression ":" statement*)
+     | ("default" ":" statement*);
+
+condition = "(" expression ")";
+statement_or_code_block = (statement | code_block);
+
+

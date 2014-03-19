@@ -1,0 +1,75 @@
+
+<h1><a>jMonkeyEngine SDK: Vehicle Creator</a></h1>
+<div>
+
+<p>
+
+Best results when car is facing in z direction (towards you).
+</p>
+
+</div>
+<!-- EDIT1 SECTION "jMonkeyEngine SDK: Vehicle Creator" [1-113] -->
+<h2><a>Usage</a></h2>
+<div>
+<ol>
+<li><div> Select a j3o that contains a vehicle model and press the vehicle button (or right-click ??? edit vehicle)</div>
+</li>
+<li><div> The VehicleCreator automatically adds a PhysicsVehicleControl to the rootNode of the model if there is none</div>
+</li>
+<li><div> Select the Geometry or Node that contains the chassis in the SceneExplorer and press &quot;create hull shape from selected&quot;</div>
+</li>
+<li><div> Select a Geometry that contains a wheel and press &quot;make selected spatial wheel&quot;, select the &quot;front wheel&quot; checkboxes for front wheels</div>
+</li>
+<li><div> Do so for all wheels</div>
+</li>
+</ol>
+
+<p>
+
+New wheels will get the current suspension settings, you can edit single wheels via the SceneExplorer (update VehicleControl if wheels dont show up) or apply settings created with the settings generator to wheel groups.
+</p>
+
+<p>
+Press the &quot;test vehicle&quot; button to drive the vehicle, use WASD to control, Enter to reset.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Usage" [114-950] -->
+<h2><a>Known Issues</a></h2>
+<div>
+
+<p>
+Don&#039;t save while testing the vehicle, you will save the location and acceleration info in the j3o.
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Known Issues" [951-1075] -->
+<h2><a>Code Sample</a></h2>
+<div>
+
+<p>
+
+Code Example to load vehicle:
+
+</p>
+<pre>//load vehicle and access VehicleControl
+Spatial car=assetManager.loadModel&#40;&quot;Models/MyCar.j3o&quot;&#41;;
+VehicleControl control=car.getControl&#40;VehicleControl.class&#41;;
+rootNode.attachChild&#40;car&#41;;
+physicsSpace.add&#40;control&#41;;
+??
+//then use the control to control the vehicle:
+control.setPhysicsLocation&#40;new Vector3f&#40;10,2,10&#41;&#41;;
+control.accelerate&#40;100&#41;;</pre>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>,
+	<a href="/wiki/doku.php/tag:asset?do=showtag&amp;tag=tag%3Aasset">asset</a>,
+	<a href="/wiki/doku.php/tag:editor?do=showtag&amp;tag=tag%3Aeditor">editor</a>,
+	<a href="/wiki/doku.php/tag:physics?do=showtag&amp;tag=tag%3Aphysics">physics</a>
+</span></div>
+
+</div>
+<!-- EDIT4 SECTION "Code Sample" [1076-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:vehicle_creator?do=export_xhtmlbody">view online version</a></em></p>

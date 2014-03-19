@@ -1,0 +1,204 @@
+
+<h1><a>jMonkeyEngine SDK: AssetPacks and AssetPack Browser</a></h1>
+<div>
+
+<p>
+
+AssetPacks are a way to package jME3 compatible assets (like models, textures, sounds and whole scenes!) into a package that contains publisher info, license info, descriptions etc. for all of the assets. An AssetPack basically consists of an <code>assetpack.xml</code> file that describes the content and an <code>assets</code> folder that contains the content. The integrated browser in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> allows you to add the assets from installed AssetPacks to any jme3 project scene you are working on. 
+</p>
+
+</div>
+<!-- EDIT1 SECTION "jMonkeyEngine SDK: AssetPacks and AssetPack Browser" [1-563] -->
+<h2><a>The AssetPack Browser</a></h2>
+<div>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/sdk/assetpackbrowser-300x166.jpg">
+</p>
+
+</div>
+<!-- EDIT2 SECTION "The AssetPack Browser" [564-638] -->
+<h3><a>Browsing Assets</a></h3>
+<div>
+
+<p>
+
+The AssetPack browser in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> makes browsing the installed AssetPacks easy. Browse categories, search for tags and find the right asset for your project. When you have found it, you can add it with one click to your current scene. The AssetPack manager will automagically copy all needed textures, sounds etc. to your projects assets folder.
+</p>
+
+<p>
+<p><div>You can also browse a selection of online assetpacks that are available on jMonkeyEngine.org for download and install them to your jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s AssetPack browser.
+</div></p>
+</p>
+
+<p>
+The AssetPack browser uses a predefined directory to store the AssetPacks which is also used for new AssetPack projects. You can see and change the folder path in the AssetPack preferences (jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>???Settings).
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Browsing Assets" [639-1430] -->
+<h3><a>Adding Assets to Your Scene</a></h3>
+<div>
+
+<p>
+
+To preview a model from the browser, right-click it and select &quot;Preview Asset&quot;
+</p>
+
+<p>
+To add a model from the AssetPack browser to a scene do the following:
+</p>
+<ol>
+<li><div> Create a new scene (j3o) file or use an existing one</div>
+</li>
+<li><div> Open it in the SceneComposer by right-clicking it and selecting &quot;Edit in SceneComposer&quot;</div>
+</li>
+<li><div> Select the root node of the scene (or another node you want to add the model to)</div>
+</li>
+<li><div> Right-click a model in the AssetBrowser and select &quot;Add to SceneComposer&quot;</div>
+</li>
+</ol>
+
+<p>
+The model will be added to your scene and all needed texture files will be copied to your projects assets folder.
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Adding Assets to Your Scene" [1431-2047] -->
+<h2><a>Create Your Own AssetPack Project</a></h2>
+<div>
+
+<p>
+
+AssetPack projects are a way to create your own AssetPacks, either for personal use or for publishing. With this project type in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> you can create a library of assets on your computer that you can use in any of your projects via the AssetPack browser.
+Editing of asset and project info, adding of new assets and setting their properties, everything you need to create and publish your AssetPacks is there.
+
+</p>
+<ol>
+<li><div> Choose &quot;File ??? New Project&quot; from the menu</div>
+</li>
+<li><div> Choose &quot;AssetPack Project&quot;</div>
+</li>
+<li><div> Fill in the project info and press &quot;finish&quot;</div>
+</li>
+</ol>
+
+<p>
+
+You can access and change the project properties by right-clicking the project and selecting &quot;Properties&quot;.
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Create Your Own AssetPack Project" [2048-2751] -->
+<h3><a>Add Your Own Assets</a></h3>
+<div>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/sdk/assetpackimport-300x222.jpg">
+</p>
+
+<p>
+To add new assets to your AssetPack do the following:
+</p>
+<ol>
+<li><div> Right-Click the &quot;Assets&quot; node of the AssetPack project</div>
+</li>
+<li><div> Select &quot;Add Asset..&quot;</div>
+</li>
+<li><div> Specify the info about your asset and press Next</div>
+</li>
+<li><div> Press the &quot;add files&quot; button and select all files belonging to your asset</div>
+</li>
+<li><div> Select the &quot;main&quot; checkbox for the main model file if your asset is a model file</div>
+</li>
+<li><div> Change the asset paths and types if needed and press &quot;finish&quot;</div>
+</li>
+</ol>
+
+<p>
+
+The global asset type can be &quot;model&quot;, &quot;scene&quot;, &quot;texture&quot;, &quot;sound&quot;, &quot;shader&quot; or &quot;other&quot;
+</p>
+
+<p>
+With the &quot;model&quot; or &quot;scene&quot; types, the AssetPack browser will try to load and add a model file from the selected assets when the user selects &quot;Add to SceneComposer&quot;. Specify the &quot;load this model with material&quot; flag for the model file that should be loaded via the AssetManager, you can also specify multiple mesh or scene files to be loaded. All texture and other needed files will be copied to the users project folder.
+</p>
+
+<p>
+On the &quot;Add Files&quot; page you define the path of the files in the AssetPack. The importer tries to generate a proper path from the info entered on the first page. Note that for j3o binary models, the texture paths have to be exactly like they were during conversion. The given paths will also be used when copying the data to the users &quot;assets&quot; folder.
+</p>
+
+<p>
+With the &quot;add files&quot; button you can open a file browser to select files from your harddisk that will be copied into the <code>assets/</code> folder of the AssetPack project. With the &quot;add existing&quot; button you can add a file thats already in your AssetPack assets folder to a new asset item. This way you can reuse e.g. textures for asset items or make items for an existing collection of asset files that you copied to the projects assets folder.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/sdk/assetpackimport2-300x179.jpg">
+</p>
+
+<p>
+You can specify a specific material to be used for the single mesh/scene files, just select it in the dropdown below the mesh or scene file. If you don&#039;t select a material file here, the first found material file is used or none if none is found.
+</p>
+
+<p>
+If the material file is an Ogre material file (.material) it will be used for loading an Ogre scene or mesh file. If it is a jMonkeyEngine3 material file (.j3m), it will be applied to the mesh regardless of model type. Note that for j3o models you don&#039;t need material files as the material is stored inside the j3o file.
+</p>
+
+<p>
+<p><div>In your AssetPack Project, right-click each asset and select &quot;preview asset&quot; to see your model. Verify hat it looks correctly, because then it should work for other users as well.
+</div></p>
+</p>
+
+<p>
+You can change the single assets properties in the properties window after you have added them. Just select an asset and open the properties window (Windows???Properties).
+</p>
+
+<p>
+Supported formats for models (main files) are:
+</p>
+<ol>
+<li><div> OgreXML .mesh.xml / .scene</div>
+</li>
+<li><div> Wavefront .obj</div>
+</li>
+<li><div> jMonkeyEngine3 .j3o</div>
+</li>
+<li><div> Blender .blend (unpack textures)</div>
+</li>
+</ol>
+
+</div>
+<!-- EDIT6 SECTION "Add Your Own Assets" [2752-5683] -->
+<h3><a>AssetPack Publishing</a></h3>
+<div>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/sdk/assetpackdownload-263x300.jpg">
+</p>
+
+<p>
+You can publish your AssetPacks either as a zip file or directly to jmonkeyengine.org, using your website user name and login. <strong>This means other jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> users can download your AssetPacks and install them to their local database right off the AssetPack online packages browser.</strong>
+</p>
+
+<p>
+<p><div>To make sure you can upload, you have to be registered on jmonkeyengine.org, and have to enter your login info in the AssetPack preferences: jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>???Options???Asset Packs first.
+</div></p>
+
+</p>
+<ol>
+<li><div> Right-Click your AssetPack project in the <acronym title="Software Development Kit">SDK</acronym> and select &quot;Publish AssetPack???&quot;</div>
+</li>
+<li><div> Check the description etc. settings, and press &quot;Next&quot;.</div>
+</li>
+<li><div> Select the checkbox for online and/or local publishing and press &quot;finish&quot;.</div>
+</li>
+</ol>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:asset?do=showtag&amp;tag=tag%3Aasset">asset</a>
+</span></div>
+
+</div>
+<!-- EDIT7 SECTION "AssetPack Publishing" [5684-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:asset_packs?do=export_xhtmlbody">view online version</a></em></p>

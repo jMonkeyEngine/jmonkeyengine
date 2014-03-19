@@ -1,0 +1,129 @@
+
+<h1><a>WebStart (JNLP) Deployment</a></h1>
+<div>
+
+<p>
+
+When you <a href="/com/jme3/gde/docs/sdk/application_deployment.html">use the jMonkeyEngine SDK to deploy your application</a>, you can configure the project to build files required for WebStart automatically. If you use another IDE, or work on the command line, use the following tips to set up WebStart correctly:
+</p>
+
+</div>
+<!-- EDIT1 SECTION "WebStart (JNLP) Deployment" [1-326] -->
+<h2><a>Problem Statement</a></h2>
+<div>
+
+<p>
+
+<strong>Problem:</strong>
+</p>
+
+<p>
+When running under WebStart, jMonkeyEngine may not have permission to extract the native libraries to the current directory. 
+</p>
+
+<p>
+<strong>Solution: </strong>
+</p>
+
+<p>
+You can instruct WebStart to load the native libraries itself using the JNLP file, and then instruct jME3 not to try to do so itself.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Problem Statement" [327-649] -->
+<h2><a>Simple way</a></h2>
+<div>
+
+<p>
+
+You can import the LWJGL JNLP extension directly into your extension, however be aware that your application will break whenever they update their jars. Simply add this line to your JNLP:
+</p>
+<pre><span>&lt;extension name=&quot;lwjgl&quot; href=&quot;http://lwjgl.org/webstart/2.7.1/extension.jnlp&quot; /&gt;</span></pre>
+
+</div>
+<!-- EDIT3 SECTION "Simple way" [650-963] -->
+<h2><a>Reliable way</a></h2>
+<div>
+
+</div>
+<!-- EDIT4 SECTION "Reliable way" [964-989] -->
+<h3><a>Native jars</a></h3>
+<div>
+
+<p>
+
+You can download the LWJGL native jars from their site, or to ensure you&#039;re using the exact same version as bundled with your jME3 release, make your own:
+</p>
+<pre>mkdir tmp
+cd tmp
+jar xfv ../jME3-lwjgl-natives.jar
+cd native
+for i in *; do
+  cd $i
+  jar cfv ../../native_$i.jar .
+  cd ..
+done</pre>
+
+<p>
+For Windows:
+</p>
+<pre>@echo off
+md tmp
+cd tmp
+&quot;%JDK_HOME%\bin\jar&quot; -xfv ..\jME3-lwjgl-natives.jar
+cd native
+for /D %%i in (&quot;*&quot;) do (
+  cd %%i
+  &quot;%JDK_HOME%\bin\jar&quot; -cfv ..\..\native_%%i%.jar .
+  cd ..
+)
+cd ..</pre>
+
+<p>
+Remember to sign all the jar files and move them into the right place from the tmp directory.
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Native jars" [990-1626] -->
+<h3><a>JNLP file</a></h3>
+<div>
+
+<p>
+
+Add the following to your JNLP file:
+</p>
+<pre>  <span>&lt;resources os=&quot;Windows&quot;&gt;</span>
+    <span>&lt;j2se version=&quot;1.4+&quot;/&gt;</span>
+    <span>&lt;nativelib href=&quot;native_windows.jar&quot;/&gt;</span>
+  <span><span>&lt;/resources&gt;</span></span>
+  <span>&lt;resources os=&quot;Linux&quot;&gt;</span>
+    <span>&lt;j2se version=&quot;1.4+&quot;/&gt;</span>
+    <span>&lt;nativelib href=&quot;native_linux.jar&quot;/&gt;</span>
+  <span><span>&lt;/resources&gt;</span></span>
+  <span>&lt;resources os=&quot;Mac OS X&quot;&gt;</span>
+    <span>&lt;j2se version=&quot;1.4+&quot;/&gt;</span>
+    <span>&lt;nativelib href=&quot;native_macosx.jar&quot;/&gt;</span>
+  <span><span>&lt;/resources&gt;</span></span>
+  <span>&lt;resources os=&quot;SunOS&quot; arch=&quot;x86&quot;&gt;</span>
+    <span>&lt;j2se version=&quot;1.4+&quot;/&gt;</span>
+    <span>&lt;nativelib href=&quot;native_solaris.jar&quot;/&gt;</span>
+  <span><span>&lt;/resources&gt;</span></span></pre>
+
+</div>
+<!-- EDIT6 SECTION "JNLP file" [1627-2158] -->
+<h3><a>Set low-permissions mode</a></h3>
+<div>
+
+<p>
+
+In your main() method, if running under WebStart, tell jME3 it is running in a low-permission environment so that it doesn&#039;t try to load the natives itself:
+</p>
+<pre>  public static void main&#40;String&#91;&#93; args&#41;
+  &#123;
+      if &#40;System.getProperty&#40;&quot;javawebstart.version&quot;&#41; != null&#41; &#123;
+        JmeSystem.setLowPermissions&#40;true&#41;;
+      &#125;</pre>
+
+</div>
+<!-- EDIT7 SECTION "Set low-permissions mode" [2159-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:webstart?do=export_xhtmlbody">view online version</a></em></p>

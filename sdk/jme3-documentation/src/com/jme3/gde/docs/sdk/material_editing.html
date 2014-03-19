@@ -1,0 +1,146 @@
+
+<h1><a>jMonkeyEngine SDK: Material Editor</a></h1>
+<div>
+
+<p>
+
+If you are looking for background information, read about <a href="/com/jme3/gde/docs/jme3/advanced/material_definitions.html">Material Definitions</a> and <a href="/com/jme3/gde/docs/jme3/advanced/j3m_material_files.html">j3M Material Files</a>. 
+You can <a href="/com/jme3/gde/docs/jme3/advanced/j3m_material_files.html">write .j3m files in a text editor</a>, or <span><a href="/com/jme3/gde/docs/sdk/material_editing.html">use the jMonkeyEngine SDK to generate</a></span> them for you as described in this article.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "jMonkeyEngine SDK: Material Editor" [1-384] -->
+<h2><a>Materials</a></h2>
+<div>
+
+<p>
+
+The jMonkeyEngine uses a special Material format, which comes in .j3m files. You use .j3m files to store sets of material properties that you use repeatedly. This enables you write one short line of code that simply loads the presets from a custom .j3m file. Without a .j3m file you need to write several lines of material property setters every time when you want to use a non-default material. 
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Materials" [385-805] -->
+<h2><a>Creating .j3m Materials</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/sdk/material-editor.png">
+</p>
+
+<p>
+To create new .j3m files in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>,
+</p>
+<ol>
+<li><div> Right-click the <code>assets/Materials</code> directory and choose New??? &gt; Other.</div>
+</li>
+<li><div> In the New File Wizard, choose Material &gt; Empty Material File, and click Next.</div>
+</li>
+<li><div> Give the file a name, for example <code>mat_wall</code> for a wall material.</div>
+</li>
+<li><div> A new file <code>mat_wall.j3m</code> is created in the Materials directory and opens in the Material Editor.</div>
+</li>
+</ol>
+
+<p>
+
+You can edit the source of the material, or use the user-friendly visual editor to set the properties of the material. Set the properties to the same values as you would otherwise specify with setters on a Material object in Java code: 
+
+</p>
+<pre>Material mat_wall = new Material&#40;
+    assetManager, &quot;Common/MatDefs/Light/Lighting.j3md&quot;&#41;;
+mat_wall.setTexture&#40;&quot;DiffuseMap&quot;, 
+    assetManager.loadTexture&#40;&quot;Textures/wall_diffuse.png&quot;&#41;&#41;;
+mat_wall.setTexture&#40;&quot;NormalMap&quot;, 
+    assetManager.loadTexture&#40;&quot;Textures/wall_normals.png&quot;&#41;&#41;;
+mat_wall.setFloat&#40;&quot;Shininess&quot;, 5f&#41;;</pre>
+
+<p>
+
+This Java code corresponds to the following .j3m file:
+
+</p>
+<pre>Material my brick wall : Common/MatDefs/Light/Lighting.j3md {
+  MaterialParameters {
+    DiffuseMap: Repeat Textures/wall_diffuse.png
+    NormalMap:  Repeat Textures/wall_normals.png
+    Shininess: 5.0
+  }
+}</pre>
+
+<p>
+You can modify the source code of the j3m file in the &quot;source&quot; tab of the Material Editor.
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Creating .j3m Materials" [806-2214] -->
+<h2><a>Using .j3m Materials</a></h2>
+<div>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/sdk/applymaterial.jpg">
+</p>
+
+<p>
+When the material is ready and saved into your projects assets directory, you can assign the .j3m to a Geometry.
+</p>
+
+<p>
+In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>
+</p>
+<ol>
+<li><div> Right-click the j3o file and select &quot;Edit in SceneComposer&quot;</div>
+</li>
+<li><div> Open the SceneExplorer window</div>
+</li>
+<li><div> In the SceneExplorer, click the geometry to which you want to assign the material.</div>
+</li>
+<li><div> Open the Properties window</div>
+</li>
+<li><div> Assign the .j3m material to the .j3o in the Properties&gt;Geometry&gt;Material section</div>
+</li>
+<li><div> Save the j3o and load it into you game.</div>
+</li>
+</ol>
+
+<p>
+
+Or in your Java code
+</p>
+<ul>
+<li><div> Use a loader and a setter to assign the material to a Geometry</div>
+</li>
+</ul>
+<pre>mywall.setMaterial&#40;assetManager.loadMaterial&#40; &quot;Materials/mat_wall.j3m&quot;&#41;&#41;;</pre>
+<hr />
+
+<p>
+<strong>See also:</strong>
+
+</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/material_specification.html">Developer specification of the jME3 material system (.j3md,.j3m)</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/beginner/hello_material.html">Hello Material</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/materials_overview.html">Materials Overview</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/material_definitions.html">Material Definitions</a> </div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/j3m_material_files.html">j3M Material Files</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/sdk/neotexture.html">Neotexture</a> (Procedural textures)</div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">material</a>,
+	<a href="/wiki/doku.php/tag:file?do=showtag&amp;tag=tag%3Afile">file</a>,
+	<a href="/wiki/doku.php/tag:texture?do=showtag&amp;tag=tag%3Atexture">texture</a>
+</span></div>
+
+</div>
+<!-- EDIT4 SECTION "Using .j3m Materials" [2215-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:material_editing?do=export_xhtmlbody">view online version</a></em></p>

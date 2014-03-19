@@ -1,0 +1,146 @@
+
+<h2><a>Troubleshooting jMonkeyEngine3 SDK</a></h2>
+<div>
+
+</div>
+<!-- EDIT1 SECTION "Troubleshooting jMonkeyEngine3 SDK" [1-47] -->
+<h3><a>Graphics Card Driver</a></h3>
+<div>
+
+<p>
+<strong>On Windows and Linux make sure you have the latest driver installed. Make sure its the one supplied by the card manufacturer and not just the <acronym title="Operating System">OS</acronym>-default one.</strong> On OSX, make sure you have the latest update for your MacOS.
+
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Graphics Card Driver" [48-301] -->
+<h3><a>Stability / Graphics issues</a></h3>
+<div>
+
+<p>
+On some Linux and Windows systems, the <acronym title="Software Development Kit">SDK</acronym> might perform unstable and quit with native VM crashes or &quot;x errors&quot;. There are a few things one can try to remedy those issues.
+</p>
+
+</div>
+
+<h4><a>Heavyweight Canvas</a></h4>
+<div>
+
+<p>
+First of all theres the new ???OpenGL??? settings page in the <acronym title="Software Development Kit">SDK</acronym> global settings where you can enable the &quot;heavyweight&quot; canvas, which solved some issues for some people. The settings panel can be found under Tools???Options on Windows and Linux and in the main menu (or by pressing Apple-Comma) for MacOSX.
+</p>
+
+<p>
+If you cannot start the <acronym title="Software Development Kit">SDK</acronym>, edit the file <code>config/Preferences/com/jme3/gde/core.properties</code> in the <acronym title="Software Development Kit">SDK</acronym> settings folder (see above). If it doesn&#039;t exist, create the file including all folders. Add the line <code>use_lwjgl_canvas=true</code>. To try OpenGL1 compatibility mode (works for both canvas settings) add <code>use_opengl_1=true</code>.
+</p>
+
+</div>
+
+<h4><a>Look and Feel</a></h4>
+<div>
+
+<p>
+The <acronym title="Operating System">OS</acronym>-built-in look and feel might cause issues, you can change the LAF by using the appropriate command line switch (or add it to the [app folder]/etc/jmonkeyplatform.conf file, without the &quot;- -&quot; prefix).
+
+</p>
+<pre>--laf javax.swing.plaf.metal.MetalLookAndFeel</pre>
+
+</div>
+
+<h4><a>Compiz</a></h4>
+<div>
+
+<p>
+Compiz on Linux might cause issues, if you set its rendering quality to &quot;medium&quot; these should go away.
+* Appearance???Set Special effects to ??? ???Medium???
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Stability / Graphics issues" [302-1634] -->
+<h3><a>Updating problems</a></h3>
+<div>
+
+<p>
+If you have problems updating the <acronym title="Software Development Kit">SDK</acronym>, try deleting all files from <code>jmonkeyplatform/update/download</code> and/or <code>[settings folder]/update/download</code> depending on your system (see below for the settings folder location).
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Updating problems" [1635-1882] -->
+<h3><a>Preferences and Settings</a></h3>
+<div>
+
+<p>
+To completely remove and/or reinstall the <acronym title="Software Development Kit">SDK</acronym> it is vital that the settings folder is deleted too. The location can be seen through the &quot;about&quot; menu and is as following for the different <acronym title="Operating System">OS</acronym>&#039;s:
+</p>
+<ul>
+<li><div> Windows: <code>C:\Users\&lt;username&gt;\AppData\Roaming\.jmonkeyplatform</code></div>
+</li>
+<li><div> Windows (alt): <code>C:\Users\&lt;username&gt;\.jmonkeyplatform\</code></div>
+</li>
+<li><div> MacOSX: <code>/Users/&lt;username&gt;/Library/Application Support/jmonkeyplatform</code></div>
+</li>
+<li><div> Ubuntu:  <code>/home/&lt;username&gt;/.jmonkeyplatform</code></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT5 SECTION "Preferences and Settings" [1883-2371] -->
+<h3><a>Log</a></h3>
+<div>
+
+<p>
+To see or post the error output of the <acronym title="Software Development Kit">SDK</acronym> in the forum, you can find the log of the application in the settings folder above too, the file is called <code>var/log/messages.log</code>
+</p>
+
+</div>
+<!-- EDIT6 SECTION "Log" [2372-2561] -->
+<h3><a>Getting error messages and reporting issues</a></h3>
+<div>
+
+<p>
+When an exception happens in the <acronym title="Software Development Kit">SDK</acronym>, a small warning sign appears in the lower right corner of the main window. Double-click it to open a window that allows you to see the exception stack trace. When posting about issues in the forum, always post the stack trace along with a description of what happens and how it can be reproduced.
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Getting error messages and reporting issues" [2562-2951] -->
+<h3><a>Specifying the JDK location</a></h3>
+<div>
+
+<p>
+
+You can install another <acronym title="Java Development Kit">JDK</acronym> for use with the jMonkey <acronym title="Software Development Kit">SDK</acronym>. You then have to specify the location manually.
+
+</p>
+<ol>
+<li><div> Go to your jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> installation directory. <br/>
+Mac users right-click jMonkeyApplication.app (which actually is a directory) in the Finder and select &quot;Show package contents&quot;. </div>
+</li>
+<li><div> Navigate to the <code>etc</code> directory. <br/>
+Mac users navigate to <code>Contents/Resources/jmonkeyplatform/etc/</code>.</div>
+</li>
+<li><div> Open the file <code>jmonkeyplatform.conf</code> in a text editor.</div>
+</li>
+<li><div> Uncomment the following line and enter the path to the <acronym title="Java Development Kit">JDK</acronym>: <pre>jdkhome=&quot;/path/to/jdk&quot;</pre>
+</div>
+</li>
+</ol>
+
+</div>
+<!-- EDIT8 SECTION "Specifying the JDK location" [2952-3556] -->
+<h3><a>Known Issues</a></h3>
+<div>
+
+<p>
+For a list of known issues and possible workarounds see the following link:
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/issues/list?can=2&amp;q=label%3AProduct-Platform+Type%3DDefect+&amp;colspec=ID+Type+Status+Component+Priority+Product+Milestone+Owner+Summary&amp;cells=tiles"><param name="text" value="<html><u>List of known issues on googlecode</u></html>"><param name="textColor" value="blue"></object>
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:faq?do=showtag&amp;tag=tag%3Afaq">faq</a>
+</span></div>
+
+</div>
+<!-- EDIT9 SECTION "Known Issues" [3557-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:troubleshooting?do=export_xhtmlbody">view online version</a></em></p>

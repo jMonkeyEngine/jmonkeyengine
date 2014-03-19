@@ -1,0 +1,40 @@
+    <target name="-obfuscate" depends="-test-obfuscate-enabled,-create-library-property" if="is.obfuscate.enabled">
+        <taskdef resource="proguard/ant/task.properties"
+         classpath="${libs.pro-guard.classpath}" />
+        <proguard>
+            -libraryjars ${proguard.library.path}
+            -injars      ${dist.dir}/lib(!META-INF/MANIFEST.MF)
+            -injars      ${dist.jar}
+            -outjars     ${dist.jar}.obfuscated.jar
+            -keepclasseswithmembers public class * {
+                public static void main(java.lang.String[]);
+            }
+            ${obfuscate.options}
+        </proguard>
+        <delete file="${dist.jar}"/>
+        <move file="${dist.jar}.obfuscated.jar" tofile="${dist.jar}"/>
+        <delete>
+            <fileset dir="${dist.dir}/lib" includes="**/*.jar"/>
+        </delete>
+    </target>
+
+    <target name="-test-obfuscate-enabled">
+        <condition property="is.obfuscate.enabled">
+            <istrue value="${obfuscate}"/>
+        </condition>
+    </target>
+
+    <target name="-create-library-property" depends="-create-mac-library-property">
+        <property name="proguard.library.path" value="${platform.home}/jre/lib/rt.jar"/>
+    </target>
+
+    <target name="-create-mac-library-property" depends="-test-mac" if="is.macos">
+        <property name="proguard.library.path" value="/System/Library/Frameworks/JavaVM.framework/Classes/classes.jar"/>
+    </target>
+
+    <target name="-test-mac">
+        <condition property="is.macos">
+            <os family="mac"/>
+        </condition>
+    </target>
+    

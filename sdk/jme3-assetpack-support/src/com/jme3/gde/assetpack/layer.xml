@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="com-jme3-gde-assetpack-browser-AssetPackBrowserAction.instance">
+                <attr name="component" methodvalue="com.jme3.gde.assetpack.browser.AssetPackBrowserTopComponent.findInstance"/>
+                <attr name="displayName" bundlevalue="com.jme3.gde.assetpack.browser.Bundle#CTL_AssetPackBrowserAction"/>
+                <attr name="instanceCreate" methodvalue="org.openide.windows.TopComponent.openAction"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="Asset Pack">
+                <file name="AssetPackProject.zip" url="AssetPackProject.zip">
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/jme3/gde/assetpack/icons/assetpack.png"/>
+                    <attr name="displayName" bundlevalue="com.jme3.gde.assetpack.Bundle#Templates/Project/AssetPack/AssetPackProject.zip"/>
+                    <attr name="instantiatingIterator" methodvalue="com.jme3.gde.assetpack.project.wizards.CreateProjectWizardIterator.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jme3/gde/assetpack/project/AssetPackProjectDescription.html"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <file name="com-jme3-gde-assetpack-project-wizards-ImportAssetAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/AssetPack/com-jme3-gde-assetpack-project-wizards-ImportAssetAction.instance"/>
+                <attr name="position" intvalue="0"/>
+            </file>
+        </folder>
+        <folder name="Window">
+            <file name="AssetPackBrowserAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/com-jme3-gde-assetpack-browser-AssetPackBrowserAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="AssetPackBrowserTopComponent.settings" url="AssetPackBrowserTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="explorer">
+                <file name="AssetPackBrowserTopComponent.wstcref" url="AssetPackBrowserTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

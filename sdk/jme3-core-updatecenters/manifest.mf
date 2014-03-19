@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.jme3.gde.core.updatecenters
+OpenIDE-Module-Implementation-Version: 0
+OpenIDE-Module-Install: com/jme3/gde/core/updatecenters/Installer.class
+OpenIDE-Module-Layer: com/jme3/gde/core/updatecenters/layer.xml
+OpenIDE-Module-Localizing-Bundle: com/jme3/gde/core/updatecenters/Bundle.properties
+

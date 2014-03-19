@@ -1,0 +1,193 @@
+
+<h1><a>How to Use Material Definitions (.j3md)</a></h1>
+<div>
+
+<p>
+
+All Geometries need a Material to be visible. Every Material is based on a Material Definition. Material definitions provide the &quot;logic&quot; for the material, and a shader draws the material according to the parameters specified in the definition. The J3MD file abstracts the shader and its configuration away from the user, allowing a simple interface where the user can simply set a few parameters on the material to change its appearance and the way its handled by the shaders. 
+</p>
+
+<p>
+The most common Material Definitions are included in the engine, advanced users can create custom ones. In this case you will also be interested in the <a href="/com/jme3/gde/docs/jme3/advanced/material_specification.html">in-depth developer specification of the jME3 material system</a>.
+</p>
+
+<p>
+<strong>Example:</strong>
+
+</p>
+<pre>Spatial myGeometry = assetManager.loadModel&#40;&quot;Models/Teapot/Teapot.j3o&quot;&#41;;
+Material mat = new Material&#40;assetManager,  // Create new material and...
+    &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;  // ... specify a Material Definition file, here &quot;Unshaded.j3md&quot;!
+mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;     // Set one or more material parameters.
+myGeometry.setMaterial&#40;mat&#41;;               // Use material on this Geometry.</pre>
+
+<p>
+<p><div>If you use one custom material with certain settings very often, learn about storing material settings in <a href="/com/jme3/gde/docs/jme3/advanced/j3m_material_files.html">j3m Material Files</a>. You either <a href="/com/jme3/gde/docs/sdk/material_editing.html">use the jMonkeyEngine SDK to create .j3m files</a> (user-friendly), or you <a href="/com/jme3/gde/docs/jme3/advanced/j3m_material_files.html">write .j3m files in a text editor</a> (IDE-independent).
+</div></p>
+</p>
+
+</div>
+<!-- EDIT1 SECTION "How to Use Material Definitions (.j3md)" [1-1585] -->
+<h2><a>Preparing a Material</a></h2>
+<div>
+
+<p>
+
+In the <a href="/com/jme3/gde/docs/jme3/advanced/materials_overview.html">Materials Overview</a> list:
+</p>
+<ol>
+<li><div> Choose a Material Definition that has the features that you need. </div>
+<ul>
+<li><div> Tip: If you don&#039;t know, start with <code>Unshaded.j3md</code> or <code>Lighting.j3md</code>.</div>
+</li>
+</ul>
+</li>
+<li><div> Look at the applicable parameters of the Material Definition and determine which parameters you need to achieve the desired effect (e.g. &quot;glow&quot; or &quot;color&quot;). Most parameters are optional! </div>
+</li>
+<li><div> Create and save the necessary Texture files to your <code>assets/Textures</code> directory.</div>
+<ul>
+<li><div> E.g. mytex_diffuse.png as ColorMap / DiffuseMap, mytex_normal.png as NormalMap, mytex_alpha.png as AlphaMap, etc???</div>
+</li>
+</ul>
+</li>
+<li><div> Determine the required values to achieve the effect that you want.</div>
+<ul>
+<li><div> E.g. set colors, floats, booleans, etc??? </div>
+</li>
+</ul>
+</li>
+</ol>
+
+</div>
+<!-- EDIT2 SECTION "Preparing a Material" [1586-2329] -->
+<h2><a>Using a Material</a></h2>
+<div>
+
+<p>
+
+In your Java code,
+</p>
+<ol>
+<li><div> Create a Material object based on the chosen Material Definition (.j3md file): <pre>Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;</pre>
+</div>
+</li>
+<li><div> Configure your Material by setting the appropriate values listed in the <a href="/com/jme3/gde/docs/jme3/advanced/materials_overview.html">Materials Overview</a> table. <pre>mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Yellow &#41;; // and more</pre>
+</div>
+</li>
+<li><div> Apply your prepared Material to a Geometry: <pre>myGeometry.setMaterial&#40;mat&#41;;</pre>
+</div>
+</li>
+<li><div> (Optional) Adjust the texture scale of the mesh: <pre>myGeometryMesh.scaleTextureCoordinates&#40;new Vector2f&#40;2f, 2f&#41;&#41;;</pre>
+</div>
+</li>
+</ol>
+
+<p>
+
+For details see also: <a href="/com/jme3/gde/docs/jme3/intermediate/how_to_use_materials.html">How to Use Materials</a>
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Using a Material" [2330-3036] -->
+<h3><a>Examples</a></h3>
+<div>
+
+<p>
+
+Here are examples of the methods that set the different data types:
+</p>
+<ul>
+<li><div> <code>mat.setColor(   &quot;Color&quot;,       ColorRGBA.White );</code> </div>
+</li>
+<li><div> <code>mat.setTexture( &quot;ColorMap&quot;,    assetManager.loadTexture(&quot;Interface/Logo/Monkey.png&quot; ));</code></div>
+</li>
+<li><div> <code>mat.setFloat(   &quot;Shininess&quot;,   5f);</code></div>
+</li>
+<li><div> <code>mat.setBoolean( &quot;SphereMap&quot;,   true);</code></div>
+</li>
+<li><div> <code>mat.setVector3( &quot;NormalScale&quot;, new Vector3f(1f,1f,1f));</code></div>
+</li>
+</ul>
+
+<p>
+
+A simpled textured material.
+
+</p>
+<pre>Material mat = new Material&#40;assetManager, 
+    &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+mat.setTexture&#40;&quot;ColorMap&quot;, assetManager.loadTexture&#40;
+    &quot;Interface/Logo/Monkey.jpg&quot;&#41;&#41;;</pre>
+
+<p>
+A textured material with a color bleeding through transparent areas.
+
+</p>
+<pre>Material mat = new Material&#40;assetManager, 
+    &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+mat.setTexture&#40;&quot;ColorMap&quot;, assetManager.loadTexture&#40;
+    &quot;Textures/ColoredTex/Monkey.png&quot;&#41;&#41;;
+mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;</pre>
+
+<p>
+You can test these examples within the following code snippet. It creates a box and applies the material:
+</p>
+<pre> Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+Geometry geom = new Geometry&#40;&quot;Box&quot;, b&#41;;
+// ... insert Material definition...
+geom.setMaterial&#40;mat&#41;;
+rootNode.attachChild&#40;geom&#41;;</pre>
+
+<p>
+<p><div>You can find these and other common code snippets in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Code Palette. Drag and drop them into your source code.
+</div></p>
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Examples" [3037-4410] -->
+<h2><a>Creating a Custom Material Definition</a></h2>
+<div>
+
+<p>
+
+First read the <a href="/com/jme3/gde/docs/jme3/advanced/material_specification.html">developer specification of the jME3 material system (.j3md,.j3m)</a>. Also check out the <a href="/com/jme3/gde/docs/jme3/build_from_sources.html">engine source code</a> and have a look at how some Material Definitions are implemented. 
+</p>
+
+<p>
+You can create your own Material Definitions and place them in your project&#039;s <code>assets/MatDefs</code> directory.
+
+</p>
+<ol>
+<li><div> Find the existing MatDefs in <code>engine/src/core-data/Common/MatDefs/</code>. </div>
+</li>
+<li><div> Open a Something.j3md file in a text editor. You see that this .j3md file defines Material Parameters and Techniques.</div>
+<ul>
+<li><div> Material Parameters are the ones that you set in Materials, as shown in the examples above.</div>
+</li>
+<li><div> The Techniques rely on VertexShaders and FragmentShaders: You find those in the files Something.vert and Something.frag in the same directory.</div>
+</li>
+</ul>
+</li>
+<li><div> Learn about GLSL (OpenGL Shading Language) to understand the .vert and .frag syntax, then write your own.</div>
+</li>
+</ol>
+
+</div>
+<!-- EDIT5 SECTION "Creating a Custom Material Definition" [4411-5384] -->
+<h2><a>Related Links</a></h2>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/material_specification.html">Developer specification of the jME3 material system (.j3md,.j3m)</a></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:material?do=showtag&amp;tag=tag%3Amaterial">Material</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">SDK</a>,
+	<a href="/wiki/doku.php/tag:matdef?do=showtag&amp;tag=tag%3Amatdef">MatDef</a>,
+	<a href="/wiki/doku.php/tag:file?do=showtag&amp;tag=tag%3Afile">file</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>
+</span></div>
+
+</div>
+<!-- EDIT6 SECTION "Related Links" [5385-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:material_definitions?do=export_xhtmlbody">view online version</a></em></p>

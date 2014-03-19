@@ -1,0 +1,259 @@
+
+<h1><a>Physics Listeners</a></h1>
+<div>
+
+<p>
+You can control physical objects (push them around) by applying physical forces to them. Typically, you also want to respond to the resulting collisions, e.g. by substracting health points or by playing a sound. To specify how the game responds to such physics events, you use Physics Listeners.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Physics Listeners" [1-329] -->
+<h2><a>Sample Code</a></h2>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestCollisionListener.java"><param name="text" value="<html><u>TestCollisionListener.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestAttachGhostObject.java"><param name="text" value="<html><u>TestAttachGhostObject.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/bullet/TestGhostObject.java"><param name="text" value="<html><u>TestGhostObject.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Sample Code" [330-809] -->
+<h2><a>PhysicsGhostObjects</a></h2>
+<div>
+
+<p>
+
+Attach a com.jme3.bullet.control.GhostControl to any Spatial to turn it into a PhysicsGhostObject. Ghost objects automatically follow their spatial and detect collisions. The attached ghost itself is invisible and non-solid (!) and doesn&#039;t interfere with your game otherwise, it only passively reports collisions. 
+</p>
+
+<p>
+You can leave the GhostControl non-solid and invisible and attach it to an (invisible) Node in the scene to create something like a motion detector. But a GhostControl also works fine when added to spatials that are solid (with RigidBodyControl) and visible (with Geometry). One use case for GhostControls is to check for collisions among <a href="/com/jme3/gde/docs/jme3/advanced/walking_character.html">CharacterControls</a> when the characters are walking.
+</p>
+
+<p>
+The shape of the ghost depends on the CollisionShape that you gave the GhostControl. This means that the GhostControl&#039;s shape can be different from the RigidBodyControl&#039;s shape. For example, the non-solid ghost shape can be bigger than the solid shape of the Spatial (so you can &quot;feel&quot; ahead).
+</p>
+<pre>GhostControl ghost = new GhostControl&#40;
+  new BoxCollisionShape&#40;new Vector3f&#40;1,1,1&#41;&#41;&#41;;  // a box-shaped ghost
+Node node = new Node&#40;&quot;a ghost-controlled thing&quot;&#41;;
+node.addControl&#40;ghost&#41;;                         // the ghost follows this node
+// Optional: Add a Geometry, or other controls, to the node if you need to
+...
+// attach everything to activate it
+rootNode.attachChild&#40;node&#41;;
+getPhysicsSpace&#40;&#41;.add&#40;ghost&#41;;</pre>
+<div><table>
+	<tr>
+		<th>Ghost methods</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>getOverlappingObjects()</td><td>Returns the List of objects that are currently colliding (overlapping) with the ghost.</td>
+	</tr>
+	<tr>
+		<td>getOverlappingCount()</td><td>Returns the number of currently colliding objects.</td>
+	</tr>
+	<tr>
+		<td>getOverlapping(i)</td><td>Get PhysicsCollisionObject number i.</td>
+	</tr>
+</table></div>
+<!-- EDIT4 TABLE [2299-2565] -->
+</div>
+<!-- EDIT3 SECTION "PhysicsGhostObjects" [810-2566] -->
+<h2><a>Physics Tick Listener</a></h2>
+<div>
+
+<p>
+
+The jBullet Physics implementation is stepped at a constant 60 physics ticks per second frame rate.
+Applying forces or checking for overlaps only has an effect right at a physics update cycle, which is not every frame. If you do physics interactions at arbitrary spots in the simpleUpdate() loop, calls will be dropped at irregular intervals, because they happen out of cycle.
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Physics Tick Listener" [2567-2979] -->
+<h3><a>When (Not) to Use Tick Listener?</a></h3>
+<div>
+
+<p>
+
+When you write game mechanics that apply forces, you must implement a tick listener (com.jme3.bullet.PhysicsTickListener) for it. The tick listener makes certain the forces are not dropped, but applied in time for the next physics tick.
+</p>
+
+<p>
+Also, when you check for overlaps of two physical objects using a GhostControl, you cannot just go <code>ghost.getOverLappingObjects()</code> somewhere outside the update loop. You have to make certain 1 physics tick has passed before the overlapping objects list is filled with data. Again, the PhysicsTickListener does the timing for you.
+</p>
+
+<p>
+When your game mechanics however just poll the current state (e.g. getPhysicsLocation()) of physical objects, or if you only use the GhostControl like a sphere trigger inside an update loop, then you don&#039;t need an extra PhysicsTickListener.
+</p>
+
+</div>
+<!-- EDIT6 SECTION "When (Not) to Use Tick Listener?" [2980-3836] -->
+<h3><a>How to Listen to Physics Ticks</a></h3>
+<div>
+
+<p>
+
+Here&#039;s is the declaration of an examplary Physics Control that listens to ticks. (The example shows a RigidBodyControl, but it can also be GhostControl.)
+</p>
+<pre>public class MyCustomControl
+    extends RigidBodyControl implements PhysicsTickListener &#123; ... &#125;</pre>
+
+<p>
+When you implement the interface, you have to implement <code>physicsTick()</code> and <code>preTick()</code> methods.
+</p>
+<ul>
+<li><div> <code>prePhysicsTick(PhysicsSpace space, float tpf)</code> is called before each step, here you apply forces (change the state).</div>
+</li>
+<li><div> <code>physicsTick(PhysicsSpace space, float tpf)</code> is called after each step, here you poll the results (get the current state).</div>
+</li>
+</ul>
+
+<p>
+The tpf value is time per frame in seconds. You can use it as a factor to time actions so they run equally on slow and fast machines.
+</p>
+<pre>@override
+public void prePhysicsTick&#40;PhysicsSpace space, float tpf&#41;&#123;
+  // apply state changes ...
+&#125;
+@override
+public void physicsTick&#40;PhysicsSpace space, float tpf&#41;&#123;
+  // poll game state ...
+&#125;</pre>
+
+</div>
+<!-- EDIT7 SECTION "How to Listen to Physics Ticks" [3837-4856] -->
+<h2><a>Physics Collision Listener</a></h2>
+<div>
+
+</div>
+<!-- EDIT8 SECTION "Physics Collision Listener" [4857-4896] -->
+<h3><a>When (Not) to Use Collision Listener</a></h3>
+<div>
+
+<p>
+
+If you do not implement the Collision Listener interface (com.jme3.bullet.collision.PhysicsCollisionListener), a collisions will just mean that physical forces between solid objects are applied automatically. If you just want &quot;Balls rolling, bricks falling&quot; you do not need a listener.
+</p>
+
+<p>
+If however you want to respond to a collision event (com.jme3.bullet.collision.PhysicsCollisionEvent) with a custom action, then you need to implement the PhysicsCollisionListener interface. Typical actions triggered by collisions include:
+</p>
+<ul>
+<li><div> Increasing a counter (e.g. score points)</div>
+</li>
+<li><div> Decreasing a counter (e.g. health points)</div>
+</li>
+<li><div> Triggering an effect (e.g. explosion)</div>
+</li>
+<li><div> Playing a sound (e.g. explosion, ouch)</div>
+</li>
+<li><div> ??? and countless more, depending on your game</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT9 SECTION "When (Not) to Use Collision Listener" [4897-5699] -->
+<h3><a>How to Listen to Collisions</a></h3>
+<div>
+
+<p>
+
+You need to add the PhysicsCollisionListener to the physics space before collisions will be listened for. Here&#039;s an example of a Physics Control that uses a collision listener. (The example shows a RigidBodyControl, but it can also be GhostControl.)
+</p>
+<pre>public class MyCustomControl extends RigidBodyControl
+    implements PhysicsCollisionListener &#123;
+    public MyCustomControl&#40;&#41; &#123;
+        bulletAppState.getPhysicsSpace&#40;&#41;.addCollisionListener&#40;this&#41;;
+        ...
+    &#125;</pre>
+
+<p>
+To respond to the PhysicsCollisionEvent you now have to override the <code>collision()</code> method in MyCustomControl. This gives you access to the <code>event</code> object. Mostly you will be interested in the identity of any two nodes that collided: <code>event.getNodeA()</code> and <code>event.getNodeB()</code>.
+</p>
+
+<p>
+After you identify the colliding nodes, specify the action to trigger when this pair collides. Note that you cannot know which one will be Node A or Node B, you have to deal with either variant.
+</p>
+<pre>    public void collision&#40;PhysicsCollisionEvent event&#41; &#123;
+        if &#40; event.getNodeA&#40;&#41;.getName&#40;&#41;.equals&#40;&quot;player&quot;&#41; &#41; &#123;
+            final Node node = event.getNodeA&#40;&#41;;
+            /** ... do something with the node ... */
+        &#125; else if &#40; event.getNodeB&#40;&#41;.getName&#40;&#41;.equals&#40;&quot;player&quot;&#41; &#41; &#123;
+            final Node node = event.getNodeB&#40;&#41;;
+            /** ... do something with the node ... */
+        &#125;
+    &#125;</pre>
+
+<p>
+
+<p><div>Note that after the collision() method ends, the PhysicsCollisionEvent is cleared. You must get all objects and values you need within the collision() method.
+</div></p>
+</p>
+
+</div>
+<!-- EDIT10 SECTION "How to Listen to Collisions" [5700-7311] -->
+<h3><a>Reading Details From a PhysicsCollisionEvent</a></h3>
+<div>
+
+<p>
+
+The PhysicsCollisionEvent <code>event</code> gives you access to detailed information about the collision. You already know the event objects can identify which nodes collided, but it even knows how hard they collided:
+</p>
+<div><table>
+	<tr>
+		<th>Method                        </th><th>Purpose</th>
+	</tr>
+	<tr>
+		<td> getObjectA() <br/>
+getObjectB()     </td><td> The two participants in the collision. You cannot know in advance whether some node will be recorded as A or B, you always have to consider both cases. </td>
+	</tr>
+	<tr>
+		<td> getAppliedImpulse()          </td><td> A float value representing the collision impulse </td>
+	</tr>
+	<tr>
+		<td> getAppliedImpulseLateral1()  </td><td> A float value representing the lateral collision impulse </td>
+	</tr>
+	<tr>
+		<td> getAppliedImpulseLateral2()  </td><td> A float value representing the lateral collision impulse </td>
+	</tr>
+	<tr>
+		<td> getCombinedFriction()        </td><td> A float value representing the collision friction </td>
+	</tr>
+	<tr>
+		<td> getCombinedRestitution()     </td><td> A float value representing the collision restitution (bounciness) </td>
+	</tr>
+</table></div>
+<!-- EDIT12 TABLE [7578-8263] -->
+<p>
+Note that after the collision method has been called the object is not valid anymore so you should copy any data you want to keep into local variables.
+</p>
+
+</div>
+<!-- EDIT11 SECTION "Reading Details From a PhysicsCollisionEvent" [7312-8416] -->
+<h3><a>Collision Groups</a></h3>
+<div>
+
+<p>
+
+You can improve performance by resricting the number of tests that collision detection has to perform. If you have a case where you are only interested in collisions between certain objects but not others, you can assign sets of physical obejcts to different collision groups.
+</p>
+
+<p>
+For example, for a click-to-select, you only care if the selection ray collides with a few selectable objects such as dropped weapons or powerups (one group), but not with non-selectables such as floors or walls (different group). 
+</p>
+<pre>myNode.getControl&#40;RigidBodyControl.class&#41;.setCollisionGroup&#40;PhysicsCollisionObject.COLLISION_GROUP_02&#41;;
+myNode.getControl&#40;RigidBodyControl.class&#41;.setCollideWithGroups&#40;PhysicsCollisionObject.COLLISION_GROUP_02&#41;;</pre>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:physics?do=showtag&amp;tag=tag%3Aphysics">physics</a>,
+	<a href="/wiki/doku.php/tag:collision?do=showtag&amp;tag=tag%3Acollision">collision</a>,
+	<a href="/wiki/doku.php/tag:forces?do=showtag&amp;tag=tag%3Aforces">forces</a>,
+	<a href="/wiki/doku.php/tag:interaction?do=showtag&amp;tag=tag%3Ainteraction">interaction</a>
+</span></div>
+
+</div>
+<!-- EDIT13 SECTION "Collision Groups" [8417-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:physics_listeners?do=export_xhtmlbody">view online version</a></em></p>

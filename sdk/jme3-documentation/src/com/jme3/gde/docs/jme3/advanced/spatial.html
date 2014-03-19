@@ -1,0 +1,282 @@
+
+<h1><a>Spatial</a></h1>
+<div>
+
+<p>
+
+This is an introduction to the concept of Spatials, the elements of the 3D scene graph. The scene graph is a data structure that manages all objects in your 3D world. For example, the scene graph keeps track of the 3D models that you load and position. When you extend a Java class from com.jme3.app.SimpleApplication, you automatically inherit the scene graph and its rootNode. 
+</p>
+
+<p>
+The rootNode is the central element of the scene graph. Even if the scene graph is empty, it always contains at least the rootNode. We <em>attach</em> Spatials to the rootNode. Attached Spatials are always in a <em>parent-child relationship</em>. Every time you attach a Spatial to something, it is implicitly detached from its previous parent. A Spatial can have only one parent. A Spatial can have several children.
+</p>
+
+<p>
+If you think you need to understand the scene graph concept better, please read <a href="/com/jme3/gde/docs/jme3/scenegraph_for_dummies.html">Scenegraph for dummies</a> first.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Spatial" [1-934] -->
+<h2><a>Node versus Geometry</a></h2>
+<div>
+
+<p>
+
+In your Java code, a Spatial is either an instance of <code>com.jme3.scene.Node</code> or a <code>com.jme3.scene.Geometry</code> instance. You use the two types of Spatials for different purposes:
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/intermediate/scene-graph.png">
+
+</p>
+<div><table>
+	<tr>
+		<td> </td><th>com.jme3.scene.Spatial </th>
+	</tr>
+	<tr>
+		<th> Purpose: </th><td> A Spatial is an abstract data structure that stores user data and transformations (= translation, rotation, scale) of elements of the 3D scene graph. Spatials can be saved and loaded using the <a href="/com/jme3/gde/docs/jme3/advanced/asset_manager.html">Asset Manager</a>. </td>
+	</tr>
+	<tr>
+		<td>  </td><th> com.jme3.scene.Geometry </th><th> com.jme3.scene.Node </th>
+	</tr>
+	<tr>
+		<th> Visibility: </th><td> A Geometry represents a <strong>visible</strong> 3D object in the scene graph. </td><td> A Node is an <strong>invisible &quot;handle&quot;</strong> for a group of Spatials in the scene graph. </td>
+	</tr>
+	<tr>
+		<th> Purpose:    </th><td> Use Geometries to represent an object&#039;s <strong>look</strong>: Every Geometry contains a polygon mesh and a material, specifying its shape, color, texture, and opacity/transparency. <br/>
+You attach Geometries to Nodes. </td><td> Use Nodes to <strong>structure and group</strong> Geometries and other Nodes. Every Node is attached to one parent node, and each node can have zero or more children (Nodes or Geometries) attached to itself. <br/>
+<strong>When you transform (move, rotate, etc) a parent node, all its children are transformed (moved, rotated, etc).</strong> </td>
+	</tr>
+	<tr>
+		<th> Content:    </th><td> Transformations; custom user data; <br/>
+mesh and material;  </td><td> Transformations; custom user data; <br/>
+no mesh, no material.</td>
+	</tr>
+	<tr>
+		<th> Examples:   </th><td> Box, sphere, player, building, terrain, vehicle, missiles, NPCs, etc??? </td><td> rootNode, guiNode, audioNode, a custom grouping node such as vehicleNode or shipNode with passengers attached, etc. </td>
+	</tr>
+</table></div>
+<!-- EDIT3 TABLE [1191-2548] -->
+<p>
+
+<p><div>You never create a Spatial with <code><del>Spatial s = new Spatial();</del></code>! A Spatial is an abstract concept, like a mammal (there is no actual creature called &quot;mammal&quot; walking around here). You create either a com.jme3.scene.Node or com.jme3.scene.Geometry instance. Some methods, however, require a <code>Spatial</code> type as argument: This is because they are able to accept both Nodes and Geometries as arguments. In this case, you simply <em>cast</em> a Node or Geometry to Spatial.
+</div></p>
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Node versus Geometry" [935-3048] -->
+<h3><a>Mesh</a></h3>
+<div>
+
+<p>
+
+The polygon <a href="/com/jme3/gde/docs/jme3/advanced/mesh.html">Mesh</a> inside a Geometry can be one of three things:
+
+</p>
+<ul>
+<li><div> <strong>Shapes:</strong> The simplest type of Meshes are jME&#039;s default <a href="/com/jme3/gde/docs/jme3/advanced/shape.html">Shape</a>s such as cubes and spheres. You can use several Shapes to build complex Geometries. Shapes are built-in and can be created without using the AssetManager.</div>
+</li>
+<li><div> <strong>3D Models:</strong> <a href="/com/jme3/gde/docs/jme3/advanced/3d_models.html">3D models and scenes</a> are also made up of meshes, but are more complex than Shapes. You create Models and Scenes in external 3D Mesh Editors and export them as Ogre <acronym title="Extensible Markup Language">XML</acronym> or Wavefront OBJ. Use the <a href="/com/jme3/gde/docs/jme3/advanced/asset_manager.html">Asset Manager</a> to load models into a your jME3 game.</div>
+</li>
+<li><div> <strong>Custom Meshes:</strong> Advanced users can create <a href="/com/jme3/gde/docs/jme3/advanced/custom_meshes.html">Custom Meshes</a> programmatically.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT4 SECTION "Mesh" [3049-3728] -->
+<h2><a>What is a Clone?</a></h2>
+<div>
+
+<p>
+
+Cloned spatials share the same mesh, while each cloned spatial can have its own local transformation (translation, rotation, and scale) in the scene. This means you only use <code>clone()</code> on spatials whose meshes never change. The most common use case for cloning is when you use several Spatials that are based on the same <a href="/com/jme3/gde/docs/jme3/advanced/shape.html">Shape</a>s (e.g. trees, crates). 
+</p>
+
+<p>
+The second use case is: When you load a model using <code>loadModel()</code> from the AssetManager, you may automatically get a <code>clone()</code>ed object. In particular:
+</p>
+<ul>
+<li><div> If the model is not animated (it has no <code><a href="/com/jme3/gde/docs/jme3/advanced/animation.html">AnimControl</a></code>), jME loads a clone. All clones share one mesh object in order to use less memory.</div>
+</li>
+<li><div> If the model is animated (it has a <code><a href="/com/jme3/gde/docs/jme3/advanced/animation.html">AnimControl</a></code>), then <code>loadModel()</code> duplicates the mesh for each loaded instance. (Uses more memory, but can animate.)</div>
+</li>
+</ul>
+
+<p>
+
+Usually there is no need to manually use any of the <code>clone()</code> methods on models. Using the <a href="/com/jme3/gde/docs/jme3/advanced/asset_manager.html">Asset Manager</a>&#039;s <code>loadModel()</code> method will automatically do the right thing for your models.
+</p>
+
+<p>
+<p><div>&quot;Box worlds&quot; are not made up of statically cloned <code>Box()</code> shapes, this would still be too slow for large worlds. To learn how to make real fast box worlds, search the web for <em>voxelization</em> techniques.
+</div></p>
+</p>
+
+</div>
+<!-- EDIT5 SECTION "What is a Clone?" [3729-5049] -->
+<h2><a>How to Add Fields and Methods to a Spatial</a></h2>
+<div>
+
+<p>
+
+You can include custom user data ???that is, custom Java objects and methods??? in Nodes and Geometries. This is very useful for maintaining information about a game element, such as health, budget, ammunition, inventory, equipment, etc for players, or landmark locations for terrains, and much more. 
+</p>
+
+<p>
+<p><div>You want to add custom accessor methods to a spatial? Do not extend <code>Node</code> or <code>Geometry</code>, use <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">Custom Controls</a> instead. You want to add custom fields to a spatial? Do not extend <code>Node</code> or <code>Geometry</code>, use the built-in <code>setUserData()</code> method instead. Where ever the Spatial is accessible, you can easily access the object&#039;s class fields (user data) and accessors (control methods) this way. 
+</div></p>
+</p>
+
+<p>
+This first example adds an integer field named <code>health</code> to the Spatial <code>playerNode</code>, and initializes it to 100.
+
+</p>
+<pre>playerNode.setUserData&#40;&quot;health&quot;, 100&#41;;</pre>
+
+<p>
+The second example adds a set of custom accessor methods to the player object. You create a <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">custom PlayerControl() class</a> and you add this control to the Spatial:
+</p>
+<pre>playerNode.addControl&#40;new PlayerControl&#40;&#41;&#41;;</pre>
+
+<p>
+In your PlayerControl() class, you define custom methods that set and get your user data in the <code>spatial</code> object. For example, the control could add accessors that set and get the player&#039;s health:
+</p>
+<pre>public int getHealth&#40;&#41; &#123;
+  return &#40;Integer&#41;spatial.getUserData&#40;&quot;health&quot;&#41;;
+&#125;
+public void setHealth&#40;int h&#41; &#123;
+  spatial.setUserData&#40;&quot;health&quot;,h&#41;;
+&#125;</pre>
+
+<p>
+Elsewhere in your code, you can access this data wherever you have access to the Spatial <code>playerNode</code>. 
+</p>
+<pre>health = playerNode.getControl&#40;PlayerControl.class&#41;.getHealth&#40;&#41;;
+...
+playerNode.getControl&#40;PlayerControl.class&#41;.setHealth&#40;99&#41;;</pre>
+<ul>
+<li><div> You can add as many data objects (of String, Boolean, Integer, Float, Array types) to a Spatial as you want. Just make sure to label them with unique case-sensitive strings (<code>health</code>, <code>Inventory</code>, <code>equipment</code>, etc). </div>
+</li>
+<li><div> The saved data can even be a custom Java object if you make the custom Java class <a href="/com/jme3/gde/docs/jme3/advanced/save_and_load#custom_savable_class.html">implement the Savable interface</a>! </div>
+</li>
+<li><div> When you save a Spatial as a .j3o file, the custom data is saved, too, and all Savables are restored the next time you load the .j3o! </div>
+</li>
+</ul>
+
+<p>
+
+This is how you list all data keys that are already defined for one Spatial:
+</p>
+<pre>for&#40;String key : spatial.getUserDataKeys&#40;&#41;&#41;&#123;
+    System.out.println&#40;spatial.getName&#40;&#41;+&quot;'s keys: &quot;+key&#41;;
+&#125;</pre>
+
+</div>
+<!-- EDIT6 SECTION "How to Add Fields and Methods to a Spatial" [5050-7620] -->
+<h2><a>How to Access a Named Sub-Mesh</a></h2>
+<div>
+
+<p>
+
+Often after you load a scene or model, you need to access a part of it as an individual Geometry in the scene graph. Maybe you want to swap a character&#039;s weapon, or you want to play a door-opening animation. First you need to know the unique name of the sub-mesh.
+
+</p>
+<ol>
+<li><div> Open the model in a 3D mesh editor, or in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s Scene Composer. </div>
+</li>
+<li><div> Find out the existing names of sub-meshes in the model.</div>
+</li>
+<li><div> Assign unique names to sub-meshes in the model if neccessary.</div>
+</li>
+</ol>
+
+<p>
+
+In the following example, the Node <code>house</code> is the loaded model. The sub-meshes in the Node are called its children. The String, here <code>door 12</code>, is the name of the mesh that you are searching. 
+</p>
+<pre>Geometry submesh = &#40;Geometry&#41; houseScene.getChild&#40;&quot;door 12&quot;&#41;;</pre>
+
+</div>
+<!-- EDIT7 SECTION "How to Access a Named Sub-Mesh" [7621-8423] -->
+<h2><a>What is Culling?</a></h2>
+<div>
+
+<p>
+There are two types of culling: Face culling, and view frustrum culling.
+</p>
+
+<p>
+<strong>Face culling</strong> means not drawing certain polygons of a mesh. Face culling behaviour is a property of the material.
+</p>
+
+<p>
+Usage: The &quot;inside&quot; of a mesh (the so called backface) is typically never visible to the player, and as an optimization, the <code>Back</code> mode skips calculating all backfaces by default. Activating the <code>Off</code> or <code>Front</code> modes can be useful when you are debugging <a href="/com/jme3/gde/docs/jme3/advanced/custom_meshes.html">custom meshes</a> and try to identify accidental inside-out faces. 
+</p>
+
+<p>
+You can switch the com.jme3.material.RenderState.FaceCullMode to either:
+</p>
+<ul>
+<li><div> <code>FaceCullMode.Back</code> (default) ??? Only the frontsides of a mesh are drawn. Backface culling is the default behaviour. </div>
+</li>
+<li><div> <code>FaceCullMode.Front</code> ??? Only the backsides of a mesh are drawn. A mesh with frontface culling will most likely be invisible. Used for debugging &quot;inside-out&quot; custom meshes.</div>
+</li>
+<li><div> <code>FaceCullMode.FrontAndBack</code> ??? Use this to make a mesh temporarily invisible. </div>
+</li>
+<li><div> <code>FaceCullMode.Off</code> ??? Every side of the mesh is drawn. Looks normal, but slows down large scenes.</div>
+</li>
+</ul>
+
+<p>
+
+Example: 
+
+</p>
+<pre>material.getAdditionalRenderState&#40;&#41;.setFaceCullMode&#40;FaceCullMode.FrontAndBack&#41;;</pre>
+
+<p>
+<strong>View frustum culling</strong> refers to not drawing (and not even calculating) certain whole models in the scene. At any given moment, half of the scene is behind the player and out of sight anyway. View frustum culling is an optimization to not calculate scene elements that are not visible ??? elements that are &quot;outside the view frustrum&quot;.
+</p>
+
+<p>
+The decision what is visible and what not, is done automatically by the engine (<code>CullHint.Dynamic</code>). Optionally, you can manually control whether the engine culls individual spatials (and children) from the scene graph:
+</p>
+<ul>
+<li><div> <code>CullHint.Dynamic</code> ??? Default, faster because it doesn&#039;t waste time with objects that are out of view.</div>
+</li>
+<li><div> <code>CullHint.Never</code> ??? Calculate and draw everything always (even if it does not end up on the user&#039;s screen because it&#039;s out of sight). Slower, but can be used while debugging custom meshes.</div>
+</li>
+<li><div> <code>CullHint.Always</code> ??? The whole spatial is culled and is not visible. A fast way to hide a Spatial temporarily. Culling a Spatial is faster then detaching it, but it uses more memory.</div>
+</li>
+<li><div> <code>CullHint.Inherit</code> ??? Inherit culling behaviour from parent node. </div>
+</li>
+</ul>
+
+<p>
+
+Example:
+
+</p>
+<pre>spatial.setCullHint&#40;CullHint.Never&#41;; // always drawn</pre>
+
+</div>
+<!-- EDIT8 SECTION "What is Culling?" [8424-10857] -->
+<h2><a>See also</a></h2>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/intermediate/optimization.html">Optimization</a> ??? The GeometryBatchFactory class batches several Geometries into meshes with each their own texture.</div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/traverse_scenegraph.html">Traverse SceneGraph</a> ??? Find any Node or Geometry in the scenegraph.</div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:spatial?do=showtag&amp;tag=tag%3Aspatial">spatial</a>,
+	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
+	<a href="/wiki/doku.php/tag:mesh?do=showtag&amp;tag=tag%3Amesh">mesh</a>,
+	<a href="/wiki/doku.php/tag:geometry?do=showtag&amp;tag=tag%3Ageometry">geometry</a>,
+	<a href="/wiki/doku.php/tag:scenegraph?do=showtag&amp;tag=tag%3Ascenegraph">scenegraph</a>
+</span></div>
+
+</div>
+<!-- EDIT9 SECTION "See also" [10858-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:spatial?do=export_xhtmlbody">view online version</a></em></p>

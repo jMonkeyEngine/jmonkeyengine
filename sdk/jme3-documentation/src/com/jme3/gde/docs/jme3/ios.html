@@ -1,0 +1,107 @@
+
+<h2><a>iOS Deployment</a></h2>
+<div>
+
+<p>
+To use iOS deployment you need a computer running MacOSX and a version of Xcode 4.0+ installed. To deploy to a device or the Apple App Store, you need an Apple developer account.
+</p>
+
+<p>
+<p><div>Note that at the moment iOS deployment is in alpha state.
+</div></p>
+</p>
+
+<p>
+iOS deployment works via cross-compilation to native iOS ARM code, there is no virtual machine running on the device. The Avian JVM supports this feature while maintaining general compatibility to OpenJDK and JNI for native access. The minimum compatible iOS deployment target is 4.3.
+</p>
+
+<p>
+<p><div>To install the iOS deployment plugin, go to Tools???Plugins and under &quot;Available plugins&quot; select the &quot;iOS Support&quot; plugin.
+</div></p>
+
+</p>
+
+</div>
+<!-- EDIT1 SECTION "iOS Deployment" [1-710] -->
+<h3><a>Enabling iOS deployment</a></h3>
+<div>
+
+<p>
+To enable iOS deployment, go to the project settings and under &quot;Application???iOS&quot; select the &quot;Enable iOS deployment&quot; checkbox, adapt the application ID and then press OK.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/ios-deployment.png">
+</p>
+
+<p>
+After enabling deployment, a new <code>ios</code> directory is created in the project root that contains a <code>project</code> and a <code>src</code> folder. The <code>ios/project</code> folder contains an Xcode project that you will use to build and run the final iOS application for both iPhone and iOS. The <code>ios/src</code> folder contains java and native source files for bridging iOS and native code, you can add .java and .m files with your own iOS code here.
+</p>
+
+<p>
+<p><div>When you enable iOS deployment for the first time or any time that the Avian library and OpenJDK is updated, they will be extracted to your <acronym title="Software Development Kit">SDK</acronym> settings folder, wait until it has been extracted before building an iOS-enabled project.
+</div></p>
+
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Enabling iOS deployment" [711-1631] -->
+<h3><a>Building the iOS binaries</a></h3>
+<div>
+
+<p>
+The iOS binaries are automatically built when you have iOS deployment enabled and build your project.
+</p>
+
+<p>
+When the iOS binaries are built, all needed classes, including a complete copy of the OpenJDK7 classes are run through a proguard process that strips out the unnecessary classes for the project and optimizes the code for the platform. This happens without changing the naming structure so that reflection etc. still works. If necessary, adapt the proguard options in the ios properties file.
+</p>
+
+<p>
+After the iOS classpath has been created the avian compiler is used to create a native .o file from the classpath for both arm (device) and i386 (simulator). Furthermore the other needed avian .o files are extracted and a library list is compiled which is referenced in the Xcode project.
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Building the iOS binaries" [1632-2453] -->
+<h3><a>Running and deploying the application</a></h3>
+<div>
+
+<p>
+To run the application, open the Xcode project under <code>ios/project</code> in Xcode and press the run button. You can make changes to the UI and native invocation classes in the Xcode project as well. From here you can also deploy the application to your devices or the App Store.
+<p><div>Note that you should also adapt the project settings like application name and registration package in Xcode before deploying the final application.
+</div></p>
+
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Running and deploying the application" [2454-2942] -->
+<h3><a>Creating native and java code for iOS</a></h3>
+<div>
+
+<p>
+To bridge between native and java code, JNI is used like in a normal java application. The <code>ios/src</code> folder is for Java and C/Obj-C source files that are specific to your iOS application. In these java files you have access to the full project classpath as well as the iOS-specific jME3 classes.
+</p>
+
+<p>
+The JmeAppHarness.java class is initialized and called from native code through the default project and you can extend it to perform other native operations. It has a simple native popup method. The JmeAppHarness.m file contains the native method needed for that popup.
+</p>
+
+<p>
+Effectively native code can reside in both the Xcode project and in the <code>ios/src</code> folder. To keep the dependencies clean and make code reusable you should try to put generic native code that does not depend on the Xcode project in the <code>ios/src</code> folder. You can also mix and match ARC and non-ARC code through this by converting the main project to use ARC and putting code with manual memory management in the <code>ios/src</code> folder.
+</p>
+
+<p>
+Java code for iOS should be in the <code>ios/src</code> folder as well for clean separation, its also the only place where they will be compiled with a reference to the iOS specific jME classes. For information on how to connect your application code and device specific code, see the <a href="/com/jme3/gde/docs/jme3/android#using_android_specific_functions.html">notes in the android deployment documentation</a>.
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:ios?do=showtag&amp;tag=tag%3Aios">iOS</a>,
+	<a href="/wiki/doku.php/tag:mac?do=showtag&amp;tag=tag%3Amac">Mac</a>,
+	<a href="/wiki/doku.php/tag:macos?do=showtag&amp;tag=tag%3Amacos">MacOS</a>,
+	<a href="/wiki/doku.php/tag:deployment?do=showtag&amp;tag=tag%3Adeployment">deployment</a>,
+	<a href="/wiki/doku.php/tag:platform?do=showtag&amp;tag=tag%3Aplatform">platform</a>
+</span></div>
+
+</div>
+<!-- EDIT5 SECTION "Creating native and java code for iOS" [2943-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:ios?do=export_xhtmlbody">view online version</a></em></p>

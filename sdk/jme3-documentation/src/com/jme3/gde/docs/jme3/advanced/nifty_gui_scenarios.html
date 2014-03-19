@@ -1,0 +1,363 @@
+
+<h1><a>Nifty GUI 1.3 - Usecase Scenarios</a></h1>
+<div>
+
+<p>
+
+This document contains typical NiftyGUI usecase scenarios, such as adding effects, game states, and creating typical game screens. 
+</p>
+
+<p>
+Requirements: These tips assume that you have read and understood the <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Creating JME3 User Interfaces with Nifty GUI</a> tutorial, and have already laid out a basic <acronym title="Graphical User Interface">GUI</acronym> that interacts with your JME3 application. Here you learn how you integrate the <acronym title="Graphical User Interface">GUI</acronym> better, and add effects and advanced controls.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Nifty GUI 1.3 - Usecase Scenarios" [1-506] -->
+<h2><a>Switch Game States</a></h2>
+<div>
+
+<p>
+
+In a JME game, you typically have three game states:
+</p>
+<ol>
+<li><div> Stopped: The game is stopped, a StartScreen is displayed. </div>
+</li>
+<li><div> Running: The game is running, the in-game HudScreen is displayed. </div>
+</li>
+<li><div> Paused: The game is paused, a PausedScreen is displayed.</div>
+</li>
+</ol>
+
+<p>
+
+(Aside: Additionally, the Stopped state often contains a LoadScreen, LogonScreen, OptionsScreen, CharacterCreationScreen, HighScoreScreen, CreditsScreen, etc. Some games let you access the OptionsScreen in the Paused state as well. The Running state can also contain an InventoryScreen, ItemShopScreen, StatsScreen, SkillScreen, etc.)
+</p>
+
+<p>
+In JME, game states are implemented as custom <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">AppState</a> objects. Write each AppState so it brings its own input mappings, rootNode content, update loop behaviour, etc with it.
+</p>
+<ol>
+<li><div> Stopped: StartScreen AppState + GuiInputs AppState</div>
+</li>
+<li><div> Paused: PausedScreen AppState + GuiInputs AppState</div>
+</li>
+<li><div> Running: HudScreen AppState + InGameInputs AppState + BulletAppState (jme physics), ???</div>
+</li>
+</ol>
+
+<p>
+
+When the player switches between game states, you detach one set of AppStates, and attach another. For example, when the player pauses the running game, you use a boolean switch to pause the game loop and deactivate the game inputs (shooting, navigation). The screen is overlayed with a PausedScreen, which contains a visible mouse pointer and a Continue button. When the player clicks Continue, the mouse pointer is deactivated, the in-game input and navigational mappings are activated, and the game loop continues.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Switch Game States" [507-2043] -->
+<h2><a>Get Access to Application and Update Loop</a></h2>
+<div>
+
+<p>
+
+Since you are writing a jME3 application, you can additionally make any ScreenController class extend the <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">AbstractAppState</a> class. 
+This gives the ScreenController access to the application object and to the update loop!
+</p>
+<pre>public class StartScreenState extends AbstractAppState &#123;
+&nbsp;
+  private ViewPort viewPort;
+  private Node rootNode;
+  private Node guiNode;
+  private AssetManager assetManager;
+  private Node localRootNode = new Node&#40;&quot;Start Screen RootNode&quot;&#41;;
+  private Node localGuiNode = new Node&#40;&quot;Start Screen GuiNode&quot;&#41;;
+  private final ColorRGBA backgroundColor = ColorRGBA.Gray;  
+&nbsp;
+public StartScreenState&#40;SimpleApplication app&#41;&#123;
+    this.rootNode     = app.getRootNode&#40;&#41;;
+    this.viewPort     = app.getViewPort&#40;&#41;;
+    this.guiNode      = app.getGuiNode&#40;&#41;;
+    this.assetManager = app.getAssetManager&#40;&#41;;  
+  &#125;
+&nbsp;
+  @Override
+  public void initialize&#40;AppStateManager stateManager, Application app&#41; &#123;
+    super.initialize&#40;stateManager, app&#41;;
+    /** init the screen */    
+  &#125;
+&nbsp;
+  @Override
+  public void update&#40;float tpf&#41; &#123;
+    /** any main loop action happens here */
+  &#125;
+&nbsp;
+  @Override
+  public void stateAttached&#40;AppStateManager stateManager&#41; &#123;
+    rootNode.attachChild&#40;localRootNode&#41;;
+    guiNode.attachChild&#40;localGuiNode&#41;;
+    viewPort.setBackgroundColor&#40;backgroundColor&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void stateDetached&#40;AppStateManager stateManager&#41; &#123;
+    rootNode.detachChild&#40;localRootNode&#41;;
+    guiNode.detachChild&#40;localGuiNode&#41;;
+  &#125;
+&nbsp;
+&#125;</pre>
+
+<p>
+
+<p><div>It is not sufficient to just inherit from AbstractAppState. You need to instantiate your controller class, register it with app&#039;s stateManager and then pass it to nifty. See code sample below.
+</div></p>
+</p>
+<pre>public class TestNiftyGui extends SimpleApplication &#123;
+  public void simpleInitApp&#40;&#41; &#123;
+     StartScreenState startScreenState = new StartScreenState&#40;this&#41;;
+     stateManager.attach&#40;startScreenState&#41;;
+     // [...] boilerplate init nifty omitted
+     nifty.fromXml&#40;&quot;Interface/myGui.xml&quot;, &quot;start&quot;, startScreenState&#41;; //one of the XML screen elements needs to reference StartScreenState controller class
+  &#125;
+&#125;</pre>
+
+</div>
+<!-- EDIT3 SECTION "Get Access to Application and Update Loop" [2044-4243] -->
+<h2><a>Know Your Variables</a></h2>
+<div>
+<div><table>
+	<tr>
+		<th>Variable</th><th>Description</th>
+	</tr>
+	<tr>
+		<td>${CALL.myMethod()} </td><td> Calls a method in the current ScreenController and gets the method&#039;s return String. The method can also be void and have a side effect, e.g. play a sound etc.</td>
+	</tr>
+	<tr>
+		<td>${ENV.HOME}</td><td> Returns the path to user&#039;s home directory.</td>
+	</tr>
+	<tr>
+		<td>${ENV.key} </td><td> Looks up <code>key</code> in the environment variables. Use it like Java&#039;s System.getEnv(&quot;key&quot;).</td>
+	</tr>
+	<tr>
+		<td>${PROP.key}</td><td> looks up <code>key</code> in the Nifty properties. Use Nifty.setGlobalproperties(properties) and Nifty.getGlobalproperties(&quot;key&quot;). Or SystemGetProperties(key);</td>
+	</tr>
+</table></div>
+<!-- EDIT5 TABLE [4276-4807] -->
+<p>
+
+See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=MarkUp"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=MarkUp</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Know Your Variables" [4244-4890] -->
+<h2><a>Use ScreenControllers for Mutally Exclusive Functionality</a></h2>
+<div>
+
+<p>
+
+Technically you are free to create one ScreenController class for each screen, or reuse the same ScreenController for all or some of them. In the end it may be best to create individual ScreenControllers for functionality that is mutually exclusive.
+</p>
+
+<p>
+For example, create a <code>MyHudScreen.java</code> for the <code>hud</code> screen, and a <code>MyStartScreen.java</code> for the <code>start</code> screen.
+</p>
+<ul>
+<li><div> Include all user interface methods that are needed during the game (while the HUD is up) in <code>MyHudScreen.java</code>. Then make this class control all screens that can be up during the game (the HUD screen, a MiniMap screen, an Inventory screen, an Abilities or Skills screen, etc). All these screens possibly share data (game data, player data), so it makes sense to control them all with methods of the same <code>MyHudScreen.java</code> class.</div>
+</li>
+<li><div> The start screen, however, is mostly independent of the running game. Include all user interface methods that are needed outside the game (while you are on the start screen) in <code>MyStartScreen.java</code>. Then make this class control all screens that can be up outside the game (the Start screen, a Settings/Options screen, a HighScore screen, etc). All these classes need to read and write saved game data, so it makes sense to control them all with methods of the same <code>MyStartScreen.java</code> class.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT6 SECTION "Use ScreenControllers for Mutally Exclusive Functionality" [4891-6273] -->
+<h2><a>Create a &quot;Loading...&quot; Screen</a></h2>
+<div>
+
+<p>
+
+Get the full <a href="/com/jme3/gde/docs/jme3/advanced/loading_screen.html">Loading Screen</a> tutorial here.
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Create a Loading... Screen" [6274-6378] -->
+<h2><a>Create a Popup Menu</a></h2>
+<div>
+
+<p>
+
+Get the full <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_popup_menu.html">Nifty GUI PopUp Menu</a> tutorial here.
+</p>
+
+</div>
+<!-- EDIT8 SECTION "Create a Popup Menu" [6379-6481] -->
+<h2><a>Add Visual Effects</a></h2>
+<div>
+
+<p>
+
+You can register effects to screen elements.
+</p>
+<ul>
+<li><div> Respond to element events such as onStartScreen, onEndScreen, onHover, onFocus, onActive,</div>
+</li>
+<li><div> Trigger effects that change movement, blending, size, color, fading, and much more.</div>
+</li>
+</ul>
+
+<p>
+
+Here is an example that moves a panel when the startScreen opens. You place an &lt; effect &gt; tag inside the element that you want to  be affected.
+</p>
+<pre><span>&lt;panel height=&quot;25%&quot; width=&quot;35%&quot; ...&gt;</span>
+  <span><span>&lt;effect&gt;</span></span>
+    <span>&lt;onStartScreen name=&quot;move&quot; mode=&quot;in&quot; direction=&quot;top&quot; length=&quot;300&quot; startDelay=&quot;0&quot; inherit=&quot;true&quot;/&gt;</span>
+  <span><span>&lt;/effect&gt;</span></span>
+<span><span>&lt;/panel&gt;</span></span></pre>
+
+<p>
+Learn more from the NiftyGUI page:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Effects"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Effects</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT9 SECTION "Add Visual Effects" [6482-7194] -->
+<h2><a>Add Sound Effects</a></h2>
+<div>
+
+<p>
+
+Playing sounds using Nifty is also possible with a <code>playSound</code> effect as trigger. Remember to first register the sound that you want to play:
+</p>
+<pre><span>&lt;registerSound id=&quot;myclick&quot; filename=&quot;Interface/sounds/ButtonClick.ogg&quot; /&gt;</span>
+...
+<span><span>&lt;label&gt;</span></span>
+  <span><span>&lt;effect&gt;</span></span>
+    <span>&lt;onClick name=&quot;playSound&quot; sound=&quot;myclick&quot;/&gt;</span>
+  <span><span>&lt;/effect&gt;</span></span>
+<span><span>&lt;/label&gt;</span></span></pre>
+
+</div>
+<!-- EDIT10 SECTION "Add Sound Effects" [7195-7557] -->
+<h2><a>Pass ClickLoc From Nifty to Java</a></h2>
+<div>
+
+<p>
+
+After a mouse click, you may want to record the 2D clickLoc and send this info to your Java application. Typical ScreenController methods however only have a String argument. You&#039;d have to convert the String to ints.
+</p>
+
+<p>
+To pass the clickLoc as two ints, you can use the special <code>(int x, int y)</code> syntax in the ScreenController:
+
+</p>
+<pre>  public void clicked&#40;int x, int y&#41; &#123;
+    // here you can use the x and y of the clickLoc
+  &#125;</pre>
+
+<p>
+
+In the Nifty <acronym title="Graphical User Interface">GUI</acronym> screen code (e.g. <acronym title="Extensible Markup Language">XML</acronym> file) you must call the <code>(int x, int y)</code> method <em>without</em> any parameters! 
+
+</p>
+<pre><span>&lt;interact onClick=&quot;clicked()&quot;/&gt;</span>  </pre>
+
+<p>
+
+You can name the method (here <code>clicked</code>) what ever you like, as long as you keep the argument syntax.
+</p>
+
+</div>
+<!-- EDIT11 SECTION "Pass ClickLoc From Nifty to Java" [7558-8319] -->
+<h2><a>Load Several XML Files</a></h2>
+<div>
+
+<p>
+
+The basic Nifty <acronym title="Graphical User Interface">GUI</acronym> example showed how to use the <code>nifty.fromXML()</code> method to load one <acronym title="Extensible Markup Language">XML</acronym> file containing all Nifty <acronym title="Graphical User Interface">GUI</acronym> screens.
+The following code sample shows how you can load several <acronym title="Extensible Markup Language">XML</acronym> files into one nifty object. Loading several files with <code>nifty.addXml()</code> allows you to split up each screen into one <acronym title="Extensible Markup Language">XML</acronym> file, instead of all into one hard-to-read <acronym title="Extensible Markup Language">XML</acronym> file. 
+</p>
+<pre>NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay&#40;assetManager, inputManager, audioRenderer, viewPort&#41;;
+Nifty nifty = niftyDisplay.getNifty&#40;&#41;;
+nifty.addXml&#40;&quot;Interface/Screens/OptionsScreen.xml&quot;&#41;;
+nifty.addXml&#40;&quot;Interface/Screens/StartScreen.xml&quot;&#41;;
+nifty.gotoScreen&#40;&quot;startScreen&quot;&#41;;
+StartScreenControl screenControl = &#40;StartScreenControl&#41; nifty.getScreen&#40;&quot;startScreen&quot;&#41;.getScreenController&#40;&#41;;
+OptionsScreenControl optionsControl = &#40;OptionsScreenControl&#41; nifty.getScreen&#40;&quot;optionsScreen&quot;&#41;.getScreenController&#40;&#41;;
+stateManager.attach&#40;screenControl&#41;;
+stateManager.attach&#40;optionsControl&#41;;
+guiViewPort.addProcessor&#40;niftyDisplay&#41;;</pre>
+
+</div>
+<!-- EDIT12 SECTION "Load Several XML Files" [8320-9368] -->
+<h2><a>Register additional explicit screen controllers</a></h2>
+<div>
+
+<p>
+
+In addition to the <code>nifty.addXml()</code> methods to attach many nifty <acronym title="Extensible Markup Language">XML</acronym> files, there exists a <code>nifty.registerScreenController()</code> method to explicitly attach more screen controllers. 
+</p>
+
+<p>
+The following code sample shows how you can explicitly attach several screen controllers before adding the <acronym title="Extensible Markup Language">XML</acronym> file to nifty, which would otherwise cause nifty to implicitly instantiate the screen controller class. 
+</p>
+<pre>NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay&#40;assetManager, inputManager, audioRenderer, viewPort&#41;;
+Nifty nifty = niftyDisplay.getNifty&#40;&#41;;
+&nbsp;
+nifty.registerScreenController&#40;new OptionsScreenController&#40;randomConstructorArgument&#41;&#41;;
+nifty.addXml&#40;&quot;Interface/Screens/OptionsScreen.xml&quot;&#41;;</pre>
+
+</div>
+<!-- EDIT13 SECTION "Register additional explicit screen controllers" [9369-10137] -->
+<h2><a>Design Your Own Styles</a></h2>
+<div>
+
+<p>
+
+By default, your Nifty <acronym title="Extensible Markup Language">XML</acronym> screens use the built.in styles:
+</p>
+<pre> <span>&lt;useStyles filename=&quot;nifty-default-styles.xml&quot; /&gt;</span> </pre>
+
+<p>
+But you can switch to a set of custom styles in your game project&#039;s asset directory like this:
+</p>
+<pre> <span>&lt;useStyles filename=&quot;Interface/Styles/myCustomStyles.xml&quot; /&gt;</span> </pre>
+
+<p>
+Inside myCustomStyles.xml you define styles like this:
+</p>
+<pre><span>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span><span>&lt;nifty-styles&gt;</span></span>
+  <span>&lt;useStyles filename=&quot;Interface/Styles/Font/myCustomFontStyle.xml&quot; /&gt;</span>
+  <span>&lt;useStyles filename=&quot;Interface/Styles/Button/myCustomButtonStyle.xml&quot; /&gt;</span>
+  <span>&lt;useStyles filename=&quot;Interface/Styles/Label/myCustomLabelStyle.xml&quot; /&gt;</span>
+  ...
+<span><span>&lt;/nifty-styles&gt;</span></span></pre>
+
+<p>
+Learn more about how to create styles by looking at the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Build_from_Source"><param name="text" value="<html><u>Nifty GUI source code</u></html>"><param name="textColor" value="blue"></object> for ???nifty-style-black???. Copy it as a template and change it to create your own style.
+
+</p>
+<hr />
+
+<p>
+Learn more from the NiftyGUI page:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Effects"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Effects</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:nifty?do=showtag&amp;tag=tag%3Anifty">nifty</a>,
+	<a href="/wiki/doku.php/tag:hud?do=showtag&amp;tag=tag%3Ahud">hud</a>,
+	<a href="/wiki/doku.php/tag:click?do=showtag&amp;tag=tag%3Aclick">click</a>,
+	<a href="/wiki/doku.php/tag:state?do=showtag&amp;tag=tag%3Astate">state</a>,
+	<a href="/wiki/doku.php/tag:states?do=showtag&amp;tag=tag%3Astates">states</a>,
+	<a href="/wiki/doku.php/tag:sound?do=showtag&amp;tag=tag%3Asound">sound</a>,
+	<a href="/wiki/doku.php/tag:effect?do=showtag&amp;tag=tag%3Aeffect">effect</a>
+</span></div>
+
+</div>
+<!-- EDIT14 SECTION "Design Your Own Styles" [10138-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_scenarios?do=export_xhtmlbody">view online version</a></em></p>

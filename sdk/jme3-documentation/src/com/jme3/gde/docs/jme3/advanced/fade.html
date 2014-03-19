@@ -1,0 +1,50 @@
+
+<h1><a>Fade-in / Fade-out Effect</a></h1>
+<div>
+
+<p>
+You can use a fade in/fade out effect to make smooth transitions, for example between game levels. The effect fades in from black to the initialized scene, or fades out from the scene to black.
+The effect uses com.jme3.post.FilterPostProcessor and com.jme3.post.filters.FadeFilter.
+
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Fade-in / Fade-out Effect" [1-320] -->
+<h2><a>Setting up</a></h2>
+<div>
+<ol>
+<li><div> Create one FilterPostProcessor object per application.</div>
+</li>
+<li><div> Create a FadeFilter object.</div>
+</li>
+<li><div> Give the FadeFilter constructor the fade duration in seconds as parameter. If you use the parameter-less constructor, the duration is 1 sec by default.</div>
+</li>
+<li><div> Add the FadeFilter to the FilterPostProcessor.</div>
+</li>
+<li><div> Add the FilterPostProcessor to the default viewPort.</div>
+</li>
+</ol>
+<pre>private FilterPostProcessor fpp;
+private FadeFilter fade;
+public void simpleInitApp&#40;&#41; &#123;
+  ...
+  fpp = new FilterPostProcessor&#40;assetManager&#41;;
+  fade = new FadeFilter&#40;2&#41;; // e.g. 2 seconds
+  fpp.addFilter&#40;fade&#41;;
+  viewPort.addProcessor&#40;fpp&#41;;
+  ...
+&#125;</pre>
+
+</div>
+<!-- EDIT2 SECTION "Setting up" [321-965] -->
+<h2><a>Fading in and out</a></h2>
+<div>
+
+<p>
+Now call the <code>fade.fadeIn()</code> and <code>fade.fadeOut()</code> methods to trigger the effect.
+You can also change the fade duration using <code>fade.setDuration()</code>.
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Fading in and out" [966-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:fade?do=export_xhtmlbody">view online version</a></em></p>

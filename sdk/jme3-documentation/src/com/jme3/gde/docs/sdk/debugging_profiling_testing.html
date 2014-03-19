@@ -1,0 +1,237 @@
+
+<h1><a>jMonkeyEngine SDK: Debugging, Profiling, Testing</a></h1>
+<div>
+
+<p>
+
+Debugging, testing and profiling are important parts of the development cycle. This documentation shows you how to make the most of the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>&#039;s assistive features.
+</p>
+
+<p>
+<p><div>Since the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is based on the NetBeans IDE and the NetBeans Platform, you can learn about certain jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> features by reading the corresponding NetBeans IDE tutorials (in the &quot;see also links&quot;).
+</div></p>
+</p>
+
+</div>
+<!-- EDIT1 SECTION "jMonkeyEngine SDK: Debugging, Profiling, Testing" [1-478] -->
+<h2><a>Testing</a></h2>
+<div>
+
+<p>
+
+The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> supports the JUnit testing framework. It is a good practice to write tests (assertions) for each of your classes. Each test makes certain this &quot;unit&quot; (e.g. method) meets its design and behaves as intended. Run your tests after each major change and you immediately see if you broke something.
+</p>
+
+</div>
+
+<h4><a>Creating Tests</a></h4>
+<div>
+<ol>
+<li><div> Right-click a Java file in the Projects window and choose Tools &gt; Create JUnit Tests.</div>
+</li>
+<li><div> Click OK. The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> creates a JUnit test skeleton in the Test Package directory.</div>
+</li>
+<li><div> The body of each generated test method is provided solely as a guide. In their place, you need to write your actual test cases!</div>
+</li>
+<li><div> You can use tests such as <code>assertTrue(), assertFalse(), assertEquals()</code>, or <code>assert()</code>.</div>
+<ul>
+<li><div> The following example assertions test an addition method: <code>assert( add(1, 1) == 2); assertTrue( add(7,-5) == add(-5,7) )???</code></div>
+</li>
+</ul>
+</li>
+<li><div> &quot;Ideally&quot;, you write a test case for every method (100% coverage).</div>
+</li>
+</ol>
+
+<p>
+
+<strong>Tip:</strong> Use the Navigate menu to jump from a test to its tested class, and back!
+</p>
+
+</div>
+
+<h4><a>Running Tests</a></h4>
+<div>
+<ol>
+<li><div> Run one or all tests:</div>
+<ul>
+<li><div> Right-click the class in the Projects window and Choose Test File, or </div>
+</li>
+<li><div> Right-click the project and select Test to run all tests.</div>
+</li>
+</ul>
+</li>
+<li><div> Check the Test window to see successful tests (green) and failures (red). </div>
+</li>
+<li><div> If a test fails that has succeeded before, you know that your latest changes broke something!</div>
+</li>
+</ol>
+
+<p>
+
+Using unit tests regularly allows you to detect side-effects on classes that you thought were unaffected by a code change. 
+</p>
+
+<p>
+See also:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://netbeans.org/kb/docs/java/junit-intro.html"><param name="text" value="<html><u>Writing JUnit Tests</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.junit.org"><param name="text" value="<html><u>http://www.junit.org</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://download.oracle.com/javase/1.4.2/docs/guide/lang/assert.html"><param name="text" value="<html><u>Java Assertions</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Testing" [479-2245] -->
+<h2><a>Debugging</a></h2>
+<div>
+
+<p>
+
+In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, you have access to a debugger to examine your application for errors such as deadlocks and NullPointerExeptions. You can set breakpoints, watch variables, and execute your code line-by-line to identify the source of a problem. 
+
+</p>
+<ol>
+<li><div> First, you set breakpoints and/or watches before the problematic lines of code where you suspect the bug.</div>
+<ul>
+<li><div> If you want to watch a variable&#039;s value: Right-click on a variable and select New Watch from the context menu.</div>
+</li>
+<li><div> If you want to step through the execution line by line: Right-click on a line and choose Toggle Line Breakpoint; a pink box appears as a mark.</div>
+</li>
+</ul>
+</li>
+<li><div> Choose &quot;Debug &gt; Debug Main Project&quot; to start a debugger session for the whole project. Or, right-click a file and select Debug File to debug only one file. </div>
+</li>
+<li><div> The application starts running normally. If you have set a breakpoint, the execution stops in this line. Debugger windows open and print debugger output. </div>
+</li>
+<li><div> You can do many things now to track down a bug:</div>
+<ul>
+<li><div> Inspect the values of local variables.</div>
+</li>
+<li><div> Use the Step buttons in the top to step into, out of, and over expressions while you watch the execution.</div>
+</li>
+<li><div> Navigate through your application&#039;s call stack. Right-click on threads to suspend or resume them.</div>
+</li>
+<li><div> Choose Debug &gt; Evaluate Expression from the menu to evaluate an expression. </div>
+</li>
+<li><div> Move the mouse pointer over a variable to inspect its value in a tooltip.</div>
+</li>
+<li><div> Inspect the classes loaded on the heap and the percentage and number of object instances. Right-click a class in the Loaded Classes window and choose Show in Instances view (<acronym title="Java Development Kit">JDK</acronym> 6 only). </div>
+</li>
+<li><div> And more???</div>
+</li>
+</ul>
+</li>
+<li><div> To stop debugging, choose Debug &gt; End Debugger Session from the menu.</div>
+</li>
+</ol>
+
+</div>
+<!-- EDIT3 SECTION "Debugging" [2246-3982] -->
+<h2><a>Profiling</a></h2>
+<div>
+
+<p>
+
+The profiler tool is used to monitor thread states, CPU performance, and memory usage of your jme3 application. It helps you detect memory leaks and bottlenecks in your game while it&#039;s running.
+</p>
+
+</div>
+
+<h4><a>Installing the Profiler</a></h4>
+<div>
+
+<p>
+
+If you do not see a Profiler menu in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, you need to download the Profiler plugin first.
+</p>
+<ol>
+<li><div> Open the Tools &gt; Plugins menu, and got to the &quot;Available plugins&quot; tab </div>
+</li>
+<li><div> Find the &quot;Java Profiler&quot; plugin (&quot;Java SE&quot; category) and check the Install box.</div>
+</li>
+<li><div> Click the install button and follow the instructions.</div>
+</li>
+<li><div> When you start the profiler for the first time, you are prompted to run a calibration once. Click OK in the &quot;Profiler integration&quot; dialog to complete the installation process.</div>
+</li>
+</ol>
+
+</div>
+
+<h4><a>Monitoring and Analyzing</a></h4>
+<div>
+<ol>
+<li><div> Choose Profile Project from the Profile menu. </div>
+</li>
+<li><div> Select one of three tasks:</div>
+<ul>
+<li><div> <strong>Monitor Application</strong> ??? Collect high-level information about properties of the target JVM, including thread activity and memory allocations.</div>
+</li>
+<li><div> <strong>Analyze CPU Performance</strong> ??? Collect detailed data on application performance, including the time to execute methods and the number of times the method is invoked.</div>
+</li>
+<li><div> <strong>Analyze Memory Usage</strong> ??? Collect detailed data on object allocation and garbage collection.</div>
+</li>
+</ul>
+</li>
+<li><div> Click Run. Your application starts and runs normally. </div>
+</li>
+<li><div> Use the Profiling window to track and collect live profiling results while you application is running.</div>
+</li>
+</ol>
+
+</div>
+
+<h4><a>Comparing Snapshots</a></h4>
+<div>
+
+<p>
+
+Click the Take Snapshot button to capture the profiling data for later!
+</p>
+<ul>
+<li><div> You can store and view snapshots in the Profiling window. </div>
+</li>
+<li><div> Choose Compare Snapshots from the profiler window to compare two selected snapshots</div>
+</li>
+</ul>
+
+</div>
+
+<h4><a>Using Profiling Points</a></h4>
+<div>
+
+<p>
+
+Profiling points are similar to debugger breakpoints: You place them directly in the source code and they can trigger profiling behaviour when hit.
+</p>
+<ul>
+<li><div> Open a class in the browser, right-click in a line, and select Profiling &gt; Insert Profiling Point to add a profiling point here.</div>
+</li>
+<li><div> Use Profiling points if you need a trigger to reset profiling results, take a snapshot or heap dump, record the timestamp or execution time of a code fragment, stop and start a load generator script (requires the load generator plugin).</div>
+</li>
+<li><div> Open the Profiling Points window to view, modify and delete the Profiling Points in your projects. </div>
+</li>
+</ul>
+
+<p>
+
+See also:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://netbeans.org/kb/docs/java/profiler-intro.html"><param name="text" value="<html><u>Introduction to Profiling Java Applications (netbeans.org)</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://netbeans.org/kb/docs/java/profiler-profilingpoints.html"><param name="text" value="<html><u>Using Profiling Points (netbeans.org)</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>
+</span></div>
+
+</div>
+<!-- EDIT4 SECTION "Profiling" [3983-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:debugging_profiling_testing?do=export_xhtmlbody">view online version</a></em></p>

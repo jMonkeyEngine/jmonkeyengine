@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--mobile-impl.xml v0.18-->
+<project name="mobile-impl" basedir="..">
+    <condition property="android-adb-name" value="${file.separator}platform-tools${file.separator}adb.exe" else="${file.separator}platform-tools${file.separator}adb">
+        <os family="windows" />
+    </condition>
+
+    <target name="run-android" depends="-flag-no-android, jar, -test-android-enabled, -copy-android-libs" if="is.android.enabled">
+        <echo>Building debug android application version.</echo>
+        <ant dir="mobile" target="debug" inheritall="false"/>
+        <antcall target="-start-android-device"/>
+        <ant dir="mobile" target="installd" inheritall="false"/>
+        <antcall target="-run-android-device"/>
+    </target>
+
+    <target name="clean-android">
+        <ant dir="mobile" target="clean" inheritall="false"/>
+    </target>
+
+    <target name="-mobile-deployment" depends="-test-android-enabled, -copy-android-libs" if="is.android.enabled" unless="no.android.build">
+        <ant dir="mobile" target="release" inheritall="false"/>
+        <copy todir="dist" verbose="false" flatten="true">
+            <fileset dir="mobile/bin/">
+                <include name="**/*.apk"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="-copy-android-libs" if="is.android.enabled">
+        <echo>Copying application libraries to android project.</echo>
+        <delete dir="mobile/libs" failonerror="false"/>
+        <mkdir dir="mobile/libs"/>
+        <copy todir="mobile/libs" verbose="false" flatten="true">
+            <fileset dir="dist/lib/">
+                <exclude name="${assets.jar.name}"/>
+                <exclude name="jME3-desktop.jar"/>
+                <exclude name="jME3-blender.jar"/>
+                <exclude name="jME3-lwjgl.jar"/>
+                <exclude name="jME3-lwjgl-natives.jar"/>
+                <exclude name="jME3-bullet-natives.jar"/>
+                <exclude name="jME3-jbullet.jar"/>
+                <exclude name="jME3-bullet.jar"/>
+                <exclude name="jbullet.jar"/>
+                <exclude name="stack-alloc.jar"/>
+                <exclude name="vecmath.jar"/>
+                <exclude name="lwjgl.jar"/>
+                <exclude name="jinput.jar"/>
+            </fileset>
+        </copy>
+
+        <antcall target="-add-android-lib"/>
+        <antcall target="-unzip-bullet-libs"/>
+        <antcall target="-unzip-assets"/>
+        <copy file="${dist.jar}" todir="mobile/libs/" verbose="false"/>
+    </target>
+
+    <target name="-add-android-lib">
+        <echo>Adding libraries for android.</echo>
+        <copy todir="mobile/libs" flatten="true">
+            <path>
+                <pathelement path="${libs.android-base.classpath}"/>
+            </path>
+        </copy>
+    </target>
+
+    <target name="-unzip-bullet-libs" depends="-delete-bullet-libs" if="bulletIsIncluded">
+        <echo>Replacing bullet library with android native version.</echo>
+        <unzip src="mobile/libs/jME3-bullet-natives-android.jar" dest="mobile/libs"/>
+        <delete file="mobile/libs/jME3-bullet-natives-android.jar"/>
+        <delete dir="mobile/libs/x86"/>
+    </target>
+
+    <target name="-delete-bullet-libs" depends="-test-bullet-included" unless="bulletIsIncluded">
+        <delete file="mobile/libs/jME3-bullet.jar"/>
+        <delete file="mobile/libs/jME3-bullet-natives-android.jar"/>
+    </target>
+
+    <target name="-unzip-assets">
+        <echo>Unzipping Assets to Android Directories</echo>
+        <delete dir="mobile/assets" failonerror="false"/>
+        <mkdir dir="mobile/assets"/>
+        <unzip src="dist/lib/${assets.jar.name}" dest="mobile/assets"/>
+        <delete file="mobile/libs/${assets.jar.name}" failonerror="true"/>
+    </target>
+
+    <target name="-test-bullet-included">
+        <condition property="bulletIsIncluded">
+            <contains string="${javac.classpath}" substring="bullet.jar"/>
+        </condition>
+    </target>
+
+    <target name="-start-android-device">
+        <property file="mobile/local.properties"/>
+        <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
+            <arg value="start-server"/>
+        </exec>
+        <echo>Waiting for device to be ready.. Connect your device now if its not connected yet.</echo>
+        <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
+            <arg value="wait-for-device"/>
+        </exec>
+    </target>
+
+    <target name="-run-android-device">
+        <property file="mobile/local.properties"/>
+        <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
+            <arg value="logcat"/>
+            <arg value="-c"/>
+        </exec>
+        <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
+            <arg value="shell"/>
+            <arg value="am start -n ${mobile.android.package}/.MainActivity"/>
+        </exec>
+        <echo>Logging android device output, cancel build or disconnect device to stop logging.</echo>
+        <exec executable="${sdk.dir}${android-adb-name}" failonerror="true">
+            <arg value="logcat"/>
+            <arg value="AndroidRuntime:E"/>
+            <arg value="System.out:I"/>
+            <arg value="System.err:W"/>
+            <arg value="NSLog:*"/>
+        </exec>
+    </target>
+
+    <target name="-test-android-enabled">
+        <condition property="is.android.enabled">
+            <istrue value="${mobile.android.enabled}"/>
+        </condition>
+    </target>
+
+    <target name="-flag-no-android">
+        <property name="no.android.build" value="true"/>
+    </target>
+</project>

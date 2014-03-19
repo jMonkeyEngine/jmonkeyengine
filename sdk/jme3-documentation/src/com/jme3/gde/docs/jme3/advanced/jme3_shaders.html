@@ -1,0 +1,467 @@
+
+<h1><a>JME3 and Shaders</a></h1>
+<div>
+
+<p>
+<br/>
+
+
+</p>
+
+</div>
+<!-- EDIT1 SECTION "JME3 and Shaders" [1-36] -->
+<h1><a>Shaders Basics</a></h1>
+<div>
+
+<p>
+Shaders are sets of instructions that are executed on the GPU. They are used to take advantage of hardware acceleration available on the GPU for rendering purposes.<br/>
+
+This paper only covers Vertex and Fragment shaders because they are the only ones supported by JME3 for the moment. But be aware that there are some other types of shaders (geometry, tessellation,???).<br/>
+
+There are multiple frequently used languages that you may encounter to code shaders but as JME3 is based on OpenGL, shaders in JME use GLSL and any example in this paper will be written in GLSL.<br/>
+
+<br/>
+
+
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Shaders Basics" [37-634] -->
+<h3><a>How Does it work?</a></h3>
+<div>
+
+<p>
+To keep it Simple: The Vertex shader is executed once for each vertex in the view, then the Fragment shader (also called the Pixel shader) is executed once for each pixel on the screen.<br/>
+
+The main purpose of the Vertex shader is to compute the screen coordinate of a vertex (where this vertex will be displayed on screen) while the main purpose of the Fragment shader is to compute the color of a pixel.<br/>
+
+This is a very simplified graphic to describe the call stack: <br/>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/jme3andshaders.png"><br/>
+
+The main program sends mesh data to the vertex shader (vertex position in object space, normals, tangents, etc..). The vertex shader computes the screen position of the vertex and sends it to the Fragment shader. The fragment shader computes the color, and the result is displayed on screen or in a texture.
+<br/>
+
+
+</p>
+
+</div>
+<!-- EDIT3 SECTION "How Does it work?" [635-1483] -->
+<h3><a>Variables scope</a></h3>
+<div>
+
+<p>
+There are different types of scope for variables in a shader :
+</p>
+<ul>
+<li><div> uniform : User defined variables that are passed by the main program to the vertex and fragment shader, these variables are global for a given execution of a shader.</div>
+</li>
+<li><div> attribute : Per-vertex variables passed by the engine to the shader, like position, normal, etc (Mesh data in the graphic)</div>
+</li>
+<li><div> varying : Variables passed from the vertex shader to the fragment shader.</div>
+</li>
+</ul>
+
+<p>
+There is a large panel of variable types to be used, for more information about it I recommend reading the GLSL specification <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.opengl.org/registry/doc/GLSLangSpec.Full.1.20.8.pdf"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>.<br/>
+
+<br/>
+
+
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Variables scope" [1484-2149] -->
+<h3><a>Spaces and Matrices</a></h3>
+<div>
+
+<p>
+To understand the coming example you must know about the different spaces in 3D computer graphics, and the matrices used to translate coordinate from one space to another.<br/>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/jme3andshaders-1.png"><br/>
+
+The engine passes the object space coordinates to the vertex shader. We need to compute its position in projection space. To do that we transform the object space position by the WorldViewProjectionMatrix which is a combination of the World, View, Projection matrices (who would have guessed?).<br/>
+
+<br/>
+
+
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Spaces and Matrices" [2150-2694] -->
+<h3><a>Simple example : rendering a solid color on an object</a></h3>
+<div>
+
+<p>
+Here is the simplest application to shaders, rendering a solid color.<br/>
+
+Vertex Shader : <br/>
+
+
+</p>
+<pre>//the global uniform World view projection matrix
+//(more on global uniforms below)
+uniform mat4 g_WorldViewProjectionMatrix;
+//The attribute inPosition is the Object space position of the vertex
+attribute vec3 inPosition;
+void main&#40;&#41;&#123;
+    //Transformation of the object space coordinate to projection space
+    //coordinates.
+    //- gl_Position is the standard GLSL variable holding projection space
+    //position. It must be filled in the vertex shader
+    //- To convert position we multiply the worldViewProjectionMatrix by
+    //by the position vector.
+    //The multiplication must be done in this order.
+    gl_Position = g_WorldViewProjectionMatrix * vec4&#40;inPosition, 1.0&#41;;
+&#125;</pre>
+
+<p>
+
+Fragment Shader : <br/>
+
+
+</p>
+<pre>void main&#40;&#41;&#123;
+    //returning the color of the pixel (here solid blue)
+    //- gl_FragColor is the standard GLSL variable that holds the pixel
+    //color. It must be filled in the Fragment Shader.
+    gl_FragColor = vec4&#40;0.0, 0.0, 1.0, 1.0&#41;;
+&#125;</pre>
+
+<p>
+
+For example applying this shader to a sphere would render a solid blue sphere on screen.<br/>
+
+<br/>
+
+
+</p>
+
+</div>
+<!-- EDIT6 SECTION "Simple example : rendering a solid color on an object" [2695-3932] -->
+<h1><a>How to use shaders in JME3</a></h1>
+<div>
+
+<p>
+You probably heard that JME3 is ???shader oriented???, but what does that mean?<br/>
+
+Usually to use shaders you must create what is called a program. This program specify the vertex shader and the fragment shader to use.<br/>
+
+JME3 encloses this in the material system. Every material in JME3 uses shaders.<br/>
+
+For example let???s have a look at the SolidColor.j3md file : <br/>
+
+
+</p>
+<pre>MaterialDef Solid Color &#123;
+    //This is the complete list of user defined uniforms to be used in the
+    //shaders
+    MaterialParameters &#123;
+        Vector4 Color
+    &#125;
+    Technique &#123;
+        //This is where the vertex and fragment shader files are
+        //specified
+        VertexShader GLSL100:   Common/MatDefs/Misc/SolidColor.vert
+        FragmentShader GLSL100: Common/MatDefs/Misc/SolidColor.frag
+        //This is where you specify which global uniform you need for your
+        //shaders
+        WorldParameters &#123;
+            WorldViewProjectionMatrix
+        &#125;
+    &#125;
+    Technique FixedFunc &#123;
+    &#125;
+&#125;</pre>
+
+<p>
+
+For more information on JME3 material system, i suggest you read this <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/development-discussion-jme3/forum/topic/jmonkeyengine3-material-system-full-explanation"><param name="text" value="<html><u>topic</u></html>"><param name="textColor" value="blue"></object>.<br/>
+
+<br/>
+
+
+</p>
+
+</div>
+<!-- EDIT7 SECTION "How to use shaders in JME3" [3933-5176] -->
+<h3><a>JME3 Global uniforms</a></h3>
+<div>
+
+<p>
+JME3 can expose pre-computed global uniforms to your shaders. You must specify the one that are required for your shader in the WorldParameters section of the material definition file (.j3md).<br/>
+
+Note that in the shader the uniform names will be prefixed by a ???g_???.<br/>
+
+In the example above, WorldViewProjectionMatrix is declared as uniform mat4 g_WorldViewProjectionMatrix in the shader.<br/>
+
+The complete list of global uniforms that can be used in JME3 can be found <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/shader/UniformBinding.java"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>.<br/>
+
+<br/>
+
+
+</p>
+
+</div>
+<!-- EDIT8 SECTION "JME3 Global uniforms" [5177-5798] -->
+<h3><a>JME3 Lighting Global uniforms</a></h3>
+<div>
+
+<p>
+JME3 uses some global uniforms for lighting :
+</p>
+<ul>
+<li><div> g_LightDirection (vec4) : the direction of the light</div>
+<ul>
+<li><div> use for SpotLight : x,y,z contain the world direction vector of the light, the w component contains the spotlight angle cosine </div>
+</li>
+</ul>
+</li>
+<li><div> g_LightColor (vec4) : the color of the light</div>
+</li>
+<li><div> g_LightPosition : the position of the light</div>
+<ul>
+<li><div> use for SpotLight : x,y,z contain the world position of the light, the w component contains 1/lightRange</div>
+</li>
+<li><div> use for PointLight : x,y,z contain the world position of the light, the w component contains 1/lightRadius</div>
+</li>
+<li><div> use for DirectionalLight : strangely enough it&#039;s used for the direction of the light???this might change though. The fourth component contains -1 and it&#039;s used in the lighting shader to know if it&#039;s a directionalLight or not.</div>
+</li>
+</ul>
+</li>
+<li><div> g_AmbientLightColor the color of the ambient light.</div>
+</li>
+</ul>
+
+<p>
+These uniforms are passed to the shader without having to declare them in the j3md file, but you have to specify in the technique definition &quot; LightMode MultiPass&quot; see lighting.j3md for more information.
+<br/>
+
+
+</p>
+
+</div>
+<!-- EDIT9 SECTION "JME3 Lighting Global uniforms" [5799-6889] -->
+<h3><a>JME3 attributes</a></h3>
+<div>
+
+<p>
+Those are different attributes that are always passed to your shader.<br/>
+
+You can find a complete list of those attribute in the Type enum of the VertexBuffer <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/core/com/jme3/scene/VertexBuffer.java"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>.<br/>
+
+Note that in the shader the attributes names will be prefixed by an ???in???.<br/>
+
+<br/>
+
+When the enumeration lists some usual types for each attribute (for example texCoord specifies two floats) then that is the format expected by all standard JME3 shaders that use that attribute. When writing your own shaders though you can use alternative formats such as placing three floats in texCoord simply by declaring the attribute as vec3 in the shader and passing 3 as the component count into the mesh setBuffer call.
+</p>
+
+</div>
+<!-- EDIT10 SECTION "JME3 attributes" [6890-7701] -->
+<h3><a>User&#039;s uniforms</a></h3>
+<div>
+
+<p>
+At some point when making your own shader you&#039;ll need to pass your own uniforms<br/>
+
+Any uniform has to be declared in the material definition file (.j3md) in the &quot;MaterialParameters&quot; section.<br/>
+
+
+</p>
+<pre>    MaterialParameters &#123;
+        Vector4 Color
+        Texture2D ColorMap
+    &#125;</pre>
+
+<p>
+You can also pass some define to your vertex/fragment programs to know if an uniform as been declared. <br/>
+
+You simply add it in the Defines section of your Technique in the definition file. <br/>
+
+
+</p>
+<pre>    Defines &#123;
+        COLORMAP : ColorMap
+    &#125;</pre>
+
+<p>
+For integer and floating point parameters, the define will contain the value that was set.<br/>
+
+For all other types of parameters, the value 1 is defined.<br/>
+
+If no value is set for that parameter, the define is not declared in the shader.<br/>
+
+</p>
+
+<p>
+Those material parameters will be sent from the engine to the shader as follows, 
+there are setXXXX methods for any type of uniform you want to pass.<br/>
+
+
+</p>
+<pre>   material.setColor&#40;&quot;Color&quot;, new ColorRGBA&#40;1.0f, 0.0f, 0.0f, 1.0f&#41;; // red color
+   material.setTexture&#40;&quot;ColorMap&quot;, myTexture&#41;; // bind myTexture for that sampler uniform</pre>
+
+<p>
+To use this uniform in the shader, you need to declare it in the .frag or .vert files (depending on where you need it).
+You can make use of the defines here and later in the code:
+<strong>Note that the &quot;m_&quot; prefix specifies that the uniform is a material parameter.</strong><br/>
+
+
+</p>
+<pre>   uniform vec4 m_Color;
+   #ifdef COLORMAP
+     uniform sampler2D m_ColorMap;
+   #endif</pre>
+
+<p>
+The uniforms will be populated at runtime with the value you sent.
+</p>
+
+</div>
+<!-- EDIT11 SECTION "User's uniforms" [7702-9304] -->
+<h3><a>Example: Adding Color Keying to the Lighting.j3md Material Definition</a></h3>
+<div>
+
+<p>
+Color Keying is useful in games involving many players. It consists of adding some <br/>
+
+player-specific color on models textures. <br/>
+
+The easiest way of doing this is to use a keyMap which will contain the amount of <br/>
+
+color to add in its alpha channel. <br/>
+
+Here I will use this color map: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wstaw.org/m/2011/10/24/plasma-desktopxB2787.jpg"><param name="text" value="<html><u>http://wstaw.org/m/2011/10/24/plasma-desktopxB2787.jpg</u></html>"><param name="textColor" value="blue"></object> <br/>
+
+to blend color on this texture: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wstaw.org/m/2011/10/24/plasma-desktopbq2787.jpg"><param name="text" value="<html><u>http://wstaw.org/m/2011/10/24/plasma-desktopbq2787.jpg</u></html>"><param name="textColor" value="blue"></object> <br/>
+
+<br/>
+
+We need to pass 2 new parameters to the Lighting.j3md definition, MaterialParameters section :
+
+</p>
+<pre>// Keying Map
+Texture2D KeyMap
+&nbsp;
+// Key Color 
+Color KeyColor</pre>
+
+<p>
+Below, add a new Define in the main Technique section:
+
+</p>
+<pre>KEYMAP : KeyMap</pre>
+
+<p>
+In the Lighting.frag file, define the new uniforms:
+
+</p>
+<pre>#ifdef KEYMAP
+  uniform sampler2D m_KeyMap;
+  uniform vec4 m_KeyColor;
+#endif</pre>
+
+<p>
+Further, when obtaining the diffuseColor from the DiffuseMap texture, check
+if we need to blend it:
+
+</p>
+<pre>    #ifdef KEYMAP
+      vec4 keyColor = texture2D&#40;m_KeyMap, newTexCoord&#41;;
+      diffuseColor.rgb = &#40;1.0-keyColor.a&#41; * diffuseColor.rgb + keyColor.a * m_KeyColor.rgb;
+    #endif</pre>
+
+<p>
+This way, a transparent pixel in the KeyMap texture doesn&#039;t modify the color. <br/>
+
+A black pixel replaces it for the m_KeyColor and values in between are blended.<br/>
+
+<br/>
+
+A result preview can be seen here: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wstaw.org/m/2011/10/24/plasma-desktopuV2787.jpg"><param name="text" value="<html><u>http://wstaw.org/m/2011/10/24/plasma-desktopuV2787.jpg</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+<!-- EDIT12 SECTION "Example: Adding Color Keying to the Lighting.j3md Material Definition" [9305-10795] -->
+<h3><a>Step by step</a></h3>
+<div>
+<ul>
+<li><div> Create a vertex shader (.vert) file</div>
+</li>
+<li><div> Create a fragment shader (.frag) file</div>
+</li>
+<li><div> Create a material definition (j3md) file specifying the user defined uniforms, path to the shaders and the global uniforms to use</div>
+</li>
+<li><div> In your initSimpleApplication, create a material using this definition, apply it to a geometry</div>
+</li>
+<li><div> That???s it!!</div>
+</li>
+</ul>
+<pre>    // A cube
+    Box box= new Box&#40;Vector3f.ZERO, 1f,1f,1f&#41;;
+    Geometry cube = new Geometry&#40;&quot;box&quot;, box&#41;;
+    Material mat = new Material&#40;assetManager,&quot;Path/To/My/materialDef.j3md&quot;&#41;;
+    cube.setMaterial&#40;mat&#41;;
+    rootNode.attachChild&#40;cube&#41;;</pre>
+
+<p>
+
+<br/>
+
+
+</p>
+
+</div>
+<!-- EDIT13 SECTION "Step by step" [10796-11415] -->
+<h3><a>JME3 and OpenGL 3 &amp; 4 compatibility</a></h3>
+<div>
+
+<p>
+GLSL 1.0 to 1.2 comes with built in attributes and uniforms (ie, gl_Vertex, gl_ModelViewMatrix, etc???).<br/>
+Those attributes are deprecated since GLSL 1.3 (opengl 3), hence JME3 global uniforms and attributes. Here is a list of deprecated attributes and their equivalent in JME3<br/>
+
+</p>
+<div><table>
+	<tr>
+		<th>GLSL 1.2 attributes</th><th>JME3 equivalent</th>
+	</tr>
+	<tr>
+		<td>gl_Vertex	</td><td>inPosition</td>
+	</tr>
+	<tr>
+		<td>gl_Normal	</td><td>inNormal</td>
+	</tr>
+	<tr>
+		<td>gl_Color	</td><td>inColor</td>
+	</tr>
+	<tr>
+		<td>gl_MultiTexCoord0	</td><td>inTexCoord</td>
+	</tr>
+	<tr>
+		<td>gl_ModelViewMatrix	</td><td>g_WorldViewMatrix</td>
+	</tr>
+	<tr>
+		<td>gl_ProjectionMatrix	</td><td>g_ProjectionMatrix</td>
+	</tr>
+	<tr>
+		<td>gl_ModelViewProjectionMatrix	</td><td>g_WorldViewProjectionMatrix</td>
+	</tr>
+	<tr>
+		<td>gl_NormalMatrix	</td><td>g_NormalMatrix</td>
+	</tr>
+</table></div>
+<!-- EDIT15 TABLE [11741-12052] -->
+</div>
+<!-- EDIT14 SECTION "JME3 and OpenGL 3 & 4 compatibility" [11416-12052] -->
+<h3><a>Useful links</a></h3>
+<div>
+
+<p>
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.eng.utah.edu/~cs5610/lectures/GLSL-ATI-Intro.pdf"><param name="text" value="<html><u>http://www.eng.utah.edu/~cs5610/lectures/GLSL-ATI-Intro.pdf</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+</div>
+<!-- EDIT16 SECTION "Useful links" [12053-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:jme3_shaders?do=export_xhtmlbody">view online version</a></em></p>

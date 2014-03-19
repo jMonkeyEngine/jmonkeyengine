@@ -1,0 +1,355 @@
+
+<h1><a>Application States</a></h1>
+<div>
+
+<p>
+
+The <code>com.jme3.app.state.AppState</code> class is a customizable jME3 interface that allows you to control the global game logic, the overall game mechanics. (To control the behaviour of a Spatial, see <a href="/com/jme3/gde/docs/jme3/advanced/custom_controls.html">Custom Controls</a> instead. Controls and AppStates can be used together.)
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Application States" [1-322] -->
+<h2><a>Overview</a></h2>
+<div>
+
+</div>
+<!-- EDIT2 SECTION "Overview" [323-344] -->
+<h3><a>Use Case Examples</a></h3>
+<div>
+
+<p>
+
+There are situations during your game development where you think:
+</p>
+<ul>
+<li><div> Mouse and key inputs are handled differently in-game versus in the main menu. Can I group a set of input handler settings, and activate and deactivate them all in one step?  </div>
+</li>
+<li><div> I have the in-game scene, and a character editor, and a Captain&#039;s Quarters screen. Can I group a set of nodes and behaviours, and swap them in and out in one step?</div>
+</li>
+<li><div> When I pause the game, I want the character&#039;s &quot;idle&quot; animation to continue, but all other loops and game events should stop. How do I define what happens when the game is paused/unpaused? </div>
+</li>
+<li><div> I have a conditional block that takes up a lot of space in my simpleUpdate() loop. Can I wrap up this block of code, and switch it on and off in one step?</div>
+</li>
+<li><div> Can I package everything that belongs in-game, and everything that belongs to the menu screen, and switch between these two &quot;big states&quot; in one step? </div>
+</li>
+</ul>
+
+<p>
+
+You can! This is what AppStates are there for. An AppState class is subset of (or an extension to) your application. Every AppState class has access to all fields in your main application (AssetManager, ViewPort, StateManager, InputManager, RootNode, GuiNode, etc) and hooks into the main update loop. An AppState can contain:
+</p>
+<ul>
+<li><div> a subset of class fields, functions, methods (game state data and accessors), </div>
+</li>
+<li><div> a subset of <acronym title="Graphical User Interface">GUI</acronym> elements and their listeners, </div>
+</li>
+<li><div> a subset of input handlers and mappings, </div>
+</li>
+<li><div> a subset of nodes that you load and attach to the rootNode, </div>
+</li>
+<li><div> a subset of conditional actions that you branch to in the simpleUpdate() loop, </div>
+</li>
+<li><div> a subset of other AppStates and Controls</div>
+</li>
+<li><div> ??? or combinations thereof. </div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT3 SECTION "Use Case Examples" [345-2032] -->
+<h3><a>Supported Features</a></h3>
+<div>
+
+<p>
+
+Each AppState lets you define what happens to it in the following situations:
+</p>
+<ul>
+<li><div> <strong>The AppState is initialized:</strong> You load and initialize game data, InputHandlers, AppStates and Controls and attach nodes. <br/>
+The AppState executes its own simpleInitApp() method when it is attached, so to speak.</div>
+</li>
+<li><div> <strong>The AppState has been enabled (unpaused):</strong> This toggles a boolean isEnabled() to true. Here you attach nodes and listeners that should become active while it&#039;s running. </div>
+</li>
+<li><div> <strong>While the AppState is running/paused:</strong> You can poll isEnabled() to define paused and unpaused game behaviour in the update() loop. In update(), you poll and modify the game state, modify the scene graph, and trigger events. Test if <code>!isEnabled()</code>, and write code that skips the running sections of this AppState&#039;s <code>update()</code> loop. <br/>
+Each AppState has its own update loop, which hooks into the main simpleUpdate() loop (callback). </div>
+</li>
+<li><div> <strong>The AppState has been disabled (paused):</strong> This toggles a boolean isEnabled() to false. Here you switch all objects to their specific &quot;paused&quot; behaviour. </div>
+</li>
+<li><div> <strong>The AppState is cleaned up:</strong> Here you decide what happens when the AppState is detached. Save this AppState&#039;s game state, unregister Controls and InputHandlers, detach related AppStates, detach nodes from the rootNode, etc.</div>
+</li>
+</ul>
+
+<p>
+
+<p><div>Tip: AppStates are extremely handy to swap out, or pause/unpause whole sets of other AppStates. For example, an InGameState (loads in-game <acronym title="Graphical User Interface">GUI</acronym>, activates click-to-shoot input mappings, inits game content, starts game loop) versus MainScreenState (stops game loop, saves and detaches game content, switches to menu screen <acronym title="Graphical User Interface">GUI</acronym>, switches to click-to-select input mappings).
+</div></p>
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Supported Features" [2033-3761] -->
+<h3><a>Usage</a></h3>
+<div>
+
+<p>
+
+To implement game logic:
+</p>
+<ol>
+<li><div> Create one AbstractAppState instance for each set of game mechanics. </div>
+</li>
+<li><div> Implement game behaviour in the AppState&#039;s update() method.</div>
+<ul>
+<li><div> You can pass custom data as arguments in the constructor.</div>
+</li>
+<li><div> The AppState has access to everything inside the app&#039;s scope via the Application <code>app</code> object.</div>
+</li>
+</ul>
+</li>
+<li><div> Create and attach the AppState to the AppStateManager (<code>stateManager.attach(myAppState);</code>) and initialize it.</div>
+</li>
+<li><div> Enable and disable (unpause and pause) the AppStates that you need during the game.</div>
+</li>
+<li><div> Detach the AppState from the AppStateManager (<code>stateManager.detach(myAppState);</code>) and clean it up.</div>
+</li>
+</ol>
+
+<p>
+
+When you add several AppStates to one Application and activate them, their initialize() methods and update() loops are executed in the order in which the AppStates were added to the AppStateManager.
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Usage" [3762-4620] -->
+<h3><a>Code Samples</a></h3>
+<div>
+
+<p>
+
+JME3 comes with a BulletAppState that implements Physical behaviour (using the jBullet library). You, for example, could write an Artificial Intelligence AppState to control all your enemy units. Existing examples in the code base include:
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/bullet-common/com/jme3/bullet/BulletAppState.java"><param name="text" value="<html><u>BulletAppState</u></html>"><param name="textColor" value="blue"></object> controls physical behaviour in PhysicsControl&#039;ed Spatials.</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/app/state/TestAppStates.java"><param name="text" value="<html><u>TestAppStates.java</u></html>"><param name="textColor" value="blue"></object> an example of a custom AppState</div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/app/state/RootNodeState.java"><param name="text" value="<html><u>RootNodeState.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!-- EDIT6 SECTION "Code Samples" [4621-5401] -->
+<h2><a>AppState</a></h2>
+<div>
+
+<p>
+
+The AppState interface lets you initialize sets of objects, and hook a set of continously executing code into the main loop.
+
+</p>
+<div><table>
+	<tr>
+		<th>AppState Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>initialize(asm,app)</td><td>When this AppState is added to the game, the RenderThread initializes the AppState and then calls this method. You can modify the scene graph from here (e.g. attach nodes). To get access to the main app, call: <pre>super.initialize&#40;stateManager, app&#41;;
+this.app = &#40;SimpleApplication&#41; app;</pre>
+</td>
+	</tr>
+	<tr>
+		<td>cleanup()</td><td>This method is executed after you remove the AppState from the game. Here you implement clean-up code for when this state is detached. You can modify the scene graph from here (e.g. detach nodes).</td>
+	</tr>
+	<tr>
+		<td>update(float tpf)</td><td>Here you implement the behaviour that you want to hook into the simpleUpdate() loop while this state is attached to the game. You can modify the scene graph from here.</td>
+	</tr>
+	<tr>
+		<td>isInitialized()</td><td>Your implementations of this interface should return the correct respective boolean value. (See AbstractAppState)</td>
+	</tr>
+	<tr>
+		<td>setActive(true) <br/>
+setActive(false)</td><td>Temporarily enables or disables an AppState. (See AbstractAppState) </td>
+	</tr>
+	<tr>
+		<td>isActive()</td><td>Test whether AppState is enabled or disabled. Your implementation should consider the boolean. (See AbstractAppState)</td>
+	</tr>
+	<tr>
+		<td>stateAttached(asm) <br/>
+stateDetached(asm)</td><td>The AppState knows when it is attached to, or detached from, the AppStateManager, and triggers these two methods. Don&#039;t modify the scene graph from here! (Typically not used.) </td>
+	</tr>
+	<tr>
+		<td>render(RenderManager rm)</td><td>Renders the state, plus your optional customizations. (Typically not used.)</td>
+	</tr>
+	<tr>
+		<td>postRender()</td><td>Called after all rendering commands are flushed, including your optional customizations. (Typically not used.)</td>
+	</tr>
+</table></div>
+<!-- EDIT8 TABLE [5550-7112] -->
+</div>
+<!-- EDIT7 SECTION "AppState" [5402-7113] -->
+<h2><a>AbstractAppState</a></h2>
+<div>
+
+<p>
+
+The AbstractAppState class already implements some common methods (<code>isInitialized(), setActive(), isActive()</code>) and makes creation of custom AppStates a bit easier. We recommend you extend AbstractAppState and override the remaining AppState methods: <code>initialize(), setEnabled(), cleanup()</code>.
+</p>
+
+<p>
+Definition:
+
+</p>
+<pre>public class MyAppState extends AbstractAppState &#123;
+&nbsp;
+    private SimpleApplication app;
+&nbsp;
+    private Node x = new Node&#40;&quot;x&quot;&#41;;  // some custom class fields...    
+    public Node getX&#40;&#41;&#123; return x; &#125;  // some custom methods... 
+&nbsp;
+    @Override
+    public void initialize&#40;AppStateManager stateManager, Application app&#41; &#123;
+      super.initialize&#40;stateManager, app&#41;; 
+      this.app = &#40;SimpleApplication&#41;app;          // cast to a more specific class
+&nbsp;
+      // init stuff that is independent of whether state is PAUSED or RUNNING
+      this.app.getRootNode&#40;&#41;.attachChild&#40;getX&#40;&#41;&#41;; // modify scene graph...
+      this.app.doSomething&#40;&#41;;                     // call custom methods...
+   &#125;
+&nbsp;
+   @Override
+    public void cleanup&#40;&#41; &#123;
+      super.cleanup&#40;&#41;;
+      // unregister all my listeners, detach all my nodes, etc...
+      this.app.getRootNode&#40;&#41;.detachChild&#40;getX&#40;&#41;&#41;; // modify scene graph...
+      this.app.doSomethingElse&#40;&#41;;                 // call custom methods...
+    &#125;
+&nbsp;
+    @Override
+    public void setEnabled&#40;boolean enabled&#41; &#123;
+      // Pause and unpause
+      super.setEnabled&#40;enabled&#41;;
+      if&#40;enabled&#41;&#123;
+        // init stuff that is in use while this state is RUNNING
+        this.app.getRootNode&#40;&#41;.attachChild&#40;getX&#40;&#41;&#41;; // modify scene graph...
+        this.app.doSomethingElse&#40;&#41;;                 // call custom methods...
+      &#125; else &#123;
+        // take away everything not needed while this state is PAUSED
+        ...
+      &#125;
+    &#125;
+&nbsp;
+    // Note that update is only called while the state is both attached and enabled.
+    @Override
+    public void update&#40;float tpf&#41; &#123;
+      // do the following while game is RUNNING
+      this.app.getRootNode&#40;&#41;.getChild&#40;&quot;blah&quot;&#41;.scale&#40;tpf&#41;; // modify scene graph...
+      x.setUserData&#40;...&#41;;                                 // call some methods...
+    &#125;
+&nbsp;
+&#125;</pre>
+
+</div>
+<!-- EDIT9 SECTION "AbstractAppState" [7114-9286] -->
+<h2><a>Pausing and Unpausing</a></h2>
+<div>
+
+<p>
+
+You define what an AppState does when Paused or Unpaused, in the <code>setEnabled()</code> and <code>update()</code> methods. Call <code>myState.setEnabled(false)</code> on all states that you want to pause. Call <code>myState.setEnabled(true)</code> on all states that you want to unpause.
+</p>
+
+</div>
+<!-- EDIT10 SECTION "Pausing and Unpausing" [9287-9577] -->
+<h2><a>AppStateManager</a></h2>
+<div>
+
+<p>
+
+The com.jme3.app.state.AppStateManager holds the list of AppStates for an application. AppStateManager ensures that active AppStates can modify the scene graph, and that the update() loops of active AppStates is executed. There is one AppStateManager per application. You typically attach several AppStates to one AppStateManager, but the same state can only be attached once.
+
+</p>
+<div><table>
+	<tr>
+		<th>AppStateManager Method</th><th>Usage</th>
+	</tr>
+	<tr>
+		<td>hasState(myState)</td><td>Is AppState object &#039;myState&#039; attached?</td>
+	</tr>
+	<tr>
+		<td>getState(MyAppState.class)</td><td>Returns the first attached state that is an instance of a subclass of <code>MyAppState.class</code>.</td>
+	</tr>
+</table></div>
+<!-- EDIT12 TABLE [9985-10195] -->
+<p>
+
+The AppStateManager&#039;s <code>render(), postRender(), cleanup()</code> methods are internal, ignore them, users never call them directly.
+
+</p>
+<ul>
+<li><div> If a detached AppState is attached then initialize() will be called on the following render pass.</div>
+</li>
+<li><div> If an attached AppState is detached then cleanup() will be called on the following render pass.</div>
+</li>
+<li><div> If you attach an already-attached AppState then the second attach is a no-op and will return false.</div>
+</li>
+<li><div> If you both attach and detach an AppState within one frame then neither initialize() or cleanup() will be called, although if either is called both will be.</div>
+</li>
+<li><div> If you both detach and then re-attach an AppState within one frame then on the next update pass its cleanup() and initialize() methods will be called in that order.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT11 SECTION "AppStateManager" [9578-10961] -->
+<h2><a>Best Practices</a></h2>
+<div>
+
+</div>
+<!-- EDIT13 SECTION "Best Practices" [10962-10989] -->
+<h3><a>Communication Among AppStates</a></h3>
+<div>
+
+<p>
+
+You can only access other AppStates (read from and write to them) from certain places: From a Control&#039;s update() method, from an AppState&#039;s update() method, and from the SimpleApplication&#039;s simpleUpdate() loop. Don&#039;t mess with the AppState from other places, because from other methods you have no control over the order of modifications; the game can go out of sync because you can&#039;t know when (during which half-finished step of another state change) your modification will be performed.
+</p>
+
+<p>
+You can use custom accessors to get data from AppStates, to set data in AppStates, or to trigger methods in AppStates.
+
+</p>
+<pre>this.app.getStateManager&#40;&#41;.getState&#40;MyAppState.class&#41;.doSomeCustomStuffInThisState&#40;&#41;;</pre>
+
+</div>
+<!-- EDIT14 SECTION "Communication Among AppStates" [10990-11745] -->
+<h3><a>Initialize Familiar Class Fields</a></h3>
+<div>
+
+<p>
+
+To access class fields of the SimpleApplication the way you are used to, initialize them to local variables, as shown in the following AppState template:
+</p>
+<pre>private SimpleApplication app;
+private Node              rootNode;
+private AssetManager      assetManager;
+private AppStateManager   stateManager;
+private InputManager      inputManager;
+private ViewPort          viewPort;
+private BulletAppState    physics;
+&nbsp;
+public class MyAppState extends AbstractAppState &#123;
+  @Override
+  public void initialize&#40;AppStateManager stateManager, Application app&#41; &#123;
+    super.initialize&#40;stateManager, app&#41;;
+    this.app = &#40;SimpleApplication&#41; app; // can cast Application to something more specific
+    this.rootNode     = this.app.getRootNode&#40;&#41;;
+    this.assetManager = this.app.getAssetManager&#40;&#41;;
+    this.stateManager = this.app.getStateManager&#40;&#41;;
+    this.inputManager = this.app.getInputManager&#40;&#41;;
+    this.viewPort     = this.app.getViewPort&#40;&#41;;
+    this.physics      = this.stateManager.getState&#40;BulletAppState.class&#41;;
+  &#125;
+&#125;</pre>
+
+</div>
+<!-- EDIT15 SECTION "Initialize Familiar Class Fields" [11746-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:application_states?do=export_xhtmlbody">view online version</a></em></p>

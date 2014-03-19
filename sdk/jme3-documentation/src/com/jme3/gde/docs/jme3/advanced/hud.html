@@ -1,0 +1,220 @@
+
+<h1><a>Head-Up Display (HUD)</a></h1>
+<div>
+
+<p>
+
+<img src="/wiki/lib/exe/fetch.php">
+</p>
+
+<p>
+A HUD (Head-Up Display) is part of a game&#039;s visual user interface. It&#039;s an overlay that displays additional information as (typically) 2-dimensional text or icons on the screen, on top of the 3D scene. Not all games have, or need a HUD. To avoid breaking the immersion and cluttering the screen, only use a HUD if it is the only way to convey certain information.
+</p>
+
+<p>
+HUDs are used to supply players with essential information about the game state.
+</p>
+<ul>
+<li><div> Status: Score, minimap, points, stealth mode, ???</div>
+</li>
+<li><div> Resources: Ammunition, lives/health, time, ???</div>
+</li>
+<li><div> Vehicle instruments: Cockpit, speedometer, ???</div>
+</li>
+<li><div> Navigational aides: Crosshairs, mouse pointer or hand, ???</div>
+</li>
+</ul>
+
+<p>
+
+You have two options how to create HUDs.
+
+</p>
+<div><table>
+	<tr>
+		<th>Option</th><th>Pros</th><th>Cons</th>
+	</tr>
+	<tr>
+		<th>Attach elements to default guiNode:</th><td>Easy to learn. jMonkeyEngine built-in <acronym title="Application Programming Interface">API</acronym> for attaching plain images and bitmap text.</td><td>Only basic features. <br/>
+You will have to write custom controls / buttons / effects if you need them.</td>
+	</tr>
+	<tr>
+		<th>Use advanced <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Nifty GUI</a> integration:</th><td>Full-featured interactive user interface. <br/>
+Includes buttons, effects, controls. <br/>
+Supports <acronym title="Extensible Markup Language">XML</acronym> and Java layouts.</td><td>Steeper learning curve.</td>
+	</tr>
+</table></div>
+<!-- EDIT2 TABLE [834-1259] -->
+<p>
+
+Using the <acronym title="Graphical User Interface">GUI</acronym> Node is the default approach in jme3 to create simple HUDs. If you just quickly want to display a line of text, or a simple icon on the screen, use the no-frills <acronym title="Graphical User Interface">GUI</acronym> Node, it&#039;s easier.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Head-Up Display (HUD)" [1-1460] -->
+<h2><a>Simple HUD: GUI Node</a></h2>
+<div>
+
+<p>
+
+You already know the <code>rootNode</code> that holds the 3-dimensional scene graph. jME3 also offers a 2-dimension (orthogonal) node, the <code>guiNode</code>. 
+</p>
+
+<p>
+This is how you use the guiNode for HUDs:
+</p>
+<ul>
+<li><div> Create a <acronym title="Graphical User Interface">GUI</acronym> element: a BitmapText or Picture object.</div>
+</li>
+<li><div> Attach the element to the guiNode. </div>
+</li>
+<li><div> Place the element in the orthogonal render queue using <code>setQueueBucket(Bucket.Gui)</code>. </div>
+</li>
+</ul>
+
+<p>
+The BitmapTexts and Pictures appear as 2 dimensional element on the screen.
+</p>
+
+<p>
+<p><div>By default, the guiNode has some scene graph statistics attached. To clear the guiNode before you attach your own <acronym title="Graphical User Interface">GUI</acronym> elements, use the following methods: 
+</p>
+<pre>setDisplayStatView&#40;false&#41;; setDisplayFps&#40;false&#41;;</pre>
+
+<p>
+
+</div></p>
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Simple HUD: GUI Node" [1461-2189] -->
+<h3><a>Displaying Pictures in the HUD</a></h3>
+<div>
+
+<p>
+
+A simple image can be displayed using <code>com.jme3.ui.Picture</code>.
+</p>
+<pre>Picture pic = new Picture&#40;&quot;HUD Picture&quot;&#41;;
+pic.setImage&#40;assetManager, &quot;Textures/ColoredTex/Monkey.png&quot;, true&#41;;
+pic.setWidth&#40;settings.getWidth&#40;&#41;/2&#41;;
+pic.setHeight&#40;settings.getHeight&#40;&#41;/2&#41;;
+pic.setPosition&#40;settings.getWidth&#40;&#41;/4, settings.getHeight&#40;&#41;/4&#41;;
+guiNode.attachChild&#40;pic&#41;;</pre>
+
+<p>
+When you set the last boolean in setImage() to true, the alpha channel of your image is rendered transparent/translucent.
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Displaying Pictures in the HUD" [2190-2714] -->
+<h3><a>Displaying Text in the HUD</a></h3>
+<div>
+
+<p>
+
+You use <code>com.jme3.font.BitmapText</code> to display text on the screen. 
+</p>
+<pre>BitmapText hudText = new BitmapText&#40;guiFont, false&#41;;          
+hudText.setSize&#40;guiFont.getCharSet&#40;&#41;.getRenderedSize&#40;&#41;&#41;;      // font size
+hudText.setColor&#40;ColorRGBA.Blue&#41;;                             // font color
+hudText.setText&#40;&quot;You can write any string here&quot;&#41;;             // the text
+hudText.setLocalTranslation&#40;300, hudText.getLineHeight&#40;&#41;, 0&#41;; // position
+guiNode.attachChild&#40;hudText&#41;;</pre>
+
+<p>
+The BitmapFont object <code>guiFont</code> is a default font provided by SimpleApplication. Copy you own fonts as .fnt plus .png files into the <code>assets/Interface/Fonts</code> directory and load them like this:
+</p>
+<pre>BitmapFont myFont = assetManager.loadFont(&quot;Interface/Fonts/Console.fnt&quot;);
+hudText = new BitmapText(myFont, false);</pre>
+
+</div>
+<!-- EDIT5 SECTION "Displaying Text in the HUD" [2715-3562] -->
+<h3><a>Positioning HUD Elements</a></h3>
+<div>
+<ul>
+<li><div> When positioning <acronym title="Graphical User Interface">GUI</acronym> text and images in 2D, the <strong>bottom left corner</strong> of the screen is <code>(0f,0f)</code>, and the <strong>top right corner</strong> is at <code>(settings.getWidth(),settings.getHeight())</code>.</div>
+</li>
+<li><div> If you have several 2D elements in the <acronym title="Graphical User Interface">GUI</acronym> bucket that overlap, define their depth order by specifing a Z value. For example use <code>pic.move(x, y, -1)</code> to move the picture to the background, or <code>hudText.setLocalTranslation(x,y,1)</code> to move text to the foreground.</div>
+</li>
+<li><div> Size and length values in the orthogonal render queue are treated like pixels. A 20*20-wu big quad is rendered 20 pixels wide.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT6 SECTION "Positioning HUD Elements" [3563-4187] -->
+<h3><a>Displaying Geometries in the HUD</a></h3>
+<div>
+
+<p>
+
+It is technically possible to attach Quads and 3D Geometries to the HUD. They show up as flat, static <acronym title="Graphical User Interface">GUI</acronym> elements. The size unit for the guiNode is pixels, not world units. If you attach a Geometry that uses a lit Material, you must add a light to the guiNode. 
+</p>
+
+<p>
+<p><div>If you don&#039;t see an attached object in the <acronym title="Graphical User Interface">GUI</acronym>, check it&#039;s position and material (add a light to guiNode). Also verify whether it is not too tiny to be seen. For comparison: A 1 world-unit wide cube is only 1 pixel wide when attached to the guiNode! You may need to scale it bigger.
+</div></p>
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Displaying Geometries in the HUD" [4188-4803] -->
+<h3><a>Keeping the HUD Up-To-Date</a></h3>
+<div>
+
+<p>
+
+Use the update loop to keep the content up-to-date.
+</p>
+<pre>public void simpleUpdate&#40;float tpf&#41; &#123;
+  ...
+  hudText.setText&#40;&quot;Score: &quot; + score&#41;;
+  ...
+  picture.setImage&#40;assetManager, &quot;Interface/statechange.png&quot;, true&#41;;
+  ...
+&#125;</pre>
+
+</div>
+<!-- EDIT8 SECTION "Keeping the HUD Up-To-Date" [4804-5078] -->
+<h2><a>Advanced HUD: Nifty GUI</a></h2>
+<div>
+
+<p>
+
+The recommended approach to create HUDs is using <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Nifty GUI</a>.
+</p>
+<ol>
+<li><div> Lay out the <acronym title="Graphical User Interface">GUI</acronym> in one or several Nifty <acronym title="Extensible Markup Language">XML</acronym> or Java files. </div>
+</li>
+<li><div> Write the controller classes in Java.</div>
+</li>
+<li><div> Load the <acronym title="Extensible Markup Language">XML</acronym> file with the controller object in your game&#039;s simpleInit() method.</div>
+</li>
+</ol>
+
+<p>
+
+The advantage of Nifty <acronym title="Graphical User Interface">GUI</acronym> is that it is well integrated into jME and the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, and that it offers all the features that you expect from a professional modern user interface. 
+</p>
+
+<p>
+For HUDs, you basically follow the same instructions as for creating a normal <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Nifty GUI</a>, you just don&#039;t pause the game while the HUD is up.
+</p>
+
+</div>
+<!-- EDIT9 SECTION "Advanced HUD: Nifty GUI" [5079-5722] -->
+<h2><a>See also</a></h2>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/external/fonts.html">Fonts</a></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>,
+	<a href="/wiki/doku.php/tag:display?do=showtag&amp;tag=tag%3Adisplay">display</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:hud?do=showtag&amp;tag=tag%3Ahud">hud</a>
+</span></div>
+
+</div>
+<!-- EDIT10 SECTION "See also" [5723-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:hud?do=export_xhtmlbody">view online version</a></em></p>

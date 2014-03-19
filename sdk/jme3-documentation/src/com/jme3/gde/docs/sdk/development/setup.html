@@ -1,0 +1,159 @@
+
+<h1><a>Creating a jMonkeyEngine SDK plugin</a></h1>
+<div>
+
+<p>
+Note that the creation of a Module Suite is only necessary if you want to upload your plugin to the contribution update center.
+
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Creating a jMonkeyEngine SDK plugin" [1-178] -->
+<h3><a>Using jMonkeyEngine SDK for development</a></h3>
+<div>
+<ul>
+<li><div> Install the &quot;Netbeans Plugin Development&quot; and &quot;NetBeans <acronym title="Application Programming Interface">API</acronym> Documentation&quot; plugins via Tools???Plugins</div>
+</li>
+<li><div> Create a new &quot;Module Suite&quot; project (can be any name, this will be your local &quot;collection&quot; of plugins that you create)</div>
+</li>
+<li><div> If no platform is listed, add one by selecting the <acronym title="Software Development Kit">SDK</acronym> application folder</div>
+<ul>
+<li><div> Mac users have to right-click the jmonkeyplatform application and select &quot;show contents&quot; and then select the jmonkeyplatform folder under Contents/Resources/</div>
+</li>
+</ul>
+</li>
+<li><div> Open the suite, right-click the &quot;Modules&quot; folder and select &quot;Add new..&quot;</div>
+</li>
+<li><div> For &quot;Project Name&quot; enter an all-lowercase name without spaces like <code>my-library</code></div>
+</li>
+<li><div> Make sure the &quot;Project Location&quot; is inside the module suite folder and press &quot;Next&quot;</div>
+</li>
+<li><div> Enter the base java package for your plugin in &quot;Code Name Base&quot; like <code>com.mycompany.plugins.mylibrary</code></div>
+</li>
+<li><div> Enter a &quot;Module Display Name&quot; for your plugin like &quot;My Library&quot;</div>
+</li>
+<li><div> Press Finish</div>
+</li>
+<li><div> To use core <acronym title="Software Development Kit">SDK</acronym> or jME3 functions, add &quot;<acronym title="Software Development Kit">SDK</acronym> Core&quot; and &quot;<acronym title="Software Development Kit">SDK</acronym> Engine&quot; via &quot;Module Properties???Library???Add Dependency&quot;</div>
+</li>
+<li><div> Write your plugin (e.g. <a href="/com/jme3/gde/docs/sdk/development.html">create a new editor</a> or <a href="/com/jme3/gde/docs/sdk/development/extension_library.html">wrap a jar library</a>)</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Using jMonkeyEngine SDK for development" [179-1392] -->
+<h3><a>jMonkeyEngine SDK Contributions Update Center</a></h3>
+<div>
+
+<p>
+If you want your plugin to appear in the &quot;jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Contributions Update Center&quot; so users can download, install and update it easily via the plugin manager, you can host your plugin in the contributions update center svn repository. The contributions update center is based on a googlecode project for contributed plugins which will be automatically compiled, version-labeled and added to the contributions update center like the core jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> plugins.
+</p>
+
+<p>
+Effectively its one large module suite with multiple modules which each represent one plugin, extension library.
+</p>
+
+</div>
+
+<h4><a>Adding your plugin to the repository</a></h4>
+<div>
+
+<p>
+To add your plugin to the repository, do the following:
+</p>
+<ul>
+<li><div> Make sure the plugin is part of a &quot;Module Suite&quot; and that its located in the folder of the suite (this saves you from problems with the svn and local version not being configured the same)</div>
+</li>
+<li><div> In &quot;Module Properties???Sources&quot;</div>
+<ul>
+<li><div> Set the &quot;Source Level&quot; to 1.5 if possible (jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is compatible to Java 1.5)</div>
+</li>
+</ul>
+</li>
+<li><div> In &quot;Module Properties???<acronym title="Application Programming Interface">API</acronym> Versioning&quot;</div>
+<ul>
+<li><div> Set a specification version for your plugin (like 0.8.1)</div>
+</li>
+<li><div> Set the &quot;implementation version&quot; to &quot;0&quot; and select &quot;append implementation versions automatically&quot;</div>
+</li>
+</ul>
+</li>
+<li><div> In &quot;Module Properties???Display&quot;</div>
+<ul>
+<li><div> Enter a purposeful description of your plugin and one of the following categories:</div>
+<ul>
+<li><div> For a library plugin: &quot;jME3 - Library&quot;</div>
+</li>
+<li><div> For a <acronym title="Software Development Kit">SDK</acronym> plugin: &quot;jME3 - <acronym title="Software Development Kit">SDK</acronym> Plugin&quot;</div>
+</li>
+<li><div> For a model loader plugin: &quot;jME3 - Loader&quot;</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><div> In &quot;Module Properties???Build???Packaging&quot;</div>
+<ul>
+<li><div> Add your name</div>
+</li>
+<li><div> Add a link to your forum post / home page relating to the plugin</div>
+</li>
+<li><div> Add a license, you can use <code>../license-jme.txt</code> to insert the default jME BSD license or use a text file you store in the project folder</div>
+</li>
+</ul>
+</li>
+<li><div> Ask the managers or developers for access to the gc project</div>
+</li>
+<li><div> Commit <strong>only the module project</strong> to trunk:</div>
+<ul>
+<li><div> Right click the Module Project and select &quot;Versioning ??? Import into Subversion Repository&quot;</div>
+</li>
+<li><div> Enter <code><object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://jmonkeyplatform-contributions.googlecode.com/svn/trunk"><param name="text" value="<html><u>https://jmonkeyplatform-contributions.googlecode.com/svn/trunk</u></html>"><param name="textColor" value="blue"></object></code> in the <acronym title="Uniform Resource Locator">URL</acronym> field</div>
+</li>
+<li><div> Enter your googlecode username and commit password (different than login pass, you can find your password <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://code.google.com/hosting/settings"><param name="text" value="<html><u>here</u></html>"><param name="textColor" value="blue"></object>!) and press &quot;Next&quot;</div>
+</li>
+<li><div> Check that the &quot;Repository Folder&quot; is <code>trunk/mypluginfolder</code> and enter an import message</div>
+</li>
+<li><div> Press &quot;Finish&quot;</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+And thats it, from now on each time you commit changes to your module it will be built and added to the contributions center automatically and the version number will be extended by the svn revision number (e.g. 0.8.1.1234)
+</p>
+
+</div>
+
+<h4><a>Building wrapped library jar files on the server</a></h4>
+<div>
+
+<p>
+You can just build your library locally and update and commit the jar file and javadoc/sources zip files to the <code>release/libs</code> folder of your plugin in the contrib repo. The users plugins will automatically be updated with the new jar files. You can however also build the library project on the server.
+</p>
+
+<p>
+As normally only the module project is being built on the server, any projects that create the actual jar files for library plugins (&quot;normal&quot; projects from the <acronym title="Software Development Kit">SDK</acronym>/NetBeans) have to be built from the module build file. To do that simply add the following ant targets to the module build file (adapt to your project file and folder names):
+
+</p>
+<pre><span>&lt;target name=&quot;init&quot; depends=&quot;basic-init,files-init,build-init,-javac-init,-build-subproject&quot;/&gt;</span>
+<span>&lt;target name=&quot;-build-subproject&quot;&gt;</span>
+    <span>&lt;ant dir=&quot;./AI&quot; inheritall=&quot;false&quot; inheritrefs=&quot;false&quot; target=&quot;clean&quot;/&gt;</span>
+    <span>&lt;ant dir=&quot;./AI&quot; inheritall=&quot;false&quot; inheritrefs=&quot;false&quot; target=&quot;jar&quot;/&gt;</span>
+    <span>&lt;ant dir=&quot;./AI&quot; inheritall=&quot;false&quot; inheritrefs=&quot;false&quot; target=&quot;javadoc&quot;/&gt;</span>
+    <span>&lt;zip basedir=&quot;./AI/dist/javadoc&quot; file=&quot;release/libs/jME3-ai-javadoc.zip&quot;/&gt;</span>
+    <span>&lt;zip basedir=&quot;./AI/src&quot; file=&quot;release/libs/jME3-ai-sources.zip&quot;/&gt;</span>
+    <span>&lt;copy file=&quot;./AI/dist/jME3-ai.jar&quot; todir=&quot;release/libs&quot;/&gt;</span>
+<span><span>&lt;/target&gt;</span></span></pre>
+
+<p>
+
+<strong>Note that for the module version number to increase automatically on a commit to the library project, the library project has to be a subfolder of the main module project.</strong>
+
+</p>
+
+</div>
+<!-- EDIT3 SECTION "jMonkeyEngine SDK Contributions Update Center" [1393-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:development:setup?do=export_xhtmlbody">view online version</a></em></p>

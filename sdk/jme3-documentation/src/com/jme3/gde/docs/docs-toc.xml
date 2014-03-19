@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+<toc version="2.0">
+    <tocitem text="jMonkeyEngine SDK Documentation" mergetype="javax.help.UniteAppendMerge">
+        <tocitem text="About jMonkeyEngine SDK" target="com.jme3.gde.core.about"/>
+        <tocitem text="Introduction">
+            <tocitem text="Creating a Project" target="sdk.project_creation"/>
+            <tocitem text="The OpenGL Window" target="com.jme3.gde.core.sceneviewer"/>
+            <tocitem text="The SceneExplorer" target="sdk.scene_explorer"/>
+        </tocitem>
+        <tocitem text="Working with Models and Scenes">
+            <tocitem text="Importing Models" target="sdk.model_loader_and_viewer"/>
+            <tocitem text="SceneComposer" target="sdk.scene_composer"/>
+            <tocitem text="Terrain Editor" target="sdk.terrain_editor"/>
+            <tocitem text="AssetPacks" target="sdk.asset_packs"/>
+            <tocitem text="Filters" target="sdk.filters"/>
+            <tocitem text="Blender File Support" target="sdk.blender"/>
+            <tocitem text="Creating compatible models in Blender" target="jme3.external.blender"/>
+            <tocitem text="Creating compatible models in 3DS Max" target="jme3.external.3dsmax"/>
+            <tocitem text="Vehicle Creator" target="sdk.vehicle_creator"/>
+        </tocitem>
+        <tocitem text="Working with Materials">
+            <tocitem text="Using the Material Editor" target="sdk.material_editing"/>
+            <tocitem text="Materials Overview" target="jme3.advanced.materials_overview"/>
+            <tocitem text="Shaders and Materials in jME3" target="jme3.advanced.jme3_shaders"/>
+        </tocitem>
+        <tocitem text="Working with Code">
+            <tocitem text="Code Editor" target="sdk.code_editor"/>
+            <tocitem text="Version Control" target="sdk.version_control"/>
+            <tocitem text="Debugging, Testing" target="sdk.debugging_profiling_testing"/>
+            <tocitem text="Using a custom version of jME3" target="sdk.use_own_jme"/>
+        </tocitem>
+        <tocitem text="Application Deployment">
+            <tocitem text="General" target="sdk.application_deployment"/>
+            <tocitem text="Android" target="jme3.android"/>
+        </tocitem>
+        <tocitem text="jMP Plugin Development" expand="false">
+            <tocitem text="About jMP Plugin Development" target="sdk.development"/>
+            <tocitem text="Creating a plugin" target="sdk.development.setup"/>
+            <tocitem text="Creating components" target="sdk.development.general"/>
+            <tocitem text="Projects and Assets" target="sdk.development.projects_assets"/>
+            <tocitem text="Accessing the Scene" target="sdk.development.scene"/>
+            <tocitem text="Extending the SceneExplorer" target="sdk.development.sceneexplorer"/>
+            <tocitem text="jMP Log Files" target="sdk.log_files"/>
+            <!--        <tocitem text="Recipes" expand="false">-->
+            <tocitem text="Creating a library plugin from a jar file" target="sdk.development.extension_library"/>
+            <tocitem text="Integrate a new model filetype and loader" target="sdk.development.model_loader"/>
+<!--        </tocitem>-->
+        </tocitem>
+        <tocitem text="Updating the SDK and Engine" target="com.jme3.gde.core.updating"/>
+        <tocitem text="Troubleshooting the SDK" target="sdk.troubleshooting"/>
+    </tocitem>
+    <tocitem text="jMonkeyEngine3 Engine" expand="true">
+        <tocitem text="Beginner Tutorials" expand="false">
+            <tocitem text="Hello SimpleApplication" target="jme3.beginner.hello_simpleapplication"/>
+            <tocitem text="Hello Node" target="jme3.beginner.hello_node"/>
+            <tocitem text="Hello Assets" target="jme3.beginner.hello_asset"/>
+            <tocitem text="Hello Event Loop" target="jme3.beginner.hello_main_event_loop"/>
+            <tocitem text="Hello Input System" target="jme3.beginner.hello_input_system"/>
+            <tocitem text="Hello Material" target="jme3.beginner.hello_material"/>
+            <tocitem text="Hello Animation" target="jme3.beginner.hello_animation"/>
+            <tocitem text="Hello Picking" target="jme3.beginner.hello_picking"/>
+            <tocitem text="Hello Collision" target="jme3.beginner.hello_collision"/>
+            <tocitem text="Hello Terrain" target="jme3.beginner.hello_terrain"/>
+            <tocitem text="Hello Audio" target="jme3.beginner.hello_audio"/>
+            <tocitem text="Hello Effects" target="jme3.beginner.hello_effects"/>
+            <tocitem text="Hello Physics" target="jme3.beginner.hello_physics"/>
+        </tocitem>
+        <tocitem text="Best Practices" expand="false">
+            <tocitem text="Best Practices" target="jme3.intermediate.best_practices"/>
+            <tocitem text="FAQ" target="jme3.faq"/>
+            <tocitem text="SimpleApplication" target="jme3.intermediate.simpleapplication"/>
+            <tocitem text="How to Use Materials" target="jme3.intermediate.how_to_use_materials"/>
+            <tocitem text="Application Settings" target="jme3.intermediate.appsettings"/>
+            <tocitem text="File Types" target="jme3.intermediate.file_types"/>
+            <tocitem text="Math in jME3" target="jme3.math"/>
+            <tocitem text="Math Formulas" target="jme3.intermediate.math"/>
+            <tocitem text="Multi-Media Assets Pipeline" target="jme3.intermediate.multi-media_asset_pipeline"/>
+            <tocitem text="Optimization" target="jme3.intermediate.optimization"/>
+        </tocitem>
+<!--        <tocitem text="Advanced" expand="false">-->
+            <tocitem text="Controlling Game Logic" expand="false">
+                <tocitem text="Update Loop" target="jme3.advanced.update_loop"/>
+                <tocitem text="Application States" target="jme3.advanced.application_states"/>
+                <tocitem text="Custom Controls" target="jme3.advanced.custom_controls"/>
+                <tocitem text="Multithreading" target="jme3.advanced.multithreading"/>
+            </tocitem>
+            <tocitem text="Managing and Moving Objects" expand="false">
+                <tocitem text="Spatial: Node vs Geometry" target="jme3.advanced.spatial"/>
+                <tocitem text="Meshes" target="jme3.advanced.mesh"/>
+                <tocitem text="Shape" target="jme3.advanced.shape"/>
+                <tocitem text="3D Models" target="jme3.advanced.3d_models"/>
+                <tocitem text="Custom Meshes" target="jme3.advanced.custom_meshes"/>
+                <tocitem text="Asset Manager" target="jme3.advanced.asset_manager"/>
+                <tocitem text="Save and Load" target="jme3.advanced.save_and_load"/>
+                <tocitem text="Collision and Intersection" target="jme3.advanced.collision_and_intersection"/>
+                <tocitem text="Mouse Picking" target="jme3.advanced.mouse_picking"/>
+                <tocitem text="Animation" target="jme3.advanced.animation"/>
+                <tocitem text="Cinematics" target="jme3.advanced.cinematics"/>
+                <tocitem text="MotionPath" target="jme3.advanced.motionpath"/>
+            </tocitem>
+            <tocitem text="Materials, Light and Shadow" expand="false">
+                <tocitem text="jME3 and Shaders" target="jme3.advanced.jme3_shaders"/>
+                <tocitem text="Materials Overview" target="jme3.advanced.materials_overview"/>
+                <tocitem text="J3MD Material Definitions" target="jme3.advanced.material_definitions"/>
+                <tocitem text="J3M Material Files" target="jme3.advanced.j3m_material_files"/>
+                <tocitem text="Light and Shadow" target="jme3.advanced.light_and_shadow"/>
+            </tocitem>
+            <tocitem text="Physics Integration" expand="false">
+                <tocitem text="Physics Overview" target="jme3.advanced.physics"/>
+                <tocitem text="Multithreading" target="jme3.advanced.bullet_multithreading"/>
+                <tocitem text="Hinges and Joints" target="jme3.advanced.hinges_and_joints"/>
+                <tocitem text="Walking Character Example" target="jme3.advanced.walking_character"/>
+                <tocitem text="Ragdoll Example" target="jme3.advanced.ragdoll"/>
+                <tocitem text="Vehicle Example" target="jme3.advanced.vehicles"/>
+            </tocitem>
+            <tocitem text="Audio" expand="false">
+                <tocitem text="Audio" target="jme3.advanced.audio"/>
+                <tocitem text="Audio Environment Presets" target="jme3.advanced.audio_environment_presets"/>
+                <!--tocitem text="Video" target="jme3.advanced.video"/-->
+            </tocitem>
+            <tocitem text="Effects" expand="false">
+                <tocitem text="Effects Overview" target="jme3.advanced.effects_overview"/>
+                <tocitem text="Bloom and Glow" target="jme3.advanced.bloom_and_glow"/>
+                <tocitem text="Particle Emitters" target="jme3.advanced.particle_emitters"/>
+            </tocitem>
+            <tocitem text="Landscapes" expand="false">
+                <tocitem text="Sky" target="jme3.advanced.sky"/>
+                <tocitem text="Terrain" target="jme3.advanced.terrain"/>
+                <tocitem text="Terrain Collision" target="jme3.advanced.terrain_collision"/>
+                <tocitem text="Grid Terrain" target="jme3.advanced.endless_terraingrid"/>
+                <tocitem text="Simple Water" target="jme3.advanced.water"/>
+                <tocitem text="Post-Processor Water" target="jme3.advanced.post-processor_water"/>
+            </tocitem>
+            <tocitem text="Networking" expand="false">
+                <tocitem text="Networking" target="jme3.advanced.networking"/>
+                <tocitem text="Headless Server" target="jme3.advanced.headless_server"/>
+                <tocitem text="Open Game Finder" target="jme3.advanced.open_game_finder"/>
+                <tocitem text="MonkeyZone demo" target="jme3.advanced.monkey_zone"/>
+            </tocitem>
+            <tocitem text="Camera" expand="false">
+                <tocitem text="Camera" target="jme3.advanced.camera"/>
+                <tocitem text="Multiple Cameras" target="jme3.advanced.multiple_camera_views"/>
+                <tocitem text="Camera Follows Character" target="jme3.advanced.making_the_camera_follow_a_character"/>
+                <tocitem text="Remote-Control Camera" target="jme3.advanced.remote-controlling_the_camera"/>
+                <tocitem text="Screen Capture" target="jme3.advanced.capture_audio_video_to_a_file"/>
+                <tocitem text="Screen Shots" target="jme3.advanced.screenshots"/>
+            </tocitem>
+            <tocitem text="User Interaction" expand="false">
+                <tocitem text="Input Handling" target="jme3.advanced.input_handling"/>
+                <tocitem text="Combo Moves" target="jme3.advanced.combo_moves"/>
+                <tocitem text="NiftyGUI" target="jme3.advanced.nifty_gui"/>
+                <tocitem text="Head-Up Display (HUD)" target="jme3.advanced.hud"/>
+                <tocitem text="Loading Screen" target="jme3.advanced.loading_screen"/>
+                <tocitem text="Swing Canvas" target="jme3.advanced.swing_canvas"/>
+                <tocitem text="Game Localization" target="jme3.advanced.localization"/>
+            </tocitem>
+            <tocitem text="Debugging / Logging" expand="false">
+                <tocitem text="Logging" target="jme3.advanced.logging"/>
+                <tocitem text="Debugging" target="jme3.advanced.debugging"/>
+                <tocitem text="Graphic Card Capabilities" target="jme3.advanced.read_graphic_card_capabilites"/>
+            </tocitem>
+<!--        </tocitem>-->
+    </tocitem>
+</toc>

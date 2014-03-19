@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
+  <!-- +++++++++++++++++++++++++++++++++++++++ -->
+  <!-- start screen -->
+  <!-- +++++++++++++++++++++++++++++++++++++++ -->
+  <screen id="start" controller="mygame.Main">
+    <layer id="layer" backgroundColor="#003f" childLayout="center">
+      <panel id="panel" height="25%" width="35%" align="center" valign="center" backgroundColor="#f60f" childLayout="center" visibleToMouse="true">
+        <interact onClick="quit()"/>
+        <effect>
+          <onStartScreen name="move" mode="in" direction="top" length="300" startDelay="0" inherit="true"/>
+          <onEndScreen name="move" mode="out" direction="bottom" length="300" startDelay="0" inherit="true"/>
+          <onHover name="pulsate" scaleFactor="0.008" startColor="#f600" endColor="#ffff" post="true"/>
+        </effect>
+        <text id="text" font="aurulent-sans-17.fnt" color="#000f" text="Hello World!" align="center" valign="center" />
+      </panel>
+    </layer>
+  </screen>
+</nifty>

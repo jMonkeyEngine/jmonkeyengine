@@ -1,0 +1,102 @@
+
+<h1><a>How to add a Sky to your Scene</a></h1>
+<div>
+
+<p>
+
+<br/>
+
+</p>
+
+<p>
+Here is an example for how you add a static horizon (a background landscape and a sky) to a scene.
+Having a discernable horizon with a suitable landscape (or space, or ocean, or whatever) in the background makes scenes look more realistic than just a single-colored &quot;sky&quot; background.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "How to add a Sky to your Scene" [1-335] -->
+<h2><a>Adding the Sky</a></h2>
+<div>
+
+<p>
+
+Adding a sky is extremely easy using the <code>com.jme3.util.SkyFactory</code>.
+</p>
+<pre>rootNode.attachChild&#40;SkyFactory.createSky&#40;
+            assetManager, &quot;Textures/Sky/Bright/BrightSky.dds&quot;, false&#41;&#41;;</pre>
+
+<p>
+To add a sky you need to supply:
+</p>
+<ol>
+<li><div> The assetManager object to use</div>
+</li>
+<li><div> A cube or sphere map texture of the sky</div>
+</li>
+<li><div> Set the boolean to true if you are using a sphere map texture. For a cube map, use false. <br/>
+Tip: Cube map is the default. You would know if you had created a sphere map.</div>
+</li>
+</ol>
+
+<p>
+
+Internally, the SkyFactory calls the following methods:
+</p>
+<ol>
+<li><div> <code>sky.setQueueBucket(Bucket.Sky);</code> makes certain the sky is rendered in the right order, behind everything else.</div>
+</li>
+<li><div> <code>sky.setCullHint(Spatial.CullHint.Never);</code> makes certain that the sky is never culled.</div>
+</li>
+<li><div> The SkyFactory uses the internal jME3 material definition <code>Sky.j3md</code>. This Material definition works with sphere and cube maps. </div>
+</li>
+</ol>
+
+</div>
+<!-- EDIT2 SECTION "Adding the Sky" [336-1262] -->
+<h2><a>Creating the Textures</a></h2>
+<div>
+
+<p>
+
+As the sky texture we use the sample BrightSky.dds file from jme3test-test-data. 
+</p>
+
+<p>
+How to create a sky textures?
+
+</p>
+<ul>
+<li><div> There are many tools out there that generate cube and sphere maps. <br/>
+Examples for landscape texture generators are Terragen or Bryce.</div>
+</li>
+<li><div> The actual texture size does not matter, as long as you add the Sky Geometry to the Sky bucket: Everything in the sky bucket will always be infinitely far away behind everything else, and never intersect with your scene. <br/>
+Of course the higher the resolution, the better it will look. On the other hand, if the graphic is too big, it will slow the game down. </div>
+</li>
+<li><div> A box or sphere map is the simplest solution. But you can use any Node as sky, even complex sets of geometries and quads with animated clouds, blinking stars, city skylines, etc.</div>
+</li>
+<li><div> JME3 supports cube maps in <acronym title="Portable Network Graphics">PNG</acronym>, <acronym title="Joint Photographics Experts Group">JPG</acronym>, or (compressed) DDS format.</div>
+</li>
+</ul>
+
+<p>
+
+Box or Sphere?
+</p>
+<ul>
+<li><div> If you have access to cube map textures, then use a SkyBox</div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://1.bp.blogspot.com/_uVsWqMqIGQU/SN0IZEE117I/AAAAAAAAAPs/4lfHx1Erdqg/s1600/skybox"><param name="text" value="<html><u>SkyBox examples</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+</li>
+<li><div> If you have access to sphere map textures ??? specially projected sky images that fit inside a sphere ??? then you use a SkySphere or SkyDome. </div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://wiki.delphigl.com/index.php/Datei:Skysphere.jpg"><param name="text" value="<html><u>SkySphere example</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!-- EDIT3 SECTION "Creating the Textures" [1263-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:sky?do=export_xhtmlbody">view online version</a></em></p>

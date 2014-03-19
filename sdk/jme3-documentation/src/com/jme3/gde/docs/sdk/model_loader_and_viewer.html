@@ -1,0 +1,189 @@
+
+<h1><a>jMonkeyEngine SDK: Importing and Viewing Models</a></h1>
+<div>
+
+<p>
+
+The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> imports models from your project and stores them in the assets folder. The imported models are converted to a jME3 compatible binary format called .j3o. Double-click .j3o files in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> to display them in the SceneViewer, or load them in-game using the AssetManager.
+</p>
+
+<p>
+Presently, <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.blender.org/"><param name="text" value="<html><u>Blender 3D</u></html>"><param name="textColor" value="blue"></object> is the preferred modelling tool for jME3 as it is also Open-Source Software and an exporter for OgreXML files exists. There is a direct .blend file importer available in the <acronym title="Software Development Kit">SDK</acronym> and you can directly import or store blend files in your project to convert them. If for some reason your version of blender is not compatible, you can use the default OgreXML format. Note that the OgreXML exporter is not compatible with Blender 2.49 or before!
+</p>
+
+<p>
+Also, see this <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.youtube.com/watch?v=nL7woH40i5c"><param name="text" value="<html><u>demo video</u></html>"><param name="textColor" value="blue"></object> on importing models.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "jMonkeyEngine SDK: Importing and Viewing Models" [1-955] -->
+<h3><a>Installing the OgreXML Exporter in Blender</a></h3>
+<div>
+
+<p>
+
+The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> includes a tool to install the correct exporter tools in Blender to export OgreXML files. To install the exporter, do the following:
+
+</p>
+<ol>
+<li><div> Select &quot;Tools&quot;???&quot;OgreXML&quot;???&quot;Install Blender OgreXML&quot; in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Menu</div>
+</li>
+<li><div> If you are presented a filechooser, select the folder where your blender scripts reside</div>
+</li>
+<li><div> Press &quot;Install&quot; in the window that opens</div>
+</li>
+</ol>
+
+<p>
+
+Also check out <a href="/com/jme3/gde/docs/jme3/external/blender.html">how to create compatible models in blender</a> and <a href="/com/jme3/gde/docs/jme3/intermediate/multi-media_asset_pipeline.html">how to organize your assets</a>.
+
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Installing the OgreXML Exporter in Blender" [956-1555] -->
+<h2><a>Importing and Viewing a Model</a></h2>
+<div>
+
+</div>
+<!-- EDIT3 SECTION "Importing and Viewing a Model" [1556-1597] -->
+<h3><a>Using the Model Importer Tool</a></h3>
+<div>
+
+<p>
+jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> includes a model importer tool that allows you to preview and import supported models into your jMonkeyEngine3 project.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/wp-uploads/2010/11/jmonkeyplatform003-300x117.jpg">
+<img src="nbdocs:/com/jme3/gde/docs/wp-uploads/2010/11/jmonkeyplatform002-300x218.jpg">
+
+</p>
+<ol>
+<li><div> Select the project you want to import your model to</div>
+</li>
+<li><div> Click the &quot;Import Model&quot; button in the toolbar</div>
+</li>
+<li><div> Click &quot;open model..&quot; and select the main model file</div>
+</li>
+<li><div> Check the preview and file list and press &quot;Next&quot;</div>
+</li>
+<li><div> Check and change the import path if necessary</div>
+</li>
+<li><div> If you want to copy the original model files as well, check the checkbox</div>
+</li>
+<li><div> Press &quot;finish&quot;</div>
+</li>
+</ol>
+
+<p>
+
+The model is converted to j3o and all necessary files are copied to the project assets folder. If you have specified the corresponding option, all original model files will also be copied to your assets folder.
+</p>
+
+</div>
+<!-- EDIT4 SECTION "Using the Model Importer Tool" [1598-2463] -->
+<h3><a>Using the model files directly</a></h3>
+<div>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/sdk/jmonkeyplatform-docu-2.png">
+
+</p>
+<ol>
+<li><div> Create a separate folder for each model in the <code>assets</code> folder of your project.</div>
+</li>
+<li><div> Save the model created in Blender (.blend) <strong>in the <code>asset</code> folder of your project</strong>, </div>
+</li>
+<li><div> Make sure that no textures are packed in the .blend file.</div>
+</li>
+<li><div> Make sure all textures used in the .blend file are in the assets folder of the project.</div>
+</li>
+<li><div> In the Projects Explorer Assets node, select the model that you want to import.</div>
+</li>
+<li><div> Double-click the model or right-click and select &quot;Convert to JME binary&quot; from the context-menu.</div>
+</li>
+<li><div> In the Projects Explorer Assets node you should see your model j3o file.</div>
+</li>
+<li><div> Double-click it to view it in the SceneViewer.</div>
+</li>
+<li><div> Click on the lightbulb to turn on the light if you cannot see your model.</div>
+</li>
+</ol>
+
+<p>
+
+Note: It is important that you copy the model file and its textures to the correct assets folder before creating the j3o file because the paths for textures (and possibly other things) will be stored as absolute (to the assets folder root) when you convert that model. This means the texture location should not change after the import.
+</p>
+
+<p>
+Note: If the SceneViewer doesn&#039;t work refer to <a href="/com/jme3/gde/docs/sdk/troubleshooting.html">Troubleshooting jMonkeyEngine3 SDK</a>.
+
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Using the model files directly" [2464-3719] -->
+<h2><a>Working With a Model</a></h2>
+<div>
+<ul>
+<li><div> Open Windows&gt;SceneExplorer to view sub-nodes of the model</div>
+</li>
+<li><div> Open Windows&gt;Properties to view the properties of the model&#039;s nodes.</div>
+</li>
+<li><div> Click the cube button in the SceneViewer to toggle between Wireframe mode and Textured mode.</div>
+</li>
+<li><div> Click the lightbulb to view Materials that require a light source</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT6 SECTION "Working With a Model" [3720-4055] -->
+<h2><a>Notes About Model Assets</a></h2>
+<div>
+
+<p>
+
+The original OgreXML <code>.mesh.xml</code>, <code>.scene</code>, <code>.material</code>, <code>.skeleton.xml</code> and <code>.blend</code> model files <strong>will not be included</strong> in the distribution <code>assets.jar</code> file of your distributed game, they are only available in the assets folder so you are able to recreate the <code>.j3o</code> file from the original if you ever come to change it in blender and have to export it again.
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Notes About Model Assets" [4056-4472] -->
+<h2><a>About the SceneViewer and SceneExplorer window</a></h2>
+<div>
+
+<p>
+
+The SceneViewer and SceneExplorer windows are shared among plugins to save system resources. This means that you will have to keep an eye on what plugin is using the scene right now and what you are actually modifying in these windows.
+</p>
+
+<p>
+Most plugins will deliver their own UI elements to modify the scene so the SceneExplorer is more of a global tool. The simple SceneComposer however heavily relies on its functions as other plugins might too in the future.
+</p>
+
+</div>
+<!-- EDIT8 SECTION "About the SceneViewer and SceneExplorer window" [4473-4992] -->
+<h3><a>About the projects AssetManager</a></h3>
+<div>
+
+<p>
+Each jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project has its own internal AssetManager that has the projects assets folder registered as a FileLocator. When the project is run, the assets folder is compressed into a jar file and added to the projects main jar classpath. This way the editors in jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> and the running game have the same asset folder structure.
+</p>
+
+<p>
+You might wonder why jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> requires you to copy the model that is to be converted to j3o into the assets folder before. The Model Import Tool also copies the model and associated files to the project directory before converting. To load the model it needs to be in a folder (or jar etc..) that belongs to the projects AssetManager root. To load a model from some other folder of the filesystem, that folder would have to be added to the AssetManager root. If every folder that contains a model was in the root of the AssetManager, all textures named &quot;hull.jpg&quot; for example would be the same for the AssetManager and it would only deliver the texture of the first model folder that was added.
+</p>
+
+<p>
+To have a valid jME3 object, the paths to textures and other assets belonging to the model have to be read with the correct, final path that can then be stored in the j3o object. The j3o object will use those paths when it is loaded with the AssetManager and it requires the AssetManager to deliver the assets on those paths, this is why the folder structure while converting has to be the same as when loading.
+</p>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>,
+	<a href="/wiki/doku.php/tag:asset?do=showtag&amp;tag=tag%3Aasset">asset</a>,
+	<a href="/wiki/doku.php/tag:scene?do=showtag&amp;tag=tag%3Ascene">scene</a>
+</span></div>
+
+</div>
+<!-- EDIT9 SECTION "About the projects AssetManager" [4993-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:model_loader_and_viewer?do=export_xhtmlbody">view online version</a></em></p>

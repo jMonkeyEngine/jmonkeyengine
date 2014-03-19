@@ -1,0 +1,177 @@
+
+<h1><a>Making the Camera Follow a 3rd-Person Character</a></h1>
+<div>
+
+<p>
+
+When players steer a game character with 1st-person view, they directly steer the camera (<code>flyCam.setEnabled(true);</code>), and they never see the walking character itself. In a game with 3rd-person view, however, the players see the character walk, and you (the game developer) want to make the camera follow the character around when it walks.
+</p>
+
+<p>
+There are two ways how the camera can do that:
+</p>
+<ul>
+<li><div> Registering a chase camera to the player and the input manager.</div>
+</li>
+<li><div> Attaching the camera to the character using a camera node.</div>
+</li>
+</ul>
+
+<p>
+
+<strong>Important:</strong> Using third-person view requires you to deactivate the default flyCam (first-person view). This means that you have to configure your own navigation (<a href="/com/jme3/gde/docs/jme3/advanced/input_handling.html">key inputs and analogListener</a>) that make your player character walk. For moving a physical player character, use <code>player.setWalkDirection()</code>, for a non-physical character you can use <code>player.move()</code>.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Making the Camera Follow a 3rd-Person Character" [1-990] -->
+<h2><a>Code Samples</a></h2>
+<div>
+
+<p>
+Press the WASD or arrow keys to move. Drag with the left mouse button to rotate.
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/input/TestChaseCamera.java"><param name="text" value="<html><u>TestChaseCamera.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/input/TestCameraNode.java"><param name="text" value="<html><u>TestCameraNode.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Code Samples" [991-1372] -->
+<h2><a>Camera Node</a></h2>
+<div>
+
+<p>
+To make the camera follow a target node, add this camera node code to your init method (e.g. <code>simpleInitApp()</code>). The <code>target</code> spatial is typically the player node.
+</p>
+<pre>// Disable the default flyby cam
+flyCam.setEnabled&#40;false&#41;;
+//create the camera Node
+camNode = new CameraNode&#40;&quot;Camera Node&quot;, cam&#41;;
+//This mode means that camera copies the movements of the target:
+camNode.setControlDir&#40;ControlDirection.SpatialToCamera&#41;;
+//Attach the camNode to the target:
+target.attachChild&#40;camNode&#41;;
+//Move camNode, e.g. behind and above the target:
+camNode.setLocalTranslation&#40;new Vector3f&#40;0, 5, -5&#41;&#41;;
+//Rotate the camNode to look at the target:
+camNode.lookAt&#40;target.getLocalTranslation&#40;&#41;, Vector3f.UNIT_Y&#41;;</pre>
+
+<p>
+<strong>Important:</strong> Where the example says <code>camNode.setLocalTranslation(new Vector3f(0, 5, -5));</code>, you have to supply your own start position for the camera. This depends on the size of your target (the player character) and its position in your particular scene. Optimally, you set this to a spot a bit behind and above the target.
+
+</p>
+<div><table>
+	<tr>
+		<th>Methods</th><th>Description</th>
+	</tr>
+	<tr>
+		<td>setControlDir(ControlDirection.SpatialToCamera)</td><td>User input steers the target spatial, and the camera follows the spatial.<br/>
+The spatial&#039;s transformation is copied over the camera&#039;s transformation. <br/>
+Example: Use with <a href="/com/jme3/gde/docs/jme3/advanced/physics.html">CharacterControl</a>led spatial.</td>
+	</tr>
+	<tr>
+		<td>setControlDir(ControlDirection.CameraToSpatial)</td><td>User input steers the camera, and the target spatial follows the camera. <br/>
+The camera&#039;s transformation is copied over the spatial&#039;s transformation. Use with first-person flyCam.</td>
+	</tr>
+</table></div>
+<!-- EDIT4 TABLE [2446-2957] -->
+<p>
+
+<strong>Code sample:</strong>
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/input/TestCameraNode.java"><param name="text" value="<html><u>TestCameraNode.java</u></html>"><param name="textColor" value="blue"></object> ??? Press the WASD or arrow keys to move. Drag with the left mouse button to rotate.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT3 SECTION "Camera Node" [1373-3198] -->
+<h2><a>Chase Camera</a></h2>
+<div>
+
+<p>
+
+To activate the chase camera, add the following code to your init method (e.g. <code>simpleInitApp()</code>). The <code>target</code> spatial is typically the player node. You will be able to rotate the target by dragging (keeping the left mouse button pressed and moving the mouse).
+</p>
+<pre>// Disable the default flyby cam
+flyCam.setEnabled&#40;false&#41;;
+// Enable a chase cam for this target (typically the player).
+ChaseCamera chaseCam = new ChaseCamera&#40;cam, target, inputManager&#41;;
+chaseCam.setSmoothMotion&#40;true&#41;;</pre>
+<div><table>
+	<tr>
+		<th>Method</th><th>Description</th>
+	</tr>
+	<tr>
+		<td>setInvertVerticalAxis(true)</td><td>Invert the camera&#039;s vertical rotation Axis </td>
+	</tr>
+	<tr>
+		<td>setInvertHorizontalAxis(true)</td><td>Invert the camera&#039;s horizontal rotation Axis</td>
+	</tr>
+	<tr>
+		<td>setTrailingEnabled(true)</td><td>Camera follows the target and flies around and behind when the target moves towards the camera. Trailing only works with smooth motion enabled. (Default)</td>
+	</tr>
+	<tr>
+		<td>setTrailingEnabled(false)</td><td>Camera follows the target, but does not rotate around the target when the target changes direction.</td>
+	</tr>
+	<tr>
+		<td>setSmoothMotion(true)</td><td>Activate SmoothMotion when trailing. This means the camera seems to accelerate and fly after the character, when it has caught up, it slows down again.</td>
+	</tr>
+	<tr>
+		<td>setSmoothMotion(false)</td><td>Disable smooth camera motion. Disabling SmoothMotion also disables trailing.</td>
+	</tr>
+	<tr>
+		<td>setLookAtOffset(Vector3f.UNIT_Y.mult(3))</td><td>Camera looks at a point 3 world units above the target.</td>
+	</tr>
+	<tr>
+		<td>setToggleRotationTrigger(new MouseButtonTrigger(MouseInput.BUTTON_MIDDLE))</td><td>Enable rotation by keeping the middle mouse button pressed (like in Blender). This disables the rotation on right and left mouse button click.</td>
+	</tr>
+	<tr>
+		<td>setToggleRotationTrigger(new MouseButtonTrigger(<br/>
+MouseInput.BUTTON_MIDDLE),<br/>
+new KeyTrigger(KeyInput.KEY_SPACE))</td><td>Activate mutiple triggers for the rotation of the camera, e.g. spacebar and middle mouse button, etc.</td>
+	</tr>
+	<tr>
+		<td>setRotationSensitivity(5f)</td><td>How fast the camera rotates. Use values around &lt;1.0f (all bigger values are ignored).</td>
+	</tr>
+</table></div>
+<!-- EDIT6 TABLE [3733-5145] -->
+<p>
+
+<strong>Code sample:</strong>
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/input/TestChaseCamera.java"><param name="text" value="<html><u>TestChaseCamera.java</u></html>"><param name="textColor" value="blue"></object> ??? Press the WASD or arrow keys to move. Drag with the left mouse button to rotate.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT5 SECTION "Chase Camera" [3199-5388] -->
+<h2><a>Which to Choose?</a></h2>
+<div>
+
+<p>
+
+What is the difference of the two code samples above?
+
+</p>
+<div><table>
+	<tr>
+		<th>CameraNode</th><th>ChaseCam</th>
+	</tr>
+	<tr>
+		<td>Camera follows immediately, flies at same speed as target.</td><td>Camera moves smoothly and accelerates and decelerates, flies more slowly than the target and catches up.</td>
+	</tr>
+	<tr>
+		<td>Camera stays attached to the target at a constant distance.</td><td>Camera orbits the target and approaches slowly.</td>
+	</tr>
+	<tr>
+		<td>Drag-to-Rotate rotates the target and the camera. You always see the target from behind.</td><td>Drag-to-Rotate rotates only the camera. You can see the target from various sides.</td>
+	</tr>
+</table></div>
+<!-- EDIT8 TABLE [5474-5945] -->
+</div>
+<!-- EDIT7 SECTION "Which to Choose?" [5389-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:making_the_camera_follow_a_character?do=export_xhtmlbody">view online version</a></em></p>

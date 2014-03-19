@@ -1,0 +1,402 @@
+
+<h1><a>jMonkeyEngine 3 Tutorial (11) - Hello Audio</a></h1>
+<div>
+
+<p>
+Previous: <a href="/com/jme3/gde/docs/jme3/beginner/hello_terrain.html">Hello Terrain</a>, Next: <a href="/com/jme3/gde/docs/jme3/beginner/hello_effects.html">Hello Effects</a>
+</p>
+
+<p>
+This tutorial explains how to add 3D sound to a game, and how to make sounds play together with events, such as clicking. You learn how to use an Audio Listener and Audio Nodes. You also make use of an Action Listener and a MouseButtonTrigger from the previous <a href="/com/jme3/gde/docs/jme3/beginner/hello_input_system.html">Hello Input</a> tutorial to make a mouse click trigger a gun shot sound.
+</p>
+
+<p>
+<p><div>To use the example assets in a new jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> project, right-click your project, select &quot;Properties&quot;, go to &quot;Libraries&quot;, press &quot;Add Library&quot; and add the &quot;jme3-test-data&quot; library.
+</div></p>
+
+</p>
+
+</div>
+<!-- EDIT1 SECTION "jMonkeyEngine 3 Tutorial (11) - Hello Audio" [1-683] -->
+<h2><a>Sample Code</a></h2>
+<div>
+<pre>package jme3test.helloworld;
+&nbsp;
+import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioNode;
+import com.jme3.input.MouseInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.scene.Geometry;
+import com.jme3.scene.shape.Box;
+&nbsp;
+/** Sample 11 - playing 3D audio. */
+public class HelloAudio extends SimpleApplication &#123;
+&nbsp;
+  private AudioNode audio_gun;
+  private AudioNode audio_nature;
+  private Geometry player;
+&nbsp;
+  public static void main&#40;String&#91;&#93; args&#41; &#123;
+    HelloAudio app = new HelloAudio&#40;&#41;;
+    app.start&#40;&#41;;
+  &#125;
+&nbsp;
+  @Override
+  public void simpleInitApp&#40;&#41; &#123;
+    flyCam.setMoveSpeed&#40;40&#41;;
+&nbsp;
+    /** just a blue box floating in space */
+    Box box1 = new Box&#40;1, 1, 1&#41;;
+    player = new Geometry&#40;&quot;Player&quot;, box1&#41;;
+    Material mat1 = new Material&#40;assetManager,&quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+    mat1.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
+    player.setMaterial&#40;mat1&#41;;
+    rootNode.attachChild&#40;player&#41;;
+&nbsp;
+    /** custom init methods, see below */
+    initKeys&#40;&#41;;
+    initAudio&#40;&#41;;
+  &#125;
+&nbsp;
+  /** We create two audio nodes. */
+  private void initAudio&#40;&#41; &#123;
+    /* gun shot sound is to be triggered by a mouse click. */
+    audio_gun = new AudioNode&#40;assetManager, &quot;Sound/Effects/Gun.wav&quot;, false&#41;;
+    audio_gun.setPositional&#40;false&#41;;
+    audio_gun.setLooping&#40;false&#41;;
+    audio_gun.setVolume&#40;2&#41;;
+    rootNode.attachChild&#40;audio_gun&#41;;
+&nbsp;
+    /* nature sound - keeps playing in a loop. */
+    audio_nature = new AudioNode&#40;assetManager, &quot;Sound/Environment/Ocean Waves.ogg&quot;, true&#41;;
+    audio_nature.setLooping&#40;true&#41;;  // activate continuous playing
+    audio_nature.setPositional&#40;true&#41;;   
+    audio_nature.setVolume&#40;3&#41;;
+    rootNode.attachChild&#40;audio_nature&#41;;
+    audio_nature.play&#40;&#41;; // play continuously!
+  &#125;
+&nbsp;
+  /** Declaring &quot;Shoot&quot; action, mapping it to a trigger (mouse left click). */
+  private void initKeys&#40;&#41; &#123;
+    inputManager.addMapping&#40;&quot;Shoot&quot;, new MouseButtonTrigger&#40;MouseInput.BUTTON_LEFT&#41;&#41;;
+    inputManager.addListener&#40;actionListener, &quot;Shoot&quot;&#41;;
+  &#125;
+&nbsp;
+  /** Defining the &quot;Shoot&quot; action: Play a gun sound. */
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+    @Override
+    public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
+      if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
+        audio_gun.playInstance&#40;&#41;; // play each instance once!
+      &#125;
+    &#125;
+  &#125;;
+&nbsp;
+  /** Move the listener with the a camera - for 3D audio. */
+  @Override
+  public void simpleUpdate&#40;float tpf&#41; &#123;
+    listener.setLocation&#40;cam.getLocation&#40;&#41;&#41;;
+    listener.setRotation&#40;cam.getRotation&#40;&#41;&#41;;
+  &#125;
+&nbsp;
+&#125;</pre>
+
+<p>
+When you run the sample, you should see a blue cube. You should hear a nature-like ambient sound. When you click, you hear a loud shot.
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Sample Code" [684-3501] -->
+<h2><a>Understanding the Code Sample</a></h2>
+<div>
+
+<p>
+
+In the <code>initSimpleApp()</code> method, you create a simple blue cube geometry called <code>player</code> and attach it to the scene ??? this is just arbitrary sample content, so you see something when running the audio sample.
+</p>
+
+<p>
+Let&#039;s have a closer look at <code>initAudio()</code> to learn how to use <code>AudioNode</code>s.
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Understanding the Code Sample" [3502-3839] -->
+<h2><a>AudioNodes</a></h2>
+<div>
+
+<p>
+
+Adding sound to your game is quite simple: Save your audio files into your <code>assets/Sound</code> directory. JME3 supports both Ogg Vorbis (.ogg) and Wave (.wav) file formats.
+</p>
+
+<p>
+For each sound, you create an AudioNode. You can use an AudioNode like any node in the JME scene graph, e.g. attach it to other Nodes. You create one node for a gunshot sound, and one node for a nature sound.
+</p>
+<pre>  private AudioNode audio_gun;
+  private AudioNode audio_nature;</pre>
+
+<p>
+Look at the custom <code>initAudio()</code> method: Here you initialize the sound objects and set their parameters.
+</p>
+<pre>audio_gun = new AudioNode&#40;assetManager, &quot;Sound/Effects/Gun.wav&quot;, false&#41;;
+    ...
+audio_nature = new AudioNode&#40;assetManager, &quot;Sound/Environment/Nature.ogg&quot;, false&#41;;</pre>
+
+<p>
+These two lines create new sound nodes from the given audio files in the AssetManager. The <code>false</code> flag means that you want to buffer these sounds before playing. (If you set this flag to true, the sound will be streamed, which makes sense for really long sounds.)
+</p>
+
+<p>
+You want the gunshot sound to play <em>once</em> (you don&#039;t want it to loop). You also specify its volume as gain factor (at 0, sound is muted, at 2, it is twice as loud, etc.).
+</p>
+<pre>    audio_gun.setPositional&#40;false&#41;;
+    audio_gun.setLooping&#40;false&#41;;
+    audio_gun.setVolume&#40;2&#41;;
+    rootNode.attachChild&#40;audio_gun&#41;;</pre>
+
+<p>
+
+<p><div>Note that setPositional(false) is pretty important when you use stereo sounds. Positional sounds must always be mono audio files, otherwise the engine will remind it to you with a crash.
+</div></p>
+</p>
+
+<p>
+The nature sound is different: You want it to loop <em>continuously</em> as background sound. This is why you set looping to true, and immediately call the play() method on the node. You also choose to set its volume to 3.
+</p>
+<pre>    audio_nature.setLooping&#40;true&#41;; // activate continuous playing
+    ...
+    audio_nature.setVolume&#40;3&#41;;
+    rootNode.attachChild&#40;audio_nature&#41;;
+    audio_nature.play&#40;&#41;; // play continuously!
+  &#125;</pre>
+
+<p>
+Here you make audio_nature a positional sound that comes from a certain place. For that you give the node an explicit translation, in this example, you choose Vector3f.ZERO (which stands for the coordinates <code>0.0f,0.0f,0.0f</code>, the center of the scene.) Since jME supports 3D audio, you are now able to hear this sound coming from this particular location. Making the sound positional is optional. If you don&#039;t use these lines, the ambient sound comes from every direction.
+</p>
+<pre>    ...
+    audio_nature.setPositional&#40;true&#41;;
+    audio_nature.setLocalTranslation&#40;Vector3f.ZERO.clone&#40;&#41;&#41;;
+    ...</pre>
+
+<p>
+<strong>Tip:</strong> Attach AudioNodes into the scene graph like all nodes, to make certain moving nodes stay up-to-date. If you don&#039;t attach them, they are still audible and you don&#039;t get an error message but 3D sound will not work as expected. AudioNodes can be attached directly to the root node or they can be attached inside a node that is moving through the scene and both the AudioNode and the 3d position of the sound it is generating will move accordingly.
+</p>
+
+<p>
+<strong>Tip:</strong> playInstance always plays the sound from the position of the AudioNode so multiple gunshots from one gun (for example) can be generated this way, however if multiple guns are firing at once then an AudioNode is needed for each one.
+</p>
+
+</div>
+<!-- EDIT4 SECTION "AudioNodes" [3840-7174] -->
+<h2><a>Triggering Sound</a></h2>
+<div>
+
+<p>
+
+Let&#039;s have a closer look at <code>initKeys()</code>: As you learned in previous tutorials, you use the <code>inputManager</code> to respond to user input. Here you add a mapping for a left mouse button click, and name this new action <code>Shoot</code>.
+</p>
+<pre>  /** Declaring &quot;Shoot&quot; action, mapping it to a trigger (mouse left click). */
+  private void initKeys&#40;&#41; &#123;
+    inputManager.addMapping&#40;&quot;Shoot&quot;, new MouseButtonTrigger&#40;MouseInput.BUTTON_LEFT&#41;&#41;;
+    inputManager.addListener&#40;actionListener, &quot;Shoot&quot;&#41;;
+  &#125;</pre>
+
+<p>
+Setting up the ActionListener should also be familiar from previous tutorials. You declare that, when the trigger (the mouse button) is pressed and released, you want to play a gun sound.
+</p>
+<pre>  /** Defining the &quot;Shoot&quot; action: Play a gun sound. */
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+    @Override
+    public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
+      if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
+        audio_gun.playInstance&#40;&#41;; // play each instance once!
+      &#125;
+    &#125;
+  &#125;;</pre>
+
+<p>
+Since you want to be able to shoot fast repeatedly, so you do not want to wait for the previous gunshot sound to end before the next one can start. This is why you play this sound using the <code>playInstance()</code> method. This means that every click starts a new instance of the sound, so two instances can overlap. You set this sound not to loop, so each instance only plays once. As you would expect it of a gunshot.
+
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Triggering Sound" [7175-8664] -->
+<h2><a>Ambient or Situational?</a></h2>
+<div>
+
+<p>
+
+The two sounds are two different use cases:
+</p>
+<ul>
+<li><div> A gunshot is situational. You want to play it only once, right when it is triggered.</div>
+<ul>
+<li><div> This is why you <code>setLooping(false)</code>.</div>
+</li>
+</ul>
+</li>
+<li><div> The nature sound is an ambient, background noise. You want it to start playing from the start, as long as the game runs.</div>
+<ul>
+<li><div> This is why you <code>setLooping(true)</code>.</div>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+
+Now every sound knows whether it should loop or not. 
+</p>
+
+<p>
+Apart from the looping boolean, another difference is where <code>play().playInstance()</code> is called on those nodes:
+</p>
+<ul>
+<li><div> You start playing the background nature sound right after you have created it, in the initAudio() method.<pre>    audio_nature.play&#40;&#41;; // play continuously!</pre>
+</div>
+</li>
+<li><div> The gunshot sound, however, is triggered situationally, once, only as part of the <code>Shoot</code> input action that you defined in the ActionListener.<pre>  /** Defining the &quot;Shoot&quot; action: Play a gun sound. */
+  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+    @Override
+    public void onAction&#40;String name, boolean keyPressed, float tpf&#41; &#123;
+      if &#40;name.equals&#40;&quot;Shoot&quot;&#41; &amp;&amp; !keyPressed&#41; &#123;
+        audio_gun.playInstance&#40;&#41;; // play each instance once!
+      &#125;
+    &#125;
+  &#125;;</pre>
+</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT6 SECTION "Ambient or Situational?" [8665-9895] -->
+<h2><a>Buffered or Streaming?</a></h2>
+<div>
+
+<p>
+
+The Boolean in the AudioNode constructor defines whether the audio is buffered (false) or streamed (true). For example:
+
+</p>
+<pre>audio_gunshot = new AudioNode&#40;assetManager, &quot;Sound/Effects/Gun.wav&quot;, false&#41;; // buffered
+...
+audio_nature = new AudioNode&#40;assetManager, &quot;Sound/Environment/Nature.ogg&quot;, true&#41;; // streamed </pre>
+
+<p>
+Typically, you stream long sounds, and buffer short sounds.
+</p>
+
+<p>
+Note that streamed sounds can not loop (i.e. setLooping will not work as you expect). Check the getStatus on the node and if it has stopped recreate the node.
+
+</p>
+
+</div>
+<!-- EDIT7 SECTION "Buffered or Streaming?" [9896-10478] -->
+<h2><a>Play() or PlayInstance()?</a></h2>
+<div>
+<div><table>
+	<tr>
+		<th>audio.play()</th><th>audio.playInstance()</th>
+	</tr>
+	<tr>
+		<td>Plays buffered sounds.</td><td>Plays buffered sounds. </td>
+	</tr>
+	<tr>
+		<td>Plays streamed sounds.</td><td>Cannot play streamed sounds.</td>
+	</tr>
+	<tr>
+		<td>The same sound cannot play twice at the same time.</td><td>The same sounds can play multiple times and overlap.</td>
+	</tr>
+</table></div>
+<!-- EDIT9 TABLE [10518-10762] -->
+</div>
+<!-- EDIT8 SECTION "Play() or PlayInstance()?" [10479-10763] -->
+<h2><a>Your Ear in the Scene</a></h2>
+<div>
+
+<p>
+
+To create a 3D audio effect, JME3 needs to know the position of the sound source, and the position of the ears of the player. The ears are represented by an 3D Audio Listener object. The <code>listener</code> object is a default object in a SimpleApplication.
+</p>
+
+<p>
+In order to make the most of the 3D audio effect, you must use the <code>simpleUpdate()</code> method to move and rotate the listener (the player&#039;s ears) together with the camera (the player&#039;s eyes).
+</p>
+<pre>  public void simpleUpdate&#40;float tpf&#41; &#123;
+    listener.setLocation&#40;cam.getLocation&#40;&#41;&#41;;
+    listener.setRotation&#40;cam.getRotation&#40;&#41;&#41;;
+  &#125;</pre>
+
+<p>
+If you don&#039;t do that, the results of 3D audio will be quite random.
+</p>
+
+</div>
+<!-- EDIT10 SECTION "Your Ear in the Scene" [10764-11466] -->
+<h2><a>Global, Directional, Positional?</a></h2>
+<div>
+
+<p>
+
+In this example, you defined the nature sound as coming from a certain position, but not the gunshot sound. This means your gunshot is global and can be heard everywhere with the same volume. JME3 also supports directional sounds which you can only hear from a certain direction. 
+</p>
+
+<p>
+It makes equal sense to make the gunshot positional, and let the ambient sound come from every direction. How do you decide which type of 3D sound to use from case to case?
+</p>
+<ul>
+<li><div> In a game with moving enemies you may want to make the gun shot or footsteps positional sounds. In these cases you must move the AudioNode to the location of the enemy before <code>playInstance()</code>ing it. This way a player with stereo speakers hears from which direction the enemy is coming.</div>
+</li>
+<li><div> Similarly, you may have game levels where you want one background sound to play globally. In this case, you would make the AudioNode neither positional nor directional (set both to false).</div>
+</li>
+<li><div> If you want sound to be &quot;absorbed by the walls&quot; and only broadcast in one direction, you would make this AudioNode directional. This tutorial does not discuss directional sounds, you can read about <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">Advanced Audio</a> here.</div>
+</li>
+</ul>
+
+<p>
+
+In short, you must choose in every situation whether it makes sense for a sound to be global, directional, or positional.
+</p>
+
+</div>
+<!-- EDIT11 SECTION "Global, Directional, Positional?" [11467-12823] -->
+<h2><a>Conclusion</a></h2>
+<div>
+
+<p>
+
+You now know how to add the two most common types of sound to your game: Global sounds and positional sounds. You can play sounds in two ways: Either continuously in a loop, or situationally just once. You know the difference between buffering short sounds and streaming long sounds. You know the difference between playing overlapping sound instances, and playing unique sounds that cannot overlap with themselves. You also learned to use sound files that are in either .ogg or .wav format.
+</p>
+
+<p>
+<strong>Tip:</strong> JME&#039;s Audio implementation also supports more advanced effects such as reverberation and Doppler effect. Use these &quot;pro&quot; features to make audio sound different depending on whether it&#039;s in the hallway, in a cave, outdoors, or in a carpeted room. Find out more about environmental effects from the sample code included in the jme3test directory and from the advanced <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">Audio</a> docs.
+</p>
+
+<p>
+Want some fire and explosions to go with your sounds? Read on to learn more about <a href="/com/jme3/gde/docs/jme3/beginner/hello_effects.html">effects</a>.
+
+</p>
+<hr />
+
+<p>
+
+See also:
+</p>
+<ul>
+<li><div>  <a href="/com/jme3/gde/docs/jme3/advanced/audio.html">Audio</a></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:sound?do=showtag&amp;tag=tag%3Asound">sound</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:beginner?do=showtag&amp;tag=tag%3Abeginner">beginner</a>,
+	<a href="/wiki/doku.php/tag:intro?do=showtag&amp;tag=tag%3Aintro">intro</a>
+</span></div>
+
+</div>
+<!-- EDIT12 SECTION "Conclusion" [12824-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_audio?do=export_xhtmlbody">view online version</a></em></p>

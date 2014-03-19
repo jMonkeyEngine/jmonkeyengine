@@ -1,0 +1,291 @@
+
+<h1><a>Debugging</a></h1>
+<div>
+
+<p>
+
+When you deal with complex game engine features like animations or physics it is handy to get feedback from the engine how it interpreted the current state. Is the physical object&#039;s collision shape really where you think it is? Is the skeleton of the animated character moving like you think it should? This document shows you how to activate visual debug aides.
+</p>
+
+<p>
+What if you just want to quickly write code that loads models and brings them in their start position? You may not want to hunt for a sample model, convert it, add lights, and load materials. Instead you use &quot;hasslefree&quot; simple shapes, and a &quot;hasslefree&quot; unshaded material or wireframe: No model, no light source, no materials are needed to see them in your test scene. 
+</p>
+
+<p>
+If you ever have problems with objects appearing in the wrong spot, with the wrong scale, or wrong orientation, simply attach debug shapes to your scene to have a point of reference in 3D space ??? just like a giant ruler. If your code positions the debug shapes correctly, but models remain invisible when you apply the same code to them, you know that the problem must be either the model (where is its origin coordinate?), or the light (too dark? too bright? missing?), or the model&#039;s material (missing?) ??? and not the positioning code.
+</p>
+
+<p>
+Here are some different debug shapes: 
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/debug-shapes.png">
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Debugging" [1-1389] -->
+<h2><a>Debug Shapes</a></h2>
+<div>
+
+</div>
+<!-- EDIT2 SECTION "Debug Shapes" [1390-1415] -->
+<h3><a>Coordinate Axes</a></h3>
+<div>
+
+<p>
+
+The coordinate axes (com.jme3.scene.debug.Arrow) help you see the cardinal directions (X,Y,Z) from their center point. Scale the arrows to use them as a &quot;ruler&quot; for a certain length. 
+</p>
+<pre>private void attachCoordinateAxes&#40;Vector3f pos&#41;&#123;
+  Arrow arrow = new Arrow&#40;Vector3f.UNIT_X&#41;;
+  arrow.setLineWidth&#40;4&#41;; // make arrow thicker
+  putShape&#40;arrow, ColorRGBA.Red&#41;.setLocalTranslation&#40;pos&#41;;
+&nbsp;
+  arrow = new Arrow&#40;Vector3f.UNIT_Y&#41;;
+  arrow.setLineWidth&#40;4&#41;; // make arrow thicker
+  putShape&#40;arrow, ColorRGBA.Green&#41;.setLocalTranslation&#40;pos&#41;;
+&nbsp;
+  arrow = new Arrow&#40;Vector3f.UNIT_Z&#41;;
+  arrow.setLineWidth&#40;4&#41;; // make arrow thicker
+  putShape&#40;arrow, ColorRGBA.Blue&#41;.setLocalTranslation&#40;pos&#41;;
+&#125;
+&nbsp;
+private Geometry putShape&#40;Mesh shape, ColorRGBA color&#41;&#123;
+  Geometry g = new Geometry&#40;&quot;coordinate axis&quot;, shape&#41;;
+  Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+  mat.getAdditionalRenderState&#40;&#41;.setWireframe&#40;true&#41;;
+  mat.setColor&#40;&quot;Color&quot;, color&#41;;
+  g.setMaterial&#40;mat&#41;;
+  rootNode.attachChild&#40;g&#41;;
+  return g;
+&#125;</pre>
+
+</div>
+<!-- EDIT3 SECTION "Coordinate Axes" [1416-2483] -->
+<h3><a>Wireframe Grid</a></h3>
+<div>
+
+<p>
+
+Use a wireframe grid (com.jme3.scene.debug.Grid) as a ruler or simple floor.
+</p>
+<pre>private void attachGrid&#40;Vector3f pos, float size, ColorRGBA color&#41;&#123;
+  Geometry g = new Geometry&#40;&quot;wireframe grid&quot;, new Grid&#40;size, size, 0.2f&#41; &#41;;
+  Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+  mat.getAdditionalRenderState&#40;&#41;.setWireframe&#40;true&#41;;
+  mat.setColor&#40;&quot;Color&quot;, color&#41;;
+  g.setMaterial&#40;mat&#41;;
+  g.center&#40;&#41;.move&#40;pos&#41;;
+  rootNode.attachChild&#40;g&#41;;
+  return g;
+&#125;</pre>
+
+</div>
+<!-- EDIT4 SECTION "Wireframe Grid" [2484-3005] -->
+<h3><a>Wireframe Cube</a></h3>
+<div>
+
+<p>
+
+Use a wireframe cube (com.jme3.scene.debug.WireBox) as a stand-in object to see whether your code scales, positions, or orients, loaded models right.
+</p>
+<pre>public void attachWireBox&#40;Vector3f pos, float size, ColorRGBA color&#41;&#123;
+  Geometry g = new Geometry&#40;&quot;wireframe cube&quot;, new WireBox&#40;size, size, size&#41;&#41;;
+  Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+  mat.getAdditionalRenderState&#40;&#41;.setWireframe&#40;true&#41;;
+  mat.setColor&#40;&quot;Color&quot;, color&#41;;
+  g.setMaterial&#40;mat&#41;;
+  g.setLocalTranslation&#40;pos&#41;;
+  rootNode.attachChild&#40;g&#41;;
+  return g;
+&#125;</pre>
+
+</div>
+<!-- EDIT5 SECTION "Wireframe Cube" [3006-3611] -->
+<h3><a>Wireframe Sphere</a></h3>
+<div>
+
+<p>
+
+Use a wireframe sphere (com.jme3.scene.debug.WireSphere) as a stand-in object to see whether your code scales, positions, or orients, loaded models right.
+</p>
+<pre>private void attachWireSphere&#40;Vector3f pos, float size, ColorRGBA color&#41;&#123;
+  Geometry g = new Geometry&#40;&quot;wireframe sphere&quot;, new WireSphere&#40;size&#41;&#41;;
+  Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+  mat.getAdditionalRenderState&#40;&#41;.setWireframe&#40;true&#41;;
+  mat.setColor&#40;&quot;Color&quot;, color&#41;;
+  g.setMaterial&#40;mat&#41;;
+  g.setLocalTranslation&#40;pos&#41;;
+  rootNode.attachChild&#40;g&#41;;
+  return g;
+&#125;</pre>
+
+</div>
+<!-- EDIT6 SECTION "Wireframe Sphere" [3612-4220] -->
+<h2><a>Wireframe for Physics</a></h2>
+<div>
+
+<p>
+
+You can display a wireframe of the (usually invisible) collision shape around all physical objects. Use this for debugging when analyzing unexpected behaviour. Does not work with DETACHED physics, please switch to PARALLEL or SEQUENTIAL for debugging.
+</p>
+<pre>physicsSpace.enableDebug&#40;assetManager&#41;;</pre>
+
+<p>
+With debugging enabled, colors are used to indicate various types of physical objects:
+</p>
+<ul>
+<li><div> A magenta wire mesh indicates an active rigid body.</div>
+</li>
+<li><div> A blue wire mesh indicates a rigid body which is either new or inactive.</div>
+</li>
+<li><div> A yellow wire mesh indicates a ghost.</div>
+</li>
+<li><div> Two green arrows indicate a joint.</div>
+</li>
+<li><div> A pink wire mesh indicates a character.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT7 SECTION "Wireframe for Physics" [4221-4913] -->
+<h2><a>Wireframe for Animations</a></h2>
+<div>
+
+<p>
+
+Making the skeleton visible inside animated models can be handy for debugging animations. The <code>control</code> object is an AnimControl, <code>player</code> is the loaded model.
+</p>
+<pre>     SkeletonDebugger skeletonDebug = 
+         new SkeletonDebugger&#40;&quot;skeleton&quot;, control.getSkeleton&#40;&#41;&#41;;
+     Material mat = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+     mat.setColor&#40;&quot;Color&quot;, ColorRGBA.Green&#41;;
+     mat.getAdditionalRenderState&#40;&#41;.setDepthTest&#40;false&#41;;
+     skeletonDebug.setMaterial&#40;mat&#41;;
+     player.attachChild&#40;skeletonDebug&#41;;</pre>
+
+</div>
+<!-- EDIT8 SECTION "Wireframe for Animations" [4914-5505] -->
+<h2><a>Example: Toggle Wireframe on Model</a></h2>
+<div>
+
+<p>
+
+We assume that you have loaded a model with a material <code>mat</code>.
+</p>
+
+<p>
+Then you can add a switch to toggle the model&#039;s wireframe on and off, like this:
+
+</p>
+<ol>
+<li><div> Create a key input trigger that switches between the two materials: E.g. we toggle when the T key is pressed: <pre>    inputManager.addMapping&#40;&quot;toggle wireframe&quot;, new KeyTrigger&#40;KeyInput.KEY_T&#41;&#41;;
+    inputManager.addListener&#40;actionListener, &quot;toggle wireframe&quot;&#41;;</pre>
+</div>
+</li>
+<li><div> Now add the toggle action to the action listener <pre>  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+    @Override
+    public void onAction&#40;String name, boolean pressed, float tpf&#41; &#123;
+      // toggle wireframe
+      if &#40;name.equals&#40;&quot;toggle wireframe&quot;&#41; &amp;&amp; !pressed&#41; &#123;
+        wireframe = !wireframe; // toggle boolean
+        mat.getAdditionalRenderState&#40;&#41;.setWireframe&#40;wireframe&#41;; 
+      &#125;
+      // else ... other input tests.
+    &#125;
+  &#125;;</pre>
+</div>
+</li>
+<li><div> Alternatively you could traverse over the whole scene and toggle for all Geometry objects in there if you don&#039;t want to create a new SceneProcessor <pre>  private ActionListener actionListener = new ActionListener&#40;&#41; &#123;
+    boolean wireframe = false; 
+&nbsp;
+    @Override
+    public void onAction&#40;String name, boolean pressed, float tpf&#41; &#123;
+      // toggle wireframe
+      if &#40;name.equals&#40;&quot;toggle wireframe&quot;&#41; &amp;&amp; !pressed&#41; &#123;
+        wireframe = !wireframe; // toggle boolean
+        rootNode.depthFirstTraversal&#40;new SceneGraphVisitor&#40;&#41; &#123;
+          public void visit&#40;Spatial spatial&#41; &#123;
+            if &#40;spatial instanceof Geometry&#41;
+              &#40;&#40;Geometry&#41;spatial&#41;.getMaterial&#40;&#41;.getAdditionalRenderState&#40;&#41;.setWireframe&#40;wireframe&#41;;
+          &#125;
+        &#125;&#41;; 
+      &#125;
+      // else ... other input tests.
+    &#125;
+  &#125;;</pre>
+</div>
+</li>
+</ol>
+
+<p>
+TIP :: To set the line width of wireframe display, use mesh.setLineWidth(lineWidth). Default line width is 1.
+</p>
+
+</div>
+<!-- EDIT9 SECTION "Example: Toggle Wireframe on Model" [5506-7396] -->
+<h2><a>Example: Toggle Wireframe on the scene</a></h2>
+<div>
+
+<p>
+
+To display the wireframe of the entire scene instead on one material at a time, first create the following Scene Processor
+</p>
+<pre>public class WireProcessor implements SceneProcessor &#123;    
+&nbsp;
+    RenderManager renderManager;
+    Material wireMaterial;
+&nbsp;
+    public WireProcessor&#40;AssetManager assetManager&#41; &#123;
+        wireMaterial = new Material&#40;assetManager, &quot;/Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
+        wireMaterial.setColor&#40;&quot;Color&quot;, ColorRGBA.Blue&#41;;
+        wireMaterial.getAdditionalRenderState&#40;&#41;.setWireframe&#40;true&#41;;
+    &#125;
+&nbsp;
+    public void initialize&#40;RenderManager rm, ViewPort vp&#41; &#123;
+        renderManager = rm;
+    &#125;
+&nbsp;
+    public void reshape&#40;ViewPort vp, int w, int h&#41; &#123;
+        throw new UnsupportedOperationException&#40;&quot;Not supported yet.&quot;&#41;;
+    &#125;
+&nbsp;
+    public boolean isInitialized&#40;&#41; &#123;
+        return renderManager != null;
+    &#125;
+&nbsp;
+    public void preFrame&#40;float tpf&#41; &#123;        
+    &#125;
+&nbsp;
+    public void postQueue&#40;RenderQueue rq&#41; &#123;
+        renderManager.setForcedMaterial&#40;wireMaterial&#41;;
+    &#125;
+&nbsp;
+    public void postFrame&#40;FrameBuffer out&#41; &#123;
+        renderManager.setForcedMaterial&#40;null&#41;;
+    &#125;
+&nbsp;
+    public void cleanup&#40;&#41; &#123;
+        renderManager.setForcedMaterial&#40;null&#41;;
+    &#125;
+&nbsp;
+&#125;</pre>
+
+<p>
+Then attach the scene processor to the <acronym title="Graphical User Interface">GUI</acronym> Viewport.
+</p>
+<pre>getViewPort&#40;&#41;.addProcessor&#40;new WireProcessor&#40;&#41;&#41;;</pre>
+
+</div>
+<!-- EDIT10 SECTION "Example: Toggle Wireframe on the scene" [7397-8770] -->
+<h2><a>See also</a></h2>
+<div>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/spatial.html">Spatial</a> ??? if you can&#039;t see certain spatials, you can modify the culling behaviour to identify problems (such as inside-out custom meshes)</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT11 SECTION "See also" [8771-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:debugging?do=export_xhtmlbody">view online version</a></em></p>

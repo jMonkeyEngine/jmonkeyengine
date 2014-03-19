@@ -1,0 +1,183 @@
+
+<h1><a>Localizing jME 3 Games</a></h1>
+<div>
+
+</div>
+<!-- EDIT1 SECTION "Localizing jME 3 Games" [1-38] -->
+<h2><a>Scope</a></h2>
+<div>
+
+<p>
+
+Localizing an application can mean several things: 
+
+</p>
+<ul>
+<li><div> At minimum you translate all messages and dialogs in the user interface to your target languages.</div>
+</li>
+<li><div> You should also translate the &quot;read me&quot;, help, and other documentation.</div>
+</li>
+<li><div> Also translating web content related to the application makes sure international users find out about your localized game.</div>
+</li>
+<li><div> If you go the whole way of internationalization, you also &quot;translate&quot; metaphors in icons or symbols used. <br/>
+E.g. For localizations to right-to-left languages, you must also adjust the whole flow of the UI (order of menus and buttons).</div>
+</li>
+</ul>
+
+<p>
+
+There are tools that assist you with localizing Java Swing GUIs. jME3 applications do not typically have a Swing <acronym title="Graphical User Interface">GUI</acronym>, so those tools are not of much help. Just stick to the normal Java rules about using Bundle Properties:
+</p>
+
+</div>
+<!-- EDIT2 SECTION "Scope" [39-879] -->
+<h2><a>Preparing the Localization</a></h2>
+<div>
+
+<p>
+
+<strong>Tip:</strong> The jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> supports opening and editing Bundle.properties files. Also note the Tools &gt; Localization menu.
+</p>
+
+<p>
+To prepare the application for localization, you have to first identify all hard-coded messages.
+
+</p>
+<ol>
+<li><div> Find every line in your jME3 game where you hard-coded message strings, e.g. <br/>
+<pre>System.out.print&#40;&quot;Hello World!&quot;&#41;;
+UiText.setText&#40;&quot;Score: &quot;+score&#41;;</pre>
+</div>
+</li>
+<li><div> Create one file named <code>Bundle.properties</code> in each directory where there are Java file that contain messages.</div>
+</li>
+<li><div> For every hard-coded message, you add one line to the <code>Bundle.properties</code> file: First specify a unique key that identifies this string; then an equal sign; and the literal string itself. <br/>
+<pre>greeting=Hello World!
+score.display=Score: </pre>
+</div>
+</li>
+<li><div> In the source code, replace every occurence of a hard-coded message with the appropriate Resource Bundle call to its unique key: <pre>System.out.print&#40;ResourceBundle.getBundle&#40;&quot;Bundle&quot;&#41;.getString&#40;&quot;greeting&quot;&#41;&#41;;
+UiText.setText&#40;ResourceBundle.getBundle&#40;&quot;Bundle&quot;&#41;.getString&#40;&quot;score.display&quot;&#41;+score&#41;;</pre>
+</div>
+</li>
+</ol>
+
+<p>
+
+The language used in the Bundle.properties files will be the default language for your game.
+
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Preparing the Localization" [880-2088] -->
+<h2><a>Translating the Messages</a></h2>
+<div>
+
+<p>
+
+Each additional language comes in a set of files that is marked with a (usually) two-letter suffix. Common locales are de for German, en for English, fr for French, ja for Japanese, pt for Portuguese, etc.
+</p>
+
+<p>
+To translate the messages to another language, for example, German:
+
+</p>
+<ol>
+<li><div> Make a copy of the <code>Bundle.properties</code> files.</div>
+</li>
+<li><div> Name the copy <code>Bundle_de.properties</code> for German. Note the added suffix _de.</div>
+</li>
+<li><div> Translate all strings (text on the right side of the equal sign) in the <code>Bundle_de.properties</code> to German. <pre>greeting=Hallo Welt!
+score.display=Spielstand: </pre>
+
+<p>
+ <strong>Important:</strong> Do not modify any of the keys (text to the left of the equal sign)!
+</p>
+</div>
+</li>
+<li><div> To test the German localization, start the application from the command line with <code>-Duser.language=de</code>. Note the parameter <code>de</code>.</div>
+</li>
+</ol>
+
+<p>
+
+<strong>Tip:</strong> In the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>, you set this VM Option in the Project properties under Run. Here you can also save individual run configuraions for each language you want to test.
+</p>
+
+<p>
+To get the full list of language suffixes use 
+
+</p>
+<pre>System.out.println&#40;Arrays.toString&#40;Locale.getISOLanguages&#40;&#41;&#41;&#41;;</pre>
+
+</div>
+<!-- EDIT4 SECTION "Translating the Messages" [2089-3243] -->
+<h2><a>Which Strings Not to Translate</a></h2>
+<div>
+
+<p>
+
+<strong>Important:</strong> In the Bundle.properties file, do not include any strings that are asset paths, node or geometry names, input mappings, or material layers.
+</p>
+<ul>
+<li><div> Keep material layers: <pre>mat.setTexture&#40;&quot;ColorMap&quot;, tex&#41;;</pre>
+</div>
+</li>
+<li><div> Keep paths: <pre>teapot = assetManager.loadModel&#40;&quot;Models/Teapot/Teapot.obj&quot;&#41;;</pre>
+</div>
+</li>
+<li><div> Keep geometry and node names: <pre>Geometry thing=new Geometry&#40;&quot;A thing&quot;, mesh&#41;;
+Node vehicle = new Node&#40;&quot;Vehicle&quot;&#41;;</pre>
+</div>
+</li>
+<li><div> Keep mappings: <pre>inputManager.addMapping&#40;&quot;Shoot&quot;, trigger&#41;;
+inputManager.addListener&#40;actionListener, &quot;Shoot&quot;&#41;;</pre>
+</div>
+</li>
+</ul>
+
+<p>
+
+Only localize messages and UI text!
+</p>
+
+</div>
+<!-- EDIT5 SECTION "Which Strings Not to Translate" [3244-3918] -->
+<h2><a>Common Localization Problems</a></h2>
+<div>
+
+<p>
+
+Typical problems include:
+</p>
+<ul>
+<li><div> Localized strings will be of vastly different lengths and will totally break your UI layout. ??? Test every localization.</div>
+</li>
+<li><div> Strings with variable text or numbers don&#039;t work the same in different languages. ??? Either work in grammatical cases/numbers/gender for each language, or use <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.gnu.org/software/gettext/manual/gettext.html#Plural-forms"><param name="text" value="<html><u>gettext</u></html>"><param name="textColor" value="blue"></object> or <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://userguide.icu-project.org/formatparse/messages"><param name="text" value="<html><u>ICU4J</u></html>"><param name="textColor" value="blue"></object>.</div>
+</li>
+<li><div> The localizer only sees the strings, without any context. E.g. does &quot;Search History&quot; mean &quot;display the history of searches&quot;, or &quot;search through the history&quot;? ??? Use clear key labels. Work closely with the localizers if they require extra info, and add that info as comments to the translation file.</div>
+</li>
+<li><div> Broken international characters ??? Make sure the files are saved with the same character encoding as the font file(s) you&#039;re using. Nowadays, that usually means UTF-8 since font files tend to come for Unicode.</div>
+</li>
+<li><div> Missing international characters ??? Make sure that there&#039;s a glyph for every needed character in your font, either by using more complete font files or by having the translation changed.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT6 SECTION "Common Localization Problems" [3919-5131] -->
+<h2><a>More Documentation</a></h2>
+<div>
+
+<p>
+
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://java.sun.com/developer/technicalArticles/Intl/ResourceBundles/"><param name="text" value="<html><u>http://java.sun.com/developer/technicalArticles/Intl/ResourceBundles/</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Localisation"><param name="text" value="<html><u>http://sourceforge.net/apps/mediawiki/nifty-gui/index.php?title=Localisation</u></html>"><param name="textColor" value="blue"></object>
+
+</p>
+
+</div>
+<!-- EDIT7 SECTION "More Documentation" [5132-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:localization?do=export_xhtmlbody">view online version</a></em></p>

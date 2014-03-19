@@ -1,0 +1,150 @@
+
+<h1><a>Mouse Picking</a></h1>
+<div>
+
+<p>
+
+Mouse picking means that the user clicks an object in the scene to select it, or to interact with it otherwise. Games use picking to implement aiming and shooting, casting spells, picking up objects, selecting targets, dragging and moving objects, etc. Mouse picking can be done using fixed crosshairs, or using the mouse pointer.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/mouse-picking.png">
+</p>
+
+<p>
+See <a href="/com/jme3/gde/docs/jme3/advanced/input_handling.html">Input Handling</a> for details on how to define the necessary input triggers, input mappings, and input listeners.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Mouse Picking" [1-533] -->
+<h2><a>Pick a Target Using Fixed Crosshairs</a></h2>
+<div>
+
+<p>
+
+The following <code>pick target</code> input mapping implements an action that determines what a user clicked. It assumes that the mouse pointer is invisible and there are crosshairs painted in the center of the screen. It assumes that the user aims the crosshairs at an object in the scene and clicks. You use Ray Casting to identify the geometry that was picked by the user. Use this method together with a first-person flyCam. 
+
+</p>
+<ol>
+<li><div> Activate the first-person camera: <code>flyCam.setEnabled(true);</code></div>
+</li>
+<li><div> Keep mouse pointer invisible using <code>inputManager.setCursorVisible(false)</code>.</div>
+</li>
+<li><div> Map the <code>pick target</code> action to a MouseButtonTrigger. </div>
+</li>
+<li><div> Implement the action in the Listener.</div>
+</li>
+</ol>
+
+<p>
+The following example rotates Spatials named &quot;Red Box&quot; or &quot;Blue Box&quot; when they are clicked. Modify this code to do whatever your game needs to do with the identified target (shoot it, take it, move it, etc).
+</p>
+<pre>  private AnalogListener analogListener = new AnalogListener&#40;&#41; &#123;
+    public void onAnalog&#40;String name, float intensity, float tpf&#41; &#123;
+        if &#40;name.equals&#40;&quot;pick target&quot;&#41;&#41; &#123;
+         // Reset results list.
+         CollisionResults results = new CollisionResults&#40;&#41;;
+         // Aim the ray from camera location in camera direction
+         // (assuming crosshairs in center of screen).
+         Ray ray = new Ray&#40;cam.getLocation&#40;&#41;, cam.getDirection&#40;&#41;&#41;;
+         // Collect intersections between ray and all nodes in results list.
+         rootNode.collideWith&#40;ray, results&#41;;
+         // Print the results so we see what is going on
+         for &#40;int i = 0; i &lt; results.size&#40;&#41;; i++&#41; &#123;
+           // For each ???hit???, we know distance, impact point, geometry.
+           float dist = results.getCollision&#40;i&#41;.getDistance&#40;&#41;;
+           Vector3f pt = results.getCollision&#40;i&#41;.getContactPoint&#40;&#41;;
+           String target = results.getCollision&#40;i&#41;.getGeometry&#40;&#41;.getName&#40;&#41;;
+           System.out.println&#40;&quot;Selection #&quot; + i + &quot;: &quot; + target + &quot; at &quot; + pt + &quot;, &quot; + dist + &quot; WU away.&quot;&#41;;
+         &#125;
+         // 5. Use the results -- we rotate the selected geometry.
+         if &#40;results.size&#40;&#41; &gt; 0&#41; &#123;
+           // The closest result is the target that the player picked:
+           Geometry target = results.getClosestCollision&#40;&#41;.getGeometry&#40;&#41;;
+           // Here comes the action:
+           if&#40;target.getName&#40;&#41;.equals&#40;&quot;Red Box&quot;&#41;&#41;
+             target.rotate&#40;0, - intensity, 0&#41;;
+           else if&#40;target.getName&#40;&#41;.equals&#40;&quot;Blue Box&quot;&#41;&#41;
+             target.rotate&#40;0, intensity, 0&#41;;
+         &#125;
+        &#125; // else if ...
+    &#125;
+  &#125;;</pre>
+
+</div>
+<!-- EDIT2 SECTION "Pick a Target Using Fixed Crosshairs" [534-3105] -->
+<h2><a>Pick a Target Using the Mouse Pointer</a></h2>
+<div>
+
+<p>
+
+The following <code>pick target</code> input mapping implements an action that determines what a user clicked. It assumes that the mouse pointer is visible, and the user aims the cursor at an object in the scene. You use ray casting to determine the geometry that was picked by the user. 
+</p>
+
+<p>
+<strong>Note:</strong> Picking with a visible mouse pointer implies that your application can no longer use the default flyCam where the MouseAxisTrigger rotates the camera. You have to deactivate the flyCam mappings and provide custom mappings. Either different inputs rotate the camera, or the camera is fixed.
+
+</p>
+<ol>
+<li><div> Map the <code>pick target</code> action to a MouseButtonTrigger. </div>
+</li>
+<li><div> Make the mouse pointer visible using <code>inputManager.setCursorVisible(true)</code>.</div>
+</li>
+<li><div> Remap the inputs for camera rotation, or deactivate camera rotation. </div>
+</li>
+<li><div> Implement the action in the Listener.</div>
+</li>
+</ol>
+
+<p>
+
+The following example rotates Spatials named &quot;Red Box&quot; or &quot;Blue Box&quot; when they are clicked. Modify this code to do whatever your game needs to do with the identified target (shoot it, take it, move it, etc).
+</p>
+<pre>private AnalogListener analogListener = new AnalogListener&#40;&#41; &#123;
+    public void onAnalog&#40;String name, float intensity, float tpf&#41; &#123;
+      if &#40;name.equals&#40;&quot;pick target&quot;&#41;&#41; &#123;
+        // Reset results list.
+        CollisionResults results = new CollisionResults&#40;&#41;;
+        // Convert screen click to 3d position
+        Vector2f click2d = inputManager.getCursorPosition&#40;&#41;;
+        Vector3f click3d = cam.getWorldCoordinates&#40;new Vector2f&#40;click2d.x, click2d.y&#41;, 0f&#41;.clone&#40;&#41;;
+        Vector3f dir = cam.getWorldCoordinates&#40;new Vector2f&#40;click2d.x, click2d.y&#41;, 1f&#41;.subtractLocal&#40;click3d&#41;.normalizeLocal&#40;&#41;;
+        // Aim the ray from the clicked spot forwards.
+        Ray ray = new Ray&#40;click3d, dir&#41;;
+        // Collect intersections between ray and all nodes in results list.
+        rootNode.collideWith&#40;ray, results&#41;;
+        // (Print the results so we see what is going on:)
+        for &#40;int i = 0; i &lt; results.size&#40;&#41;; i++&#41; &#123;
+          // (For each ???hit???, we know distance, impact point, geometry.)
+          float dist = results.getCollision&#40;i&#41;.getDistance&#40;&#41;;
+          Vector3f pt = results.getCollision&#40;i&#41;.getContactPoint&#40;&#41;;
+          String target = results.getCollision&#40;i&#41;.getGeometry&#40;&#41;.getName&#40;&#41;;
+          System.out.println&#40;&quot;Selection #&quot; + i + &quot;: &quot; + target + &quot; at &quot; + pt + &quot;, &quot; + dist + &quot; WU away.&quot;&#41;;
+        &#125;
+        // Use the results -- we rotate the selected geometry.
+        if &#40;results.size&#40;&#41; &gt; 0&#41; &#123;
+          // The closest result is the target that the player picked:
+          Geometry target = results.getClosestCollision&#40;&#41;.getGeometry&#40;&#41;;
+          // Here comes the action:
+          if &#40;target.getName&#40;&#41;.equals&#40;&quot;Red Box&quot;&#41;&#41; &#123;
+            target.rotate&#40;0, -intensity, 0&#41;;
+          &#125; else if &#40;target.getName&#40;&#41;.equals&#40;&quot;Blue Box&quot;&#41;&#41; &#123;
+            target.rotate&#40;0, intensity, 0&#41;;
+          &#125;
+        &#125;
+      &#125; // else if ...
+    &#125;
+  &#125;;</pre>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:node?do=showtag&amp;tag=tag%3Anode">node</a>,
+	<a href="/wiki/doku.php/tag:ray?do=showtag&amp;tag=tag%3Aray">ray</a>,
+	<a href="/wiki/doku.php/tag:click?do=showtag&amp;tag=tag%3Aclick">click</a>,
+	<a href="/wiki/doku.php/tag:collision?do=showtag&amp;tag=tag%3Acollision">collision</a>,
+	<a href="/wiki/doku.php/tag:keyinput?do=showtag&amp;tag=tag%3Akeyinput">keyinput</a>,
+	<a href="/wiki/doku.php/tag:input?do=showtag&amp;tag=tag%3Ainput">input</a>
+</span></div>
+
+</div>
+<!-- EDIT3 SECTION "Pick a Target Using the Mouse Pointer" [3106-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:mouse_picking?do=export_xhtmlbody">view online version</a></em></p>

@@ -1,0 +1,92 @@
+
+<h1><a>Integrating Nifty GUI: Overlay</a></h1>
+<div>
+<ol>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui.html">Nifty GUI Concepts</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_best_practices.html">Nifty GUI Best Practices</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_xml_layout.html">Nifty GUI XML Layout</a> or <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_java_layout.html">Nifty GUI Java Layout</a></div>
+</li>
+<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym> Overlay</strong> or <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_projection.html">Nifty GUI Projection</a></div>
+</li>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div>
+</li>
+</ol>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/advanced/nifty-gui-example.png">
+</p>
+
+<p>
+Typically, you define a key (for example escape) that switches the <acronym title="Graphical User Interface">GUI</acronym> on and off. The <acronym title="Graphical User Interface">GUI</acronym> can be a StartScreen, OptionsScreen, CharacterCreationScreen, etc. While the <acronym title="Graphical User Interface">GUI</acronym> is up, you pause the running game, and then overlay the <acronym title="Graphical User Interface">GUI</acronym>. You also must switch to a different set of user inputs while the game is paused, so the player can use the mouse pointer and keyboard to interact with the <acronym title="Graphical User Interface">GUI</acronym>.
+</p>
+
+<p>
+You can also <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_projection.html">project</a> the <acronym title="Graphical User Interface">GUI</acronym> as a texture onto a mesh texture (but then you cannot click to select).
+On this page, we look at the overlay variant, which is more commonly used in games.
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Integrating Nifty GUI: Overlay" [1-1043] -->
+<h2><a>Sample Code</a></h2>
+<div>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/source/browse/trunk/engine/src/test/jme3test/niftygui/TestNiftyGui.java"><param name="text" value="<html><u>TestNiftyGui.java</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT2 SECTION "Sample Code" [1044-1206] -->
+<h2><a>Overlaying the User Interface Over the Screen</a></h2>
+<div>
+
+<p>
+
+This code shows you how to overlay anything on the screen with the <acronym title="Graphical User Interface">GUI</acronym>. This is the most common usecase.
+</p>
+<pre>NiftyJmeDisplay niftyDisplay = new NiftyJmeDisplay&#40;
+    assetManager, inputManager, audioRenderer, guiViewPort&#41;;
+/** Create a new NiftyGUI object */
+Nifty nifty = niftyDisplay.getNifty&#40;&#41;;
+/** Read your XML and initialize your custom ScreenController */
+nifty.fromXml&#40;&quot;Interface/tutorial/step2/screen.xml&quot;, &quot;start&quot;&#41;;
+// nifty.fromXml(&quot;Interface/helloworld.xml&quot;, &quot;start&quot;, new MySettingsScreen(data));
+// attach the Nifty display to the gui view port as a processor
+guiViewPort.addProcessor&#40;niftyDisplay&#41;;
+// disable the fly cam
+flyCam.setDragToRotate&#40;true&#41;;</pre>
+
+<p>
+Currently you do not have a ScreenController ??? we will create one in the next exercise. As soon  as you have a screen controller, you will use the commented variant of the <acronym title="Extensible Markup Language">XML</acronym> loading method:
+</p>
+<pre>nifty.fromXml&#40;&quot;Interface/helloworld.xml&quot;, &quot;start&quot;, new MySettingsScreen&#40;&#41;&#41;;</pre>
+
+<p>
+The <code>MySettingsScreen</code> class is a custom de.lessvoid.nifty.screen.ScreenController in which you will implement your <acronym title="Graphical User Interface">GUI</acronym> behaviour. 
+</p>
+
+</div>
+<!-- EDIT3 SECTION "Overlaying the User Interface Over the Screen" [1207-2372] -->
+<h2><a>Next Steps</a></h2>
+<div>
+
+<p>
+
+Now that you have layed out and integrated the <acronym title="Graphical User Interface">GUI</acronym> in your app, you want to respond to user input and display the current game. Time to create a ScreenController!
+</p>
+<ul>
+<li><div> <a href="/com/jme3/gde/docs/jme3/advanced/nifty_gui_java_interaction.html">Interact with the GUI from Java</a></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:gui?do=showtag&amp;tag=tag%3Agui">gui</a>,
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:nifty?do=showtag&amp;tag=tag%3Anifty">nifty</a>,
+	<a href="/wiki/doku.php/tag:hud?do=showtag&amp;tag=tag%3Ahud">hud</a>
+</span></div>
+
+</div>
+<!-- EDIT4 SECTION "Next Steps" [2373-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:nifty_gui_overlay?do=export_xhtmlbody">view online version</a></em></p>

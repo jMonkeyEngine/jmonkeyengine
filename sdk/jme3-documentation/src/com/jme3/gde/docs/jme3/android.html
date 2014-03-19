@@ -1,0 +1,315 @@
+
+<h1><a>Android Support in the jMonkeyEngine</a></h1>
+<div>
+
+<p>
+
+This is a draft of a feature that is work in progress. If you have questions or suggestions, please leave a comment on the <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/android/forum/topic/android-deployment-via-checkbox-is-here"><param name="text" value="<html><u>Android forum thread</u></html>"><param name="textColor" value="blue"></object>!
+</p>
+
+</div>
+<!-- EDIT1 SECTION "Android Support in the jMonkeyEngine" [1-294] -->
+<h2><a>Requirements</a></h2>
+<div>
+
+</div>
+<!-- EDIT2 SECTION "Requirements" [295-317] -->
+<h3><a>Developer Requirements</a></h3>
+<div>
+<ul>
+<li><div> Install <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://developer.android.com/sdk/index.html"><param name="text" value="<html><u>Android SDK 2.2</u></html>"><param name="textColor" value="blue"></object> or better.</div>
+</li>
+<li><div> Install jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym></div>
+</li>
+<li><div> (Optional) Install NBAndroid in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>:</div>
+<ol>
+<li><div> Go to Tools???Plugins???Available Plugins.</div>
+</li>
+<li><div> Install the &quot;Android&quot; plugin.</div>
+</li>
+</ol>
+</li>
+</ul>
+
+</div>
+<!-- EDIT3 SECTION "Developer Requirements" [318-609] -->
+<h3><a>User Requirements</a></h3>
+<div>
+<ul>
+<li><div> Android 2.2 device or better with development mode enabled</div>
+</li>
+<li><div> Graphic card that supports OpenGL ES 2.0 or better</div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/android/forum/topic/does-my-phone-meet-the-requirements-necessary-to-run-jmonkeyengine-3/"><param name="text" value="<html><u>Does my phone meet the requirements necessary to run jMonkeyEngine 3?</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT4 SECTION "User Requirements" [610-955] -->
+<h2><a>Features</a></h2>
+<div>
+
+</div>
+<!-- EDIT5 SECTION "Features" [956-975] -->
+<h3><a>JMonkeyEngine3 Android Integration</a></h3>
+<div>
+<ul>
+<li><div> Android touch events are translated into mouse events.</div>
+</li>
+<li><div> No more unhandled exceptions (i.e. no more black screens)</div>
+</li>
+<li><div> Lifecycle management</div>
+<ul>
+<li><div> Leaving the activity with the Back key destroys the app (quit).</div>
+</li>
+<li><div> Leaving the activity with the Home key freezes the app in the background. When you return, the app is in the same state as when you left it (pause).</div>
+</li>
+</ul>
+</li>
+<li><div> Currently supports all jmetests except:</div>
+<ul>
+<li><div> Framebuffers - WIP</div>
+</li>
+<li><div> Shadows - WIP</div>
+</li>
+<li><div> Water - not tested yet</div>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!-- EDIT6 SECTION "JMonkeyEngine3 Android Integration" [976-1509] -->
+<h3><a>jMonkeyEngine SDK Android Integration</a></h3>
+<div>
+
+<p>
+
+Mobile deployment is a &quot;one-click&quot; option next to Desktop/WebStart/Applet deployment in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.
+</p>
+<ul>
+<li><div> Automatic creation of Android harness and settings.</div>
+</li>
+<li><div> Ant script build target creates APK file.</div>
+</li>
+<li><div> Ant script run target executes APK on Android Emulator or mobile device.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT7 SECTION "jMonkeyEngine SDK Android Integration" [1510-1853] -->
+<h2><a>Beta Instructions</a></h2>
+<div>
+<ol>
+<li><div> Make sure you have installed the Android Project Support into the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.</div>
+</li>
+<li><div> Open the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> Options&gt;Mobile and enter the path to your Android <acronym title="Software Development Kit">SDK</acronym> directory, and click OK. E.g. <code>/opt/android-sdk</code></div>
+</li>
+</ol>
+
+</div>
+
+<h4><a>Activate Android Deployment</a></h4>
+<div>
+<ol>
+<li><div> Open an existing JME3 project, or create a new JME3 project.</div>
+</li>
+<li><div> Right-click the project node in the Projects Window and open the Properties.</div>
+</li>
+<li><div> In the Application&gt;Mobile Properties, enable Mobile Deployment, and select an Android target. <br/>
+This creates a &quot;mobile&quot; folder in your projects directory. This folder contains a complete android project with correct settings to run the application using the AndroidHarness.</div>
+</li>
+<li><div> (Restart the jMonkeyEngine)</div>
+</li>
+<li><div> A Mobile Files node appears in the Project window. <br/>
+It lets you edit the MainActivitity.java, the AndroidManifest.xml, and build.properties.</div>
+</li>
+</ol>
+
+<p>
+
+<img src="nbdocs:/com/jme3/gde/docs/jme3/nvyyd.png">
+</p>
+
+<p>
+The Android deployment option creates a separate sub-project for android and makes the main project and associated libraries available to the sub-project as libraries. The sub-project can be edited using NBAndroid (see below) or using Eclipse or any other IDE that supports standard android projects. Normally you do not need to edit the android project files. Exceptions are described further below. <em>The libraries are first added to the android sub-project when the main project is built for the first time.</em>
+</p>
+
+</div>
+
+<h4><a>Build and Run</a></h4>
+<div>
+
+<p>
+
+Open your game project in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym>.
+</p>
+
+<p>
+<strong>Building</strong>
+</p>
+<ol>
+<li><div> Right-click the project node to build your project. <br/>
+An APK file is created in the &quot;dist&quot; folder.</div>
+</li>
+</ol>
+
+<p>
+
+<strong>Running</strong>
+</p>
+<ol>
+<li><div> Right-click the project node and choose Set Main Project.</div>
+</li>
+<li><div> Select the &quot;Android Device&quot; build configuration next to the Run toolbar button.</div>
+</li>
+<li><div> <em>Make sure &quot;Compile on Save&quot; is disabled in your project preferences.</em></div>
+</li>
+<li><div> Run the application on a connected phone by right-clicking it and selecting &quot;Run&quot; or press the &quot;Play&quot; button in the toolbar.</div>
+</li>
+<li><div> The application will run and output its log to the &quot;Output&quot; window of the <acronym title="Software Development Kit">SDK</acronym>.</div>
+</li>
+<li><div> When finished testing, click the &quot;x&quot; next to the run status in the lower right to quit the logging output.</div>
+</li>
+</ol>
+
+<p>
+
+The default android run target uses the default device set in the Android configuration utility. If you set that to a phone you can run the application directly on your phone, the emulator does not support OpenGLES 2.0 and cannot run the engine.
+</p>
+
+<p>
+<p><div>When running your application on some Android devices, having a debugging session open via certain IDEs <strong>will significantly lower performance</strong> (some reports suggest a drop from 60 FPS to 4-8 FPS) until the debug session is detached or the application is started directly from the device.
+</div></p>
+</p>
+
+<p>
+Optionally, download <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://code.google.com/p/jmonkeyengine/downloads/detail?name=Jme3Beta1Demo.apk&amp;can=1&amp;q="><param name="text" value="<html><u>Jme3Beta1Demo.apk</u></html>"><param name="textColor" value="blue"></object>
+</p>
+
+<p>
+During build, the libraries and main jar file from the main project are copied to the android project libs folder for access. During this operation the desktop-specific libraries are replaced with android specific JARs.
+</p>
+
+<p>
+<strong>Be aware that logging has been identified as having a significant performance hit in Android applications. If getting poor performance please try turning logging either down or off and retesting.</strong>
+</p>
+
+</div>
+
+<h4><a>Installing NBAndroid</a></h4>
+<div>
+
+<p>
+Activating the nbandroid plugin in the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> is optional, but recommended. You do not need the nbandroid plugin for Android support to work, however nbandroid will not interfere and will in fact allow you to edit the android source files and project more conveniently. To be able to edit, extend and code android-specific code in Android projects, install NBAndroid from the update center:
+</p>
+<ol>
+<li><div> Open Tools???Plugins???Settings</div>
+</li>
+<li><div> Go to Tools???Plugins???Available Plugins.</div>
+</li>
+<li><div> Install the NbAndroid plugin. (Will show up as Android)</div>
+</li>
+</ol>
+
+<p>
+
+*If the android plugin is not in that list follow <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://www.nbandroid.org/p/installation.html"><param name="text" value="<html><u>these instructions</u></html>"><param name="textColor" value="blue"></object>.*
+</p>
+
+</div>
+
+<h4><a>Notes</a></h4>
+<div>
+<ul>
+<li><div> The package name parameter is only used when creating the project and only sets the android MainActivity package name</div>
+</li>
+<li><div> The needed android.jar comes with the plugin and is automatically added to the android build</div>
+</li>
+<li><div> All non-android project libraries are automatically excluded from the android build. This is currently hard-coded in the build script, check nbproject/mobile-impl.xml for the details.</div>
+</li>
+<li><div> The main application class parameter for the AndroidHarness is taken from the jme3 project settings when enabling android deployment. Currently it is not updated when you change the main class package or name.</div>
+</li>
+<li><div> When you disable the mobile deployment option, the whole ???mobile??? folder is deleted.</div>
+</li>
+<li><div> The &quot;errors&quot; shown in the MainActivity are wrongly displayed only in the editor and will disappear when you install NBAndroid (see below).</div>
+</li>
+<li><div> To sign your application, edit the mobile/build.properties file to point at valid keystore files.</div>
+</li>
+</ul>
+
+</div>
+<!-- EDIT8 SECTION "Beta Instructions" [1854-6815] -->
+<h2><a>Android Considerations</a></h2>
+<div>
+
+<p>
+
+You can use the jMonkeyEngine <acronym title="Software Development Kit">SDK</acronym> to save (theoretically) any jMonkeyEngine app as Android app. But the application has to be prepared for the fact that Android devices have a smaller screen resolution, touchscreens instead of mouse buttons, and (typically) no keyboards.
+
+</p>
+<ul>
+<li><div> <strong>Inputs:</strong> Devise an alternate control scheme that works for Android users (e.g. using com.jme3.input.controls.TouchListener). This mobile scheme is likely quite different from the desktop scheme.</div>
+</li>
+<li><div> <strong>Effects:</strong> Android devices do no support 3D features as well as PCs ??? or even not at all. This restriction includes post-processor filters (depth-of-field blur, bloom, light scattering, cartoon, etc), drop shadows, water effects, 3D Audio. Be prepared that these effects will (at best) slow down the application or (in the worst case) not work at all. Provide the option to switch to a low-fi equivalent! </div>
+</li>
+<li><div> <strong>Nifty <acronym title="Graphical User Interface">GUI</acronym>:</strong> Use different base UI layout <acronym title="Extensible Markup Language">XML</acronym> files for the mobile version of your app to account for a different screen resolution.</div>
+</li>
+</ul>
+
+<p>
+
+<strong>Best Practice:</strong> Ideally, you write the core application code in a way that it checks for the environment it&#039;s being run on, and automatically adapts the device&#039;s limitations by switching off effects, changing input mechanisms etc. Learn how to <a href="/com/jme3/gde/docs/jme3/advanced/read_graphic_card_capabilites.html">read graphic card capabilites</a> here.
+</p>
+
+</div>
+<!-- EDIT9 SECTION "Android Considerations" [6816-8182] -->
+<h2><a>Using Android specific functions</a></h2>
+<div>
+
+<p>
+As described above, you should always try to design your application as platform independent as possible. If your game becomes a sudden hit on android, why not release it on Facebook as an applet as well? When your application is designed in a platform independent way, you don&#039;t have to do much more but check a checkbox to deploy your application as an applet. But what if you want to for example access the camera of an android device? Inevitably you will have to use android specific api to access the camera.
+</p>
+
+<p>
+Since the main project is not configured to access the android api directly, you have to install NBAndroid (see above) to be able to edit the created android project in the <acronym title="Software Development Kit">SDK</acronym>. After installing, click the &quot;open project&quot; button and navigate to the &quot;mobile&quot; folder inside the main project folder (it should show up with an android &quot;a&quot; icon) and open it.
+</p>
+
+<p>
+<img src="nbdocs:/com/jme3/gde/docs/jme3/android_access.png">
+Although you will use android specific api, using a camera is not exactly android specific and so you should try to design this part of the application as platform independent as possible as well. As an example, if you want to use the phones camera as an image input stream for a texture, you can create e.g. the AppState that manages the image and makes it available to the application inside the main project (no android code is needed). Then in the android part of the code you make a connection to the camera and update the image in the AppState. This also allows you to easily support cameras on other platforms in the same way or fallback to something else in case the platform doesn&#039;t support a camera.
+</p>
+
+<p>
+Note that you have to build the whole project once to make (new) classes in the main project available to the android part. 
+</p>
+
+</div>
+<!-- EDIT10 SECTION "Using Android specific functions" [8183-9963] -->
+<h2><a>More Info</a></h2>
+<div>
+
+<p>
+There be no proper guidanceof runing on androidf
+The <acronym title="Software Development Kit">SDK</acronym> will later provide tools to adapt the material and other graphics settings of the Android deployment version automatically.
+
+</p>
+<ul>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="https://www.youtube.com/watch?feature=player_embedded&amp;v=np3N4pCCTPo"><param name="text" value="<html><u>Youtube Video on Android deployment</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/android/forum/topic/android-deployment-via-checkbox-is-here"><param name="text" value="<html><u>Android Forum Thread (beta)</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/groups/android/forum/topic/how-to-run-your-jme3-application-on-android-androidharness"><param name="text" value="<html><u>Android Forum Thread (alpha)</u></html>"><param name="textColor" value="blue"></object></div>
+</li>
+</ul>
+<div><span>
+	<a href="/wiki/doku.php/tag:documentation?do=showtag&amp;tag=tag%3Adocumentation">documentation</a>,
+	<a href="/wiki/doku.php/tag:sdk?do=showtag&amp;tag=tag%3Asdk">sdk</a>,
+	<a href="/wiki/doku.php/tag:android?do=showtag&amp;tag=tag%3Aandroid">android</a>,
+	<a href="/wiki/doku.php/tag:deployment?do=showtag&amp;tag=tag%3Adeployment">deployment</a>,
+	<a href="/wiki/doku.php/tag:tool?do=showtag&amp;tag=tag%3Atool">tool</a>
+</span></div>
+
+</div>
+<!-- EDIT11 SECTION "More Info" [9964-] -->
+<p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:android?do=export_xhtmlbody">view online version</a></em></p>

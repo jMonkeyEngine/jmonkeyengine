@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty xmlns="http://nifty-gui.sourceforge.net/nifty-1.3.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://nifty-gui.sourceforge.net/nifty-1.3.xsd http://nifty-gui.sourceforge.net/nifty-1.3.xsd">
+  <useStyles filename="nifty-default-styles.xml" />
+  <useControls filename="nifty-default-controls.xml" />
+
+  <screen id="start">
+    <layer childLayout="center">
+      <panel childLayout="horizontal" align="center" valign="center" width="50%" height="50%" backgroundColor="#55a5" padding="10">
+        <control id="scrollbarPanelId" name="scrollPanel" horizontal="true" height="100%" width="100%">
+          <!-- first child is the content, the area to scroll around -->
+          <panel id="myScrollStuff" width="1000px" height="1000px" childLayout="vertical">
+            <effect>
+              <onActive name="gradient" direction="vertical">
+                <value offset="0%" color="#ffff" />
+                <value offset="100%" color="#f00f" />
+              </onActive>
+              <onActive name="gradient" direction="horizontal">
+                <value offset="0%" color="#ffff" />
+                <value offset="100%" color="#0f0f" />
+              </onActive>
+            </effect>
+          </panel>
+        </control>
+      </panel>
+    </layer>
+  </screen>
+</nifty>

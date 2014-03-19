@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="JME3">
+                <attr name="position" intvalue="10"/>
+                <file name="BasicGameProject.zip" url="BasicGameProject.zip">
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/jme3/gde/templates/jme-logo.png"/>
+                    <attr name="displayName" bundlevalue="com.jme3.gde.templates.Bundle#Templates/Project/JME3/BasicGameProject.zip"/>
+                    <attr name="instantiatingIterator" methodvalue="com.jme3.gde.templates.basic.BasicGameWizardIterator.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/basic/BasicGameDescription.html"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
+                <file name="JME3TestsAndroidProject.zip" url="JME3TestsAndroidProject.zip">
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/jme3/gde/templates/phone16.png"/>
+                    <attr name="displayName" bundlevalue="com.jme3.gde.templates.Bundle#Templates/Project/JME3/JME3TestsAndroidProject.zip"/>
+                    <attr name="instantiatingIterator" methodvalue="com.jme3.gde.templates.testsandroid.JME3TestsAndroidWizardIterator.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/testsandroid/JME3TestsAndroidDescription.html"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="JME3 Classes">
+            <attr name="position" intvalue="200"/>
+            <file name="Control.java" url="files/Control.template">
+                <attr name="displayName" stringvalue="New Control"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.spi.java.project.support.ui.templates.JavaTemplates.createJavaTemplateIterator"/>
+                <attr name="position" intvalue="100"/>
+                <attr name="templateCategory" stringvalue="java-classes, java-classes-basic"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/files/Control.html"/>
+                <!--attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.java.project.Bundle"/-->
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/java/resources/class.gif"/>
+            </file>
+            <file name="AppState.java" url="files/AppState.template">
+                <attr name="displayName" stringvalue="New AppState"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.spi.java.project.support.ui.templates.JavaTemplates.createJavaTemplateIterator"/>
+                <attr name="position" intvalue="200"/>
+                <attr name="templateCategory" stringvalue="java-classes, java-classes-basic"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/files/AppState.html"/>
+                <!--attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.java.project.Bundle"/-->
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/java/resources/class.gif"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
