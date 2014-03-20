@@ -41,6 +41,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -210,13 +211,13 @@ public class CursorLoader implements AssetLoader {
             }
         } else if (isIco) {
             DataInputStream in = new DataInputStream(inStream);
-            int bytesToRead;
-            while ((bytesToRead = in.available()) != 0) {
-                byte[] icoimage2 = new byte[icoimages.length + bytesToRead];
-                System.arraycopy(icoimages, 0, icoimage2, 0, icoimages.length);
-                in.read(icoimage2, icoimages.length, bytesToRead);
-                icoimages = icoimage2;
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[16384];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) >= 0) {
+                out.write(buffer, 0, bytesRead);
             }
+            icoimages = out.toByteArray();
         }
 
         BufferedImage bi[] = parseICOImage(icoimages);
