@@ -1,0 +1,57 @@
+rootProject.name = 'jmonkeyengine'
+
+/**
+ * You can enable or disable different subprojects of the build here.
+ * 
+ * The SDK will only be built if the appropriate library folders exist,
+ * call the "prepareSdk" target to prepare building the SDK.
+ **/
+
+// Core classes, should work on all java platforms
+include 'jme3-core'
+include 'jme3-effects'
+include 'jme3-networking'
+include 'jme3-plugins'
+include 'jme3-terrain'
+
+// Desktop dependent java classes
+include 'jme3-desktop'
+include 'jme3-blender'
+include 'jme3-jogl'
+include 'jme3-lwjgl'
+
+// Other external dependencies
+include 'jme3-jbullet'
+include 'jme3-niftygui'
+include 'jme3-jogg'
+include 'jme3-android'
+
+//native builds
+include 'jme3-bullet' //java
+include 'jme3-bullet-native' //cpp
+include 'jme3-android-native' //cpp
+
+// Test Data project
+include 'jme3-testdata'
+
+// Example projects
+include 'jme3-examples'
+
+//include 'sdk'
+
+// Find the directories containing a 'build.gradle' file in the root directory
+// of the project. That is, every directory containing a 'build.gradle' will
+// be automatically the subproject of this project.
+/*def subDirs = rootDir.listFiles(new FileFilter() {
+    public boolean accept(File file) {
+        if (!file.isDirectory()) {
+            return false
+        }
+
+        return new File(file, 'build.gradle').isFile()
+    }
+});
+
+subDirs.each { File dir ->
+    include dir.name
+}*/
