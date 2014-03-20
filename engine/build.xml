@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc" name="jMonkeyEngine3" default="default" basedir=".">
+    <description>Builds, tests, and runs the jMonkeyEngine3 core engine.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <target depends="jar,javadoc" description="Build and test whole project." name="default"/>
+
+    <target name="build-bullet-natives" description="uses native build tools to build the bulletjme binary (read bullet-native-build.txt for more info)" depends="jar">
+        <ant antfile="nbproject/build-bullet-natives.xml" target="build-bullet-natives"/>
+    </target>
+
+    <target name="run-bullet-native" description="runs the jMonkeyEngine3 demos using native bullet" depends="init">
+        <copy file="${dist.dir}/opt/native-bullet/jME3-bullet-natives.jar" todir="${dist.dir}/lib" failonerror="false"/>
+        <copy file="${dist.dir}/opt/native-bullet/jME3-bullet.jar" todir="${dist.dir}/lib" failonerror="false"/>
+        <delete file="${dist.dir}/lib/jME3-jbullet.jar" failonerror="false"/>
+        <exec executable="java" dir="dist">
+            <arg line="${run.jvmargs} -jar jMonkeyEngine3.jar"/>
+        </exec>
+    </target>
+
+    <target name="build-openal-soft-natives" description="uses native build tools to build the openalsoftjme shared library for Android" depends="jar">
+        <ant antfile="nbproject/build-openal-soft-natives.xml" target="build-openal-soft-natives"/>
+    </target>
+
+    <target name="-do-compile" description="Overrides default compile target to separate the build into folders" depends="init,deps-jar,-pre-pre-compile,-pre-compile, -copy-persistence-xml,-compile-depend" if="have.sources">
+        <mkdir dir="${build.dir}/core"/>
+        <mkdir dir="${build.dir}/effects"/>
+        <mkdir dir="${build.dir}/networking"/>
+        <mkdir dir="${build.dir}/plugins"/>
+        <mkdir dir="${build.dir}/jogg"/>
+        <mkdir dir="${build.dir}/blender"/>
+        <mkdir dir="${build.dir}/desktop"/>
+        <mkdir dir="${build.dir}/terrain"/>
+        <mkdir dir="${build.dir}/jbullet"/>
+        <mkdir dir="${build.dir}/bullet"/>
+        <mkdir dir="${build.dir}/niftygui"/>
+        <mkdir dir="${build.dir}/jogl"/>
+        <mkdir dir="${build.dir}/lwjgl"/>
+        <mkdir dir="${build.dir}/android"/>
+        <mkdir dir="${build.dir}/ios"/>
+
+        <echo>Compile Core</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/core"
+            srcdir="${src.core.dir}:${src.core-data.dir}:${src.core-plugins.dir}:${src.tools.dir}"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/core">
+            <fileset dir="${src.core.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.core-data.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.core-plugins.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.tools.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Effects</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/effects"
+            srcdir="${src.core-effects.dir}"
+            classpath="${javac.classpath}:${build.dir}/core"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/effects">
+            <fileset dir="${src.core-effects.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Networking</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/networking"
+            srcdir="${src.networking.dir}"
+            classpath="${javac.classpath}:${build.dir}/core"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/networking">
+            <fileset dir="${src.networking.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Plugins</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/plugins"
+            srcdir="${src.ogre.dir}:${src.xml.dir}"
+            classpath="${javac.classpath}:${build.dir}/core"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/plugins">
+            <fileset dir="${src.ogre.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.xml.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Jogg</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/jogg"
+            srcdir="${src.jogg.dir}"
+            classpath="${javac.classpath}:${build.dir}/core"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/jogg">
+            <fileset dir="${src.jogg.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Desktop</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/desktop"
+            srcdir="${src.desktop.dir}"
+            classpath="${javac.classpath}:${build.dir}/core"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/desktop">
+            <fileset dir="${src.desktop.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Blender Loader</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/blender"
+            srcdir="${src.blender.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/plugins:${build.dir}/desktop:${build.dir}/effects"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/blender">
+            <fileset dir="${src.blender.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Terrain</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/terrain"
+            srcdir="${src.terrain.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/desktop"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/terrain">
+            <fileset dir="${src.terrain.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile jBullet</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/jbullet"
+            srcdir="${src.jbullet.dir}:${src.bullet-common.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/terrain"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/jbullet">
+            <fileset dir="${src.jbullet.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.bullet-common.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Bullet</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/bullet"
+            srcdir="${src.bullet.dir}:${src.bullet-common.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/terrain"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/bullet">
+            <fileset dir="${src.bullet.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+            <fileset dir="${src.bullet-common.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Nifty</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/niftygui"
+            srcdir="${src.niftygui.dir}"
+            classpath="${javac.classpath}:${build.dir}/core"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/niftygui">
+            <fileset dir="${src.niftygui.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Lwjgl</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/lwjgl"
+            srcdir="${src.lwjgl.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/desktop"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/lwjgl">
+            <fileset dir="${src.lwjgl.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile JOGL</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/jogl"
+            srcdir="${src.jogl.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/desktop"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/jogl">
+            <fileset dir="${src.jogl.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Android</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/android"
+            srcdir="${src.android.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/plugins"
+            gensrcdir="${build.generated.sources.dir}"
+            excludes="${excludes},**/jme3test/**"
+            />
+        <copy todir="${build.dir}/android">
+            <fileset dir="${src.android.dir}" excludes="${build.classes.excludes},${excludes},**/jme3test/**,**/res/**" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile iOS</echo>
+        <j2seproject3:javac
+            destdir="${build.dir}/ios"
+            srcdir="${src.ios.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/plugins"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.dir}/ios">
+            <fileset dir="${src.ios.dir}" excludes="${build.classes.excludes},${excludes},**/jme3test/**,**/res/**" includes="${includes}"/>
+        </copy>
+
+        <echo>Compile Tests</echo>
+        <j2seproject3:javac
+            destdir="${build.classes.dir}"
+            srcdir="${src.test.dir}"
+            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/effects:${build.dir}/networking:${build.dir}/plugins:${build.dir}/jogg:${build.dir}/desktop:${build.dir}/blender:${build.dir}/terrain:${build.dir}/jbullet:${build.dir}/niftygui"
+            gensrcdir="${build.generated.sources.dir}"/>
+        <copy todir="${build.classes.dir}">
+            <fileset dir="${src.test.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
+        </copy>
+    </target>
+
+    <target name="-pre-jar" description="Prepares the separate jME3-xxx.jar files and modifies properties for libraries to be used for lib/ folder, Manifest etc.">
+        <echo>Building Engine JAR files..</echo>
+        <jar jarfile="${build.dir}/jME3-core.jar" basedir="${build.dir}/core" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-effects.jar" basedir="${build.dir}/effects" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-networking.jar" basedir="${build.dir}/networking" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-plugins.jar" basedir="${build.dir}/plugins" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-jogg.jar" basedir="${build.dir}/jogg" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-desktop.jar" basedir="${build.dir}/desktop" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-blender.jar" basedir="${build.dir}/blender" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-terrain.jar" basedir="${build.dir}/terrain" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-jbullet.jar" basedir="${build.dir}/jbullet" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-bullet.jar" basedir="${build.dir}/bullet" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-niftygui.jar" basedir="${build.dir}/niftygui" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-lwjgl.jar" basedir="${build.dir}/lwjgl" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-jogl.jar" basedir="${build.dir}/jogl" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-android.jar" basedir="${build.dir}/android" compress="true"/>
+        <jar jarfile="${build.dir}/jME3-ios.jar" basedir="${build.dir}/ios" compress="true"/>
+
+        <echo>Building TestData JAR file..</echo>
+        <jar jarfile="${build.dir}/jME3-testdata.jar" basedir="test-data" compress="true"/>
+
+        <property location="${build.classes.dir}" name="build.classes.dir.resolved"/>
+        <property location="${build.dir}" name="build.dir.resolved"/>
+
+        <property location="test-data" name="testdata.dir.resolved"/>
+        <property location="lib/android/android.jar" name="android.jar.resolved"/>
+        <property location="lib/openal-soft/jME3-openal-soft-natives-android.jar" name="openal-soft.jar.resolved"/>
+
+        <pathconvert property="run.classpath.without.build.classes.dir">
+            <path path="${run.classpath}"/>
+
+            <map from="${build.classes.dir.resolved}" to=""/>
+            <map from="${build.dir.resolved}/core" to="${build.dir}/jME3-core.jar"/>
+            <map from="${build.dir.resolved}/effects" to="${build.dir}/jME3-effects.jar"/>
+            <map from="${build.dir.resolved}/networking" to="${build.dir}/jME3-networking.jar"/>
+            <map from="${build.dir.resolved}/plugins" to="${build.dir}/jME3-plugins.jar"/>
+            <map from="${build.dir.resolved}/jogg" to="${build.dir}/jME3-jogg.jar"/>
+            <map from="${build.dir.resolved}/desktop" to="${build.dir}/jME3-desktop.jar"/>
+            <map from="${build.dir.resolved}/blender" to="${build.dir}/jME3-blender.jar"/>
+            <map from="${build.dir.resolved}/terrain" to="${build.dir}/jME3-terrain.jar"/>
+            <map from="${build.dir.resolved}/jbullet" to="${build.dir}/jME3-jbullet.jar"/>
+            <map from="${build.dir.resolved}/bullet" to="${build.dir}/jME3-bullet.jar"/>
+            <map from="${build.dir.resolved}/niftygui" to="${build.dir}/jME3-niftygui.jar"/>
+            <map from="${build.dir.resolved}/lwjgl" to="${build.dir}/jME3-lwjgl.jar"/>
+            <map from="${build.dir.resolved}/jogl" to="${build.dir}/jME3-jogl.jar"/>
+            <map from="${build.dir.resolved}/android" to=""/>
+            <map from="${build.dir.resolved}/openal-soft" to=""/>
+            <map from="${build.dir.resolved}/ios" to=""/>
+            <map from="${testdata.dir.resolved}" to="${build.dir.resolved}/jME3-testdata.jar"/>
+            <map from="${android.jar.resolved}" to=""/>
+
+        </pathconvert>
+    </target>
+
+    <target name="-post-jar">
+        <echo>Moving optional packages</echo>
+        <mkdir dir="${dist.dir}/opt"/>
+        <mkdir dir="${dist.dir}/opt/native-bullet"/>
+        <mkdir dir="${dist.dir}/opt/jogl"/>
+        <!--ant antfile="nbproject/build-bullet-natives.xml" target="bullet-api-diff"/-->
+        <!--move file="bullet-api-diff.html" todir="${dist.dir}/opt/native-bullet" overwrite="true"/-->
+        <move file="${dist.dir}/lib/jME3-bullet.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
+        <move file="${dist.dir}/lib/jME3-bullet-natives.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
+        <copy file="lib/bullet/jME3-bullet-natives-android.jar" todir="${dist.dir}/opt/native-bullet" overwrite="true"/>
+
+        <move file="${dist.dir}/lib/jME3-jogl.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-linux-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-linux-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-linux-armv6.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-linux-armv6hf.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-solaris-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-solaris-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-macosx-universal.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-windows-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/joal-natives-windows-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-linux-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-linux-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-linux-armv6.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-linux-armv6hf.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-solaris-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-solaris-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-macosx-universal.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-windows-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/gluegen-rt-natives-windows-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-linux-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-linux-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-linux-armv6.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-linux-armv6hf.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-solaris-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-solaris-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-macosx-universal.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-windows-i586.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+        <copy file="${dist.dir}/../lib/jogl/jogl-all-natives-windows-amd64.jar" todir="${dist.dir}/opt/jogl" overwrite="true"/>
+
+        <mkdir dir="${dist.dir}/opt/android"/>
+        <copy file="${build.dir}/jME3-android.jar" todir="${dist.dir}/opt/android" overwrite="true"/>
+        <mkdir dir="${dist.dir}/opt/native-openal-soft"/>
+        <copy file="lib/openal-soft/jME3-openal-soft-natives-android.jar" todir="${dist.dir}/opt/native-openal-soft" overwrite="true"/>
+        <mkdir dir="${dist.dir}/opt/ios"/>
+        <copy file="${build.dir}/jME3-ios.jar" todir="${dist.dir}/opt/ios" overwrite="true"/>
+    </target>
+
+    <!--
+       ****************************************************************
+       Only Relevant for building the SDK from here on
+       ****************************************************************
+      -->
+
+    <target name="update-sdk" depends="jar, javadoc" description="convenience target to transfer jme3 libraries to sdk (jMonkeyPlatform)">
+        <antcall target="-do-update-sdk" inheritall="true">
+            <param name="jmp_dir" value="../sdk/"/>
+        </antcall>
+    </target>
+
+    <target name="-do-update-sdk">
+        <fileset id="jme3-jars" dir="build">
+            <include name="**/jME3**.jar"/>
+            <exclude name="**/jME3-testdata.jar"/>
+            <exclude name="**/jME3-bullet-natives.jar"/>
+            <exclude name="**/jME3-bullet-natives-android.jar"/>
+            <exclude name="**/jME3-openal-soft-natives-android.jar"/>
+        </fileset>
+        <fileset id="jme3-sdk-jars" dir="build">
+            <include name="**/jME3**.jar"/>
+            <exclude name="**/jME3-android.jar"/>
+            <exclude name="**/jME3-testdata.jar"/>
+            <exclude name="**/jME3-bullet.jar"/>
+            <exclude name="**/jME3-bullet-natives.jar"/>
+            <exclude name="**/jME3-bullet-natives-android.jar"/>
+            <exclude name="**/jME3-openal-soft-natives-android.jar"/>
+        </fileset>
+        <fileset id="jme3-bullet-native-jars" dir="${dist.dir}/opt/native-bullet">
+            <include name="**/jME3-bullet-native**.jar"/>
+        </fileset>
+        <fileset id="jme3-openal-soft-natives-jars" dir="${dist.dir}/opt/native-openal-soft">
+            <include name="**/jME3-openal-soft-natives-android.jar"/>
+        </fileset>
+        <fileset id="jme3-testdata-jars" dir="build">
+            <include name="**/jME3-testdata.jar"/>
+        </fileset>
+        <fileset id="jme3-lwjgl-native-jars" dir="${dist.dir}/lib">
+            <include name="**/jME3-lwjgl-natives.jar"/>
+        </fileset>
+        <fileset id="jme3-external-libraries" dir="${dist.dir}/lib/">
+            <exclude name="jME3-**"/>
+            <exclude name="**/nifty-examples.jar"/>
+        </fileset>
+        <echo>Clearing old files</echo>
+        <delete dir="${jmp_dir}/JME3TestsTemplate/src/"/>
+        <delete dir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/"/>
+        <delete dir="${jmp_dir}/jme3-core-libraries/release/modules/ext/"/>
+        <delete dir="${jmp_dir}/jme3-project-libraries/release/libs/"/>
+        <delete dir="${jmp_dir}/jme3-project-baselibs/release/libs/"/>
+        <delete dir="${jmp_dir}/jme3-project-testdata/release/libs/"/>
+
+        <echo>Copying jMonkeyPlatform jME3 libs</echo>
+        <copy toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false" flatten="true">
+            <fileset refid="jme3-sdk-jars"/>
+            <!--natives need to be in jme3 package for jme to work in jMP-->
+            <fileset refid="jme3-lwjgl-native-jars"/>
+        </copy>
+
+        <echo>Copying jMonkeyPlatform external libraries</echo>
+        <copy todir="${jmp_dir}/jme3-core-libraries/release/modules/ext/" overwrite="true" failonerror="true" verbose="false" flatten="true">
+            <fileset refid="jme3-external-libraries"/>
+        </copy>
+
+        <echo>Copying Project jME3 libs</echo>
+        <copy toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
+            <fileset refid="jme3-jars"/>
+            <fileset refid="jme3-openal-soft-natives-jars"/>
+        </copy>
+
+        <echo>Copying Project external libraries</echo>
+        <copy todir="${jmp_dir}/jme3-project-libraries/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
+            <fileset refid="jme3-external-libraries"/>
+            <fileset refid="jme3-lwjgl-native-jars"/>
+            <fileset refid="jme3-bullet-native-jars"/>
+        </copy>
+
+        <echo>Copying Test Project Data</echo>
+        <copy toDir="${jmp_dir}/jme3-project-testdata/release/libs/" overwrite="true" failonerror="true" verbose="false">
+            <fileset refid="jme3-testdata-jars"/>
+        </copy>
+
+        <echo>Copying Javadoc</echo>
+        <zip destfile="${dist.dir}/jMonkeyEngine3-javadoc.zip">
+            <zipfileset dir="${dist.dir}/javadoc/"/>
+        </zip>
+        <copy file="${dist.dir}/jMonkeyEngine3-javadoc.zip" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
+
+        <zip destfile="${dist.dir}/jMonkeyEngine3-sources.zip">
+            <zipfileset dir="${src.core.dir}"/>
+            <zipfileset dir="${src.core-data.dir}"/>
+            <zipfileset dir="${src.core-effects.dir}"/>
+            <zipfileset dir="${src.core-plugins.dir}"/>
+            <zipfileset dir="${src.desktop.dir}"/>
+            <zipfileset dir="${src.jbullet.dir}"/>
+            <zipfileset dir="${src.niftygui.dir}"/>
+            <zipfileset dir="${src.jogg.dir}"/>
+            <zipfileset dir="${src.lwjgl.dir}"/>
+            <zipfileset dir="${src.ogre.dir}"/>
+            <zipfileset dir="${src.test.dir}"/>
+            <zipfileset dir="${src.tools.dir}"/>
+            <zipfileset dir="${src.xml.dir}"/>
+            <zipfileset dir="${src.terrain.dir}"/>
+            <zipfileset dir="${src.networking.dir}"/>
+        </zip>
+        <copy file="${dist.dir}/jMonkeyEngine3-sources.zip" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
+
+        <copy todir="${jmp_dir}/jme3-project-libraries/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
+            <fileset refid="jme3-external-libraries"/>
+            <fileset refid="jme3-lwjgl-native-jars"/>
+            <fileset refid="jme3-bullet-native-jars"/>
+            <fileset refid="jme3-openal-soft-natives-jars"/>
+            <fileset dir="lib/niftygui/">
+                <include name="nifty-javadoc.jar"/>
+                <include name="nifty-default-controls-javadoc.jar"/>
+            </fileset>
+        </copy>
+
+        <echo>Copying Test Examples</echo>
+        <copy todir="${jmp_dir}/JME3TestsTemplate/src/" overwrite="true" failonerror="true" verbose="false">
+            <fileset dir="src/test/">
+                <exclude name=".svn"/>
+            </fileset>
+        </copy>
+        <copy todir="${jmp_dir}/JME3TestsTemplateAndroid/src/" overwrite="true" failonerror="true" verbose="false">
+            <fileset dir="src/test/">
+                <exclude name=".svn"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="-javadoc-build" depends="init" if="have.sources" description="Overrides default javadoc target to exclude test javadoc">
+        <mkdir dir="${dist.javadoc.dir}"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${dist.javadoc.dir}" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${javac.classpath}"/>
+            </classpath>
+            <fileset dir="${src.core.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.core-data.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.core-effects.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.core-plugins.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.desktop.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.terrain.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <!--fileset dir="${src.jbullet.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset-->
+            <fileset dir="${src.bullet.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.bullet-native.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.bullet-common.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.networking.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.niftygui.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.jogg.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.ogre.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.blender.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.xml.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.tools.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <!--fileset dir="${src.test.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset-->
+            <fileset dir="${src.lwjgl.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.android.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">
+                <include name="**/*.java"/>
+                <exclude name="*.java"/>
+            </fileset>
+        </javadoc>
+        <copy todir="${dist.javadoc.dir}">
+            <fileset dir="${src.core.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.core-data.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.core-effects.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.core-plugins.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.desktop.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.terrain.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.jbullet.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <!--fileset dir="${src.bullet.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset-->
+            <fileset dir="${src.bullet-native.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.bullet-common.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.networking.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.niftygui.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.jogg.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.ogre.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.blender.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.xml.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.tools.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <!--fileset dir="${src.test.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset-->
+            <fileset dir="${src.lwjgl.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${src.android.dir}" excludes="${excludes}" includes="${includes}">
+                <filename name="**/doc-files/**"/>
+            </fileset>
+            <fileset dir="${build.generated.sources.dir}" erroronmissingdir="false">
+                <include name="**/doc-files/**"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <!-- example of value for an archived post build: http://jogamp.org/deployment/archive/master/gluegen_737-joal_492-jogl_1120-jocl_867/jar -->
+    <!-- example of value for the current release or release candidate: http://jogamp.org/deployment/jogamp-current/jar/orig -->
+    <!-- example of value for a released version: http://jogamp.org/deployment/v2.1.1 -->
+    <property name="jogamp-unsigned-jars-url" value="http://jogamp.org/deployment/archive/master/gluegen_760-joal_510-jogl_1198-jocl_902/jar" />
+    <target name="update-jogamp">
+        <get src="${jogamp-unsigned-jars-url}/gluegen-rt.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-linux-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-linux-armv6.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-linux-armv6hf.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-linux-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-macosx-universal.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-solaris-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-solaris-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-windows-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/gluegen-rt-natives-windows-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />		
+	<get src="${jogamp-unsigned-jars-url}/joal.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-linux-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/joal-natives-linux-armv6.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/joal-natives-linux-armv6hf.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-linux-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-macosx-universal.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-solaris-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-solaris-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-windows-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/joal-natives-windows-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-linux-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/jogl-all-natives-linux-armv6.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+        <get src="${jogamp-unsigned-jars-url}/jogl-all-natives-linux-armv6hf.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-linux-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-macosx-universal.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-solaris-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-solaris-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-windows-amd64.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+	<get src="${jogamp-unsigned-jars-url}/jogl-all-natives-windows-i586.jar" dest="lib/jogl" verbose="true" usetimestamp="true" skipexisting="false" />
+    </target>
+        
+    <!--
+       ****************************************************************
+       Only Relevant for building nightly on Hudson server from here on
+       ****************************************************************
+      -->
+
+    <target depends="init" name="create-zip-distribution" description="puts jme3 jars, libs, source and javadoc in a dated zip file">
+        <tstamp>
+            <format property="date" pattern="yyyy-MM-dd" locale="en,US"/>
+        </tstamp>
+        <property name="jme3zip" value="jME3_${date}.zip"/>
+        <zip destfile="${jme3zip}">
+            <fileset dir=".">
+                <include name="TestChooser.exe"/>
+                <include name="README.TXT"/>
+            </fileset>
+            <fileset dir="${dist.dir}/">
+                <include name="jMonkeyEngine3.jar"/>
+            </fileset>
+            <zipfileset dir="${dist.dir}/lib" prefix="lib"/>
+            <zipfileset dir="${dist.dir}/opt" prefix="opt"/>
+            <zipfileset dir="${dist.dir}/javadoc" prefix="javadoc"/>
+            <zipfileset dir="${src.core.dir}" prefix="source"/>
+            <zipfileset dir="${src.core-data.dir}" prefix="source"/>
+            <zipfileset dir="${src.core-effects.dir}" prefix="source"/>
+            <zipfileset dir="${src.core-plugins.dir}" prefix="source"/>
+            <zipfileset dir="${src.desktop.dir}" prefix="source"/>
+            <zipfileset dir="${src.jbullet.dir}" prefix="source"/>
+            <zipfileset dir="${src.niftygui.dir}" prefix="source"/>
+            <zipfileset dir="${src.jogg.dir}" prefix="source"/>
+            <zipfileset dir="${src.lwjgl.dir}" prefix="source"/>
+            <zipfileset dir="${src.ogre.dir}" prefix="source"/>
+            <zipfileset dir="${src.test.dir}" prefix="source"/>
+            <zipfileset dir="${src.tools.dir}" prefix="source"/>
+            <zipfileset dir="${src.xml.dir}" prefix="source"/>
+            <zipfileset dir="${src.terrain.dir}" prefix="source"/>
+            <zipfileset dir="${src.networking.dir}" prefix="source"/>
+        </zip>
+    </target>
+
+    <target depends="init" name="update-sdk-nobuild">
+        <antcall target="-do-update-sdk" inheritall="true">
+            <param name="jmp_dir" value="../sdk/"/>
+        </antcall>
+    </target>
+
+</project>

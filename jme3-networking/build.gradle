@@ -1,7 +1,0 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
-dependencies {
-    compile project(':jme3-core')
-}

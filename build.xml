@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="jME3-SDK" default="default" basedir=".">
+    <description>Builds, tests, and runs the jMonkeyEngine3 SDK.</description>
+    <fail message="Please build using Ant 1.7.1 or higher.">
+        <condition>
+            <not>
+                <antversion atleast="1.7.1"/>
+            </not>
+        </condition>
+    </fail>
+    
+    <target name="default" depends="zip"/>
+
+    <target name="build" description="Builds the complete SDK, copies over engine libraries." depends="-check-platform, -update-sdk-platform-config">
+        <ant dir="engine" target="update-sdk"/>
+        <ant dir="sdk" target="build"/>
+    </target>
+
+    <target name="build-engine" description="Builds the engine libraries only">
+        <ant dir="engine" target="clean"/>
+        <ant dir="engine" target="jar"/>
+        <ant dir="engine" target="javadoc"/>
+        <ant dir="engine" target="create-zip-distribution"/>
+    </target>
+
+    <target name="clean" description="Clean all build products" depends="-check-platform, -update-sdk-platform-config">
+        <ant dir="engine" target="clean"/>
+        <ant dir="sdk" target="clean"/>
+    </target>
+
+    <target name="run" description="Runs the SDK" depends="-check-platform, -update-sdk-platform-config">
+        <ant dir="engine" target="update-sdk"/>
+        <ant dir="sdk" target="run"/>
+    </target>
+
+    <target name="zip" description="Builds the complete SDK and packs it as a ZIP file">
+        <ant dir="engine" target="update-sdk"/>
+        <ant dir="sdk" target="build-zip"/>
+        <property file="sdk/nbproject/project.properties"/>
+        <move file="sdk/dist/${app.name}.zip" tofile="./jMonkeyEngine-SDK-${app.version}-NoBundles.zip"/>
+    </target>
+    
+    <target name="update-platform" description="Updates the base platform to the latest available build" depends="-remove-platform,-check-platform"/>
+
+    <target name="-check-platform" depends="-check-platform-present" unless="platform.present">
+        <property file="sdk/nbproject/project.properties"/>
+        <echo message="Downloading base platform, this only has to be done once."/>
+        <get src="${netbeans.platform.url}" dest="./platform-base.zip" skipexisting="false"/>
+        <unzip src="platform-base.zip" dest="./"/>
+        <antcall target="-update-sdk-platform-config"/>
+        <delete file="platform-base.zip"/>
+    </target>
+
+    <target name="-check-platform-present">
+        <available file="sdk/nbproject/private/platform-private.properties" property="platform.present"/>
+    </target>
+
+    <target name="-remove-platform">
+        <delete dir="netbeans" failonerror="false"/>
+        <delete file="sdk/nbproject/private/platform-private.properties" failonerror="false"/>
+    </target>
+
+    <target name="create-platform-config" depends="-update-sdk-platform-config">
+    </target>
+    
+    <target name="-update-sdk-platform-config">
+        <property name="nbplatform.dir" location="netbeans"/>
+        <mkdir dir="sdk/nbproject/private"/>
+        <echo file="sdk/nbproject/private/platform-private.properties"
+              message="nbplatform.default.netbeans.dest.dir=${nbplatform.dir}&#xD;&#xA;"/>
+        <echo file="sdk/nbproject/private/platform-private.properties"
+              message="nbplatform.default.harness.dir=${nbplatform.dir}${file.separator}harness&#xD;&#xA;" append="true"/>
+        <replace file="sdk/nbproject/private/platform-private.properties" token="\" value="\\"/>
+    </target>
+    
+    <!--
+       ****************************************************************
+       Only Relevant for building nightly on Hudson server from here on
+       ****************************************************************
+      -->
+      
+    <target name="hudson-nightly" depends="-hudson-revert-changes, -check-platform, -update-sdk-platform-config, -hudson-build-engine">
+        <!--ant dir="engine" target="copy-javadoc"/-->
+        <ant dir="engine" target="create-zip-distribution"/>
+        <ant dir="sdk" target="hudson-nightly"/>
+    </target>
+
+    <target name="hudson-stable" depends="-hudson-revert-changes, -check-platform, -update-sdk-platform-config, -hudson-build-engine">
+        <!--ant dir="engine" target="dist"/-->
+        <ant dir="engine" target="create-zip-distribution"/>
+        <ant dir="sdk" target="hudson-stable"/>
+    </target>
+
+    <target name="hudson-release" depends="-hudson-revert-changes, -check-platform, -update-sdk-platform-config, -hudson-build-engine">
+        <ant dir="sdk" target="hudson-release"/>
+    </target>
+    
+    <target name="-hudson-revert-changes">
+        <exec executable="svn" dir="engine" failonerror="true">
+            <arg value="cleanup" />
+        </exec>
+        <exec executable="svn" dir="engine">
+            <arg value="revert" />
+            <arg value="-R" />
+            <arg value="." />
+        </exec>
+        <exec executable="svn" dir="engine">
+            <arg value="cleanup" />
+        </exec>
+        <exec executable="svn" dir="engine">
+            <arg value="update" />
+        </exec>
+        
+        <exec executable="svn" dir="sdk">
+            <arg value="cleanup" />
+        </exec>
+        <exec executable="svn" dir="sdk">
+            <arg value="revert" />
+            <arg value="." />
+            <arg value="-R" />
+        </exec>
+        <exec executable="svn" dir="sdk">
+            <arg value="cleanup" />
+        </exec>
+        <exec executable="svn" dir="sdk">
+            <arg value="update" />
+        </exec>
+
+        <exec executable="svn" dir=".">
+            <arg value="unlock" />
+            <arg value="engine" />
+        </exec>
+        <exec executable="svn" dir=".">
+            <arg value="unlock" />
+            <arg value="sdk" />
+        </exec>
+    </target>
+
+    <target name="-hudson-build-engine">
+        <!--ant dir="engine" target="build-bullet-natives"/-->
+        <ant dir="engine" target="jar"/>
+        <ant dir="engine" target="javadoc"/>
+        <ant dir="engine" target="update-sdk-nobuild"/>
+    </target>
+    
+</project>

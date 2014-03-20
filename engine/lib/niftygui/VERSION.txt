@@ -1,0 +1,9 @@
+Last Updated 22/6/2013
+
+Component		Version
+---------------------------------------------------------------------
+nifty			1.3.3 (2013-06-20 23:54:54)
+nifty-default-controls	1.3.3 (2013-06-20 23:54:54)
+nifty-style-black	1.3.3 (2013-06-20 23:54:54)
+nifty-examples		1.3.3 (2013-06-20 23:54:54)
+jglfont-core            1.3

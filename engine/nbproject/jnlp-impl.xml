@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright 1997-2010 Oracle and/or its affiliates. All rights reserved.
+
+Oracle and Java are registered trademarks of Oracle and/or its affiliates.
+Other names may be trademarks of their respective owners.
+
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Oracle designates this
+particular file as subject to the "Classpath" exception as provided
+by Oracle in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Contributor(s):
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+-->
+
+<project name="jnlp-impl" default="default" basedir=".." xmlns:jnlp="http://www.netbeans.org/ns/j2se-project/jnlp">
+
+    <property name="jnlp.file.name.default" value="launch.jnlp"/>
+    <property name="jnlp.dest.dir" location="dist"/>
+    
+    <!-- helper file to create list of arguments, etc. -->
+    <property name="helper.file" location="helper.txt"/>
+    
+    <target name="default">
+        <echo message="Default target is not set, you must specify which target you want to run."/>
+    </target>
+
+    <target name="-init-platform" unless="platform.home">
+        <property name="platform.home" value="${java.home}"/>
+    </target>
+
+    <!-- Main target -->
+
+    <target name="jnlp" depends="-init-filename,-test-jnlp-enabled,-do-jar-jnlp" if="is.jnlp.enabled">
+        <makeurl property="jnlp.local.codebase.url" file="${basedir}/dist" validate="false"/>
+        <antcall target="generate-jnlp"/>
+        <antcall target="generate-html-preview"/>
+    </target>
+
+    <!-- JNLP archiving -->
+
+    <target name="-init-macrodef-jnlp-copylibs">
+        <macrodef name="copylibs" uri="http://www.netbeans.org/ns/j2se-project/jnlp">
+            <element name="customize" optional="true"/>
+            <sequential>
+                <property location="${build.classes.dir}" name="build.classes.dir.resolved"/>
+                <pathconvert property="run.classpath.without.build.classes.dir">
+                    <path path="${run.classpath}"/>
+                    <map from="${build.classes.dir.resolved}" to=""/>
+                </pathconvert>
+                <taskdef classname="org.netbeans.modules.java.j2seproject.copylibstask.CopyLibs" classpath="${libs.CopyLibs.classpath}" name="copylibs"/>
+                <copylibs compress="${jar.compress}" index="${jar.index}" jarfile="${dist.jar}" manifest="${tmp.manifest.file}" runtimeclasspath="${run.classpath.without.build.classes.dir}">
+                    <fileset dir="${build.classes.dir}"/>
+                    <manifest>
+                        <customize/>
+                    </manifest>
+                </copylibs>
+            </sequential>
+        </macrodef>
+    </target>
+
+    <target name="-init-macrodef-extend-manifest">
+        <macrodef name="extend-manifest" uri="http://www.netbeans.org/ns/j2se-project/jnlp">
+            <element name="customize"/>
+            <sequential>
+                <manifest file="${tmp.manifest.file}" mode="update">
+                    <customize/>
+                </manifest>
+            </sequential>
+        </macrodef>
+    </target>
+
+    <target name="-test-jnlp-type" depends="-test-jnlp-enabled" if="is.jnlp.enabled">
+        <condition property="is.applet">
+            <equals arg1="${jnlp.descriptor}" arg2="applet" trim="true"/>
+        </condition>
+        <condition property="is.application">
+            <equals arg1="${jnlp.descriptor}" arg2="application" trim="true"/>
+        </condition>
+        <condition property="is.component">
+            <equals arg1="${jnlp.descriptor}" arg2="component" trim="true"/>
+        </condition>
+        <condition property="is.applet+mkdist.available">
+            <and>
+                <isset property="libs.CopyLibs.classpath"/>
+                <istrue value="${is.applet}"/>
+            </and>
+        </condition>
+        <condition property="is.application+mkdist.available">
+            <and>
+                <isset property="libs.CopyLibs.classpath"/>
+                <istrue value="${is.application}"/>
+            </and>
+        </condition>
+        <condition property="is.component+mkdist.available">
+            <and>
+                <isset property="libs.CopyLibs.classpath"/>
+                <istrue value="${is.component}"/>
+            </and>
+        </condition>
+    </target>
+
+    <target name="-create-tmp-manifest" unless="manifest.file">
+        <property name="tmp.manifest.file" value="${build.dir}/manifest.mf"/>
+        <delete file="${tmp.manifest.file}" failonerror="false"/>
+        <touch file="${tmp.manifest.file}"/>
+    </target>
+
+    <target name="-copy-tmp-manifest" if="manifest.file">
+        <property name="tmp.manifest.file" value="${build.dir}/manifest.mf"/>
+        <copy file="${manifest.file}" tofile="${build.dir}/manifest.mf"/>
+    </target>
+
+    <target name="-set-mixed-code-properties" depends="-check-signing-possible" if="jnlp.signed.true+signjars.task.available">
+        <property name="jnlp.mixed.code" value=""/>
+        <condition property="mixed.code.trusted.only">
+            <equals arg1="trusted_only" arg2="${jnlp.mixed.code}"/>
+        </condition>
+        <condition property="mixed.code.trusted.library">
+            <equals arg1="trusted_library" arg2="${jnlp.mixed.code}"/>
+        </condition>
+    </target>
+
+    <target name="-add-trusted-only-attribute" depends="-set-mixed-code-properties,-init-macrodef-extend-manifest" if="mixed.code.trusted.only">
+        <jnlp:extend-manifest>
+            <customize>
+                <attribute name="Trusted-Only" value="true"/>
+            </customize>
+        </jnlp:extend-manifest>
+    </target>
+
+    <target name="-add-trusted-library-attribute" depends="-set-mixed-code-properties,-init-macrodef-extend-manifest" if="mixed.code.trusted.library">
+        <jnlp:extend-manifest>
+            <customize>
+                <attribute name="Trusted-Library" value="true"/>
+            </customize>
+        </jnlp:extend-manifest>
+    </target>
+    <target name="-do-jar-applet" depends="-test-jnlp-type,-init-macrodef-jnlp-copylibs" if="is.applet+mkdist.available">
+        <jnlp:copylibs/>
+    </target>
+    <target name="-do-jar-jnlp-application" depends="-init-filename,-test-jnlp-type,-init-macrodef-jnlp-copylibs" if="is.application+mkdist.available">
+        <jnlp:copylibs>
+            <customize>
+                <attribute name="Main-Class" value="${main.class}"/>
+            </customize>
+        </jnlp:copylibs>
+        <echo>To run this application from the command line without Ant, try:</echo>
+        <property location="${jnlp.dest.dir}/${jnlp.file}" name="jnlp.file.resolved"/>
+        <echo>javaws "${jnlp.file.resolved}"</echo>
+    </target>
+    <target name="-do-jar-jnlp-component" depends="-test-jnlp-type,-init-macrodef-jnlp-copylibs" if="is.component+mkdist.available">
+        <jnlp:copylibs/>
+    </target>
+    <target name="-do-jar-jnlp" depends="-create-tmp-manifest,-copy-tmp-manifest,-add-trusted-only-attribute,-add-trusted-library-attribute,-do-jar-applet,-do-jar-jnlp-application,-do-jar-jnlp-component"/>
+
+    <!-- Init jnlp filename -->
+    
+    <target name="-init-filename" depends="-check-filename-prop,-set-jnlp-filename-custom,-set-jnlp-filename-default"/>
+    
+    <target name="-set-jnlp-filename-custom" if="jnlp.file.name.set">
+        <property name="jnlp.file" value="${jnlp.file.name}"/>
+    </target>
+    
+    <target name="-set-jnlp-filename-default" unless="jnlp.file.name.set">
+        <property name="jnlp.file" value="${jnlp.file.name.default}"/>
+    </target>
+    
+    <target name="-check-filename-prop">
+        <condition property="jnlp.file.name.set">
+            <and>
+                <isset property="jnlp.file.name"/>
+                <not>
+                    <equals arg1="jnlp.file.name" arg2="" trim="true"/>
+                </not>
+            </and>
+        </condition>
+    </target>
+    
+    <!-- Test JNLP enabled-->
+    
+    <target name="-test-jnlp-enabled">
+        <condition property="is.jnlp.enabled">
+            <istrue value="${jnlp.enabled}"/>
+        </condition>
+    </target>
+    
+    <!-- Generating JNLP file -->
+    
+    <target name="generate-jnlp" depends="sign-jars,-test-generate-task-available,-unavailable-generate-task" if="generate.task.available">
+        <taskdef name="generate-jnlp" classname="org.netbeans.modules.javawebstart.anttasks.GenerateJnlpFileTask" 
+            classpath="${libs.JWSAntTasks.classpath}"/>
+        <property name="jnlp.lazy.jars" value=""/>
+        <generate-jnlp destfile="${jnlp.dest.dir}/${jnlp.file}_" template="master-${jnlp.descriptor}.jnlp" destdir="dist" lazyJars="${jnlp.lazy.jars}"/>
+        <antcall target="-strip-empty-lines"/>
+    </target>
+    
+    <target name="-strip-empty-lines">
+        <copy file="${jnlp.dest.dir}/${jnlp.file}_" tofile="${jnlp.dest.dir}/${jnlp.file}" overwrite="true" encoding="UTF-8">
+            <filterchain>
+                <linecontainsregexp>
+                    <regexp pattern=".+"/>
+                </linecontainsregexp>
+            </filterchain>
+        </copy>
+        <delete file="${jnlp.dest.dir}/${jnlp.file}_" failonerror="false"/>
+    </target>
+    
+    <target name="-test-generate-task-available">
+        <available property="generate.task.available" classname="org.netbeans.modules.javawebstart.anttasks.GenerateJnlpFileTask" 
+        classpath="${libs.JWSAntTasks.classpath}"/>
+    </target>
+    
+    <target name="-unavailable-generate-task" unless="generate.task.available">
+        <echo message="Task required to generate JNLP file is missing, probably the library 'JWS Ant Tasks' is missing either from shared folder or from IDE installation."/>
+        <fail/>
+    </target>
+    
+    <!-- Codebase processing -->
+    
+    <target name="-codebase-props-check">
+        <condition property="local.codebase">
+            <or>
+                <not>
+                    <isset property="jnlp.codebase.type"/>
+                </not>
+                <equals arg1="${jnlp.codebase.type}" arg2="local" trim="true"/>
+            </or>
+        </condition>
+        <condition property="non.user.codebase">
+            <or>
+                <not>
+                    <isset property="jnlp.codebase.type"/>
+                </not>
+                <equals arg1="${jnlp.codebase.type}" arg2="local" trim="true"/>
+                <equals arg1="${jnlp.codebase.type}" arg2="web" trim="true"/>
+            </or>
+        </condition>
+        <condition property="user.codebase">
+            <equals arg1="${jnlp.codebase.type}" arg2="user" trim="true"/>
+        </condition>
+    </target>
+    
+    <target name="-init-non-user-codebase" if="non.user.codebase">
+        <property name="jnlp.codebase.value" value="${jnlp.codebase.url}"/>
+    </target>
+    
+    <target name="-init-user-codebase" if="user.codebase">
+        <property name="jnlp.codebase.value" value="${jnlp.codebase.user}"/>
+    </target>
+
+    <!-- Security -->
+    
+    <target name="-security-props-check">
+        <condition property="jnlp.signed.true">
+            <istrue value="${jnlp.signed}"/>
+        </condition>
+    </target>
+    
+    <target name="-jnlp-init-keystore" depends="-jnlp-init-keystore-props,-check-keystore-exists" unless="jnlp.signjar.keystore.exists">
+        <echo message="${application.vendor}" file="${helper.file}"/>
+        <loadfile property="application.vendor.filtered" srcfile="${helper.file}">
+            <filterchain>
+                <deletecharacters chars=","/>
+            </filterchain>
+        </loadfile>
+        <delete file="${helper.file}"/>
+        <property name="jnlp.signjar.vendor" value="CN=${application.vendor.filtered}"/>
+        <echo message="Going to create default keystore in ${jnlp.signjar.keystore}"/>
+        <genkey dname="${jnlp.signjar.vendor}" alias="${jnlp.signjar.alias}" keystore="${jnlp.signjar.keystore}"
+            storepass="${jnlp.signjar.storepass}" keypass="${jnlp.signjar.keypass}"/>
+    </target>
+    
+    <target name="-check-keystore-exists">
+        <available property="jnlp.signjar.keystore.exists" file="${jnlp.signjar.keystore}"/>
+    </target>
+    
+    <target name="-jnlp-init-keystore-props">
+        <property name="jnlp.signjar.keystore" value="${basedir}/build/nb-jws.ks"/>
+        <property name="jnlp.signjar.storepass" value="storepass"/>
+        <property name="jnlp.signjar.keypass" value="keypass"/>
+        <property name="jnlp.signjar.alias" value="nb-jws"/>
+    </target>
+
+    <!-- Signing -->
+
+    <target name="-test-signjars-task-available">
+        <available property="signjars.task.available" 
+            classname="org.netbeans.modules.javawebstart.anttasks.SignJarsTask" 
+            classpath="${libs.JWSAntTasks.classpath}"/>
+    </target>
+    
+    <target name="-check-signing-possible" depends="-security-props-check,-test-signjars-task-available,-unavailable-signjars-task">
+        <condition property="jnlp.signed.true+signjars.task.available">
+            <and>
+                <isset property="jnlp.signed.true"/>
+                <isset property="signjars.task.available"/>
+            </and>
+        </condition>
+    </target>
+    
+    <target name="-unavailable-signjars-task" depends="-test-signjars-task-available" unless="signjars.task.available">
+        <echo message="Task required to sign JAR file is missing, probably the library 'JWS Ant Tasks' is missing either from shared folder or from IDE installation. JAR files will not be signed."/>
+    </target>
+
+    <target name="sign-jars" depends="-jnlp-init-keystore,-check-signing-possible" if="jnlp.signed.true+signjars.task.available">
+        <taskdef name="sign-jars" classname="org.netbeans.modules.javawebstart.anttasks.SignJarsTask" 
+            classpath="${libs.JWSAntTasks.classpath}"/>
+        <sign-jars keystore="${jnlp.signjar.keystore}" storepass="${jnlp.signjar.storepass}" 
+                keypass="${jnlp.signjar.keypass}" alias="${jnlp.signjar.alias}" mainjar="${dist.jar}" destdir="dist"
+                codebase="${jnlp.codebase.value}" signedjarsprop="jnlp.signed.jars"
+                componentsprop="jnlp.components">
+            <fileset dir="dist/lib">
+                <include name="*.jar"/>
+            </fileset>
+        </sign-jars>
+    </target>
+    
+    <!-- Running/Debugging -->
+    
+    <target name="jws-run" depends="jar,-verify-jnlp-enabled,-verify-codebase,-init-platform" description="Start javaws execution">
+        <exec executable="${platform.home}/bin/javaws">
+            <arg file="${jnlp.dest.dir}/${jnlp.file}"/>
+        </exec>
+    </target>
+    
+    <target name="jws-debug" if="netbeans.home" depends="jar,-verify-jnlp-enabled,-verify-codebase,-debug-start-debugger,-debug-javaws-debuggee" 
+        description="Debug javaws project in IDE"/>
+        
+    <target name="-init-debug-args">
+        <property name="version-output" value="java version &quot;${ant.java.version}"/>
+        <condition property="have-jdk-older-than-1.4">
+            <or>
+                <contains string="${version-output}" substring="java version &quot;1.0"/>
+                <contains string="${version-output}" substring="java version &quot;1.1"/>
+                <contains string="${version-output}" substring="java version &quot;1.2"/>
+                <contains string="${version-output}" substring="java version &quot;1.3"/>
+            </or>
+        </condition>
+        <condition else="-Xdebug" property="debug-args-line" value="-Xdebug -Xnoagent -Djava.compiler=none">
+            <istrue value="${have-jdk-older-than-1.4}"/>
+        </condition>
+        <condition else="dt_socket" property="debug-transport-by-os" value="dt_shmem">
+            <os family="windows"/>
+        </condition>
+        <condition else="${debug-transport-by-os}" property="debug-transport" value="${debug.transport}">
+            <isset property="debug.transport"/>
+        </condition>
+    </target>
+
+    <target name="-debug-javaws-debuggee" depends="-init-debug-args">
+        <exec executable="${java.home}/bin/javaws">
+            <env key="JAVAWS_VM_ARGS" value="${debug-args-line} -Xrunjdwp:transport=${debug-transport},address=${jpda.address}"/>
+            <arg file="${jnlp.dest.dir}/${jnlp.file}"/>
+        </exec>
+    </target>
+    
+    <target name="-verify-codebase" depends="-codebase-props-check" unless="local.codebase">
+        <fail message="Project cannot be run with non-local codebase. Open project properties dialog and set Web Start Codebase to Local Execution."/>
+    </target>
+    
+    <target name="-verify-jnlp-enabled" depends="-test-jnlp-enabled" unless="is.jnlp.enabled">
+        <fail message="Project cannot be run with selected Run Configuration when Java Web Start is disabled."/>
+    </target>
+    
+    <!-- Generate simple HTML preview page -->
+
+    <target name="-check-html-preview">
+         <condition property="generate.html.preview">
+             <or>
+                 <equals arg1="${jnlp.descriptor}" arg2="application"/>
+                 <equals arg1="${jnlp.descriptor}" arg2="applet"/>
+             </or>
+         </condition>
+     </target>
+
+    <target name="generate-html-preview" depends="-check-html-preview" if="generate.html.preview">
+        <taskdef name="copy-template-page" classname="org.netbeans.modules.javawebstart.anttasks.CopyTemplatePageTask"
+            classpath="${libs.JWSAntTasks.classpath}"/>
+        <copy-template-page destfile="${jnlp.dest.dir}/launch.html" template="preview-${jnlp.descriptor}.html" destdir="${jnlp.dest.dir}"/>
+    </target>
+    
+</project>

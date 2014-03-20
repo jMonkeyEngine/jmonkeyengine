@@ -1,0 +1,17 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>Test page for launching the application via JNLP</title>
+    </head>
+    <body>
+        <h3>Test page for launching the application via JNLP</h3>
+        <script src="http://java.com/js/deployJava.js"></script>
+        <script>
+            deployJava.createWebStartLaunchButton("${JNLP.FILE}")
+        </script>
+        <!-- Or use the following link element to launch with the application -->
+        <!--
+        <a href="${JNLP.FILE}">Launch the application</a>
+        -->
+    </body>
+</html>

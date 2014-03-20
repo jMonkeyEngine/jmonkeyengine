@@ -1,9 +1,0 @@
-if (!hasProperty('mainClass')) {
-    ext.mainClass = ''
-}
-
-dependencies {
-    compile project(':jme3-core')
-    compile project(':jme3-plugins')
-    compile 'com.google.android:android:4.1.1.4'
-}
