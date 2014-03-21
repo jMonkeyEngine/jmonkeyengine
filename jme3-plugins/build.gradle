@@ -1,0 +1,16 @@
+if (!hasProperty('mainClass')) {
+    ext.mainClass = ''
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/ogre/java'
+            srcDir 'src/xml/java'
+        }
+    }
+}
+
+dependencies {
+    compile project(':jme3-core')
+}
