@@ -50,35 +50,37 @@ sourceSets {
 }
 
 // Set of target platforms, will be available based on build system
-targetPlatforms {
+model {
+    platforms{
 //    osx_universal { // TODO: universal binary doesn't work?
 //        architecture 'x86_64'
 //        architecture 'x86'
 //        operatingSystem 'osx'
 //    }
-    osx_x86 {
-        architecture "x86"
-        operatingSystem "osx"
-    }
-    osx_x64 {
-        architecture "x86_64"
-        operatingSystem "osx"
-    }
-    linux_x86 {
-        architecture "x86"
-        operatingSystem "linux"
-    }
-    linux_x86_64 {
-        architecture "x86_64"
-        operatingSystem "linux"
-    }
-    windows_x86 {
-        architecture "x86"
-        operatingSystem "windows"
-    }
-    windows_x86_64 {
-        architecture "x86_64"
-        operatingSystem "windows"
+        osx_x86 {
+            architecture "x86"
+            operatingSystem "osx"
+        }
+        osx_x64 {
+            architecture "x86_64"
+            operatingSystem "osx"
+        }
+        linux_x86 {
+            architecture "x86"
+            operatingSystem "linux"
+        }
+        linux_x86_64 {
+            architecture "x86_64"
+            operatingSystem "linux"
+        }
+        windows_x86 {
+            architecture "x86"
+            operatingSystem "windows"
+        }
+        windows_x86_64 {
+            architecture "x86_64"
+            operatingSystem "windows"
+        }
     }
 }
 
