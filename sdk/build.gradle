@@ -9,6 +9,7 @@ if (!hasProperty('mainClass')) {
 configurations {
     corelibs
     optlibs
+    testdatalibs
 }
 
 dependencies {
@@ -187,7 +188,7 @@ task createBaseXml{
     
     def writer = new StringWriter()
     def xml = new MarkupBuilder(writer)
-    xml.xmlDeclaration(version:'1.0')
+    xml.mkp.xmlDeclaration(version:'1.0')
     xml.project(xmlns:"http://www.netbeans.org/ns/project/1"){
         type "org.netbeans.modules.apisupport.project"
         configuration {
@@ -225,7 +226,7 @@ task createBaseXml{
 
     def extWriter = new StringWriter()
     def extXml = new MarkupBuilder(extWriter)
-    extXml.xmlDeclaration(version:'1.0')
+//    extXml.mkp.xmlDeclaration(version:'1.0')
     extXml.project(xmlns:"http://www.netbeans.org/ns/project/1"){
         type "org.netbeans.modules.apisupport.project"
         configuration {
@@ -288,7 +289,7 @@ task createProjectXml{
         // create J2SE library descriptor xml file
         def libraryWriter = new StringWriter()
         def libraryXml = new MarkupBuilder(libraryWriter)
-//        xml.xmlDeclaration(version:'1.0')
+//        xml.mkp.xmlDeclaration(version:'1.0')
         libraryWriter << '<?xml version="1.0" encoding="UTF-8"?>' << eol 
         libraryWriter << '<!DOCTYPE library PUBLIC "-//NetBeans//DTD Library Declaration 1.0//EN" "http://www.netbeans.org/dtds/library-declaration-1_0.dtd">' << eol
         libraryXml.library(version:"1.0", encoding: "UTF-8"){
@@ -325,7 +326,7 @@ task createProjectXml{
     // create layer.xml file with entries of library xml files
     def layerWriter = new StringWriter()
     def layerXml = new MarkupBuilder(layerWriter)
-//    layerXml.xmlDeclaration(version:'1.0')
+//    layerXml.mkp.xmlDeclaration(version:'1.0')
     layerWriter << '<?xml version="1.0" encoding="UTF-8"?>' << eol 
     layerWriter << '<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">' << eol
     layerXml.filesystem{
