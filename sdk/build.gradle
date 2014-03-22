@@ -260,7 +260,7 @@ task cleanSdk(){
     //    ant.ant(dir: ".", antfile: "build.xml", target: "clean")
 }
 
-jar.dependsOn([copyBaseLibs, copyProjectLibs, buildSdk])
+jar.dependsOn([copyBaseLibs, copyProjectLibs, createJ2seXml, buildSdk])
 clean.dependsOn(cleanSdk);
 
 //    <target name="-do-update-sdk">
