@@ -1,5 +1,6 @@
 //ant.importBuild 'build.xml'
 import groovy.xml.MarkupBuilder
+import java.util.zip.ZipFile
 
 if (!hasProperty('mainClass')) {
     ext.mainClass = ''
@@ -22,7 +23,8 @@ dependencies {
     corelibs project(':jme3-niftygui')
     corelibs project(':jme3-plugins')
     corelibs project(':jme3-terrain')
-//    corelibs project(':jme3-testdata')
+    
+    testdatalibs project(':jme3-testdata')
 
     optlibs project(':jme3-bullet')
     optlibs project(':jme3-jogl')
@@ -127,11 +129,134 @@ task copyBaseLibs{
     }
 }
 
-// workaround method to add a tag with the name "name" to an XML MarkupBuilder
+task createBaseXml{
+    description "Creates the project.xml files for "+
+                "jme3-core-baselibs and jme3-core-libraries"
+    def depJars = [] // jme3 jar files
+    def depExtJars = [] // external jar files
+    
+    // collect jar files
+    project.configurations.corelibs.dependencies.each {dep ->
+        // collect external jar files
+        dep.dependencyProject.configurations.compile.copyRecursive({ !(it instanceof ProjectDependency); }).resolve().each{ file->
+            depExtJars.add(file)
+        }
+        // collect internal jar files (classes, sources and javadoc)
+        dep.dependencyProject.configurations.archives.allArtifacts.each{ artifact->
+            if(artifact.classifier == "sources"){
+            } else if(artifact.classifier == "javadoc"){
+            } else{
+                if(!depJars.contains(artifact.file)){
+                    depJars.add(artifact.file)
+                }
+            }
+        }
+    }
+
+    // collect base packages
+    def packages = []
+    depJars.each{jarFile ->
+        ZipFile file = new ZipFile(jarFile)
+        file.entries().each { entry ->  
+            if(entry.name.endsWith('.class')){
+                // TODO: "/" works on windows?
+                def pathPart = entry.name.substring(0,entry.name.lastIndexOf('/'))
+                def classPath = pathPart.replace('/','.');
+                if(!packages.contains(classPath)){
+                    packages.add(classPath)
+                }
+            }
+        } 
+    }
+    
+    // collect library packages
+    def extPackages = []
+    depExtJars.each{jarFile ->
+        ZipFile file = new ZipFile(jarFile)
+        file.entries().each { entry ->  
+            if(entry.name.endsWith('.class')){
+                // TODO: "/" works on windows?
+                def pathPart = entry.name.substring(0,entry.name.lastIndexOf('/'))
+                def classPath = pathPart.replace('/','.');
+                if(!extPackages.contains(classPath)){
+                    extPackages.add(classPath)
+                }
+            }
+        } 
+    }
+    
+    def writer = new StringWriter()
+    def xml = new MarkupBuilder(writer)
+    xml.xmlDeclaration(version:'1.0')
+    xml.project(xmlns:"http://www.netbeans.org/ns/project/1"){
+        type "org.netbeans.modules.apisupport.project"
+        configuration {
+            data(xmlns:"http://www.netbeans.org/ns/nb-module-project/3") {
+                "code-name-base" "com.jme3.gde.core.baselibs"
+                "suite-component"{}
+                "module-dependencies"{
+                    dependency{
+                        "code-name-base" "com.jme3.gde.core.libraries"
+                        "build-prerequisite"{}
+                        "compile-dependency"{}
+                        "run-dependency"{
+                            "release-version" "1"
+                            "specification-version" "3.0.0"
+                        }
+                    }
+                }
+                "public-packages"{
+                    packages.each{
+                        "package" it
+                    }
+                }
+                depJars.each{jarFile ->
+                    "class-path-extension"{
+                        "runtime-relative-path" "ext/${jarFile.name}"
+                        "binary-origin" "release/modules/ext/${jarFile.name}"
+                    }
+                }
+            }
+        }
+    }
+    // write XML file
+    File baselibsProjectFile = file("jme3-core-baselibs/nbproject/project.xml");
+    baselibsProjectFile.write(writer.toString())
+
+    def extWriter = new StringWriter()
+    def extXml = new MarkupBuilder(extWriter)
+    extXml.xmlDeclaration(version:'1.0')
+    extXml.project(xmlns:"http://www.netbeans.org/ns/project/1"){
+        type "org.netbeans.modules.apisupport.project"
+        configuration {
+            data(xmlns:"http://www.netbeans.org/ns/nb-module-project/3") {
+                "code-name-base" "com.jme3.gde.core.libraries"
+                "suite-component"{}
+                "module-dependencies"{}
+                "public-packages"{
+                    extPackages.each{
+                        "package" it
+                    }
+                }
+                depExtJars.each{jarFile ->
+                    "class-path-extension"{
+                        "runtime-relative-path" "ext/${jarFile.name}"
+                        "binary-origin" "release/modules/ext/${jarFile.name}"
+                    }
+                }
+            }
+        }
+    }
+    // write XML file
+    File librariesProjectFile = file("jme3-core-libraries/nbproject/project.xml");
+    librariesProjectFile.write(extWriter.toString())
+}
+
+// workaround method to add a tag with the name "name" and "file" to an XML MarkupBuilder
 def makeName(builder, nameR) { builder.name nameR }
 def makeFile(builder, nameR) { builder.file(name:nameR, url:nameR) }
 
-task createJ2seXml{
+task createProjectXml{
     description "Creates needed J2SE library and layer XML files in jme3-project-baselibs"
     
     def eol = System.properties.'line.separator' 
@@ -260,7 +385,7 @@ task cleanSdk(){
     //    ant.ant(dir: ".", antfile: "build.xml", target: "clean")
 }
 
-jar.dependsOn([copyBaseLibs, copyProjectLibs, createJ2seXml, buildSdk])
+jar.dependsOn([copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml, buildSdk])
 clean.dependsOn(cleanSdk);
 
 //    <target name="-do-update-sdk">

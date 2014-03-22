@@ -26,3 +26,8 @@
 /sdk/jme3-core-libraries/release/
 /sdk/jme3-project-baselibs/release/
 /sdk/jme3-project-libraries/release/
+/sdk/jme3-codepalette/build/
+/sdk/jme3-core-libraries/build/
+/sdk/jme3-code-check/build/
+/sdk/jme3-core-baselibs/build/
+/sdk/jme3-core-baselibs/nbproject/private/
