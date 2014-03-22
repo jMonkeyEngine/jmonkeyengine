@@ -32,22 +32,6 @@ dependencies {
     
 }
 
-//task copyToLib << {
-//    configurations.opt.resolvedConfiguration.resolvedArtifacts.each { artifact ->
-//        copy {
-//            from artifact.file
-//            into '../dist/opt'
-//            if(artifact.classifier != null){
-//                rename { "${artifact.name}-${artifact.classifier}.${artifact.extension}" }
-//            } else{
-//                rename { "${artifact.name}.${artifact.extension}" }
-//            }
-//        }  
-//    }
-//}
-
-//build.dependsOn copyToLib
-
 artifacts {
     //    jar null
 }
@@ -87,22 +71,6 @@ ant.properties['app.version']= jmeMainVersion + jmeVersionSuffix
 //    fileset(dir: 'src')
 //}
 
-//task copyFiles(type: Copy) {
-//    from 'src/files'
-//    into "$buildDir/files"
-//    rename '(.*)-(.*).html', '$2/$1.html'
-//    rename ~/(.*).template.(.*)/, '$1.$2'
-//    rename { filename ->
-//        filename.replace 'java', 'groovy'
-//    }
-//}
-//task copyTaskWithPatterns(type: Copy) {
-//    from 'src/main/webapp'
-//    into 'build/explodedWar'
-//    include '**/*.html'
-//    include '**/*.jsp'
-//    exclude { details -> details.file.name.endsWith('.html') && details.file.text.contains('staging') }
-//}
 task copyBaseLibs{
     description "Copies the library files needed to run the SDK to "+
                 "jme3-core-baselibs and jme3-core-libraries"
@@ -293,7 +261,7 @@ task createProjectXml{
         libraryWriter << '<?xml version="1.0" encoding="UTF-8"?>' << eol 
         libraryWriter << '<!DOCTYPE library PUBLIC "-//NetBeans//DTD Library Declaration 1.0//EN" "http://www.netbeans.org/dtds/library-declaration-1_0.dtd">' << eol
         libraryXml.library(version:"1.0", encoding: "UTF-8"){
-            makeName(libraryXml, "${dep.dependencyProject.name}.xml")
+            makeName(libraryXml, "${dep.dependencyProject.name}")
             type "j2se"
             "localizing-bundle" "com.jme3.gde.project.baselibs.Bundle"
             volume{
