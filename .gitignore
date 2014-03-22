@@ -21,3 +21,8 @@
 /dist/
 /jme3-bullet-native/bullet.zip
 /jme3-bullet-native/bullet-2.82-r2704/
+/sdk/build/
+/sdk/jme3-core-baselibs/release/
+/sdk/jme3-core-libraries/release/
+/sdk/jme3-project-baselibs/release/
+/sdk/jme3-project-libraries/release/

@@ -1,4 +1,5 @@
 //ant.importBuild 'build.xml'
+import groovy.xml.MarkupBuilder
 
 if (!hasProperty('mainClass')) {
     ext.mainClass = ''
@@ -21,7 +22,7 @@ dependencies {
     corelibs project(':jme3-niftygui')
     corelibs project(':jme3-plugins')
     corelibs project(':jme3-terrain')
-    corelibs project(':jme3-testdata')
+//    corelibs project(':jme3-testdata')
 
     optlibs project(':jme3-bullet')
     optlibs project(':jme3-jogl')
@@ -45,7 +46,7 @@ dependencies {
 //build.dependsOn copyToLib
 
 artifacts {
-//    jar null
+    //    jar null
 }
 
 //    <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="ant-import.classpath"/>
@@ -100,7 +101,8 @@ ant.properties['app.version']= jmeMainVersion + jmeVersionSuffix
 //    exclude { details -> details.file.name.endsWith('.html') && details.file.text.contains('staging') }
 //}
 task copyBaseLibs{
-    description "Copies the library files needed to run the SDK to jme3-core-baselibs and jme3-core-libraries"
+    description "Copies the library files needed to run the SDK to "+
+                "jme3-core-baselibs and jme3-core-libraries"
     dependsOn configurations.corelibs
     dependsOn configurations.optlibs
     
@@ -123,83 +125,142 @@ task copyBaseLibs{
             into "jme3-core-libraries/release/modules/ext/"
         }
     }
-} 
-
-//    project.configurations.collectMany { it.allDependencies }.findAll { it instanceof ProjectDependency }.each{
-//        println it
-//    }
-//(type: Copy){
-//    from project.configurations.compile
-//    into "jme3-core-baselibs/release/modules/ext/"
-//    include "**/jme3-**.jar"
-//    exclude "**/jme3-android**.jar"
-//    exclude "**/jme3-testdata**.jar"
-//    exclude "**/jme3-bullet**.jar"
-//    exclude "**/jme3-bullet-native**.jar"
-//    exclude "**/jme3-android-native**.jar"
-//    rename '(.*)-'+jmeVersion+'(.*)', '$1.jar'
-//
-////    println project.configurations.compile.findAll { !(it instanceof ProjectDependency); }
-////    println project.configurations.compile.findAll { it.version.startsWith("1") }
-//}
-
-task copyExternalLibs{
-//    println project.configurations.compile.findAll { it.name.startsWith("j") }
-//    println project.configurations.compile.properties.each { k,v -> println v}
-//    println project.configurations.compile.findAll { it.name.startsWith("l") }
-
-//    from project.configurations.compile.findAll { !(it instanceof ProjectDependency); }
-//    into "jme3-core-libraries/release/modules/ext/"
-//    exclude "**/jme3-**.jar"
 }
 
-task copyProjectBaseLibs(type: Copy){
-//    description "Copies the jar files needed to supply the J2SE Libraries in the SDK to jme3-project-baselibs and jme3-project-libraries"
-//    project.configurations.corelibs.dependencies.each {dep ->
-//        copy {
-//            from dep.dependencyProject.configurations.compile.copyRecursive({ !(it instanceof ProjectDependency); }).resolve()
-//            into "jme3-project-libraries/release/libs/"
-//        }
-//        dep.dependencyProject.configurations.archives.allArtifacts.each{ artifact->
-//            if(artifact.classifier == "sources"){
-//            } else if(artifact.classifier == "javadoc"){
-//            } else{
-//                copy {
-//                    from artifact.file
-//                    into "jme3-core-baselibs/release/modules/ext/"
-//                }
-//            }
-//        }
-//    }
-}
+// workaround method to add a tag with the name "name" to an XML MarkupBuilder
+def makeName(builder, nameR) { builder.name nameR }
+def makeFile(builder, nameR) { builder.file(name:nameR, url:nameR) }
 
-task copyProjectExternalLibs{
-//    println project.configurations.compile.findAll { it.name.startsWith("j") }
-//    println project.configurations.compile.properties.each { k,v -> println v}
-//    println project.configurations.compile.findAll { it.name.startsWith("l") }
-
-//    from project.configurations.compile.findAll { !(it instanceof ProjectDependency); }
-//    into "jme3-core-libraries/release/modules/ext/"
-//    exclude "**/jme3-**.jar"
-}
-
-task copyTestData{
+task createJ2seXml{
+    description "Creates needed J2SE library and layer XML files in jme3-project-baselibs"
     
+    def eol = System.properties.'line.separator' 
+    def j2seLibraries = [] // created J2SE library descriptors
+    
+    // for each dependency in corelibs..
+    project.configurations.corelibs.dependencies.each {dep ->
+        def depJars = [] // jme3 jar files
+        def depSources = [] // jme3 sources
+        def depJavadocs = [] // jme3 javadoc
+        def depExtJars = [] // external jar files
+        j2seLibraries.add(dep.dependencyProject.name+".xml")
+        // collect external jar files
+        dep.dependencyProject.configurations.compile.copyRecursive({ !(it instanceof ProjectDependency); }).resolve().each{ file->
+            depExtJars.add(file.name)
+        }
+        // collect internal jar files (classes, sources and javadoc)
+        dep.dependencyProject.configurations.archives.allArtifacts.each{ artifact->
+            if(artifact.classifier == "sources"){
+                depSources.add(artifact.file.name)
+            } else if(artifact.classifier == "javadoc"){
+                depJavadocs.add(artifact.file.name)
+            } else{
+                if(!depJars.contains(artifact.file.name)){
+                    depJars.add(artifact.file.name)
+                }
+            }
+        }
+        // create J2SE library descriptor xml file
+        def libraryWriter = new StringWriter()
+        def libraryXml = new MarkupBuilder(libraryWriter)
+//        xml.xmlDeclaration(version:'1.0')
+        libraryWriter << '<?xml version="1.0" encoding="UTF-8"?>' << eol 
+        libraryWriter << '<!DOCTYPE library PUBLIC "-//NetBeans//DTD Library Declaration 1.0//EN" "http://www.netbeans.org/dtds/library-declaration-1_0.dtd">' << eol
+        libraryXml.library(version:"1.0", encoding: "UTF-8"){
+            makeName(libraryXml, "${dep.dependencyProject.name}.xml")
+            type "j2se"
+            "localizing-bundle" "com.jme3.gde.project.baselibs.Bundle"
+            volume{
+                type "classpath"
+                depJars.each{jar ->
+                    resource "jar:nbinst://com.jme3.gde.project.baselibs/libs/${jar}!/"
+                }
+                depExtJars.each{jar ->
+                    resource "jar:nbinst://com.jme3.gde.project.libraries/libs/${jar}!/"
+                }
+            }
+            volume{
+                type "src"
+                depSources.each{jar ->
+                    resource "jar:nbinst://com.jme3.gde.project.baselibs/libs/${jar}!/"
+                }
+            }
+            volume{
+                type "javadoc"
+                depJavadocs.each{jar ->
+                    resource "jar:nbinst://com.jme3.gde.project.baselibs/libs/${jar}!/"
+                }
+            }
+        }
+        // write XML file
+        File libraryXmlFile = file("jme3-project-baselibs/src/com/jme3/gde/project/baselibs/${dep.dependencyProject.name}.xml");
+        libraryXmlFile.write(libraryWriter.toString())
+    }
+
+    // create layer.xml file with entries of library xml files
+    def layerWriter = new StringWriter()
+    def layerXml = new MarkupBuilder(layerWriter)
+//    layerXml.xmlDeclaration(version:'1.0')
+    layerWriter << '<?xml version="1.0" encoding="UTF-8"?>' << eol 
+    layerWriter << '<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">' << eol
+    layerXml.filesystem{
+        folder(name:"org-netbeans-api-project-libraries"){
+            folder(name:"Libraries"){
+                j2seLibraries.each{lib ->
+                    makeFile(layerXml, lib)
+                }
+            }
+        }
+    }
+    File layerXmlFile = file("jme3-project-baselibs/src/com/jme3/gde/project/baselibs/layer.xml");
+    layerXmlFile.write(layerWriter.toString())
 }
 
-task copyJavaDoc{
-    
+task copyProjectLibs{
+    description "Copies the jar files needed to supply the J2SE Libraries in the "+
+                "SDK to jme3-project-baselibs and jme3-project-libraries"
+    dependsOn configurations.corelibs
+    dependsOn configurations.optlibs
+
+    // for each dependency in corelibs..
+    project.configurations.corelibs.dependencies.each {dep ->
+        // copy jme3 jar files, sources and javadocs to jme3-project-baselibs
+        dep.dependencyProject.configurations.archives.allArtifacts.each{ artifact->
+            if(artifact.classifier == "sources"){
+                copy {
+                    from artifact.file
+                    into "jme3-project-baselibs/release/libs/"
+                }
+            } else if(artifact.classifier == "javadoc"){
+                copy {
+                    from artifact.file
+                    into "jme3-project-baselibs/release/libs/"
+                }
+            } else{
+                copy {
+                    from artifact.file
+                    into "jme3-project-baselibs/release/libs/"
+                }
+            }
+        }
+        // copy external jar files to jme3-project-libraries
+        copy {
+            from dep.dependencyProject.configurations.compile.copyRecursive({ !(it instanceof ProjectDependency); }).resolve()
+            into "jme3-project-libraries/release/libs/"
+        }
+    }
+
 }
 
 task buildSdk(){
-//    ant.ant(dir: ".", antfile: "build.xml", target: "hudson-stable")
+    //    ant.ant(dir: ".", antfile: "build.xml", target: "hudson-stable")
 }
 
 task cleanSdk(){
-//    ant.ant(dir: ".", antfile: "build.xml", target: "clean")
+    //    ant.ant(dir: ".", antfile: "build.xml", target: "clean")
 }
 
-jar.dependsOn([copyBaseLibs, copyExternalLibs, buildSdk])
+jar.dependsOn([copyBaseLibs, copyProjectLibs, buildSdk])
 clean.dependsOn(cleanSdk);
 
 //    <target name="-do-update-sdk">
