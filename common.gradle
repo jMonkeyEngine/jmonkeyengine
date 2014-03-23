@@ -15,7 +15,7 @@ sourceCompatibility = '1.5'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 repositories {
-    mavenCentral();
+    mavenCentral()
     maven{
         url "http://nifty-gui.sourceforge.net/nifty-maven-repo"
     }

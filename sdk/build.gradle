@@ -333,6 +333,10 @@ ant.properties['plugins.version'] = jmeVersion
 ant.properties['app.version']= jmeMainVersion + jmeVersionSuffix
 
 task buildSdk(dependsOn: [copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml]) <<{
+    ant.propertyfile(file: "nbproject/project.properties") {
+        entry( key: "plugins.version", value: "${jmeVersion}")
+        entry( key: "app.version", value: "${jmeMainVersion + jmeVersionSuffix}")
+    }
     ant.ant(dir: ".", antfile: "build.xml", target: "build")
 }
 
