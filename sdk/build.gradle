@@ -10,6 +10,7 @@ configurations {
     corelibs
     optlibs
     testdatalibs
+    examplelibs
 }
 
 dependencies {
@@ -27,6 +28,8 @@ dependencies {
     
     testdatalibs project(':jme3-testdata')
 
+    examplelibs project(':jme3-examples')
+    
     optlibs project(':jme3-bullet')
     optlibs project(':jme3-jogl')
     
@@ -358,10 +361,26 @@ copyProjectLibs.outputs.dir "jme3-project-baselibs/release/libs/"
 copyProjectLibs.outputs.dir "jme3-project-libraries/release/libs/"
 copyProjectLibs.outputs.dir "jme3-project-testdata/release/libs/"
 
+task copyTestSources <<{
+    project.configurations.examplelibs.dependencies.each{dep ->
+        copy{
+            from dep.dependencyProject.sourceSets*.allSource
+            into "JME3TestsTemplate/src/"
+        }
+        copy{
+            from dep.dependencyProject.sourceSets*.allSource
+            into "JME3TestsTemplateAndroid/src/"
+        }
+    }
+}
+copyTestSources.inputs.files project.configurations.examplelibs
+copyTestSources.outputs.dir "JME3TestsTemplate/src/"
+copyTestSources.outputs.dir "JME3TestsTemplateAndroid/src/"
+
 ant.properties['plugins.version'] = jmeVersion
 ant.properties['app.version']= jmeMainVersion + jmeVersionSuffix
 
-task buildSdk(dependsOn: [copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml]) <<{
+task buildSdk(dependsOn: [copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml, copyTestSources]) <<{
     ant.propertyfile(file: "nbproject/project.properties") {
         entry( key: "plugins.version", value: "${jmeVersion}")
         entry( key: "app.version", value: "${jmeMainVersion + jmeVersionSuffix}")
