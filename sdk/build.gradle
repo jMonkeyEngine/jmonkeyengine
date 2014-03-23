@@ -36,6 +36,27 @@ artifacts {
     //    jar null
 }
 
+task checkPlatformConfig {
+    description = "Downloads the NetBeans platform base and registers it in the SDK project if needed"
+    def platformFile = file("nbproject/private/platform-private.properties")
+    if(!platformFile.exists()){
+        def netbeansFolder = file("../netbeans")
+        if(!netbeansFolder.exists()){
+            println "Downloading NetBeans Platform base, this only has to be done once.."
+            def f = file("netbeans.zip")
+            new URL("http://download.netbeans.org/netbeans/8.0/final/zip/netbeans-8.0-201403101706-javase.zip").withInputStream{ i -> f.withOutputStream{ it << i }}
+            copy{
+                from zipTree(f)
+                into "../"
+            }
+            f.delete()
+        }
+        platformFile.createNewFile()
+        platformFile.write("nbplatform.default.netbeans.dest.dir=${netbeansFolder.absolutePath}\r\n"+\
+                           "nbplatform.default.harness.dir=${netbeansFolder.absolutePath}/harness\r\n")
+    }
+}
+
 task copyBaseLibs(dependsOn:configurations.corelibs) <<{
     description "Copies the library files needed to run the SDK to "+
                 "jme3-core-baselibs and jme3-core-libraries"
@@ -311,11 +332,11 @@ ant.properties['plugins.version'] = jmeVersion
 ant.properties['app.version']= jmeMainVersion + jmeVersionSuffix
 
 task buildSdk() <<{
-//    ant.ant(dir: ".", antfile: "build.xml", target: "build")
+    ant.ant(dir: ".", antfile: "build.xml", target: "build")
 }
 
 task cleanSdk() <<{
-//    ant.ant(dir: ".", antfile: "build.xml", target: "clean")
+    ant.ant(dir: ".", antfile: "build.xml", target: "clean")
 }
 
 jar.dependsOn([copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml, buildSdk])
