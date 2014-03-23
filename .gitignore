@@ -62,3 +62,5 @@
 /sdk/jme3-welcome-screen/build/
 /sdk/jme3-glsl-support/build/
 /netbeans/
+/sdk/jme3-tests-template/src/com/jme3/gde/templates/tests/JmeTestsProject.zip
+/sdk/jme3-tests-template/src/com/jme3/gde/templates/tests/JME3TestsAndroidProject.zip

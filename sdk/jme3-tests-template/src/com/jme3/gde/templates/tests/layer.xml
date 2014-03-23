@@ -6,8 +6,15 @@
             <folder name="JME3">
                 <file name="JmeTestsProject.zip" url="JmeTestsProject.zip">
                     <attr name="displayName" bundlevalue="com.jme3.gde.templates.tests.Bundle#Templates/Project/JME3/JmeTestsProject.zip"/>
-                    <attr name="instantiatingIterator" methodvalue="com.jme3.gde.templates.tests.JmeTestsWizardIterator.createIterator"/>
-                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/tests/JmeTestsDescription.html"/>
+                    <attr name="instantiatingIterator" methodvalue="com.jme3.gde.templates.tests.testsdesktop.JmeTestsWizardIterator.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/tests/testsdesktop/JmeTestsDescription.html"/>
+                    <attr name="template" boolvalue="true"/>
+                </file>
+                <file name="JME3TestsAndroidProject.zip" url="JME3TestsAndroidProject.zip">
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/jme3/gde/templates/tests/testsandroid/phone16.png"/>
+                    <attr name="displayName" bundlevalue="com.jme3.gde.templates.tests.Bundle#Templates/Project/JME3/JME3TestsAndroidProject.zip"/>
+                    <attr name="instantiatingIterator" methodvalue="com.jme3.gde.templates.tests.testsandroid.JME3TestsAndroidWizardIterator.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jme3/gde/templates/tests/testsandroid/JME3TestsAndroidDescription.html"/>
                     <attr name="template" boolvalue="true"/>
                 </file>
             </folder>

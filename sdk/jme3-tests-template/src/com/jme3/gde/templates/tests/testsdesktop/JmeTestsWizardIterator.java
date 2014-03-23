@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jme3.gde.templates.tests;
+package com.jme3.gde.templates.tests.testsdesktop;
 
 import java.awt.Component;
 import java.io.ByteArrayInputStream;

@@ -60,7 +60,7 @@
             <exclude name="**/dist/"/>
             <exclude name="**/nbproject/private/"/>
         </zip>
-        <zip basedir="JME3TestsTemplateAndroid/" destfile="jme3-templates/src/com/jme3/gde/templates/JME3TestsAndroidProject.zip">
+        <zip basedir="JME3TestsTemplateAndroid/" destfile="jme3-tests-template/src/com/jme3/gde/templates/tests/JME3TestsAndroidProject.zip">
             <exclude name="**/build/"/>
             <exclude name="**/dist/"/>
             <exclude name="**/mobile/assets/"/>

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jme3.gde.templates.testsandroid;
+package com.jme3.gde.templates.tests.testsandroid;
 
 import java.io.File;
 import javax.swing.JFileChooser;
