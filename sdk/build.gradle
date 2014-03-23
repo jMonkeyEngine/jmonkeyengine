@@ -51,6 +51,7 @@ task checkPlatformConfig {
             }
             f.delete()
         }
+        file("nbproject/private/").mkdirs()
         platformFile.createNewFile()
         platformFile.write("nbplatform.default.netbeans.dest.dir=${netbeansFolder.absolutePath}\r\n"+\
                            "nbplatform.default.harness.dir=${netbeansFolder.absolutePath}/harness\r\n")
