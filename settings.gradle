@@ -24,7 +24,7 @@ include 'jme3-android'
 
 //native builds
 include 'jme3-bullet' //java
-if(buildNativeProjects){
+if(buildNativeProjects == "true"){
     include 'jme3-bullet-native' //cpp
     include 'jme3-android-native' //cpp
 }
@@ -34,6 +34,6 @@ include 'jme3-testdata'
 // Example projects
 include 'jme3-examples'
 
-if(buildSdkProject){
+if(buildSdkProject == "true"){
     include 'sdk'
 }
