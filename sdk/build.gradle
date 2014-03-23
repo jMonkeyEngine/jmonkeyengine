@@ -332,7 +332,7 @@ task copyProjectLibs(dependsOn: configurations.corelibs) <<{
 ant.properties['plugins.version'] = jmeVersion
 ant.properties['app.version']= jmeMainVersion + jmeVersionSuffix
 
-task buildSdk() <<{
+task buildSdk(dependsOn: [copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml]) <<{
     ant.ant(dir: ".", antfile: "build.xml", target: "build")
 }
 
@@ -340,7 +340,7 @@ task cleanSdk() <<{
     ant.ant(dir: ".", antfile: "build.xml", target: "clean")
 }
 
-jar.dependsOn([copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml, buildSdk])
+jar.dependsOn(buildSdk)
 clean.dependsOn(cleanSdk);
 
 //configurations {
