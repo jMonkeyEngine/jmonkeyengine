@@ -82,6 +82,9 @@ task copyBaseLibs(dependsOn:configurations.corelibs) <<{
         }
     }
 }
+copyBaseLibs.inputs.files configurations.corelibs.resolve()
+copyBaseLibs.outputs.dir "jme3-core-baselibs/release/modules/ext/"
+copyBaseLibs.outputs.dir "jme3-core-libraries/release/modules/ext/"
 
 task createBaseXml(dependsOn: configurations.corelibs) <<{
     description "Creates the project.xml files for "+
@@ -205,6 +208,9 @@ task createBaseXml(dependsOn: configurations.corelibs) <<{
     File librariesProjectFile = file("jme3-core-libraries/nbproject/project.xml");
     librariesProjectFile.write(extWriter.toString())
 }
+createBaseXml.inputs.files configurations.corelibs.resolve()
+createBaseXml.outputs.file "jme3-core-baselibs/nbproject/project.xml"
+createBaseXml.outputs.file "jme3-core-libraries/nbproject/project.xml"
 
 // workaround method to add a tag with the name "name" and "file" to an XML MarkupBuilder
 def makeName(builder, nameR) { builder.name nameR }
@@ -294,6 +300,9 @@ task createProjectXml(dependsOn: configurations.corelibs) <<{
     File layerXmlFile = file("jme3-project-baselibs/src/com/jme3/gde/project/baselibs/layer.xml");
     layerXmlFile.write(layerWriter.toString())
 }
+createProjectXml.inputs.files configurations.corelibs.resolve()
+createProjectXml.inputs.files configurations.optlibs.resolve()
+createProjectXml.outputs.dir "jme3-project-baselibs/src/com/jme3/gde/project/baselibs/"
 
 task copyProjectLibs(dependsOn: configurations.corelibs) <<{
     description "Copies the jar files needed to supply the J2SE Libraries in the "+
@@ -328,6 +337,10 @@ task copyProjectLibs(dependsOn: configurations.corelibs) <<{
     }
 
 }
+copyProjectLibs.inputs.files configurations.corelibs.resolve()
+copyProjectLibs.inputs.files configurations.optlibs.resolve()
+copyProjectLibs.outputs.dir "jme3-project-baselibs/release/libs/"
+copyProjectLibs.outputs.dir "jme3-project-libraries/release/libs/"
 
 ant.properties['plugins.version'] = jmeVersion
 ant.properties['app.version']= jmeMainVersion + jmeVersionSuffix
@@ -339,6 +352,10 @@ task buildSdk(dependsOn: [copyBaseLibs, copyProjectLibs, createProjectXml, creat
     }
     ant.ant(dir: ".", antfile: "build.xml", target: "build")
 }
+buildSdk.inputs.files configurations.corelibs.resolve()
+buildSdk.inputs.files configurations.optlibs.resolve()
+buildSdk.inputs.files "jme3-*"
+buildSdk.outputs.dir "build"
 
 task cleanSdk() <<{
     ant.ant(dir: ".", antfile: "build.xml", target: "clean")
