@@ -409,9 +409,15 @@ buildSdk.outputs.dir "build"
 
 task cleanSdk() <<{
     ant.ant(dir: ".", antfile: "build.xml", target: "clean")
+    file("jme3-core-baselibs/release/").deleteDir()
+    file("jme3-core-libraries/release/").deleteDir()
+    file("jme3-project-baselibs/release/").deleteDir()
+    file("jme3-project-libraries/release/").deleteDir()
+    file("JME3TestsTemplate/src/jmetest/").deleteDir()
+    file("JME3TestsTemplateAndroid/src/jmetest/").deleteDir()
 }
 
 jar.dependsOn(buildSdk)
 clean.dependsOn(cleanSdk);
 
-    
+
