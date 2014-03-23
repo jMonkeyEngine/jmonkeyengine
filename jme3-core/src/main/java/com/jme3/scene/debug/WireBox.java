@@ -103,12 +103,20 @@ public class WireBox extends Mesh {
     }
 
     /**
+     * Old method retained for compatibility: use makeGeometry instead.
+     */
+    @Deprecated
+    public void fromBoundingBox(BoundingBox bbox) {
+        updatePositions(bbox.getXExtent(), bbox.getYExtent(), bbox.getZExtent());
+    }
+    
+    /**
      * Create a geometry suitable for visualizing the specified bounding box.
      *
      * @param bbox the bounding box (not null)
      * @return a new Geometry instance in world space
      */
-    public static Geometry fromBoundingBox(BoundingBox bbox) {
+    public static Geometry makeGeometry(BoundingBox bbox) {
         float xExtent = bbox.getXExtent();
         float yExtent = bbox.getYExtent();
         float zExtent = bbox.getZExtent();
@@ -120,5 +128,4 @@ public class WireBox extends Mesh {
 
         return result;
     }
-
 }
