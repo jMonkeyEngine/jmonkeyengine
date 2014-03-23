@@ -64,3 +64,7 @@
 /netbeans/
 /sdk/jme3-tests-template/src/com/jme3/gde/templates/tests/JmeTestsProject.zip
 /sdk/jme3-tests-template/src/com/jme3/gde/templates/tests/JME3TestsAndroidProject.zip
+/sdk/jme3-project-testdata/release/
+/sdk/JME3TestsTemplateAndroid/src/jme3test/
+/sdk/JME3TestsTemplate/src/jme3test/
+/jme3-ios/build/
