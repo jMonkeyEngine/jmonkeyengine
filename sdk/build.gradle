@@ -36,47 +36,10 @@ artifacts {
     //    jar null
 }
 
-//    <taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="ant-import.classpath"/>
-//    <taskdef resource="com/jme/ant/ant-jme.properties" classpathref="ant-import.classpath"/>
-//    <taskdef name="deb" classname="com.googlecode.ant_deb_task.Deb" classpathref="ant-import.classpath"/>
-//    <taskdef name="gcupload" classname="net.bluecow.googlecode.ant.GoogleCodeUploadTask" classpathref="ant-import.classpath"/>
-//    <taskdef name="desktopentry" classname="com.googlecode.ant_deb_task.DesktopEntry" classpathref="ant-import.classpath"/>
-
-//configurations {
-//    antlibs
-//}
-
-//dependencies {
-//    antlibs filetree(dir: 'ant-lib', include: '*.jar')
-//}
-//
-//ant.taskdef(resource: 'net/sf/antcontrib/antcontrib.properties', classpath: configurations.antlibs.asPath)
-//ant.taskdef(name: 'deb', classname: 'com.googlecode.ant_deb_task.Deb', classpath: configurations.antlibs.asPath)
-//ant.taskdef(name: 'gcupload', classname: 'net.bluecow.googlecode.ant.GoogleCodeUploadTask', classpath: configurations.antlibs.asPath)
-//ant.taskdef(name: 'desktopentry', classname: 'com.googlecode.ant_deb_task.DesktopEntry', classpath: configurations.antlibs.asPath)
-//ant.importBuild 'build.xml'
-
-ant.properties['plugins.version'] = jmeVersion
-ant.properties['app.version']= jmeMainVersion + jmeVersionSuffix
-//ant.properties.buildDir = buildDir
-//ant.properties['buildDir'] = buildDir
-//ant.property(name: 'buildDir', location: buildDir)
-
-//ant.taskdef(resource: 'checkstyletask.properties') {
-//    classpath {
-//        fileset(dir: 'ant-lib', includes: '*.jar')
-//    }
-//}
-//ant.checkstyle(config: 'checkstyle.xml') {
-//    fileset(dir: 'src')
-//}
-
-task copyBaseLibs{
+task copyBaseLibs(dependsOn:configurations.corelibs) <<{
     description "Copies the library files needed to run the SDK to "+
                 "jme3-core-baselibs and jme3-core-libraries"
-    dependsOn configurations.corelibs
-    dependsOn configurations.optlibs
-    
+
     // for each dependency in corelibs..
     project.configurations.corelibs.dependencies.each {dep ->
         // copy built jme3 jar files to jme3-core-baselibs
@@ -98,7 +61,7 @@ task copyBaseLibs{
     }
 }
 
-task createBaseXml{
+task createBaseXml(dependsOn: configurations.corelibs) <<{
     description "Creates the project.xml files for "+
                 "jme3-core-baselibs and jme3-core-libraries"
     def depJars = [] // jme3 jar files
@@ -225,7 +188,7 @@ task createBaseXml{
 def makeName(builder, nameR) { builder.name nameR }
 def makeFile(builder, nameR) { builder.file(name:nameR, url:nameR) }
 
-task createProjectXml{
+task createProjectXml(dependsOn: configurations.corelibs) <<{
     description "Creates needed J2SE library and layer XML files in jme3-project-baselibs"
     
     def eol = System.properties.'line.separator' 
@@ -310,11 +273,9 @@ task createProjectXml{
     layerXmlFile.write(layerWriter.toString())
 }
 
-task copyProjectLibs{
+task copyProjectLibs(dependsOn: configurations.corelibs) <<{
     description "Copies the jar files needed to supply the J2SE Libraries in the "+
                 "SDK to jme3-project-baselibs and jme3-project-libraries"
-    dependsOn configurations.corelibs
-    dependsOn configurations.optlibs
 
     // for each dependency in corelibs..
     project.configurations.corelibs.dependencies.each {dep ->
@@ -346,17 +307,46 @@ task copyProjectLibs{
 
 }
 
-task buildSdk(){
-    //    ant.ant(dir: ".", antfile: "build.xml", target: "hudson-stable")
+ant.properties['plugins.version'] = jmeVersion
+ant.properties['app.version']= jmeMainVersion + jmeVersionSuffix
+
+task buildSdk() <<{
+//    ant.ant(dir: ".", antfile: "build.xml", target: "build")
 }
 
-task cleanSdk(){
-    //    ant.ant(dir: ".", antfile: "build.xml", target: "clean")
+task cleanSdk() <<{
+//    ant.ant(dir: ".", antfile: "build.xml", target: "clean")
 }
 
 jar.dependsOn([copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml, buildSdk])
 clean.dependsOn(cleanSdk);
 
+//configurations {
+//    antlibs
+//}
+//dependencies {
+//    antlibs filetree(dir: 'ant-lib', include: '*.jar')
+//}
+//
+//ant.taskdef(resource: 'net/sf/antcontrib/antcontrib.properties', classpath: configurations.antlibs.asPath)
+//ant.taskdef(name: 'deb', classname: 'com.googlecode.ant_deb_task.Deb', classpath: configurations.antlibs.asPath)
+//ant.taskdef(name: 'gcupload', classname: 'net.bluecow.googlecode.ant.GoogleCodeUploadTask', classpath: configurations.antlibs.asPath)
+//ant.taskdef(name: 'desktopentry', classname: 'com.googlecode.ant_deb_task.DesktopEntry', classpath: configurations.antlibs.asPath)
+//ant.importBuild 'build.xml'
+
+//ant.properties.buildDir = buildDir
+//ant.properties['buildDir'] = buildDir
+//ant.property(name: 'buildDir', location: buildDir)
+
+//ant.taskdef(resource: 'checkstyletask.properties') {
+//    classpath {
+//        fileset(dir: 'ant-lib', includes: '*.jar')
+//    }
+//}
+//ant.checkstyle(config: 'checkstyle.xml') {
+//    fileset(dir: 'src')
+//}
+//    
 //    <target name="-do-update-sdk">
 //        <fileset id="jme3-jars" dir="build">
 //            <include name="**/jME3**.jar"/>
