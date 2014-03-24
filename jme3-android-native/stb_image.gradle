@@ -1,3 +1,7 @@
+// stb_image url for download
+String stbiUrl = 'http://www.nothings.org/stb_image.c'
+String stbiDownloadTarget = 'stb_image.c'
+
 // stb_image is not downloaded.  The single source file is included in the repo
 String stbiFolder = 'stb_image'
 
@@ -9,6 +13,12 @@ String stbiBuildDir = "${buildDir}" + File.separator + 'stb_image'
 // jME Android Native source files path
 String stbiJmeAndroidPath = 'src/native/jme_stbi'
 
+// Download external source files if not available
+task downloadStbImage(type: MyDownload) {
+    sourceUrl = stbiUrl
+    target = file(stbiFolder + File.separator + stbiDownloadTarget)
+}
+
 // Copy stb_image files to jni directory
 task copyStbiFiles(type: Copy) {
     def sourceDir = file(stbiFolder)
@@ -19,6 +29,16 @@ task copyStbiFiles(type: Copy) {
     from sourceDir
     into outputDir
 }
+copyStbiFiles.dependsOn {
+    def stbiFilePath = project.projectDir.absolutePath + stbiFolder + File.separator + stbiDownloadTarget
+    def stbiFile = new File(stbiFilePath)
+//    println "zipFile path: " + zipFile.absolutePath
+//    println "zipFile exists: " + zipFile.exists()
+    if (!stbiFile.exists()) {
+        downloadStbImage
+    }
+}
+
 
 // Copy jME Android native files to jni directory
 task copyStbiJmeFiles(type: Copy, dependsOn:copyStbiFiles) {
@@ -62,5 +82,20 @@ compileJava.dependsOn {
     // ndkPath is defined in the root project gradle.properties file
     if (ndkCommandPath != null && new File(ndkCommandPath).exists()) {
         buildStbiNativeLib
+    }
+}
+
+
+// Helper class to wrap ant dowload task
+class MyDownload extends DefaultTask {
+    @Input
+    String sourceUrl
+
+    @OutputFile
+    File target
+
+    @TaskAction
+    void download() {
+       ant.get(src: sourceUrl, dest: target)
     }
 }
