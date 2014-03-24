@@ -10,33 +10,6 @@
 // prefer. In this case NetBeans will not add these tasks but you may rely on
 // your own implementation.
 
-// // OpenAL Soft r1.15.1
-//String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/9b6a226da55a987cb883f425eeb568776ea12c8d.zip'
-// OpenAL Soft r1.15.1 + Android OpenSL Support
-String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/be25e6802dacad78876c6fa1d6a5c63797b8a9ed.zip'
-// OpenAL Soft r1.15.1 latest build (at the time)
-//String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/3f5914e0949ee12b504ee7254990e007ff8057ef.zip'
-
-// OpenAL Soft directory the download is extracted into
-// Typically, the downloaded OpenAL Soft zip file will extract to a directory
-// called "openal-soft"
-String openALSoftFolder = 'openal-soft'
-String openALSoftZipFile = 'OpenALSoft.zip'
-
-//Working directory for the ndk build.
-//Must be the parent directory of the jni directory
-//Libs directory (output of ndk) will be created in this directory as well
-String ndkWorkingPath = 'src/native'
-
-// jni folder path to build from
-String jniPath = ndkWorkingPath + '/jni'
-
-//Output directory of the NDK (do not change)
-String ndkOutputPath = ndkWorkingPath + '/libs'
-
-// jME Android Native source files path
-String jMEAndroidPath = 'src/native/android'
-
 if (!hasProperty('mainClass')) {
     ext.mainClass = ''
 }
@@ -44,7 +17,7 @@ if (!hasProperty('mainClass')) {
 sourceSets {
     main {
         java {
-            srcDir jMEAndroidPath
+            srcDir 'src/native'
         }
     }
 }
@@ -60,96 +33,21 @@ dependencies {
     compile project(':jme3-android')
 }
 
-// Download bullet if not available
-task downloadOpenALSoft(type: MyDownload) {
-    sourceUrl = openALSoftUrl
-    target = file(openALSoftZipFile)
+ext {
+    // stores the native project classpath to be used in each native
+    // build to generate native header files
+    projectClassPath = configurations.runtime.asFileTree.matching {
+        exclude ".gradle"
+    }.asPath
+
+    // findNDK() is defined in the root project gradle.build so it
+    // can be visible to all subprojects that need to build an Android native lib
+    ndkCommandPath = findNDK()
 }
+//println "projectClassPath = " + projectClassPath
+//println "ndkCommandPath = " + ndkCommandPath
 
-// Unzip OpenALSoft
-task unzipOpenALSoft(type: Copy) {
-    def zipFile = file(openALSoftZipFile)
-    def outputDir = file(".")
+// add each native lib build file
+apply from: file('openalsoft.gradle')
+//apply from: file('stb_image.gradle')
 
-    from zipTree(zipFile)
-    into outputDir
-}
-unzipOpenALSoft.dependsOn {
-    def zipFilePath = project.projectDir.absolutePath + File.separator + openALSoftZipFile
-    def zipFile = new File(zipFilePath)
-//    println "zipFile path: " + zipFile.absolutePath
-//    println "zipFile exists: " + zipFile.exists()
-    if (!zipFile.exists()) {
-        downloadOpenALSoft
-    }
-}
-
-// Copy OpenALSoft files to jni directory
-task copyOpenALSoft(type: Copy) {
-    def sourceDir = file(openALSoftFolder)
-    def outputDir = file(jniPath)
-
-    from sourceDir
-    into outputDir
-}
-copyOpenALSoft.dependsOn {
-    def openALSoftUnzipDir = new File(project.projectDir.absolutePath + File.separator + openALSoftFolder)
-//    println "openALSoftUnzipDir path: " + openALSoftUnzipDir.absolutePath
-//    println "openALSoftUnzipDir exists: " + openALSoftUnzipDir.isDirectory()
-    if (!openALSoftUnzipDir.isDirectory()) {
-        unzipOpenALSoft
-    }
-}
-
-// Copy jME Android native files to jni directory
-task copyJmeOpenALSoft(type: Copy, dependsOn:copyOpenALSoft) {
-    def sourceDir = file(jMEAndroidPath)
-    def outputDir = file(jniPath)
-
-    from sourceDir
-    into outputDir
-}
-
-task buildNative(type: Exec, dependsOn:copyJmeOpenALSoft) {
-    String ndkBuildFile = "ndk-build"
-    // if windows, use ndk-build.cmd instead
-    if (System.properties['os.name'].toLowerCase().contains('windows')) {
-        ndkBuildFile = "ndk-build.cmd"
-    }
-
-    // ndkPath is defined in the root project gradle.properties file
-    String ndkBuildPath = ndkPath + File.separator + ndkBuildFile
-    //Use the environment variable for the NDK location if defined
-    if (System.env.ANDROID_NDK != null) {
-        ndkBuildPath = System.env.ANDROID_NDK + File.separator + ndkBuildFile
-    }
-
-    // need to target android-9 so the ndk can pull in the opensl library
-    args 'TARGET_PLATFORM=android-9'
-    workingDir ndkWorkingPath
-    executable ndkBuildPath
-}
-
-jar.into("lib") { from ndkOutputPath }
-
-compileJava.dependsOn {
-    // ndkPath is defined in the root project gradle.properties file
-    def ndkDir = new File(ndkPath)
-    if (ndkDir.isDirectory()) {
-        buildNative
-    }
-}
-
-// Helper class to wrap ant dowload task
-class MyDownload extends DefaultTask {
-    @Input
-    String sourceUrl
-
-    @OutputFile
-    File target
-
-    @TaskAction
-    void download() {
-       ant.get(src: sourceUrl, dest: target)
-    }
-}
