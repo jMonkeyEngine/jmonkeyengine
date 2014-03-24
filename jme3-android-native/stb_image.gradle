@@ -5,10 +5,13 @@ String stbiDownloadTarget = 'stb_image.c'
 // stb_image is not downloaded.  The single source file is included in the repo
 String stbiFolder = 'stb_image'
 
-//Working directory for the ndk build.
-//Must be the parent directory of the jni directory
-//Libs directory (output of ndk) will be created in this directory as well
+//Working directories for the ndk build.
 String stbiBuildDir = "${buildDir}" + File.separator + 'stb_image'
+String stbiBuildJniDir = stbiBuildDir + File.separator + 'jni'
+String stbiBuildLibsDir = stbiBuildDir + File.separator + 'libs'
+
+//Pre-compiled libs directory
+String stbiPreCompiledLibsDir = 'libs' + File.separator + 'stb_image'
 
 // jME Android Native source files path
 String stbiJmeAndroidPath = 'src/native/jme_stbi'
@@ -22,7 +25,7 @@ task downloadStbImage(type: MyDownload) {
 // Copy stb_image files to jni directory
 task copyStbiFiles(type: Copy) {
     def sourceDir = file(stbiFolder)
-    def outputDir = file(stbiBuildDir + File.separator + 'jni')
+    def outputDir = file(stbiBuildJniDir)
 //    println "copyStbiFiles sourceDir: " + sourceDir
 //    println "copyStbiFiles outputDir: " + outputDir
 
@@ -43,18 +46,15 @@ copyStbiFiles.dependsOn {
 // Copy jME Android native files to jni directory
 task copyStbiJmeFiles(type: Copy, dependsOn:copyStbiFiles) {
     def sourceDir = file(stbiJmeAndroidPath)
-    def outputDir = file(stbiBuildDir + File.separator + 'jni')
+    def outputDir = file(stbiBuildJniDir)
 //    println "copyStbiJmeFiles sourceDir: " + sourceDir
 //    println "copyStbiJmeFiles outputDir: " + outputDir
 
     from sourceDir
     into outputDir
 }
-
-jar.into("lib") { from stbiBuildDir + File.separator + 'libs' }
-
-task generateStbiHeaders(dependsOn:copyStbiJmeFiles) {
-    String destDir = stbiBuildDir + File.separator + 'jni'
+copyStbiJmeFiles.doLast {
+    String destDirPath = stbiBuildJniDir
     String classes = ""
             .concat("com.jme3.texture.plugins.AndroidNativeImageLoader, ")
 
@@ -64,13 +64,13 @@ task generateStbiHeaders(dependsOn:copyStbiJmeFiles) {
 
     ant.javah(
         classpath: project.projectClassPath,
-        destdir: destDir,
+        destdir: destDirPath,
         class: classes
     )
 
 }
 
-task buildStbiNativeLib(type: Exec, dependsOn: generateStbiHeaders) {
+task buildStbiNativeLib(type: Exec, dependsOn: copyStbiJmeFiles) {
 //    println "stb_image build dir: " + buildLibDir
 //    println "ndkCommandPath: " + project.ndkCommandPath
     args 'TARGET_PLATFORM=android-9'
@@ -78,13 +78,24 @@ task buildStbiNativeLib(type: Exec, dependsOn: generateStbiHeaders) {
     executable project.ndkCommandPath
 }
 
-compileJava.dependsOn {
-    // ndkPath is defined in the root project gradle.properties file
-    if (ndkCommandPath != null && new File(ndkCommandPath).exists()) {
-        buildStbiNativeLib
-    }
+// Copy pre-compiled libs to build directory (when not building new libs)
+task copyPreCompiledStbiLibs(type: Copy) {
+    def sourceDir = file(stbiPreCompiledLibsDir)
+    def outputDir = file(stbiBuildLibsDir)
+//    println "copyStbiJmeFiles sourceDir: " + sourceDir
+//    println "copyStbiJmeFiles outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
 }
 
+if (ndkExists()) {
+    compileJava.dependsOn { buildStbiNativeLib }
+} else {
+    compileJava.dependsOn { copyPreCompiledStbiLibs }
+}
+
+jar.into("lib") { from stbiBuildLibsDir }
 
 // Helper class to wrap ant dowload task
 class MyDownload extends DefaultTask {
