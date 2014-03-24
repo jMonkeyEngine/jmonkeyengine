@@ -27,8 +27,9 @@ include 'jme3-ios'
 include 'jme3-bullet' //java
 if(buildNativeProjects == "true"){
     include 'jme3-bullet-native' //cpp
-    include 'jme3-android-native' //cpp
 }
+include 'jme3-android-native' //cpp
+
 // Test Data project
 include 'jme3-testdata'
 
