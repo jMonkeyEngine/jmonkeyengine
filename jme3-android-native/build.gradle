@@ -49,5 +49,5 @@ ext {
 
 // add each native lib build file
 apply from: file('openalsoft.gradle')
-//apply from: file('stb_image.gradle')
+apply from: file('stb_image.gradle')
 

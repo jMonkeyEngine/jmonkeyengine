@@ -1,0 +1,66 @@
+// stb_image is not downloaded.  The single source file is included in the repo
+String stbiFolder = 'stb_image'
+
+//Working directory for the ndk build.
+//Must be the parent directory of the jni directory
+//Libs directory (output of ndk) will be created in this directory as well
+String stbiBuildDir = "${buildDir}" + File.separator + 'stb_image'
+
+// jME Android Native source files path
+String stbiJmeAndroidPath = 'src/native/jme_stbi'
+
+// Copy stb_image files to jni directory
+task copyStbiFiles(type: Copy) {
+    def sourceDir = file(stbiFolder)
+    def outputDir = file(stbiBuildDir + File.separator + 'jni')
+//    println "copyStbiFiles sourceDir: " + sourceDir
+//    println "copyStbiFiles outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+
+// Copy jME Android native files to jni directory
+task copyStbiJmeFiles(type: Copy, dependsOn:copyStbiFiles) {
+    def sourceDir = file(stbiJmeAndroidPath)
+    def outputDir = file(stbiBuildDir + File.separator + 'jni')
+//    println "copyStbiJmeFiles sourceDir: " + sourceDir
+//    println "copyStbiJmeFiles outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+
+jar.into("lib") { from stbiBuildDir + File.separator + 'libs' }
+
+task generateStbiHeaders(dependsOn:copyStbiJmeFiles) {
+    String destDir = stbiBuildDir + File.separator + 'jni'
+    String classes = ""
+            .concat("com.jme3.texture.plugins.AndroidNativeImageLoader, ")
+
+//    println "stb_image classes = " + classes
+//    println "stb_image destDir = " + destDir
+//    println "stb_image classpath = " + project.projectClassPath
+
+    ant.javah(
+        classpath: project.projectClassPath,
+        destdir: destDir,
+        class: classes
+    )
+
+}
+
+task buildStbiNativeLib(type: Exec, dependsOn: generateStbiHeaders) {
+//    println "stb_image build dir: " + buildLibDir
+//    println "ndkCommandPath: " + project.ndkCommandPath
+    args 'TARGET_PLATFORM=android-9'
+    workingDir stbiBuildDir
+    executable project.ndkCommandPath
+}
+
+compileJava.dependsOn {
+    // ndkPath is defined in the root project gradle.properties file
+    if (ndkCommandPath != null && new File(ndkCommandPath).exists()) {
+        buildStbiNativeLib
+    }
+}

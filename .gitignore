@@ -68,3 +68,5 @@
 /sdk/JME3TestsTemplateAndroid/src/jme3test/
 /sdk/JME3TestsTemplate/src/jme3test/
 /jme3-ios/build/
+/jme3-android-native/openal-soft/
+/jme3-android-native/OpenALSoft.zip
