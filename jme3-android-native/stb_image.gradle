@@ -53,7 +53,7 @@ task copyStbiJmeFiles(type: Copy, dependsOn:copyStbiFiles) {
 
 jar.into("lib") { from stbiBuildDir + File.separator + 'libs' }
 
-task generateStbiHeaders(dependsOn:copyStbiJmeFiles) {
+task generateStbiHeaders(dependsOn:copyStbiJmeFiles) <<{
     String destDir = stbiBuildDir + File.separator + 'jni'
     String classes = ""
             .concat("com.jme3.texture.plugins.AndroidNativeImageLoader, ")

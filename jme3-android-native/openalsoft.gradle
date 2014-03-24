@@ -75,7 +75,7 @@ task copyJmeOpenALSoft(type: Copy, dependsOn:copyOpenALSoft) {
 
 jar.into("lib") { from openalsoftBuildDir + File.separator + 'libs' }
 
-task generateOpenAlSoftHeaders(dependsOn:copyJmeOpenALSoft) {
+task generateOpenAlSoftHeaders(dependsOn:copyJmeOpenALSoft) <<{
     String destDir = openalsoftBuildDir + File.separator + 'jni'
 
     String classes = ""
