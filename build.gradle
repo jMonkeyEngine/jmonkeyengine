@@ -116,6 +116,15 @@ String findNDK() {
     }
 }
 
+boolean ndkExists() {
+    String ndkCommandPath = findNDK()
+    if (ndkCommandPath != null && new File(ndkCommandPath).exists()) {
+        return true
+    } else {
+        return false
+    }
+}
+
 //class IncrementalReverseTask extends DefaultTask {
 //    @InputDirectory
 //    def File inputDir
