@@ -87,7 +87,9 @@ public class FlyCamAppState extends AbstractAppState {
     public void cleanup() {
         super.cleanup();
 
-        flyCam.unregisterInput();        
+        if (app.getInputManager() != null) {        
+            flyCam.unregisterInput();
+        }        
     }
 
 

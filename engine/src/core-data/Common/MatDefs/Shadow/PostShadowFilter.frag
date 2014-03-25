@@ -35,6 +35,10 @@ vec3 getPosition(in float depth, in vec2 uv){
 }
 
 void main(){    
+    #if !defined( RENDER_SHADOWS )
+          gl_FragColor = texture2D(m_Texture,texCoord);
+          return;
+    #endif
     
     float depth = texture2D(m_DepthTexture,texCoord).r;
     vec4 color = texture2D(m_Texture,texCoord);

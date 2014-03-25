@@ -7,14 +7,14 @@
 The goal of TerraMonkey is to provide a base implementation that will be usable for 80% of people&#039;s goals, while providing tools and a good foundation for the other 20% to build off of. Check out the videos in the following announcements:
 </p>
 <ul>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/2011/06/17/infinite-terrains-with-terraingrid-new-features-in-terramonkey/"><param name="text" value="<html><u>New features</u></html>"><param name="textColor" value="blue"></object></div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://hub.jmonkeyengine.org/2011/06/17/infinite-terrains-with-terraingrid-new-features-in-terramonkey/"><param name="text" value="<html><u>New features</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
-<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://jmonkeyengine.org/2011/07/03/terramonkey-more-textures-tools-and-undo/"><param name="text" value="<html><u>More textures and Tools</u></html>"><param name="textColor" value="blue"></object></div>
+<li><div> <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer"><param name="content" value="http://hub.jmonkeyengine.org/2011/07/03/terramonkey-more-textures-tools-and-undo/"><param name="text" value="<html><u>More textures and Tools</u></html>"><param name="textColor" value="blue"></object></div>
 </li>
 </ul>
 
 </div>
-<!-- EDIT1 SECTION "TerraMonkey - The jMonkeyEngine Terrain System" [1-533] -->
+<!-- EDIT1 SECTION "TerraMonkey - The jMonkeyEngine Terrain System" [1-541] -->
 <h2><a>Overview</a></h2>
 <div>
 
@@ -38,7 +38,7 @@ TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real tim
 </ul>
 
 </div>
-<!-- EDIT2 SECTION "Overview" [534-1906] -->
+<!-- EDIT2 SECTION "Overview" [542-1914] -->
 <h3><a>Current Features:</a></h3>
 <div>
 <ul>
@@ -55,7 +55,7 @@ TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real tim
 </ul>
 
 </div>
-<!-- EDIT3 SECTION "Current Features:" [1907-2293] -->
+<!-- EDIT3 SECTION "Current Features:" [1915-2301] -->
 <h3><a>Planned Features:</a></h3>
 <div>
 <ul>
@@ -66,7 +66,7 @@ TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real tim
 </ul>
 
 </div>
-<!-- EDIT4 SECTION "Planned Features:" [2294-2403] -->
+<!-- EDIT4 SECTION "Planned Features:" [2302-2411] -->
 <h2><a>Sample Code</a></h2>
 <div>
 <ul>
@@ -83,7 +83,7 @@ TerraMonkey is a GeoMipMapping quad tree of terrain tiles that supports real tim
 </ul>
 
 </div>
-<!-- EDIT5 SECTION "Sample Code" [2404-3175] -->
+<!-- EDIT5 SECTION "Sample Code" [2412-3183] -->
 <h2><a>Geo Mip Mapping</a></h2>
 <div>
 
@@ -105,7 +105,7 @@ GeoMipMapping in TerraMonkey has been split into several parts: the terrain quad
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Geo Mip Mapping" [3176-4787] -->
+<!-- EDIT6 SECTION "Geo Mip Mapping" [3184-4795] -->
 <h2><a>Terrain Quad Tree</a></h2>
 <div>
 
@@ -115,7 +115,7 @@ TerraMonkey is a quad tree. Each node is a TerrainQuad, and each leaf is a Terra
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Terrain Quad Tree" [4788-5217] -->
+<!-- EDIT7 SECTION "Terrain Quad Tree" [4796-5225] -->
 <h2><a>Texture Splatting</a></h2>
 <div>
 
@@ -185,7 +185,7 @@ Here are the names of TerrainLighting.j3md&#039;s material properties:
 </p>
 
 <p>
-Video cards support a maximum of 16 Splat textures total. This means you can only use a subset of material properties at the same time!
+OpenGL supports a maximum of 16 <em>samplers</em> in any given shader. This means you can only use a subset of material properties at the same time if you use the terrain&#039;s default lighting shader (TerrainLighting.j3md)!
 </p>
 
 <p>
@@ -237,7 +237,7 @@ You can hand-paint Alpha, Diffuse, Glow, and Specular maps in a drawing program,
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Texture Splatting" [5218-9435] -->
+<!-- EDIT8 SECTION "Texture Splatting" [5226-9523] -->
 <h2><a>Code Sample: Terrain.j3md</a></h2>
 <div>
 
@@ -304,5 +304,5 @@ PS: As an alternative to an image-based height map, you can also generate a Hill
 <pre>heightmap = new HillHeightMap&#40;1025, 1000, 50, 100, &#40;byte&#41; 3&#41;;</pre>
 
 </div>
-<!-- EDIT9 SECTION "Code Sample: Terrain.j3md" [9436-] -->
+<!-- EDIT9 SECTION "Code Sample: Terrain.j3md" [9524-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:terrain?do=export_xhtmlbody">view online version</a></em></p>

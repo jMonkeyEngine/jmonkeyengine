@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2013 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1343,25 +1343,28 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     * <code>setCullHint</code> sets how scene culling should work on this
-     * spatial during drawing. NOTE: You must set this AFTER attaching to a 
-     * parent or it will be reset with the parent's cullMode value.
+     * <code>setCullHint</code> alters how view frustum culling will treat this
+     * spatial.
      *
-     * @param hint
-     *            one of CullHint.Dynamic, CullHint.Always, CullHint.Inherit or
-     *            CullHint.Never
+     * @param hint one of: <code>CullHint.Dynamic</code>,
+     * <code>CullHint.Always</code>, <code>CullHint.Inherit</code>, or
+     * <code>CullHint.Never</code>
+     * <p>
+     * The effect of the default value (CullHint.Inherit) may change if the
+     * spatial gets re-parented.
      */
     public void setCullHint(CullHint hint) {
         cullHint = hint;
     }
 
     /**
-     * <code>setBatchHint</code> sets how batching should work on this
-     * spatial. NOTE: You must set this AFTER attaching to a 
-     * parent or it will be reset with the parent's cullMode value.
+     * <code>setBatchHint</code> alters how batching will treat this spatial.
      *
-     * @param hint
-     *            one of BatchHint.Never, BatchHint.Always, BatchHint.Inherit 
+     * @param hint one of: <code>BatchHint.Never</code>,
+     * <code>BatchHint.Always</code>, or <code>BatchHint.Inherit</code>
+     * <p>
+     * The effect of the default value (BatchHint.Inherit) may change if the
+     * spatial gets re-parented.
      */
     public void setBatchHint(BatchHint hint) {
         batchHint = hint;

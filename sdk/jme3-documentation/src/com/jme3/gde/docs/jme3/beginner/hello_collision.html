@@ -70,6 +70,11 @@ public class HelloCollision extends SimpleApplication
   private Vector3f walkDirection = new Vector3f&#40;&#41;;
   private boolean left = false, right = false, up = false, down = false;
 &nbsp;
+  //Temporary vectors used on each frame.
+  //They here to avoid instanciating new vectors on each frame
+  private Vector3f camDir = new Vector3f&#40;&#41;;
+  private Vector3f camLeft = new Vector3f&#40;&#41;;
+&nbsp;
   public static void main&#40;String&#91;&#93; args&#41; &#123;
     HelloCollision app = new HelloCollision&#40;&#41;;
     app.start&#40;&#41;;
@@ -111,7 +116,7 @@ public class HelloCollision extends SimpleApplication
     player.setGravity&#40;30&#41;;
     player.setPhysicsLocation&#40;new Vector3f&#40;0, 10, 0&#41;&#41;;
 &nbsp;
-    // We attach the scene and the player to the rootNode and the physics space,
+    // We attach the scene and the player to the rootnode and the physics space,
     // to make them appear in the game world.
     rootNode.attachChild&#40;sceneModel&#41;;
     bulletAppState.getPhysicsSpace&#40;&#41;.add&#40;landscape&#41;;
@@ -147,17 +152,17 @@ public class HelloCollision extends SimpleApplication
 &nbsp;
   <span>/** These are our custom actions triggered by key presses.
    * We do not walk yet, we just keep track of the direction the user pressed. */</span>
-  public void onAction&#40;String binding, boolean value, float tpf&#41; &#123;
+  public void onAction&#40;String binding, boolean isPressed, float tpf&#41; &#123;
     if &#40;binding.equals&#40;&quot;Left&quot;&#41;&#41; &#123;
-      left = value;
+      left = isPressed;
     &#125; else if &#40;binding.equals&#40;&quot;Right&quot;&#41;&#41; &#123;
-      right = value;
+      right= isPressed;
     &#125; else if &#40;binding.equals&#40;&quot;Up&quot;&#41;&#41; &#123;
-      up = value;
+      up = isPressed;
     &#125; else if &#40;binding.equals&#40;&quot;Down&quot;&#41;&#41; &#123;
-      down = value;
+      down = isPressed;
     &#125; else if &#40;binding.equals&#40;&quot;Jump&quot;&#41;&#41; &#123;
-      player.jump&#40;&#41;;
+      if &#40;isPressed&#41; &#123; player.jump&#40;&#41;; &#125;
     &#125;
   &#125;
 &nbsp;
@@ -169,25 +174,34 @@ public class HelloCollision extends SimpleApplication
    * We also make sure here that the camera moves with player.
    */</span>
   @Override
-  public void simpleUpdate&#40;float tpf&#41; &#123;
-    Vector3f camDir = cam.getDirection&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.6f&#41;;
-    Vector3f camLeft = cam.getLeft&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.4f&#41;;
-    walkDirection.set&#40;0, 0, 0&#41;;
-    if &#40;left&#41;  &#123; walkDirection.addLocal&#40;camLeft&#41;; &#125;
-    if &#40;right&#41; &#123; walkDirection.addLocal&#40;camLeft.negate&#40;&#41;&#41;; &#125;
-    if &#40;up&#41;    &#123; walkDirection.addLocal&#40;camDir&#41;; &#125;
-    if &#40;down&#41;  &#123; walkDirection.addLocal&#40;camDir.negate&#40;&#41;&#41;; &#125;
-    player.setWalkDirection&#40;walkDirection&#41;;
-    cam.setLocation&#40;player.getPhysicsLocation&#40;&#41;&#41;;
-  &#125;
+    public void simpleUpdate&#40;float tpf&#41; &#123;
+        camDir.set&#40;cam.getDirection&#40;&#41;&#41;.multLocal&#40;0.6f&#41;;
+        camLeft.set&#40;cam.getLeft&#40;&#41;&#41;.multLocal&#40;0.4f&#41;;
+        walkDirection.set&#40;0, 0, 0&#41;;
+        if &#40;left&#41; &#123;
+            walkDirection.addLocal&#40;camLeft&#41;;
+        &#125;
+        if &#40;right&#41; &#123;
+            walkDirection.addLocal&#40;camLeft.negate&#40;&#41;&#41;;
+        &#125;
+        if &#40;up&#41; &#123;
+            walkDirection.addLocal&#40;camDir&#41;;
+        &#125;
+        if &#40;down&#41; &#123;
+            walkDirection.addLocal&#40;camDir.negate&#40;&#41;&#41;;
+        &#125;
+        player.setWalkDirection&#40;walkDirection&#41;;
+        cam.setLocation&#40;player.getPhysicsLocation&#40;&#41;&#41;;
+    &#125;
 &#125;</pre>
 
 <p>
 Run the sample. You should see a town square with houses and a monument. Use the WASD keys and the mouse to navigate around with a first-person perspective. Run forward and jump by pressing W and Space. Note how you step over the sidewalk, and up the steps to the monument. You can walk in the alleys between the houses, but the walls are solid. Don&#039;t walk over the edge of the world! <img src="/wiki/lib/images/smileys/icon_smile.gif" class="middle" alt=":-)" />
+
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [596-7019] -->
+<!-- EDIT2 SECTION "Sample Code" [596-7341] -->
 <h2><a>Understanding the Code</a></h2>
 <div>
 
@@ -206,7 +220,12 @@ You already know that SimpleApplication is the base class for all jME3 games. Yo
   private RigidBodyControl landscape;
   private CharacterControl player;
   private Vector3f walkDirection = new Vector3f&#40;&#41;;
-  private boolean left = false, right = false, up = false, down = false;</pre>
+  private boolean left = false, right = false, up = false, down = false;
+&nbsp;
+  //Temporary vectors used on each frame.
+  //They here to avoid instanciating new vectors on each frame
+  private Vector3f camDir = new Vector3f&#40;&#41;;
+  private Vector3f camLeft = new Vector3f&#40;&#41;;</pre>
 
 <p>
 You initialize a few private fields:
@@ -222,15 +241,18 @@ You initialize a few private fields:
 </li>
 <li><div> The fields <code>walkDirection</code> and the four Booleans are used for physics-controlled navigation.</div>
 </li>
+<li><div> camDir and camLeft are temporary vectors used later when computing the walkingDirection from the cam position and rotation</div>
+</li>
 </ul>
 
 <p>
 
 Let&#039;s have a look at all the details:
+
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Understanding the Code" [7020-8244] -->
+<!-- EDIT3 SECTION "Understanding the Code" [7342-8887] -->
 <h2><a>Initializing the Game</a></h2>
 <div>
 
@@ -254,7 +276,7 @@ As usual, you initialize the game in the <code>simpleInitApp()</code> method.
 </ol>
 
 </div>
-<!-- EDIT4 SECTION "Initializing the Game" [8245-8841] -->
+<!-- EDIT4 SECTION "Initializing the Game" [8888-9484] -->
 <h3><a>The Physics-Controlled Scene</a></h3>
 <div>
 
@@ -301,7 +323,7 @@ To use collision detection, you add a RigidBodyControl to the <code>sceneModel</
 </p>
 
 </div>
-<!-- EDIT5 SECTION "The Physics-Controlled Scene" [8842-10815] -->
+<!-- EDIT5 SECTION "The Physics-Controlled Scene" [9485-11458] -->
 <h3><a>The Physics-Controlled Player</a></h3>
 <div>
 
@@ -353,7 +375,7 @@ Finally we put the player in its starting position and update its state ??? reme
 </p>
 
 </div>
-<!-- EDIT6 SECTION "The Physics-Controlled Player" [10816-13580] -->
+<!-- EDIT6 SECTION "The Physics-Controlled Player" [11459-14223] -->
 <h3><a>PhysicsSpace</a></h3>
 <div>
 
@@ -369,7 +391,7 @@ The invisible body of the character just sits there on the physical floor. It ca
 </p>
 
 </div>
-<!-- EDIT7 SECTION "PhysicsSpace" [13581-13982] -->
+<!-- EDIT7 SECTION "PhysicsSpace" [14224-14625] -->
 <h2><a>Navigation</a></h2>
 <div>
 
@@ -387,7 +409,7 @@ In short, you must re-define the flyCam&#039;s navigational key mappings to use 
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Navigation" [13983-14930] -->
+<!-- EDIT8 SECTION "Navigation" [14626-15573] -->
 <h3><a>1. inputManager</a></h3>
 <div>
 
@@ -413,7 +435,7 @@ You can move this block of code into an auxiliary method <code>setupKeys()</code
 </p>
 
 </div>
-<!-- EDIT9 SECTION "1. inputManager" [14931-15841] -->
+<!-- EDIT9 SECTION "1. inputManager" [15574-16484] -->
 <h3><a>2. onAction()</a></h3>
 <div>
 
@@ -444,7 +466,7 @@ For all other directions: Every time the user presses one of the WASD keys, you 
 </p>
 
 </div>
-<!-- EDIT10 SECTION "2. onAction()" [15842-17258] -->
+<!-- EDIT10 SECTION "2. onAction()" [16485-17901] -->
 <h3><a>3. setWalkDirection()</a></h3>
 <div>
 
@@ -456,17 +478,25 @@ Previously in the <code>onAction()</code> method, you have collected the info in
 <p>
 This last and most important code snippet goes into the <code>simpleUpdate()</code> method.
 </p>
-<pre>  public void simpleUpdate&#40;float tpf&#41; &#123;
-    Vector3f camDir = cam.getDirection&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.6f&#41;;
-    Vector3f camLeft = cam.getLeft&#40;&#41;.clone&#40;&#41;.multLocal&#40;0.4f&#41;;
-    walkDirection.set&#40;0, 0, 0&#41;;
-    if &#40;left&#41;  &#123; walkDirection.addLocal&#40;camLeft&#41;; &#125;
-    if &#40;right&#41; &#123; walkDirection.addLocal&#40;camLeft.negate&#40;&#41;&#41;; &#125;
-    if &#40;up&#41;    &#123; walkDirection.addLocal&#40;camDir&#41;; &#125;
-    if &#40;down&#41;  &#123; walkDirection.addLocal&#40;camDir.negate&#40;&#41;&#41;; &#125;
-    player.setWalkDirection&#40;walkDirection&#41;;
-    cam.setLocation&#40;player.getPhysicsLocation&#40;&#41;&#41;;
-  &#125;</pre>
+<pre> public void simpleUpdate&#40;float tpf&#41; &#123;
+        camDir.set&#40;cam.getDirection&#40;&#41;&#41;.multLocal&#40;0.6f&#41;;
+        camLeft.set&#40;cam.getLeft&#40;&#41;&#41;.multLocal&#40;0.4f&#41;;
+        walkDirection.set&#40;0, 0, 0&#41;;
+        if &#40;left&#41; &#123;
+            walkDirection.addLocal&#40;camLeft&#41;;
+        &#125;
+        if &#40;right&#41; &#123;
+            walkDirection.addLocal&#40;camLeft.negate&#40;&#41;&#41;;
+        &#125;
+        if &#40;up&#41; &#123;
+            walkDirection.addLocal&#40;camDir&#41;;
+        &#125;
+        if &#40;down&#41; &#123;
+            walkDirection.addLocal&#40;camDir.negate&#40;&#41;&#41;;
+        &#125;
+        player.setWalkDirection&#40;walkDirection&#41;;
+        cam.setLocation&#40;player.getPhysicsLocation&#40;&#41;&#41;;
+    &#125;</pre>
 
 <p>
 This is how the walking is triggered:
@@ -491,10 +521,11 @@ This is how the walking is triggered:
 <p>
 
 <strong>Important:</strong> Again, do not use <code>setLocalTranslation()</code> to walk the player around. You will get it stuck by overlapping with another physical object. You can put the player in a start position with <code>setPhysicalLocation()</code> if you make sure to place it a bit above the floor and away from obstacles.
+
 </p>
 
 </div>
-<!-- EDIT11 SECTION "3. setWalkDirection()" [17259-19294] -->
+<!-- EDIT11 SECTION "3. setWalkDirection()" [17902-20020] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -535,5 +566,5 @@ Related info:
 </span></div>
 
 </div>
-<!-- EDIT12 SECTION "Conclusion" [19295-] -->
+<!-- EDIT12 SECTION "Conclusion" [20021-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_collision?do=export_xhtmlbody">view online version</a></em></p>

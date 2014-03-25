@@ -37,6 +37,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.Filter;
 import com.jme3.renderer.Camera;
@@ -102,7 +103,9 @@ public class LightScatteringFilter extends Filter {
         getClipCoordinates(lightPosition, screenLightPos, viewPort.getCamera());
         viewPort.getCamera().getViewMatrix().mult(lightPosition, viewLightPos);        
         if (adaptative) {
-            innerLightDensity = Math.max(lightDensity - Math.max(screenLightPos.x, screenLightPos.y), 0.0f);
+            float densityX = 1f - FastMath.clamp(FastMath.abs(screenLightPos.x - 0.5f), 0, 1);
+            float densityY = 1f - FastMath.clamp(FastMath.abs(screenLightPos.y - 0.5f), 0, 1);
+            innerLightDensity = lightDensity * densityX * densityY;
         } else {
             innerLightDensity = lightDensity;
         }

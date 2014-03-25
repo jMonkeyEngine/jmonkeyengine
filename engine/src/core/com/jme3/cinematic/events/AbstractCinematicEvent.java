@@ -44,34 +44,35 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This calls contains basic behavior of a cinematic event
- * every cinematic event must extend this class
+ * This call contains the basic behaviour of a cinematic event.
+ * Every cinematic event must extend this class.
  * 
- * A cinematic event must be given an inital duration in seconds (duration of the event at speed = 1) (default is 10)
+ * A cinematic event must be given an inital duration in seconds 
+ * (duration of the event at speed = 1). Default is 10 sec.
  * @author Nehon
  */
 public abstract class AbstractCinematicEvent implements CinematicEvent {
 
     protected PlayState playState = PlayState.Stopped;
-    protected float speed = 1;
-    protected float initialDuration = 10;
     protected LoopMode loopMode = LoopMode.DontLoop;
+    protected float initialDuration = 10;
+    protected float speed = 1;
     protected float time = 0;
     protected boolean resuming = false;
     
     /**
-     * the list of listeners
+     * The list of listeners.
      */
     protected List<CinematicEventListener> listeners;
 
     /**
-     * contruct a cinematic event
+     * Contruct a cinematic event (empty constructor).
      */
     public AbstractCinematicEvent() {
     }
 
     /**
-     * contruct a cinematic event wwith the given initial duration
+     * Contruct a cinematic event with the given initial duration.
      * @param initialDuration 
      */
     public AbstractCinematicEvent(float initialDuration) {
@@ -79,7 +80,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * contruct a cinematic event with the given loopMode
+     * Contruct a cinematic event with the given loopMode.
      * @param loopMode 
      */
     public AbstractCinematicEvent(LoopMode loopMode) {
@@ -87,9 +88,9 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * contruct a cinematic event with the given loopMode and the given initialDuration
-     * @param initialDuration the duration of the event at speed = 1
-     * @param loopMode the loop mode of the event
+     * Contruct a cinematic event with the given loopMode and the given initialDuration.
+     * @param initialDuration the duration of the event at speed = 1.
+     * @param loopMode the loop mode of the event.
      */
     public AbstractCinematicEvent(float initialDuration, LoopMode loopMode) {
         this.initialDuration = initialDuration;
@@ -97,17 +98,17 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
     
     /**
-     * this method can be implemented if the event needs different handling when 
-     * stopped naturally (when the event reach its end)
-     * or when it was forced stopped during playback
-     * otherwise it just call regular stop()
+     * Implement this method if the event needs different handling when 
+     * stopped naturally (when the event reach its end),
+     * or when it was force-stopped during playback.
+     * By default, this method just calls regular stop().
      */
     public void forceStop(){
         stop();
     }
 
     /**
-     * Play this event
+     * Play this event.
      */
     public void play() {
         onPlay();        
@@ -121,13 +122,13 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Place here the code you want to execute when the event is started
+     * Implement this method with code that you want to execute when the event is started.
      */
     protected abstract void onPlay();
 
     /**
-     * should be used internally only
-     * @param tpf time per frame
+     * Used internally only.
+     * @param tpf time per frame.
      */
     public void internalUpdate(float tpf) {
         if (playState == PlayState.Playing) {
@@ -135,7 +136,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
             onUpdate(tpf);
             if (time >= initialDuration && loopMode == LoopMode.DontLoop) {
                 stop();
-            }else if(time >= initialDuration && loopMode == LoopMode.Loop){
+            } else if(time >= initialDuration && loopMode == LoopMode.Loop){
                 setTime(0);
             }
         }
@@ -143,13 +144,15 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Place here the code you want to execute on update (only called when the event is playing)
+     * Implement this method with the code that you want to execute on update 
+     * (only called when the event is playing).
      * @param tpf time per frame
      */
     protected abstract void onUpdate(float tpf);
 
     /**
-     * stops the animation, next time play() is called the animation will start from the begining.
+     * Stops the animation. 
+     * Next time when play() is called, the animation starts from the beginning.
      */
     public void stop() {
         onStop();
@@ -164,12 +167,13 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Place here the code you want to execute when the event is stoped.
+     * Implement this method with code that you want to execute when the event is stopped.
      */
     protected abstract void onStop();
 
     /**
-     * pause this event
+     * Pause this event.
+     * Next time when play() is called, the animation restarts from here.
      */
     public void pause() {
         onPause();
@@ -183,12 +187,12 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * place here the code you want to execute when the event is paused
+     * Implement this method with code that you want to execute when the event is paused.
      */
     public abstract void onPause();
 
     /**
-     * returns the actual duration of the animtion (initialDuration/speed)
+     * Returns the actual duration of the animtion (initialDuration/speed)
      * @return
      */
     public float getDuration() {
@@ -198,7 +202,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     /**
      * Sets the speed of the animation.
      * At speed = 1, the animation will last initialDuration seconds,
-     * At speed = 2 the animation will last initialDuraiton/2...
+     * At speed = 2, the animation will last initialDuration/2...
      * @param speed
      */
     public void setSpeed(float speed) {
@@ -206,7 +210,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * returns the speed of the animation.
+     * Returns the speed of the animation.
      * @return
      */
     public float getSpeed() {
@@ -214,7 +218,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Returns the current playstate of the animation
+     * Returns the current playstate of the animation (playing or paused or stopped).
      * @return
      */
     public PlayState getPlayState() {
@@ -222,7 +226,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * returns the initial duration of the animation at speed = 1 in seconds.
+     * Returns the initial duration of the animation at speed = 1 in seconds.
      * @return
      */
     public float getInitialDuration() {
@@ -230,7 +234,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Sets the duration of the antionamtion at speed = 1 in seconds
+     * Sets the duration of the animation at speed = 1 in seconds.
      * @param initialDuration
      */
     public void setInitialDuration(float initialDuration) {
@@ -238,7 +242,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * retursthe loopMode of the animation
+     * Returns the loopMode of the animation.
      * @see LoopMode
      * @return
      */
@@ -247,7 +251,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Sets the loopMode of the animation
+     * Sets the loopMode of the animation.
      * @see LoopMode
      * @param loopMode
      */
@@ -256,7 +260,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * for serialization only
+     * Used for serialization only.
      * @param ex exporter
      * @throws IOException 
      */
@@ -269,7 +273,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * for serialization only
+     * Used for serialization only.
      * @param im importer
      * @throws IOException 
      */
@@ -282,7 +286,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * initialize this event (should be called internally only)
+     * Initialize this event (called internally only).
      * @param app
      * @param cinematic 
      */
@@ -290,7 +294,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * return a list of CinematicEventListener added on this event
+     * Returns the list of CinematicEventListeners added to this event.
      * @return 
      */
     private List<CinematicEventListener> getListeners() {
@@ -301,7 +305,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * Add a CinematicEventListener to this event
+     * Add a CinematicEventListener to this event.
      * @param listener CinematicEventListener
      */
     public void addListener(CinematicEventListener listener) {
@@ -309,7 +313,7 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * remove a CinematicEventListener from this event
+     * Remove a CinematicEventListener from this event.
      * @param listener CinematicEventListener
      */
     public void removeListener(CinematicEventListener listener) {
@@ -317,13 +321,16 @@ public abstract class AbstractCinematicEvent implements CinematicEvent {
     }
 
     /**
-     * When this method is invoked, the event should fast forward to the given time according tim 0 is the start of the event.
-     * @param time the time to fast forward to
+     * Fast-forward the event to the given timestamp. Time=0 is the start of the event.
+     * @param time the time to fast forward to.
      */
     public void setTime(float time) {
         this.time = time ;
     }
 
+    /**
+     * Return the current timestamp of the event. Time=0 is the start of the event.
+     */
     public float getTime() {
         return time;
     }

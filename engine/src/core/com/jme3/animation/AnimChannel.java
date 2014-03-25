@@ -59,6 +59,7 @@ public final class AnimChannel {
     private float time;
     private float speed;
     private float timeBlendFrom;
+    private float blendTime;
     private float speedBlendFrom;
     private boolean notified=false;
 
@@ -192,6 +193,11 @@ public final class AnimChannel {
      */
     public void setSpeed(float speed) {
         this.speed = speed;
+        if(blendTime>0){
+            this.speedBlendFrom = speed;
+            blendTime = Math.min(blendTime, animation.getLength() / speed);  
+            blendRate = 1/ blendTime;
+        }
     }
 
     /**
@@ -248,7 +254,9 @@ public final class AnimChannel {
         control.notifyAnimChange(this, name);
 
         if (animation != null && blendTime > 0f){
+            this.blendTime = blendTime;
             // activate blending
+            blendTime = Math.min(blendTime, anim.getLength() / speed);            
             blendFrom = animation;
             timeBlendFrom = time;
             speedBlendFrom = speed;
@@ -393,8 +401,7 @@ public final class AnimChannel {
         }
         
         animation.setTime(time, blendAmount, control, this, vars);
-        time += tpf * speed;
-
+        
         if (animation.getLength() > 0){
             if (!notified && (time >= animation.getLength() || time < 0)) {
                 if (loopMode == LoopMode.DontLoop) {
@@ -406,7 +413,7 @@ public final class AnimChannel {
                 control.notifyAnimCycleDone(this, animation.getName());
             } 
         }
-
+        time += tpf * speed;      
         time = clampWrapTime(time, animation.getLength(), loopMode);
         if (time < 0){
             // Negative time indicates that speed should be inverted

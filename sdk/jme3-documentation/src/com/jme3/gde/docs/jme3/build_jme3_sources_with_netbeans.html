@@ -4,7 +4,7 @@
 
 <p>
 
-You are welcome to try out the new jME3, and contribute patches and features! This document shows how to download, set up, build, and run the latest development version from the sources. (As of Spring 2010, we are in alpha.) These instructions work in NetBeans IDE 6 or better.
+You are welcome to try out the new jME3, and contribute patches and features! This document shows how to download, set up, build, and run the latest development version from the sources. These instructions work in NetBeans IDE 6 or better.
 </p>
 
 <p>
@@ -12,7 +12,7 @@ Note: In the following, always replace &quot;~&quot; with the path to your home 
 </p>
 
 </div>
-<!-- EDIT1 SECTION "Setting up JME3 in Netbeans 6+" [1-407] -->
+<!-- EDIT1 SECTION "Setting up JME3 in Netbeans 6+" [1-369] -->
 <h2><a>Downloading the Sources</a></h2>
 <div>
 
@@ -51,59 +51,85 @@ The jme3 project opens in the Project window. It already includes a working ANT 
 
 <p>
 Look into the Libraries node and confirm that the project depends on the following libraries in the classpath:
+
 </p>
-<pre>jME3-natives-joal.jar	lwjgl.jar       gluegen-rt.jar
-jME3-lwjgl-natives.jar	jinput.jar	swing-layout-1.0.4.jar
-j-ogg-oggd.jar	        vecmath.jar     stack-alloc.jar
-j-ogg-vorbisd.jar       asm-all-3.1.jar jbullet.jar	         
-jheora-jst-debug-0.6.0.jar              xmlpull.xpp3-1.1.4c.jar
-nifty*.jar                              eventbus-1.4.jar</pre>
+<ul>
+<li><div> j-ogg-oggd.jar        </div>
+</li>
+<li><div> j-ogg-vorbisd.jar       </div>
+</li>
+<li><div> jbullet.jar	         </div>
+</li>
+<li><div> stack-alloc.jar</div>
+</li>
+<li><div> vecmath.jar     </div>
+</li>
+<li><div> lwjgl.jar       </div>
+</li>
+<li><div> jME3-lwjgl-natives.jar	</div>
+</li>
+<li><div> jinput.jar	</div>
+</li>
+<li><div> eventbus.jar</div>
+</li>
+<li><div> nifty-default-controls.jar                              </div>
+</li>
+<li><div> nifty-examples.jar                              </div>
+</li>
+<li><div> nifty-style-black.jar                              </div>
+</li>
+<li><div> nifty.jar</div>
+</li>
+<li><div> jglfont-core.jar                              </div>
+</li>
+<li><div> xmlpull-xpp3.jar</div>
+</li>
+<li><div> android.jar</div>
+</li>
+<li><div> jME3-bullet-natives.jar</div>
+</li>
+<li><div> gluegen-rt.jar</div>
+</li>
+<li><div> joal.jar</div>
+</li>
+<li><div> jogl-all.jar</div>
+</li>
+<li><div> jME3-natives-joal.jar</div>
+</li>
+<li><div> jME3-openal-soft-natives-android.jar</div>
+</li>
+</ul>
 
 <p>
+
 For a detailed description of the separate jar files see <a href="/com/jme3/gde/docs/jme3/jme3_source_structure#structure_of_jmonkeyengine3_jars.html">this list</a>.
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Downloading the Sources" [408-1785] -->
-<h2><a>Build and Run</a></h2>
+<!-- EDIT2 SECTION "Downloading the Sources" [370-2005] -->
+<h2><a>Build the Project and Run a Sample App</a></h2>
 <div>
-
-<p>
-
-That&#039;s it!
-</p>
 <ol>
 <li><div> Right-click the jme3 project node and &quot;Clean and Build&quot; the project.</div>
 </li>
-<li><div> In the Projects window, browse to the <code>src/test/jme3test</code> folder. </div>
+<li><div> In the Projects window, open the <code>Test</code> folder which contains the sample apps.</div>
 </li>
-<li><div> Right-click e.g. the file <code>src/test/jme3test/model/TestHoverTank.java</code> and choose &quot;Run&quot; to run a sample. </div>
+<li><div> Every file with a Main class (for example <code>jme3test.model/TestHoverTank.java</code> or <code>jme3test.game/CubeField.java</code>) is an app.</div>
+</li>
+<li><div> Right-click a sample app and choose &quot;Run File&quot; (Shift-F6).</div>
+</li>
+<li><div> Generally in sample apps:</div>
 <ol>
-<li><div> In the sample application, use the mouse and the AWSD keys to move around the test object.</div>
+<li><div> the mouse and the WASD keys control movement</div>
 </li>
-<li><div> Press escape to quit the sample application.</div>
-</li>
-</ol>
+<li><div> the Esc key exits the application</div>
 </li>
 </ol>
-
-<p>
-
-Sample code for cool features is in the <code>src/test/jme3test</code> folder. A sample game can be found in <code>src/games/jme3game/cubefield/CubeField.java</code>.
-</p>
-
-<p>
-Tips:
-</p>
-<ul>
-<li><div> To run runnable classes from the Projects window, right-click and choose Run.</div>
 </li>
-<li><div> To run any runnable class that is open in the editor, press shift-F6.</div>
-</li>
-</ul>
+</ol>
 
 </div>
-<!-- EDIT3 SECTION "Build and Run" [1786-2545] -->
+<!-- EDIT3 SECTION "Build the Project and Run a Sample App" [2006-2531] -->
 <h2><a>Optional: Javadoc Popups and Source Navigation in NetBeans</a></h2>
 <div>
 
@@ -159,5 +185,5 @@ Sources used: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplay
 </span></div>
 
 </div>
-<!-- EDIT4 SECTION "Optional: Javadoc Popups and Source Navigation in NetBeans" [2546-] -->
+<!-- EDIT4 SECTION "Optional: Javadoc Popups and Source Navigation in NetBeans" [2532-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:build_jme3_sources_with_netbeans?do=export_xhtmlbody">view online version</a></em></p>

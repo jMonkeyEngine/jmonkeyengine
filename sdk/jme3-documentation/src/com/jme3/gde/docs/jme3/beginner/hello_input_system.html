@@ -65,8 +65,8 @@ public class HelloInput extends SimpleApplication &#123;
     inputManager.addMapping&#40;&quot;Rotate&quot;, new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;,
                                       new MouseButtonTrigger&#40;MouseInput.BUTTON_LEFT&#41;&#41;;
     // Add the names to the action listener.
-    inputManager.addListener&#40;actionListener, new String&#91;&#93;&#123;&quot;Pause&quot;&#125;&#41;;
-    inputManager.addListener&#40;analogListener, new String&#91;&#93;&#123;&quot;Left&quot;, &quot;Right&quot;, &quot;Rotate&quot;&#125;&#41;;
+    inputManager.addListener&#40;actionListener,&quot;Pause&quot;&#41;;
+    inputManager.addListener&#40;analogListener,&quot;Left&quot;, &quot;Right&quot;, &quot;Rotate&quot;&#41;;
 &nbsp;
   &#125;
 &nbsp;
@@ -112,7 +112,7 @@ Build and run the example.
 </ul>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [634-3678] -->
+<!-- EDIT2 SECTION "Sample Code" [634-3651] -->
 <h2><a>Defining Mappings and Triggers</a></h2>
 <div>
 
@@ -164,15 +164,16 @@ Now you need to register your trigger mappings.
 </li>
 </ol>
 <pre>    // Add the names to the action listener.
-    inputManager.addListener&#40;actionListener, new String&#91;&#93;&#123;&quot;Pause&quot;&#125;&#41;;
-    inputManager.addListener&#40;analogListener, new String&#91;&#93;&#123;&quot;Left&quot;, &quot;Right&quot;, &quot;Rotate&quot;&#125;&#41;;</pre>
+    inputManager.addListener&#40;actionListener,&quot;Pause&quot;&#41;;
+    inputManager.addListener&#40;analogListener,&quot;Left&quot;, &quot;Right&quot;, &quot;Rotate&quot;&#41;;</pre>
 
 <p>
 This code goes into the <code>simpleInitApp()</code> method. But since we will likely add many keybindings, we extract these lines and wrap them in an auxiliary method, <code>initKeys()</code>. The <code>initKeys()</code> method is not part of the Input Controls interface ??? you can name it whatever you like. Just don&#039;t forget to call your method from the <code>initSimpleApp()</code> method.
+
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Defining Mappings and Triggers" [3679-5893] -->
+<!-- EDIT3 SECTION "Defining Mappings and Triggers" [3652-5835] -->
 <h2><a>Implementing the Actions</a></h2>
 <div>
 
@@ -268,7 +269,7 @@ It&#039;s okay to use only one of the two Listeners, and not implement the other
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Implementing the Actions" [5894-9012] -->
+<!-- EDIT4 SECTION "Implementing the Actions" [5836-8954] -->
 <h2><a>Analog, Pressed, or Released?</a></h2>
 <div>
 
@@ -325,7 +326,7 @@ Mappings registered to the <strong>ActionListener</strong> are digital either-or
       &#125;</pre>
 
 </div>
-<!-- EDIT5 SECTION "Analog, Pressed, or Released?" [9013-11037] -->
+<!-- EDIT5 SECTION "Analog, Pressed, or Released?" [8955-10979] -->
 <h2><a>Table of Triggers</a></h2>
 <div>
 
@@ -361,14 +362,14 @@ You can find the list of input constants in the files <code>src/core/com/jme3/in
 KeyTrigger(KeyInput.KEY_LEFT), KeyTrigger(KeyInput.KEY_RIGHT) </td>
 	</tr>
 </table></div>
-<!-- EDIT7 TABLE [11270-11866] -->
+<!-- EDIT7 TABLE [11212-11808] -->
 <p>
 
 <strong>Tip:</strong> If you don&#039;t recall an input constant during development, you benefit from an IDE&#039;s code completion functionality: Place the caret after e.g. <code>KeyInput.|</code> and trigger code completion to select possible input identifiers.
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Table of Triggers" [11038-12100] -->
+<!-- EDIT6 SECTION "Table of Triggers" [10980-12042] -->
 <h2><a>Exercises</a></h2>
 <div>
 <ol>
@@ -396,7 +397,7 @@ inputManager.addMapping&#40;&quot;Pause&quot;,  new KeyTrigger&#40;usersPauseKey
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Exercises" [12101-12785] -->
+<!-- EDIT8 SECTION "Exercises" [12043-12727] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -418,5 +419,5 @@ Now you can already write a little interactive game! But wouldn&#039;t it be coo
 </span></div>
 
 </div>
-<!-- EDIT9 SECTION "Conclusion" [12786-] -->
+<!-- EDIT9 SECTION "Conclusion" [12728-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_input_system?do=export_xhtmlbody">view online version</a></em></p>

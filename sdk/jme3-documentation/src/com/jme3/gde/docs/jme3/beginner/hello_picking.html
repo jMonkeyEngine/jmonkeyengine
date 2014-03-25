@@ -39,12 +39,14 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
 &nbsp;
@@ -56,8 +58,8 @@ public class HelloPicking extends SimpleApplication &#123;
     HelloPicking app = new HelloPicking&#40;&#41;;
     app.start&#40;&#41;;
   &#125;
-  Node shootables;
-  Geometry mark;
+  private Node shootables;
+  private Geometry mark;
 &nbsp;
   @Override
   public void simpleInitApp&#40;&#41; &#123;
@@ -73,6 +75,7 @@ public class HelloPicking extends SimpleApplication &#123;
     shootables.attachChild&#40;makeCube&#40;&quot;the Sheriff&quot;, 0f, 1f, -2f&#41;&#41;;
     shootables.attachChild&#40;makeCube&#40;&quot;the Deputy&quot;, 1f, 0f, -4f&#41;&#41;;
     shootables.attachChild&#40;makeFloor&#40;&#41;&#41;;
+    shootables.attachChild&#40;makeCharacter&#40;&#41;&#41;;
   &#125;
 &nbsp;
   /** Declaring the &quot;Shoot&quot; action and mapping to its triggers. */
@@ -120,8 +123,9 @@ public class HelloPicking extends SimpleApplication &#123;
 &nbsp;
   /** A cube object for target practice */
   protected Geometry makeCube&#40;String name, float x, float y, float z&#41; &#123;
-    Box box = new Box&#40;new Vector3f&#40;x, y, z&#41;, 1, 1, 1&#41;;
+    Box box = new Box&#40;1, 1, 1&#41;;
     Geometry cube = new Geometry&#40;name, box&#41;;
+    cube.setLocalTranslation&#40;x, y, z&#41;;
     Material mat1 = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     mat1.setColor&#40;&quot;Color&quot;, ColorRGBA.randomColor&#40;&#41;&#41;;
     cube.setMaterial&#40;mat1&#41;;
@@ -130,8 +134,9 @@ public class HelloPicking extends SimpleApplication &#123;
 &nbsp;
   /** A floor to show that the &quot;shot&quot; can go through several objects. */
   protected Geometry makeFloor&#40;&#41; &#123;
-    Box box = new Box&#40;new Vector3f&#40;0, -4, -5&#41;, 15, .2f, 15&#41;;
+    Box box = new Box&#40;15, .2f, 15&#41;;
     Geometry floor = new Geometry&#40;&quot;the Floor&quot;, box&#41;;
+    floor.setLocalTranslation&#40;0, -4, -5&#41;;
     Material mat1 = new Material&#40;assetManager, &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
     mat1.setColor&#40;&quot;Color&quot;, ColorRGBA.Gray&#41;;
     floor.setMaterial&#40;mat1&#41;;
@@ -149,15 +154,27 @@ public class HelloPicking extends SimpleApplication &#123;
 &nbsp;
   /** A centred plus sign to help the player aim. */
   protected void initCrossHairs&#40;&#41; &#123;
-    guiNode.detachAllChildren&#40;&#41;;
+    setDisplayStatView&#40;false&#41;;
     guiFont = assetManager.loadFont&#40;&quot;Interface/Fonts/Default.fnt&quot;&#41;;
     BitmapText ch = new BitmapText&#40;guiFont, false&#41;;
     ch.setSize&#40;guiFont.getCharSet&#40;&#41;.getRenderedSize&#40;&#41; * 2&#41;;
     ch.setText&#40;&quot;+&quot;&#41;; // crosshairs
     ch.setLocalTranslation&#40; // center
-      settings.getWidth&#40;&#41; / 2 - guiFont.getCharSet&#40;&#41;.getRenderedSize&#40;&#41; / 3 * 2,
-      settings.getHeight&#40;&#41; / 2 + ch.getLineHeight&#40;&#41; / 2, 0&#41;;
+      settings.getWidth&#40;&#41; / 2 - ch.getLineWidth&#40;&#41;/2, settings.getHeight&#40;&#41; / 2 + ch.getLineHeight&#40;&#41;/2, 0&#41;;
     guiNode.attachChild&#40;ch&#41;;
+  &#125;
+&nbsp;
+  protected Spatial makeCharacter&#40;&#41; &#123;
+    // load a character from jme3test-test-data
+    Spatial golem = assetManager.loadModel&#40;&quot;Models/Oto/Oto.mesh.xml&quot;&#41;;
+    golem.scale&#40;0.5f&#41;;
+    golem.setLocalTranslation&#40;-1.0f, -1.5f, -0.6f&#41;;
+&nbsp;
+    // We must add a light to make the model visible
+    DirectionalLight sun = new DirectionalLight&#40;&#41;;
+    sun.setDirection&#40;new Vector3f&#40;-0.1f, -0.7f, -1.0f&#41;&#41;;
+    golem.addLight&#40;sun&#41;;
+    return golem;
   &#125;
 &#125;</pre>
 
@@ -167,10 +184,11 @@ You should see four colored cubes floating over a gray floor, and cross-hairs. A
 
 <p>
 Keep an eye on the application&#039;s output stream, it will give you more details: The name of the mesh that was hit, the coordinates of the hit, and the distance.
+
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Sample Code" [992-6844] -->
+<!-- EDIT2 SECTION "Sample Code" [992-7402] -->
 <h2><a>Understanding the Helper Methods</a></h2>
 <div>
 
@@ -204,7 +222,7 @@ In this example, we attached all &quot;shootable&quot; objects to one custom nod
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Understanding the Helper Methods" [6845-7885] -->
+<!-- EDIT3 SECTION "Understanding the Helper Methods" [7403-8443] -->
 <h2><a>Understanding Ray Casting for Hit Testing</a></h2>
 <div>
 
@@ -236,12 +254,12 @@ Here is our simple ray casting algorithm for picking objects:
 </ol>
 
 </div>
-<!-- EDIT4 SECTION "Understanding Ray Casting for Hit Testing" [7886-8728] -->
+<!-- EDIT4 SECTION "Understanding Ray Casting for Hit Testing" [8444-9286] -->
 <h2><a>Implementing Hit Testing</a></h2>
 <div>
 
 </div>
-<!-- EDIT5 SECTION "Implementing Hit Testing" [8729-8766] -->
+<!-- EDIT5 SECTION "Implementing Hit Testing" [9287-9324] -->
 <h3><a>Loading the scene</a></h3>
 <div>
 
@@ -269,7 +287,7 @@ First initialize some shootable nodes and attach them to the scene. You will use
   &#125;</pre>
 
 </div>
-<!-- EDIT6 SECTION "Loading the scene" [8767-9453] -->
+<!-- EDIT6 SECTION "Loading the scene" [9325-10011] -->
 <h3><a>Setting Up the Input Listener</a></h3>
 <div>
 
@@ -282,12 +300,12 @@ Next you declare the shooting action. It can be triggered either by clicking, or
   private void initKeys&#40;&#41; &#123;
     inputManager.addMapping&#40;&quot;Shoot&quot;,      // Declare...
       new KeyTrigger&#40;KeyInput.KEY_SPACE&#41;, // trigger 1: spacebar, or
-      new MouseButtonTrigger&#40;0&#41;&#41;;         // trigger 2: left-button click
+      new MouseButtonTrigger&#40;MouseInput.BUTTON_LEFT&#41;&#41;;         // trigger 2: left-button click
     inputManager.addListener&#40;actionListener, &quot;Shoot&quot;&#41;; // ... and add.
   &#125;</pre>
 
 </div>
-<!-- EDIT7 SECTION "Setting Up the Input Listener" [9454-10074] -->
+<!-- EDIT7 SECTION "Setting Up the Input Listener" [10012-10652] -->
 <h3><a>Picking Action Using Crosshairs</a></h3>
 <div>
 
@@ -353,7 +371,7 @@ Note how it prints a lot of output to show you which hits were registered.
 </p>
 
 </div>
-<!-- EDIT8 SECTION "Picking Action Using Crosshairs" [10075-12848] -->
+<!-- EDIT8 SECTION "Picking Action Using Crosshairs" [10653-13426] -->
 <h3><a>Picking Action Using Mouse Pointer</a></h3>
 <div>
 
@@ -394,7 +412,7 @@ Note that since you now use the mouse for picking, you can no longer use it to r
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Picking Action Using Mouse Pointer" [12849-14285] -->
+<!-- EDIT9 SECTION "Picking Action Using Mouse Pointer" [13427-14863] -->
 <h2><a>Exercises</a></h2>
 <div>
 
@@ -405,7 +423,7 @@ Modify the code sample to solve these exercises:
 </p>
 
 </div>
-<!-- EDIT10 SECTION "Exercises" [14286-14457] -->
+<!-- EDIT10 SECTION "Exercises" [14864-15035] -->
 <h3><a>Exercise 1: Magic Spell</a></h3>
 <div>
 
@@ -432,7 +450,7 @@ Here are some tips:
 </ol>
 
 </div>
-<!-- EDIT11 SECTION "Exercise 1: Magic Spell" [14458-14990] -->
+<!-- EDIT11 SECTION "Exercise 1: Magic Spell" [15036-15568] -->
 <h3><a>Exercise 2: Shoot a Character</a></h3>
 <div>
 
@@ -448,7 +466,7 @@ Shooting boxes isn&#039;t very exciting ??? can you add code that loads and posi
 </ul>
 
 </div>
-<!-- EDIT12 SECTION "Exercise 2: Shoot a Character" [14991-15329] -->
+<!-- EDIT12 SECTION "Exercise 2: Shoot a Character" [15569-15907] -->
 <h3><a>Exercise 3: Pick up into Inventory</a></h3>
 <div>
 
@@ -482,7 +500,7 @@ Change the code as follows to simulate the player picking up objects into the in
 </p>
 
 </div>
-<!-- EDIT13 SECTION "Exercise 3: Pick up into Inventory" [15330-16463] -->
+<!-- EDIT13 SECTION "Exercise 3: Pick up into Inventory" [15908-17041] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -533,5 +551,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT14 SECTION "Conclusion" [16464-] -->
+<!-- EDIT14 SECTION "Conclusion" [17042-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_picking?do=export_xhtmlbody">view online version</a></em></p>

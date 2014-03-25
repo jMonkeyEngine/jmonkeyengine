@@ -327,14 +327,18 @@ public class BinaryExporter implements JmeExporter {
 
     public boolean save(Savable object, File f) throws IOException {
         File parentDirectory = f.getParentFile();
-        if(parentDirectory != null && !parentDirectory.exists()) {
+        if (parentDirectory != null && !parentDirectory.exists()) {
             parentDirectory.mkdirs();
         }
 
         FileOutputStream fos = new FileOutputStream(f);
-        boolean rVal = save(object, fos);
-        fos.close();
-        return rVal;
+        try {
+            return save(object, fos);
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
     }
 
     public BinaryOutputCapsule getCapsule(Savable object) {

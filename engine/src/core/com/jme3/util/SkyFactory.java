@@ -56,48 +56,58 @@ import java.util.ArrayList;
 public class SkyFactory {
 
     /**
-     * Creates a sky using the given texture (cubemap or spheremap). 
-     * 
-     * @param assetManager The asset manager to use to load materials
-     * @param texture Texture to use for the sky
-     * @param normalScale The normal scale is multiplied by the 3D normal
-     * to get a texture coordinate. Use Vector3f.UNIT_XYZ to not apply 
-     * and transformation to the normal.
-     * @param sphereMap The way the texture is used
-     * depends on this value:<br>
+     * Create a sky with radius=10 using the given cubemap or spheremap texture.
+     *
+     * For the sky to be visible, its radius must fall between the near and far
+     * planes of the camera's frustrum.
+     *
+     * @param assetManager from which to load materials
+     * @param texture to use
+     * @param normalScale The normal scale is multiplied by the 3D normal to get
+     * a texture coordinate. Use Vector3f.UNIT_XYZ to not apply and
+     * transformation to the normal.
+     * @param sphereMap determines how the texture is used:<br>
      * <ul>
-     * <li>true: Its a Texture2D with the pixels arranged for  
-     * <a href="http://en.wikipedia.org/wiki/Sphere_mapping">sphere mapping</a>.</li>
-     * <li>false: Its either a TextureCubeMap or Texture2D. If its a Texture2D
-     * then the image is taken from it and is inserted into a TextureCubeMap</li>
+     * <li>true: The texture is a Texture2D with the pixels arranged for
+     * <a href="http://en.wikipedia.org/wiki/Sphere_mapping">sphere
+     * mapping</a>.</li>
+     * <li>false: The texture is either a TextureCubeMap or Texture2D. If it is
+     * a Texture2D then the image is taken from it and is inserted into a
+     * TextureCubeMap</li>
      * </ul>
-     * @return A spatial representing the sky
+     * @return a new spatial representing the sky, ready to be attached to the
+     * scene graph
      */
-    public static Spatial createSky(AssetManager assetManager, Texture texture, Vector3f normalScale, boolean sphereMap) {
+    public static Spatial createSky(AssetManager assetManager, Texture texture,
+            Vector3f normalScale, boolean sphereMap) {
         return createSky(assetManager, texture, normalScale, sphereMap, 10);
     }
 
     /**
-     * Creates a sky using the given texture (cubemap or spheremap). 
-     * 
-     * @param assetManager The asset manager to use to load materials
-     * @param texture Texture to use for the sky
-     * @param normalScale The normal scale is multiplied by the 3D normal
-     * to get a texture coordinate. Use Vector3f.UNIT_XYZ to not apply 
-     * and transformation to the normal.
-     * @param sphereMap The way the texture is used
-     * depends on this value:<br>
+     * Create a sky using the given cubemap or spheremap texture.
+     *
+     * @param assetManager from which to load materials
+     * @param texture to use
+     * @param normalScale The normal scale is multiplied by the 3D normal to get
+     * a texture coordinate. Use Vector3f.UNIT_XYZ to not apply and
+     * transformation to the normal.
+     * @param sphereMap determines how the texture is used:<br>
      * <ul>
-     * <li>true: Its a Texture2D with the pixels arranged for  
-     * <a href="http://en.wikipedia.org/wiki/Sphere_mapping">sphere mapping</a>.</li>
-     * <li>false: Its either a TextureCubeMap or Texture2D. If its a Texture2D
-     * then the image is taken from it and is inserted into a TextureCubeMap</li>
+     * <li>true: The texture is a Texture2D with the pixels arranged for
+     * <a href="http://en.wikipedia.org/wiki/Sphere_mapping">sphere
+     * mapping</a>.</li>
+     * <li>false: The texture is either a TextureCubeMap or Texture2D. If it is
+     * a Texture2D then the image is taken from it and is inserted into a
+     * TextureCubeMap</li>
      * </ul>
-     * @param sphereRadius If specified, this will be the sky sphere's radius.
-     * This should be the camera's near plane for optimal quality.
-     * @return A spatial representing the sky
+     * @param sphereRadius the sky sphere's radius: for the sky to be visible,
+     * its radius must fall between the near and far planes of the camera's
+     * frustrum
+     * @return a new spatial representing the sky, ready to be attached to the
+     * scene graph
      */
-    public static Spatial createSky(AssetManager assetManager, Texture texture, Vector3f normalScale, boolean sphereMap, int sphereRadius) {
+    public static Spatial createSky(AssetManager assetManager, Texture texture,
+            Vector3f normalScale, boolean sphereMap, int sphereRadius) {
         if (texture == null) {
             throw new IllegalArgumentException("texture cannot be null");
         }
@@ -170,11 +180,54 @@ public class SkyFactory {
         }
     }
 
-    public static Spatial createSky(AssetManager assetManager, Texture west, Texture east, Texture north, Texture south, Texture up, Texture down, Vector3f normalScale) {
-        return createSky(assetManager, west, east, north, south, up, down, normalScale, 10);
+    /**
+     * Create a cube-mapped sky with radius=10 using six textures.
+     *
+     * For the sky to be visible, its radius must fall between the near and far
+     * planes of the camera's frustrum.
+     *
+     * @param assetManager from which to load materials
+     * @param west texture for the western face of the cube
+     * @param east texture for the eastern face of the cube
+     * @param north texture for the northern face of the cube
+     * @param south texture for the southern face of the cube
+     * @param up texture for the top face of the cube
+     * @param down texture for the bottom face of the cube
+     * @param normalScale The normal scale is multiplied by the 3D normal to get
+     * a texture coordinate. Use Vector3f.UNIT_XYZ to not apply and
+     * transformation to the normal.
+     * @return a new spatial representing the sky, ready to be attached to the
+     * scene graph
+     */
+    public static Spatial createSky(AssetManager assetManager, Texture west,
+            Texture east, Texture north, Texture south, Texture up,
+            Texture down, Vector3f normalScale) {
+        return createSky(assetManager, west, east, north, south, up, down,
+                normalScale, 10);
     }
 
-    public static Spatial createSky(AssetManager assetManager, Texture west, Texture east, Texture north, Texture south, Texture up, Texture down, Vector3f normalScale, int sphereRadius) {
+    /**
+     * Create a cube-mapped sky using six textures.
+     *
+     * @param assetManager from which to load materials
+     * @param west texture for the western face of the cube
+     * @param east texture for the eastern face of the cube
+     * @param north texture for the northern face of the cube
+     * @param south texture for the southern face of the cube
+     * @param up texture for the top face of the cube
+     * @param down texture for the bottom face of the cube
+     * @param normalScale The normal scale is multiplied by the 3D normal to get
+     * a texture coordinate. Use Vector3f.UNIT_XYZ to not apply and
+     * transformation to the normal.
+     * @param sphereRadius the sky sphere's radius: for the sky to be visible,
+     * its radius must fall between the near and far planes of the camera's
+     * frustrum
+     * @return a new spatial representing the sky, ready to be attached to the
+     * scene graph
+     */
+    public static Spatial createSky(AssetManager assetManager, Texture west,
+            Texture east, Texture north, Texture south, Texture up,
+            Texture down, Vector3f normalScale, float sphereRadius) {
         final Sphere sphereMesh = new Sphere(10, 10, sphereRadius, false, true);
         Geometry sky = new Geometry("Sky", sphereMesh);
         sky.setQueueBucket(Bucket.Sky);

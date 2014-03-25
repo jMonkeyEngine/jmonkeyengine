@@ -188,11 +188,11 @@ manager.loadTexture(&quot;Textures/wavenormals.png&quot;) )</td><td>This normal 
 	</tr>
 	<tr>
 		<td>water.setWaterColor(ColorRGBA.Brown.mult(2.0f));</td><td>Sets the main water color.</td><td>greenish blue <br/>
-Vector3f(0.0f,0.5f,0.5f,1.0f)</td>
+ColorRGBA(0.0f,0.5f,0.5f,1.0f)</td>
 	</tr>
 	<tr>
 		<td>water.setDeepWaterColor(ColorRGBA.Brown);</td><td>Sets the deep water color.</td><td>dark blue <br/>
-Vector3f(0.0f, 0.0f,0.2f,1.0f)</td>
+ColorRGBA(0.0f, 0.0f,0.2f,1.0f)</td>
 	</tr>
 	<tr>
 		<td>water.setWaterTransparency(0.2f);</td><td>Sets how fast colors fade out. use this to control how clear (e.g. 0.05f) or muddy (0.2f) water is.</td><td> 0.1f </td>
@@ -201,7 +201,7 @@ Vector3f(0.0f, 0.0f,0.2f,1.0f)</td>
 		<td>water.setColorExtinction(new Vector3f(10f,20f,30f));</td><td>Sets At what depth the refraction color extincts. The three values are RGB (red, green, blue) in this order. Play with these parameters to &quot;muddy&quot; the water.</td><td>Vector3f(5f,20f,30f)</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [6562-7566] --><div><table>
+<!-- EDIT9 TABLE [6562-7568] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Shore</th><th>Default</th>
 	</tr>
@@ -216,7 +216,7 @@ water.setRadius(260);</td><td>Limit the water filter to a semisphere with the gi
 		<td>water.setUseHQShoreline(false);</td><td>Renders shoreline with better quality ?</td><td>true</td>
 	</tr>
 </table></div>
-<!-- EDIT10 TABLE [7568-8066] --><div><table>
+<!-- EDIT10 TABLE [7570-8068] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Foam</th><th>Default</th>
 	</tr>
@@ -234,7 +234,7 @@ water.setRadius(260);</td><td>Limit the water filter to a semisphere with the gi
 manager.loadTexture(&quot;Textures/foam.png&quot;) )</td><td>This foam texture will be used with WrapMode.Repeat</td><td>&quot;Common/MatDefs/Water/Textures/foam.jpg&quot;</td>
 	</tr>
 </table></div>
-<!-- EDIT11 TABLE [8068-8713] --><div><table>
+<!-- EDIT11 TABLE [8070-8715] --><div><table>
 	<tr>
 		<th> Water method example</th><th> Effects: Light</th><th>Default</th>
 	</tr>
@@ -260,9 +260,9 @@ manager.loadTexture(&quot;Textures/foam.png&quot;) )</td><td>This foam texture w
 		<td>water.setReflectionMapSize(256)</td><td>Sets the size of the reflection map. The higher, the better the quality, but the slower the effect.</td><td>512</td>
 	</tr>
 </table></div>
-<!-- EDIT12 TABLE [8715-9630] -->
+<!-- EDIT12 TABLE [8717-9632] -->
 </div>
-<!-- EDIT7 SECTION "Optional: Water Wave and Color Effects" [5230-9632] -->
+<!-- EDIT7 SECTION "Optional: Water Wave and Color Effects" [5230-9634] -->
 <h3><a>Sound Effects</a></h3>
 <div>
 
@@ -291,5 +291,5 @@ See also:
 </ul>
 
 </div>
-<!-- EDIT13 SECTION "Sound Effects" [9633-] -->
+<!-- EDIT13 SECTION "Sound Effects" [9635-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:post-processor_water?do=export_xhtmlbody">view online version</a></em></p>

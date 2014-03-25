@@ -171,7 +171,7 @@ void main(){
      vec3 wvTangent = normalize(g_NormalMatrix * modelSpaceTan);
      vec3 wvBinormal = cross(wvNormal, wvTangent);
 
-     mat3 tbnMat = mat3(wvTangent, wvBinormal * -inTangent.w,wvNormal);
+     mat3 tbnMat = mat3(wvTangent, wvBinormal * inTangent.w,wvNormal);
      
      //vPosition = wvPosition * tbnMat;
      //vViewDir  = viewDir * tbnMat;

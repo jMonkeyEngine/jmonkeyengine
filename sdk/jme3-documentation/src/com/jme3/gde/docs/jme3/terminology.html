@@ -352,11 +352,11 @@ See also: <a href="/com/jme3/gde/docs/jme3/advanced/water.html">Water</a>.
 
 <p>
 
-MIP Map means that you provide one texture in two or three resolutions in one file (MIP = &quot;multum in parvo&quot; = &quot;many in one&quot;). Depending on how close (or far) the camera is, the engine automatically renders a more (or less) detailed texture for the object. Thus objects look smooth from close up, but don&#039;t waste resources with unspottable details when far away. Good for everything, but requires more time to create and more space to store textures. If you don&#039;t provide custom ones, the jMonkeyEngine creates basic MIP maps automatically as an optimization.
+MIP Map means that you provide one texture in two or three resolutions in one file (MIP = &quot;multum in parvo&quot; = &quot;many in one&quot;). Depending on how close (or far) the camera is, the engine automatically renders a more (or less) detailed texture for the object. Thus objects look detailed at close up, but also look good when viewed from far away. Good for everything, but requires more time to create and more space to store textures. If you don&#039;t provide custom ones, the jMonkeyEngine creates basic MIP maps automatically as an optimization.
 </p>
 
 </div>
-<!-- EDIT23 SECTION "MIP Map Texture" [10812-11398] -->
+<!-- EDIT23 SECTION "MIP Map Texture" [10812-11378] -->
 <h2><a>Procedural Textures</a></h2>
 <div>
 
@@ -374,7 +374,7 @@ See also: <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
 </p>
 
 </div>
-<!-- EDIT24 SECTION "Procedural Textures" [11399-12305] -->
+<!-- EDIT24 SECTION "Procedural Textures" [11379-12285] -->
 <h1><a>Animation</a></h1>
 <div>
 
@@ -388,7 +388,7 @@ Unless you animate a 3D cartoon, realism of animated characters is generally a p
 </p>
 
 </div>
-<!-- EDIT25 SECTION "Animation" [12306-12902] -->
+<!-- EDIT25 SECTION "Animation" [12286-12882] -->
 <h2><a>Rigging and Skinning</a></h2>
 <div>
 
@@ -458,7 +458,7 @@ E.g. when the thigh bone moves, the leg is fully affected, the hips joints less 
 </p>
 
 </div>
-<!-- EDIT26 SECTION "Rigging and Skinning" [12903-15439] -->
+<!-- EDIT26 SECTION "Rigging and Skinning" [12883-15419] -->
 <h2><a>Kinematics</a></h2>
 <div>
 <ul>
@@ -469,7 +469,7 @@ E.g. when the thigh bone moves, the leg is fully affected, the hips joints less 
 </ul>
 
 </div>
-<!-- EDIT27 SECTION "Kinematics" [15440-15704] -->
+<!-- EDIT27 SECTION "Kinematics" [15420-15684] -->
 <h2><a>Controller and Channel</a></h2>
 <div>
 
@@ -478,7 +478,7 @@ In the JME3 application, you register animated models to the Animation Controlle
 </p>
 
 </div>
-<!-- EDIT28 SECTION "Controller and Channel" [15705-16073] -->
+<!-- EDIT28 SECTION "Controller and Channel" [15685-16053] -->
 <h1><a>Artificial Intelligence (AI)</a></h1>
 <div>
 
@@ -529,7 +529,7 @@ There are lots of resources explaining interesting AI algorithms:
 </ul>
 
 </div>
-<!-- EDIT29 SECTION "Artificial Intelligence (AI)" [16074-19559] -->
+<!-- EDIT29 SECTION "Artificial Intelligence (AI)" [16054-19539] -->
 <h1><a>Math</a></h1>
 <div>
 
@@ -538,7 +538,7 @@ There are lots of resources explaining interesting AI algorithms:
 </p>
 
 </div>
-<!-- EDIT30 SECTION "Math" [19560-19633] -->
+<!-- EDIT30 SECTION "Math" [19540-19613] -->
 <h2><a>Coordinates</a></h2>
 <div>
 
@@ -549,7 +549,7 @@ In contrast to a vector (which looks similar), a coordinate is a location, not a
 </p>
 
 </div>
-<!-- EDIT31 SECTION "Coordinates" [19634-20023] -->
+<!-- EDIT31 SECTION "Coordinates" [19614-20003] -->
 <h3><a>The Origin</a></h3>
 <div>
 
@@ -563,7 +563,7 @@ The origin is the central point in the 3D world, where the three axes meet. It&#
 </p>
 
 </div>
-<!-- EDIT32 SECTION "The Origin" [20024-20228] -->
+<!-- EDIT32 SECTION "The Origin" [20004-20208] -->
 <h2><a>Vectors</a></h2>
 <div>
 
@@ -579,7 +579,7 @@ A vector has a length and a direction, like an arrow in 3D space. A vector start
 Vector3f v = new Vector3f&#40; 8f , 0f , 33f &#41;.add&#40;new Vector3f&#40; 0f , -2f , -2f &#41;&#41;; // starts at (8,-2,31)</pre>
 
 </div>
-<!-- EDIT33 SECTION "Vectors" [20229-20679] -->
+<!-- EDIT33 SECTION "Vectors" [20209-20659] -->
 <h3><a>Unit Vectors</a></h3>
 <div>
 
@@ -603,7 +603,7 @@ Negate the vegator to change its direction, e.g. (-1, 0, 0) = left.
 </p>
 
 </div>
-<!-- EDIT34 SECTION "Unit Vectors" [20680-21178] -->
+<!-- EDIT34 SECTION "Unit Vectors" [20660-21158] -->
 <h3><a>Normalized Vectors</a></h3>
 <div>
 
@@ -618,7 +618,7 @@ When you normalize a vector, it still has the same direction, but you lose the i
 </p>
 
 </div>
-<!-- EDIT35 SECTION "Normalized Vectors" [21179-21522] -->
+<!-- EDIT35 SECTION "Normalized Vectors" [21159-21502] -->
 <h3><a>Surface Normal Vectors</a></h3>
 <div>
 
@@ -630,7 +630,7 @@ You calculate the Surface Normal by calculating the cross product.
 </p>
 
 </div>
-<!-- EDIT36 SECTION "Surface Normal Vectors" [21523-21735] -->
+<!-- EDIT36 SECTION "Surface Normal Vectors" [21503-21715] -->
 <h3><a>Cross Product</a></h3>
 <div>
 
@@ -647,7 +647,7 @@ In 3D space, speaking of an orthogonal only makes sense with respect to a plane.
 </p>
 
 </div>
-<!-- EDIT37 SECTION "Cross Product" [21736-22446] -->
+<!-- EDIT37 SECTION "Cross Product" [21716-22426] -->
 <h3><a>Transformation</a></h3>
 <div>
 
@@ -661,7 +661,7 @@ Examples: Falling and rotating bricks in 3D Tetris.
 </p>
 
 </div>
-<!-- EDIT38 SECTION "Transformation" [22447-22711] -->
+<!-- EDIT38 SECTION "Transformation" [22427-22691] -->
 <h3><a>Slerp</a></h3>
 <div>
 
@@ -679,7 +679,7 @@ Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1
 </p>
 
 </div>
-<!-- EDIT39 SECTION "Slerp" [22712-23481] -->
+<!-- EDIT39 SECTION "Slerp" [22692-23461] -->
 <h1><a>Game Developer Jargon</a></h1>
 <div>
 <ul>
@@ -688,7 +688,7 @@ Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1
 </ul>
 
 </div>
-<!-- EDIT40 SECTION "Game Developer Jargon" [23482-23645] -->
+<!-- EDIT40 SECTION "Game Developer Jargon" [23462-23625] -->
 <h1><a>3D graphics Terminology Wiki book</a></h1>
 <div>
 <ul>
@@ -697,5 +697,5 @@ Example: A burning meteorite Geometry slerps from &quot;position p1, rotation r1
 </ul>
 
 </div>
-<!-- EDIT41 SECTION "3D graphics Terminology Wiki book" [23646-] -->
+<!-- EDIT41 SECTION "3D graphics Terminology Wiki book" [23626-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:terminology?do=export_xhtmlbody">view online version</a></em></p>

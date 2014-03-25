@@ -76,8 +76,7 @@ public class SpotLight extends Light implements Savable {
         if(((int)packedAngleCos)== ((int)(outerCos*1000)) ){
             outerCos -= 0.001f;
         }
-        packedAngleCos+=outerCos;
-        System.out.println("anfle"+ packedAngleCos);
+        packedAngleCos+=outerCos;        
     }
 
     @Override

@@ -55,9 +55,14 @@ public class RenderContext {
     public boolean depthTestEnabled = false;
 
     /**
-     * @see RenderState#setAlphaTest(boolean) 
+     * @see RenderState#setAlphaFallOff(float) 
      */
     public float alphaTestFallOff = 0f;
+
+    /**
+     * @see RenderState#setAlphaTest(boolean) 
+     */
+    public boolean alphaTestEnabled = false;
 
     /**
      * @see RenderState#setDepthWrite(boolean) 

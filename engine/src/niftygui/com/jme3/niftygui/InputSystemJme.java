@@ -130,7 +130,42 @@ public class InputSystemJme implements InputSystem, RawInputListener {
             //System.out.format("niftyMouse(%d, %d, %d, true) = %b\n", x, y, button, consumed);
         } else {
             // Forward the event if nifty owns it or if the cursor is visible.
-            if (niftyOwnsDragging[button] || inputManager.isCursorVisible()){
+            //
+            // 2013-10-06: void256 was here and changed stuff ;-) Explanation:
+            //
+            // Currently Nifty remembers any mouse down event internally as "mouse button now down" regardless of it
+            // hitting a Nifty element. As long as it does not receive a mouse up event, Nifty will think of the mouse
+            // button as being pressed.
+            //
+            // The original code:
+            // -> if (niftyOwnsDragging[button] || inputManager.isCursorVisible()){
+            //
+            // forwarded mouse up events to Nifty when:
+            // a) Nifty owns dragging, e.g. there was a mouse down event that actually hit a Nifty element before OR
+            // b) when the jme mouse cursor is visible.
+            //
+            // That's ok but the "Nifty remembers the mouse down event" thing had the following consequences in one
+            // special case:
+            // 1) You click on the jme scene (not Nifty) and Nifty will correctly return false (event not consumed) but
+            //    internally it remembers: "mouse button is now down". Note that the jme mouse cursor is now hidden.
+            // 2) You release the mouse button but the mouse down event will not be forwarded to Nifty because it did
+            //    owned the mouse and the jme mouse cursor is not visible.
+            //
+            // Nifty now still thinks that the mouse button is down although it's not. The result is that the next click
+            // on any Nifty element will not be recognized as an initial click by Nifty. So you need an additional click
+            // on the Nifty element to activate it correctly. In case of drag and drop this additional click was quite
+            // irritating.
+            //
+            // To fix that we'll now forward the mouse button up event ALWAYS to Nifty regardless of it owning the mouse
+            // or the jme mouse cursor visibility.
+            //
+            // Please note: Compared to the original version a side effect is that jme will now always send mouse move
+            // events to Nifty even when the mouse cursor is hidden. So in theory it could happen that input events are
+            // handled by both: jme and Nifty when f.i. you move around your scene with the mouse cursor hidden and that
+            // invisible cursor is moved over some Nifty element. I've not been able to reproduce that case though,
+            // which is good ;-) If that ever happens to someone there is an easy fix possible:
+            // nifty.setIgnoreMouseEvents() to completely stop Nifty from processing events.
+
                 boolean consumed = nic.processMouseEvent(x, y, 0, button, false);
 
                 // Only consume event if it ORIGINATED in nifty!
@@ -138,7 +173,7 @@ public class InputSystemJme implements InputSystem, RawInputListener {
                     evt.setConsumed();
                     processSoftKeyboard();
                 }
-            }
+
             niftyOwnsDragging[button] = false;
             //System.out.format("niftyMouse(%d, %d, %d, false) = %b\n", x, y, button, consumed);
         }

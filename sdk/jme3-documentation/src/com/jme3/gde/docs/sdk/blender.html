@@ -158,15 +158,23 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </li>
 </ul>
 </li>
+<li><div> Importing sky</div>
+<ul>
+<li><div> loading world&#039;s horizon color as a background color if no sky type is used</div>
+</li>
+<li><div> loading sky without the texture</div>
+</li>
+<li><div> loading textured sky (including both generated and normal textures)</div>
+</li>
+</ul>
+</li>
 </ol>
 
 </div>
-<!-- EDIT4 SECTION "Currently supported features" [1229-4399] -->
+<!-- EDIT4 SECTION "Currently supported features" [1229-4610] -->
 <h2><a>Planned features.</a></h2>
 <div>
 <ol>
-<li><div> Loading sky.</div>
-</li>
 <li><div> Full support for scale and offset in texture input mapping.</div>
 </li>
 <li><div> Full support for bone and object constraints.</div>
@@ -180,7 +188,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </ol>
 
 </div>
-<!-- EDIT5 SECTION "Planned features." [4400-4660] -->
+<!-- EDIT5 SECTION "Planned features." [4611-4854] -->
 <h2><a>Known bugs/problems.</a></h2>
 <div>
 <ol>
@@ -191,7 +199,7 @@ By default a BlenderModelLoader is registered with your assetManager to load ble
 </ol>
 
 </div>
-<!-- EDIT6 SECTION "Known bugs/problems." [4661-5067] -->
+<!-- EDIT6 SECTION "Known bugs/problems." [4855-5261] -->
 <h2><a>Using BlenderLoader instead of BlenderModelLoader</a></h2>
 <div>
 
@@ -252,7 +260,7 @@ You can use ModelKey as well. This will give the same result as using default Bl
 </p>
 
 </div>
-<!-- EDIT7 SECTION "Using BlenderLoader instead of BlenderModelLoader" [5068-6804] -->
+<!-- EDIT7 SECTION "Using BlenderLoader instead of BlenderModelLoader" [5262-6998] -->
 <h2><a>How does it work?</a></h2>
 <div>
 
@@ -298,7 +306,7 @@ Here is the list of how blender features are mapped into jme.
 		<td>Surface	</td><td>Node </td><td>The surface is transformed to the proper mesh</td>
 	</tr>
 </table></div>
-<!-- EDIT9 TABLE [7278-7629] -->
+<!-- EDIT9 TABLE [7472-7823] -->
 <p>
 
 Using BlenderLoader can allow you to use blend file as your local assets repository.
@@ -308,7 +316,7 @@ Probably versions before 2.49 will work pretty well too, but I never checked tha
 </p>
 
 </div>
-<!-- EDIT8 SECTION "How does it work?" [6805-7964] -->
+<!-- EDIT8 SECTION "How does it work?" [6999-8158] -->
 <h2><a>Notes</a></h2>
 <div>
 
@@ -319,6 +327,15 @@ Hope I will meet your expectations.
 
 <p>
 Be mindful of the result model vertices amount. The best results are achieved when the model is smooth and has no texture. Then the vertex amount is equal to the vertex amount in blender. If the model is not smooth or has a generated texture applied then the amount of vertices is 3 times larger than mesh&#039;s triangles amount. If a 2d texture is applied with UV mapping then the vertex count will vary depending on how much the UV map is fragmented.
+</p>
+
+<p>
+When using polygon meshes in blender 2.5 and newer, better add and apply the triangulation modifier (if available in your version) or save the file with convertion from polygons to triangles.
+Even though the importer supports loading of polygons as the mesh faces, if your face isn&#039;t convex, the results might contain errors.
+</p>
+
+<p>
+Not all modifiers are supported. If your model has modifiers and looks not the way you want in the jme scene - try to apply them and load again.
 </p>
 
 <p>
@@ -349,5 +366,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT10 SECTION "Notes" [7965-] -->
+<!-- EDIT10 SECTION "Notes" [8159-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/sdk:blender?do=export_xhtmlbody">view online version</a></em></p>

@@ -45,15 +45,41 @@ You can optimize nodes using the SceneComposer in the <acronym title="Software D
 
 <p>
 
-When you use math operations like <code>vectorA.mult(vectorB);</code>, they create new objects for the result. These objects have to be garbage collected when you don&#039;t use them anymore. 
+Different Java implementations use different garbage collection algorithms, so depending on the platforms you target, different advice applies.
 </p>
 
 <p>
-Check your math operations for opportunities to use the <em>local</em> version of the math operations, e.g. <code>vectorA.multLocal(vectorB)</code>. Local methods store the result in vectorA and do not create a new object. Use local methods if you do not need to keep the previous vectorA.
+The major variants are Oracle&#039;s JRE, old (pre-Gingerbread) Androids, and newer (Gingerbread or later) Androids.
+</p>
+
+<p>
+Oracle&#039;s JRE is a copying collector. This means that it does not need to do any work for objects that have become unreachable, it just keeps copying live objects to new memory areas and recycles the now-unused area as a whole.
+Older objects are copied less often, so the garbage collection overhead is roughly proportional to the rate at which your code creates new objects that survive for, say, more than a minute.
+</p>
+
+<p>
+Gingerbread and newer Androids use a garbage collector that does some optimization tricks with local variables, but you should avoid creating and forgetting lots of objects in the scene graph.
+</p>
+
+<p>
+Older Androids use a very naive garbage collector that needs to do real work for every object, both during creation and during collection. Creating local variables can build up a heap of work, particularly if the function is called often.
+</p>
+
+<p>
+To avoid creating a temporary object, use <em>local methods</em> to overwrite the contents of an existing object instead of creating a new temporary object for the result.
+</p>
+
+<p>
+E.g. when you use math operations like <code>vectorA.mult(vectorB);</code>, they create new objects for the result.
+</p>
+
+<p>
+Check your math operations for opportunities to use the <em>local</em> version of the math operations, e.g. <code>vectorA.multLocal(vectorB)</code>. Local methods store the result in vectorA and do not create a new object.
+
 </p>
 
 </div>
-<!-- EDIT3 SECTION "Avoid creating new objects" [1394-1890] -->
+<!-- EDIT3 SECTION "Avoid creating new objects" [1394-3028] -->
 <h2><a>Avoid large objects in physics</a></h2>
 <div>
 
@@ -63,7 +89,7 @@ To offload much computation to the less CPU intense physics broadphase collision
 </p>
 
 </div>
-<!-- EDIT4 SECTION "Avoid large objects in physics" [1891-2295] -->
+<!-- EDIT4 SECTION "Avoid large objects in physics" [3029-3433] -->
 <h2><a>Check the Statistics</a></h2>
 <div>
 
@@ -94,5 +120,5 @@ Generally jME3 is well optimized and optimizes these things correctly. Read <a h
 </span></div>
 
 </div>
-<!-- EDIT5 SECTION "Check the Statistics" [2296-] -->
+<!-- EDIT5 SECTION "Check the Statistics" [3434-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:intermediate:optimization?do=export_xhtmlbody">view online version</a></em></p>

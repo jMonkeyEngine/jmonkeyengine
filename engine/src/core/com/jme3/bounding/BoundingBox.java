@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2013 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,31 +47,40 @@ import java.nio.FloatBuffer;
 //import com.jme.scene.TriMesh;
 
 /**
- * <code>BoundingBox</code> defines an axis-aligned cube that defines a
- * container for a group of vertices of a particular piece of geometry. This box
- * defines a center and extents from that center along the x, y and z axis. <br>
+ * <code>BoundingBox</code> describes a bounding volume as an axis-aligned box.
  * <br>
- * A typical usage is to allow the class define the center and radius by calling
- * either <code>containAABB</code> or <code>averagePoints</code>. A call to
- * <code>computeFramePoint</code> in turn calls <code>containAABB</code>.
- * 
+ * Instances may be initialized by invoking the <code>containAABB</code> method.
+ *
  * @author Joshua Slack
  * @version $Id: BoundingBox.java,v 1.50 2007/09/22 16:46:35 irrisor Exp $
  */
 public class BoundingBox extends BoundingVolume {
-
-    float xExtent, yExtent, zExtent;
-
     /**
-     * Default constructor instantiates a new <code>BoundingBox</code>
-     * object.
+     * the X-extent of the box (>=0, may be +Infinity)
+     */
+    float xExtent;
+    /**
+     * the Y-extent of the box (>=0, may be +Infinity)
+     */
+    float yExtent;
+    /**
+     * the Z-extent of the box (>=0, may be +Infinity)
+     */
+    float zExtent;
+    
+    /**
+     * Instantiate a <code>BoundingBox</code> without initializing it.
      */
     public BoundingBox() {
     }
 
     /**
-     * Contstructor instantiates a new <code>BoundingBox</code> object with
-     * given specs.
+     * Instantiate a <code>BoundingBox</code> with given center and extents.
+     *
+     * @param c the coordinates of the center of the box (not null, not altered)
+     * @param x the X-extent of the box (>=0, may be +Infinity)
+     * @param y the Y-extent of the box (>=0, may be +Infinity)
+     * @param z the Z-extent of the box (>=0, may be +Infinity)
      */
     public BoundingBox(Vector3f c, float x, float y, float z) {
         this.center.set(c);
@@ -80,6 +89,11 @@ public class BoundingBox extends BoundingVolume {
         this.zExtent = z;
     }
 
+    /**
+     * Instantiate a <code>BoundingBox</code> equivalent to an existing box.
+     *
+     * @param source the existing box (not null, not altered)
+     */
     public BoundingBox(BoundingBox source) {
         this.center.set(source.center);
         this.xExtent = source.xExtent;
@@ -368,52 +382,28 @@ public class BoundingBox extends BoundingVolume {
     }
 
     /**
-     * <code>merge</code> combines this bounding box with a second bounding box.
-     * This new box contains both bounding box and is returned.
-     * 
-     * @param volume
-     *            the bounding box to combine with this bounding box.
-     * @return the new bounding box
+     * <code>merge</code> combines this bounding box locally with a second
+     * bounding volume. The result contains both the original box and the second
+     * volume.
+     *
+     * @param volume the bounding volume to combine with this box (or null) (not
+     * altered)
+     * @return this box (with its components modified) or null if the second
+     * volume is of some type other than AABB or Sphere
      */
     public BoundingVolume merge(BoundingVolume volume) {
-        if (volume == null) {
-            return this;
-        }
-
-        switch (volume.getType()) {
-            case AABB: {
-                BoundingBox vBox = (BoundingBox) volume;
-                return merge(vBox.center, vBox.xExtent, vBox.yExtent,
-                        vBox.zExtent, new BoundingBox(new Vector3f(0, 0, 0), 0,
-                        0, 0));
-            }
-
-            case Sphere: {
-                BoundingSphere vSphere = (BoundingSphere) volume;
-                return merge(vSphere.center, vSphere.radius, vSphere.radius,
-                        vSphere.radius, new BoundingBox(new Vector3f(0, 0, 0),
-                        0, 0, 0));
-            }
-
-//            case OBB: {
-//                OrientedBoundingBox box = (OrientedBoundingBox) volume;
-//                BoundingBox rVal = (BoundingBox) this.clone(null);
-//                return rVal.mergeOBB(box);
-//            }
-
-            default:
-                return null;
-        }
+        return mergeLocal(volume);
     }
 
     /**
-     * <code>mergeLocal</code> combines this sphere with a second bounding
-     * sphere locally. Altering this sphere to contain both the original and the
-     * additional sphere volumes;
-     * 
-     * @param volume
-     *            the sphere to combine with this sphere.
-     * @return this
+     * <code>mergeLocal</code> combines this bounding box locally with a second
+     * bounding volume. The result contains both the original box and the second
+     * volume.
+     *
+     * @param volume the bounding volume to combine with this box (or null) (not
+     * altered)
+     * @return this box (with its components modified) or null if the second
+     * volume is of some type other than AABB or Sphere
      */
     public BoundingVolume mergeLocal(BoundingVolume volume) {
         if (volume == null) {
@@ -421,17 +411,15 @@ public class BoundingBox extends BoundingVolume {
         }
 
         switch (volume.getType()) {
-            case AABB: {
+            case AABB:
                 BoundingBox vBox = (BoundingBox) volume;
-                return merge(vBox.center, vBox.xExtent, vBox.yExtent,
-                        vBox.zExtent, this);
-            }
+                return mergeLocal(vBox.center, vBox.xExtent, vBox.yExtent,
+                        vBox.zExtent);
 
-            case Sphere: {
+            case Sphere:
                 BoundingSphere vSphere = (BoundingSphere) volume;
-                return merge(vSphere.center, vSphere.radius, vSphere.radius,
-                        vSphere.radius, this);
-            }
+                return mergeLocal(vSphere.center, vSphere.radius,
+                        vSphere.radius, vSphere.radius);
 
 //            case OBB: {
 //                return mergeOBB((OrientedBoundingBox) volume);
@@ -486,61 +474,68 @@ public class BoundingBox extends BoundingVolume {
 //        return this;
 //    }
     /**
-     * <code>merge</code> combines this bounding box with another box which is
-     * defined by the center, x, y, z extents.
-     * 
-     * @param boxCenter
-     *            the center of the box to merge with
-     * @param boxX
-     *            the x extent of the box to merge with.
-     * @param boxY
-     *            the y extent of the box to merge with.
-     * @param boxZ
-     *            the z extent of the box to merge with.
-     * @param rVal
-     *            the resulting merged box.
+     * <code>mergeLocal</code> combines this bounding box locally with a second
+     * bounding box described by its center and extents.
+     *
+     * @param c the center of the second box (not null, not altered)
+     * @param x the X-extent of the second box
+     * @param y the Y-extent of the second box
+     * @param z the Z-extent of the second box
      * @return the resulting merged box.
      */
-    private BoundingBox merge(Vector3f boxCenter, float boxX, float boxY,
-            float boxZ, BoundingBox rVal) {
-
-        TempVars vars = TempVars.get();
-
-        vars.vect1.x = center.x - xExtent;
-        if (vars.vect1.x > boxCenter.x - boxX) {
-            vars.vect1.x = boxCenter.x - boxX;
-        }
-        vars.vect1.y = center.y - yExtent;
-        if (vars.vect1.y > boxCenter.y - boxY) {
-            vars.vect1.y = boxCenter.y - boxY;
-        }
-        vars.vect1.z = center.z - zExtent;
-        if (vars.vect1.z > boxCenter.z - boxZ) {
-            vars.vect1.z = boxCenter.z - boxZ;
-        }
-
-        vars.vect2.x = center.x + xExtent;
-        if (vars.vect2.x < boxCenter.x + boxX) {
-            vars.vect2.x = boxCenter.x + boxX;
-        }
-        vars.vect2.y = center.y + yExtent;
-        if (vars.vect2.y < boxCenter.y + boxY) {
-            vars.vect2.y = boxCenter.y + boxY;
-        }
-        vars.vect2.z = center.z + zExtent;
-        if (vars.vect2.z < boxCenter.z + boxZ) {
-            vars.vect2.z = boxCenter.z + boxZ;
+    private BoundingBox mergeLocal(Vector3f c, float x, float y, float z) {
+        if (xExtent == Float.POSITIVE_INFINITY
+                || x == Float.POSITIVE_INFINITY) {
+            center.x = 0;
+            xExtent = Float.POSITIVE_INFINITY;
+        } else {
+            float low = center.x - xExtent;
+            if (low > c.x - x) {
+                low = c.x - x;
+            }
+            float high = center.x + xExtent;
+            if (high < c.x + x) {
+                high = c.x + x;
+            }
+            center.x = (low + high) / 2;
+            xExtent = high - center.x;
         }
 
-        center.set(vars.vect2).addLocal(vars.vect1).multLocal(0.5f);
+        if (yExtent == Float.POSITIVE_INFINITY
+                || y == Float.POSITIVE_INFINITY) {
+            center.y = 0;
+            yExtent = Float.POSITIVE_INFINITY;
+        } else {
+            float low = center.y - yExtent;
+            if (low > c.y - y) {
+                low = c.y - y;
+            }
+            float high = center.y + yExtent;
+            if (high < c.y + y) {
+                high = c.y + y;
+            }
+            center.y = (low + high) / 2;
+            yExtent = high - center.y;
+        }
 
-        xExtent = vars.vect2.x - center.x;
-        yExtent = vars.vect2.y - center.y;
-        zExtent = vars.vect2.z - center.z;
+        if (zExtent == Float.POSITIVE_INFINITY
+                || z == Float.POSITIVE_INFINITY) {
+            center.z = 0;
+            zExtent = Float.POSITIVE_INFINITY;
+        } else {
+            float low = center.z - zExtent;
+            if (low > c.z - z) {
+                low = c.z - z;
+            }
+            float high = center.z + zExtent;
+            if (high < c.z + z) {
+                high = c.z + z;
+            }
+            center.z = (low + high) / 2;
+            zExtent = high - center.z;
+        }
 
-        vars.release();
-
-        return rVal;
+        return this;
     }
 
     /**
@@ -570,8 +565,9 @@ public class BoundingBox extends BoundingVolume {
 
     /**
      * <code>toString</code> returns the string representation of this object.
-     * The form is: "Radius: RRR.SSSS Center: <Vector>".
-     * 
+     * The form is: "[Center: <Vector> xExtent: X.XX yExtent: Y.YY zExtent:
+     * Z.ZZ]".
+     *
      * @return the string representation of this.
      */
     @Override

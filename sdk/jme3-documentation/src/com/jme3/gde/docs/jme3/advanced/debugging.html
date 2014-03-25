@@ -132,8 +132,24 @@ You can display a wireframe of the (usually invisible) collision shape around al
 </p>
 <pre>physicsSpace.enableDebug&#40;assetManager&#41;;</pre>
 
+<p>
+With debugging enabled, colors are used to indicate various types of physical objects:
+</p>
+<ul>
+<li><div> A magenta wire mesh indicates an active rigid body.</div>
+</li>
+<li><div> A blue wire mesh indicates a rigid body which is either new or inactive.</div>
+</li>
+<li><div> A yellow wire mesh indicates a ghost.</div>
+</li>
+<li><div> Two green arrows indicate a joint.</div>
+</li>
+<li><div> A pink wire mesh indicates a character.</div>
+</li>
+</ul>
+
 </div>
-<!-- EDIT7 SECTION "Wireframe for Physics" [4221-4567] -->
+<!-- EDIT7 SECTION "Wireframe for Physics" [4221-4913] -->
 <h2><a>Wireframe for Animations</a></h2>
 <div>
 
@@ -150,7 +166,7 @@ Making the skeleton visible inside animated models can be handy for debugging an
      player.attachChild&#40;skeletonDebug&#41;;</pre>
 
 </div>
-<!-- EDIT8 SECTION "Wireframe for Animations" [4568-5159] -->
+<!-- EDIT8 SECTION "Wireframe for Animations" [4914-5505] -->
 <h2><a>Example: Toggle Wireframe on Model</a></h2>
 <div>
 
@@ -208,7 +224,7 @@ TIP :: To set the line width of wireframe display, use mesh.setLineWidth(lineWid
 </p>
 
 </div>
-<!-- EDIT9 SECTION "Example: Toggle Wireframe on Model" [5160-7050] -->
+<!-- EDIT9 SECTION "Example: Toggle Wireframe on Model" [5506-7396] -->
 <h2><a>Example: Toggle Wireframe on the scene</a></h2>
 <div>
 
@@ -262,7 +278,7 @@ Then attach the scene processor to the <acronym title="Graphical User Interface"
 <pre>getViewPort&#40;&#41;.addProcessor&#40;new WireProcessor&#40;&#41;&#41;;</pre>
 
 </div>
-<!-- EDIT10 SECTION "Example: Toggle Wireframe on the scene" [7051-8424] -->
+<!-- EDIT10 SECTION "Example: Toggle Wireframe on the scene" [7397-8770] -->
 <h2><a>See also</a></h2>
 <div>
 <ul>
@@ -271,5 +287,5 @@ Then attach the scene processor to the <acronym title="Graphical User Interface"
 </ul>
 
 </div>
-<!-- EDIT11 SECTION "See also" [8425-] -->
+<!-- EDIT11 SECTION "See also" [8771-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:advanced:debugging?do=export_xhtmlbody">view online version</a></em></p>

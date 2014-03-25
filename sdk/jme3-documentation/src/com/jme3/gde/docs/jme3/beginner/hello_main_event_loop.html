@@ -21,12 +21,12 @@ Now that you know how to load assets, such as 3D models, you want to implement s
 import com.jme3.app.SimpleApplication;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 &nbsp;
-<span>/** Sample 4 - how to trigger repeating actions from the main update loop.
- * In this example, we make the player character rotate. */</span>
+<span>/** Sample 4 - how to trigger repeating actions from the main event loop.
+ * In this example, you use the loop to make the player character 
+ * rotate continuously. */</span>
 public class HelloLoop extends SimpleApplication &#123;
 &nbsp;
     public static void main&#40;String&#91;&#93; args&#41;&#123;
@@ -38,8 +38,8 @@ public class HelloLoop extends SimpleApplication &#123;
 &nbsp;
     @Override
     public void simpleInitApp&#40;&#41; &#123;
-&nbsp;
-        Box b = new Box&#40;Vector3f.ZERO, 1, 1, 1&#41;;
+        /** this blue box is our player character */
+        Box b = new Box&#40;1, 1, 1&#41;;
         player = new Geometry&#40;&quot;blue cube&quot;, b&#41;;
         Material mat = new Material&#40;assetManager,
           &quot;Common/MatDefs/Misc/Unshaded.j3md&quot;&#41;;
@@ -48,20 +48,21 @@ public class HelloLoop extends SimpleApplication &#123;
         rootNode.attachChild&#40;player&#41;;
     &#125;
 &nbsp;
-    /* This is the update loop */
+    /* Use the main event loop to trigger repeating actions. */
     @Override
     public void simpleUpdate&#40;float tpf&#41; &#123;
-        // make the player rotate
+        // make the player rotate:
         player.rotate&#40;0, 2*tpf, 0&#41;; 
     &#125;
 &#125;</pre>
 
 <p>
 Build and run the file: You see a constantly rotating cube. 
+
 </p>
 
 </div>
-<!-- EDIT2 SECTION "Code Sample" [405-1613] -->
+<!-- EDIT2 SECTION "Code Sample" [405-1682] -->
 <h2><a>Understanding the Code</a></h2>
 <div>
 
@@ -83,7 +84,7 @@ Now have a closer look at the <code>simpleUpdate()</code> method ??? this is the
 </ul>
 
 </div>
-<!-- EDIT3 SECTION "Understanding the Code" [1614-2397] -->
+<!-- EDIT3 SECTION "Understanding the Code" [1683-2466] -->
 <h2><a>Using the Update Loop</a></h2>
 <div>
 
@@ -108,38 +109,39 @@ A rotating object is just a simple example. In the update loop, you typically ha
 </ul>
 
 </div>
-<!-- EDIT4 SECTION "Using the Update Loop" [2398-3232] -->
+<!-- EDIT4 SECTION "Using the Update Loop" [2467-3301] -->
 <h2><a>Init - Update - Render</a></h2>
 <div>
 
 <p>
 
-Note the contrast:
+Note the the three phases of every game:
 </p>
 <ul>
-<li><div> The <code>simpleInitApp()</code> method is executed only once, right at the beginning; </div>
+<li><div> <strong>Init:</strong> The <code>simpleInitApp()</code> method is executed only <em>once</em>, right at the beginning; </div>
 </li>
-<li><div> The <code>simpleUpdate()</code> method runs repeatedly, during the game. </div>
+<li><div> <strong>Update:</strong> The <code>simpleUpdate()</code> method runs <em>repeatedly</em>, during the game. </div>
 </li>
-<li><div> After every update, the jMonkeyEngine automatically redraws (<code>renders</code>) the screen for you!</div>
+<li><div> <strong>Render:</strong> After every update, the jMonkeyEngine <em>automatically</em> redraws (<code>renders</code>) the screen for you.</div>
 </li>
 </ul>
 
 <p>
 
-Since rendering is automatic, initialization and updating are the two most important concepts in a SimpleApplication for you right now. These methods are where you load and create game data (once), and (repeatedly) change their properties to update the game state:
+Since rendering is automatic, initialization and updating are the two most important concepts in a SimpleApplication-based game for you:
 </p>
 <ul>
-<li><div> <code>simpleInitApp()</code> is the application&#039;s &quot;first breath&quot;.</div>
+<li><div> The <code>simpleInitApp()</code> method is the application&#039;s &quot;first breath&quot;. <br/>
+Here you load and create game data (once).</div>
 </li>
-<li><div> <code>simpleUpdate()</code> is the application&#039;s heartbeat. <br/>
-The update time unit is called <code>ticks</code>.</div>
+<li><div> The <code>simpleUpdate()</code> method is the application&#039;s &quot;heartbeat&quot; (the time unit is called <code>ticks</code>). <br/>
+Here you change their properties to update the game state (repeatedly).</div>
 </li>
 </ul>
 
 <p>
 
-<p><div>Everything in a game happens either during initialization or during the update loop. This means that these two methods grow very long over time. There are two strategies how experienced developers spread out their init and update code over several Java classes:
+<p><div>Everything in a game happens either during initialization, or during the update loop. This means that these two methods grow very long over time. Follwo these two strategies to spread out init and update code over several modular Java classes:
 </p>
 <ul>
 <li><div> Move code blocks from the simpleInitApp() method to <a href="/com/jme3/gde/docs/jme3/advanced/application_states.html">AppStates</a>.</div>
@@ -155,7 +157,7 @@ Keep this in mind for later when your application grows.
 </p>
 
 </div>
-<!-- EDIT5 SECTION "Init - Update - Render" [3233-4502] -->
+<!-- EDIT5 SECTION "Init - Update - Render" [3302-4629] -->
 <h2><a>Exercises</a></h2>
 <div>
 
@@ -189,7 +191,7 @@ Look back at the <a href="/com/jme3/gde/docs/jme3/beginner/hello_node.html">Hell
 </p>
 
 </div>
-<!-- EDIT6 SECTION "Exercises" [4503-5274] -->
+<!-- EDIT6 SECTION "Exercises" [4630-5401] -->
 <h2><a>Conclusion</a></h2>
 <div>
 
@@ -221,5 +223,5 @@ See also:
 </span></div>
 
 </div>
-<!-- EDIT7 SECTION "Conclusion" [5275-] -->
+<!-- EDIT7 SECTION "Conclusion" [5402-] -->
 <p><em><a href="http://hub.jmonkeyengine.org/wiki/doku.php/jme3:beginner:hello_main_event_loop?do=export_xhtmlbody">view online version</a></em></p>
