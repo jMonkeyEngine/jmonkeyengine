@@ -343,12 +343,12 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
 
     }
 
-    public Class getExplorerObjectClass() {
+    public Class<?> getExplorerObjectClass() {
         return Spatial.class;
     }
 
     @Override
-    public Class getExplorerNodeClass() {
+    public Class<?> getExplorerNodeClass() {
         return JmeSpatial.class;
     }
 

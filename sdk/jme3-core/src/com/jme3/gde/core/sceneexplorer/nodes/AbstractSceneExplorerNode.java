@@ -62,7 +62,7 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
     protected final InstanceContent lookupContents;
     protected boolean readOnly = false;
     protected DataObject dataObject;
-    private final List<Property> sceneProperties = Collections.synchronizedList(new LinkedList<Property>());
+    private final List<Property<?>> sceneProperties = Collections.synchronizedList(new LinkedList<Property<?>>());
 
     public AbstractSceneExplorerNode() {
         super(Children.LEAF, new DynamicLookup(new InstanceContent()));
@@ -144,8 +144,8 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         setSheet(createSheet());
     }
 
-    protected Property makeProperty(Object obj, Class returntype, String method, String name) {
-        Property prop = null;
+    protected Property<?> makeProperty(Object obj, Class<?> returntype, String method, String name) {
+        Property<?> prop = null;
         try {
             prop = new SceneExplorerProperty(getExplorerObjectClass().cast(obj), returntype, method, null);
             prop.setName(name);
@@ -155,8 +155,8 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         return prop;
     }
 
-    protected Property makeProperty(Object obj, Class returntype, String method, String setter, String name) {
-        Property prop = null;
+    protected Property<?> makeProperty(Object obj, Class<?> returntype, String method, String setter, String name) {
+        Property<?> prop = null;
         try {
             if (readOnly) {
                 prop = new SceneExplorerProperty(getExplorerObjectClass().cast(obj), returntype, method, null);
@@ -171,8 +171,8 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         return prop;
     }
 
-    protected Property makeEmbedProperty(Object obj, Class objectClass, Class returntype, String method, String setter, String name) {
-        Property prop = null;
+    protected Property<?> makeEmbedProperty(Object obj, Class objectClass, Class returntype, String method, String setter, String name) {
+        Property<?> prop = null;
         try {
             if (readOnly) {
                 prop = new SceneExplorerProperty(objectClass.cast(obj), returntype, method, null);
@@ -187,7 +187,7 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         return prop;
     }
 
-    protected void createFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
+    protected void createFields(Class<?> c, Sheet.Set set, Object obj) throws SecurityException {
         for (Field field : c.getDeclaredFields()) {
             PropertyDescriptor prop = PropertyUtils.getPropertyDescriptor(c, field);
             if (prop != null) {
@@ -206,7 +206,7 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         for (PropertySet propertySet : getPropertySets()) {
             for (Property<?> property : propertySet.getProperties()) {
                 if(property instanceof SceneExplorerProperty){
-                    SceneExplorerProperty prop = (SceneExplorerProperty)property;
+                    SceneExplorerProperty<?> prop = (SceneExplorerProperty<?>)property;
                     prop.syncValue();
                 }
             }
@@ -224,7 +224,7 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
         }
     }
 
-    public Class getExplorerNodeClass() {
+    public Class<?> getExplorerNodeClass() {
         return this.getClass();
     }
 
