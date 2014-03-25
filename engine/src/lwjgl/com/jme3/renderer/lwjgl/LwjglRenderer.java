@@ -492,20 +492,12 @@ public class LwjglRenderer implements Renderer {
 
         if (state.isAlphaTest() && !context.alphaTestEnabled) {
             glEnable(GL_ALPHA_TEST);
-<<<<<<< .working
-            glAlphaFunc(GL_GREATER, state.getAlphaFallOff());
-            context.alphaTestFallOff = state.getAlphaFallOff();
-        } else if (!state.isAlphaTest() && context.alphaTestFallOff != 0) {
-=======
             glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);
             context.alphaTestEnabled = true;
         } else if (!state.isAlphaTest() && context.alphaTestEnabled) {
->>>>>>> .merge-right.r10938
             glDisable(GL_ALPHA_TEST);
             context.alphaTestEnabled = false;
         }
-<<<<<<< .working
-=======
         if (state.getAlphaFallOff() != context.alphaTestFallOff) {
             glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);   
             context.alphaTestFallOff = state.getAlphaFallOff();
@@ -514,7 +506,6 @@ public class LwjglRenderer implements Renderer {
             glAlphaFunc(convertTestFunction(state.getAlphaFunc()), context.alphaTestFallOff);
             context.alphaFunc = state.getAlphaFunc();
         }
->>>>>>> .merge-right.r10938
 
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             glDepthMask(true);
