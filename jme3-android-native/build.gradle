@@ -39,13 +39,8 @@ ext {
     projectClassPath = configurations.runtime.asFileTree.matching {
         exclude ".gradle"
     }.asPath
-
-    // findNDK() is defined in the root project gradle.build so it
-    // can be visible to all subprojects that need to build an Android native lib
-    ndkCommandPath = findNDK()
 }
 //println "projectClassPath = " + projectClassPath
-//println "ndkCommandPath = " + ndkCommandPath
 
 // add each native lib build file
 apply from: file('openalsoft.gradle')
