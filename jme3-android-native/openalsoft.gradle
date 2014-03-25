@@ -75,7 +75,8 @@ task copyJmeOpenALSoft(type: Copy, dependsOn:copyOpenALSoft) {
     from sourceDir
     into outputDir
 }
-copyJmeOpenALSoft.doLast {
+
+task generateOpenAlSoftHeaders(dependsOn: copyJmeOpenALSoft) << {
     String destDirPath = openalsoftBuildJniDir
     String classes = ""
             .concat("com.jme3.audio.android.AndroidOpenALSoftAudioRenderer, ")
@@ -90,13 +91,24 @@ copyJmeOpenALSoft.doLast {
     )
 }
 
-task buildOpenAlSoftNativeLib(type: Exec, dependsOn: copyJmeOpenALSoft) {
+task buildOpenAlSoftNativeLib(type: Exec, dependsOn: generateOpenAlSoftHeaders) {
 //    println "openalsoft build dir: " + openalsoftBuildDir
 //    println "ndkCommandPath: " + project.ndkCommandPath
     args 'TARGET_PLATFORM=android-9'
     workingDir openalsoftBuildDir
     executable project.ndkCommandPath
 }
+
+task updatePreCompiledOpenAlSoftLibs(type: Copy, dependsOn: buildOpenAlSoftNativeLib) {
+    def sourceDir = new File(openalsoftBuildLibsDir)
+    def outputDir = new File(openalsoftPreCompiledLibsDir)
+//    println "updatePreCompiledOpenAlSoftLibs sourceDir: " + sourceDir
+//    println "updatePreCompiledOpenAlSoftLibs outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+
 
 // Copy pre-compiled libs to build directory (when not building new libs)
 task copyPreCompiledOpenAlSoftLibs(type: Copy) {
@@ -110,8 +122,10 @@ task copyPreCompiledOpenAlSoftLibs(type: Copy) {
 }
 
 if (ndkExists()) {
-    compileJava.dependsOn { buildOpenAlSoftNativeLib }
+    // build native libs and update stored pre-compiled libs to commit
+    compileJava.dependsOn { updatePreCompiledOpenAlSoftLibs }
 } else {
+    // use pre-compiled native libs (not building new ones)
     compileJava.dependsOn { copyPreCompiledOpenAlSoftLibs }
 }
 

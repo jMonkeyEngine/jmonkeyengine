@@ -53,7 +53,8 @@ task copyStbiJmeFiles(type: Copy, dependsOn:copyStbiFiles) {
     from sourceDir
     into outputDir
 }
-copyStbiJmeFiles.doLast {
+
+task generateStbiHeaders(dependsOn: copyStbiJmeFiles) << {
     String destDirPath = stbiBuildJniDir
     String classes = ""
             .concat("com.jme3.texture.plugins.AndroidNativeImageLoader, ")
@@ -70,12 +71,22 @@ copyStbiJmeFiles.doLast {
 
 }
 
-task buildStbiNativeLib(type: Exec, dependsOn: copyStbiJmeFiles) {
+task buildStbiNativeLib(type: Exec, dependsOn: generateStbiHeaders) {
 //    println "stb_image build dir: " + buildLibDir
 //    println "ndkCommandPath: " + project.ndkCommandPath
     args 'TARGET_PLATFORM=android-9'
     workingDir stbiBuildDir
     executable project.ndkCommandPath
+}
+
+task updatePreCompiledStbiLibs(type: Copy, dependsOn: buildStbiNativeLib) {
+    def sourceDir = new File(stbiBuildLibsDir)
+    def outputDir = new File(stbiPreCompiledLibsDir)
+//    println "updatePreCompiledStbiLibs sourceDir: " + sourceDir
+//    println "updatePreCompiledStbiLibs outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
 }
 
 // Copy pre-compiled libs to build directory (when not building new libs)
@@ -90,8 +101,10 @@ task copyPreCompiledStbiLibs(type: Copy) {
 }
 
 if (ndkExists()) {
-    compileJava.dependsOn { buildStbiNativeLib }
+    // build native libs and update stored pre-compiled libs to commit
+    compileJava.dependsOn { updatePreCompiledStbiLibs }
 } else {
+    // use pre-compiled native libs (not building new ones)
     compileJava.dependsOn { copyPreCompiledStbiLibs }
 }
 
