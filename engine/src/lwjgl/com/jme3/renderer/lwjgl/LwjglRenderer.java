@@ -490,10 +490,10 @@ public class LwjglRenderer implements Renderer {
             context.depthTestEnabled = false;
         }
 
-        if (state.isAlphaTest() && context.alphaTestFallOff == 0) {
+        if (state.isAlphaTest() && !context.alphaTestEnabled) {
             glEnable(GL_ALPHA_TEST);
-            glAlphaFunc(GL_GREATER, state.getAlphaFallOff());
-            context.alphaTestFallOff = state.getAlphaFallOff();
+            glAlphaFunc(GL_GREATER, context.alphaTestFallOff);
+            context.alphaTestEnabled = true;
         } else if (!state.isAlphaTest() && context.alphaTestEnabled) {
             glDisable(GL_ALPHA_TEST);
             context.alphaTestEnabled = false;
