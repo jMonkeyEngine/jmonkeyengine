@@ -490,23 +490,19 @@ public class LwjglRenderer implements Renderer {
             context.depthTestEnabled = false;
         }
 
-        if (state.isAlphaTest() && !context.alphaTestEnabled) {
+        if (state.isAlphaTest() && context.alphaTestFallOff == 0) {
             glEnable(GL_ALPHA_TEST);
-            glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);
-            context.alphaTestEnabled = true;
+            glAlphaFunc(GL_GREATER, state.getAlphaFallOff());
+            context.alphaTestFallOff = state.getAlphaFallOff();
         } else if (!state.isAlphaTest() && context.alphaTestEnabled) {
             glDisable(GL_ALPHA_TEST);
             context.alphaTestEnabled = false;
         }
         if (state.getAlphaFallOff() != context.alphaTestFallOff) {
-            glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);   
+            glAlphaFunc(GL_GREATER, context.alphaTestFallOff);   
             context.alphaTestFallOff = state.getAlphaFallOff();
-        }         
-        if (state.getAlphaFunc() != context.alphaFunc) {
-            glAlphaFunc(convertTestFunction(state.getAlphaFunc()), context.alphaTestFallOff);
-            context.alphaFunc = state.getAlphaFunc();
         }
-
+        
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             glDepthMask(true);
             context.depthWriteEnabled = true;
