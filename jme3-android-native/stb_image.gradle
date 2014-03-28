@@ -76,7 +76,7 @@ task buildStbiNativeLib(type: Exec, dependsOn: generateStbiHeaders) {
 //    println "ndkCommandPath: " + project.ndkCommandPath
     args 'TARGET_PLATFORM=android-9'
     workingDir stbiBuildDir
-    executable project.ndkCommandPath
+    executable rootProject.ndkCommandPath
 }
 
 task updatePreCompiledStbiLibs(type: Copy, dependsOn: buildStbiNativeLib) {
@@ -100,7 +100,7 @@ task copyPreCompiledStbiLibs(type: Copy) {
     into outputDir
 }
 
-if (ndkExists()) {
+if (rootProject.ndkExists) {
     // build native libs and update stored pre-compiled libs to commit
     compileJava.dependsOn { updatePreCompiledStbiLibs }
 } else {

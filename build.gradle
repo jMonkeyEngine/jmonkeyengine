@@ -116,13 +116,18 @@ String findNDK() {
     }
 }
 
-boolean ndkExists() {
-    String ndkCommandPath = findNDK()
+boolean checkNdkExists(String ndkCommandPath) {
+//    String ndkCommandPath = findNDK()
     if (ndkCommandPath != null && new File(ndkCommandPath).exists()) {
         return true
     } else {
         return false
     }
+}
+
+ext {
+    ndkCommandPath = findNDK()
+    ndkExists = checkNdkExists(ndkCommandPath)
 }
 
 //class IncrementalReverseTask extends DefaultTask {
