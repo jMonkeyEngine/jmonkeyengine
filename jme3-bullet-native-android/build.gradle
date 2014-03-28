@@ -1,0 +1,213 @@
+String jmeBulletNativeProjectPath = '../jme3-bullet-native'
+
+String localUnzipPath = jmeBulletNativeProjectPath
+String localZipFile = jmeBulletNativeProjectPath + File.separator + bulletZipFile
+String localZipFolder = jmeBulletNativeProjectPath + File.separator + bulletFolder
+String bulletSrcPath = localZipFolder + File.separator + 'src'
+
+String jmeAndroidPath = 'src/native/android'
+String jmeCppPath = jmeBulletNativeProjectPath + '/src/native/cpp'
+
+//Working directories for the ndk build.
+String ndkWorkingPath = "${buildDir}" + '/bullet'
+String jniPath = ndkWorkingPath + '/jni'
+String ndkOutputPath = ndkWorkingPath + '/libs'
+
+//Pre-compiled libs directory
+String bulletPreCompiledLibsDir = 'libs'
+
+if (!hasProperty('mainClass')) {
+    ext.mainClass = ''
+}
+
+dependencies {
+    compile project(':jme3-bullet')
+}
+
+// Java source sets for IDE acces and source jar bundling / mavenization
+sourceSets {
+    main {
+        java {
+            srcDir jmeCppPath
+            srcDir jmeAndroidPath
+        }
+    }
+}
+
+// Download bullet if not available
+task downloadBullet(type: MyDownload) {
+    sourceUrl = bulletUrl
+    target = file(localZipFile)
+}
+
+// Unzip bullet if not available
+task unzipBullet(type: Copy) {
+    def zipFile = file(localZipFile)
+    def outputDir = file(localUnzipPath)
+//    println "unzipBullet zipFile = " + zipFile.absolutePath
+//    println "unzipBullet outputDir = " + outputDir.absolutePath
+
+    from zipTree(zipFile)
+    into outputDir
+}
+unzipBullet.dependsOn {
+    def zipFile = file(localZipFile)
+//    println "zipFile path: " + zipFile.absolutePath
+//    println "zipFile exists: " + zipFile.exists()
+
+    if (!zipFile.exists()) {
+        downloadBullet
+    }
+}
+
+// Copy Bullet files to jni directory
+task copyBullet(type: Copy) {
+    def sourceDir = file(bulletSrcPath)
+    def outputDir = new File(jniPath)
+//    println "copyBullet sourceDir = " + sourceDir
+//    println "copyBullet outputDir = " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+copyBullet.dependsOn {
+    def bulletUnzipDir = file(localZipFolder)
+//    println "bulletUnzipDir: " + bulletUnzipDir.absolutePath
+//    println "bulletUnzipDir exists: " + bulletUnzipDir.exists()
+//    println "bulletUnzipDir isDirectory: " + bulletUnzipDir.isDirectory()
+    if (!bulletUnzipDir.isDirectory()) {
+        unzipBullet
+    }
+}
+
+// Copy jME cpp native files to jni directory
+task copyJmeCpp(type: Copy, dependsOn:copyBullet) {
+    def sourceDir = new File(jmeCppPath)
+    def outputDir = new File(jniPath)
+//    println "copyJmeCpp sourceDir = " + sourceDir
+//    println "copyJmeCpp outputDir = " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+
+// Copy jME android native files to jni directory
+task copyJmeAndroid(type: Copy, dependsOn:copyJmeCpp) {
+    def sourceDir = new File(jmeAndroidPath)
+    def outputDir = new File(jniPath)
+//    println "copyJmeAndroid sourceDir = " + sourceDir
+//    println "copyJmeAndroid outputDir = " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+
+task generateNativeHeaders(dependsOn: copyJmeAndroid) << {
+    String destDirPath = jniPath
+    String classes = " \
+            com.jme3.bullet.PhysicsSpace, \
+            \
+            com.jme3.bullet.collision.PhysicsCollisionEvent, \
+            com.jme3.bullet.collision.PhysicsCollisionObject,\
+            com.jme3.bullet.objects.PhysicsCharacter, \
+            com.jme3.bullet.objects.PhysicsGhostObject, \
+            com.jme3.bullet.objects.PhysicsRigidBody, \
+            com.jme3.bullet.objects.PhysicsVehicle, \
+            com.jme3.bullet.objects.VehicleWheel, \
+            com.jme3.bullet.objects.infos.RigidBodyMotionState, \
+            \
+            com.jme3.bullet.collision.shapes.CollisionShape, \
+            com.jme3.bullet.collision.shapes.BoxCollisionShape, \
+            com.jme3.bullet.collision.shapes.CapsuleCollisionShape, \
+            com.jme3.bullet.collision.shapes.CompoundCollisionShape, \
+            com.jme3.bullet.collision.shapes.ConeCollisionShape, \
+            com.jme3.bullet.collision.shapes.CylinderCollisionShape, \
+            com.jme3.bullet.collision.shapes.GImpactCollisionShape, \
+            com.jme3.bullet.collision.shapes.HeightfieldCollisionShape, \
+            com.jme3.bullet.collision.shapes.HullCollisionShape, \
+            com.jme3.bullet.collision.shapes.MeshCollisionShape, \
+            com.jme3.bullet.collision.shapes.PlaneCollisionShape, \
+            com.jme3.bullet.collision.shapes.SimplexCollisionShape, \
+            com.jme3.bullet.collision.shapes.SphereCollisionShape, \
+            \
+            com.jme3.bullet.joints.PhysicsJoint, \
+            com.jme3.bullet.joints.ConeJoint, \
+            com.jme3.bullet.joints.HingeJoint, \
+            com.jme3.bullet.joints.Point2PointJoint, \
+            com.jme3.bullet.joints.SixDofJoint, \
+            com.jme3.bullet.joints.SixDofSpringJoint, \
+            com.jme3.bullet.joints.SliderJoint, \
+            com.jme3.bullet.joints.motors.RotationalLimitMotor, \
+            com.jme3.bullet.joints.motors.TranslationalLimitMotor, \
+            \
+            com.jme3.bullet.util.NativeMeshUtil, \
+            com.jme3.bullet.util.DebugShapeFactory, \
+            "
+
+    String projectClassPath = configurations.runtime.asFileTree.matching {
+        exclude ".gradle"
+    }.asPath
+
+    ant.javah(
+        classpath: projectClassPath,
+        destdir: destDirPath,
+        class: classes
+    )
+
+}
+
+task buildBulletNativeLib(type: Exec, dependsOn: generateNativeHeaders) {
+    args 'TARGET_PLATFORM=android-9'
+//    println "buildBulletNativeLib ndkWorkingPath: " + ndkWorkingPath
+//    println "buildBulletNativeLib rootProject.ndkCommandPath: " + rootProject.ndkCommandPath
+    workingDir ndkWorkingPath
+    executable rootProject.ndkCommandPath
+}
+
+//task updatePreCompiledBulletLibs(type: Copy, dependsOn: generateNativeHeaders) {
+task updatePreCompiledBulletLibs(type: Copy, dependsOn: buildBulletNativeLib) {
+    def sourceDir = new File(ndkOutputPath)
+    def outputDir = new File(bulletPreCompiledLibsDir)
+//    println "updatePreCompiledBulletLibs sourceDir: " + sourceDir
+//    println "updatePreCompiledBulletLibs outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+
+// Copy pre-compiled libs to build directory (when not building new libs)
+task copyPreCompiledBulletLibs(type: Copy) {
+    def sourceDir = new File(bulletPreCompiledLibsDir)
+    def outputDir = new File(ndkOutputPath)
+//    println "copyPreCompiledBulletLibs sourceDir: " + sourceDir
+//    println "copyPreCompiledBulletLibs outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+
+if (rootProject.ndkExists) {
+    // build native libs and update stored pre-compiled libs to commit
+    compileJava.dependsOn { updatePreCompiledBulletLibs }
+} else {
+    // use pre-compiled native libs (not building new ones)
+    compileJava.dependsOn { copyPreCompiledBulletLibs }
+}
+
+jar.into("lib") { from ndkOutputPath }
+
+
+// Helper class to wrap ant dowload task
+class MyDownload extends DefaultTask {
+    @Input
+    String sourceUrl
+
+    @OutputFile
+    File target
+
+    @TaskAction
+    void download() {
+       ant.get(src: sourceUrl, dest: target)
+    }
+}
+

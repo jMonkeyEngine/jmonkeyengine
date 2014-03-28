@@ -96,7 +96,7 @@ task buildOpenAlSoftNativeLib(type: Exec, dependsOn: generateOpenAlSoftHeaders) 
 //    println "ndkCommandPath: " + project.ndkCommandPath
     args 'TARGET_PLATFORM=android-9'
     workingDir openalsoftBuildDir
-    executable project.ndkCommandPath
+    executable rootProject.ndkCommandPath
 }
 
 task updatePreCompiledOpenAlSoftLibs(type: Copy, dependsOn: buildOpenAlSoftNativeLib) {
@@ -121,7 +121,7 @@ task copyPreCompiledOpenAlSoftLibs(type: Copy) {
     into outputDir
 }
 
-if (ndkExists()) {
+if (rootProject.ndkExists) {
     // build native libs and update stored pre-compiled libs to commit
     compileJava.dependsOn { updatePreCompiledOpenAlSoftLibs }
 } else {
