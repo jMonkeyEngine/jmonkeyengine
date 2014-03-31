@@ -87,13 +87,7 @@ public class TestChooser extends JDialog {
         /** This listener ends application when window is closed (x button on top right corner of test chooser).
          * @see issue#85 https://github.com/jMonkeyEngine/jmonkeyengine/issues/85
          */
-        addWindowListener(new WindowAdapter(){
-            @Override
-            public void windowClosing(WindowEvent e)
-            {
-                dispose();
-            }
-        });
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     }
 
     /**
