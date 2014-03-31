@@ -34,7 +34,7 @@ vec3 getNormal(in vec2 uv){
 }
 
 vec2 getRandom(in vec2 uv){  
-   vec4 rand=texture2D(m_RandomMap,g_Resolution.zw * uv / 128.0 * 3.0)*2.0 -1.0;
+   vec4 rand=texture2D(m_RandomMap,g_Resolution * uv / 128.0 * 3.0)*2.0 -1.0;
    return normalize(rand.xy);
 }
 
