@@ -31,109 +31,102 @@
  */
 package com.jme3.network.kernel.udp;
 
-import com.jme3.network.kernel.Endpoint;
-import com.jme3.network.kernel.Kernel;
-import com.jme3.network.kernel.KernelException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 
+import com.jme3.network.kernel.Endpoint;
+import com.jme3.network.kernel.Kernel;
+import com.jme3.network.kernel.KernelException;
 
 /**
- *  Endpoint implementation that encapsulates the
- *  UDP connection information for return messaging,
- *  identification of envelope sources, etc.
- *
- *  @version   $Revision$
- *  @author    Paul Speed
+ * Endpoint implementation that encapsulates the UDP connection information for return messaging, identification of envelope sources, etc.
+ * 
+ * @version $Revision$
+ * @author Paul Speed
  */
-public class UdpEndpoint implements Endpoint
-{
-    private long id;    
-    private SocketAddress address;
-    private DatagramSocket socket;
-    private UdpKernel kernel;
-    private boolean connected = true; // it's connectionless but we track logical state
+public class UdpEndpoint implements Endpoint {
+	private long			id;
+	private SocketAddress	address;
+	private DatagramSocket	socket;
+	private UdpKernel		kernel;
+	private boolean			connected	= true; // it's connectionless but we track logical state
 
-    public UdpEndpoint( UdpKernel kernel, long id, SocketAddress address, DatagramSocket socket )
-    {
-        this.id = id;
-        this.address = address;
-        this.socket = socket;
-        this.kernel = kernel;
-    }
+	public UdpEndpoint(final UdpKernel kernel, final long id, final SocketAddress address, final DatagramSocket socket) {
+		this.id = id;
+		this.address = address;
+		this.socket = socket;
+		this.kernel = kernel;
+	}
 
-    public Kernel getKernel()
-    {
-        return kernel;
-    }
+	@Override
+	public Kernel getKernel() {
+		return this.kernel;
+	}
 
-    protected SocketAddress getRemoteAddress()
-    {
-        return address;
-    }
+	protected SocketAddress getRemoteAddress() {
+		return this.address;
+	}
 
-    public void close()
-    {
-        close( false );
-    }
+	@Override
+	public void close() {
+		this.close(false);
+	}
 
-    public void close( boolean flush )
-    {
-        // No real reason to flush UDP traffic yet... especially
-        // when considering that the outbound UDP isn't even
-        // queued.
-    
-        try {
-            kernel.closeEndpoint(this);
-            connected = false;
-        } catch( IOException e ) {
-            throw new KernelException( "Error closing endpoint for socket:" + socket, e );
-        }
-    }
+	@Override
+	public void close(final boolean flush) {
+		// No real reason to flush UDP traffic yet... especially
+		// when considering that the outbound UDP isn't even
+		// queued.
 
-    public long getId()
-    {
-        return id;
-    }
+		try {
+			this.kernel.closeEndpoint(this);
+			this.connected = false;
+		} catch (final IOException e) {
+			throw new KernelException("Error closing endpoint for socket:" + this.socket, e);
+		}
+	}
 
-    public String getAddress()
-    {
-        return String.valueOf(address); 
-    }     
+	@Override
+	public long getId() {
+		return this.id;
+	}
 
-    public boolean isConnected()
-    {
-        // The socket is always unconnected anyway so we track our
-        // own logical state for the kernel's benefit.
-        return connected;
-    }
+	@Override
+	public String getAddress() {
+		return String.valueOf(this.address);
+	}
 
-    public void send( ByteBuffer data )
-    {
-        if( !isConnected() ) {
-            throw new KernelException( "Endpoint is not connected:" + this );
-        }
-        
-        
-        try {
-            DatagramPacket p = new DatagramPacket( data.array(), data.position(), 
-                                                   data.remaining(), address );
-                                                   
-            // Just queue it up for the kernel threads to write
-            // out
-            kernel.enqueueWrite( this, p );
-                                                               
-            //socket.send(p);
-        } catch( IOException e ) {
-            throw new KernelException( "Error sending datagram to:" + address, e );
-        }
-    }
+	@Override
+	public boolean isConnected() {
+		// The socket is always unconnected anyway so we track our
+		// own logical state for the kernel's benefit.
+		return this.connected;
+	}
 
-    public String toString()
-    {
-        return "UdpEndpoint[" + id + ", " + address + "]";
-    }
+	@Override
+	public void send(final ByteBuffer data) {
+		if (!this.isConnected()) {
+			throw new KernelException("Endpoint is not connected:" + this);
+		}
+
+		// try {
+		final DatagramPacket p = new DatagramPacket(data.array(), data.position(), data.remaining(), this.address);
+
+		// Just queue it up for the kernel threads to write
+		// out
+		this.kernel.enqueueWrite(this, p);
+
+		// socket.send(p);
+		// } catch( IOException e ) {
+		// throw new KernelException( "Error sending datagram to:" + address, e );
+		// }
+	}
+
+	@Override
+	public String toString() {
+		return "UdpEndpoint[" + this.id + ", " + this.address + "]";
+	}
 }
