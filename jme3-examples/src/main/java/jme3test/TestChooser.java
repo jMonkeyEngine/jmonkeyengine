@@ -84,6 +84,10 @@ public class TestChooser extends JDialog {
      */
     public TestChooser() throws HeadlessException {
         super((JFrame) null, "TestChooser");
+        /** This listener ends application when window is closed (x button on top right corner of test chooser).
+         * @see issue#85 https://github.com/jMonkeyEngine/jmonkeyengine/issues/85
+         */
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     }
 
     /**
