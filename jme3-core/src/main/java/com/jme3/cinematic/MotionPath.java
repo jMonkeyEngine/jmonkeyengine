@@ -80,11 +80,12 @@ public class MotionPath implements Savable {
         TempVars vars = TempVars.get();
         Vector3f temp = vars.vect1;
         Vector3f tmpVector = vars.vect2;
+        Vector2f v = vars.vect2d;
         //computing traveled distance according to new time
         traveledDistance = time * (getLength() / control.getInitialDuration());
 
         //getting waypoint index and current value from new traveled distance
-        Vector2f v = getWayPointIndexForDistance(traveledDistance);
+        v = getWayPointIndexForDistance(traveledDistance,v);
 
         //setting values
         control.setCurrentWayPoint((int) v.x);
@@ -180,8 +181,12 @@ public class MotionPath implements Savable {
      * @param distance the distance traveled on this path
      * @return the waypoint index and the interpolation value in a vector2
      */
-    public Vector2f getWayPointIndexForDistance(float distance) {
+    public Vector2f getWayPointIndexForDistance(float distance, Vector2f store) {
         float sum = 0;
+        if(spline.getTotalLength() == 0){
+            store.set(0, 0);
+            return store;
+        }
         distance = distance % spline.getTotalLength();
         int i = 0;
         for (Float len : spline.getSegmentsLength()) {
@@ -191,7 +196,8 @@ public class MotionPath implements Savable {
             sum += len;
             i++;
         }
-        return new Vector2f((float) spline.getControlPoints().size() - 1, 1.0f);
+        store.set((float) spline.getControlPoints().size() - 1, 1.0f);
+        return store;
     }
 
     /**
