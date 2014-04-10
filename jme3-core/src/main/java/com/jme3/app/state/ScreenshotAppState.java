@@ -95,7 +95,6 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     private static class NamingScheme{
         private String shotName;
-        private long shotIndex = 0;
         private boolean numbered = true;
         private String filePath = null;
         
@@ -113,7 +112,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         * default storage folder.
         * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
         */
-        private NamingScheme(String filePath){
+        public NamingScheme(String filePath){
             this.filePath = filePath;
         }
         
@@ -125,49 +124,16 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
         * @param shotName The name of the file to save the screeshot as.
         */
-        private NamingScheme(String filePath, String shotName){
+        public NamingScheme(String filePath, String shotName){
             this.filePath = filePath;
             this.shotName = shotName;
         }
         
-        /**
-        * This constructor allows you to specify the output file path of the screenshot and
-        * a base index for the shot index.
-        * Include the seperator at the end of the path.
-        * Use an emptry string to use the application folder. Use NULL to use the system
-        * default storage folder.
-        * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
-        * @param shotIndex The base index for screen shots.  The first screen shot will have
-        *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
-        */
-        private NamingScheme(String filePath, long shotIndex){
-            this.filePath = filePath;
-            this.shotIndex = shotIndex;
-        }
-        
-        /**
-        * This constructor allows you to specify the output file path of the screenshot and
-        * a base index for the shot index.
-        * Include the seperator at the end of the path.
-        * Use an emptry string to use the application folder. Use NULL to use the system
-        * default storage folder.
-        * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
-        * @param fileName The name of the file to save the screeshot as.
-        * @param shotIndex The base index for screen shots.  The first screen shot will have
-        *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
-        */
-        private NamingScheme(String filePath, String shotName, long shotIndex){
-            this.filePath = filePath;
-            this.shotName = shotName;
-            this.shotIndex = shotIndex;
-        }
-        
-        private File filenameForScreenshot(Screenshot screenshot) {
+        public File filenameForScreenshot(Screenshot screenshot) {
             File file;
             String filename;
             if (numbered) {
-                shotIndex++;
-                filename = shotName + shotIndex;
+                filename = shotName + screenshot.getSequenceNumber();
             } else {
                 filename = shotName;
             }
@@ -180,7 +146,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         }
     }
     
-    private ScreenshotAppState(NamingScheme scheme){
+    public ScreenshotAppState(NamingScheme scheme){
         super();
         this.namingScheme = scheme;
     }
@@ -203,47 +169,6 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     public ScreenshotAppState(String filePath) {
         this(new NamingScheme(filePath));
     }
-
-    /**
-     * This constructor allows you to specify the output file path of the screenshot.
-     * Include the seperator at the end of the path.
-     * Use an emptry string to use the application folder. Use NULL to use the system
-     * default storage folder.
-     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
-     * @param fileName The name of the file to save the screeshot as.
-     */
-    public ScreenshotAppState(String filePath, String fileName) {
-        this(new NamingScheme(filePath, fileName));
-    }
-
-    /**
-     * This constructor allows you to specify the output file path of the screenshot and
-     * a base index for the shot index.
-     * Include the seperator at the end of the path.
-     * Use an emptry string to use the application folder. Use NULL to use the system
-     * default storage folder.
-     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
-     * @param shotIndex The base index for screen shots.  The first screen shot will have
-     *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
-     */
-    public ScreenshotAppState(String filePath, long shotIndex) {
-        this(new NamingScheme(filePath, shotIndex));
-    }
-
-    /**
-     * This constructor allows you to specify the output file path of the screenshot and
-     * a base index for the shot index.
-     * Include the seperator at the end of the path.
-     * Use an emptry string to use the application folder. Use NULL to use the system
-     * default storage folder.
-     * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
-     * @param fileName The name of the file to save the screeshot as.
-     * @param shotIndex The base index for screen shots.  The first screen shot will have
-     *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
-     */
-    public ScreenshotAppState(String filePath, String fileName, long shotIndex) {
-        this(new NamingScheme(filePath, fileName, shotIndex));
-    }
     
     /**
      * Set the file path to store the screenshot.
@@ -254,30 +179,6 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      */
     public void setFilePath(String filePath) {
         namingScheme.filePath = filePath;
-    }
-
-    /**
-     * Set the file name of the screenshot.
-     * @param fileName File name to save the screenshot as.
-     */
-    public void setFileName(String fileName) {
-        namingScheme.shotName = fileName;
-    }
-
-    /**
-     * Sets the base index that will used for subsequent screen shots. 
-     */
-    public void setShotIndex(long index) {
-        namingScheme.shotIndex = index;
-    }
-
-    /**
-     * Sets if the filename should be appended with a number representing the 
-     * current sequence.
-     * @param numberedWanted If numbering is wanted.
-     */
-    public void setIsNumbered(boolean numberedWanted) {
-        namingScheme.numbered = numberedWanted;
     }
 
     @Override
