@@ -67,17 +67,32 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private NamingScheme namingScheme = new NamingScheme();
     
     private static class Screenshot{
+        private static int nextSequenceNumber = 1;
         private ByteBuffer buffer;
-        private int width;
-        private int height;
+        private final int width;
+        private final int height;
+        private final int sequenceNumber;
 
         private Screenshot(ByteBuffer buffer, int width, int height) {
             this.buffer = buffer;
             this.width = width;
             this.height = height;
+            sequenceNumber = nextSequenceNumber++;
+        }
+        
+        public int getSequenceNumber(){
+            return this.sequenceNumber;
+        }
+        
+        public int getWidth(){
+            return width;
+        }
+        
+        public int getHeight(){
+            return height;
         }
     }
-    
+
     private class NamingScheme{
         private String shotName;
         private long shotIndex = 0;
@@ -264,7 +279,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     }
 
     private void writeScreenshotToFile(Screenshot screenshot, File file) {
-        writeFile(file, screenshot.buffer, screenshot.width, screenshot.height);
+        writeFile(file, screenshot.buffer, screenshot.getWidth(), screenshot.getHeight());
     }
     
     private void writeFile(File file, ByteBuffer outBuf, int width, int height) {
