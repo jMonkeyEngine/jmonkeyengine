@@ -106,7 +106,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         }
     }
 
-    public ScreenshotAppState(DefaultNamingScheme scheme){
+    private ScreenshotAppState(DefaultNamingScheme scheme){
         super();
         this.namingScheme = scheme;
         processor = new ScreenshotProcessor(new WriteToFileStrategy(namingScheme));
