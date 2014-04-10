@@ -66,6 +66,18 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private String shotName;
     private long shotIndex = 0;
     private int width, height;
+    
+    private static class Screenshot{
+        private ByteBuffer buffer;
+        private int width;
+        private int height;
+
+        private Screenshot(ByteBuffer buffer, int width, int height) {
+            this.buffer = buffer;
+            this.width = width;
+            this.height = height;
+        }
+    }
 
     /**
      * Using this constructor, the screenshot files will be written sequentially to the system
@@ -222,15 +234,19 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         if (capture){
             capture = false;
 
-            captureScreenshot(out);
+            Screenshot screenshot = captureScreenshot(out);
 
             File file = determineFilename();
             logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
 
-            writeFile(file, outBuf, width, height);
+            writeScreenshotToFile(screenshot, file);
         }
     }
 
+    private void writeScreenshotToFile(Screenshot screenshot, File file) {
+        writeFile(file, screenshot.buffer, screenshot.width, screenshot.height);
+    }
+    
     private void writeFile(File file, ByteBuffer outBuf, int width, int height) {
         OutputStream outStream = null;
         try {
@@ -249,7 +265,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         }
     }
 
-    private void captureScreenshot(FrameBuffer out) {
+    private Screenshot captureScreenshot(FrameBuffer out) {
         Camera curCamera = rm.getCurrentCamera();
         int viewX = (int) (curCamera.getViewPortLeft() * curCamera.getWidth());
         int viewY = (int) (curCamera.getViewPortBottom() * curCamera.getHeight());
@@ -259,6 +275,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         renderer.setViewPort(0, 0, width, height);
         renderer.readFrameBuffer(out, outBuf);
         renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
+        return new Screenshot(outBuf, width, height);
     }
 
     private File determineFilename() {
