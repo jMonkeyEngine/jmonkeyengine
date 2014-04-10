@@ -57,15 +57,14 @@ import java.util.logging.Logger;
 public class ScreenshotAppState extends AbstractAppState implements ActionListener, SceneProcessor {
 
     private static final Logger logger = Logger.getLogger(ScreenshotAppState.class.getName());
-    private String filePath = null;
+    
     private boolean capture = false;
-    private boolean numbered = true;
     private Renderer renderer;
     private RenderManager rm;
     private ByteBuffer outBuf;
-    private String shotName;
-    private long shotIndex = 0;
+    
     private int width, height;
+    private NamingScheme namingScheme = new NamingScheme();
     
     private static class Screenshot{
         private ByteBuffer buffer;
@@ -76,6 +75,30 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             this.buffer = buffer;
             this.width = width;
             this.height = height;
+        }
+    }
+    
+    private class NamingScheme{
+        private String shotName;
+        private long shotIndex = 0;
+        private boolean numbered = true;
+        private String filePath = null;
+        
+        private File filenameForScreenshot(Screenshot screenshot) {
+            File file;
+            String filename;
+            if (numbered) {
+                shotIndex++;
+                filename = shotName + shotIndex;
+            } else {
+                filename = shotName;
+            }
+            if (filePath == null) {
+                file = new File(JmeSystem.getStorageFolder() + File.separator + filename + ".png").getAbsoluteFile();
+            } else {
+                file = new File(filePath + filename + ".png").getAbsoluteFile();
+            }
+            return file;
         }
     }
 
@@ -95,7 +118,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
      */
     public ScreenshotAppState(String filePath) {
-        this.filePath = filePath;
+        namingScheme.filePath = filePath;
     }
 
     /**
@@ -107,8 +130,8 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * @param fileName The name of the file to save the screeshot as.
      */
     public ScreenshotAppState(String filePath, String fileName) {
-        this.filePath = filePath;
-        this.shotName = fileName;
+        namingScheme.filePath = filePath;
+        namingScheme.shotName = fileName;
     }
 
     /**
@@ -122,8 +145,8 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, long shotIndex) {
-        this.filePath = filePath;
-        this.shotIndex = shotIndex;
+        namingScheme.filePath = filePath;
+        namingScheme.shotIndex = shotIndex;
     }
 
     /**
@@ -138,9 +161,9 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, String fileName, long shotIndex) {
-        this.filePath = filePath;
-        this.shotName = fileName;
-        this.shotIndex = shotIndex;
+        namingScheme.filePath = filePath;
+        namingScheme.shotName = fileName;
+        namingScheme.shotIndex = shotIndex;
     }
     
     /**
@@ -151,7 +174,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * @param filePath File path to use to store the screenshot. Include the seperator at the end of the path.
      */
     public void setFilePath(String filePath) {
-        this.filePath = filePath;
+        namingScheme.filePath = filePath;
     }
 
     /**
@@ -159,14 +182,14 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * @param fileName File name to save the screenshot as.
      */
     public void setFileName(String fileName) {
-        this.shotName = fileName;
+        namingScheme.shotName = fileName;
     }
 
     /**
      * Sets the base index that will used for subsequent screen shots. 
      */
     public void setShotIndex(long index) {
-        this.shotIndex = index;
+        namingScheme.shotIndex = index;
     }
 
     /**
@@ -175,7 +198,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * @param numberedWanted If numbering is wanted.
      */
     public void setIsNumbered(boolean numberedWanted) {
-        this.numbered = numberedWanted;
+        namingScheme.numbered = numberedWanted;
     }
 
     @Override
@@ -189,8 +212,8 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             ViewPort last = vps.get(vps.size()-1);
             last.addProcessor(this);
 
-            if (shotName == null) {
-                shotName = app.getClass().getSimpleName();
+            if (namingScheme.shotName == null) {
+                namingScheme.shotName = app.getClass().getSimpleName();
             }
         }
 
@@ -236,10 +259,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
             Screenshot screenshot = captureScreenshot(out);
 
-            File file = determineFilename();
-            logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
-
-            writeScreenshotToFile(screenshot, file);
+            writeScreenshotToFile(screenshot, namingScheme.filenameForScreenshot(screenshot));
         }
     }
 
@@ -248,6 +268,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     }
     
     private void writeFile(File file, ByteBuffer outBuf, int width, int height) {
+        logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
         OutputStream outStream = null;
         try {
             outStream = new FileOutputStream(file);
@@ -276,22 +297,5 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         renderer.readFrameBuffer(out, outBuf);
         renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
         return new Screenshot(outBuf, width, height);
-    }
-
-    private File determineFilename() {
-        File file;
-        String filename;
-        if (numbered) {
-            shotIndex++;
-            filename = shotName + shotIndex;
-        } else {
-            filename = shotName;
-        }
-        if (filePath == null) {
-            file = new File(JmeSystem.getStorageFolder() + File.separator + filename + ".png").getAbsoluteFile();
-        } else {
-            file = new File(filePath + filename + ".png").getAbsoluteFile();
-        }
-        return file;
     }
 }
