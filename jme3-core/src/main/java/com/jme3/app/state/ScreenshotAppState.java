@@ -222,35 +222,43 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         if (capture){
             capture = false;
 
-            Camera curCamera = rm.getCurrentCamera();
-            int viewX = (int) (curCamera.getViewPortLeft() * curCamera.getWidth());
-            int viewY = (int) (curCamera.getViewPortBottom() * curCamera.getHeight());
-            int viewWidth = (int) ((curCamera.getViewPortRight() - curCamera.getViewPortLeft()) * curCamera.getWidth());
-            int viewHeight = (int) ((curCamera.getViewPortTop() - curCamera.getViewPortBottom()) * curCamera.getHeight());
-
-            renderer.setViewPort(0, 0, width, height);
-            renderer.readFrameBuffer(out, outBuf);
-            renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
+            captureScreenshot(out);
 
             File file = determineFilename();
             logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
 
-            OutputStream outStream = null;
-            try {
-                outStream = new FileOutputStream(file);
-                JmeSystem.writeImageFile(outStream, "png", outBuf, width, height);
-            } catch (IOException ex) {
-                logger.log(Level.SEVERE, "Error while saving screenshot", ex);
-            } finally {
-                if (outStream != null){
-                    try {
-                        outStream.close();
-                    } catch (IOException ex) {
-                        logger.log(Level.SEVERE, "Error while saving screenshot", ex);
-                    }
+            writeFile(file, outBuf, width, height);
+        }
+    }
+
+    private void writeFile(File file, ByteBuffer outBuf, int width, int height) {
+        OutputStream outStream = null;
+        try {
+            outStream = new FileOutputStream(file);
+            JmeSystem.writeImageFile(outStream, "png", outBuf, width, height);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Error while saving screenshot", ex);
+        } finally {
+            if (outStream != null){
+                try {
+                    outStream.close();
+                } catch (IOException ex) {
+                    logger.log(Level.SEVERE, "Error while saving screenshot", ex);
                 }
             }
         }
+    }
+
+    private void captureScreenshot(FrameBuffer out) {
+        Camera curCamera = rm.getCurrentCamera();
+        int viewX = (int) (curCamera.getViewPortLeft() * curCamera.getWidth());
+        int viewY = (int) (curCamera.getViewPortBottom() * curCamera.getHeight());
+        int viewWidth = (int) ((curCamera.getViewPortRight() - curCamera.getViewPortLeft()) * curCamera.getWidth());
+        int viewHeight = (int) ((curCamera.getViewPortTop() - curCamera.getViewPortBottom()) * curCamera.getHeight());
+        
+        renderer.setViewPort(0, 0, width, height);
+        renderer.readFrameBuffer(out, outBuf);
+        renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
     }
 
     private File determineFilename() {
