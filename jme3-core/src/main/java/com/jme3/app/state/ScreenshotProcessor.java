@@ -32,7 +32,7 @@ public class ScreenshotProcessor implements SceneProcessor {
         private ByteBuffer buffer;
         private final int width;
         private final int height;
-        private final int sequenceNumber;
+        private final long sequenceNumber;
 
         private Screenshot(ByteBuffer buffer, int width, int height) {
             this.buffer = buffer;
@@ -45,7 +45,7 @@ public class ScreenshotProcessor implements SceneProcessor {
             return buffer;
         }
 
-        public int getSequenceNumber() {
+        public long getSequenceNumber() {
             return this.sequenceNumber;
         }
 
