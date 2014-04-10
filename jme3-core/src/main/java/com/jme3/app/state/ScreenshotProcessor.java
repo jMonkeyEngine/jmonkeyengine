@@ -34,7 +34,7 @@ public class ScreenshotProcessor implements SceneProcessor {
         private final int height;
         private final int sequenceNumber;
 
-        Screenshot(ByteBuffer buffer, int width, int height) {
+        private Screenshot(ByteBuffer buffer, int width, int height) {
             this.buffer = buffer;
             this.width = width;
             this.height = height;
@@ -66,7 +66,7 @@ public class ScreenshotProcessor implements SceneProcessor {
 
     private ScreenshotHandler handler;
 
-    private ScreenshotProcessor(ScreenshotHandler handler) {
+    public ScreenshotProcessor(ScreenshotHandler handler) {
         if (handler == null) {
             throw new IllegalArgumentException("ScreenshotHandler cannot be null");
         }

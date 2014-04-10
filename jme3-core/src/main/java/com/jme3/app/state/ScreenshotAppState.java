@@ -38,70 +38,57 @@ import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
-import com.jme3.post.SceneProcessor;
-import com.jme3.renderer.Camera;
-import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.system.JmeSystem;
-import com.jme3.texture.FrameBuffer;
-import com.jme3.util.BufferUtils;
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.logging.Logger;
 
-public class ScreenshotAppState extends AbstractAppState implements ActionListener, SceneProcessor {
+public class ScreenshotAppState extends AbstractAppState implements ActionListener {
 
     private static final Logger logger = Logger.getLogger(ScreenshotAppState.class.getName());
-    
-    private boolean capture = false;
-    private Renderer renderer;
-    private RenderManager rm;
-    private ByteBuffer outBuf;
-    
-    private int width, height;
+
     private DefaultNamingScheme namingScheme;
     private ScreenshotHandler handler;
-    
+    private final ScreenshotProcessor processor;
 
-    private static class DefaultNamingScheme implements WriteToFileStrategy.NamingScheme{
+    private static class DefaultNamingScheme implements WriteToFileStrategy.NamingScheme {
+
         private String shotName;
         private boolean numbered = true;
         private String filePath = null;
-        
+
         /**
         * Using this constructor, the screenshot files will be written sequentially to the system
         * default storage folder.
-        */
+         */
         private DefaultNamingScheme(){
         }
-        
+
         /**
         * This constructor allows you to specify the output file path of the screenshot.
         * Include the seperator at the end of the path.
         * Use an emptry string to use the application folder. Use NULL to use the system
         * default storage folder.
         * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
-        */
+         */
         public DefaultNamingScheme(String filePath){
             this.filePath = filePath;
         }
-        
+
         /**
         * This constructor allows you to specify the output file path of the screenshot.
         * Include the seperator at the end of the path.
         * Use an emptry string to use the application folder. Use NULL to use the system
         * default storage folder.
         * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
-        * @param shotName The name of the file to save the screeshot as.
-        */
+         * @param shotName The name of the file to save the screeshot as.
+         */
         public DefaultNamingScheme(String filePath, String shotName){
             this.filePath = filePath;
             this.shotName = shotName;
         }
-        
+
         public File filenameForScreenshot(Screenshot screenshot) {
             File file;
             String filename;
@@ -118,11 +105,11 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             return file;
         }
     }
-    
+
     public ScreenshotAppState(DefaultNamingScheme scheme){
         super();
         this.namingScheme = scheme;
-        this.handler = new WriteToFileStrategy(namingScheme);
+        processor = new ScreenshotProcessor(new WriteToFileStrategy(namingScheme));
     }
 
     /**
@@ -143,7 +130,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     public ScreenshotAppState(String filePath) {
         this(new DefaultNamingScheme(filePath));
     }
-    
+
     /**
      * Set the file path to store the screenshot.
      * Include the seperator at the end of the path.
@@ -156,23 +143,18 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     }
 
     @Override
-    public void initialize(AppStateManager stateManager, Application app) {
-        if (!super.isInitialized()){
-            setupControls(app);
-            addProcessor(app);
-
-            if (namingScheme.shotName == null) {
-                namingScheme.shotName = app.getClass().getSimpleName();
-            }
-        }
+    public void initialize(AppStateManager stateManager, Application app) {        
+        setupControls(app);
+        addProcessor(app);
+        namingScheme.shotName = app.getClass().getSimpleName();
 
         super.initialize(stateManager, app);
     }
 
     private void addProcessor(Application app) {
         List<ViewPort> vps = app.getRenderManager().getPostViews();
-        ViewPort last = vps.get(vps.size()-1);
-        last.addProcessor(this);
+        ViewPort last = vps.get(vps.size() - 1);
+        last.addProcessor(processor);
     }
 
     private void setupControls(Application app) {
@@ -183,55 +165,11 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
 
     public void onAction(String name, boolean value, float tpf) {
         if (value){
-            capture = true;
+            processor.takeScreenshot();
         }
     }
 
     public void takeScreenshot() {
-        capture = true;
-    }
-
-    public void initialize(RenderManager rm, ViewPort vp) {
-        renderer = rm.getRenderer();
-        this.rm = rm;
-        reshape(vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
-    }
-
-    @Override
-    public boolean isInitialized() {
-        return super.isInitialized() && renderer != null;
-    }
-
-    public void reshape(ViewPort vp, int w, int h) {
-        outBuf = BufferUtils.createByteBuffer(w * h * 4);
-        width = w;
-        height = h;
-    }
-
-    public void preFrame(float tpf) {
-    }
-
-    public void postQueue(RenderQueue rq) {
-    }
-
-    public void postFrame(FrameBuffer out) {
-        if (capture){
-            capture = false;
-            Screenshot screenshot = captureScreenshot(out);
-            handler.screenshotCaptured(screenshot);
-        }
-    }
-
-    private Screenshot captureScreenshot(FrameBuffer out) {
-        Camera curCamera = rm.getCurrentCamera();
-        int viewX = (int) (curCamera.getViewPortLeft() * curCamera.getWidth());
-        int viewY = (int) (curCamera.getViewPortBottom() * curCamera.getHeight());
-        int viewWidth = (int) ((curCamera.getViewPortRight() - curCamera.getViewPortLeft()) * curCamera.getWidth());
-        int viewHeight = (int) ((curCamera.getViewPortTop() - curCamera.getViewPortBottom()) * curCamera.getHeight());
-        
-        renderer.setViewPort(0, 0, width, height);
-        renderer.readFrameBuffer(out, outBuf);
-        renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
-        return new Screenshot(outBuf, width, height);
+        processor.takeScreenshot();
     }
 }
