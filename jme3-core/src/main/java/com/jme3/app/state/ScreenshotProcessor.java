@@ -33,12 +33,14 @@ public class ScreenshotProcessor implements SceneProcessor {
         private final int width;
         private final int height;
         private final long sequenceNumber;
+        private final long timestamp;
 
         private Screenshot(ByteBuffer buffer, int width, int height) {
             this.buffer = buffer;
             this.width = width;
             this.height = height;
             sequenceNumber = nextSequenceNumber++;
+            timestamp = System.currentTimeMillis();
         }
 
         protected ByteBuffer getBuffer() {
@@ -47,6 +49,10 @@ public class ScreenshotProcessor implements SceneProcessor {
 
         public long getSequenceNumber() {
             return this.sequenceNumber;
+        }
+        
+        public long getTimestamp(){
+            return this.timestamp;
         }
 
         public int getWidth() {
