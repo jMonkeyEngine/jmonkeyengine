@@ -232,20 +232,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             renderer.readFrameBuffer(out, outBuf);
             renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
 
-            File file;
-            String filename;
-            if (numbered) {
-                shotIndex++;
-                filename = shotName + shotIndex;
-            } else {
-                filename = shotName;
-            }
-
-            if (filePath == null) {
-                file = new File(JmeSystem.getStorageFolder() + File.separator + filename + ".png").getAbsoluteFile();
-            } else {
-                file = new File(filePath + filename + ".png").getAbsoluteFile();
-            }
+            File file = determineFilename();
             logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
 
             OutputStream outStream = null;
@@ -264,5 +251,22 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
                 }
             }
         }
+    }
+
+    private File determineFilename() {
+        File file;
+        String filename;
+        if (numbered) {
+            shotIndex++;
+            filename = shotName + shotIndex;
+        } else {
+            filename = shotName;
+        }
+        if (filePath == null) {
+            file = new File(JmeSystem.getStorageFolder() + File.separator + filename + ".png").getAbsoluteFile();
+        } else {
+            file = new File(filePath + filename + ".png").getAbsoluteFile();
+        }
+        return file;
     }
 }
