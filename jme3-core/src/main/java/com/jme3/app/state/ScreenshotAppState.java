@@ -32,6 +32,8 @@
 package com.jme3.app.state;
 
 import com.jme3.app.Application;
+import com.jme3.app.state.ScreenshotProcessor.Screenshot;
+import com.jme3.app.state.ScreenshotProcessor.ScreenshotHandler;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -63,40 +65,6 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private DefaultNamingScheme namingScheme;
     private ScreenshotHandler handler;
     
-    public static class Screenshot{
-        private static int nextSequenceNumber = 1;
-        private ByteBuffer buffer;
-        private final int width;
-        private final int height;
-        private final int sequenceNumber;
-
-        private Screenshot(ByteBuffer buffer, int width, int height) {
-            this.buffer = buffer;
-            this.width = width;
-            this.height = height;
-            sequenceNumber = nextSequenceNumber++;
-        }
-        
-        protected ByteBuffer getBuffer(){
-            return buffer;
-        }
-        
-        public int getSequenceNumber(){
-            return this.sequenceNumber;
-        }
-        
-        public int getWidth(){
-            return width;
-        }
-        
-        public int getHeight(){
-            return height;
-        }
-    }
-    
-    public interface ScreenshotHandler{
-        public void screenshotCaptured(Screenshot screenshot);
-    }
 
     private static class DefaultNamingScheme implements WriteToFileStrategy.NamingScheme{
         private String shotName;

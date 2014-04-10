@@ -1,7 +1,8 @@
 package com.jme3.app.state;
 
 import java.io.File;
-import com.jme3.app.state.ScreenshotAppState.Screenshot;
+import com.jme3.app.state.ScreenshotProcessor.ScreenshotHandler;
+import com.jme3.app.state.ScreenshotProcessor.Screenshot;
 import com.jme3.system.JmeSystem;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
  *
  * @author kwando
  */
-public class WriteToFileStrategy implements ScreenshotAppState.ScreenshotHandler {
+public class WriteToFileStrategy implements ScreenshotHandler {
 
     public interface NamingScheme {
 
