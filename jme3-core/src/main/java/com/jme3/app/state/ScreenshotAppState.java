@@ -93,7 +93,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         }
     }
 
-    private class NamingScheme{
+    private static class NamingScheme{
         private String shotName;
         private long shotIndex = 0;
         private boolean numbered = true;
@@ -179,14 +179,18 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             return file;
         }
     }
+    
+    private ScreenshotAppState(NamingScheme scheme){
+        super();
+        this.namingScheme = scheme;
+    }
 
     /**
      * Using this constructor, the screenshot files will be written sequentially to the system
      * default storage folder.
      */
     public ScreenshotAppState() {
-        this(null);
-        namingScheme = new NamingScheme();
+        this(new NamingScheme());
     }
 
     /**
@@ -197,7 +201,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
      */
     public ScreenshotAppState(String filePath) {
-        namingScheme = new NamingScheme(filePath);
+        this(new NamingScheme(filePath));
     }
 
     /**
@@ -209,7 +213,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * @param fileName The name of the file to save the screeshot as.
      */
     public ScreenshotAppState(String filePath, String fileName) {
-        namingScheme = new NamingScheme(filePath, fileName);
+        this(new NamingScheme(filePath, fileName));
     }
 
     /**
@@ -223,7 +227,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, long shotIndex) {
-        namingScheme = new NamingScheme(filePath, shotIndex);
+        this(new NamingScheme(filePath, shotIndex));
     }
 
     /**
@@ -238,7 +242,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      *                  shotIndex + 1 appended, the next shotIndex + 2, and so on.
      */
     public ScreenshotAppState(String filePath, String fileName, long shotIndex) {
-        namingScheme = new NamingScheme(filePath, fileName, shotIndex);
+        this(new NamingScheme(filePath, fileName, shotIndex));
     }
     
     /**
