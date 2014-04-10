@@ -46,12 +46,8 @@ import com.jme3.system.JmeSystem;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.util.BufferUtils;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ScreenshotAppState extends AbstractAppState implements ActionListener, SceneProcessor {
@@ -65,8 +61,9 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     
     private int width, height;
     private NamingScheme namingScheme;
+    private ScreenshotHandler handler;
     
-    private static class Screenshot{
+    public static class Screenshot{
         private static int nextSequenceNumber = 1;
         private ByteBuffer buffer;
         private final int width;
@@ -80,6 +77,10 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             sequenceNumber = nextSequenceNumber++;
         }
         
+        protected ByteBuffer getBuffer(){
+            return buffer;
+        }
+        
         public int getSequenceNumber(){
             return this.sequenceNumber;
         }
@@ -91,6 +92,10 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         public int getHeight(){
             return height;
         }
+    }
+    
+    public interface ScreenshotHandler{
+        public void screenshotCaptured(Screenshot screenshot);
     }
 
     private static class NamingScheme{
@@ -236,33 +241,8 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     public void postFrame(FrameBuffer out) {
         if (capture){
             capture = false;
-
             Screenshot screenshot = captureScreenshot(out);
-
-            writeScreenshotToFile(screenshot, namingScheme.filenameForScreenshot(screenshot));
-        }
-    }
-
-    private void writeScreenshotToFile(Screenshot screenshot, File file) {
-        writeFile(file, screenshot.buffer, screenshot.getWidth(), screenshot.getHeight());
-    }
-    
-    private void writeFile(File file, ByteBuffer outBuf, int width, int height) {
-        logger.log(Level.FINE, "Saving ScreenShot to: {0}", file.getAbsolutePath());
-        OutputStream outStream = null;
-        try {
-            outStream = new FileOutputStream(file);
-            JmeSystem.writeImageFile(outStream, "png", outBuf, width, height);
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Error while saving screenshot", ex);
-        } finally {
-            if (outStream != null){
-                try {
-                    outStream.close();
-                } catch (IOException ex) {
-                    logger.log(Level.SEVERE, "Error while saving screenshot", ex);
-                }
-            }
+            handler.screenshotCaptured(screenshot);
         }
     }
 
