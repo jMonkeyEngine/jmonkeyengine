@@ -60,7 +60,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     private ByteBuffer outBuf;
     
     private int width, height;
-    private NamingScheme namingScheme;
+    private DefaultNamingScheme namingScheme;
     private ScreenshotHandler handler;
     
     public static class Screenshot{
@@ -98,7 +98,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         public void screenshotCaptured(Screenshot screenshot);
     }
 
-    private static class NamingScheme{
+    private static class DefaultNamingScheme implements WriteToFileStrategy.NamingScheme{
         private String shotName;
         private boolean numbered = true;
         private String filePath = null;
@@ -107,7 +107,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         * Using this constructor, the screenshot files will be written sequentially to the system
         * default storage folder.
         */
-        private NamingScheme(){
+        private DefaultNamingScheme(){
         }
         
         /**
@@ -117,7 +117,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         * default storage folder.
         * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
         */
-        public NamingScheme(String filePath){
+        public DefaultNamingScheme(String filePath){
             this.filePath = filePath;
         }
         
@@ -129,7 +129,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
         * @param shotName The name of the file to save the screeshot as.
         */
-        public NamingScheme(String filePath, String shotName){
+        public DefaultNamingScheme(String filePath, String shotName){
             this.filePath = filePath;
             this.shotName = shotName;
         }
@@ -151,9 +151,10 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         }
     }
     
-    public ScreenshotAppState(NamingScheme scheme){
+    public ScreenshotAppState(DefaultNamingScheme scheme){
         super();
         this.namingScheme = scheme;
+        this.handler = new WriteToFileStrategy(namingScheme);
     }
 
     /**
@@ -161,7 +162,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * default storage folder.
      */
     public ScreenshotAppState() {
-        this(new NamingScheme());
+        this(new DefaultNamingScheme());
     }
 
     /**
@@ -172,7 +173,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
      * @param filePath The screenshot file path to use. Include the seperator at the end of the path.
      */
     public ScreenshotAppState(String filePath) {
-        this(new NamingScheme(filePath));
+        this(new DefaultNamingScheme(filePath));
     }
     
     /**
@@ -189,13 +190,8 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
         if (!super.isInitialized()){
-            InputManager inputManager = app.getInputManager();
-            inputManager.addMapping("ScreenShot", new KeyTrigger(KeyInput.KEY_SYSRQ));
-            inputManager.addListener(this, "ScreenShot");
-
-            List<ViewPort> vps = app.getRenderManager().getPostViews();
-            ViewPort last = vps.get(vps.size()-1);
-            last.addProcessor(this);
+            setupControls(app);
+            addProcessor(app);
 
             if (namingScheme.shotName == null) {
                 namingScheme.shotName = app.getClass().getSimpleName();
@@ -203,6 +199,18 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
         }
 
         super.initialize(stateManager, app);
+    }
+
+    private void addProcessor(Application app) {
+        List<ViewPort> vps = app.getRenderManager().getPostViews();
+        ViewPort last = vps.get(vps.size()-1);
+        last.addProcessor(this);
+    }
+
+    private void setupControls(Application app) {
+        InputManager inputManager = app.getInputManager();
+        inputManager.addMapping("ScreenShot", new KeyTrigger(KeyInput.KEY_SYSRQ));
+        inputManager.addListener(this, "ScreenShot");
     }
 
     public void onAction(String name, boolean value, float tpf) {
