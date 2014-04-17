@@ -343,7 +343,7 @@ public final class AnimChannel {
         }
         
         animation.setTime(time, blendAmount, control, this, vars);
-        
+        time += tpf * speed;      
         if (animation.getLength() > 0){
             if (!notified && (time >= animation.getLength() || time < 0)) {
                 if (loopMode == LoopMode.DontLoop) {
@@ -355,7 +355,6 @@ public final class AnimChannel {
                 control.notifyAnimCycleDone(this, animation.getName());
             } 
         }
-        time += tpf * speed;      
         time = AnimationUtils.clampWrapTime(time, animation.getLength(), loopMode);
         if (time < 0){
             // Negative time indicates that speed should be inverted

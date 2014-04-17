@@ -114,7 +114,7 @@ public class AppStateNode extends AbstractNode implements ScenePropertyChangeLis
         for (PropertySet propertySet : getPropertySets()) {
             for (Property<?> property : propertySet.getProperties()) {
                 if (property instanceof SceneExplorerProperty) {
-                    SceneExplorerProperty prop = (SceneExplorerProperty) property;
+                    SceneExplorerProperty<?> prop = (SceneExplorerProperty) property;
                     prop.syncValue();
                 }
             }
@@ -157,7 +157,7 @@ public class AppStateNode extends AbstractNode implements ScenePropertyChangeLis
         return sheet;
     }
 
-    protected Property<?> makeProperty(Object obj, Class returntype, String method, String name) {
+    protected Property<?> makeProperty(Object obj, Class<?> returntype, String method, String name) {
         Property<?> prop = null;
         try {
             prop = new SceneExplorerProperty(appState.getClass().cast(obj), returntype, method, null, this);

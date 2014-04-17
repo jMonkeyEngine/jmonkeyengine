@@ -29,11 +29,9 @@ LOCAL_SRC_FILES  := OpenAL32/alAuxEffectSlot.c \
                     OpenAL32/alThunk.c         \
                     Alc/ALc.c                  \
                     Alc/ALu.c                  \
-                    Alc/alcChorus.c            \
                     Alc/alcConfig.c            \
                     Alc/alcDedicated.c         \
                     Alc/alcEcho.c              \
-                    Alc/alcFlanger.c           \
                     Alc/alcModulator.c         \
                     Alc/alcReverb.c            \
                     Alc/alcRing.c              \
@@ -43,13 +41,18 @@ LOCAL_SRC_FILES  := OpenAL32/alAuxEffectSlot.c \
                     Alc/panning.c              \
                     Alc/hrtf.c                 \
                     Alc/mixer.c                \
-                    Alc/mixer_c.c              \
+                    Alc/mixer_c.c                \
                     Alc/backends/loopback.c    \
                     Alc/backends/null.c        \
                     Alc/backends/opensl.c      \
                     com_jme3_audio_android_AndroidOpenALSoftAudioRenderer.cpp
 #                    Alc/backends/alsa.c        \
 #                    Alc/backends/android.c     \
+#                    Alc/alcChorus.c            \
+#                    Alc/alcFlanger.c           \
+#                    Alc/mixer_c.c              \
+#                    Alc/backends/loopback.c    \
+#                    Alc/backends/null.c        \
 
 include $(BUILD_SHARED_LIBRARY)
 

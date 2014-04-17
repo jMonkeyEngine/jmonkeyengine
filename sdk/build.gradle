@@ -10,6 +10,7 @@ configurations {
     corelibs
     optlibs
     testdatalibs
+    examplelibs
 }
 
 dependencies {
@@ -25,10 +26,17 @@ dependencies {
     corelibs project(':jme3-plugins')
     corelibs project(':jme3-terrain')
     
-    testdatalibs project(':jme3-testdata')
-
     optlibs project(':jme3-bullet')
     optlibs project(':jme3-jogl')
+    optlibs project(':jme3-android')
+    optlibs project(':jme3-ios')
+    if(buildNativeProjects == "true"){
+        optlibs project(':jme3-android-native')
+        optlibs project(':jme3-bullet-native')
+    }
+    testdatalibs project(':jme3-testdata')
+
+    examplelibs project(':jme3-examples')
     
 }
 
@@ -212,6 +220,63 @@ createBaseXml.inputs.files configurations.corelibs.resolve()
 createBaseXml.outputs.file "jme3-core-baselibs/nbproject/project.xml"
 createBaseXml.outputs.file "jme3-core-libraries/nbproject/project.xml"
 
+task copyProjectLibs(dependsOn: [configurations.corelibs, configurations.testdatalibs]) <<{
+    description "Copies the jar files needed to supply the J2SE Libraries in the "+
+                "SDK to jme3-project-baselibs and jme3-project-libraries"
+
+    // for each dependency in corelibs and optlibs..
+    def deps = []
+    deps.addAll(project.configurations.corelibs.dependencies)
+    deps.addAll(project.configurations.optlibs.dependencies)
+    deps.each {dep ->
+        // copy jme3 jar files, sources and javadocs to jme3-project-baselibs
+        dep.dependencyProject.configurations.archives.allArtifacts.each{ artifact->
+            if(artifact.classifier == "sources"){
+                copy {
+                    from artifact.file
+                    into "jme3-project-baselibs/release/libs/"
+                }
+            } else if(artifact.classifier == "javadoc"){
+                copy {
+                    from artifact.file
+                    into "jme3-project-baselibs/release/libs/"
+                }
+            } else{
+                copy {
+                    from artifact.file
+                    into "jme3-project-baselibs/release/libs/"
+                }
+            }
+        }
+        // copy external jar files to jme3-project-libraries
+        copy {
+            from dep.dependencyProject.configurations.compile.copyRecursive({ !(it instanceof ProjectDependency); }).resolve()
+            into "jme3-project-libraries/release/libs/"
+        }
+    }
+    
+    project.configurations.testdatalibs.dependencies.each {dep ->
+        // copy jme3 test data to jme3-project-testdata
+        dep.dependencyProject.configurations.archives.allArtifacts.each{ artifact->
+            if(artifact.classifier == "sources"){
+            } else if(artifact.classifier == "javadoc"){
+            } else{
+                copy {
+                    from artifact.file
+                    into "jme3-project-testdata/release/libs/"
+                    rename ("jme3-testdata(.*)", "jme3-testdata.jar")
+                }
+            }
+        }
+    }
+}
+copyProjectLibs.inputs.files configurations.corelibs.resolve()
+copyProjectLibs.inputs.files configurations.optlibs.resolve()
+copyProjectLibs.inputs.files configurations.testdatalibs.resolve()
+copyProjectLibs.outputs.dir "jme3-project-baselibs/release/libs/"
+copyProjectLibs.outputs.dir "jme3-project-libraries/release/libs/"
+copyProjectLibs.outputs.dir "jme3-project-testdata/release/libs/"
+
 // workaround method to add a tag with the name "name" and "file" to an XML MarkupBuilder
 def makeName(builder, nameR) { builder.name nameR }
 def makeFile(builder, nameR) { builder.file(name:nameR, url:nameR) }
@@ -223,7 +288,10 @@ task createProjectXml(dependsOn: configurations.corelibs) <<{
     def j2seLibraries = [] // created J2SE library descriptors
     
     // for each dependency in corelibs..
-    project.configurations.corelibs.dependencies.each {dep ->
+    def deps = []
+    deps.addAll(project.configurations.corelibs.dependencies)
+    deps.addAll(project.configurations.optlibs.dependencies)
+    deps.each {dep ->
         def depJars = [] // jme3 jar files
         def depSources = [] // jme3 sources
         def depJavadocs = [] // jme3 javadoc
@@ -304,48 +372,26 @@ createProjectXml.inputs.files configurations.corelibs.resolve()
 createProjectXml.inputs.files configurations.optlibs.resolve()
 createProjectXml.outputs.dir "jme3-project-baselibs/src/com/jme3/gde/project/baselibs/"
 
-task copyProjectLibs(dependsOn: configurations.corelibs) <<{
-    description "Copies the jar files needed to supply the J2SE Libraries in the "+
-                "SDK to jme3-project-baselibs and jme3-project-libraries"
-
-    // for each dependency in corelibs..
-    project.configurations.corelibs.dependencies.each {dep ->
-        // copy jme3 jar files, sources and javadocs to jme3-project-baselibs
-        dep.dependencyProject.configurations.archives.allArtifacts.each{ artifact->
-            if(artifact.classifier == "sources"){
-                copy {
-                    from artifact.file
-                    into "jme3-project-baselibs/release/libs/"
-                }
-            } else if(artifact.classifier == "javadoc"){
-                copy {
-                    from artifact.file
-                    into "jme3-project-baselibs/release/libs/"
-                }
-            } else{
-                copy {
-                    from artifact.file
-                    into "jme3-project-baselibs/release/libs/"
-                }
-            }
+task copyTestSources <<{
+    project.configurations.examplelibs.dependencies.each{dep ->
+        copy{
+            from dep.dependencyProject.sourceSets*.allSource
+            into "JME3TestsTemplate/src/"
         }
-        // copy external jar files to jme3-project-libraries
-        copy {
-            from dep.dependencyProject.configurations.compile.copyRecursive({ !(it instanceof ProjectDependency); }).resolve()
-            into "jme3-project-libraries/release/libs/"
+        copy{
+            from dep.dependencyProject.sourceSets*.allSource
+            into "JME3TestsTemplateAndroid/src/"
         }
     }
-
 }
-copyProjectLibs.inputs.files configurations.corelibs.resolve()
-copyProjectLibs.inputs.files configurations.optlibs.resolve()
-copyProjectLibs.outputs.dir "jme3-project-baselibs/release/libs/"
-copyProjectLibs.outputs.dir "jme3-project-libraries/release/libs/"
+copyTestSources.inputs.files project.configurations.examplelibs
+copyTestSources.outputs.dir "JME3TestsTemplate/src/"
+copyTestSources.outputs.dir "JME3TestsTemplateAndroid/src/"
 
 ant.properties['plugins.version'] = jmeVersion
 ant.properties['app.version']= jmeMainVersion + jmeVersionSuffix
 
-task buildSdk(dependsOn: [copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml]) <<{
+task buildSdk(dependsOn: [copyBaseLibs, copyProjectLibs, createProjectXml, createBaseXml, copyTestSources]) <<{
     ant.propertyfile(file: "nbproject/project.properties") {
         entry( key: "plugins.version", value: "${jmeVersion}")
         entry( key: "app.version", value: "${jmeMainVersion + jmeVersionSuffix}")
@@ -354,159 +400,24 @@ task buildSdk(dependsOn: [copyBaseLibs, copyProjectLibs, createProjectXml, creat
 }
 buildSdk.inputs.files configurations.corelibs.resolve()
 buildSdk.inputs.files configurations.optlibs.resolve()
-buildSdk.inputs.files "jme3-*"
+file('.').eachDir{
+    if(it.name.startsWith("jme3-") && it.isDirectory()){
+        buildSdk.inputs.dir it
+    }
+}
 buildSdk.outputs.dir "build"
 
 task cleanSdk() <<{
     ant.ant(dir: ".", antfile: "build.xml", target: "clean")
+    file("jme3-core-baselibs/release/").deleteDir()
+    file("jme3-core-libraries/release/").deleteDir()
+    file("jme3-project-baselibs/release/").deleteDir()
+    file("jme3-project-libraries/release/").deleteDir()
+    file("JME3TestsTemplate/src/jmetest/").deleteDir()
+    file("JME3TestsTemplateAndroid/src/jmetest/").deleteDir()
 }
 
 jar.dependsOn(buildSdk)
 clean.dependsOn(cleanSdk);
 
-//configurations {
-//    antlibs
-//}
-//dependencies {
-//    antlibs filetree(dir: 'ant-lib', include: '*.jar')
-//}
-//
-//ant.taskdef(resource: 'net/sf/antcontrib/antcontrib.properties', classpath: configurations.antlibs.asPath)
-//ant.taskdef(name: 'deb', classname: 'com.googlecode.ant_deb_task.Deb', classpath: configurations.antlibs.asPath)
-//ant.taskdef(name: 'gcupload', classname: 'net.bluecow.googlecode.ant.GoogleCodeUploadTask', classpath: configurations.antlibs.asPath)
-//ant.taskdef(name: 'desktopentry', classname: 'com.googlecode.ant_deb_task.DesktopEntry', classpath: configurations.antlibs.asPath)
-//ant.importBuild 'build.xml'
 
-//ant.properties.buildDir = buildDir
-//ant.properties['buildDir'] = buildDir
-//ant.property(name: 'buildDir', location: buildDir)
-
-//ant.taskdef(resource: 'checkstyletask.properties') {
-//    classpath {
-//        fileset(dir: 'ant-lib', includes: '*.jar')
-//    }
-//}
-//ant.checkstyle(config: 'checkstyle.xml') {
-//    fileset(dir: 'src')
-//}
-//    
-//    <target name="-do-update-sdk">
-//        <fileset id="jme3-jars" dir="build">
-//            <include name="**/jME3**.jar"/>
-//            <exclude name="**/jME3-testdata.jar"/>
-//            <exclude name="**/jME3-bullet-natives.jar"/>
-//            <exclude name="**/jME3-bullet-natives-android.jar"/>
-//            <exclude name="**/jME3-openal-soft-natives-android.jar"/>
-//        </fileset>
-//        <fileset id="jme3-sdk-jars" dir="build">
-//            <include name="**/jME3**.jar"/>
-//            <exclude name="**/jME3-android.jar"/>
-//            <exclude name="**/jME3-testdata.jar"/>
-//            <exclude name="**/jME3-bullet.jar"/>
-//            <exclude name="**/jME3-bullet-natives.jar"/>
-//            <exclude name="**/jME3-bullet-natives-android.jar"/>
-//            <exclude name="**/jME3-openal-soft-natives-android.jar"/>
-//        </fileset>
-//        <fileset id="jme3-bullet-native-jars" dir="${dist.dir}/opt/native-bullet">
-//            <include name="**/jME3-bullet-native**.jar"/>
-//        </fileset>
-//        <fileset id="jme3-openal-soft-natives-jars" dir="${dist.dir}/opt/native-openal-soft">
-//            <include name="**/jME3-openal-soft-natives-android.jar"/>
-//        </fileset>
-//        <fileset id="jme3-testdata-jars" dir="build">
-//            <include name="**/jME3-testdata.jar"/>
-//        </fileset>
-//        <fileset id="jme3-lwjgl-native-jars" dir="${dist.dir}/lib">
-//            <include name="**/jME3-lwjgl-natives.jar"/>
-//        </fileset>
-//        <fileset id="jme3-external-libraries" dir="${dist.dir}/lib/">
-//            <exclude name="jME3-**"/>
-//            <exclude name="**/nifty-examples.jar"/>
-//        </fileset>
-//        <echo>Clearing old files</echo>
-//        <delete dir="${jmp_dir}/JME3TestsTemplate/src/"/>
-//        <delete dir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/"/>
-//        <delete dir="${jmp_dir}/jme3-core-libraries/release/modules/ext/"/>
-//        <delete dir="${jmp_dir}/jme3-project-libraries/release/libs/"/>
-//        <delete dir="${jmp_dir}/jme3-project-baselibs/release/libs/"/>
-//        <delete dir="${jmp_dir}/jme3-project-testdata/release/libs/"/>
-//
-//        <echo>Copying jMonkeyPlatform jME3 libs</echo>
-//        <copy toDir="${jmp_dir}/jme3-core-baselibs/release/modules/ext/" overwrite="true" failonerror="true" verbose="false" flatten="true">
-//            <fileset refid="jme3-sdk-jars"/>
-//            <!--natives need to be in jme3 package for jme to work in jMP-->
-//            <fileset refid="jme3-lwjgl-native-jars"/>
-//        </copy>
-//
-//        <echo>Copying jMonkeyPlatform external libraries</echo>
-//        <copy todir="${jmp_dir}/jme3-core-libraries/release/modules/ext/" overwrite="true" failonerror="true" verbose="false" flatten="true">
-//            <fileset refid="jme3-external-libraries"/>
-//        </copy>
-//
-//        <echo>Copying Project jME3 libs</echo>
-//        <copy toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
-//            <fileset refid="jme3-jars"/>
-//            <fileset refid="jme3-openal-soft-natives-jars"/>
-//        </copy>
-//
-//        <echo>Copying Project external libraries</echo>
-//        <copy todir="${jmp_dir}/jme3-project-libraries/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
-//            <fileset refid="jme3-external-libraries"/>
-//            <fileset refid="jme3-lwjgl-native-jars"/>
-//            <fileset refid="jme3-bullet-native-jars"/>
-//        </copy>
-//
-//        <echo>Copying Test Project Data</echo>
-//        <copy toDir="${jmp_dir}/jme3-project-testdata/release/libs/" overwrite="true" failonerror="true" verbose="false">
-//            <fileset refid="jme3-testdata-jars"/>
-//        </copy>
-//
-//        <echo>Copying Javadoc</echo>
-//        <zip destfile="${dist.dir}/jMonkeyEngine3-javadoc.zip">
-//            <zipfileset dir="${dist.dir}/javadoc/"/>
-//        </zip>
-//        <copy file="${dist.dir}/jMonkeyEngine3-javadoc.zip" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
-//
-//        <zip destfile="${dist.dir}/jMonkeyEngine3-sources.zip">
-//            <zipfileset dir="${src.core.dir}"/>
-//            <zipfileset dir="${src.core-data.dir}"/>
-//            <zipfileset dir="${src.core-effects.dir}"/>
-//            <zipfileset dir="${src.core-plugins.dir}"/>
-//            <zipfileset dir="${src.desktop.dir}"/>
-//            <zipfileset dir="${src.jbullet.dir}"/>
-//            <zipfileset dir="${src.niftygui.dir}"/>
-//            <zipfileset dir="${src.jogg.dir}"/>
-//            <zipfileset dir="${src.lwjgl.dir}"/>
-//            <zipfileset dir="${src.ogre.dir}"/>
-//            <zipfileset dir="${src.test.dir}"/>
-//            <zipfileset dir="${src.tools.dir}"/>
-//            <zipfileset dir="${src.xml.dir}"/>
-//            <zipfileset dir="${src.terrain.dir}"/>
-//            <zipfileset dir="${src.networking.dir}"/>
-//        </zip>
-//        <copy file="${dist.dir}/jMonkeyEngine3-sources.zip" toDir="${jmp_dir}/jme3-project-baselibs/release/libs/" overwrite="true" failonerror="true" verbose="false"/>
-//
-//        <copy todir="${jmp_dir}/jme3-project-libraries/release/libs/" overwrite="true" failonerror="true" verbose="false" flatten="true">
-//            <fileset refid="jme3-external-libraries"/>
-//            <fileset refid="jme3-lwjgl-native-jars"/>
-//            <fileset refid="jme3-bullet-native-jars"/>
-//            <fileset refid="jme3-openal-soft-natives-jars"/>
-//            <fileset dir="lib/niftygui/">
-//                <include name="nifty-javadoc.jar"/>
-//                <include name="nifty-default-controls-javadoc.jar"/>
-//            </fileset>
-//        </copy>
-//
-//        <echo>Copying Test Examples</echo>
-//        <copy todir="${jmp_dir}/JME3TestsTemplate/src/" overwrite="true" failonerror="true" verbose="false">
-//            <fileset dir="src/test/">
-//                <exclude name=".svn"/>
-//            </fileset>
-//        </copy>
-//        <copy todir="${jmp_dir}/JME3TestsTemplateAndroid/src/" overwrite="true" failonerror="true" verbose="false">
-//            <fileset dir="src/test/">
-//                <exclude name=".svn"/>
-//            </fileset>
-//        </copy>
-//    </target>
-    

@@ -1,0 +1,146 @@
+// OpenAL Soft r1.15.1
+//String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/9b6a226da55a987cb883f425eeb568776ea12c8d.zip'
+// OpenAL Soft r1.15.1 + Android OpenSL Support
+String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/be25e6802dacad78876c6fa1d6a5c63797b8a9ed.zip'
+// OpenAL Soft r1.15.1 latest build (at the time)
+//String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/3f5914e0949ee12b504ee7254990e007ff8057ef.zip'
+String openALSoftZipFile = 'OpenALSoft.zip'
+
+// OpenAL Soft directory the download is extracted into
+// Typically, the downloaded OpenAL Soft zip file will extract to a directory
+// called "openal-soft"
+String openALSoftFolder = 'openal-soft'
+
+//Working directories for the ndk build.
+String openalsoftBuildDir = "${buildDir}" + File.separator + 'openalsoft'
+String openalsoftBuildJniDir = openalsoftBuildDir + File.separator + 'jni'
+String openalsoftBuildLibsDir = openalsoftBuildDir + File.separator + 'libs'
+
+//Pre-compiled libs directory
+String openalsoftPreCompiledLibsDir = 'libs' + File.separator + 'openalsoft'
+
+// jME Android Native source files path
+String openalsoftJmeAndroidPath = 'src/native/jme_openalsoft'
+
+// Download external source files if not available
+task downloadOpenALSoft(type: MyDownload) {
+    sourceUrl = openALSoftUrl
+    target = file(openALSoftZipFile)
+}
+
+// Unzip external source files
+task unzipOpenALSoft(type: Copy) {
+    def zipFile = file(openALSoftZipFile)
+    def outputDir = file(".")
+
+    from zipTree(zipFile)
+    into outputDir
+}
+unzipOpenALSoft.dependsOn {
+    def zipFilePath = project.projectDir.absolutePath + File.separator + openALSoftZipFile
+    def zipFile = new File(zipFilePath)
+//    println "zipFile path: " + zipFile.absolutePath
+//    println "zipFile exists: " + zipFile.exists()
+    if (!zipFile.exists()) {
+        downloadOpenALSoft
+    }
+}
+
+// Copy external source files to jni directory
+task copyOpenALSoft(type: Copy) {
+    def sourceDir = file(openALSoftFolder)
+    def outputDir = file(openalsoftBuildJniDir)
+//    println "copyOpenALSoft sourceDir: " + sourceDir
+//    println "copyOpenALSoft outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+copyOpenALSoft.dependsOn {
+    def openALSoftUnzipDir = new File(project.projectDir.absolutePath + File.separator + openALSoftFolder)
+//    println "openALSoftUnzipDir path: " + openALSoftUnzipDir.absolutePath
+//    println "openALSoftUnzipDir exists: " + openALSoftUnzipDir.isDirectory()
+    if (!openALSoftUnzipDir.isDirectory()) {
+        unzipOpenALSoft
+    }
+}
+
+// Copy jME Android native files to jni directory
+task copyJmeOpenALSoft(type: Copy, dependsOn:copyOpenALSoft) {
+    def sourceDir = file(openalsoftJmeAndroidPath)
+    def outputDir = file(openalsoftBuildJniDir)
+//    println "copyJmeOpenALSoft sourceDir: " + sourceDir
+//    println "copyJmeOpenALSoft outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+
+task generateOpenAlSoftHeaders(dependsOn: copyJmeOpenALSoft) << {
+    String destDirPath = openalsoftBuildJniDir
+    String classes = ""
+            .concat("com.jme3.audio.android.AndroidOpenALSoftAudioRenderer, ")
+//    println "openalsoft classes = " + classes
+//    println "openalsoft destDir = " + destDir
+//    println "openalsoft classpath = " + project.projectClassPath
+
+    ant.javah(
+        classpath: project.projectClassPath,
+        destdir: destDirPath,
+        class: classes
+    )
+}
+
+task buildOpenAlSoftNativeLib(type: Exec, dependsOn: generateOpenAlSoftHeaders) {
+//    println "openalsoft build dir: " + openalsoftBuildDir
+//    println "ndkCommandPath: " + project.ndkCommandPath
+    args 'TARGET_PLATFORM=android-9'
+    workingDir openalsoftBuildDir
+    executable rootProject.ndkCommandPath
+}
+
+task updatePreCompiledOpenAlSoftLibs(type: Copy, dependsOn: buildOpenAlSoftNativeLib) {
+    def sourceDir = new File(openalsoftBuildLibsDir)
+    def outputDir = new File(openalsoftPreCompiledLibsDir)
+//    println "updatePreCompiledOpenAlSoftLibs sourceDir: " + sourceDir
+//    println "updatePreCompiledOpenAlSoftLibs outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+
+
+// Copy pre-compiled libs to build directory (when not building new libs)
+task copyPreCompiledOpenAlSoftLibs(type: Copy) {
+    def sourceDir = file(openalsoftPreCompiledLibsDir)
+    def outputDir = file(openalsoftBuildLibsDir)
+//    println "copyStbiJmeFiles sourceDir: " + sourceDir
+//    println "copyStbiJmeFiles outputDir: " + outputDir
+
+    from sourceDir
+    into outputDir
+}
+
+if (rootProject.ndkExists) {
+    // build native libs and update stored pre-compiled libs to commit
+    compileJava.dependsOn { updatePreCompiledOpenAlSoftLibs }
+} else {
+    // use pre-compiled native libs (not building new ones)
+    compileJava.dependsOn { copyPreCompiledOpenAlSoftLibs }
+}
+
+jar.into("lib") { from openalsoftBuildLibsDir }
+
+// Helper class to wrap ant dowload task
+class MyDownload extends DefaultTask {
+    @Input
+    String sourceUrl
+
+    @OutputFile
+    File target
+
+    @TaskAction
+    void download() {
+       ant.get(src: sourceUrl, dest: target)
+    }
+}

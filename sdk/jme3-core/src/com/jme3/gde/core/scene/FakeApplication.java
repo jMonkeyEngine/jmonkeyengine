@@ -403,7 +403,7 @@ public class FakeApplication extends SimpleApplication {
     private ScheduledThreadPoolExecutor fakeAppThread = new ScheduledThreadPoolExecutor(1);
 
     public void removeCurrentStates() {
-        for (Iterator<AppState> it = new ArrayList(appStateManager.getAddedStates()).iterator(); it.hasNext();) {
+        for (Iterator<AppState> it = new ArrayList<AppState>(appStateManager.getAddedStates()).iterator(); it.hasNext();) {
             AppState appState = it.next();
             try {
                 appStateManager.detach(appState);
@@ -468,7 +468,7 @@ public class FakeApplication extends SimpleApplication {
     }
 
     public boolean runQueuedFake() {
-        Future fut = fakeAppThread.submit(new Callable<Void>() {
+        Future<Void> fut = fakeAppThread.submit(new Callable<Void>() {
             public Void call() throws Exception {
                 runQueuedTasks();
                 return null;
@@ -490,7 +490,7 @@ public class FakeApplication extends SimpleApplication {
     }
 
     public boolean updateFake(final float tpf) {
-        Future fut = fakeAppThread.submit(new Callable<Void>() {
+        Future<Void> fut = fakeAppThread.submit(new Callable<Void>() {
             public Void call() throws Exception {
                 AudioContext.setAudioRenderer(audioRenderer);
                 appStateManager.update(tpf);
@@ -515,7 +515,7 @@ public class FakeApplication extends SimpleApplication {
     }
 
     public boolean renderFake() {
-        Future fut = fakeAppThread.submit(new Callable<Void>() {
+        Future<Void> fut = fakeAppThread.submit(new Callable<Void>() {
             public Void call() throws Exception {
                 appStateManager.render(renderManager);
                 return null;
@@ -539,7 +539,7 @@ public class FakeApplication extends SimpleApplication {
     }
 
     public boolean updateExternalLogicalState(final Node externalNode, final float tpf) {
-        Future fut = fakeAppThread.submit(new Callable<Void>() {
+        Future<Void> fut = fakeAppThread.submit(new Callable<Void>() {
             public Void call() throws Exception {               
                 externalNode.updateLogicalState(tpf);
                 return null;
@@ -563,7 +563,7 @@ public class FakeApplication extends SimpleApplication {
     }
 
     public boolean updateExternalGeometricState(final Node externalNode) {
-        Future fut = fakeAppThread.submit(new Callable<Void>() {
+        Future<Void> fut = fakeAppThread.submit(new Callable<Void>() {
             public Void call() throws Exception {
                 externalNode.updateGeometricState();
                 return null;
@@ -586,8 +586,8 @@ public class FakeApplication extends SimpleApplication {
         return true;
     }
 
-    public Class getClassByName(String className) {
-        Class clazz = null;
+    public Class<?> getClassByName(String className) {
+        Class<?> clazz = null;
         try {
             clazz = getClass().getClassLoader().loadClass(className);
         } catch (ClassNotFoundException ex) {
@@ -606,7 +606,7 @@ public class FakeApplication extends SimpleApplication {
     private void removeAllStates() {
         try {
             try {
-                for (Iterator<AppState> it = new ArrayList(appStateManager.getAddedStates()).iterator(); it.hasNext();) {
+                for (Iterator<AppState> it = new ArrayList<AppState>(appStateManager.getAddedStates()).iterator(); it.hasNext();) {
                     AppState appState = it.next();
                     appStateManager.detach(appState);
                 }

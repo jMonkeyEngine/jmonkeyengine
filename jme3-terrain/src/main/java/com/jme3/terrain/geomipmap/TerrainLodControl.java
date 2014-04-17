@@ -160,11 +160,10 @@ public class TerrainLodControl extends AbstractControl {
         }
         
         if (cameras != null) {
-            if (cameraLocations.isEmpty() && !cameras.isEmpty()) {
-                for (Camera c : cameras) // populate them
-                {
-                    cameraLocations.add(c.getLocation());
-                }
+            cameraLocations.clear();
+            for (Camera c : cameras) // populate them
+            {
+                cameraLocations.add(c.getLocation());
             }
             updateLOD(cameraLocations, lodCalculator);
         }

@@ -280,7 +280,7 @@ public class ProjectAssetManager extends DesktopAssetManager {
      * @param assetKey The asset key to get the file object for
      * @return Either a FileObject for the asset or null if not found.
      */
-    public FileObject getAssetFileObject(AssetKey assetKey) {
+    public FileObject getAssetFileObject(AssetKey<?> assetKey) {
         String name = assetKey.getName();
         return getAssetFileObject(name);
     }

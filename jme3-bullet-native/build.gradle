@@ -1,16 +1,6 @@
 apply plugin: 'cpp'
 
-String bulletUrl = 'http://bullet.googlecode.com/files/bullet-2.82-r2704.zip'
-String bulletFolder = 'bullet-2.82-r2704'
 String bulletSrcPath = bulletFolder + '/src'
-String bulletZipFile = 'bullet.zip'
-
-//Directories for the android ndk build.
-String ndkWorkingPath = 'src/native'
-String jmeAndroidPath = ndkWorkingPath + '/android'
-String jmeCppPath = ndkWorkingPath + '/cpp'
-String jniPath = ndkWorkingPath + '/jni'
-String ndkOutputPath = ndkWorkingPath + '/libs'
 
 if (!hasProperty('mainClass')) {
     ext.mainClass = ''
@@ -44,7 +34,6 @@ sourceSets {
     main {
         java {
             srcDir 'src/native/cpp'
-            srcDir 'src/native/android'
         }
     }
 }
@@ -175,86 +164,3 @@ class MyDownload extends DefaultTask {
     }
 }
 
-
-// ANDROID NDK BUILD
-
-// Copy Bullet files to jni directory
-task copyBullet(type: Copy) {
-    def sourceDir = file(bulletSrcPath)
-    def outputDir = file(jniPath)
-
-    from sourceDir
-    into outputDir
-}
-copyBullet.dependsOn {
-    def bulletUnzipDir = new File(project.projectDir.absolutePath + File.separator + bulletFolder)
-    if (!bulletUnzipDir.isDirectory()) {
-        unzipBullet
-    }
-}
-
-// Copy jME cpp native files to jni directory
-task copyJmeCpp(type: Copy, dependsOn:copyBullet) {
-    def sourceDir = file(jmeCppPath)
-    def outputDir = file(jniPath)
-
-    from sourceDir
-    into outputDir
-}
-
-// Copy jME android native files to jni directory
-task copyJmeAndroid(type: Copy, dependsOn:copyJmeCpp) {
-    def sourceDir = file(jmeAndroidPath)
-    def outputDir = file(jniPath)
-
-    from sourceDir
-    into outputDir
-}
-
-task buildNative(type: Exec, dependsOn:copyJmeAndroid) {
-    String ndkBuildFile = "ndk-build"
-    // if windows, use ndk-build.cmd instead
-    if (System.properties['os.name'].toLowerCase().contains('windows')) {
-        ndkBuildFile = "ndk-build.cmd"
-    }
-
-    String ndkBuildPath = ndkPath + File.separator + ndkBuildFile
-    //Use the environment variable for the NDK location if defined
-    if (System.env.ANDROID_NDK != null) {
-        ndkBuildPath = System.env.ANDROID_NDK + File.separator + ndkBuildFile
-    }
-
-    // need to target android-9 so the ndk can pull in the opensl library
-    args 'TARGET_PLATFORM=android-9'
-    workingDir ndkWorkingPath
-    executable ndkBuildPath
-}
-
-task jarAndroidLibs(type: Jar) {
-    String jarName = project.name + '-android'
-    from ndkOutputPath
-    into('lib')
-    baseName = jarName
-}
-//println jar.archiveName
-//println relativePath(jar.destinationDir)
-//println relativePath(jar.archivePath)
-//println jarAndroidLibs.archiveName
-//println relativePath(jarAndroidLibs.destinationDir)
-//println relativePath(jarAndroidLibs.archivePath)
-
-jar.dependsOn {
-    def ndkDir = new File(ndkPath)
-    if (ndkDir.isDirectory()) {
-        buildNative
-        jarAndroidLibs
-    }
-}
-
-//adds files into existing jar file
-//jar.into("lib") { from ndkOutputPath }
-
-
-artifacts {
-    archives jarAndroidLibs
-}

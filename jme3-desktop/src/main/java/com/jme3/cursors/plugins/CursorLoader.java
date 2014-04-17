@@ -56,9 +56,11 @@ import javax.imageio.ImageIO;
  * @creation Jun 5, 2012 9:45:58 AM
  */
 public class CursorLoader implements AssetLoader {
+    final private static int FDE_OFFSET = 6; // first directory entry offset
 
     private boolean isIco;
     private boolean isAni;
+    private boolean isCur; // .cur format if true
 
     /**
      * Loads and return a cursor file of one of the following format: .ani, .cur and .ico.
@@ -70,15 +72,16 @@ public class CursorLoader implements AssetLoader {
 
         isIco = false;
         isAni = false;
+        isCur = false;
 
         isIco = ((AssetKey) info.getKey()).getExtension().equals("ico");
         if (!isIco) {
-            isIco = ((AssetKey) info.getKey()).getExtension().equals("cur");
-            if (!isIco) {
+            isCur = ((AssetKey) info.getKey()).getExtension().equals("cur");
+            if (!isCur) {
                 isAni = ((AssetKey) info.getKey()).getExtension().equals("ani");
             }
         }
-        if (!isAni && !isIco) {
+        if (!isAni && !isIco && !isCur) {
             throw new IllegalArgumentException("Cursors supported are .ico, .cur or .ani");
         }
 
@@ -98,7 +101,7 @@ public class CursorLoader implements AssetLoader {
         byte[] icoimages = new byte[0]; // new byte [0] facilitates read()
 
         if (isAni) {
-            CursorImageData ciDat = new CursorImageData();
+            CursorLoader.CursorImageData ciDat = new CursorLoader.CursorImageData();
             int numIcons = 0;
             int jiffy = 0;
             // not using those but keeping references for now.
@@ -209,7 +212,7 @@ public class CursorLoader implements AssetLoader {
             } else {
                 throw new IllegalArgumentException("Unknown format.");
             }
-        } else if (isIco) {
+        } else if (isCur || isIco) {
             DataInputStream in = new DataInputStream(inStream);
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buffer = new byte[16384];
@@ -221,13 +224,30 @@ public class CursorLoader implements AssetLoader {
         }
 
         BufferedImage bi[] = parseICOImage(icoimages);
-        CursorImageData cid = new CursorImageData(bi, 0, 0, 0, 0);
+        int hotSpotX = 0;
+        int hotSpotY = 0;
+        CursorLoader.CursorImageData cid = new CursorLoader.CursorImageData(bi, 0, hotSpotX, hotSpotY, 0);
+        if (isCur) {
+            /*
+             * Per http://msdn.microsoft.com/en-us/library/ms997538.aspx
+             * every .cur file should provide hotspot coordinates.
+             */
+            hotSpotX = icoimages[FDE_OFFSET + 4]
+                    + icoimages[FDE_OFFSET + 5] * 255;
+            hotSpotY = icoimages[FDE_OFFSET + 6]
+                    + icoimages[FDE_OFFSET + 7] * 255;
+            cid.xHotSpot = hotSpotX;
+            /*
+             * Flip the Y-coordinate.
+             */
+            cid.yHotSpot = cid.height - 1 - hotSpotY;
+        }
         cid.completeCursor();
 
         return setJmeCursor(cid);
     }
 
-    private JmeCursor setJmeCursor(CursorImageData cid) {
+    private JmeCursor setJmeCursor(CursorLoader.CursorImageData cid) {
         JmeCursor jmeCursor = new JmeCursor();
 
         // set cursor's params.
@@ -255,7 +275,6 @@ public class CursorLoader implements AssetLoader {
 
         BufferedImage[] bi;
         // Check resource type field.
-        int FDE_OFFSET = 6; // first directory entry offset
         int DE_LENGTH = 16; // directory entry length
         int BMIH_LENGTH = 40; // BITMAPINFOHEADER length
 
@@ -653,7 +672,7 @@ public class CursorLoader implements AssetLoader {
             if (rate == 0) {
                 rate = jiffy;
             }
-            CursorImageData cid = new CursorImageData(bi, rate, hotspotx, hotspoty, type);
+            CursorLoader.CursorImageData cid = new CursorLoader.CursorImageData(bi, rate, hotspotx, hotspoty, type);
             if (width == 0) {
                 this.width = cid.width;
             } else {

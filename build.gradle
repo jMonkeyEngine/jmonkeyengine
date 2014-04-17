@@ -14,9 +14,9 @@ subprojects {
 task run(dependsOn: ':jme3-examples:build', type: JavaExec) {
     description = 'Run the jME3 examples'
     main = 'jme3test.TestChooser'
-    classpath += files(subprojects.collect{project -> 
+    classpath += files(subprojects.collect{project ->
             project.sourceSets*.runtimeClasspath})
-//    classpath += files(subprojects.collect {project -> 
+//    classpath += files(subprojects.collect {project ->
 //            project.sourceSets*.output})
 //    classpath = sourceSets.main.runtimeClasspath
 //    args 'mrhaki'
@@ -62,7 +62,7 @@ task copyLibs(type: Copy){
     from {
         subprojects*.configurations*.compile*.copyRecursive({ !(it instanceof ProjectDependency); })*.resolve()
     }
-    
+
     into "$buildDir/libDist/lib-ext" //buildDir.path + '/' + libsDirName + '/lib'
 }
 
@@ -75,11 +75,11 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
     destinationDir = mkdir("dist/javadoc")
 
     // Note: The closures below are executed lazily.
-    source subprojects.collect {project -> 
+    source subprojects.collect {project ->
         project.sourceSets*.allJava
     }
-//    classpath = files(subprojects.collect {project -> 
-//            project.sourceSets*.compileClasspath}) 
+//    classpath = files(subprojects.collect {project ->
+//            project.sourceSets*.compileClasspath})
     //    source {
     //        subprojects*.sourceSets*.main*.allSource
     //    }
@@ -89,11 +89,45 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
 }
 
 task mergedSource(type: Copy){
-    
+
 }
 
 task wrapper(type: Wrapper, description: 'Creates and deploys the Gradle wrapper to the current directory.') {
     gradleVersion = '1.11'
+}
+
+String findNDK() {
+    def ndkBuildFile = "ndk-build"
+    // if windows, use ndk-build.cmd instead
+    if (System.properties['os.name'].toLowerCase().contains('windows')) {
+        ndkBuildFile = "ndk-build.cmd"
+    }
+
+    // ndkPath is defined in the root project gradle.properties file
+    String ndkBuildPath = ndkPath + File.separator + ndkBuildFile
+    //Use the environment variable for the NDK location if defined
+    if (System.env.ANDROID_NDK != null) {
+        ndkBuildPath = System.env.ANDROID_NDK + File.separator + ndkBuildFile
+    }
+    if (new File(ndkBuildPath).exists()) {
+        return ndkBuildPath
+    } else {
+        return null
+    }
+}
+
+boolean checkNdkExists(String ndkCommandPath) {
+//    String ndkCommandPath = findNDK()
+    if (ndkCommandPath != null && new File(ndkCommandPath).exists()) {
+        return true
+    } else {
+        return false
+    }
+}
+
+ext {
+    ndkCommandPath = findNDK()
+    ndkExists = checkNdkExists(ndkCommandPath)
 }
 
 //class IncrementalReverseTask extends DefaultTask {

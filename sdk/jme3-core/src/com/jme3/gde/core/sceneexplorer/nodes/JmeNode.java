@@ -177,12 +177,12 @@ public class JmeNode extends JmeSpatial {
     }
 
     @Override
-    public Class getExplorerObjectClass() {
+    public Class<?> getExplorerObjectClass() {
         return Node.class;
     }
 
     @Override
-    public Class getExplorerNodeClass() {
+    public Class<?> getExplorerNodeClass() {
         return JmeNode.class;
     }
 

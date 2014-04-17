@@ -83,7 +83,8 @@ public class AndroidAssetManager extends DesktopAssetManager {
         registerLocator("", AndroidLocator.class);
         registerLocator("", ClasspathLocator.class);
 
-        registerLoader(AndroidImageLoader.class, "jpg", "bmp", "gif", "png", "jpeg");
+        registerLoader(AndroidImageLoader.class, "jpg", "bmp", "jpeg");
+        registerLoader(AndroidImageLoader.class, "gif", "png");
         if (JmeAndroidSystem.getAudioRendererType().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
             registerLoader(AndroidAudioLoader.class, "ogg", "mp3", "wav");
         } else if (JmeAndroidSystem.getAudioRendererType().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
