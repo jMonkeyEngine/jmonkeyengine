@@ -1258,4 +1258,67 @@ public class JoglGL1Renderer implements GL1Renderer {
 
     public void deleteBuffer(VertexBuffer vb) {
     }
+    
+    public int getFreeMemory() {
+       GL gl = GLContext.getCurrentGL();
+       IntBuffer freeMemory= BufferUtils.createIntBuffer(3);
+       freeMemory.put(-1);
+       try {                  
+            if(gl.glGetString(GL.GL_VENDOR).equals("NVIDIA Corporation") && gl.isExtensionAvailable("GL_NVX_gpu_memory_info"))
+            {
+               freeMemory.clear();
+               // GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX
+               gl.glGetIntegerv(0x9049,freeMemory);
+               return freeMemory.get(0);
+            }
+       } catch (Exception ex) {
+           logger.log(Level.WARNING,"Cannot retrieve free memory for the NVIDIA GPU");
+          
+       }
+       try {
+            if(gl.glGetString(GL.GL_VENDOR).equals("ATI Technologies") && gl.isExtensionAvailable("GL_ATI_meminfo"))
+            {
+               freeMemory.clear();
+               //VBO Free Memory
+               gl.glGetIntegerv(0x87FB, freeMemory);
+               //TEXTURE_FREE_MEMORY_ATI
+               gl.glGetIntegerv(0x87FC, freeMemory);
+               //RENDERBUFFER_FREE_MEMORY_ATI
+               gl.glGetIntegerv(0x87FD, freeMemory);
+               // storing total free memory at position 0
+               freeMemory.put(0,freeMemory.get(0) + freeMemory.get(1) + freeMemory.get(2));
+               return freeMemory.get(0);
+            }
+       }catch(Exception e){
+            logger.log(Level.WARNING,"Cannot retrieve free memory for the ATI GPU");
+       }
+       throw new UnsupportedOperationException("Cannot retrieve GPU's memory info");
+    }
+     public int getMaxMemory() {
+       GL gl = GLContext.getCurrentGL();
+       IntBuffer maxMemory= BufferUtils.createIntBuffer(1);
+       maxMemory.put(-1);
+       try {                  
+            if(gl.glGetString(GL.GL_VENDOR).equals("NVIDIA Corporation") && gl.isExtensionAvailable("GL_NVX_gpu_memory_info"))
+            {
+               maxMemory.clear();
+               //GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX
+               gl.glGetIntegerv(0x9048,maxMemory);
+               return maxMemory.get(0);
+            }
+       } catch (Exception e) {
+           logger.log(Level.WARNING,"Cannot retrieve maximum memory for the NVIDIA GPU");
+       }
+       try {
+            if(gl.glGetString(GL.GL_VENDOR).equals("ATI Technologies"))
+            {
+               maxMemory.clear();
+               maxMemory.put(-1);
+               return maxMemory.get(0);
+            }
+       }catch(Exception e){
+            logger.log(Level.WARNING,"Cannot retrieve maximum memory for the ATI GPU");
+       }
+       throw new UnsupportedOperationException("Cannot retrieve GPU's memory info"); 
+    }
 }
