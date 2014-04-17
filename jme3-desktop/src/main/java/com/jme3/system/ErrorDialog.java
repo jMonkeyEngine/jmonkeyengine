@@ -59,7 +59,7 @@ public class ErrorDialog extends JDialog {
      * @param message 
      */
     public static void showDialog(String message){
-        ErrorDialog dialog = new ErrorDialog("Opps, this was bad =S");
+        ErrorDialog dialog = new ErrorDialog(message);
         dialog.setVisible(true);
     }
 }
