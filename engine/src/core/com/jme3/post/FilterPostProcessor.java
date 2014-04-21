@@ -359,7 +359,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 return;
             }
         }
-        if (lastFilterIndex == -1) {
+        if (isInitialized() && lastFilterIndex == -1) {
             //There is no enabled filter, we restore the original framebuffer 
             //to the viewport to bypass the fpp.
             viewPort.setOutputFrameBuffer(outputBuffer);
