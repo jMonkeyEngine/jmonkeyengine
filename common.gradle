@@ -9,7 +9,7 @@ apply plugin: 'maven'
 //String jmeVersion = rootProject.version;
 
 String mavenGroupId = 'com.jme3'
-String mavenVersion = jmeVersion + jmeVersionSuffix //'-SNAPSHOT'
+String mavenVersion = jmeVersion + '-' + jmeVersionTag //'-SNAPSHOT'
 
 sourceCompatibility = '1.5'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'

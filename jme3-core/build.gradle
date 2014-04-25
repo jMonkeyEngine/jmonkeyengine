@@ -12,5 +12,15 @@ sourceSets {
     }
 }
 
+task updateVersion << {
+    ant.replaceregexp(
+        file: 'src/main/java/com/jme3/system/JmeVersion.java',
+        match: 'private static final String FULL_NAME = (.*);',
+        replace: 'private static final String FULL_NAME = "jMonkeyEngine ' + jmeVersion + ' (' + jmeVersionTag + ')";',
+        byline: 'true')
+}
+
+compileJava.dependsOn(updateVersion)
+
 dependencies {
 }
