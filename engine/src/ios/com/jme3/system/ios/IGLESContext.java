@@ -37,6 +37,7 @@ import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
 import com.jme3.renderer.ios.IGLESShaderRenderer;
 import com.jme3.system.*;
+import com.jme3.input.ios.IosInputHandler;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,6 +57,7 @@ public class IGLESContext implements JmeContext {
     protected IGLESShaderRenderer renderer;
     protected Timer timer;
     protected SystemListener listener;
+    protected IosInputHandler input;
     protected int minFrameDuration = 0;                   // No FPS cap
 
     public IGLESContext() {
@@ -63,20 +65,17 @@ public class IGLESContext implements JmeContext {
     }
 
     @Override
-    public Type getType() {
-        return Type.Display;
+    public JmeContext.Type getType() {
+        return JmeContext.Type.Display;
     }
 
     @Override
     public void setSettings(AppSettings settings) {
         logger.log(Level.FINE, "IGLESContext setSettings");
         this.settings.copyFrom(settings);
-        /*
-        if (androidInput != null) {
-            androidInput.loadSettings(settings);
+        if (input != null) {
+            input.loadSettings(settings);
         }
-        */
-
     }
 
     @Override
@@ -119,8 +118,7 @@ public class IGLESContext implements JmeContext {
 
     @Override
     public TouchInput getTouchInput() {
-        //return androidInput;
-        return null;//  new DummyTouchInput();
+        return input;
     }
 
     @Override
@@ -153,6 +151,7 @@ public class IGLESContext implements JmeContext {
     public void create(boolean waitFor) {
         logger.log(Level.FINE, "IGLESContext create");
         renderer = new IGLESShaderRenderer();
+        input = new IosInputHandler();
         timer = new NanoTimer();
 
 //synchronized (createdLock){
