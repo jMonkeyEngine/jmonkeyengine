@@ -148,7 +148,7 @@ public class Ipo {
             float[] translation = new float[] { localTranslation.x, localTranslation.y, localTranslation.z };
             Quaternion[] rotations = new Quaternion[framesAmount + 1];
             float[] quaternionRotation = new float[] { localRotation.getX(), localRotation.getY(), localRotation.getZ(), localRotation.getW(), };
-            float[] objectRotation = localRotation.toAngles(null);
+            float[] eulerRotation = localRotation.toAngles(null);
             Vector3f[] scales = new Vector3f[framesAmount + 1];
             float[] scale = new float[] { localScale.x, localScale.y, localScale.z };
             float degreeToRadiansFactor = 1;
@@ -161,6 +161,7 @@ public class Ipo {
                 yIndex = 2;
                 zIndex = 1;
             }
+            boolean eulerRotationUsed = false, queternionRotationUsed = false;
 
             // calculating track data
             for (int frame = startFrame; frame <= stopFrame; ++frame) {
@@ -169,7 +170,7 @@ public class Ipo {
                 for (int j = 0; j < bezierCurves.length; ++j) {
                     double value = bezierCurves[j].evaluate(frame, BezierCurve.Y_VALUE);
                     switch (bezierCurves[j].getType()) {
-                    // LOCATION
+                    	// LOCATION
                         case AC_LOC_X:
                             translation[0] = (float) value;
                             break;
@@ -183,18 +184,21 @@ public class Ipo {
                             translation[zIndex] = (float) value;
                             break;
 
-                        // ROTATION (used with object animation)
+                        // EULER ROTATION
                         case OB_ROT_X:
-                            objectRotation[0] = (float) value * degreeToRadiansFactor;
+                        	eulerRotationUsed = true;
+                            eulerRotation[0] = (float) value * degreeToRadiansFactor;
                             break;
                         case OB_ROT_Y:
+                        	eulerRotationUsed = true;
                             if (swapAxes && value != 0) {
                                 value = -value;
                             }
-                            objectRotation[yIndex] = (float) value * degreeToRadiansFactor;
+                            eulerRotation[yIndex] = (float) value * degreeToRadiansFactor;
                             break;
                         case OB_ROT_Z:
-                            objectRotation[zIndex] = (float) value * degreeToRadiansFactor;
+                        	eulerRotationUsed = true;
+                            eulerRotation[zIndex] = (float) value * degreeToRadiansFactor;
                             break;
 
                         // SIZE
@@ -210,12 +214,15 @@ public class Ipo {
 
                         // QUATERNION ROTATION (used with bone animation)
                         case AC_QUAT_W:
+                        	queternionRotationUsed = true;
                             quaternionRotation[3] = (float) value;
                             break;
                         case AC_QUAT_X:
+                        	queternionRotationUsed = true;
                             quaternionRotation[0] = (float) value;
                             break;
                         case AC_QUAT_Y:
+                        	queternionRotationUsed = true;
                             if (swapAxes && value != 0) {
                                 value = -value;
                             }
@@ -229,7 +236,12 @@ public class Ipo {
                     }
                 }
                 translations[index] = localRotation.multLocal(new Vector3f(translation[0], translation[1], translation[2]));
-                rotations[index] = spatialTrack ? new Quaternion().fromAngles(objectRotation) : new Quaternion(quaternionRotation[0], quaternionRotation[1], quaternionRotation[2], quaternionRotation[3]);
+                if(queternionRotationUsed) {
+                	rotations[index] = new Quaternion(quaternionRotation[0], quaternionRotation[1], quaternionRotation[2], quaternionRotation[3]);
+                } else {
+                	rotations[index] = new Quaternion().fromAngles(eulerRotation);
+                }
+                
                 scales[index] = new Vector3f(scale[0], scale[1], scale[2]);
             }
             if (spatialTrack) {
@@ -237,7 +249,12 @@ public class Ipo {
             } else {
                 calculatedTrack = new BoneTrack(targetIndex, times, translations, rotations, scales);
             }
+            
+            if(queternionRotationUsed && eulerRotationUsed) {
+            	LOGGER.warning("Animation uses both euler and quaternion tracks for rotations. Quaternion rotation is applied. Make sure that this is what you wanted!");
+            }
         }
+        
         return calculatedTrack;
     }
 }
