@@ -299,7 +299,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      *  change from this towards finalColor.
      * @return this color.
      */
-    public ColorRGBA interpolate(ColorRGBA finalColor, float changeAmnt) {
+    public ColorRGBA interpolateLocal(ColorRGBA finalColor, float changeAmnt) {
         this.r = (1 - changeAmnt) * this.r + changeAmnt * finalColor.r;
         this.g = (1 - changeAmnt) * this.g + changeAmnt * finalColor.g;
         this.b = (1 - changeAmnt) * this.b + changeAmnt * finalColor.b;
@@ -317,7 +317,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      *  change from beginColor towards finalColor.
      * @return this color.
      */
-    public ColorRGBA interpolate(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmnt) {
+    public ColorRGBA interpolateLocal(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmnt) {
         this.r = (1 - changeAmnt) * beginColor.r + changeAmnt * finalColor.r;
         this.g = (1 - changeAmnt) * beginColor.g + changeAmnt * finalColor.g;
         this.b = (1 - changeAmnt) * beginColor.b + changeAmnt * finalColor.b;
