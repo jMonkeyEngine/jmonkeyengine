@@ -1,0 +1,27 @@
+* text=auto
+
+*.MF text
+*.java text
+*.gradle text
+*.xml text
+*.cpp text
+*.properties text
+*.txt text
+
+*.frag text
+*.vert text
+*.j3md text
+*.j3m text
+*.j3sn text
+*.glsllib text
+*.obj text
+*.mtl text
+
+
+*.jpeg binary
+*.jpg binary
+*.png binary
+*.gif binary
+*.j3o binary
+*.jar binary
+
