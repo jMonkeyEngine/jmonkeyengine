@@ -339,7 +339,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
                     "minificationFilter can not be null.");
         }
         this.minificationFilter = minificationFilter;
-        if (minificationFilter.usesMipMapLevels() && image != null && !image.isGeneratedMipmapsRequired()) {
+        if (minificationFilter.usesMipMapLevels() && image != null && !image.isGeneratedMipmapsRequired() && !image.hasMipmaps()) {
             image.setNeedGeneratedMipmaps();
         }
     }
