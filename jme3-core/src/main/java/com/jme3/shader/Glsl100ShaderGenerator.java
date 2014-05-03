@@ -50,6 +50,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
      * the indentation characters 1à tabulation characters
      */
     private final static String INDENTCHAR = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+    private ShaderNodeVariable inPosTmp;
 
     /**
      * creates a Glsl100ShaderGenerator
@@ -91,12 +92,16 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
             if (var.getName().equals("inPosition")) {
                 inPosition = true;
                 var.setCondition(null);
+                fixInPositionType(var);
+                //keep track on the InPosition variable to avoid iterating through attributes again
+                inPosTmp = var;
             }
             declareAttribute(source, var);
 
         }
-        if (!inPosition) {
-            declareAttribute(source, new ShaderNodeVariable("vec4", "inPosition"));
+        if (!inPosition) {            
+            inPosTmp = new ShaderNodeVariable("vec3", "inPosition");
+            declareAttribute(source, inPosTmp);
         }
 
     }
@@ -139,7 +144,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
         indent();
         appendIndent(source);
         if (type == ShaderType.Vertex) {
-            declareVariable(source, info.getVertexGlobal(), "inPosition");
+            declareGlobalPosition(info, source);
         } else if (type == ShaderType.Fragment) {
             for (ShaderNodeVariable global : info.getFragmentGlobals()) {
                 declareVariable(source, global, "vec4(1.0)");
@@ -573,5 +578,28 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     protected void indent() {
         indent++;
         indent = Math.min(10, indent);
+    }
+
+    /**
+     * makes sure inPosition attribut is of type vec or vec4
+     * @param var the inPosition attribute
+     */
+    private void fixInPositionType(ShaderNodeVariable var) {
+        if(!var.getType().equals("vec3") || !var.getType().equals("vec4")){
+            var.setType("vec3");
+        }
+    }
+
+    /**
+     * declare and assign the global position in the vertex shader.
+     * @param info the shader generation info
+     * @param source the shader source being generated
+     */
+    protected void declareGlobalPosition(ShaderGenerationInfo info, StringBuilder source) {
+        if(inPosTmp.getType().equals(info.getVertexGlobal().getType())){
+            declareVariable(source, info.getVertexGlobal(), "inPosition");
+        }else{
+            declareVariable(source, info.getVertexGlobal(), "vec4(inPosition,1.0)");
+        }
     }
 }

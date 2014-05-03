@@ -103,7 +103,7 @@ public class Glsl150ShaderGenerator extends Glsl100ShaderGenerator {
         indent();
 
         if (type == Shader.ShaderType.Vertex) {
-            declareVariable(source, info.getVertexGlobal(), "inPosition");
+            declareGlobalPosition(info, source);
         } else if (type == Shader.ShaderType.Fragment) {
             for (ShaderNodeVariable global : info.getFragmentGlobals()) {
                 initVariable(source, global, "vec4(1.0)");
