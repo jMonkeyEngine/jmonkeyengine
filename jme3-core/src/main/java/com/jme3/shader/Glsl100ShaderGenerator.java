@@ -581,7 +581,7 @@ public class Glsl100ShaderGenerator extends ShaderGenerator {
     }
 
     /**
-     * makes sure inPosition attribut is of type vec or vec4
+     * makes sure inPosition attribute is of type vec3 or vec4
      * @param var the inPosition attribute
      */
     private void fixInPositionType(ShaderNodeVariable var) {
