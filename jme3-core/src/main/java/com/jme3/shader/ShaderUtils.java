@@ -117,7 +117,7 @@ public class ShaderUtils {
                     card = 0;
                 }
             } else {
-                card = Integer.parseInt(type.replaceAll("vec", ""));
+                card = Integer.parseInt(type.replaceAll(".*vec", ""));
 
                 if (swizzling.length() > 0) {
                     if (card >= swizzling.length()) {
@@ -138,6 +138,6 @@ public class ShaderUtils {
      * @return true if a variable of the given type can have a swizzle
      */
     public static boolean isSwizzlable(String type) {
-        return type.equals("vec4") || type.equals("vec3") || type.equals("vec2") || type.equals("float");
+        return type.indexOf("vec4")>-1 || type.indexOf("vec3")>-1 || type.indexOf("vec2")>-1 || type.equals("float");
     }
 }
