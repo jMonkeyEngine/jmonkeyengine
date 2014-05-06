@@ -5,7 +5,7 @@
 
 package com.jme3.gde.gui.multiview;
 
-import com.jme3.gde.gui.NiftyGuiDataObject;
+import com.jme3.gde.gui.OldNiftyGuiDataObject;
 import org.netbeans.modules.xml.multiview.ToolBarMultiViewElement;
 import org.netbeans.modules.xml.multiview.ui.SectionView;
 import org.netbeans.modules.xml.multiview.ui.ToolBarDesignEditor;
@@ -20,7 +20,7 @@ public class PreviewToolbarElement extends ToolBarMultiViewElement {
     private ToolBarDesignEditor comp;
     private NiftyPreviewPanel viewPanel;
 
-    public PreviewToolbarElement(NiftyGuiDataObject dObj) {
+    public PreviewToolbarElement(OldNiftyGuiDataObject dObj) {
         super(dObj);
 //        this.dObj = dObj;
         comp = new ToolBarDesignEditor();

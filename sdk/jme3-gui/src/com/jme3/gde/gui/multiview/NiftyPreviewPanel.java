@@ -8,7 +8,7 @@ import com.jme3.audio.AudioRenderer;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.OffScenePanel;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.gui.NiftyGuiDataObject;
+import com.jme3.gde.gui.OldNiftyGuiDataObject;
 import com.jme3.renderer.ViewPort;
 import de.lessvoid.nifty.Nifty;
 import java.awt.Dimension;
@@ -50,7 +50,7 @@ import org.xml.sax.SAXParseException;
  */
 public class NiftyPreviewPanel extends PanelView implements ErrorHandler {
 
-    private NiftyGuiDataObject niftyObject;
+    private OldNiftyGuiDataObject niftyObject;
     private OffScenePanel offPanel;
     private Nifty nifty;
     private Document doc;
@@ -62,7 +62,7 @@ public class NiftyPreviewPanel extends PanelView implements ErrorHandler {
     private int width = 640, height = 480;
     private ErrorPanel errors;
 
-    public NiftyPreviewPanel(NiftyGuiDataObject niftyObject, ToolBarDesignEditor comp) {
+    public NiftyPreviewPanel(OldNiftyGuiDataObject niftyObject, ToolBarDesignEditor comp) {
         super();
         setRoot(Node.EMPTY);
         this.niftyObject = niftyObject;
