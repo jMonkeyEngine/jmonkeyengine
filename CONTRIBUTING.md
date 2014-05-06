@@ -1,7 +1,7 @@
 # How to contribute to jMonkeyEngine
 
 First and foremost, you have to familiarize yourself with Git & GitHub. Dig through 
-[help.github.com](https://help.github.com/) and [try.github.io](http://try.github.io/) if these are new topics for you. If you'd like to contribute with something other than code, just tell us about it and we'll figure something out.
+[help.github.com](https://help.github.com/), [try.github.io](http://try.github.io/) and the [gh cheat sheet](https://github.com/tiimgreen/github-cheat-sheet/blob/master/README.md) if these are new topics for you. If you'd like to contribute with something other than code, just tell us about it on the forum.
 
 ## Communication
 
