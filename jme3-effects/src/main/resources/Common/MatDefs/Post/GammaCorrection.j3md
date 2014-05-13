@@ -3,31 +3,29 @@ MaterialDef GammaCorrection {
     MaterialParameters {
         Int NumSamples
         Texture2D Texture
-        Float gamma
-        Boolean computeLuma
+        Float InvGamma       
     }
  
     Technique {
         VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
-        FragmentShader GLSL150: Common/MatDefs/Post/GammaCorrection15.frag
+        FragmentShader GLSL150: Materials/Filter/GammaCorrection15.frag
  
         WorldParameters {
         }
         
-        Defines {
-            COMPUTE_LUMA : computeLuma
+        Defines { 
+            RESOLVE_MS : NumSamples
         }
     }
  
     Technique {
         VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
-        FragmentShader GLSL100: Common/MatDefs/Post/GammaCorrection.frag
+        FragmentShader GLSL100: Materials/Filter/GammaCorrection.frag
  
         WorldParameters {
         }
         
-         Defines {
-            COMPUTE_LUMA : computeLuma
+         Defines {            
         }
     }
 }

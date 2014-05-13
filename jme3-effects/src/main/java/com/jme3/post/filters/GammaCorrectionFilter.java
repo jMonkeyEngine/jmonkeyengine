@@ -38,72 +38,52 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 
 /**
- * 
+ *
  * @author Phate666
  * @version 1.0 initial version
- * @version 1.1 added luma
+ * 
  */
-public class GammaCorrectionFilter extends Filter
-{
-	private float gamma = 2.0f;
-	private boolean computeLuma = false;
+public class GammaCorrectionFilter extends Filter {
 
-	public GammaCorrectionFilter()
-	{
-		super("GammaCorrectionFilter");
-	}
+    private float gamma = 2.2f;   
 
-	public GammaCorrectionFilter(float gamma)
-	{
-		this();
-		this.setGamma(gamma);
-	}
+    public GammaCorrectionFilter() {
+        super("GammaCorrectionFilter");
+    }
 
-	@Override
-	protected Material getMaterial()
-	{
-		return material;
-	}
+    public GammaCorrectionFilter(float gamma) {
+        this();
+        this.setGamma(gamma);
+    }
 
-	@Override
-	protected void initFilter(AssetManager manager,
-			RenderManager renderManager, ViewPort vp, int w, int h)
-	{
-		material = new Material(manager,
-				"Common/MatDefs/Post/GammaCorrection.j3md");
-		material.setFloat("gamma", gamma);
-		material.setBoolean("computeLuma", computeLuma);
-	}
+    @Override
+    protected Material getMaterial() {
+        return material;
+    }
 
-	public float getGamma()
-	{
-		return gamma;
-	}
+    @Override
+    protected void initFilter(AssetManager manager,
+            RenderManager renderManager, ViewPort vp, int w, int h) {
+        material = new Material(manager, "Materials/Filter/GammaCorrection.j3md");
+        material.setFloat("InvGamma", 1.0f/gamma);        
+    }
 
-	/**
-	 * set to 0.0 to disable gamma correction
-	 * @param gamma
-	 */
-	public void setGamma(float gamma)
-	{
-		if (material != null)
-		{
-			material.setFloat("gamma", gamma);
-		}
-		this.gamma = gamma;
-	}
+    public float getGamma() {
+        return gamma;
+    }
 
-	public boolean isComputeLuma()
-	{
-		return computeLuma;
-	}
-
-	public void setComputeLuma(boolean computeLuma)
-	{
-		if (material != null)
-		{
-			material.setBoolean("computeLuma", computeLuma);
-		}
-		this.computeLuma = computeLuma;
-	}
+    /**
+     * set to 0.0 to disable gamma correction
+     *
+     * @param gamma
+     */
+    public final void setGamma(float gamma) {
+        if(gamma<=0){
+            throw new IllegalArgumentException("Gamma value can't be below or equal 0.");
+        }
+        if (material != null) {
+            material.setFloat("InvGamma",1.0f/ gamma);
+        }
+        this.gamma = gamma;
+    }
 }
