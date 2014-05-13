@@ -345,7 +345,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * <code>getWorldTranslation</code> retrieves the absolute translation of
      * the spatial.
      *
-     * @return the Spatial's world tranlsation vector.
+     * @return the Spatial's world translation vector.
      */
     public Vector3f getWorldTranslation() {
         checkDoTransformUpdate();
@@ -620,9 +620,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * Removes the given control from this spatial's controls.
      * 
      * @param control The control to remove
-     * @return True if the control was successfuly removed. False if 
-     * the control is not assigned to this spatial.
-     * 
+     * @return True if the control was successfully removed. False if the
+     * control is not assigned to this spatial.
+     *
      * @see Spatial#addControl(com.jme3.scene.control.Control) 
      */
     public boolean removeControl(Control control) {
@@ -720,7 +720,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     * Convert a vector (in) from this spatials' local coordinate space to world
+     * Convert a vector (in) from this spatial's local coordinate space to world
      * coordinate space.
      *
      * @param in
@@ -736,7 +736,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     * Convert a vector (in) from world coordinate space to this spatials' local
+     * Convert a vector (in) from world coordinate space to this spatial's local
      * coordinate space.
      *
      * @param in
@@ -935,7 +935,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
     /**
      * <code>addLight</code> adds the given light to the Spatial; causing
-     * all child Spatials to be effected by it.
+ all
+     * child Spatials to be affected by it.
      *
      * @param light The light to add.
      */
@@ -1044,8 +1045,8 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
     /**
      * @see #setCullHint(CullHint)
-     * @return the cull mode of this spatial, or if set to CullHint.Inherit,
-     * the cullmode of it's parent.
+     * @return the cull mode of this spatial, or if set to CullHint.Inherit, the
+     * cull mode of its parent.
      */
     public CullHint getCullHint() {
         if (cullHint != CullHint.Inherit) {
@@ -1124,7 +1125,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     public abstract void setModelBound(BoundingVolume modelBound);
 
     /**
-     * @return The sum of all verticies under this Spatial.
+     * @return The sum of all vertices under this Spatial.
      */
     public abstract int getVertexCount();
 
@@ -1215,9 +1216,9 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     * @return Similar to Spatial.clone() except will create a deep clone
-     * of all geometry's meshes, normally this method shouldn't be used
-     * instead use Spatial.clone()
+     * @return Similar to Spatial.clone() except will create a deep clone of all
+     * geometries' meshes. Normally this method shouldn't be used. Instead, use
+     * Spatial.clone()
      *
      * @see Spatial#clone()
      */
