@@ -90,6 +90,7 @@ public final class SettingsDialog extends JFrame {
 
     // UI components
     private JCheckBox vsyncBox = null;
+    private JCheckBox gammaBox = null;
     private JCheckBox fullscreenBox = null;
     private JComboBox displayResCombo = null;
     private JComboBox colorDepthCombo = null;
@@ -355,7 +356,10 @@ public final class SettingsDialog extends JFrame {
         });
         vsyncBox = new JCheckBox(resourceBundle.getString("checkbox.vsync"));
         vsyncBox.setSelected(source.isVSync());
-
+        
+        gammaBox = new JCheckBox(resourceBundle.getString("checkbox.gamma"));
+        gammaBox.setSelected(source.getGammaCorrection());
+        
         gbc = new GridBagConstraints();
         gbc.weightx = 0.5;
         gbc.gridx = 0;
@@ -365,12 +369,19 @@ public final class SettingsDialog extends JFrame {
         mainPanel.add(fullscreenBox, gbc);
         gbc = new GridBagConstraints();
         gbc.weightx = 0.5;
-        gbc.insets = new Insets(4, 16, 0, 4);
+      //  gbc.insets = new Insets(4, 16, 0, 4);
         gbc.gridx = 2;
-        gbc.gridwidth = 2;
+      //  gbc.gridwidth = 2;
         gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.WEST;
+        gbc.anchor = GridBagConstraints.EAST;
         mainPanel.add(vsyncBox, gbc);
+        gbc = new GridBagConstraints();
+        gbc.weightx = 0.5;
+        gbc.gridx = 3;
+        gbc.gridy = 1;       
+        gbc.anchor = GridBagConstraints.WEST;
+        mainPanel.add(gammaBox, gbc);
+
         
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(4, 4, 4, 4);
@@ -420,7 +431,7 @@ public final class SettingsDialog extends JFrame {
         gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.WEST;
         mainPanel.add(antialiasCombo, gbc);
-
+        
         // Set the button action listeners. Cancel disposes without saving, OK
         // saves.
         ok.addActionListener(new ActionListener() {
@@ -517,6 +528,7 @@ public final class SettingsDialog extends JFrame {
         String display = (String) displayResCombo.getSelectedItem();
         boolean fullscreen = fullscreenBox.isSelected();
         boolean vsync = vsyncBox.isSelected();
+        boolean gamma = gammaBox.isSelected();
 
         int width = Integer.parseInt(display.substring(0, display.indexOf(" x ")));
         display = display.substring(display.indexOf(" x ") + 3);
@@ -576,6 +588,7 @@ public final class SettingsDialog extends JFrame {
             source.setFrequency(freq);
             source.setFullscreen(fullscreen);
             source.setVSync(vsync);
+            source.setGammaCorrection(gamma);
             //source.setRenderer(renderer);
             source.setSamples(multisample);
 

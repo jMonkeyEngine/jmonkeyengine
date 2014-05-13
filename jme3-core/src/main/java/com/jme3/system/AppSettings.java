@@ -143,6 +143,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("SettingsDialogImage", "/com/jme3/app/Monkey.png");
         defaults.put("MinHeight", 0);
         defaults.put("MinWidth", 0);
+        defaults.put("GammaCorrection", true);
       //  defaults.put("Icons", null);
     }
 
@@ -745,6 +746,17 @@ public final class AppSettings extends HashMap<String, Object> {
     public void setSettingsDialogImage(String path) {
         putString("SettingsDialogImage", path);
     }
+    
+    /**
+     * Enables Gamma Correction
+     * This requires that the GPU supports GL_ARB_framebuffer_sRGB and will 
+     * disabled otherwise.
+     * @param gammaCorrection 
+     * (Default : true)
+     */
+    public void setGammaCorrection(boolean gammaCorrection) {
+        putBoolean("GammaCorrection", gammaCorrection);
+    }
 
     /**
      * Get the framerate.
@@ -913,5 +925,9 @@ public final class AppSettings extends HashMap<String, Object> {
      */
     public String getSettingsDialogImage() {
         return getString("SettingsDialogImage");
+    }
+    
+    public boolean getGammaCorrection() {
+        return getBoolean("GammaCorrection");
     }
 }
