@@ -200,6 +200,7 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
     @Override
     protected void setMaterialParameters(Material material) {
         material.setColor("Splits", splits);
+        material.clearParam("LightViewProjectionMatrix5");
     }
 
     /**
