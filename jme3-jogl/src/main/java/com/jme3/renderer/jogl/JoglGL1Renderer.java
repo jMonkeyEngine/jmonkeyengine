@@ -1258,4 +1258,7 @@ public class JoglGL1Renderer implements GL1Renderer {
 
     public void deleteBuffer(VertexBuffer vb) {
     }
+
+    public void setMainFrameBufferSrgb(boolean srgb) {        
+    }
 }

@@ -2532,4 +2532,8 @@ public class OGLESShaderRenderer implements Renderer {
         boundShader = null;
         lastFb = null;
     }
+
+    public void setMainFrameBufferSrgb(boolean srgb) {
+        //TODO once opglES3.0 is supported maybe....        
+    }
 }

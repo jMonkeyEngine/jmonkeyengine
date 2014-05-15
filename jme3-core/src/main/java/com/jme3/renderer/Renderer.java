@@ -313,4 +313,26 @@ public interface Renderer {
      * </p>
      */
     public void setAlphaToCoverage(boolean value);
+    
+      /**
+      * If enabled, color values rendered to the main framebuffer undergo 
+      * linear -> sRGB conversion.
+      * 
+      * This is identical to {@link FrameBuffer#setSrgb(boolean)} except it is toggled
+      * for the main framebuffer instead of an offscreen buffer.
+      *
+      * This should be set together with {@link Renderer#setLinearizeSrgbImages(boolean)}
+      *
+      * As a shorthand, the user can set {@link AppSettings#setSrgbPipeline(boolean)} to true
+      * to toggle both {@link Renderer#setLinearizeSrgbImages(boolean)} and
+      * {@link Renderer#setMainFrameBufferSrgb(boolean)} if the 
+      * {@link Caps#} is supported by the GPU.
+      *
+      * @throws RendererException If the GPU hardware does not support sRGB.
+      *
+      * @seealso FrameBuffer#setSrgb(boolean)
+      *
+      * @seealso Caps#Srgb
+      */
+     public void setMainFrameBufferSrgb(boolean srgb);
 }

@@ -2589,4 +2589,15 @@ public class JoglRenderer implements Renderer {
         renderMeshDefault(mesh, lod, count);
 //        }
     }
+
+    public void setMainFrameBufferSrgb(boolean srgb) {
+        //Gamma correction
+        if(srgb && GLContext.getCurrent().isExtensionAvailable("GL_ARB_framebuffer_sRGB")){
+            GLContext.getCurrentGL().glEnable(GL3.GL_FRAMEBUFFER_SRGB);
+            logger.log(Level.FINER, "SRGB FrameBuffer enabled (Gamma Correction)");
+        }else{
+            GLContext.getCurrentGL().glDisable(GL3.GL_FRAMEBUFFER_SRGB);
+        }         
+    
+    }
 }

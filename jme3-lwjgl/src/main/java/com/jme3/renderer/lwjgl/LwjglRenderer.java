@@ -55,9 +55,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
-import com.jme3.util.NativeObject;
 import com.jme3.util.NativeObjectManager;
-import com.jme3.util.SafeArrayList;
 import java.nio.*;
 import java.util.EnumSet;
 import java.util.List;
@@ -371,7 +369,7 @@ public class LwjglRenderer implements Renderer {
                 caps.add(Caps.FrameBufferMRT);
                 logger.log(Level.FINER, "FBO Max MRT renderbuffers: {0}", maxMRTFBOAttachs);
             }
-
+            
 //            if (ctxCaps.GL_ARB_draw_buffers) {
 //                caps.add(Caps.FrameBufferMRT);
 //                glGetInteger(ARBDrawBuffers.GL_MAX_DRAW_BUFFERS_ARB, intBuf16);
@@ -2487,5 +2485,15 @@ public class LwjglRenderer implements Renderer {
 //        }else{
         renderMeshDefault(mesh, lod, count);
 //        }
+    }
+
+    public void setMainFrameBufferSrgb(boolean srgb) {
+        //Gamma correction
+        if(srgb && GLContext.getCapabilities().GL_ARB_framebuffer_sRGB){
+            glEnable(GL30.GL_FRAMEBUFFER_SRGB);
+            logger.log(Level.FINER, "SRGB FrameBuffer enabled (Gamma Correction)");
+        }else{
+            glDisable(GL30.GL_FRAMEBUFFER_SRGB);
+        }         
     }
 }

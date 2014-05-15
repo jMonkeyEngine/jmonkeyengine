@@ -2572,4 +2572,8 @@ public class IGLESShaderRenderer implements Renderer {
 				throw new UnsupportedOperationException("Unrecognized test function: " + testFunc);
 		}
 	}    	
+
+    public void setMainFrameBufferSrgb(boolean srgb) {
+        
+    }
 }

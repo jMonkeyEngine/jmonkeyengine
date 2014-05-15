@@ -308,7 +308,8 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                                                 0,
                                                 0, 
                                                 0, 
-                                                settings.useStereo3D());
+                                                settings.useStereo3D())
+                                    .withSRGB(settings.getGammaCorrection());
             }
             return pbufferFormat;
         }else{
@@ -322,7 +323,8 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                                                0,
                                                0, 
                                                0, 
-                                               settings.useStereo3D());
+                                               settings.useStereo3D())
+                                    .withSRGB(settings.getGammaCorrection());
             }
             return canvasFormat;
         }
@@ -467,7 +469,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                 }else{
                     Display.create(acquirePixelFormat(false));
                 }
-                
+
                 renderer.invalidateState();
             }else{
                 // First create the pbuffer, if it is needed.
