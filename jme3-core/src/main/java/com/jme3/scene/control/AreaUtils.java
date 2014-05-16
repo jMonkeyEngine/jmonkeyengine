@@ -46,9 +46,8 @@ import com.jme3.math.FastMath;
 public class AreaUtils {
 
   /**
-   * calcScreenArea -- in Pixels
-   * Aproximates the screen area of a bounding volume.  If the volume isn't a
-   * BoundingSphere, BoundingBox, or OrientedBoundingBox 0 is returned.
+   * Estimate the screen area of a bounding volume. If the volume isn't a
+   * BoundingSphere, BoundingBox, or OrientedBoundingBox, 0 is returned.
    *
    * @param bound The bounds to calculate the volume from.
    * @param distance The distance from camera to object.

@@ -90,7 +90,7 @@ public class SkeletonPoints extends Mesh {
     }
 
     /**
-     * The method updates the geometry according to the poitions of the bones.
+     * The method updates the geometry according to the positions of the bones.
      */
     public void updateGeometry() {
         VertexBuffer vb = this.getBuffer(Type.Position);

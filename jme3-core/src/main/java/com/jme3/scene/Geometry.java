@@ -76,7 +76,7 @@ public class Geometry extends Spatial {
      */
     protected BatchNode batchNode = null;
     /**
-     * the start index of this geom's mesh in the batchNode mesh
+     * the start index of this geometry's mesh in the batchNode mesh
      */
     protected int startIndex;    
     /**
@@ -201,9 +201,9 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Returns the mseh to use for this geometry
+     * Returns the mesh to use for this geometry
      * 
-     * @return the mseh to use for this geometry
+     * @return the mesh to use for this geometry
      * 
      * @see #setMesh(com.jme3.scene.Mesh) 
      */
@@ -472,9 +472,8 @@ public class Geometry extends Spatial {
     }
 
     /**
-     * Creates a deep clone of the geometry,
-     * this creates an identical copy of the mesh
-     * with the vertexbuffer data duplicated.
+     * Create a deep clone of the geometry. This creates an identical copy of
+     * the mesh with the vertex buffer data duplicated.
      */
     @Override
     public Spatial deepClone() {

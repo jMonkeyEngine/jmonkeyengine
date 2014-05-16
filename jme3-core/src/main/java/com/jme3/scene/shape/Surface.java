@@ -257,13 +257,15 @@ public class Surface extends Mesh {
     }
 
     /**
-     * This method adds a normal to a normals' map. This map is used to merge normals of a vertor that should be rendered smooth.
+     * This method adds a normal to a normal's map. This map is used to merge
+     * normals of a vector that should be rendered smooth.
+     *
      * @param normalToAdd
      *            a normal to be added
      * @param normalMap
      *            merges normals of faces that will be rendered smooth; the key is the vertex and the value - its normal vector
-     * @param smooth
-     *            the variable that indicates wheather to merge normals (creating the smooth mesh) or not
+     * @param smooth the variable that indicates whether to merge normals
+     * (creating the smooth mesh) or not
      * @param vertices
      *            a list of vertices read from the blender file
      */

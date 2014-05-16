@@ -57,9 +57,13 @@ public class Torus extends Mesh {
     private int circleSamples;
 
     private int radialSamples;
-
+    /**
+     * minor radius of the torus
+     */
     private float innerRadius;
-
+    /**
+     * major radius of the torus
+     */
     private float outerRadius;
 
     public Torus() {
@@ -73,10 +77,8 @@ public class Torus extends Mesh {
      *            The number of samples along the circles.
      * @param radialSamples
      *            The number of samples along the radial.
-     * @param innerRadius
-     *            The radius of the inner begining of the Torus.
-     * @param outerRadius
-     *            The radius of the outter end of the Torus.
+     * @param innerRadius minor radius of the torus
+     * @param outerRadius major radius of the torus
      */
     public Torus(int circleSamples, int radialSamples,
             float innerRadius, float outerRadius) {
@@ -226,8 +228,8 @@ public class Torus extends Mesh {
      * 
      * @param circleSamples the number of samples along the circles.
      * @param radialSamples the number of samples along the radial.
-     * @param innerRadius the radius of the inner begining of the Torus.
-     * @param outerRadius the radius of the outter end of the Torus.
+     * @param innerRadius minor radius of the torus
+     * @param outerRadius major radius of the torus
      */
     public void updateGeometry(int circleSamples, int radialSamples, float innerRadius, float outerRadius) {
         this.circleSamples = circleSamples;

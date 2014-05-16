@@ -76,9 +76,8 @@ public class Node extends Spatial implements Savable {
      * Constructor instantiates a new <code>Node</code> with a default empty
      * list for containing children.
      * 
-     * @param name
-     *            the name of the scene element. This is required for
-     *            identification and comparision purposes.
+     * @param name the name of the scene element. This is required for
+     * identification and comparison purposes.
      */
     public Node(String name) {
         super(name);
