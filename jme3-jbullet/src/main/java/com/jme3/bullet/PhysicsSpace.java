@@ -66,13 +66,13 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -114,7 +114,7 @@ public class PhysicsSpace {
     private Map<Integer, PhysicsCollisionGroupListener> collisionGroupListeners = new ConcurrentHashMap<Integer, PhysicsCollisionGroupListener>();
     private ConcurrentLinkedQueue<PhysicsTickListener> tickListeners = new ConcurrentLinkedQueue<PhysicsTickListener>();
     private ArrayList<PhysicsCollisionListener> collisionListeners = new ArrayList<PhysicsCollisionListener>();
-    private Stack<PhysicsCollisionEvent> collisionEvents = new Stack<PhysicsCollisionEvent>();
+    private ArrayDeque<PhysicsCollisionEvent> collisionEvents = new ArrayDeque<PhysicsCollisionEvent>();
     private PhysicsCollisionEventFactory eventFactory = new PhysicsCollisionEventFactory();
     private Vector3f worldMin = new Vector3f(-10000f, -10000f, -10000f);
     private Vector3f worldMax = new Vector3f(10000f, 10000f, 10000f);
@@ -335,7 +335,7 @@ public class PhysicsSpace {
     public void distributeEvents() {
         //add collision callbacks
         int clistsize = collisionListeners.size();
-        while( collisionEvents.empty() == false ) {
+        while( collisionEvents.isEmpty() == false ) {
             PhysicsCollisionEvent physicsCollisionEvent = collisionEvents.pop();
             for(int i=0;i<clistsize;i++) {
                 collisionListeners.get(i).collision(physicsCollisionEvent);
