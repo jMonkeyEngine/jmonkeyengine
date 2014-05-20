@@ -70,7 +70,8 @@ public class TextureArray extends Texture {
         int width = images.get(0).getWidth();
         int height = images.get(0).getHeight();
         Format format = images.get(0).getFormat();
-        Image arrayImage = new Image(format, width, height, null);
+        boolean isSRGB = images.get(0).isSrgb();
+        Image arrayImage = new Image(format, width, height, null, isSRGB);
 
         for (Image img : images) {
             if (img.getHeight() != height || img.getWidth() != width) {

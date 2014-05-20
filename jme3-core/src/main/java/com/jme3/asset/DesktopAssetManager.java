@@ -342,7 +342,7 @@ public class DesktopAssetManager implements AssetManager {
         return loadAsset(new AssetKey(name));
     }
 
-    public Texture loadTexture(TextureKey key){
+    public Texture loadTexture(TextureKey key){                
         return (Texture) loadAsset(key);
     }
 

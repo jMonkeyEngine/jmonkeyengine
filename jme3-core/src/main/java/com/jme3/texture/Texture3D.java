@@ -78,7 +78,7 @@ public class Texture3D extends Texture {
      * @param format
      */
     public Texture3D(int width, int height, int depth, Image.Format format) {
-        this(new Image(format, width, height, depth, null));
+        this(new Image(format, width, height, depth, null, false));
     }
 
     /**
@@ -93,7 +93,7 @@ public class Texture3D extends Texture {
      * @param numSamples
      */
     public Texture3D(int width, int height, int depth, int numSamples, Image.Format format) {
-        this(new Image(format, width, height, depth, null));
+        this(new Image(format, width, height, depth, null, false));
         getImage().setMultiSamples(numSamples);
     }
 

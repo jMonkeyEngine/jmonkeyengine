@@ -243,7 +243,7 @@ public class SkyFactory {
 
         checkImagesForCubeMap(westImg, eastImg, northImg, southImg, upImg, downImg);
 
-        Image cubeImage = new Image(westImg.getFormat(), westImg.getWidth(), westImg.getHeight(), null);
+        Image cubeImage = new Image(westImg.getFormat(), westImg.getWidth(), westImg.getHeight(), null, westImg.isSrgb());
 
         cubeImage.addData(westImg.getData(0));
         cubeImage.addData(eastImg.getData(0));

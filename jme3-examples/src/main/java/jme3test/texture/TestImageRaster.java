@@ -27,7 +27,7 @@ public class TestImageRaster extends SimpleApplication {
         int width = image.getWidth();
         int height = image.getHeight();
         ByteBuffer data = BufferUtils.createByteBuffer( (int)Math.ceil(newFormat.getBitsPerPixel() / 8.0) * width * height);
-        Image convertedImage = new Image(newFormat, width, height, data);
+        Image convertedImage = new Image(newFormat, width, height, data,null, image.isSrgb());
         
         ImageRaster sourceReader = ImageRaster.create(image);
         ImageRaster targetWriter = ImageRaster.create(convertedImage);
@@ -66,7 +66,7 @@ public class TestImageRaster extends SimpleApplication {
     }
     
     private Image createTestImage() {
-        Image testImage = new Image(Format.BGR8, 4, 3, BufferUtils.createByteBuffer(4 * 4 * 3));
+        Image testImage = new Image(Format.BGR8, 4, 3, BufferUtils.createByteBuffer(4 * 4 * 3), null, false);
         
         ImageRaster io = ImageRaster.create(testImage);
         io.setPixel(0, 0, ColorRGBA.Black);

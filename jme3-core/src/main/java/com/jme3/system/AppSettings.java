@@ -143,7 +143,7 @@ public final class AppSettings extends HashMap<String, Object> {
         defaults.put("SettingsDialogImage", "/com/jme3/app/Monkey.png");
         defaults.put("MinHeight", 0);
         defaults.put("MinWidth", 0);
-        defaults.put("GammaCorrection", true);
+        defaults.put("GammaCorrection", false);
       //  defaults.put("Icons", null);
     }
 

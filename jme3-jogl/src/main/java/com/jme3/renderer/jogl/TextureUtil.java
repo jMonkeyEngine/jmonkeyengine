@@ -36,6 +36,8 @@ import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES2;
@@ -157,7 +159,26 @@ public class TextureUtil {
         setFormat(Format.LATC, GL2.GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, true);
     }
     
-    public static GLImageFormat getImageFormat(Format fmt){
+     //sRGB formats        
+    private static final GLImageFormat sRGB_RGB8 = new GLImageFormat(GL2.GL_SRGB8,GL.GL_RGB, GL.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_RGBA8 = new GLImageFormat(GL.GL_SRGB8_ALPHA8,GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_Luminance8 = new GLImageFormat(GL2.GL_SLUMINANCE8,GL.GL_LUMINANCE, GL.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_LuminanceAlpha8 = new GLImageFormat(GL2.GL_SLUMINANCE8_ALPHA8,GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_BGR8 = new GLImageFormat(GL2.GL_SRGB8, GL2GL3.GL_BGR,  GL.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_ABGR8 = new GLImageFormat(GL2.GL_SRGB8_ALPHA8, GL2.GL_ABGR_EXT,  GL.GL_UNSIGNED_BYTE, false);
+
+    //FIXME cannot find GL_COMPRESSED_RGB_S3TC_DXT1,GL_COMPRESSED_RGBA_S3TC_DXT1,GL_COMPRESSED_RGB_S3TC_DXT3,GL_COMPRESSED_RGB_S3TC_DXT5 in JOGL used constants
+    //GL_COMPRESSED_RGB_S3TC_DXT1 = 33776;
+    //GL_COMPRESSED_RGBA_S3TC_DXT1_EXT = 33777;
+    //GL_COMPRESSED_RGBA_S3TC_DXT3_EXT = 33778;
+    //GL_COMPRESSED_RGBA_S3TC_DXT5_EXT = 33779;
+    private static final GLImageFormat sRGB_DXT1 = new GLImageFormat(33776, GL.GL_RGB,   GL.GL_UNSIGNED_BYTE, true);
+    private static final GLImageFormat sRGB_DXT1A = new GLImageFormat( 33777, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
+    private static final GLImageFormat sRGB_DXT3 = new GLImageFormat(33778, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
+    private static final GLImageFormat sRGB_DXT5 = new GLImageFormat( 33779, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
+
+    
+    public static GLImageFormat getImageFormat(Format fmt, boolean isSrgb){
         GL gl = GLContext.getCurrentGL();
         switch (fmt){
             case ABGR8:
@@ -231,24 +252,46 @@ public class TextureUtil {
                 }
                 break;
         }
+        
+        if(isSrgb){
+            return getSrgbFormat(fmt);
+        }
         return formatToGL[fmt.ordinal()];
     }
-    
-    public static GLImageFormat getImageFormatWithError(Format fmt) {
-        GLImageFormat glFmt = getImageFormat(fmt);
+  
+    public static GLImageFormat getImageFormatWithError(Format fmt, boolean isSrgb) {
+        GLImageFormat glFmt = getImageFormat(fmt, isSrgb);
         if (glFmt == null) {
             throw new RendererException("Image format '" + fmt + "' is unsupported by the video hardware.");
         }
         return glFmt;
     }
+    
+    private static GLImageFormat getSrgbFormat(Format fmt){
+        switch (fmt){
+            case RGB8 : return sRGB_RGB8;
+            case RGBA8 : return sRGB_RGBA8;
+            case BGR8 : return sRGB_BGR8;    
+            case ABGR8 : return sRGB_ABGR8;    
+            case Luminance8 : return sRGB_Luminance8;
+            case Luminance8Alpha8 : return sRGB_LuminanceAlpha8;
+            case DXT1 : return sRGB_DXT1;
+            case DXT1A : return sRGB_DXT1A;
+            case DXT3 : return sRGB_DXT3;
+            case DXT5 : return sRGB_DXT5;
+            default : Logger.getLogger(TextureUtil.class.getName()).log(Level.WARNING, "Format {0} has no sRGB equivalent, using linear format.", fmt.toString());
+                return formatToGL[fmt.ordinal()];
+        }
+    }
 
     public static void uploadTexture(Image image,
                                      int target,
                                      int index,
-                                     int border){
+                                     int border,
+                                     boolean linearizeSrgb){
         GL gl = GLContext.getCurrentGL();
         Image.Format fmt = image.getFormat();
-        GLImageFormat glFmt = getImageFormatWithError(fmt);
+        GLImageFormat glFmt = getImageFormatWithError(fmt, image.isSrgb() && linearizeSrgb);
 
         ByteBuffer data;
         if (index >= 0 && image.getData() != null && image.getData().size() > 0){
@@ -427,10 +470,11 @@ public class TextureUtil {
         int target,
         int index,
         int x,
-        int y) {
+        int y,
+        boolean linearizeSrgb) {
       GL gl = GLContext.getCurrentGL();
       Image.Format fmt = image.getFormat();
-      GLImageFormat glFmt = getImageFormatWithError(fmt);
+      GLImageFormat glFmt = getImageFormatWithError(fmt, image.isSrgb() && linearizeSrgb);
 
       ByteBuffer data = null;
       if (index >= 0 && image.getData() != null && image.getData().size() > 0) {

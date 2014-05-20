@@ -132,7 +132,7 @@ public class DDSLoader implements AssetLoader {
                 ((TextureKey) info.getKey()).setTextureTypeHint(Type.CubeMap);
             }
             ArrayList<ByteBuffer> data = readData(((TextureKey) info.getKey()).isFlipY());
-            return new Image(pixelFormat, width, height, depth, data, sizes);
+            return new Image(pixelFormat, width, height, depth, data, sizes, true);
         } finally {
             if (stream != null){
                 stream.close();
@@ -144,7 +144,7 @@ public class DDSLoader implements AssetLoader {
         in = new LittleEndien(stream);
         loadHeader();
         ArrayList<ByteBuffer> data = readData(false);
-        return new Image(pixelFormat, width, height, depth, data, sizes);
+        return new Image(pixelFormat, width, height, depth, data, sizes, true);
     }
 
     private void loadDX10Header() throws IOException {

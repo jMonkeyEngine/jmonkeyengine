@@ -31,6 +31,7 @@
  */
 package jme3test.bullet;
 
+import com.jme3.app.SettingsDialog;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
@@ -51,6 +52,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.shadow.BasicShadowRenderer;
+import com.jme3.system.AppSettings;
 
 public class TestFancyCar extends SimpleApplication implements ActionListener {
 
@@ -64,7 +66,7 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
     private Node carNode;
 
     public static void main(String[] args) {
-        TestFancyCar app = new TestFancyCar();
+        TestFancyCar app = new TestFancyCar();       
         app.start();
     }
 
@@ -91,7 +93,7 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
         if (settings.getRenderer().startsWith("LWJGL")) {
             BasicShadowRenderer bsr = new BasicShadowRenderer(assetManager, 512);
             bsr.setDirection(new Vector3f(-0.5f, -0.3f, -0.3f).normalizeLocal());
-            viewPort.addProcessor(bsr);
+         //   viewPort.addProcessor(bsr);
         }
         cam.setFrustumFar(150f);
         flyCam.setMoveSpeed(10);
@@ -107,7 +109,7 @@ public class TestFancyCar extends SimpleApplication implements ActionListener {
 
         dl = new DirectionalLight();
         dl.setDirection(new Vector3f(0.5f, -0.1f, 0.3f).normalizeLocal());
-        rootNode.addLight(dl);
+     //   rootNode.addLight(dl);
     }
 
     private PhysicsSpace getPhysicsSpace() {

@@ -73,7 +73,7 @@ public class PlaceholderAssets {
     public static Image getPlaceholderImage(){
         ByteBuffer tempData = BufferUtils.createByteBuffer(3 * 4 * 4);
         tempData.put(imageData).flip();
-        return new Image(Format.RGB8, 4, 4, tempData);
+        return new Image(Format.RGB8, 4, 4, tempData, null, false);
     }
     
     public static Material getPlaceholderMaterial(AssetManager assetManager){

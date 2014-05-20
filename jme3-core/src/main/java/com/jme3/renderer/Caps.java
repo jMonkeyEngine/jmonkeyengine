@@ -231,7 +231,12 @@ public enum Caps {
     /**
      * Supports FBO with Depth24Stencil8 image format
      */
-    PackedDepthStencilBuffer;
+    PackedDepthStencilBuffer,
+    
+    /**
+     * Supports sRGB framebuffers and sRGB texture format
+     */
+    Srgb;
 
     /**
      * Returns true if given the renderer capabilities, the texture

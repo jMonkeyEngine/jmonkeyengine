@@ -125,6 +125,6 @@ public class TestTexture3D extends SimpleApplication {
         }
         bb.rewind();
         data.add(bb);
-        return new Texture3D(new Image(Format.RGB8, 10, 10, 10, data));
+        return new Texture3D(new Image(Format.RGB8, 10, 10, 10, data, null, false));
     }
 }

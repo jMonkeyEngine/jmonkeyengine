@@ -152,14 +152,14 @@ public class J3MLoader implements AssetLoader {
             if (tex != null){
                 if (repeat){
                     tex.setWrap(WrapMode.Repeat);
-                }
+                }                
             }else{
                 tex = new Texture2D(PlaceholderAssets.getPlaceholderImage());
                 if (repeat){
                     tex.setWrap(WrapMode.Repeat);
                 }
                 tex.setKey(texKey);
-            }
+            }         
             return tex;
         }else{
             String[] split = value.trim().split(whitespacePattern);

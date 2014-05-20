@@ -155,4 +155,7 @@ public class NullRenderer implements Renderer {
     public void setMainFrameBufferSrgb(boolean srgb) {     
     }
 
+    public void setLinearizeSrgbImages(boolean linearize) {    
+    }
+
 }

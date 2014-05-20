@@ -76,7 +76,7 @@ public class Texture2D extends Texture {
      * @param format
      */
     public Texture2D(int width, int height, Image.Format format){
-        this(new Image(format, width, height, null));
+        this(new Image(format, width, height, null, false));
     }
 
     /**
@@ -91,7 +91,7 @@ public class Texture2D extends Texture {
      * @param numSamples
      */
     public Texture2D(int width, int height, int numSamples, Image.Format format){
-        this(new Image(format, width, height, null));
+        this(new Image(format, width, height, null, false));
         getImage().setMultiSamples(numSamples);
     }
 

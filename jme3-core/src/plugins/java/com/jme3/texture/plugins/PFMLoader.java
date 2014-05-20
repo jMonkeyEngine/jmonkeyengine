@@ -129,7 +129,7 @@ public class PFMLoader implements AssetLoader {
         }
         imageData.rewind();
 
-        return new Image(format, width, height, imageData);
+        return new Image(format, width, height, imageData, null, false);
     }
 
     public Object load(AssetInfo info) throws IOException {

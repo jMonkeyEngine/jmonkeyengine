@@ -308,7 +308,8 @@ public class HDRLoader implements AssetLoader {
         in.close();
 
         dataStore.rewind();
-        return new Image(pixelFormat, width, height, dataStore);
+        //TODO, HDR color space? considered linear here
+        return new Image(pixelFormat, width, height, dataStore, false);
     }
 
     public Object load(AssetInfo info) throws IOException {

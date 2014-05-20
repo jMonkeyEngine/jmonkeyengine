@@ -79,6 +79,7 @@ public class FrameBuffer extends NativeObject {
     private ArrayList<RenderBuffer> colorBufs = new ArrayList<RenderBuffer>();
     private RenderBuffer depthBuf = null;
     private int colorBufIndex = 0;
+    private boolean srgb;
 
     /**
      * <code>RenderBuffer</code> represents either a texture or a 
@@ -506,4 +507,42 @@ public class FrameBuffer extends NativeObject {
     public long getUniqueId() {
         return ((long)OBJTYPE_FRAMEBUFFER << 32) | ((long)id);
     }
+    
+    /**
+     * Specifies that the color values stored in this framebuffer are in SRGB
+     * format.
+     *
+     * The FrameBuffer must have a texture attached with the flag
+     * {@link Image#isSrgb()} set to true.
+     *
+     * The Renderer must expose the {@link Caps#Srgb sRGB pipeline} capability
+     * for this option to take any effect.
+     *
+     * Rendering operations performed on this framebuffer shall undergo a linear
+     * -> sRGB color space conversion when this flag is enabled. If
+     * {@link RenderState#getBlendMode() blending} is enabled, it will be
+     * performed in linear space by first decoding the stored sRGB pixel values
+     * into linear, combining with the shader result, and then converted back to
+     * sRGB upon being written into the framebuffer.
+     *
+     * @param srgb If the framebuffer color values should be stored in sRGB
+     * color space.
+     *
+     * @throws InvalidStateException If the texture attached to this framebuffer
+     * is not sRGB.
+     */
+    public void setSrgb(boolean srgb) {
+        this.srgb = srgb;
+    }
+
+    /**
+     * Determines if this framebuffer contains SRGB data.
+     *
+     * @returns True if the framebuffer color values are in SRGB space, false if
+     * in linear space.
+     */
+    public boolean isSrgb() {
+        return srgb;
+    }
+
 }

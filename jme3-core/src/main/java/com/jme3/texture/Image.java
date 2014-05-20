@@ -334,6 +334,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     protected ArrayList<ByteBuffer> data;
     protected transient Object efficientData;
     protected int multiSamples = 1;
+    protected boolean srgb;
 //    protected int mipOffset = 0;
     
     // attributes relating to GL object
@@ -447,9 +448,12 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *            the image data.
      * @param mipMapSizes
      *            the array of mipmap sizes, or null for no mipmaps.
+     * @param isSrgb 
+     *            true if the image in is sRGB color space false for linear 
+     *color space
      */
     public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data,
-            int[] mipMapSizes) {
+            int[] mipMapSizes, boolean isSrgb) {
         
         this();
 
@@ -466,8 +470,25 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         this.data = data;
         this.depth = depth;
         this.mipMapSizes = mipMapSizes;
+        this.srgb = isSrgb;
     }
 
+    /**
+     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, int[], boolean)}
+     * @param format
+     * @param width
+     * @param height
+     * @param depth
+     * @param data
+     * @param mipMapSizes 
+     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, int[], boolean)}
+     */
+     @Deprecated
+     public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data,
+            int[] mipMapSizes) {
+         this(format, width, height, depth, data, mipMapSizes, false);
+     }
+    
     /**
      * Constructor instantiates a new <code>Image</code> object. The
      * attributes of the image are defined during construction.
@@ -482,9 +503,12 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *            the image data.
      * @param mipMapSizes
      *            the array of mipmap sizes, or null for no mipmaps.
+     * @param isSrgb 
+     *            true if the image in is sRGB color space false for linear 
+     *  color space
      */
     public Image(Format format, int width, int height, ByteBuffer data,
-            int[] mipMapSizes) {
+            int[] mipMapSizes, boolean isSrgb) {
 
         this();
 
@@ -503,8 +527,24 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
             this.data.add(data);
         }
         this.mipMapSizes = mipMapSizes;
+        this.srgb = isSrgb;
     }
-
+    
+    /**
+     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, int[], boolean)}
+     * @param format
+     * @param width
+     * @param height
+     * @param data
+     * @param mipMapSizes
+     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, int[], boolean)}
+     */
+    @Deprecated
+    public Image(Format format, int width, int height, ByteBuffer data,
+            int[] mipMapSizes) {
+        this(format, width, height, data, mipMapSizes, false);
+    }
+       
     /**
      * Constructor instantiates a new <code>Image</code> object. The
      * attributes of the image are defined during construction.
@@ -517,9 +557,26 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *            the height of the image.
      * @param data
      *            the image data.
+     * @param isSrgb 
+     *            true if the image in is sRGB color space false for linear 
+     * color space
      */
+    public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data, boolean isSrgb) {
+        this(format, width, height, depth, data, null, isSrgb);
+    }
+    
+    /**
+     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, boolean)}
+     * @param format
+     * @param width
+     * @param height
+     * @param depth
+     * @param data
+     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, int, java.util.ArrayList, boolean)} 
+     */
+    @Deprecated
     public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data) {
-        this(format, width, height, depth, data, null);
+        this(format, width, height, depth, data, false);
     }
 
     /**
@@ -534,10 +591,28 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *            the height of the image.
      * @param data
      *            the image data.
+     * @param isSrgb 
+     *            true if the image in is sRGB color space false for linear 
+     * color space
      */
-    public Image(Format format, int width, int height, ByteBuffer data) {
-        this(format, width, height, data, null);
+    public Image(Format format, int width, int height, ByteBuffer data, boolean isSrgb) {
+        this(format, width, height, data, null, isSrgb);
     }
+    
+    
+    /**
+     * @see {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, boolean)} 
+     * @param format
+     * @param width
+     * @param height
+     * @param data
+     * @deprecated use {@link #Image(com.jme3.texture.Image.Format, int, int, java.nio.ByteBuffer, boolean)} 
+     */
+    @Deprecated
+    public Image(Format format, int width, int height, ByteBuffer data) {
+        this(format, width, height, data, null, false);
+    }
+
 
     /**
      * @return The number of samples (for multisampled textures).
@@ -787,6 +862,44 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      */
     public int[] getMipMapSizes() {
         return mipMapSizes;
+    }
+   
+    /**
+     * image loader is responsible for setting this flag based on the color
+     * space in which the image has been encoded with. In the majority of cases,
+     * this flag will be on by default since many image formats do not contain
+     * any color space information.
+     *
+     * The material loader may override this flag to false if it determines that
+     * such conversion must not be performed, for example, when loading normal
+     * maps.
+     *
+     * @param srgb True to enable SRGB -> linear conversion, false otherwise.
+     *
+     * @seealso Renderer#setLinearizeSrgbImages(boolean)
+     *
+     * @throws InvalidStateException If the image format does not support SRGB
+     * -> linear conversion.
+     */
+    public void setSrgb(boolean srgb) {
+        this.srgb = srgb;
+    }
+
+    /**
+     * Specifies that this image is an SRGB image and therefore must undergo an
+     * sRGB -> linear RGB color conversion prior to being read by a shader and
+     * with the {@link Renderer#setLinearizeSrgbImages(boolean)} option is
+     * enabled.
+     *
+     * This option is only supported for the 8-bit color and grayscale image
+     * formats. Determines if the image is in SRGB color space or not.
+     *
+     * @return True, if the image is an SRGB image, false if it is linear RGB.
+     *
+     * @seealso Renderer#setLinearizeSrgbImages(boolean)
+     */
+    public boolean isSrgb() {
+        return srgb;
     }
 
     @Override

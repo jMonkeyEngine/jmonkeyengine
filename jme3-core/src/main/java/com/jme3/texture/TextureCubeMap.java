@@ -88,7 +88,7 @@ public class TextureCubeMap extends Texture {
         for(int i = 0; i < layerCount; i++) {
             layers.add(null);
         }
-        Image image = new Image(format, width, height, 0, layers);
+        Image image = new Image(format, width, height, 0, layers, false);
         return image;
     }
 

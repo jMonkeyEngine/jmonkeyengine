@@ -335,4 +335,31 @@ public interface Renderer {
       * @seealso Caps#Srgb
       */
      public void setMainFrameBufferSrgb(boolean srgb);
+     
+       /**
+      * If enabled, all {@link Image images} with the {@link Image#setSRGB(boolean) sRGB flag}
+      * set shall undergo an sRGB to linear RGB color conversion when read by a shader.
+      *
+      * The conversion is performed for the following formats:
+      *  - {@link Format#RGB8}
+      *  - {@link Format#RGBA8}
+      *  - {@link Format#Luminance8}
+      *  - {@link Format#LuminanceAlpha8}
+      *  - {@link Format#DXT1}
+      *  - {@link Format#DXT1a}
+      *  - {@link Format#DXT3}
+      *  - {@link Format#DXT5}
+      * 
+      * For all other formats, no conversion is performed.
+      *
+      * If this option is toggled at runtime, textures must be reloaded for the change to take effect.
+      *
+      * @throws RendererException If the GPU hardware does not support sRGB.
+      *
+      * @param linearize If sRGB images undergo sRGB -> linear conversion prior to rendering.
+      *
+      * @seealso Caps#Srgb
+      */
+     public void setLinearizeSrgbImages(boolean linearize);
+
 }

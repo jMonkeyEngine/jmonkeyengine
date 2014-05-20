@@ -2536,4 +2536,8 @@ public class OGLESShaderRenderer implements Renderer {
     public void setMainFrameBufferSrgb(boolean srgb) {
         //TODO once opglES3.0 is supported maybe....        
     }
+
+    public void setLinearizeSrgbImages(boolean linearize) {
+        //TODO once opglES3.0 is supported maybe....        
+    }
 }

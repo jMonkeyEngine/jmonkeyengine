@@ -55,6 +55,10 @@ import org.lwjgl.opengl.GLContext;
 import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import static com.jme3.texture.Image.Format.RGB8;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.lwjgl.opengl.EXTTextureSRGB;
 
 class TextureUtil {
 
@@ -104,7 +108,7 @@ class TextureUtil {
         
         // Depth stencil formats
         setFormat(Format.Depth24Stencil8, GL30.GL_DEPTH24_STENCIL8, GL30.GL_DEPTH_STENCIL, GL30.GL_UNSIGNED_INT_24_8, false);
-        
+
         // RGB formats
         setFormat(Format.BGR8,       GL11.GL_RGB8,  EXTBgra.GL_BGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
         setFormat(Format.ARGB8,       GL11.GL_RGBA8,  EXTBgra.GL_BGRA_EXT, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, false);
@@ -138,10 +142,23 @@ class TextureUtil {
     
         // LTC/LATC/3Dc formats
         setFormat(Format.LTC,  EXTTextureCompressionLATC.GL_COMPRESSED_LUMINANCE_LATC1_EXT,       GL11.GL_LUMINANCE,       GL11.GL_UNSIGNED_BYTE, true);
-        setFormat(Format.LATC, EXTTextureCompressionLATC.GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, true);
+        setFormat(Format.LATC, EXTTextureCompressionLATC.GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, true);   
     }
     
-    public static GLImageFormat getImageFormat(ContextCapabilities caps, Format fmt){
+    //sRGB formats        
+    private static final GLImageFormat sRGB_RGB8 = new GLImageFormat(EXTTextureSRGB.GL_SRGB8_EXT, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_RGBA8 = new GLImageFormat(EXTTextureSRGB.GL_SRGB8_ALPHA8_EXT, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_Luminance8 = new GLImageFormat(EXTTextureSRGB.GL_SLUMINANCE8_EXT, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_LuminanceAlpha8 = new GLImageFormat(EXTTextureSRGB.GL_SLUMINANCE8_ALPHA8_EXT, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_BGR8 = new GLImageFormat(EXTTextureSRGB.GL_SRGB8_EXT, EXTBgra.GL_BGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_ABGR8 = new GLImageFormat(EXTTextureSRGB.GL_SRGB8_ALPHA8_EXT, EXTAbgr.GL_ABGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
+
+    private static final GLImageFormat sRGB_DXT1 = new GLImageFormat(EXTTextureSRGB.GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,GL11.GL_RGB,   GL11.GL_UNSIGNED_BYTE, true);
+    private static final GLImageFormat sRGB_DXT1A = new GLImageFormat(EXTTextureSRGB.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true);
+    private static final GLImageFormat sRGB_DXT3 = new GLImageFormat(EXTTextureSRGB.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true);
+    private static final GLImageFormat sRGB_DXT5 = new GLImageFormat(EXTTextureSRGB.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true);
+
+    public static GLImageFormat getImageFormat(ContextCapabilities caps, Format fmt, boolean isSrgb){
         switch (fmt){
             case ABGR8:
                 if (!caps.GL_EXT_abgr){
@@ -213,24 +230,45 @@ class TextureUtil {
                 }
                 break;
         }
+        if(isSrgb){
+            return getSrgbFormat(fmt);
+        }
         return formatToGL[fmt.ordinal()];
     }
     
-    public static GLImageFormat getImageFormatWithError(Format fmt) {
-        GLImageFormat glFmt = getImageFormat(GLContext.getCapabilities(), fmt);
+    public static GLImageFormat getImageFormatWithError(Format fmt, boolean isSrgb) {
+        GLImageFormat glFmt = getImageFormat(GLContext.getCapabilities(), fmt, isSrgb);
         if (glFmt == null) {
             throw new RendererException("Image format '" + fmt + "' is unsupported by the video hardware.");
         }
         return glFmt;
     }
     
+    private static GLImageFormat getSrgbFormat(Format fmt){
+        switch (fmt){           
+            case RGB8 : return sRGB_RGB8;           
+            case RGBA8 : return sRGB_RGBA8;
+            case BGR8 : return sRGB_BGR8;    
+            case ABGR8 : return sRGB_ABGR8;    
+            case Luminance8 : return sRGB_Luminance8;
+            case Luminance8Alpha8 : return sRGB_LuminanceAlpha8;
+            case DXT1 : return sRGB_DXT1;
+            case DXT1A : return sRGB_DXT1A;
+            case DXT3 : return sRGB_DXT3;
+            case DXT5 : return sRGB_DXT5;
+            default : Logger.getLogger(TextureUtil.class.getName()).log(Level.WARNING, "Format {0} has no sRGB equivalent, using linear format.", fmt.toString());
+                return formatToGL[fmt.ordinal()];
+        }
+    }
+    
     public static void uploadTexture(Image image,
                                      int target,
                                      int index,
-                                     int border){
+                                     int border,
+                                     boolean linearizeSrgb){
         
         Image.Format fmt = image.getFormat();
-        GLImageFormat glFmt = getImageFormatWithError(fmt);
+        GLImageFormat glFmt = getImageFormatWithError(fmt, image.isSrgb() && linearizeSrgb);
 
         ByteBuffer data;
         if (index >= 0 && image.getData() != null && image.getData().size() > 0){
@@ -384,9 +422,10 @@ class TextureUtil {
         int target,
         int index,
         int x,
-        int y) {
+        int y,
+        boolean linearizeSrgb) {
       Image.Format fmt = image.getFormat();
-      GLImageFormat glFmt = getImageFormatWithError(fmt);
+      GLImageFormat glFmt = getImageFormatWithError(fmt, image.isSrgb() && linearizeSrgb);
 
       ByteBuffer data = null;
       if (index >= 0 && image.getData() != null && image.getData().size() > 0) {

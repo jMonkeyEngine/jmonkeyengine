@@ -2576,4 +2576,8 @@ public class IGLESShaderRenderer implements Renderer {
     public void setMainFrameBufferSrgb(boolean srgb) {
         
     }
+
+    public void setLinearizeSrgbImages(boolean linearize) {
+      
+    }
 }

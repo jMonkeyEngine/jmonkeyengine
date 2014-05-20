@@ -238,6 +238,7 @@ public abstract class LwjglContext implements JmeContext {
             assert false;
         }
         renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
+        renderer.setLinearizeSrgbImages(settings.getGammaCorrection());
 
         // Init input
         if (keyInput != null) {
