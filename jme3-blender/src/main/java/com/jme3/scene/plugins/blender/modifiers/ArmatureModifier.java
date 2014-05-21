@@ -1,21 +1,26 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.animation.Bone;
 import com.jme3.animation.Skeleton;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
@@ -24,10 +29,13 @@ import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
 import com.jme3.scene.plugins.blender.animations.AnimationHelper;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
+import com.jme3.scene.plugins.blender.animations.BoneEnvelope;
+import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.meshes.MeshContext;
+import com.jme3.scene.plugins.blender.meshes.MeshContext.VertexGroup;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -39,13 +47,20 @@ import com.jme3.util.BufferUtils;
     private static final Logger LOGGER                     = Logger.getLogger(ArmatureModifier.class.getName());
     private static final int    MAXIMUM_WEIGHTS_PER_VERTEX = 4;                                                 // JME
 
+    private static final int    FLAG_VERTEX_GROUPS         = 0x01;
+    private static final int    FLAG_BONE_ENVELOPES        = 0x02;
+
     private Structure           armatureObject;
     private Skeleton            skeleton;
-    private Structure           objectStructure;
     private Structure           meshStructure;
-
+    /** The wold transform matrix of the armature object. */
+    private Matrix4f            objectWorldMatrix;
     /** Old memory address of the mesh that will have the skeleton applied. */
     private Long                meshOMA;
+    /** The variable tells if the vertex groups of the mesh should be used to assign verts to bones. */
+    private boolean             useVertexGroups;
+    /** The variable tells if the bones' envelopes should be used to assign verts to bones. */
+    private boolean             useBoneEnvelopes;
 
     /**
      * This constructor reads animation data from the object structore. The
@@ -66,24 +81,35 @@ import com.jme3.util.BufferUtils;
         if (this.validate(modifierStructure, blenderContext)) {
             Pointer pArmatureObject = (Pointer) modifierStructure.getFieldValue("object");
             if (pArmatureObject.isNotNull()) {
-                armatureObject = pArmatureObject.fetchData().get(0);
+                int deformflag = ((Number) modifierStructure.getFieldValue("deformflag")).intValue();
+                useVertexGroups = (deformflag & FLAG_VERTEX_GROUPS) != 0;
+                useBoneEnvelopes = (deformflag & FLAG_BONE_ENVELOPES) != 0;
+                modifying = useBoneEnvelopes || useVertexGroups;
+                if (modifying) {// if neither option is used the modifier will not modify anything anyway
+                    armatureObject = pArmatureObject.fetchData().get(0);
 
-                // load skeleton
-                Structure armatureStructure = ((Pointer) armatureObject.getFieldValue("data")).fetchData().get(0);
-                List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase();
-                List<Bone> bonesList = new ArrayList<Bone>();
-                for (int i = 0; i < bonebase.size(); ++i) {
-                    this.buildBones(armatureObject.getOldMemoryAddress(), bonebase.get(i), null, bonesList, objectStructure.getOldMemoryAddress(), blenderContext);
+                    // load skeleton
+                    Structure armatureStructure = ((Pointer) armatureObject.getFieldValue("data")).fetchData().get(0);
+                    List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase();
+                    List<Bone> bonesList = new ArrayList<Bone>();
+                    for (int i = 0; i < bonebase.size(); ++i) {
+                        this.buildBones(armatureObject.getOldMemoryAddress(), bonebase.get(i), null, bonesList, objectStructure.getOldMemoryAddress(), blenderContext);
+                    }
+                    bonesList.add(0, new Bone(""));
+                    Bone[] bones = bonesList.toArray(new Bone[bonesList.size()]);
+                    skeleton = new Skeleton(bones);
+                    blenderContext.setSkeleton(armatureObject.getOldMemoryAddress(), skeleton);
+                    this.meshStructure = meshStructure;
+
+                    // read mesh indexes
+                    meshOMA = meshStructure.getOldMemoryAddress();
+
+                    if (useBoneEnvelopes) {
+                        ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+                        Spatial object = (Spatial) blenderContext.getLoadedFeature(objectStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+                        objectWorldMatrix = constraintHelper.toMatrix(object.getWorldTransform(), new Matrix4f());
+                    }
                 }
-                bonesList.add(0, new Bone(""));
-                Bone[] bones = bonesList.toArray(new Bone[bonesList.size()]);
-                skeleton = new Skeleton(bones);
-                blenderContext.setSkeleton(armatureObject.getOldMemoryAddress(), skeleton);
-                this.objectStructure = objectStructure;
-                this.meshStructure = meshStructure;
-
-                // read mesh indexes
-                meshOMA = meshStructure.getOldMemoryAddress();
             } else {
                 modifying = false;
             }
@@ -114,35 +140,6 @@ import com.jme3.util.BufferUtils;
         bc.buildBone(result, spatialOMA, blenderContext);
     }
 
-    /**
-     * This method returns a map where the key is the object's group index that
-     * is used by a bone and the key is the bone index in the armature.
-     * 
-     * @param defBaseStructure
-     *            a bPose structure of the object
-     * @return bone group-to-index map
-     * @throws BlenderFileException
-     *             this exception is thrown when the blender file is somehow
-     *             corrupted
-     */
-    public Map<Integer, Integer> getGroupToBoneIndexMap(Structure defBaseStructure, Skeleton skeleton) throws BlenderFileException {
-        Map<Integer, Integer> result = null;
-        if (skeleton.getBoneCount() != 0) {
-            result = new HashMap<Integer, Integer>();
-            List<Structure> deformGroups = defBaseStructure.evaluateListBase();// bDeformGroup
-            int groupIndex = 0;
-            for (Structure deformGroup : deformGroups) {
-                String deformGroupName = deformGroup.getFieldValue("name").toString();
-                int boneIndex = skeleton.getBoneIndex(deformGroupName);
-                if (boneIndex >= 0) {
-                    result.put(groupIndex, boneIndex);
-                }
-                ++groupIndex;
-            }
-        }
-        return result;
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public void apply(Node node, BlenderContext blenderContext) {
@@ -153,39 +150,33 @@ import com.jme3.util.BufferUtils;
             // setting weights for bones
             List<Geometry> geomList = (List<Geometry>) blenderContext.getLoadedFeature(meshOMA, LoadedFeatureDataType.LOADED_FEATURE);
             MeshContext meshContext = blenderContext.getMeshContext(meshOMA);
-            int[] bonesGroups = new int[] { 0 };
             for (Geometry geom : geomList) {
                 int materialIndex = meshContext.getMaterialIndex(geom);
                 Mesh mesh = geom.getMesh();
 
-                try {
-                    VertexBuffer[] buffers = this.readVerticesWeightsData(objectStructure, meshStructure, skeleton, materialIndex, bonesGroups, blenderContext);
-                    if (buffers != null) {
-                        mesh.setMaxNumWeights(bonesGroups[0]);
-                        mesh.setBuffer(buffers[0]);
-                        mesh.setBuffer(buffers[1]);
+                MeshWeightsData buffers = this.readVerticesWeightsData(meshContext, skeleton, materialIndex, mesh, blenderContext);
+                if (buffers != null) {
+                    mesh.setMaxNumWeights(buffers.maximumWeightsPerVertex);
+                    mesh.setBuffer(buffers.verticesWeights);
+                    mesh.setBuffer(buffers.verticesWeightsIndices);
 
-                        LOGGER.fine("Generating bind pose and normal buffers.");
-                        mesh.generateBindPose(true);
+                    LOGGER.fine("Generating bind pose and normal buffers.");
+                    mesh.generateBindPose(true);
 
-                        // change the usage type of vertex and normal buffers from
-                        // Static to Stream
-                        mesh.getBuffer(Type.Position).setUsage(Usage.Stream);
-                        mesh.getBuffer(Type.Normal).setUsage(Usage.Stream);
+                    // change the usage type of vertex and normal buffers from
+                    // Static to Stream
+                    mesh.getBuffer(Type.Position).setUsage(Usage.Stream);
+                    mesh.getBuffer(Type.Normal).setUsage(Usage.Stream);
 
-                        // creating empty buffers for HW skinning
-                        // the buffers will be setup if ever used.
-                        VertexBuffer verticesWeightsHW = new VertexBuffer(Type.HWBoneWeight);
-                        VertexBuffer verticesWeightsIndicesHW = new VertexBuffer(Type.HWBoneIndex);
-                        mesh.setBuffer(verticesWeightsHW);
-                        mesh.setBuffer(verticesWeightsIndicesHW);
-                    }
-                } catch (BlenderFileException e) {
-                    LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
-                    invalid = true;
+                    // creating empty buffers for HW skinning
+                    // the buffers will be setup if ever used.
+                    VertexBuffer verticesWeightsHW = new VertexBuffer(Type.HWBoneWeight);
+                    VertexBuffer verticesWeightsIndicesHW = new VertexBuffer(Type.HWBoneIndex);
+                    mesh.setBuffer(verticesWeightsHW);
+                    mesh.setBuffer(verticesWeightsIndicesHW);
                 }
             }
-            
+
             AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
             animationHelper.applyAnimations(node, skeleton, blenderContext.getBlenderKey().getSkeletonAnimationNames(node.getName()));
             node.updateModelBound();
@@ -193,235 +184,208 @@ import com.jme3.util.BufferUtils;
     }
 
     /**
-     * This method reads mesh indexes
+     * Reads the vertices data and prepares appropriate buffers to be added to the mesh. There is a bone index buffer and weitghts buffer.
      * 
-     * @param objectStructure
-     *            structure of the object that has the armature modifier applied
-     * @param meshStructure
-     *            the structure of the object's mesh
+     * @param meshContext
+     *            the mesh context
+     * @param skeleton
+     *            the current skeleton
+     * @param materialIndex
+     *            the material index
+     * @param mesh
+     *            the mesh we create the buffers for
      * @param blenderContext
      *            the blender context
-     * @throws BlenderFileException
-     *             this exception is thrown when the blend file structure is
-     *             somehow invalid or corrupted
+     * @return an instance that aggregates all needed data for the mesh
      */
-    private VertexBuffer[] readVerticesWeightsData(Structure objectStructure, Structure meshStructure, Skeleton skeleton, int materialIndex, int[] bonesGroups, BlenderContext blenderContext) throws BlenderFileException {
-        Structure defBase = (Structure) objectStructure.getFieldValue("defbase");
-        Map<Integer, Integer> groupToBoneIndexMap = this.getGroupToBoneIndexMap(defBase, skeleton);
+    private MeshWeightsData readVerticesWeightsData(MeshContext meshContext, Skeleton skeleton, int materialIndex, Mesh mesh, BlenderContext blenderContext) {
+        int vertexListSize = meshContext.getVertexCount(materialIndex);
+        Map<Integer, List<Integer>> vertexReferenceMap = meshContext.getVertexReferenceMap(materialIndex);
 
-        MeshContext meshContext = blenderContext.getMeshContext(meshStructure.getOldMemoryAddress());
+        Map<String, VertexGroup> vertexGroups = new HashMap<String, VertexGroup>();
+        Buffer indexes = mesh.getBuffer(Type.Index).getData();
+        FloatBuffer positions = mesh.getFloatBuffer(Type.Position);
 
-        return this.getBoneWeightAndIndexBuffer(meshStructure, meshContext.getVertexCount(materialIndex), bonesGroups, meshContext.getVertexReferenceMap(materialIndex), groupToBoneIndexMap);
-    }
+        int maximumWeightsPerVertex = 0;
+        if (useVertexGroups) {
+            LOGGER.fine("Attaching verts to bones using vertex groups.");
+            for (int boneIndex = 1; boneIndex < skeleton.getBoneCount(); ++boneIndex) {// bone with index 0 is a root bone
+                Bone bone = skeleton.getBone(boneIndex);
+                VertexGroup vertexGroup = meshContext.getGroup(bone.getName());
+                if (vertexGroup != null) {
+                    vertexGroup.setBoneIndex(boneIndex);
+                    vertexGroups.put(bone.getName(), vertexGroup);
+                }
+            }
+        }
 
-    /**
-     * This method returns an array of size 2. The first element is a vertex
-     * buffer holding bone weights for every vertex in the model. The second
-     * element is a vertex buffer holding bone indices for vertices (the indices
-     * of bones the vertices are assigned to).
-     * 
-     * @param meshStructure
-     *            the mesh structure object
-     * @param vertexListSize
-     *            a number of vertices in the model
-     * @param bonesGroups
-     *            this is an output parameter, it should be a one-sized array;
-     *            the maximum amount of weights per vertex (up to
-     *            MAXIMUM_WEIGHTS_PER_VERTEX) is stored there
-     * @param vertexReferenceMap
-     *            this reference map allows to map the original vertices read
-     *            from blender to vertices that are really in the model; one
-     *            vertex may appear several times in the result model
-     * @param groupToBoneIndexMap
-     *            this object maps the group index (to which a vertices in
-     *            blender belong) to bone index of the model
-     * @return arrays of vertices weights and their bone indices and (as an
-     *         output parameter) the maximum amount of weights for a vertex
-     * @throws BlenderFileException
-     *             this exception is thrown when the blend file structure is
-     *             somehow invalid or corrupted
-     */
-    private VertexBuffer[] getBoneWeightAndIndexBuffer(Structure meshStructure, int vertexListSize, int[] bonesGroups, Map<Integer, List<Integer>> vertexReferenceMap, Map<Integer, Integer> groupToBoneIndexMap) throws BlenderFileException {
-        bonesGroups[0] = 0;
-        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
-        FloatBuffer weightsFloatData = BufferUtils.createFloatBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
-        ByteBuffer indicesData = BufferUtils.createByteBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
+        if (useBoneEnvelopes) {
+            LOGGER.fine("Attaching verts to bones using bone envelopes.");
+            Vector3f pos = new Vector3f();
 
-        if (pDvert.isNotNull()) {// assigning weights and bone indices
-            boolean warnAboutTooManyVertexWeights = false;
-            // dverts.size() = verticesAmount (one dvert per vertex in blender)
-            List<Structure> dverts = pDvert.fetchData();
-            int vertexIndex = 0;
-            // use tree map to sort weights from the lowest to the highest ones
-            TreeMap<Float, Integer> weightToIndexMap = new TreeMap<Float, Integer>();
+            for (int boneIndex = 1; boneIndex < skeleton.getBoneCount(); ++boneIndex) {// bone with index 0 is a root bone
+                Bone bone = skeleton.getBone(boneIndex);
+                BoneContext boneContext = blenderContext.getBoneContext(bone);
+                BoneEnvelope boneEnvelope = boneContext.getBoneEnvelope();
+                if (boneEnvelope != null) {
+                    VertexGroup vertexGroup = vertexGroups.get(bone.getName());
+                    if (vertexGroup == null) {
+                        vertexGroup = new VertexGroup();
+                        vertexGroups.put(bone.getName(), vertexGroup);
+                    }
+                    vertexGroup.setBoneIndex(boneIndex);
 
-            for (Structure dvert : dverts) {
-                // we fetch the referenced vertices here
-                List<Integer> vertexIndices = vertexReferenceMap.get(Integer.valueOf(vertexIndex));
-                if (vertexIndices != null) {
-                    // total amount of wights assigned to the vertex (max. 4 in JME)
-                    int totweight = ((Number) dvert.getFieldValue("totweight")).intValue();
-                    Pointer pDW = (Pointer) dvert.getFieldValue("dw");
-                    if (totweight > 0 && groupToBoneIndexMap != null) {
-                        weightToIndexMap.clear();
-                        int weightIndex = 0;
-                        List<Structure> dw = pDW.fetchData();
-                        for (Structure deformWeight : dw) {
-                            Integer boneIndex = groupToBoneIndexMap.get(((Number) deformWeight.getFieldValue("def_nr")).intValue());
-                            float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
-                            // boneIndex == null: it here means that we came
-                            // accross group that has no bone attached to, so
-                            // simply ignore it
-                            // if weight == 0 and weightIndex == 0 then ignore
-                            // the weight (do not set weight = 0 as a first
-                            // weight)
-                            if (boneIndex != null && (weight > 0.0f || weightIndex > 0)) {
-                                if (weightIndex < MAXIMUM_WEIGHTS_PER_VERTEX) {
-                                    if (weight == 0.0f) {
-                                        boneIndex = Integer.valueOf(0);
-                                    }
-                                    // we apply the weight to all referenced
-                                    // vertices
-                                    for (Integer index : vertexIndices) {
-                                        weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + weightIndex, weight);
-                                        indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + weightIndex, boneIndex.byteValue());
-                                    }
-                                    weightToIndexMap.put(weight, weightIndex);
-                                    bonesGroups[0] = Math.max(bonesGroups[0], weightIndex + 1);
-                                } else if (weight > 0) {// if weight is zero the
-                                                        // simply ignore it
-                                    warnAboutTooManyVertexWeights = true;
-                                    Entry<Float, Integer> lowestWeightAndIndex = weightToIndexMap.firstEntry();
-                                    if (lowestWeightAndIndex != null && lowestWeightAndIndex.getKey() < weight) {
-                                        // we apply the weight to all referenced
-                                        // vertices
-                                        for (Integer index : vertexIndices) {
-                                            weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + lowestWeightAndIndex.getValue(), weight);
-                                            indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + lowestWeightAndIndex.getValue(), boneIndex.byteValue());
-                                        }
-                                        weightToIndexMap.remove(lowestWeightAndIndex.getKey());
-                                        weightToIndexMap.put(weight, lowestWeightAndIndex.getValue());
-                                    }
+                    for (Entry<Integer, List<Integer>> entry : vertexReferenceMap.entrySet()) {
+                        List<Integer> vertexIndices = entry.getValue();
+                        for (int j = 0; j < indexes.limit(); ++j) {
+                            int index = indexes instanceof ShortBuffer ? ((ShortBuffer) indexes).get(j) : ((IntBuffer) indexes).get(j);
+                            if (vertexIndices.contains(index)) {// current geometry has the index assigned to the current mesh
+                                int ii = index * 3;
+                                pos.set(positions.get(ii), positions.get(ii + 1), positions.get(ii + 2));
+                                // move the vertex to the global space position
+                                objectWorldMatrix.mult(pos, pos);// TODO: optimize: check every vertex once and apply its references
+                                if (boneEnvelope.isInEnvelope(pos)) {
+                                    vertexGroup.addVertex(index, boneEnvelope.getWeight());
+                                } else if (boneIndex == 5) {
+                                    System.out.println("Siê nie za³apa³: " + pos);
                                 }
-                                ++weightIndex;
                             }
-                        }
-                    } else {
-                        // 0.0 weight indicates, do not transform this vertex,
-                        // but keep it in bind pose.
-                        for (Integer index : vertexIndices) {
-                            weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, 0.0f);
-                            indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, (byte) 0);
                         }
                     }
                 }
-                ++vertexIndex;
-            }
-
-            if (warnAboutTooManyVertexWeights) {
-                LOGGER.log(Level.WARNING, "{0} has vertices with more than 4 weights assigned. The model may not behave as it should.", meshStructure.getName());
-            }
-        } else {
-            // always bind all vertices to 0-indexed bone
-            // this bone makes the model look normally if vertices have no bone
-            // assigned and it is used in object animation, so if we come
-            // accross object
-            // animation we can use the 0-indexed bone for this
-            for (List<Integer> vertexIndexList : vertexReferenceMap.values()) {
-                // we apply the weight to all referenced vertices
-                for (Integer index : vertexIndexList) {
-                    weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, 1.0f);
-                    indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, (byte) 0);
-                }
             }
         }
 
-        bonesGroups[0] = Math.max(bonesGroups[0], 1);
+        Map<Integer, WeightsAndBoneIndexes> weights = new HashMap<Integer, WeightsAndBoneIndexes>();// [vertex_index; [bone_index; weight]]
+        if (vertexGroups.size() > 0) {
+            LOGGER.fine("Gathering vertex groups information to prepare the buffers for the mesh.");
+            for (VertexGroup vertexGroup : vertexGroups.values()) {
+                for (Entry<Integer, Float> entry : vertexGroup.entrySet()) {
+                    WeightsAndBoneIndexes vertexWeights = weights.get(entry.getKey());
+                    if (vertexWeights == null) {
+                        vertexWeights = new WeightsAndBoneIndexes();
+                        weights.put(entry.getKey(), vertexWeights);
+                    }
+                    vertexWeights.put(vertexGroup.getBoneIndex(), entry.getValue());
+                }
+            }
 
-        this.endBoneAssigns(vertexListSize, weightsFloatData);
+            LOGGER.log(Level.FINE, "Equalizing the amount of weights per vertex to {0} if any of them has more or less.", MAXIMUM_WEIGHTS_PER_VERTEX);
+            for (Entry<Integer, WeightsAndBoneIndexes> entry : weights.entrySet()) {
+                maximumWeightsPerVertex = Math.max(maximumWeightsPerVertex, entry.getValue().size());
+                entry.getValue().normalize(MAXIMUM_WEIGHTS_PER_VERTEX);
+            }
+
+            if (maximumWeightsPerVertex > MAXIMUM_WEIGHTS_PER_VERTEX) {
+                LOGGER.log(Level.WARNING, "{0} has vertices with more than 4 weights assigned. The model may not behave as it should.", meshStructure.getName());
+                maximumWeightsPerVertex = MAXIMUM_WEIGHTS_PER_VERTEX;// normalization already made at most 'MAXIMUM_WEIGHTS_PER_VERTEX' weights per vertex
+            }
+        }
+
+        LOGGER.fine("Preparing buffers for the mesh.");
+        FloatBuffer weightsFloatData = BufferUtils.createFloatBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
+        ByteBuffer indicesData = BufferUtils.createByteBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
+        for (int i = 0; i < indexes.limit(); ++i) {
+            int index = indexes instanceof ShortBuffer ? ((ShortBuffer) indexes).get(i) : ((IntBuffer) indexes).get(i);
+            WeightsAndBoneIndexes weightsAndBoneIndexes = weights.get(index);
+            if (weightsAndBoneIndexes != null) {
+                int count = 0;
+                for (Entry<Integer, Float> entry : weightsAndBoneIndexes.entrySet()) {
+                    weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + count, entry.getValue());
+                    indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX + count, entry.getKey().byteValue());
+                    ++count;
+                }
+            } else {
+                // if no bone is assigned to this vertex then attach it to the 0-indexed root bone
+                weightsFloatData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, 1.0f);
+                indicesData.put(index * MAXIMUM_WEIGHTS_PER_VERTEX, (byte) 0);
+            }
+        }
         VertexBuffer verticesWeights = new VertexBuffer(Type.BoneWeight);
-        verticesWeights.setupData(Usage.CpuOnly, bonesGroups[0], Format.Float, weightsFloatData);
+        verticesWeights.setupData(Usage.CpuOnly, maximumWeightsPerVertex, Format.Float, weightsFloatData);
 
         VertexBuffer verticesWeightsIndices = new VertexBuffer(Type.BoneIndex);
-        verticesWeightsIndices.setupData(Usage.CpuOnly, bonesGroups[0], Format.UnsignedByte, indicesData);
-        return new VertexBuffer[] { verticesWeights, verticesWeightsIndices };
+        verticesWeightsIndices.setupData(Usage.CpuOnly, maximumWeightsPerVertex, Format.UnsignedByte, indicesData);
+
+        return new MeshWeightsData(maximumWeightsPerVertex, verticesWeights, verticesWeightsIndices);
     }
 
     /**
-     * Normalizes weights if needed and finds largest amount of weights used for
-     * all vertices in the buffer.
+     * A class that gathers the data for mesh bone buffers.
+     * Added to increase code readability.
      * 
-     * @param vertCount
-     *            amount of vertices
-     * @param weightsFloatData
-     *            weights for vertices
+     * @author Marcin Roguski (Kaelthas)
      */
-    private void endBoneAssigns(int vertCount, FloatBuffer weightsFloatData) {
-        weightsFloatData.rewind();
-        float[] weights = new float[MAXIMUM_WEIGHTS_PER_VERTEX];
-        for (int v = 0; v < vertCount; ++v) {
-            float sum = 0;
-            for (int i = 0; i < MAXIMUM_WEIGHTS_PER_VERTEX; ++i) {
-                weights[i] = weightsFloatData.get();
-                sum += weights[i];
+    private static class MeshWeightsData {
+        public final int          maximumWeightsPerVertex;
+        public final VertexBuffer verticesWeights;
+        public final VertexBuffer verticesWeightsIndices;
+
+        public MeshWeightsData(int maximumWeightsPerVertex, VertexBuffer verticesWeights, VertexBuffer verticesWeightsIndices) {
+            this.maximumWeightsPerVertex = maximumWeightsPerVertex;
+            this.verticesWeights = verticesWeights;
+            this.verticesWeightsIndices = verticesWeightsIndices;
+        }
+    }
+
+    /**
+     * A map between the bone index and the bone's weight.
+     * 
+     * @author Marcin Roguski (Kaelthas)
+     */
+    private static class WeightsAndBoneIndexes extends HashMap<Integer, Float> {
+        private static final long serialVersionUID = 2754299007299077459L;
+
+        /**
+         * The method normalizes the weights and bone indexes data.
+         * First it truncates the amount to MAXIMUM_WEIGHTS_PER_VERTEX because this is how many weights JME can handle.
+         * Next it normalizes the weights so that the sum of all verts is 1.
+         * @param maximumSize
+         *            the maximum size that the data will be truncated to (usually: MAXIMUM_WEIGHTS_PER_VERTEX)
+         */
+        public void normalize(int maximumSize) {
+            if (this.size() > maximumSize) {// select only the most significant weights
+                float lowestWeight = Float.MAX_VALUE;
+                int lowestWeightIndex = -1;
+                HashMap<Integer, Float> msw = new HashMap<Integer, Float>(maximumSize);// msw = Most Significant Weight
+                for (Entry<Integer, Float> entry : this.entrySet()) {
+                    if (msw.size() < maximumSize) {
+                        msw.put(entry.getKey(), entry.getValue());
+                        if (entry.getValue() < lowestWeight) {
+                            lowestWeight = entry.getValue();
+                            lowestWeightIndex = entry.getKey();
+                        }
+                    } else if (entry.getValue() > lowestWeight) {
+                        msw.remove(lowestWeightIndex);
+                        msw.put(lowestWeightIndex, lowestWeight);
+
+                        // search again for the lowest weight
+                        lowestWeight = Float.MAX_VALUE;
+                        for (Entry<Integer, Float> e : msw.entrySet()) {
+                            if (e.getValue() < lowestWeight) {
+                                lowestWeight = e.getValue();
+                                lowestWeightIndex = e.getKey();
+                            }
+                        }
+                    }
+                }
+
+                // replace current weights with the given ones
+                this.clear();
+                this.putAll(msw);
             }
-            if (sum != 1f && sum != 0.0f) {
-                weightsFloatData.position(weightsFloatData.position() - MAXIMUM_WEIGHTS_PER_VERTEX);
-                // compute new vals based on sum
-                float sumToB = 1f / sum;
-                for (int i = 0; i < MAXIMUM_WEIGHTS_PER_VERTEX; ++i) {
-                    weightsFloatData.put(weights[i] * sumToB);
+
+            // normalizing the weights so that the sum of the values is equal to '1'
+            float sum = 0;
+            for (Entry<Integer, Float> entry : this.entrySet()) {
+                sum += entry.getValue();
+            }
+
+            if (sum != 0 && sum != 1) {
+                for (Entry<Integer, Float> entry : this.entrySet()) {
+                    entry.setValue(entry.getValue() / sum);
                 }
             }
         }
-        weightsFloatData.rewind();
     }
-    
-//    This method is now not used because it broke animations.
-//    Perhaps in the future I will find a solution to this problem.
-//    I store it here for future use.
-//    
-//    private void loadBonePoses() {
-//        TempVars tempVars = TempVars.get();
-//        try {
-//            Pointer pPose = (Pointer) armatureObject.getFieldValue("pose");
-//            if (pPose.isNotNull()) {
-//                LOGGER.fine("Loading the pose of the armature.");
-//                ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
-//                ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
-//
-//                Structure pose = pPose.fetchData().get(0);
-//                Structure chanbase = (Structure) pose.getFieldValue("chanbase");
-//                List<Structure> chans = chanbase.evaluateListBase();
-//                Transform transform = new Transform();
-//                for (Structure poseChannel : chans) {
-//                    Pointer pBone = (Pointer) poseChannel.getFieldValue("bone");
-//                    if (pBone.isNull()) {
-//                        throw new BlenderFileException("Cannot find bone for pose channel named: " + poseChannel.getName());
-//                    }
-//                    BoneContext boneContext = blenderContext.getBoneContext(pBone.getOldMemoryAddress());
-//
-//                    LOGGER.log(Level.FINEST, "Getting the global pose transformation for bone: {0}", boneContext);
-//                    Matrix4f poseMat = objectHelper.getMatrix(poseChannel, "pose_mat", blenderContext.getBlenderKey().isFixUpAxis());
-//                    poseMat.multLocal(BoneContext.BONE_ARMATURE_TRANSFORMATION_MATRIX);
-//
-//                    Matrix4f armatureWorldMat = objectHelper.getMatrix(armatureObject, "obmat", blenderContext.getBlenderKey().isFixUpAxis());
-//                    Matrix4f boneWorldMat = armatureWorldMat.multLocal(poseMat);
-//
-//                    boneWorldMat.toTranslationVector(tempVars.vect1);
-//                    boneWorldMat.toRotationQuat(tempVars.quat1);
-//                    boneWorldMat.toScaleVector(tempVars.vect2);
-//                    transform.setTranslation(tempVars.vect1);
-//                    transform.setRotation(tempVars.quat1);
-//                    transform.setScale(tempVars.vect2);
-//
-//                    constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD, transform);
-//                }
-//            }
-//        } catch (BlenderFileException e) {
-//            LOGGER.log(Level.WARNING, "Problems occured during pose loading: {0}.", e.getLocalizedMessage());
-//        } finally {
-//            tempVars.release();
-//        }
-//    }
 }

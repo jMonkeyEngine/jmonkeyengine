@@ -94,14 +94,14 @@ public class MeshHelper extends AbstractBlenderHelper {
     /**
      * This method reads converts the given structure into mesh. The given structure needs to be filled with the appropriate data.
      * 
-     * @param structure
+     * @param meshStructure
      *            the structure we read the mesh from
      * @return the mesh feature
      * @throws BlenderFileException
      */
     @SuppressWarnings("unchecked")
-    public List<Geometry> toMesh(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
-        List<Geometry> geometries = (List<Geometry>) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+    public List<Geometry> toMesh(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+        List<Geometry> geometries = (List<Geometry>) blenderContext.getLoadedFeature(meshStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
         if (geometries != null) {
             List<Geometry> copiedGeometries = new ArrayList<Geometry>(geometries.size());
             for (Geometry geometry : geometries) {
@@ -110,7 +110,7 @@ public class MeshHelper extends AbstractBlenderHelper {
             return copiedGeometries;
         }
 
-        String name = structure.getName();
+        String name = meshStructure.getName();
         MeshContext meshContext = new MeshContext();
         LOGGER.log(Level.FINE, "Reading mesh: {0}.", name);
 
@@ -118,33 +118,22 @@ public class MeshHelper extends AbstractBlenderHelper {
         MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
         MaterialContext[] materials = null;
         if ((blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
-            materials = materialHelper.getMaterials(structure, blenderContext);
+            materials = materialHelper.getMaterials(meshStructure, blenderContext);
         }
 
         LOGGER.fine("Reading vertices.");
-        MeshBuilder meshBuilder = new MeshBuilder(structure, materials, blenderContext);
+        MeshBuilder meshBuilder = new MeshBuilder(meshStructure, materials, blenderContext);
         if (meshBuilder.isEmpty()) {
             LOGGER.fine("The geometry is empty.");
             geometries = new ArrayList<Geometry>(0);
-            blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, geometries);
-            blenderContext.setMeshContext(structure.getOldMemoryAddress(), meshContext);
+            blenderContext.addLoadedFeatures(meshStructure.getOldMemoryAddress(), meshStructure.getName(), meshStructure, geometries);
+            blenderContext.setMeshContext(meshStructure.getOldMemoryAddress(), meshContext);
             return geometries;
         }
-
         meshContext.setVertexReferenceMap(meshBuilder.getVertexReferenceMap());
 
-        LOGGER.fine("Reading vertices groups (from the Object structure).");
-        Structure parent = blenderContext.peekParent();
-        Structure defbase = (Structure) parent.getFieldValue("defbase");
-        List<Structure> defs = defbase.evaluateListBase();
-        String[] verticesGroups = new String[defs.size()];
-        int defIndex = 0;
-        for (Structure def : defs) {
-            verticesGroups[defIndex++] = def.getFieldValue("name").toString();
-        }
-
         LOGGER.fine("Reading custom properties.");
-        Properties properties = this.loadProperties(structure, blenderContext);
+        Properties properties = this.loadProperties(meshStructure, blenderContext);
 
         LOGGER.fine("Generating meshes.");
         Map<Integer, List<Mesh>> meshes = meshBuilder.buildMeshes();
@@ -162,9 +151,45 @@ public class MeshHelper extends AbstractBlenderHelper {
             }
         }
 
+        LOGGER.fine("Reading vertices groups.");// this MUST be done AFTER meshes are built, because otherwise we have no vertex references maps
+        Structure parent = blenderContext.peekParent();
+        Structure defbase = (Structure) parent.getFieldValue("defbase");
+        List<Structure> defs = defbase.evaluateListBase();
+        for (Structure def : defs) {
+            meshContext.addVertexGroup(def.getFieldValue("name").toString());
+        }
+
+        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
+        if (pDvert.isNotNull()) {// assigning weights and bone indices
+            List<Structure> dverts = pDvert.fetchData();
+            int blenderVertexIndex = 0;
+            for (Structure dvert : dverts) {
+                Pointer pDW = (Pointer) dvert.getFieldValue("dw");
+                if (pDW.isNotNull()) {
+                    List<Structure> dw = pDW.fetchData();
+                    for (Structure deformWeight : dw) {
+                        int groupIndex = ((Number) deformWeight.getFieldValue("def_nr")).intValue();
+                        float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
+
+                        // we need to use JME vertex index here and NOT blender vertex index
+                        for (Entry<Integer, Map<Integer, List<Integer>>> vertexReferenceMap : meshBuilder.getVertexReferenceMap().entrySet()) {// iterate through the meshes [key is the material index]
+                            for (Entry<Integer, List<Integer>> vertexEntry : vertexReferenceMap.getValue().entrySet()) {// iterate through the vertex references for the specified material
+                                if (vertexEntry.getKey().intValue() == blenderVertexIndex) {// if the indexes match then ...
+                                    for (Integer jmeVertexIndex : vertexEntry.getValue()) {// ... add all jme vertices to the specified group
+                                        meshContext.addVertexToGroup(jmeVertexIndex, weight, groupIndex);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                ++blenderVertexIndex;
+            }
+        }
+
         // store the data in blender context before applying the material
-        blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, geometries);
-        blenderContext.setMeshContext(structure.getOldMemoryAddress(), meshContext);
+        blenderContext.addLoadedFeatures(meshStructure.getOldMemoryAddress(), meshStructure.getName(), meshStructure, geometries);
+        blenderContext.setMeshContext(meshStructure.getOldMemoryAddress(), meshContext);
 
         // apply materials only when all geometries are in place
         if (materials != null) {
@@ -175,7 +200,7 @@ public class MeshHelper extends AbstractBlenderHelper {
                 } else if (materials[materialNumber] != null) {
                     LinkedHashMap<String, List<Vector2f>> uvCoordinates = meshBuilder.getUVCoordinates(materialNumber);
                     MaterialContext materialContext = materials[materialNumber];
-                    materialContext.applyMaterial(geometry, structure.getOldMemoryAddress(), uvCoordinates, blenderContext);
+                    materialContext.applyMaterial(geometry, meshStructure.getOldMemoryAddress(), uvCoordinates, blenderContext);
                 } else {
                     geometry.setMaterial(blenderContext.getDefaultMaterial());
                     LOGGER.warning("The importer came accross mesh that points to a null material. Default material is used to prevent loader from crashing, " + "but the model might look not the way it should. Sometimes blender does not assign materials properly. " + "Enter the edit mode and assign materials once more to your faces.");
@@ -203,7 +228,7 @@ public class MeshHelper extends AbstractBlenderHelper {
                     geometry.setMaterial(this.getBlackUnshadedMaterial(blenderContext));
                 } else {
                     Material defaultMaterial = blenderContext.getDefaultMaterial();
-                    if(geometry.getMesh().getBuffer(Type.Color) != null) {
+                    if (geometry.getMesh().getBuffer(Type.Color) != null) {
                         defaultMaterial = defaultMaterial.clone();
                         defaultMaterial.setBoolean("VertexColor", true);
                     }

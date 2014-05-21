@@ -560,7 +560,7 @@ public class BlenderContext {
      */
     public BoneContext getBoneContext(Bone bone) {
         for (Entry<Long, BoneContext> entry : boneContexts.entrySet()) {
-            if (entry.getValue().getBone().equals(bone)) {
+            if (entry.getValue().getBone().getName().equals(bone.getName())) {
                 return entry.getValue();
             }
         }

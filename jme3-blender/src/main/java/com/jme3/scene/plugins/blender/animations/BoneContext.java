@@ -23,7 +23,8 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
  */
 public class BoneContext {
     // the flags of the bone
-    public static final int      CONNECTED_TO_PARENT                 = 0x10;
+    public static final int      CONNECTED_TO_PARENT                 = 0x0010;
+    public static final int      DEFORM                              = 0x1000;
 
     /**
      * The bones' matrices have, unlike objects', the coordinate system identical to JME's (Y axis is UP, X to the right and Z toward us).
@@ -54,6 +55,8 @@ public class BoneContext {
     private Bone                 bone;
     /** The length of the bone. */
     private float                length;
+    /** The bone's deform envelope. */
+    private BoneEnvelope         boneEnvelope;
 
     /**
      * Constructor. Creates the basic set of bone's data.
@@ -99,7 +102,7 @@ public class BoneContext {
 
         // first get the bone matrix in its armature space
         globalBoneMatrix = objectHelper.getMatrix(boneStructure, "arm_mat", blenderContext.getBlenderKey().isFixUpAxis());
-        if(blenderContext.getBlenderKey().isFixUpAxis()) {
+        if (blenderContext.getBlenderKey().isFixUpAxis()) {
             // then make sure it is rotated in a proper way to fit the jme bone transformation conventions
             globalBoneMatrix.multLocal(BONE_ARMATURE_TRANSFORMATION_MATRIX);
         }
@@ -110,6 +113,11 @@ public class BoneContext {
 
         // and now compute the final bone matrix in world space
         globalBoneMatrix = armatureWorldMatrix.mult(globalBoneMatrix);
+
+        // load the bone deformation envelope if necessary
+        if ((flag & DEFORM) == 0) {// if the flag is NOT set then the DEFORM is in use
+            boneEnvelope = new BoneEnvelope(boneStructure, armatureWorldMatrix, blenderContext.getBlenderKey().isFixUpAxis());
+        }
 
         // create the children
         List<Structure> childbase = ((Structure) boneStructure.getFieldValue("childbase")).evaluateListBase();
@@ -209,12 +217,19 @@ public class BoneContext {
     public Skeleton getSkeleton() {
         return blenderContext.getSkeleton(armatureObjectOMA);
     }
-    
+
     /**
      * @return the initial bone's matrix in model space
      */
     public Matrix4f getBoneMatrixInModelSpace() {
         return boneMatrixInModelSpace;
+    }
+
+    /**
+     * @return the vertex assigning envelope of the bone
+     */
+    public BoneEnvelope getBoneEnvelope() {
+        return boneEnvelope;
     }
 
     /**
