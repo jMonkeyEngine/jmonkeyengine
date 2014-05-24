@@ -5,9 +5,9 @@ MaterialDef Advanced Water {
         Int NumSamplesDepth
         Texture2D FoamMap
         Texture2D CausticsMap
-        Texture2D NormalMap
+        Texture2D NormalMap -LINEAR
         Texture2D ReflectionMap
-        Texture2D HeightMap
+        Texture2D HeightMap -LINEAR
         Texture2D Texture
         Texture2D DepthTexture        
         Vector3 CameraPosition

@@ -33,6 +33,7 @@ package com.jme3.material;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.shader.VarType;
+import com.jme3.texture.image.ColorSpace;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -122,6 +123,20 @@ public class MaterialDef {
      */
     public void addMaterialParam(VarType type, String name, Object value, FixedFuncBinding ffBinding) {
         matParams.put(name, new MatParam(type, name, value, ffBinding));
+    }
+    
+    /**
+     * Adds a new material parameter.
+     * 
+     * @param type Type of the parameter
+     * @param name Name of the parameter
+     * @param value Default value of the parameter
+     * @param ffBinding Fixed function binding for the parameter
+     * @param colorSpace the color space of the texture required by thiis texture param
+     * @see ColorSpace
+     */
+    public void addMaterialParamTexture(VarType type, String name, ColorSpace colorSpace) {
+        matParams.put(name, new MatParamTexture(type, name, null , 0, colorSpace));
     }
     
     /**

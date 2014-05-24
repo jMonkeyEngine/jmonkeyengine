@@ -35,6 +35,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.texture.image.ColorSpace;
 import java.io.IOException;
 
 /**
@@ -78,7 +79,7 @@ public class Texture3D extends Texture {
      * @param format
      */
     public Texture3D(int width, int height, int depth, Image.Format format) {
-        this(new Image(format, width, height, depth, null, false));
+        this(new Image(format, width, height, depth, null, ColorSpace.Linear));
     }
 
     /**
@@ -93,7 +94,7 @@ public class Texture3D extends Texture {
      * @param numSamples
      */
     public Texture3D(int width, int height, int depth, int numSamples, Image.Format format) {
-        this(new Image(format, width, height, depth, null, false));
+        this(new Image(format, width, height, depth, null, ColorSpace.Linear));
         getImage().setMultiSamples(numSamples);
     }
 

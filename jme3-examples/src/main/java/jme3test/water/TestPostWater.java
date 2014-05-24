@@ -82,11 +82,14 @@ public class TestPostWater extends SimpleApplication {
 
         //cam.setLocation(new Vector3f(-700, 100, 300));
         //cam.setRotation(new Quaternion().fromAngleAxis(0.5f, Vector3f.UNIT_Z));
-        cam.setLocation(new Vector3f(-327.21957f, 61.6459f, 126.884346f));
-        cam.setRotation(new Quaternion(0.052168474f, 0.9443102f, -0.18395276f, 0.2678024f));
+//        cam.setLocation(new Vector3f(-327.21957f, 61.6459f, 126.884346f));
+//        cam.setRotation(new Quaternion(0.052168474f, 0.9443102f, -0.18395276f, 0.2678024f));
 
 
-        cam.setRotation(new Quaternion().fromAngles(new float[]{FastMath.PI * 0.06f, FastMath.PI * 0.65f, 0}));
+        cam.setLocation(new Vector3f(-370.31592f, 182.04016f, 196.81192f));
+        cam.setRotation(new Quaternion(0.015302252f, 0.9304095f, -0.039101653f, 0.3641086f));
+
+
 
 
         Spatial sky = SkyFactory.createSky(assetManager, "Scenes/Beach/FullskiesSunset0068.dds", false);
@@ -293,21 +296,21 @@ public class TestPostWater extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         super.simpleUpdate(tpf);
-        //     box.updateGeometricState();
-        time += tpf;
-        waterHeight = (float) Math.cos(((time * 0.6f) % FastMath.TWO_PI)) * 1.5f;
-        water.setWaterHeight(initialWaterHeight + waterHeight);
-        if (water.isUnderWater() && !uw) {
-
-            waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
-            uw = true;
-        }
-        if (!water.isUnderWater() && uw) {
-            uw = false;
-            //waves.setReverbEnabled(false);
-            waves.setDryFilter(new LowPassFilter(1, 1f));
-            //waves.setDryFilter(new LowPassFilter(1,1f));
-
-        }
+//        //     box.updateGeometricState();
+//        time += tpf;
+//        waterHeight = (float) Math.cos(((time * 0.6f) % FastMath.TWO_PI)) * 1.5f;
+//        water.setWaterHeight(initialWaterHeight + waterHeight);
+//        if (water.isUnderWater() && !uw) {
+//
+//            waves.setDryFilter(new LowPassFilter(0.5f, 0.1f));
+//            uw = true;
+//        }
+//        if (!water.isUnderWater() && uw) {
+//            uw = false;
+//            //waves.setReverbEnabled(false);
+//            waves.setDryFilter(new LowPassFilter(1, 1f));
+//            //waves.setDryFilter(new LowPassFilter(1,1f));
+//
+//        }
     }
 }

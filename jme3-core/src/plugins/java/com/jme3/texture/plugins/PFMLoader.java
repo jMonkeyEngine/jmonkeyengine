@@ -36,6 +36,7 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
 import java.io.InputStream;
@@ -129,7 +130,7 @@ public class PFMLoader implements AssetLoader {
         }
         imageData.rewind();
 
-        return new Image(format, width, height, imageData, null, false);
+        return new Image(format, width, height, imageData, null, ColorSpace.Linear);
     }
 
     public Object load(AssetInfo info) throws IOException {

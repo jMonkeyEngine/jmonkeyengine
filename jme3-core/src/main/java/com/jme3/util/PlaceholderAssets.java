@@ -41,6 +41,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ColorSpace;
 import java.nio.ByteBuffer;
 
 public class PlaceholderAssets {
@@ -73,7 +74,7 @@ public class PlaceholderAssets {
     public static Image getPlaceholderImage(){
         ByteBuffer tempData = BufferUtils.createByteBuffer(3 * 4 * 4);
         tempData.put(imageData).flip();
-        return new Image(Format.RGB8, 4, 4, tempData, null, false);
+        return new Image(Format.RGB8, 4, 4, tempData, null, ColorSpace.Linear);
     }
     
     public static Material getPlaceholderMaterial(AssetManager assetManager){

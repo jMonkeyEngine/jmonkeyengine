@@ -34,6 +34,7 @@ package com.jme3.texture;
 import com.jme3.export.*;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObject;
 import java.io.IOException;
@@ -334,7 +335,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     protected ArrayList<ByteBuffer> data;
     protected transient Object efficientData;
     protected int multiSamples = 1;
-    protected boolean srgb;
+    protected ColorSpace colorSpace = null;
 //    protected int mipOffset = 0;
     
     // attributes relating to GL object
@@ -448,12 +449,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *            the image data.
      * @param mipMapSizes
      *            the array of mipmap sizes, or null for no mipmaps.
-     * @param isSrgb 
-     *            true if the image in is sRGB color space false for linear 
-     *color space
+     * @param colorSpace 
+     *            @see ColorSpace the colorSpace of the image      
      */
     public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data,
-            int[] mipMapSizes, boolean isSrgb) {
+            int[] mipMapSizes, ColorSpace colorSpace) {
         
         this();
 
@@ -470,7 +470,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         this.data = data;
         this.depth = depth;
         this.mipMapSizes = mipMapSizes;
-        this.srgb = isSrgb;
+        this.colorSpace = colorSpace;
     }
 
     /**
@@ -486,7 +486,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      @Deprecated
      public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data,
             int[] mipMapSizes) {
-         this(format, width, height, depth, data, mipMapSizes, false);
+         this(format, width, height, depth, data, mipMapSizes, ColorSpace.Linear);
      }
     
     /**
@@ -503,12 +503,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *            the image data.
      * @param mipMapSizes
      *            the array of mipmap sizes, or null for no mipmaps.
-     * @param isSrgb 
-     *            true if the image in is sRGB color space false for linear 
-     *  color space
+     * @param colorSpace 
+     *            @see ColorSpace the colorSpace of the image    
      */
     public Image(Format format, int width, int height, ByteBuffer data,
-            int[] mipMapSizes, boolean isSrgb) {
+            int[] mipMapSizes, ColorSpace colorSpace) {
 
         this();
 
@@ -527,7 +526,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
             this.data.add(data);
         }
         this.mipMapSizes = mipMapSizes;
-        this.srgb = isSrgb;
+        this.colorSpace = colorSpace;
     }
     
     /**
@@ -542,7 +541,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     @Deprecated
     public Image(Format format, int width, int height, ByteBuffer data,
             int[] mipMapSizes) {
-        this(format, width, height, data, mipMapSizes, false);
+        this(format, width, height, data, mipMapSizes, ColorSpace.Linear);
     }
        
     /**
@@ -557,12 +556,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *            the height of the image.
      * @param data
      *            the image data.
-     * @param isSrgb 
-     *            true if the image in is sRGB color space false for linear 
-     * color space
+     * @param colorSpace 
+     *            @see ColorSpace the colorSpace of the image  
      */
-    public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data, boolean isSrgb) {
-        this(format, width, height, depth, data, null, isSrgb);
+    public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data, ColorSpace colorSpace) {
+        this(format, width, height, depth, data, null, colorSpace);
     }
     
     /**
@@ -576,7 +574,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      */
     @Deprecated
     public Image(Format format, int width, int height, int depth, ArrayList<ByteBuffer> data) {
-        this(format, width, height, depth, data, false);
+        this(format, width, height, depth, data, ColorSpace.Linear);
     }
 
     /**
@@ -591,12 +589,11 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *            the height of the image.
      * @param data
      *            the image data.
-     * @param isSrgb 
-     *            true if the image in is sRGB color space false for linear 
-     * color space
+     * @param colorSpace 
+     *            @see ColorSpace the colorSpace of the image  
      */
-    public Image(Format format, int width, int height, ByteBuffer data, boolean isSrgb) {
-        this(format, width, height, data, null, isSrgb);
+    public Image(Format format, int width, int height, ByteBuffer data, ColorSpace colorSpace) {
+        this(format, width, height, data, null, colorSpace);
     }
     
     
@@ -610,7 +607,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      */
     @Deprecated
     public Image(Format format, int width, int height, ByteBuffer data) {
-        this(format, width, height, data, null, false);
+        this(format, width, height, data, null, ColorSpace.Linear);
     }
 
 
@@ -865,24 +862,24 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
     }
    
     /**
-     * image loader is responsible for setting this flag based on the color
+     * image loader is responsible for setting this attribute based on the color
      * space in which the image has been encoded with. In the majority of cases,
-     * this flag will be on by default since many image formats do not contain
-     * any color space information.
+     * this flag will be set to sRGB by default since many image formats do not 
+     * contain any color space information and the most frequently used colors 
+     * space is sRGB
      *
-     * The material loader may override this flag to false if it determines that
+     * The material loader may override this attribute to Lineat if it determines that
      * such conversion must not be performed, for example, when loading normal
      * maps.
      *
-     * @param srgb True to enable SRGB -> linear conversion, false otherwise.
+     * @param colorSpace @see ColorSpace. Set to sRGB to enable srgb -> linear 
+     * conversion, Linear otherwise.
      *
      * @seealso Renderer#setLinearizeSrgbImages(boolean)
      *
-     * @throws InvalidStateException If the image format does not support SRGB
-     * -> linear conversion.
      */
-    public void setSrgb(boolean srgb) {
-        this.srgb = srgb;
+    public void setColorSpace(ColorSpace colorSpace) {
+        this.colorSpace = colorSpace;
     }
 
     /**
@@ -898,8 +895,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      *
      * @seealso Renderer#setLinearizeSrgbImages(boolean)
      */
-    public boolean isSrgb() {
-        return srgb;
+    public ColorSpace getColorSpace() {
+        return colorSpace;
     }
 
     @Override

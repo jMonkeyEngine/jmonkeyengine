@@ -27,62 +27,62 @@ MaterialDef Terrain Lighting {
         // Texture map #0
         Texture2D DiffuseMap
         Float DiffuseMap_0_scale
-        Texture2D NormalMap
+        Texture2D NormalMap -LINEAR
 
         // Texture map #1
         Texture2D DiffuseMap_1
         Float DiffuseMap_1_scale
-        Texture2D NormalMap_1
+        Texture2D NormalMap_1 -LINEAR
 
         // Texture map #2
         Texture2D DiffuseMap_2
         Float DiffuseMap_2_scale
-        Texture2D NormalMap_2
+        Texture2D NormalMap_2 -LINEAR
 
         // Texture map #3
         Texture2D DiffuseMap_3
         Float DiffuseMap_3_scale
-        Texture2D NormalMap_3
+        Texture2D NormalMap_3 -LINEAR
 
         // Texture map #4
         Texture2D DiffuseMap_4
         Float DiffuseMap_4_scale
-        Texture2D NormalMap_4
+        Texture2D NormalMap_4 -LINEAR
 
         // Texture map #5
         Texture2D DiffuseMap_5
         Float DiffuseMap_5_scale
-        Texture2D NormalMap_5
+        Texture2D NormalMap_5 -LINEAR
 
         // Texture map #6
         Texture2D DiffuseMap_6
         Float DiffuseMap_6_scale
-        Texture2D NormalMap_6
+        Texture2D NormalMap_6 -LINEAR
 
         // Texture map #7
         Texture2D DiffuseMap_7
         Float DiffuseMap_7_scale
-        Texture2D NormalMap_7
+        Texture2D NormalMap_7 -LINEAR
 
         // Texture map #8
         Texture2D DiffuseMap_8
         Float DiffuseMap_8_scale
-        Texture2D NormalMap_8
+        Texture2D NormalMap_8 -LINEAR
 
         // Texture map #9
         Texture2D DiffuseMap_9
         Float DiffuseMap_9_scale
-        Texture2D NormalMap_9
+        Texture2D NormalMap_9 -LINEAR
 
         // Texture map #10
         Texture2D DiffuseMap_10
         Float DiffuseMap_10_scale
-        Texture2D NormalMap_10
+        Texture2D NormalMap_10 -LINEAR
 
         // Texture map #11
         Texture2D DiffuseMap_11
         Float DiffuseMap_11_scale
-        Texture2D NormalMap_11
+        Texture2D NormalMap_11 -LINEAR
 
 
         // Specular/gloss map
@@ -90,9 +90,9 @@ MaterialDef Terrain Lighting {
 
 
         // Texture that specifies alpha values
-        Texture2D AlphaMap
-        Texture2D AlphaMap_1
-        Texture2D AlphaMap_2
+        Texture2D AlphaMap -LINEAR
+        Texture2D AlphaMap_1 -LINEAR
+        Texture2D AlphaMap_2 -LINEAR
 
         // Texture of the glowing parts of the material
         Texture2D GlowMap

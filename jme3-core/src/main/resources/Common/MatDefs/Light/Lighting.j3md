@@ -53,13 +53,13 @@ MaterialDef Phong Lighting {
         Texture2D DiffuseMap
 
         // Normal map
-        Texture2D NormalMap
+        Texture2D NormalMap -LINEAR
 
         // Specular/gloss map
         Texture2D SpecularMap
 
         // Parallax/height map
-        Texture2D ParallaxMap
+        Texture2D ParallaxMap -LINEAR
 
         //Set to true is parallax map is stored in the alpha channel of the normal map
         Boolean PackedNormalParallax   
@@ -71,7 +71,7 @@ MaterialDef Phong Lighting {
         Boolean SteepParallax
 
         // Texture that specifies alpha values
-        Texture2D AlphaMap
+        Texture2D AlphaMap -LINEAR
 
         // Color ramp, will map diffuse and specular values through it.
         Texture2D ColorRamp

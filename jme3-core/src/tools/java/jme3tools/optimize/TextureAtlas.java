@@ -45,6 +45,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
@@ -354,7 +355,7 @@ public class TextureAtlas {
             if (clazz == null) {
                 return null;
             }
-            Image newImage = new Image(format, source.getWidth(), source.getHeight(), BufferUtils.createByteBuffer(source.getWidth() * source.getHeight() * 4), null, false);
+            Image newImage = new Image(format, source.getWidth(), source.getHeight(), BufferUtils.createByteBuffer(source.getWidth() * source.getHeight() * 4), null, ColorSpace.Linear);
             clazz.getMethod("convert", Image.class, Image.class).invoke(clazz.newInstance(), source, newImage);
             return newImage;
         } catch (InstantiationException ex) {
@@ -401,7 +402,8 @@ public class TextureAtlas {
         }
         byte[] image = images.get(mapName);
         if (image != null) {
-            Texture2D tex = new Texture2D(new Image(format, atlasWidth, atlasHeight, BufferUtils.createByteBuffer(image), null, true));
+            //TODO check if color space shouldn't be sRGB
+            Texture2D tex = new Texture2D(new Image(format, atlasWidth, atlasHeight, BufferUtils.createByteBuffer(image), null, ColorSpace.Linear));
             tex.setMagFilter(Texture.MagFilter.Bilinear);
             tex.setMinFilter(Texture.MinFilter.BilinearNearestMipMap);
             tex.setWrap(Texture.WrapMode.Clamp);

@@ -35,6 +35,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.texture.image.ColorSpace;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ public class TextureCubeMap extends Texture {
         for(int i = 0; i < layerCount; i++) {
             layers.add(null);
         }
-        Image image = new Image(format, width, height, 0, layers, false);
+        Image image = new Image(format, width, height, 0, layers, ColorSpace.Linear);
         return image;
     }
 

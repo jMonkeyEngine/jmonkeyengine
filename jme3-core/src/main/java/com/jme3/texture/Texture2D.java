@@ -35,6 +35,7 @@ import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.texture.image.ColorSpace;
 import java.io.IOException;
 
 /**
@@ -76,7 +77,7 @@ public class Texture2D extends Texture {
      * @param format
      */
     public Texture2D(int width, int height, Image.Format format){
-        this(new Image(format, width, height, null, false));
+        this(new Image(format, width, height, null, ColorSpace.Linear));
     }
 
     /**
@@ -91,7 +92,7 @@ public class Texture2D extends Texture {
      * @param numSamples
      */
     public Texture2D(int width, int height, int numSamples, Image.Format format){
-        this(new Image(format, width, height, null, false));
+        this(new Image(format, width, height, null, ColorSpace.Linear));
         getImage().setMultiSamples(numSamples);
     }
 

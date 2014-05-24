@@ -38,17 +38,26 @@ import com.jme3.export.OutputCapsule;
 import com.jme3.renderer.Renderer;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
+import com.jme3.texture.image.ColorSpace;
 import java.io.IOException;
 
 public class MatParamTexture extends MatParam {
 
     private Texture texture;
     private int unit;
+    private ColorSpace colorSpace;
 
     public MatParamTexture(VarType type, String name, Texture texture, int unit) {
         super(type, name, texture, null);
         this.texture = texture;
         this.unit = unit;
+    }
+    
+    public MatParamTexture(VarType type, String name, Texture texture, int unit, ColorSpace colorSpace) {
+        super(type, name, texture, null);
+        this.texture = texture;
+        this.unit = unit;
+        this.colorSpace = colorSpace;
     }
 
     public MatParamTexture() {
@@ -70,6 +79,23 @@ public class MatParamTexture extends MatParam {
         }
         this.value = value;
         this.texture = (Texture) value;
+    }
+
+    /**
+     * 
+     * @return the color space required by this texture param
+     */
+    public ColorSpace getColorSpace() {
+        return colorSpace;
+    }
+
+    /**
+     * Set to {@link ColorSpace#Linear} if the texture color space has to be forced to linear 
+     * instead of sRGB
+     * @param colorSpace @see ColorSpace
+     */
+    public void setColorSpace(ColorSpace colorSpace) {
+        this.colorSpace = colorSpace;
     }
 
     public void setUnit(int unit) {

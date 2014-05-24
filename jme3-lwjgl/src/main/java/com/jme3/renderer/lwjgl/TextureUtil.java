@@ -56,6 +56,7 @@ import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import static com.jme3.texture.Image.Format.RGB8;
+import com.jme3.texture.image.ColorSpace;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.lwjgl.opengl.EXTTextureSRGB;
@@ -268,7 +269,7 @@ class TextureUtil {
                                      boolean linearizeSrgb){
         
         Image.Format fmt = image.getFormat();
-        GLImageFormat glFmt = getImageFormatWithError(fmt, image.isSrgb() && linearizeSrgb);
+        GLImageFormat glFmt = getImageFormatWithError(fmt, image.getColorSpace() == ColorSpace.sRGB && linearizeSrgb);
 
         ByteBuffer data;
         if (index >= 0 && image.getData() != null && image.getData().size() > 0){
@@ -425,7 +426,7 @@ class TextureUtil {
         int y,
         boolean linearizeSrgb) {
       Image.Format fmt = image.getFormat();
-      GLImageFormat glFmt = getImageFormatWithError(fmt, image.isSrgb() && linearizeSrgb);
+      GLImageFormat glFmt = getImageFormatWithError(fmt, image.getColorSpace() == ColorSpace.sRGB  && linearizeSrgb);
 
       ByteBuffer data = null;
       if (index >= 0 && image.getData() != null && image.getData().size() > 0) {

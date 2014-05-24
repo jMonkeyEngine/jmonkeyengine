@@ -46,6 +46,7 @@ import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture3D;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -125,6 +126,6 @@ public class TestTexture3D extends SimpleApplication {
         }
         bb.rewind();
         data.add(bb);
-        return new Texture3D(new Image(Format.RGB8, 10, 10, 10, data, null, false));
+        return new Texture3D(new Image(Format.RGB8, 10, 10, 10, data, null, ColorSpace.Linear));
     }
 }

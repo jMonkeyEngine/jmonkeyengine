@@ -5,7 +5,7 @@ MaterialDef Terrain {
         // use tri-planar mapping
         Boolean useTriPlanarMapping
 
-		Texture2D Alpha
+		Texture2D Alpha -LINEAR
 		Texture2D Tex1
 		Texture2D Tex2
 		Texture2D Tex3

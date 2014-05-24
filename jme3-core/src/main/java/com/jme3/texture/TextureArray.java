@@ -32,6 +32,7 @@
 package com.jme3.texture;
 
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ColorSpace;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,8 +71,8 @@ public class TextureArray extends Texture {
         int width = images.get(0).getWidth();
         int height = images.get(0).getHeight();
         Format format = images.get(0).getFormat();
-        boolean isSRGB = images.get(0).isSrgb();
-        Image arrayImage = new Image(format, width, height, null, isSRGB);
+        ColorSpace colorSpace = images.get(0).getColorSpace();
+        Image arrayImage = new Image(format, width, height, null, colorSpace);
 
         for (Image img : images) {
             if (img.getHeight() != height || img.getWidth() != width) {

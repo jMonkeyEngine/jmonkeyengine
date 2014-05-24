@@ -112,7 +112,7 @@ public class AWTLoader implements AssetLoader {
                 
                ByteBuffer data1 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight()*4);
                data1.put(dataBuf1);
-               return new Image(Format.ABGR8, width, height, data1, null, true);
+               return new Image(Format.ABGR8, width, height, data1, null, com.jme3.texture.image.ColorSpace.sRGB);
             case BufferedImage.TYPE_3BYTE_BGR: // most common in JPEG images
                byte[] dataBuf2 = (byte[]) extractImageData(img);
                if (flipY)
@@ -120,14 +120,14 @@ public class AWTLoader implements AssetLoader {
                
                ByteBuffer data2 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight()*3);
                data2.put(dataBuf2);
-               return new Image(Format.BGR8, width, height, data2, null, true);
+               return new Image(Format.BGR8, width, height, data2, null, com.jme3.texture.image.ColorSpace.sRGB);
             case BufferedImage.TYPE_BYTE_GRAY: // grayscale fonts
                 byte[] dataBuf3 = (byte[]) extractImageData(img);
                 if (flipY)
                     flipImage(dataBuf3, width, height, 8);
                 ByteBuffer data3 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight());
                 data3.put(dataBuf3);
-                return new Image(Format.Luminance8, width, height, data3, null, true);
+                return new Image(Format.Luminance8, width, height, data3, null, com.jme3.texture.image.ColorSpace.sRGB);
             case BufferedImage.TYPE_USHORT_GRAY: // grayscale heightmap
                 short[] dataBuf4 = (short[]) extractImageData(img);
                 if (flipY)
@@ -135,7 +135,7 @@ public class AWTLoader implements AssetLoader {
                 
                 ByteBuffer data4 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight()*2);
                 data4.asShortBuffer().put(dataBuf4);
-                return new Image(Format.Luminance16, width, height, data4, null, true);
+                return new Image(Format.Luminance16, width, height, data4, null, com.jme3.texture.image.ColorSpace.sRGB);
             default:
                 break;
         }
@@ -158,7 +158,7 @@ public class AWTLoader implements AssetLoader {
                 }
             }
             data.flip();
-            return new Image(Format.RGB8, width, height, data, null, true);
+            return new Image(Format.RGB8, width, height, data, null, com.jme3.texture.image.ColorSpace.sRGB);
         }else{
             ByteBuffer data = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight()*4);
             // alpha
@@ -178,7 +178,7 @@ public class AWTLoader implements AssetLoader {
                 }
             }
             data.flip();
-            return new Image(Format.RGBA8, width, height, data, null, true);
+            return new Image(Format.RGBA8, width, height, data, null, com.jme3.texture.image.ColorSpace.sRGB);
         }
     }
 

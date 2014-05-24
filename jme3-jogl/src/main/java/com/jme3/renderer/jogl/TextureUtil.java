@@ -35,6 +35,7 @@ package com.jme3.renderer.jogl;
 import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ColorSpace;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -291,7 +292,7 @@ public class TextureUtil {
                                      boolean linearizeSrgb){
         GL gl = GLContext.getCurrentGL();
         Image.Format fmt = image.getFormat();
-        GLImageFormat glFmt = getImageFormatWithError(fmt, image.isSrgb() && linearizeSrgb);
+        GLImageFormat glFmt = getImageFormatWithError(fmt, image.getColorSpace() == ColorSpace.sRGB  && linearizeSrgb);
 
         ByteBuffer data;
         if (index >= 0 && image.getData() != null && image.getData().size() > 0){
@@ -474,7 +475,7 @@ public class TextureUtil {
         boolean linearizeSrgb) {
       GL gl = GLContext.getCurrentGL();
       Image.Format fmt = image.getFormat();
-      GLImageFormat glFmt = getImageFormatWithError(fmt, image.isSrgb() && linearizeSrgb);
+      GLImageFormat glFmt = getImageFormatWithError(fmt, image.getColorSpace() == ColorSpace.sRGB  && linearizeSrgb);
 
       ByteBuffer data = null;
       if (index >= 0 && image.getData() != null && image.getData().size() > 0) {
