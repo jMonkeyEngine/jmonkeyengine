@@ -2488,4 +2488,27 @@ public class LwjglRenderer implements Renderer {
         renderMeshDefault(mesh, lod, count);
 //        }
     }
+    public int getFreeMemory() {
+        if(glGetString(GL_VENDOR).equals("NVIDIA Technologies")){
+            return glGetInteger(NVXGpuMemoryInfo.GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX);
+        }
+        else if(glGetString(GL_VENDOR).equals("ATI Technologies")){
+            return glGetInteger(ATIMeminfo.GL_RENDERBUFFER_FREE_MEMORY_ATI) + glGetInteger(ATIMeminfo.GL_TEXTURE_FREE_MEMORY_ATI) + glGetInteger(ATIMeminfo.GL_VBO_FREE_MEMORY_ATI);
+        }
+        else{
+            throw new UnsupportedOperationException("Cannot retrieve GPU's memory info");
+        }
+    }
+
+public int getMaxMemory() {
+       if(glGetString(GL_VENDOR).equals("NVIDIA Technologies")){
+            return glGetInteger(NVXGpuMemoryInfo.GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX);
+        }
+        else if(glGetString(GL_VENDOR).equals("ATI Technologies")){
+            return -1;
+        }
+        else{
+            throw new UnsupportedOperationException("Cannot retrieve GPU's memory info");
+        }
+    }
 }

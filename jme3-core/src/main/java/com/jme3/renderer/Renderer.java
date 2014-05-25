@@ -313,4 +313,14 @@ public interface Renderer {
      * </p>
      */
     public void setAlphaToCoverage(boolean value);
+    /**
+     * 
+     * @return 
+     */
+    public int getFreeMemory();
+    /**
+     * 
+     * @return 
+     */
+    public int getMaxMemory();
 }

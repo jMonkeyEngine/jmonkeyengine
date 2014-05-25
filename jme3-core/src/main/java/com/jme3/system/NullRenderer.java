@@ -152,4 +152,12 @@ public class NullRenderer implements Renderer {
     public void setAlphaToCoverage(boolean value) {
     }
 
+    public int getFreeMemory() {
+        throw new UnsupportedOperationException("method not supported for null renderer."); 
+    }
+
+    public int getMaxMemory() {
+        throw new UnsupportedOperationException("method not supported for null renderer."); 
+    }
+
 }

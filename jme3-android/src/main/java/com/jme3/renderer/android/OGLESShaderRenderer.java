@@ -2532,4 +2532,12 @@ public class OGLESShaderRenderer implements Renderer {
         boundShader = null;
         lastFb = null;
     }
+
+    public int getFreeMemory() {
+        throw new UnsupportedOperationException("cannot retrieve GPU's memory info for android device"); 
+    }
+
+    public int getMaxMemory() {
+        throw new UnsupportedOperationException("cannot retrieve GPU's memory info for android device"); 
+    }
 }

@@ -2571,5 +2571,36 @@ public class IGLESShaderRenderer implements Renderer {
 			default:
 				throw new UnsupportedOperationException("Unrecognized test function: " + testFunc);
 		}
-	}    	
+	} 
+        public int getFreeMemory() {
+            int GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX = 0x9049;
+            int VBO_FREE_MEMORY_ATI = 0x87FB;
+            int TEXTURE_FREE_MEMORY_ATI= 0x87FC;
+            int RENDERBUFFER_FREE_MEMORY_ATI= 0x87FD;
+            int[] freeMemory = new int[3];
+            if(JmeIosGLES.glGetString(JmeIosGLES.GL_VENDOR).equals("NVIDIA Corporation")){
+                JmeIosGLES.glGetIntegerv(GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, freeMemory, 0);
+            return freeMemory[0];
+         }
+            else if(JmeIosGLES.glGetString(JmeIosGLES.GL_VENDOR).equals("ATI Technologies")) {
+                JmeIosGLES.glGetIntegerv(VBO_FREE_MEMORY_ATI, freeMemory,0);
+                JmeIosGLES.glGetIntegerv(TEXTURE_FREE_MEMORY_ATI, freeMemory,0);
+                JmeIosGLES.glGetIntegerv(RENDERBUFFER_FREE_MEMORY_ATI, freeMemory,0);
+            return freeMemory[0]+freeMemory[1]+freeMemory[2];
+         }
+            else
+                throw new UnsupportedOperationException("Cannot retrieve GPU's memory info");
+    }
+
+    public int getMaxMemory() {
+        int[] maxMemory = new int[1];
+        int GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX  =  0x9048;
+        if(JmeIosGLES.glGetString(JmeIosGLES.GL_VENDOR).equals("NVIDIA Corporation")) {
+            JmeIosGLES.glGetIntegerv(GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, maxMemory, 0);
+            return maxMemory[0];
+        } else if (JmeIosGLES.glGetString(JmeIosGLES.GL_VENDOR).equals("ATI Technologies")){
+            return -1;
+        } else
+            throw new UnsupportedOperationException("Cannot retrieve GPU's memory info");
+    }
 }
