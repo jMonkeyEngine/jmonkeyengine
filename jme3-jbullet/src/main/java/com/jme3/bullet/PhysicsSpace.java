@@ -296,7 +296,7 @@ public class PhysicsSpace {
                     CollisionObject rBody1 = (CollisionObject) body1;
                     node = (PhysicsCollisionObject) rBody0.getUserPointer();
                     node1 = (PhysicsCollisionObject) rBody1.getUserPointer();
-                    collisionEvents.push(eventFactory.getEvent(PhysicsCollisionEvent.TYPE_PROCESSED, node, node1, cp));
+                    collisionEvents.add(eventFactory.getEvent(PhysicsCollisionEvent.TYPE_PROCESSED, node, node1, cp));
                 }
                 return true;
             }
