@@ -297,12 +297,14 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @param finalColor The final color to interpolate towards.
      * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from this towards finalColor.
+     * @return this color.
      */
-    public void interpolate(ColorRGBA finalColor, float changeAmnt) {
+    public ColorRGBA interpolateLocal(ColorRGBA finalColor, float changeAmnt) {
         this.r = (1 - changeAmnt) * this.r + changeAmnt * finalColor.r;
         this.g = (1 - changeAmnt) * this.g + changeAmnt * finalColor.g;
         this.b = (1 - changeAmnt) * this.b + changeAmnt * finalColor.b;
         this.a = (1 - changeAmnt) * this.a + changeAmnt * finalColor.a;
+        return this;
     }
 
     /**
@@ -313,12 +315,14 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @param finalColor The final color to interpolate towards (changeAmnt=1).
      * @param changeAmnt An amount between 0.0 - 1.0 representing a precentage
      *  change from beginColor towards finalColor.
+     * @return this color.
      */
-    public void interpolate(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmnt) {
+    public ColorRGBA interpolateLocal(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmnt) {
         this.r = (1 - changeAmnt) * beginColor.r + changeAmnt * finalColor.r;
         this.g = (1 - changeAmnt) * beginColor.g + changeAmnt * finalColor.g;
         this.b = (1 - changeAmnt) * beginColor.b + changeAmnt * finalColor.b;
         this.a = (1 - changeAmnt) * beginColor.a + changeAmnt * finalColor.a;
+        return this;
     }
 
     /**

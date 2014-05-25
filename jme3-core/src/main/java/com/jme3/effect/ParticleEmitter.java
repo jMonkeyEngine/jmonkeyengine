@@ -953,7 +953,7 @@ public class ParticleEmitter extends Geometry {
 
         // affecting color, size and angle
         float b = (p.startlife - p.life) / p.startlife;
-        p.color.interpolate(startColor, endColor, b);
+        p.color.interpolateLocal(startColor, endColor, b);
         p.size = FastMath.interpolateLinear(b, startSize, endSize);
         p.angle += p.rotateSpeed * tpf;
 
