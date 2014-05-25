@@ -46,6 +46,8 @@ import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -91,8 +93,8 @@ public class PhysicsSpace {
     private Map<Long, PhysicsRigidBody> physicsBodies = new ConcurrentHashMap<Long, PhysicsRigidBody>();
     private Map<Long, PhysicsJoint> physicsJoints = new ConcurrentHashMap<Long, PhysicsJoint>();
     private Map<Long, PhysicsVehicle> physicsVehicles = new ConcurrentHashMap<Long, PhysicsVehicle>();
-    private List<PhysicsCollisionListener> collisionListeners = new LinkedList<PhysicsCollisionListener>();
-    private List<PhysicsCollisionEvent> collisionEvents = new LinkedList<PhysicsCollisionEvent>();
+    private ArrayList<PhysicsCollisionListener> collisionListeners = new ArrayList<PhysicsCollisionListener>();
+    private ArrayDeque<PhysicsCollisionEvent> collisionEvents = new ArrayDeque<PhysicsCollisionEvent>();
     private Map<Integer, PhysicsCollisionGroupListener> collisionGroupListeners = new ConcurrentHashMap<Integer, PhysicsCollisionGroupListener>();
     private ConcurrentLinkedQueue<PhysicsTickListener> tickListeners = new ConcurrentLinkedQueue<PhysicsTickListener>();
     private PhysicsCollisionEventFactory eventFactory = new PhysicsCollisionEventFactory();
@@ -361,17 +363,15 @@ public class PhysicsSpace {
 
     public void distributeEvents() {
         //add collision callbacks
-//        synchronized (collisionEvents) {
-        for (Iterator<PhysicsCollisionEvent> it = collisionEvents.iterator(); it.hasNext();) {
-            PhysicsCollisionEvent physicsCollisionEvent = it.next();
-            for (PhysicsCollisionListener listener : collisionListeners) {
-                listener.collision(physicsCollisionEvent);
+        int clistsize = collisionListeners.size();
+        while( collisionEvents.isEmpty() == false ) {
+            PhysicsCollisionEvent physicsCollisionEvent = collisionEvents.pop();
+            for(int i=0;i<clistsize;i++) {
+                collisionListeners.get(i).collision(physicsCollisionEvent);
             }
             //recycle events
             eventFactory.recycle(physicsCollisionEvent);
-            it.remove();
         }
-//        }
     }
 
     public static <V> Future<V> enqueueOnThisThread(Callable<V> callable) {
