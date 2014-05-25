@@ -34,20 +34,22 @@ import java.io.IOException;
 
 /**
  * <code>ColorRGBA</code> defines a color made from a collection of red, green
- * and blue values. An alpha value determines is transparency. All values must
- * be between 0 and 1. If any value is set higher or lower than these
- * constraints they are clamped to the min or max. That is, if a value smaller
- * than zero is set the value clamps to zero. If a value higher than 1 is
- * passed, that value is clamped to 1. However, because the attributes r, g, b,
- * a are public for efficiency reasons, they can be directly modified with
- * invalid values. The client should take care when directly addressing the
- * values. A call to clamp will assure that the values are within the
- * constraints.
+ * and blue values stored in Linear color space. An alpha value determines is
+ * transparency. All values must be between 0 and 1. If any value is set higher
+ * or lower than these constraints they are clamped to the min or max. That is,
+ * if a value smaller than zero is set the value clamps to zero. If a value
+ * higher than 1 is passed, that value is clamped to 1. However, because the
+ * attributes r, g, b, a are public for efficiency reasons, they can be directly
+ * modified with invalid values. The client should take care when directly
+ * addressing the values. A call to clamp will assure that the values are within
+ * the constraints.
  *
  * @author Mark Powell
  * @version $Id: ColorRGBA.java,v 1.29 2007/09/09 18:25:14 irrisor Exp $
  */
 public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable {
+    
+    static final float GAMMA = 2.2f;
 
     static final long serialVersionUID = 1;
     /**
@@ -139,6 +141,9 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * Constructor instantiates a new <code>ColorRGBA</code> object. The
      * values are defined as passed parameters. These values are then clamped
      * to insure that they are between 0 and 1.
+     * these values are assumed to be in linear space and stored as is.
+     * If you want to assign sRGB values use 
+     * {@link ColorRGBA#setAsSrgb(float, float, float, float) }
      * @param r The red component of this color.
      * @param g The green component of this <code>ColorRGBA</code>.
      * @param b The blue component of this <code>ColorRGBA</code>.
@@ -166,7 +171,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     /**
      * <code>set</code> sets the RGBA values of this <code>ColorRGBA</code>. The 
      * values are then clamped to insure that they are between 0 and 1.
-     *
+     * these values are assumed to be in linear space and stored as is.
+     * If you want to assign sRGB values use 
+     * {@link ColorRGBA#setAsSrgb(float, float, float, float) }
+     * 
      * @param r The red component of this color.
      * @param g The green component of this color.
      * @param b The blue component of this color.
@@ -592,4 +600,58 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     public Vector4f toVector4f() {
         return new Vector4f(r, g, b, a);
     }
+    
+    /**
+     * Sets the rgba channels of this color in sRGB color space.
+     * You probably want to use this method if the color is picked by the use
+     * in a color picker from a GUI.
+     * 
+     * Note that the values will be gamma corrected to be stored in linear space
+     * GAMMA value is 2.2
+     * 
+     * Note that no correction will be performed on the alpha channel as it's 
+     * conventionnally doesn't represent a color itself
+     * 
+     * @param r the red value in sRGB color space
+     * @param g the green value in sRGB color space
+     * @param b the blue value in sRGB color space
+     * @param a the alpha value 
+     * 
+     * @return this ColorRGBA with updated values.
+     */
+    public ColorRGBA setAsSrgb(float r, float g, float b, float a){
+        this.r = (float)Math.pow(r, GAMMA);
+        this.b = (float)Math.pow(b, GAMMA);
+        this.g = (float)Math.pow(g, GAMMA);
+        this.a = a;
+        
+        return this;
+    }
+    
+    /**
+     * Get the color in sRGB color space as a Vector4f
+     * 
+     * Note that linear values stored in the ColorRGBA will be gamma corrected 
+     * and returned as a Vector4f
+     * the x atribute will be fed with the r channel in sRGB space
+     * the y atribute will be fed with the g channel in sRGB space
+     * the z atribute will be fed with the b channel in sRGB space
+     * the w atribute will be fed with the a channel
+     * 
+     * Note that no correction will be performed on the alpha channel as it's 
+     * conventionnally doesn't represent a color itself
+     * 
+     * @return the color in sRGB color space as a Vector4f
+     */
+    public Vector4f getAsSrgb(){
+        Vector4f srgb = new Vector4f();
+        float invGama = 1f/GAMMA;
+        srgb.x = (float)Math.pow(r, invGama);
+        srgb.y = (float)Math.pow(g, invGama);
+        srgb.z = (float)Math.pow(b, invGama);
+        srgb.w = a;
+        
+        return srgb;
+    }
+    
 }
