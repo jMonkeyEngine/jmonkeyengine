@@ -139,6 +139,7 @@ public class TextureUtil {
         setFormat(Format.RGB9E5,     GL2GL3.GL_RGB9_E5, GL.GL_RGB, GL2GL3.GL_UNSIGNED_INT_5_9_9_9_REV, false);
         setFormat(Format.RGB16F_to_RGB111110F, GL.GL_R11F_G11F_B10F,    GL.GL_RGB, GL.GL_HALF_FLOAT, false);
         setFormat(Format.RGB16F_to_RGB9E5, GL2.GL_RGB9_E5, GL.GL_RGB, GL.GL_HALF_FLOAT, false);
+        setFormat(Format.RGB10_A2, GL.GL_RGB10_A2,    GL.GL_RGB, GL.GL_UNSIGNED_BYTE, false);
         
         // RGBA formats
         setFormat(Format.ABGR8,   GL.GL_RGBA8,       GL2.GL_ABGR_EXT, GL.GL_UNSIGNED_BYTE, false);

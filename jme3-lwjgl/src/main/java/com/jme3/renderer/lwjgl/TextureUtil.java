@@ -125,6 +125,7 @@ class TextureUtil {
         setFormat(Format.RGB9E5,     EXTTextureSharedExponent.GL_RGB9_E5_EXT, GL11.GL_RGB, EXTTextureSharedExponent.GL_UNSIGNED_INT_5_9_9_9_REV_EXT, false);
         setFormat(Format.RGB16F_to_RGB111110F, EXTPackedFloat.GL_R11F_G11F_B10F_EXT,    GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
         setFormat(Format.RGB16F_to_RGB9E5, EXTTextureSharedExponent.GL_RGB9_E5_EXT, GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
+        setFormat(Format.RGB10_A2, GL11.GL_RGB10_A2,    GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, false);
         
         // RGBA formats
         setFormat(Format.ABGR8,   GL11.GL_RGBA8,       EXTAbgr.GL_ABGR_EXT, GL11.GL_UNSIGNED_BYTE, false);

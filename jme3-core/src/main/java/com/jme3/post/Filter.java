@@ -40,6 +40,7 @@ import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture;
 import com.jme3.texture.Texture2D;
@@ -201,10 +202,12 @@ public abstract class Filter implements Savable {
 
     /**
      * returns the default pass texture format
+     * default is {@link Format#RGB10_A2}
+     * 
      * @return
      */
     protected Format getDefaultPassTextureFormat() {
-        return Format.RGBA8;
+        return Format.RGB10_A2;
     }
 
     /**

@@ -274,7 +274,18 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * 24-bit depth with 8-bit stencil. 
          * Check the cap {@link Caps#PackedDepthStencilBuffer}.
          */
-        Depth24Stencil8(32, true, false, false);
+        Depth24Stencil8(32, true, false, false),
+        
+        /**
+         * 10 bits each for RGB, 2 for Alpha. This can be a useful format for
+         * framebuffers, if you do not need a high-precision destination alpha
+         * value. It carries more color depth, thus preserving subtle
+         * gradations. They can also be used for normals, though there is no
+         * signed-normalized version, so you have to do the conversion manually.
+         * It is also a required format, so you can count on it
+         * being present.
+         */
+        RGB10_A2(32, false);
 
         private int bpp;
         private boolean isDepth;
