@@ -309,9 +309,9 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * Sets this <code>ColorRGBA</code> to the interpolation by changeAmnt from 
      * beginColor to finalColor:
      * this=(1-changeAmnt)*beginColor + changeAmnt * finalColor
-     * @param beginColor The begining color (changeAmnt=0).
+     * @param beginColor The beginning color (changeAmnt=0).
      * @param finalColor The final color to interpolate towards (changeAmnt=1).
-     * @param changeAmnt An amount between 0.0 - 1.0 representing a precentage
+     * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from beginColor towards finalColor.
      */
     public void interpolate(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmnt) {

@@ -98,7 +98,7 @@ final public class FastMath {
      * @param scale
      *            scale value to use. if 1, use endValue, if 0, use startValue.
      * @param startValue
-     *            Begining value. 0% of f
+     *            Beginning value. 0% of f
      * @param endValue
      *            ending value. 100% of f
      * @return The interpolated value between startValue and endValue.
@@ -123,7 +123,7 @@ final public class FastMath {
      * @param scale
      *            scale value to use. if 1, use endValue, if 0, use startValue.
      * @param startValue
-     *            Begining value. 0% of f
+     *            Beginning value. 0% of f
      * @param endValue
      *            ending value. 100% of f
      * @param store a vector3f to store the result
@@ -146,7 +146,7 @@ final public class FastMath {
      * @param scale
      *            scale value to use. if 1, use endValue, if 0, use startValue.
      * @param startValue
-     *            Begining value. 0% of f
+     *            Beginning value. 0% of f
      * @param endValue
      *            ending value. 100% of f
      * @return The interpolated value between startValue and endValue.
@@ -224,7 +224,7 @@ final public class FastMath {
      * @param p1 control point 1
      * @param p2 control point 2
      * @param p3 control point 3
-     * @return catmull-Rom interpolation
+     * @return Catmull–Rom interpolation
      */
     public static float interpolateCatmullRom(float u, float T, float p0, float p1, float p2, float p3) {
         float c1, c2, c3, c4;
@@ -251,7 +251,7 @@ final public class FastMath {
      * @param p2 control point 2
      * @param p3 control point 3
      * @param store a Vector3f to store the result
-     * @return catmull-Rom interpolation
+     * @return Catmull–Rom interpolation
      */
     public static Vector3f interpolateCatmullRom(float u, float T, Vector3f p0, Vector3f p1, Vector3f p2, Vector3f p3, Vector3f store) {
         if (store == null) {
@@ -263,8 +263,9 @@ final public class FastMath {
         return store;
     }
 
-    /**Interpolate a spline between at least 4 control points following the Catmull-Rom equation.
-     * here is the interpolation matrix
+    /**
+     * Interpolate a spline between at least 4 control points using the
+     * Catmull-Rom equation. Here is the interpolation matrix:     
      * m = [ 0.0  1.0  0.0   0.0 ]
      *     [-T    0.0  T     0.0 ]
      *     [ 2T   T-3  3-2T  -T  ]
@@ -277,7 +278,7 @@ final public class FastMath {
      * @param p1 control point 1
      * @param p2 control point 2
      * @param p3 control point 3
-     * @return catmull-Rom interpolation
+     * @return Catmull–Rom interpolation
      */
     public static Vector3f interpolateCatmullRom(float u, float T, Vector3f p0, Vector3f p1, Vector3f p2, Vector3f p3) {
         return interpolateCatmullRom(u, T, p0, p1, p2, p3, null);
@@ -354,7 +355,7 @@ final public class FastMath {
     }
 
     /**
-     * Compute the lenght on a catmull rom spline between control point 1 and 2
+     * Compute the length of a Catmull–Rom spline between control points 1 and 2
      * @param p0 control point 0
      * @param p1 control point 1
      * @param p2 control point 2
@@ -390,7 +391,7 @@ final public class FastMath {
     }
 
     /**
-     * Compute the lenght on a bezier spline between control point 1 and 2
+     * Compute the length on a Bezier spline between control points 1 and 2.
      * @param p0 control point 0
      * @param p1 control point 1
      * @param p2 control point 2
@@ -588,7 +589,7 @@ final public class FastMath {
 
     /**
      * Returns the value squared.  fValue ^ 2
-     * @param fValue The vaule to square.
+     * @param fValue The value to square.
      * @return The square of the given value.
      */
     public static float sqr(float fValue) {

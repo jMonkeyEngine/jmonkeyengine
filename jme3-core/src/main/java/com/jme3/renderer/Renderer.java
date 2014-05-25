@@ -269,7 +269,7 @@ public interface Renderer {
     /**
      * Renders <code>count</code> meshes, with the geometry data supplied.
      * The shader which is currently set with <code>setShader</code> is
-     * responsible for transforming the input verticies into clip space
+     * responsible for transforming the input vertices into clip space
      * and shading it based on the given vertex attributes.
      * The int variable gl_InstanceID can be used to access the current
      * instance of the mesh being rendered inside the vertex shader.

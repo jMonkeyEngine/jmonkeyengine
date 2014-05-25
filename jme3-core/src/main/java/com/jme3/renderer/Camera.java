@@ -287,8 +287,8 @@ public class Camera implements Savable, Cloneable {
     }
     
 	/**
-	 * This method copise the settings of the given camera.
-	 * 
+         * This method copies the settings of the given camera.
+    	 * 
 	 * @param cam
 	 *            the camera we copy the settings from
 	 */
@@ -368,8 +368,8 @@ public class Camera implements Savable, Cloneable {
 
     /**
      * Sets a clipPlane for this camera.
-     * The cliPlane is used to recompute the projectionMatrix using the plane as the near plane
-     * This technique is known as the oblique near-plane clipping method introduced by Eric Lengyel
+     * The clipPlane is used to recompute the
+     * projectionMatrix using the plane as the near plane     * This technique is known as the oblique near-plane clipping method introduced by Eric Lengyel
      * more info here
      * <ul>
      * <li><a href="http://www.terathon.com/code/oblique.html">http://www.terathon.com/code/oblique.html</a>
@@ -668,8 +668,8 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>setRotation</code> sets the orientation of this camera. 
-     * This will be equivelant to setting each of the axes:
+     * <code>setRotation</code> sets the orientation of this camera. This will
+     * be equivalent to setting each of the axes:
      * <code><br>
      * cam.setLeft(rotation.getRotationColumn(0));<br>
      * cam.setUp(rotation.getRotationColumn(1));<br>
@@ -803,7 +803,7 @@ public class Camera implements Savable, Cloneable {
     }
 
     /**
-     * <code>lookAt</code> is a convienence method for auto-setting the frame
+     * <code>lookAt</code> is a convenience method for auto-setting the frame
      * based on a world position the user desires the camera to look at. It
      * repoints the camera towards the given position using the difference
      * between the position and the current camera location as a direction
@@ -996,7 +996,7 @@ public class Camera implements Savable, Cloneable {
 
     /**
      * <code>contains</code> tests a bounding volume against the planes of the
-     * camera's frustum. The frustums planes are set such that the normals all
+     * camera's frustum. The frustum's planes are set such that the normals all
      * face in towards the viewable scene. Therefore, if the bounding volume is
      * on the negative side of the plane is can be culled out.
      *

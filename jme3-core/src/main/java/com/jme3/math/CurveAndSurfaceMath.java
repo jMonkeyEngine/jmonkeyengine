@@ -42,12 +42,13 @@ public class CurveAndSurfaceMath {
 	private static final float KNOTS_MINIMUM_DELTA = 0.0001f;
 
 	/**
-	 * A private constructor is defined to avoid instatiation of this class.
-	 */
+         * A private constructor is defined to avoid instantiation of this 
+	 * class.
+   	 */
 	private CurveAndSurfaceMath() {}
 	
 	/**
-	 * This method interpolates tha data for the nurbs curve.
+	 * This method interpolates the data for the nurbs curve.
 	 * @param u
 	 *            the u value
 	 * @param nurbSpline
@@ -76,7 +77,7 @@ public class CurveAndSurfaceMath {
 	}
 
 	/**
-	 * This method interpolates tha data for the nurbs surface.
+	 * This method interpolates the data for the nurbs surface.
 	 * 
 	 * @param u
 	 *            the u value
