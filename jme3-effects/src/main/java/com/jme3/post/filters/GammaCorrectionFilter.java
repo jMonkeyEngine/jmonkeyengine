@@ -64,7 +64,7 @@ public class GammaCorrectionFilter extends Filter {
     @Override
     protected void initFilter(AssetManager manager,
             RenderManager renderManager, ViewPort vp, int w, int h) {
-        material = new Material(manager, "Materials/Filter/GammaCorrection.j3md");
+        material = new Material(manager, "Common/MatDefs/Post/GammaCorrection.j3md");
         material.setFloat("InvGamma", 1.0f/gamma);        
     }
 
