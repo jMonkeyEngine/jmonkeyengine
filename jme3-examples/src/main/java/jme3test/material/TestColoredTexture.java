@@ -75,7 +75,7 @@ public class TestColoredTexture extends SimpleApplication {
             nextColor = ColorRGBA.randomColor();
         }
         ColorRGBA currentColor = new ColorRGBA();
-        currentColor.interpolate(prevColor, nextColor, time);
+        currentColor.interpolateLocal(prevColor, nextColor, time);
 
         mat.setColor("Color", currentColor);
     }

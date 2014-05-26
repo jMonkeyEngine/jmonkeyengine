@@ -35,14 +35,7 @@ import java.io.IOException;
 /**
  * <code>ColorRGBA</code> defines a color made from a collection of red, green
  * and blue values stored in Linear color space. An alpha value determines is
- * transparency. All values must be between 0 and 1. If any value is set higher
- * or lower than these constraints they are clamped to the min or max. That is,
- * if a value smaller than zero is set the value clamps to zero. If a value
- * higher than 1 is passed, that value is clamped to 1. However, because the
- * attributes r, g, b, a are public for efficiency reasons, they can be directly
- * modified with invalid values. The client should take care when directly
- * addressing the values. A call to clamp will assure that the values are within
- * the constraints.
+ * transparency. 
  *
  * @author Mark Powell
  * @version $Id: ColorRGBA.java,v 1.29 2007/09/09 18:25:14 irrisor Exp $
@@ -139,8 +132,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
 
     /**
      * Constructor instantiates a new <code>ColorRGBA</code> object. The
-     * values are defined as passed parameters. These values are then clamped
-     * to insure that they are between 0 and 1.
+     * values are defined as passed parameters. 
      * these values are assumed to be in linear space and stored as is.
      * If you want to assign sRGB values use 
      * {@link ColorRGBA#setAsSrgb(float, float, float, float) }
@@ -169,8 +161,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * <code>set</code> sets the RGBA values of this <code>ColorRGBA</code>. The 
-     * values are then clamped to insure that they are between 0 and 1.
+     * <code>set</code> sets the RGBA values of this <code>ColorRGBA</code>. 
      * these values are assumed to be in linear space and stored as is.
      * If you want to assign sRGB values use 
      * {@link ColorRGBA#setAsSrgb(float, float, float, float) }
@@ -212,34 +203,13 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
     }
 
     /**
-     * <code>clamp</code> insures that all values are between 0 and 1. If any
-     * are less than 0 they are set to zero. If any are more than 1 they are
-     * set to one.
+     * Saturate that color ensuring all channels have a value between 0 and 1
      */
     public void clamp() {
-        if (r < 0) {
-            r = 0;
-        } else if (r > 1) {
-            r = 1;
-        }
-
-        if (g < 0) {
-            g = 0;
-        } else if (g > 1) {
-            g = 1;
-        }
-
-        if (b < 0) {
-            b = 0;
-        } else if (b > 1) {
-            b = 1;
-        }
-
-        if (a < 0) {
-            a = 0;
-        } else if (a > 1) {
-            a = 1;
-        }
+        FastMath.clamp(r, 0f, 1f);
+        FastMath.clamp(g, 0f, 1f);
+        FastMath.clamp(b, 0f, 1f);
+        FastMath.clamp(a, 0f, 1f);        
     }
 
     /**
@@ -305,12 +275,14 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @param finalColor The final color to interpolate towards.
      * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from this towards finalColor.
+     * @return this ColorRGBA
      */
-    public void interpolate(ColorRGBA finalColor, float changeAmnt) {
+    public ColorRGBA interpolateLocal(ColorRGBA finalColor, float changeAmnt) {
         this.r = (1 - changeAmnt) * this.r + changeAmnt * finalColor.r;
         this.g = (1 - changeAmnt) * this.g + changeAmnt * finalColor.g;
         this.b = (1 - changeAmnt) * this.b + changeAmnt * finalColor.b;
         this.a = (1 - changeAmnt) * this.a + changeAmnt * finalColor.a;
+        return this;
     }
 
     /**
@@ -321,12 +293,14 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * @param finalColor The final color to interpolate towards (changeAmnt=1).
      * @param changeAmnt An amount between 0.0 - 1.0 representing a percentage
      *  change from beginColor towards finalColor.
+     * @return this ColorRGBA
      */
-    public void interpolate(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmnt) {
+    public ColorRGBA interpolateLocal(ColorRGBA beginColor, ColorRGBA finalColor, float changeAmnt) {
         this.r = (1 - changeAmnt) * beginColor.r + changeAmnt * finalColor.r;
         this.g = (1 - changeAmnt) * beginColor.g + changeAmnt * finalColor.g;
         this.b = (1 - changeAmnt) * beginColor.b + changeAmnt * finalColor.b;
         this.a = (1 - changeAmnt) * beginColor.a + changeAmnt * finalColor.a;
+        return this;
     }
 
     /**
@@ -487,7 +461,7 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
         hash += 37 * hash + Float.floatToIntBits(a);
         return hash;
     }
-
+    
     public void write(JmeExporter e) throws IOException {
         OutputCapsule capsule = e.getCapsule(this);
         capsule.write(r, "r", 0);
