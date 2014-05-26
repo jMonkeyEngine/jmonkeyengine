@@ -207,7 +207,7 @@ public abstract class Filter implements Savable {
      * @return
      */
     protected Format getDefaultPassTextureFormat() {
-        return Format.RGB10_A2;
+        return Format.RGB111110F;
     }
 
     /**

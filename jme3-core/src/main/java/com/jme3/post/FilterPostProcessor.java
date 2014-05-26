@@ -433,7 +433,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample)) {
             renderFrameBufferMS = new FrameBuffer(width, height, numSamples);
             if (caps.contains(Caps.OpenGL31)) {
-                Texture2D msColor = new Texture2D(width, height, numSamples, Format.RGBA8);
+                Texture2D msColor = new Texture2D(width, height, numSamples, Format.RGB111110F);
                 Texture2D msDepth = new Texture2D(width, height, numSamples, Format.Depth);
                 renderFrameBufferMS.setDepthTexture(msDepth);
                 renderFrameBufferMS.setColorTexture(msColor);
@@ -441,14 +441,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 depthTexture = msDepth;
             } else {
                 renderFrameBufferMS.setDepthBuffer(Format.Depth);
-                renderFrameBufferMS.setColorBuffer(Format.RGBA8);
+                renderFrameBufferMS.setColorBuffer(Format.RGB111110F);
             }
         }
 
         if (numSamples <= 1 || !caps.contains(Caps.OpenGL31)) {
             renderFrameBuffer = new FrameBuffer(width, height, 1);
             renderFrameBuffer.setDepthBuffer(Format.Depth);
-            filterTexture = new Texture2D(width, height, Format.RGBA8);
+            filterTexture = new Texture2D(width, height, Format.RGB111110F);
             renderFrameBuffer.setColorTexture(filterTexture);
         }
 
