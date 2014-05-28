@@ -282,6 +282,11 @@ import com.jme3.util.BufferUtils;
             }
         }
 
+        if(maximumWeightsPerVertex == 0) {
+            LOGGER.fine("No vertex group data nor bone envelopes found to attach vertices to bones!");
+            return null;
+        }
+        
         LOGGER.fine("Preparing buffers for the mesh.");
         FloatBuffer weightsFloatData = BufferUtils.createFloatBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
         ByteBuffer indicesData = BufferUtils.createByteBuffer(vertexListSize * MAXIMUM_WEIGHTS_PER_VERTEX);
