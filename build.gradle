@@ -74,6 +74,11 @@ task mergedJavadoc(type: Javadoc, description: 'Creates Javadoc from all the pro
     title = 'jMonkeyEngine3'
     destinationDir = mkdir("dist/javadoc")
 
+    // Allows Javadoc to be generated on Java 8 despite doclint errors.
+    if (JavaVersion.current().isJava8Compatible()) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+    
     // Note: The closures below are executed lazily.
     source subprojects.collect {project ->
         project.sourceSets*.allJava
