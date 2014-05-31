@@ -33,6 +33,10 @@
 package jme3test.scene.instancing;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.AnalogListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
@@ -46,6 +50,9 @@ import com.jme3.scene.shape.Sphere;
 public class TestInstancing extends SimpleApplication  {
 
     private InstancedGeometry instancedGeometry;
+    private Node instancedGeoms;
+    private Material material;
+    private boolean enabled = true;
     
     public static void main(String[] args){
         TestInstancing app = new TestInstancing();
@@ -65,8 +72,10 @@ public class TestInstancing extends SimpleApplication  {
     
     @Override
     public void simpleInitApp() {
+        initInputs();
+        
         Sphere sphere = new Sphere(10, 10, 0.5f, true, false);
-        Material material = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
+        material = new Material(assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
         material.setBoolean("UseInstancing", true);
         
         instancedGeometry = new InstancedGeometry(InstancedGeometry.Mode.Auto, "instanced_geom");
@@ -77,7 +86,7 @@ public class TestInstancing extends SimpleApplication  {
         instancedGeometry.setMaterial(material);
         rootNode.attachChild(instancedGeometry);
         
-        Node instancedGeoms = new Node("instances_node");
+        instancedGeoms = new Node("instances_node");
         
         // Important: Do not render these geometries, only
         // use their world transforms to instance them via
@@ -108,4 +117,30 @@ public class TestInstancing extends SimpleApplication  {
         flyCam.setMoveSpeed(15);
     }
 
+    private void initInputs() {
+        inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
+
+        ActionListener acl = new ActionListener() {
+
+            public void onAction(String name, boolean keyPressed, float tpf) {
+                if (name.equals("toggle") && keyPressed) {
+                    if (enabled) {
+                        enabled = false;
+                        instancedGeoms.setCullHint(CullHint.Dynamic);
+                        instancedGeometry.setCullHint(CullHint.Always);
+                        material.setBoolean("UseInstancing", false);
+                        System.out.println("Instancing OFF");
+                    } else {
+                        enabled = true;
+                        instancedGeoms.setCullHint(CullHint.Always);
+                        instancedGeometry.setCullHint(CullHint.Never);
+                        material.setBoolean("UseInstancing", true);
+                        System.out.println("Instancing ON");
+                    }
+                }
+            }
+        };
+
+        inputManager.addListener(acl, "toggle");
+    }
 }
