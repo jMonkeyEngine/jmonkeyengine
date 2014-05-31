@@ -219,8 +219,9 @@ public interface AssetManager {
     public void setAssetEventListener(AssetEventListener listener);
 
     /**
-     * Manually locates an asset with the given {@link AssetKey}. This method
-     * should be used for debugging or internal uses. <br/>
+     * Manually locates an asset with the given {@link AssetKey}. 
+     * This method should be used for debugging or internal uses.
+     * <br>
      * The call will attempt to locate the asset by invoking the
      * {@link AssetLocator} that are registered with this <code>AssetManager</code>,
      * in the same way that the {@link AssetManager#loadAsset(com.jme3.asset.AssetKey) }

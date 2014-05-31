@@ -12,7 +12,15 @@ import java.util.ArrayList;
 import jme3tools.converters.RGB565;
 
 /**
- * The class that is responsible for blending the following texture types: <li>DXT1 <li>DXT1A <li>DXT3 <li>DXT5
+ * <p>
+ * The class that is responsible for blending the following texture types:
+ * </p>
+ * <ul>
+ * <li>DXT1</li>
+ * <li>DXT1A</li>
+ * <li>DXT3</li>
+ * <li>DXT5</li>
+ * </ul>
  * @author Marcin Roguski (Kaelthas)
  */
 public class TextureBlenderDDS extends TextureBlenderAWT {

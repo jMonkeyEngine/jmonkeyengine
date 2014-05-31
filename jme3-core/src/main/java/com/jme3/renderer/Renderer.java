@@ -39,6 +39,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
+import com.jme3.system.AppSettings;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
@@ -321,39 +322,38 @@ public interface Renderer {
     
       /**
       * If enabled, color values rendered to the main framebuffer undergo 
-      * linear -> sRGB conversion.
+      * linear -&gt; sRGB conversion.
       * 
       * This is identical to {@link FrameBuffer#setSrgb(boolean)} except it is toggled
       * for the main framebuffer instead of an offscreen buffer.
       *
       * This should be set together with {@link Renderer#setLinearizeSrgbImages(boolean)}
       *
-      * As a shorthand, the user can set {@link AppSettings#setSrgbPipeline(boolean)} to true
+      * As a shorthand, the user can set {@link AppSettings#setGammaCorrection(boolean)} to true
       * to toggle both {@link Renderer#setLinearizeSrgbImages(boolean)} and
       * {@link Renderer#setMainFrameBufferSrgb(boolean)} if the 
-      * {@link Caps#} is supported by the GPU.
+      * {@link Caps#Srgb} is supported by the GPU.
       *
       * @throws RendererException If the GPU hardware does not support sRGB.
       *
-      * @seealso FrameBuffer#setSrgb(boolean)
-      *
-      * @seealso Caps#Srgb
+      * @see FrameBuffer#setSrgb(boolean)
+      * @see Caps#Srgb
       */
      public void setMainFrameBufferSrgb(boolean srgb);
      
        /**
-      * If enabled, all {@link Image images} with the {@link Image#setSRGB(boolean) sRGB flag}
+      * If enabled, all {@link Image images} with the {@link Image#setColorSpace(com.jme3.texture.image.ColorSpace) sRGB flag}
       * set shall undergo an sRGB to linear RGB color conversion when read by a shader.
       *
       * The conversion is performed for the following formats:
-      *  - {@link Format#RGB8}
-      *  - {@link Format#RGBA8}
-      *  - {@link Format#Luminance8}
-      *  - {@link Format#LuminanceAlpha8}
-      *  - {@link Format#DXT1}
-      *  - {@link Format#DXT1a}
-      *  - {@link Format#DXT3}
-      *  - {@link Format#DXT5}
+      *  - {@link Image.Format#RGB8}
+      *  - {@link Image.Format#RGBA8}
+      *  - {@link Image.Format#Luminance8}
+      *  - {@link Image.Format#Luminance8Alpha8}
+      *  - {@link Image.Format#DXT1}
+      *  - {@link Image.Format#DXT1A}
+      *  - {@link Image.Format#DXT3}
+      *  - {@link Image.Format#DXT5}
       * 
       * For all other formats, no conversion is performed.
       *
@@ -361,9 +361,9 @@ public interface Renderer {
       *
       * @throws RendererException If the GPU hardware does not support sRGB.
       *
-      * @param linearize If sRGB images undergo sRGB -> linear conversion prior to rendering.
+      * @param linearize If sRGB images undergo sRGB -&gt; linear conversion prior to rendering.
       *
-      * @seealso Caps#Srgb
+      * @see Caps#Srgb
       */
      public void setLinearizeSrgbImages(boolean linearize);
 

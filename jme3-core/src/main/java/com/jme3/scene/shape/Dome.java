@@ -73,7 +73,7 @@ public class Dome extends Mesh {
      * Constructs a dome for use as a SkyDome. The SkyDome is centered at the origin 
      * and only visible from the inside. 
      * @param planes
-     *            The number of planes along the Z-axis. Must be >= 2.
+     *            The number of planes along the Z-axis. Must be &gt;= 2.
      *            Influences how round the arch of the dome is.
      * @param radialSamples
      *            The number of samples along the radial.
@@ -95,7 +95,7 @@ public class Dome extends Mesh {
      * @param center
      *            Center of the dome.
      * @param planes
-     *            The number of planes along the Z-axis. Must be >= 2.
+     *            The number of planes along the Z-axis. Must be &gt;= 2.
      *            Influences how round the arch of the dome is.
      * @param radialSamples
      *            The number of samples along the radial. 
@@ -119,7 +119,7 @@ public class Dome extends Mesh {
      * @param center
      *            Center of the dome.
      * @param planes
-     *            The number of planes along the Z-axis. Must be >= 2.
+     *            The number of planes along the Z-axis. Must be &gt;= 2.
      *            Influences how round the arch of the dome is.
      * @param radialSamples
      *            The number of samples along the radial.

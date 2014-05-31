@@ -227,7 +227,7 @@ public class SelectorKernel extends AbstractKernel
 
         /**
          *  Because we want to keep the keys to ourselves, we'll do
-         *  the endpoint -> key mapping internally.
+         *  the endpoint -&gt; key mapping internally.
          */
         private Map<NioEndpoint,SelectionKey> endpointKeys = new ConcurrentHashMap<NioEndpoint,SelectionKey>();
 

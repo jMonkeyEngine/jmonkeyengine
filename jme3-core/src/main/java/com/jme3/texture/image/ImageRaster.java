@@ -72,8 +72,8 @@ public abstract class ImageRaster {
      * @param slice Which slice to use. Only applies to 3D images, 2D image
      * arrays or cubemaps.
      */
-    public static ImageRaster create(Image image, int slices) {
-        return JmeSystem.createImageRaster(image, slices);
+    public static ImageRaster create(Image image, int slice) {
+        return JmeSystem.createImageRaster(image, slice);
     }
     
     /**

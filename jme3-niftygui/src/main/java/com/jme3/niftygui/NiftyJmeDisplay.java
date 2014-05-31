@@ -145,7 +145,7 @@ public class NiftyJmeDisplay implements SceneProcessor {
      * @param assetManager jME AssetManager
      * @param inputManager jME InputManager
      * @param audioRenderer jME AudioRenderer
-     * @param viewport Viewport to use
+     * @param vp Viewport to use
      */
     public NiftyJmeDisplay(AssetManager assetManager, 
                            InputManager inputManager,

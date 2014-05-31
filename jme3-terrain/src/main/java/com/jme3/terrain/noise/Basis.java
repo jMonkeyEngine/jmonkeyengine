@@ -35,7 +35,7 @@ import java.nio.FloatBuffer;
 
 /**
  * Interface for - basically 3D - noise generation algorithms, based on the
- * book: Texturing & Modeling - A Procedural Approach
+ * book: Texturing &amp; Modeling - A Procedural Approach
  * 
  * The main concept is to look at noise as a basis for generating fractals.
  * Basis can be anything, like a simple:

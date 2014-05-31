@@ -895,7 +895,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      * such conversion must not be performed, for example, when loading normal
      * maps.
      *
-     * @param colorSpace @see ColorSpace. Set to sRGB to enable srgb -> linear 
+     * @param colorSpace @see ColorSpace. Set to sRGB to enable srgb -&gt; linear 
      * conversion, Linear otherwise.
      *
      * @seealso Renderer#setLinearizeSrgbImages(boolean)
@@ -907,7 +907,7 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
     /**
      * Specifies that this image is an SRGB image and therefore must undergo an
-     * sRGB -> linear RGB color conversion prior to being read by a shader and
+     * sRGB -&gt; linear RGB color conversion prior to being read by a shader and
      * with the {@link Renderer#setLinearizeSrgbImages(boolean)} option is
      * enabled.
      *

@@ -73,7 +73,7 @@ public interface AppState {
      * Called by {@link AppStateManager} when transitioning this {@code AppState}
      * from <i>initializing</i> to <i>running</i>.<br>
      * This will happen on the next iteration through the update loop after
-     * {@link AppStateManager#attach()} was called.
+     * {@link AppStateManager#attach(com.jme3.app.state.AppState) } was called.
      * <p>
      * <code>AppStateManager</code> will call this only from the update loop
      * inside the rendering thread. This means is it safe to modify the scene 
@@ -110,7 +110,8 @@ public interface AppState {
     public boolean isEnabled();
 
     /**
-     * Called by {@link AppStateManager#attach()} when transitioning this
+     * Called by {@link AppStateManager#attach(com.jme3.app.state.AppState) }
+     * when transitioning this
      * <code>AppState</code> from <i>detached</i> to <i>initializing</i>.
      * <p>
      * There is no assumption about the thread from which this function is
@@ -124,7 +125,8 @@ public interface AppState {
     public void stateAttached(AppStateManager stateManager);
 
    /**
-    * Called by {@link AppStateManager#detach()} when transitioning this
+    * Called by {@link AppStateManager#detach(com.jme3.app.state.AppState) } 
+    * when transitioning this
     * <code>AppState</code> from <i>running</i> to <i>terminating</i>.
     * <p>
     * There is no assumption about the thread from which this function is

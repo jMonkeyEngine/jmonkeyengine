@@ -51,9 +51,8 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 /**
- *
+ * Created Jun 5, 2012 9:45:58 AM
  * @author MadJack
- * @creation Jun 5, 2012 9:45:58 AM
  */
 public class CursorLoader implements AssetLoader {
     final private static int FDE_OFFSET = 6; // first directory entry offset

@@ -80,11 +80,13 @@ public class ConditionParser {
      * defines names
      * 
      * supported expression syntax example: 
+     * <code>
      * "(LightMap && SeparateTexCoord) || !ColorMap"
      * "#if (defined(LightMap) && defined(SeparateTexCoord)) || !defined(ColorMap)"
      * "#ifdef LightMap"
      * "#ifdef (LightMap && SeparateTexCoord) || !ColorMap"
-     *
+     * </code>
+     * 
      * @param expression the expression to parse
      * @return the list of defines
      */

@@ -96,7 +96,7 @@ public class GeoMap implements Savable {
      *
      * @param x the X coordinate
      * @param y the Y coordinate
-     * @returns an arbitrary height looked up from the heightmap
+     * @return an arbitrary height looked up from the heightmap
      *
      * @throws NullPointerException If isLoaded() is false
      */
@@ -111,7 +111,7 @@ public class GeoMap implements Savable {
      * getWidth()*getHeight() index is lower right
      *
      * @param i The index
-     * @returns an arbitrary height looked up from the heightmap
+     * @return an arbitrary height looked up from the heightmap
      *
      * @throws NullPointerException If isLoaded() is false
      */
@@ -123,7 +123,7 @@ public class GeoMap implements Savable {
     /**
      * Returns the width of this Geomap
      *
-     * @returns the width of this Geomap
+     * @return the width of this Geomap
      */
     public int getWidth() {
         return width;
@@ -132,7 +132,7 @@ public class GeoMap implements Savable {
     /**
      * Returns the height of this Geomap
      *
-     * @returns the height of this Geomap
+     * @return the height of this Geomap
      */
     public int getHeight() {
         return height;
@@ -143,7 +143,7 @@ public class GeoMap implements Savable {
      * If false, then the data is unavailable- must be loaded with load()
      * before the methods getHeight/getNormal can be used
      *
-     * @returns wether the geomap data is loaded in system memory
+     * @return wether the geomap data is loaded in system memory
      */
     public boolean isLoaded() {
         return true;
@@ -152,8 +152,8 @@ public class GeoMap implements Savable {
     /**
      * Creates a normal array from the normal data in this Geomap
      *
-     * @param store A preallocated FloatBuffer where to store the data (optional), size must be >= getWidth()*getHeight()*3
-     * @returns store, or a new FloatBuffer if store is null
+     * @param store A preallocated FloatBuffer where to store the data (optional), size must be &gt;= getWidth()*getHeight()*3
+     * @return store, or a new FloatBuffer if store is null
      *
      * @throws NullPointerException If isLoaded() or hasNormalmap() is false
      */
@@ -227,10 +227,11 @@ public class GeoMap implements Savable {
      * The scale argument specifies the scale to use for the vertex buffer.
      * For example, if scale is 10,1,10, then the greatest X value is getWidth()*10
      *
-     * @param store A preallocated FloatBuffer where to store the data (optional), size must be >= getWidth()*getHeight()*3
+     * @param store A preallocated FloatBuffer where to store the data (optional), 
+     * size must be &gt;= getWidth()*getHeight()*3
      * @param scale Created vertexes are scaled by this vector
      *
-     * @returns store, or a new FloatBuffer if store is null
+     * @return store, or a new FloatBuffer if store is null
      *
      * @throws NullPointerException If isLoaded() is false
      */

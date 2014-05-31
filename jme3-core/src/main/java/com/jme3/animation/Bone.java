@@ -61,14 +61,14 @@ public final class Bone implements Savable {
     private Node attachNode;
     /**
      * Initial transform is the local bind transform of this bone.
-     * PARENT SPACE -> BONE SPACE
+     * PARENT SPACE -&gt; BONE SPACE
      */
     private Vector3f initialPos;
     private Quaternion initialRot;
     private Vector3f initialScale;
     /**
      * The inverse world bind transform.
-     * BONE SPACE -> MODEL SPACE
+     * BONE SPACE -&gt; MODEL SPACE
      */
     private Vector3f worldBindInversePos;
     private Quaternion worldBindInverseRot;
@@ -80,7 +80,7 @@ public final class Bone implements Savable {
     private Quaternion localRot = new Quaternion();
     private Vector3f localScale = new Vector3f(1.0f, 1.0f, 1.0f);
     /**
-     * MODEL SPACE -> BONE SPACE (in animated state)
+     * MODEL SPACE -&gt; BONE SPACE (in animated state)
      */
     private Vector3f worldPos = new Vector3f();
     private Quaternion worldRot = new Quaternion();

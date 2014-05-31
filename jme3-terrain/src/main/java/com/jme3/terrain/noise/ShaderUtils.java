@@ -40,7 +40,7 @@ import java.nio.ByteOrder;
 
 /**
  * Helper class containing useful functions explained in the book:
- * Texturing & Modeling - A Procedural Approach
+ * Texturing &amp; Modeling - A Procedural Approach
  * 
  * @author Anthyon
  * 

@@ -70,9 +70,6 @@ public abstract class TextureGenerator {
 
     /**
      * This method applies brightness and contrast for RGB textures.
-     * @param tex
-     *            texture structure
-     * @param texres
      */
     protected void applyBrightnessAndContrast(BrightnessAndContrastData bacd, TexturePixel texres) {
         texres.red = (texres.red - 0.5f) * bacd.contrast + bacd.brightness;

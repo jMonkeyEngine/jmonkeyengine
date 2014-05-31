@@ -43,7 +43,7 @@ package com.jme3.terrain.geomipmap;
  * The general orientation of TerrainQuads and their sub-quads is as such:
  * 
  * 
- *  +-- x+ ---->
+ *  +-- x+ ----&gt;
  *  |
  *  |    1 | 3 (quadrants)
  *  z+   --+--

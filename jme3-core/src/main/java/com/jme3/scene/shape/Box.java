@@ -95,7 +95,7 @@ public class Box extends AbstractBox {
      * the given amount in <em>each</em> direction. So, for example, a box
      * with extent of 0.5 would be the unit cube.
      * 
-     * @Deprecated: Due to constant confusion of geometry centers and the center
+     * @deprecated Due to constant confusion of geometry centers and the center
      * of the box mesh this method has been deprecated.
      * 
      * @param center the center of the box.

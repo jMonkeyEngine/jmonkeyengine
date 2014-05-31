@@ -309,7 +309,7 @@ public class AndroidMediaPlayerAudioRenderer implements AndroidAudioRenderer,
      * the channel of the last played instance.
      *
      * It is not possible to get information about the state of the soundpool of
-     * a specific streamid, so removing is not possilbe -> noone knows when
+     * a specific streamid, so removing is not possilbe -&gt; noone knows when
      * sound finished.
      */
     public void playSourceInstance(AudioSource src) {

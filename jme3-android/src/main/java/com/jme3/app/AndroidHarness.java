@@ -77,7 +77,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * how the surfaceview is able to display Android views that are located
      * under the surfaceview jME uses to render the scenegraph.
      * 0 = Opaque surfaceview background (fastest)
-     * 1->7 = Transparent surfaceview background
+     * 1-&gt;7 = Transparent surfaceview background
      * 8 or higher = Translucent surfaceview background
      * (default = 0)
      */

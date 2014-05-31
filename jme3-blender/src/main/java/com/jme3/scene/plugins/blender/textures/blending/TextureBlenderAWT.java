@@ -43,7 +43,35 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 /**
- * The class that is responsible for blending the following texture types: <li>RGBA8 <li>ABGR8 <li>BGR8 <li>RGB8 Not yet supported (but will be): <li>ARGB4444: <li>RGB10: <li>RGB111110F: <li>RGB16: <li>RGB16F: <li>RGB16F_to_RGB111110F: <li>RGB16F_to_RGB9E5: <li>RGB32F: <li>RGB565: <li>RGB5A1: <li>RGB9E5: <li>RGBA16: <li>RGBA16F
+ * <p>
+ * The class that is responsible for blending the following texture types: 
+ * </p>
+ * <ul>
+ * <li>RGBA8</li>
+ * <li>ABGR8</li>
+ * <li>BGR8</li>
+ * <li>RGB8</li>
+ * </ul>
+ * 
+ * <p>
+ * Not yet supported (but will be):
+ * </p>
+ * <ul>
+ * <li>ARGB4444</li>
+ * <li>RGB10</li>
+ * <li>RGB111110F</li>
+ * <li>RGB16</li>
+ * <li>RGB16F</li>
+ * <li>RGB16F_to_RGB111110F</li>
+ * <li>RGB16F_to_RGB9E5</li>
+ * <li>RGB32F</li>
+ * <li>RGB565</li>
+ * <li>RGB5A1</li>
+ * <li>RGB9E5</li>
+ * <li>RGBA16</li>
+ * <li>RGBA16F</li>
+ * </ul>
+ * 
  * @author Marcin Roguski (Kaelthas)
  */
 public class TextureBlenderAWT extends AbstractTextureBlender {

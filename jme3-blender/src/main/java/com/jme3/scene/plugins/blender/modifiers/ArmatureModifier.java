@@ -247,7 +247,7 @@ import com.jme3.util.BufferUtils;
                                 if (boneEnvelope.isInEnvelope(pos)) {
                                     vertexGroup.addVertex(index, boneEnvelope.getWeight());
                                 } else if (boneIndex == 5) {
-                                    System.out.println("Siê nie za³apa³: " + pos);
+                                    System.out.println("Si nie zaapa: " + pos);
                                 }
                             }
                         }

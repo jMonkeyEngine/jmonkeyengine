@@ -470,7 +470,7 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
     /**
      * called internally
      *
-     * @see AppState#render()
+     * @see AppState#render(com.jme3.renderer.RenderManager) 
      */
     public void render(RenderManager rm) {
     }

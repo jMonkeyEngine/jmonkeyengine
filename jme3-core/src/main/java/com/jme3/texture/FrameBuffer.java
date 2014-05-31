@@ -519,7 +519,7 @@ public class FrameBuffer extends NativeObject {
      * for this option to take any effect.
      *
      * Rendering operations performed on this framebuffer shall undergo a linear
-     * -> sRGB color space conversion when this flag is enabled. If
+     * -&gt; sRGB color space conversion when this flag is enabled. If
      * {@link RenderState#getBlendMode() blending} is enabled, it will be
      * performed in linear space by first decoding the stored sRGB pixel values
      * into linear, combining with the shader result, and then converted back to

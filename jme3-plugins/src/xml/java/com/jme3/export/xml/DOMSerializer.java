@@ -108,9 +108,6 @@ public class DOMSerializer {
      * 
      * @param encoding the encoding to use, passing in {@code null} results in the
      *  default encoding (UTF-8) being set.
-     * @throws IllegalCharsetNameException if the given charset name is illegal.
-     * @throws UnsupportedCharsetException if the given charset is not supported by the
-     *  current JVM.
      */
     public void setEncoding(String encoding) {
         this.encoding = Charset.forName(encoding);

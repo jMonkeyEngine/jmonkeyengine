@@ -36,8 +36,9 @@ import java.nio.IntBuffer;
 /**
  * A Jme representation of the LWJGL Cursor class.
  *
+ * Created Jun 6, 2012 12:12:38 PM
+ * 
  * @author MadJack
- * @creation Jun 6, 2012 12:12:38 PM
  */
 public class JmeCursor {
 

@@ -269,7 +269,7 @@ public class ShaderNodeLoaderDelegate {
     }
 
     /**
-     * reads a variable declaration statement <glslType> <varName>
+     * reads a variable declaration statement &lt;glslType&gt; &lt;varName&gt;
      *
      * @param statement the statement to parse
      * @return a ShaderNodeVariable axtracted from the statement
@@ -350,9 +350,11 @@ public class ShaderNodeLoaderDelegate {
      * left variable. Sets the name, nameSpace and swizzling of the right
      * variable types will be determined later.
      *
+     * <code>
      * Format : <nameSpace>.<varName>[.<swizzling>] =
      * <nameSpace>.<varName>[.<swizzling>][:Condition]
-     *
+     * </code>
+     * 
      * @param statement the statement to read
      * @return the read mapping
      */

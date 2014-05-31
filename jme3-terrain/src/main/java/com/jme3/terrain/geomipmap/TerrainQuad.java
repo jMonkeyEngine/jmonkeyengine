@@ -100,7 +100,7 @@ import java.util.logging.Logger;
  *  | :     :
  *  | :     :
  *  | 0.....:
- *  +---------> +z
+ *  +---------&gt; +z
  * (world coordinates)
  * </pre>
  * @author Brent Owens

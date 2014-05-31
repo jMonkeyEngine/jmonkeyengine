@@ -11,7 +11,7 @@ public class TestsHarness extends AndroidHarness{
     /*
      * Note that you can ignore the errors displayed in this file,
      * the android project will build regardless.
-     * Install the 'Android' plugin under Tools->Plugins->Available Plugins
+     * Install the 'Android' plugin under Tools-&gt;Plugins-&gt;Available Plugins
      * to get error checks and code completion for the Android project files.
      */
 
