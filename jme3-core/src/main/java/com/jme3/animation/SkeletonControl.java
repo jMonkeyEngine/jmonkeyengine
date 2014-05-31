@@ -32,6 +32,7 @@
 package com.jme3.animation;
 
 import com.jme3.export.*;
+import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
@@ -279,6 +280,21 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
     private void controlRenderHardware() {
         offsetMatrices = skeleton.computeSkinningMatrices();
         for (Material m : materials) {
+            MatParam currentParam = m.getParam("BoneMatrices");
+
+            if (currentParam != null) {
+                if (currentParam.getValue() != offsetMatrices) {
+                    // Check to see if other SkeletonControl
+                    // is operating on this material, in that case, user
+                    // is sharing materials between models which is NOT allowed
+                    // when hardware skinning used.
+                    throw new UnsupportedOperationException(
+                            "Material instances cannot be shared when hardware skinning is used. " +
+                            "Ensure all models use unique material instances."
+                    );
+                }
+            }
+            
             m.setParam("BoneMatrices", VarType.Matrix4Array, offsetMatrices);
         }
     }
