@@ -129,6 +129,8 @@ public class SkyFactory {
             texture = new TextureCubeMap();
             texture.setImage(img);
         }
+        texture.setMagFilter(Texture.MagFilter.Bilinear);
+        texture.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
         skyMat.setTexture("Texture", texture);
         sky.setMaterial(skyMat);
 
@@ -269,7 +271,7 @@ public class SkyFactory {
         TextureCubeMap cubeMap = new TextureCubeMap(cubeImage);
         cubeMap.setAnisotropicFilter(0);
         cubeMap.setMagFilter(Texture.MagFilter.Bilinear);
-        cubeMap.setMinFilter(Texture.MinFilter.NearestNoMipMaps);
+        cubeMap.setMinFilter(Texture.MinFilter.BilinearNoMipMaps);
         cubeMap.setWrap(Texture.WrapMode.EdgeClamp);
 
         Material skyMat = new Material(assetManager, "Common/MatDefs/Misc/Sky.j3md");
@@ -290,8 +292,10 @@ public class SkyFactory {
 
     public static Spatial createSky(AssetManager assetManager, String textureName, boolean sphereMap) {
         TextureKey key = new TextureKey(textureName, true);
-        key.setGenerateMips(true);
-        key.setAsCube(!sphereMap);
+        key.setGenerateMips(false);
+        if (!sphereMap) {
+            key.setTextureTypeHint(Texture.Type.CubeMap);
+        }
         Texture tex = assetManager.loadTexture(key);
         return createSky(assetManager, tex, sphereMap);
     }
