@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 
 
@@ -127,8 +128,14 @@ public class UdpEndpoint implements Endpoint
             kernel.enqueueWrite( this, p );
                                                                
             //socket.send(p);
-        } catch( IOException e ) {
-            throw new KernelException( "Error sending datagram to:" + address, e );
+        } catch (Exception e) {
+            if (e instanceof SocketException) {
+                throw new KernelException("Error sending datagram to:" + address, e);
+            } else if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            } else {
+                throw new RuntimeException(e);
+            }
         }
     }
 
