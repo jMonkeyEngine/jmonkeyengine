@@ -38,23 +38,20 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.HDRRenderer;
-import com.jme3.post.filters.ColorOverlayFilter;
-import com.jme3.post.filters.RadialBlurFilter;
 import com.jme3.post.filters.ToneMapFilter;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
-import com.jme3.ui.Picture;
 
 public class TestToneMapFilter extends SimpleApplication {
 
     private boolean enabled = true;
     private FilterPostProcessor fpp;
     private ToneMapFilter toneMapFilter;
+    private float whitePointLog = 1f;
 
     public static void main(String[] args){
         TestToneMapFilter app = new TestToneMapFilter();
@@ -78,6 +75,11 @@ public class TestToneMapFilter extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+        System.out.println("== Tone Mapping Sample ==");
+        System.out.println(" SPACE:\tToggle tone-mapping OFF or ON");
+        System.out.println(" Y:\tIncrease white-point");
+        System.out.println(" H:\tDecrease white-point");
+        
         fpp = new FilterPostProcessor(assetManager);
         toneMapFilter = new ToneMapFilter();
         fpp.addFilter(toneMapFilter);
@@ -102,9 +104,11 @@ public class TestToneMapFilter extends SimpleApplication {
                     if (enabled) {
                         enabled = false;
                         viewPort.removeProcessor(fpp);
+                        System.out.println("Tone Mapping OFF");
                     } else {
                         enabled = true;
                         viewPort.addProcessor(fpp);
+                        System.out.println("Tone Mapping ON");
                     }
                 }
             }
@@ -113,22 +117,22 @@ public class TestToneMapFilter extends SimpleApplication {
         AnalogListener anl = new AnalogListener() {
 
             public void onAnalog(String name, float isPressed, float tpf) {
-                float wp = toneMapFilter.getWhitePoint().x;
-
                 if (name.equals("WhitePointUp")) {
-                    wp += tpf * 1.0;
-                    if (wp > 12f) {
-                        wp = 12f;
+                    whitePointLog += tpf * 1.0;
+                    if (whitePointLog > 4f) {
+                        whitePointLog = 4f;
                     }
+                    float wp = FastMath.exp(whitePointLog);
                     toneMapFilter.setWhitePoint(new Vector3f(wp, wp, wp));
                     System.out.println("White point: " + wp);
                 }
 
                 if (name.equals("WhitePointDown")) {
-                    wp -= tpf * 1.0;
-                    if (wp < 0.01f) {
-                        wp = 0.01f;
+                    whitePointLog -= tpf * 1.0;
+                    if (whitePointLog < -4f) {
+                        whitePointLog = -4f;
                     }
+                    float wp = FastMath.exp(whitePointLog);
                     toneMapFilter.setWhitePoint(new Vector3f(wp, wp, wp));
                     System.out.println("White point: " + wp);
                 }
