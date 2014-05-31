@@ -129,13 +129,18 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         return filters.iterator();
     }
 
-    public void initialize(RenderManager rm, ViewPort vp) {        
+    public void initialize(RenderManager rm, ViewPort vp) {
         renderManager = rm;
         renderer = rm.getRenderer();
         viewPort = vp;
         fsQuad = new Picture("filter full screen quad");
         fsQuad.setWidth(1);
         fsQuad.setHeight(1);
+        
+        if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
+            throw new RendererException("FilterPostProcessor requires the " + 
+                    "video hardware to support packed float texture.");
+        }
         
         Camera cam = vp.getCamera();
 
