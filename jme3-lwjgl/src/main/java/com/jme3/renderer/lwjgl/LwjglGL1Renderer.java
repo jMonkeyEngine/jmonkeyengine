@@ -753,15 +753,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
 
         // Check sizes if graphics card doesn't support NPOT
-        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two) {
-            if (img.getWidth() != 0 && img.getHeight() != 0) {
-                if (!FastMath.isPowerOfTwo(img.getWidth())
-                        || !FastMath.isPowerOfTwo(img.getHeight())) {
-
-                    // Resize texture to Power-of-2 size
-                    MipMapGenerator.resizeToPowerOf2(img);
-                }
-            }
+        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two && img.isNPOT()) {
+            // Resize texture to Power-of-2 size
+            MipMapGenerator.resizeToPowerOf2(img);
         }
 
         if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired()) {

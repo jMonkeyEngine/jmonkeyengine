@@ -429,13 +429,11 @@ public class TextureUtil {
         int width = img.getWidth();
         int height = img.getHeight();
 
-        if (!NPOT) {
+        if (!NPOT && img.isNPOT()) {
             // Check if texture is POT
-            if (!FastMath.isPowerOfTwo(width) || !FastMath.isPowerOfTwo(height)) {
-                throw new RendererException("Non-power-of-2 textures "
-                        + "are not supported by the video hardware "
-                        + "and no scaling path available for image: " + img);
-            }
+            throw new RendererException("Non-power-of-2 textures "
+                    + "are not supported by the video hardware "
+                    + "and no scaling path available for image: " + img);
         }
         AndroidGLImageFormat imageFormat = getImageFormat(fmt);
 
@@ -524,13 +522,11 @@ public class TextureUtil {
         int width = img.getWidth();
         int height = img.getHeight();
 
-        if (!NPOT) {
+        if (!NPOT && img.isNPOT()) {
             // Check if texture is POT
-            if (!FastMath.isPowerOfTwo(width) || !FastMath.isPowerOfTwo(height)) {
-                throw new RendererException("Non-power-of-2 textures "
-                        + "are not supported by the video hardware "
-                        + "and no scaling path available for image: " + img);
-            }
+            throw new RendererException("Non-power-of-2 textures "
+                    + "are not supported by the video hardware "
+                    + "and no scaling path available for image: " + img);
         }
         AndroidGLImageFormat imageFormat = getImageFormat(fmt);
 

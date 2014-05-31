@@ -32,6 +32,7 @@
 package com.jme3.texture;
 
 import com.jme3.export.*;
+import com.jme3.math.FastMath;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
 import com.jme3.texture.image.ColorSpace;
@@ -390,6 +391,17 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
      */
     public boolean isGeneratedMipmapsRequired() {
         return needGeneratedMips;
+    }
+    
+    /**
+     * Determine if the image is NPOT.
+     *
+     * @return if the image is a non-power-of-2 image, e.g. having dimensions
+     * that are not powers of 2.
+     */
+    public boolean isNPOT() {
+        return width != 0 && height != 0
+                && (!FastMath.isPowerOfTwo(width) || !FastMath.isPowerOfTwo(height));
     }
     
     @Override
