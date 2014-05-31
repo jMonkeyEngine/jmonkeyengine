@@ -1,6 +1,6 @@
 #import "Common/ShaderLib/Skinning.glsllib"
+#import "Common/ShaderLib/Instancing.glsllib"
 
-uniform mat4 g_WorldViewProjectionMatrix;
 attribute vec3 inPosition;
 
 #if defined(HAS_COLORMAP) || (defined(HAS_LIGHTMAP) && !defined(SEPARATE_TEXCOORD))
@@ -33,5 +33,6 @@ void main(){
     #ifdef NUM_BONES
         Skinning_Compute(modelSpacePos);
     #endif
-    gl_Position = g_WorldViewProjectionMatrix * modelSpacePos;
+
+    gl_Position = TransformWorldViewProjection(modelSpacePos);
 }

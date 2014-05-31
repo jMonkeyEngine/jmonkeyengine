@@ -1121,7 +1121,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         resetFixedFuncBindings();
     }
 
-    public void renderMesh(Mesh mesh, int lod, int count) {
+    public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
         if (mesh.getVertexCount() == 0) {
             return;
         }

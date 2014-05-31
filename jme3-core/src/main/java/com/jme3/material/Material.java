@@ -47,6 +47,8 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Mesh;
+import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
 import com.jme3.shader.UniformBindingManager;
@@ -684,6 +686,17 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         return ambientLightColor;
     }
 
+    private static void renderMeshFromGeometry(Renderer renderer, Geometry geom) {
+        Mesh mesh = geom.getMesh();
+        int lodLevel = geom.getLodLevel();
+        if (geom instanceof InstancedGeometry) {
+            InstancedGeometry instGeom = (InstancedGeometry) geom;
+            renderer.renderMesh(mesh, lodLevel, instGeom.getCurrentNumInstances(), instGeom.getAllInstanceData());
+        } else {
+            renderer.renderMesh(mesh, lodLevel, 1, null);
+        }
+    }
+    
     /**
      * Uploads the lights in the light list as two uniform arrays.<br/><br/> *
      * <p>
@@ -858,7 +871,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             }
             vars.release();
             r.setShader(shader);
-            r.renderMesh(g.getMesh(), g.getLodLevel(), 1);
+            renderMeshFromGeometry(r, g);
         }
 
         if (isFirstLight && lightList.size() > 0) {
@@ -868,7 +881,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             lightColor.setValue(VarType.Vector4, ColorRGBA.BlackNoAlpha);
             lightPos.setValue(VarType.Vector4, nullDirLight);
             r.setShader(shader);
-            r.renderMesh(g.getMesh(), g.getLodLevel(), 1);
+            renderMeshFromGeometry(r, g);
         }
     }
 
@@ -1139,7 +1152,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             r.setShader(shader);
         }
 
-        r.renderMesh(geom.getMesh(), geom.getLodLevel(), 1);
+        renderMeshFromGeometry(r, geom);
     }
 
     public void write(JmeExporter ex) throws IOException {

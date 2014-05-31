@@ -267,18 +267,23 @@ public interface Renderer {
     public void deleteBuffer(VertexBuffer vb);
 
     /**
-     * Renders <code>count</code> meshes, with the geometry data supplied.
+     * Renders <code>count</code> meshes, with the geometry data supplied and
+     * per-instance data supplied.
      * The shader which is currently set with <code>setShader</code> is
      * responsible for transforming the input vertices into clip space
      * and shading it based on the given vertex attributes.
-     * The int variable gl_InstanceID can be used to access the current
+     * The integer variable gl_InstanceID can be used to access the current
      * instance of the mesh being rendered inside the vertex shader.
+     * If the instance data is non-null, then it is submitted as a
+     * per-instance vertex attribute to the shader.
      *
      * @param mesh The mesh to render
      * @param lod The LOD level to use, see {@link Mesh#setLodLevels(com.jme3.scene.VertexBuffer[]) }.
      * @param count Number of mesh instances to render
+     * @param instanceData When count is greater than 1, these buffers provide
+     *                     the per-instance attributes.
      */
-    public void renderMesh(Mesh mesh, int lod, int count);
+    public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData);
 
     /**
      * Resets all previously used {@link NativeObject Native Objects} on this Renderer.

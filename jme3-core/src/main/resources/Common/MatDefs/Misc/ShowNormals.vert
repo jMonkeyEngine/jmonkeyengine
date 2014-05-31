@@ -1,4 +1,4 @@
-uniform mat4 g_WorldViewProjectionMatrix;
+#import "Common/ShaderLib/Instancing.glsllib"
 
 attribute vec3 inPosition;
 attribute vec3 inNormal;
@@ -6,6 +6,6 @@ attribute vec3 inNormal;
 varying vec3 normal;
 
 void main(){
-    gl_Position = g_WorldViewProjectionMatrix * vec4(inPosition,1.0);
+    gl_Position = TransformWorldViewProjection(vec4(inPosition,1.0));
     normal = inNormal;
 }
