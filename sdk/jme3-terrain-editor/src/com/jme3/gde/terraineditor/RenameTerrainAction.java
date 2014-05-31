@@ -193,8 +193,6 @@ public class RenameTerrainAction extends AbstractToolWizardAction {
     private TextureKey cloneKeyParams(TextureKey tkOrig, String path) {
         TextureKey tk = new TextureKey(path, false);
         tk.setAnisotropy(tkOrig.getAnisotropy());
-        tk.setAsCube(tkOrig.isAsCube());
-        tk.setAsTexture3D(tkOrig.isAsTexture3D());
         tk.setGenerateMips(tkOrig.isGenerateMips());
         tk.setTextureTypeHint(tkOrig.getTextureTypeHint());
         return tk;

@@ -60,7 +60,7 @@ public class TestTexture3DLoading extends SimpleApplication {
         Material material = new Material(assetManager, "jme3test/texture/tex3DThumb.j3md");
         TextureKey key = new TextureKey("Textures/3D/flame.dds");
         key.setGenerateMips(true);
-        key.setAsTexture3D(true);
+        key.setTextureTypeHint(Texture.Type.ThreeDimensional);
 
         Texture t = assetManager.loadTexture(key);
 

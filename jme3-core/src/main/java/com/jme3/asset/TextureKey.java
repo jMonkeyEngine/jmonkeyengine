@@ -31,6 +31,7 @@
  */
 package com.jme3.asset;
 
+import com.jme3.texture.Texture.Type;
 import com.jme3.asset.cache.AssetCache;
 import com.jme3.asset.cache.WeakRefCloneAssetCache;
 import com.jme3.export.InputCapsule;
@@ -39,7 +40,6 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.texture.Image;
 import com.jme3.texture.Texture;
-import com.jme3.texture.Texture.Type;
 import com.jme3.texture.TextureProcessor;
 import java.io.IOException;
 
@@ -58,8 +58,6 @@ public class TextureKey extends AssetKey<Texture> {
 
     private boolean generateMips;
     private boolean flipY;
-    private boolean asCube;
-    private boolean asTexture3D;
     private int anisotropy;
     private Texture.Type textureTypeHint = Texture.Type.TwoDimensional;
 
@@ -78,7 +76,25 @@ public class TextureKey extends AssetKey<Texture> {
 
     @Override
     public String toString() {
-        return name + (flipY ? " (Flipped)" : "") + (asCube ? " (Cube)" : "") + (generateMips ? " (Mipmapped)" : "");
+        String type;
+        switch (textureTypeHint) {
+            case CubeMap:
+                type = " (Cube)";
+                break;
+            case ThreeDimensional:
+                type = " (3D)";
+                break;
+            case TwoDimensionalArray:
+                type = " (Array)";
+                break;
+            case TwoDimensional:
+                type = "";
+                break;
+            default:
+                type = " (" + textureTypeHint.toString() + ")";
+                break;
+        }
+        return name + (flipY ? " (Flipped)" : "") + type + (generateMips ? " (Mipmapped)" : "");
     }
     
     @Override
@@ -107,12 +123,22 @@ public class TextureKey extends AssetKey<Texture> {
         this.anisotropy = anisotropy;
     }
 
+    /**
+     * @deprecated Use {@link #setTextureTypeHint(com.jme3.texture.Texture.Type) }
+     * instead.
+     */
+    @Deprecated
     public boolean isAsCube() {
-        return asCube;
+        return textureTypeHint == Type.CubeMap;
     }
 
+    /**
+     * @deprecated Use {@link #setTextureTypeHint(com.jme3.texture.Texture.Type) }
+     * instead.
+     */
+    @Deprecated
     public void setAsCube(boolean asCube) {
-        this.asCube = asCube;
+        textureTypeHint = asCube ? Type.CubeMap : Type.TwoDimensional;
     }
 
     public boolean isGenerateMips() {
@@ -123,21 +149,41 @@ public class TextureKey extends AssetKey<Texture> {
         this.generateMips = generateMips;
     }
 
+    /**
+     * @deprecated Use {@link #setTextureTypeHint(com.jme3.texture.Texture.Type) }
+     * instead.
+     */
+    @Deprecated
     public boolean isAsTexture3D() {
-        return asTexture3D;
+        return textureTypeHint == Type.ThreeDimensional;
     }
 
+    /**
+     * @deprecated Use {@link #setTextureTypeHint(com.jme3.texture.Texture.Type) }
+     * instead.
+     */
+    @Deprecated
     public void setAsTexture3D(boolean asTexture3D) {
-        this.asTexture3D = asTexture3D;
+        textureTypeHint = asTexture3D ? Type.ThreeDimensional : Type.TwoDimensional;
     }
 
+    /**
+     * The type of texture expected to be returned.
+     * 
+     * @return type of texture expected to be returned.
+     */
     public Type getTextureTypeHint() {
         return textureTypeHint;
     }
 
+    /**
+     * Hints the loader as to which type of texture is expected.
+     * 
+     * @param textureTypeHint The type of texture expected to be loaded.
+     */
     public void setTextureTypeHint(Type textureTypeHint) {
         this.textureTypeHint = textureTypeHint;
-    }   
+    }
     
     @Override
     public boolean equals(Object obj) {
@@ -157,12 +203,6 @@ public class TextureKey extends AssetKey<Texture> {
         if (this.flipY != other.flipY) {
             return false;
         }
-        if (this.asCube != other.asCube) {
-            return false;
-        }
-        if (this.asTexture3D != other.asTexture3D) {
-            return false;
-        }
         if (this.anisotropy != other.anisotropy) {
             return false;
         }
@@ -178,8 +218,6 @@ public class TextureKey extends AssetKey<Texture> {
         hash = 17 * hash + (super.hashCode());
         hash = 17 * hash + (this.generateMips ? 1 : 0);
         hash = 17 * hash + (this.flipY ? 1 : 0);
-        hash = 17 * hash + (this.asCube ? 1 : 0);
-        hash = 17 * hash + (this.asTexture3D ? 1 : 0);
         hash = 17 * hash + this.anisotropy;
         hash = 17 * hash + (this.textureTypeHint != null ? this.textureTypeHint.hashCode() : 0);
         return hash;
@@ -191,8 +229,11 @@ public class TextureKey extends AssetKey<Texture> {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(flipY, "flip_y", false);
         oc.write(generateMips, "generate_mips", false);
-        oc.write(asCube, "as_cubemap", false);
         oc.write(anisotropy, "anisotropy", 0);
+        oc.write(textureTypeHint, "tex_type", Type.TwoDimensional);
+        
+        // Backwards compat
+        oc.write(textureTypeHint == Type.CubeMap, "as_cubemap", false);
     }
 
     @Override
@@ -201,7 +242,14 @@ public class TextureKey extends AssetKey<Texture> {
         InputCapsule ic = im.getCapsule(this);
         flipY = ic.readBoolean("flip_y", false);
         generateMips = ic.readBoolean("generate_mips", false);
-        asCube = ic.readBoolean("as_cubemap", false);
         anisotropy = ic.readInt("anisotropy", 0);
+        boolean asCube = ic.readBoolean("as_cubemap", false);
+        
+        if (asCube) {
+            // Backwards compat
+            textureTypeHint = Type.CubeMap;
+        } else {
+            textureTypeHint = ic.readEnum("tex_type", Texture.Type.class, Type.TwoDimensional);
+        }
     }
 }

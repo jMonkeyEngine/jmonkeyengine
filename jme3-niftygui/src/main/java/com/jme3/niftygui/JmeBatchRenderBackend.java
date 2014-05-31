@@ -193,7 +193,6 @@ public class JmeBatchRenderBackend implements BatchRenderBackend {
   public Image loadImage(final String filename) {
     TextureKey key = new TextureKey(filename, false);
     key.setAnisotropy(0);
-    key.setAsCube(false);
     key.setGenerateMips(false);
 
     Texture2D texture = (Texture2D) display.getAssetManager().loadTexture(key);

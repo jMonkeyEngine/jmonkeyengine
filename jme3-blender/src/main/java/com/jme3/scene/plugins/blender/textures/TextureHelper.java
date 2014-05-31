@@ -464,7 +464,6 @@ public class TextureHelper extends AbstractBlenderHelper {
             // Directly try to load texture so AssetManager can report missing textures
             try {
                 TextureKey key = new TextureKey(absoluteName);
-                key.setAsCube(false);
                 key.setFlipY(true);
                 key.setGenerateMips(generateMipmaps);
                 result = assetManager.loadTexture(key);
@@ -494,7 +493,6 @@ public class TextureHelper extends AbstractBlenderHelper {
             for (String assetName : assetNames) {
                 try {
                     TextureKey key = new TextureKey(assetName);
-                    key.setAsCube(false);
                     key.setFlipY(true);
                     key.setGenerateMips(generateMipmaps);
                     AssetInfo info = assetManager.locateAsset(key);

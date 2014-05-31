@@ -49,7 +49,6 @@ public class RenderImageJme implements RenderImage {
         TextureKey key = new TextureKey(filename, true);
 
         key.setAnisotropy(0);
-        key.setAsCube(false);
         key.setGenerateMips(false);
         
         texture = (Texture2D) display.getAssetManager().loadTexture(key);

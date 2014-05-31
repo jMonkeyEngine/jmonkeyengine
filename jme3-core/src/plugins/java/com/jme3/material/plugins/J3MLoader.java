@@ -140,7 +140,17 @@ public class J3MLoader implements AssetLoader {
             }
 
             TextureKey texKey = new TextureKey(texturePath, flipY);
-            texKey.setAsCube(type == VarType.TextureCubeMap);
+            switch (type) {
+                case Texture3D:
+                    texKey.setTextureTypeHint(Texture.Type.ThreeDimensional);
+                    break;
+                case TextureArray:
+                    texKey.setTextureTypeHint(Texture.Type.TwoDimensionalArray);
+                    break;
+                case TextureCubeMap:
+                    texKey.setTextureTypeHint(Texture.Type.CubeMap);
+                    break;
+            }
             texKey.setGenerateMips(true);
 
             Texture tex;

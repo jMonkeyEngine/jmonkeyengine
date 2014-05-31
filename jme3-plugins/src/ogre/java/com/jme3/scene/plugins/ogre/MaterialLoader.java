@@ -130,7 +130,9 @@ public class MaterialLoader implements AssetLoader {
 
         TextureKey texKey = new TextureKey(folderName + path, false);
         texKey.setGenerateMips(genMips);
-        texKey.setAsCube(cubic);
+        if (cubic) {
+            texKey.setTextureTypeHint(Texture.Type.CubeMap);
+        }
 
         try {
             Texture loadedTexture = assetManager.loadTexture(texKey);

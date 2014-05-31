@@ -31,7 +31,7 @@ public class TestEnvironmentMapping extends SimpleApplication {
 
         TextureKey key = new TextureKey("Textures/Sky/Bright/BrightSky.dds", true);
         key.setGenerateMips(true);
-        key.setAsCube(true);
+        key.setTextureTypeHint(Texture.Type.CubeMap);
         final Texture tex = assetManager.loadTexture(key);
 
         for (Spatial geom : buggy.getChildren()) {

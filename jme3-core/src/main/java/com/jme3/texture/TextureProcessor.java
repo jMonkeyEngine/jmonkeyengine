@@ -38,6 +38,7 @@ import java.nio.ByteBuffer;
 
 public class TextureProcessor implements AssetProcessor {
 
+    @Override
     public Object postProcess(AssetKey key, Object obj) {
         TextureKey texKey = (TextureKey) key;
         Image img = (Image) obj;
@@ -46,7 +47,7 @@ public class TextureProcessor implements AssetProcessor {
         }
 
         Texture tex;
-        if (texKey.isAsCube()) {
+        if (texKey.getTextureTypeHint() == Texture.Type.CubeMap) {
             if (texKey.isFlipY()) {
                 // also flip -y and +y image in cubemap
                 ByteBuffer pos_y = img.getData(2);
@@ -54,7 +55,7 @@ public class TextureProcessor implements AssetProcessor {
                 img.setData(3, pos_y);
             }
             tex = new TextureCubeMap();
-        } else if (texKey.isAsTexture3D()) {
+        } else if (texKey.getTextureTypeHint() == Texture.Type.ThreeDimensional) {
             tex = new Texture3D();
         } else {
             tex = new Texture2D();

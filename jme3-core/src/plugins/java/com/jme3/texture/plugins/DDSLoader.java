@@ -36,7 +36,7 @@ import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
-import com.jme3.texture.Texture.Type;
+import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
@@ -128,9 +128,9 @@ public class DDSLoader implements AssetLoader {
             in = new LittleEndien(stream);
             loadHeader();
             if (texture3D) {
-                ((TextureKey) info.getKey()).setTextureTypeHint(Type.ThreeDimensional);
+                ((TextureKey) info.getKey()).setTextureTypeHint(Texture.Type.ThreeDimensional);
             } else if (depth > 1) {
-                ((TextureKey) info.getKey()).setTextureTypeHint(Type.CubeMap);
+                ((TextureKey) info.getKey()).setTextureTypeHint(Texture.Type.CubeMap);
             }
             ArrayList<ByteBuffer> data = readData(((TextureKey) info.getKey()).isFlipY());
             return new Image(pixelFormat, width, height, depth, data, sizes, ColorSpace.sRGB);
