@@ -986,6 +986,10 @@ public class LwjglRenderer implements Renderer {
                     stringBuf.append(" core");
                 }
                 stringBuf.append("\n");
+            } else {
+                // version 100 does not exist in desktop GLSL.
+                // put version 110 in that case to enable strict checking
+                stringBuf.append("#version 110\n");
             }
         }
         updateNameBuffer();
