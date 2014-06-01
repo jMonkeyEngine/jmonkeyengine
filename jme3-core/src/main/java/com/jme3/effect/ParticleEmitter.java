@@ -897,6 +897,40 @@ public class ParticleEmitter extends Geometry {
     }
 
     /**
+     * Instantly emits available particles, up to num.
+     */
+    public void emitParticles(int num) {
+        // Force world transform to update
+        this.getWorldTransform();
+
+        TempVars vars = TempVars.get();
+
+        BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
+
+        Vector3f min = vars.vect1;
+        Vector3f max = vars.vect2;
+
+        bbox.getMin(min);
+        bbox.getMax(max);
+
+        if (!Vector3f.isValidVector(min)) {
+            min.set(Vector3f.POSITIVE_INFINITY);
+        }
+        if (!Vector3f.isValidVector(max)) {
+            max.set(Vector3f.NEGATIVE_INFINITY);
+        }
+
+        for(int i=0;i<num;i++) {
+            if( emitParticle(min, max) == null ) break;
+        }
+
+        bbox.setMinMax(min, max);
+        this.setBoundRefresh();
+
+        vars.release();
+    }
+    
+    /**
      * Instantly kills all active particles, after this method is called, all
      * particles will be dead and no longer visible.
      */
