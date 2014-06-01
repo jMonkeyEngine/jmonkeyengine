@@ -38,7 +38,7 @@ jar.doFirst{
                 'Class-Path'             : configurations.compile.resolvedConfiguration.resolvedArtifacts.collect {
                                                         'lib/' +
                                                         it.name +
-                                                        it.classifier != null ? '-' + it.classifier : '' +
+                                                        (it.classifier != null ? '-' + it.classifier : '') +
                                                         '.' + it.extension }.join(' ') 
         )
     }
