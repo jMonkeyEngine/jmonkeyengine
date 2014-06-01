@@ -1850,18 +1850,24 @@ public class LwjglRenderer implements Renderer {
         }
 
         if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired()) {
-            // No pregenerated mips available,
-            // generate from base level if required
+            // Image does not have mipmaps, but they are required.
+            // Generate from base level.
+
             if (!GLContext.getCapabilities().OpenGL30) {
                 glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE);
                 img.setMipmapsGenerated(true);
+            } else {
+                // For OpenGL3 and up.
+                // We'll generate mipmaps via glGenerateMipmapEXT (see below)
             }
+        } else if (img.hasMipmaps()) {
+            // Image already has mipmaps, set the max level based on the 
+            // number of mipmaps we have.
+            glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
         } else {
-            // Image already has mipmaps or no mipmap generation desired.
-//          glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0 );
-            if (img.getMipMapSizes() != null) {
-                glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
-            }
+            // Image does not have mipmaps and they are not required.
+            // Specify that that the texture has no mipmaps.
+            glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 0);
         }
 
         int imageSamples = img.getMultiSamples();
