@@ -68,15 +68,19 @@ public class SpotLight extends Light implements Savable {
     }
 
     private void computePackedCos() {
-        float innerCos=FastMath.cos(spotInnerAngle);
-        float outerCos=FastMath.cos(spotOuterAngle);
-        packedAngleCos=(int)(innerCos*1000);
+        float innerCos = FastMath.cos(spotInnerAngle);
+        float outerCos = FastMath.cos(spotOuterAngle);
+        packedAngleCos = (int) (innerCos * 1000);
         //due to approximations, very close angles can give the same cos
         //here we make sure outer cos is bellow inner cos.
-        if(((int)packedAngleCos)== ((int)(outerCos*1000)) ){
+        if (((int) packedAngleCos) == ((int) (outerCos * 1000))) {
             outerCos -= 0.001f;
         }
-        packedAngleCos+=outerCos;        
+        packedAngleCos += outerCos;
+
+        if (packedAngleCos == 0.0f) {
+            throw new IllegalArgumentException("Packed angle cosine is invalid");
+        }
     }
 
     @Override
