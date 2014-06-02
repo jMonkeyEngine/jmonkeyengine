@@ -868,6 +868,13 @@ public class ParticleEmitter extends Geometry {
      * which are currently inactive will be spawned immediately.
      */
     public void emitAllParticles() {
+        emitParticles(particles.length);
+    }
+
+    /**
+     * Instantly emits available particles, up to num.
+     */
+    public void emitParticles(int num) {
         // Force world transform to update
         this.getWorldTransform();
 
@@ -888,14 +895,16 @@ public class ParticleEmitter extends Geometry {
             max.set(Vector3f.NEGATIVE_INFINITY);
         }
 
-        while (emitParticle(min, max) != null);
+        for(int i=0;i<num;i++) {
+            if( emitParticle(min, max) == null ) break;
+        }
 
         bbox.setMinMax(min, max);
         this.setBoundRefresh();
 
         vars.release();
     }
-
+    
     /**
      * Instantly kills all active particles, after this method is called, all
      * particles will be dead and no longer visible.
