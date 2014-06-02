@@ -868,32 +868,7 @@ public class ParticleEmitter extends Geometry {
      * which are currently inactive will be spawned immediately.
      */
     public void emitAllParticles() {
-        // Force world transform to update
-        this.getWorldTransform();
-
-        TempVars vars = TempVars.get();
-
-        BoundingBox bbox = (BoundingBox) this.getMesh().getBound();
-
-        Vector3f min = vars.vect1;
-        Vector3f max = vars.vect2;
-
-        bbox.getMin(min);
-        bbox.getMax(max);
-
-        if (!Vector3f.isValidVector(min)) {
-            min.set(Vector3f.POSITIVE_INFINITY);
-        }
-        if (!Vector3f.isValidVector(max)) {
-            max.set(Vector3f.NEGATIVE_INFINITY);
-        }
-
-        while (emitParticle(min, max) != null);
-
-        bbox.setMinMax(min, max);
-        this.setBoundRefresh();
-
-        vars.release();
+        emitParticles(particles.length);
     }
 
     /**
