@@ -347,7 +347,7 @@ class TextureUtil {
                     // or upload slice
                     if (index == -1){
                         GL12.glTexImage3D(target,
-                                          0,
+                                          i,
                                           glFmt.internalFormat,
                                           mipWidth,
                                           mipHeight,
