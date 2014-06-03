@@ -155,7 +155,9 @@ public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
 
                 public void run() {
                     try {
-                        SceneExplorerTopComponent.findInstance().swapMaterialChangeListener(JmeGeometry.this, ((Material) before).getAssetName(), ((Material) after).getAssetName());
+                        String beforeName = (before == null)? null : ((Material) before).getAssetName();
+                        String afterName = (after == null)? null : ((Material) after).getAssetName();
+                        SceneExplorerTopComponent.findInstance().swapMaterialChangeListener(JmeGeometry.this, beforeName, afterName);
                     } catch (Exception e) {
                         Exceptions.printStackTrace(e);
                     }
