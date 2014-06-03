@@ -32,34 +32,27 @@
 
 package com.jme3.renderer.lwjgl;
 
+import com.jme3.renderer.RendererException;
+import com.jme3.texture.Image;
+import com.jme3.texture.Image.Format;
+import com.jme3.texture.image.ColorSpace;
 import java.nio.ByteBuffer;
-
-import org.lwjgl.opengl.ARBHalfFloatPixel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.lwjgl.opengl.ARBTextureFloat;
 import org.lwjgl.opengl.ARBTextureMultisample;
 import org.lwjgl.opengl.ContextCapabilities;
-import org.lwjgl.opengl.EXTAbgr;
-import org.lwjgl.opengl.EXTBgra;
-import org.lwjgl.opengl.EXTPackedFloat;
 import org.lwjgl.opengl.EXTTextureArray;
 import org.lwjgl.opengl.EXTTextureCompressionLATC;
 import org.lwjgl.opengl.EXTTextureCompressionS3TC;
-import org.lwjgl.opengl.EXTTextureSharedExponent;
+import org.lwjgl.opengl.EXTTextureSRGB;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
+import org.lwjgl.opengl.GL21;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLContext;
-
-import com.jme3.renderer.RendererException;
-import com.jme3.texture.Image;
-import com.jme3.texture.Image.Format;
-import static com.jme3.texture.Image.Format.RGB8;
-import com.jme3.texture.image.ColorSpace;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.lwjgl.opengl.EXTTextureSRGB;
 
 class TextureUtil {
 
@@ -92,13 +85,13 @@ class TextureUtil {
         // Luminance formats
         setFormat(Format.Luminance8,   GL11.GL_LUMINANCE8,  GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
         setFormat(Format.Luminance16,  GL11.GL_LUMINANCE16, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_SHORT, false);
-        setFormat(Format.Luminance16F, ARBTextureFloat.GL_LUMINANCE16F_ARB, GL11.GL_LUMINANCE, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
+        setFormat(Format.Luminance16F, ARBTextureFloat.GL_LUMINANCE16F_ARB, GL11.GL_LUMINANCE, GL30.GL_HALF_FLOAT, false);
         setFormat(Format.Luminance32F, ARBTextureFloat.GL_LUMINANCE32F_ARB, GL11.GL_LUMINANCE, GL11.GL_FLOAT, false);
         
         // Luminance alpha formats
         setFormat(Format.Luminance8Alpha8, GL11.GL_LUMINANCE8_ALPHA8,  GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
         setFormat(Format.Luminance16Alpha16, GL11.GL_LUMINANCE16_ALPHA16, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_SHORT, false);
-        setFormat(Format.Luminance16FAlpha16F, ARBTextureFloat.GL_LUMINANCE_ALPHA16F_ARB, GL11.GL_LUMINANCE_ALPHA, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
+        setFormat(Format.Luminance16FAlpha16F, ARBTextureFloat.GL_LUMINANCE_ALPHA16F_ARB, GL11.GL_LUMINANCE_ALPHA, GL30.GL_HALF_FLOAT, false);
         
         // Depth formats
         setFormat(Format.Depth,    GL11.GL_DEPTH_COMPONENT,    GL11.GL_DEPTH_COMPONENT, GL11.GL_UNSIGNED_BYTE, false);
@@ -111,30 +104,30 @@ class TextureUtil {
         setFormat(Format.Depth24Stencil8, GL30.GL_DEPTH24_STENCIL8, GL30.GL_DEPTH_STENCIL, GL30.GL_UNSIGNED_INT_24_8, false);
 
         // RGB formats
-        setFormat(Format.BGR8,       GL11.GL_RGB8,  EXTBgra.GL_BGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.ARGB8,       GL11.GL_RGBA8,  EXTBgra.GL_BGRA_EXT, GL12.GL_UNSIGNED_INT_8_8_8_8_REV, false);
-        setFormat(Format.BGRA8,       GL11.GL_RGBA8,  EXTBgra.GL_BGRA_EXT, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.RGB8,       GL11.GL_RGB8,  GL11.GL_RGB,        GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.BGR8,        GL11.GL_RGB8,   GL12.GL_BGR,  GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.ARGB8,       GL11.GL_RGBA8,  GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8, false);
+        setFormat(Format.BGRA8,       GL11.GL_RGBA8,  GL12.GL_BGRA, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.RGB8,        GL11.GL_RGB8,   GL11.GL_RGB,  GL11.GL_UNSIGNED_BYTE, false);
 //        setFormat(Format.RGB10,      GL11.GL_RGB10, GL11.GL_RGB,        GL12.GL_UNSIGNED_INT_10_10_10_2, false); 
-        setFormat(Format.RGB16,      GL11.GL_RGB16, GL11.GL_RGB,        GL11.GL_UNSIGNED_SHORT, false); 
-        setFormat(Format.RGB16F,     ARBTextureFloat.GL_RGB16F_ARB, GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
-        setFormat(Format.RGB32F,     ARBTextureFloat.GL_RGB32F_ARB, GL11.GL_RGB, GL11.GL_FLOAT, false);
+        setFormat(Format.RGB16,      GL11.GL_RGB16, GL11.GL_RGB,  GL11.GL_UNSIGNED_SHORT, false); 
+        setFormat(Format.RGB16F,     GL30.GL_RGB16F, GL11.GL_RGB, GL30.GL_HALF_FLOAT, false);
+        setFormat(Format.RGB32F,     GL30.GL_RGB32F, GL11.GL_RGB, GL11.GL_FLOAT, false);
         
         // Special RGB formats
-        setFormat(Format.RGB111110F, EXTPackedFloat.GL_R11F_G11F_B10F_EXT,    GL11.GL_RGB, EXTPackedFloat.GL_UNSIGNED_INT_10F_11F_11F_REV_EXT, false);
-        setFormat(Format.RGB9E5,     EXTTextureSharedExponent.GL_RGB9_E5_EXT, GL11.GL_RGB, EXTTextureSharedExponent.GL_UNSIGNED_INT_5_9_9_9_REV_EXT, false);
-        setFormat(Format.RGB16F_to_RGB111110F, EXTPackedFloat.GL_R11F_G11F_B10F_EXT,    GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
-        setFormat(Format.RGB16F_to_RGB9E5, EXTTextureSharedExponent.GL_RGB9_E5_EXT, GL11.GL_RGB, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
-        setFormat(Format.RGB10_A2, GL11.GL_RGB10_A2,    GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.RGB111110F,           GL30.GL_R11F_G11F_B10F, GL11.GL_RGB, GL30.GL_UNSIGNED_INT_10F_11F_11F_REV, false);
+        setFormat(Format.RGB9E5,               GL30.GL_RGB9_E5,         GL11.GL_RGB, GL30.GL_UNSIGNED_INT_5_9_9_9_REV, false);
+        setFormat(Format.RGB16F_to_RGB111110F, GL30.GL_R11F_G11F_B10F, GL11.GL_RGB, GL30.GL_HALF_FLOAT, false);
+        setFormat(Format.RGB16F_to_RGB9E5,     GL30.GL_RGB9_E5,         GL11.GL_RGB, GL30.GL_HALF_FLOAT, false);
+        setFormat(Format.RGB10_A2,             GL11.GL_RGB10_A2,        GL11.GL_RGB, GL12.GL_UNSIGNED_INT_10_10_10_2, false);
         
         // RGBA formats
-        setFormat(Format.ABGR8,   GL11.GL_RGBA8,       EXTAbgr.GL_ABGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.RGB5A1,    GL11.GL_RGB5_A1,   GL11.GL_RGBA,        GL12.GL_UNSIGNED_SHORT_5_5_5_1, false);
-        setFormat(Format.ARGB4444,  GL11.GL_RGBA4,     EXTAbgr.GL_ABGR_EXT, GL12.GL_UNSIGNED_SHORT_4_4_4_4, false);
-        setFormat(Format.RGBA8,   GL11.GL_RGBA8,       GL11.GL_RGBA,        GL11.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.RGBA16,  GL11.GL_RGBA16,      GL11.GL_RGBA,        GL11.GL_UNSIGNED_SHORT, false); // might be incorrect
-        setFormat(Format.RGBA16F, ARBTextureFloat.GL_RGBA16F_ARB, GL11.GL_RGBA, ARBHalfFloatPixel.GL_HALF_FLOAT_ARB, false);
-        setFormat(Format.RGBA32F, ARBTextureFloat.GL_RGBA32F_ARB, GL11.GL_RGBA, GL11.GL_FLOAT, false);
+        setFormat(Format.ABGR8,   GL11.GL_RGBA8,  GL11.GL_RGBA, GL12.GL_UNSIGNED_INT_8_8_8_8, false);
+        setFormat(Format.RGB5A1,  GL11.GL_RGB5_A1, GL11.GL_RGBA, GL12.GL_UNSIGNED_SHORT_5_5_5_1, false);
+        setFormat(Format.ARGB4444,GL11.GL_RGBA4,   GL11.GL_RGBA, GL12.GL_UNSIGNED_SHORT_4_4_4_4_REV, false);
+        setFormat(Format.RGBA8,   GL11.GL_RGBA8,   GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, false);
+        setFormat(Format.RGBA16,  GL11.GL_RGBA16,  GL11.GL_RGBA, GL11.GL_UNSIGNED_SHORT, false); // might be incorrect
+        setFormat(Format.RGBA16F, GL30.GL_RGBA16F, GL11.GL_RGBA, GL30.GL_HALF_FLOAT, false);
+        setFormat(Format.RGBA32F, GL30.GL_RGBA32F, GL11.GL_RGBA, GL11.GL_FLOAT, false);
         
         // DXT formats
         setFormat(Format.DXT1,  EXTTextureCompressionS3TC.GL_COMPRESSED_RGB_S3TC_DXT1_EXT, GL11.GL_RGB,   GL11.GL_UNSIGNED_BYTE, true);
@@ -148,13 +141,14 @@ class TextureUtil {
     }
     
     //sRGB formats        
-    private static final GLImageFormat sRGB_RGB8 = new GLImageFormat(EXTTextureSRGB.GL_SRGB8_EXT, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, false);
-    private static final GLImageFormat sRGB_RGBA8 = new GLImageFormat(EXTTextureSRGB.GL_SRGB8_ALPHA8_EXT, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, false);
-    private static final GLImageFormat sRGB_Luminance8 = new GLImageFormat(EXTTextureSRGB.GL_SLUMINANCE8_EXT, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
-    private static final GLImageFormat sRGB_LuminanceAlpha8 = new GLImageFormat(EXTTextureSRGB.GL_SLUMINANCE8_ALPHA8_EXT, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
-    private static final GLImageFormat sRGB_BGR8 = new GLImageFormat(EXTTextureSRGB.GL_SRGB8_EXT, EXTBgra.GL_BGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
-    private static final GLImageFormat sRGB_ABGR8 = new GLImageFormat(EXTTextureSRGB.GL_SRGB8_ALPHA8_EXT, EXTAbgr.GL_ABGR_EXT, GL11.GL_UNSIGNED_BYTE, false);
-
+    private static final GLImageFormat sRGB_RGB8 = new GLImageFormat(GL21.GL_SRGB8, GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_RGBA8 = new GLImageFormat(GL21.GL_SRGB8_ALPHA8, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_Luminance8 = new GLImageFormat(GL21.GL_SLUMINANCE8, GL11.GL_LUMINANCE, GL11.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_LuminanceAlpha8 = new GLImageFormat(GL21.GL_SLUMINANCE8_ALPHA8, GL11.GL_LUMINANCE_ALPHA, GL11.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_BGR8 = new GLImageFormat(GL21.GL_SRGB8, GL12.GL_BGR, GL11.GL_UNSIGNED_BYTE, false);
+    private static final GLImageFormat sRGB_ABGR8 = new GLImageFormat(GL21.GL_SRGB8_ALPHA8, GL11.GL_RGBA, GL12.GL_UNSIGNED_INT_8_8_8_8, false);
+    private static final GLImageFormat sRGB_ARGB8 = new GLImageFormat(GL21.GL_SRGB8_ALPHA8, GL12.GL_BGRA, GL12.GL_UNSIGNED_INT_8_8_8_8, false);
+    private static final GLImageFormat sRGB_BGRA8 = new GLImageFormat(GL21.GL_SRGB8_ALPHA8, GL12.GL_BGRA, GL11.GL_UNSIGNED_BYTE, false);
     private static final GLImageFormat sRGB_DXT1 = new GLImageFormat(EXTTextureSRGB.GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,GL11.GL_RGB,   GL11.GL_UNSIGNED_BYTE, true);
     private static final GLImageFormat sRGB_DXT1A = new GLImageFormat(EXTTextureSRGB.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true);
     private static final GLImageFormat sRGB_DXT3 = new GLImageFormat(EXTTextureSRGB.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, true);
@@ -162,16 +156,6 @@ class TextureUtil {
 
     public static GLImageFormat getImageFormat(ContextCapabilities caps, Format fmt, boolean isSrgb){
         switch (fmt){
-            case ABGR8:
-                if (!caps.GL_EXT_abgr){
-                    return null;
-                }
-                break;
-            case BGR8:
-                if (!caps.OpenGL12 && !caps.GL_EXT_bgra){
-                    return null;
-                }
-                break;
             case DXT1:
             case DXT1A:
             case DXT3:
@@ -189,17 +173,13 @@ class TextureUtil {
                 }
                 break;
             case Depth24Stencil8:
-                if (!caps.OpenGL30){
+                if (!caps.OpenGL30 && !caps.GL_EXT_packed_depth_stencil){
                     return null;
                 }
                 break;
             case Luminance16F:
             case Luminance16FAlpha16F:
             case Luminance32F:
-                if (!caps.GL_ARB_texture_float){
-                    return null;
-                }
-                break;
             case RGB16F:
             case RGB32F:
             case RGBA16F:
@@ -232,10 +212,14 @@ class TextureUtil {
                 }
                 break;
         }
-        if(isSrgb){
+        if (isSrgb) {
+            if (!caps.OpenGL30 && !caps.GL_EXT_texture_sRGB) {
+                return null;
+            }
             return getSrgbFormat(fmt);
+        } else {
+            return formatToGL[fmt.ordinal()];
         }
-        return formatToGL[fmt.ordinal()];
     }
     
     public static GLImageFormat getImageFormatWithError(Format fmt, boolean isSrgb) {
@@ -247,18 +231,33 @@ class TextureUtil {
     }
     
     private static GLImageFormat getSrgbFormat(Format fmt){
-        switch (fmt){           
-            case RGB8 : return sRGB_RGB8;           
-            case RGBA8 : return sRGB_RGBA8;
-            case BGR8 : return sRGB_BGR8;    
-            case ABGR8 : return sRGB_ABGR8;    
-            case Luminance8 : return sRGB_Luminance8;
-            case Luminance8Alpha8 : return sRGB_LuminanceAlpha8;
-            case DXT1 : return sRGB_DXT1;
-            case DXT1A : return sRGB_DXT1A;
-            case DXT3 : return sRGB_DXT3;
-            case DXT5 : return sRGB_DXT5;
-            default : Logger.getLogger(TextureUtil.class.getName()).log(Level.WARNING, "Format {0} has no sRGB equivalent, using linear format.", fmt.toString());
+        switch (fmt) {
+            case RGB8:
+                return sRGB_RGB8;
+            case RGBA8:
+                return sRGB_RGBA8;
+            case BGR8:
+                return sRGB_BGR8;
+            case ABGR8:
+                return sRGB_ABGR8;
+            case ARGB8:
+                return sRGB_ARGB8;
+            case BGRA8:
+                return sRGB_BGRA8;
+            case Luminance8:
+                return sRGB_Luminance8;
+            case Luminance8Alpha8:
+                return sRGB_LuminanceAlpha8;
+            case DXT1:
+                return sRGB_DXT1;
+            case DXT1A:
+                return sRGB_DXT1A;
+            case DXT3:
+                return sRGB_DXT3;
+            case DXT5:
+                return sRGB_DXT5;
+            default:
+                Logger.getLogger(TextureUtil.class.getName()).log(Level.WARNING, "Format {0} has no sRGB equivalent, using linear format.", fmt.toString());
                 return formatToGL[fmt.ordinal()];
         }
     }
