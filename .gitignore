@@ -72,3 +72,9 @@
 /jme3-android-native/OpenALSoft.zip
 /jme3-android-native/stb_image/
 /jme3-bullet-native-android/build/
+/sdk/nbproject/private/private.xml
+/sdk/nbproject/private/platform-private.properties
+/sdk/jme3-scenecomposer/nbproject/private/private.xml
+/sdk/jme3-core/nbproject/private/private.xml
+/.nb-gradle/profiles/private/aux-config
+/build/tmp/mergedJavadoc/javadoc.options
