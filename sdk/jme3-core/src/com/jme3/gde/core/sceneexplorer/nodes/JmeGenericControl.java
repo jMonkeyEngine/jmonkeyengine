@@ -32,50 +32,37 @@
 package com.jme3.gde.core.sceneexplorer.nodes;
 
 import com.jme3.gde.core.icons.IconList;
-import com.jme3.gde.core.properties.SceneExplorerProperty;
 import com.jme3.gde.core.properties.ScenePropertyChangeListener;
 import com.jme3.gde.core.scene.SceneApplication;
-import com.jme3.gde.core.util.DynamicLookup;
-import com.jme3.gde.core.util.PropertyUtils;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.Control;
 import java.awt.Image;
-import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import org.openide.actions.DeleteAction;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.lookup.InstanceContent;
-import org.openide.util.lookup.ProxyLookup;
 
 /**
  *
  * @author normenhansen
  */
-public class JmeGenericControl extends AbstractNode implements ScenePropertyChangeListener {
+public class JmeGenericControl extends AbstractSceneExplorerNode {
 
-    private Control control;
-    private static Image smallImage = IconList.wheel.getImage();
-    private DataObject dobject;
-    private InstanceContent lookupContents;
+    private final Control control;
+    private static final Image smallImage = IconList.wheel.getImage();
 
     public JmeGenericControl(Control control, DataObject dataObject) {
         //TODO: lookup content! (control etc)
-        super(Children.LEAF, new ProxyLookup(dataObject.getLookup(), new DynamicLookup(new InstanceContent())));
-        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();
+        super(dataObject);
         this.control = control;
-        this.dobject = dataObject;
-        lookupContents.add(this);
-        lookupContents.add(control);
-        setName(control.getClass().getName());
+        addToLookup(this);
+        addToLookup(control);
+        setName(control.getClass().getSimpleName());
     }
 
     @Override
@@ -92,18 +79,35 @@ public class JmeGenericControl extends AbstractNode implements ScenePropertyChan
     protected Sheet createSheet() {
         //TODO: multithreading..
         Sheet sheet = Sheet.createDefault();
-        Sheet.Set set = Sheet.createPropertiesSet();
-        set.setDisplayName("Control");
-        set.setName(Control.class.getName());
+        
         if (control == null) {
             return sheet;
         }
-
-        createFields(control.getClass(), set, control);
-
-        sheet.put(set);
+        putSheetSets(sheet, control.getClass(), false);
         return sheet;
 
+    }
+
+    /**
+     * Append one Sheet.Set of fields per class,
+     * recursively to the root class of the hierarchie.
+     *
+     * @param sheet Sheet where to put.
+     * @param c current class to start add.
+     * @param hidden sheet for c is hidden (parent are hidden = true)
+     */
+    protected void putSheetSets(Sheet sheet, Class c, boolean hidden) {
+        Sheet.Set set = Sheet.createPropertiesSet();
+        set.setDisplayName(String.format("%s - %s", c.getSimpleName(), c.getPackage().getName()));
+        set.setName(c.getName());
+        set.setHidden(hidden);
+        createFields(c, set, control);
+        
+        Class parent = c.getSuperclass();
+        if (parent != null && !parent.equals(Object.class)) {
+            putSheetSets(sheet, parent, true);
+        }
+        sheet.put(set);
     }
 
     @Override
@@ -139,47 +143,8 @@ public class JmeGenericControl extends AbstractNode implements ScenePropertyChan
             Exceptions.printStackTrace(ex);
         }
     }
-
-    protected Property makeProperty(Object obj, Class returntype, String method, String name) {
-        Property prop = null;
-        try {
-            prop = new SceneExplorerProperty(control.getClass().cast(obj), returntype, method, null);
-            prop.setName(name);
-        } catch (NoSuchMethodException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return prop;
-    }
-
-    protected Property makeProperty(Object obj, Class returntype, String method, String setter, String name) {
-        Property prop = null;
-        try {
-//            if (readOnly) {
-//                prop = new SceneExplorerProperty(control.getClass().cast(obj), returntype, method, null);
-//            } else {
-            prop = new SceneExplorerProperty(control.getClass().cast(obj), returntype, method, setter, this);
-//            }
-            prop.setName(name);
-
-        } catch (NoSuchMethodException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return prop;
-    }
-
-    protected void createFields(Class c, Sheet.Set set, Object obj) throws SecurityException {
-        for (Field field : c.getDeclaredFields()) {
-            PropertyDescriptor prop = PropertyUtils.getPropertyDescriptor(c, field);
-            if (prop != null) {
-                set.put(makeProperty(obj, prop.getPropertyType(), prop.getReadMethod().getName(), prop.getWriteMethod().getName(), prop.getDisplayName()));
-            }
-        }
-    }
-
-    public void propertyChange(String type, String name, Object oldValue, Object newValue) {
-        if (type.equals("PROP_USER_CHANGE")) {
-            dobject.setModified(true);
-        }
-//        throw new UnsupportedOperationException("Not supported yet.");
+    
+    public Class getExplorerObjectClass() {
+        return control.getClass();
     }
 }
