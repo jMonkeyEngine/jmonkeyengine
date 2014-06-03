@@ -112,6 +112,7 @@ public class LwjglRenderer implements Renderer {
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
+    private int scisX, scisY, scisW, scisH;
     private boolean linearizeSrgbImages;
 
     public LwjglRenderer() {
@@ -157,11 +158,11 @@ public class LwjglRenderer implements Renderer {
                 }
             }
         }
-        
+
         //workaround, always assume we support GLSL100
         //some cards just don't report this correctly
         caps.add(Caps.GLSL100);
-        
+
         String versionStr = null;
         if (ctxCaps.OpenGL20) {
             versionStr = glGetString(GL_SHADING_LANGUAGE_VERSION);
@@ -371,7 +372,7 @@ public class LwjglRenderer implements Renderer {
                 caps.add(Caps.FrameBufferMRT);
                 logger.log(Level.FINER, "FBO Max MRT renderbuffers: {0}", maxMRTFBOAttachs);
             }
-            
+
 //            if (ctxCaps.GL_ARB_draw_buffers) {
 //                caps.add(Caps.FrameBufferMRT);
 //                glGetInteger(ARBDrawBuffers.GL_MAX_DRAW_BUFFERS_ARB, intBuf16);
@@ -392,7 +393,7 @@ public class LwjglRenderer implements Renderer {
             }
             caps.add(Caps.Multisample);
         }
-        
+
         // Supports sRGB pipeline.
         if ( (ctxCaps.GL_ARB_framebuffer_sRGB && ctxCaps.GL_EXT_texture_sRGB ) || ctxCaps.OpenGL30 ) {
             caps.add(Caps.Srgb);
@@ -491,7 +492,7 @@ public class LwjglRenderer implements Renderer {
         }
 
         if (state.isDepthTest() && !context.depthTestEnabled) {
-            glEnable(GL_DEPTH_TEST);      
+            glEnable(GL_DEPTH_TEST);
             glDepthFunc(convertTestFunction(context.depthFunc));
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
@@ -512,9 +513,9 @@ public class LwjglRenderer implements Renderer {
             context.alphaTestEnabled = false;
         }
         if (state.getAlphaFallOff() != context.alphaTestFallOff) {
-            glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);   
+            glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);
             context.alphaTestFallOff = state.getAlphaFallOff();
-        }         
+        }
         if (state.getAlphaFunc() != context.alphaFunc) {
             glAlphaFunc(convertTestFunction(state.getAlphaFunc()), context.alphaTestFallOff);
             context.alphaFunc = state.getAlphaFunc();
@@ -687,6 +688,48 @@ public class LwjglRenderer implements Renderer {
                         0, Integer.MAX_VALUE);
             } else {
                 glDisable(GL_STENCIL_TEST);
+            }
+        }
+
+        if (state.isScissorTest()) {
+            if (!context.clipRectEnabled) {
+                glEnable(GL_SCISSOR_TEST);
+                glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
+                scisX = state.getScissorX();
+                scisY = state.getScissorY();
+                scisW = state.getScissorW();
+                scisH = state.getScissorH();
+                System.out.println("Enabled");
+            } else {
+                if (scisX != clipX || scisY != clipY || scisW != clipW || scisH != clipH) {
+                    glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
+
+                    if (state.getScissorX() != scisX || state.getScissorY() != scisY || state.getScissorW() != scisW
+                            || state.getScissorH() != scisH) {
+                        scisX = state.getScissorX();
+                        scisY = state.getScissorY();
+                        scisW = state.getScissorW();
+                        scisH = state.getScissorH();
+                        System.out.println("Updated");
+                    }
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                glScissor(clipX, clipY, clipW, clipH);
+                scisX = 0;
+                scisY = 0;
+                scisW = 0;
+                scisH = 0;
+                System.out.println("Reset");
+            } else {
+                glDisable(GL_SCISSOR_TEST);
+                glScissor(0, 0, 0, 0);
+                scisX = 0;
+                scisY = 0;
+                scisW = 0;
+                scisH = 0;
+                System.out.println("Disabled");
             }
         }
     }
@@ -1781,7 +1824,7 @@ public class LwjglRenderer implements Renderer {
         if (context.pointSprite) {
             return; // Attempt to fix glTexParameter crash for some ATI GPUs
         }
-        
+
         // repeat modes
         switch (tex.getType()) {
             case ThreeDimensional:
@@ -1803,7 +1846,7 @@ public class LwjglRenderer implements Renderer {
             // R to Texture compare mode
             if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
                 glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-                glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);            
+                glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
                 if (tex.getShadowCompareMode() == Texture.ShadowCompareMode.GreaterOrEqual) {
                     glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_GEQUAL);
                 } else {
@@ -1811,7 +1854,7 @@ public class LwjglRenderer implements Renderer {
                 }
             }else{
                  //restoring default value
-                 glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_NONE);          
+                 glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_NONE);
             }
             tex.compareModeUpdated();
         }
@@ -1819,7 +1862,7 @@ public class LwjglRenderer implements Renderer {
 
     /**
      * Uploads the given image to the GL driver.
-     * 
+     *
      * @param img The image to upload
      * @param type How the data in the image argument should be interpreted.
      * @param unit The texture slot to be used to upload the image, not important
@@ -1836,7 +1879,7 @@ public class LwjglRenderer implements Renderer {
             statistics.onNewTexture();
         }
 
-        // bind texture       
+        // bind texture
         int target = convertTextureType(type, img.getMultiSamples(), -1);
         if (context.boundTextureUnit != unit) {
             glActiveTexture(GL_TEXTURE0 + unit);
@@ -1861,7 +1904,7 @@ public class LwjglRenderer implements Renderer {
                 // We'll generate mipmaps via glGenerateMipmapEXT (see below)
             }
         } else if (img.hasMipmaps()) {
-            // Image already has mipmaps, set the max level based on the 
+            // Image already has mipmaps, set the max level based on the
             // number of mipmaps we have.
             glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
         } else {
@@ -1894,7 +1937,7 @@ public class LwjglRenderer implements Renderer {
                 throw new RendererException("Multisample textures not supported by graphics hardware");
             }
         }
-        
+
         if (target == GL_TEXTURE_CUBE_MAP) {
             // Check max texture size before upload
             if (img.getWidth() > maxCubeTexSize || img.getHeight() > maxCubeTexSize) {
@@ -1920,12 +1963,12 @@ public class LwjglRenderer implements Renderer {
             if (!caps.contains(Caps.TextureArray)) {
                 throw new RendererException("Texture arrays not supported by graphics hardware");
             }
-            
+
             List<ByteBuffer> data = img.getData();
-            
+
             // -1 index specifies prepare data for 2D Array
             TextureUtil.uploadTexture(img, target, -1, 0, linearizeSrgbImages);
-            
+
             for (int i = 0; i < data.size(); i++) {
                 // upload each slice of 2D array in turn
                 // this time with the appropriate index
@@ -2209,7 +2252,7 @@ public class LwjglRenderer implements Renderer {
                     attrib.setLocation(loc);
                 }
             }
-            
+
             int slotsRequired = 1;
             if (vb.isInstanced()) {
                 if (!GLContext.getCapabilities().GL_ARB_instanced_arrays
@@ -2424,7 +2467,7 @@ public class LwjglRenderer implements Renderer {
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
         }
-        
+
         if (instanceData != null) {
             setVertexAttrib(instanceData, null);
         }
@@ -2492,7 +2535,7 @@ public class LwjglRenderer implements Renderer {
                 setVertexAttrib(vb, null);
             }
         }
-        
+
         for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
@@ -2555,16 +2598,16 @@ public class LwjglRenderer implements Renderer {
 
     public void setMainFrameBufferSrgb(boolean enableSrgb) {
         // Gamma correction
-        
+
         if (!caps.contains(Caps.Srgb)) {
             // Not supported, sorry.
-            
-            logger.warning("sRGB framebuffer is not supported " + 
-                           "by video hardware, but was requested."); 
-            
+
+            logger.warning("sRGB framebuffer is not supported " +
+                           "by video hardware, but was requested.");
+
             return;
         }
-        
+
         setFrameBuffer(null);
 
         if (enableSrgb) {

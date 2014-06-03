@@ -34,6 +34,7 @@ package com.jme3.material;
 import com.jme3.export.*;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
+
 import java.io.IOException;
 
 /**
@@ -271,7 +272,10 @@ public class RenderState implements Cloneable, Savable {
         ADDITIONAL.applyAlphaTest = false;
         ADDITIONAL.applyAlphaFallOff = false;
         ADDITIONAL.applyPolyOffset = false;
+        ADDITIONAL.applyScissorTest = false;
+        ADDITIONAL.applyScissorRect = false;
     }
+
     boolean pointSprite = false;
     boolean applyPointSprite = true;
     boolean wireframe = false;
@@ -298,9 +302,9 @@ public class RenderState implements Cloneable, Savable {
     boolean applyStencilTest = false;
     TestFunction depthFunc = TestFunction.LessOrEqual;
     //by default depth func will be applied anyway if depth test is applied
-    boolean applyDepthFunc = false;    
+    boolean applyDepthFunc = false;
     //by default alpha func will be applied anyway if alpha test is applied
-    TestFunction alphaFunc = TestFunction.Greater;    
+    TestFunction alphaFunc = TestFunction.Greater;
     boolean applyAlphaFunc = false;
     StencilOperation frontStencilStencilFailOperation = StencilOperation.Keep;
     StencilOperation frontStencilDepthFailOperation = StencilOperation.Keep;
@@ -310,6 +314,13 @@ public class RenderState implements Cloneable, Savable {
     StencilOperation backStencilDepthPassOperation = StencilOperation.Keep;
     TestFunction frontStencilFunction = TestFunction.Always;
     TestFunction backStencilFunction = TestFunction.Always;
+    boolean scissorTest = false;
+    boolean applyScissorTest = false;
+    int scissorX = 0;
+    int scissorY = 0;
+    int scissorW = 0;
+    int scissorH = 0;
+    boolean applyScissorRect = false;
     int cachedHashCode = -1;
 
     public void write(JmeExporter ex) throws IOException {
@@ -335,6 +346,11 @@ public class RenderState implements Cloneable, Savable {
         oc.write(backStencilDepthPassOperation, "backStencilDepthPassOperation", StencilOperation.Keep);
         oc.write(frontStencilFunction, "frontStencilFunction", TestFunction.Always);
         oc.write(backStencilFunction, "backStencilFunction", TestFunction.Always);
+        oc.write(scissorTest, "scissorTest", false);
+        oc.write(scissorX, "scissorX", 0);
+        oc.write(scissorY, "scissorY", 0);
+        oc.write(scissorW, "scissorW", 0);
+        oc.write(scissorH, "scissorH", 0);
 
         // Only "additional render state" has them set to false by default
         oc.write(applyPointSprite, "applyPointSprite", true);
@@ -350,8 +366,9 @@ public class RenderState implements Cloneable, Savable {
         oc.write(applyDepthFunc, "applyDepthFunc", true);
         oc.write(applyAlphaFunc, "applyAlphaFunc", false);
         oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
-        oc.write(alphaFunc, "alphaFunc", TestFunction.Greater);  
-
+        oc.write(alphaFunc, "alphaFunc", TestFunction.Greater);
+        oc.write(applyScissorTest, "applyScissorTest", true);
+        oc.write(applyScissorRect, "applyScissorTect", true);
     }
 
     public void read(JmeImporter im) throws IOException {
@@ -379,6 +396,11 @@ public class RenderState implements Cloneable, Savable {
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
         alphaFunc = ic.readEnum("alphaFunc", TestFunction.class, TestFunction.Greater);
+        scissorTest = ic.readBoolean("scissorTest", false);
+        scissorX = ic.readInt("scissorX", 0);
+        scissorY = ic.readInt("scissorY", 0);
+        scissorW = ic.readInt("scissorW", 0);
+        scissorH = ic.readInt("scissorH", 0);
 
         applyPointSprite = ic.readBoolean("applyPointSprite", true);
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
@@ -392,7 +414,8 @@ public class RenderState implements Cloneable, Savable {
         applyPolyOffset = ic.readBoolean("applyPolyOffset", true);
         applyDepthFunc = ic.readBoolean("applyDepthFunc", true);
         applyAlphaFunc = ic.readBoolean("applyAlphaFunc", false);
-        
+        applyScissorTest = ic.readBoolean("applyScissorTest", true);
+        applyScissorRect = ic.readBoolean("applyScissorRect", true);
     }
 
     /**
@@ -513,6 +536,26 @@ public class RenderState implements Cloneable, Savable {
             }
         }
 
+        if (scissorTest != rs.scissorTest) {
+            return false;
+        }
+
+        if (scissorX != rs.scissorX) {
+            return false;
+        }
+
+        if (scissorY != rs.scissorY) {
+            return false;
+        }
+
+        if (scissorW != rs.scissorW) {
+            return false;
+        }
+
+        if (scissorH != rs.scissorH) {
+            return false;
+        }
+
         return true;
     }
 
@@ -540,7 +583,7 @@ public class RenderState implements Cloneable, Savable {
      * <p>If the pixel's alpha value is greater than the
      * <code>alphaFallOff</code> then the pixel will be rendered, otherwise
      * the pixel will be discarded.
-     * 
+     *
      * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
      * openglES 2.0.
      * The prefered way is to use the alphaDiscardThreshold on the material
@@ -567,13 +610,13 @@ public class RenderState implements Cloneable, Savable {
      * otherwise it will be discarded.
      *
      * @param alphaTest Set to true to enable alpha testing.
-     * 
+     *
      * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
      * openglES 2.0.
      * The prefered way is to use the alphaDiscardThreshold on the material
      * Or have a shader that discards the pixel when its alpha value meets the
      * discarding condition.
-     * 
+     *
      *
      * @see RenderState#setAlphaFallOff(float)
      */
@@ -704,7 +747,7 @@ public class RenderState implements Cloneable, Savable {
             offsetUnits = units;
         }
         cachedHashCode = -1;
-    }    
+    }
 
     /**
      * Enable stencil testing.
@@ -756,13 +799,13 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Set the depth conparison function to the given TestFunction 
+     * Set the depth conparison function to the given TestFunction
      * default is LessOrEqual (GL_LEQUAL)
      * @see TestFunction
-     * @see RenderState#setDepthTest(boolean) 
+     * @see RenderState#setDepthTest(boolean)
      * @param depthFunc the depth comparison function
      */
-    public void setDepthFunc(TestFunction depthFunc) {       
+    public void setDepthFunc(TestFunction depthFunc) {
         applyDepthFunc = true;
         this.depthFunc = depthFunc;
         cachedHashCode = -1;
@@ -771,25 +814,57 @@ public class RenderState implements Cloneable, Savable {
     /**
      * Sets the alpha comparision function to the given TestFunction
      * default is Greater (GL_GREATER)
-     * 
+     *
      * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
      * openglES 2.0.
      * The prefered way is to use the alphaDiscardThreshold on the material
      * Or have a shader taht discards the pixel when its alpha value meets the
      * discarding condition.
-     * 
+     *
      * @see TestFunction
-     * @see RenderState#setAlphaTest(boolean) 
-     * @see RenderState#setAlphaFallOff(float) 
+     * @see RenderState#setAlphaTest(boolean)
+     * @see RenderState#setAlphaFallOff(float)
      * @param alphaFunc the alpha comparision function
      */
-    public void setAlphaFunc(TestFunction alphaFunc) {        
+    public void setAlphaFunc(TestFunction alphaFunc) {
         applyAlphaFunc = true;
         this.alphaFunc = alphaFunc;
         cachedHashCode = -1;
     }
-    
-    
+
+    /**
+     * Enables scissor testing mode.
+     *
+     * <p>When in scissor testing mode, a pixel must be within the scissoring
+     * rectangle in order to be drawn.
+     *
+     * @param scissorTest True to enable scissor testing mode
+     */
+    public void setScissorTest(boolean scissorTest) {
+        applyScissorTest = true;
+        this.scissorTest = scissorTest;
+        cachedHashCode = -1;
+    }
+
+    /**
+     * Sets the scissoring rectangle to the given values. Any pixels outside this
+     * area will not be drawn. scissorX and scissorY should be zero or greater.
+     * scissorW and scissorH should be greater than zero.
+     *
+     * @param scissorX the x position of the bottom left corner of the rectangle
+     * @param scissorY the y position of the bottom left corner of the rectangle
+     * @param scissorW the width of the rectangle
+     * @param scissorH the height of the rectangle
+     */
+    public void setScissorRect(int scissorX, int scissorY,
+                               int scissorW, int scissorH) {
+        applyScissorRect = true;
+        this.scissorX = scissorX;
+        this.scissorY = scissorY;
+        this.scissorW = scissorW;
+        this.scissorH = scissorH;
+        cachedHashCode = -1;
+    }
 
     /**
      * Check if stencil test is enabled.
@@ -1103,8 +1178,53 @@ public class RenderState implements Cloneable, Savable {
     public TestFunction getAlphaFunc() {
         return alphaFunc;
     }
-    
-    
+
+    /**
+     * Check if scissor testing is enabled.
+     *
+     * @return True if scissor testing is enabled
+     */
+    public boolean isScissorTest() {
+        return scissorTest;
+    }
+
+    /**
+     * Retrieve the x position of the bottom left corner of the scissor rectangle.
+     *
+     * @return the x position of the bottom left corner of the scissor rectangle
+     */
+    public int getScissorX() {
+        return scissorX;
+    }
+
+    /**
+     * Retrieve the y position of the bottom left corner of the scissor rectangle.
+     *
+     * @return the y position of the bottom left corner of the scissor rectangle
+     */
+    public int getScissorY() {
+        return scissorY;
+    }
+
+    /**
+     * Retrieve the width of the scissor rectangle.
+     *
+     * @return the width of the scissor rectangle
+     */
+    public int getScissorW() {
+        return scissorW;
+    }
+
+    /**
+     * Retrieve the height of the scissor rectangle.
+     *
+     * @return the height of the scissor rectangle
+     */
+    public int getScissorH() {
+        return scissorH;
+    }
+
+
 
     public boolean isApplyAlphaFallOff() {
         return applyAlphaFallOff;
@@ -1153,8 +1273,16 @@ public class RenderState implements Cloneable, Savable {
     public boolean isApplyAlphaFunc() {
         return applyAlphaFunc;
     }
-    
-    
+
+    public boolean isApplyScissorTest() {
+        return applyScissorTest;
+    }
+
+    public boolean isApplyScissorRect() {
+        return applyScissorRect;
+    }
+
+
 
     /**
      *
@@ -1185,6 +1313,11 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.backStencilDepthPassOperation != null ? this.backStencilDepthPassOperation.hashCode() : 0);
             hash = 79 * hash + (this.frontStencilFunction != null ? this.frontStencilFunction.hashCode() : 0);
             hash = 79 * hash + (this.backStencilFunction != null ? this.backStencilFunction.hashCode() : 0);
+            hash = 79 * hash + (this.scissorTest ? 1 : 0);
+            hash = 79 * hash + scissorX;
+            hash = 79 * hash + scissorY;
+            hash = 79 * hash + scissorW;
+            hash = 79 * hash + scissorH;
             cachedHashCode = hash;
         }
         return cachedHashCode;
@@ -1309,6 +1442,22 @@ public class RenderState implements Cloneable, Savable {
             state.frontStencilFunction = frontStencilFunction;
             state.backStencilFunction = backStencilFunction;
         }
+        if (additionalState.applyScissorTest) {
+            state.scissorTest = additionalState.scissorTest;
+        } else {
+            state.scissorTest = scissorTest;
+        }
+        if (additionalState.applyScissorRect) {
+            state.scissorX = additionalState.scissorX;
+            state.scissorY = additionalState.scissorY;
+            state.scissorW = additionalState.scissorW;
+            state.scissorH = additionalState.scissorH;
+        } else {
+            state.scissorX = scissorX;
+            state.scissorY = scissorY;
+            state.scissorW = scissorW;
+            state.scissorH = scissorH;
+        }
         state.cachedHashCode = -1;
         return state;
     }
@@ -1339,7 +1488,14 @@ public class RenderState implements Cloneable, Savable {
                 + "\noffsetEnabled=" + offsetEnabled
                 + "\napplyPolyOffset=" + applyPolyOffset
                 + "\noffsetFactor=" + offsetFactor
-                + "\noffsetUnits=" + offsetUnits      
+                + "\noffsetUnits=" + offsetUnits
+                + "\nscissorTest=" + scissorTest
+                + "\napplyScissorTest=" + applyScissorTest
+                + "\napplyScissorRect=" + applyScissorRect
+                + "\nscissorX" + scissorX
+                + "\nscissorY" + scissorY
+                + "\nscissorWidth" + scissorW
+                + "\nscissorHeight" + scissorH
                 + "\n]";
     }
 }
