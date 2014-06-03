@@ -213,9 +213,6 @@ class TextureUtil {
                 break;
         }
         if (isSrgb) {
-            if (!caps.OpenGL30 && !caps.GL_EXT_texture_sRGB) {
-                return null;
-            }
             return getSrgbFormat(fmt);
         } else {
             return formatToGL[fmt.ordinal()];

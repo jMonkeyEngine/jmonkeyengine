@@ -1030,10 +1030,10 @@ public class LwjglRenderer implements Renderer {
 
         if (compiledOK) {
             if (infoLog != null) {
-                logger.log(Level.FINE, "{0} compile success\n{1}",
+                logger.log(Level.WARNING, "{0} compiled successfully, compiler warnings: \n{1}",
                         new Object[]{source.getName(), infoLog});
             } else {
-                logger.log(Level.FINE, "{0} compile success", source.getName());
+                logger.log(Level.FINE, "{0} compiled successfully.", source.getName());
             }
             source.clearUpdateNeeded();
         } else {
@@ -1102,9 +1102,9 @@ public class LwjglRenderer implements Renderer {
 
         if (linkOK) {
             if (infoLog != null) {
-                logger.log(Level.FINE, "shader link success. \n{0}", infoLog);
+                logger.log(Level.WARNING, "Shader linked successfully. Linker warnings: \n{0}", infoLog);
             } else {
-                logger.fine("shader link success");
+                logger.fine("Shader linked successfully.");
             }
             shader.clearUpdateNeeded();
             if (needRegister) {
@@ -1117,9 +1117,9 @@ public class LwjglRenderer implements Renderer {
             }
         } else {
             if (infoLog != null) {
-                throw new RendererException("Shader link failure, shader:" + shader + " info:" + infoLog);
+                throw new RendererException("Shader failure to link, shader:" + shader + " info:" + infoLog);
             } else {
-                throw new RendererException("Shader link failure, shader:" + shader + " info: <not provided>");
+                throw new RendererException("Shader failure to link, shader:" + shader + " info: <not provided>");
             }
         }
     }
@@ -2553,17 +2553,35 @@ public class LwjglRenderer implements Renderer {
 //        }
     }
 
-    public void setMainFrameBufferSrgb(boolean srgb) {
-        //Gamma correction
-        if(srgb && caps.contains(Caps.Srgb)){
+    public void setMainFrameBufferSrgb(boolean enableSrgb) {
+        // Gamma correction
+        
+        if (!caps.contains(Caps.Srgb)) {
+            // Not supported, sorry.
+            
+            logger.warning("sRGB framebuffer is not supported " + 
+                           "by video hardware, but was requested."); 
+            
+            return;
+        }
+        
+        if (enableSrgb) {
+            if (!glGetBoolean(GL30.GL_FRAMEBUFFER_SRGB_CAPABLE)) {
+                logger.warning("Driver claims that default framebuffer " + 
+                               "is not sRGB capable. Enabling anyway.");
+            }
+            
             glEnable(GL30.GL_FRAMEBUFFER_SRGB);
+            
             logger.log(Level.FINER, "SRGB FrameBuffer enabled (Gamma Correction)");
-        }else{
+        } else {
             glDisable(GL30.GL_FRAMEBUFFER_SRGB);
-        }         
+        }
     }
 
     public void setLinearizeSrgbImages(boolean linearize) {
-        linearizeSrgbImages = linearize;
+        if (caps.contains(Caps.Srgb)) {
+            linearizeSrgbImages = linearize;
+        }
     }
 }
