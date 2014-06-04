@@ -64,6 +64,11 @@ public class PropertyUtils {
                 if (name.length() > 0) {
                     name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
                 }
+            } else if (name.startsWith("is")) {
+                name = name.substring(2);
+                if (name.length() > 0) {
+                    name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+                }
             } else {
                 return null;
             }
