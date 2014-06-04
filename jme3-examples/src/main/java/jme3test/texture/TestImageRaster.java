@@ -133,6 +133,12 @@ public class TestImageRaster extends SimpleApplication {
         image = convertImage(image, Format.BGR8);
         convertAndPutImage(image, 25, 5);
         
+        image = convertImage(image, Format.ARGB8);
+        convertAndPutImage(image, 30, 5);
+        
+        image = convertImage(image, Format.BGRA8);
+        convertAndPutImage(image, 35, 5);
+        
         image = convertImage(image, Format.RGB5A1);
         convertAndPutImage(image, 0, 10);
         
