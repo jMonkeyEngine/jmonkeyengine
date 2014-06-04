@@ -323,8 +323,7 @@ public class LwjglCanvas extends LwjglAbstractDisplay implements JmeCanvasContex
                                                0,
                                                0, 
                                                0, 
-                                               settings.useStereo3D())
-                                    .withSRGB(settings.getGammaCorrection());
+                                               settings.useStereo3D());
             }
             return canvasFormat;
         }
