@@ -91,8 +91,7 @@ public class LwjglDisplay extends LwjglAbstractDisplay {
                                          0, 
                                          0, 
                                          0, 
-                                         settings.useStereo3D())
-                                .withSRGB(settings.getGammaCorrection());
+                                         settings.useStereo3D());
         
         frameRate = settings.getFrameRate();
         logger.log(Level.FINE, "Selected display mode: {0}", displayMode);

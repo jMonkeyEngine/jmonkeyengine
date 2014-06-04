@@ -2565,14 +2565,25 @@ public class LwjglRenderer implements Renderer {
             return;
         }
         
+        setFrameBuffer(null);
+
         if (enableSrgb) {
             if (!glGetBoolean(GL30.GL_FRAMEBUFFER_SRGB_CAPABLE)) {
-                logger.warning("Driver claims that default framebuffer " + 
-                               "is not sRGB capable. Enabling anyway.");
+                logger.warning("Driver claims that default framebuffer "
+                        + "is not sRGB capable. Enabling anyway.");
             }
-            
+
+            int encoding = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_DRAW_FRAMEBUFFER,
+                    GL_FRONT_LEFT,
+                    GL30.GL_FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING);
+
+            if (encoding != GL21.GL_SRGB) {
+                logger.warning("Driver claims that default framebuffer "
+                        + "is not using sRGB color encoding. Enabling anyway.");
+            }
+
             glEnable(GL30.GL_FRAMEBUFFER_SRGB);
-            
+
             logger.log(Level.FINER, "SRGB FrameBuffer enabled (Gamma Correction)");
         } else {
             glDisable(GL30.GL_FRAMEBUFFER_SRGB);
