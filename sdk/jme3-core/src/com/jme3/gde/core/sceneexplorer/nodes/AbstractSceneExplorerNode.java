@@ -65,34 +65,22 @@ public abstract class AbstractSceneExplorerNode extends AbstractNode implements 
     private final List<Property<?>> sceneProperties = Collections.synchronizedList(new LinkedList<Property<?>>());
 
     public AbstractSceneExplorerNode() {
-        super(Children.LEAF, new DynamicLookup(new InstanceContent()));
-        lookupContents = ((DynamicLookup) getLookup()).getInstanceContent();
+        this(Children.LEAF, null);
     }
 
     public AbstractSceneExplorerNode(Children children, DataObject dataObject) {
-        super(children, new ProxyLookup(dataObject.getLookup(), new DynamicLookup(new InstanceContent())));
+        super(children, new ProxyLookup(dataObject != null ? dataObject.getLookup() : Lookup.EMPTY, new DynamicLookup(new InstanceContent())));
         this.dataObject = dataObject;
+        this.jmeChildren = children;
         lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();
     }
 
     public AbstractSceneExplorerNode(DataObject dataObject) {
-        super(Children.LEAF, new ProxyLookup(dataObject != null ? dataObject.getLookup() : Lookup.EMPTY, new DynamicLookup(new InstanceContent())));
-        this.dataObject = dataObject;
-        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();
+        this(Children.LEAF, dataObject);
     }
 
     public AbstractSceneExplorerNode(Children children) {
-        //TODO: OMG!
-        super(children, children instanceof JmeSpatialChildren
-                ? (((JmeSpatialChildren) children).getDataObject() != null
-                ? new ProxyLookup(((JmeSpatialChildren) children).getDataObject().getLookup(), new DynamicLookup(new InstanceContent()))
-                : new DynamicLookup(new InstanceContent()))
-                : new DynamicLookup(new InstanceContent()));
-        this.jmeChildren = children;
-        lookupContents = getLookup().lookup(DynamicLookup.class).getInstanceContent();
-        if (children instanceof JmeSpatialChildren) {
-            this.dataObject = ((JmeSpatialChildren) children).getDataObject();
-        }
+        this(children, (children instanceof JmeSpatialChildren) ? ((JmeSpatialChildren) children).getDataObject() : null);
     }
 
     public InstanceContent getLookupContents() {

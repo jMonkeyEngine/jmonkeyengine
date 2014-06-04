@@ -37,6 +37,7 @@ import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AddUserDataAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewControlPopup;
 import com.jme3.scene.AssetLinkNode;
+import com.jme3.scene.control.Control;
 import java.awt.Image;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -73,8 +74,7 @@ public class JmeAssetLinkNode extends JmeNode {
     }
 
     public JmeAssetLinkNode(AssetLinkNode spatial, JmeSpatialChildren children) {
-        super(spatial, new AssetLinkChildren(spatial));
-        getLookupContents().add(spatial);
+        super(spatial, new AssetLinkChildren(spatial, children.getDataObject()));
         linkChildren = (AssetLinkChildren)getChildren();
         linkChildren.setReadOnly(children.readOnly);
         this.geom = spatial;
@@ -145,8 +145,9 @@ public class JmeAssetLinkNode extends JmeNode {
 
     public static class AssetLinkChildren extends JmeSpatialChildren {
 
-        public AssetLinkChildren(AssetLinkNode spatial) {
+        public AssetLinkChildren(AssetLinkNode spatial, DataObject dataObject) {
             super(spatial);
+            setDataObject(dataObject);
         }
 
         @Override
@@ -164,7 +165,10 @@ public class JmeAssetLinkNode extends JmeNode {
                         List<Object> keys = new LinkedList<Object>();
                         if (spatial instanceof AssetLinkNode) {
                             keys.addAll(((AssetLinkNode) spatial).getAssetLoaderKeys());
-                            return keys;
+                        }
+                        for (int i = 0; i < spatial.getNumControls(); i++) {
+                            Control control = spatial.getControl(i);
+                            keys.add(control);
                         }
                         return keys;
                     }
@@ -194,7 +198,7 @@ public class JmeAssetLinkNode extends JmeNode {
                 ModelKey assetKey = (ModelKey) key;
                 return new Node[]{new JmeAssetLinkChild(assetKey, (AssetLinkNode) spatial)};
             }
-            return null;
+            return super.createNodes(key);
         }
     }
 
