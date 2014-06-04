@@ -5,6 +5,7 @@ uniform vec3 m_WhitePoint;
 
 #if __VERSION__ >= 150
 in vec2 texCoord;
+out vec4 outFragColor;
 #else
 varying vec2 texCoord;
 #endif
@@ -34,5 +35,10 @@ void main() {
 
     vec4 texVal = getColor(m_Texture, texCoord);
     vec3 toneMapped = ToneMap_Filmic(texVal.rgb, m_WhitePoint);
-    gl_FragColor = vec4(toneMapped, texVal.a);
+
+    #if __VERSION__ >= 150
+        outFragColor = vec4(toneMapped, texVal.a);
+    #else
+        gl_FragColor = vec4(toneMapped, texVal.a);
+    #endif
 }
