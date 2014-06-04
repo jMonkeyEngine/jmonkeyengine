@@ -75,7 +75,6 @@ public class JmeNode extends JmeSpatial {
 
     public JmeNode(Node spatial, JmeSpatialChildren children) {
         super(spatial, children);
-        getLookupContents().add(spatial);
         this.node = spatial;
     }
 
