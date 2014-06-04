@@ -112,7 +112,6 @@ public class LwjglRenderer implements Renderer {
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
-    private int scisX, scisY, scisW, scisH;
     private boolean linearizeSrgbImages;
 
     public LwjglRenderer() {
@@ -695,41 +694,23 @@ public class LwjglRenderer implements Renderer {
             if (!context.clipRectEnabled) {
                 glEnable(GL_SCISSOR_TEST);
                 glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
-                scisX = state.getScissorX();
-                scisY = state.getScissorY();
-                scisW = state.getScissorW();
-                scisH = state.getScissorH();
-                System.out.println("Enabled");
             } else {
-                if (scisX != clipX || scisY != clipY || scisW != clipW || scisH != clipH) {
-                    glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
-
-                    if (state.getScissorX() != scisX || state.getScissorY() != scisY || state.getScissorW() != scisW
-                            || state.getScissorH() != scisH) {
-                        scisX = state.getScissorX();
-                        scisY = state.getScissorY();
-                        scisW = state.getScissorW();
-                        scisH = state.getScissorH();
-                        System.out.println("Updated");
-                    }
+                int scisX = state.getScissorX();
+                int scisY = state.getScissorY();
+                int scisW = state.getScissorW();
+                int scisH = state.getScissorH();
+                ScissorRectangle i = ScissorRectangle.intersect(clipX, clipY, clipW, clipH, scisX, scisY, scisW, scisH);
+                if (i == null) {
+                    glScissor(0, 0, 0, 0);
+                } else {
+                    glScissor(i.getX(), i.getY(), i.getW(), i.getH());
                 }
             }
         } else {
             if (context.clipRectEnabled) {
                 glScissor(clipX, clipY, clipW, clipH);
-                scisX = 0;
-                scisY = 0;
-                scisW = 0;
-                scisH = 0;
-                System.out.println("Reset");
             } else {
                 glDisable(GL_SCISSOR_TEST);
-                glScissor(0, 0, 0, 0);
-                scisX = 0;
-                scisY = 0;
-                scisW = 0;
-                scisH = 0;
-                System.out.println("Disabled");
             }
         }
     }

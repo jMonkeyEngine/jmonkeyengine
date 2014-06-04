@@ -28,6 +28,7 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.ScissorRectangle;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.GL1Renderer;
@@ -69,10 +70,10 @@ public class LwjglGL1Renderer implements GL1Renderer {
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
-    
+
     private Matrix4f worldMatrix = new Matrix4f();
     private Matrix4f viewMatrix = new Matrix4f();
-    
+
     private ArrayList<Light> lightList = new ArrayList<Light>(8);
     private ColorRGBA materialAmbientColor = new ColorRGBA();
     private Vector3f tempVec = new Vector3f();
@@ -101,16 +102,16 @@ public class LwjglGL1Renderer implements GL1Renderer {
         if (GLContext.getCapabilities().OpenGL12){
             gl12 = true;
         }
-        
+
         //workaround, always assume we support GLSL100
         //some cards just don't report this correctly
         caps.add(Caps.GLSL100);
-        
+
         // Default values for certain GL state.
         glShadeModel(GL_SMOOTH);
         glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
         glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-        
+
         // Enable rescaling/normaling of normal vectors.
         // Fixes lighting issues with scaled models.
         if (gl12){
@@ -126,11 +127,11 @@ public class LwjglGL1Renderer implements GL1Renderer {
                     + "support non-power-of-2 textures. "
                     + "Some features might not work.");
         }
-        
+
         maxLights = glGetInteger(GL_MAX_LIGHTS);
         maxTexSize = glGetInteger(GL_MAX_TEXTURE_SIZE);
     }
-    
+
     public void invalidateState() {
         context.reset();
     }
@@ -195,7 +196,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
         glMaterial(GL_FRONT_AND_BACK, type, fb16);
     }
-    
+
     /**
      * Applies fixed function bindings from the context to OpenGL
      */
@@ -212,7 +213,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
                 glDisable(GL_COLOR_MATERIAL);
             }
         } else {
-            // Ignore other values as they have no effect when 
+            // Ignore other values as they have no effect when
             // GL_LIGHTING is disabled.
             ColorRGBA color = context.color;
             if (color != null) {
@@ -228,7 +229,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             glDisable(GL_ALPHA_TEST);
         }
     }
-    
+
     /**
      * Reset fixed function bindings to default values.
      */
@@ -241,8 +242,8 @@ public class LwjglGL1Renderer implements GL1Renderer {
         context.shininess = 0;
         context.useVertexColor = false;
     }
-    
-        public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val) {        
+
+        public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val) {
         switch (ffBinding) {
             case Color:
                 context.color = (ColorRGBA) val;
@@ -267,7 +268,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
                 break;
         }
     }
-    
+
     public void applyRenderState(RenderState state) {
         if (state.isWireframe() && !context.wireframe) {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -291,7 +292,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         } else {
             setFixedFuncBinding(FixedFuncBinding.AlphaTestFallOff, 0f); // disable it
         }
-        
+
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             glDepthMask(true);
             context.depthWriteEnabled = true;
@@ -406,6 +407,29 @@ public class LwjglGL1Renderer implements GL1Renderer {
             throw new UnsupportedOperationException("OpenGL 1.1 doesn't support two sided stencil operations.");
         }
 
+        if (state.isScissorTest()) {
+            if (!context.clipRectEnabled) {
+                glEnable(GL_SCISSOR_TEST);
+                glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
+            } else {
+                int scisX = state.getScissorX();
+                int scisY = state.getScissorY();
+                int scisW = state.getScissorW();
+                int scisH = state.getScissorH();
+                ScissorRectangle i = ScissorRectangle.intersect(clipX, clipY, clipW, clipH, scisX, scisY, scisW, scisH);
+                if (i == null) {
+                    glScissor(0, 0, 0, 0);
+                } else {
+                    glScissor(i.getX(), i.getY(), i.getW(), i.getH());
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                glScissor(clipX, clipY, clipW, clipH);
+            } else {
+                glDisable(GL_SCISSOR_TEST);
+            }
+        }
     }
 
     public void setViewPort(int x, int y, int w, int h) {
@@ -455,7 +479,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         store.clear();
         return store;
     }
-    
+
     private void setModelView(Matrix4f modelMatrix, Matrix4f viewMatrix){
         if (context.matrixMode != GL_MODELVIEW) {
             glMatrixMode(GL_MODELVIEW);
@@ -465,7 +489,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         glLoadMatrix(storeMatrix(viewMatrix, fb16));
         glMultMatrix(storeMatrix(modelMatrix, fb16));
     }
-    
+
     private void setProjection(Matrix4f projMatrix){
         if (context.matrixMode != GL_PROJECTION) {
             glMatrixMode(GL_PROJECTION);
@@ -494,17 +518,17 @@ public class LwjglGL1Renderer implements GL1Renderer {
             setModelView(worldMatrix, viewMatrix);
             return;
         }
-        
+
         // Number of lights set previously
         int numLightsSetPrev = lightList.size();
-        
+
         // If more than maxLights are defined, they will be ignored.
-        // The GL1 renderer is not permitted to crash due to a 
+        // The GL1 renderer is not permitted to crash due to a
         // GL1 limitation. It must render anything that the GL2 renderer
         // can render (even incorrectly).
         lightList.clear();
         materialAmbientColor.set(0, 0, 0, 0);
-        
+
         for (int i = 0; i < list.size(); i++){
             Light l = list.get(i);
             if (l.getType() == Light.Type.Ambient){
@@ -513,26 +537,26 @@ public class LwjglGL1Renderer implements GL1Renderer {
             }else{
                 // Add to list
                 lightList.add(l);
-                
+
                 // Once maximum lights reached, exit loop.
                 if (lightList.size() >= maxLights){
                     break;
                 }
             }
         }
-        
+
         applyFixedFuncBindings(true);
-        
+
         glEnable(GL_LIGHTING);
-        
+
         fb16.clear();
         fb16.put(materialAmbientColor.r)
             .put(materialAmbientColor.g)
             .put(materialAmbientColor.b)
             .put(1).flip();
-        
+
         glLightModel(GL_LIGHT_MODEL_AMBIENT, fb16);
-        
+
         if (context.matrixMode != GL_MODELVIEW) {
             glMatrixMode(GL_MODELVIEW);
             context.matrixMode = GL_MODELVIEW;
@@ -540,17 +564,17 @@ public class LwjglGL1Renderer implements GL1Renderer {
         // Lights are already in world space, so just convert
         // them to view space.
         glLoadMatrix(storeMatrix(viewMatrix, fb16));
-        
+
         for (int i = 0; i < lightList.size(); i++){
             int glLightIndex = GL_LIGHT0 + i;
             Light light = lightList.get(i);
             Light.Type lightType = light.getType();
             ColorRGBA col = light.getColor();
             Vector3f pos;
-            
+
             // Enable the light
             glEnable(glLightIndex);
-            
+
             // OGL spec states default value for light ambient is black
             switch (lightType){
                 case Directional:
@@ -569,7 +593,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
                     break;
                 case Point:
                     PointLight pLight = (PointLight) light;
-      
+
                     fb16.clear();
                     fb16.put(col.r).put(col.g).put(col.b).put(col.a).flip();
                     glLight(glLightIndex, GL_DIFFUSE, fb16);
@@ -586,7 +610,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
                         // as the one used in the lighting shader.
                         glLightf(glLightIndex, GL_CONSTANT_ATTENUATION,  1);
                         glLightf(glLightIndex, GL_LINEAR_ATTENUATION,    pLight.getInvRadius() * 2);
-                        glLightf(glLightIndex, GL_QUADRATIC_ATTENUATION, pLight.getInvRadius() * pLight.getInvRadius()); 
+                        glLightf(glLightIndex, GL_QUADRATIC_ATTENUATION, pLight.getInvRadius() * pLight.getInvRadius());
                     }else{
                         glLightf(glLightIndex, GL_CONSTANT_ATTENUATION,  1);
                         glLightf(glLightIndex, GL_LINEAR_ATTENUATION,    0);
@@ -635,12 +659,12 @@ public class LwjglGL1Renderer implements GL1Renderer {
                             "Unrecognized light type: " + lightType);
             }
         }
-        
+
         // Disable lights after the index
         for (int i = lightList.size(); i < numLightsSetPrev; i++){
             glDisable(GL_LIGHT0 + i);
         }
-        
+
         // This will set view matrix as well.
         setModelView(worldMatrix, viewMatrix);
     }
@@ -775,7 +799,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         if (img.getWidth() > maxTexSize || img.getHeight() > maxTexSize) {
             throw new RendererException("Cannot upload texture " + img + ". The maximum supported texture resolution is " + maxTexSize);
         }
-        
+
         /*
         if (target == GL_TEXTURE_CUBE_MAP) {
         List<ByteBuffer> data = img.getData();
@@ -939,7 +963,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             // Ignore vertex color buffer if vertex color is disabled.
             return;
         }
-        
+
         int arrayType = convertArrayType(vb.getBufferType());
         if (arrayType == -1) {
             return; // unsupported
@@ -1033,7 +1057,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             /*
             int[] modeStart = mesh.getModeStart();
             int[] elementLengths = mesh.getElementLengths();
-            
+
             int elMode = convertElementMode(Mode.Triangles);
             int fmt = convertVertexFormat(indexBuf.getFormat());
             //            int elSize = indexBuf.getFormat().getComponentSize();
@@ -1049,11 +1073,11 @@ public class LwjglGL1Renderer implements GL1Renderer {
             }
             int elementLength = elementLengths[i];
             indexData.position(curOffset);
-            
+
             drawElements(elMode,
             fmt,
             indexData);
-            
+
             curOffset += elementLength;
             }*/
         } else {
@@ -1108,7 +1132,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         } else {
             glDrawArrays(convertElementMode(mesh.getMode()), 0, mesh.getVertexCount());
         }
-        
+
         // TODO: Fix these to use IDList??
         clearVertexAttribs();
         clearTextureUnits();
@@ -1128,7 +1152,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }
-        
+
         boolean dynamic = false;
         if (mesh.getBuffer(Type.InterleavedData) != null) {
             throw new UnsupportedOperationException("Interleaved meshes are not supported");
@@ -1177,7 +1201,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
     public void setMainFrameBufferOverride(FrameBuffer fb){
     }
-    
+
     public void setFrameBuffer(FrameBuffer fb) {
     }
 
@@ -1194,10 +1218,10 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
 
     public void setMainFrameBufferSrgb(boolean srgb) {
-     
+
     }
 
     public void setLinearizeSrgbImages(boolean linearize) {
-     
+
     }
 }
