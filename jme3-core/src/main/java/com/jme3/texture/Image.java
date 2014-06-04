@@ -79,11 +79,15 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         
         /**
          * half-precision floating-point grayscale/luminance.
+         * 
+         * Requires {@link Caps#FloatTexture}.
          */
         Luminance16F(16,true),
         
         /**
          * single-precision floating-point grayscale/luminance.
+         * 
+         * Requires {@link Caps#FloatTexture}.
          */
         Luminance32F(32,true),
         
@@ -99,6 +103,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         
         /**
          * half-precision floating-point grayscale/luminance and alpha.
+         * 
+         * Requires {@link Caps#FloatTexture}.
          */
         Luminance16FAlpha16F(32,true),
 
@@ -168,7 +174,6 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
 
         /**
          * S3TC compression DXT1. 
-         * Called BC1 in DirectX10.
          */
         DXT1(4,false,true, false),
         
@@ -179,20 +184,21 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         
         /**
          * S3TC compression DXT3 with 4-bit alpha.
-         * Called BC2 in DirectX10.
          */
         DXT3(8,false,true, false),
         
         /**
          * S3TC compression DXT5 with interpolated 8-bit alpha.
-         * Called BC3 in DirectX10.
+         * 
          */
         DXT5(8,false,true, false),
         
         /**
          * Luminance-Alpha Texture Compression. 
-         * Called BC5 in DirectX10.
+         * 
+         * @deprecated Not supported by OpenGL 3.0.
          */
+        @Deprecated
         LATC(8, false, true, false),
 
         /**
@@ -218,6 +224,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         
         /**
          * single-precision floating point depth.
+         * 
+         * Requires {@link Caps#FloatDepthBuffer}.
          */
         Depth32F(32,true,false,true),
 
@@ -225,11 +233,15 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Texture data is stored as {@link Format#RGB16F} in system memory,
          * but will be converted to {@link Format#RGB111110F} when sent
          * to the video hardware.
+         * 
+         * Requires {@link Caps#FloatTexture} and {@link Caps#PackedFloatTexture}.
          */
         RGB16F_to_RGB111110F(48,true),
         
         /**
          * unsigned floating-point red, green and blue that uses 32 bits.
+         * 
+         * Requires {@link Caps#PackedFloatTexture}.
          */
         RGB111110F(32,true),
         
@@ -237,38 +249,53 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * Texture data is stored as {@link Format#RGB16F} in system memory,
          * but will be converted to {@link Format#RGB9E5} when sent
          * to the video hardware.
+         * 
+         * Requires {@link Caps#FloatTexture} and {@link Caps#SharedExponentTexture}.
          */
         RGB16F_to_RGB9E5(48,true),
         
         /**
          * 9-bit red, green and blue with 5-bit exponent.
+         * 
+         * Requires {@link Caps#SharedExponentTexture}.
          */
         RGB9E5(32,true),
         
         /**
          * half-precision floating point red, green, and blue.
+         * 
+         * Requires {@link Caps#FloatTexture}.
          */
         RGB16F(48,true),
         
         /**
          * half-precision floating point red, green, blue, and alpha.
+         * 
+         * Requires {@link Caps#FloatTexture}.
          */
         RGBA16F(64,true),
         
         /**
          * single-precision floating point red, green, and blue.
+         * 
+         * Requires {@link Caps#FloatTexture}.
          */
         RGB32F(96,true),
         
         /**
          * single-precision floating point red, green, blue and alpha.
+         * 
+         * Requires {@link Caps#FloatTexture}.
          */
         RGBA32F(128,true),
 
         /**
          * Luminance/grayscale texture compression. 
          * Called BC4 in DirectX10.
+         * 
+         * @deprecated Not supported by OpenGL 3.0.
          */
+        @Deprecated
         LTC(4, false, true, false),
         
         /**

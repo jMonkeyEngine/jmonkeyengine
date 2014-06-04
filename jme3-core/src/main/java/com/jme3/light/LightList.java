@@ -186,7 +186,7 @@ public final class LightList implements Iterable<Light>, Savable, Cloneable {
     }
 
     /**
-     * Sorts the elements in the list acording to their Comparator.
+     * Sorts the elements in the list according to their Comparator.
      * There are two reasons why lights should be resorted. 
      * First, if the lights have moved, that means their distance to 
      * the spatial changed. 

@@ -80,8 +80,9 @@ public class GLSLLoader implements AssetLoader {
         ShaderDependencyNode node = new ShaderDependencyNode(nodeName);
 
         StringBuilder sb = new StringBuilder();
-        BufferedReader bufReader = new BufferedReader(reader);
+        BufferedReader bufReader = null;
         try {
+            bufReader = new BufferedReader(reader);
             String ln;
             while ((ln = bufReader.readLine()) != null) {                
                 if (ln.trim().startsWith("#import ")) {

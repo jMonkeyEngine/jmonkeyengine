@@ -35,7 +35,7 @@ import java.nio.ByteBuffer;
 
 public class ByteOffsetImageCodec extends ImageCodec {
 
-    private int redPos, greenPos, bluePos, alphaPos;
+    private final int redPos, greenPos, bluePos, alphaPos;
     
     public ByteOffsetImageCodec(int bpp, int flags,  int alphaPos, int redPos, int greenPos, int bluePos) {
         super(bpp, flags, alphaPos != -1 ? 255 : 0,

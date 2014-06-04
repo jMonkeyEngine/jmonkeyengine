@@ -51,16 +51,11 @@ public class TestHDR extends SimpleApplication {
     }
 
     public Geometry createHDRBox(){
-        Box boxMesh = new Box(Vector3f.ZERO, 1, 1, 1);
+        Box boxMesh = new Box(1, 1, 1);
         Geometry box = new Geometry("Box", boxMesh);
-
-//        Material mat = assetManager.loadMaterial("Textures/HdrTest/Memorial.j3m");
-//        box.setMaterial(mat);
-
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setTexture("ColorMap", assetManager.loadTexture("Textures/HdrTest/Memorial.hdr"));
         box.setMaterial(mat);
-
         return box;
     }
 
@@ -73,11 +68,8 @@ public class TestHDR extends SimpleApplication {
         hdrRender.setMaxIterations(20);
         hdrRender.setExposure(0.87f);
         hdrRender.setThrottle(0.33f);
-
         viewPort.addProcessor(hdrRender);
-        
 //        config.setVisible(true);
-
         rootNode.attachChild(createHDRBox());
     }
 
