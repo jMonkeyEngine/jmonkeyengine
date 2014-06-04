@@ -83,7 +83,6 @@ public class JmeSpatial extends AbstractSceneExplorerNode {
 
     public JmeSpatial(Spatial spatial, JmeSpatialChildren factory) {
         super(factory);
-        this.jmeChildren = factory;
         this.spatial = spatial;
         getLookupContents().add(spatial);
         getLookupContents().add(this);

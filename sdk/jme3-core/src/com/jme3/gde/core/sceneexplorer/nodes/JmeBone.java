@@ -63,7 +63,6 @@ public class JmeBone extends AbstractSceneExplorerNode {
 
     public JmeBone(JmeSkeletonControl jmeSkeletonControl, Bone bone, JmeBoneChildren children) {
         super(children);
-        this.jmeChildren = children;
         this.jmeSkeletonControl = jmeSkeletonControl;
         getLookupContents().add(bone);
         getLookupContents().add(this);
