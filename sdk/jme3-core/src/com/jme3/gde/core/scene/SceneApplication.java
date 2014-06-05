@@ -27,7 +27,6 @@ package com.jme3.gde.core.scene;
 import com.jme3.app.Application;
 import com.jme3.app.StatsView;
 import com.jme3.asset.AssetManager;
-import com.jme3.audio.AudioContext;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
@@ -133,6 +132,7 @@ public class SceneApplication extends Application implements LookupProvider {
     private ViewPort overlayView;
     boolean useCanvas = false;
     private BulletAppState physicsState;
+    private boolean physicsDebug = false;
     private Thread thread;
     private NodeSyncAppState nodeSync;
     private FakeApplication fakeApp;
@@ -608,6 +608,7 @@ public class SceneApplication extends Application implements LookupProvider {
                         physicsState = new BulletAppState();
                         getStateManager().attach(physicsState);
                         physicsState.getPhysicsSpace().addAll(rootNode);
+                        physicsState.setDebugEnabled(physicsDebug);
                     }
                 } else {
                     if (physicsState != null) {
@@ -621,6 +622,18 @@ public class SceneApplication extends Application implements LookupProvider {
         });
     }
 
+    public void setPhysicsDebugEnabled(final boolean enabled) {
+        enqueue(new Callable() {
+            public Object call() throws Exception {
+                physicsDebug = enabled;
+                if (physicsState != null) {
+                    physicsState.setDebugEnabled(physicsDebug);
+                }
+                return null;
+            }
+        });
+    }
+    
     /**
      * @return the currentSceneRequest
      */

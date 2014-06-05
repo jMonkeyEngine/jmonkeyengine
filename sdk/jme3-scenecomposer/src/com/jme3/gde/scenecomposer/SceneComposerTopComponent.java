@@ -33,11 +33,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.border.TitledBorder;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.openide.util.Exceptions;
-import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
-import org.openide.util.ImageUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -47,12 +42,17 @@ import org.openide.awt.Toolbar;
 import org.openide.awt.ToolbarPool;
 import org.openide.awt.UndoRedo;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
+import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.Lookup.Result;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
+import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  * TODO: some threading stuff
@@ -90,6 +90,7 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         spatialModButtonGroup = new ButtonGroup();
         sceneInfoPanel = new javax.swing.JPanel();
@@ -136,8 +137,8 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
         jLabel5 = new javax.swing.JLabel();
         emitButton = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        physicsDebugToggleButton = new javax.swing.JToggleButton();
+        physicsEnableToggleButton = new javax.swing.JToggleButton();
 
         setBackground(new java.awt.Color(204, 204, 204));
 
@@ -453,27 +454,25 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jLabel6.text")); // NOI18N
 
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/play.gif"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jButton2.text")); // NOI18N
-        jButton2.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jButton2.toolTipText")); // NOI18N
-        jButton2.setFocusable(false);
-        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        physicsDebugToggleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/box_wire.gif"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(physicsDebugToggleButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.physicsDebugToggleButton.text")); // NOI18N
+        physicsDebugToggleButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.physicsDebugToggleButton.toolTipText")); // NOI18N
+
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, physicsEnableToggleButton, org.jdesktop.beansbinding.ELProperty.create("${selected}"), physicsDebugToggleButton, org.jdesktop.beansbinding.BeanProperty.create("enabled"));
+        bindingGroup.addBinding(binding);
+
+        physicsDebugToggleButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                physicsDebugToggleButtonActionPerformed(evt);
             }
         });
 
-        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/pause.gif"))); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(jButton3, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jButton3.text")); // NOI18N
-        jButton3.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.jButton3.toolTipText")); // NOI18N
-        jButton3.setFocusable(false);
-        jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        physicsEnableToggleButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/jme3/gde/scenecomposer/play.gif"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(physicsEnableToggleButton, org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.physicsEnableToggleButton.text")); // NOI18N
+        physicsEnableToggleButton.setToolTipText(org.openide.util.NbBundle.getMessage(SceneComposerTopComponent.class, "SceneComposerTopComponent.physicsEnableToggleButton.toolTipText")); // NOI18N
+        physicsEnableToggleButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                physicsEnableToggleButtonActionPerformed(evt);
             }
         });
 
@@ -489,16 +488,17 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                     .addComponent(jSeparator6, javax.swing.GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(10, 10, 10)
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jButton2)
-                                .addComponent(jButton3))
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(jPanel4Layout.createSequentialGroup()
                                 .addComponent(jLabel5)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(emitButton)))
+                                .addComponent(emitButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(physicsEnableToggleButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(physicsDebugToggleButton)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -519,8 +519,8 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addGap(4, 4, 4)
                         .addComponent(jLabel6))
-                    .addComponent(jButton2)
-                    .addComponent(jButton3))
+                    .addComponent(physicsDebugToggleButton)
+                    .addComponent(physicsEnableToggleButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -543,6 +543,8 @@ public final class SceneComposerTopComponent extends TopComponent implements Sce
                     .addComponent(sceneInfoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
+
+        bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
 
     private void showSelectionToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showSelectionToggleButtonActionPerformed
@@ -630,14 +632,6 @@ private void scaleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     toolController.showEditTool(tool);
 }//GEN-LAST:event_scaleButtonActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        SceneApplication.getApplication().setPhysicsEnabled(true);
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        SceneApplication.getApplication().setPhysicsEnabled(false);
-    }//GEN-LAST:event_jButton3ActionPerformed
-
     private void rotateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_rotateButtonActionPerformed
         RotateTool tool = new RotateTool();
         toolController.showEditTool(tool);
@@ -658,6 +652,15 @@ private void jToggleSelectTerrainActionPerformed(java.awt.event.ActionEvent evt)
 private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleSelectGeomActionPerformed
     toolController.setSelectGeometries(jToggleSelectGeom.isSelected());
 }//GEN-LAST:event_jToggleSelectGeomActionPerformed
+
+    private void physicsDebugToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_physicsDebugToggleButtonActionPerformed
+        SceneApplication.getApplication().setPhysicsDebugEnabled(physicsDebugToggleButton.isSelected());
+    }//GEN-LAST:event_physicsDebugToggleButtonActionPerformed
+
+    private void physicsEnableToggleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_physicsEnableToggleButtonActionPerformed
+        SceneApplication.getApplication().setPhysicsEnabled(physicsEnableToggleButton.isSelected());
+    }//GEN-LAST:event_physicsEnableToggleButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton camToCursorSelectionButton;
     private javax.swing.JButton createPhysicsMeshButton;
@@ -666,8 +669,6 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
     private javax.swing.JCheckBox fixedCheckBox;
     private javax.swing.JSpinner heightSpinner;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -695,6 +696,8 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
     private javax.swing.JToolBar jToolBar3;
     private javax.swing.JToggleButton moveButton;
     private javax.swing.JButton moveToCursorButton;
+    private javax.swing.JToggleButton physicsDebugToggleButton;
+    private javax.swing.JToggleButton physicsEnableToggleButton;
     private javax.swing.JSpinner radiusSpinner;
     private javax.swing.JButton resetCursorButton;
     private javax.swing.JToggleButton rotateButton;
@@ -706,6 +709,7 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
     private javax.swing.JToggleButton showGridToggleButton;
     private javax.swing.JToggleButton showSelectionToggleButton;
     private javax.swing.ButtonGroup spatialModButtonGroup;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
     private void emit(Spatial root) {
