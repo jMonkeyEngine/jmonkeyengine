@@ -81,6 +81,11 @@ public class NewSpatialPopup extends AbstractAction implements Presenter.Popup {
         for (NewSpatialAction di : Lookup.getDefault().lookupAll(NewSpatialAction.class)) {
             result.add(new JMenuItem(di.getAction(jmeNode, dataObject)));
         }
+        JMenu geometries = new JMenu("Primitives");
+        for (NewGeometryAction di : Lookup.getDefault().lookupAll(NewGeometryAction.class)) {
+            geometries.add(new JMenuItem(di.getAction(jmeNode, dataObject)));
+        }
+        result.add(geometries);
         return result;
     }
 

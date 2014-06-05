@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.5" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <NonVisualComponents>
+    <Component class="com.jme3.gde.core.sceneexplorer.nodes.actions.impl.NewGeometrySettings" name="newGeometrySettings1">
+    </Component>
+  </NonVisualComponents>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="433" pref="433" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="1" attributes="0">
+                          <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" attributes="0">
+                              <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabel12" alignment="1" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="jSpinner1" alignment="0" min="-2" pref="62" max="-2" attributes="0"/>
+                              <Component id="jSpinner3" alignment="0" min="-2" pref="62" max="-2" attributes="0"/>
+                              <Component id="jCheckBox1" alignment="0" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="1" attributes="0">
+                                  <EmptySpace min="26" max="32767" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="jLabel13" alignment="1" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="jSpinner5" alignment="0" min="-2" pref="62" max="-2" attributes="0"/>
+                                      <Component id="jSpinner2" alignment="0" min="-2" pref="62" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace max="32767" attributes="0"/>
+                                  <Group type="103" groupAlignment="1" attributes="0">
+                                      <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="jSpinner4" alignment="0" min="-2" pref="62" max="-2" attributes="0"/>
+                                      <Component id="jSpinner6" alignment="0" min="-2" pref="62" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <Component id="jCheckBox2" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace pref="193" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                      </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="412" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace min="0" pref="196" max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jSpinner1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jSpinner2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jSpinner6" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel11" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jSpinner3" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jSpinner5" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jSpinner4" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jLabel12" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="jCheckBox1" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel13" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="jCheckBox2" alignment="0" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace pref="299" max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="jLabel5">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jLabel5.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JSpinner" name="jSpinner3">
+      <Properties>
+        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+          <SpinnerModel initial="10" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+        </Property>
+      </Properties>
+      <BindingProperties>
+        <BindingProperty name="value" source="newGeometrySettings1" sourcePath="${sphereZSamples}" target="jSpinner3" targetPath="value" updateStrategy="0" immediately="false"/>
+      </BindingProperties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel6">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jLabel6.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="jCheckBox1">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jCheckBox1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <BindingProperties>
+        <BindingProperty name="selected" source="newGeometrySettings1" sourcePath="${sphereUseEvenSlices}" target="jCheckBox1" targetPath="selected" updateStrategy="0" immediately="false"/>
+      </BindingProperties>
+    </Component>
+    <Component class="javax.swing.JSpinner" name="jSpinner4">
+      <Properties>
+        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+          <SpinnerModel initial="1.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.1" type="number"/>
+        </Property>
+      </Properties>
+      <BindingProperties>
+        <BindingProperty name="value" source="newGeometrySettings1" sourcePath="${sphereRadius}" target="jSpinner4" targetPath="value" updateStrategy="0" immediately="false"/>
+      </BindingProperties>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="jCheckBox2">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jCheckBox2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+      <BindingProperties>
+        <BindingProperty name="selected" source="newGeometrySettings1" sourcePath="${sphereInterior}" target="jCheckBox2" targetPath="selected" updateStrategy="0" immediately="false"/>
+      </BindingProperties>
+    </Component>
+    <Component class="javax.swing.JSpinner" name="jSpinner5">
+      <BindingProperties>
+        <BindingProperty name="value" source="newGeometrySettings1" sourcePath="${spherRadialSamples}" target="jSpinner5" targetPath="value" updateStrategy="0" immediately="false"/>
+      </BindingProperties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel9">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jLabel9.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel10">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jLabel10.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel11">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jLabel11.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel12">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jLabel12.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel13">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jLabel13.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection component="Form" name="background" type="property"/>
+        </Property>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Dialog" size="11" style="1"/>
+        </Property>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection component="Form" name="foreground" type="property"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JSpinner" name="jSpinner6">
+      <Properties>
+        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+          <SpinnerModel initial="1.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
+        </Property>
+      </Properties>
+      <BindingProperties>
+        <BindingProperty name="value" source="newGeometrySettings1" sourcePath="${boxZ}" target="jSpinner6" targetPath="value" updateStrategy="0" immediately="false"/>
+      </BindingProperties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel3">
+      <Properties>
+        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+          <Font name="Dialog" size="11" style="1"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jLabel3.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JSpinner" name="jSpinner1">
+      <Properties>
+        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+          <SpinnerModel initial="1.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
+        </Property>
+      </Properties>
+      <BindingProperties>
+        <BindingProperty name="value" source="newGeometrySettings1" sourcePath="${boxX}" target="jSpinner1" targetPath="value" updateStrategy="0" immediately="false"/>
+      </BindingProperties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel4">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="com/jme3/gde/core/sceneexplorer/nodes/actions/impl/Bundle.properties" key="NewGeometrySettingsTopComponent.jLabel4.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JSpinner" name="jSpinner2">
+      <Properties>
+        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+          <SpinnerModel initial="1.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.5" type="number"/>
+        </Property>
+      </Properties>
+      <BindingProperties>
+        <BindingProperty name="value" source="newGeometrySettings1" sourcePath="${boxY}" target="jSpinner2" targetPath="value" updateStrategy="0" immediately="false"/>
+      </BindingProperties>
+    </Component>
+  </SubComponents>
+</Form>
