@@ -29,12 +29,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import jme3tools.shader.ShaderDebug;
 
 /**
  * The <code>Renderer</code> is responsible for taking rendering commands and
  * executing them on the underlying video hardware.
- * 
+ *
  * @author Kirill Vainer
  */
 public class IGLESShaderRenderer implements Renderer {
@@ -51,7 +52,7 @@ public class IGLESShaderRenderer implements Renderer {
 
     private final int maxFBOAttachs = 1; // Only 1 color attachment on ES
     private final int maxMRTFBOAttachs = 1; // FIXME for now, not sure if > 1 is needed for ES
-    
+
     private final int[] intBuf1 = new int[1];
     private final int[] intBuf16 = new int[16];
 
@@ -137,7 +138,7 @@ public class IGLESShaderRenderer implements Renderer {
 
     /**
      * Sets the background (aka clear) color.
-     * 
+     *
      * @param color The background color to set
      */
     public void setBackgroundColor(ColorRGBA color) {
@@ -304,12 +305,36 @@ public class IGLESShaderRenderer implements Renderer {
             }
             context.blendMode = state.getBlendMode();
         }
+
+        if (state.isScissorTest()) {
+            if (!context.clipRectEnabled) {
+                JmeIosGLES.glEnable(JmeIosGLES.GL_SCISSOR_TEST);
+                JmeIosGLES.glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
+            } else {
+                int scisX = state.getScissorX();
+                int scisY = state.getScissorY();
+                int scisW = state.getScissorW();
+                int scisH = state.getScissorH();
+                ScissorRectangle i = ScissorRectangle.intersect(clipX, clipY, clipW, clipH, scisX, scisY, scisW, scisH);
+                if (i == null) {
+                    JmeIosGLES.glScissor(0, 0, 0, 0);
+                } else {
+                    JmeIosGLES.glScissor(i.getX(), i.getY(), i.getW(), i.getH());
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                JmeIosGLES.glScissor(clipX, clipY, clipW, clipH);
+            } else {
+                JmeIosGLES.glDisable(JmeIosGLES.GL_SCISSOR_TEST);
+            }
+        }
     }
 
     /**
      * Set the range of the depth values for objects. All rendered
      * objects will have their depth clamped to this range.
-     * 
+     *
      * @param start The range start
      * @param end The range end
      */
@@ -331,9 +356,9 @@ public class IGLESShaderRenderer implements Renderer {
     }
 
     /**
-     * Set the world matrix to use. Does nothing if the Renderer is 
+     * Set the world matrix to use. Does nothing if the Renderer is
      * shader based.
-     * 
+     *
      * @param worldMatrix World matrix to use.
      */
     public void setWorldMatrix(Matrix4f worldMatrix) {
@@ -341,9 +366,9 @@ public class IGLESShaderRenderer implements Renderer {
     }
 
     /**
-     * Sets the view and projection matrices to use. Does nothing if the Renderer 
+     * Sets the view and projection matrices to use. Does nothing if the Renderer
      * is shader based.
-     * 
+     *
      * @param viewMatrix The view matrix to use.
      * @param projMatrix The projection matrix to use.
      */
@@ -353,7 +378,7 @@ public class IGLESShaderRenderer implements Renderer {
 
     /**
      * Set the viewport location and resolution on the screen.
-     * 
+     *
      * @param x The x coordinate of the viewport
      * @param y The y coordinate of the viewport
      * @param width Width of the viewport
@@ -376,7 +401,7 @@ public class IGLESShaderRenderer implements Renderer {
      * Specifies a clipping rectangle.
      * For all future rendering commands, no pixels will be allowed
      * to be rendered outside of the clip rectangle.
-     * 
+     *
      * @param x The x coordinate of the clip rect
      * @param y The y coordinate of the clip rect
      * @param width Width of the clip rect
@@ -400,7 +425,7 @@ public class IGLESShaderRenderer implements Renderer {
     }
 
     /**
-     * Clears the clipping rectangle set with 
+     * Clears the clipping rectangle set with
      * {@link #setClipRect(int, int, int, int) }.
      */
     public void clearClipRect() {
@@ -420,9 +445,9 @@ public class IGLESShaderRenderer implements Renderer {
     /**
      * Set lighting state.
      * Does nothing if the renderer is shader based.
-     * The lights should be provided in world space. 
+     * The lights should be provided in world space.
      * Specify <code>null</code> to disable lighting.
-     * 
+     *
      * @param lights The light list to set.
      */
     public void setLighting(LightList lights) {
@@ -432,9 +457,9 @@ public class IGLESShaderRenderer implements Renderer {
     /**
      * Sets the shader to use for rendering.
      * If the shader has not been uploaded yet, it is compiled
-     * and linked. If it has been uploaded, then the 
+     * and linked. If it has been uploaded, then the
      * uniform data is updated and the shader is set.
-     * 
+     *
      * @param shader The shader to use for rendering.
      */
     public void setShader(Shader shader) {
@@ -459,7 +484,7 @@ public class IGLESShaderRenderer implements Renderer {
     /**
      * Deletes a shader. This method also deletes
      * the attached shader sources.
-     * 
+     *
      * @param shader Shader to delete.
      */
     public void deleteShader(Shader shader) {
@@ -487,7 +512,7 @@ public class IGLESShaderRenderer implements Renderer {
 
     /**
      * Deletes the provided shader source.
-     * 
+     *
      * @param source The ShaderSource to delete.
      */
     public void deleteShaderSource(ShaderSource source) {
@@ -655,12 +680,12 @@ public class IGLESShaderRenderer implements Renderer {
             checkFrameBufferStatus(fb);
         }
     }
-    
+
     /**
      * Set the framebuffer that will be set instead of the main framebuffer
      * when a call to setFrameBuffer(null) is made.
-     * 
-     * @param fb 
+     *
+     * @param fb
      */
     public void setMainFrameBufferOverride(FrameBuffer fb) {
         logger.log(Level.FINE, "IGLESShaderRenderer setMainFrameBufferOverride");
@@ -669,11 +694,11 @@ public class IGLESShaderRenderer implements Renderer {
 
     /**
      * Reads the pixels currently stored in the specified framebuffer
-     * into the given ByteBuffer object. 
-     * Only color pixels are transferred, the format is BGRA with 8 bits 
+     * into the given ByteBuffer object.
+     * Only color pixels are transferred, the format is BGRA with 8 bits
      * per component. The given byte buffer should have at least
      * fb.getWidth() * fb.getHeight() * 4 bytes remaining.
-     * 
+     *
      * @param fb The framebuffer to read from
      * @param byteBuf The bytebuffer to transfer color data to
      */
@@ -807,7 +832,7 @@ public class IGLESShaderRenderer implements Renderer {
 
     /**
      * Uploads a vertex buffer to the GPU.
-     * 
+     *
      * @param vb The vertex buffer to upload
      */
     public void updateBufferData(VertexBuffer vb) {
@@ -852,7 +877,7 @@ public class IGLESShaderRenderer implements Renderer {
         if (created || vb.hasDataSizeChanged()) {
             // upload data based on format
             int size = vb.getData().limit() * vb.getFormat().getComponentSize();
-			
+
             switch (vb.getFormat()) {
                 case Byte:
                 case UnsignedByte:
@@ -878,7 +903,7 @@ public class IGLESShaderRenderer implements Renderer {
             }
         } else {
             int size = vb.getData().limit() * vb.getFormat().getComponentSize();
-			
+
             switch (vb.getFormat()) {
                 case Byte:
                 case UnsignedByte:
@@ -971,8 +996,8 @@ public class IGLESShaderRenderer implements Renderer {
      * The state of the native objects is reset in such way, that using
      * them again will cause the renderer to reupload them.
      * Call this method when you know the GL context is going to shutdown.
-     * 
-     * @see NativeObject#resetObject() 
+     *
+     * @see NativeObject#resetObject()
      */
     public void resetGLObjects() {
         logger.log(Level.FINE, "IGLESShaderRenderer resetGLObjects");
@@ -986,20 +1011,20 @@ public class IGLESShaderRenderer implements Renderer {
     /**
      * Deletes all previously used {@link NativeObject Native Objects} on this Renderer, and
      * then resets the native objects.
-     * 
-     * @see #resetGLObjects() 
-     * @see NativeObject#deleteObject(java.lang.Object) 
+     *
+     * @see #resetGLObjects()
+     * @see NativeObject#deleteObject(java.lang.Object)
      */
     public void cleanup() {
         logger.log(Level.FINE, "IGLESShaderRenderer cleanup");
         objManager.deleteAllObjects(this);
         statistics.clearMemory();
     }
-    
+
     /**
      * Sets the alpha to coverage state.
      * <p>
-     * When alpha coverage and multi-sampling is enabled, 
+     * When alpha coverage and multi-sampling is enabled,
      * each pixel will contain alpha coverage in all
      * of its subsamples, which is then combined when
      * other future alpha-blended objects are rendered.
@@ -1019,15 +1044,15 @@ public class IGLESShaderRenderer implements Renderer {
             JmeIosGLES.checkGLError();
         }
     }
-    
-    
+
+
     /* ------------------------------------------------------------------------------ */
-    
-    
+
+
     public void initialize() {
         Level store = logger.getLevel();
         logger.setLevel(Level.FINE);
-        
+
         logger.log(Level.FINE, "Vendor: {0}", JmeIosGLES.glGetString(JmeIosGLES.GL_VENDOR));
         logger.log(Level.FINE, "Renderer: {0}", JmeIosGLES.glGetString(JmeIosGLES.GL_RENDERER));
         logger.log(Level.FINE, "Version: {0}", JmeIosGLES.glGetString(JmeIosGLES.GL_VERSION));
@@ -1225,11 +1250,11 @@ public class IGLESShaderRenderer implements Renderer {
         uintIndexSupport = extensions.contains("GL_OES_element_index_uint");
         logger.log(Level.FINE, "Support for UInt index: {0}", uintIndexSupport);
     }
-    
-    
+
+
     /* ------------------------------------------------------------------------------ */
-    
-    
+
+
     private int extractVersion(String prefixStr, String versionStr) {
         if (versionStr != null) {
             int spaceIdx = versionStr.indexOf(" ", prefixStr.length());
@@ -1250,7 +1275,7 @@ public class IGLESShaderRenderer implements Renderer {
         JmeIosGLES.glDeleteRenderbuffers(1, intBuf1, 0);
         JmeIosGLES.checkGLError();
     }
-    
+
 	private int convertUsage(Usage usage) {
         switch (usage) {
             case Static:
@@ -1263,8 +1288,8 @@ public class IGLESShaderRenderer implements Renderer {
                 throw new RuntimeException("Unknown usage type.");
         }
     }
- 
- 
+
+
     protected void bindProgram(Shader shader) {
         int shaderId = shader.getId();
         if (context.boundShaderProgram != shaderId) {
@@ -1438,8 +1463,8 @@ public class IGLESShaderRenderer implements Renderer {
 
         nameBuf.rewind();
     }
-    
-    
+
+
     public void updateShaderData(Shader shader) {
         int id = shader.getId();
         boolean needRegister = false;
@@ -1663,7 +1688,7 @@ public class IGLESShaderRenderer implements Renderer {
         }
          */
     }
-    
+
     private int convertTextureType(Texture.Type type) {
         switch (type) {
             case TwoDimensional:
@@ -1866,14 +1891,14 @@ public class IGLESShaderRenderer implements Renderer {
                                     0);
 				*/
                 logger.warning("iTODO Android22Workaround");
-				
+
                 JmeIosGLES.glVertexAttribPointer(loc,
                                     vb.getNumComponents(),
                                     convertVertexBufferFormat(vb.getFormat()),
                                     vb.isNormalized(),
                                     vb.getStride(),
                                     null);
-					
+
                 JmeIosGLES.checkGLError();
 
                 attribs[loc] = vb;
@@ -2058,7 +2083,7 @@ public class IGLESShaderRenderer implements Renderer {
 
         }
     }
-    
+
     public void clearVertexAttribs() {
         IDList attribList = context.attribIndexList;
         for (int i = 0; i < attribList.oldLen; i++) {
@@ -2335,7 +2360,7 @@ public class IGLESShaderRenderer implements Renderer {
         for (int i = 0; i < fb.getNumColorBuffers(); i++) {
             printRealRenderBufferInfo(fb, fb.getColorBuffer(i), "Color" + i);
         }
- 
+
 
     }
 
@@ -2549,7 +2574,7 @@ public class IGLESShaderRenderer implements Renderer {
                 throw new RuntimeException("Unrecognized shader type.");
         }
     }
-    
+
 	private int convertTestFunction(RenderState.TestFunction testFunc) {
 		switch (testFunc) {
 			case Never:
@@ -2571,13 +2596,13 @@ public class IGLESShaderRenderer implements Renderer {
 			default:
 				throw new UnsupportedOperationException("Unrecognized test function: " + testFunc);
 		}
-	}    	
+	}
 
     public void setMainFrameBufferSrgb(boolean srgb) {
-        
+
     }
 
     public void setLinearizeSrgbImages(boolean linearize) {
-      
+
     }
 }

@@ -37,6 +37,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Quaternion;
+import com.jme3.math.ScissorRectangle;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.math.Vector4f;
@@ -64,6 +65,7 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
 import com.jme3.util.SafeArrayList;
+
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -72,6 +74,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.media.nativewindow.NativeWindowFactory;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -80,6 +83,7 @@ import javax.media.opengl.GL2ES2;
 import javax.media.opengl.GL2GL3;
 import javax.media.opengl.GL3;
 import javax.media.opengl.GLContext;
+
 import jme3tools.converters.MipMapGenerator;
 import jme3tools.shader.ShaderDebug;
 
@@ -139,7 +143,7 @@ public class JoglRenderer implements Renderer {
     public Statistics getStatistics() {
         return statistics;
     }
-    
+
     public EnumSet<Caps> getCaps() {
         return caps;
     }
@@ -168,7 +172,7 @@ public class JoglRenderer implements Renderer {
         //workaround, always assume we support GLSL100
         //some cards just don't report this correctly
         caps.add(Caps.GLSL100);
-        
+
         String versionStr = null;
         if (caps.contains(Caps.OpenGL20) || gl.isGL2ES2()) {
             versionStr = gl.glGetString(GL2ES2.GL_SHADING_LANGUAGE_VERSION);
@@ -179,25 +183,25 @@ public class JoglRenderer implements Renderer {
              "required for the JOGL " +
              "renderer!");
         }
-        
+
         // Fix issue in TestRenderToMemory when GL_FRONT is the main
         // buffer being used.
         gl.glGetIntegerv(GL2GL3.GL_DRAW_BUFFER, intBuf1);
         initialDrawBuf = intBuf1.get(0);
         gl.glGetIntegerv(GL2GL3.GL_READ_BUFFER, intBuf1);
         initialReadBuf = intBuf1.get(0);
-        
+
         // XXX: This has to be GL_BACK for canvas on Mac
         // Since initialDrawBuf is GL_FRONT for pbuffer, gotta
         // change this value later on ...
 //        initialDrawBuf = GL_BACK;
 //        initialReadBuf = GL_BACK;
-        
+
         int spaceIdx = versionStr.indexOf(" ");
         if (spaceIdx >= 1) {
             versionStr = versionStr.substring(0, spaceIdx);
         }
-        
+
         try {
             float version = Float.parseFloat(versionStr);
             glslVer = (int) (version * 100);
@@ -234,7 +238,7 @@ public class JoglRenderer implements Renderer {
                 caps.add(Caps.GLSL100);
                 break;
         }
-        
+
         if (!caps.contains(Caps.GLSL100)) {
             logger.log(Level.WARNING, "Force-adding GLSL100 support, since OpenGL2 is supported.");
             caps.add(Caps.GLSL100);
@@ -297,7 +301,7 @@ public class JoglRenderer implements Renderer {
         if (gl.isExtensionAvailable("GL_ARB_depth_buffer_float")) {
             caps.add(Caps.FloatDepthBuffer);
         }
-        
+
         if (caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.PackedDepthStencilBuffer);
         }
@@ -323,7 +327,7 @@ public class JoglRenderer implements Renderer {
         if (gl.isExtensionAvailable("GL_ARB_vertex_array_object")) {
             caps.add(Caps.VertexBufferArray);
         }
-        
+
         if (gl.isExtensionAvailable("GL_ARB_texture_non_power_of_two")) {
             caps.add(Caps.NonPowerOfTwoTextures);
         }
@@ -367,7 +371,7 @@ public class JoglRenderer implements Renderer {
             gl.glGetIntegerv(GL2GL3.GL_MAX_COLOR_ATTACHMENTS, intBuf16);
             maxFBOAttachs = intBuf16.get(0);
             logger.log(Level.FINER, "FBO Max renderbuffers: {0}", maxFBOAttachs);
-            
+
             if (gl.isExtensionAvailable("GL_EXT_framebuffer_multisample")) {
                 caps.add(Caps.FrameBufferMultisample);
 
@@ -387,14 +391,14 @@ public class JoglRenderer implements Renderer {
                 maxDepthTexSamples = intBuf16.get(0);
                 logger.log(Level.FINER, "Texture Multisample Depth Samples: {0}", maxDepthTexSamples);
             }
-            
+
             gl.glGetIntegerv(GL2ES2.GL_MAX_DRAW_BUFFERS, intBuf16);
             maxMRTFBOAttachs = intBuf16.get(0);
             if (maxMRTFBOAttachs > 1) {
                 caps.add(Caps.FrameBufferMRT);
                 logger.log(Level.FINER, "FBO Max MRT renderbuffers: {0}", maxMRTFBOAttachs);
             }
-            
+
             //if (gl.isExtensionAvailable("GL_ARB_draw_buffers")) {
             //    caps.add(Caps.FrameBufferMRT);
             //    gl.glGetIntegerv(GL2GL3.GL_MAX_DRAW_BUFFERS, intBuf16);
@@ -415,15 +419,15 @@ public class JoglRenderer implements Renderer {
             }
             caps.add(Caps.Multisample);
         }
-        
+
         //supports sRGB pipeline
         if (gl.isExtensionAvailable("GL_ARB_framebuffer_sRGB") && gl.isExtensionAvailable("GL_EXT_texture_sRGB")){
             caps.add(Caps.Srgb);
         }
-        
+
         logger.log(Level.FINE, "Caps: {0}", caps);
     }
-    
+
     public void invalidateState() {
         context.reset();
         boundShader = null;
@@ -435,27 +439,27 @@ public class JoglRenderer implements Renderer {
         gl.glGetIntegerv(GL2GL3.GL_READ_BUFFER, intBuf1);
         initialReadBuf = intBuf1.get(0);
     }
-    
+
     public void resetGLObjects() {
         logger.log(Level.FINE, "Reseting objects and invalidating state");
         objManager.resetObjects();
         statistics.clearMemory();
         invalidateState();
     }
-    
+
     public void cleanup() {
         logger.log(Level.FINE, "Deleting objects and invalidating state");
         objManager.deleteAllObjects(this);
         statistics.clearMemory();
         invalidateState();
     }
-    
+
     private void checkCap(Caps cap) {
         if (!caps.contains(cap)) {
             throw new UnsupportedOperationException("Required capability missing: " + cap.name());
         }
     }
-    
+
     /*********************************************************************\
     |* Render State                                                      *|
     \*********************************************************************/
@@ -463,7 +467,7 @@ public class JoglRenderer implements Renderer {
         GL gl = GLContext.getCurrentGL();
         gl.glDepthRange(start, end);
     }
-    
+
     public void clearBuffers(boolean color, boolean depth, boolean stencil) {
         GL gl = GLContext.getCurrentGL();
         int bits = 0;
@@ -527,7 +531,7 @@ public class JoglRenderer implements Renderer {
 
         if (state.isDepthTest() && !context.depthTestEnabled) {
             gl.glEnable(GL.GL_DEPTH_TEST);
-            gl.glDepthFunc(convertTestFunction(context.depthFunc));           
+            gl.glDepthFunc(convertTestFunction(context.depthFunc));
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
             gl.glDisable(GL.GL_DEPTH_TEST);
@@ -541,7 +545,7 @@ public class JoglRenderer implements Renderer {
         if (state.isAlphaTest() && context.alphaTestFallOff == 0) {
             gl.glEnable(GL2ES1.GL_ALPHA_TEST);
             if (gl.isGL2ES1()) {
-                gl.getGL2ES1().glAlphaFunc(convertTestFunction(context.alphaFunc), state.getAlphaFallOff());               
+                gl.getGL2ES1().glAlphaFunc(convertTestFunction(context.alphaFunc), state.getAlphaFallOff());
             }
             context.alphaTestFallOff = state.getAlphaFallOff();
         } else if (!state.isAlphaTest() && context.alphaTestFallOff != 0) {
@@ -551,7 +555,7 @@ public class JoglRenderer implements Renderer {
             context.alphaTestFallOff = 0;
         }
         if (state.getAlphaFunc() != context.alphaFunc && gl.isGL2ES1()) {
-            gl.getGL2ES1().glAlphaFunc(convertTestFunction(context.alphaFunc), state.getAlphaFallOff());  
+            gl.getGL2ES1().glAlphaFunc(convertTestFunction(context.alphaFunc), state.getAlphaFallOff());
             context.alphaFunc = state.getAlphaFunc();
         }
 
@@ -732,8 +736,32 @@ public class JoglRenderer implements Renderer {
                 gl.glDisable(GL.GL_STENCIL_TEST);
             }
         }
+
+        if (state.isScissorTest()) {
+            if (!context.clipRectEnabled) {
+                gl.glEnable(GL.GL_SCISSOR_TEST);
+                gl.glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
+            } else {
+                int scisX = state.getScissorX();
+                int scisY = state.getScissorY();
+                int scisW = state.getScissorW();
+                int scisH = state.getScissorH();
+                ScissorRectangle i = ScissorRectangle.intersect(clipX, clipY, clipW, clipH, scisX, scisY, scisW, scisH);
+                if (i == null) {
+                    gl.glScissor(0, 0, 0, 0);
+                } else {
+                    gl.glScissor(i.getX(), i.getY(), i.getW(), i.getH());
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                gl.glScissor(clipX, clipY, clipW, clipH);
+            } else {
+                gl.glDisable(GL.GL_SCISSOR_TEST);
+            }
+        }
     }
-    
+
     private int convertStencilOperation(RenderState.StencilOperation stencilOp) {
         switch (stencilOp) {
             case Keep:
@@ -779,7 +807,7 @@ public class JoglRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unrecognized test function: " + testFunc);
         }
     }
-    
+
     /*********************************************************************\
     |* Camera and World transforms                                       *|
     \*********************************************************************/
@@ -825,7 +853,7 @@ public class JoglRenderer implements Renderer {
     public void onFrame() {
         objManager.deleteUnused(this);
     }
-    
+
     public void setViewProjectionMatrices(Matrix4f viewMatrix, Matrix4f projMatrix) {
     }
 
@@ -843,7 +871,7 @@ public class JoglRenderer implements Renderer {
             uniform.setLocation(-1);
             // uniform is not declared in shader
             logger.log(Level.FINE, "Uniform {0} is not declared in shader {1}.", new Object[]{uniform.getName(), shader.getSources()});
-            
+
         } else {
             uniform.setLocation(loc);
         }
@@ -992,7 +1020,7 @@ public class JoglRenderer implements Renderer {
      */
     public void setLighting(LightList list) {
     }
-    
+
     public int convertShaderType(Shader.ShaderType type) {
         switch (type) {
             case Fragment:
@@ -1005,7 +1033,7 @@ public class JoglRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unrecognized shader type.");
         }
     }
-    
+
     public void updateShaderSourceData(ShaderSource source) {
         int id = source.getId();
         GL gl = GLContext.getCurrentGL();
@@ -1047,7 +1075,7 @@ public class JoglRenderer implements Renderer {
         codeBuf.put(definesCodeData);
         codeBuf.put(sourceCodeData);
         codeBuf.flip();
-        
+
         byte[] array = new byte[codeBuf.limit()];
         codeBuf.rewind();
         codeBuf.get(array);
@@ -1292,7 +1320,7 @@ public class JoglRenderer implements Renderer {
                     GL.GL_NEAREST);
             gl.glBindFramebuffer(GL2GL3.GL_FRAMEBUFFER, prevFBO);
 
-            
+
             try {
                 checkFrameBufferError();
             } catch (IllegalStateException ex) {
@@ -1305,7 +1333,7 @@ public class JoglRenderer implements Renderer {
             // TODO: support non-blit copies?
         }
     }
-    
+
     private String getTargetBufferName(int buffer) {
         switch (buffer) {
             case GL.GL_NONE:
@@ -1396,7 +1424,7 @@ public class JoglRenderer implements Renderer {
             printRealRenderBufferInfo(fb, fb.getColorBuffer(i), "Color" + i);
         }
     }
-    
+
     private void checkFrameBufferError() {
         GL gl = GLContext.getCurrentGL();
         int status = gl.glCheckFramebufferStatus(GL.GL_FRAMEBUFFER);
@@ -1429,7 +1457,7 @@ public class JoglRenderer implements Renderer {
                         + "Framebuffer object status is invalid. ");
         }
     }
-    
+
     private void updateRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
         GL gl = GLContext.getCurrentGL();
         int id = rb.getId();
@@ -1450,7 +1478,7 @@ public class JoglRenderer implements Renderer {
         }
 
         TextureUtil.GLImageFormat glFmt = TextureUtil.getImageFormatWithError(rb.getFormat(), fb.isSrgb());
-        
+
         if (fb.getSamples() > 1 && gl.isExtensionAvailable("GL_EXT_framebuffer_multisample")
                 && gl.isGL2GL3()/*&& gl.isFunctionAvailable("glRenderbufferStorageMultisample")*/) {
             int samples = fb.getSamples();
@@ -1466,7 +1494,7 @@ public class JoglRenderer implements Renderer {
                     glFmt.internalFormat, fb.getWidth(), fb.getHeight());
         }
     }
-    
+
     private int convertAttachmentSlot(int attachmentSlot) {
         // can also add support for stencil here
         if (attachmentSlot == -100) {
@@ -1478,7 +1506,7 @@ public class JoglRenderer implements Renderer {
 
         return GL.GL_COLOR_ATTACHMENT0 + attachmentSlot;
     }
-    
+
     public void updateRenderTexture(FrameBuffer fb, RenderBuffer rb) {
         GL gl = GLContext.getCurrentGL();
         Texture tex = rb.getTexture();
@@ -1496,7 +1524,7 @@ public class JoglRenderer implements Renderer {
                 convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
                 image.getId(), 0);
     }
-    
+
     public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
         boolean needAttach;
         if (rb.getTexture() == null) {
@@ -1513,7 +1541,7 @@ public class JoglRenderer implements Renderer {
                     GL.GL_RENDERBUFFER, rb.getId());
         }
     }
-    
+
     public void updateFrameBuffer(FrameBuffer fb) {
         GL gl = GLContext.getCurrentGL();
         int id = fb.getId();
@@ -1546,7 +1574,7 @@ public class JoglRenderer implements Renderer {
 
         fb.clearUpdateNeeded();
     }
-    
+
     public Vector2f[] getFrameBufferSamplePositions(FrameBuffer fb) {
         if (fb.getSamples() <= 1) {
             throw new IllegalArgumentException("Framebuffer must be multisampled");
@@ -1571,7 +1599,7 @@ public class JoglRenderer implements Renderer {
     public void setMainFrameBufferOverride(FrameBuffer fb) {
         mainFbOverride = fb;
     }
-    
+
     public void setFrameBuffer(FrameBuffer fb) {
         if (fb == null && mainFbOverride != null) {
             fb = mainFbOverride;
@@ -1600,7 +1628,7 @@ public class JoglRenderer implements Renderer {
                 }
             }
         }
-        
+
         if (fb == null) {
             // unbind any fbos
             if (context.boundFBO != 0) {
@@ -1629,7 +1657,7 @@ public class JoglRenderer implements Renderer {
                 throw new IllegalArgumentException("The framebuffer: " + fb
                         + "\nDoesn't have any color/depth buffers");
             }
-            
+
             if (fb.isUpdateNeeded()) {
                 updateFrameBuffer(fb);
             }
@@ -1700,7 +1728,7 @@ public class JoglRenderer implements Renderer {
             assert fb.getId() >= 0;
             assert context.boundFBO == fb.getId();
             lastFb = fb;
-            
+
             try {
                 checkFrameBufferError();
             } catch (IllegalStateException ex) {
@@ -1733,13 +1761,13 @@ public class JoglRenderer implements Renderer {
 
         gl.glReadPixels(vpX, vpY, vpW, vpH, /*GL.GL_RGBA*/ GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, byteBuf);
     }
-    
+
     private void deleteRenderBuffer(FrameBuffer fb, RenderBuffer rb) {
         intBuf1.put(0, rb.getId());
         GL gl = GLContext.getCurrentGL();
         gl.glDeleteRenderbuffers(1, intBuf1);
     }
-    
+
     public void deleteFrameBuffer(FrameBuffer fb) {
         if (fb.getId() != -1) {
             GL gl = GLContext.getCurrentGL();
@@ -1920,7 +1948,7 @@ public class JoglRenderer implements Renderer {
             statistics.onNewTexture();
         }
 
-        // bind texture       
+        // bind texture
         int target = convertTextureType(type, img.getMultiSamples(), -1);
         if (context.boundTextureUnit != unit) {
             gl.glActiveTexture(GL.GL_TEXTURE0 + unit);
@@ -1976,7 +2004,7 @@ public class JoglRenderer implements Renderer {
                 throw new RendererException("Multisample textures not supported by graphics hardware");
             }
         }
-        
+
         if (target == GL.GL_TEXTURE_CUBE_MAP) {
             // Check max texture size before upload
             if (img.getWidth() > maxCubeTexSize || img.getHeight() > maxCubeTexSize) {
@@ -1987,7 +2015,7 @@ public class JoglRenderer implements Renderer {
                 throw new RendererException("Cannot upload texture " + img + ". The maximum supported texture resolution is " + maxTexSize);
             }
         }
-        
+
         if (target == GL.GL_TEXTURE_CUBE_MAP) {
             List<ByteBuffer> data = img.getData();
             if (data.size() != 6) {
@@ -2115,7 +2143,7 @@ public class JoglRenderer implements Renderer {
                 throw new RuntimeException("Unknown usage type: " + usage);
         }
     }
-    
+
     private int convertFormat(VertexBuffer.Format format) {
         switch (format) {
             case Byte:
@@ -2208,7 +2236,7 @@ public class JoglRenderer implements Renderer {
             //statistics.onDeleteVertexBuffer();
         }
     }
-    
+
     public void clearVertexAttribs() {
         IDList attribList = context.attribIndexList;
         for (int i = 0; i < attribList.oldLen; i++) {
@@ -2219,12 +2247,12 @@ public class JoglRenderer implements Renderer {
         }
         context.attribIndexList.copyNewToOld();
     }
-    
+
     public void setVertexAttrib(VertexBuffer vb, VertexBuffer idb) {
         if (vb.getBufferType() == VertexBuffer.Type.Index) {
             throw new IllegalArgumentException("Index buffers not allowed to be set to vertex attrib");
         }
-        
+
         int programId = context.boundShaderProgram;
         if (programId > 0) {
             GL gl = GLContext.getCurrentGL();
@@ -2287,7 +2315,7 @@ public class JoglRenderer implements Renderer {
     public void setVertexAttrib(VertexBuffer vb) {
         setVertexAttrib(vb, null);
     }
-    
+
     public void drawTriangleArray(Mesh.Mode mode, int count, int vertCount) {
         GL gl = GLContext.getCurrentGL();
         if (count > 1) {
@@ -2299,7 +2327,7 @@ public class JoglRenderer implements Renderer {
             gl.glDrawArrays(convertElementMode(mode), 0, vertCount);
         }
     }
-    
+
     public void drawTriangleList(VertexBuffer indexBuf, Mesh mesh, int count) {
         if (indexBuf.getBufferType() != VertexBuffer.Type.Index) {
             throw new IllegalArgumentException("Only index buffers are allowed as triangle lists.");
@@ -2321,10 +2349,10 @@ public class JoglRenderer implements Renderer {
         } else {
             //statistics.onVertexBufferUse(indexBuf, true);
         }
-        
+
         int vertCount = mesh.getVertexCount();
         boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
-        
+
         if (mesh.getMode() == Mode.Hybrid) {
             int[] modeStart = mesh.getModeStart();
             int[] elementLengths = mesh.getElementLengths();
@@ -2473,7 +2501,7 @@ public class JoglRenderer implements Renderer {
             }
         }
     }
-    
+
     private void renderMeshVertexArray(Mesh mesh, int lod, int count) {
         if (mesh.getId() == -1) {
             updateVertexArray(mesh);
@@ -2504,7 +2532,7 @@ public class JoglRenderer implements Renderer {
         clearVertexAttribs();
         clearTextureUnits();
     }
-    
+
     private void renderMeshDefault(Mesh mesh, int lod, int count) {
         VertexBuffer indices;
 
@@ -2598,8 +2626,8 @@ public class JoglRenderer implements Renderer {
             logger.log(Level.FINER, "SRGB FrameBuffer enabled (Gamma Correction)");
         }else{
             GLContext.getCurrentGL().glDisable(GL3.GL_FRAMEBUFFER_SRGB);
-        }         
-    
+        }
+
     }
 
     public void setLinearizeSrgbImages(boolean linearize) {

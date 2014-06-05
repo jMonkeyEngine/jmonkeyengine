@@ -33,6 +33,7 @@ package com.jme3.renderer.android;
 
 import android.opengl.GLES20;
 import android.os.Build;
+
 import com.jme3.asset.AndroidImageInfo;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
@@ -58,11 +59,13 @@ import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
+
 import java.nio.*;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import jme3tools.shader.ShaderDebug;
 
 public class OGLESShaderRenderer implements Renderer {
@@ -153,11 +156,11 @@ public class OGLESShaderRenderer implements Renderer {
 
         powerVr = GLES20.glGetString(GLES20.GL_RENDERER).contains("PowerVR");
 
-        
+
         //workaround, always assume we support GLSL100
         //some cards just don't report this correctly
         caps.add(Caps.GLSL100);
-        
+
         /*
         // Fix issue in TestRenderToMemory when GL_FRONT is the main
         // buffer being used.
@@ -423,7 +426,7 @@ public class OGLESShaderRenderer implements Renderer {
          */
         if (state.isDepthTest() && !context.depthTestEnabled) {
             GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-            GLES20.glDepthFunc(convertTestFunction(context.depthFunc));            
+            GLES20.glDepthFunc(convertTestFunction(context.depthFunc));
             RendererUtil.checkGLError();
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
@@ -563,6 +566,36 @@ public class OGLESShaderRenderer implements Renderer {
                 RendererUtil.checkGLError();
             }
             context.blendMode = state.getBlendMode();
+        }
+
+        if (state.isScissorTest()) {
+            if (!context.clipRectEnabled) {
+                GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+                RendererUtil.checkGLError();
+                GLES20.glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
+                RendererUtil.checkGLError();
+            } else {
+                int scisX = state.getScissorX();
+                int scisY = state.getScissorY();
+                int scisW = state.getScissorW();
+                int scisH = state.getScissorH();
+                ScissorRectangle i = ScissorRectangle.intersect(clipX, clipY, clipW, clipH, scisX, scisY, scisW, scisH);
+                if (i == null) {
+                    GLES20.glScissor(0, 0, 0, 0);
+                    RendererUtil.checkGLError();
+                } else {
+                    GLES20.glScissor(i.getX(), i.getY(), i.getW(), i.getH());
+                    RendererUtil.checkGLError();
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                GLES20.glScissor(clipX, clipY, clipW, clipH);
+                RendererUtil.checkGLError();
+            } else {
+                GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+                RendererUtil.checkGLError();
+            }
         }
     }
 
@@ -1046,7 +1079,7 @@ public class OGLESShaderRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unrecognized test function: " + testFunc);
         }
     }
-    
+
     /*********************************************************************\
     |* Framebuffers                                                      *|
     \*********************************************************************/
@@ -2534,10 +2567,10 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     public void setMainFrameBufferSrgb(boolean srgb) {
-        //TODO once opglES3.0 is supported maybe....        
+        //TODO once opglES3.0 is supported maybe....
     }
 
     public void setLinearizeSrgbImages(boolean linearize) {
-        //TODO once opglES3.0 is supported maybe....        
+        //TODO once opglES3.0 is supported maybe....
     }
 }
