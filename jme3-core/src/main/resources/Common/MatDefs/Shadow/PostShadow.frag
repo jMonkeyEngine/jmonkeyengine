@@ -61,8 +61,8 @@ void main(){
                            projCoord0, projCoord1, projCoord2, projCoord3);
        #else 
             //spotlight
-            if(lightDot < 0){
-                outFragColor =  vec4(1.0);
+            if(lightDot < 0.0){
+                gl_FragColor = vec4(1.0);
                 return;
             }
             shadow = getSpotLightShadows(m_ShadowMap0,projCoord0);
