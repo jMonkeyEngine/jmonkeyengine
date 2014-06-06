@@ -5,5 +5,5 @@ if (!hasProperty('mainClass')) {
 dependencies {
     compile project(':jme3-core')
     compile project(':jme3-desktop')
-    compile 'org.lwjgl.lwjgl:lwjgl:2.9.0'
+    compile 'org.lwjgl.lwjgl:lwjgl:2.9.1'
 }

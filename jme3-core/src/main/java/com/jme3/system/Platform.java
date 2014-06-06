@@ -41,7 +41,7 @@ public enum Platform {
     /**
      * Microsoft Windows 64 bit
      */
-    Windows64,
+    Windows64(true),
     
     /**
      * Linux 32 bit
@@ -51,7 +51,7 @@ public enum Platform {
     /**
      * Linux 64 bit
      */
-    Linux64,
+    Linux64(true),
     
     /**
      * Apple Mac OS X 32 bit
@@ -61,7 +61,7 @@ public enum Platform {
     /**
      * Apple Mac OS X 64 bit
      */
-    MacOSX64,
+    MacOSX64(true),
     
     /**
      * Apple Mac OS X 32 bit PowerPC
@@ -71,7 +71,7 @@ public enum Platform {
     /**
      * Apple Mac OS X 64 bit PowerPC
      */
-    MacOSX_PPC64,
+    MacOSX_PPC64(true),
     
     /**
      * Android ARM5
@@ -97,4 +97,17 @@ public enum Platform {
     
     iOS_ARM;
     
+    private final boolean is64bit;
+    
+    public boolean is64Bit() {
+        return is64bit;
+    }
+    
+    private Platform(boolean is64bit) {
+        this.is64bit = is64bit;
+    }
+    
+    private Platform() {
+        this(false);
+    }
 }
