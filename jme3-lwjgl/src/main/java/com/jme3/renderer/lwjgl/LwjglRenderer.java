@@ -1747,7 +1747,7 @@ public class LwjglRenderer implements Renderer {
             case BorderClamp:
                 return GL_CLAMP_TO_BORDER;
             case Clamp:
-                return GL_CLAMP;
+                // Falldown intentional.
             case EdgeClamp:
                 return GL_CLAMP_TO_EDGE;
             case Repeat:

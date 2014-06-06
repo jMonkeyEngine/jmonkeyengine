@@ -406,7 +406,7 @@ public class TextureAtlas {
             Texture2D tex = new Texture2D(new Image(format, atlasWidth, atlasHeight, BufferUtils.createByteBuffer(image), null, ColorSpace.Linear));
             tex.setMagFilter(Texture.MagFilter.Bilinear);
             tex.setMinFilter(Texture.MinFilter.BilinearNearestMipMap);
-            tex.setWrap(Texture.WrapMode.Clamp);
+            tex.setWrap(Texture.WrapMode.EdgeClamp);
             return tex;
         }
         return null;

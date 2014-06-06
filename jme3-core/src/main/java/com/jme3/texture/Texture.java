@@ -142,7 +142,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          */
         Trilinear(true);
 
-        private boolean usesMipMapLevels;
+        private final boolean usesMipMapLevels;
 
         private MinFilter(boolean usesMipMapLevels) {
             this.usesMipMapLevels = usesMipMapLevels;
@@ -180,15 +180,20 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * Only the fractional portion of the coordinate is considered.
          */
         Repeat,
+        
         /**
          * Only the fractional portion of the coordinate is considered, but if
          * the integer portion is odd, we'll use 1 - the fractional portion.
          * (Introduced around OpenGL1.4) Falls back on Repeat if not supported.
          */
         MirroredRepeat,
+        
         /**
          * coordinate will be clamped to [0,1]
+         * 
+         * @deprecated Not supported by OpenGL 3
          */
+        @Deprecated
         Clamp,
         /**
          * mirrors and clamps the texture coordinate, where mirroring and
@@ -198,13 +203,17 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * is the size of the one-, two-, or three-dimensional texture image in
          * the direction of wrapping. (Introduced after OpenGL1.4) Falls back on
          * Clamp if not supported.
+         * 
+         * @deprecated Not supported by OpenGL 3
          */
+        @Deprecated
         MirrorClamp,
+        
         /**
          * coordinate will be clamped to the range [-1/(2N), 1 + 1/(2N)] where N
          * is the size of the texture in the direction of clamping. Falls back
          * on Clamp if not supported.
-         */
+         */ 
         BorderClamp,
         /**
          * Wrap mode MIRROR_CLAMP_TO_BORDER_EXT mirrors and clamps to border the
@@ -214,7 +223,10 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * where N is the size of the one-, two-, or three-dimensional texture
          * image in the direction of wrapping." (Introduced after OpenGL1.4)
          * Falls back on BorderClamp if not supported.
+         * 
+         * @deprecated Not supported by OpenGL 3
          */
+        @Deprecated
         MirrorBorderClamp,
         /**
          * coordinate will be clamped to the range [1/(2N), 1 - 1/(2N)] where N
@@ -222,6 +234,7 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * on Clamp if not supported.
          */
         EdgeClamp,
+        
         /**
          * mirrors and clamps to edge the texture coordinate, where mirroring
          * and clamping to edge a value f computes:
@@ -229,6 +242,8 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * where N is the size of the one-, two-, or three-dimensional texture
          * image in the direction of wrapping. (Introduced after OpenGL1.4)
          * Falls back on EdgeClamp if not supported.
+         * 
+         * @deprecated Not supported by OpenGL 3
          */
         MirrorEdgeClamp;
     }
