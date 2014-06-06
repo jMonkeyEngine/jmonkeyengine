@@ -37,6 +37,11 @@ include 'jme3-testdata'
 // Example projects
 include 'jme3-examples'
 
+// GL Autogen
+if (buildAutogen == "true") {
+    include 'jme3-gl-autogen'
+}
+
 if(buildSdkProject == "true"){
     include 'sdk'
 }

@@ -1,0 +1,14 @@
+//apply plugin:'application'
+
+if (!hasProperty('mainClass')) {
+    ext.mainClass = 'com.jme3.util.GLAutoGen'
+}
+
+//mainClassName = ext.mainClass
+
+dependencies {
+    compile project(':jme3-core')
+    compile project(':jme3-desktop')
+    compile project(':jme3-jogl')
+    compile project(':jme3-lwjgl')
+}
