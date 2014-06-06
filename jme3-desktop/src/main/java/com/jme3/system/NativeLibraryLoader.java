@@ -171,6 +171,8 @@ public final class NativeLibraryLoader {
      * Specify a custom location where native libraries should
      * be extracted to. Ensure this is a unique path not used
      * by other applications to extract their libraries.
+     * Set to <code>null</code> to restore default
+     * functionality.
      * 
      * @param path Path where to extract native libraries.
      */
@@ -178,6 +180,23 @@ public final class NativeLibraryLoader {
         extractionFolderOverride = new File(path).getAbsoluteFile();
     }
 
+    /**
+     * Returns the folder where native libraries will be extracted.
+     * This is automatically determined at run-time based on the 
+     * following criteria:<br>
+     * <ul>
+     * <li>If a {@link #setCustomExtractionFolder(java.lang.String) custom
+     * extraction folder} has been specified, it is returned.
+     * <li>If the user can write to the working folder, then it 
+     * is returned.</li>
+     * <li>Otherwise, the {@link JmeSystem#getStorageFolder() storage folder}
+     * is used, to prevent collisions, a special subfolder is used
+     * called <code>natives_&lt;hash&gt;</code> where &lt;hash&gt;
+     * is computed automatically as the XOR of the classpath hash code
+     * and the last modified date of this class.
+     * 
+     * @return Path where natives will be extracted to.
+     */
     public static File getExtractionFolder() {
         if (extractionFolderOverride != null) {
             return extractionFolderOverride;
