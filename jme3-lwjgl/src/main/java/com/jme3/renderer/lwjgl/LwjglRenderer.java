@@ -111,9 +111,9 @@ public class LwjglRenderer implements Renderer {
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
-    private ClipRectangle currentClipRect;
-    private ClipRectangle rendererClipRect;
-    private ClipRectangle renderStateClipRect;
+    private ClipRectangle currentClipRect = new ClipRectangle();
+    private ClipRectangle rendererClipRect = new ClipRectangle();
+    private ClipRectangle renderStateClipRect = new ClipRectangle();
     private ClipRectangle intersectionClipRect = new ClipRectangle();
     private boolean linearizeSrgbImages;
 
