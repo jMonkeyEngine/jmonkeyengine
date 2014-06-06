@@ -10,6 +10,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
 import org.lwjgl.opengl.ARBDrawInstanced;
@@ -17,6 +18,7 @@ import org.lwjgl.opengl.ARBGeometryShader4;
 import org.lwjgl.opengl.ARBInstancedArrays;
 import org.lwjgl.opengl.ARBMultisample;
 import org.lwjgl.opengl.ARBTextureMultisample;
+import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.EXTFramebufferBlit;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
 import org.lwjgl.opengl.EXTFramebufferObject;
@@ -86,9 +88,26 @@ public class GLAutoGen {
     private static final HashMap<String, List<MethodInfo>> methodMap
             = new HashMap<String, List<MethodInfo>>();
 
+    private static final HashSet<String> capsSet
+            = new HashSet<String>();
+    
     private static final TreeSet<String> usedConstants = new TreeSet<String>();
     private static final TreeSet<String> usedMethods = new TreeSet<String>();
+    private static final TreeSet<String> usedCaps = new TreeSet<String>();
 
+    private static void scanCapsFromType(Class<?> clazz) {
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            if ((field.getModifiers() & (Modifier.STATIC | Modifier.PUBLIC)) != 0) {
+                String name = field.getName();
+                Class<?> type = field.getType();
+                if (type == boolean.class) {
+                    capsSet.add(name);
+                }
+            }
+        }
+    }
+    
     private static void scanConstantsFromType(Class<?> clazz) {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
@@ -143,13 +162,14 @@ public class GLAutoGen {
         }
     }
 
-    private static void scanType(Class<?> clazz) {
+    private static void scanGLType(Class<?> clazz) {
         scanConstantsFromType(clazz);
         scanMethodsFromType(clazz);
     }
 
-    private static Collection<String> scanConstants(String line) {
-        List<String> constants = new ArrayList<String>();
+    private static void scanConstants(String line, 
+            Collection<String> consts, 
+            Collection<String> caps) {
         int next_gl = line.indexOf("GL_");
         while (next_gl > 0) {
             char chrBefore = line.charAt(next_gl - 1);
@@ -159,24 +179,28 @@ public class GLAutoGen {
                     && chrBefore != '(') {
                 // System.out.println(line + "\t\t\t\tPreceding character \"" + chrBefore + "\" not acceptable.");
             } else {
+                boolean isCap = false;
                 for (int scan_idx = next_gl + 3; scan_idx < line.length(); scan_idx++) {
                     char chrCall = line.charAt(scan_idx);
                     if (Character.isLowerCase(chrCall)) {
                         // GL constants cannot have lowercase letters.
-                        break;
+                        // This is most likely capability type.
+                        isCap = true;
                     } else if (!Character.isLetterOrDigit(chrCall) && chrCall != '_') {
-                        constants.add(line.substring(next_gl, scan_idx));
+                        if (isCap) {
+                            caps.add(line.substring(next_gl, scan_idx));
+                        } else {
+                            consts.add(line.substring(next_gl, scan_idx));
+                        }
                         break;
                     }
                 }
             }
             next_gl = line.indexOf("GL_", next_gl + 3);
         }
-        return constants;
     }
 
-    private static Collection<String> scanMethods(String line) {
-        List<String> methods = new ArrayList<String>();
+    private static void scanMethods(String line, Collection<String> methods) {
         int next_gl = line.indexOf("gl");
         while (next_gl > 0) {
             char chrBefore = line.charAt(next_gl - 1);
@@ -200,11 +224,13 @@ public class GLAutoGen {
             }
             next_gl = line.indexOf("gl", next_gl + 2);
         }
-        return methods;
     }
 
     private static void scanFile(String path) {
         FileReader reader = null;
+        List<String> methods = new ArrayList<String>();
+        List<String> consts = new ArrayList<String>();
+        List<String> caps = new ArrayList<String>();
         try {
             reader = new FileReader(path);
             BufferedReader br = new BufferedReader(reader);
@@ -213,9 +239,13 @@ public class GLAutoGen {
                 if (line == null) {
                     break;
                 }
-                usedMethods.addAll(scanMethods(line));
-                usedConstants.addAll(scanConstants(line));
+                scanMethods(line, methods);
+                scanConstants(line, consts, caps);
             }
+            
+            usedMethods.addAll(methods);
+            usedConstants.addAll(consts);
+            usedCaps.addAll(caps);
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -230,6 +260,20 @@ public class GLAutoGen {
 
     private static void exportInterface() {
         System.out.println("package autogen;");
+        System.out.println();
+        System.out.println("public final class GLCaps {");
+        System.out.println();
+        System.out.println("\tprivate GLCaps { }");
+        System.out.println();
+        
+        for (String cap : capsSet) {
+            if (usedCaps.contains(cap)) {
+                System.out.println("\tpublic boolean " + cap + ";");
+            }
+        }
+        
+        System.out.println();
+        System.out.println("}");
         System.out.println();
         System.out.println("/**");
         System.out.println(" * Auto-generated interface");
@@ -265,7 +309,7 @@ public class GLAutoGen {
             }
 
             for (MethodInfo info : infos) {
-                String retTypeStr = info.returnType.toString();
+                String retTypeStr = info.returnType.getSimpleName();
                 System.out.print("\tpublic " + retTypeStr + " " + method + "(");
                 for (int i = 0; i < info.paramTypes.length; i++) {
                     System.out.print(info.paramTypes[i].getSimpleName() + " param" + (i + 1));
@@ -278,6 +322,9 @@ public class GLAutoGen {
         }
 
         System.out.println("// -- end methods");
+        System.out.println("// -- begin custom methods");
+        System.out.println("\tpublic GLCaps getGLCaps();");
+        System.out.println("// -- end custom methods");
         System.out.println();
         System.out.println("}");
     }
@@ -286,26 +333,27 @@ public class GLAutoGen {
         String path = "../jme3-lwjgl/src/main/java/com/jme3/renderer/lwjgl/LwjglRenderer.java";
         File lwjglRendererSrc = new File(path).getAbsoluteFile();
         
-        scanType(GL11.class);
-        scanType(GL14.class);
-        scanType(GL12.class);
-        scanType(GL13.class);
-        scanType(GL15.class);
-        scanType(GL20.class);
-        scanType(GL21.class);
-        scanType(GL30.class);
-        scanType(NVHalfFloat.class);
-        scanType(ARBGeometryShader4.class);
-        scanType(EXTFramebufferObject.class);
-        scanType(EXTFramebufferBlit.class);
-        scanType(EXTFramebufferMultisample.class);
-        scanType(ARBTextureMultisample.class);
-        scanType(ARBMultisample.class);
-        scanType(EXTTextureArray.class);
-        scanType(EXTTextureFilterAnisotropic.class);
-        scanType(ARBDrawInstanced.class);
-        scanType(ARBInstancedArrays.class);
-
+        scanGLType(GL11.class);
+        scanGLType(GL14.class);
+        scanGLType(GL12.class);
+        scanGLType(GL13.class);
+        scanGLType(GL15.class);
+        scanGLType(GL20.class);
+        scanGLType(GL21.class);
+        scanGLType(GL30.class);
+        scanGLType(NVHalfFloat.class);
+        scanGLType(ARBGeometryShader4.class);
+        scanGLType(EXTFramebufferObject.class);
+        scanGLType(EXTFramebufferBlit.class);
+        scanGLType(EXTFramebufferMultisample.class);
+        scanGLType(ARBTextureMultisample.class);
+        scanGLType(ARBMultisample.class);
+        scanGLType(EXTTextureArray.class);
+        scanGLType(EXTTextureFilterAnisotropic.class);
+        scanGLType(ARBDrawInstanced.class);
+        scanGLType(ARBInstancedArrays.class);
+        scanCapsFromType(ContextCapabilities.class);
+        
         scanFile(lwjglRendererSrc.toString());
 
         exportInterface();
