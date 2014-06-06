@@ -163,7 +163,10 @@ public class TestPointDirectionalAndSpotLightShadows extends SimpleApplication {
         fpp.addFilter(slsf);
         viewPort.addProcessor(fpp);
               
-        ShadowTestUIManager uiMan = new ShadowTestUIManager(assetManager, plsr, plsf, guiNode, inputManager, viewPort);
+        ShadowTestUIManager uiManPls = new ShadowTestUIManager(assetManager, plsr, plsf, guiNode, inputManager, viewPort);
+        ShadowTestUIManager uiManDls = new ShadowTestUIManager(assetManager, dlsr, dlsf, guiNode, inputManager, viewPort);
+        ShadowTestUIManager uiManSls = new ShadowTestUIManager(assetManager, slsr, slsf, guiNode, inputManager, viewPort);
+ 
     }
 
     float timeElapsed = 0.0f;
