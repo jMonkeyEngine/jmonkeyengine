@@ -59,7 +59,7 @@ void main(){
    
      #if (!defined(POINTLIGHT) && !defined(PSSM))
           vec3 lightDir = worldPos.xyz - m_LightPos;
-          if( dot(m_LightDir,lightDir)<0){
+          if( dot(m_LightDir,lightDir) < 0.0){
             gl_FragColor = color;
             return;
           }         

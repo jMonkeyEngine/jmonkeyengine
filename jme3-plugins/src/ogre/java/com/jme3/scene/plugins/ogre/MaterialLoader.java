@@ -165,7 +165,7 @@ public class MaterialLoader implements AssetLoader {
             if (mode.equals("wrap")){
                 textures[texUnit].setWrap(WrapMode.Repeat);
             }else if (mode.equals("clamp")){
-                textures[texUnit].setWrap(WrapMode.Clamp);
+                textures[texUnit].setWrap(WrapMode.EdgeClamp);
             }else if (mode.equals("mirror")){
                 textures[texUnit].setWrap(WrapMode.MirroredRepeat);
             }else if (mode.equals("border")){

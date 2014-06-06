@@ -84,7 +84,10 @@ public class GLSLLoader implements AssetLoader {
         try {
             bufReader = new BufferedReader(reader);
             String ln;
-            while ((ln = bufReader.readLine()) != null) {                
+            if (!nodeName.equals("[main]")) {
+                sb.append("// -- begin import ").append(nodeName).append(" --\n");
+            }
+            while ((ln = bufReader.readLine()) != null) {
                 if (ln.trim().startsWith("#import ")) {
                     ln = ln.trim().substring(8).trim();
                     if (ln.startsWith("\"") && ln.endsWith("\"") && ln.length() > 3) {
@@ -108,6 +111,9 @@ public class GLSLLoader implements AssetLoader {
                 } else {
                     sb.append(ln).append('\n');
                 }
+            }
+            if (!nodeName.equals("[main]")) {
+                sb.append("// -- end import ").append(nodeName).append(" --\n");
             }
         } catch (IOException ex) {
             if (bufReader != null) {

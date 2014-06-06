@@ -22,7 +22,6 @@ varying vec4 projCoord3;
     varying vec4 worldPos;
 #else
     #ifndef PSSM
-        uniform vec3 m_LightPos; 
         uniform vec3 m_LightDir; 
         varying float lightDot;
     #endif
