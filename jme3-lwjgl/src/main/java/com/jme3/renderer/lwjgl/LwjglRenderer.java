@@ -1040,9 +1040,9 @@ public class LwjglRenderer implements Renderer {
             logger.log(Level.WARNING, "Bad compile of:\n{0}",
                     new Object[]{ShaderDebug.formatShaderSource(source.getDefines(), source.getSource(), stringBuf.toString())});
             if (infoLog != null) {
-                throw new RendererException("compile error in:" + source + " error:" + infoLog);
+                throw new RendererException("compile error in: " + source + "\n" + infoLog);
             } else {
-                throw new RendererException("compile error in:" + source + " error: <not provided>");
+                throw new RendererException("compile error in: " + source + "\nerror: <not provided>");
             }
         }
     }
@@ -1117,9 +1117,9 @@ public class LwjglRenderer implements Renderer {
             }
         } else {
             if (infoLog != null) {
-                throw new RendererException("Shader failure to link, shader:" + shader + " info:" + infoLog);
+                throw new RendererException("Shader failed to link, shader:" + shader + "\n" + infoLog);
             } else {
-                throw new RendererException("Shader failure to link, shader:" + shader + " info: <not provided>");
+                throw new RendererException("Shader failed to link, shader:" + shader + "\ninfo: <not provided>");
             }
         }
     }
