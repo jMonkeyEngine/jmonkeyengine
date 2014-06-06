@@ -63,7 +63,7 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
-import com.jme3.math.ScissorRectangle;
+import com.jme3.math.ClipRectangle;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.GL1Renderer;
@@ -452,16 +452,16 @@ public class JoglGL1Renderer implements GL1Renderer {
             throw new UnsupportedOperationException("OpenGL 1.1 doesn't support two sided stencil operations.");
         }
 
-        if (state.isScissorTest()) {
+        if (state.isClipTest()) {
             if (!context.clipRectEnabled) {
                 gl.glEnable(GL.GL_SCISSOR_TEST);
-                gl.glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
+                gl.glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
             } else {
-                int scisX = state.getScissorX();
-                int scisY = state.getScissorY();
-                int scisW = state.getScissorW();
-                int scisH = state.getScissorH();
-                ScissorRectangle i = ScissorRectangle.intersect(clipX, clipY, clipW, clipH, scisX, scisY, scisW, scisH);
+                int rsClipX = state.getClipX();
+                int rsClipY = state.getClipY();
+                int rsClipW = state.getClipW();
+                int rsClipH = state.getClipH();
+                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
                 if (i == null) {
                     gl.glScissor(0, 0, 0, 0);
                 } else {

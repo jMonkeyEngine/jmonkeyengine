@@ -37,7 +37,7 @@ import java.io.IOException;
 
 /**
  *
- * <code>ScissorRectangle</code> defines a finite plane within two dimensional
+ * <code>ClipRectangle</code> defines a finite plane within two dimensional
  * pixel space that is specified via four values (x, y, w, h.) x and y define
  * the coordinates of the pixel representing the lower left corner of the
  * rectangle. w and h define the width and height of the rectangle.
@@ -45,14 +45,14 @@ import java.io.IOException;
  * @author Philip Spencer
  */
 
-public final class ScissorRectangle implements Savable, Cloneable, java.io.Serializable {
+public final class ClipRectangle implements Savable, Cloneable, java.io.Serializable {
 
     static final long serialVersionUID = 1;
 
     private int x, y, w, h;
 
     /**
-     * Constructor creates a new <code>ScissorRectangle</code> with defined
+     * Constructor creates a new <code>ClipRectangle</code> with defined
      * x, y, w and h points that define the area of the rectangle.
      *
      * @param x the x coordinate of the lower left corner of the rectangle
@@ -60,7 +60,7 @@ public final class ScissorRectangle implements Savable, Cloneable, java.io.Seria
      * @param w the width of the rectangle
      * @param h the height of the rectangle
      */
-    public ScissorRectangle(int x, int y, int w, int h) {
+    public ClipRectangle(int x, int y, int w, int h) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -144,25 +144,25 @@ public final class ScissorRectangle implements Savable, Cloneable, java.io.Seria
     }
 
     /**
-     * Intersects the given <code>ScissorRectangle</code> with this
-     * <code>ScissorRectangle</code>. If there is no intersection
+     * Intersects the given <code>ClipRectangle</code> with this
+     * <code>ClipRectangle</code>. If there is no intersection
      * between them, the result is null. Otherwise it is a new
-     * <code>ScissorRectangle</code> representing the intersection.
+     * <code>ClipRectangle</code> representing the intersection.
      *
-     * @param sr the <code>ScissorRectangle</code> to intersect with this
+     * @param cr the <code>ClipRectangle</code> to intersect with this
      * @return null if there is no intersection otherwise the resulting
-     * <code>ScissorRectangle</code>
+     * <code>ClipRectangle</code>
      */
-    public ScissorRectangle intersect(ScissorRectangle sr)
+    public ClipRectangle intersect(ClipRectangle cr)
     {
-        return ScissorRectangle.intersect(x, y, w, h, sr.getX(), sr.getY(),
-                                          sr.getW(), sr.getH());
+        return ClipRectangle.intersect(x, y, w, h, cr.getX(), cr.getY(),
+                                       cr.getW(), cr.getH());
     }
 
     /**
      * Intersects two rectangles represented by the values that define them.
      * If there is no intersection between them, the result is null.
-     * Otherwise it is a new <code>ScissorRectangle</code> representing
+     * Otherwise it is a new <code>ClipRectangle</code> representing
      * the intersection.
      *
      * @param x0 the x coordinate of the lower left of the first rectangle
@@ -174,10 +174,10 @@ public final class ScissorRectangle implements Savable, Cloneable, java.io.Seria
      * @param w1 the width of the second rectangle
      * @param h1 the height of the second rectangle
      * @return null if there is no intersection otherwise the resulting
-     * <code>ScissorRectangle</code>
+     * <code>ClipRectangle</code>
      */
-    public static ScissorRectangle intersect(int x0, int y0, int w0, int h0,
-                                             int x1, int y1, int w1, int h1)
+    public static ClipRectangle intersect(int x0, int y0, int w0, int h0,
+                                          int x1, int y1, int w1, int h1)
     {
         int left = Math.max(x0, x1);
         int bottom = Math.max(y0, y1);
@@ -190,7 +190,7 @@ public final class ScissorRectangle implements Savable, Cloneable, java.io.Seria
         if ((width <= 0) || (height <= 0)) {
             return null;
         } else {
-            return new ScissorRectangle(left, bottom, width, height);
+            return new ClipRectangle(left, bottom, width, height);
         }
     }
 
@@ -211,14 +211,14 @@ public final class ScissorRectangle implements Savable, Cloneable, java.io.Seria
     }
 
     @Override
-    public ScissorRectangle clone() {
+    public ClipRectangle clone() {
         try {
-            ScissorRectangle sr = (ScissorRectangle) super.clone();
-            sr.x = x;
-            sr.y = y;
-            sr.w = w;
-            sr.h = h;
-            return sr;
+            ClipRectangle cr = (ClipRectangle) super.clone();
+            cr.x = x;
+            cr.y = y;
+            cr.w = w;
+            cr.h = h;
+            return cr;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }

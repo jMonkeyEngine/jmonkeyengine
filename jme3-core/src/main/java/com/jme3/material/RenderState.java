@@ -272,8 +272,8 @@ public class RenderState implements Cloneable, Savable {
         ADDITIONAL.applyAlphaTest = false;
         ADDITIONAL.applyAlphaFallOff = false;
         ADDITIONAL.applyPolyOffset = false;
-        ADDITIONAL.applyScissorTest = false;
-        ADDITIONAL.applyScissorRect = false;
+        ADDITIONAL.applyClipTest = false;
+        ADDITIONAL.applyClipRect = false;
     }
 
     boolean pointSprite = false;
@@ -314,13 +314,13 @@ public class RenderState implements Cloneable, Savable {
     StencilOperation backStencilDepthPassOperation = StencilOperation.Keep;
     TestFunction frontStencilFunction = TestFunction.Always;
     TestFunction backStencilFunction = TestFunction.Always;
-    boolean scissorTest = false;
-    boolean applyScissorTest = false;
-    int scissorX = 0;
-    int scissorY = 0;
-    int scissorW = 0;
-    int scissorH = 0;
-    boolean applyScissorRect = false;
+    boolean clipTest = false;
+    boolean applyClipTest = false;
+    int clipX = 0;
+    int clipY = 0;
+    int clipW = 0;
+    int clipH = 0;
+    boolean applyClipRect = false;
     int cachedHashCode = -1;
 
     public void write(JmeExporter ex) throws IOException {
@@ -346,11 +346,11 @@ public class RenderState implements Cloneable, Savable {
         oc.write(backStencilDepthPassOperation, "backStencilDepthPassOperation", StencilOperation.Keep);
         oc.write(frontStencilFunction, "frontStencilFunction", TestFunction.Always);
         oc.write(backStencilFunction, "backStencilFunction", TestFunction.Always);
-        oc.write(scissorTest, "scissorTest", false);
-        oc.write(scissorX, "scissorX", 0);
-        oc.write(scissorY, "scissorY", 0);
-        oc.write(scissorW, "scissorW", 0);
-        oc.write(scissorH, "scissorH", 0);
+        oc.write(clipTest, "clipTest", false);
+        oc.write(clipX, "clipX", 0);
+        oc.write(clipY, "clipY", 0);
+        oc.write(clipW, "clipW", 0);
+        oc.write(clipH, "clipH", 0);
 
         // Only "additional render state" has them set to false by default
         oc.write(applyPointSprite, "applyPointSprite", true);
@@ -367,8 +367,8 @@ public class RenderState implements Cloneable, Savable {
         oc.write(applyAlphaFunc, "applyAlphaFunc", false);
         oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
         oc.write(alphaFunc, "alphaFunc", TestFunction.Greater);
-        oc.write(applyScissorTest, "applyScissorTest", true);
-        oc.write(applyScissorRect, "applyScissorTect", true);
+        oc.write(applyClipTest, "applyClipTest", true);
+        oc.write(applyClipRect, "applyClipRect", true);
     }
 
     public void read(JmeImporter im) throws IOException {
@@ -396,11 +396,11 @@ public class RenderState implements Cloneable, Savable {
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
         alphaFunc = ic.readEnum("alphaFunc", TestFunction.class, TestFunction.Greater);
-        scissorTest = ic.readBoolean("scissorTest", false);
-        scissorX = ic.readInt("scissorX", 0);
-        scissorY = ic.readInt("scissorY", 0);
-        scissorW = ic.readInt("scissorW", 0);
-        scissorH = ic.readInt("scissorH", 0);
+        clipTest = ic.readBoolean("clipTest", false);
+        clipX = ic.readInt("clipX", 0);
+        clipY = ic.readInt("clipY", 0);
+        clipW = ic.readInt("clipW", 0);
+        clipH = ic.readInt("clipH", 0);
 
         applyPointSprite = ic.readBoolean("applyPointSprite", true);
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
@@ -414,8 +414,8 @@ public class RenderState implements Cloneable, Savable {
         applyPolyOffset = ic.readBoolean("applyPolyOffset", true);
         applyDepthFunc = ic.readBoolean("applyDepthFunc", true);
         applyAlphaFunc = ic.readBoolean("applyAlphaFunc", false);
-        applyScissorTest = ic.readBoolean("applyScissorTest", true);
-        applyScissorRect = ic.readBoolean("applyScissorRect", true);
+        applyClipTest = ic.readBoolean("applyClipTest", true);
+        applyClipRect = ic.readBoolean("applyClipRect", true);
     }
 
     /**
@@ -536,23 +536,23 @@ public class RenderState implements Cloneable, Savable {
             }
         }
 
-        if (scissorTest != rs.scissorTest) {
+        if (clipTest != rs.clipTest) {
             return false;
         }
 
-        if (scissorX != rs.scissorX) {
+        if (clipX != rs.clipX) {
             return false;
         }
 
-        if (scissorY != rs.scissorY) {
+        if (clipY != rs.clipY) {
             return false;
         }
 
-        if (scissorW != rs.scissorW) {
+        if (clipW != rs.clipW) {
             return false;
         }
 
-        if (scissorH != rs.scissorH) {
+        if (clipH != rs.clipH) {
             return false;
         }
 
@@ -833,36 +833,36 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Enables scissor testing mode.
+     * Enables clip testing mode.
      *
-     * <p>When in scissor testing mode, a pixel must be within the scissoring
+     * <p>When in clip testing mode, a pixel must be within the clip
      * rectangle in order to be drawn.
      *
-     * @param scissorTest True to enable scissor testing mode
+     * @param clipTest True to enable clip testing mode
      */
-    public void setScissorTest(boolean scissorTest) {
-        applyScissorTest = true;
-        this.scissorTest = scissorTest;
+    public void setClipTest(boolean clipTest) {
+        applyClipTest = true;
+        this.clipTest = clipTest;
         cachedHashCode = -1;
     }
 
     /**
-     * Sets the scissoring rectangle to the given values. Any pixels outside this
-     * area will not be drawn. scissorX and scissorY should be zero or greater.
-     * scissorW and scissorH should be greater than zero.
+     * Sets the clip rectangle to the given values. Any pixels outside this
+     * area will not be drawn. clipX and clipY should be zero or greater.
+     * clipW and clipH should be greater than zero.
      *
-     * @param scissorX the x position of the bottom left corner of the rectangle
-     * @param scissorY the y position of the bottom left corner of the rectangle
-     * @param scissorW the width of the rectangle
-     * @param scissorH the height of the rectangle
+     * @param clipX the x position of the bottom left corner of the rectangle
+     * @param clipY the y position of the bottom left corner of the rectangle
+     * @param clipW the width of the rectangle
+     * @param clipH the height of the rectangle
      */
-    public void setScissorRect(int scissorX, int scissorY,
-                               int scissorW, int scissorH) {
-        applyScissorRect = true;
-        this.scissorX = scissorX;
-        this.scissorY = scissorY;
-        this.scissorW = scissorW;
-        this.scissorH = scissorH;
+    public void setClipRect(int clipX, int clipY,
+                            int clipW, int clipH) {
+        applyClipRect = true;
+        this.clipX = clipX;
+        this.clipY = clipY;
+        this.clipW = clipW;
+        this.clipH = clipH;
         cachedHashCode = -1;
     }
 
@@ -1180,48 +1180,48 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Check if scissor testing is enabled.
+     * Check if clip testing is enabled.
      *
-     * @return True if scissor testing is enabled
+     * @return True if clip testing is enabled
      */
-    public boolean isScissorTest() {
-        return scissorTest;
+    public boolean isClipTest() {
+        return clipTest;
     }
 
     /**
-     * Retrieve the x position of the bottom left corner of the scissor rectangle.
+     * Retrieve the x position of the bottom left corner of the clip rectangle.
      *
-     * @return the x position of the bottom left corner of the scissor rectangle
+     * @return the x position of the bottom left corner of the clip rectangle
      */
-    public int getScissorX() {
-        return scissorX;
+    public int getClipX() {
+        return clipX;
     }
 
     /**
-     * Retrieve the y position of the bottom left corner of the scissor rectangle.
+     * Retrieve the y position of the bottom left corner of the clip rectangle.
      *
-     * @return the y position of the bottom left corner of the scissor rectangle
+     * @return the y position of the bottom left corner of the clip rectangle
      */
-    public int getScissorY() {
-        return scissorY;
+    public int getClipY() {
+        return clipY;
     }
 
     /**
-     * Retrieve the width of the scissor rectangle.
+     * Retrieve the width of the clip rectangle.
      *
-     * @return the width of the scissor rectangle
+     * @return the width of the clip rectangle
      */
-    public int getScissorW() {
-        return scissorW;
+    public int getClipW() {
+        return clipW;
     }
 
     /**
-     * Retrieve the height of the scissor rectangle.
+     * Retrieve the height of the clip rectangle.
      *
-     * @return the height of the scissor rectangle
+     * @return the height of the clip rectangle
      */
-    public int getScissorH() {
-        return scissorH;
+    public int getClipH() {
+        return clipH;
     }
 
 
@@ -1274,12 +1274,12 @@ public class RenderState implements Cloneable, Savable {
         return applyAlphaFunc;
     }
 
-    public boolean isApplyScissorTest() {
-        return applyScissorTest;
+    public boolean isApplyClipTest() {
+        return applyClipTest;
     }
 
-    public boolean isApplyScissorRect() {
-        return applyScissorRect;
+    public boolean isApplyClipRect() {
+        return applyClipRect;
     }
 
 
@@ -1313,11 +1313,11 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.backStencilDepthPassOperation != null ? this.backStencilDepthPassOperation.hashCode() : 0);
             hash = 79 * hash + (this.frontStencilFunction != null ? this.frontStencilFunction.hashCode() : 0);
             hash = 79 * hash + (this.backStencilFunction != null ? this.backStencilFunction.hashCode() : 0);
-            hash = 79 * hash + (this.scissorTest ? 1 : 0);
-            hash = 79 * hash + scissorX;
-            hash = 79 * hash + scissorY;
-            hash = 79 * hash + scissorW;
-            hash = 79 * hash + scissorH;
+            hash = 79 * hash + (this.clipTest ? 1 : 0);
+            hash = 79 * hash + clipX;
+            hash = 79 * hash + clipY;
+            hash = 79 * hash + clipW;
+            hash = 79 * hash + clipH;
             cachedHashCode = hash;
         }
         return cachedHashCode;
@@ -1442,21 +1442,21 @@ public class RenderState implements Cloneable, Savable {
             state.frontStencilFunction = frontStencilFunction;
             state.backStencilFunction = backStencilFunction;
         }
-        if (additionalState.applyScissorTest) {
-            state.scissorTest = additionalState.scissorTest;
+        if (additionalState.applyClipTest) {
+            state.clipTest = additionalState.clipTest;
         } else {
-            state.scissorTest = scissorTest;
+            state.clipTest = clipTest;
         }
-        if (additionalState.applyScissorRect) {
-            state.scissorX = additionalState.scissorX;
-            state.scissorY = additionalState.scissorY;
-            state.scissorW = additionalState.scissorW;
-            state.scissorH = additionalState.scissorH;
+        if (additionalState.applyClipRect) {
+            state.clipX = additionalState.clipX;
+            state.clipY = additionalState.clipY;
+            state.clipW = additionalState.clipW;
+            state.clipH = additionalState.clipH;
         } else {
-            state.scissorX = scissorX;
-            state.scissorY = scissorY;
-            state.scissorW = scissorW;
-            state.scissorH = scissorH;
+            state.clipX = clipX;
+            state.clipY = clipY;
+            state.clipW = clipW;
+            state.clipH = clipH;
         }
         state.cachedHashCode = -1;
         return state;
@@ -1489,13 +1489,13 @@ public class RenderState implements Cloneable, Savable {
                 + "\napplyPolyOffset=" + applyPolyOffset
                 + "\noffsetFactor=" + offsetFactor
                 + "\noffsetUnits=" + offsetUnits
-                + "\nscissorTest=" + scissorTest
-                + "\napplyScissorTest=" + applyScissorTest
-                + "\napplyScissorRect=" + applyScissorRect
-                + "\nscissorX" + scissorX
-                + "\nscissorY" + scissorY
-                + "\nscissorWidth" + scissorW
-                + "\nscissorHeight" + scissorH
+                + "\nclipTest=" + clipTest
+                + "\napplyClipTest=" + applyClipTest
+                + "\napplyClipRect=" + applyClipRect
+                + "\nclipX" + clipX
+                + "\nclipY" + clipY
+                + "\nclipW" + clipW
+                + "\nclipH" + clipH
                 + "\n]";
     }
 }

@@ -690,16 +690,16 @@ public class LwjglRenderer implements Renderer {
             }
         }
 
-        if (state.isScissorTest()) {
+        if (state.isClipTest()) {
             if (!context.clipRectEnabled) {
                 glEnable(GL_SCISSOR_TEST);
-                glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
+                glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
             } else {
-                int scisX = state.getScissorX();
-                int scisY = state.getScissorY();
-                int scisW = state.getScissorW();
-                int scisH = state.getScissorH();
-                ScissorRectangle i = ScissorRectangle.intersect(clipX, clipY, clipW, clipH, scisX, scisY, scisW, scisH);
+                int rsClipX = state.getClipX();
+                int rsClipY = state.getClipY();
+                int rsClipW = state.getClipW();
+                int rsClipH = state.getClipH();
+                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
                 if (i == null) {
                     glScissor(0, 0, 0, 0);
                 } else {

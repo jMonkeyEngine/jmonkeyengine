@@ -568,18 +568,18 @@ public class OGLESShaderRenderer implements Renderer {
             context.blendMode = state.getBlendMode();
         }
 
-        if (state.isScissorTest()) {
+        if (state.isClipTest()) {
             if (!context.clipRectEnabled) {
                 GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
                 RendererUtil.checkGLError();
-                GLES20.glScissor(state.getScissorX(), state.getScissorY(), state.getScissorW(), state.getScissorH());
+                GLES20.glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
                 RendererUtil.checkGLError();
             } else {
-                int scisX = state.getScissorX();
-                int scisY = state.getScissorY();
-                int scisW = state.getScissorW();
-                int scisH = state.getScissorH();
-                ScissorRectangle i = ScissorRectangle.intersect(clipX, clipY, clipW, clipH, scisX, scisY, scisW, scisH);
+                int rsClipX = state.getClipX();
+                int rsClipY = state.getClipY();
+                int rsClipW = state.getClipW();
+                int rsClipH = state.getClipH();
+                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
                 if (i == null) {
                     GLES20.glScissor(0, 0, 0, 0);
                     RendererUtil.checkGLError();
