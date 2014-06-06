@@ -167,9 +167,10 @@ public class GLAutoGen {
         scanMethodsFromType(clazz);
     }
 
-    private static void scanConstants(String line, 
+    private static String scanConstants(String line, 
             Collection<String> consts, 
             Collection<String> caps) {
+        String modifiedLine = line;
         int next_gl = line.indexOf("GL_");
         while (next_gl > 0) {
             char chrBefore = line.charAt(next_gl - 1);
@@ -190,6 +191,12 @@ public class GLAutoGen {
                         if (isCap) {
                             caps.add(line.substring(next_gl, scan_idx));
                         } else {
+
+                            // Also perform in-line injection.
+                            modifiedLine = modifiedLine.substring(0, next_gl)
+                                    + "GL."
+                                    + modifiedLine.substring(next_gl);
+
                             consts.add(line.substring(next_gl, scan_idx));
                         }
                         break;
@@ -198,9 +205,11 @@ public class GLAutoGen {
             }
             next_gl = line.indexOf("GL_", next_gl + 3);
         }
+        return modifiedLine;
     }
 
-    private static void scanMethods(String line, Collection<String> methods) {
+    private static String scanMethods(String line, Collection<String> methods) {
+        String modifiedLine = line;
         int next_gl = line.indexOf("gl");
         while (next_gl > 0) {
             char chrBefore = line.charAt(next_gl - 1);
@@ -215,6 +224,12 @@ public class GLAutoGen {
                     if (chrCall == '(') {
                         String methodName = line.substring(next_gl, scan_idx);
                         methods.add(methodName);
+                        
+                        // Also perform in-line injection.
+                        modifiedLine = modifiedLine.substring(0, next_gl) +
+                                       "gl." +
+                                       modifiedLine.substring(next_gl);
+                        
                         break;
                     } else if (!Character.isLetterOrDigit(chrCall)) {
                         // System.out.println(line.substring(next_gl) + "\t\t\t\tFound non-letter inside call");
@@ -224,6 +239,7 @@ public class GLAutoGen {
             }
             next_gl = line.indexOf("gl", next_gl + 2);
         }
+        return modifiedLine;
     }
 
     private static void scanFile(String path) {
@@ -239,8 +255,9 @@ public class GLAutoGen {
                 if (line == null) {
                     break;
                 }
-                scanMethods(line, methods);
-                scanConstants(line, consts, caps);
+                line = scanMethods(line, methods);
+                line = scanConstants(line, consts, caps);
+                System.out.println(line);
             }
             
             usedMethods.addAll(methods);
