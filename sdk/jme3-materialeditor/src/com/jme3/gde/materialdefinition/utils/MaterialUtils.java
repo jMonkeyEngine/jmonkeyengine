@@ -53,9 +53,13 @@ public class MaterialUtils {
      * @param line
      * @return
      */
-    public static String trimName(String line) {
+    public static String trimName(String line) {        
+        int idx = line.indexOf("-");
+        if(idx!=-1){             
+             line= line.substring(0, idx);
+        }
         line = trimLine(line);
-        int idx = line.indexOf("(");
+        idx = line.indexOf("(");
         if (idx == -1) {
             idx = line.indexOf(":");
         }
