@@ -120,15 +120,21 @@ public class Statistics {
 
     /**
      * Called by the Renderer when a mesh has been drawn.
-     * 
      */
-    public void onMeshDrawn(Mesh mesh, int lod){
+    public void onMeshDrawn(Mesh mesh, int lod, int count){
         if( !enabled )
             return;
             
-        numObjects ++;
-        numTriangles += mesh.getTriangleCount(lod);
-        numVertices += mesh.getVertexCount();
+        numObjects += count;
+        numTriangles += mesh.getTriangleCount(lod) * count;
+        numVertices += mesh.getVertexCount() * count;
+    }
+    
+    /**
+     * Called by the Renderer when a mesh has been drawn.
+     */
+    public void onMeshDrawn(Mesh mesh, int lod){
+        onMeshDrawn(mesh, lod, 1);
     }
 
     /**

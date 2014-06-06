@@ -2545,7 +2545,7 @@ public class LwjglRenderer implements Renderer {
             context.lineWidth = mesh.getLineWidth();
         }
 
-        statistics.onMeshDrawn(mesh, lod);
+        statistics.onMeshDrawn(mesh, lod, count);
 //        if (GLContext.getCapabilities().GL_ARB_vertex_array_object){
 //            renderMeshVertexArray(mesh, lod, count);
 //        }else{
