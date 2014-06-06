@@ -1,6 +1,7 @@
 package jme3tools.autogen;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -58,9 +59,9 @@ public class GLAutoGen {
                     + '}';
         }
     }
-    
+
     private static class MethodInfo {
-        
+
         Class<?> declaringClazz;
         String methodName;
         Class<?> returnType;
@@ -84,10 +85,10 @@ public class GLAutoGen {
 
     private static final HashMap<String, List<MethodInfo>> methodMap
             = new HashMap<String, List<MethodInfo>>();
-    
+
     private static final TreeSet<String> usedConstants = new TreeSet<String>();
     private static final TreeSet<String> usedMethods = new TreeSet<String>();
-    
+
     private static void scanConstantsFromType(Class<?> clazz) {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
@@ -95,11 +96,11 @@ public class GLAutoGen {
                 String name = field.getName();
                 Class<?> type = field.getType();
                 Object value = null;
-                
+
                 if (constantMap.containsKey(name)) {
                     throw new UnsupportedOperationException(name + " constant redeclared");
                 }
-                
+
                 if (type == int.class) {
                     try {
                         value = field.getInt(null);
@@ -120,7 +121,7 @@ public class GLAutoGen {
             }
         }
     }
-    
+
     private static void scanMethodsFromType(Class<?> clazz) {
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
@@ -128,14 +129,14 @@ public class GLAutoGen {
                 String name = method.getName();
                 Class<?> type = method.getReturnType();
                 Class<?>[] paramTypes = method.getParameterTypes();
-                
+
                 List<MethodInfo> overloads = methodMap.get(name);
-                
+
                 if (overloads == null) {
                     overloads = new ArrayList<MethodInfo>();
                     methodMap.put(name, overloads);
                 }
-                
+
                 MethodInfo info = new MethodInfo(clazz, name, type, paramTypes);
                 overloads.add(info);
             }
@@ -146,7 +147,7 @@ public class GLAutoGen {
         scanConstantsFromType(clazz);
         scanMethodsFromType(clazz);
     }
-    
+
     private static Collection<String> scanConstants(String line) {
         List<String> constants = new ArrayList<String>();
         int next_gl = line.indexOf("GL_");
@@ -241,22 +242,22 @@ public class GLAutoGen {
             if (info == null) {
                 throw new IllegalStateException("Cannot find required constant: " + constant);
             }
-            
+
             String typeStr = info.constantType.toString();
             String valueStr = null;
-            
+
             if (info.constantType == int.class) {
-                valueStr = "0x" + Integer.toHexString((Integer)info.constantValue).toUpperCase();
+                valueStr = "0x" + Integer.toHexString((Integer) info.constantValue).toUpperCase();
             } else if (info.constantType == long.class) {
-                valueStr = "0x" + Long.toHexString((Long)info.constantValue).toUpperCase();
+                valueStr = "0x" + Long.toHexString((Long) info.constantValue).toUpperCase();
             }
-            
+
             System.out.println("\tpublic static final " + typeStr + " " + info.constantName + " = " + valueStr + ";");
         }
         System.out.println("// -- end constants");
         System.out.println();
         System.out.println("// -- begin methods");
-        
+
         for (String method : usedMethods) {
             List<MethodInfo> infos = methodMap.get(method);
             if (infos == null) {
@@ -275,16 +276,15 @@ public class GLAutoGen {
                 System.out.println(");");
             }
         }
-        
+
         System.out.println("// -- end methods");
         System.out.println();
         System.out.println("}");
     }
-    
+
     public static void main(String[] args) throws IOException {
-        String lwjgl = "D:\\engine\\jme3-lwjgl\\src\\main\\java\\com\\jme3\\renderer\\lwjgl\\LwjglRenderer.java";
-        String jogl  = "D:\\engine\\jme3-jogl\\src\\main\\java\\com\\jme3\\renderer\\jogl\\JoglRenderer.java";
-        String ogles = "D:\\engine\\jme3-android\\src\\main\\java\\com\\jme3\\renderer\\android\\OGLESShaderRenderer.java";
+        String path = "../jme3-lwjgl/src/main/java/com/jme3/renderer/lwjgl/LwjglRenderer.java";
+        File lwjglRendererSrc = new File(path).getAbsoluteFile();
         
         scanType(GL11.class);
         scanType(GL14.class);
@@ -305,9 +305,9 @@ public class GLAutoGen {
         scanType(EXTTextureFilterAnisotropic.class);
         scanType(ARBDrawInstanced.class);
         scanType(ARBInstancedArrays.class);
-        
-        scanFile(lwjgl);
-        
+
+        scanFile(lwjglRendererSrc.toString());
+
         exportInterface();
     }
 }
