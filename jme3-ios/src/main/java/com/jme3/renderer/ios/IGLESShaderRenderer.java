@@ -306,29 +306,29 @@ public class IGLESShaderRenderer implements Renderer {
             context.blendMode = state.getBlendMode();
         }
 
-        if (state.isClipTest()) {
-            if (!context.clipRectEnabled) {
-                JmeIosGLES.glEnable(JmeIosGLES.GL_SCISSOR_TEST);
-                JmeIosGLES.glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
-            } else {
-                int rsClipX = state.getClipX();
-                int rsClipY = state.getClipY();
-                int rsClipW = state.getClipW();
-                int rsClipH = state.getClipH();
-                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
-                if (i == null) {
-                    JmeIosGLES.glScissor(0, 0, 0, 0);
-                } else {
-                    JmeIosGLES.glScissor(i.getX(), i.getY(), i.getW(), i.getH());
-                }
-            }
-        } else {
-            if (context.clipRectEnabled) {
-                JmeIosGLES.glScissor(clipX, clipY, clipW, clipH);
-            } else {
-                JmeIosGLES.glDisable(JmeIosGLES.GL_SCISSOR_TEST);
-            }
-        }
+//        if (state.isClipTest()) {
+//            if (!context.clipRectEnabled) {
+//                JmeIosGLES.glEnable(JmeIosGLES.GL_SCISSOR_TEST);
+//                JmeIosGLES.glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
+//            } else {
+//                int rsClipX = state.getClipX();
+//                int rsClipY = state.getClipY();
+//                int rsClipW = state.getClipW();
+//                int rsClipH = state.getClipH();
+//                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
+//                if (i == null) {
+//                    JmeIosGLES.glScissor(0, 0, 0, 0);
+//                } else {
+//                    JmeIosGLES.glScissor(i.getX(), i.getY(), i.getW(), i.getH());
+//                }
+//            }
+//        } else {
+//            if (context.clipRectEnabled) {
+//                JmeIosGLES.glScissor(clipX, clipY, clipW, clipH);
+//            } else {
+//                JmeIosGLES.glDisable(JmeIosGLES.GL_SCISSOR_TEST);
+//            }
+//        }
     }
 
     /**

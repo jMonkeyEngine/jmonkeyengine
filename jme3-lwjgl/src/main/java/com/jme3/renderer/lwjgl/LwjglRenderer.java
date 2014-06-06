@@ -111,7 +111,10 @@ public class LwjglRenderer implements Renderer {
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
-    private int clipX, clipY, clipW, clipH;
+    private ClipRectangle currentClipRect;
+    private ClipRectangle rendererClipRect;
+    private ClipRectangle renderStateClipRect;
+    private ClipRectangle intersectionClipRect = new ClipRectangle();
     private boolean linearizeSrgbImages;
 
     public LwjglRenderer() {
@@ -691,26 +694,59 @@ public class LwjglRenderer implements Renderer {
         }
 
         if (state.isClipTest()) {
-            if (!context.clipRectEnabled) {
-                glEnable(GL_SCISSOR_TEST);
-                glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
-            } else {
-                int rsClipX = state.getClipX();
-                int rsClipY = state.getClipY();
-                int rsClipW = state.getClipW();
-                int rsClipH = state.getClipH();
-                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
-                if (i == null) {
-                    glScissor(0, 0, 0, 0);
+            renderStateClipRect.set(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
+            if (context.clipRectEnabled) {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                }
+                if (ClipRectangle.intersect(rendererClipRect, renderStateClipRect, intersectionClipRect)) {
+                    if (!currentClipRect.equals(intersectionClipRect)) {
+                        int iClipX = intersectionClipRect.getX();
+                        int iClipY = intersectionClipRect.getY();
+                        int iClipW = intersectionClipRect.getW();
+                        int iClipH = intersectionClipRect.getH();
+                        currentClipRect.set(iClipX, iClipY, iClipW, iClipH);
+                        glScissor(iClipX, iClipY, iClipW, iClipH);
+                    }
                 } else {
-                    glScissor(i.getX(), i.getY(), i.getW(), i.getH());
+                    if (currentClipRect.getX() != 0 || currentClipRect.getY() != 0 ||
+                        currentClipRect.getW() != 0 || currentClipRect.getH() != 0) {
+                        currentClipRect.set(0, 0, 0, 0);
+                        glScissor(0, 0, 0, 0);
+                    }
+                }
+            } else {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                    glEnable(GL_SCISSOR_TEST);
+                }
+                if (!currentClipRect.equals(renderStateClipRect)) {
+                    int rsClipX = renderStateClipRect.getX();
+                    int rsClipY = renderStateClipRect.getY();
+                    int rsClipW = renderStateClipRect.getW();
+                    int rsClipH = renderStateClipRect.getH();
+                    currentClipRect.set(rsClipX, rsClipY, rsClipW, rsClipH);
+                    glScissor(rsClipX, rsClipY, rsClipW, rsClipH);
                 }
             }
         } else {
             if (context.clipRectEnabled) {
-                glScissor(clipX, clipY, clipW, clipH);
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                }
+                if (!currentClipRect.equals(rendererClipRect)) {
+                    int rClipX = rendererClipRect.getX();
+                    int rClipY = rendererClipRect.getY();
+                    int rClipW = rendererClipRect.getW();
+                    int rClipH = rendererClipRect.getH();
+                    currentClipRect.set(rClipX, rClipY, rClipW, rClipH);
+                    glScissor(rClipX, rClipY, rClipW, rClipH);
+                }
             } else {
-                glDisable(GL_SCISSOR_TEST);
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                    glDisable(GL_SCISSOR_TEST);
+                }
             }
         }
     }
@@ -776,28 +812,36 @@ public class LwjglRenderer implements Renderer {
 
     public void setClipRect(int x, int y, int width, int height) {
         if (!context.clipRectEnabled) {
-            glEnable(GL_SCISSOR_TEST);
             context.clipRectEnabled = true;
+            if (!context.renderStateClipRectEnabled) {
+                glEnable(GL_SCISSOR_TEST);
+            }
         }
-        if (clipX != x || clipY != y || clipW != width || clipH != height) {
+        boolean updateClipRect = false;
+        if (rendererClipRect.getX() != x || rendererClipRect.getY() != y ||
+            rendererClipRect.getW() != width || rendererClipRect.getH() != height) {
+            rendererClipRect.set(x, y, width, height);
+            updateClipRect = true;
+        }
+        if (currentClipRect.getX() != x || currentClipRect.getY() != y ||
+            currentClipRect.getW() != width || currentClipRect.getH() != height) {
+            currentClipRect.set(x, y, width, height);
+            updateClipRect = true;
+        }
+        if (updateClipRect) {
             glScissor(x, y, width, height);
-            clipX = x;
-            clipY = y;
-            clipW = width;
-            clipH = height;
         }
     }
 
     public void clearClipRect() {
         if (context.clipRectEnabled) {
-            glDisable(GL_SCISSOR_TEST);
             context.clipRectEnabled = false;
-
-            clipX = 0;
-            clipY = 0;
-            clipW = 0;
-            clipH = 0;
+            if (context.renderStateClipRectEnabled) {
+                glDisable(GL_SCISSOR_TEST);
+            }
         }
+        rendererClipRect.set(0, 0, 0, 0);
+        currentClipRect.set(0, 0, 0, 0);
     }
 
     public void onFrame() {

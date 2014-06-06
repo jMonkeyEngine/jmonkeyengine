@@ -568,35 +568,35 @@ public class OGLESShaderRenderer implements Renderer {
             context.blendMode = state.getBlendMode();
         }
 
-        if (state.isClipTest()) {
-            if (!context.clipRectEnabled) {
-                GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
-                RendererUtil.checkGLError();
-                GLES20.glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
-                RendererUtil.checkGLError();
-            } else {
-                int rsClipX = state.getClipX();
-                int rsClipY = state.getClipY();
-                int rsClipW = state.getClipW();
-                int rsClipH = state.getClipH();
-                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
-                if (i == null) {
-                    GLES20.glScissor(0, 0, 0, 0);
-                    RendererUtil.checkGLError();
-                } else {
-                    GLES20.glScissor(i.getX(), i.getY(), i.getW(), i.getH());
-                    RendererUtil.checkGLError();
-                }
-            }
-        } else {
-            if (context.clipRectEnabled) {
-                GLES20.glScissor(clipX, clipY, clipW, clipH);
-                RendererUtil.checkGLError();
-            } else {
-                GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
-                RendererUtil.checkGLError();
-            }
-        }
+//        if (state.isClipTest()) {
+//            if (!context.clipRectEnabled) {
+//                GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+//                RendererUtil.checkGLError();
+//                GLES20.glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
+//                RendererUtil.checkGLError();
+//            } else {
+//                int rsClipX = state.getClipX();
+//                int rsClipY = state.getClipY();
+//                int rsClipW = state.getClipW();
+//                int rsClipH = state.getClipH();
+//                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
+//                if (i == null) {
+//                    GLES20.glScissor(0, 0, 0, 0);
+//                    RendererUtil.checkGLError();
+//                } else {
+//                    GLES20.glScissor(i.getX(), i.getY(), i.getW(), i.getH());
+//                    RendererUtil.checkGLError();
+//                }
+//            }
+//        } else {
+//            if (context.clipRectEnabled) {
+//                GLES20.glScissor(clipX, clipY, clipW, clipH);
+//                RendererUtil.checkGLError();
+//            } else {
+//                GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+//                RendererUtil.checkGLError();
+//            }
+//        }
     }
 
     /*********************************************************************\

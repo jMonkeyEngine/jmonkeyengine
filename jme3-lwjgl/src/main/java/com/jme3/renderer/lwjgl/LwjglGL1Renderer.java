@@ -407,29 +407,29 @@ public class LwjglGL1Renderer implements GL1Renderer {
             throw new UnsupportedOperationException("OpenGL 1.1 doesn't support two sided stencil operations.");
         }
 
-        if (state.isClipTest()) {
-            if (!context.clipRectEnabled) {
-                glEnable(GL_SCISSOR_TEST);
-                glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
-            } else {
-                int rsClipX = state.getClipX();
-                int rsClipY = state.getClipY();
-                int rsClipW = state.getClipW();
-                int rsClipH = state.getClipH();
-                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
-                if (i == null) {
-                    glScissor(0, 0, 0, 0);
-                } else {
-                    glScissor(i.getX(), i.getY(), i.getW(), i.getH());
-                }
-            }
-        } else {
-            if (context.clipRectEnabled) {
-                glScissor(clipX, clipY, clipW, clipH);
-            } else {
-                glDisable(GL_SCISSOR_TEST);
-            }
-        }
+//        if (state.isClipTest()) {
+//            if (!context.clipRectEnabled) {
+//                glEnable(GL_SCISSOR_TEST);
+//                glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
+//            } else {
+//                int rsClipX = state.getClipX();
+//                int rsClipY = state.getClipY();
+//                int rsClipW = state.getClipW();
+//                int rsClipH = state.getClipH();
+//                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
+//                if (i == null) {
+//                    glScissor(0, 0, 0, 0);
+//                } else {
+//                    glScissor(i.getX(), i.getY(), i.getW(), i.getH());
+//                }
+//            }
+//        } else {
+//            if (context.clipRectEnabled) {
+//                glScissor(clipX, clipY, clipW, clipH);
+//            } else {
+//                glDisable(GL_SCISSOR_TEST);
+//            }
+//        }
     }
 
     public void setViewPort(int x, int y, int w, int h) {

@@ -32,6 +32,7 @@
 package com.jme3.math;
 
 import com.jme3.export.*;
+
 import java.io.IOException;
 
 
@@ -52,6 +53,14 @@ public final class ClipRectangle implements Savable, Cloneable, java.io.Serializ
     private int x, y, w, h;
 
     /**
+     * Constructor creates a new <code>ClipRectangle</code> with default
+     * values of (0, 0, 0, 0).
+     */
+    public ClipRectangle() {
+        x = y = w = h = 0;
+    }
+
+    /**
      * Constructor creates a new <code>ClipRectangle</code> with defined
      * x, y, w and h points that define the area of the rectangle.
      *
@@ -61,6 +70,22 @@ public final class ClipRectangle implements Savable, Cloneable, java.io.Serializ
      * @param h the height of the rectangle
      */
     public ClipRectangle(int x, int y, int w, int h) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+    }
+
+    /**
+     * <code>set</code> sets all defining values of this
+     * <code>ClipRectangle</code> in one go.
+     *
+     * @param x the x coordinate of the lower left corner of the rectangle
+     * @param y the y coordinate of the lower left corner of the rectangle
+     * @param w the width of the rectangle
+     * @param h the height of the rectangle
+     */
+    public void set(int x, int y, int w, int h) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -155,15 +180,42 @@ public final class ClipRectangle implements Savable, Cloneable, java.io.Serializ
      */
     public ClipRectangle intersect(ClipRectangle cr)
     {
-        return ClipRectangle.intersect(x, y, w, h, cr.getX(), cr.getY(),
-                                       cr.getW(), cr.getH());
+        ClipRectangle destination = new ClipRectangle();
+
+        if (ClipRectangle.intersect(this, cr, destination)) {
+            return destination;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /**
-     * Intersects two rectangles represented by the values that define them.
-     * If there is no intersection between them, the result is null.
-     * Otherwise it is a new <code>ClipRectangle</code> representing
-     * the intersection.
+     * Intersects two <code>ClipRectangles</code> and stores the result
+     * in the destination <code>ClipRectangle</code>. If there is no
+     * intersection between them the method returns false, otherwise it
+     * return true.
+     *
+     * @param cr0 the first <code>ClipRectangle</code>
+     * @param cr1 the second <code>ClipRectangle</code>
+     * @param destination the <code>ClipRectangle</code> in which to store
+     * the result
+     * @return false if there is no intersection, true otherwise
+     */
+    public static boolean intersect(ClipRectangle cr0, ClipRectangle cr1,
+                                    ClipRectangle destination) {
+        return (ClipRectangle.intersect(cr0.getX(), cr0.getY(), cr0.getW(),
+                                        cr0.getH(), cr1.getX(), cr1.getY(),
+                                        cr1.getW(), cr1.getH(),
+                                        destination));
+    }
+
+    /**
+     * Intersects two <code>ClipRectangles</code> represented by the values
+     * that define them and stores the result in the destination
+     * <code>ClipRectangle</code>. If there is no intersection between them
+     * the method returns false, otherwise it returns true.
      *
      * @param x0 the x coordinate of the lower left of the first rectangle
      * @param y0 the y coordinate of the lower left of the first rectangle
@@ -173,11 +225,13 @@ public final class ClipRectangle implements Savable, Cloneable, java.io.Serializ
      * @param y1 the y coordinate of the lower left of the second rectangle
      * @param w1 the width of the second rectangle
      * @param h1 the height of the second rectangle
-     * @return null if there is no intersection otherwise the resulting
-     * <code>ClipRectangle</code>
+     * @param destination the <code>ClipRectangle</code> in which to store
+     * the result
+     * @return false if there is no intersection, true otherwise
      */
-    public static ClipRectangle intersect(int x0, int y0, int w0, int h0,
-                                          int x1, int y1, int w1, int h1)
+    public static boolean intersect(int x0, int y0, int w0, int h0,
+                                    int x1, int y1, int w1, int h1,
+                                    ClipRectangle destination)
     {
         int left = Math.max(x0, x1);
         int bottom = Math.max(y0, y1);
@@ -186,12 +240,47 @@ public final class ClipRectangle implements Savable, Cloneable, java.io.Serializ
         int width = right - left;
         int height = top - bottom;
 
+        destination.set(left, bottom, width, height);
+
         // If width or height are zero or less, there was no intersection.
         if ((width <= 0) || (height <= 0)) {
-            return null;
+            return false;
         } else {
-            return new ClipRectangle(left, bottom, width, height);
+            return true;
         }
+    }
+
+    /**
+     * <code>equals</code> determines if two ClipRectangles are logically equal,
+     * that is, if the values of (x, y, w, h) are the same for both.
+     *
+     * @param o the object to compare for equality
+     * @return true if they are equal, false otherwise.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ClipRectangle)) {
+            return false;
+        }
+
+        if (this == o) {
+            return true;
+        }
+
+        ClipRectangle comp = (ClipRectangle) o;
+        if (Integer.compare(x, comp.x) != 0) {
+            return false;
+        }
+        if (Integer.compare(y, comp.y) != 0) {
+            return false;
+        }
+        if (Integer.compare(w, comp.w) != 0) {
+            return false;
+        }
+        if (Integer.compare(h, comp.h) != 0) {
+            return false;
+        }
+        return true;
     }
 
     public void write(JmeExporter e) throws IOException {
