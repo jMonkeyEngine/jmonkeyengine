@@ -817,18 +817,10 @@ public class LwjglRenderer implements Renderer {
                 glEnable(GL_SCISSOR_TEST);
             }
         }
-        boolean updateClipRect = false;
-        if (rendererClipRect.getX() != x || rendererClipRect.getY() != y ||
-            rendererClipRect.getW() != width || rendererClipRect.getH() != height) {
-            rendererClipRect.set(x, y, width, height);
-            updateClipRect = true;
-        }
+        rendererClipRect.set(x, y, width, height);
         if (currentClipRect.getX() != x || currentClipRect.getY() != y ||
             currentClipRect.getW() != width || currentClipRect.getH() != height) {
             currentClipRect.set(x, y, width, height);
-            updateClipRect = true;
-        }
-        if (updateClipRect) {
             glScissor(x, y, width, height);
         }
     }
