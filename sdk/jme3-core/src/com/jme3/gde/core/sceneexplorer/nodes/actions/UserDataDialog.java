@@ -137,8 +137,8 @@ public class UserDataDialog extends javax.swing.JDialog {
         try {
 
             prop = new SceneExplorerProperty(obj.getClass().cast(obj), returntype, method, setter);
-
             prop.setName(name);
+            ((SceneExplorerProperty)prop).syncValue();
 
         } catch (NoSuchMethodException ex) {
             Exceptions.printStackTrace(ex);
