@@ -140,12 +140,12 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("openal", Platform.MacOSX64,  "native/macosx/openal.dylib", false);
         
         // BulletJme
-        registerNativeLibrary("bulletjme", Platform.Windows32, "native/windows/x86/bulletjme.dll", false);
-        registerNativeLibrary("bulletjme", Platform.Windows64, "native/windows/x86_64/bulletjme.dll", false);
-        registerNativeLibrary("bulletjme", Platform.Linux32,   "native/linux/x86/libbulletjme.so", false);
-        registerNativeLibrary("bulletjme", Platform.Linux64,   "native/linux/x86_64/libbulletjme.so", false);
-        registerNativeLibrary("bulletjme", Platform.MacOSX32,  "native/macosx/x86/libbulletjme.jnilib", false);
-        registerNativeLibrary("bulletjme", Platform.MacOSX64,  "native/macosx/x86_64/libbulletjme.jnilib", false);
+        registerNativeLibrary("bulletjme", Platform.Windows32, "native/windows/x86/bulletjme.dll");
+        registerNativeLibrary("bulletjme", Platform.Windows64, "native/windows/x86_64/bulletjme.dll");
+        registerNativeLibrary("bulletjme", Platform.Linux32,   "native/linux/x86/libbulletjme.so");
+        registerNativeLibrary("bulletjme", Platform.Linux64,   "native/linux/x86_64/libbulletjme.so");
+        registerNativeLibrary("bulletjme", Platform.MacOSX32,  "native/macosx/x86/libbulletjme.jnilib");
+        registerNativeLibrary("bulletjme", Platform.MacOSX64,  "native/macosx/x86_64/libbulletjme.jnilib");
         
         // JInput
         registerNativeLibrary("jinput", Platform.Windows32, "native/windows/jinput-raw.dll");
