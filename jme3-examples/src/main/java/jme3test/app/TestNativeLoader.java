@@ -53,6 +53,7 @@ public class TestNativeLoader {
     
     private static void tryLoadJinput() {
         NativeLibraryLoader.loadNativeLibrary("jinput", true);
+        NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true);
         
         net.java.games.input.ControllerEnvironment ce =
             net.java.games.input.ControllerEnvironment.getDefaultEnvironment();
