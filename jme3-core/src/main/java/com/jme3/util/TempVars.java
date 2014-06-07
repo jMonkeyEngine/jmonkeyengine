@@ -33,6 +33,7 @@ package com.jme3.util;
 
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.collision.CollisionResults;
 import com.jme3.collision.bih.BIHNode.BIHStackData;
 import com.jme3.math.*;
 import com.jme3.scene.Spatial;
@@ -222,6 +223,7 @@ public class TempVars {
     /**
      * BIHTree
      */
+    public final CollisionResults collisionResults = new CollisionResults();
     public final float[] bihSwapTmp = new float[9];
     public final ArrayList<BIHStackData> bihStack = new ArrayList<BIHStackData>();
 }
