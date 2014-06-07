@@ -435,9 +435,19 @@ public final class NativeLibraryLoader {
                         + "library to: " + targetFile);
             }
         } finally {
-            // Not sure if we always want to load it.
-            // Maybe specify this as a per library setting.
-            System.load(targetFile.getAbsolutePath());
+            // XXX: HACK. Vary loading method based on library name..
+            // lwjgl and jinput handle loading by themselves.
+            if (name.equals("lwjgl")) {
+                System.setProperty("org.lwjgl.librarypath", 
+                                   extactionDirectory.getAbsolutePath());
+            } else if (name.equals("jinput")) {
+                System.setProperty("net.java.games.input.librarypath", 
+                                   extactionDirectory.getAbsolutePath());
+            } else {
+                // all other libraries (openal, bulletjme, custom)
+                // will load directly in here.
+                System.load(targetFile.getAbsolutePath());
+            }
             
             if(in != null){
                 try { in.close(); } catch (IOException ex) { }
