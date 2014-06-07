@@ -47,6 +47,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
+import org.lwjgl.opengl.ContextCapabilities;
 
 public class LwjglGL1Renderer implements GL1Renderer {
 
@@ -76,6 +77,8 @@ public class LwjglGL1Renderer implements GL1Renderer {
     private ArrayList<Light> lightList = new ArrayList<Light>(8);
     private ColorRGBA materialAmbientColor = new ColorRGBA();
     private Vector3f tempVec = new Vector3f();
+    
+    private ContextCapabilities ctxCaps;
 
     protected void updateNameBuffer() {
         int len = stringBuf.length();
@@ -98,7 +101,9 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
 
     public void initialize() {
-        if (GLContext.getCapabilities().OpenGL12){
+        ctxCaps = GLContext.getCapabilities();
+        
+        if (ctxCaps.OpenGL12){
             gl12 = true;
         }
         
@@ -119,7 +124,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             glEnable(GL_NORMALIZE);
         }
 
-        if (GLContext.getCapabilities().GL_ARB_texture_non_power_of_two) {
+        if (ctxCaps.GL_ARB_texture_non_power_of_two) {
             caps.add(Caps.NonPowerOfTwoTextures);
         } else {
             logger.log(Level.WARNING, "Your graphics card does not "
@@ -753,7 +758,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         }
 
         // Check sizes if graphics card doesn't support NPOT
-        if (!GLContext.getCapabilities().GL_ARB_texture_non_power_of_two && img.isNPOT()) {
+        if (!ctxCaps.GL_ARB_texture_non_power_of_two && img.isNPOT()) {
             // Resize texture to Power-of-2 size
             MipMapGenerator.resizeToPowerOf2(img);
         }
@@ -763,7 +768,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
             // generate from base level if required
 
             // Check if hardware mips are supported
-            if (GLContext.getCapabilities().OpenGL14) {
+            if (ctxCaps.OpenGL14) {
                 glTexParameteri(target, GL14.GL_GENERATE_MIPMAP, GL_TRUE);
             } else {
                 MipMapGenerator.generateMipMaps(img);
@@ -797,7 +802,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         TextureUtil.uploadTexture(img, target, i, 0, tdc);
         }
         } else {*/
-        TextureUtil.uploadTexture(img, target, 0, 0, false);
+        TextureUtil.uploadTexture(ctxCaps, img, target, 0, 0, false);
         //}
 
         img.clearUpdateNeeded();
@@ -848,7 +853,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
       setTexture(0, tex);
-      TextureUtil.uploadSubTexture(pixels, convertTextureType(tex.getType()), 0, x, y, false);
+      TextureUtil.uploadSubTexture(ctxCaps, pixels, convertTextureType(tex.getType()), 0, x, y, false);
     }
 
     private void clearTextureUnits() {
