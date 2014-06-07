@@ -355,19 +355,20 @@ public final class NativeLibraryLoader {
         // Determine what filename it should be extracted as.
         String loadedAsFileName;
         if (library.isJNI()) {
-            String nameWithArch;
-            
-            // Append "64" to path 
-            // so that we don't overwrite the 32-bit version.
-            if (platform.is64Bit()) {
-                nameWithArch = name + "64";
-            } else {
-                nameWithArch = name;
-            }
-            
             // JNI libraries on Mac / JDK6 use jnilib extension.
             // JNI libraries on Mac / JDK7 use dylib extension.
-            loadedAsFileName = System.mapLibraryName(nameWithArch);
+            String fileNameInJarWithoutExtension 
+                    = fileNameInJar.substring(0, fileNameInJar.lastIndexOf("."));
+            
+            String systemJniExtension;
+            String dummyLib = System.mapLibraryName("");
+            if (dummyLib.contains(".")) {
+                systemJniExtension = dummyLib.substring(dummyLib.lastIndexOf("."));
+            } else {
+                systemJniExtension = "";
+            }
+            
+            loadedAsFileName = fileNameInJarWithoutExtension + systemJniExtension;
         } else {
             // Not a JNI library.
             // Just use the original filename as it is in the JAR.
