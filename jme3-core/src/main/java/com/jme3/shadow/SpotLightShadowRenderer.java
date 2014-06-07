@@ -164,8 +164,10 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
     @Override
     protected void setMaterialParameters(Material material) {    
-         material.setVector3("LightPos", light.getPosition());
-         material.setVector3("LightDir", light.getDirection());
+        material.setVector3("LightPos", light.getPosition());
+        material.setVector3("LightDir", light.getDirection());
+        material.clearParam("LightViewProjectionMatrix5");
+        material.clearParam("Splits");
     }
 
     /**
