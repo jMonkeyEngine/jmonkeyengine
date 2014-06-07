@@ -41,7 +41,7 @@ import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
-import com.jme3.math.Transform;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.util.TempVars;
 import java.io.IOException;
@@ -71,12 +71,15 @@ public class Geometry extends Spatial {
      */
     protected boolean ignoreTransform = false;
     protected transient Matrix4f cachedWorldMat = new Matrix4f();
+    
     /**
-     * used when geometry is batched
+     * Specifies which {@link GeometryGroupNode} this <code>Geometry</code>
+     * is managed by.
      */
-    protected BatchNode batchNode = null;
+    protected GeometryGroupNode groupNode;
     /**
-     * the start index of this geometry's mesh in the batchNode mesh
+     * The start index of this <code>Geometry's</code> inside 
+     * the {@link GeometryGroupNode}.
      */
     protected int startIndex;    
     /**
@@ -106,11 +109,21 @@ public class Geometry extends Spatial {
      */
     public Geometry(String name, Mesh mesh) {
         this(name);
+        
         if (mesh == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("mesh cannot be null");
         }
 
         this.mesh = mesh;
+    }
+    
+    @Override
+    public boolean checkCulling(Camera cam) {
+        if (isGrouped()) {
+            setLastFrustumIntersection(Camera.FrustumIntersect.Outside);
+            return false;
+        }
+        return super.checkCulling(cam);
     }
 
     /**
@@ -148,6 +161,10 @@ public class Geometry extends Spatial {
         }
 
         lodLevel = lod;
+        
+        if (isGrouped()) {
+            groupNode.onMeshChange(this);
+        }
     }
 
     /**
@@ -192,12 +209,13 @@ public class Geometry extends Spatial {
         if (mesh == null) {
             throw new IllegalArgumentException();
         }
-        if (isBatched()) {
-            throw new UnsupportedOperationException("Cannot set the mesh of a batched geometry");
-        }
 
         this.mesh = mesh;
         setBoundRefresh();
+        
+        if (isGrouped()) {
+            groupNode.onMeshChange(this);
+        }
     }
 
     /**
@@ -218,10 +236,11 @@ public class Geometry extends Spatial {
      */
     @Override
     public void setMaterial(Material material) {
-        if (isBatched()) {
-            throw new UnsupportedOperationException("Cannot set the material of a batched geometry, change the material of the parent BatchNode.");
-        }
         this.material = material;
+        
+        if (isGrouped()) {
+            groupNode.onMaterialChange(this);
+        }
     }
 
     /**
@@ -278,39 +297,48 @@ public class Geometry extends Spatial {
 
     @Override
     protected void updateWorldTransforms() {
-
         super.updateWorldTransforms();
         computeWorldMatrix();
 
-        if (isBatched()) {        
-            batchNode.updateSubBatch(this);     
+        if (isGrouped()) {
+            groupNode.onTransformChange(this);   
         }
+        
         // geometry requires lights to be sorted
         worldLights.sort(true);
     }
 
     /**
-     * Batch this geometry, should only be called by the BatchNode.
-     * @param node the batchNode
-     * @param startIndex the starting index of this geometry in the batched mesh
+     * Associate this <code>Geometry</code> with a {@link GeometryGroupNode}.
+     * 
+     * Should only be called by the parent {@link GeometryGroupNode}.
+     * 
+     * @param node Which {@link GeometryGroupNode} to associate with.
+     * @param startIndex The starting index of this geometry in the group.
      */
-    protected void batch(BatchNode node, int startIndex) {
-        this.batchNode = node;
-        this.startIndex = startIndex;       
-        setCullHint(CullHint.Always);
+    protected void associateWithGroupNode(GeometryGroupNode node, int startIndex) {
+        if (isGrouped()) {
+            unassociateFromGroupNode();
+        }
+        
+        this.groupNode = node;
+        this.startIndex = startIndex;
     }
 
     /**
-     * unBatch this geometry. 
+     * Removes the {@link GeometryGroupNode} association from this 
+     * <code>Geometry</code>.
+     * 
+     * Should only be called by the parent {@link GeometryGroupNode}.
      */
-    protected void unBatch() {
-        this.startIndex = 0;
-        //once the geometry is removed from the screnegraph the batchNode needs to be rebatched.
-        if (batchNode != null) {
-            this.batchNode.setNeedsFullRebatch(true);
-            this.batchNode = null;
+    protected void unassociateFromGroupNode() {
+        if (groupNode != null) {
+            // Once the geometry is removed 
+            // from the parent, the group node needs to be updated.
+            groupNode.onGeoemtryUnassociated(this);
+            groupNode = null;
+            startIndex = 0;
         }
-        setCullHint(CullHint.Dynamic);
     }
 
     @Override
@@ -321,9 +349,10 @@ public class Geometry extends Spatial {
     @Override
     protected void setParent(Node parent) {
         super.setParent(parent);
-        //if the geometry is batched we also have to unbatch it
-        if (parent == null && isBatched()) {
-            unBatch();
+        
+        // If the geometry is managed by group node we need to unassociate.
+        if (parent == null && isGrouped()) {
+            unassociateFromGroupNode();
         }
     }
 
@@ -424,8 +453,22 @@ public class Geometry extends Spatial {
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
     }
 
+    /**
+     * Determine whether this <code>Geometry</code> is managed by a 
+     * {@link GeometryGroupNode} or not.
+     * 
+     * @return True if managed by a {@link GeometryGroupNode}.
+     */
+    public boolean isGrouped() {
+        return groupNode != null;
+    }
+    
+    /**
+     * @deprecated Use {@link #isGrouped()} instead.
+     */
+    @Deprecated
     public boolean isBatched() {
-        return batchNode != null;
+        return isGrouped();
     }
 
     /**
@@ -438,11 +481,14 @@ public class Geometry extends Spatial {
     @Override
     public Geometry clone(boolean cloneMaterial) {
         Geometry geomClone = (Geometry) super.clone(cloneMaterial);
-        //this geometry is batched but the clonned one should not be
-        if (isBatched()) {
-            geomClone.batchNode = null;
-            geomClone.unBatch();
+        
+        // This geometry is managed,
+        // but the cloned one is not attached to anything, hence not managed.
+        if (isGrouped()) {
+            groupNode = null;
+            startIndex = 0;
         }
+        
         geomClone.cachedWorldMat = cachedWorldMat.clone();
         if (material != null) {
             if (cloneMaterial) {
