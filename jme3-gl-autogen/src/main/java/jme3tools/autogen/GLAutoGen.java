@@ -3,6 +3,7 @@ package jme3tools.autogen;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -13,26 +14,37 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.lwjgl.opengl.ARBDepthBufferFloat;
 import org.lwjgl.opengl.ARBDrawInstanced;
 import org.lwjgl.opengl.ARBGeometryShader4;
+import org.lwjgl.opengl.ARBHalfFloatPixel;
 import org.lwjgl.opengl.ARBInstancedArrays;
 import org.lwjgl.opengl.ARBMultisample;
+import org.lwjgl.opengl.ARBTextureFloat;
 import org.lwjgl.opengl.ARBTextureMultisample;
+import org.lwjgl.opengl.ARBVertexArrayObject;
 import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.EXTFramebufferBlit;
 import org.lwjgl.opengl.EXTFramebufferMultisample;
 import org.lwjgl.opengl.EXTFramebufferObject;
+import org.lwjgl.opengl.EXTFramebufferSRGB;
+import org.lwjgl.opengl.EXTGpuShader4;
+import org.lwjgl.opengl.EXTPackedDepthStencil;
+import org.lwjgl.opengl.EXTPackedFloat;
 import org.lwjgl.opengl.EXTTextureArray;
+import org.lwjgl.opengl.EXTTextureCompressionLATC;
+import org.lwjgl.opengl.EXTTextureCompressionS3TC;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
+import org.lwjgl.opengl.EXTTextureSRGB;
+import org.lwjgl.opengl.EXTTextureSharedExponent;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL21;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.NVHalfFloat;
 
 public class GLAutoGen {
 
@@ -117,7 +129,8 @@ public class GLAutoGen {
                 Object value = null;
 
                 if (constantMap.containsKey(name)) {
-                    throw new UnsupportedOperationException(name + " constant redeclared");
+                    // throw new UnsupportedOperationException(name + " constant redeclared");
+                    continue;
                 }
 
                 if (type == int.class) {
@@ -171,39 +184,39 @@ public class GLAutoGen {
             Collection<String> consts, 
             Collection<String> caps) {
         String modifiedLine = line;
-        int next_gl = line.indexOf("GL_");
+        int next_gl = modifiedLine.indexOf("GL_");
         while (next_gl > 0) {
-            char chrBefore = line.charAt(next_gl - 1);
+            char chrBefore = modifiedLine.charAt(next_gl - 1);
             if (!Character.isWhitespace(chrBefore)
                     && chrBefore != '.'
                     && chrBefore != '!'
-                    && chrBefore != '(') {
-                // System.out.println(line + "\t\t\t\tPreceding character \"" + chrBefore + "\" not acceptable.");
+                    && chrBefore != '('
+                    && chrBefore != ',') {
+            //    System.out.println(modifiedLine + "\t\t\t\tPreceding character \"" + chrBefore + "\" not acceptable.");
             } else {
                 boolean isCap = false;
-                for (int scan_idx = next_gl + 3; scan_idx < line.length(); scan_idx++) {
-                    char chrCall = line.charAt(scan_idx);
+                for (int scan_idx = next_gl + 3; scan_idx < modifiedLine.length(); scan_idx++) {
+                    char chrCall = modifiedLine.charAt(scan_idx);
                     if (Character.isLowerCase(chrCall)) {
                         // GL constants cannot have lowercase letters.
                         // This is most likely capability type.
                         isCap = true;
                     } else if (!Character.isLetterOrDigit(chrCall) && chrCall != '_') {
                         if (isCap) {
-                            caps.add(line.substring(next_gl, scan_idx));
+                            caps.add(modifiedLine.substring(next_gl, scan_idx));
                         } else {
-
+                            consts.add(modifiedLine.substring(next_gl, scan_idx));
+                            
                             // Also perform in-line injection.
                             modifiedLine = modifiedLine.substring(0, next_gl)
                                     + "GL."
                                     + modifiedLine.substring(next_gl);
-
-                            consts.add(line.substring(next_gl, scan_idx));
                         }
                         break;
                     }
                 }
             }
-            next_gl = line.indexOf("GL_", next_gl + 3);
+            next_gl = modifiedLine.indexOf("GL_", next_gl + 5);
         }
         return modifiedLine;
     }
@@ -242,7 +255,8 @@ public class GLAutoGen {
         return modifiedLine;
     }
 
-    private static void scanFile(String path) {
+    private static String scanFile(String path) {
+        StringBuilder sb = new StringBuilder();
         FileReader reader = null;
         List<String> methods = new ArrayList<String>();
         List<String> consts = new ArrayList<String>();
@@ -257,14 +271,15 @@ public class GLAutoGen {
                 }
                 line = scanMethods(line, methods);
                 line = scanConstants(line, consts, caps);
-                System.out.println(line);
+                sb.append(line).append("\n");
             }
             
             usedMethods.addAll(methods);
             usedConstants.addAll(consts);
             usedCaps.addAll(caps);
+            return sb.toString();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
         } finally {
             if (reader != null) {
                 try {
@@ -274,30 +289,48 @@ public class GLAutoGen {
             }
         }
     }
-
-    private static void exportInterface() {
-        System.out.println("package autogen;");
-        System.out.println();
-        System.out.println("public final class GLCaps {");
-        System.out.println();
-        System.out.println("\tprivate GLCaps { }");
-        System.out.println();
-        
-        for (String cap : capsSet) {
-            if (usedCaps.contains(cap)) {
-                System.out.println("\tpublic boolean " + cap + ";");
+    
+    private static void addOpenGLCap(String glCap) {
+        usedCaps.add(glCap);
+        capsSet.add(glCap);
+    }
+    
+    private static String exportGLCaps() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package jme3tools.autogen;\n");
+        sb.append("\n");
+        sb.append("public final class GLCaps {\n");
+        sb.append("\n");
+        sb.append("\tprivate GLCaps () { }\n");
+        sb.append("\n");
+        for (String cap : usedCaps) {
+            if (capsSet.contains(cap)) {
+                sb.append("\tpublic boolean ").append(cap).append(";\n");
+            } else {
+                throw new IllegalStateException("Cannot find required cap: " + cap);
             }
         }
-        
-        System.out.println();
-        System.out.println("}");
-        System.out.println();
-        System.out.println("/**");
-        System.out.println(" * Auto-generated interface");
-        System.out.println(" */");
-        System.out.println("public interface GL {");
-        System.out.println();
-        System.out.println("// -- begin constants");
+        sb.append("\n");
+        sb.append("}\n");
+        return sb.toString();
+    }
+
+    private static String exportGL() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("package jme3tools.autogen;\n");
+        sb.append("\n");
+        sb.append("import java.nio.ByteBuffer;\n");
+        sb.append("import java.nio.DoubleBuffer;\n");
+        sb.append("import java.nio.FloatBuffer;\n");
+        sb.append("import java.nio.IntBuffer;\n");
+        sb.append("import java.nio.ShortBuffer;\n");
+        sb.append("\n");
+        sb.append("/**\n");
+        sb.append(" * Auto-generated interface\n");
+        sb.append(" */\n");
+        sb.append("public interface GL {\n");
+        sb.append("\n");
+        sb.append("// -- begin constants\n");
         for (String constant : usedConstants) {
             ConstantInfo info = constantMap.get(constant);
             if (info == null) {
@@ -313,11 +346,13 @@ public class GLAutoGen {
                 valueStr = "0x" + Long.toHexString((Long) info.constantValue).toUpperCase();
             }
 
-            System.out.println("\tpublic static final " + typeStr + " " + info.constantName + " = " + valueStr + ";");
+            sb.append("\tpublic static final ").append(typeStr)
+              .append(" ").append(info.constantName)
+              .append(" = ").append(valueStr).append(";\n");
         }
-        System.out.println("// -- end constants");
-        System.out.println();
-        System.out.println("// -- begin methods");
+        sb.append("// -- end constants\n");
+        sb.append("\n");
+        sb.append("// -- begin methods\n");
 
         for (String method : usedMethods) {
             List<MethodInfo> infos = methodMap.get(method);
@@ -327,28 +362,56 @@ public class GLAutoGen {
 
             for (MethodInfo info : infos) {
                 String retTypeStr = info.returnType.getSimpleName();
-                System.out.print("\tpublic " + retTypeStr + " " + method + "(");
+                sb.append("\tpublic ").append(retTypeStr).append(" ").append(method).append("(");
                 for (int i = 0; i < info.paramTypes.length; i++) {
-                    System.out.print(info.paramTypes[i].getSimpleName() + " param" + (i + 1));
+                    sb.append(info.paramTypes[i].getSimpleName()).append(" param").append(i + 1);
                     if (i != info.paramTypes.length - 1) {
-                        System.out.print(", ");
+                        sb.append(", ");
                     }
                 }
-                System.out.println(");");
+                sb.append(");\n");
             }
         }
 
-        System.out.println("// -- end methods");
-        System.out.println("// -- begin custom methods");
-        System.out.println("\tpublic GLCaps getGLCaps();");
-        System.out.println("// -- end custom methods");
-        System.out.println();
-        System.out.println("}");
+        sb.append("// -- end methods\n");
+        sb.append("// -- begin custom methods\n");
+        sb.append("\tpublic GLCaps getGLCaps();\n");
+        sb.append("// -- end custom methods\n");
+        sb.append("\n");
+        sb.append("}\n");
+        return sb.toString();
     }
-
+    
+    private static void writeFile(String path, String content) {
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(path);
+            writer.write(content);
+            writer.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException ex) {
+                }
+            }
+        }
+    }
+    
     public static void main(String[] args) throws IOException {
-        String path = "../jme3-lwjgl/src/main/java/com/jme3/renderer/lwjgl/LwjglRenderer.java";
-        File lwjglRendererSrc = new File(path).getAbsoluteFile();
+        String rendererPath = "../jme3-lwjgl/src/main/java/com/jme3/renderer/lwjgl/LwjglRenderer.java";
+        String textureUtilPath = "../jme3-lwjgl/src/main/java/com/jme3/renderer/lwjgl/TextureUtil.java";
+        File rendererSrc = new File(rendererPath).getAbsoluteFile();
+        File textureUtilSrc = new File(textureUtilPath).getAbsoluteFile();
+        
+        addOpenGLCap("OpenGL21");
+        addOpenGLCap("OpenGL30");
+        addOpenGLCap("OpenGL30");
+        addOpenGLCap("OpenGL31");
+        addOpenGLCap("OpenGL32");
+        addOpenGLCap("OpenGL33");
         
         scanGLType(GL11.class);
         scanGLType(GL14.class);
@@ -356,9 +419,6 @@ public class GLAutoGen {
         scanGLType(GL13.class);
         scanGLType(GL15.class);
         scanGLType(GL20.class);
-        scanGLType(GL21.class);
-        scanGLType(GL30.class);
-        scanGLType(NVHalfFloat.class);
         scanGLType(ARBGeometryShader4.class);
         scanGLType(EXTFramebufferObject.class);
         scanGLType(EXTFramebufferBlit.class);
@@ -369,10 +429,29 @@ public class GLAutoGen {
         scanGLType(EXTTextureFilterAnisotropic.class);
         scanGLType(ARBDrawInstanced.class);
         scanGLType(ARBInstancedArrays.class);
+        scanGLType(ARBVertexArrayObject.class);
+        scanGLType(EXTFramebufferSRGB.class);
+        scanGLType(EXTGpuShader4.class);
+        scanGLType(EXTTextureCompressionLATC.class);
+        scanGLType(EXTTextureCompressionS3TC.class);
+        scanGLType(EXTTextureSRGB.class);
+        scanGLType(EXTTextureSharedExponent.class);
+        scanGLType(ARBDepthBufferFloat.class);
+        scanGLType(ARBHalfFloatPixel.class);
+        scanGLType(ARBTextureFloat.class);
+        scanGLType(EXTPackedDepthStencil.class);
+        scanGLType(EXTPackedFloat.class);
+        
         scanCapsFromType(ContextCapabilities.class);
         
-        scanFile(lwjglRendererSrc.toString());
-
-        exportInterface();
+        String processedRenderer = scanFile(rendererSrc.toString());
+        String processedTextureUtil = scanFile(textureUtilSrc.toString());
+        String glCaps = exportGLCaps();
+        String gl = exportGL();
+        
+        //writeFile("src/main/java/jme3tools/autogen/GLRenderer.java", processedRenderer);
+        //writeFile("src/main/java/jme3tools/autogen/TextureUtil.java", processedTextureUtil);
+        //writeFile("src/main/java/jme3tools/autogen/GL.java", gl);
+        //writeFile("src/main/java/jme3tools/autogen/GLCaps.java", glCaps);
     }
 }
