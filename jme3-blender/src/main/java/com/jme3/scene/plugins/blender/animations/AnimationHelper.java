@@ -2,9 +2,10 @@ package com.jme3.scene.plugins.blender.animations;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,11 +15,11 @@ import com.jme3.animation.BoneTrack;
 import com.jme3.animation.Skeleton;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.animation.SpatialTrack;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import com.jme3.asset.BlenderKey.AnimationMatchMethod;
 import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.animations.Ipo.ConstIpo;
 import com.jme3.scene.plugins.blender.curves.BezierCurve;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
@@ -32,10 +33,7 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
  * @author Marcin Roguski (Kaelthas)
  */
 public class AnimationHelper extends AbstractBlenderHelper {
-    private static final Logger        LOGGER  = Logger.getLogger(AnimationHelper.class.getName());
-
-    /** A map of blender actions. */
-    private Map<String, BlenderAction> actions = new HashMap<String, BlenderAction>();
+    private static final Logger LOGGER = Logger.getLogger(AnimationHelper.class.getName());
 
     public AnimationHelper(String blenderVersion, BlenderContext blenderContext) {
         super(blenderVersion, blenderContext);
@@ -54,7 +52,7 @@ public class AnimationHelper extends AbstractBlenderHelper {
             for (FileBlockHeader header : actionHeaders) {
                 Structure actionStructure = header.getStructure(blenderContext);
                 LOGGER.log(Level.INFO, "Found animation: {0}.", actionStructure.getName());
-                actions.put(actionStructure.getName(), this.getTracks(actionStructure, blenderContext));
+                blenderContext.addAction(this.getTracks(actionStructure, blenderContext));
             }
         }
     }
@@ -63,24 +61,20 @@ public class AnimationHelper extends AbstractBlenderHelper {
      * The method applies animations to the given node. The names of the animations should be the same as actions names in the blender file.
      * @param node
      *            the node to whom the animations will be applied
-     * @param animationNames
-     *            the names of the animations to be applied
+     * @param animationMatchMethod
+     *            the way animation should be matched with node
      */
-    public void applyAnimations(Node node, List<String> animationNames) {
-        if (animationNames != null && animationNames.size() > 0) {
+    public void applyAnimations(Node node, AnimationMatchMethod animationMatchMethod) {
+        List<BlenderAction> actions = this.getActions(node, animationMatchMethod);
+        if (actions.size() > 0) {
             List<Animation> animations = new ArrayList<Animation>();
-            for (String animationName : animationNames) {
-                BlenderAction action = actions.get(animationName);
-                if (action != null) {
-                    SpatialTrack[] tracks = action.toTracks(node);
-                    if (tracks != null && tracks.length > 0) {
-                        Animation spatialAnimation = new Animation(animationName, action.getAnimationTime());
-                        spatialAnimation.setTracks(tracks);
-                        animations.add(spatialAnimation);
-                        blenderContext.addAnimation((Long) node.getUserData(ObjectHelper.OMA_MARKER), spatialAnimation);
-                    }
-                } else {
-                    LOGGER.log(Level.WARNING, "Cannot find animation named: {0}.", animationName);
+            for (BlenderAction action : actions) {
+                SpatialTrack[] tracks = action.toTracks(node);
+                if (tracks != null && tracks.length > 0) {
+                    Animation spatialAnimation = new Animation(action.getName(), action.getAnimationTime());
+                    spatialAnimation.setTracks(tracks);
+                    animations.add(spatialAnimation);
+                    blenderContext.addAnimation((Long) node.getUserData(ObjectHelper.OMA_MARKER), spatialAnimation);
                 }
             }
 
@@ -103,28 +97,24 @@ public class AnimationHelper extends AbstractBlenderHelper {
      *            the node where the animations will be applied
      * @param skeleton
      *            the skeleton of the node
-     * @param animationNames
-     *            the names of the skeleton animations
+     * @param animationMatchMethod
+     *            the way animation should be matched with skeleton
      */
-    public void applyAnimations(Node node, Skeleton skeleton, List<String> animationNames) {
+    public void applyAnimations(Node node, Skeleton skeleton, AnimationMatchMethod animationMatchMethod) {
         node.addControl(new SkeletonControl(skeleton));
         blenderContext.setNodeForSkeleton(skeleton, node);
+        List<BlenderAction> actions = this.getActions(skeleton, animationMatchMethod);
 
-        if (animationNames != null && animationNames.size() > 0) {
+        if (actions.size() > 0) {
             List<Animation> animations = new ArrayList<Animation>();
-            for (String animationName : animationNames) {
-                BlenderAction action = actions.get(animationName);
-                if (action != null) {
-                    BoneTrack[] tracks = action.toTracks(skeleton);
-                    if (tracks != null && tracks.length > 0) {
-                        Animation boneAnimation = new Animation(animationName, action.getAnimationTime());
-                        boneAnimation.setTracks(tracks);
-                        animations.add(boneAnimation);
-                        Long animatedNodeOMA = ((Number)blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, node)).longValue();
-                        blenderContext.addAnimation(animatedNodeOMA, boneAnimation);
-                    }
-                } else {
-                    LOGGER.log(Level.WARNING, "Cannot find animation named: {0}.", animationName);
+            for (BlenderAction action : actions) {
+                BoneTrack[] tracks = action.toTracks(skeleton);
+                if (tracks != null && tracks.length > 0) {
+                    Animation boneAnimation = new Animation(action.getName(), action.getAnimationTime());
+                    boneAnimation.setTracks(tracks);
+                    animations.add(boneAnimation);
+                    Long animatedNodeOMA = ((Number) blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, node)).longValue();
+                    blenderContext.addAnimation(animatedNodeOMA, boneAnimation);
                 }
             }
             if (animations.size() > 0) {
@@ -136,10 +126,10 @@ public class AnimationHelper extends AbstractBlenderHelper {
                 }
                 control.setAnimations(anims);
                 node.addControl(control);
-                
-                //make sure that SkeletonControl is added AFTER the AnimControl
+
+                // make sure that SkeletonControl is added AFTER the AnimControl
                 SkeletonControl skeletonControl = node.getControl(SkeletonControl.class);
-                if(skeletonControl != null) {
+                if (skeletonControl != null) {
                     node.removeControl(SkeletonControl.class);
                     node.addControl(skeletonControl);
                 }
@@ -230,7 +220,7 @@ public class AnimationHelper extends AbstractBlenderHelper {
         LOGGER.log(Level.FINE, "Getting tracks!");
         Structure groups = (Structure) actionStructure.getFieldValue("groups");
         List<Structure> actionGroups = groups.evaluateListBase();// bActionGroup
-        BlenderAction blenderAction = new BlenderAction(blenderContext.getBlenderKey().getFps());
+        BlenderAction blenderAction = new BlenderAction(actionStructure.getName(), blenderContext.getBlenderKey().getFps());
         int lastFrame = 1;
         for (Structure actionGroup : actionGroups) {
             String name = actionGroup.getFieldValue("name").toString();
@@ -269,7 +259,7 @@ public class AnimationHelper extends AbstractBlenderHelper {
         LOGGER.log(Level.FINE, "Getting tracks!");
         Structure chanbase = (Structure) actionStructure.getFieldValue("chanbase");
         List<Structure> actionChannels = chanbase.evaluateListBase();// bActionChannel
-        BlenderAction blenderAction = new BlenderAction(blenderContext.getBlenderKey().getFps());
+        BlenderAction blenderAction = new BlenderAction(actionStructure.getName(), blenderContext.getBlenderKey().getFps());
         int lastFrame = 1;
         for (Structure bActionChannel : actionChannels) {
             String animatedFeatureName = bActionChannel.getFieldValue("name").toString();
@@ -277,7 +267,7 @@ public class AnimationHelper extends AbstractBlenderHelper {
             if (!p.isNull()) {
                 Structure ipoStructure = p.fetchData().get(0);
                 Ipo ipo = this.fromIpoStructure(ipoStructure, blenderContext);
-                if(ipo != null) {//this can happen when ipo with no curves appear in blender file
+                if (ipo != null) {// this can happen when ipo with no curves appear in blender file
                     lastFrame = Math.max(lastFrame, ipo.getLastFrame());
                     blenderAction.featuresTracks.put(animatedFeatureName, ipo);
                 }
@@ -321,104 +311,77 @@ public class AnimationHelper extends AbstractBlenderHelper {
         if (rnaPath.endsWith("rotation") || rnaPath.endsWith("rotation_euler")) {
             return Ipo.OB_ROT_X + arrayIndex;
         }
-        LOGGER.warning("Unknown curve rna path: " + rnaPath);
+        LOGGER.log(Level.WARNING, "Unknown curve rna path: {0}", rnaPath);
         return -1;
     }
 
     /**
-     * An abstract representation of animation. The data stored here is mainly a raw action data loaded from blender.
-     * It can later be transformed into bone or spatial animation and applied to the specified node.
-     * 
-     * @author Marcin Roguski (Kaelthas)
+     * The method returns the actions for the given skeleton. The actions represent armature animation in blender.
+     * @param skeleton
+     *            the skeleton we fetch the actions for
+     * @param animationMatchMethod
+     *            the method of animation matching
+     * @return a list of animations for the specified skeleton
      */
-    private static class BlenderAction {
-        /** Animation speed - frames per second. */
-        private int              fps;
-        /** The last frame of the animation (the last ipo curve node position is used as a last frame). */
-        private int              stopFrame;
-        /**
-         * Tracks of the features. In case of bone animation the keys are the names of the bones. In case of spatial animation - the node's name
-         * is used. A single ipo contains all tracks for location, rotation and scales.
-         */
-        private Map<String, Ipo> featuresTracks = new HashMap<String, Ipo>();
+    private List<BlenderAction> getActions(Skeleton skeleton, AnimationMatchMethod animationMatchMethod) {
+        List<BlenderAction> result = new ArrayList<BlenderAction>();
 
-        public BlenderAction(int fps) {
-            this.fps = fps;
-        }
-
-        /**
-         * Converts the action into JME spatial animation tracks.
-         * @param node
-         *            the node that will be animated
-         * @return the spatial tracks for the node
-         */
-        public SpatialTrack[] toTracks(Node node) {
-            List<SpatialTrack> tracks = new ArrayList<SpatialTrack>(featuresTracks.size());
-            for (Entry<String, Ipo> entry : featuresTracks.entrySet()) {
-                tracks.add((SpatialTrack) entry.getValue().calculateTrack(0, node.getLocalTranslation(), node.getLocalRotation(), node.getLocalScale(), 1, stopFrame, fps, true));
+        // first get a set of bone names
+        Set<String> boneNames = new HashSet<String>();
+        for (int i = 0; i < skeleton.getBoneCount(); ++i) {
+            String boneName = skeleton.getBone(i).getName();
+            if (boneName != null && boneName.length() > 0) {
+                boneNames.add(skeleton.getBone(i).getName());
             }
-            return tracks.toArray(new SpatialTrack[tracks.size()]);
         }
 
-        /**
-         * Converts the action into JME bone animation tracks.
-         * @param skeleton
-         *            the skeleton that will be animated
-         * @return the bone tracks for the node
-         */
-        public BoneTrack[] toTracks(Skeleton skeleton) {
-            List<BoneTrack> tracks = new ArrayList<BoneTrack>(featuresTracks.size());
-            for (Entry<String, Ipo> entry : featuresTracks.entrySet()) {
-                int boneIndex = skeleton.getBoneIndex(entry.getKey());
-                tracks.add((BoneTrack) entry.getValue().calculateTrack(boneIndex, Vector3f.ZERO, Quaternion.IDENTITY, Vector3f.UNIT_XYZ, 1, stopFrame, fps, false));
+        // finding matches
+        Set<String> matchingNames = new HashSet<String>();
+        for (Entry<String, BlenderAction> actionEntry : blenderContext.getActions().entrySet()) {
+            // compute how many action tracks match the skeleton bones' names
+            for (String boneName : boneNames) {
+                if (actionEntry.getValue().hasTrackName(boneName)) {
+                    matchingNames.add(boneName);
+                }
             }
-            return tracks.toArray(new BoneTrack[tracks.size()]);
-        }
 
-        /**
-         * @return the time of animations (in seconds)
-         */
-        public float getAnimationTime() {
-            return (stopFrame - 1) / (float) fps;
+            BlenderAction action = null;
+            if (animationMatchMethod == AnimationMatchMethod.AT_LEAST_ONE_NAME_MATCH && matchingNames.size() > 0) {
+                action = actionEntry.getValue();
+            } else if (matchingNames.size() == actionEntry.getValue().getTracksCount()) {
+                action = actionEntry.getValue();
+            }
+
+            if (action != null) {
+                // remove the tracks that do not match the bone names if the matching method is different from ALL_NAMES_MATCH
+                if (animationMatchMethod != AnimationMatchMethod.ALL_NAMES_MATCH) {
+                    action = action.clone();
+                    action.removeTracksThatAreNotInTheCollection(matchingNames);
+                }
+                result.add(action);
+            }
+
+            matchingNames.clear();
         }
+        return result;
     }
 
     /**
-     * Ipo constant curve. This is a curve with only one value and no specified
-     * type. This type of ipo cannot be used to calculate tracks. It should only
-     * be used to calculate single value for a given frame.
-     * 
-     * @author Marcin Roguski (Kaelthas)
+     * The method returns the actions for the given node. The actions represent object animation in blender.
+     * @param node
+     *            the node we fetch the actions for
+     * @param animationMatchMethod
+     *            the method of animation matching
+     * @return a list of animations for the specified node
      */
-    private class ConstIpo extends Ipo {
+    private List<BlenderAction> getActions(Node node, AnimationMatchMethod animationMatchMethod) {
+        List<BlenderAction> result = new ArrayList<BlenderAction>();
 
-        /** The constant value of this ipo. */
-        private float constValue;
-
-        /**
-         * Constructor. Stores the constant value of this ipo.
-         * 
-         * @param constValue
-         *            the constant value of this ipo
-         */
-        public ConstIpo(float constValue) {
-            super(null, false, 0);// the version is not important here
-            this.constValue = constValue;
+        for (Entry<String, BlenderAction> actionEntry : blenderContext.getActions().entrySet()) {
+            if (actionEntry.getValue().hasTrackName(node.getName())) {
+                result.add(actionEntry.getValue());
+            }
         }
-
-        @Override
-        public float calculateValue(int frame) {
-            return constValue;
-        }
-
-        @Override
-        public float calculateValue(int frame, int curveIndex) {
-            return constValue;
-        }
-
-        @Override
-        public BoneTrack calculateTrack(int boneIndex, Vector3f localTranslation, Quaternion localRotation, Vector3f localScale, int startFrame, int stopFrame, int fps, boolean boneTrack) {
-            throw new IllegalStateException("Constatnt ipo object cannot be used for calculating bone tracks!");
-        }
+        return result;
     }
 }

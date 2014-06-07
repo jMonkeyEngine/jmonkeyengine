@@ -190,8 +190,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
                         LightHelper lightHelper = blenderContext.getHelper(LightHelper.class);
                         List<Structure> lampsArray = pLamp.fetchData();
                         result = lightHelper.toLight(lampsArray.get(0), blenderContext);
-                        if(result == null) {
-                            //probably some light type is not supported, just create a node so that we can maintain child-parent relationship for nodes
+                        if (result == null) {
+                            // probably some light type is not supported, just create a node so that we can maintain child-parent relationship for nodes
                             result = new Node(name);
                         }
                     }
@@ -218,7 +218,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
             if (objectType == ObjectType.ARMATURE) {
                 blenderContext.addMarker(ARMATURE_NODE_MARKER, result, Boolean.TRUE);
             }
-            
+
             result.setLocalTransform(t);
             result.setCullHint(visible ? CullHint.Always : CullHint.Inherit);
             if (parent instanceof Node) {
@@ -245,7 +245,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
 
             LOGGER.fine("Applying animations to the object if such are defined.");
             AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
-            animationHelper.applyAnimations(result, blenderContext.getBlenderKey().getNodeAnimationNames(name));
+            animationHelper.applyAnimations(result, blenderContext.getBlenderKey().getAnimationMatchMethod());
 
             LOGGER.fine("Loading constraints connected with this object.");
             ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);

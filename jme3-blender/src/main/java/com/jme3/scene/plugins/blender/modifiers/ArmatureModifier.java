@@ -178,7 +178,7 @@ import com.jme3.util.BufferUtils;
             }
 
             AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
-            animationHelper.applyAnimations(node, skeleton, blenderContext.getBlenderKey().getSkeletonAnimationNames(node.getName()));
+            animationHelper.applyAnimations(node, skeleton, blenderContext.getBlenderKey().getAnimationMatchMethod());
             node.updateModelBound();
         }
     }
