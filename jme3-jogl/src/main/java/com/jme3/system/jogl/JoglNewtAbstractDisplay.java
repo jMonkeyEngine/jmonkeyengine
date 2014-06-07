@@ -79,6 +79,7 @@ public abstract class JoglNewtAbstractDisplay extends JoglContext implements GLE
     protected boolean wasAnimating = false;
 
     protected void initGLCanvas() {
+        loadNatives();
         //FIXME use the settings to know whether to use the max programmable profile
         //then call GLProfile.getMaxProgrammable(true);
         //FIXME use the default profile only on embedded devices

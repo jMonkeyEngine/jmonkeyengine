@@ -42,6 +42,7 @@ import com.jme3.renderer.lwjgl.LwjglRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
+import com.jme3.system.NativeLibraryLoader;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -115,7 +116,6 @@ public abstract class LwjglContext implements JmeContext {
     }
     
     protected int determineMaxSamples(int requestedSamples) {
-        boolean displayWasCurrent = false;
         try {
             // If we already have a valid context, determine samples using current
             // context.
@@ -124,9 +124,10 @@ public abstract class LwjglContext implements JmeContext {
                     return GL11.glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
                 } else if (GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
                     return GL11.glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
+                } else {
+                    // Unknown.
+                    return Integer.MAX_VALUE;
                 }
-                // Doesn't support any of the needed extensions .. continue down.
-                displayWasCurrent = true;
             }
         } catch (LWJGLException ex) {
             listener.handleError("Failed to check if display is current", ex);
@@ -138,66 +139,46 @@ public abstract class LwjglContext implements JmeContext {
         } else {
             Pbuffer pb = null;
             
-            if (!displayWasCurrent) {
-                // OpenGL2 method: Create pbuffer and query samples
-                // from GL_ARB_framebuffer_object or GL_EXT_framebuffer_multisample.
-                try {
-                    pb = new Pbuffer(1, 1, new PixelFormat(0, 0, 0), null);
-                    pb.makeCurrent();
-
-                    if (GLContext.getCapabilities().GL_ARB_framebuffer_object) {
-                        return GL11.glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
-                    } else if (GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
-                        return GL11.glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
-                    }
-
-                    // OpenGL2 method failed.
-                } catch (LWJGLException ex) {
-                    // Something else failed.
-                    return Integer.MAX_VALUE;
-                } finally { 
-                    if (pb != null) {
-                        pb.destroy();
-                        pb = null;
-                    }
-                }
-            }
-            
-            // OpenGL1 method (DOESNT WORK RIGHT NOW ..)
-            requestedSamples = FastMath.nearestPowerOfTwo(requestedSamples);
+            // OpenGL2 method: Create pbuffer and query samples
+            // from GL_ARB_framebuffer_object or GL_EXT_framebuffer_multisample.
             try {
-                requestedSamples = Integer.MAX_VALUE;
-                /*
-                while (requestedSamples > 1) {
-                    try {
-                        pb = new Pbuffer(1, 1, new PixelFormat(16, 0, 8, 0, requestedSamples), null);
-                    } catch (LWJGLException ex) {
-                        if (ex.getMessage().startsWith("Failed to find ARB pixel format")) {
-                            // Unsupported format, so continue.
-                            requestedSamples = FastMath.nearestPowerOfTwo(requestedSamples / 2);
-                        } else {
-                            // Something else went wrong ..
-                            return Integer.MAX_VALUE;
-                        }
-                    } finally {
-                        if (pb != null){
-                            pb.destroy();
-                            pb = null;
-                        }
-                    }
-                }*/
-            } finally {
-                if (displayWasCurrent) {
-                    try {
-                        Display.makeCurrent();
-                    } catch (LWJGLException ex) {
-                        listener.handleError("Failed to make display current after checking samples", ex);
-                    }
+                pb = new Pbuffer(1, 1, new PixelFormat(0, 0, 0), null);
+                pb.makeCurrent();
+
+                if (GLContext.getCapabilities().GL_ARB_framebuffer_object) {
+                    return GL11.glGetInteger(ARBFramebufferObject.GL_MAX_SAMPLES);
+                } else if (GLContext.getCapabilities().GL_EXT_framebuffer_multisample) {
+                    return GL11.glGetInteger(EXTFramebufferMultisample.GL_MAX_SAMPLES_EXT);
+                }
+
+                // OpenGL2 method failed.
+                return Integer.MAX_VALUE;
+            } catch (LWJGLException ex) {
+                // Something else failed.
+                return Integer.MAX_VALUE;
+            } finally { 
+                if (pb != null) {
+                    pb.destroy();
                 }
             }
-            
-            return requestedSamples;
         }
+    }
+    
+    protected void loadNatives() {        
+        if (JmeSystem.isLowPermissions()) {
+            return;
+        }
+        if ("LWJGL".equals(settings.getAudioRenderer())) {
+            NativeLibraryLoader.loadNativeLibrary("openal", true);
+        }
+        if (settings.useJoysticks()) {
+            NativeLibraryLoader.loadNativeLibrary("jinput", true);
+            NativeLibraryLoader.loadNativeLibrary("jinput-dx8", true);
+        }
+        if (NativeLibraryLoader.isUsingNativeBullet()) {
+            NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
+        }
+        NativeLibraryLoader.loadNativeLibrary("lwjgl", true);
     }
     
     protected int getNumSamplesToUse() {
@@ -206,6 +187,11 @@ public abstract class LwjglContext implements JmeContext {
             samples = settings.getSamples();
             int supportedSamples = determineMaxSamples(samples);
             if (supportedSamples < samples) {
+                logger.log(Level.WARNING,
+                        "Couldn''t satisfy antialiasing samples requirement: x{0}. "
+                        + "Video hardware only supports: x{1}",
+                        new Object[]{samples, supportedSamples});
+                
                 samples = supportedSamples;
             }
         }

@@ -168,6 +168,24 @@ public final class NativeLibraryLoader {
     }
     
     /**
+     * Determine if native bullet is on the classpath.
+     * 
+     * Currently the context extracts the native bullet libraries, so
+     * this method is needed to determine if it is needed.
+     * Ideally, native bullet should be responsible for its own natives.
+     * 
+     * @return True native bullet is on the classpath, false otherwise.
+     */
+    public static boolean isUsingNativeBullet() {
+        try {
+            Class clazz = Class.forName("com.jme3.bullet.util.NativeMeshUtil");
+            return clazz != null;
+        } catch (ClassNotFoundException ex) {
+            return false;
+        }
+    }
+    
+    /**
      * Specify a custom location where native libraries should
      * be extracted to. Ensure this is a unique path not used
      * by other applications to extract their libraries.

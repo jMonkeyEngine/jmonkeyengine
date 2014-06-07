@@ -41,7 +41,10 @@ import java.util.logging.Logger;
 /**
  * Helper class for extracting the natives (dll, so) from the jars.
  * This class should only be used internally.
+ * 
+ * @deprecated Use {@link NativeLibraryLoader} instead.
  */
+@Deprecated
 public final class Natives {
 
     private static final Logger logger = Logger.getLogger(Natives.class.getName());
@@ -238,6 +241,10 @@ public final class Natives {
     }
 
     public static void extractNativeLibs(Platform platform, AppSettings settings) throws IOException {
+        if (true) {
+            throw new UnsupportedEncodingException("Now, why would you EVER want to do that?");
+        }
+        
         String renderer = settings.getRenderer();
         String audioRenderer = settings.getAudioRenderer();
         boolean needLWJGL = false;
