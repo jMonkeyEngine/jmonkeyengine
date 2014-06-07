@@ -202,6 +202,11 @@ public class DirectionalLightShadowRenderer extends AbstractShadowRenderer {
         material.setColor("Splits", splits);
     }
 
+    @Override
+    protected void clearMaterialParameters(Material material) {
+        material.clearParam("Splits");
+    }
+
     /**
      * returns the labda parameter see #setLambda(float lambda)
      *

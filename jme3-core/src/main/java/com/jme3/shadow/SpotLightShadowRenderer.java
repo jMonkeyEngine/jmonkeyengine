@@ -168,6 +168,12 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
          material.setVector3("LightDir", light.getDirection());
     }
 
+    @Override
+    protected void clearMaterialParameters(Material material) {
+        material.clearParam("LightPos");
+        material.clearParam("LightDir");
+    }
+    
     /**
      * How far the shadows are rendered in the view
      *

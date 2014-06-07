@@ -484,14 +484,42 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             renderManager.setForcedTechnique(null);
             renderManager.setForcedMaterial(null);
             renderManager.setCamera(cam, false);
-
+            
+            //clearing the params in case there are some other shadow renderers
+            clearMatParams();
         }
 
+    }
+    
+    /**
+     * This method is called once per frame and is responsible for clearing any
+     * material parameters that subclasses may need to clear on the post material.
+     *
+     * @param material the material that was used for the post shadow pass     
+     */
+    protected abstract void clearMaterialParameters(Material material);    
+    
+    private void clearMatParams(){
+        for (Material mat : matCache) {
+         
+            //clearing only necessary params, the others may be set by other 
+            //renderers 
+            //Note that j start at 1 because other shadow renderers will have 
+            //at least 1 shadow map and will set it on each frame anyway.
+            for (int j = 1; j < nbShadowMaps; j++) {
+                mat.clearParam(lightViewStringCache[j]);
+            }
+            for (int j = 1; j < nbShadowMaps; j++) {
+                mat.clearParam(shadowMapStringCache[j]);
+            }
+            clearMaterialParameters(mat);
+        }        
+        //No need to clear the postShadowMat params as the instance is locale to each renderer       
     }
 
     /**
      * This method is called once per frame and is responsible for setting any
-     * material parameters than subclass may need to set on the post material.
+     * material parameters that subclasses may need to set on the post material.
      *
      * @param material the material to use for the post shadow pass
      */
@@ -553,7 +581,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             postshadowMat.setTexture(shadowMapStringCache[j], shadowMaps[j]);
         }
     }
-
+    
     public void preFrame(float tpf) {
     }
 
