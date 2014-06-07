@@ -360,6 +360,12 @@ public final class NativeLibraryLoader {
             String fileNameInJarWithoutExtension 
                     = fileNameInJar.substring(0, fileNameInJar.lastIndexOf("."));
             
+            if (platform.is64Bit() && !fileNameInJarWithoutExtension.endsWith("64")) {
+                // This is to avoid conflicts with 32-bit versions of the 
+                // same library when extracting.
+                fileNameInJarWithoutExtension += "64";
+            }
+            
             String systemJniExtension;
             String dummyLib = System.mapLibraryName("");
             if (dummyLib.contains(".")) {
