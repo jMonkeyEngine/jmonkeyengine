@@ -105,7 +105,6 @@ public class TestNativeLoader {
             NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
 
             com.jme3.bullet.PhysicsSpace physSpace = new com.jme3.bullet.PhysicsSpace();
-            com.jme3.bullet.PhysicsSpace.initNativePhysics();
 
             System.out.println("Succeeded in loading BulletJme.");
         } else {
