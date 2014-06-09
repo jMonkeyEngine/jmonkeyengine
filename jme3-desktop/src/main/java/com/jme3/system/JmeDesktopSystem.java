@@ -307,13 +307,5 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             logger.log(Level.SEVERE, "Security error in creating log file", ex);
         }
         logger.log(Level.INFO, "Running on {0}", getFullName());
-
-        if (!lowPermissions) {
-            try {
-                Natives.extractNativeLibs(getPlatform(), settings);
-            } catch (IOException ex) {
-                logger.log(Level.SEVERE, "Error while copying native libraries", ex);
-            }
-        }
     }
 }

@@ -34,7 +34,6 @@ package com.jme3.scene;
 import com.jme3.export.*;
 import com.jme3.material.Material;
 import com.jme3.math.Matrix4f;
-import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.mesh.IndexBuffer;
 import com.jme3.util.SafeArrayList;
@@ -65,7 +64,7 @@ import java.util.logging.Logger;
  * TODO more automagic (batch when needed in the updateLogicalState)
  * @author Nehon
  */
-public class BatchNode extends Node implements Savable {
+public class BatchNode extends GeometryGroupNode implements Savable {
 
     private static final Logger logger = Logger.getLogger(BatchNode.class.getName());
     /**
@@ -95,6 +94,29 @@ public class BatchNode extends Node implements Savable {
 
     public BatchNode(String name) {
         super(name);
+    }
+    
+    @Override
+    public void onTransformChange(Geometry geom) {
+        updateSubBatch(geom);
+    }
+
+    @Override
+    public void onMaterialChange(Geometry geom) {
+        throw new UnsupportedOperationException(
+                "Cannot set the material of a batched geometry, "
+                + "change the material of the parent BatchNode.");
+    }
+
+    @Override
+    public void onMeshChange(Geometry geom) {
+        throw new UnsupportedOperationException(
+                "Cannot set the mesh of a batched geometry");
+    }
+
+    @Override
+    public void onGeoemtryUnassociated(Geometry geom) {
+        setNeedsFullRebatch(true);
     }
 
     @Override
@@ -284,8 +306,8 @@ public class BatchNode extends Node implements Savable {
             }
         } else if (s instanceof Geometry) {
             Geometry g = (Geometry) s;
-            if (g.isBatched()) {
-                g.unBatch();
+            if (g.isGrouped()) {
+                g.unassociateFromGroupNode();
             }
         }
     }
@@ -297,7 +319,7 @@ public class BatchNode extends Node implements Savable {
 
             if (!isBatch(n) && n.getBatchHint() != BatchHint.Never) {
                 Geometry g = (Geometry) n;
-                if (!g.isBatched() || rebatch) {
+                if (!g.isGrouped() || rebatch) {
                     if (g.getMaterial() == null) {
                         throw new IllegalStateException("No material is set for Geometry: " + g.getName() + " please set a material before batching");
                     }
@@ -542,7 +564,7 @@ public class BatchNode extends Node implements Savable {
         for (Geometry geom : geometries) {
             Mesh inMesh = geom.getMesh();
             if (!isBatch(geom)) {
-                geom.batch(this, globalVertIndex);
+                geom.associateWithGroupNode(this, globalVertIndex);
             }
 
             int geomVertCount = inMesh.getVertexCount();

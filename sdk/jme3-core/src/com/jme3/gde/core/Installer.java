@@ -109,8 +109,8 @@ public class Installer extends ModuleInstall {
             logger.log(Level.INFO, "Create settings dir {0}", projectDir);
             file.mkdirs();
         }
-        com.jme3.system.Natives.setExtractionDir(jmpDir);
-
+        
+        com.jme3.system.NativeLibraryLoader.setCustomExtractionFolder(jmpDir);
         //avoid problems with lightweight popups
         JPopupMenu.setDefaultLightWeightPopupEnabled(false);
     }

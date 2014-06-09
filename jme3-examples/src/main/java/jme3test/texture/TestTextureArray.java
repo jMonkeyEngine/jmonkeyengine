@@ -37,6 +37,7 @@ public class TestTextureArray extends SimpleApplication
        images.add(tex1.getImage());
        images.add(tex2.getImage());
        TextureArray tex3 = new TextureArray(images);
+       tex3.setMinFilter(Texture.MinFilter.Trilinear);
        mat.setTexture("ColorMap", tex3);
 
        Mesh m = new Mesh();

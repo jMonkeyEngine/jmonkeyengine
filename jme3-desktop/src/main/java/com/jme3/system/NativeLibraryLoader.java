@@ -140,12 +140,12 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("openal", Platform.MacOSX64,  "native/macosx/openal.dylib", false);
         
         // BulletJme
-        registerNativeLibrary("bulletjme", Platform.Windows32, "native/windows/x86/bulletjme.dll", false);
-        registerNativeLibrary("bulletjme", Platform.Windows64, "native/windows/x86_64/bulletjme.dll", false);
-        registerNativeLibrary("bulletjme", Platform.Linux32,   "native/linux/x86/libbulletjme.so", false);
-        registerNativeLibrary("bulletjme", Platform.Linux64,   "native/linux/x86_64/libbulletjme.so", false);
-        registerNativeLibrary("bulletjme", Platform.MacOSX32,  "native/macosx/x86/libbulletjme.jnilib", false);
-        registerNativeLibrary("bulletjme", Platform.MacOSX64,  "native/macosx/x86_64/libbulletjme.jnilib", false);
+        registerNativeLibrary("bulletjme", Platform.Windows32, "native/windows/x86/bulletjme.dll");
+        registerNativeLibrary("bulletjme", Platform.Windows64, "native/windows/x86_64/bulletjme.dll");
+        registerNativeLibrary("bulletjme", Platform.Linux32,   "native/linux/x86/libbulletjme.so");
+        registerNativeLibrary("bulletjme", Platform.Linux64,   "native/linux/x86_64/libbulletjme.so");
+        registerNativeLibrary("bulletjme", Platform.MacOSX32,  "native/macosx/x86/libbulletjme.jnilib");
+        registerNativeLibrary("bulletjme", Platform.MacOSX64,  "native/macosx/x86_64/libbulletjme.jnilib");
         
         // JInput
         registerNativeLibrary("jinput", Platform.Windows32, "native/windows/jinput-raw.dll");
@@ -165,6 +165,24 @@ public final class NativeLibraryLoader {
     }
     
     private NativeLibraryLoader() {
+    }
+    
+    /**
+     * Determine if native bullet is on the classpath.
+     * 
+     * Currently the context extracts the native bullet libraries, so
+     * this method is needed to determine if it is needed.
+     * Ideally, native bullet should be responsible for its own natives.
+     * 
+     * @return True native bullet is on the classpath, false otherwise.
+     */
+    public static boolean isUsingNativeBullet() {
+        try {
+            Class clazz = Class.forName("com.jme3.bullet.util.NativeMeshUtil");
+            return clazz != null;
+        } catch (ClassNotFoundException ex) {
+            return false;
+        }
     }
     
     /**
@@ -337,19 +355,26 @@ public final class NativeLibraryLoader {
         // Determine what filename it should be extracted as.
         String loadedAsFileName;
         if (library.isJNI()) {
-            String nameWithArch;
-            
-            // Append "64" to path 
-            // so that we don't overwrite the 32-bit version.
-            if (platform.is64Bit()) {
-                nameWithArch = name + "64";
-            } else {
-                nameWithArch = name;
-            }
-            
             // JNI libraries on Mac / JDK6 use jnilib extension.
             // JNI libraries on Mac / JDK7 use dylib extension.
-            loadedAsFileName = System.mapLibraryName(nameWithArch);
+            String fileNameInJarWithoutExtension 
+                    = fileNameInJar.substring(0, fileNameInJar.lastIndexOf("."));
+            
+            if (platform.is64Bit() && !fileNameInJarWithoutExtension.endsWith("64")) {
+                // This is to avoid conflicts with 32-bit versions of the 
+                // same library when extracting.
+                fileNameInJarWithoutExtension += "64";
+            }
+            
+            String systemJniExtension;
+            String dummyLib = System.mapLibraryName("");
+            if (dummyLib.contains(".")) {
+                systemJniExtension = dummyLib.substring(dummyLib.lastIndexOf("."));
+            } else {
+                systemJniExtension = "";
+            }
+            
+            loadedAsFileName = fileNameInJarWithoutExtension + systemJniExtension;
         } else {
             // Not a JNI library.
             // Just use the original filename as it is in the JAR.
@@ -410,9 +435,19 @@ public final class NativeLibraryLoader {
                         + "library to: " + targetFile);
             }
         } finally {
-            // Not sure if we always want to load it.
-            // Maybe specify this as a per library setting.
-            System.load(targetFile.getAbsolutePath());
+            // XXX: HACK. Vary loading method based on library name..
+            // lwjgl and jinput handle loading by themselves.
+            if (name.equals("lwjgl")) {
+                System.setProperty("org.lwjgl.librarypath", 
+                                   extactionDirectory.getAbsolutePath());
+            } else if (name.equals("jinput")) {
+                System.setProperty("net.java.games.input.librarypath", 
+                                   extactionDirectory.getAbsolutePath());
+            } else {
+                // all other libraries (openal, bulletjme, custom)
+                // will load directly in here.
+                System.load(targetFile.getAbsolutePath());
+            }
             
             if(in != null){
                 try { in.close(); } catch (IOException ex) { }

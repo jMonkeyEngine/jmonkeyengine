@@ -68,7 +68,7 @@ public class BIHTree implements CollisionData {
     private float[] pointData;
     private int[] triIndices;
     
-    private transient CollisionResults boundResults = new CollisionResults();
+    // private transient CollisionResults boundResults = new CollisionResults();
     private transient float[] bihSwapTmp;
     
     private static final TriangleAxisComparator[] comparators = new TriangleAxisComparator[]
@@ -398,33 +398,39 @@ public class BIHTree implements CollisionData {
             BoundingVolume worldBound,
             CollisionResults results) {
 
-        boundResults.clear();
-        worldBound.collideWith(r, boundResults);
-        if (boundResults.size() > 0) {
-            float tMin = boundResults.getClosestCollision().getDistance();
-            float tMax = boundResults.getFarthestCollision().getDistance();
+        TempVars vars = TempVars.get();
+        try {
+            CollisionResults boundResults = vars.collisionResults;
+            boundResults.clear();
+            worldBound.collideWith(r, boundResults);
+            if (boundResults.size() > 0) {
+                float tMin = boundResults.getClosestCollision().getDistance();
+                float tMax = boundResults.getFarthestCollision().getDistance();
 
-            if (tMax <= 0) {
-                tMax = Float.POSITIVE_INFINITY;
-            } else if (tMin == tMax) {
-                tMin = 0;
-            }
-
-            if (tMin <= 0) {
-                tMin = 0;
-            }
-
-            if (r.getLimit() < Float.POSITIVE_INFINITY) {
-                tMax = Math.min(tMax, r.getLimit());
-                if (tMin > tMax){
-                    return 0;
+                if (tMax <= 0) {
+                    tMax = Float.POSITIVE_INFINITY;
+                } else if (tMin == tMax) {
+                    tMin = 0;
                 }
-            }
 
-//            return root.intersectBrute(r, worldMatrix, this, tMin, tMax, results);
-            return root.intersectWhere(r, worldMatrix, this, tMin, tMax, results);
+                if (tMin <= 0) {
+                    tMin = 0;
+                }
+
+                if (r.getLimit() < Float.POSITIVE_INFINITY) {
+                    tMax = Math.min(tMax, r.getLimit());
+                    if (tMin > tMax){
+                        return 0;
+                    }
+                }
+
+    //            return root.intersectBrute(r, worldMatrix, this, tMin, tMax, results);
+                return root.intersectWhere(r, worldMatrix, this, tMin, tMax, results);
+            }
+            return 0;
+        } finally {
+            vars.release();
         }
-        return 0;
     }
 
     private int collideWithBoundingVolume(BoundingVolume bv,

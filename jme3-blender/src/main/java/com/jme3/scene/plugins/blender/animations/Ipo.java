@@ -170,7 +170,7 @@ public class Ipo {
                 for (int j = 0; j < bezierCurves.length; ++j) {
                     double value = bezierCurves[j].evaluate(frame, BezierCurve.Y_VALUE);
                     switch (bezierCurves[j].getType()) {
-                    	// LOCATION
+                    // LOCATION
                         case AC_LOC_X:
                             translation[0] = (float) value;
                             break;
@@ -186,18 +186,18 @@ public class Ipo {
 
                         // EULER ROTATION
                         case OB_ROT_X:
-                        	eulerRotationUsed = true;
+                            eulerRotationUsed = true;
                             eulerRotation[0] = (float) value * degreeToRadiansFactor;
                             break;
                         case OB_ROT_Y:
-                        	eulerRotationUsed = true;
+                            eulerRotationUsed = true;
                             if (swapAxes && value != 0) {
                                 value = -value;
                             }
                             eulerRotation[yIndex] = (float) value * degreeToRadiansFactor;
                             break;
                         case OB_ROT_Z:
-                        	eulerRotationUsed = true;
+                            eulerRotationUsed = true;
                             eulerRotation[zIndex] = (float) value * degreeToRadiansFactor;
                             break;
 
@@ -214,15 +214,15 @@ public class Ipo {
 
                         // QUATERNION ROTATION (used with bone animation)
                         case AC_QUAT_W:
-                        	queternionRotationUsed = true;
+                            queternionRotationUsed = true;
                             quaternionRotation[3] = (float) value;
                             break;
                         case AC_QUAT_X:
-                        	queternionRotationUsed = true;
+                            queternionRotationUsed = true;
                             quaternionRotation[0] = (float) value;
                             break;
                         case AC_QUAT_Y:
-                        	queternionRotationUsed = true;
+                            queternionRotationUsed = true;
                             if (swapAxes && value != 0) {
                                 value = -value;
                             }
@@ -236,12 +236,12 @@ public class Ipo {
                     }
                 }
                 translations[index] = localRotation.multLocal(new Vector3f(translation[0], translation[1], translation[2]));
-                if(queternionRotationUsed) {
-                	rotations[index] = new Quaternion(quaternionRotation[0], quaternionRotation[1], quaternionRotation[2], quaternionRotation[3]);
+                if (queternionRotationUsed) {
+                    rotations[index] = new Quaternion(quaternionRotation[0], quaternionRotation[1], quaternionRotation[2], quaternionRotation[3]);
                 } else {
-                	rotations[index] = new Quaternion().fromAngles(eulerRotation);
+                    rotations[index] = new Quaternion().fromAngles(eulerRotation);
                 }
-                
+
                 scales[index] = new Vector3f(scale[0], scale[1], scale[2]);
             }
             if (spatialTrack) {
@@ -249,12 +249,51 @@ public class Ipo {
             } else {
                 calculatedTrack = new BoneTrack(targetIndex, times, translations, rotations, scales);
             }
-            
-            if(queternionRotationUsed && eulerRotationUsed) {
-            	LOGGER.warning("Animation uses both euler and quaternion tracks for rotations. Quaternion rotation is applied. Make sure that this is what you wanted!");
+
+            if (queternionRotationUsed && eulerRotationUsed) {
+                LOGGER.warning("Animation uses both euler and quaternion tracks for rotations. Quaternion rotation is applied. Make sure that this is what you wanted!");
             }
         }
-        
+
         return calculatedTrack;
+    }
+
+    /**
+     * Ipo constant curve. This is a curve with only one value and no specified
+     * type. This type of ipo cannot be used to calculate tracks. It should only
+     * be used to calculate single value for a given frame.
+     * 
+     * @author Marcin Roguski (Kaelthas)
+     */
+    /* package */static class ConstIpo extends Ipo {
+
+        /** The constant value of this ipo. */
+        private float constValue;
+
+        /**
+         * Constructor. Stores the constant value of this ipo.
+         * 
+         * @param constValue
+         *            the constant value of this ipo
+         */
+        public ConstIpo(float constValue) {
+            super(null, false, 0);// the version is not important here
+            this.constValue = constValue;
+        }
+
+        @Override
+        public float calculateValue(int frame) {
+            return constValue;
+        }
+
+        @Override
+        public float calculateValue(int frame, int curveIndex) {
+            return constValue;
+        }
+
+        @Override
+        public BoneTrack calculateTrack(int boneIndex, Vector3f localTranslation, Quaternion localRotation, Vector3f localScale, int startFrame, int stopFrame, int fps, boolean boneTrack) {
+            throw new IllegalStateException("Constatnt ipo object cannot be used for calculating bone tracks!");
+        }
     }
 }

@@ -47,6 +47,7 @@ import com.jme3.asset.BlenderKey;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
+import com.jme3.scene.plugins.blender.animations.BlenderAction;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.Constraint;
 import com.jme3.scene.plugins.blender.file.BlenderInputStream;
@@ -76,7 +77,7 @@ public class BlenderContext {
     /** The asset manager. */
     private AssetManager                        assetManager;
     /** The blocks read from the file. */
-    protected List<FileBlockHeader> blocks;
+    protected List<FileBlockHeader>             blocks;
     /**
      * A map containing the file block headers. The key is the old memory address.
      */
@@ -114,6 +115,8 @@ public class BlenderContext {
     private Map<String, AbstractBlenderHelper>  helpers                = new HashMap<String, AbstractBlenderHelper>();
     /** Markers used by loading classes to store some custom data. This is made to avoid putting this data into user properties. */
     private Map<String, Map<Object, Object>>    markers                = new HashMap<String, Map<Object, Object>>();
+    /** A map of blender actions. The key is the action name and the value is the action itself. */
+    private Map<String, BlenderAction>          actions                = new HashMap<String, BlenderAction>();
 
     /**
      * This method sets the blender file version.
@@ -405,7 +408,7 @@ public class BlenderContext {
         }
         return result;
     }
-    
+
     /**
      * This method adds the animation for the specified OMA of its owner.
      * 
@@ -416,13 +419,13 @@ public class BlenderContext {
      */
     public void addAnimation(Long ownerOMA, Animation animation) {
         List<Animation> animList = animations.get(ownerOMA);
-        if(animList == null) {
+        if (animList == null) {
             animList = new ArrayList<Animation>();
             animations.put(ownerOMA, animList);
         }
         animList.add(animation);
     }
-    
+
     /**
      * This method returns the animation data for the specified owner.
      * 
@@ -534,14 +537,15 @@ public class BlenderContext {
     /**
      * Returns bone by given name.
      * 
-     * @param skeletonOMA the OMA of the skeleton where the bone will be searched
+     * @param skeletonOMA
+     *            the OMA of the skeleton where the bone will be searched
      * @param name
      *            the name of the bone
      * @return found bone or null if none bone of a given name exists
      */
     public BoneContext getBoneByName(Long skeletonOMA, String name) {
         for (Entry<Long, BoneContext> entry : boneContexts.entrySet()) {
-            if(entry.getValue().getArmatureObjectOMA().equals(skeletonOMA)) {
+            if (entry.getValue().getArmatureObjectOMA().equals(skeletonOMA)) {
                 Bone bone = entry.getValue().getBone();
                 if (bone != null && name.equals(bone.getName())) {
                     return entry.getValue();
@@ -617,6 +621,22 @@ public class BlenderContext {
     public Object getMarkerValue(String marker, Object feature) {
         Map<Object, Object> markersMap = markers.get(marker);
         return markersMap == null ? null : markersMap.get(feature);
+    }
+
+    /**
+     * Adds blender action to the context.
+     * @param action
+     *            the action loaded from the blend file
+     */
+    public void addAction(BlenderAction action) {
+        actions.put(action.getName(), action);
+    }
+
+    /**
+     * @return a map of blender actions; the key is the action name and the value is action itself
+     */
+    public Map<String, BlenderAction> getActions() {
+        return actions;
     }
 
     /**

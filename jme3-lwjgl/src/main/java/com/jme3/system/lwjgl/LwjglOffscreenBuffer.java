@@ -145,6 +145,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
     }
 
     public void run(){
+        loadNatives();
         logger.log(Level.FINE, "Using LWJGL {0}", Sys.getVersion());
         initInThread();
         while (!needClose.get()){

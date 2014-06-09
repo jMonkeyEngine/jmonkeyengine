@@ -40,16 +40,21 @@ import com.jme3.renderer.jogl.JoglRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.NanoTimer;
+import com.jme3.system.NativeLibraryLoader;
 import com.jme3.system.SystemListener;
 import com.jme3.system.Timer;
 import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2GL3;
 import javax.media.opengl.GLContext;
 
 public abstract class JoglContext implements JmeContext {
 
+    private static final Logger logger = Logger.getLogger(JoglContext.class.getName());
+    
     protected AtomicBoolean created = new AtomicBoolean(false);
     protected AtomicBoolean renderable = new AtomicBoolean(false);
     protected final Object createdLock = new Object();
@@ -63,6 +68,13 @@ public abstract class JoglContext implements JmeContext {
     protected MouseInput mouseInput;
     protected JoyInput joyInput;
 
+    public void loadNatives() {
+        // Not sure if need to load OpenAL here ...
+        if (NativeLibraryLoader.isUsingNativeBullet()) {
+            NativeLibraryLoader.loadNativeLibrary("bulletjme", true);
+        }
+    }
+    
     public void setSystemListener(SystemListener listener){
         this.listener = listener;
     }
@@ -162,6 +174,11 @@ public abstract class JoglContext implements JmeContext {
             samples = settings.getSamples();
             int supportedSamples = determineMaxSamples(samples);
             if (supportedSamples < samples) {
+                logger.log(Level.WARNING,
+                        "Couldn''t satisfy antialiasing samples requirement: x{0}. "
+                        + "Video hardware only supports: x{1}",
+                        new Object[]{samples, supportedSamples});
+                
                 samples = supportedSamples;
             }
         }

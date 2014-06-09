@@ -255,6 +255,10 @@ public class LwjglAudioRenderer implements AudioRenderer, Runnable {
         // kill audio thread
         if (audioThread.isAlive()) {
             audioThread.interrupt();
+            try {
+                audioThread.join();
+            } catch (InterruptedException ex) {
+            }
         }
     }
 

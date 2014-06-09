@@ -83,6 +83,8 @@ public abstract class JoglAbstractDisplay extends JoglContext implements GLEvent
     protected boolean wasAnimating = false;
 
     protected void initGLCanvas() {
+        loadNatives();
+        
         device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         
         //FIXME use the settings to know whether to use the max programmable profile

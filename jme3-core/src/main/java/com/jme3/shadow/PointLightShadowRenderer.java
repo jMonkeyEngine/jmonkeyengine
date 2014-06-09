@@ -160,6 +160,11 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
         material.setVector3("LightPos", light.getPosition());
     }
 
+    @Override
+    protected void clearMaterialParameters(Material material) {
+        material.clearParam("LightPos");        
+    }
+    
     /**
      * gets the point light used to cast shadows with this processor
      *
