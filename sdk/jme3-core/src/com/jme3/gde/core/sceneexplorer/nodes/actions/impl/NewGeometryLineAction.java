@@ -31,11 +31,15 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.actions.impl;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractNewSpatialAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewGeometryAction;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Line;
 
 /**
  *
@@ -50,8 +54,25 @@ public class NewGeometryLineAction extends AbstractNewSpatialAction implements N
 
     @Override
     protected Spatial doCreateSpatial(Node parent) {
-        Geometry geom = NewGeometry.line(pm);
+        Geometry geom = line(pm);
         parent.attachChild(geom);
         return geom;
     }
+
+    static Material material(AssetManager assetManaget, NewGeometrySettings cfg) {
+        Material mat = new Material(assetManaget, "Common/MatDefs/Misc/Unshaded.j3md");
+        ColorRGBA  c = cfg.getMatRandom() ?ColorRGBA.randomColor() : cfg.getMatColor();
+        mat.setColor("Color", c);
+        return mat;
+    }
+    
+    static Geometry line(AssetManager assetManager) {
+        NewGeometrySettings cfg = new NewGeometrySettings();
+        Line b = new Line(cfg.getLineStart(), cfg.getLineEnd());
+        b.setMode(cfg.getLineMode());
+        Geometry geom = new Geometry(cfg.getLineName(), b);
+        geom.setMaterial(material(assetManager, cfg));        
+        return geom;
+    }
+
 }
