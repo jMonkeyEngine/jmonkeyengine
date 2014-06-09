@@ -42,15 +42,15 @@ import com.jme3.scene.Spatial;
  * @author david.bernard.31
  */
 @org.openide.util.lookup.ServiceProvider(service = NewGeometryAction.class)
-public class NewGeometrySphereAction extends AbstractNewSpatialAction implements NewGeometryAction {
+public class NewGeometryQuadAction extends AbstractNewSpatialAction implements NewGeometryAction {
 
-    public NewGeometrySphereAction() {
-        name = "Sphere";
+    public NewGeometryQuadAction() {
+        name = "Quad";
     }
 
     @Override
     protected Spatial doCreateSpatial(Node parent) {
-        Geometry geom = NewGeometry.sphere(pm);
+        Geometry geom = NewGeometry.quad(pm);
         parent.attachChild(geom);
         return geom;
     }

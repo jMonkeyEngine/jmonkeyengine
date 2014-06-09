@@ -83,207 +83,471 @@ public final class NewGeometrySettingsTopComponent extends TopComponent {
     private void initComponents() {
         bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
-        newGeometrySettings1 = new com.jme3.gde.core.sceneexplorer.nodes.actions.impl.NewGeometrySettings();
-        jLabel5 = new javax.swing.JLabel();
-        jSpinner3 = new javax.swing.JSpinner();
-        jLabel6 = new javax.swing.JLabel();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jSpinner4 = new javax.swing.JSpinner();
-        jCheckBox2 = new javax.swing.JCheckBox();
-        jSpinner5 = new javax.swing.JSpinner();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jSpinner6 = new javax.swing.JSpinner();
-        jLabel3 = new javax.swing.JLabel();
-        jSpinner1 = new javax.swing.JSpinner();
-        jLabel4 = new javax.swing.JLabel();
-        jSpinner2 = new javax.swing.JSpinner();
+        newGeometrySettings = new com.jme3.gde.core.sceneexplorer.nodes.actions.impl.NewGeometrySettings();
+        converterVector3f_String = new com.jme3.gde.core.sceneexplorer.nodes.actions.impl.ConverterVector3f_String();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        boxPanel = new javax.swing.JPanel();
+        boxNameTextField = new javax.swing.JTextField();
+        boxXLabel = new javax.swing.JLabel();
+        boxXSpinner = new javax.swing.JSpinner();
+        boxYLabel = new javax.swing.JLabel();
+        boxYSpinner = new javax.swing.JSpinner();
+        boxZLabel = new javax.swing.JLabel();
+        boxZSpinner = new javax.swing.JSpinner();
+        boxModeComboBox = new javax.swing.JComboBox();
+        spherePanel = new javax.swing.JPanel();
+        sphereZSamplesLabel = new javax.swing.JLabel();
+        sphereZSamplesSpinner = new javax.swing.JSpinner();
+        sphereRadialSamplesLabel = new javax.swing.JLabel();
+        sphereRadialSamplesSpinner = new javax.swing.JSpinner();
+        sphereUseEvenSlicesLabel = new javax.swing.JLabel();
+        sphereUseEvenSlicesCheckBox = new javax.swing.JCheckBox();
+        sphereInteriorCheckBox = new javax.swing.JCheckBox();
+        sphereInteriorLabel = new javax.swing.JLabel();
+        sphereRadiusSpinner = new javax.swing.JSpinner();
+        sphereRadiusLabel = new javax.swing.JLabel();
+        sphereNameTextField = new javax.swing.JTextField();
+        sphereModeComboBox = new javax.swing.JComboBox();
+        quadPanel = new javax.swing.JPanel();
+        quadNameTextField = new javax.swing.JTextField();
+        quadWidthLabel = new javax.swing.JLabel();
+        quadHeightLabel = new javax.swing.JLabel();
+        quadWidthSpinner = new javax.swing.JSpinner();
+        quadHeightSpinner = new javax.swing.JSpinner();
+        quadFlipCoordLabel = new javax.swing.JLabel();
+        quadFlipCoordCheckBox = new javax.swing.JCheckBox();
+        quadModeComboBox = new javax.swing.JComboBox();
+        jComboBox2 = new javax.swing.JComboBox();
+        linePanel = new javax.swing.JPanel();
+        lineNameTextField = new javax.swing.JTextField();
+        lineStartLabel = new javax.swing.JLabel();
+        lineStartTextField = new javax.swing.JTextField();
+        lineEndLabel = new javax.swing.JLabel();
+        lineEndTextField = new javax.swing.JTextField();
+        jComboBox1 = new javax.swing.JComboBox();
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jLabel5.text")); // NOI18N
-
-        jSpinner3.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(10), Integer.valueOf(1), null, Integer.valueOf(1)));
-
-        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings1, org.jdesktop.beansbinding.ELProperty.create("${sphereZSamples}"), jSpinner3, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${boxName}"), boxNameTextField, org.jdesktop.beansbinding.BeanProperty.create("text"));
         bindingGroup.addBinding(binding);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jLabel6.text")); // NOI18N
+        boxNameTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                boxNameTextFieldActionPerformed(evt);
+            }
+        });
 
-        org.openide.awt.Mnemonics.setLocalizedText(jCheckBox1, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jCheckBox1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(boxXLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.boxXLabel.text")); // NOI18N
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings1, org.jdesktop.beansbinding.ELProperty.create("${sphereUseEvenSlices}"), jCheckBox1, org.jdesktop.beansbinding.BeanProperty.create("selected"));
+        boxXSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(1.0f), null, null, Float.valueOf(0.5f)));
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${boxX}"), boxXSpinner, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
 
-        jSpinner4.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(1.0f), Float.valueOf(0.0f), null, Float.valueOf(0.1f)));
+        org.openide.awt.Mnemonics.setLocalizedText(boxYLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.boxYLabel.text")); // NOI18N
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings1, org.jdesktop.beansbinding.ELProperty.create("${sphereRadius}"), jSpinner4, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        boxYSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(1.0f), Float.valueOf(0.0f), null, Float.valueOf(0.5f)));
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${boxY}"), boxYSpinner, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jCheckBox2, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jCheckBox2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(boxZLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.boxZLabel.text")); // NOI18N
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings1, org.jdesktop.beansbinding.ELProperty.create("${sphereInterior}"), jCheckBox2, org.jdesktop.beansbinding.BeanProperty.create("selected"));
+        boxZSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(1.0f), Float.valueOf(0.0f), null, Float.valueOf(0.5f)));
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${boxZ}"), boxZSpinner, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings1, org.jdesktop.beansbinding.ELProperty.create("${spherRadialSamples}"), jSpinner5, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${modes}");
+        org.jdesktop.swingbinding.JComboBoxBinding jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, eLProperty, boxModeComboBox);
+        bindingGroup.addBinding(jComboBoxBinding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${boxMode}"), boxModeComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
         bindingGroup.addBinding(binding);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel9, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jLabel9.text")); // NOI18N
+        boxModeComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                boxModeComboBoxActionPerformed(evt);
+            }
+        });
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel10, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jLabel10.text")); // NOI18N
+        javax.swing.GroupLayout boxPanelLayout = new javax.swing.GroupLayout(boxPanel);
+        boxPanel.setLayout(boxPanelLayout);
+        boxPanelLayout.setHorizontalGroup(
+            boxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(boxPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(boxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(boxPanelLayout.createSequentialGroup()
+                        .addComponent(boxXLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boxXSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)
+                        .addComponent(boxYLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boxYSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(28, 28, 28)
+                        .addComponent(boxZLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boxZSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(boxPanelLayout.createSequentialGroup()
+                        .addComponent(boxNameTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 426, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(boxModeComboBox, 0, 133, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        boxPanelLayout.setVerticalGroup(
+            boxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, boxPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(boxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(boxNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(boxModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(boxPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(boxXSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(boxXLabel)
+                    .addComponent(boxYLabel)
+                    .addComponent(boxYSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(boxZSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(boxZLabel))
+                .addContainerGap(197, Short.MAX_VALUE))
+        );
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel11, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jLabel11.text")); // NOI18N
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.boxPanel.TabConstraints.tabTitle"), boxPanel); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel12, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jLabel12.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(sphereZSamplesLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.sphereZSamplesLabel.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel13, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jLabel13.text")); // NOI18N
-
-        jLabel1.setBackground(getBackground());
-        jLabel1.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
-        jLabel1.setForeground(getForeground());
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jLabel1.text")); // NOI18N
-
-        jSpinner6.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(1.0f), Float.valueOf(0.0f), null, Float.valueOf(0.5f)));
-
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings1, org.jdesktop.beansbinding.ELProperty.create("${boxZ}"), jSpinner6, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${spherRadialSamples}"), sphereZSamplesSpinner, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
 
-        jLabel3.setFont(new java.awt.Font("Dialog", 1, 11)); // NOI18N
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jLabel3.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(sphereRadialSamplesLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.sphereRadialSamplesLabel.text")); // NOI18N
 
-        jSpinner1.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(1.0f), null, null, Float.valueOf(0.5f)));
+        sphereRadialSamplesSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(10), Integer.valueOf(1), null, Integer.valueOf(1)));
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings1, org.jdesktop.beansbinding.ELProperty.create("${boxX}"), jSpinner1, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${sphereZSamples}"), sphereRadialSamplesSpinner, org.jdesktop.beansbinding.BeanProperty.create("value"));
         bindingGroup.addBinding(binding);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.jLabel4.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(sphereUseEvenSlicesLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.sphereUseEvenSlicesLabel.text")); // NOI18N
 
-        jSpinner2.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(1.0f), Float.valueOf(0.0f), null, Float.valueOf(0.5f)));
+        org.openide.awt.Mnemonics.setLocalizedText(sphereUseEvenSlicesCheckBox, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.sphereUseEvenSlicesCheckBox.text")); // NOI18N
 
-        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings1, org.jdesktop.beansbinding.ELProperty.create("${boxY}"), jSpinner2, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${sphereUseEvenSlices}"), sphereUseEvenSlicesCheckBox, org.jdesktop.beansbinding.BeanProperty.create("selected"));
         bindingGroup.addBinding(binding);
+
+        org.openide.awt.Mnemonics.setLocalizedText(sphereInteriorCheckBox, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.sphereInteriorCheckBox.text")); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${sphereInterior}"), sphereInteriorCheckBox, org.jdesktop.beansbinding.BeanProperty.create("selected"));
+        bindingGroup.addBinding(binding);
+
+        org.openide.awt.Mnemonics.setLocalizedText(sphereInteriorLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.sphereInteriorLabel.text")); // NOI18N
+
+        sphereRadiusSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(1.0f), Float.valueOf(0.0f), null, Float.valueOf(0.1f)));
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${sphereRadius}"), sphereRadiusSpinner, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        bindingGroup.addBinding(binding);
+
+        org.openide.awt.Mnemonics.setLocalizedText(sphereRadiusLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.sphereRadiusLabel.text")); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${sphereName}"), sphereNameTextField, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        bindingGroup.addBinding(binding);
+
+        eLProperty = org.jdesktop.beansbinding.ELProperty.create("${modes}");
+        jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, eLProperty, sphereModeComboBox);
+        bindingGroup.addBinding(jComboBoxBinding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${sphereMode}"), sphereModeComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
+        bindingGroup.addBinding(binding);
+
+        javax.swing.GroupLayout spherePanelLayout = new javax.swing.GroupLayout(spherePanel);
+        spherePanel.setLayout(spherePanelLayout);
+        spherePanelLayout.setHorizontalGroup(
+            spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(spherePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(spherePanelLayout.createSequentialGroup()
+                        .addComponent(sphereNameTextField)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sphereModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(spherePanelLayout.createSequentialGroup()
+                        .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(sphereZSamplesLabel)
+                            .addGroup(spherePanelLayout.createSequentialGroup()
+                                .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(sphereRadialSamplesLabel)
+                                    .addComponent(sphereRadiusLabel))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(sphereRadiusSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(spherePanelLayout.createSequentialGroup()
+                                        .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                            .addGroup(spherePanelLayout.createSequentialGroup()
+                                                .addComponent(sphereRadialSamplesSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(sphereUseEvenSlicesLabel))
+                                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, spherePanelLayout.createSequentialGroup()
+                                                .addComponent(sphereZSamplesSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(144, 144, 144)
+                                                .addComponent(sphereInteriorLabel)))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(sphereInteriorCheckBox)
+                                            .addComponent(sphereUseEvenSlicesCheckBox))))))
+                        .addGap(0, 164, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        spherePanelLayout.setVerticalGroup(
+            spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(spherePanelLayout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(spherePanelLayout.createSequentialGroup()
+                        .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(sphereNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sphereModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(4, 4, 4)
+                        .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(sphereRadialSamplesLabel)
+                            .addComponent(sphereRadialSamplesSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sphereUseEvenSlicesLabel)))
+                    .addComponent(sphereUseEvenSlicesCheckBox))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sphereZSamplesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(sphereZSamplesSpinner, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sphereInteriorLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(sphereInteriorCheckBox, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(spherePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sphereRadiusSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sphereRadiusLabel))
+                .addContainerGap(147, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.spherePanel.TabConstraints.tabTitle"), spherePanel); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${quadName}"), quadNameTextField, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        bindingGroup.addBinding(binding);
+
+        org.openide.awt.Mnemonics.setLocalizedText(quadWidthLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.quadWidthLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(quadHeightLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.quadHeightLabel.text")); // NOI18N
+
+        quadWidthSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(0.0f), Float.valueOf(0.0f), null, Float.valueOf(0.5f)));
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${quadWidth}"), quadWidthSpinner, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        bindingGroup.addBinding(binding);
+
+        quadHeightSpinner.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(0.0f), Float.valueOf(0.0f), null, Float.valueOf(0.5f)));
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${quadHeight}"), quadHeightSpinner, org.jdesktop.beansbinding.BeanProperty.create("value"));
+        bindingGroup.addBinding(binding);
+
+        org.openide.awt.Mnemonics.setLocalizedText(quadFlipCoordLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.quadFlipCoordLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(quadFlipCoordCheckBox, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.quadFlipCoordCheckBox.text")); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${quadFlipCoords}"), quadFlipCoordCheckBox, org.jdesktop.beansbinding.BeanProperty.create("selected"));
+        bindingGroup.addBinding(binding);
+
+        eLProperty = org.jdesktop.beansbinding.ELProperty.create("${modes}");
+        jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, eLProperty, quadModeComboBox);
+        bindingGroup.addBinding(jComboBoxBinding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${quadMode}"), quadModeComboBox, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
+        bindingGroup.addBinding(binding);
+
+        eLProperty = org.jdesktop.beansbinding.ELProperty.create("${plans}");
+        jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, eLProperty, jComboBox2);
+        bindingGroup.addBinding(jComboBoxBinding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${quadPlan}"), jComboBox2, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
+        bindingGroup.addBinding(binding);
+
+        javax.swing.GroupLayout quadPanelLayout = new javax.swing.GroupLayout(quadPanel);
+        quadPanel.setLayout(quadPanelLayout);
+        quadPanelLayout.setHorizontalGroup(
+            quadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(quadPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(quadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(quadPanelLayout.createSequentialGroup()
+                        .addComponent(quadNameTextField)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(quadModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(quadPanelLayout.createSequentialGroup()
+                        .addGroup(quadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(quadFlipCoordLabel)
+                            .addGroup(quadPanelLayout.createSequentialGroup()
+                                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(quadWidthLabel)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(quadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(quadFlipCoordCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(quadPanelLayout.createSequentialGroup()
+                                .addComponent(quadWidthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(quadHeightLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(quadHeightSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 176, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        quadPanelLayout.setVerticalGroup(
+            quadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(quadPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(quadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(quadNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(quadModeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(quadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(quadWidthLabel)
+                    .addComponent(quadWidthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(quadHeightLabel)
+                    .addComponent(quadHeightSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(quadPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(quadFlipCoordLabel)
+                    .addComponent(quadFlipCoordCheckBox))
+                .addContainerGap(166, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.quadPanel.TabConstraints.tabTitle"), quadPanel); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${lineName}"), lineNameTextField, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        bindingGroup.addBinding(binding);
+
+        org.openide.awt.Mnemonics.setLocalizedText(lineStartLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.lineStartLabel.text")); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${lineStart}"), lineStartTextField, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
+        binding.setConverter(converterVector3f_String);
+        bindingGroup.addBinding(binding);
+
+        org.openide.awt.Mnemonics.setLocalizedText(lineEndLabel, org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.lineEndLabel.text")); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${lineEnd}"), lineEndTextField, org.jdesktop.beansbinding.BeanProperty.create("text_ON_ACTION_OR_FOCUS_LOST"));
+        binding.setConverter(converterVector3f_String);
+        bindingGroup.addBinding(binding);
+
+        eLProperty = org.jdesktop.beansbinding.ELProperty.create("${modes}");
+        jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, eLProperty, jComboBox1);
+        bindingGroup.addBinding(jComboBoxBinding);
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, newGeometrySettings, org.jdesktop.beansbinding.ELProperty.create("${lineMode}"), jComboBox1, org.jdesktop.beansbinding.BeanProperty.create("selectedItem"));
+        bindingGroup.addBinding(binding);
+
+        javax.swing.GroupLayout linePanelLayout = new javax.swing.GroupLayout(linePanel);
+        linePanel.setLayout(linePanelLayout);
+        linePanelLayout.setHorizontalGroup(
+            linePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(linePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(linePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(linePanelLayout.createSequentialGroup()
+                        .addComponent(lineNameTextField)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(linePanelLayout.createSequentialGroup()
+                        .addComponent(lineStartLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lineStartTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(78, 78, 78)
+                        .addComponent(lineEndLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lineEndTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 169, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        linePanelLayout.setVerticalGroup(
+            linePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(linePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(linePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lineNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(1, 1, 1)
+                .addGroup(linePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lineStartLabel)
+                    .addComponent(lineStartTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lineEndLabel)
+                    .addComponent(lineEndTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(203, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(NewGeometrySettingsTopComponent.class, "NewGeometrySettingsTopComponent.linePanel.TabConstraints.tabTitle"), linePanel); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(jLabel1)
-                            .addGap(433, 433, 433))
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(12, 12, 12)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jLabel4)
-                                .addComponent(jLabel10)
-                                .addComponent(jLabel12))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jCheckBox1))
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jLabel9))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabel13, javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING))))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jSpinner5, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addComponent(jLabel6)
-                                        .addComponent(jLabel11))
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jSpinner4, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jSpinner6, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(jCheckBox2)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 193, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(412, 412, 412)))
-                .addGap(0, 196, Short.MAX_VALUE))
+            .addComponent(jTabbedPane1)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5)
-                    .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6)
-                    .addComponent(jSpinner6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel10)
-                    .addComponent(jLabel11)
-                    .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel9)
-                    .addComponent(jSpinner5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jSpinner4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel12)
-                    .addComponent(jCheckBox1)
-                    .addComponent(jLabel13)
-                    .addComponent(jCheckBox2))
-                .addContainerGap(299, Short.MAX_VALUE))
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING)
         );
 
         bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void boxNameTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxNameTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_boxNameTextFieldActionPerformed
+
+    private void boxModeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boxModeComboBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_boxModeComboBoxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox jCheckBox1;
-    private javax.swing.JCheckBox jCheckBox2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel9;
-    private javax.swing.JSpinner jSpinner1;
-    private javax.swing.JSpinner jSpinner2;
-    private javax.swing.JSpinner jSpinner3;
-    private javax.swing.JSpinner jSpinner4;
-    private javax.swing.JSpinner jSpinner5;
-    private javax.swing.JSpinner jSpinner6;
-    private com.jme3.gde.core.sceneexplorer.nodes.actions.impl.NewGeometrySettings newGeometrySettings1;
+    private javax.swing.JComboBox boxModeComboBox;
+    private javax.swing.JTextField boxNameTextField;
+    private javax.swing.JPanel boxPanel;
+    private javax.swing.JLabel boxXLabel;
+    private javax.swing.JSpinner boxXSpinner;
+    private javax.swing.JLabel boxYLabel;
+    private javax.swing.JSpinner boxYSpinner;
+    private javax.swing.JLabel boxZLabel;
+    private javax.swing.JSpinner boxZSpinner;
+    private com.jme3.gde.core.sceneexplorer.nodes.actions.impl.ConverterVector3f_String converterVector3f_String;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JComboBox jComboBox2;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JLabel lineEndLabel;
+    private javax.swing.JTextField lineEndTextField;
+    private javax.swing.JTextField lineNameTextField;
+    private javax.swing.JPanel linePanel;
+    private javax.swing.JLabel lineStartLabel;
+    private javax.swing.JTextField lineStartTextField;
+    private com.jme3.gde.core.sceneexplorer.nodes.actions.impl.NewGeometrySettings newGeometrySettings;
+    private javax.swing.JCheckBox quadFlipCoordCheckBox;
+    private javax.swing.JLabel quadFlipCoordLabel;
+    private javax.swing.JLabel quadHeightLabel;
+    private javax.swing.JSpinner quadHeightSpinner;
+    private javax.swing.JComboBox quadModeComboBox;
+    private javax.swing.JTextField quadNameTextField;
+    private javax.swing.JPanel quadPanel;
+    private javax.swing.JLabel quadWidthLabel;
+    private javax.swing.JSpinner quadWidthSpinner;
+    private javax.swing.JCheckBox sphereInteriorCheckBox;
+    private javax.swing.JLabel sphereInteriorLabel;
+    private javax.swing.JComboBox sphereModeComboBox;
+    private javax.swing.JTextField sphereNameTextField;
+    private javax.swing.JPanel spherePanel;
+    private javax.swing.JLabel sphereRadialSamplesLabel;
+    private javax.swing.JSpinner sphereRadialSamplesSpinner;
+    private javax.swing.JLabel sphereRadiusLabel;
+    private javax.swing.JSpinner sphereRadiusSpinner;
+    private javax.swing.JCheckBox sphereUseEvenSlicesCheckBox;
+    private javax.swing.JLabel sphereUseEvenSlicesLabel;
+    private javax.swing.JLabel sphereZSamplesLabel;
+    private javax.swing.JSpinner sphereZSamplesSpinner;
     private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
     @Override
-    public void componentOpened() {
-        // TODO add custom code on component opening
-        newGeometrySettings1.open();
+    public void componentOpened() { // TODO add custom code on component opening
+        newGeometrySettings.open();
     }
 
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
-        newGeometrySettings1.close();
+        newGeometrySettings.close();
     }
 
     void writeProperties(java.util.Properties p) {
@@ -297,4 +561,5 @@ public final class NewGeometrySettingsTopComponent extends TopComponent {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
     }
+    
 }

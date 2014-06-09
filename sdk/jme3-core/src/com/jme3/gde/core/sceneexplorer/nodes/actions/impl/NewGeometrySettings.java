@@ -31,9 +31,14 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.actions.impl;
 
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Mesh.Mode;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
@@ -46,6 +51,9 @@ import org.openide.util.NbPreferences;
 
 
 public class NewGeometrySettings implements Serializable, PreferenceChangeListener {
+    public static enum Plan {
+        XY, XZ, YZ
+    }
     
     private transient final PropertyChangeSupport propertySupport;
     private transient final Preferences pref;
@@ -54,11 +62,77 @@ public class NewGeometrySettings implements Serializable, PreferenceChangeListen
         propertySupport = new PropertyChangeSupport(this);
         pref = NbPreferences.forModule(NewGeometrySettings.class);
     }
-    
+
+    // -- Listeners management
+
     public void open() {
         pref.addPreferenceChangeListener(this);
     }
+
+    public void close() {
+        pref.removePreferenceChangeListener(this);
+    }
+
+    public void preferenceChange(PreferenceChangeEvent evt) {
+        propertySupport.firePropertyChange(evt.getKey(), null, evt.getNewValue());
+    }
     
+    public void addPropertyChangeListener(final PropertyChangeListener listener) {
+        propertySupport.addPropertyChangeListener(listener);
+    }
+    
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        propertySupport.removePropertyChangeListener(listener);
+    }
+
+    //-- Material info
+
+    public static final String PROP_MatRandom = "MatRandom";
+
+    public boolean getMatRandom() {
+        return pref.getBoolean(PROP_MatRandom, true);
+    }
+
+    public void setMatRandom(boolean value) {
+        pref.putBoolean(PROP_MatRandom, value);
+    }
+
+    public static final String PROP_MatColor = "MatColor";
+
+    public ColorRGBA getMatColor() {
+        ColorRGBA b = new ColorRGBA();
+        b.fromIntRGBA(pref.getInt(PROP_MatColor, ColorRGBA.Orange.asIntRGBA()));
+        return b;
+    }
+
+    public void setMatColor(ColorRGBA value) {
+        pref.putInt(PROP_MatColor, value.asIntRGBA());
+    }
+    
+
+
+    //-- Box
+
+    public static final String PROP_BoxName = "BoxName";
+
+    public String getBoxName() {
+        return pref.get(PROP_BoxName, "Box");
+    }
+
+    public void setBoxName(String value) {
+        pref.put(PROP_BoxName, value);
+    }
+
+    public static final String PROP_BoxMode = "BoxMode";
+
+    public Mode getBoxMode() {
+        return getMode(PROP_BoxMode);
+    }
+
+    public void setBoxMode(Mode value) {
+        putMode(PROP_BoxMode, value);
+    }
+
     public static final String PROP_BoxX = "BoxX";
 
     public float getBoxX() {
@@ -87,6 +161,28 @@ public class NewGeometrySettings implements Serializable, PreferenceChangeListen
 
     public void setBoxZ(float value) {
         pref.putFloat(PROP_BoxZ, value);
+    }
+
+    //-- Sphere
+    
+    public static final String PROP_SphereName = "SphereName";
+
+    public String getSphereName() {
+        return pref.get(PROP_SphereName, "Sphere");
+    }
+
+    public void setSphereName(String value) {
+        pref.put(PROP_SphereName, value);
+    }
+
+    public static final String PROP_SphereMode = "SphereMode";
+
+    public Mode getSphereMode() {
+        return getMode(PROP_SphereMode);
+    }
+
+    public void setSphereMode(Mode value) {
+        putMode(PROP_SphereMode, value);
     }
 
     public static final String PROP_SphereZSamples = "SphereZSamples";
@@ -139,23 +235,139 @@ public class NewGeometrySettings implements Serializable, PreferenceChangeListen
         pref.putBoolean(PROP_SphereInterior, value);
     }
 
+    //-- Line
+    public static final String PROP_LineName = "LineName";
 
-            
-    public void addPropertyChangeListener(final PropertyChangeListener listener) {
-        propertySupport.addPropertyChangeListener(listener);
+    public String getLineName() {
+        return pref.get(PROP_LineName, "Line");
+    }
+
+    public void setLineName(String value) {
+        pref.put(PROP_LineName, value);
+    }
+        
+    public static final String PROP_LineMode = "LineMode";
+
+    public Mode getLineMode() {
+        return getMode(PROP_LineMode);
+    }
+
+    public void setLineMode(Mode value) {
+        putMode(PROP_LineMode, value);
+    }
+
+    public static final String PROP_LineStart = "LineStart";
+
+    public Vector3f getLineStart() {
+        return getVector3f(PROP_LineStart, new Vector3f(0,0,0));
+    }
+
+    public void setLineStart(Vector3f value) {
+        putVector3f(PROP_LineStart, value);
+    }
+
+    public static final String PROP_LineEnd = "LineEnd";
+
+    public Vector3f getLineEnd() {
+        return getVector3f(PROP_LineEnd, new Vector3f(2f,0,2f));
+    }
+
+    public void setLineEnd(Vector3f value) {
+        putVector3f(PROP_LineEnd, value);
+    }
+
+    //-- Quad
+    public static final String PROP_QuadName = "QuadName";
+
+    public String getQuadName() {
+        return pref.get(PROP_QuadName, "Quad");
+    }
+
+    public void setQuadName(String value) {
+        pref.put(PROP_QuadName, value);
+    }
+
+    public static final String PROP_QuadMode = "QuadMode";
+
+    public Mode getQuadMode() {
+        return getMode(PROP_QuadMode);
+    }
+
+    public void setQuadMode(Mode value) {
+        putMode(PROP_QuadMode, value);
+    }
+
+    public static final String PROP_QuadWidth = "QuadWidth";
+
+    public float getQuadWidth() {
+        return pref.getFloat(PROP_QuadWidth, 1.0f);
+    }
+
+    public void setQuadWidth(float value) {
+        pref.putFloat(PROP_QuadWidth, value);
+    }
+
+    public static final String PROP_QuadHeight = "QuadHeight";
+
+    public float getQuadHeight() {
+        return pref.getFloat(PROP_QuadHeight, 1.0f);
+    }
+
+    public void setQuadHeight(float value) {
+        pref.putFloat(PROP_QuadHeight, value);
+    }
+
+    public static final String PROP_QuadFlipCoords = "QuadFlipCoords";
+
+    public boolean getQuadFlipCoords() {
+        return pref.getBoolean(PROP_QuadFlipCoords, false);
+    }
+
+    public void setQuadFlipCoords(boolean value) {
+        pref.putBoolean(PROP_QuadFlipCoords, value);
+    }
+
+    public static final String PROP_QuadPlan = "QuadPlan";
+
+    public Plan getQuadPlan() {
+        return Plan.values()[pref.getInt(PROP_QuadPlan, Plan.XZ.ordinal())];
+    }
+
+    public void setQuadPlan(Plan value) {
+        pref.putInt(PROP_QuadPlan, value.ordinal());
+    }
+
+    //-- Tools
+        
+    protected Vector3f getVector3f(String baseName, Vector3f def) {
+        return new Vector3f(
+            pref.getFloat(baseName + "X", def.x)
+            ,pref.getFloat(baseName + "Y", def.y)
+            ,pref.getFloat(baseName + "Z", def.z)
+        );
+        
+    }
+
+    protected void putVector3f(String baseName, Vector3f value) {
+        pref.putFloat(baseName + "X", value.x);
+        pref.putFloat(baseName + "Y", value.y);
+        pref.putFloat(baseName + "Z", value.z);
+    }
+
+    protected Mode getMode(String baseName) {
+        return Mode.values()[pref.getInt(baseName, Mode.Lines.ordinal())];
+    }
+
+    public void putMode(String baseName, Mode value) {
+        pref.putInt(baseName, value.ordinal());
     }
     
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-        propertySupport.removePropertyChangeListener(listener);
-    }
-
-    public void preferenceChange(PreferenceChangeEvent evt) {
-        propertySupport.firePropertyChange(evt.getKey(), null, evt.getNewValue());
-    }
-
-    public void close() {
-        pref.removePreferenceChangeListener(this);
+    public List<Mode> getModes() {
+        return Arrays.asList(Mode.values());
     }
     
+    public List<Plan> getPlans() {
+        return Arrays.asList(Plan.values());
+    }
     
 }

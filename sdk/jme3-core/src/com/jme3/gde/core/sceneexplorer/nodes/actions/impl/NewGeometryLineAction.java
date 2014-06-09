@@ -42,15 +42,15 @@ import com.jme3.scene.Spatial;
  * @author david.bernard.31
  */
 @org.openide.util.lookup.ServiceProvider(service = NewGeometryAction.class)
-public class NewGeometrySphereAction extends AbstractNewSpatialAction implements NewGeometryAction {
+public class NewGeometryLineAction extends AbstractNewSpatialAction implements NewGeometryAction {
 
-    public NewGeometrySphereAction() {
-        name = "Sphere";
+    public NewGeometryLineAction() {
+        name = "Line";
     }
 
     @Override
     protected Spatial doCreateSpatial(Node parent) {
-        Geometry geom = NewGeometry.sphere(pm);
+        Geometry geom = NewGeometry.line(pm);
         parent.attachChild(geom);
         return geom;
     }
