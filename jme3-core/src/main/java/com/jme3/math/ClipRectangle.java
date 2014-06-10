@@ -35,9 +35,7 @@ import com.jme3.export.*;
 
 import java.io.IOException;
 
-
 /**
- *
  * <code>ClipRectangle</code> defines a finite plane within two dimensional
  * pixel space that is specified via four values (x, y, w, h.) x and y define
  * the coordinates of the pixel representing the lower left corner of the
@@ -45,7 +43,6 @@ import java.io.IOException;
  *
  * @author Philip Spencer
  */
-
 public final class ClipRectangle implements Savable, Cloneable, java.io.Serializable {
 
     static final long serialVersionUID = 1;
@@ -178,15 +175,12 @@ public final class ClipRectangle implements Savable, Cloneable, java.io.Serializ
      * @return null if there is no intersection otherwise the resulting
      * <code>ClipRectangle</code>
      */
-    public ClipRectangle intersect(ClipRectangle cr)
-    {
+    public ClipRectangle intersect(ClipRectangle cr) {
         ClipRectangle destination = new ClipRectangle();
 
         if (ClipRectangle.intersect(this, cr, destination)) {
             return destination;
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
@@ -231,8 +225,7 @@ public final class ClipRectangle implements Savable, Cloneable, java.io.Serializ
      */
     public static boolean intersect(int x0, int y0, int w0, int h0,
                                     int x1, int y1, int w1, int h1,
-                                    ClipRectangle destination)
-    {
+                                    ClipRectangle destination) {
         int left = Math.max(x0, x1);
         int bottom = Math.max(y0, y1);
         int right = Math.min(x0 + w0, x1 + w1);
