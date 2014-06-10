@@ -821,6 +821,9 @@ public class LwjglRenderer implements Renderer {
             context.clipRectEnabled = true;
             if (!context.renderStateClipRectEnabled) {
                 glEnable(GL_SCISSOR_TEST);
+            } else {
+                context.renderStateClipRectEnabled = false;
+                renderStateClipRect.set(0, 0, 0, 0);
             }
         }
         rendererClipRect.set(x, y, width, height);
@@ -835,10 +838,12 @@ public class LwjglRenderer implements Renderer {
         if (context.clipRectEnabled) {
             context.clipRectEnabled = false;
             if (context.renderStateClipRectEnabled) {
+                context.renderStateClipRectEnabled = false;
                 glDisable(GL_SCISSOR_TEST);
             }
         }
         rendererClipRect.set(0, 0, 0, 0);
+        renderStateClipRect.set(0, 0, 0, 0);
         currentClipRect.set(0, 0, 0, 0);
     }
 
@@ -1580,7 +1585,7 @@ public class LwjglRenderer implements Renderer {
             throw new RendererException("Framebuffer objects are not supported" +
                                         " by the video hardware");
         }
-        
+
         if (fb == null && mainFbOverride != null) {
             fb = mainFbOverride;
         }
@@ -1759,10 +1764,10 @@ public class LwjglRenderer implements Renderer {
     \*********************************************************************/
     private int convertTextureType(Texture.Type type, int samples, int face) {
         if (samples > 1 && !ctxCaps.GL_ARB_texture_multisample) {
-            throw new RendererException("Multisample textures are not supported" + 
+            throw new RendererException("Multisample textures are not supported" +
                                         " by the video hardware.");
         }
-        
+
         switch (type) {
             case TwoDimensional:
                 if (samples > 1) {
@@ -2649,7 +2654,7 @@ public class LwjglRenderer implements Renderer {
                         + "is not sRGB capable. Enabling anyway.");
             }
 
-            
+
 
             glEnable(GL_FRAMEBUFFER_SRGB_EXT);
 
