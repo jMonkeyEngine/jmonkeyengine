@@ -48,6 +48,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
+
 import org.lwjgl.opengl.ContextCapabilities;
 
 public class LwjglGL1Renderer implements GL1Renderer {
@@ -70,7 +71,10 @@ public class LwjglGL1Renderer implements GL1Renderer {
     private boolean gl12 = false;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
-    private int clipX, clipY, clipW, clipH;
+    private ClipRectangle currentClipRect = new ClipRectangle();
+    private ClipRectangle rendererClipRect = new ClipRectangle();
+    private ClipRectangle renderStateClipRect = new ClipRectangle();
+    private ClipRectangle intersectionClipRect = new ClipRectangle();
 
     private Matrix4f worldMatrix = new Matrix4f();
     private Matrix4f viewMatrix = new Matrix4f();
@@ -78,7 +82,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
     private ArrayList<Light> lightList = new ArrayList<Light>(8);
     private ColorRGBA materialAmbientColor = new ColorRGBA();
     private Vector3f tempVec = new Vector3f();
-    
+
     private ContextCapabilities ctxCaps;
 
     protected void updateNameBuffer() {
@@ -103,7 +107,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
     public void initialize() {
         ctxCaps = GLContext.getCapabilities();
-        
+
         if (ctxCaps.OpenGL12){
             gl12 = true;
         }
@@ -412,29 +416,62 @@ public class LwjglGL1Renderer implements GL1Renderer {
             throw new UnsupportedOperationException("OpenGL 1.1 doesn't support two sided stencil operations.");
         }
 
-//        if (state.isClipTest()) {
-//            if (!context.clipRectEnabled) {
-//                glEnable(GL_SCISSOR_TEST);
-//                glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
-//            } else {
-//                int rsClipX = state.getClipX();
-//                int rsClipY = state.getClipY();
-//                int rsClipW = state.getClipW();
-//                int rsClipH = state.getClipH();
-//                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
-//                if (i == null) {
-//                    glScissor(0, 0, 0, 0);
-//                } else {
-//                    glScissor(i.getX(), i.getY(), i.getW(), i.getH());
-//                }
-//            }
-//        } else {
-//            if (context.clipRectEnabled) {
-//                glScissor(clipX, clipY, clipW, clipH);
-//            } else {
-//                glDisable(GL_SCISSOR_TEST);
-//            }
-//        }
+        if (state.isClipTest()) {
+            renderStateClipRect.set(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
+            if (context.clipRectEnabled) {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                }
+                if (ClipRectangle.intersect(rendererClipRect, renderStateClipRect, intersectionClipRect)) {
+                    if (!currentClipRect.equals(intersectionClipRect)) {
+                        int iClipX = intersectionClipRect.getX();
+                        int iClipY = intersectionClipRect.getY();
+                        int iClipW = intersectionClipRect.getW();
+                        int iClipH = intersectionClipRect.getH();
+                        currentClipRect.set(iClipX, iClipY, iClipW, iClipH);
+                        glScissor(iClipX, iClipY, iClipW, iClipH);
+                    }
+                } else {
+                    if (currentClipRect.getX() != 0 || currentClipRect.getY() != 0 ||
+                        currentClipRect.getW() != 0 || currentClipRect.getH() != 0) {
+                        currentClipRect.set(0, 0, 0, 0);
+                        glScissor(0, 0, 0, 0);
+                    }
+                }
+            } else {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                    glEnable(GL_SCISSOR_TEST);
+                }
+                if (!currentClipRect.equals(renderStateClipRect)) {
+                    int rsClipX = renderStateClipRect.getX();
+                    int rsClipY = renderStateClipRect.getY();
+                    int rsClipW = renderStateClipRect.getW();
+                    int rsClipH = renderStateClipRect.getH();
+                    currentClipRect.set(rsClipX, rsClipY, rsClipW, rsClipH);
+                    glScissor(rsClipX, rsClipY, rsClipW, rsClipH);
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                }
+                if (!currentClipRect.equals(rendererClipRect)) {
+                    int rClipX = rendererClipRect.getX();
+                    int rClipY = rendererClipRect.getY();
+                    int rClipW = rendererClipRect.getW();
+                    int rClipH = rendererClipRect.getH();
+                    currentClipRect.set(rClipX, rClipY, rClipW, rClipH);
+                    glScissor(rClipX, rClipY, rClipW, rClipH);
+                }
+            } else {
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                    glDisable(GL_SCISSOR_TEST);
+                }
+            }
+        }
     }
 
     public void setViewPort(int x, int y, int w, int h) {
@@ -448,29 +485,25 @@ public class LwjglGL1Renderer implements GL1Renderer {
     }
 
     public void setClipRect(int x, int y, int width, int height) {
-        if (!context.clipRectEnabled) {
+        if (!context.clipRectEnabled && !context.renderStateClipRectEnabled) {
             glEnable(GL_SCISSOR_TEST);
-            context.clipRectEnabled = true;
         }
-        if (clipX != x || clipY != y || clipW != width || clipH != height) {
+        context.clipRectEnabled = true;
+        context.renderStateClipRectEnabled = false;
+        rendererClipRect.set(x, y, width, height);
+        if (currentClipRect.getX() != x || currentClipRect.getY() != y ||
+            currentClipRect.getW() != width || currentClipRect.getH() != height) {
+            currentClipRect.set(x, y, width, height);
             glScissor(x, y, width, height);
-            clipX = x;
-            clipY = y;
-            clipW = width;
-            clipH = height;
         }
     }
 
     public void clearClipRect() {
-        if (context.clipRectEnabled) {
+        if (context.clipRectEnabled || context.renderStateClipRectEnabled) {
             glDisable(GL_SCISSOR_TEST);
-            context.clipRectEnabled = false;
-
-            clipX = 0;
-            clipY = 0;
-            clipW = 0;
-            clipH = 0;
         }
+        context.clipRectEnabled = false;
+        context.renderStateClipRectEnabled = false;
     }
 
     public void onFrame() {

@@ -75,7 +75,10 @@ public class IGLESShaderRenderer implements Renderer {
     private Shader boundShader;
 
     private int vpX, vpY, vpW, vpH;
-    private int clipX, clipY, clipW, clipH;
+    private ClipRectangle currentClipRect = new ClipRectangle();
+    private ClipRectangle rendererClipRect = new ClipRectangle();
+    private ClipRectangle renderStateClipRect = new ClipRectangle();
+    private ClipRectangle intersectionClipRect = new ClipRectangle();
 
     public IGLESShaderRenderer() {
         logger.log(Level.FINE, "IGLESShaderRenderer Constructor");
@@ -306,29 +309,67 @@ public class IGLESShaderRenderer implements Renderer {
             context.blendMode = state.getBlendMode();
         }
 
-//        if (state.isClipTest()) {
-//            if (!context.clipRectEnabled) {
-//                JmeIosGLES.glEnable(JmeIosGLES.GL_SCISSOR_TEST);
-//                JmeIosGLES.glScissor(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
-//            } else {
-//                int rsClipX = state.getClipX();
-//                int rsClipY = state.getClipY();
-//                int rsClipW = state.getClipW();
-//                int rsClipH = state.getClipH();
-//                ClipRectangle i = ClipRectangle.intersect(clipX, clipY, clipW, clipH, rsClipX, rsClipY, rsClipW, rsClipH);
-//                if (i == null) {
-//                    JmeIosGLES.glScissor(0, 0, 0, 0);
-//                } else {
-//                    JmeIosGLES.glScissor(i.getX(), i.getY(), i.getW(), i.getH());
-//                }
-//            }
-//        } else {
-//            if (context.clipRectEnabled) {
-//                JmeIosGLES.glScissor(clipX, clipY, clipW, clipH);
-//            } else {
-//                JmeIosGLES.glDisable(JmeIosGLES.GL_SCISSOR_TEST);
-//            }
-//        }
+        if (state.isClipTest()) {
+            renderStateClipRect.set(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
+            if (context.clipRectEnabled) {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                }
+                if (ClipRectangle.intersect(rendererClipRect, renderStateClipRect, intersectionClipRect)) {
+                    if (!currentClipRect.equals(intersectionClipRect)) {
+                        int iClipX = intersectionClipRect.getX();
+                        int iClipY = intersectionClipRect.getY();
+                        int iClipW = intersectionClipRect.getW();
+                        int iClipH = intersectionClipRect.getH();
+                        currentClipRect.set(iClipX, iClipY, iClipW, iClipH);
+                        JmeIosGLES.glScissor(iClipX, iClipY, iClipW, iClipH);
+                        JmeIosGLES.checkGLError();
+                    }
+                } else {
+                    if (currentClipRect.getX() != 0 || currentClipRect.getY() != 0 ||
+                        currentClipRect.getW() != 0 || currentClipRect.getH() != 0) {
+                        currentClipRect.set(0, 0, 0, 0);
+                        JmeIosGLES.glScissor(0, 0, 0, 0);
+                        JmeIosGLES.checkGLError();
+                    }
+                }
+            } else {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                    JmeIosGLES.glEnable(JmeIosGLES.GL_SCISSOR_TEST);
+                }
+                if (!currentClipRect.equals(renderStateClipRect)) {
+                    int rsClipX = renderStateClipRect.getX();
+                    int rsClipY = renderStateClipRect.getY();
+                    int rsClipW = renderStateClipRect.getW();
+                    int rsClipH = renderStateClipRect.getH();
+                    currentClipRect.set(rsClipX, rsClipY, rsClipW, rsClipH);
+                    JmeIosGLES.glScissor(rsClipX, rsClipY, rsClipW, rsClipH);
+                    JmeIosGLES.checkGLError();
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                }
+                if (!currentClipRect.equals(rendererClipRect)) {
+                    int rClipX = rendererClipRect.getX();
+                    int rClipY = rendererClipRect.getY();
+                    int rClipW = rendererClipRect.getW();
+                    int rClipH = rendererClipRect.getH();
+                    currentClipRect.set(rClipX, rClipY, rClipW, rClipH);
+                    JmeIosGLES.glScissor(rClipX, rClipY, rClipW, rClipH);
+                    JmeIosGLES.checkGLError();
+                }
+            } else {
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                    JmeIosGLES.glDisable(JmeIosGLES.GL_SCISSOR_TEST);
+                    JmeIosGLES.checkGLError();
+                }
+            }
+        }
     }
 
     /**
@@ -397,49 +438,31 @@ public class IGLESShaderRenderer implements Renderer {
         }
     }
 
-    /**
-     * Specifies a clipping rectangle.
-     * For all future rendering commands, no pixels will be allowed
-     * to be rendered outside of the clip rectangle.
-     *
-     * @param x The x coordinate of the clip rect
-     * @param y The y coordinate of the clip rect
-     * @param width Width of the clip rect
-     * @param height Height of the clip rect
-     */
     public void setClipRect(int x, int y, int width, int height) {
         logger.log(Level.FINE, "IGLESShaderRenderer setClipRect");
-        if (!context.clipRectEnabled) {
+        if (!context.clipRectEnabled && !context.renderStateClipRectEnabled) {
             JmeIosGLES.glEnable(JmeIosGLES.GL_SCISSOR_TEST);
             JmeIosGLES.checkGLError();
-            context.clipRectEnabled = true;
         }
-        if (clipX != x || clipY != y || clipW != width || clipH != height) {
+        context.clipRectEnabled = true;
+        context.renderStateClipRectEnabled = false;
+        rendererClipRect.set(x, y, width, height);
+        if (currentClipRect.getX() != x || currentClipRect.getY() != y ||
+            currentClipRect.getW() != width || currentClipRect.getH() != height) {
+            currentClipRect.set(x, y, width, height);
             JmeIosGLES.glScissor(x, y, width, height);
             JmeIosGLES.checkGLError();
-            clipX = x;
-            clipY = y;
-            clipW = width;
-            clipH = height;
         }
     }
 
-    /**
-     * Clears the clipping rectangle set with
-     * {@link #setClipRect(int, int, int, int) }.
-     */
     public void clearClipRect() {
         logger.log(Level.FINE, "IGLESShaderRenderer clearClipRect");
-        if (context.clipRectEnabled) {
+        if (context.clipRectEnabled || context.renderStateClipRectEnabled) {
             JmeIosGLES.glDisable(JmeIosGLES.GL_SCISSOR_TEST);
             JmeIosGLES.checkGLError();
-            context.clipRectEnabled = false;
-
-            clipX = 0;
-            clipY = 0;
-            clipW = 0;
-            clipH = 0;
         }
+        context.clipRectEnabled = false;
+        context.renderStateClipRectEnabled = false;
     }
 
     /**
