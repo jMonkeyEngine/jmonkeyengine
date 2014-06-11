@@ -55,19 +55,6 @@ public class NewGeometryQuadAction extends AbstractNewSpatialAction implements N
 
     @Override
     protected Spatial doCreateSpatial(Node parent) {
-        Geometry geom = quad(pm);
-        parent.attachChild(geom);
-        return geom;
-    }
-    
-    static Material material(AssetManager assetManaget, NewGeometrySettings cfg) {
-        Material mat = new Material(assetManaget, "Common/MatDefs/Misc/Unshaded.j3md");
-        ColorRGBA  c = cfg.getMatRandom() ?ColorRGBA.randomColor() : cfg.getMatColor();
-        mat.setColor("Color", c);
-        return mat;
-    }
-
-    static Geometry quad(AssetManager assetManager) {
         NewGeometrySettings cfg = new NewGeometrySettings();
         Quad b = new Quad(cfg.getQuadWidth(), cfg.getQuadHeight(), cfg.getQuadFlipCoords());
         b.setMode(cfg.getQuadMode());
@@ -86,7 +73,11 @@ public class NewGeometryQuadAction extends AbstractNewSpatialAction implements N
                 break;
             }
         }
-        geom.setMaterial(material(assetManager, cfg));        
+        Material mat = new Material(pm, "Common/MatDefs/Misc/Unshaded.j3md");
+        ColorRGBA  c = cfg.getMatRandom() ?ColorRGBA.randomColor() : cfg.getMatColor();
+        mat.setColor("Color", c);
+        geom.setMaterial(mat);    
+        parent.attachChild(geom);
         return geom;
-    }    
+    }
 }

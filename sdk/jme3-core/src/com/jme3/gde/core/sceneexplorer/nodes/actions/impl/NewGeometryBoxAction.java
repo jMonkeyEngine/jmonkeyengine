@@ -54,24 +54,15 @@ public class NewGeometryBoxAction extends AbstractNewSpatialAction implements Ne
 
     @Override
     protected Spatial doCreateSpatial(Node parent) {
-        Geometry geom = box(pm);
-        parent.attachChild(geom);
-        return geom;
-    }
-    
-    static Material material(AssetManager assetManaget, NewGeometrySettings cfg) {
-        Material mat = new Material(assetManaget, "Common/MatDefs/Misc/Unshaded.j3md");
-        ColorRGBA  c = cfg.getMatRandom() ?ColorRGBA.randomColor() : cfg.getMatColor();
-        mat.setColor("Color", c);
-        return mat;
-    }
-        
-    static Geometry box(AssetManager assetManager) {
         NewGeometrySettings cfg = new NewGeometrySettings();
         Box b = new Box(cfg.getBoxX(), cfg.getBoxY(), cfg.getBoxZ());
         b.setMode(cfg.getBoxMode());
         Geometry geom = new Geometry(cfg.getBoxName(), b);
-        geom.setMaterial(material(assetManager, cfg));
+        Material mat = new Material(pm, "Common/MatDefs/Misc/Unshaded.j3md");
+        ColorRGBA  c = cfg.getMatRandom() ?ColorRGBA.randomColor() : cfg.getMatColor();
+        mat.setColor("Color", c);
+        geom.setMaterial(mat);
+        parent.attachChild(geom);
         return geom;
     }
 }

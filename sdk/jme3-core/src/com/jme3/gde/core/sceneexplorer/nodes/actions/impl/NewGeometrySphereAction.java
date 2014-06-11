@@ -54,19 +54,6 @@ public class NewGeometrySphereAction extends AbstractNewSpatialAction implements
 
     @Override
     protected Spatial doCreateSpatial(Node parent) {
-        Geometry geom = sphere(pm);
-        parent.attachChild(geom);
-        return geom;
-    }
-    
-    static Material material(AssetManager assetManaget, NewGeometrySettings cfg) {
-        Material mat = new Material(assetManaget, "Common/MatDefs/Misc/Unshaded.j3md");
-        ColorRGBA  c = cfg.getMatRandom() ?ColorRGBA.randomColor() : cfg.getMatColor();
-        mat.setColor("Color", c);
-        return mat;
-    }
-    
-    static Geometry sphere(AssetManager assetManager) {
         NewGeometrySettings cfg = new NewGeometrySettings();
         Sphere b = new Sphere(
             cfg.getSphereZSamples()
@@ -77,8 +64,11 @@ public class NewGeometrySphereAction extends AbstractNewSpatialAction implements
         );
         b.setMode(cfg.getSphereMode());
         Geometry geom = new Geometry(cfg.getSphereName(), b);
-        geom.setMaterial(material(assetManager, cfg));        
+        Material mat = new Material(pm, "Common/MatDefs/Misc/Unshaded.j3md");
+        ColorRGBA  c = cfg.getMatRandom() ?ColorRGBA.randomColor() : cfg.getMatColor();
+        mat.setColor("Color", c);
+        geom.setMaterial(mat);        
+        parent.attachChild(geom);
         return geom;
     }
-
 }
