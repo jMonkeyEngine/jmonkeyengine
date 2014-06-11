@@ -17,7 +17,7 @@
         </pathconvert>
         <property name="disabled.modules" value=""/>
         <pathconvert property="module.includes" pathsep="">
-            <mapper type="glob" from="${basedir}${file.separator}*" to="(?!\Q*\E)"/>
+            <mapper type="glob" from="${basedir}${file.separator}*" to="(?!^\Q*\E$)"/>
             <path>
                 <filelist files="${disabled.modules}" dir="."/>
             </path>
