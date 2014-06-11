@@ -43,7 +43,6 @@
 /sdk/jme3-core-libraries/build/
 /sdk/jme3-code-check/build/
 /sdk/jme3-core-baselibs/build/
-/sdk/jme3-core-baselibs/nbproject/private/
 /sdk/jme3-documentation/build/
 /sdk/jme3-core-updatecenters/build/
 /sdk/jme3-project-testdata/build/
@@ -77,6 +76,7 @@
 /sdk/nbproject/private/
 /sdk/jme3-scenecomposer/nbproject/private/
 /sdk/jme3-core/nbproject/private/
+/sdk/jme3-core-baselibs/nbproject/private/
 /sdk/jme3-welcome-screen/nbproject/private/
 /sdk/jme3-lwjgl-applet/nbproject/private/
 /sdk/jme3-ogrexml/nbproject/private/
