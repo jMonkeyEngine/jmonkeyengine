@@ -54,23 +54,22 @@
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
-                              <Component id="boxXLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="boxXSpinner" min="-2" pref="62" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
-                              <Component id="boxYLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="boxYSpinner" min="-2" pref="62" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="28" max="-2" attributes="0"/>
                               <Component id="boxZLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="boxZSpinner" min="-2" pref="62" max="-2" attributes="0"/>
+                              <Component id="boxZSpinner" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
-                              <Component id="boxNameTextField" pref="426" max="32767" attributes="0"/>
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
-                              <Component id="boxModeComboBox" pref="133" max="32767" attributes="0"/>
+                              <Component id="boxYLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="boxYSpinner" max="32767" attributes="0"/>
                           </Group>
+                          <Group type="102" attributes="0">
+                              <Component id="boxXLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="boxXSpinner" max="32767" attributes="0"/>
+                          </Group>
+                          <Component id="boxModeComboBox" alignment="0" pref="224" max="32767" attributes="0"/>
+                          <Component id="boxNameTextField" alignment="1" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -80,20 +79,25 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="2" attributes="0">
-                          <Component id="boxNameTextField" alignment="2" min="-2" max="-2" attributes="0"/>
-                          <Component id="boxModeComboBox" alignment="2" min="-2" max="-2" attributes="0"/>
+                      <Component id="boxNameTextField" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="boxModeComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="boxXLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="boxXSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="boxXSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="boxXLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="boxYLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="boxYSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="boxZSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="boxZLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="197" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="boxZLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="boxZSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace pref="233" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -185,48 +189,32 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="sphereNameTextField" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="sphereModeComboBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
+                          <Component id="sphereNameTextField" max="32767" attributes="0"/>
+                          <Component id="sphereRadiusLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="sphereModeComboBox" alignment="0" max="32767" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="sphereZSamplesLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="sphereRadialSamplesLabel" min="-2" max="-2" attributes="0"/>
+                                  <Component id="sphereZSamplesLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="sphereUseEvenSlicesLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="sphereInteriorLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="sphereZSamplesSpinner" pref="111" max="32767" attributes="0"/>
+                                  <Component id="sphereRadialSamplesSpinner" max="32767" attributes="0"/>
+                                  <Component id="sphereRadiusSpinner" alignment="0" max="32767" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="sphereRadialSamplesLabel" min="-2" max="-2" attributes="0"/>
-                                          <Component id="sphereRadiusLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="sphereInteriorCheckBox" min="-2" max="-2" attributes="0"/>
+                                          <Component id="sphereUseEvenSlicesCheckBox" min="-2" max="-2" attributes="0"/>
                                       </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="sphereRadiusSpinner" alignment="0" min="-2" pref="62" max="-2" attributes="0"/>
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                                  <Group type="102" attributes="0">
-                                                      <Component id="sphereRadialSamplesSpinner" min="-2" pref="62" max="-2" attributes="0"/>
-                                                      <EmptySpace max="32767" attributes="0"/>
-                                                      <Component id="sphereUseEvenSlicesLabel" min="-2" max="-2" attributes="0"/>
-                                                  </Group>
-                                                  <Group type="102" alignment="0" attributes="0">
-                                                      <Component id="sphereZSamplesSpinner" min="-2" pref="62" max="-2" attributes="0"/>
-                                                      <EmptySpace min="-2" pref="144" max="-2" attributes="0"/>
-                                                      <Component id="sphereInteriorLabel" min="-2" max="-2" attributes="0"/>
-                                                  </Group>
-                                              </Group>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Component id="sphereInteriorCheckBox" min="-2" max="-2" attributes="0"/>
-                                                  <Component id="sphereUseEvenSlicesCheckBox" min="-2" max="-2" attributes="0"/>
-                                              </Group>
-                                          </Group>
-                                      </Group>
+                                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
-                              <EmptySpace min="0" pref="164" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -236,35 +224,36 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="sphereNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="sphereModeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="sphereRadialSamplesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="sphereRadialSamplesSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="sphereUseEvenSlicesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="sphereNameTextField" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
+                      <Component id="sphereModeComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="sphereRadialSamplesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="sphereRadialSamplesSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="sphereZSamplesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="sphereZSamplesSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="sphereRadiusLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="sphereRadiusSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="sphereUseEvenSlicesLabel" min="-2" max="-2" attributes="0"/>
                           <Component id="sphereUseEvenSlicesCheckBox" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="sphereZSamplesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="sphereZSamplesSpinner" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="sphereInteriorLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="sphereInteriorCheckBox" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="sphereInteriorLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="sphereInteriorCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="sphereRadiusSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="sphereRadiusLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace pref="147" max="32767" attributes="0"/>
+                      <EmptySpace pref="184" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -382,32 +371,25 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="quadNameTextField" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="quadModeComboBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="quadModeComboBox" alignment="1" max="32767" attributes="0"/>
+                          <Component id="quadNameTextField" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jComboBox2" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="quadFlipCoordLabel" min="-2" max="-2" attributes="0"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jComboBox2" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="quadWidthLabel" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
+                              <Component id="quadFlipCoordLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
+                              <Component id="quadFlipCoordCheckBox" min="-2" pref="101" max="-2" attributes="0"/>
+                              <EmptySpace min="0" pref="39" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="quadFlipCoordCheckBox" alignment="0" min="-2" pref="101" max="-2" attributes="0"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="quadWidthSpinner" min="-2" pref="101" max="-2" attributes="0"/>
-                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                      <Component id="quadHeightLabel" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="quadHeightSpinner" min="-2" pref="101" max="-2" attributes="0"/>
-                                  </Group>
+                                  <Component id="quadWidthLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="quadHeightLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace min="0" pref="176" max="32767" attributes="0"/>
+                              <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="quadHeightSpinner" max="32767" attributes="0"/>
+                                  <Component id="quadWidthSpinner" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -418,24 +400,27 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="quadNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="quadModeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="quadNameTextField" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                      <Component id="quadModeComboBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jComboBox2" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="quadWidthLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="quadWidthSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="quadHeightLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="quadHeightSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jComboBox2" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="quadFlipCoordLabel" min="-2" max="-2" attributes="0"/>
                           <Component id="quadFlipCoordCheckBox" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="166" max="32767" attributes="0"/>
+                      <EmptySpace pref="201" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -527,23 +512,20 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Component id="lineNameTextField" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="lineNameTextField" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jComboBox1" min="-2" max="-2" attributes="0"/>
+                              <Component id="lineEndLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Component id="lineEndTextField" max="32767" attributes="0"/>
                           </Group>
+                          <Component id="jComboBox1" alignment="0" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="lineStartLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="lineStartTextField" min="-2" pref="109" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="78" max="-2" attributes="0"/>
-                              <Component id="lineEndLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="lineEndTextField" min="-2" pref="123" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="169" max="32767" attributes="0"/>
+                              <Component id="lineStartTextField" pref="177" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -554,18 +536,20 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="lineNameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jComboBox1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" pref="1" max="-2" attributes="0"/>
+                      <Component id="lineNameTextField" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+                      <Component id="jComboBox1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="lineStartLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="lineStartTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="lineEndLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="lineEndTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="203" max="32767" attributes="0"/>
+                      <EmptySpace pref="259" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

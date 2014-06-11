@@ -31,11 +31,16 @@
  */
 package com.jme3.gde.core.sceneexplorer.nodes.actions.impl;
 
+import com.jme3.asset.AssetManager;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.AbstractNewSpatialAction;
 import com.jme3.gde.core.sceneexplorer.nodes.actions.NewGeometryAction;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Quaternion;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Quad;
 
 /**
  *
@@ -50,8 +55,38 @@ public class NewGeometryQuadAction extends AbstractNewSpatialAction implements N
 
     @Override
     protected Spatial doCreateSpatial(Node parent) {
-        Geometry geom = NewGeometry.quad(pm);
+        Geometry geom = quad(pm);
         parent.attachChild(geom);
         return geom;
     }
+    
+    static Material material(AssetManager assetManaget, NewGeometrySettings cfg) {
+        Material mat = new Material(assetManaget, "Common/MatDefs/Misc/Unshaded.j3md");
+        ColorRGBA  c = cfg.getMatRandom() ?ColorRGBA.randomColor() : cfg.getMatColor();
+        mat.setColor("Color", c);
+        return mat;
+    }
+
+    static Geometry quad(AssetManager assetManager) {
+        NewGeometrySettings cfg = new NewGeometrySettings();
+        Quad b = new Quad(cfg.getQuadWidth(), cfg.getQuadHeight(), cfg.getQuadFlipCoords());
+        b.setMode(cfg.getQuadMode());
+        Geometry geom = new Geometry(cfg.getQuadName(), b);
+        switch(cfg.getQuadPlan()) {
+            case XZ: {
+                Quaternion q = new Quaternion();
+                q.fromAngles((float)Math.PI/-2f, 0.0f, 0.0f);
+                geom.setLocalRotation(q);
+                break;
+            }
+            case YZ: {
+                Quaternion q = new Quaternion();
+                q.fromAngles(0.0f, (float)Math.PI/-2f, 0.0f);
+                geom.setLocalRotation(q);
+                break;
+            }
+        }
+        geom.setMaterial(material(assetManager, cfg));        
+        return geom;
+    }    
 }

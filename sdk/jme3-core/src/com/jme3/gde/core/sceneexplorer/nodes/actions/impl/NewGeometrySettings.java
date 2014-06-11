@@ -355,7 +355,7 @@ public class NewGeometrySettings implements Serializable, PreferenceChangeListen
     }
 
     protected Mode getMode(String baseName) {
-        return Mode.values()[pref.getInt(baseName, Mode.Lines.ordinal())];
+        return Mode.values()[pref.getInt(baseName, Mode.Triangles.ordinal())];
     }
 
     public void putMode(String baseName, Mode value) {
