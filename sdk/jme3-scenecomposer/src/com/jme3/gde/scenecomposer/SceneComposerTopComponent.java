@@ -864,6 +864,7 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
             sceneInfoLabel2.setToolTipText("");
             close();
         } else {
+            result.addLookupListener(this);
             showSelectionToggleButton.setSelected(true);
             showGridToggleButton.setSelected(false);
             //TODO: threading
@@ -881,7 +882,6 @@ private void jToggleSelectGeomActionPerformed(java.awt.event.ActionEvent evt) {/
     public void openScene(Spatial spat, AssetDataObject file, ProjectAssetManager manager) {
         cleanupControllers();
         SceneApplication.getApplication().addSceneListener(this);
-        result.addLookupListener(this);
         Node node;
         if (spat instanceof Node) {
             node = (Node) spat;
