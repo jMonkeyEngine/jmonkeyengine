@@ -97,3 +97,7 @@
 /sdk/jme3-documentation/nbproject/private/
 /sdk/jme3-vehicle-creator/nbproject/private/
 /sdk/jme3-code-check/nbproject/private/
+/bin
+/.classpath
+/.project
+/.settings
