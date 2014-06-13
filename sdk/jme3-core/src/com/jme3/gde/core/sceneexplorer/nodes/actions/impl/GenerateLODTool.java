@@ -65,7 +65,12 @@ public class GenerateLODTool extends AbstractToolWizardAction {
         Geometry geom = rootNode.getLookup().lookup(Geometry.class);
         Mesh mesh = geom.getMesh();
         if (mesh != null) {
-            mesh.setLodLevels((VertexBuffer[]) undoObject);
+            VertexBuffer[] vbs = (VertexBuffer[]) undoObject;
+            if (vbs.length>0){
+                mesh.setLodLevels((VertexBuffer[]) undoObject);
+            }else{
+                mesh.setLodLevels(null);
+            }
         }
 
     }
@@ -133,9 +138,12 @@ public class GenerateLODTool extends AbstractToolWizardAction {
                 }
             }
 
+            if(lods == null){
+                return new VertexBuffer[0];
+            }
             return lods;
         }
         return null;
 
-    }
+    }        
 }

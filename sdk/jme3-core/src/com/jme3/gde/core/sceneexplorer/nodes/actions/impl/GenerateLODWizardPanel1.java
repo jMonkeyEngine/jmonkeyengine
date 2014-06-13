@@ -101,12 +101,13 @@ public class GenerateLODWizardPanel1 implements WizardDescriptor.ValidatingPanel
       
         
         float[] vals = new float[component.getValuesFields().size()];
-        
+        int nbValues = 0;
         for (int i = 0; i < component.getValuesFields().size(); i++) {
             try {
                 String text = component.getValuesFields().get(i).getText();
                 if(!text.trim().equals("")){                    
                     vals[i] = Float.parseFloat(text);
+                    nbValues++;
                 }else{
                     if (i == 0) {
                         if (JOptionPane.showConfirmDialog(getComponent(),
@@ -116,16 +117,14 @@ public class GenerateLODWizardPanel1 implements WizardDescriptor.ValidatingPanel
                         } else {                          
                             throw new WizardValidationException(null, "No reduction value set", null);
                         }                        
-                    }else{
-                        values = new float[i];
-                        System.arraycopy(vals, 0, values, 0, i);                      
-                    }                    
-                    return;
+                    }                  
                 }
             } catch (NumberFormatException e) {               
                 throw new WizardValidationException( component.getValuesFields().get(i), "Invalid value for level "+(i+1), null);
             }
         }
-        
+        values = new float[nbValues];
+        System.arraycopy(vals, 0, values, 0, nbValues);                      
+                
     }
 }
