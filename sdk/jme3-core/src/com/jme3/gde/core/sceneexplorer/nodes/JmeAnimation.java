@@ -46,16 +46,21 @@ import com.jme3.gde.core.sceneexplorer.nodes.actions.impl.tracks.EffectTrackWiza
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
+import org.openide.actions.DeleteAction;
+import org.openide.actions.RenameAction;
 import org.openide.awt.Actions;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeAdapter;
 import org.openide.nodes.Sheet;
 import org.openide.util.Exceptions;
+import org.openide.util.actions.SystemAction;
 
 /**
  *
@@ -88,8 +93,18 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
         children.setAnimControl(jmeControl);
         icon = IconList.animation.getImage();
 
+        addNodeListener(new NodeAdapter(){
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if(evt.getPropertyName().equalsIgnoreCase("name")){
+                    doRenameAnimation((String) evt.getOldValue(),(String)evt.getNewValue());
+                }
+            }        
+        });
+         
     }
 
+    
     @Override
     public Image getIcon(int type) {
         return icon;
@@ -151,6 +166,8 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
 
         return new Action[]{Actions.alwaysEnabled(new PlayAction(), playing ? "Stop" : "Play", "", false),
                     Actions.alwaysEnabled(new PlayBackParamsAction(), "Playback parameters", "", false),
+                    SystemAction.get(RenameAction.class),
+                    SystemAction.get(DeleteAction.class),
                     Actions.alwaysEnabled(new EffectTrackWizardAction(jmeControl.getLookup().lookup(AnimControl.class).getSpatial(), this), "Add Effect Track", "", false),
                     Actions.alwaysEnabled(new AudioTrackWizardAction(jmeControl.getLookup().lookup(AnimControl.class).getSpatial(), this), "Add Audio Track", "", false),
                     Actions.alwaysEnabled(new ExtractAnimationAction(), "Extract sub-animation", "", true)
@@ -159,7 +176,7 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
 
     @Override
     public boolean canDestroy() {
-        return false;
+         return !jmeControl.readOnly;        
     }
 
     public void stop() {
@@ -169,22 +186,25 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
 
     @Override
     public void destroy() throws IOException {
-//        super.destroy();
-//        final Spatial spat = getParentNode().getLookup().lookup(Spatial.class);
-//        try {
-//            SceneApplication.getApplication().enqueue(new Callable<Void>() {
-//
-//                public Void call() throws Exception {
-//                    spat.removeControl(skeletonControl);
-//                    return null;
-//                }
-//            }).get();
-//            ((AbstractSceneExplorerNode) getParentNode()).refresh(true);
-//        } catch (InterruptedException ex) {
-//            Exceptions.printStackTrace(ex);
-//        } catch (ExecutionException ex) {
-//            Exceptions.printStackTrace(ex);
-//        }
+        super.destroy();     
+        final AnimControl control = jmeControl.getLookup().lookup(AnimControl.class);
+        try {
+            lookupContents.remove(JmeAnimation.this.animation);
+            lookupContents.remove(this);
+            SceneApplication.getApplication().enqueue(new Callable<Void>() {
+                public Void call() throws Exception {
+                    control.removeAnim(JmeAnimation.this.animation);                    
+                    return null;
+                }
+            }).get();            
+            jmeControl.refreshChildren();
+            setChanged();
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        
     }
 
     @Override
@@ -405,4 +425,40 @@ public class JmeAnimation extends AbstractSceneExplorerNode {
 //            ((JmeTrackChildren) getChildren()).refreshChildren(false);
 //        }
 //    }
+
+    @Override
+    public boolean canRename() {
+        return !jmeControl.readOnly;        
+    }
+    
+    /**
+     * renames the animation in the opengl thread.
+     * Note that renaming an animation mean to delete the old one and create a
+     * new anim with the new name and the old data
+     * @param evt 
+     */
+    protected void doRenameAnimation(final String oldName,final String newName) {
+        final AnimControl control = jmeControl.getLookup().lookup(AnimControl.class);
+        try {
+            lookupContents.remove(JmeAnimation.this.animation);
+            JmeAnimation.this.animation = SceneApplication.getApplication().enqueue(new Callable<Animation>() {
+                public Animation call() throws Exception {
+
+                    Animation anim = control.getAnim(oldName);
+                    Animation newAnim = new Animation(newName, anim.getLength());
+                    newAnim.setTracks(anim.getTracks());
+                    control.removeAnim(anim);
+                    control.addAnim(newAnim);
+                    return newAnim;
+                }
+            }).get();
+            lookupContents.add(JmeAnimation.this.animation);
+            setChanged();
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
 }
