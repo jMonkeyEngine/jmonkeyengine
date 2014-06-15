@@ -40,7 +40,9 @@ import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.scene.mesh.IndexBuffer;
+
 import static com.jme3.util.BufferUtils.*;
+
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -49,8 +51,12 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -146,6 +152,44 @@ public class TangentBinormalGenerator {
     public static void generate(Spatial scene) {
         generate(scene, false);
     }
+    
+    public static void generateParallel(Spatial scene, ExecutorService executor) {
+    	final Set<Mesh> meshes = new HashSet<Mesh>();
+    	scene.breadthFirstTraversal(new SceneGraphVisitor(){
+    		@Override
+    		public void visit(Spatial spatial) {
+    			if ( spatial instanceof Geometry ) {
+    				Geometry geom = (Geometry) spatial;
+    	            Mesh mesh = geom.getMesh();
+    	            
+    	            // Check to ensure mesh has texcoords and normals before generating
+    	            if (mesh.getBuffer(Type.TexCoord) != null 
+    	             && mesh.getBuffer(Type.Normal) != null){
+    	                meshes.add(mesh);
+    	            }
+    			}
+    		}
+    	});
+    	List<Future<?>> futures = new ArrayList<Future<?>>();
+        for ( final Mesh m : meshes ) {
+        	futures.add(executor.submit(new Runnable() {
+        		@Override
+        		public void run() {
+        			generate(m,true,false);
+        		}
+        	}));
+        }
+        for ( Future<?> f : futures ) {
+        	try {
+        		f.get();
+        	} catch (Exception exc) {
+        		log.log(Level.WARNING,"Error while computing tangents",exc);
+        	}
+        }
+        
+    }
+    
+    
     
     public static void generate(Mesh mesh, boolean approxTangents, boolean splitMirrored) {        
         int[] index = new int[3];
