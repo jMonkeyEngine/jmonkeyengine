@@ -68,6 +68,6 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
     @Override
     public void apply(int frame) {
         super.apply(frame);
-        blenderContext.getBoneContext(ownerOMA).getBone().updateWorldVectors();
+        blenderContext.getBoneContext(ownerOMA).getBone().updateModelTransforms();
     }
 }

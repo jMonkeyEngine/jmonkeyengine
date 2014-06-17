@@ -278,7 +278,7 @@ public class RagdollUtils {
             bone.setUserControl(true);
         }
         //we set te user transforms of the bone
-        bone.setUserTransformsWorld(pos, rot);
+        bone.setUserTransformsInModelSpace(pos, rot);
         for (Bone childBone : bone.getChildren()) {
             //each child bone that is not in the list is updated
             if (!boneList.contains(childBone.getName())) {

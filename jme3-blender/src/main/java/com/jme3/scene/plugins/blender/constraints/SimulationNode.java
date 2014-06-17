@@ -103,7 +103,7 @@ public class SimulationNode {
             boneStartTransforms = new HashMap<Bone, Transform>();
             for (int i = 0; i < skeleton.getBoneCount(); ++i) {
                 Bone bone = skeleton.getBone(i);
-                boneStartTransforms.put(bone, new Transform(bone.getWorldBindPosition(), bone.getWorldBindRotation(), bone.getWorldBindScale()));
+                boneStartTransforms.put(bone, new Transform(bone.getBindPosition(), bone.getBindRotation(), bone.getBindScale()));
             }
         } else {
             if (rootNode && spatial.getParent() != null) {

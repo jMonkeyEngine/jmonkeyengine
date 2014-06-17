@@ -225,9 +225,9 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
             if (link.bone.getParent() == null) {
 
                 //offsetting the physic's position/rotation by the root bone inverse model space position/rotaion
-                modelPosition.set(p).subtractLocal(link.bone.getWorldBindPosition());
+                modelPosition.set(p).subtractLocal(link.bone.getBindPosition());
                 targetModel.getParent().getWorldTransform().transformInverseVector(modelPosition, modelPosition);
-                modelRotation.set(q).multLocal(tmpRot2.set(link.bone.getWorldBindRotation()).inverseLocal());
+                modelRotation.set(q).multLocal(tmpRot2.set(link.bone.getBindRotation()).inverseLocal());
 
 
                 //applying transforms to the model
@@ -236,13 +236,13 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                 targetModel.setLocalRotation(modelRotation);
 
                 //Applying computed transforms to the bone
-                link.bone.setUserTransformsWorld(position, tmpRot1);
+                link.bone.setUserTransformsInModelSpace(position, tmpRot1);
 
             } else {
                 //if boneList is empty, this means that every bone in the ragdoll has a collision shape,
                 //so we just update the bone position
                 if (boneList.isEmpty()) {
-                    link.bone.setUserTransformsWorld(position, tmpRot1);
+                    link.bone.setUserTransformsInModelSpace(position, tmpRot1);
                 } else {
                     //boneList is not empty, this means some bones of the skeleton might not be associated with a collision shape.
                     //So we update them recusively
@@ -278,7 +278,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
                 if (boneList.isEmpty()) {
                     //we ensure we have the control to update the bone
                     link.bone.setUserControl(true);
-                    link.bone.setUserTransformsWorld(position, tmpRot1);
+                    link.bone.setUserTransformsInModelSpace(position, tmpRot1);
                     //we give control back to the key framed animation.
                     link.bone.setUserControl(false);
                 } else {
@@ -315,7 +315,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         targetModel.getWorldTransform().transformVector(link.bone.getModelSpacePosition(), position);
 
         //computing rotation
-        tmpRot1.set(link.bone.getModelSpaceRotation()).multLocal(link.bone.getWorldBindInverseRotation());
+        tmpRot1.set(link.bone.getModelSpaceRotation()).multLocal(link.bone.getModelBindInverseRotation());
         targetModel.getWorldRotation().mult(tmpRot1, tmpRot1);
         tmpRot1.normalizeLocal();
 
