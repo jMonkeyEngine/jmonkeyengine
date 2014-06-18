@@ -12,7 +12,7 @@
           <compile-dependency/>
           <run-dependency>
             <release-version>1</release-version>
-            <specification-version>3.0.10</specification-version>
+            <specification-version>3.1.0</specification-version>
           </run-dependency>
         </dependency>
       </module-dependencies>
@@ -143,48 +143,48 @@
         <package>com.jme3.terrain.noise.modulator</package>
       </public-packages>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-blender-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-blender-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-blender-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-blender-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-core-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-core-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-core-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-core-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-desktop-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-desktop-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-desktop-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-desktop-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-effects-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-effects-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-effects-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-effects-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-jbullet-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-jbullet-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-jbullet-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-jbullet-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-jogg-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-jogg-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-jogg-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-jogg-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-lwjgl-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-lwjgl-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-lwjgl-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-lwjgl-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-networking-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-networking-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-networking-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-networking-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-niftygui-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-niftygui-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-niftygui-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-niftygui-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-plugins-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-plugins-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-plugins-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-plugins-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/jme3-terrain-3.0.10-pre-alpha-svn.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/jme3-terrain-3.0.10-pre-alpha-svn.jar</binary-origin>
+        <runtime-relative-path>ext/jme3-terrain-3.1.0-snapshot-github.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/jme3-terrain-3.1.0-snapshot-github.jar</binary-origin>
       </class-path-extension>
     </data>
   </configuration>
