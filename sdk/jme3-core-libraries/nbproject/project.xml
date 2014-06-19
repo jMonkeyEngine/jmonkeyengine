@@ -23,7 +23,12 @@
         <package>cz.advel.stack</package>
         <package>cz.advel.stack.instrument</package>
         <package>javax.vecmath</package>
+        <package>de.jarnbjo.flac</package>
+        <package>de.jarnbjo.jmf</package>
         <package>de.jarnbjo.ogg</package>
+        <package>de.jarnbjo.oggtools</package>
+        <package>de.jarnbjo.theora</package>
+        <package>de.jarnbjo.util.audio</package>
         <package>de.jarnbjo.util.io</package>
         <package>de.jarnbjo.vorbis</package>
         <package>org.lwjgl</package>
@@ -163,28 +168,24 @@
         <binary-origin>release/modules/ext/vecmath-1.3.1.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/j-ogg-oggd.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/j-ogg-oggd.jar</binary-origin>
+        <runtime-relative-path>ext/j-ogg-all-1.0.0.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/j-ogg-all-1.0.0.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/j-ogg-vorbisd.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/j-ogg-vorbisd.jar</binary-origin>
+        <runtime-relative-path>ext/lwjgl-2.9.1.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/lwjgl-2.9.1.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/lwjgl-2.9.0.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/lwjgl-2.9.0.jar</binary-origin>
+        <runtime-relative-path>ext/lwjgl-platform-2.9.1-natives-windows.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/lwjgl-platform-2.9.1-natives-windows.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/lwjgl-platform-2.9.0-natives-windows.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/lwjgl-platform-2.9.0-natives-windows.jar</binary-origin>
+        <runtime-relative-path>ext/lwjgl-platform-2.9.1-natives-linux.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/lwjgl-platform-2.9.1-natives-linux.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
-        <runtime-relative-path>ext/lwjgl-platform-2.9.0-natives-linux.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/lwjgl-platform-2.9.0-natives-linux.jar</binary-origin>
-      </class-path-extension>
-      <class-path-extension>
-        <runtime-relative-path>ext/lwjgl-platform-2.9.0-natives-osx.jar</runtime-relative-path>
-        <binary-origin>release/modules/ext/lwjgl-platform-2.9.0-natives-osx.jar</binary-origin>
+        <runtime-relative-path>ext/lwjgl-platform-2.9.1-natives-osx.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/lwjgl-platform-2.9.1-natives-osx.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
         <runtime-relative-path>ext/jinput-2.0.5.jar</runtime-relative-path>

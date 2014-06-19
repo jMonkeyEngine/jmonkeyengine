@@ -14,6 +14,10 @@
       <file name='jme3-niftygui.xml' url='jme3-niftygui.xml' />
       <file name='jme3-plugins.xml' url='jme3-plugins.xml' />
       <file name='jme3-terrain.xml' url='jme3-terrain.xml' />
+      <file name='jme3-bullet.xml' url='jme3-bullet.xml' />
+      <file name='jme3-jogl.xml' url='jme3-jogl.xml' />
+      <file name='jme3-android.xml' url='jme3-android.xml' />
+      <file name='jme3-ios.xml' url='jme3-ios.xml' />
     </folder>
   </folder>
 </filesystem>

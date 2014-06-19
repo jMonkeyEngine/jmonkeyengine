@@ -49,7 +49,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
             for (int i = 0; i < boneContexts.length; ++i) {
                 Bone bone = boneContexts[i].getBone();
 
-                bone.updateWorldVectors();
+                bone.updateModelTransforms();
                 Transform boneWorldTransform = constraintHelper.getTransform(boneContexts[i].getArmatureObjectOMA(), bone.getName(), Space.CONSTRAINT_SPACE_WORLD);
 
                 Vector3f head = boneWorldTransform.getTranslation();
@@ -83,7 +83,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                     constraintHelper.applyTransform(boneContexts[i].getArmatureObjectOMA(), bone.getName(), Space.CONSTRAINT_SPACE_WORLD, boneWorldTransform);
                 }
 
-                bone.updateWorldVectors();
+                bone.updateModelTransforms();
                 alteredOmas.add(boneContexts[i].getBoneOma());
             }
         }

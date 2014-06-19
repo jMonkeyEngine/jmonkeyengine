@@ -100,14 +100,14 @@ float Shadow_DoBilinear_2x2(in SHADOWMAP tex, in vec4 projCoord){
         vec4 gather = SHADOWGATHER(tex, coord);
     #else
         vec4 gather = vec4(0.0);
-        gather.x = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(0, 0));
-        gather.y = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(1, 0));
-        gather.z = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(0, 1));
-        gather.w = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(1, 1));
+        gather.x = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(0, 1));
+        gather.y = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(1, 1));
+        gather.z = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(1, 0));
+        gather.w = SHADOWCOMPAREOFFSET(tex, projCoord, ivec2(0, 0));
     #endif
 
-   vec2 f = fract( projCoord.xy * SHADOWMAP_SIZE );
-   vec2 mx = mix( gather.xz, gather.yw, f.x );
+   vec2 f = fract( projCoord.xy * SHADOWMAP_SIZE );   
+   vec2 mx = mix( gather.wx, gather.zy, f.x );
    return mix( mx.x, mx.y, f.y );
 }
 

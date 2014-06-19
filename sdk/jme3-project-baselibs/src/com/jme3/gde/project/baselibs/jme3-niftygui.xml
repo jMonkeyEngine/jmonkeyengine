@@ -6,7 +6,7 @@
   <localizing-bundle>com.jme3.gde.project.baselibs.Bundle</localizing-bundle>
   <volume>
     <type>classpath</type>
-    <resource>jar:nbinst://com.jme3.gde.project.baselibs/libs/jme3-niftygui-3.0.10-pre-alpha-svn.jar!/</resource>
+    <resource>jar:nbinst://com.jme3.gde.project.baselibs/libs/jme3-niftygui-3.1.0-snapshot-github.jar!/</resource>
     <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-1.3.3.jar!/</resource>
     <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/nifty-default-controls-1.3.3.jar!/</resource>
     <resource>jar:nbinst://com.jme3.gde.project.libraries/libs/xpp3-1.1.4c.jar!/</resource>
@@ -15,7 +15,7 @@
   </volume>
   <volume>
     <type>src</type>
-    <resource>jar:nbinst://com.jme3.gde.project.baselibs/libs/jme3-niftygui-3.0.10-pre-alpha-svn-sources.jar!/</resource>
+    <resource>jar:nbinst://com.jme3.gde.project.baselibs/libs/jme3-niftygui-3.1.0-snapshot-github-sources.jar!/</resource>
   </volume>
   <volume>
     <type>javadoc</type>
