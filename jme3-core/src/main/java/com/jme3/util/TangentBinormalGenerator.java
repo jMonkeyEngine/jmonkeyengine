@@ -154,40 +154,40 @@ public class TangentBinormalGenerator {
     }
     
     public static void generateParallel(Spatial scene, ExecutorService executor) {
-    	final Set<Mesh> meshes = new HashSet<Mesh>();
-    	scene.breadthFirstTraversal(new SceneGraphVisitor(){
-    		@Override
-    		public void visit(Spatial spatial) {
-    			if ( spatial instanceof Geometry ) {
-    				Geometry geom = (Geometry) spatial;
-    	            Mesh mesh = geom.getMesh();
-    	            
-    	            // Check to ensure mesh has texcoords and normals before generating
-    	            if (mesh.getBuffer(Type.TexCoord) != null 
-    	             && mesh.getBuffer(Type.Normal) != null){
-    	                meshes.add(mesh);
-    	            }
-    			}
-    		}
-    	});
-    	List<Future<?>> futures = new ArrayList<Future<?>>();
-        for ( final Mesh m : meshes ) {
-        	futures.add(executor.submit(new Runnable() {
-        		@Override
-        		public void run() {
-        			generate(m,true,false);
-        		}
-        	}));
+        final Set<Mesh> meshes = new HashSet<Mesh>();
+        scene.breadthFirstTraversal(new SceneGraphVisitor() {
+            @Override
+            public void visit(Spatial spatial) {
+                if (spatial instanceof Geometry) {
+                    Geometry geom = (Geometry) spatial;
+                    Mesh mesh = geom.getMesh();
+
+                    // Check to ensure mesh has texcoords and normals before generating
+                    if (mesh.getBuffer(Type.TexCoord) != null
+                            && mesh.getBuffer(Type.Normal) != null) {
+                        meshes.add(mesh);
+                    }
+                }
+            }
+        });
+        List<Future<?>> futures = new ArrayList<Future<?>>();
+        for (final Mesh m : meshes) {
+            futures.add(executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    generate(m, true, false);
+                }
+            }));
         }
-        for ( Future<?> f : futures ) {
-        	try {
-        		f.get();
-        	} catch (Exception exc) {
-        		log.log(Level.WARNING,"Error while computing tangents",exc);
-        	}
+        for (Future<?> f : futures) {
+            try {
+                f.get();
+            } catch (Exception exc) {
+                log.log(Level.WARNING, "Error while computing tangents", exc);
+            }
         }
-        
-    }
+
+    }    
     
     
     
@@ -556,72 +556,72 @@ public class TangentBinormalGenerator {
     
     public static TriangleData processTriangle(int[] index,
             Vector3f[] v, Vector2f[] t) {
-    	TempVars tmp = TempVars.get();
-    	try {
-	        Vector3f edge1 = tmp.vect1;
-	        Vector3f edge2 = tmp.vect2;
-	        Vector2f edge1uv = tmp.vect2d;
-	        Vector2f edge2uv = tmp.vect2d2;
-	        
-	        Vector3f tangent = tmp.vect3;
-	        Vector3f binormal = tmp.vect4;
-	        Vector3f normal = tmp.vect5;
-	        
-	        t[1].subtract(t[0], edge1uv);
-	        t[2].subtract(t[0], edge2uv);
-	        float det = edge1uv.x * edge2uv.y - edge1uv.y * edge2uv.x;
-	        
-	        boolean normalize = false;
-	        if (Math.abs(det) < ZERO_TOLERANCE) {
-	            log.log(Level.WARNING, "Colinear uv coordinates for triangle "
-	                    + "[{0}, {1}, {2}]; tex0 = [{3}, {4}], "
-	                    + "tex1 = [{5}, {6}], tex2 = [{7}, {8}]",
-	                    new Object[]{index[0], index[1], index[2],
-	                        t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y});
-	            det = 1;
-	            normalize = true;
-	        }
-	        
-	        v[1].subtract(v[0], edge1);
-	        v[2].subtract(v[0], edge2);
-	        
-	        tangent.set(edge1);
-	        tangent.normalizeLocal();
-	        binormal.set(edge2);
-	        binormal.normalizeLocal();
-	        
-	        if (Math.abs(Math.abs(tangent.dot(binormal)) - 1)
-	                < ZERO_TOLERANCE) {
-	            log.log(Level.WARNING, "Vertices are on the same line "
-	                    + "for triangle [{0}, {1}, {2}].",
-	                    new Object[]{index[0], index[1], index[2]});
-	        }
-	        
-	        float factor = 1 / det;
-	        tangent.x = (edge2uv.y * edge1.x - edge1uv.y * edge2.x) * factor;
-	        tangent.y = (edge2uv.y * edge1.y - edge1uv.y * edge2.y) * factor;
-	        tangent.z = (edge2uv.y * edge1.z - edge1uv.y * edge2.z) * factor;
-	        if (normalize) {
-	            tangent.normalizeLocal();
-	        }
-	        
-	        binormal.x = (edge1uv.x * edge2.x - edge2uv.x * edge1.x) * factor;
-	        binormal.y = (edge1uv.x * edge2.y - edge2uv.x * edge1.y) * factor;
-	        binormal.z = (edge1uv.x * edge2.z - edge2uv.x * edge1.z) * factor;
-	        if (normalize) {
-	            binormal.normalizeLocal();
-	        }
-	        
-	        tangent.cross(binormal, normal);
-	        normal.normalizeLocal();
-	        
-	        return new TriangleData(
-	                tangent,
-	                binormal,
-	                normal);
-    	} finally {
-    		tmp.release();
-    	}
+        TempVars tmp = TempVars.get();
+        try {
+            Vector3f edge1 = tmp.vect1;
+            Vector3f edge2 = tmp.vect2;
+            Vector2f edge1uv = tmp.vect2d;
+            Vector2f edge2uv = tmp.vect2d2;
+            
+            Vector3f tangent = tmp.vect3;
+            Vector3f binormal = tmp.vect4;
+            Vector3f normal = tmp.vect5;
+            
+            t[1].subtract(t[0], edge1uv);
+            t[2].subtract(t[0], edge2uv);
+            float det = edge1uv.x * edge2uv.y - edge1uv.y * edge2uv.x;
+            
+            boolean normalize = false;
+            if (Math.abs(det) < ZERO_TOLERANCE) {
+                log.log(Level.WARNING, "Colinear uv coordinates for triangle "
+                        + "[{0}, {1}, {2}]; tex0 = [{3}, {4}], "
+                        + "tex1 = [{5}, {6}], tex2 = [{7}, {8}]",
+                        new Object[]{index[0], index[1], index[2],
+                            t[0].x, t[0].y, t[1].x, t[1].y, t[2].x, t[2].y});
+                det = 1;
+                normalize = true;
+            }
+            
+            v[1].subtract(v[0], edge1);
+            v[2].subtract(v[0], edge2);
+            
+            tangent.set(edge1);
+            tangent.normalizeLocal();
+            binormal.set(edge2);
+            binormal.normalizeLocal();
+            
+            if (Math.abs(Math.abs(tangent.dot(binormal)) - 1)
+                    < ZERO_TOLERANCE) {
+                log.log(Level.WARNING, "Vertices are on the same line "
+                        + "for triangle [{0}, {1}, {2}].",
+                        new Object[]{index[0], index[1], index[2]});
+            }
+            
+            float factor = 1 / det;
+            tangent.x = (edge2uv.y * edge1.x - edge1uv.y * edge2.x) * factor;
+            tangent.y = (edge2uv.y * edge1.y - edge1uv.y * edge2.y) * factor;
+            tangent.z = (edge2uv.y * edge1.z - edge1uv.y * edge2.z) * factor;
+            if (normalize) {
+                tangent.normalizeLocal();
+            }
+            
+            binormal.x = (edge1uv.x * edge2.x - edge2uv.x * edge1.x) * factor;
+            binormal.y = (edge1uv.x * edge2.y - edge2uv.x * edge1.y) * factor;
+            binormal.z = (edge1uv.x * edge2.z - edge2uv.x * edge1.z) * factor;
+            if (normalize) {
+                binormal.normalizeLocal();
+            }
+            
+            tangent.cross(binormal, normal);
+            normal.normalizeLocal();
+            
+            return new TriangleData(
+                    tangent,
+                    binormal,
+                    normal);
+        } finally {
+            tmp.release();
+        }
     }
     
     public static void setToleranceAngle(float angle) {
