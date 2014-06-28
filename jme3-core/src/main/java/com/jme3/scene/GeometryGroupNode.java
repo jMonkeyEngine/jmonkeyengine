@@ -8,6 +8,20 @@ package com.jme3.scene;
  */
 public abstract class GeometryGroupNode extends Node {
     
+    protected static int getGeometryStartIndex(Geometry geom) {
+        if (geom.startIndex == -1) {
+            throw new AssertionError();
+        }
+        return geom.startIndex;
+    }
+    
+    protected static void setGeometryStartIndex(Geometry geom, int startIndex) {
+        if (startIndex < -1) {
+            throw new AssertionError();
+        }
+        geom.startIndex = startIndex;
+    }
+    
     /**
      * Construct a <code>GeometryGroupNode</code>
      */
