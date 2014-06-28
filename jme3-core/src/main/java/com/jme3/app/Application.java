@@ -518,12 +518,14 @@ public class Application implements SystemListener {
     public void handleError(String errMsg, Throwable t){
         // Print error to log.
         logger.log(Level.SEVERE, errMsg, t);
-        // Display error message on screen
-        if (t != null) {
-            JmeSystem.showErrorDialog(errMsg + "\n" + t.getClass().getSimpleName() +
-                    (t.getMessage() != null ? ": " +  t.getMessage() : ""));
-        } else {
-            JmeSystem.showErrorDialog(errMsg);
+        // Display error message on screen if not in headless mode
+        if (context.getType() != JmeContext.Type.Headless) {
+            if (t != null) {
+                JmeSystem.showErrorDialog(errMsg + "\n" + t.getClass().getSimpleName() +
+                        (t.getMessage() != null ? ": " +  t.getMessage() : ""));
+            } else {
+                JmeSystem.showErrorDialog(errMsg);
+            }
         }
 
         stop(); // stop the application
