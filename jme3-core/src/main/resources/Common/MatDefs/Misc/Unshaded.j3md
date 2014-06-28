@@ -59,7 +59,8 @@ MaterialDef Unshaded {
 
         WorldParameters {
             WorldViewProjectionMatrix
-            ProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
         }
 
         Defines {

@@ -702,7 +702,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         int lodLevel = geom.getLodLevel();
         if (geom instanceof InstancedGeometry) {
             InstancedGeometry instGeom = (InstancedGeometry) geom;
-            renderer.renderMesh(mesh, lodLevel, instGeom.getCurrentNumInstances(), instGeom.getAllInstanceData());
+            int numInstances = instGeom.getActualNumInstances();
+            if (numInstances == 0) {
+                return;
+            }
+            renderer.renderMesh(mesh, lodLevel, numInstances, instGeom.getAllInstanceData());
         } else {
             renderer.renderMesh(mesh, lodLevel, 1, null);
         }
