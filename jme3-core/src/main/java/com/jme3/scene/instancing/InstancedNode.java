@@ -3,7 +3,6 @@ package com.jme3.scene.instancing;
 import com.jme3.material.Material;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.BatchNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.GeometryGroupNode;
 import com.jme3.scene.Mesh;

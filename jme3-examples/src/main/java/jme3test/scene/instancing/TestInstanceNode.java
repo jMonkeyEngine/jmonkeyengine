@@ -41,7 +41,6 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.scene.instancing.InstancedNode;
 import com.jme3.scene.shape.Box;
@@ -104,7 +103,6 @@ public class TestInstanceNode extends SimpleApplication  {
         materials[5].setColor("Color", ColorRGBA.Yellow);
        
         instancedNode = new InstancedNode("instanced_node");
-        instancedNode.setCullHint(CullHint.Never);
         
         rootNode.attachChild(instancedNode);
         
