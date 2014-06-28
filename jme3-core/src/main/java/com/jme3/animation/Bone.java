@@ -459,7 +459,7 @@ public final class Bone implements Savable {
     /**
      * Updates world transforms for this bone and it's children.
      */
-    final void update() {
+    public final void update() {
         this.updateModelTransforms();
 
         for (int i = children.size() - 1; i >= 0; i--) {
@@ -795,5 +795,16 @@ public final class Bone implements Savable {
         output.write(bindRot, "bindRot", null);
         output.write(bindScale, "bindScale", new Vector3f(1.0f, 1.0f, 1.0f));
         output.writeSavableArrayList(children, "children", null);
+    }
+
+    public void setLocalRotation(Quaternion rot){
+        if (!userControl) {
+            throw new IllegalStateException("User control must be on bone to allow user transforms");
+        }
+        this.localRot = rot;
+    }
+    
+    public boolean hasUserControl(){
+        return userControl;
     }
 }
