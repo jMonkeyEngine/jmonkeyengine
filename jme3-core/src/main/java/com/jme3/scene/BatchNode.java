@@ -773,10 +773,6 @@ public class BatchNode extends GeometryGroupNode implements Savable {
         this.needsFullRebatch = needsFullRebatch;
     }
 
-    public int getOffsetIndex(Geometry batchedGeometry) {
-        return batchedGeometry.startIndex;
-    }
-        
     @Override
     public Node clone(boolean cloneMaterials) {
         BatchNode clone = (BatchNode)super.clone(cloneMaterials);
@@ -790,8 +786,8 @@ public class BatchNode extends GeometryGroupNode implements Savable {
                 }
             }
             clone.needsFullRebatch = true;
-            clone.batches.clear();
-            clone.batchesByGeom.clear();
+            clone.batches = new SafeArrayList<Batch>(Batch.class);
+            clone.batchesByGeom = new HashMap<Geometry, Batch>();
             clone.batch();
         }
         return clone;
