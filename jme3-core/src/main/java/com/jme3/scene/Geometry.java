@@ -486,9 +486,9 @@ public class Geometry extends Spatial {
         
         // This geometry is managed,
         // but the cloned one is not attached to anything, hence not managed.
-        if (isGrouped()) {
-            groupNode = null;
-            startIndex = -1;
+        if (geomClone.isGrouped()) {
+            geomClone.groupNode = null;
+            geomClone.startIndex = -1;
         }
         
         geomClone.cachedWorldMat = cachedWorldMat.clone();
