@@ -41,6 +41,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.Node;
 import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.scene.instancing.InstancedNode;
 import com.jme3.scene.shape.Box;
@@ -52,8 +53,9 @@ public class TestInstanceNode extends SimpleApplication  {
     private Mesh mesh1;
     private Mesh mesh2;
     private final Material[] materials = new Material[6];
-    private InstancedNode instancedNode;
+    private Node instancedNode;
     private float time = 0;
+    private boolean INSTANCING = false;
     
     public static void main(String[] args){
         TestInstanceNode app = new TestInstanceNode();
@@ -79,27 +81,27 @@ public class TestInstanceNode extends SimpleApplication  {
         mesh2 = new Box(0.4f, 0.4f, 0.4f);
         
         materials[0] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        materials[0].setBoolean("UseInstancing", true);
+        materials[0].setBoolean("UseInstancing", INSTANCING);
         materials[0].setColor("Color", ColorRGBA.Red);
         
         materials[1] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        materials[1].setBoolean("UseInstancing", true);
+        materials[1].setBoolean("UseInstancing", INSTANCING);
         materials[1].setColor("Color", ColorRGBA.Green);
         
         materials[2] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        materials[2].setBoolean("UseInstancing", true);
+        materials[2].setBoolean("UseInstancing", INSTANCING);
         materials[2].setColor("Color", ColorRGBA.Blue);
         
         materials[3] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        materials[3].setBoolean("UseInstancing", true);
+        materials[3].setBoolean("UseInstancing", INSTANCING);
         materials[3].setColor("Color", ColorRGBA.Cyan);
         
         materials[4] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        materials[4].setBoolean("UseInstancing", true);
+        materials[4].setBoolean("UseInstancing", INSTANCING);
         materials[4].setColor("Color", ColorRGBA.Magenta);
         
         materials[5] = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        materials[5].setBoolean("UseInstancing", true);
+        materials[5].setBoolean("UseInstancing", INSTANCING);
         materials[5].setColor("Color", ColorRGBA.Yellow);
        
         instancedNode = new InstancedNode("instanced_node");
@@ -120,12 +122,18 @@ public class TestInstanceNode extends SimpleApplication  {
             }
         }
         
-        instancedNode.instance();
+        if (INSTANCING) {
+            ((InstancedNode)instancedNode).instance();
+        }
+        
+        instancedNode = (InstancedNode) instancedNode.clone();
+        instancedNode.move(0, 5, 0);
+        rootNode.attachChild(instancedNode);
         
         cam.setLocation(new Vector3f(38.373516f, 6.689055f, 38.482082f));
         cam.setRotation(new Quaternion(-0.04004206f, 0.918326f, -0.096310444f, -0.38183528f));
         flyCam.setMoveSpeed(15);
-        //flyCam.setEnabled(false);
+        flyCam.setEnabled(false);
     }
     
     private float smoothstep(float edge0, float edge1, float x) {

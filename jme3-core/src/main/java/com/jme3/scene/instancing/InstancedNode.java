@@ -9,8 +9,11 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.UserData;
-import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.material.MatParam;
+import java.io.IOException;
 import java.util.HashMap;
 
 public class InstancedNode extends GeometryGroupNode {
@@ -72,7 +75,7 @@ public class InstancedNode extends GeometryGroupNode {
         }
     }
     
-    private static class InstancedNodeControl extends AbstractControl {
+    private static class InstancedNodeControl implements Control {
 
         private InstancedNode node;
         
@@ -90,22 +93,31 @@ public class InstancedNode extends GeometryGroupNode {
             // fixed automatically by InstancedNode.clone() method.
         }
         
-        @Override
-        protected void controlUpdate(float tpf) {
+        public void setSpatial(Spatial spatial){
+        }
+        
+        public void update(float tpf){
+        }
+        
+        public void render(RenderManager rm, ViewPort vp) {
+            node.renderFromControl();
+        }
+        
+        public void write(JmeExporter ex) throws IOException {
         }
 
-        @Override
-        protected void controlRender(RenderManager rm, ViewPort vp) {
-            node.renderFromControl();
+        public void read(JmeImporter im) throws IOException {
         }
     }
     
-    protected final HashMap<Geometry, InstancedGeometry> igByGeom 
+    protected InstancedNodeControl control;
+    
+    protected HashMap<Geometry, InstancedGeometry> igByGeom 
             = new HashMap<Geometry, InstancedGeometry>();
     
-    private final InstanceTypeKey lookUp = new InstanceTypeKey();
+    private InstanceTypeKey lookUp = new InstanceTypeKey();
     
-    private final HashMap<InstanceTypeKey, InstancedGeometry> instancesMap = 
+    private HashMap<InstanceTypeKey, InstancedGeometry> instancesMap = 
             new HashMap<InstanceTypeKey, InstancedGeometry>();
     
     public InstancedNode() {
@@ -116,7 +128,8 @@ public class InstancedNode extends GeometryGroupNode {
     
     public InstancedNode(String name) {
         super(name);
-        addControl(new InstancedNodeControl(this));
+        control = new InstancedNodeControl(this);
+        addControl(control);
     }
     
     private void renderFromControl() {
@@ -124,11 +137,7 @@ public class InstancedNode extends GeometryGroupNode {
             ig.updateInstances();
         }
     }
-    
-    private static boolean isInstancedGeometry(Geometry geom) {
-        return geom instanceof InstancedGeometry;
-    }
-    
+
     private InstancedGeometry lookUpByGeometry(Geometry geom) {
         lookUp.mesh = geom.getMesh();
         lookUp.material = geom.getMaterial();
@@ -138,6 +147,7 @@ public class InstancedNode extends GeometryGroupNode {
 
         if (ig == null) {
             ig = new InstancedGeometry(
+                    "mesh-" + System.identityHashCode(lookUp.mesh) + "," +
                     "material-" + lookUp.material.getMaterialDef().getName() + ","
                     + "lod-" + lookUp.lodLevel);
             ig.setMaterial(lookUp.material);
@@ -151,10 +161,38 @@ public class InstancedNode extends GeometryGroupNode {
         return ig;
     }
     
+    private void addToInstancedGeometry(Geometry geom) {
+        Material material = geom.getMaterial();
+        MatParam param = material.getParam("UseInstancing");
+        if (param == null || !((Boolean)param.getValue()).booleanValue()) {
+            throw new IllegalStateException("You must set the 'UseInstancing' "
+                    + "parameter to true on the material prior "
+                    + "to adding it to InstancedNode");
+        }
+        
+        InstancedGeometry ig = lookUpByGeometry(geom);
+        igByGeom.put(geom, ig);
+        geom.associateWithGroupNode(this, 0);
+        ig.addInstance(geom);
+    }
+    
     private void removeFromInstancedGeometry(Geometry geom) {
         InstancedGeometry ig = igByGeom.remove(geom);
         if (ig != null) {
             ig.deleteInstance(geom);
+        }
+    }
+    
+    private void relocateInInstancedGeometry(Geometry geom) {
+        InstancedGeometry oldIG = igByGeom.get(geom);
+        InstancedGeometry newIG = lookUpByGeometry(geom);
+        if (oldIG != newIG) {
+            if (oldIG == null) {
+                throw new AssertionError();
+            }
+            oldIG.deleteInstance(geom);
+            newIG.addInstance(geom);
+            igByGeom.put(geom, newIG);
         }
     }
     
@@ -168,6 +206,7 @@ public class InstancedNode extends GeometryGroupNode {
             if (g.isGrouped()) {
                 // Will invoke onGeometryUnassociated automatically.
                 g.unassociateFromGroupNode();
+                
                 if (InstancedNode.getGeometryStartIndex(g) != -1) {
                     throw new AssertionError();
                 }
@@ -188,10 +227,7 @@ public class InstancedNode extends GeometryGroupNode {
         if (n instanceof Geometry) {
             Geometry g = (Geometry) n;
             if (!g.isGrouped() && g.getBatchHint() != BatchHint.Never) {
-                InstancedGeometry ig = lookUpByGeometry(g);
-                igByGeom.put(g, ig);
-                g.associateWithGroupNode(this, 0);
-                ig.addInstance(g);
+                addToInstancedGeometry(g);
             }
         } else if (n instanceof Node) {
             for (Spatial child : ((Node) n).getChildren()) {
@@ -208,32 +244,42 @@ public class InstancedNode extends GeometryGroupNode {
     }
     
     @Override
+    public Node clone() {
+        return clone(true);
+    }
+    
+    @Override
     public Node clone(boolean cloneMaterials) {
         InstancedNode clone = (InstancedNode)super.clone(cloneMaterials);
+        
         if (instancesMap.size() > 0) {
             // Remove all instanced geometries from the clone
             for (int i = 0; i < clone.children.size(); i++) {
                 if (clone.children.get(i) instanceof InstancedGeometry) {
                     clone.children.remove(i);
+                } else if (clone.children.get(i) instanceof Geometry) {
+                    Geometry geom = (Geometry) clone.children.get(i);
+                    if (geom.isGrouped()) {
+                        throw new AssertionError();
+                    }
                 }
             }
-            
-            // Clear state (which is incorrect)
-            clone.igByGeom.clear();
-            clone.instancesMap.clear();
-            clone.instance();
         }
+        
+        // remove original control from the clone
+        clone.controls.remove(this.control);
+
+        // put clone's control in
+        clone.control = new InstancedNodeControl(clone);
+        clone.controls.add(clone.control);
+
+        clone.lookUp = new InstanceTypeKey();
+        clone.igByGeom = new HashMap<Geometry, InstancedGeometry>();
+        clone.instancesMap = new HashMap<InstanceTypeKey, InstancedGeometry>();
+        
+        clone.instance();
+        
         return clone;
-    }
-    
-    private void majorChange(Geometry geom) {
-        InstancedGeometry oldIG = igByGeom.get(geom);
-        InstancedGeometry newIG = lookUpByGeometry(geom);
-        if (oldIG != newIG) {
-            oldIG.deleteInstance(geom);
-            newIG.addInstance(geom);
-            igByGeom.put(geom, newIG);
-        }
     }
     
     @Override
@@ -243,12 +289,12 @@ public class InstancedNode extends GeometryGroupNode {
 
     @Override
     public void onMaterialChange(Geometry geom) {
-        majorChange(geom);
+        relocateInInstancedGeometry(geom);
     }
 
     @Override
     public void onMeshChange(Geometry geom) {
-        majorChange(geom);
+        relocateInInstancedGeometry(geom);
     }
 
     @Override
