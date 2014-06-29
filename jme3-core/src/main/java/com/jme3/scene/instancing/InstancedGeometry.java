@@ -68,6 +68,7 @@ public class InstancedGeometry extends Geometry {
     public InstancedGeometry() {
         super();
         setIgnoreTransform(true);
+        setBatchHint(BatchHint.Never);
         setMaxNumInstances(1);
     }
     
@@ -81,6 +82,7 @@ public class InstancedGeometry extends Geometry {
     public InstancedGeometry(String name) {
         super(name);
         setIgnoreTransform(true);
+        setBatchHint(BatchHint.Never);
         setMaxNumInstances(1);
     }
     
@@ -324,6 +326,10 @@ public class InstancedGeometry extends Geometry {
         
         geometries[freeIndex] = geometry;
         InstancedNode.setGeometryStartIndex2(geometry, freeIndex);
+    }
+    
+    public Geometry[] getGeometries() {
+        return geometries;
     }
     
     public VertexBuffer[] getAllInstanceData() {
