@@ -78,6 +78,11 @@ vec3 TransformNormal(vec3 vec)
 
 #else
 
+vec4 TransformWorld(vec4 position)
+{
+    return g_WorldMatrix * position;
+}
+
 vec4 TransformWorldView(vec4 position)
 {
     return g_WorldViewMatrix * position;
