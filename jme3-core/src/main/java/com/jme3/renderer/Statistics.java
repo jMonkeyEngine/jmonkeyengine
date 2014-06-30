@@ -125,7 +125,7 @@ public class Statistics {
         if( !enabled )
             return;
             
-        numObjects += count;
+        numObjects += 1;
         numTriangles += mesh.getTriangleCount(lod) * count;
         numVertices += mesh.getVertexCount() * count;
     }

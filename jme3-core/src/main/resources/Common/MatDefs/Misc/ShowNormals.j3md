@@ -10,6 +10,8 @@ MaterialDef Debug Normals {
 
         WorldParameters {
             WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
             ProjectionMatrix
         }
 

@@ -81,7 +81,7 @@ public class Geometry extends Spatial {
      * The start index of this <code>Geometry's</code> inside 
      * the {@link GeometryGroupNode}.
      */
-    protected int startIndex;    
+    protected int startIndex = -1;    
     /**
      * Serialization only. Do not use.
      */
@@ -316,7 +316,7 @@ public class Geometry extends Spatial {
      * @param node Which {@link GeometryGroupNode} to associate with.
      * @param startIndex The starting index of this geometry in the group.
      */
-    protected void associateWithGroupNode(GeometryGroupNode node, int startIndex) {
+    public void associateWithGroupNode(GeometryGroupNode node, int startIndex) {
         if (isGrouped()) {
             unassociateFromGroupNode();
         }
@@ -331,13 +331,15 @@ public class Geometry extends Spatial {
      * 
      * Should only be called by the parent {@link GeometryGroupNode}.
      */
-    protected void unassociateFromGroupNode() {
+    public void unassociateFromGroupNode() {
         if (groupNode != null) {
             // Once the geometry is removed 
             // from the parent, the group node needs to be updated.
             groupNode.onGeoemtryUnassociated(this);
             groupNode = null;
-            startIndex = 0;
+            
+            // change the default to -1 to make error detection easier
+            startIndex = -1; 
         }
     }
 
@@ -484,9 +486,9 @@ public class Geometry extends Spatial {
         
         // This geometry is managed,
         // but the cloned one is not attached to anything, hence not managed.
-        if (isGrouped()) {
-            groupNode = null;
-            startIndex = 0;
+        if (geomClone.isGrouped()) {
+            geomClone.groupNode = null;
+            geomClone.startIndex = -1;
         }
         
         geomClone.cachedWorldMat = cachedWorldMat.clone();

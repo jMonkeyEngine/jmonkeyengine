@@ -23,6 +23,7 @@ uniform mat4 g_ViewMatrix;
 uniform mat4 g_ProjectionMatrix;
 uniform mat4 g_WorldViewMatrix;
 uniform mat4 g_WorldViewProjectionMatrix;
+uniform mat4 g_ViewProjectionMatrix;
 uniform mat3 g_NormalMatrix;
 
 #if defined INSTANCING
@@ -37,29 +38,36 @@ uniform mat3 g_NormalMatrix;
 // 2 vertex attributes which now can be used for additional per-vertex data.
 attribute mat4 inInstanceData;
 
-// Extract the world view matrix out of the instance data, leaving out the 
+// Extract the world matrix out of the instance data, leaving out the 
 // quaternion at the end.
-mat4 worldViewMatrix = mat4(vec4(inInstanceData[0].xyz, 0.0), 
+mat4 worldMatrix = mat4(vec4(inInstanceData[0].xyz, 0.0), 
                             vec4(inInstanceData[1].xyz, 0.0), 
                             vec4(inInstanceData[2].xyz, 0.0), 
                             vec4(inInstanceData[3].xyz, 1.0));
 
+vec4 TransformWorld(vec4 position)
+{
+    return (worldMatrix * position);
+}
 
 vec4 TransformWorldView(vec4 position)
 {
-    return worldViewMatrix * position;
+    return g_ViewMatrix * TransformWorld(position);
 }
 
 vec4 TransformWorldViewProjection(vec4 position)
 {
-    return g_ProjectionMatrix * TransformWorldView(position);
+    return g_ViewProjectionMatrix * TransformWorld(position);
 }
 
 vec3 TransformNormal(vec3 vec)
 {
     vec4 quat = vec4(inInstanceData[0].w, inInstanceData[1].w,
                      inInstanceData[2].w, inInstanceData[3].w);
-    return vec + vec3(2.0) * cross(cross(vec, quat.xyz) + vec3(quat.w) * vec, quat.xyz);
+
+    vec3 worldNormal = vec + vec3(2.0) * cross(cross(vec, quat.xyz) + vec3(quat.w) * vec, quat.xyz);
+    
+    return (g_ViewMatrix * vec4(worldNormal, 0.0)).xyz;
 }
 
 // Prevent user from using g_** matrices which will have invalid data in this case.
@@ -69,6 +77,11 @@ vec3 TransformNormal(vec3 vec)
 #define g_NormalMatrix              Use_the_instancing_functions_for_this
 
 #else
+
+vec4 TransformWorld(vec4 position)
+{
+    return g_WorldMatrix * position;
+}
 
 vec4 TransformWorldView(vec4 position)
 {

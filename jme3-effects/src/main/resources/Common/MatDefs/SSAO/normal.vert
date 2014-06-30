@@ -1,3 +1,4 @@
+#import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
 uniform mat4 g_WorldViewProjectionMatrix;
 uniform mat3 g_NormalMatrix;

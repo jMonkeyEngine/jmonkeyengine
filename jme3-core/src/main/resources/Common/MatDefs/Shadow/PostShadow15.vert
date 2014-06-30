@@ -1,11 +1,10 @@
+#import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
 uniform mat4 m_LightViewProjectionMatrix0;
 uniform mat4 m_LightViewProjectionMatrix1;
 uniform mat4 m_LightViewProjectionMatrix2;
 uniform mat4 m_LightViewProjectionMatrix3;
 
-uniform mat4 g_WorldViewProjectionMatrix;
-uniform mat4 g_WorldMatrix;
 
 out vec4 projCoord0;
 out vec4 projCoord1;
@@ -51,7 +50,7 @@ void main(){
    #ifdef NUM_BONES
        Skinning_Compute(modelSpacePos);
    #endif
-    gl_Position = g_WorldViewProjectionMatrix * modelSpacePos;
+    gl_Position =  TransformWorldViewProjection(modelSpacePos);
 
     #ifndef POINTLIGHT
         #ifdef PSSM
@@ -60,7 +59,7 @@ void main(){
         vec4 worldPos=vec4(0.0);
     #endif
     // get the vertex in world space
-    worldPos = g_WorldMatrix * modelSpacePos;
+    worldPos = TransformWorld(modelSpacePos);
 
     #ifdef DISCARD_ALPHA
        texCoord = inTexCoord;

@@ -1,9 +1,7 @@
+#import "Common/ShaderLib/Instancing.glsllib"
 #import "Common/ShaderLib/Skinning.glsllib"
 attribute vec3 inPosition;
 attribute vec2 inTexCoord;
-
-uniform mat4 g_WorldViewProjectionMatrix;
-uniform mat4 g_WorldViewMatrix;
 
 varying vec2 texCoord;
 
@@ -13,6 +11,6 @@ void main(){
    #ifdef NUM_BONES
        Skinning_Compute(modelSpacePos);
    #endif
-    gl_Position = g_WorldViewProjectionMatrix * modelSpacePos;
+    gl_Position = TransformWorldViewProjection(modelSpacePos);
     texCoord = inTexCoord;
 }
