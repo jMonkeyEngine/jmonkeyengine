@@ -181,7 +181,7 @@ public class RenderState implements Cloneable, Savable {
          * Opposite effect of Modulate/Multiply. Invert both colors, multiply and
          * then invert the result.
          * <p>
-         * Result = 2 * Source Color * Dest Color -> (GL_ONE, GL_ONE_MINUS_SRC_COLOR)
+         * Result = 1 - (1 - Source Color) * (1 - Dest Color) -> (GL_ONE, GL_ONE_MINUS_SRC_COLOR)
          */
         Screen
     }
