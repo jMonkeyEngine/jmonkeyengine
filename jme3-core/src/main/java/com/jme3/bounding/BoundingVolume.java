@@ -121,7 +121,7 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
      * @param trans
      *            the transform to affect the bound.
      * @param store
-     *            sphere to store result in
+     *            bounding volume to store result in
      * @return the new bounding volume.
      */
     public abstract BoundingVolume transform(Transform trans, BoundingVolume store);
