@@ -684,6 +684,9 @@ public class JoglRenderer implements Renderer {
                     case ModulateX2:
                         gl.glBlendFunc(GL.GL_DST_COLOR, GL.GL_SRC_COLOR);
                         break;
+                    case Screen:
+                        gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE_MINUS_SRC_COLOR);
+                        break; 
                     default:
                         throw new UnsupportedOperationException("Unrecognized blend mode: "
                                 + state.getBlendMode());
