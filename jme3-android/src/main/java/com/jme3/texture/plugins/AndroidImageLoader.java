@@ -5,6 +5,7 @@ import com.jme3.asset.AndroidImageInfo;
 import com.jme3.asset.AssetInfo;
 import com.jme3.asset.AssetLoader;
 import com.jme3.texture.Image;
+import com.jme3.texture.image.ColorSpace;
 import java.io.IOException;
 
 public class AndroidImageLoader implements AssetLoader {
@@ -13,7 +14,8 @@ public class AndroidImageLoader implements AssetLoader {
         AndroidImageInfo imageInfo = new AndroidImageInfo(info);
         Bitmap bitmap = imageInfo.getBitmap();
         
-        Image image = new Image(imageInfo.getFormat(), bitmap.getWidth(), bitmap.getHeight(), null);
+        Image image = new Image(imageInfo.getFormat(), bitmap.getWidth(), bitmap.getHeight(), null, ColorSpace.sRGB);
+        
         image.setEfficentData(imageInfo);
         return image;
     }
