@@ -196,11 +196,10 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         if (!enabled) {
             return;
         }
-		if(mode == Mode.IK){
-                ikUpdate(tpf);
-            }
-        //if the ragdoll has the control of the skeleton, we update each bone with its position in physic world space.
-        if (mode == mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)) {
+        if(mode == Mode.IK){
+            ikUpdate(tpf);
+        } else if (mode == mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)) {
+            //if the ragdoll has the control of the skeleton, we update each bone with its position in physic world space.
             ragDollUpdate(tpf);
         } else {
             kinematicUpdate(tpf);
@@ -325,15 +324,14 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         while (it.hasNext()) {
             
             boneName = it.next();
-            Logger.getLogger(KinematicRagdollControl.class.getSimpleName()).log(Level.INFO, "updationg {0}", boneName);
             bone = (Bone) boneLinks.get(boneName).bone;
             if (!bone.hasUserControl()) {
-                Logger.getLogger(KinematicRagdollControl.class.getSimpleName()).log(Level.INFO, "{0} doesn't have user control", boneName);
+                Logger.getLogger(KinematicRagdollControl.class.getSimpleName()).log(Level.FINE, "{0} doesn't have user control", boneName);
                 continue;
             }
             distance = bone.getModelSpacePosition().distance(ikTargets.get(boneName));
             if (distance < IKThreshold) {
-                Logger.getLogger(KinematicRagdollControl.class.getSimpleName()).log(Level.INFO, "Distance is close enough");
+                Logger.getLogger(KinematicRagdollControl.class.getSimpleName()).log(Level.FINE, "Distance is close enough");
                 continue;
             }
             int depth = 0;
@@ -735,9 +733,12 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
 			vars.release();
 		}
 
-        for (Bone bone : skeleton.getRoots()) {
-            RagdollUtils.setUserControl(bone, mode == Mode.Ragdoll);
+        if(mode != Mode.IK){
+            for (Bone bone : skeleton.getRoots()) {
+                RagdollUtils.setUserControl(bone, mode == Mode.Ragdoll);
+            }
         }
+        
     }
 
     /**
@@ -940,7 +941,7 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         int depth = ikChainDepth.remove(bone.getName());
         int i = 0;
         while (i < depth+2 && bone.getParent() != null) {
-            if (!bone.hasUserControl()) {
+            if (bone.hasUserControl()) {
 //                matchPhysicObjectToBone(boneLinks.get(bone.getName()), position, tmpRot1);
                 bone.setUserControl(false);
             }
@@ -1003,6 +1004,10 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
 
     public void setLimbDampening(float limbDampening) {
         this.limbDampening = limbDampening;
+    }
+    
+    public Bone getBone(String name){
+        return skeleton.getBone(name);
     }
     /**
      * serialize this control
