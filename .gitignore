@@ -72,3 +72,7 @@
 /jme3-android-native/OpenALSoft.zip
 /jme3-android-native/stb_image/
 /jme3-bullet-native-android/build/
+/sdk/nbproject/private/
+/sdk/jme3-gui/nbproject/private/
+/sdk/jme3-core/nbproject/private/
+/sdk/jme3-materialeditor/nbproject/private/

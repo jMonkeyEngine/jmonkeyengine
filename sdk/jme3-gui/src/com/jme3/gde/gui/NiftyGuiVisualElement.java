@@ -6,36 +6,60 @@ package com.jme3.gde.gui;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.SceneApplication;
+import com.jme3.gde.gui.nodes.GUINode;
+import com.jme3.gde.gui.palette.NiftyGUIPaletteFactory;
 import de.lessvoid.nifty.Nifty;
 import jada.ngeditor.controller.GUIEditor;
 import jada.ngeditor.guiviews.DND.PaletteDropTarget;
 import jada.ngeditor.guiviews.DND.TrasferHandling;
 import jada.ngeditor.guiviews.J2DNiftyView;
+import jada.ngeditor.model.elements.GElement;
 import jada.ngeditor.model.elements.GLayer;
 import jada.ngeditor.model.exception.NoProductException;
 import java.awt.Dimension;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.Callable;
 import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.text.AbstractDocument;
 import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.UndoRedo;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
+import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
 import org.xml.sax.SAXException;
 
@@ -47,7 +71,7 @@ import org.xml.sax.SAXException;
         preferredID = "NiftyGuiVisual",
         position = 2000)
 @Messages("LBL_NiftyGui_VISUAL=Visual")
-public final class NiftyGuiVisualElement extends JPanel implements MultiViewElement {
+public final class NiftyGuiVisualElement extends JPanel implements MultiViewElement , ExplorerManager.Provider,Observer {
 
     private NiftyGuiDataObject obj;
     private JToolBar toolbar = new JToolBar();
@@ -56,6 +80,8 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
     private final Nifty nifty;
     private final J2DNiftyView view;
     private final JComboBox layers = new JComboBox();
+    private final ExplorerManager nodesManager;
+   
 
     public NiftyGuiVisualElement(Lookup lkp) {
         obj = lkp.lookup(NiftyGuiDataObject.class);
@@ -67,7 +93,9 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
         this.scrollArea.setViewportView(view);
         TrasferHandling tranf = new TrasferHandling();
         PaletteDropTarget tmp = new PaletteDropTarget();
-        editor = new GUIEditor();
+        editor = obj.getLookup().lookup(GUIEditor.class);
+        editor.addObserver(this);
+        nodesManager = new ExplorerManager();
         nifty = view.getNifty();
         view.setTransferHandler(tranf);
         view.setDropTarget(tmp);
@@ -156,7 +184,7 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
 
     @Override
     public Lookup getLookup() {
-        return obj.getLookup();
+        return ExplorerUtils.createLookup(nodesManager, new ActionMap());
     }
     /**
      * Raw implementation , just to prototype the editor
@@ -164,14 +192,20 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
     @Override
     public void componentOpened() {
         try {
+            ProgressHandle handle = ProgressHandleFactory.createHandle("Loading the gui file");
             String path = this.obj.getPrimaryFile().getPath();
-            ProjectAssetManager mgr = this.getLookup().lookup(ProjectAssetManager.class);
+            ProjectAssetManager mgr = obj.getLookup().lookup(ProjectAssetManager.class);
             String assetPath = mgr.getAssetFolder().getPath();
+            handle.progress(50);
             this.editor.createNewGui(nifty,new File(path),new File(assetPath));
+            nodesManager.setRootContext(new GUINode(this.editor.getGui()));
             Collection<GLayer> layers1 = this.editor.getGui().getLayers();
             DefaultComboBoxModel<GLayer> model = new DefaultComboBoxModel<GLayer>(layers1.toArray(new GLayer[0]));
             layers.setModel(model);
             layers.setSelectedItem(this.editor.getCurrentLayer());
+            
+            handle.finish();
+            
         } catch (ParserConfigurationException ex) {
             Exceptions.printStackTrace(ex);
         } catch (JAXBException ex) {
@@ -198,14 +232,18 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
     @Override
     public void componentShowing() {
         try {
+            ProgressHandle handle = ProgressHandleFactory.createHandle("Loading the gui file");
             String path = this.obj.getPrimaryFile().getPath();
-            ProjectAssetManager mgr = this.getLookup().lookup(ProjectAssetManager.class);
+            ProjectAssetManager mgr = this.obj.getLookup().lookup(ProjectAssetManager.class);
             String assetPath = mgr.getAssetFolder().getPath();
             this.editor.createNewGui(nifty,new File(path),new File(assetPath));
+             nodesManager.setRootContext(new GUINode(this.editor.getGui()));
             Collection<GLayer> layers1 = this.editor.getGui().getLayers();
             DefaultComboBoxModel<GLayer> model = new DefaultComboBoxModel<GLayer>(layers1.toArray(new GLayer[0]));
             layers.setModel(model);
             layers.setSelectedItem(this.editor.getCurrentLayer());
+           
+            handle.finish();
         } catch (ParserConfigurationException ex) {
             Exceptions.printStackTrace(ex);
         } catch (JAXBException ex) {
@@ -259,5 +297,36 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
     @Override
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
+    }
+
+    @Override
+    public ExplorerManager getExplorerManager() {
+       return nodesManager;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        jada.ngeditor.listeners.actions.Action act = ( jada.ngeditor.listeners.actions.Action) arg;
+       if(act.getType() == jada.ngeditor.listeners.actions.Action.SEL){
+           ArrayList<String> path = new ArrayList<String>();
+           GElement parent = act.getGUIElement();
+           while(parent!=null){
+               path.add(parent.getID());
+               parent = parent.getParent();
+           }
+           
+           Node result = nodesManager.getRootContext();
+          
+           for(int i=path.size()-1;i>=0 && result!=null;i--){
+               result = result.getChildren().findChild(path.get(i));
+           }
+            try {
+                if(result!=null){
+                nodesManager.setSelectedNodes(new Node[]{result});
+                }
+            } catch (PropertyVetoException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+       }
     }
 }

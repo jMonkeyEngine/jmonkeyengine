@@ -34,12 +34,30 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.api.progress</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.32.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.core.multiview</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.32.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.editor.mimelookup</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.29.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -67,6 +85,15 @@
                     <run-dependency>
                         <release-version>1</release-version>
                         <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.spi.navigator</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.27.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -167,8 +194,8 @@
                 <binary-origin>release/modules/ext/swingtonifty.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
-                <runtime-relative-path>ext/Nifty-Editor0.5.7.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/Nifty-Editor0.5.7.jar</binary-origin>
+                <runtime-relative-path>ext/Nifty-Editor0.5.9.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/Nifty-Editor0.5.9.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

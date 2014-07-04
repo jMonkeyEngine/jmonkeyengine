@@ -9,13 +9,19 @@
 
 package com.jme3.gde.gui.palette;
 
+import jada.ngeditor.guiviews.DND.WidgetData;
 import java.io.IOException;
 import javax.swing.Action;
+import org.netbeans.api.editor.mimelookup.MimeRegistration;
+import org.netbeans.spi.palette.DragAndDropHandler;
 import org.netbeans.spi.palette.PaletteActions;
 import org.netbeans.spi.palette.PaletteController;
 import org.netbeans.spi.palette.PaletteFactory;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.datatransfer.ExTransferable;
 
 /**
  *
@@ -26,21 +32,21 @@ public class NiftyGUIPaletteFactory {
     //http://blogs.sun.com/geertjan/entry/convert_your_topcomponent_to_a
     //http://www.javanb.com/netbeans/1/19785.html
     
-    public static final String PALETTE_FOLDER = "NiftyGUIPalette";
+    public static final String PALETTE_FOLDER = "NiftyPalette";
     private static PaletteController palette = null;
     
     public NiftyGUIPaletteFactory() {
     }
-    
+   @MimeRegistration(mimeType = "text/x-niftygui+xml", service = PaletteController.class)
     public static PaletteController createPalette() {
-        try {
-            if (null == palette)
-                palette = PaletteFactory.createPalette(PALETTE_FOLDER, new MyActions());
+       
+            if (null == palette){
+                AbstractNode paletteRoot = new AbstractNode(Children.create(new CategoryChildFactory(), true));
+                paletteRoot.setName("Palette Root");
+                palette = PaletteFactory.createPalette( paletteRoot,new MyActions(),null,new MyHandler());
+            }
+        
             return palette;
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return null;
     }
     
     private static class MyActions extends PaletteActions {
@@ -70,6 +76,17 @@ public class NiftyGUIPaletteFactory {
             return null;
         }
         
+    }
+
+    private static class MyHandler extends DragAndDropHandler {
+
+        public MyHandler() {
+        }
+
+        @Override
+        public void customize(ExTransferable t, Lookup item) {
+            t.remove(WidgetData.POINTFLAVOR);
+        }
     }
     
 }

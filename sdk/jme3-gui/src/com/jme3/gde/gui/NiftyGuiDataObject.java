@@ -5,6 +5,7 @@
 package com.jme3.gde.gui;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import jada.ngeditor.controller.GUIEditor;
 import java.io.IOException;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
@@ -95,6 +96,7 @@ public class NiftyGuiDataObject extends MultiDataObject {
         super(pf, loader);
         registerEditor("text/x-niftygui+xml", true);
         findAssetManager();
+        this.getCookieSet().assign(GUIEditor.class,new GUIEditor());
     }
 
     protected final void findAssetManager() {
@@ -140,6 +142,7 @@ public class NiftyGuiDataObject extends MultiDataObject {
             position = 1000)
     @Messages("LBL_NiftyGui_EDITOR=XML")
     public static MultiViewEditorElement createEditor(Lookup lkp) {
-        return new MultiViewEditorElement(lkp);
+        final MultiViewEditorElement multiViewEditorElement = new MultiViewEditorElement(lkp);
+        return multiViewEditorElement;
     }
 }
