@@ -84,12 +84,12 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          */
         Color,
 
-	/**
-	 * Tangent vector, normalized (4 floats) (x,y,z,w). The w component is
-	 * called the binormal parity, is not normalized, and is either 1f or
-	 * -1f. It's used to compute the direction on the binormal vector on the
-	 * GPU at render time.
-	 */
+        /**
+         * Tangent vector, normalized (4 floats) (x,y,z,w). The w component is
+         * called the binormal parity, is not normalized, and is either 1f or
+         * -1f. It's used to compute the direction on the binormal vector on the
+         * GPU at render time.
+         */
         Tangent,
 
         /**
@@ -208,12 +208,12 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         HWBoneIndex,
         
         /**
-	 * Information about this instance.
+         * Information about this instance.
          * 
-	 * Format should be {@link Format#Float} and number of components
-	 * should be 16.
-	 */
-	InstanceData
+         * Format should be {@link Format#Float} and number of components
+         * should be 16.
+         */
+        InstanceData
     }
 
     /**
