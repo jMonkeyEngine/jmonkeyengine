@@ -132,8 +132,8 @@ MaterialDef Phong Lighting {
         // For hardware skinning
         Int NumberOfBones
         Matrix4Array BoneMatrices
-		
-	Boolean UseInstancing
+                
+        Boolean UseInstancing
     }
 
     Technique {
@@ -180,7 +180,7 @@ MaterialDef Phong Lighting {
             SPHERE_MAP : SphereMap  
 
             NUM_BONES : NumberOfBones
-			
+                        
             INSTANCING : UseInstancing
         }
     }
@@ -309,7 +309,7 @@ MaterialDef Phong Lighting {
         WorldParameters {
             WorldViewProjectionMatrix
             WorldViewMatrix
-            NormalMatrix			
+            NormalMatrix                        
             ViewProjectionMatrix
             ViewMatrix
         }
