@@ -2273,7 +2273,7 @@ public class LwjglRenderer implements Renderer {
                             vb.getOffset());
                 } else {
                     for (int i = 0; i < slotsRequired; i++) {
-	 	 	// The pointer maps the next 4 floats in the slot.
+                        // The pointer maps the next 4 floats in the slot.
                         // E.g.
                         // P1: XXXX____________XXXX____________
                         // P2: ____XXXX____________XXXX________
