@@ -2226,7 +2226,6 @@ public class LwjglRenderer implements Renderer {
                 }
             }
             
-            int slotsRequired = 1;
             if (vb.isInstanced()) {
                 if (!ctxCaps.GL_ARB_instanced_arrays
                  || !ctxCaps.GL_ARB_draw_instanced) {
@@ -2234,7 +2233,10 @@ public class LwjglRenderer implements Renderer {
                             + "but not supported by the "
                             + "graphics hardware");
                 }
-                if (vb.getNumComponents() > 4 && vb.getNumComponents() % 4 != 0) {
+            }
+            int slotsRequired = 1;
+            if (vb.getNumComponents() > 4) {
+                if (vb.getNumComponents() % 4 != 0) {
                     throw new RendererException("Number of components in multi-slot "
                             + "buffers must be divisible by 4");
                 }
