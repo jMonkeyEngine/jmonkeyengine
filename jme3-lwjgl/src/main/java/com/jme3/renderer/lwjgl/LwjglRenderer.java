@@ -2294,7 +2294,7 @@ public class LwjglRenderer implements Renderer {
                     int slot = loc + i;
                     if (vb.isInstanced() && (attribs[slot] == null || !attribs[slot].isInstanced())) {
                         // non-instanced -> instanced
-                        glVertexAttribDivisorARB(slot, 1);
+                        glVertexAttribDivisorARB(slot, vb.getInstanceSpan());
                     } else if (!vb.isInstanced() && attribs[slot] != null && attribs[slot].isInstanced()) {
                         // instanced -> non-instanced
                         glVertexAttribDivisorARB(slot, 0);
@@ -2491,6 +2491,11 @@ public class LwjglRenderer implements Renderer {
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+ 
+        // Here while count is still passed in.  Can be removed when/if
+        // the method is collapsed again.  -pspeed        
+        count = Math.max(mesh.getInstanceCount(), count);
+    
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
