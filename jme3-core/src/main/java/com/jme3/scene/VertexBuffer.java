@@ -84,12 +84,12 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
          */
         Color,
 
-	/**
-	 * Tangent vector, normalized (4 floats) (x,y,z,w). The w component is
-	 * called the binormal parity, is not normalized, and is either 1f or
-	 * -1f. It's used to compute the direction on the binormal vector on the
-	 * GPU at render time.
-	 */
+        /**
+         * Tangent vector, normalized (4 floats) (x,y,z,w). The w component is
+         * called the binormal parity, is not normalized, and is either 1f or
+         * -1f. It's used to compute the direction on the binormal vector on the
+         * GPU at render time.
+         */
         Tangent,
 
         /**
@@ -208,12 +208,12 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         HWBoneIndex,
         
         /**
-	 * Information about this instance.
+         * Information about this instance.
          * 
-	 * Format should be {@link Format#Float} and number of components
-	 * should be 16.
-	 */
-	InstanceData
+         * Format should be {@link Format#Float} and number of components
+         * should be 16.
+         */
+        InstanceData
     }
 
     /**
@@ -333,7 +333,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     protected Type bufType;
     protected Format format;
     protected boolean normalized = false;
-    protected transient boolean instanced = false;
+    protected int instanceSpan = 0;
     protected transient boolean dataSizeChanged = false;
 
     /**
@@ -545,14 +545,39 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     }
 
     /**
-     * TODO:
+     * Sets the instanceSpan to 1 or 0 depending on
+     * the value of instanced and the existing value of
+     * instanceSpan.
      */
     public void setInstanced(boolean instanced) {
-        this.instanced = instanced;
+        if( instanced && instanceSpan == 0 ) {
+            instanceSpan = 1;
+        } else if( !instanced ) {
+            instanceSpan = 0;
+        }
     }
 
+    /**
+     * Returns true if instanceSpan is more than 0 indicating
+     * that this vertex buffer contains per-instance data.
+     */
     public boolean isInstanced() {
-        return instanced;
+        return instanceSpan > 0;
+    }
+ 
+    /**
+     * Sets how this vertex buffer matches with rendered instances
+     * where 0 means no instancing at all, ie: all elements are
+     * per vertex.  If set to 1 then each element goes with one
+     * instance.  If set to 2 then each element goes with two
+     * instances and so on.
+     */
+    public void setInstanceSpan(int i) {
+        this.instanceSpan = i;
+    }
+    
+    public int getInstanceSpan() {
+        return instanceSpan;
     }
     
     /**
@@ -585,6 +610,20 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         if (format == Format.Half)
             elements /= 2;
         return elements;
+    }
+
+    /**
+     *  Returns the number of 'instances' in this VertexBuffer.  This
+     *  is dependent on the current instanceSpan.  When instanceSpan
+     *  is 0 then 'instances' is 1.  Otherwise, instances is elements *
+     *  instanceSpan.  It is possible to render a mesh with more instances
+     *  but the instance data begins to repeat.
+     */
+    public int getBaseInstanceCount() {
+        if( instanceSpan == 0 ) {
+            return 1;
+        }
+        return getNumElements() * instanceSpan;
     }
 
     /**
@@ -1009,7 +1048,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         vb.handleRef = new Object();
         vb.id = -1;
         vb.normalized = normalized;
-        vb.instanced = instanced;
+        vb.instanceSpan = instanceSpan;
         vb.offset = offset;
         vb.stride = stride;
         vb.updateNeeded = true;
@@ -1060,9 +1099,6 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
     
     @Override
     public void write(JmeExporter ex) throws IOException {
-        if (instanced) {
-            throw new IOException("Serialization of instanced data not allowed");
-        }
         
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(components, "components", 0);
@@ -1072,6 +1108,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         oc.write(normalized, "normalized", false);
         oc.write(offset, "offset", 0);
         oc.write(stride, "stride", 0);
+        oc.write(instanceSpan, "instanceSpan", 0);
 
         String dataName = "data" + format.name();
         Buffer roData = getDataReadOnly();
@@ -1107,6 +1144,7 @@ public class VertexBuffer extends NativeObject implements Savable, Cloneable {
         normalized = ic.readBoolean("normalized", false);
         offset = ic.readInt("offset", 0);
         stride = ic.readInt("stride", 0);
+        instanceSpan = ic.readInt("instanceSpan", 0);
         componentsLength = components * format.getComponentSize();
 
         String dataName = "data" + format.name();

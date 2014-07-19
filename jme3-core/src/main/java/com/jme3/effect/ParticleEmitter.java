@@ -167,11 +167,12 @@ public class ParticleEmitter extends Geometry {
         clone.endColor = endColor.clone();
         clone.particleInfluencer = particleInfluencer.clone();
 
-        // remove wrong control
-        clone.controls.remove(control);
+        // remove original control from the clone
+        clone.controls.remove(this.control);
 
-        // put correct control
-        clone.controls.add(new ParticleEmitterControl(clone));
+        // put clone's control in
+        clone.control = new ParticleEmitterControl(clone);
+        clone.controls.add(clone.control);
 
         // Reinitialize particle mesh
         switch (meshType) {

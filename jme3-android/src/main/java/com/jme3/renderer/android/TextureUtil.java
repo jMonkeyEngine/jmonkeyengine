@@ -6,7 +6,6 @@ import android.opengl.ETC1Util.ETC1Texture;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import com.jme3.asset.AndroidImageInfo;
-import com.jme3.math.FastMath;
 import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;

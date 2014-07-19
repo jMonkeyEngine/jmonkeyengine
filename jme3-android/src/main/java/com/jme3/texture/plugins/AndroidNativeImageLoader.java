@@ -5,6 +5,7 @@ import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -90,7 +91,7 @@ public class AndroidNativeImageLoader  implements AssetLoader {
         BufferUtils.destroyDirectBuffer(origDataBuffer);
         BufferUtils.destroyDirectBuffer(headerDataBuffer);
 
-        Image img = new Image(getImageFormat(numComponents), width, height, imageDataBuffer);
+        Image img = new Image(getImageFormat(numComponents), width, height, imageDataBuffer, ColorSpace.sRGB);
 
         return img;
     }

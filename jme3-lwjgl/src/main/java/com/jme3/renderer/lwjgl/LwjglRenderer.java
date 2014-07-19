@@ -2226,7 +2226,6 @@ public class LwjglRenderer implements Renderer {
                 }
             }
             
-            int slotsRequired = 1;
             if (vb.isInstanced()) {
                 if (!ctxCaps.GL_ARB_instanced_arrays
                  || !ctxCaps.GL_ARB_draw_instanced) {
@@ -2234,7 +2233,10 @@ public class LwjglRenderer implements Renderer {
                             + "but not supported by the "
                             + "graphics hardware");
                 }
-                if (vb.getNumComponents() > 4 && vb.getNumComponents() % 4 != 0) {
+            }
+            int slotsRequired = 1;
+            if (vb.getNumComponents() > 4) {
+                if (vb.getNumComponents() % 4 != 0) {
                     throw new RendererException("Number of components in multi-slot "
                             + "buffers must be divisible by 4");
                 }
@@ -2273,7 +2275,7 @@ public class LwjglRenderer implements Renderer {
                             vb.getOffset());
                 } else {
                     for (int i = 0; i < slotsRequired; i++) {
-	 	 	// The pointer maps the next 4 floats in the slot.
+                        // The pointer maps the next 4 floats in the slot.
                         // E.g.
                         // P1: XXXX____________XXXX____________
                         // P2: ____XXXX____________XXXX________
@@ -2294,7 +2296,7 @@ public class LwjglRenderer implements Renderer {
                     int slot = loc + i;
                     if (vb.isInstanced() && (attribs[slot] == null || !attribs[slot].isInstanced())) {
                         // non-instanced -> instanced
-                        glVertexAttribDivisorARB(slot, 1);
+                        glVertexAttribDivisorARB(slot, vb.getInstanceSpan());
                     } else if (!vb.isInstanced() && attribs[slot] != null && attribs[slot].isInstanced()) {
                         // instanced -> non-instanced
                         glVertexAttribDivisorARB(slot, 0);
@@ -2491,6 +2493,11 @@ public class LwjglRenderer implements Renderer {
     }
 
     private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+ 
+        // Here while count is still passed in.  Can be removed when/if
+        // the method is collapsed again.  -pspeed        
+        count = Math.max(mesh.getInstanceCount(), count);
+    
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);

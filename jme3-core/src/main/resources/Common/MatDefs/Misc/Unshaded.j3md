@@ -59,7 +59,8 @@ MaterialDef Unshaded {
 
         WorldParameters {
             WorldViewProjectionMatrix
-            ProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
         }
 
         Defines {
@@ -86,10 +87,13 @@ MaterialDef Unshaded {
               WorldViewProjectionMatrix
               WorldViewMatrix
               NormalMatrix
+              ViewProjectionMatrix
+              ViewMatrix
           }
 
           Defines {
               NUM_BONES : NumberOfBones
+              INSTANCING : UseInstancing
           }
    }
 
@@ -101,12 +105,15 @@ MaterialDef Unshaded {
         WorldParameters {
             WorldViewProjectionMatrix
             WorldViewMatrix
+            ViewProjectionMatrix
+            ViewMatrix
         }
 
         Defines {
             COLOR_MAP : ColorMap
             DISCARD_ALPHA : AlphaDiscardThreshold
             NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
         }
 
         ForcedRenderState {
@@ -127,6 +134,8 @@ MaterialDef Unshaded {
         WorldParameters {
             WorldViewProjectionMatrix
             WorldMatrix
+            ViewProjectionMatrix
+            ViewMatrix
         }
 
         Defines {
@@ -140,6 +149,7 @@ MaterialDef Unshaded {
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
+	    INSTANCING : UseInstancing
         }
 
         ForcedRenderState {
@@ -156,6 +166,8 @@ MaterialDef Unshaded {
         WorldParameters {
             WorldViewProjectionMatrix
             WorldMatrix
+            ViewProjectionMatrix
+            ViewMatrix
         }
 
         Defines {
@@ -169,6 +181,7 @@ MaterialDef Unshaded {
             PSSM : Splits
             POINTLIGHT : LightViewProjectionMatrix5
             NUM_BONES : NumberOfBones
+            INSTANCING : UseInstancing
         }
 
         ForcedRenderState {
@@ -185,6 +198,8 @@ MaterialDef Unshaded {
 
         WorldParameters {
             WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
         }
 
         Defines {
@@ -192,6 +207,7 @@ MaterialDef Unshaded {
             HAS_GLOWMAP : GlowMap
             HAS_GLOWCOLOR : GlowColor
             NUM_BONES : NumberOfBones
+	    INSTANCING : UseInstancing
         }
     }
 }

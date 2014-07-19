@@ -1,12 +1,16 @@
+#import "Common/ShaderLib/Instancing.glsllib"
 #define ATTENUATION
 //#define HQ_ATTENUATION
 
 #import "Common/ShaderLib/Skinning.glsllib"
 
-uniform mat4 g_WorldViewProjectionMatrix;
-uniform mat4 g_WorldViewMatrix;
-uniform mat3 g_NormalMatrix;
-uniform mat4 g_ViewMatrix;
+/*
+    uniform mat4 g_WorldViewProjectionMatrix;
+    uniform mat4 g_WorldViewMatrix;
+    uniform mat3 g_NormalMatrix;
+    uniform mat4 g_ViewMatrix;
+*/
+
 
 uniform vec4 m_Ambient;
 uniform vec4 m_Diffuse;
@@ -148,14 +152,14 @@ void main(){
         #endif
    #endif
 
-   gl_Position = g_WorldViewProjectionMatrix * modelSpacePos;
+   gl_Position = TransformWorldViewProjection(modelSpacePos);// g_WorldViewProjectionMatrix * modelSpacePos;
    texCoord = inTexCoord;
    #ifdef SEPARATE_TEXCOORD
       texCoord2 = inTexCoord2;
    #endif
 
-   vec3 wvPosition = (g_WorldViewMatrix * modelSpacePos).xyz;
-   vec3 wvNormal  = normalize(g_NormalMatrix * modelSpaceNorm);
+   vec3 wvPosition = TransformWorldView(modelSpacePos).xyz;// (g_WorldViewMatrix * modelSpacePos).xyz;
+   vec3 wvNormal  = normalize(TransformNormal(modelSpaceNorm));//normalize(g_NormalMatrix * modelSpaceNorm);
    vec3 viewDir = normalize(-wvPosition);
   
        //vec4 lightColor = g_LightColor[gl_InstanceID];
@@ -168,7 +172,7 @@ void main(){
    vec4 lightColor = g_LightColor;
 
    #if defined(NORMALMAP) && !defined(VERTEX_LIGHTING)
-     vec3 wvTangent = normalize(g_NormalMatrix * modelSpaceTan);
+     vec3 wvTangent = normalize(TransformNormal(modelSpaceTan));
      vec3 wvBinormal = cross(wvNormal, wvTangent);
 
      mat3 tbnMat = mat3(wvTangent, wvBinormal * inTangent.w,wvNormal);
@@ -187,7 +191,7 @@ void main(){
      lightComputeDir(wvPosition, lightColor, wvLightPos, vLightDir);
 
      #ifdef V_TANGENT
-        vNormal = normalize(g_NormalMatrix * inTangent.xyz);
+        vNormal = normalize(TransformNormal(inTangent.xyz));
         vNormal = -cross(cross(vLightDir.xyz, vNormal), vNormal);
      #endif
    #endif

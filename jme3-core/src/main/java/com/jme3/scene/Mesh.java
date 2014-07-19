@@ -174,6 +174,7 @@ public class Mesh implements Savable, Cloneable {
 
     private int vertCount = -1;
     private int elementCount = -1;
+    private int instanceCount = -1;
     private int maxNumWeights = -1; // only if using skeletal animation
 
     private int[] elementLengths;
@@ -242,6 +243,7 @@ public class Mesh implements Savable, Cloneable {
             clone.vertexArrayID = -1;
             clone.vertCount = vertCount;
             clone.elementCount = elementCount;
+            clone.instanceCount = instanceCount;
             
             // although this could change
             // if the bone weight/index buffers are modified
@@ -718,6 +720,17 @@ public class Mesh implements Savable, Cloneable {
         }
     }
 
+    private int computeInstanceCount() {
+        // Whatever the max of the base instance counts
+        int max = 0;
+        for( VertexBuffer vb : buffersList ) {
+            if( vb.getBaseInstanceCount() > max ) {
+                max = vb.getBaseInstanceCount(); 
+            } 
+        }        
+        return max;
+    }
+
     /**
      * Update the {@link #getVertexCount() vertex} and 
      * {@link #getTriangleCount() triangle} counts for this mesh
@@ -741,7 +754,8 @@ public class Mesh implements Savable, Cloneable {
             elementCount = computeNumElements(ib.getData().limit());
         }else{
             elementCount = computeNumElements(vertCount);
-        }
+        }        
+        instanceCount = computeInstanceCount();
     }
 
     /**
@@ -789,6 +803,14 @@ public class Mesh implements Savable, Cloneable {
     public int getVertexCount(){
         return vertCount;
     }
+    
+    /**
+     * Returns the number of instances this mesh contains.  The instance
+     * count is based on any VertexBuffers with instancing set.
+     */
+    public int getInstanceCount() {
+        return instanceCount;
+    }     
 
     /**
      * Gets the triangle vertex positions at the given triangle index 
@@ -1333,6 +1355,7 @@ public class Mesh implements Savable, Cloneable {
         out.write(meshBound, "modelBound", null);
         out.write(vertCount, "vertCount", -1);
         out.write(elementCount, "elementCount", -1);
+        out.write(instanceCount, "instanceCount", -1);
         out.write(maxNumWeights, "max_num_weights", -1);
         out.write(mode, "mode", Mode.Triangles);
         out.write(collisionTree, "collisionTree", null);
@@ -1370,6 +1393,7 @@ public class Mesh implements Savable, Cloneable {
         meshBound = (BoundingVolume) in.readSavable("modelBound", null);
         vertCount = in.readInt("vertCount", -1);
         elementCount = in.readInt("elementCount", -1);
+        instanceCount = in.readInt("instanceCount", -1);
         maxNumWeights = in.readInt("max_num_weights", -1);
         mode = in.readEnum("mode", Mode.class, Mode.Triangles);
         elementLengths = in.readIntArray("elementLengths", null);

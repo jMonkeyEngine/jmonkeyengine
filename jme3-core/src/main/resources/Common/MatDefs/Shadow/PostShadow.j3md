@@ -29,6 +29,7 @@ MaterialDef Post Shadow {
         Float PCFEdge
 
         Float ShadowMapSize
+		
     }
 
     Technique {

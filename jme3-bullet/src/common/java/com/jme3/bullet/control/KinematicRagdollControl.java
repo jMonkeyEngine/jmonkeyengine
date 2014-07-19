@@ -52,6 +52,7 @@ import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
 import com.jme3.export.Savable;
+import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -113,11 +114,17 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
     protected float eventDispatchImpulseThreshold = 10;
     protected float rootMass = 15;
     protected float totalMass = 0;
+    private Map<String, Vector3f> ikTargets = new HashMap<String, Vector3f>();
+    private Map<String, Integer> ikChainDepth = new HashMap<String, Integer>();
+    private float ikRotSpeed = 7f;
+    private float limbDampening = 0.6f;
 
+    private float IKThreshold = 0.1f;
     public static enum Mode {
 
         Kinematic,
-        Ragdoll
+        Ragdoll,
+        IK
     }
 
     public class PhysicsBoneLink implements Savable {
@@ -189,9 +196,10 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         if (!enabled) {
             return;
         }
-
-        //if the ragdoll has the control of the skeleton, we update each bone with its position in physic world space.
-        if (mode == mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)) {
+        if(mode == Mode.IK){
+            ikUpdate(tpf);
+        } else if (mode == mode.Ragdoll && targetModel.getLocalTranslation().equals(modelPosition)) {
+            //if the ragdoll has the control of the skeleton, we update each bone with its position in physic world space.
             ragDollUpdate(tpf);
         } else {
             kinematicUpdate(tpf);
@@ -260,6 +268,9 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         Quaternion tmpRot2 = vars.quat2;
         Vector3f position = vars.vect1;
         for (PhysicsBoneLink link : boneLinks.values()) {
+//            if(link.usedbyIK){
+//                continue;
+//            }
             //if blended control this means, keyframed animation is updating the skeleton, 
             //but to allow smooth transition, we blend this transformation with the saved position of the ragdoll
             if (blendedControl) {
@@ -299,6 +310,94 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
             }
         }
         vars.release();
+    }
+    private void ikUpdate(float tpf){
+        TempVars vars = TempVars.get();
+
+        Quaternion tmpRot1 = vars.quat1;
+        Quaternion[] tmpRot2 = new Quaternion[]{vars.quat2, new Quaternion()};
+
+        Iterator<String> it = ikTargets.keySet().iterator();
+        float distance;
+        Bone bone;
+        String boneName;
+        while (it.hasNext()) {
+            
+            boneName = it.next();
+            bone = (Bone) boneLinks.get(boneName).bone;
+            if (!bone.hasUserControl()) {
+                Logger.getLogger(KinematicRagdollControl.class.getSimpleName()).log(Level.FINE, "{0} doesn't have user control", boneName);
+                continue;
+            }
+            distance = bone.getModelSpacePosition().distance(ikTargets.get(boneName));
+            if (distance < IKThreshold) {
+                Logger.getLogger(KinematicRagdollControl.class.getSimpleName()).log(Level.FINE, "Distance is close enough");
+                continue;
+            }
+            int depth = 0;
+            int maxDepth = ikChainDepth.get(bone.getName());
+            updateBone(boneLinks.get(bone.getName()), tpf * (float) FastMath.sqrt(distance), vars, tmpRot1, tmpRot2, bone, ikTargets.get(boneName), depth, maxDepth);
+
+            Vector3f position = vars.vect1;
+            
+            for (PhysicsBoneLink link : boneLinks.values()) {
+                matchPhysicObjectToBone(link, position, tmpRot1);
+            }
+        }
+        vars.release();
+    }
+    
+    public void updateBone(PhysicsBoneLink link, float tpf, TempVars vars, Quaternion tmpRot1, Quaternion[] tmpRot2, Bone tipBone, Vector3f target, int depth, int maxDepth) {
+        if (link == null || link.bone.getParent() == null) {
+            return;
+        }
+        Quaternion preQuat = link.bone.getLocalRotation();
+        Vector3f vectorAxis;
+        
+        float[] measureDist = new float[]{Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY};
+        for (int dirIndex = 0; dirIndex < 3; dirIndex++) {
+            if (dirIndex == 0) {
+                vectorAxis = Vector3f.UNIT_Z;
+            } else if (dirIndex == 1) {
+                vectorAxis = Vector3f.UNIT_X;
+            } else {
+                vectorAxis = Vector3f.UNIT_Y;
+            }
+
+            for (int posOrNeg = 0; posOrNeg < 2; posOrNeg++) {
+                float rot = ikRotSpeed * tpf / (link.rigidBody.getMass() * 2);
+
+                rot = FastMath.clamp(rot, link.joint.getRotationalLimitMotor(dirIndex).getLoLimit(), link.joint.getRotationalLimitMotor(dirIndex).getHiLimit());
+                tmpRot1.fromAngleAxis(rot, vectorAxis);
+//                tmpRot1.fromAngleAxis(rotSpeed * tpf / (link.rigidBody.getMass() * 2), vectorAxis);
+                
+                
+                tmpRot2[posOrNeg] = link.bone.getLocalRotation().mult(tmpRot1);
+                tmpRot2[posOrNeg].normalizeLocal();
+
+                ikRotSpeed = -ikRotSpeed;
+               
+                link.bone.setLocalRotation(tmpRot2[posOrNeg]);
+                link.bone.update();
+                measureDist[posOrNeg] = tipBone.getModelSpacePosition().distance(target);
+                link.bone.setLocalRotation(preQuat);
+            }
+
+            if (measureDist[0] < measureDist[1]) {
+                link.bone.setLocalRotation(tmpRot2[0]);
+            } else if (measureDist[0] > measureDist[1]) {
+                link.bone.setLocalRotation(tmpRot2[1]);
+            }
+
+        }
+        link.bone.getLocalRotation().normalizeLocal();
+
+        link.bone.update();
+//        link.usedbyIK = true;
+        if (link.bone.getParent() != null && depth < maxDepth) {
+            
+            updateBone(boneLinks.get(link.bone.getParent().getName()), tpf * limbDampening, vars, tmpRot1, tmpRot2, tipBone, target, depth + 1, maxDepth);
+        }
     }
 
     /**
@@ -618,23 +717,28 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         animControl.setEnabled(mode == Mode.Kinematic);
 
         baseRigidBody.setKinematic(mode == Mode.Kinematic);
-        TempVars vars = TempVars.get();
+		if (mode != Mode.IK) {
+			TempVars vars = TempVars.get();
 
-        for (PhysicsBoneLink link : boneLinks.values()) {
-            link.rigidBody.setKinematic(mode == Mode.Kinematic);
-            if (mode == Mode.Ragdoll) {
-                Quaternion tmpRot1 = vars.quat1;
-                Vector3f position = vars.vect1;
-                //making sure that the ragdoll is at the correct place.
-                matchPhysicObjectToBone(link, position, tmpRot1);
+			for (PhysicsBoneLink link : boneLinks.values()) {
+				link.rigidBody.setKinematic(mode == Mode.Kinematic);
+				if (mode == Mode.Ragdoll) {
+					Quaternion tmpRot1 = vars.quat1;
+					Vector3f position = vars.vect1;
+					//making sure that the ragdoll is at the correct place.
+					matchPhysicObjectToBone(link, position, tmpRot1);
+				}
+
+			}
+			vars.release();
+		}
+
+        if(mode != Mode.IK){
+            for (Bone bone : skeleton.getRoots()) {
+                RagdollUtils.setUserControl(bone, mode == Mode.Ragdoll);
             }
-
         }
-        vars.release();
-
-        for (Bone bone : skeleton.getRoots()) {
-            RagdollUtils.setUserControl(bone, mode == Mode.Ragdoll);
-        }
+        
     }
 
     /**
@@ -703,6 +807,16 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         }
     }
 
+    /**
+     * Sets the control into Inverse Kinematics mode. The affected bones are affected by IK.
+     * physics.
+     */
+    public void setIKMode() {
+        if (mode != Mode.IK) {
+            setMode(Mode.IK);
+        }
+    }
+    
     /**
      * retruns the mode of this control
      *
@@ -804,7 +918,97 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         control.setApplyPhysicsLocal(applyLocal);
         return control;
     }
+   
+    public Vector3f setIKTarget(Bone bone, Vector3f worldPos, int chainLength) {
+        Vector3f target = worldPos.subtract(targetModel.getWorldTranslation());
+        ikTargets.put(bone.getName(), target);
+        ikChainDepth.put(bone.getName(), chainLength);
+        int i = 0;
+        while (i < chainLength+2 && bone.getParent() != null) {
+            if (!bone.hasUserControl()) {
+                bone.setUserControl(true);
+            }
+            bone = bone.getParent();
+            i++;
+        }
 
+
+//        setIKMode();
+        return target;
+    }
+
+    public void removeIKTarget(Bone bone) {
+        int depth = ikChainDepth.remove(bone.getName());
+        int i = 0;
+        while (i < depth+2 && bone.getParent() != null) {
+            if (bone.hasUserControl()) {
+//                matchPhysicObjectToBone(boneLinks.get(bone.getName()), position, tmpRot1);
+                bone.setUserControl(false);
+            }
+            bone = bone.getParent();
+            i++;
+        }
+    }
+    
+    public void removeAllIKTargets(){
+        ikTargets.clear();
+        ikChainDepth.clear();
+        applyUserControl();
+    }
+    public void applyUserControl() {
+        for (Bone bone : skeleton.getRoots()) {
+            RagdollUtils.setUserControl(bone, false);
+        }
+
+        if (ikTargets.isEmpty()) {
+            setKinematicMode();
+        } else {
+            Iterator iterator = ikTargets.keySet().iterator();
+
+            TempVars vars = TempVars.get();
+
+            while (iterator.hasNext()) {
+                Bone bone = (Bone) iterator.next();
+                while (bone.getParent() != null) {
+
+                    Quaternion tmpRot1 = vars.quat1;
+                    Vector3f position = vars.vect1;
+                    matchPhysicObjectToBone(boneLinks.get(bone.getName()), position, tmpRot1);
+                    bone.setUserControl(true);
+                    bone = bone.getParent();
+                }
+            }
+            vars.release();
+        }
+    }
+    public float getIkRotSpeed() {
+        return ikRotSpeed;
+    }
+
+    public void setIkRotSpeed(float ikRotSpeed) {
+        this.ikRotSpeed = ikRotSpeed;
+    }
+
+    public float getIKThreshold() {
+        return IKThreshold;
+    }
+
+    public void setIKThreshold(float IKThreshold) {
+        this.IKThreshold = IKThreshold;
+    }
+
+    
+    public float getLimbDampening() {
+        return limbDampening;
+    }
+
+    public void setLimbDampening(float limbDampening) {
+        this.limbDampening = limbDampening;
+    }
+    
+    public Bone getBone(String name){
+        return skeleton.getBone(name);
+    }
     /**
      * serialize this control
      *
@@ -831,6 +1035,8 @@ public class KinematicRagdollControl extends AbstractPhysicsControl implements P
         oc.write(eventDispatchImpulseThreshold, "eventDispatchImpulseThreshold", 10);
         oc.write(rootMass, "rootMass", 15);
         oc.write(totalMass, "totalMass", 0);
+        oc.write(ikRotSpeed, "rotSpeed", 7f);
+        oc.write(limbDampening, "limbDampening", 0.6f);
     }
 
     /**

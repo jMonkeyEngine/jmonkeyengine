@@ -221,6 +221,24 @@ public class AnimationEvent extends AbstractCinematicEvent {
         initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
         this.channelIndex = channelIndex;
     }
+    
+    /**
+     * creates an animation event
+     *
+     * @param model the model on which the animation will be played
+     * @param animationName the name of the animation to play
+     * @param channelIndex the index of the channel default is 0. Events on the
+     * @param blendTime the time during the animation are gonna be blended
+     * same channelIndex will use the same channel.
+     */
+    public AnimationEvent(Spatial model, String animationName, LoopMode loopMode, int channelIndex, float blendTime) {
+        this.model = model;
+        this.animationName = animationName;
+        this.loopMode = loopMode;
+        initialDuration = model.getControl(AnimControl.class).getAnimationLength(animationName);
+        this.channelIndex = channelIndex;
+        this.blendTime = blendTime;
+    }
 
     /**
      * creates an animation event
@@ -264,6 +282,10 @@ public class AnimationEvent extends AbstractCinematicEvent {
             Object s = cinematic.getEventData(MODEL_CHANNELS, model);
             if (s == null) {
                 s = new HashMap<Integer, AnimChannel>();
+                int numChannels = model.getControl(AnimControl.class).getNumChannels();
+                for(int i = 0; i < numChannels; i++){
+                    ((HashMap<Integer, AnimChannel>)s).put(i, model.getControl(AnimControl.class).getChannel(i));
+                }
                 cinematic.putEventData(MODEL_CHANNELS, model, s);
             }
 
@@ -319,6 +341,7 @@ public class AnimationEvent extends AbstractCinematicEvent {
             channel.setTime(t);
             channel.getControl().update(0);
         }
+
     }
 
     @Override
