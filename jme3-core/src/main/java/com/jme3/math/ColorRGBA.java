@@ -206,10 +206,10 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * Saturate that color ensuring all channels have a value between 0 and 1
      */
     public void clamp() {
-        FastMath.clamp(r, 0f, 1f);
-        FastMath.clamp(g, 0f, 1f);
-        FastMath.clamp(b, 0f, 1f);
-        FastMath.clamp(a, 0f, 1f);        
+        r = FastMath.clamp(r, 0f, 1f);
+        g = FastMath.clamp(g, 0f, 1f);
+        b = FastMath.clamp(b, 0f, 1f);
+        a = FastMath.clamp(a, 0f, 1f);
     }
 
     /**
