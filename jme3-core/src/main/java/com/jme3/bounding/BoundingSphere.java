@@ -888,7 +888,7 @@ public class BoundingSphere extends BoundingVolume {
     
             t = -edge.dot(base) / edge.dot(edge);
             if( t >= 0 && t <= 1 ) {
-                Vector3f Q = base.add(edge.mult(t, tvars.vect7), tvars.vect8);
+                Vector3f Q = base.add(edge.mult(t, tvars.vect7), tvars.vect9);
                 float distSq = Q.dot(Q); // distance squared to origin
                 if( distSq < nearestDist ) {
                     nearestPt = Q;
@@ -903,7 +903,7 @@ public class BoundingSphere extends BoundingVolume {
     
             t = -edge.dot(base) / edge.dot(edge);
             if( t >= 0 && t <= 1 ) {
-                Vector3f Q = base.add(edge.mult(t, tvars.vect7), tvars.vect8);
+                Vector3f Q = base.add(edge.mult(t, tvars.vect7), tvars.vect10);
                 float distSq = Q.dot(Q); // distance squared to origin
                 if( distSq < nearestDist ) {
                     nearestPt = Q;
