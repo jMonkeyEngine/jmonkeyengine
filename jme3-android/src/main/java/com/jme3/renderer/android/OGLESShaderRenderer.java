@@ -33,6 +33,7 @@ package com.jme3.renderer.android;
 
 import android.opengl.GLES20;
 import android.os.Build;
+
 import com.jme3.asset.AndroidImageInfo;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
@@ -58,11 +59,13 @@ import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
+
 import java.nio.*;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import jme3tools.shader.ShaderDebug;
 
 public class OGLESShaderRenderer implements Renderer {
@@ -100,7 +103,10 @@ public class OGLESShaderRenderer implements Renderer {
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
-    private int clipX, clipY, clipW, clipH;
+    private ClipRectangle currentClipRect = new ClipRectangle();
+    private ClipRectangle rendererClipRect = new ClipRectangle();
+    private ClipRectangle renderStateClipRect = new ClipRectangle();
+    private ClipRectangle intersectionClipRect = new ClipRectangle();
     //private final GL10 gl;
     private boolean powerVr = false;
     private boolean useVBO = false;
@@ -153,11 +159,11 @@ public class OGLESShaderRenderer implements Renderer {
 
         powerVr = GLES20.glGetString(GLES20.GL_RENDERER).contains("PowerVR");
 
-        
+
         //workaround, always assume we support GLSL100
         //some cards just don't report this correctly
         caps.add(Caps.GLSL100);
-        
+
         /*
         // Fix issue in TestRenderToMemory when GL_FRONT is the main
         // buffer being used.
@@ -423,7 +429,7 @@ public class OGLESShaderRenderer implements Renderer {
          */
         if (state.isDepthTest() && !context.depthTestEnabled) {
             GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-            GLES20.glDepthFunc(convertTestFunction(context.depthFunc));            
+            GLES20.glDepthFunc(convertTestFunction(context.depthFunc));
             RendererUtil.checkGLError();
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
@@ -564,6 +570,69 @@ public class OGLESShaderRenderer implements Renderer {
             }
             context.blendMode = state.getBlendMode();
         }
+
+        if (state.isClipTest()) {
+            renderStateClipRect.set(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
+            if (context.clipRectEnabled) {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                }
+                if (ClipRectangle.intersect(rendererClipRect, renderStateClipRect, intersectionClipRect)) {
+                    if (!currentClipRect.equals(intersectionClipRect)) {
+                        int iClipX = intersectionClipRect.getX();
+                        int iClipY = intersectionClipRect.getY();
+                        int iClipW = intersectionClipRect.getW();
+                        int iClipH = intersectionClipRect.getH();
+                        currentClipRect.set(iClipX, iClipY, iClipW, iClipH);
+                        GLES20.glScissor(iClipX, iClipY, iClipW, iClipH);
+                        RendererUtil.checkGLError();
+                    }
+                } else {
+                    if (currentClipRect.getX() != 0 || currentClipRect.getY() != 0 ||
+                        currentClipRect.getW() != 0 || currentClipRect.getH() != 0) {
+                        currentClipRect.set(0, 0, 0, 0);
+                        GLES20.glScissor(0, 0, 0, 0);
+                        RendererUtil.checkGLError();
+                    }
+                }
+            } else {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                    GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
+                    RendererUtil.checkGLError();
+                }
+                if (!currentClipRect.equals(renderStateClipRect)) {
+                    int rsClipX = renderStateClipRect.getX();
+                    int rsClipY = renderStateClipRect.getY();
+                    int rsClipW = renderStateClipRect.getW();
+                    int rsClipH = renderStateClipRect.getH();
+                    currentClipRect.set(rsClipX, rsClipY, rsClipW, rsClipH);
+                    GLES20.glScissor(rsClipX, rsClipY, rsClipW, rsClipH);
+                    RendererUtil.checkGLError();
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                }
+                if (!currentClipRect.equals(rendererClipRect)) {
+                    int rClipX = rendererClipRect.getX();
+                    int rClipY = rendererClipRect.getY();
+                    int rClipW = rendererClipRect.getW();
+                    int rClipH = rendererClipRect.getH();
+                    currentClipRect.set(rClipX, rClipY, rClipW, rClipH);
+                    GLES20.glScissor(rClipX, rClipY, rClipW, rClipH);
+                    RendererUtil.checkGLError();
+                }
+            } else {
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                    GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
+                    RendererUtil.checkGLError();
+                }
+            }
+        }
     }
 
     /*********************************************************************\
@@ -582,32 +651,28 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     public void setClipRect(int x, int y, int width, int height) {
-        if (!context.clipRectEnabled) {
+        if (!context.clipRectEnabled && !context.renderStateClipRectEnabled) {
             GLES20.glEnable(GLES20.GL_SCISSOR_TEST);
             RendererUtil.checkGLError();
-            context.clipRectEnabled = true;
         }
-        if (clipX != x || clipY != y || clipW != width || clipH != height) {
+        context.clipRectEnabled = true;
+        context.renderStateClipRectEnabled = false;
+        rendererClipRect.set(x, y, width, height);
+        if (currentClipRect.getX() != x || currentClipRect.getY() != y ||
+            currentClipRect.getW() != width || currentClipRect.getH() != height) {
+            currentClipRect.set(x, y, width, height);
             GLES20.glScissor(x, y, width, height);
             RendererUtil.checkGLError();
-            clipX = x;
-            clipY = y;
-            clipW = width;
-            clipH = height;
         }
     }
 
     public void clearClipRect() {
-        if (context.clipRectEnabled) {
+        if (context.clipRectEnabled || context.renderStateClipRectEnabled) {
             GLES20.glDisable(GLES20.GL_SCISSOR_TEST);
             RendererUtil.checkGLError();
-            context.clipRectEnabled = false;
-
-            clipX = 0;
-            clipY = 0;
-            clipW = 0;
-            clipH = 0;
         }
+        context.clipRectEnabled = false;
+        context.renderStateClipRectEnabled = false;
     }
 
     public void onFrame() {
@@ -1046,7 +1111,7 @@ public class OGLESShaderRenderer implements Renderer {
                 throw new UnsupportedOperationException("Unrecognized test function: " + testFunc);
         }
     }
-    
+
     /*********************************************************************\
     |* Framebuffers                                                      *|
     \*********************************************************************/
@@ -2534,10 +2599,10 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     public void setMainFrameBufferSrgb(boolean srgb) {
-        //TODO once opglES3.0 is supported maybe....        
+        //TODO once opglES3.0 is supported maybe....
     }
 
     public void setLinearizeSrgbImages(boolean linearize) {
-        //TODO once opglES3.0 is supported maybe....        
+        //TODO once opglES3.0 is supported maybe....
     }
 }

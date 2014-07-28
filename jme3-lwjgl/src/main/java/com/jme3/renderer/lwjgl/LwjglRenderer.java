@@ -123,7 +123,10 @@ public class LwjglRenderer implements Renderer {
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
-    private int clipX, clipY, clipW, clipH;
+    private ClipRectangle currentClipRect = new ClipRectangle();
+    private ClipRectangle rendererClipRect = new ClipRectangle();
+    private ClipRectangle renderStateClipRect = new ClipRectangle();
+    private ClipRectangle intersectionClipRect = new ClipRectangle();
     private boolean linearizeSrgbImages;
     private ContextCapabilities ctxCaps;
 
@@ -170,11 +173,11 @@ public class LwjglRenderer implements Renderer {
                 }
             }
         }
-        
+
         //workaround, always assume we support GLSL100
         //some cards just don't report this correctly
         caps.add(Caps.GLSL100);
-        
+
         String versionStr = null;
         if (ctxCaps.OpenGL20) {
             versionStr = glGetString(GL_SHADING_LANGUAGE_VERSION);
@@ -398,7 +401,7 @@ public class LwjglRenderer implements Renderer {
             }
             caps.add(Caps.Multisample);
         }
-        
+
         // Supports sRGB pipeline.
         if ( (ctxCaps.GL_ARB_framebuffer_sRGB && ctxCaps.GL_EXT_texture_sRGB ) || ctxCaps.OpenGL30 ) {
             caps.add(Caps.Srgb);
@@ -497,7 +500,7 @@ public class LwjglRenderer implements Renderer {
         }
 
         if (state.isDepthTest() && !context.depthTestEnabled) {
-            glEnable(GL_DEPTH_TEST);      
+            glEnable(GL_DEPTH_TEST);
             glDepthFunc(convertTestFunction(context.depthFunc));
             context.depthTestEnabled = true;
         } else if (!state.isDepthTest() && context.depthTestEnabled) {
@@ -518,9 +521,9 @@ public class LwjglRenderer implements Renderer {
             context.alphaTestEnabled = false;
         }
         if (state.getAlphaFallOff() != context.alphaTestFallOff) {
-            glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);   
+            glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);
             context.alphaTestFallOff = state.getAlphaFallOff();
-        }         
+        }
         if (state.getAlphaFunc() != context.alphaFunc) {
             glAlphaFunc(convertTestFunction(state.getAlphaFunc()), context.alphaTestFallOff);
             context.alphaFunc = state.getAlphaFunc();
@@ -695,6 +698,63 @@ public class LwjglRenderer implements Renderer {
                 glDisable(GL_STENCIL_TEST);
             }
         }
+
+        if (state.isClipTest()) {
+            renderStateClipRect.set(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
+            if (context.clipRectEnabled) {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                }
+                if (ClipRectangle.intersect(rendererClipRect, renderStateClipRect, intersectionClipRect)) {
+                    if (!currentClipRect.equals(intersectionClipRect)) {
+                        int iClipX = intersectionClipRect.getX();
+                        int iClipY = intersectionClipRect.getY();
+                        int iClipW = intersectionClipRect.getW();
+                        int iClipH = intersectionClipRect.getH();
+                        currentClipRect.set(iClipX, iClipY, iClipW, iClipH);
+                        glScissor(iClipX, iClipY, iClipW, iClipH);
+                    }
+                } else {
+                    if (currentClipRect.getX() != 0 || currentClipRect.getY() != 0 ||
+                        currentClipRect.getW() != 0 || currentClipRect.getH() != 0) {
+                        currentClipRect.set(0, 0, 0, 0);
+                        glScissor(0, 0, 0, 0);
+                    }
+                }
+            } else {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                    glEnable(GL_SCISSOR_TEST);
+                }
+                if (!currentClipRect.equals(renderStateClipRect)) {
+                    int rsClipX = renderStateClipRect.getX();
+                    int rsClipY = renderStateClipRect.getY();
+                    int rsClipW = renderStateClipRect.getW();
+                    int rsClipH = renderStateClipRect.getH();
+                    currentClipRect.set(rsClipX, rsClipY, rsClipW, rsClipH);
+                    glScissor(rsClipX, rsClipY, rsClipW, rsClipH);
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                }
+                if (!currentClipRect.equals(rendererClipRect)) {
+                    int rClipX = rendererClipRect.getX();
+                    int rClipY = rendererClipRect.getY();
+                    int rClipW = rendererClipRect.getW();
+                    int rClipH = rendererClipRect.getH();
+                    currentClipRect.set(rClipX, rClipY, rClipW, rClipH);
+                    glScissor(rClipX, rClipY, rClipW, rClipH);
+                }
+            } else {
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                    glDisable(GL_SCISSOR_TEST);
+                }
+            }
+        }
     }
 
     private int convertStencilOperation(StencilOperation stencilOp) {
@@ -757,29 +817,25 @@ public class LwjglRenderer implements Renderer {
     }
 
     public void setClipRect(int x, int y, int width, int height) {
-        if (!context.clipRectEnabled) {
+        if (!context.clipRectEnabled && !context.renderStateClipRectEnabled) {
             glEnable(GL_SCISSOR_TEST);
-            context.clipRectEnabled = true;
         }
-        if (clipX != x || clipY != y || clipW != width || clipH != height) {
+        context.clipRectEnabled = true;
+        context.renderStateClipRectEnabled = false;
+        rendererClipRect.set(x, y, width, height);
+        if (currentClipRect.getX() != x || currentClipRect.getY() != y ||
+            currentClipRect.getW() != width || currentClipRect.getH() != height) {
+            currentClipRect.set(x, y, width, height);
             glScissor(x, y, width, height);
-            clipX = x;
-            clipY = y;
-            clipW = width;
-            clipH = height;
         }
     }
 
     public void clearClipRect() {
-        if (context.clipRectEnabled) {
+        if (context.clipRectEnabled || context.renderStateClipRectEnabled) {
             glDisable(GL_SCISSOR_TEST);
-            context.clipRectEnabled = false;
-
-            clipX = 0;
-            clipY = 0;
-            clipW = 0;
-            clipH = 0;
         }
+        context.clipRectEnabled = false;
+        context.renderStateClipRectEnabled = false;
     }
 
     public void onFrame() {
@@ -1520,7 +1576,7 @@ public class LwjglRenderer implements Renderer {
             throw new RendererException("Framebuffer objects are not supported" +
                                         " by the video hardware");
         }
-        
+
         if (fb == null && mainFbOverride != null) {
             fb = mainFbOverride;
         }
@@ -1699,10 +1755,10 @@ public class LwjglRenderer implements Renderer {
     \*********************************************************************/
     private int convertTextureType(Texture.Type type, int samples, int face) {
         if (samples > 1 && !ctxCaps.GL_ARB_texture_multisample) {
-            throw new RendererException("Multisample textures are not supported" + 
+            throw new RendererException("Multisample textures are not supported" +
                                         " by the video hardware.");
         }
-        
+
         switch (type) {
             case TwoDimensional:
                 if (samples > 1) {
@@ -1800,7 +1856,7 @@ public class LwjglRenderer implements Renderer {
         if (context.pointSprite) {
             return; // Attempt to fix glTexParameter crash for some ATI GPUs
         }
-        
+
         // repeat modes
         switch (tex.getType()) {
             case ThreeDimensional:
@@ -1822,7 +1878,7 @@ public class LwjglRenderer implements Renderer {
             // R to Texture compare mode
             if (tex.getShadowCompareMode() != Texture.ShadowCompareMode.Off) {
                 glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-                glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);            
+                glTexParameteri(target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY);
                 if (tex.getShadowCompareMode() == Texture.ShadowCompareMode.GreaterOrEqual) {
                     glTexParameteri(target, GL_TEXTURE_COMPARE_FUNC, GL_GEQUAL);
                 } else {
@@ -1830,7 +1886,7 @@ public class LwjglRenderer implements Renderer {
                 }
             }else{
                  //restoring default value
-                 glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_NONE);          
+                 glTexParameteri(target, GL_TEXTURE_COMPARE_MODE, GL_NONE);
             }
             tex.compareModeUpdated();
         }
@@ -1838,7 +1894,7 @@ public class LwjglRenderer implements Renderer {
 
     /**
      * Uploads the given image to the GL driver.
-     * 
+     *
      * @param img The image to upload
      * @param type How the data in the image argument should be interpreted.
      * @param unit The texture slot to be used to upload the image, not important
@@ -1855,7 +1911,7 @@ public class LwjglRenderer implements Renderer {
             statistics.onNewTexture();
         }
 
-        // bind texture       
+        // bind texture
         int target = convertTextureType(type, img.getMultiSamples(), -1);
         if (context.boundTextureUnit != unit) {
             glActiveTexture(GL_TEXTURE0 + unit);
@@ -1880,7 +1936,7 @@ public class LwjglRenderer implements Renderer {
                 // We'll generate mipmaps via glGenerateMipmapEXT (see below)
             }
         } else if (img.hasMipmaps()) {
-            // Image already has mipmaps, set the max level based on the 
+            // Image already has mipmaps, set the max level based on the
             // number of mipmaps we have.
             glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
         } else {
@@ -1913,7 +1969,7 @@ public class LwjglRenderer implements Renderer {
                 throw new RendererException("Multisample textures not supported by graphics hardware");
             }
         }
-        
+
         if (target == GL_TEXTURE_CUBE_MAP) {
             // Check max texture size before upload
             if (img.getWidth() > maxCubeTexSize || img.getHeight() > maxCubeTexSize) {
@@ -1939,12 +1995,12 @@ public class LwjglRenderer implements Renderer {
             if (!caps.contains(Caps.TextureArray)) {
                 throw new RendererException("Texture arrays not supported by graphics hardware");
             }
-            
+
             List<ByteBuffer> data = img.getData();
-            
+
             // -1 index specifies prepare data for 2D Array
             TextureUtil.uploadTexture(ctxCaps, img, target, -1, 0, linearizeSrgbImages);
-            
+
             for (int i = 0; i < data.size(); i++) {
                 // upload each slice of 2D array in turn
                 // this time with the appropriate index
@@ -2225,7 +2281,7 @@ public class LwjglRenderer implements Renderer {
                     attrib.setLocation(loc);
                 }
             }
-            
+
             if (vb.isInstanced()) {
                 if (!ctxCaps.GL_ARB_instanced_arrays
                  || !ctxCaps.GL_ARB_draw_instanced) {
@@ -2442,7 +2498,7 @@ public class LwjglRenderer implements Renderer {
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
         }
-        
+
         if (instanceData != null) {
             setVertexAttrib(instanceData, null);
         }
@@ -2515,7 +2571,7 @@ public class LwjglRenderer implements Renderer {
                 setVertexAttrib(vb, null);
             }
         }
-        
+
         for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
@@ -2578,16 +2634,16 @@ public class LwjglRenderer implements Renderer {
 
     public void setMainFrameBufferSrgb(boolean enableSrgb) {
         // Gamma correction
-        
+
         if (!caps.contains(Caps.Srgb)) {
             // Not supported, sorry.
-            
-            logger.warning("sRGB framebuffer is not supported " + 
-                           "by video hardware, but was requested."); 
-            
+
+            logger.warning("sRGB framebuffer is not supported " +
+                           "by video hardware, but was requested.");
+
             return;
         }
-        
+
         setFrameBuffer(null);
 
         if (enableSrgb) {
@@ -2596,7 +2652,7 @@ public class LwjglRenderer implements Renderer {
                         + "is not sRGB capable. Enabling anyway.");
             }
 
-            
+
 
             glEnable(GL_FRAMEBUFFER_SRGB_EXT);
 

@@ -63,6 +63,7 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.ClipRectangle;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.GL1Renderer;
@@ -103,11 +104,14 @@ public class JoglGL1Renderer implements GL1Renderer {
     private boolean gl12 = false;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
-    private int clipX, clipY, clipW, clipH;
-    
+    private ClipRectangle currentClipRect = new ClipRectangle();
+    private ClipRectangle rendererClipRect = new ClipRectangle();
+    private ClipRectangle renderStateClipRect = new ClipRectangle();
+    private ClipRectangle intersectionClipRect = new ClipRectangle();
+
     private Matrix4f worldMatrix = new Matrix4f();
     private Matrix4f viewMatrix = new Matrix4f();
-    
+
     private ArrayList<Light> lightList = new ArrayList<Light>(8);
     private ColorRGBA materialAmbientColor = new ColorRGBA();
     private Vector3f tempVec = new Vector3f();
@@ -137,16 +141,16 @@ public class JoglGL1Renderer implements GL1Renderer {
         if (gl.isExtensionAvailable("GL_VERSION_1_2")){
             gl12 = true;
         }
-        
+
         //workaround, always assume we support GLSL100
         //some cards just don't report this correctly
         caps.add(Caps.GLSL100);
-        
+
         // Default values for certain GL state.
         gl.getGL2ES1().glShadeModel(GLLightingFunc.GL_SMOOTH);
         gl.getGL2().glColorMaterial(GL.GL_FRONT_AND_BACK, GLLightingFunc.GL_DIFFUSE);
         gl.glHint(GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
-        
+
         // Enable rescaling/normaling of normal vectors.
         // Fixes lighting issues with scaled models.
         if (gl12){
@@ -162,14 +166,14 @@ public class JoglGL1Renderer implements GL1Renderer {
                     + "support non-power-of-2 textures. "
                     + "Some features might not work.");
         }
-        
+
         gl.glGetIntegerv(GL2ES1.GL_MAX_LIGHTS, ib1);
         maxLights = ib1.get(0);
-        
+
         gl.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE, ib1);
         maxTexSize = ib1.get(0);
     }
-    
+
     public void invalidateState() {
         context.reset();
     }
@@ -238,7 +242,7 @@ public class JoglGL1Renderer implements GL1Renderer {
         }
         gl.getGL2().glMaterialfv(GL.GL_FRONT_AND_BACK, type, fb16);
     }
-    
+
     /**
      * Applies fixed function bindings from the context to OpenGL
      */
@@ -256,7 +260,7 @@ public class JoglGL1Renderer implements GL1Renderer {
                 gl.glDisable(GLLightingFunc.GL_COLOR_MATERIAL);
             }
         } else {
-            // Ignore other values as they have no effect when 
+            // Ignore other values as they have no effect when
             // GL_LIGHTING is disabled.
             ColorRGBA color = context.color;
             if (color != null) {
@@ -272,7 +276,7 @@ public class JoglGL1Renderer implements GL1Renderer {
             gl.glDisable(GL2ES1.GL_ALPHA_TEST);
         }
     }
-    
+
     /**
      * Reset fixed function bindings to default values.
      */
@@ -285,8 +289,8 @@ public class JoglGL1Renderer implements GL1Renderer {
         context.shininess = 0;
         context.useVertexColor = false;
     }
-    
-        public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val) {        
+
+        public void setFixedFuncBinding(FixedFuncBinding ffBinding, Object val) {
         switch (ffBinding) {
             case Color:
                 context.color = (ColorRGBA) val;
@@ -311,7 +315,7 @@ public class JoglGL1Renderer implements GL1Renderer {
                 break;
         }
     }
-    
+
     public void applyRenderState(RenderState state) {
         GL gl = GLContext.getCurrentGL();
         if (state.isWireframe() && !context.wireframe) {
@@ -336,7 +340,7 @@ public class JoglGL1Renderer implements GL1Renderer {
         } else {
             setFixedFuncBinding(FixedFuncBinding.AlphaTestFallOff, 0f); // disable it
         }
-        
+
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
             gl.glDepthMask(true);
             context.depthWriteEnabled = true;
@@ -451,6 +455,62 @@ public class JoglGL1Renderer implements GL1Renderer {
             throw new UnsupportedOperationException("OpenGL 1.1 doesn't support two sided stencil operations.");
         }
 
+        if (state.isClipTest()) {
+            renderStateClipRect.set(state.getClipX(), state.getClipY(), state.getClipW(), state.getClipH());
+            if (context.clipRectEnabled) {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                }
+                if (ClipRectangle.intersect(rendererClipRect, renderStateClipRect, intersectionClipRect)) {
+                    if (!currentClipRect.equals(intersectionClipRect)) {
+                        int iClipX = intersectionClipRect.getX();
+                        int iClipY = intersectionClipRect.getY();
+                        int iClipW = intersectionClipRect.getW();
+                        int iClipH = intersectionClipRect.getH();
+                        currentClipRect.set(iClipX, iClipY, iClipW, iClipH);
+                        gl.glScissor(iClipX, iClipY, iClipW, iClipH);
+                    }
+                } else {
+                    if (currentClipRect.getX() != 0 || currentClipRect.getY() != 0 ||
+                        currentClipRect.getW() != 0 || currentClipRect.getH() != 0) {
+                        currentClipRect.set(0, 0, 0, 0);
+                        gl.glScissor(0, 0, 0, 0);
+                    }
+                }
+            } else {
+                if (!context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = true;
+                    gl.glEnable(GL.GL_SCISSOR_TEST);
+                }
+                if (!currentClipRect.equals(renderStateClipRect)) {
+                    int rsClipX = renderStateClipRect.getX();
+                    int rsClipY = renderStateClipRect.getY();
+                    int rsClipW = renderStateClipRect.getW();
+                    int rsClipH = renderStateClipRect.getH();
+                    currentClipRect.set(rsClipX, rsClipY, rsClipW, rsClipH);
+                    gl.glScissor(rsClipX, rsClipY, rsClipW, rsClipH);
+                }
+            }
+        } else {
+            if (context.clipRectEnabled) {
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                }
+                if (!currentClipRect.equals(rendererClipRect)) {
+                    int rClipX = rendererClipRect.getX();
+                    int rClipY = rendererClipRect.getY();
+                    int rClipW = rendererClipRect.getW();
+                    int rClipH = rendererClipRect.getH();
+                    currentClipRect.set(rClipX, rClipY, rClipW, rClipH);
+                    gl.glScissor(rClipX, rClipY, rClipW, rClipH);
+                }
+            } else {
+                if (context.renderStateClipRectEnabled) {
+                    context.renderStateClipRectEnabled = false;
+                    gl.glDisable(GL.GL_SCISSOR_TEST);
+                }
+            }
+        }
     }
 
     public void setViewPort(int x, int y, int w, int h) {
@@ -466,30 +526,26 @@ public class JoglGL1Renderer implements GL1Renderer {
 
     public void setClipRect(int x, int y, int width, int height) {
         GL gl = GLContext.getCurrentGL();
-        if (!context.clipRectEnabled) {
+        if (!context.clipRectEnabled && !context.renderStateClipRectEnabled) {
             gl.glEnable(GL.GL_SCISSOR_TEST);
-            context.clipRectEnabled = true;
         }
-        if (clipX != x || clipY != y || clipW != width || clipH != height) {
+        context.clipRectEnabled = true;
+        context.renderStateClipRectEnabled = false;
+        rendererClipRect.set(x, y, width, height);
+        if (currentClipRect.getX() != x || currentClipRect.getY() != y ||
+            currentClipRect.getW() != width || currentClipRect.getH() != height) {
+            currentClipRect.set(x, y, width, height);
             gl.glScissor(x, y, width, height);
-            clipX = x;
-            clipY = y;
-            clipW = width;
-            clipH = height;
         }
     }
 
     public void clearClipRect() {
         GL gl = GLContext.getCurrentGL();
-        if (context.clipRectEnabled) {
+        if (context.clipRectEnabled || context.renderStateClipRectEnabled) {
             gl.glDisable(GL.GL_SCISSOR_TEST);
-            context.clipRectEnabled = false;
-
-            clipX = 0;
-            clipY = 0;
-            clipW = 0;
-            clipH = 0;
         }
+        context.clipRectEnabled = false;
+        context.renderStateClipRectEnabled = false;
     }
 
     public void onFrame() {
@@ -503,7 +559,7 @@ public class JoglGL1Renderer implements GL1Renderer {
         store.clear();
         return store;
     }
-    
+
     private void setModelView(Matrix4f modelMatrix, Matrix4f viewMatrix){
         GL gl = GLContext.getCurrentGL();
         if (context.matrixMode != GLMatrixFunc.GL_MODELVIEW) {
@@ -514,7 +570,7 @@ public class JoglGL1Renderer implements GL1Renderer {
         gl.getGL2ES1().glLoadMatrixf(storeMatrix(viewMatrix, fb16));
         gl.getGL2ES1().glMultMatrixf(storeMatrix(modelMatrix, fb16));
     }
-    
+
     private void setProjection(Matrix4f projMatrix){
         GL gl = GLContext.getCurrentGL();
         if (context.matrixMode != GLMatrixFunc.GL_PROJECTION) {
@@ -545,17 +601,17 @@ public class JoglGL1Renderer implements GL1Renderer {
             setModelView(worldMatrix, viewMatrix);
             return;
         }
-        
+
         // Number of lights set previously
         int numLightsSetPrev = lightList.size();
-        
+
         // If more than maxLights are defined, they will be ignored.
-        // The GL1 renderer is not permitted to crash due to a 
+        // The GL1 renderer is not permitted to crash due to a
         // GL1 limitation. It must render anything that the GL2 renderer
         // can render (even incorrectly).
         lightList.clear();
         materialAmbientColor.set(0, 0, 0, 0);
-        
+
         for (int i = 0; i < list.size(); i++){
             Light l = list.get(i);
             if (l.getType() == Light.Type.Ambient){
@@ -564,26 +620,26 @@ public class JoglGL1Renderer implements GL1Renderer {
             }else{
                 // Add to list
                 lightList.add(l);
-                
+
                 // Once maximum lights reached, exit loop.
                 if (lightList.size() >= maxLights){
                     break;
                 }
             }
         }
-        
+
         applyFixedFuncBindings(true);
-        
+
         gl.glEnable(GLLightingFunc.GL_LIGHTING);
-        
+
         fb16.clear();
         fb16.put(materialAmbientColor.r)
             .put(materialAmbientColor.g)
             .put(materialAmbientColor.b)
             .put(1).flip();
-        
+
         gl.getGL2ES1().glLightModelfv(GL2ES1.GL_LIGHT_MODEL_AMBIENT, fb16);
-        
+
         if (context.matrixMode != GLMatrixFunc.GL_MODELVIEW) {
             gl.getGL2ES1().glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
             context.matrixMode = GLMatrixFunc.GL_MODELVIEW;
@@ -591,17 +647,17 @@ public class JoglGL1Renderer implements GL1Renderer {
         // Lights are already in world space, so just convert
         // them to view space.
         gl.getGL2ES1().glLoadMatrixf(storeMatrix(viewMatrix, fb16));
-        
+
         for (int i = 0; i < lightList.size(); i++){
             int glLightIndex = GLLightingFunc.GL_LIGHT0 + i;
             Light light = lightList.get(i);
             Light.Type lightType = light.getType();
             ColorRGBA col = light.getColor();
             Vector3f pos;
-            
+
             // Enable the light
             gl.glEnable(glLightIndex);
-            
+
             // OGL spec states default value for light ambient is black
             switch (lightType){
                 case Directional:
@@ -620,7 +676,7 @@ public class JoglGL1Renderer implements GL1Renderer {
                     break;
                 case Point:
                     PointLight pLight = (PointLight) light;
-      
+
                     fb16.clear();
                     fb16.put(col.r).put(col.g).put(col.b).put(col.a).flip();
                     gl.getGL2ES1().glLightfv(glLightIndex, GLLightingFunc.GL_DIFFUSE, fb16);
@@ -637,7 +693,7 @@ public class JoglGL1Renderer implements GL1Renderer {
                         // as the one used in the lighting shader.
                         gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_CONSTANT_ATTENUATION,  1);
                         gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_LINEAR_ATTENUATION,    pLight.getInvRadius() * 2);
-                        gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_QUADRATIC_ATTENUATION, pLight.getInvRadius() * pLight.getInvRadius()); 
+                        gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_QUADRATIC_ATTENUATION, pLight.getInvRadius() * pLight.getInvRadius());
                     }else{
                         gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_CONSTANT_ATTENUATION,  1);
                         gl.getGL2ES1().glLightf(glLightIndex, GLLightingFunc.GL_LINEAR_ATTENUATION,    0);
@@ -686,12 +742,12 @@ public class JoglGL1Renderer implements GL1Renderer {
                             "Unrecognized light type: " + lightType);
             }
         }
-        
+
         // Disable lights after the index
         for (int i = lightList.size(); i < numLightsSetPrev; i++){
             gl.glDisable(GLLightingFunc.GL_LIGHT0 + i);
         }
-        
+
         // This will set view matrix as well.
         setModelView(worldMatrix, viewMatrix);
     }
@@ -828,7 +884,7 @@ public class JoglGL1Renderer implements GL1Renderer {
         if (img.getWidth() > maxTexSize || img.getHeight() > maxTexSize) {
             throw new RendererException("Cannot upload texture " + img + ". The maximum supported texture resolution is " + maxTexSize);
         }
-        
+
         /*
         if (target == GL_TEXTURE_CUBE_MAP) {
         List<ByteBuffer> data = img.getData();
@@ -995,7 +1051,7 @@ public class JoglGL1Renderer implements GL1Renderer {
             // Ignore vertex color buffer if vertex color is disabled.
             return;
         }
-        
+
         int arrayType = convertArrayType(vb.getBufferType());
         if (arrayType == -1) {
             return; // unsupported
@@ -1091,7 +1147,7 @@ public class JoglGL1Renderer implements GL1Renderer {
             /*
             int[] modeStart = mesh.getModeStart();
             int[] elementLengths = mesh.getElementLengths();
-            
+
             int elMode = convertElementMode(Mode.Triangles);
             int fmt = convertVertexFormat(indexBuf.getFormat());
             //            int elSize = indexBuf.getFormat().getComponentSize();
@@ -1107,11 +1163,11 @@ public class JoglGL1Renderer implements GL1Renderer {
             }
             int elementLength = elementLengths[i];
             indexData.position(curOffset);
-            
+
             drawElements(elMode,
             fmt,
             indexData);
-            
+
             curOffset += elementLength;
             }*/
         } else {
@@ -1168,7 +1224,7 @@ public class JoglGL1Renderer implements GL1Renderer {
             GL gl = GLContext.getCurrentGL();
             gl.glDrawArrays(convertElementMode(mesh.getMode()), 0, mesh.getVertexCount());
         }
-        
+
         // TODO: Fix these to use IDList??
         clearVertexAttribs();
         clearTextureUnits();
@@ -1188,7 +1244,7 @@ public class JoglGL1Renderer implements GL1Renderer {
             gl.getGL2().glLineWidth(mesh.getLineWidth());
             context.lineWidth = mesh.getLineWidth();
         }
-        
+
         boolean dynamic = false;
         if (mesh.getBuffer(Type.InterleavedData) != null) {
             throw new UnsupportedOperationException("Interleaved meshes are not supported");
@@ -1237,7 +1293,7 @@ public class JoglGL1Renderer implements GL1Renderer {
 
     public void setMainFrameBufferOverride(FrameBuffer fb){
     }
-    
+
     public void setFrameBuffer(FrameBuffer fb) {
     }
 
@@ -1253,7 +1309,7 @@ public class JoglGL1Renderer implements GL1Renderer {
     public void deleteBuffer(VertexBuffer vb) {
     }
 
-    public void setMainFrameBufferSrgb(boolean srgb) {        
+    public void setMainFrameBufferSrgb(boolean srgb) {
     }
 
     public void setLinearizeSrgbImages(boolean linearize) {

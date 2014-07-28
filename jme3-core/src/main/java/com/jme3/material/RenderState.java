@@ -34,6 +34,7 @@ package com.jme3.material;
 import com.jme3.export.*;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
+
 import java.io.IOException;
 
 /**
@@ -271,7 +272,10 @@ public class RenderState implements Cloneable, Savable {
         ADDITIONAL.applyAlphaTest = false;
         ADDITIONAL.applyAlphaFallOff = false;
         ADDITIONAL.applyPolyOffset = false;
+        ADDITIONAL.applyClipTest = false;
+        ADDITIONAL.applyClipRect = false;
     }
+
     boolean pointSprite = false;
     boolean applyPointSprite = true;
     boolean wireframe = false;
@@ -298,9 +302,9 @@ public class RenderState implements Cloneable, Savable {
     boolean applyStencilTest = false;
     TestFunction depthFunc = TestFunction.LessOrEqual;
     //by default depth func will be applied anyway if depth test is applied
-    boolean applyDepthFunc = false;    
+    boolean applyDepthFunc = false;
     //by default alpha func will be applied anyway if alpha test is applied
-    TestFunction alphaFunc = TestFunction.Greater;    
+    TestFunction alphaFunc = TestFunction.Greater;
     boolean applyAlphaFunc = false;
     StencilOperation frontStencilStencilFailOperation = StencilOperation.Keep;
     StencilOperation frontStencilDepthFailOperation = StencilOperation.Keep;
@@ -310,6 +314,13 @@ public class RenderState implements Cloneable, Savable {
     StencilOperation backStencilDepthPassOperation = StencilOperation.Keep;
     TestFunction frontStencilFunction = TestFunction.Always;
     TestFunction backStencilFunction = TestFunction.Always;
+    boolean clipTest = false;
+    boolean applyClipTest = false;
+    int clipX = 0;
+    int clipY = 0;
+    int clipW = 0;
+    int clipH = 0;
+    boolean applyClipRect = false;
     int cachedHashCode = -1;
 
     public void write(JmeExporter ex) throws IOException {
@@ -335,6 +346,11 @@ public class RenderState implements Cloneable, Savable {
         oc.write(backStencilDepthPassOperation, "backStencilDepthPassOperation", StencilOperation.Keep);
         oc.write(frontStencilFunction, "frontStencilFunction", TestFunction.Always);
         oc.write(backStencilFunction, "backStencilFunction", TestFunction.Always);
+        oc.write(clipTest, "clipTest", false);
+        oc.write(clipX, "clipX", 0);
+        oc.write(clipY, "clipY", 0);
+        oc.write(clipW, "clipW", 0);
+        oc.write(clipH, "clipH", 0);
 
         // Only "additional render state" has them set to false by default
         oc.write(applyPointSprite, "applyPointSprite", true);
@@ -350,8 +366,9 @@ public class RenderState implements Cloneable, Savable {
         oc.write(applyDepthFunc, "applyDepthFunc", true);
         oc.write(applyAlphaFunc, "applyAlphaFunc", false);
         oc.write(depthFunc, "depthFunc", TestFunction.LessOrEqual);
-        oc.write(alphaFunc, "alphaFunc", TestFunction.Greater);  
-
+        oc.write(alphaFunc, "alphaFunc", TestFunction.Greater);
+        oc.write(applyClipTest, "applyClipTest", true);
+        oc.write(applyClipRect, "applyClipRect", true);
     }
 
     public void read(JmeImporter im) throws IOException {
@@ -379,6 +396,11 @@ public class RenderState implements Cloneable, Savable {
         backStencilFunction = ic.readEnum("backStencilFunction", TestFunction.class, TestFunction.Always);
         depthFunc = ic.readEnum("depthFunc", TestFunction.class, TestFunction.LessOrEqual);
         alphaFunc = ic.readEnum("alphaFunc", TestFunction.class, TestFunction.Greater);
+        clipTest = ic.readBoolean("clipTest", false);
+        clipX = ic.readInt("clipX", 0);
+        clipY = ic.readInt("clipY", 0);
+        clipW = ic.readInt("clipW", 0);
+        clipH = ic.readInt("clipH", 0);
 
         applyPointSprite = ic.readBoolean("applyPointSprite", true);
         applyWireFrame = ic.readBoolean("applyWireFrame", true);
@@ -392,7 +414,8 @@ public class RenderState implements Cloneable, Savable {
         applyPolyOffset = ic.readBoolean("applyPolyOffset", true);
         applyDepthFunc = ic.readBoolean("applyDepthFunc", true);
         applyAlphaFunc = ic.readBoolean("applyAlphaFunc", false);
-        
+        applyClipTest = ic.readBoolean("applyClipTest", true);
+        applyClipRect = ic.readBoolean("applyClipRect", true);
     }
 
     /**
@@ -513,6 +536,26 @@ public class RenderState implements Cloneable, Savable {
             }
         }
 
+        if (clipTest != rs.clipTest) {
+            return false;
+        }
+
+        if (clipX != rs.clipX) {
+            return false;
+        }
+
+        if (clipY != rs.clipY) {
+            return false;
+        }
+
+        if (clipW != rs.clipW) {
+            return false;
+        }
+
+        if (clipH != rs.clipH) {
+            return false;
+        }
+
         return true;
     }
 
@@ -540,7 +583,7 @@ public class RenderState implements Cloneable, Savable {
      * <p>If the pixel's alpha value is greater than the
      * <code>alphaFallOff</code> then the pixel will be rendered, otherwise
      * the pixel will be discarded.
-     * 
+     *
      * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
      * openglES 2.0.
      * The prefered way is to use the alphaDiscardThreshold on the material
@@ -567,13 +610,13 @@ public class RenderState implements Cloneable, Savable {
      * otherwise it will be discarded.
      *
      * @param alphaTest Set to true to enable alpha testing.
-     * 
+     *
      * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
      * openglES 2.0.
      * The prefered way is to use the alphaDiscardThreshold on the material
      * Or have a shader that discards the pixel when its alpha value meets the
      * discarding condition.
-     * 
+     *
      *
      * @see RenderState#setAlphaFallOff(float)
      */
@@ -704,7 +747,7 @@ public class RenderState implements Cloneable, Savable {
             offsetUnits = units;
         }
         cachedHashCode = -1;
-    }    
+    }
 
     /**
      * Enable stencil testing.
@@ -756,13 +799,13 @@ public class RenderState implements Cloneable, Savable {
     }
 
     /**
-     * Set the depth conparison function to the given TestFunction 
+     * Set the depth conparison function to the given TestFunction
      * default is LessOrEqual (GL_LEQUAL)
      * @see TestFunction
-     * @see RenderState#setDepthTest(boolean) 
+     * @see RenderState#setDepthTest(boolean)
      * @param depthFunc the depth comparison function
      */
-    public void setDepthFunc(TestFunction depthFunc) {       
+    public void setDepthFunc(TestFunction depthFunc) {
         applyDepthFunc = true;
         this.depthFunc = depthFunc;
         cachedHashCode = -1;
@@ -771,25 +814,57 @@ public class RenderState implements Cloneable, Savable {
     /**
      * Sets the alpha comparision function to the given TestFunction
      * default is Greater (GL_GREATER)
-     * 
+     *
      * Note : Alpha test is deprecated since opengl 3.0 and does not exists in
      * openglES 2.0.
      * The prefered way is to use the alphaDiscardThreshold on the material
      * Or have a shader taht discards the pixel when its alpha value meets the
      * discarding condition.
-     * 
+     *
      * @see TestFunction
-     * @see RenderState#setAlphaTest(boolean) 
-     * @see RenderState#setAlphaFallOff(float) 
+     * @see RenderState#setAlphaTest(boolean)
+     * @see RenderState#setAlphaFallOff(float)
      * @param alphaFunc the alpha comparision function
      */
-    public void setAlphaFunc(TestFunction alphaFunc) {        
+    public void setAlphaFunc(TestFunction alphaFunc) {
         applyAlphaFunc = true;
         this.alphaFunc = alphaFunc;
         cachedHashCode = -1;
     }
-    
-    
+
+    /**
+     * Enables clip testing mode.
+     *
+     * <p>When in clip testing mode, a pixel must be within the clip
+     * rectangle in order to be drawn.
+     *
+     * @param clipTest True to enable clip testing mode
+     */
+    public void setClipTest(boolean clipTest) {
+        applyClipTest = true;
+        this.clipTest = clipTest;
+        cachedHashCode = -1;
+    }
+
+    /**
+     * Sets the clip rectangle to the given values. Any pixels outside this
+     * area will not be drawn. clipX and clipY should be zero or greater.
+     * clipW and clipH should be greater than zero.
+     *
+     * @param clipX the x position of the bottom left corner of the rectangle
+     * @param clipY the y position of the bottom left corner of the rectangle
+     * @param clipW the width of the rectangle
+     * @param clipH the height of the rectangle
+     */
+    public void setClipRect(int clipX, int clipY,
+                            int clipW, int clipH) {
+        applyClipRect = true;
+        this.clipX = clipX;
+        this.clipY = clipY;
+        this.clipW = clipW;
+        this.clipH = clipH;
+        cachedHashCode = -1;
+    }
 
     /**
      * Check if stencil test is enabled.
@@ -1103,8 +1178,53 @@ public class RenderState implements Cloneable, Savable {
     public TestFunction getAlphaFunc() {
         return alphaFunc;
     }
-    
-    
+
+    /**
+     * Check if clip testing is enabled.
+     *
+     * @return True if clip testing is enabled
+     */
+    public boolean isClipTest() {
+        return clipTest;
+    }
+
+    /**
+     * Retrieve the x position of the bottom left corner of the clip rectangle.
+     *
+     * @return the x position of the bottom left corner of the clip rectangle
+     */
+    public int getClipX() {
+        return clipX;
+    }
+
+    /**
+     * Retrieve the y position of the bottom left corner of the clip rectangle.
+     *
+     * @return the y position of the bottom left corner of the clip rectangle
+     */
+    public int getClipY() {
+        return clipY;
+    }
+
+    /**
+     * Retrieve the width of the clip rectangle.
+     *
+     * @return the width of the clip rectangle
+     */
+    public int getClipW() {
+        return clipW;
+    }
+
+    /**
+     * Retrieve the height of the clip rectangle.
+     *
+     * @return the height of the clip rectangle
+     */
+    public int getClipH() {
+        return clipH;
+    }
+
+
 
     public boolean isApplyAlphaFallOff() {
         return applyAlphaFallOff;
@@ -1153,8 +1273,16 @@ public class RenderState implements Cloneable, Savable {
     public boolean isApplyAlphaFunc() {
         return applyAlphaFunc;
     }
-    
-    
+
+    public boolean isApplyClipTest() {
+        return applyClipTest;
+    }
+
+    public boolean isApplyClipRect() {
+        return applyClipRect;
+    }
+
+
 
     /**
      *
@@ -1185,6 +1313,11 @@ public class RenderState implements Cloneable, Savable {
             hash = 79 * hash + (this.backStencilDepthPassOperation != null ? this.backStencilDepthPassOperation.hashCode() : 0);
             hash = 79 * hash + (this.frontStencilFunction != null ? this.frontStencilFunction.hashCode() : 0);
             hash = 79 * hash + (this.backStencilFunction != null ? this.backStencilFunction.hashCode() : 0);
+            hash = 79 * hash + (this.clipTest ? 1 : 0);
+            hash = 79 * hash + clipX;
+            hash = 79 * hash + clipY;
+            hash = 79 * hash + clipW;
+            hash = 79 * hash + clipH;
             cachedHashCode = hash;
         }
         return cachedHashCode;
@@ -1309,6 +1442,22 @@ public class RenderState implements Cloneable, Savable {
             state.frontStencilFunction = frontStencilFunction;
             state.backStencilFunction = backStencilFunction;
         }
+        if (additionalState.applyClipTest) {
+            state.clipTest = additionalState.clipTest;
+        } else {
+            state.clipTest = clipTest;
+        }
+        if (additionalState.applyClipRect) {
+            state.clipX = additionalState.clipX;
+            state.clipY = additionalState.clipY;
+            state.clipW = additionalState.clipW;
+            state.clipH = additionalState.clipH;
+        } else {
+            state.clipX = clipX;
+            state.clipY = clipY;
+            state.clipW = clipW;
+            state.clipH = clipH;
+        }
         state.cachedHashCode = -1;
         return state;
     }
@@ -1339,7 +1488,14 @@ public class RenderState implements Cloneable, Savable {
                 + "\noffsetEnabled=" + offsetEnabled
                 + "\napplyPolyOffset=" + applyPolyOffset
                 + "\noffsetFactor=" + offsetFactor
-                + "\noffsetUnits=" + offsetUnits      
+                + "\noffsetUnits=" + offsetUnits
+                + "\nclipTest=" + clipTest
+                + "\napplyClipTest=" + applyClipTest
+                + "\napplyClipRect=" + applyClipRect
+                + "\nclipX" + clipX
+                + "\nclipY" + clipY
+                + "\nclipW" + clipW
+                + "\nclipH" + clipH
                 + "\n]";
     }
 }
