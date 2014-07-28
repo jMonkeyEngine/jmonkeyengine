@@ -850,9 +850,13 @@ public class BoundingSphere extends BoundingVolume {
                 Vector3f part2 = ab;
                 Vector3f p = center.add(a.add(part1.mult(u)).addLocal(part2.mult(v))); 
     
-                CollisionResult r = new CollisionResult();                                
-                r.setDistance((float)Math.sqrt(d) - radius);
-                r.setContactNormal(n.normalize());
+                CollisionResult r = new CollisionResult();
+                Vector3f normal = n.normalize();                                               
+                float dist = -normal.dot(a);  // a is center relative, so -a points to center
+                dist = dist - radius;
+                
+                r.setDistance(dist);
+                r.setContactNormal(normal);
                 r.setContactPoint(p);
                 results.addCollision(r);
                 return 1;
@@ -920,7 +924,7 @@ public class BoundingSphere extends BoundingVolume {
                 Vector3f cn = nearestPt.divide(-dist);
                 
                 CollisionResult r = new CollisionResult();                                
-                r.setDistance(dist);
+                r.setDistance(dist - radius);
                 r.setContactNormal(cn);
                 r.setContactPoint(nearestPt.add(center));
                 results.addCollision(r);
@@ -960,7 +964,7 @@ public class BoundingSphere extends BoundingVolume {
                 Vector3f cn = nearestPt.divide(-dist);
                 
                 CollisionResult r = new CollisionResult();                                
-                r.setDistance(dist);
+                r.setDistance(dist - radius);
                 r.setContactNormal(cn);
                 r.setContactPoint(nearestPt.add(center));
                 results.addCollision(r);
