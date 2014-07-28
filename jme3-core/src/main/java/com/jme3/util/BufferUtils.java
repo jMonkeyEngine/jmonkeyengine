@@ -225,6 +225,28 @@ public final class BufferUtils {
     }
 
     /**
+     * Generate a new FloatBuffer using the given array of ColorRGBA objects.
+     * The FloatBuffer will be 4 * data.length long and contain the color data.
+     *
+     * @param data array of ColorRGBA objects to place into a new FloatBuffer
+     */
+    public static FloatBuffer createFloatBuffer(ColorRGBA... data) {
+        if (data == null) {
+            return null;
+        }
+        FloatBuffer buff = createFloatBuffer(4 * data.length);
+        for (int x = 0; x < data.length; x++) {
+            if (data[x] != null) {
+                buff.put(data[x].getRed()).put(data[x].getGreen()).put(data[x].getBlue()).put(data[x].getAlpha());
+            } else {
+                buff.put(0).put(0).put(0).put(0);
+            }
+        }
+        buff.flip();
+        return buff;
+    }
+
+    /**
      * Generate a new FloatBuffer using the given array of float primitives.
      * @param data array of float primitives to place into a new FloatBuffer
      */
