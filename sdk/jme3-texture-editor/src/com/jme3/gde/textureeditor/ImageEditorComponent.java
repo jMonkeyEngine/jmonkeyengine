@@ -51,6 +51,7 @@ import org.openide.NotifyDescriptor.Message;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.SaveAsCapable;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
