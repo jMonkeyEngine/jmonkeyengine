@@ -84,11 +84,28 @@
                 <package>com.jme3.gde.textureeditor</package>
                 <package>com.jme3.gde.textureeditor.filters</package>
                 <package>com.jme3.gde.textureeditor.tools</package>
+                <package>dds.compression</package>
+                <package>dds.ddsutil</package>
+                <package>dds.jogl</package>
+                <package>dds.model</package>
+                <package>net.nikr.dds</package>
                 <package>tgaimageplugin</package>
             </public-packages>
             <class-path-extension>
+                <runtime-relative-path>ext/jsquish-1.0.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jsquish-1.0.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/DDS-ImageIO.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/DDS-ImageIO.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/TGAImagePlugin.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/TGAImagePlugin.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/Dahie_DDS-Utils.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/Dahie_DDS-Utils.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
