@@ -6,4 +6,5 @@ public interface FileFilters {
     ExtensionFileFilter JPG = new ExtensionFileFilter(".jpg", "JPG Image");
     ExtensionFileFilter BMP = new ExtensionFileFilter(".bmp", "BMP Image");
     ExtensionFileFilter TGA = new ExtensionFileFilter(".tga", "TGA Image");
+	ExtensionFileFilter DDS = new ExtensionFileFilter(".dds", "DDS Image");
 }

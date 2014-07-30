@@ -274,12 +274,14 @@ public class ImageEditorComponent implements EditorToolTarget {
         builder.addFileFilter(FileFilters.JPG);
         builder.addFileFilter(FileFilters.TGA);
         builder.addFileFilter(FileFilters.PNG);
+		builder.addFileFilter(FileFilters.DDS);
 
         JFileChooser fc = builder.createFileChooser();
         fc.setFileSelectionMode(JFileChooser.SAVE_DIALOG);
         fc.setAcceptAllFileFilterUsed(false);
+		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
-        int a = fc.showOpenDialog(COMPONENT);
+        int a = fc.showSaveDialog(COMPONENT);
         if (a == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
             String name = file.getName().toLowerCase();
@@ -292,6 +294,8 @@ public class ImageEditorComponent implements EditorToolTarget {
                 type = "bmp";
             } else if (name.endsWith(".tga")) {
                 type = "tga";
+			} else if (name.endsWith(".dds")) {
+				type = "dds";
             } else {
                 ExtensionFileFilter filter = (ExtensionFileFilter) fc.getFileFilter();
                 file = new File(file.getParentFile(), file.getName() + filter.getExtension());
