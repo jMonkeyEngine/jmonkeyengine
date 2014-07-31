@@ -120,12 +120,22 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
 	private void storeDDS(BufferedImage img, File file) throws IOException {
 		boolean compressed = compressionComboBox.getSelectedIndex() > 0 && img.getWidth()==img.getHeight();
 		if (!compressed) {
+			//swap red and blue channel
 			Image image = Toolkit.getDefaultToolkit().createImage(
 						new FilteredImageSource(img.getSource(), new IOModule.RedBlueSwapFilter()));
 			img = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
 			Graphics g = img.getGraphics();
 			g.drawImage(image, 0, 0, null);
 			g.dispose();
+		} else {
+			if (img.getType()!=BufferedImage.TYPE_4BYTE_ABGR) {
+				//convert
+				BufferedImage image = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+				Graphics g = image.getGraphics();
+				g.drawImage(img, 0, 0, null);
+				g.dispose();
+				img = image;
+			}
 		}
 		//create dds data
 		TextureMap tex;
@@ -139,22 +149,9 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
 		ByteBuffer[] data = null;
 		int format = 0;
 		if (!compressed) {
-			//no compression or image not square
+			//no compression or image not square			
 			data = tex.getUncompressedBuffer(); 
-			switch (pixelFormatComboBox.getSelectedIndex()) {
-				case 0: 
-					format = DDSImage.D3DFMT_R8G8B8;
-					break;
-				case 1:
-					format = DDSImage.D3DFMT_A8R8G8B8;
-					break;
-				case 2:
-					format = DDSImage.D3DFMT_X8R8G8B8;
-					break;
-				default:
-					throw new IllegalArgumentException("unknown pixel format "+
-							pixelFormatComboBox.getSelectedItem());
-			}
+			format = DDSImage.D3DFMT_A8R8G8B8;
 		} else {
 			//compression
 			switch (compressionComboBox.getSelectedIndex()) {
@@ -204,11 +201,9 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
         jSeparator1 = new javax.swing.JSeparator();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         overwriteCheckBox = new javax.swing.JCheckBox();
         mipmapsCheckBox = new javax.swing.JCheckBox();
-        pixelFormatComboBox = new javax.swing.JComboBox();
         compressionComboBox = new javax.swing.JComboBox();
         fileFormatComboBox = new javax.swing.JComboBox();
         progressBar = new javax.swing.JProgressBar();
@@ -245,17 +240,12 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ConvertTextureDialog.class, "ConvertTextureDialog.jLabel3.text")); // NOI18N
         jLabel3.setToolTipText(org.openide.util.NbBundle.getMessage(ConvertTextureDialog.class, "ConvertTextureDialog.jLabel3.toolTipText")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(ConvertTextureDialog.class, "ConvertTextureDialog.jLabel4.text")); // NOI18N
-
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(ConvertTextureDialog.class, "ConvertTextureDialog.jLabel5.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(overwriteCheckBox, org.openide.util.NbBundle.getMessage(ConvertTextureDialog.class, "ConvertTextureDialog.overwriteCheckBox.text")); // NOI18N
 
         mipmapsCheckBox.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(mipmapsCheckBox, org.openide.util.NbBundle.getMessage(ConvertTextureDialog.class, "ConvertTextureDialog.mipmapsCheckBox.text")); // NOI18N
-
-        pixelFormatComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "R8G8B8", "A8R8G8B8", "X8R8G8B8" }));
-        pixelFormatComboBox.setSelectedIndex(1);
 
         compressionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "no", "DXT1", "DXT3", "DXT5" }));
 
@@ -276,32 +266,30 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                        .addGap(18, 18, 18)
-                        .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cancelButton))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(overwriteCheckBox)
                             .addComponent(jLabel1)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(mipmapsCheckBox))
-                            .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel4)
                                     .addComponent(jLabel3)
                                     .addComponent(jLabel2))
                                 .addGap(22, 22, 22)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(compressionComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(pixelFormatComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(fileFormatComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                                    .addComponent(compressionComboBox, 0, 82, Short.MAX_VALUE)
+                                    .addComponent(fileFormatComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(mipmapsCheckBox))
+                            .addComponent(overwriteCheckBox))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cancelButton)))
                 .addContainerGap())
         );
 
@@ -325,21 +313,16 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
                     .addComponent(jLabel3)
                     .addComponent(compressionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(pixelFormatComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
                     .addComponent(mipmapsCheckBox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(overwriteCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(cancelButton)
-                        .addComponent(okButton)))
+                    .addComponent(cancelButton)
+                    .addComponent(okButton))
                 .addContainerGap())
         );
 
@@ -368,7 +351,6 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
         //disable options when a file format other than DDS is selected
 		boolean enabled = fileFormatComboBox.getSelectedIndex() == 0;
 		compressionComboBox.setEnabled(enabled);
-		pixelFormatComboBox.setEnabled(enabled);
 		mipmapsCheckBox.setEnabled(enabled);
     }//GEN-LAST:event_fileFormatEvent
 	
@@ -428,14 +410,12 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JCheckBox mipmapsCheckBox;
     private javax.swing.JButton okButton;
     private javax.swing.JCheckBox overwriteCheckBox;
-    private javax.swing.JComboBox pixelFormatComboBox;
     private javax.swing.JProgressBar progressBar;
     // End of variables declaration//GEN-END:variables
 
