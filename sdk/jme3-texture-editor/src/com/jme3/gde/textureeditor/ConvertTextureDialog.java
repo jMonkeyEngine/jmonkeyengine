@@ -71,34 +71,71 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
 	}
 	
 	private void convert() {
-		IOModule io = IOModule.create();
-		String extension = (String) fileFormatComboBox.getSelectedItem();
 		//init progress
 		progressBar.setMaximum(textures.size());
-		int i = 0;
-		for (DataObject tex : textures) {
+		
+		//start thread
+		Converter c = new Converter();
+		c.execute();
+		
+		//disable buttons
+		cancelButton.setEnabled(false);
+		compressionComboBox.setEnabled(false);
+		fileFormatComboBox.setEnabled(false);
+		mipmapsCheckBox.setEnabled(false);
+		okButton.setEnabled(false);
+		overwriteCheckBox.setEnabled(false);
+	}
+	
+	private class Converter extends SwingWorker<Void, Integer> {
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			IOModule io = IOModule.create();
+			String extension = (String) fileFormatComboBox.getSelectedItem();
+			
+			int i = 0;
+			for (DataObject tex : textures) {
+				convert(tex, io, extension);
+
+				//increase progress
+				++i;
+				publish(i);
+			}
+			return null;
+		}
+
+		@Override
+		protected void process(List<Integer> chunks) {
+			int i = chunks.get(chunks.size()-1);
+			progressBar.setValue(i);
+		}
+
+		@Override
+		protected void done() {
+			doClose(RET_OK);
+		}
+		
+		private void convert(DataObject tex, IOModule io, String extension) {
 			try {
 				//load source
 				File source = FileUtil.toFile(tex.getPrimaryFile());
 				File parent = source.getParentFile();
 				BufferedImage sourceImg = io.load(tex.getPrimaryFile());
-				
+
 				//create target file
 				File target = new File(parent, tex.getPrimaryFile().getName() + "." + extension);
 				if (target.exists() && !overwriteCheckBox.isSelected()) {
 					//confirm overwriting
-					int a = JOptionPane.showConfirmDialog(this, "Overwrite existing file? \n"
+					int a = JOptionPane.showConfirmDialog(ConvertTextureDialog.this, "Overwrite existing file? \n"
 							+ target.getPath(),
 							"Confirm", JOptionPane.YES_NO_OPTION);
 					if (a != JOptionPane.NO_OPTION) {
 						//Cancel
-						//increase progress
-						++i;
-						progressBar.setValue(i);
-						continue;
+						return;
 					}
 				}
-				
+
 				//save file
 				if ("dds".equals(extension)) {
 					//save dds
@@ -106,10 +143,7 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
 				} else {
 					io.store(sourceImg, extension, target);
 				}
-				
-				//increase progress
-				++i;
-				progressBar.setValue(i);
+
 			} catch (IOException ex) {
 				Exceptions.printStackTrace(ex);
 			} catch (URISyntaxException ex) {
@@ -117,6 +151,7 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
 			}
 		}
 	}
+	
 	private void storeDDS(BufferedImage img, File file) throws IOException {
 		boolean compressed = compressionComboBox.getSelectedIndex() > 0 && img.getWidth()==img.getHeight();
 		if (!compressed) {
@@ -333,7 +368,7 @@ public class ConvertTextureDialog extends javax.swing.JDialog {
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
 		convert();
-		doClose(RET_OK);
+//		doClose(RET_OK);
     }//GEN-LAST:event_okButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
