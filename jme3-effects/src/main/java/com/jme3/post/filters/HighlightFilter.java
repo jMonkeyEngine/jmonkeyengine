@@ -32,6 +32,10 @@
 package com.jme3.post.filters;
 
 import com.jme3.asset.AssetManager;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
@@ -42,6 +46,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Image;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -150,4 +155,20 @@ public class HighlightFilter extends Filter {
 	public ColorRGBA getHighlightColor() {
 		return highlightColor;
 	}
+	
+	@Override
+    public void write(JmeExporter ex) throws IOException {
+        super.write(ex);
+        OutputCapsule oc = ex.getCapsule(this);
+		oc.write(size, "brushSize", MIN_BRUSH_SIZE);
+		oc.write(highlightColor, "highlightColor", ColorRGBA.BlackNoAlpha);
+    }
+
+    @Override
+    public void read(JmeImporter im) throws IOException {
+        super.read(im);
+        InputCapsule ic = im.getCapsule(this);
+		size = ic.readInt("brushSize", MIN_BRUSH_SIZE);
+		highlightColor = (ColorRGBA) ic.readSavable("highlightColor", ColorRGBA.BlackNoAlpha);
+    }
 }
