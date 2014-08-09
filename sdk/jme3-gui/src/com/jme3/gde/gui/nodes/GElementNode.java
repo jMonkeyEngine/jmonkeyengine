@@ -4,6 +4,8 @@
  */
 package com.jme3.gde.gui.nodes;
 
+import com.jme3.gde.gui.propertyeditors.ResourceEditor;
+import com.jme3.gde.gui.propertyeditors.SizeEditor;
 import jada.ngeditor.model.elements.GElement;
 import java.beans.PropertyEditor;
 import java.lang.reflect.InvocationTargetException;
@@ -12,6 +14,8 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
+import sun.beans.editors.BoolEditor;
+import sun.beans.editors.BooleanEditor;
 
 /**
  *
@@ -46,16 +50,28 @@ public class GElementNode extends AbstractNode{
         set.setName("Element Properties");
         set.setShortDescription("You can set element properties");
         for(Entry<String,String> pair : this.element.listAttributes().entrySet()){
-            set.put(new ElementAttributeProperty(element,pair.getKey()));
+            final ElementAttributeProperty elementAttributeProperty = new ElementAttributeProperty(element,pair.getKey());
+            pickEditor(pair, elementAttributeProperty);
+            set.put(elementAttributeProperty);
         }
         s.put(set);
         return s; 
+    }
+
+    private void pickEditor(Entry<String, String> pair, final ElementAttributeProperty elementAttributeProperty) {
+        if(pair.getKey().equals("width")||pair.getKey().equals("height") || pair.getKey().equals("x") || pair.getKey().equals("y") ){
+           elementAttributeProperty.setPropertyEditor(new SizeEditor());
+        }else if(pair.getKey().equals("filename")){
+            elementAttributeProperty.setPropertyEditor(new ResourceEditor());
+        }
+        
     }
     
     public  class ElementAttributeProperty extends Node.Property {
 
         private String attributeName;
         private GElement element;
+        private PropertyEditor editor;
 
         public ElementAttributeProperty(GElement element, String attributeName) {
             super(String.class);
@@ -80,10 +96,14 @@ public class GElementNode extends AbstractNode{
         public boolean canWrite() {
             return true;
         }
-
+        
+        public void setPropertyEditor(PropertyEditor editor){
+            this.editor = editor;
+        }
         @Override
         public PropertyEditor getPropertyEditor() {  
-            return super.getPropertyEditor(); //To change body of generated methods, choose Tools | Templates.
+            
+            return this.editor; //To change body of generated methods, choose Tools | Templates.
         }
         
         

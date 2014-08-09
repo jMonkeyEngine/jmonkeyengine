@@ -5,8 +5,15 @@
 package com.jme3.gde.gui;
 
 import com.jme3.gde.gui.nodes.GElementNode;
+import com.jme3.gde.gui.nodes.GUINode;
 import com.jme3.gde.gui.nodes.ScreenChildFactory;
+import jada.ngeditor.controller.CommandProcessor;
 import jada.ngeditor.controller.GUIEditor;
+import jada.ngeditor.controller.commands.SelectCommand;
+import jada.ngeditor.listeners.events.ReloadGuiEvent;
+import jada.ngeditor.listeners.events.SelectionChanged;
+import jada.ngeditor.model.GUI;
+import jada.ngeditor.model.GuiEditorModel;
 import jada.ngeditor.model.elements.GElement;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
@@ -36,7 +43,7 @@ import org.openide.windows.TopComponent;
  * @author cris
  */
 @NavigatorPanel.Registration(mimeType = "text/x-niftygui+xml", displayName="Gui View")
-public class Navigator extends javax.swing.JPanel implements NavigatorPanel,ExplorerManager.Provider , Observer, PropertyChangeListener, LookupListener{
+public class Navigator extends javax.swing.JPanel implements NavigatorPanel,ExplorerManager.Provider , Observer, PropertyChangeListener{
     private Lookup lookup;
     private  ExplorerManager mgr = new ExplorerManager();
     private final BeanTreeView beanTreeView;
@@ -51,6 +58,7 @@ public class Navigator extends javax.swing.JPanel implements NavigatorPanel,Expl
         setLayout(new BorderLayout());
         beanTreeView = new BeanTreeView();
         add(beanTreeView, BorderLayout.CENTER);
+        CommandProcessor.getInstance().getObservable().addObserver(this);
         
     }
 
@@ -94,13 +102,7 @@ public class Navigator extends javax.swing.JPanel implements NavigatorPanel,Expl
 
     @Override
     public void panelActivated(Lookup context) {
-        try {
-            this.context = context;
-            context.lookupResult(NiftyGuiDataObject.class).addLookupListener(this);
-            intNavigator(context);
-        } catch (PropertyVetoException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        
     }
 
     @Override
@@ -120,11 +122,24 @@ public class Navigator extends javax.swing.JPanel implements NavigatorPanel,Expl
 
     @Override
     public void update(Observable o, Object arg) {
-        
-        jada.ngeditor.listeners.actions.Action act = ( jada.ngeditor.listeners.actions.Action) arg;
-       if(act.getType() == jada.ngeditor.listeners.actions.Action.SEL){
+       if(o instanceof GuiEditorModel){
+           try {
+               GuiEditorModel model = (GuiEditorModel) o;
+               model.getCurrent().addObserver(this);
+               model.getCurrent().getSelection().addObserver(this);
+               this.intNavigator(model.getCurrent());
+           } catch (PropertyVetoException ex) {
+               Exceptions.printStackTrace(ex);
+           }
+       }
+       
+       if(arg instanceof SelectionChanged){
+           SelectionChanged event = (SelectionChanged) arg;
+           if(event.getNewSelection().isEmpty()){
+               return;
+           }
            ArrayList<String> path = new ArrayList<String>();
-           GElement parent = act.getGUIElement();
+           GElement parent = ((SelectionChanged)arg).getElement();
            while(parent!=null){
                path.add(parent.getID());
                parent = parent.getParent();
@@ -135,12 +150,6 @@ public class Navigator extends javax.swing.JPanel implements NavigatorPanel,Expl
            }
             try {
                 mgr.setSelectedNodes(new Node[]{result});
-            } catch (PropertyVetoException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-       }else  if(act.getType() == jada.ngeditor.listeners.actions.Action.NEW){
-            try {
-                this.intNavigator(context);
             } catch (PropertyVetoException ex) {
                 Exceptions.printStackTrace(ex);
             }
@@ -156,29 +165,31 @@ public class Navigator extends javax.swing.JPanel implements NavigatorPanel,Expl
                 AbstractNode firstSelected = (AbstractNode) newValue[0];
                 if (firstSelected instanceof GElementNode) {
                     GElement element = ((GElementNode) firstSelected).getGelement();
-                    
-                    editor.selectElement(element);
+                    GUI gui = ((GUINode)mgr.getRootContext()).getGui();
+                    gui.getSelection().deleteObserver(this); // I don't wont to get notified about this selection change
+                    SelectCommand command = CommandProcessor.getInstance().getCommand(SelectCommand.class);
+                    command.setElement(element);
+                    try {
+                        lock = true;
+                        CommandProcessor.getInstance().excuteCommand(command);
+                    } catch (Exception ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                     gui.getSelection().addObserver(this);
                     
                 }
             }
         }
     }
 
-    @Override
-    public void resultChanged(LookupEvent ev) {
-        try {
-            intNavigator(context);
-        } catch (PropertyVetoException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
 
-    private void intNavigator(Lookup context) throws PropertyVetoException {
+    private void intNavigator(GUI gui) throws PropertyVetoException {
         
-        NiftyGuiDataObject man = context.lookup(NiftyGuiDataObject.class);
+       
         ExplorerUtils.activateActions(mgr, true);
-        editor = man.getLookup().lookup(GUIEditor.class);
-        AbstractNode guiRoot = new AbstractNode(Children.create(new ScreenChildFactory(editor.getGui()), true));
+       
+        
+        AbstractNode guiRoot = new GUINode(gui);
         guiRoot.setName("Gui");
         this.mgr.setRootContext(guiRoot);
         this.beanTreeView.updateUI();
@@ -186,6 +197,6 @@ public class Navigator extends javax.swing.JPanel implements NavigatorPanel,Expl
         this.mgr.setSelectedNodes(new Node[]{guiRoot});
         Lookup lookup1 = ExplorerUtils.createLookup(mgr, getActionMap());
         lookup = new ProxyLookup(lookup1);
-        editor.addObserver(this);
+        
     }
 }

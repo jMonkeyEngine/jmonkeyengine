@@ -5,6 +5,7 @@
 package com.jme3.gde.gui;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import jada.ngeditor.controller.CommandProcessor;
 import jada.ngeditor.controller.GUIEditor;
 import java.io.IOException;
 import org.netbeans.api.project.Project;
@@ -96,7 +97,7 @@ public class NiftyGuiDataObject extends MultiDataObject {
         super(pf, loader);
         registerEditor("text/x-niftygui+xml", true);
         findAssetManager();
-        this.getCookieSet().assign(GUIEditor.class,new GUIEditor());
+        this.getCookieSet().assign(GUIEditor.class, CommandProcessor.getInstance().getGuiEditor());
     }
 
     protected final void findAssetManager() {
