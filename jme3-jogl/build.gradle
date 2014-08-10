@@ -5,7 +5,7 @@ if (!hasProperty('mainClass')) {
 dependencies {
     compile project(':jme3-core')
     compile project(':jme3-desktop')
-    compile 'org.jogamp.gluegen:gluegen-rt-main:2.1.4'
-    compile 'org.jogamp.jogl:jogl-all-main:2.1.4'
-    compile 'org.jogamp.joal:joal-main:2.1.4'
+    compile 'org.jogamp.gluegen:gluegen-rt-main:2.2.0'
+    compile 'org.jogamp.jogl:jogl-all-main:2.2.0'
+    compile 'org.jogamp.joal:joal-main:2.2.0'
 }

@@ -75,7 +75,7 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
         caps.setSampleBuffers(true);
         caps.setNumSamples(samples);
 
-        offscreenDrawable = GLDrawableFactory.getFactory(GLProfile.getMaxFixedFunc(true)).createOffscreenAutoDrawable(null, caps, null, width, height, null);
+        offscreenDrawable = GLDrawableFactory.getFactory(GLProfile.getMaxFixedFunc(true)).createOffscreenAutoDrawable(null, caps, null, width, height);
         
         offscreenDrawable.display();
         
@@ -120,7 +120,8 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
         super.internalDestroy();
     }
 
-    public void run(){
+    @Override
+	public void run(){
         loadNatives();
         logger.log(Level.FINE, "Using JOGL {0}", NewtVersion.getInstance().getImplementationVersion());
         initInThread();
@@ -130,14 +131,16 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
         deinitInThread();
     }
 
-    public void destroy(boolean waitFor){
+    @Override
+	public void destroy(boolean waitFor){
         needClose.set(true);
         if (waitFor) {
             waitFor(false);
         }
     }
 
-    public void create(boolean waitFor){
+    @Override
+	public void create(boolean waitFor){
         if (created.get()){
             logger.warning("create() called when pbuffer is already created!");
             return;
@@ -149,13 +152,16 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
         }
     }
 
-    public void restart() {
+    @Override
+	public void restart() {
     }
 
-    public void setAutoFlushFrames(boolean enabled){
+    @Override
+	public void setAutoFlushFrames(boolean enabled){
     }
 
-    public Type getType() {
+    @Override
+	public Type getType() {
         return Type.OffscreenSurface;
     }
 
@@ -174,10 +180,12 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
         return null;
     }
 
-    public TouchInput getTouchInput() {
+    @Override
+	public TouchInput getTouchInput() {
         return null;
     }
 
-    public void setTitle(String title) {
+    @Override
+	public void setTitle(String title) {
     }
 }
