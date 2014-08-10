@@ -33,27 +33,20 @@ package com.jme3.renderer.jogl;
 
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Matrix4f;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.math.Vector4f;
-import com.jme3.renderer.Caps;
-import com.jme3.renderer.IDList;
-import com.jme3.renderer.RenderContext;
-import com.jme3.renderer.Renderer;
-import com.jme3.renderer.RendererException;
-import com.jme3.renderer.Statistics;
+import com.jme3.material.RenderState.StencilOperation;
+import com.jme3.material.RenderState.TestFunction;
+import com.jme3.math.*;
+import com.jme3.renderer.*;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.shader.Attribute;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
+import com.jme3.shader.Shader.ShaderType;
 import com.jme3.shader.Uniform;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
@@ -63,7 +56,16 @@ import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
-import com.jme3.util.SafeArrayList;
+
+import java.nio.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import jme3tools.converters.MipMapGenerator;
+import jme3tools.shader.ShaderDebug;
+
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -72,16 +74,16 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.media.nativewindow.NativeWindowFactory;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES1;
 import javax.media.opengl.GL2ES2;
+import javax.media.opengl.GL2ES3;
 import javax.media.opengl.GL2GL3;
 import javax.media.opengl.GL3;
 import javax.media.opengl.GLContext;
-import jme3tools.converters.MipMapGenerator;
-import jme3tools.shader.ShaderDebug;
 
 public class JoglRenderer implements Renderer {
 
@@ -136,11 +138,13 @@ public class JoglRenderer implements Renderer {
         nameBuf.rewind();
     }
 
-    public Statistics getStatistics() {
+    @Override
+	public Statistics getStatistics() {
         return statistics;
     }
     
-    public EnumSet<Caps> getCaps() {
+    @Override
+	public EnumSet<Caps> getCaps() {
         return caps;
     }
 
@@ -302,7 +306,7 @@ public class JoglRenderer implements Renderer {
             caps.add(Caps.PackedDepthStencilBuffer);
         }
 
-        if (gl.isExtensionAvailable("GL_ARB_draw_instanced")) {
+        if (gl.isExtensionAvailable("GL_ARB_draw_instanced") || gl.isExtensionAvailable("GL_ARB_instanced_arrays")) {
             caps.add(Caps.MeshInstancing);
         }
 
@@ -335,12 +339,13 @@ public class JoglRenderer implements Renderer {
 
         boolean latc = gl.isExtensionAvailable("GL_EXT_texture_compression_latc");
         //FIXME ignore atdc?
-        boolean atdc = gl.isExtensionAvailable("GL_ATI_texture_compression_3dc");
-        if (latc || atdc) {
+        //boolean atdc = gl.isExtensionAvailable("GL_ATI_texture_compression_3dc");
+        if (latc /*|| atdc*/) {
             caps.add(Caps.TextureCompressionLATC);
         }
 
-        if (gl.isExtensionAvailable("GL_EXT_packed_float")) {
+        if (gl.isExtensionAvailable("GL_EXT_packed_float") || gl.isExtensionAvailable("GL_VERSION_3_0")) {
+        	// This format is part of the OGL3 specification
             caps.add(Caps.PackedFloatColorBuffer);
             if (gl.isExtensionAvailable("GL_ARB_half_float_pixel")) {
                 // because textures are usually uploaded as RGB16F
@@ -349,11 +354,11 @@ public class JoglRenderer implements Renderer {
             }
         }
 
-        if (gl.isExtensionAvailable("GL_EXT_texture_array")) {
+        if (gl.isExtensionAvailable("GL_EXT_texture_array") || gl.isExtensionAvailable("GL_VERSION_3_0")) {
             caps.add(Caps.TextureArray);
         }
 
-        if (gl.isExtensionAvailable("GL_EXT_texture_shared_exponent")) {
+        if (gl.isExtensionAvailable("GL_EXT_texture_shared_exponent") || gl.isExtensionAvailable("GL_VERSION_3_0")) {
             caps.add(Caps.SharedExponentTexture);
         }
 
@@ -417,14 +422,15 @@ public class JoglRenderer implements Renderer {
         }
         
         //supports sRGB pipeline
-        if (gl.isExtensionAvailable("GL_ARB_framebuffer_sRGB") && gl.isExtensionAvailable("GL_EXT_texture_sRGB")){
+        if ((gl.isExtensionAvailable("GL_ARB_framebuffer_sRGB") && gl.isExtensionAvailable("GL_EXT_texture_sRGB")) || gl.isExtensionAvailable("GL_VERSION_3_0")){
             caps.add(Caps.Srgb);
         }
         
         logger.log(Level.FINE, "Caps: {0}", caps);
     }
     
-    public void invalidateState() {
+    @Override
+	public void invalidateState() {
         context.reset();
         boundShader = null;
         lastFb = null;
@@ -436,35 +442,39 @@ public class JoglRenderer implements Renderer {
         initialReadBuf = intBuf1.get(0);
     }
     
-    public void resetGLObjects() {
+    @Override
+	public void resetGLObjects() {
         logger.log(Level.FINE, "Reseting objects and invalidating state");
         objManager.resetObjects();
         statistics.clearMemory();
         invalidateState();
     }
     
-    public void cleanup() {
+    @Override
+	public void cleanup() {
         logger.log(Level.FINE, "Deleting objects and invalidating state");
         objManager.deleteAllObjects(this);
         statistics.clearMemory();
         invalidateState();
     }
     
-    private void checkCap(Caps cap) {
-        if (!caps.contains(cap)) {
-            throw new UnsupportedOperationException("Required capability missing: " + cap.name());
-        }
-    }
+//    private void checkCap(Caps cap) {
+//        if (!caps.contains(cap)) {
+//            throw new UnsupportedOperationException("Required capability missing: " + cap.name());
+//        }
+//    }
     
     /*********************************************************************\
     |* Render State                                                      *|
     \*********************************************************************/
-    public void setDepthRange(float start, float end) {
+    @Override
+	public void setDepthRange(float start, float end) {
         GL gl = GLContext.getCurrentGL();
         gl.glDepthRange(start, end);
     }
     
-    public void clearBuffers(boolean color, boolean depth, boolean stencil) {
+    @Override
+	public void clearBuffers(boolean color, boolean depth, boolean stencil) {
         GL gl = GLContext.getCurrentGL();
         int bits = 0;
         if (color) {
@@ -495,12 +505,14 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void setBackgroundColor(ColorRGBA color) {
+    @Override
+	public void setBackgroundColor(ColorRGBA color) {
         GL gl = GLContext.getCurrentGL();
         gl.glClearColor(color.r, color.g, color.b, color.a);
     }
 
-    public void setAlphaToCoverage(boolean value) {
+    @Override
+	public void setAlphaToCoverage(boolean value) {
         if (caps.contains(Caps.Multisample)) {
             GL gl = GLContext.getCurrentGL();
             if (value) {
@@ -511,7 +523,8 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void applyRenderState(RenderState state) {
+    @Override
+	public void applyRenderState(RenderState state) {
         GL gl = GLContext.getCurrentGL();
         if (state.isWireframe() && !context.wireframe) {
             if (gl.isGL2GL3()) {
@@ -537,22 +550,23 @@ public class JoglRenderer implements Renderer {
             gl.glDepthFunc(convertTestFunction(state.getDepthFunc()));
             context.depthFunc = state.getDepthFunc();
         }
-
-        if (state.isAlphaTest() && context.alphaTestFallOff == 0) {
-            gl.glEnable(GL2ES1.GL_ALPHA_TEST);
-            if (gl.isGL2ES1()) {
-                gl.getGL2ES1().glAlphaFunc(convertTestFunction(context.alphaFunc), state.getAlphaFallOff());               
-            }
-            context.alphaTestFallOff = state.getAlphaFallOff();
-        } else if (!state.isAlphaTest() && context.alphaTestFallOff != 0) {
-            if (gl.isGL2ES1()) {
+        if (gl.isGL2ES1()) {
+            if (state.isAlphaTest() && !context.alphaTestEnabled) {
+            	gl.glEnable(GL2ES1.GL_ALPHA_TEST);
+                gl.getGL2ES1().glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);
+                context.alphaTestEnabled = true;           
+            } else if (!state.isAlphaTest() && context.alphaTestEnabled) {
                 gl.glDisable(GL2ES1.GL_ALPHA_TEST);
+                context.alphaTestEnabled = false;
             }
-            context.alphaTestFallOff = 0;
-        }
-        if (state.getAlphaFunc() != context.alphaFunc && gl.isGL2ES1()) {
-            gl.getGL2ES1().glAlphaFunc(convertTestFunction(context.alphaFunc), state.getAlphaFallOff());  
-            context.alphaFunc = state.getAlphaFunc();
+            if (state.getAlphaFallOff() != context.alphaTestFallOff) {
+            	gl.getGL2ES1().glAlphaFunc(convertTestFunction(context.alphaFunc), context.alphaTestFallOff);   
+                context.alphaTestFallOff = state.getAlphaFallOff();
+            }         
+            if (state.getAlphaFunc() != context.alphaFunc) {
+            	gl.getGL2ES1().glAlphaFunc(convertTestFunction(state.getAlphaFunc()), context.alphaTestFallOff);
+                context.alphaFunc = state.getAlphaFunc();
+            }
         }
 
         if (state.isDepthWrite() && !context.depthWriteEnabled) {
@@ -783,7 +797,8 @@ public class JoglRenderer implements Renderer {
     /*********************************************************************\
     |* Camera and World transforms                                       *|
     \*********************************************************************/
-    public void setViewPort(int x, int y, int w, int h) {
+    @Override
+	public void setViewPort(int x, int y, int w, int h) {
         if (x != vpX || vpY != y || vpW != w || vpH != h) {
             GL gl = GLContext.getCurrentGL();
             gl.glViewport(x, y, w, h);
@@ -794,7 +809,8 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void setClipRect(int x, int y, int width, int height) {
+    @Override
+	public void setClipRect(int x, int y, int width, int height) {
         GL gl = GLContext.getCurrentGL();
         if (!context.clipRectEnabled) {
             gl.glEnable(GL.GL_SCISSOR_TEST);
@@ -809,7 +825,8 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void clearClipRect() {
+    @Override
+	public void clearClipRect() {
         if (context.clipRectEnabled) {
             GL gl = GLContext.getCurrentGL();
             gl.glDisable(GL.GL_SCISSOR_TEST);
@@ -822,14 +839,17 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void onFrame() {
+    @Override
+	public void onFrame() {
         objManager.deleteUnused(this);
     }
     
-    public void setViewProjectionMatrices(Matrix4f viewMatrix, Matrix4f projMatrix) {
+    @Override
+	public void setViewProjectionMatrices(Matrix4f viewMatrix, Matrix4f projMatrix) {
     }
 
-    public void setWorldMatrix(Matrix4f worldMatrix) {
+    @Override
+	public void setWorldMatrix(Matrix4f worldMatrix) {
     }
 
     /*********************************************************************\
@@ -990,7 +1010,8 @@ public class JoglRenderer implements Renderer {
      * (Non-javadoc)
      * Only used for fixed-function. Ignored.
      */
-    public void setLighting(LightList list) {
+    @Override
+	public void setLighting(LightList list) {
     }
     
     public int convertShaderType(Shader.ShaderType type) {
@@ -1000,7 +1021,7 @@ public class JoglRenderer implements Renderer {
             case Vertex:
                 return GL2ES2.GL_VERTEX_SHADER;
 //            case Geometry:
-//                return ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB;
+//                return GL3.GL_GEOMETRY_SHADER_ARB;
             default:
                 throw new UnsupportedOperationException("Unrecognized shader type.");
         }
@@ -1011,7 +1032,14 @@ public class JoglRenderer implements Renderer {
         GL gl = GLContext.getCurrentGL();
         if (id == -1) {
             // Create id
-            id = gl.getGL2ES2().glCreateShader(convertShaderType(source.getType()));
+//        	if (gl.isGL2ES2()) {
+        		id = gl.getGL2ES2().glCreateShader(convertShaderType(source.getType()));
+//        	}
+//        	else {
+//        		if (gl.isGL2()) {
+//        			id = gl.getGL2().glCreateShaderObjectARB(convertShaderType(source.getType()));
+//        		}
+//        	}
             if (id <= 0) {
                 throw new RendererException("Invalid ID received when trying to create shader.");
             }
@@ -1118,7 +1146,7 @@ public class JoglRenderer implements Renderer {
             gl.getGL2ES2().glAttachShader(id, source.getId());
         }
 
-        if (caps.contains(Caps.OpenGL30) && gl.isGL2GL3()) {
+        if (gl.isGL2GL3() && gl.isExtensionAvailable("GL_EXT_gpu_shader4")) {
             // Check if GLSL version is 1.5 for shader
             gl.getGL2GL3().glBindFragDataLocation(id, 0, "outFragColor");
             // For MRT
@@ -1167,14 +1195,15 @@ public class JoglRenderer implements Renderer {
             }
         } else {
             if (infoLog != null) {
-                throw new RendererException("Shader link failure, shader:" + shader + "\n" + infoLog);
+                throw new RendererException("Shader failed to link, shader:" + shader + "\n" + infoLog);
             } else {
-                throw new RendererException("Shader link failure, shader:" + shader + " info: <not provided>");
+                throw new RendererException("Shader failed to link, shader:" + shader + "\ninfo: <not provided>");
             }
         }
     }
 
-    public void setShader(Shader shader) {
+    @Override
+	public void setShader(Shader shader) {
         if (shader == null) {
             throw new IllegalArgumentException("Shader cannot be null");
         } else {
@@ -1192,7 +1221,8 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void deleteShaderSource(ShaderSource source) {
+    @Override
+	public void deleteShaderSource(ShaderSource source) {
         if (source.getId() < 0) {
             logger.warning("Shader source is not uploaded to GPU, cannot delete.");
             return;
@@ -1203,7 +1233,8 @@ public class JoglRenderer implements Renderer {
         source.resetObject();
     }
 
-    public void deleteShader(Shader shader) {
+    @Override
+	public void deleteShader(Shader shader) {
         if (shader.getId() == -1) {
             logger.warning("Shader is not uploaded to GPU, cannot delete.");
             return;
@@ -1225,22 +1256,24 @@ public class JoglRenderer implements Renderer {
     /*********************************************************************\
     |* Framebuffers                                                      *|
     \*********************************************************************/
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
+    @Override
+	public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
         copyFrameBuffer(src, dst, true);
     }
 
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
+    @Override
+	public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
         GL gl = GLContext.getCurrentGL();
         if (gl.isExtensionAvailable("GL_EXT_framebuffer_blit") && gl.isGL2GL3()) {
             int srcX0 = 0;
             int srcY0 = 0;
-            int srcX1/* = 0*/;
-            int srcY1/* = 0*/;
+            int srcX1;
+            int srcY1;
 
             int dstX0 = 0;
             int dstY0 = 0;
-            int dstX1/* = 0*/;
-            int dstY1/* = 0*/;
+            int dstX1;
+            int dstY1;
 
             int prevFBO = context.boundFBO;
 
@@ -1472,8 +1505,7 @@ public class JoglRenderer implements Renderer {
         if (attachmentSlot == -100) {
             return GL.GL_DEPTH_ATTACHMENT;
         } else if (attachmentSlot < 0 || attachmentSlot >= 16) {
-            throw new UnsupportedOperationException("Invalid FBO attachment slot: "
-                    + attachmentSlot);
+            throw new UnsupportedOperationException("Invalid FBO attachment slot: " + attachmentSlot);
         }
 
         return GL.GL_COLOR_ATTACHMENT0 + attachmentSlot;
@@ -1492,9 +1524,11 @@ public class JoglRenderer implements Renderer {
             setupTextureParams(tex);
         }
 
-        gl.glFramebufferTexture2D(GL.GL_FRAMEBUFFER, convertAttachmentSlot(rb.getSlot()),
+        gl.glFramebufferTexture2D(GL.GL_FRAMEBUFFER, 
+        		convertAttachmentSlot(rb.getSlot()),
                 convertTextureType(tex.getType(), image.getMultiSamples(), rb.getFace()),
-                image.getId(), 0);
+                image.getId(), 
+                0);
     }
     
     public void updateFrameBufferAttachment(FrameBuffer fb, RenderBuffer rb) {
@@ -1568,11 +1602,19 @@ public class JoglRenderer implements Renderer {
         return samplePositions;
     }
 
-    public void setMainFrameBufferOverride(FrameBuffer fb) {
+    @Override
+	public void setMainFrameBufferOverride(FrameBuffer fb) {
         mainFbOverride = fb;
     }
     
-    public void setFrameBuffer(FrameBuffer fb) {
+    @Override
+	public void setFrameBuffer(FrameBuffer fb) {
+    	GL gl = GLContext.getCurrentGL();
+    	if (!gl.isExtensionAvailable("GL_EXT_framebuffer_object")) {
+            throw new RendererException("Framebuffer objects are not supported" +
+                                        " by the video hardware");
+        }
+    	
         if (fb == null && mainFbOverride != null) {
             fb = mainFbOverride;
         }
@@ -1582,8 +1624,7 @@ public class JoglRenderer implements Renderer {
                 return;
             }
         }
-
-        GL gl = GLContext.getCurrentGL();
+        
         // generate mipmaps for last FB if needed
         if (lastFb != null) {
             for (int i = 0; i < lastFb.getNumColorBuffers(); i++) {
@@ -1711,7 +1752,8 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
+    @Override
+	public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
         GL gl = GLContext.getCurrentGL();
         if (fb != null) {
             RenderBuffer rb = fb.getColorBuffer();
@@ -1740,7 +1782,8 @@ public class JoglRenderer implements Renderer {
         gl.glDeleteRenderbuffers(1, intBuf1);
     }
     
-    public void deleteFrameBuffer(FrameBuffer fb) {
+    @Override
+	public void deleteFrameBuffer(FrameBuffer fb) {
         if (fb.getId() != -1) {
             GL gl = GLContext.getCurrentGL();
             if (context.boundFBO == fb.getId()) {
@@ -1767,6 +1810,12 @@ public class JoglRenderer implements Renderer {
     |* Textures                                                          *|
     \*********************************************************************/
     private int convertTextureType(Texture.Type type, int samples, int face) {
+    	GL gl = GLContext.getCurrentGL();
+    	if (samples > 1 && !gl.isExtensionAvailable("GL_ARB_texture_multisample")) {
+            throw new RendererException("Multisample textures are not supported" + 
+                                        " by the video hardware.");
+        }
+    	
         switch (type) {
             case TwoDimensional:
                 if (samples > 1) {
@@ -1830,7 +1879,7 @@ public class JoglRenderer implements Renderer {
             case BorderClamp:
                 return GL2GL3.GL_CLAMP_TO_BORDER;
             case Clamp:
-                return GL2.GL_CLAMP;
+            	// Falldown intentional.
             case EdgeClamp:
                 return GL.GL_CLAMP_TO_EDGE;
             case Repeat:
@@ -1904,8 +1953,7 @@ public class JoglRenderer implements Renderer {
      *
      * @param img The image to upload
      * @param type How the data in the image argument should be interpreted.
-     * @param unit The texture slot to be used to upload the image, not
-     * important
+     * @param unit The texture slot to be used to upload the image, not important
      */
     public void updateTexImageData(Image img, Texture.Type type, int unit) {
         int texId = img.getId();
@@ -1934,22 +1982,28 @@ public class JoglRenderer implements Renderer {
         }
 
         if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired()) {
-            // No pregenerated mips available,
-            // generate from base level if required
+        	// Image does not have mipmaps, but they are required.
+            // Generate from base level.
+        	
             if (!gl.isExtensionAvailable("GL_VERSION_3_0")) {
                 if (gl.isGL2ES1()) {
                     gl.glTexParameteri(target, GL2ES1.GL_GENERATE_MIPMAP, GL.GL_TRUE);
+                    img.setMipmapsGenerated(true);
                 }
-                img.setMipmapsGenerated(true);
+            } else {
+                // For OpenGL3 and up.
+                // We'll generate mipmaps via glGenerateMipmapEXT (see below)
+            }
+        } else if (img.hasMipmaps()) {
+            // Image already has mipmaps, set the max level based on the 
+            // number of mipmaps we have.
+            if (gl.isGL2GL3()) {
+                gl.glTexParameteri(target, GL2ES3.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
             }
         } else {
-            // Image already has mipmaps or no mipmap generation desired.
-//          glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0 );
-            if (img.getMipMapSizes() != null) {
-                if (gl.isGL2GL3()) {
-                    gl.glTexParameteri(target, GL2GL3.GL_TEXTURE_MAX_LEVEL, img.getMipMapSizes().length - 1);
-                }
-            }
+            // Image does not have mipmaps and they are not required.
+            // Specify that that the texture has no mipmaps.
+        	gl.glTexParameteri(target, GL2ES3.GL_TEXTURE_MAX_LEVEL, 0);
         }
 
         int imageSamples = img.getMultiSamples();
@@ -1978,17 +2032,6 @@ public class JoglRenderer implements Renderer {
         }
         
         if (target == GL.GL_TEXTURE_CUBE_MAP) {
-            // Check max texture size before upload
-            if (img.getWidth() > maxCubeTexSize || img.getHeight() > maxCubeTexSize) {
-                throw new RendererException("Cannot upload cubemap " + img + ". The maximum supported cubemap resolution is " + maxCubeTexSize);
-            }
-        } else {
-            if (img.getWidth() > maxTexSize || img.getHeight() > maxTexSize) {
-                throw new RendererException("Cannot upload texture " + img + ". The maximum supported texture resolution is " + maxTexSize);
-            }
-        }
-        
-        if (target == GL.GL_TEXTURE_CUBE_MAP) {
             List<ByteBuffer> data = img.getData();
             if (data.size() != 6) {
                 logger.log(Level.WARNING, "Invalid texture: {0}\n"
@@ -1999,9 +2042,15 @@ public class JoglRenderer implements Renderer {
                 TextureUtil.uploadTexture(img, GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, linearizeSrgbImages);
             }
         } else if (target == GL.GL_TEXTURE_2D_ARRAY) {
+            if (!caps.contains(Caps.TextureArray)) {
+                throw new RendererException("Texture arrays not supported by graphics hardware");
+            }
+            
             List<ByteBuffer> data = img.getData();
+            
             // -1 index specifies prepare data for 2D Array
             TextureUtil.uploadTexture(img, target, -1, 0, linearizeSrgbImages);
+            
             for (int i = 0; i < data.size(); i++) {
                 // upload each slice of 2D array in turn
                 // this time with the appropriate index
@@ -2028,7 +2077,8 @@ public class JoglRenderer implements Renderer {
         img.clearUpdateNeeded();
     }
 
-    public void setTexture(int unit, Texture tex) {
+    @Override
+	public void setTexture(int unit, Texture tex) {
         GL gl = GLContext.getCurrentGL();
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
@@ -2065,7 +2115,8 @@ public class JoglRenderer implements Renderer {
         setupTextureParams(tex);
     }
 
-    public void modifyTexture(Texture tex, Image pixels, int x, int y) {
+    @Override
+	public void modifyTexture(Texture tex, Image pixels, int x, int y) {
       setTexture(0, tex);
       TextureUtil.uploadSubTexture(pixels, convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), -1), 0, x, y, linearizeSrgbImages);
     }
@@ -2087,7 +2138,8 @@ public class JoglRenderer implements Renderer {
          context.textureIndexList.copyNewToOld();*/
     }
 
-    public void deleteImage(Image image) {
+    @Override
+	public void deleteImage(Image image) {
         int texId = image.getId();
         if (texId != -1) {
             intBuf1.put(0, texId);
@@ -2130,9 +2182,6 @@ public class JoglRenderer implements Renderer {
                 return GL2ES2.GL_INT;
             case UnsignedInt:
                 return GL.GL_UNSIGNED_INT;
-//            case Half:
-//                return NVHalfFloat.GL_HALF_FLOAT_NV;
-//                return ARBHalfFloatVertex.GL_HALF_FLOAT;
             case Float:
                 return GL.GL_FLOAT;
             case Double:
@@ -2143,7 +2192,8 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void updateBufferData(VertexBuffer vb) {
+    @Override
+	public void updateBufferData(VertexBuffer vb) {
         GL gl = GLContext.getCurrentGL();
         int bufId = vb.getId();
         boolean created = false;
@@ -2195,7 +2245,8 @@ public class JoglRenderer implements Renderer {
         vb.clearUpdateNeeded();
     }
 
-    public void deleteBuffer(VertexBuffer vb) {
+    @Override
+	public void deleteBuffer(VertexBuffer vb) {
         GL gl = GLContext.getCurrentGL();
         int bufId = vb.getId();
         if (bufId != -1) {
@@ -2210,11 +2261,14 @@ public class JoglRenderer implements Renderer {
     }
     
     public void clearVertexAttribs() {
+    	GL gl = GLContext.getCurrentGL();
         IDList attribList = context.attribIndexList;
         for (int i = 0; i < attribList.oldLen; i++) {
             int idx = attribList.oldList[i];
-            GL gl = GLContext.getCurrentGL();
             gl.getGL2ES2().glDisableVertexAttribArray(idx);
+            if (context.boundAttribs[idx].isInstanced() && gl.isGL3ES3()) {
+                gl.getGL3ES3().glVertexAttribDivisor(idx, 0);
+            }
             context.boundAttribs[idx] = null;
         }
         context.attribIndexList.copyNewToOld();
@@ -2248,15 +2302,34 @@ public class JoglRenderer implements Renderer {
                     attrib.setLocation(loc);
                 }
             }
+            
+            if (vb.isInstanced()) {
+                if (!gl.isExtensionAvailable("GL_ARB_instanced_arrays")
+                 || !gl.isExtensionAvailable("GL_ARB_draw_instanced")) {
+                    throw new RendererException("Instancing is required, "
+                            + "but not supported by the "
+                            + "graphics hardware");
+                }
+            }
+            int slotsRequired = 1;
+            if (vb.getNumComponents() > 4) {
+                if (vb.getNumComponents() % 4 != 0) {
+                    throw new RendererException("Number of components in multi-slot "
+                            + "buffers must be divisible by 4");
+                }
+                slotsRequired = vb.getNumComponents() / 4;
+            }
 
             if (vb.isUpdateNeeded() && idb == null) {
                 updateBufferData(vb);
             }
 
             VertexBuffer[] attribs = context.boundAttribs;
-            if (!context.attribIndexList.moveToNew(loc)) {
-                gl.getGL2ES2().glEnableVertexAttribArray(loc);
-                //System.out.println("Enabled ATTRIB IDX: "+loc);
+            for (int i = 0; i < slotsRequired; i++) {
+                if (!context.attribIndexList.moveToNew(loc + i)) {
+                    gl.getGL2ES2().glEnableVertexAttribArray(loc + i);
+                    //System.out.println("Enabled ATTRIB IDX: "+loc + i);
+                }
             }
             if (attribs[loc] != vb) {
                 // NOTE: Use id from interleaved buffer if specified
@@ -2270,14 +2343,43 @@ public class JoglRenderer implements Renderer {
                     //statistics.onVertexBufferUse(vb, false);
                 }
 
-                gl.getGL2ES2().glVertexAttribPointer(loc,
+                if (slotsRequired == 1) {
+                    gl.getGL2ES2().glVertexAttribPointer(loc,
                         vb.getNumComponents(),
                         convertFormat(vb.getFormat()),
                         vb.isNormalized(),
                         vb.getStride(),
                         vb.getOffset());
-
-                attribs[loc] = vb;
+                } else {
+                	for (int i = 0; i < slotsRequired; i++) {
+                        // The pointer maps the next 4 floats in the slot.
+                        // E.g.
+                        // P1: XXXX____________XXXX____________
+                        // P2: ____XXXX____________XXXX________
+                        // P3: ________XXXX____________XXXX____
+                        // P4: ____________XXXX____________XXXX
+                        // stride = 4 bytes in float * 4 floats in slot * num slots
+                        // offset = 4 bytes in float * 4 floats in slot * slot index
+                		gl.getGL2ES2().glVertexAttribPointer(loc + i,
+                                4,
+                                convertFormat(vb.getFormat()),
+                                vb.isNormalized(),
+                                4 * 4 * slotsRequired,
+                                4 * 4 * i);
+                    }
+                }
+                
+                for (int i = 0; i < slotsRequired; i++) {
+                    int slot = loc + i;
+                    if (vb.isInstanced() && (attribs[slot] == null || !attribs[slot].isInstanced())) {
+                        // non-instanced -> instanced
+                        gl.getGL3ES3().glVertexAttribDivisor(slot, vb.getInstanceSpan());
+                    } else if (!vb.isInstanced() && attribs[slot] != null && attribs[slot].isInstanced()) {
+                        // instanced -> non-instanced
+                    	gl.getGL3ES3().glVertexAttribDivisor(slot, 0);
+                    }
+                    attribs[slot] = vb;
+                }
             }
         } else {
             throw new IllegalStateException("Cannot render mesh without shader bound");
@@ -2289,14 +2391,15 @@ public class JoglRenderer implements Renderer {
     }
     
     public void drawTriangleArray(Mesh.Mode mode, int count, int vertCount) {
+    	boolean useInstancing = count > 1 && caps.contains(Caps.MeshInstancing);
         GL gl = GLContext.getCurrentGL();
-        if (count > 1) {
-            if (gl.isGL2GL3()) {
+        if (useInstancing) {
+        	if (gl.isGL2GL3()) {
                 gl.getGL2GL3().glDrawArraysInstanced(convertElementMode(mode), 0,
                     vertCount, count);
             }
         } else {
-            gl.glDrawArrays(convertElementMode(mode), 0, vertCount);
+        	gl.glDrawArrays(convertElementMode(mode), 0, vertCount);
         }
     }
     
@@ -2373,7 +2476,6 @@ public class JoglRenderer implements Renderer {
                     }
                 }
 
-                //FIXME check whether elSize is required
                 curOffset += elementLength * elSize;
             }
         } else {
@@ -2432,7 +2534,7 @@ public class JoglRenderer implements Renderer {
         }
     }
 
-    public void updateVertexArray(Mesh mesh) {
+    public void updateVertexArray(Mesh mesh, VertexBuffer instanceData) {
         int id = mesh.getId();
         GL gl = GLContext.getCurrentGL();
 
@@ -2456,6 +2558,10 @@ public class JoglRenderer implements Renderer {
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
         }
+        
+        if (instanceData != null) {
+            setVertexAttrib(instanceData, null);
+        }
 
         for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
@@ -2474,9 +2580,9 @@ public class JoglRenderer implements Renderer {
         }
     }
     
-    private void renderMeshVertexArray(Mesh mesh, int lod, int count) {
+    private void renderMeshVertexArray(Mesh mesh, int lod, int count, VertexBuffer instanceData) {
         if (mesh.getId() == -1) {
-            updateVertexArray(mesh);
+            updateVertexArray(mesh, instanceData);
         } else {
             // TODO: Check if it was updated
         }
@@ -2505,25 +2611,30 @@ public class JoglRenderer implements Renderer {
         clearTextureUnits();
     }
     
-    private void renderMeshDefault(Mesh mesh, int lod, int count) {
-        VertexBuffer indices;
-
+    private void renderMeshDefault(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+    	 
+        // Here while count is still passed in.  Can be removed when/if
+        // the method is collapsed again.  -pspeed        
+        count = Math.max(mesh.getInstanceCount(), count);
+    
         VertexBuffer interleavedData = mesh.getBuffer(Type.InterleavedData);
         if (interleavedData != null && interleavedData.isUpdateNeeded()) {
             updateBufferData(interleavedData);
         }
 
-//        IntMap<VertexBuffer> buffers = mesh.getBuffers();
-        SafeArrayList<VertexBuffer> buffersList = mesh.getBufferList();
-
+        VertexBuffer indices;
         if (mesh.getNumLodLevels() > 0) {
             indices = mesh.getLodLevel(lod);
         } else {
             indices = mesh.getBuffer(Type.Index);
         }
 
-//        for (Entry<VertexBuffer> entry : buffers) {
-//             VertexBuffer vb = entry.getValue();
+        if (instanceData != null) {
+            for (VertexBuffer vb : instanceData) {
+                setVertexAttrib(vb, null);
+            }
+        }
+        
         for (VertexBuffer vb : mesh.getBufferList().getArray()) {
             if (vb.getBufferType() == Type.InterleavedData
                     || vb.getUsage() == Usage.CpuOnly // ignore cpu-only buffers
@@ -2549,7 +2660,8 @@ public class JoglRenderer implements Renderer {
         clearTextureUnits();
     }
 
-    public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
+    @Override
+	public void renderMesh(Mesh mesh, int lod, int count, VertexBuffer[] instanceData) {
         if (mesh.getVertexCount() == 0) {
             return;
         }
@@ -2587,11 +2699,12 @@ public class JoglRenderer implements Renderer {
 //        if (gl.isExtensionAvailable("GL_ARB_vertex_array_object")){
 //            renderMeshVertexArray(mesh, lod, count);
 //        }else{
-        renderMeshDefault(mesh, lod, count);
+        renderMeshDefault(mesh, lod, count, instanceData);
 //        }
     }
 
-    public void setMainFrameBufferSrgb(boolean srgb) {
+    @Override
+	public void setMainFrameBufferSrgb(boolean srgb) {
         //Gamma correction
         if(srgb && caps.contains(Caps.Srgb)){
             GLContext.getCurrentGL().glEnable(GL3.GL_FRAMEBUFFER_SRGB);
@@ -2602,7 +2715,8 @@ public class JoglRenderer implements Renderer {
     
     }
 
-    public void setLinearizeSrgbImages(boolean linearize) {
+    @Override
+	public void setLinearizeSrgbImages(boolean linearize) {
         linearizeSrgbImages = linearize;
     }
 }
