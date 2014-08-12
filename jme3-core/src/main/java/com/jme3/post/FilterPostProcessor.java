@@ -40,6 +40,7 @@ import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
 import com.jme3.ui.Picture;
+import com.jme3.util.SafeArrayList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,7 +63,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private FrameBuffer renderFrameBuffer;
     private Texture2D filterTexture;
     private Texture2D depthTexture;
-    private List<Filter> filters = new ArrayList<Filter>();
+    private SafeArrayList<Filter> filters = new SafeArrayList<Filter>(Filter.class);
     private AssetManager assetManager;        
     private Picture fsQuad;
     private boolean computeDepth = false;
@@ -185,7 +186,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         if (buff == outputBuffer) {
             viewPort.getCamera().resize(originalWidth, originalHeight, false);
             viewPort.getCamera().setViewPort(left, right, bottom, top);
-            viewPort.getCamera().update();
+            // update is redundant because resize and setViewPort will both
+            // run the appropriate (and same) onXXXChange methods.
+            // Also, update() updates some things that don't need to be updated.
+            //viewPort.getCamera().update();
             renderManager.setCamera( viewPort.getCamera(), false);        
             if (mat.getAdditionalRenderState().isDepthWrite()) {
                 mat.getAdditionalRenderState().setDepthTest(false);
@@ -194,7 +198,10 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         }else{
             viewPort.getCamera().resize(buff.getWidth(), buff.getHeight(), false);
             viewPort.getCamera().setViewPort(0, 1, 0, 1);
-            viewPort.getCamera().update();
+            // update is redundant because resize and setViewPort will both
+            // run the appropriate (and same) onXXXChange methods.
+            // Also, update() updates some things that don't need to be updated.
+            //viewPort.getCamera().update();
             renderManager.setCamera( viewPort.getCamera(), false);            
             mat.getAdditionalRenderState().setDepthTest(true);
             mat.getAdditionalRenderState().setDepthWrite(true);
@@ -216,8 +223,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
     public void postQueue(RenderQueue rq) {
 
-        for (Iterator<Filter> it = filters.iterator(); it.hasNext();) {
-            Filter filter = it.next();
+        for (Filter filter : filters.getArray()) {
             if (filter.isEnabled()) {
                 filter.postQueue(rq);
             }
@@ -330,8 +336,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
            }
         }
 
-        for (Iterator<Filter> it = filters.iterator(); it.hasNext();) {
-            Filter filter = it.next();
+        for (Filter filter : filters.getArray()) {
             if (filter.isEnabled()) {
                 filter.preFrame(tpf);
             }
@@ -392,7 +397,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             if(renderFrameBufferMS != null){
                renderFrameBufferMS.dispose();
             }
-            for (Filter filter : filters) {
+            for (Filter filter : filters.getArray()) {
                 filter.cleanup(renderer);
             }
         }
@@ -457,8 +462,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
             renderFrameBuffer.setColorTexture(filterTexture);
         }
 
-        for (Iterator<Filter> it = filters.iterator(); it.hasNext();) {
-            Filter filter = it.next();
+        for (Filter filter : filters.getArray()) {
             initFilter(filter, vp);
         }
         setupViewPortFrameBuffer();
@@ -504,14 +508,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     public void write(JmeExporter ex) throws IOException {
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(numSamples, "numSamples", 0);
-        oc.writeSavableArrayList((ArrayList) filters, "filters", null);
+        oc.writeSavableArrayList(new ArrayList(filters), "filters", null);
     }
 
     public void read(JmeImporter im) throws IOException {
         InputCapsule ic = im.getCapsule(this);
         numSamples = ic.readInt("numSamples", 0);
-        filters = ic.readSavableArrayList("filters", null);
-        for (Filter filter : filters) {
+        filters = new SafeArrayList<Filter>(Filter.class, ic.readSavableArrayList("filters", null));
+        for (Filter filter : filters.getArray()) {
             filter.setProcessor(this);
             setFilterState(filter, filter.isEnabled());
         }
@@ -543,7 +547,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
      * @return a filter assignable form the given type 
      */
     public <T extends Filter> T getFilter(Class<T> filterType) {
-        for (Filter c : filters) {
+        for (Filter c : filters.getArray()) {
             if (filterType.isAssignableFrom(c.getClass())) {
                 return (T) c;
             }
