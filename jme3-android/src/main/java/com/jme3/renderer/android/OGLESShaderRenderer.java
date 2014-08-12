@@ -1799,13 +1799,13 @@ public class OGLESShaderRenderer implements Renderer {
         Image[] textures = context.boundTextures;
 
         int type = convertTextureType(tex.getType());
-        if (!context.textureIndexList.moveToNew(unit)) {
+//        if (!context.textureIndexList.moveToNew(unit)) {
 //             if (context.boundTextureUnit != unit){
 //                glActiveTexture(GL_TEXTURE0 + unit);
 //                context.boundTextureUnit = unit;
 //             }
 //             glEnable(type);
-        }
+//        }
 
         if (textures[unit] != image) {
             if (context.boundTextureUnit != unit) {
