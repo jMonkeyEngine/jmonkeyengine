@@ -720,42 +720,45 @@ public class BoundingBox extends BoundingVolume {
      */
     private int collideWithRay(Ray ray, CollisionResults results) {
         TempVars vars = TempVars.get();
+        try {    
+            Vector3f diff = vars.vect1.set(ray.origin).subtractLocal(center);
+            Vector3f direction = vars.vect2.set(ray.direction);
 
-        Vector3f diff = vars.vect1.set(ray.origin).subtractLocal(center);
-        Vector3f direction = vars.vect2.set(ray.direction);
+            //float[] t = {0f, Float.POSITIVE_INFINITY};
+            float[] t = vars.fWdU; // use one of the tempvars arrays
+            t[0] = 0;
+            t[1] = Float.POSITIVE_INFINITY;  
 
-        float[] t = {0f, Float.POSITIVE_INFINITY};
+            float saveT0 = t[0], saveT1 = t[1];
+            boolean notEntirelyClipped = clip(+direction.x, -diff.x - xExtent, t)
+                    && clip(-direction.x, +diff.x - xExtent, t)
+                    && clip(+direction.y, -diff.y - yExtent, t)
+                    && clip(-direction.y, +diff.y - yExtent, t)
+                    && clip(+direction.z, -diff.z - zExtent, t)
+                    && clip(-direction.z, +diff.z - zExtent, t);
 
-        float saveT0 = t[0], saveT1 = t[1];
-        boolean notEntirelyClipped = clip(+direction.x, -diff.x - xExtent, t)
-                && clip(-direction.x, +diff.x - xExtent, t)
-                && clip(+direction.y, -diff.y - yExtent, t)
-                && clip(-direction.y, +diff.y - yExtent, t)
-                && clip(+direction.z, -diff.z - zExtent, t)
-                && clip(-direction.z, +diff.z - zExtent, t);
-        vars.release();
-
-        if (notEntirelyClipped && (t[0] != saveT0 || t[1] != saveT1)) {
-            if (t[1] > t[0]) {
-                float[] distances = t;
-                Vector3f[] points = new Vector3f[]{
-                    new Vector3f(ray.direction).multLocal(distances[0]).addLocal(ray.origin),
-                    new Vector3f(ray.direction).multLocal(distances[1]).addLocal(ray.origin)
-                };
-
-                CollisionResult result = new CollisionResult(points[0], distances[0]);
+            if (notEntirelyClipped && (t[0] != saveT0 || t[1] != saveT1)) {
+                if (t[1] > t[0]) {
+                    float[] distances = t;
+                    Vector3f point0 = new Vector3f(ray.direction).multLocal(distances[0]).addLocal(ray.origin);
+                    Vector3f point1 = new Vector3f(ray.direction).multLocal(distances[1]).addLocal(ray.origin);
+    
+                    CollisionResult result = new CollisionResult(point0, distances[0]);
+                    results.addCollision(result);
+                    result = new CollisionResult(point1, distances[1]);
+                    results.addCollision(result);
+                    return 2;
+                }
+    
+                Vector3f point = new Vector3f(ray.direction).multLocal(t[0]).addLocal(ray.origin);
+                CollisionResult result = new CollisionResult(point, t[0]);
                 results.addCollision(result);
-                result = new CollisionResult(points[1], distances[1]);
-                results.addCollision(result);
-                return 2;
+                return 1;
             }
-
-            Vector3f point = new Vector3f(ray.direction).multLocal(t[0]).addLocal(ray.origin);
-            CollisionResult result = new CollisionResult(point, t[0]);
-            results.addCollision(result);
-            return 1;
+            return 0;
+        } finally {
+            vars.release();
         }
-        return 0;
     }
 
     public int collideWith(Collidable other, CollisionResults results) {
