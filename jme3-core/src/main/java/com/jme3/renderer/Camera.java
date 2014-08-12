@@ -195,7 +195,8 @@ public class Camera implements Savable, Cloneable {
      * store the value for field parallelProjection
      */
     private boolean parallelProjection = true;
-    protected Matrix4f projectionMatrixOverride;
+    protected Matrix4f projectionMatrixOverride = new Matrix4f();
+    private boolean overrideProjection;
     protected Matrix4f viewMatrix = new Matrix4f();
     protected Matrix4f projectionMatrix = new Matrix4f();
     protected Matrix4f viewProjectionMatrix = new Matrix4f();
@@ -328,15 +329,9 @@ public class Camera implements Savable, Cloneable {
         }
         
         this.parallelProjection = cam.parallelProjection;
-        if (cam.projectionMatrixOverride != null) {
-            if (this.projectionMatrixOverride == null) {
-                this.projectionMatrixOverride = cam.projectionMatrixOverride.clone();
-            } else {
-                this.projectionMatrixOverride.set(cam.projectionMatrixOverride);
-            }
-        } else {
-            this.projectionMatrixOverride = null;
-        }
+        this.overrideProjection = cam.overrideProjection;
+        this.projectionMatrixOverride.set(cam.projectionMatrixOverride);
+        
         this.viewMatrix.set(cam.viewMatrix);
         this.projectionMatrix.set(cam.projectionMatrix);
         this.viewProjectionMatrix.set(cam.viewProjectionMatrix);
@@ -395,7 +390,7 @@ public class Camera implements Savable, Cloneable {
         
         TempVars vars = TempVars.get();
         try {        
-            Matrix4f p = projectionMatrix.clone();
+            Matrix4f p = projectionMatrixOverride.set(projectionMatrix);
 
             Matrix4f ivm = viewMatrix;
 
@@ -1091,7 +1086,13 @@ public class Camera implements Savable, Cloneable {
      * @param projMatrix
      */
     public void setProjectionMatrix(Matrix4f projMatrix) {
-        projectionMatrixOverride = projMatrix;
+        if (projMatrix == null) {
+            overrideProjection = false;
+            projectionMatrixOverride.loadIdentity();   
+        } else {
+            overrideProjection = true;            
+            projectionMatrixOverride.set(projMatrix);
+        }            
         updateViewProjection();
     }
 
@@ -1102,7 +1103,7 @@ public class Camera implements Savable, Cloneable {
      * of the camera.
      */
     public Matrix4f getProjectionMatrix() {
-        if (projectionMatrixOverride != null) {
+        if (overrideProjection) {
             return projectionMatrixOverride;
         }
 
@@ -1113,7 +1114,7 @@ public class Camera implements Savable, Cloneable {
      * Updates the view projection matrix.
      */
     public void updateViewProjection() {
-        if (projectionMatrixOverride != null) {
+        if (overrideProjection) {
             viewProjectionMatrix.set(projectionMatrixOverride).multLocal(viewMatrix);
         } else {
             //viewProjectionMatrix.set(viewMatrix).multLocal(projectionMatrix);
