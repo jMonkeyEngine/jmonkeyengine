@@ -37,7 +37,7 @@ import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.texture.FrameBuffer;
-import java.util.ArrayList;
+import com.jme3.util.SafeArrayList;
 import java.util.List;
 
 /**
@@ -68,8 +68,8 @@ public class ViewPort {
     protected final String name;
     protected final Camera cam;
     protected final RenderQueue queue = new RenderQueue();
-    protected final ArrayList<Spatial> sceneList = new ArrayList<Spatial>();
-    protected final ArrayList<SceneProcessor> processors = new ArrayList<SceneProcessor>();
+    protected final SafeArrayList<Spatial> sceneList = new SafeArrayList<Spatial>(Spatial.class);
+    protected final SafeArrayList<SceneProcessor> processors = new SafeArrayList<SceneProcessor>(SceneProcessor.class);
     protected FrameBuffer out = null;
 
     protected final ColorRGBA backColor = new ColorRGBA(0,0,0,0);
@@ -112,7 +112,7 @@ public class ViewPort {
      * 
      * @see #addProcessor(com.jme3.post.SceneProcessor) 
      */
-    public List<SceneProcessor> getProcessors(){
+    public SafeArrayList<SceneProcessor> getProcessors(){
         return processors;
     }
 
@@ -341,7 +341,7 @@ public class ViewPort {
      * 
      * @see #attachScene(com.jme3.scene.Spatial) 
      */
-    public List<Spatial> getScenes(){
+    public SafeArrayList<Spatial> getScenes(){
         return sceneList;
     }
 
