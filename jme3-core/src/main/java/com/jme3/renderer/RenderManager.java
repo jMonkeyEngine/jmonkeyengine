@@ -1035,6 +1035,7 @@ public class RenderManager {
         }
 
         this.shader = renderer.getCaps().contains(Caps.GLSL100);
+        uniformBindingManager.newFrame();        
 
         for (int i = 0; i < preViewPorts.size(); i++) {
             ViewPort vp = preViewPorts.get(i);

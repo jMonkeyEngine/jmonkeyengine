@@ -51,7 +51,8 @@ import java.util.List;
 public class UniformBindingManager {
 
     private Timer timer;
-    private float near, far;
+    private Float near, far;
+    private Float time, tpf;
     private int viewX, viewY, viewWidth, viewHeight;
     private Vector3f camUp = new Vector3f(),
             camLeft = new Vector3f(),
@@ -196,10 +197,10 @@ public class UniformBindingManager {
                     u.setValue(VarType.Vector3, camUp);
                     break;
                 case Time:
-                    u.setValue(VarType.Float, timer.getTimeInSeconds());
+                    u.setValue(VarType.Float, time);
                     break;
                 case Tpf:
-                    u.setValue(VarType.Float, timer.getTimePerFrame());
+                    u.setValue(VarType.Float, tpf);
                     break;
                 case FrameRate:
                     u.setValue(VarType.Float, timer.getFrameRate());
@@ -250,5 +251,16 @@ public class UniformBindingManager {
         this.viewY = viewY;
         this.viewWidth = viewWidth;
         this.viewHeight = viewHeight;
+    }
+ 
+    /**
+     *  Internal use only.  Called by the RenderManager at the beginning of a
+     *  new application frame.
+     */   
+    public void newFrame() {
+        // Avoid per-material Float allocations and lock in the
+        // time for this frame to avoid inter-frame drift.
+        time = timer.getTimeInSeconds();
+        tpf = timer.getTimePerFrame();
     }
 }
