@@ -152,11 +152,11 @@ public class WaterFilter extends Filter {
         biasMatrix.mult(sceneCam.getViewProjectionMatrix(), textureProjMatrix);
         material.setMatrix4("TextureProjMatrix", textureProjMatrix);
         material.setVector3("CameraPosition", sceneCam.getLocation());
-        material.setFloat("WaterHeight", waterHeight);
+        //material.setFloat("WaterHeight", waterHeight);
 
         //update reflection cam      
-        plane = new Plane(Vector3f.UNIT_Y, new Vector3f(0, waterHeight, 0).dot(Vector3f.UNIT_Y));
-        reflectionProcessor.setReflectionClipPlane(plane);        
+        //plane = new Plane(Vector3f.UNIT_Y, new Vector3f(0, waterHeight, 0).dot(Vector3f.UNIT_Y));
+        //reflectionProcessor.setReflectionClipPlane(plane);        
         WaterUtils.updateReflectionCam(reflectionCam, plane, sceneCam);
       
 
@@ -393,6 +393,13 @@ public class WaterFilter extends Filter {
      */
     public void setWaterHeight(float waterHeight) {
         this.waterHeight = waterHeight;
+        this.plane = new Plane(Vector3f.UNIT_Y, waterHeight);
+        if (material != null) {
+            material.setFloat("WaterHeight", waterHeight);
+        }
+        if (reflectionProcessor != null) {
+            reflectionProcessor.setReflectionClipPlane(plane);
+        }                
     }
 
     /**
