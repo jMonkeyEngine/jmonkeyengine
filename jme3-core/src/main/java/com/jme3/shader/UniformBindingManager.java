@@ -51,7 +51,7 @@ import java.util.List;
 public class UniformBindingManager {
 
     private Timer timer;
-    private Float near, far;
+    private float near, far;
     private Float time, tpf;
     private int viewX, viewY, viewWidth, viewHeight;
     private Vector3f camUp = new Vector3f(),
