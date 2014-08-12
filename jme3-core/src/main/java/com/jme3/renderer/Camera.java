@@ -369,7 +369,8 @@ public class Camera implements Savable, Cloneable {
     /**
      * Sets a clipPlane for this camera.
      * The clipPlane is used to recompute the
-     * projectionMatrix using the plane as the near plane     * This technique is known as the oblique near-plane clipping method introduced by Eric Lengyel
+     * projectionMatrix using the plane as the near plane     
+     * This technique is known as the oblique near-plane clipping method introduced by Eric Lengyel
      * more info here
      * <ul>
      * <li><a href="http://www.terathon.com/code/oblique.html">http://www.terathon.com/code/oblique.html</a>
@@ -868,7 +869,8 @@ public class Camera implements Savable, Cloneable {
     public void update() {
         onFrustumChange();
         onViewPortChange();
-        onFrameChange();
+        //...this is always called by onFrustumChange()
+        //onFrameChange();
     }
 
     /**
@@ -1154,7 +1156,7 @@ public class Camera implements Savable, Cloneable {
         float ey = height * viewPortTop;
         float xExtent = Math.max(0f, (ex - sx) / 2f);
         float yExtent = Math.max(0f, (ey - sy) / 2f);
-        guiBounding.setCenter(new Vector3f(sx + xExtent, sy + yExtent, 0));
+        guiBounding.setCenter(sx + xExtent, sy + yExtent, 0);
         guiBounding.setXExtent(xExtent);
         guiBounding.setYExtent(yExtent);
         guiBounding.setZExtent(Float.MAX_VALUE);
