@@ -636,6 +636,17 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
     }
 
     /**
+     * Pass a float to the material shader.  This version avoids auto-boxing
+     * if the value is already a Float.
+     *
+     * @param name the name of the float defined in the material definition (j3md)
+     * @param value the float value
+     */
+    public void setFloat(String name, Float value) {
+        setParam(name, VarType.Float, value);
+    }
+
+    /**
      * Pass an int to the material shader.
      *
      * @param name the name of the int defined in the material definition (j3md)
