@@ -195,6 +195,10 @@ public abstract class BoundingVolume implements Savable, Cloneable, Collidable {
         center.set(newCenter);
     }
 
+    public final void setCenter(float x, float y, float z) {
+        center.set(x, y, z);
+    }
+
     /**
      * Find the distance from the center of this Bounding Volume to the given
      * point.
