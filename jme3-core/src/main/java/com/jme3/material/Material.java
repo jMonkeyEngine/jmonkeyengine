@@ -841,7 +841,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             Quaternion tmpLightDirection = vars.quat1;
             Quaternion tmpLightPosition = vars.quat2;
             ColorRGBA tmpLightColor = vars.color;
-            Vector4f tmpVec = vars.vect4f;
+            Vector4f tmpVec = vars.vect4f1;
 
             ColorRGBA color = l.getColor();
             tmpLightColor.set(color);

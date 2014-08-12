@@ -179,7 +179,8 @@ public class TempVars {
     public final Vector3f vect8 = new Vector3f();
     public final Vector3f vect9 = new Vector3f();
     public final Vector3f vect10 = new Vector3f();
-    public final Vector4f vect4f = new Vector4f();
+    public final Vector4f vect4f1 = new Vector4f();
+    public final Vector4f vect4f2 = new Vector4f();
     public final Vector3f[] tri = {new Vector3f(),
         new Vector3f(),
         new Vector3f()};
