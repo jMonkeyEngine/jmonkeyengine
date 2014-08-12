@@ -47,6 +47,7 @@ import com.jme3.shader.UniformBinding;
 import com.jme3.shader.UniformBindingManager;
 import com.jme3.system.NullRenderer;
 import com.jme3.system.Timer;
+import com.jme3.util.SafeArrayList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -962,13 +963,13 @@ public class RenderManager {
         if (!vp.isEnabled()) {
             return;
         }
-        List<SceneProcessor> processors = vp.getProcessors();
+        SafeArrayList<SceneProcessor> processors = vp.getProcessors();
         if (processors.isEmpty()) {
             processors = null;
         }
 
         if (processors != null) {
-            for (SceneProcessor proc : processors) {
+            for (SceneProcessor proc : processors.getArray()) {
                 if (!proc.isInitialized()) {
                     proc.initialize(this, vp);
                 }
@@ -993,7 +994,7 @@ public class RenderManager {
         }
 
         if (processors != null) {
-            for (SceneProcessor proc : processors) {
+            for (SceneProcessor proc : processors.getArray()) {
                 proc.postQueue(vp.getQueue());
             }
         }
@@ -1001,7 +1002,7 @@ public class RenderManager {
         flushQueue(vp);
 
         if (processors != null) {
-            for (SceneProcessor proc : processors) {
+            for (SceneProcessor proc : processors.getArray()) {
                 proc.postFrame(vp.getOutputFrameBuffer());
             }
         }
