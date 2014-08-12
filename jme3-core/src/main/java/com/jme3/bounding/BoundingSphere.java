@@ -844,7 +844,7 @@ public class BoundingSphere extends BoundingVolume {
             float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
             float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
             
-            if( u >= 0 && v >= 0 && (u + v) < 1 ) {
+            if( u >= 0 && v >= 0 && (u + v) <= 1 ) {
                 // We intersect... and we even know where
                 Vector3f part1 = ac;
                 Vector3f part2 = ab;
