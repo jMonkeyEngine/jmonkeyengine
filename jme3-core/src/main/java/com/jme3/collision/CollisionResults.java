@@ -34,6 +34,7 @@ package com.jme3.collision;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * <code>CollisionResults</code> is a collection returned as a result of a 
@@ -43,14 +44,16 @@ import java.util.Iterator;
  */
 public class CollisionResults implements Iterable<CollisionResult> {
 
-    private final ArrayList<CollisionResult> results = new ArrayList<CollisionResult>();
+    private ArrayList<CollisionResult> results = null;
     private boolean sorted = true;
 
     /**
      * Clears all collision results added to this list
      */
     public void clear(){
-        results.clear();
+        if (results != null) {
+            results.clear();
+        }
     }
 
     /**
@@ -59,6 +62,11 @@ public class CollisionResults implements Iterable<CollisionResult> {
      * @return the iterator
      */
     public Iterator<CollisionResult> iterator() {
+        if (results == null) {
+            List<CollisionResult> dumbCompiler = Collections.emptyList();            
+            return dumbCompiler.iterator();
+        }
+        
         if (!sorted){
             Collections.sort(results);
             sorted = true;
@@ -68,16 +76,22 @@ public class CollisionResults implements Iterable<CollisionResult> {
     }
 
     public void addCollision(CollisionResult result){
+        if (results == null) {
+            results = new ArrayList<CollisionResult>();
+        }
         results.add(result);
         sorted = false;
     }
 
     public int size(){
+        if (results == null) {
+            return 0;
+        }
         return results.size();
     }
 
     public CollisionResult getClosestCollision(){
-        if (size() == 0)
+        if (results == null || size() == 0)
             return null;
 
         if (!sorted){
@@ -89,7 +103,7 @@ public class CollisionResults implements Iterable<CollisionResult> {
     }
 
     public CollisionResult getFarthestCollision(){
-        if (size() == 0)
+        if (results == null || size() == 0)
             return null;
 
         if (!sorted){
@@ -101,6 +115,10 @@ public class CollisionResults implements Iterable<CollisionResult> {
     }
 
     public CollisionResult getCollision(int index){
+        if (results == null) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: 0");
+        }
+        
         if (!sorted){
             Collections.sort(results);
             sorted = true;
@@ -115,6 +133,9 @@ public class CollisionResults implements Iterable<CollisionResult> {
      * @return
      */
     public CollisionResult getCollisionDirect(int index){
+        if (results == null) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: 0");
+        }
         return results.get(index);
     }
 
@@ -122,11 +143,13 @@ public class CollisionResults implements Iterable<CollisionResult> {
     public String toString(){
         StringBuilder sb = new StringBuilder();
         sb.append("CollisionResults[");
-        for (CollisionResult result : results){
-            sb.append(result).append(", ");
-        }
-        if (results.size() > 0)
-            sb.setLength(sb.length()-2);
+        if (results != null) {
+            for (CollisionResult result : results){
+                sb.append(result).append(", ");
+            }
+            if (results.size() > 0)
+                sb.setLength(sb.length()-2);
+        }                
 
         sb.append("]");
         return sb.toString();
