@@ -1,0 +1,29 @@
+MaterialDef Highlight Final {
+
+    MaterialParameters {
+		Int NumSamples
+        Texture2D Texture
+		Texture2D HighlightTex
+		Color HighlightColor 
+		Float StepX
+		Float StepY
+		Int Size
+		Boolean Debug
+    }
+
+    Technique {
+        VertexShader GLSL150:   Common/MatDefs/Post/Post15.vert
+        FragmentShader GLSL150: Common/MatDefs/Post/HighlightFinal15.frag
+
+        WorldParameters {
+        }
+    }
+
+    Technique {
+        VertexShader GLSL100:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL100: Common/MatDefs/Post/HighlightFinal.frag
+
+        WorldParameters {
+        }
+    }
+}

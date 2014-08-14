@@ -12,6 +12,9 @@ MaterialDef Unshaded {
         // The glow color of the object
         Color GlowColor
 
+		// For highlighting the object
+        Boolean Highlighted
+
         // For instancing
 	Boolean UseInstancing
 
@@ -208,6 +211,23 @@ MaterialDef Unshaded {
             HAS_GLOWCOLOR : GlowColor
             NUM_BONES : NumberOfBones
 	    INSTANCING : UseInstancing
+        }
+    }
+
+    Technique Highlight {
+		VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/Highlight.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+        }
+
+        Defines {
+            HAS_HIGHLIGHT : Highlighted
+            NUM_BONES : NumberOfBones
+			INSTANCING : UseInstancing
         }
     }
 }
