@@ -671,7 +671,7 @@ public class SkeletonControl extends AbstractControl implements Cloneable {
 
                 for (int w = maxWeightsPerVert - 1; w >= 0; w--) {
                     float weight = weights[idxWeights];
-                    Matrix4f mat = offsetMatrices[indices[idxWeights++]];
+                    Matrix4f mat = offsetMatrices[indices[idxWeights++] & 0xff];
 
                     rx += (mat.m00 * vtx + mat.m01 * vty + mat.m02 * vtz + mat.m03) * weight;
                     ry += (mat.m10 * vtx + mat.m11 * vty + mat.m12 * vtz + mat.m13) * weight;
