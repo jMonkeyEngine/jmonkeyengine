@@ -434,12 +434,11 @@ public class PhysicsSpace {
      * @param obj the PhysicsControl or Spatial with PhysicsControl to remove
      */
     public void remove(Object obj) {
+        if (obj == null) return;
         if (obj instanceof PhysicsControl) {
             ((PhysicsControl) obj).setPhysicsSpace(null);
         } else if (obj instanceof Spatial) {
-            Spatial node = (Spatial) obj;
-            PhysicsControl control = node.getControl(PhysicsControl.class);
-            control.setPhysicsSpace(null);
+            remove(((Spatial) obj).getControl(PhysicsControl.class));
         } else if (obj instanceof PhysicsCollisionObject) {
             removeCollisionObject((PhysicsCollisionObject) obj);
         } else if (obj instanceof PhysicsJoint) {
@@ -460,34 +459,25 @@ public class PhysicsSpace {
     }
 
     /**
-     * adds all physics controls and joints in the given spatial node to the
-     * physics space (e.g. after loading from disk) - recursive if node
-     *
+     * adds all physics controls and joints in the given spatial node to the physics space
+     * (e.g. after loading from disk) - recursive if node
      * @param spatial the rootnode containing the physics objects
      */
     public void addAll(Spatial spatial) {
         if (spatial.getControl(RigidBodyControl.class) != null) {
             RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
-            physicsNode.setPhysicsSpace(this);
-            //add joints
+            add(physicsNode);
+            //add joints with physicsNode as BodyA
             List<PhysicsJoint> joints = physicsNode.getJoints();
             for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
                 PhysicsJoint physicsJoint = it1.next();
-                //add connected physicsnodes if they are not already added
-                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                    add(physicsJoint.getBodyA());
-                } else {
-                    addRigidBody(physicsJoint.getBodyA());
+                if (physicsNode.equals(physicsJoint.getBodyA())) {
+                    //add(physicsJoint.getBodyB());
+                    add(physicsJoint);
                 }
-                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                    add(physicsJoint.getBodyB());
-                } else {
-                    addRigidBody(physicsJoint.getBodyB());
-                }
-                addJoint(physicsJoint);
             }
-        } else if (spatial.getControl(PhysicsControl.class) != null) {
-            spatial.getControl(PhysicsControl.class).setPhysicsSpace(this);
+        } else {
+            add(spatial);
         }
         //recursion
         if (spatial instanceof Node) {
@@ -500,34 +490,25 @@ public class PhysicsSpace {
     }
 
     /**
-     * Removes all physics controls and joints in the given spatial from the
-     * physics space (e.g. before saving to disk) - recursive if node
-     *
+     * Removes all physics controls and joints in the given spatial from the physics space
+     * (e.g. before saving to disk) - recursive if node
      * @param spatial the rootnode containing the physics objects
      */
     public void removeAll(Spatial spatial) {
         if (spatial.getControl(RigidBodyControl.class) != null) {
             RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
-            physicsNode.setPhysicsSpace(null);
-            //remove joints
+            //remove joints with physicsNode as BodyA
             List<PhysicsJoint> joints = physicsNode.getJoints();
             for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
                 PhysicsJoint physicsJoint = it1.next();
-                //add connected physicsnodes if they are not already added
-                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                    remove(physicsJoint.getBodyA());
-                } else {
-                    removeRigidBody(physicsJoint.getBodyA());
+                if (physicsNode.equals(physicsJoint.getBodyA())) {
+                    removeJoint(physicsJoint);
+                    //remove(physicsJoint.getBodyB());
                 }
-                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                    remove(physicsJoint.getBodyB());
-                } else {
-                    removeRigidBody(physicsJoint.getBodyB());
-                }
-                removeJoint(physicsJoint);
             }
+            remove(physicsNode);
         } else if (spatial.getControl(PhysicsControl.class) != null) {
-            spatial.getControl(PhysicsControl.class).setPhysicsSpace(null);
+            remove(spatial);
         }
         //recursion
         if (spatial instanceof Node) {

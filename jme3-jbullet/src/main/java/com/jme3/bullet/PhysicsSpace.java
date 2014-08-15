@@ -415,6 +415,7 @@ public class PhysicsSpace {
 
     /**
      * removes an object from the physics space
+     *
      * @param obj the PhysicsControl or Spatial with PhysicsControl to remove
      */
     public void remove(Object obj) {
