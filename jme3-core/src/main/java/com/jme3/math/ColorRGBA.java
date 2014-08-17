@@ -536,23 +536,27 @@ public final class ColorRGBA implements Savable, Cloneable, java.io.Serializable
      * combined ARGB <code>int</code>.
      * Bits 24-31 are alpha, bits 16-23 are red, bits 8-15 are green, bits 0-7 are blue.
      * @param color The integer ARGB value used to set this <code>ColorRGBA</code>.
+     * @return this
      */
-    public void fromIntARGB(int color) {
+    public ColorRGBA fromIntARGB(int color) {
         a = ((byte) (color >> 24) & 0xFF) / 255f;
         r = ((byte) (color >> 16) & 0xFF) / 255f;
         g = ((byte) (color >> 8) & 0xFF) / 255f;
         b = ((byte) (color) & 0xFF) / 255f;
+        return this;
     }
     /**
      * Sets the RGBA values of this <code>ColorRGBA</code> with the given combined RGBA value 
      * Bits 24-31 are red, bits 16-23 are green, bits 8-15 are blue, bits 0-7 are alpha.
      * @param color The integer RGBA value used to set this object.
+     * @return this
      */
-    public void fromIntRGBA(int color) {
+    public ColorRGBA fromIntRGBA(int color) {
         r = ((byte) (color >> 24) & 0xFF) / 255f;
         g = ((byte) (color >> 16) & 0xFF) / 255f;
         b = ((byte) (color >> 8) & 0xFF) / 255f;
         a = ((byte) (color) & 0xFF) / 255f;
+        return this;
     }
 
     /**
