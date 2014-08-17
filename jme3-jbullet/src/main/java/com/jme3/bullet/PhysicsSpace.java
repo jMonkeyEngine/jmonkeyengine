@@ -35,10 +35,22 @@ import com.bulletphysics.BulletGlobals;
 import com.bulletphysics.ContactAddedCallback;
 import com.bulletphysics.ContactDestroyedCallback;
 import com.bulletphysics.ContactProcessedCallback;
-import com.bulletphysics.collision.broadphase.*;
-import com.bulletphysics.collision.dispatch.*;
+import com.bulletphysics.collision.broadphase.AxisSweep3;
+import com.bulletphysics.collision.broadphase.AxisSweep3_32;
+import com.bulletphysics.collision.broadphase.BroadphaseInterface;
+import com.bulletphysics.collision.broadphase.BroadphaseProxy;
+import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
+import com.bulletphysics.collision.broadphase.DbvtBroadphase;
+import com.bulletphysics.collision.broadphase.OverlapFilterCallback;
+import com.bulletphysics.collision.broadphase.SimpleBroadphase;
+import com.bulletphysics.collision.dispatch.CollisionDispatcher;
+import com.bulletphysics.collision.dispatch.CollisionObject;
+import com.bulletphysics.collision.dispatch.CollisionWorld;
 import com.bulletphysics.collision.dispatch.CollisionWorld.LocalConvexResult;
 import com.bulletphysics.collision.dispatch.CollisionWorld.LocalRayResult;
+import com.bulletphysics.collision.dispatch.DefaultCollisionConfiguration;
+import com.bulletphysics.collision.dispatch.GhostPairCallback;
+import com.bulletphysics.collision.dispatch.PairCachingGhostObject;
 import com.bulletphysics.collision.narrowphase.ManifoldPoint;
 import com.bulletphysics.collision.shapes.ConvexShape;
 import com.bulletphysics.dynamics.DiscreteDynamicsWorld;
@@ -52,7 +64,13 @@ import com.bulletphysics.dynamics.vehicle.RaycastVehicle;
 import com.bulletphysics.extras.gimpact.GImpactCollisionAlgorithm;
 import com.jme3.app.AppTask;
 import com.jme3.asset.AssetManager;
-import com.jme3.bullet.collision.*;
+import com.jme3.bullet.collision.PhysicsCollisionEvent;
+import com.jme3.bullet.collision.PhysicsCollisionEventFactory;
+import com.jme3.bullet.collision.PhysicsCollisionGroupListener;
+import com.jme3.bullet.collision.PhysicsCollisionListener;
+import com.jme3.bullet.collision.PhysicsCollisionObject;
+import com.jme3.bullet.collision.PhysicsRayTestResult;
+import com.jme3.bullet.collision.PhysicsSweepTestResult;
 import com.jme3.bullet.collision.shapes.CollisionShape;
 import com.jme3.bullet.control.PhysicsControl;
 import com.jme3.bullet.control.RigidBodyControl;
@@ -369,12 +387,11 @@ public class PhysicsSpace {
      * @param obj the PhysicsControl or Spatial with PhysicsControl to add
      */
     public void add(Object obj) {
+        if (obj == null) return;
         if (obj instanceof PhysicsControl) {
             ((PhysicsControl) obj).setPhysicsSpace(this);
         } else if (obj instanceof Spatial) {
-            Spatial node = (Spatial) obj;
-            PhysicsControl control = node.getControl(PhysicsControl.class);
-            control.setPhysicsSpace(this);
+            add(((Spatial) obj).getControl(PhysicsControl.class));
         } else if (obj instanceof PhysicsCollisionObject) {
             addCollisionObject((PhysicsCollisionObject) obj);
         } else if (obj instanceof PhysicsJoint) {
@@ -398,15 +415,15 @@ public class PhysicsSpace {
 
     /**
      * removes an object from the physics space
+     *
      * @param obj the PhysicsControl or Spatial with PhysicsControl to remove
      */
     public void remove(Object obj) {
+        if (obj == null) return;
         if (obj instanceof PhysicsControl) {
             ((PhysicsControl) obj).setPhysicsSpace(null);
         } else if (obj instanceof Spatial) {
-            Spatial node = (Spatial) obj;
-            PhysicsControl control = node.getControl(PhysicsControl.class);
-            control.setPhysicsSpace(null);
+            remove(((Spatial) obj).getControl(PhysicsControl.class));
         } else if (obj instanceof PhysicsCollisionObject) {
             removeCollisionObject((PhysicsCollisionObject) obj);
         } else if (obj instanceof PhysicsJoint) {
@@ -434,26 +451,18 @@ public class PhysicsSpace {
     public void addAll(Spatial spatial) {
         if (spatial.getControl(RigidBodyControl.class) != null) {
             RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
-            physicsNode.setPhysicsSpace(this);
-            //add joints
+            add(physicsNode);
+            //add joints with physicsNode as BodyA
             List<PhysicsJoint> joints = physicsNode.getJoints();
             for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
                 PhysicsJoint physicsJoint = it1.next();
-                //add connected physicsnodes if they are not already added
-                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                    add(physicsJoint.getBodyA());
-                } else {
-                    addRigidBody(physicsJoint.getBodyA());
+                if (physicsNode.equals(physicsJoint.getBodyA())) {
+                    //add(physicsJoint.getBodyB());
+                    add(physicsJoint);
                 }
-                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                    add(physicsJoint.getBodyB());
-                } else {
-                    addRigidBody(physicsJoint.getBodyB());
-                }
-                addJoint(physicsJoint);
             }
-        } else if (spatial.getControl(PhysicsControl.class) != null) {
-            spatial.getControl(PhysicsControl.class).setPhysicsSpace(this);
+        } else {
+            add(spatial);
         }
         //recursion
         if (spatial instanceof Node) {
@@ -473,26 +482,18 @@ public class PhysicsSpace {
     public void removeAll(Spatial spatial) {
         if (spatial.getControl(RigidBodyControl.class) != null) {
             RigidBodyControl physicsNode = spatial.getControl(RigidBodyControl.class);
-            physicsNode.setPhysicsSpace(null);
-            //remove joints
+            //remove joints with physicsNode as BodyA
             List<PhysicsJoint> joints = physicsNode.getJoints();
             for (Iterator<PhysicsJoint> it1 = joints.iterator(); it1.hasNext();) {
                 PhysicsJoint physicsJoint = it1.next();
-                //add connected physicsnodes if they are not already added
-                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                    remove(physicsJoint.getBodyA());
-                } else {
-                    removeRigidBody(physicsJoint.getBodyA());
+                if (physicsNode.equals(physicsJoint.getBodyA())) {
+                    removeJoint(physicsJoint);
+                    //remove(physicsJoint.getBodyB());
                 }
-                if (physicsJoint.getBodyA() instanceof PhysicsControl) {
-                    remove(physicsJoint.getBodyB());
-                } else {
-                    removeRigidBody(physicsJoint.getBodyB());
-                }
-                removeJoint(physicsJoint);
             }
+            remove(physicsNode);
         } else if (spatial.getControl(PhysicsControl.class) != null) {
-            spatial.getControl(PhysicsControl.class).setPhysicsSpace(null);
+            remove(spatial);
         }
         //recursion
         if (spatial instanceof Node) {
