@@ -6,6 +6,7 @@ sourceSets {
     main {
         java {
             srcDir 'src/ogre/java'
+            srcDir 'src/fbx/java'
             srcDir 'src/xml/java'
         }
     }
