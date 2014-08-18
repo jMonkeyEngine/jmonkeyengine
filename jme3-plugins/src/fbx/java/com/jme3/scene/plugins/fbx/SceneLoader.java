@@ -55,6 +55,7 @@ import com.jme3.asset.AssetKey;
 import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.AssetManager;
+import com.jme3.asset.ModelKey;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState.BlendMode;
 import com.jme3.math.ColorRGBA;
@@ -92,7 +93,7 @@ public class SceneLoader implements AssetLoader {
 	private static final Logger logger = Logger.getLogger(SceneLoader.class.getName());
 	
 	private AssetManager assetManager;
-	private SceneKey key;
+	private AnimationList animList;
 	
 	private String sceneName;
 	private String sceneFilename;
@@ -132,8 +133,8 @@ public class SceneLoader implements AssetLoader {
 		this.assetManager = assetInfo.getManager();
 		AssetKey<?> assetKey = assetInfo.getKey();
 		if(assetKey instanceof SceneKey)
-			key = (SceneKey) assetKey;
-		else
+			animList = ((SceneKey) assetKey).getAnimations();
+		else if(!(assetKey instanceof ModelKey))
 			throw new AssetLoadException("Invalid asset key");
 		InputStream stream = assetInfo.openStream();
 		Node sceneNode = null;
@@ -1264,7 +1265,6 @@ public class SceneLoader implements AssetLoader {
 	private void linkAnimations() {
 		if(skeleton == null)
 			return;
-		AnimationList animList = key.getAnimations();
 		if(animList == null || animList.list.size() == 0)
 			return;
 		// Link curves to nodes
@@ -1449,7 +1449,7 @@ public class SceneLoader implements AssetLoader {
 		imgMap.clear();
 		skeleton = null;
 		animControl = null;
-		key = null;
+		animList = null;
 	}
 	
 	private class MeshData {
