@@ -4,7 +4,9 @@
  */
 package com.jme3.gde.gui;
 
+import com.jme3.app.Application;
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import com.jme3.gde.gui.nodes.GElementNode;
 import com.jme3.gde.gui.nodes.GUINode;
 import de.lessvoid.nifty.Nifty;
 import jada.ngeditor.controller.CommandProcessor;
@@ -29,8 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.DefaultComboBoxModel;
@@ -54,6 +59,9 @@ import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
 import org.xml.sax.SAXException;
 import sun.rmi.runtime.Log;
@@ -67,7 +75,7 @@ import sun.rmi.runtime.Log;
         position = 2000)
 @Messages("LBL_NiftyGui_VISUAL=Visual")
 public final class NiftyGuiVisualElement extends JPanel implements MultiViewElement , ExplorerManager.Provider,Observer, PropertyChangeListener {
-
+    private static final Logger logger = Logger.getLogger(NiftyGuiVisualElement.class.getName());
     private NiftyGuiDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
@@ -78,7 +86,8 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
     private final ExplorerManager nodesManager;
     private final UndoRedo.Manager undoSupport;
     private int guiID;
-   
+     private final InstanceContent content = new InstanceContent();
+     private Lookup lookup;
 
     public NiftyGuiVisualElement(Lookup lkp) {
         obj = lkp.lookup(NiftyGuiDataObject.class);
@@ -101,6 +110,8 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
         this.createToolbar();
         this.undoSupport = new UndoRedo.Manager();
         CommandProcessor.getInstance().setUndoManager(undoSupport);
+        this.content.set(Collections.singleton(obj.getNodeDelegate()), null);
+        lookup = new AbstractLookup(content);
     }
  /**
  * Old code
@@ -184,7 +195,7 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
 
     @Override
     public Lookup getLookup() {
-        return ExplorerUtils.createLookup(nodesManager, new ActionMap());
+        return this.lookup ;
     }
     /**
      * Raw implementation , just to prototype the editor
@@ -228,9 +239,13 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
 
     @Override
     public void componentActivated() {
+        try{
         GuiEditorModel model = (GuiEditorModel) CommandProcessor.getInstance().getObservable();
         model.setCurrentGUI(guiID);
         CommandProcessor.getInstance().setUndoManager(undoSupport);
+        }catch(java.lang.IllegalArgumentException ex){
+            logger.log(Level.SEVERE,"Can't load your gui", ex);
+        }
     }
 
     @Override
@@ -264,25 +279,9 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
            if(event.getNewSelection().isEmpty()){
                return;
            }
-           ArrayList<String> path = new ArrayList<String>();
            GElement parent = event.getElement();
-           while(parent!=null){
-               path.add(parent.getID());
-               parent = parent.getParent();
-           }
-           
-           Node result = nodesManager.getRootContext();
-          
-           for(int i=path.size()-1;i>=0 && result!=null;i--){
-               result = result.getChildren().findChild(path.get(i));
-           }
-            try {
-                if(result!=null){
-                nodesManager.setSelectedNodes(new Node[]{result});
-                }
-            } catch (PropertyVetoException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+           GElementNode node = new GElementNode(parent);
+           this.content.set(Collections.singleton(node), null);
        }
     }
 

@@ -6,11 +6,9 @@ package com.jme3.gde.gui;
 
 import com.jme3.gde.gui.nodes.GElementNode;
 import com.jme3.gde.gui.nodes.GUINode;
-import com.jme3.gde.gui.nodes.ScreenChildFactory;
 import jada.ngeditor.controller.CommandProcessor;
 import jada.ngeditor.controller.GUIEditor;
 import jada.ngeditor.controller.commands.SelectCommand;
-import jada.ngeditor.listeners.events.ReloadGuiEvent;
 import jada.ngeditor.listeners.events.SelectionChanged;
 import jada.ngeditor.model.GUI;
 import jada.ngeditor.model.GuiEditorModel;
@@ -28,15 +26,10 @@ import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
-import org.openide.util.Utilities;
 import org.openide.util.lookup.ProxyLookup;
-import org.openide.windows.TopComponent;
 
 /**
  *
@@ -47,9 +40,6 @@ public class Navigator extends javax.swing.JPanel implements NavigatorPanel,Expl
     private Lookup lookup;
     private  ExplorerManager mgr = new ExplorerManager();
     private final BeanTreeView beanTreeView;
-    private GUIEditor editor;
-    private Lookup context;
-    private boolean lock;
     /**
      * Creates new form Navigator
      */
@@ -58,7 +48,16 @@ public class Navigator extends javax.swing.JPanel implements NavigatorPanel,Expl
         setLayout(new BorderLayout());
         beanTreeView = new BeanTreeView();
         add(beanTreeView, BorderLayout.CENTER);
-        CommandProcessor.getInstance().getObservable().addObserver(this);
+        final GuiEditorModel model = (GuiEditorModel) CommandProcessor.getInstance().getObservable();
+        model.addObserver(this);
+        if(model.getCurrent() != null){
+            try {
+                this.intNavigator(model.getCurrent());
+            } catch (PropertyVetoException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        
         
     }
 
@@ -170,7 +169,6 @@ public class Navigator extends javax.swing.JPanel implements NavigatorPanel,Expl
                     SelectCommand command = CommandProcessor.getInstance().getCommand(SelectCommand.class);
                     command.setElement(element);
                     try {
-                        lock = true;
                         CommandProcessor.getInstance().excuteCommand(command);
                     } catch (Exception ex) {
                         Exceptions.printStackTrace(ex);

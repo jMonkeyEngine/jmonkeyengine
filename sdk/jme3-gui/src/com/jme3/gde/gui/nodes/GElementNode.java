@@ -6,14 +6,18 @@ package com.jme3.gde.gui.nodes;
 
 import com.jme3.gde.gui.propertyeditors.ResourceEditor;
 import com.jme3.gde.gui.propertyeditors.SizeEditor;
+import jada.ngeditor.controller.CommandProcessor;
+import jada.ngeditor.controller.commands.EditAttributeCommand;
 import jada.ngeditor.model.elements.GElement;
 import java.beans.PropertyEditor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map.Entry;
+import javax.swing.JOptionPane;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
+import org.openide.util.Exceptions;
 import sun.beans.editors.BoolEditor;
 import sun.beans.editors.BooleanEditor;
 
@@ -110,8 +114,15 @@ public class GElementNode extends AbstractNode{
 
         @Override
         public void setValue(Object val) throws IllegalAccessException, IllegalArgumentException {
-            element.addAttribute(attributeName, val.toString());
-            element.refresh();
+            try {
+                EditAttributeCommand command = CommandProcessor.getInstance().getCommand(EditAttributeCommand.class); 
+               command.setAttribute(attributeName);
+                command.setValue(val.toString());
+               CommandProcessor.getInstance().excuteCommand(command);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(null, ex);
+            }
+            
         }
     };
 }
