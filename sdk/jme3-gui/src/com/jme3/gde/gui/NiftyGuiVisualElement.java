@@ -15,10 +15,12 @@ import jada.ngeditor.guiviews.DND.PaletteDropTarget;
 import jada.ngeditor.guiviews.DND.TrasferHandling;
 import jada.ngeditor.guiviews.J2DNiftyView;
 import jada.ngeditor.listeners.events.SelectionChanged;
+import jada.ngeditor.model.GUI;
 import jada.ngeditor.model.GuiEditorModel;
 import jada.ngeditor.model.elements.GElement;
 import jada.ngeditor.model.elements.GLayer;
 import jada.ngeditor.model.exception.NoProductException;
+import jada.ngeditor.persistence.GUIWriter;
 import java.awt.Dimension;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -32,6 +34,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
@@ -51,6 +54,7 @@ import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
+import org.netbeans.spi.actions.AbstractSavable;
 import org.openide.awt.UndoRedo;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
@@ -242,6 +246,7 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
         try{
         GuiEditorModel model = (GuiEditorModel) CommandProcessor.getInstance().getObservable();
         model.setCurrentGUI(guiID);
+        model.getCurrent().addObserver(this);
         CommandProcessor.getInstance().setUndoManager(undoSupport);
         }catch(java.lang.IllegalArgumentException ex){
             logger.log(Level.SEVERE,"Can't load your gui", ex);
@@ -282,6 +287,16 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
            GElement parent = event.getElement();
            GElementNode node = new GElementNode(parent);
            this.content.set(Collections.singleton(node), null);
+           
+       }else if(o instanceof GUI){
+           //Add a save. We don't add multible savable because they cointains the same
+           //information about editing.
+           GuiSavable savable = this.lookup.lookup(GuiSavable.class);
+           if(savable == null){
+           String path = this.obj.getPrimaryFile().getPath();
+           final GuiSavable guiSavable = new NiftyGuiVisualElement.GuiSavable(((GUI)o),path);
+           this.content.add(guiSavable);
+           }
        }
     }
 
@@ -301,7 +316,7 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
         try {
             ProgressHandle handle = ProgressHandleFactory.createHandle("Loading the gui file");
             InputStream is = this.obj.getPrimaryFile().getInputStream();
-            
+            handle.start();
             ProjectAssetManager mgr = this.obj.getLookup().lookup(ProjectAssetManager.class);
             String assetPath = mgr.getAssetFolder().getPath();
             this.editor.createNewGui(nifty,is,new File(assetPath));
@@ -310,10 +325,11 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
             this.editor.getGui().getSelection().addObserver(this);
             Collection<GLayer> layers1 = this.editor.getGui().getLayers();
             guiID = this.editor.getGui().getGUIid();
+            this.editor.getGui().addObserver(this);
             DefaultComboBoxModel<GLayer> model = new DefaultComboBoxModel<GLayer>(layers1.toArray(new GLayer[0]));
             layers.setModel(model);
             layers.setSelectedItem(this.editor.getCurrentLayer());
-           
+            
             handle.finish();
         } catch (ParserConfigurationException ex) {
             Exceptions.printStackTrace(ex);
@@ -330,5 +346,58 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }
+        
+        
+        
     }
+    
+    private class GuiSavable extends AbstractSavable {
+    private final GUI gui;
+   
+    private final String filename;
+    
+    public GuiSavable(GUI gui,String filename){
+        
+        this.gui = gui;
+        this.filename = filename;
+        this.register();
+        
+        
+    }
+    @Override
+    protected String findDisplayName() {
+        return "Save "+ this.gui + " changes";
+    }
+
+    @Override
+    protected void handleSave() throws IOException {
+        try {
+            GUIWriter writer = new GUIWriter(this.gui);
+            writer.writeGUI(filename);
+            NiftyGuiVisualElement.this.content.remove(this);
+          
+            
+        } catch (FileNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (JAXBException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ClassNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof com.jme3.gde.gui.NiftyGuiVisualElement.GuiSavable){
+            return this.gui.equals(((com.jme3.gde.gui.NiftyGuiVisualElement.GuiSavable)obj).gui);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.gui.hashCode();
+    }
+    
+}
 }
