@@ -27,12 +27,15 @@ import sun.beans.editors.BooleanEditor;
  */
 public class GElementNode extends AbstractNode{
     private final GElement element;
-
+    private static final String basePath="com/jme3/gde/gui/multiview/icons";
     public GElementNode(GElement element) {
         super(Children.create(new GElementChildFactory(element), false));
         
         this.element = element;
         this.setName(element.getID());
+        String name = this.element.getClass().getSimpleName();
+        this.setName(name);
+        this.setIconBaseWithExtension(basePath+"/"+name+".png");
         
     }
     

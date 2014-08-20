@@ -14,10 +14,11 @@ import org.openide.nodes.Children;
  */
 public class GUINode extends AbstractNode{
     private final GUI gui;
+    private static final String basePath="com/jme3/gde/gui/multiview/icons";
     public GUINode(GUI gui) {
         super(Children.create(new ScreenChildFactory(gui),false));
         this.gui = gui;
-        
+        this.setIconBaseWithExtension(basePath+"/"+"game-monitor"+".png");
     }
 
     /**

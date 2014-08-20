@@ -30,18 +30,14 @@ import org.openide.util.Exceptions;
  */
 public class WidgetNode extends AbstractNode{
     private final Class<?extends GElement> clazz;
-    private static final String basePath="jada/ngeditor/resources";
+    private static final String basePath="com/jme3/gde/gui/multiview/icons";
 
     public WidgetNode(Class<?extends GElement> wrappedClass) {
         super(Children.LEAF);
         this.clazz = wrappedClass;
         String name = wrappedClass.getSimpleName();
         this.setName(name);
-        
-            this.setIconBaseWithExtension(basePath+"/"+name+".png");
-        
-       
-        
+        this.setIconBaseWithExtension(basePath+"/"+name+".png");
     }
 
     @Override

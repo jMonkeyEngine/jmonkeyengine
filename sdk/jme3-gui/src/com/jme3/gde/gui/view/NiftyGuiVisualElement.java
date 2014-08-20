@@ -73,7 +73,7 @@ import sun.rmi.runtime.Log;
 
 @MultiViewElement.Registration(
         displayName = "#LBL_NiftyGui_VISUAL",
-        iconBase = "com/jme3/gde/gui/multiview/icons/Computer_File_043.gif",
+        iconBase = "com/jme3/gde/gui/multiview/icons/game-monitor.png",
         mimeType = "text/x-niftygui+xml",
         persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "NiftyGuiVisual",
