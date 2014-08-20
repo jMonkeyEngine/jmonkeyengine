@@ -34,35 +34,35 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jSeparator1" alignment="1" max="32767" attributes="0"/>
                   <Component id="jScrollPane1" alignment="0" pref="376" max="32767" attributes="0"/>
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="compressionComboBox" pref="82" max="32767" attributes="0"/>
-                                  <Component id="fileFormatComboBox" alignment="0" max="32767" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="mipmapsCheckBox" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="overwriteCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                  </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="progressBar" max="32767" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="okButton" linkSize="1" min="-2" pref="67" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="cancelButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="mipmapsCheckBox" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="overwriteCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="jLabel3" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="fileFormatComboBox" min="-2" pref="82" max="-2" attributes="0"/>
+                                  <Component id="pixelFormatComboBox" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                      </Group>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -86,7 +86,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="compressionComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="pixelFormatComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -195,14 +195,32 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JComboBox" name="compressionComboBox">
+    <Component class="javax.swing.JComboBox" name="pixelFormatComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="4">
-            <StringItem index="0" value="no"/>
-            <StringItem index="1" value="DXT1"/>
+          <StringArray count="22">
+            <StringItem index="0" value="DXT1 no alpha"/>
+            <StringItem index="1" value="DXT1 one bit alpha"/>
             <StringItem index="2" value="DXT3"/>
             <StringItem index="3" value="DXT5"/>
+            <StringItem index="4" value="uncompressed 1:5:5:5"/>
+            <StringItem index="5" value="uncompressed 4:4:4:4"/>
+            <StringItem index="6" value="uncompressed 5:6:5"/>
+            <StringItem index="7" value="uncompressed 8:8:8:8"/>
+            <StringItem index="8" value="uncompressed 0:8:8:8"/>
+            <StringItem index="9" value="uncompressed 0:5:5:5"/>
+            <StringItem index="10" value="paletted 256 colors"/>
+            <StringItem index="11" value="paletted 256 colors with alpha"/>
+            <StringItem index="12" value="paletted 16 colors"/>
+            <StringItem index="13" value="paletted 16 colors with alpha"/>
+            <StringItem index="14" value="8 bit alpha"/>
+            <StringItem index="15" value="normal map format"/>
+            <StringItem index="16" value="32 bit float, 4 channels"/>
+            <StringItem index="17" value="32 bit float, 1 channel"/>
+            <StringItem index="18" value="16 bit float, 4 channels"/>
+            <StringItem index="19" value="dxt5 style normal map"/>
+            <StringItem index="20" value="16 bit integer, 2 channels"/>
+            <StringItem index="21" value="16 bit float, 2 channels"/>
           </StringArray>
         </Property>
       </Properties>

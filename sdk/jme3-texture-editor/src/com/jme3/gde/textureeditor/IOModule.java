@@ -1,25 +1,15 @@
 package com.jme3.gde.textureeditor;
 
-import dds.jogl.DDSImage;
-import dds.model.SingleTextureMap;
-import dds.model.TextureMap;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.awt.image.FilteredImageSource;
-import java.awt.image.RGBImageFilter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageInputStream;
-import net.nikr.dds.DDSImageReaderSpi;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import tgaimageplugin.TGAImageReader;
 import tgaimageplugin.TGAImageReaderSpi;
 import tgaimageplugin.TGAImageWriter;
@@ -41,7 +31,6 @@ public class IOModule {
             wri.setOutput(new FileImageOutputStream(file));
             wri.write(editedImage);
 		} else if (type.equals("dds")) {
-			//DDSUtil.write(file, editedImage, DDSImage.D3DFMT_A8R8G8B8, false);
 			writeDDS(editedImage, file);
         } else {
             ImageIO.write(editedImage, type, file);
@@ -49,41 +38,29 @@ public class IOModule {
     }
 	
 	private void writeDDS(BufferedImage img, File file) throws IOException {
-		Image image = Toolkit.getDefaultToolkit().createImage(
-					new FilteredImageSource(img.getSource(), new RedBlueSwapFilter()));
-		img = new BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_4BYTE_ABGR);
-		Graphics g = img.getGraphics();
-		g.drawImage(image, 0, 0, null);
-		g.dispose();
-		//create dds data
-		TextureMap tex;
-		tex = new SingleTextureMap(img);
-		//create dds image
-		ByteBuffer[] data;
-		data = tex.getUncompressedBuffer(); //no compression
-		int format = DDSImage.D3DFMT_A8R8G8B8;
-		DDSImage dds = DDSImage.createFromData(format, img.getWidth(), img.getHeight(), data);
-		//save asset
-		dds.write(file);
+        File tga = null;
+        TGAImageWriter wri = null;
+        try {
+            //copy to tmp tga file
+            tga = File.createTempFile("tmp", ".tga").getCanonicalFile();
+            TGAImageWriterSpi spi = new TGAImageWriterSpi();
+            wri = new TGAImageWriter(spi);
+            wri.setOutput(new FileImageOutputStream(tga));
+            wri.write(img);
+            //convert to uncompressed u8888 dds texture
+            if (!NvDXTExecutor.executeCompress("-file", tga.getPath(), "-u8888", "-outfile", file.getCanonicalPath())) {
+                throw new IOException("unable to write dds texture");
+            }
+        } finally {
+            if (wri!=null) {
+                wri.abort();
+                wri.dispose();
+            }
+            if (tga!=null) {
+                tga.delete();
+            }
+        }
 	}
-	
-	public static class RedBlueSwapFilter extends RGBImageFilter {
-
-		public RedBlueSwapFilter() {
-		// The filter's operation does not depend on the
-			// pixel's location, so IndexColorModels can be
-			// filtered directly.
-			canFilterIndexColorModel = true;
-		}
-
-		@Override
-		public int filterRGB(int x, int y, int rgb) {
-			return ((rgb & 0xff00ff00)
-					| ((rgb & 0xff0000) >> 16)
-					| ((rgb & 0xff) << 16));
-		}
-	}
-
 
     public BufferedImage load(FileObject file) throws IOException, URISyntaxException {
         if (file.getExt().equalsIgnoreCase("tga")) {
@@ -93,16 +70,57 @@ public class IOModule {
             rea.setInput(in);
             return rea.read(0);
 		} else if (file.getExt().equalsIgnoreCase("dds")) {
-			//return DDSUtil.read(FileUtil.toFile(file)); 
-			//Use DDSImageReader because of a bug in Dahie-DDS
-			ImageInputStream in = new FileImageInputStream(new File(file.getURL().toURI()));
-            DDSImageReaderSpi spi = new DDSImageReaderSpi();
-            ImageReader rea = spi.createReaderInstance();
-            rea.setInput(in);
-            return rea.read(0);
+            return loadDDS(file);
         } else {
             BufferedImage image = ImageIO.read(file.getInputStream());
             return image;
         }
     }
+
+    private synchronized BufferedImage loadDDS(final FileObject file) throws IOException {
+        File dds = null;
+        File tga;
+        File parent = null;
+        String name = null;
+        TGAImageReader rea = null;
+        try {
+            //copy to tmp dir
+            dds = File.createTempFile("tmp", ".dds").getCanonicalFile();
+            String path = dds.getAbsolutePath();
+            name = dds.getName();
+            name = name.substring(0, name.length() - ".dds".length());
+            parent = dds.getParentFile();
+            FileObject folder = FileUtil.toFileObject(parent);
+            dds.delete();
+            file.copy(folder, name, "dds");
+            //convert to tga
+            if (!NvDXTExecutor.executeDeompress(path)) {
+                throw new IOException("unable to decompress dds texture");
+            }
+            //read tga file
+            tga = new File(parent, name + "00.tga");
+            ImageInputStream in = new FileImageInputStream(tga);
+            TGAImageReaderSpi spi = new TGAImageReaderSpi();
+            rea = new TGAImageReader(spi);
+            rea.setInput(in);
+            BufferedImage img = rea.read(0);
+            return img;
+        } finally {
+            if (dds!=null) {
+                dds.delete();
+            }
+            if (rea!=null) {
+                rea.abort();
+                rea.dispose();
+            }
+            if (parent!=null) {
+                for (File f : parent.listFiles()) {
+                    if (f.getName().startsWith(name) && f.getName().endsWith(".tga")) {
+                        f.delete();
+                    }
+                }
+            }
+        }
+    }
+
 }
