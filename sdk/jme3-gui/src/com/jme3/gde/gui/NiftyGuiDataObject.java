@@ -36,7 +36,7 @@ import org.openide.windows.TopComponent;
         resource = "NiftyGuiResolver.xml")
 @DataObject.Registration(
         mimeType = "text/x-niftygui+xml",
-        iconBase = "com/jme3/gde/gui/Computer_File_043.gif",
+        iconBase = "com/jme3/gde/gui/multiview/icons/Computer_File_043.gif",
         displayName = "#LBL_NiftyGui_LOADER",
         position = 300)
 @ActionReferences({
@@ -125,7 +125,7 @@ public class NiftyGuiDataObject extends MultiDataObject {
     @Override
     protected Node createNodeDelegate() {
         DataNode node = new DataNode(this, Children.LEAF, getLookup());
-        node.setIconBaseWithExtension("com/jme3/gde/gui/Computer_File_043.gif");
+        node.setIconBaseWithExtension("com/jme3/gde/gui/multiview/icons/Computer_File_043.gif");
         return node;
     }
     
@@ -136,7 +136,7 @@ public class NiftyGuiDataObject extends MultiDataObject {
 
     @MultiViewElement.Registration(
             displayName = "#LBL_NiftyGui_EDITOR",
-            iconBase = "com/jme3/gde/gui/Computer_File_043.gif",
+            iconBase = "com/jme3/gde/gui/multiview/icons/Computer_File_043.gif",
             mimeType = "text/x-niftygui+xml",
             persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
             preferredID = "NiftyGui",
