@@ -973,5 +973,9 @@ public class BlenderKey extends ModelKey {
         @Override
         protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
         }
+
+        @Override
+        public void depthLastTraversal(SceneGraphVisitor visitor) {
+        }
     }
 }
