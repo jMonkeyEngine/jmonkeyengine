@@ -450,6 +450,10 @@ public class Geometry extends Spatial {
     public void depthFirstTraversal(SceneGraphVisitor visitor) {
         visitor.visit(this);
     }
+    @Override
+    public void depthLastTraversal(SceneGraphVisitor visitor) {
+        visitor.visit(this);
+    }
 
     @Override
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {

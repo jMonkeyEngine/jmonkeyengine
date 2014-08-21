@@ -1492,10 +1492,16 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     }
 
     /**
-     * Visit each scene graph element ordered by DFS
+     * Visit each scene graph element ordered by DFS, also called post order traversal.
      * @param visitor
      */
     public abstract void depthFirstTraversal(SceneGraphVisitor visitor);
+    
+    /**
+     * Visit each scene graph element in pre order traversal.
+     * @param visitor 
+     */
+    public abstract void depthLastTraversal(SceneGraphVisitor visitor);
 
     /**
      * Visit each scene graph element ordered by BFS

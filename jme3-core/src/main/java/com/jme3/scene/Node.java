@@ -633,6 +633,15 @@ public class Node extends Spatial implements Savable {
         }
         visitor.visit(this);
     }
+
+    @Override
+    public void depthLastTraversal(SceneGraphVisitor visitor) {
+        visitor.visit(this);
+        for (Spatial child : children.getArray()) {
+            child.depthFirstTraversal(visitor);
+        }
+    }
+    
     
     @Override
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
