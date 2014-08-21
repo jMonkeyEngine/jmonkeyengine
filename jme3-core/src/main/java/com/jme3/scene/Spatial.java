@@ -1493,15 +1493,22 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
 
     /**
      * Visit each scene graph element ordered by DFS, also called post order traversal.
+     * Delegates to {@link #depthFirstTraversal(com.jme3.scene.SceneGraphVisitor, boolean) }
+     * with {@code preOrder} set to {@code false}.
      * @param visitor
      */
-    public abstract void depthFirstTraversal(SceneGraphVisitor visitor);
+    public void depthFirstTraversal(SceneGraphVisitor visitor) {
+        depthFirstTraversal(visitor, false);
+    }
     
     /**
-     * Visit each scene graph element in pre order traversal.
-     * @param visitor 
+     * Visit each scene graph element using post order traversal if {@code preOrder}
+     * is {@code false} or using pre order traversal if {@code preOrder} is 
+     * {@code true}.
+     * @param visitor the visitor to use
+     * @param preOrder {@code false} for post order, {@code true} for pre order 
      */
-    public abstract void depthLastTraversal(SceneGraphVisitor visitor);
+    public abstract void depthFirstTraversal(SceneGraphVisitor visitor, boolean preOrder);
 
     /**
      * Visit each scene graph element ordered by BFS

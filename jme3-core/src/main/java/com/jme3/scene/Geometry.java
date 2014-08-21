@@ -447,11 +447,7 @@ public class Geometry extends Spatial {
     }
 
     @Override
-    public void depthFirstTraversal(SceneGraphVisitor visitor) {
-        visitor.visit(this);
-    }
-    @Override
-    public void depthLastTraversal(SceneGraphVisitor visitor) {
+    public void depthFirstTraversal(SceneGraphVisitor visitor, boolean preOrder) {
         visitor.visit(this);
     }
 

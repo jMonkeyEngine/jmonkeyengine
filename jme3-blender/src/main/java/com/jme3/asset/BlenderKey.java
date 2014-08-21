@@ -967,15 +967,12 @@ public class BlenderKey extends ModelKey {
         }
 
         @Override
-        public void depthFirstTraversal(SceneGraphVisitor visitor) {
+        public void depthFirstTraversal(SceneGraphVisitor visitor, boolean preOrder) {
         }
 
         @Override
         protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
         }
 
-        @Override
-        public void depthLastTraversal(SceneGraphVisitor visitor) {
-        }
     }
 }
