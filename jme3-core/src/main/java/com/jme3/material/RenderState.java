@@ -1312,6 +1312,44 @@ public class RenderState implements Cloneable, Savable {
         state.cachedHashCode = -1;
         return state;
     }
+     public void set(RenderState state) {
+        pointSprite = state.pointSprite;
+        wireframe = state.wireframe;
+        cullMode = state.cullMode;
+        depthWrite = state.depthWrite;
+        depthTest = state.depthTest;
+        colorWrite = state.colorWrite;
+        blendMode = state.blendMode;
+        alphaTest = state.alphaTest;
+        alphaFallOff = state.alphaFallOff;
+        offsetEnabled = state.offsetEnabled;
+        offsetFactor = state.offsetFactor;
+        offsetUnits = state.offsetUnits;
+        stencilTest = state.stencilTest;
+        frontStencilStencilFailOperation = state.frontStencilStencilFailOperation;
+        frontStencilDepthFailOperation = state.frontStencilDepthFailOperation;
+        frontStencilDepthPassOperation = state.frontStencilDepthPassOperation;
+        backStencilStencilFailOperation = state.backStencilStencilFailOperation;
+        backStencilDepthFailOperation = state.backStencilDepthFailOperation;
+        backStencilDepthPassOperation = state.backStencilDepthPassOperation;
+        frontStencilFunction = state.frontStencilFunction;
+        backStencilFunction = state.backStencilFunction;
+        depthFunc = state.depthFunc;
+        alphaFunc = state.alphaFunc;
+
+        applyPointSprite = true;
+        applyWireFrame =  true;
+        applyCullMode =  true;
+        applyDepthWrite =  true;
+        applyDepthTest =  true;
+        applyColorWrite = true;
+        applyBlendMode =  true;
+        applyAlphaTest =  true;
+        applyAlphaFallOff =  true;
+        applyPolyOffset =  true;
+        applyDepthFunc =  true;
+        applyAlphaFunc =  false;
+    }
 
     @Override
     public String toString() {

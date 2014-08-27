@@ -43,6 +43,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.Trigger;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.post.Filter;
 import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.RenderManager;
@@ -205,6 +206,8 @@ public class MaterialDebugAppState extends AbstractAppState {
         for (MatParam matParam : mat.getParams()) {
             dummy.setParam(matParam.getName(), matParam.getVarType(), matParam.getValue());
         }
+        
+        dummy.getAdditionalRenderState().set(mat.getAdditionalRenderState());        
 
         //creating a dummy geom and assigning the dummy material to it
         Geometry dummyGeom = new Geometry("dummyGeom", new Box(1f, 1f, 1f));
@@ -225,7 +228,7 @@ public class MaterialDebugAppState extends AbstractAppState {
         //System.out.println("Material succesfully reloaded");
         return dummy;
     }
-
+   
     @Override
     public void update(float tpf) {
         super.update(tpf); //To change body of generated methods, choose Tools | Templates.
