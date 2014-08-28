@@ -146,8 +146,9 @@ public abstract class ShaderGenerator {
             }
             if (shaderNode.getDefinition().getType() == type) {
                 int index = findShaderIndexFromVersion(shaderNode, type);
-                String loadedSource = (String) assetManager.loadAsset(new AssetKey(shaderNode.getDefinition().getShadersPath().get(index)));
-                appendNodeDeclarationAndMain(loadedSource, sourceDeclaration, source, shaderNode, info);
+                String shaderPath = shaderNode.getDefinition().getShadersPath().get(index);
+                String loadedSource = (String) assetManager.loadAsset(new AssetKey(shaderPath));
+                appendNodeDeclarationAndMain(loadedSource, sourceDeclaration, source, shaderNode, info, shaderPath);
             }
         }
     }
@@ -168,10 +169,13 @@ public abstract class ShaderGenerator {
      * @param shaderNode the shader node.
      * @param info the ShaderGenerationInfo.
      */
-    protected void appendNodeDeclarationAndMain(String loadedSource, StringBuilder sourceDeclaration, StringBuilder source, ShaderNode shaderNode, ShaderGenerationInfo info) {
+    protected void appendNodeDeclarationAndMain(String loadedSource, StringBuilder sourceDeclaration, StringBuilder source, ShaderNode shaderNode, ShaderGenerationInfo info, String shaderPath) {
         if (loadedSource.length() > 1) {
             loadedSource = loadedSource.substring(0, loadedSource.lastIndexOf("}"));
-            String[] sourceParts = loadedSource.split("void main\\(\\)\\{");
+            String[] sourceParts = loadedSource.split("\\s*void\\s*main\\s*\\(\\s*\\)\\s*\\{");
+            if(sourceParts.length<2){
+                throw new IllegalArgumentException("Syntax error in "+ shaderPath +". Cannot find 'void main(){' in \n"+ loadedSource);
+            }
             generateDeclarativeSection(sourceDeclaration, shaderNode, sourceParts[0], info);
             generateNodeMainSection(source, shaderNode, sourceParts[1], info);
         } else {
