@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty-controls xmlns="http://nifty-gui.lessvoid.com/nifty-gui">
+    <controlDefinition style="your-style" name="empty-control">
+        <panel style="#panel" >
+            
+        </panel>
+    </controlDefinition>
+</nifty-controls>

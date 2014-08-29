@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nifty-styles xmlns="http://nifty-gui.lessvoid.com/nifty-gui">
+    <style id="empty">
+        <attributes backgroundColor="#AA05"/>
+        
+    </style>
+</nifty-styles>

@@ -8,10 +8,14 @@ import com.jme3.gde.gui.propertyeditors.ResourceEditor;
 import com.jme3.gde.gui.propertyeditors.SizeEditor;
 import jada.ngeditor.controller.CommandProcessor;
 import jada.ngeditor.controller.commands.EditAttributeCommand;
+import jada.ngeditor.controller.commands.VisibilityCommand;
 import jada.ngeditor.model.elements.GElement;
+import java.awt.event.ActionEvent;
 import java.beans.PropertyEditor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map.Entry;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JOptionPane;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -42,6 +46,14 @@ public class GElementNode extends AbstractNode{
     public GElement getGelement(){
         return element;
     }
+
+    @Override
+    public Action[] getActions(boolean context) {
+        if(!context){
+            return new Action[]{new Visibility("Show", true),new Visibility("Hide", false)};
+        }else
+           return super.getActions(context);
+    }
     
     public void updateChildren(){
         
@@ -68,7 +80,7 @@ public class GElementNode extends AbstractNode{
     private void pickEditor(Entry<String, String> pair, final ElementAttributeProperty elementAttributeProperty) {
         if(pair.getKey().equals("width")||pair.getKey().equals("height") || pair.getKey().equals("x") || pair.getKey().equals("y") ){
            elementAttributeProperty.setPropertyEditor(new SizeEditor());
-        }else if(pair.getKey().equals("filename")){
+        }else if(pair.getKey().equals("filename") || pair.getKey().equals("backgroundImage")){
             elementAttributeProperty.setPropertyEditor(new ResourceEditor());
         }
         
@@ -128,4 +140,19 @@ public class GElementNode extends AbstractNode{
             
         }
     };
+    
+    private  class Visibility extends AbstractAction {
+        private final boolean param;
+
+        public Visibility(String name ,boolean param) {
+            super(name);
+            this.param = param;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            VisibilityCommand command = CommandProcessor.getInstance().getCommand(VisibilityCommand.class);
+           command.setVisibility(param);
+        }
+    }
 }

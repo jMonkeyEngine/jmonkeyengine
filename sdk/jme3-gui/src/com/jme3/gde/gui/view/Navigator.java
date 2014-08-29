@@ -145,10 +145,15 @@ public class Navigator extends javax.swing.JPanel implements NavigatorPanel,Expl
            }
            Node result = mgr.getRootContext();
            for(int i=path.size()-1;i>=0;i--){
-               result = result.getChildren().findChild(path.get(i));
+               if(result!=null){
+                    result = result.getChildren().findChild(path.get(i));
+               }
            }
             try {
-                mgr.setSelectedNodes(new Node[]{result});
+                if(result!=null){
+                    mgr.setSelectedNodes(new Node[]{result});
+                }
+                
             } catch (PropertyVetoException ex) {
                 Exceptions.printStackTrace(ex);
             }

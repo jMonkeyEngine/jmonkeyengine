@@ -314,8 +314,9 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
     }
 
     private void loadGui() {
+        ProgressHandle handle = ProgressHandleFactory.createHandle("Loading the gui file");
         try {
-            ProgressHandle handle = ProgressHandleFactory.createHandle("Loading the gui file");
+            
             InputStream is = this.obj.getPrimaryFile().getInputStream();
             handle.start();
             ProjectAssetManager mgr = this.obj.getLookup().lookup(ProjectAssetManager.class);
@@ -346,6 +347,8 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
             Exceptions.printStackTrace(ex);
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
+        }finally{
+           handle.finish();
         }
         
         
