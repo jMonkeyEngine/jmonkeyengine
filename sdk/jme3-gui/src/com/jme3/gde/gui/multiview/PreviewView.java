@@ -4,7 +4,7 @@
  */
 package com.jme3.gde.gui.multiview;
 
-import com.jme3.gde.gui.NiftyGuiDataObject;
+import com.jme3.gde.gui.OldNiftyGuiDataObject;
 import org.netbeans.modules.xml.multiview.DesignMultiViewDesc;
 
 /**
@@ -15,13 +15,13 @@ public class PreviewView extends DesignMultiViewDesc {
 
     private int type;
 
-    public PreviewView(NiftyGuiDataObject dObj, int type) {
+    public PreviewView(OldNiftyGuiDataObject dObj, int type) {
         super(dObj, "Design");
         this.type = type;
     }
 
     public org.netbeans.core.spi.multiview.MultiViewElement createElement() {
-        NiftyGuiDataObject dObj = (NiftyGuiDataObject) getDataObject();
+        OldNiftyGuiDataObject dObj = (OldNiftyGuiDataObject) getDataObject();
         return new PreviewToolbarElement(dObj);
     }
 
