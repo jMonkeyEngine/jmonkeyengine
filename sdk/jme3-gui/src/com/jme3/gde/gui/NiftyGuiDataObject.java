@@ -5,6 +5,8 @@
 package com.jme3.gde.gui;
 
 import com.jme3.gde.core.assets.ProjectAssetManager;
+import jada.ngeditor.controller.CommandProcessor;
+import jada.ngeditor.controller.GUIEditor;
 import java.io.IOException;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
@@ -34,7 +36,7 @@ import org.openide.windows.TopComponent;
         resource = "NiftyGuiResolver.xml")
 @DataObject.Registration(
         mimeType = "text/x-niftygui+xml",
-        iconBase = "com/jme3/gde/gui/Computer_File_043.gif",
+        iconBase = "com/jme3/gde/gui/multiview/icons/gui-icon.png",
         displayName = "#LBL_NiftyGui_LOADER",
         position = 300)
 @ActionReferences({
@@ -95,6 +97,7 @@ public class NiftyGuiDataObject extends MultiDataObject {
         super(pf, loader);
         registerEditor("text/x-niftygui+xml", true);
         findAssetManager();
+        this.getCookieSet().assign(GUIEditor.class, CommandProcessor.getInstance().getGuiEditor());
     }
 
     protected final void findAssetManager() {
@@ -122,7 +125,7 @@ public class NiftyGuiDataObject extends MultiDataObject {
     @Override
     protected Node createNodeDelegate() {
         DataNode node = new DataNode(this, Children.LEAF, getLookup());
-        node.setIconBaseWithExtension("com/jme3/gde/gui/Computer_File_043.gif");
+        node.setIconBaseWithExtension("com/jme3/gde/gui/multiview/icons/gui-icon.png");
         return node;
     }
     
@@ -133,13 +136,14 @@ public class NiftyGuiDataObject extends MultiDataObject {
 
     @MultiViewElement.Registration(
             displayName = "#LBL_NiftyGui_EDITOR",
-            iconBase = "com/jme3/gde/gui/Computer_File_043.gif",
+            iconBase = "com/jme3/gde/gui/multiview/icons/gui-icon.png",
             mimeType = "text/x-niftygui+xml",
             persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
             preferredID = "NiftyGui",
             position = 1000)
     @Messages("LBL_NiftyGui_EDITOR=XML")
     public static MultiViewEditorElement createEditor(Lookup lkp) {
-        return new MultiViewEditorElement(lkp);
+        final MultiViewEditorElement multiViewEditorElement = new MultiViewEditorElement(lkp);
+        return multiViewEditorElement;
     }
 }
