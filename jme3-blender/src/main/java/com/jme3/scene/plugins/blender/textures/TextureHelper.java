@@ -51,7 +51,7 @@ import com.jme3.math.Vector2f;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
@@ -69,6 +69,7 @@ import com.jme3.texture.Texture;
 import com.jme3.texture.Texture.MinFilter;
 import com.jme3.texture.Texture.WrapMode;
 import com.jme3.texture.Texture2D;
+import com.jme3.texture.image.ColorSpace;
 import com.jme3.util.BufferUtils;
 
 /**
@@ -130,7 +131,7 @@ public class TextureHelper extends AbstractBlenderHelper {
      *             somehow invalid or corrupted
      */
     public Texture getTexture(Structure tex, Structure mTex, BlenderContext blenderContext) throws BlenderFileException {
-        Texture result = (Texture) blenderContext.getLoadedFeature(tex.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+        Texture result = (Texture) blenderContext.getLoadedFeature(tex.getOldMemoryAddress(), LoadedDataType.FEATURE);
         if (result != null) {
             return result;
         }
@@ -200,7 +201,8 @@ public class TextureHelper extends AbstractBlenderHelper {
             if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.log(Level.FINE, "Adding texture {0} to the loaded features with OMA = {1}", new Object[] { result.getName(), tex.getOldMemoryAddress() });
             }
-            blenderContext.addLoadedFeatures(tex.getOldMemoryAddress(), tex.getName(), tex, result);
+            blenderContext.addLoadedFeatures(tex.getOldMemoryAddress(), LoadedDataType.STRUCTURE, tex);
+            blenderContext.addLoadedFeatures(tex.getOldMemoryAddress(), LoadedDataType.FEATURE, result);
         }
         return result;
     }
@@ -223,7 +225,7 @@ public class TextureHelper extends AbstractBlenderHelper {
     protected Texture loadTexture(Structure imageStructure, int imaflag, BlenderContext blenderContext) throws BlenderFileException {
         LOGGER.log(Level.FINE, "Fetching texture with OMA = {0}", imageStructure.getOldMemoryAddress());
         Texture result = null;
-        Image im = (Image) blenderContext.getLoadedFeature(imageStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+        Image im = (Image) blenderContext.getLoadedFeature(imageStructure.getOldMemoryAddress(), LoadedDataType.FEATURE);
         if (im == null) {
             String texturePath = imageStructure.getFieldValue("name").toString();
             Pointer pPackedFile = (Pointer) imageStructure.getFieldValue("packedfile");
@@ -340,7 +342,7 @@ public class TextureHelper extends AbstractBlenderHelper {
         int height = maxY - minY;
         ByteBuffer data = BufferUtils.createByteBuffer(width * height * (image.getFormat().getBitsPerPixel() >> 3));
 
-        Image result = new Image(image.getFormat(), width, height, data);
+        Image result = new Image(image.getFormat(), width, height, data, ColorSpace.sRGB);
         PixelInputOutput pixelIO = PixelIOFactory.getPixelIO(image.getFormat());
         TexturePixel pixel = new TexturePixel();
 

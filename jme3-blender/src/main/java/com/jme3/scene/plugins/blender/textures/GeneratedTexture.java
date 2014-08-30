@@ -9,11 +9,11 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.meshes.TemporalMesh;
 import com.jme3.scene.plugins.blender.textures.TriangulatedTexture.TriangleTextureElement;
 import com.jme3.scene.plugins.blender.textures.UVCoordinatesGenerator.UVCoordinatesType;
 import com.jme3.scene.plugins.blender.textures.generating.TextureGenerator;
@@ -56,7 +56,7 @@ import com.jme3.util.TempVars;
     private final Structure             mTex;
     /** Texture generateo for the specified texture type. */
     private final TextureGenerator      textureGenerator;
-    /** 
+    /**
      * The generated texture cast functions. They are used to cas a given point on a plane to a specified shape in 3D space.
      * The functions should be ordered as the ordinal of a BlenderKey.CastFunction enums.
      */
@@ -152,9 +152,8 @@ import com.jme3.util.TempVars;
      *            the blender context
      * @return triangulated texture
      */
-    @SuppressWarnings("unchecked")
     public TriangulatedTexture triangulate(Mesh mesh, Long geometriesOMA, UVCoordinatesType coordinatesType, BlenderContext blenderContext) {
-        List<Geometry> geometries = (List<Geometry>) blenderContext.getLoadedFeature(geometriesOMA, LoadedFeatureDataType.LOADED_FEATURE);
+        TemporalMesh geometries = (TemporalMesh) blenderContext.getLoadedFeature(geometriesOMA, LoadedDataType.TEMPORAL_MESH);
 
         int[] coordinatesSwappingIndexes = new int[] { ((Number) mTex.getFieldValue("projx")).intValue(), ((Number) mTex.getFieldValue("projy")).intValue(), ((Number) mTex.getFieldValue("projz")).intValue() };
         List<Vector3f> uvs = UVCoordinatesGenerator.generateUVCoordinatesFor3DTexture(mesh, coordinatesType, coordinatesSwappingIndexes, geometries);

@@ -44,7 +44,7 @@ import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -162,14 +162,16 @@ public class MaterialHelper extends AbstractBlenderHelper {
      */
     public MaterialContext toMaterialContext(Structure structure, BlenderContext blenderContext) throws BlenderFileException {
         LOGGER.log(Level.FINE, "Loading material.");
-        MaterialContext result = (MaterialContext) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+        MaterialContext result = (MaterialContext) blenderContext.getLoadedFeature(structure.getOldMemoryAddress(), LoadedDataType.FEATURE);
         if (result != null) {
             return result;
         }
 
         result = new MaterialContext(structure, blenderContext);
         LOGGER.log(Level.FINE, "Material''s name: {0}", result.name);
-        blenderContext.addLoadedFeatures(structure.getOldMemoryAddress(), structure.getName(), structure, result);
+        Long oma = structure.getOldMemoryAddress();
+        blenderContext.addLoadedFeatures(oma, LoadedDataType.STRUCTURE, structure);
+        blenderContext.addLoadedFeatures(oma, LoadedDataType.FEATURE, result);
         return result;
     }
 

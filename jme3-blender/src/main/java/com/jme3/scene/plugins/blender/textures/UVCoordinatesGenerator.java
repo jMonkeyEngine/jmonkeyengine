@@ -31,6 +31,10 @@
  */
 package com.jme3.scene.plugins.blender.textures;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
@@ -41,10 +45,6 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.scene.plugins.blender.textures.UVProjectionGenerator.UVProjectionType;
 import com.jme3.util.BufferUtils;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * This class is used for UV coordinates generation.
@@ -55,7 +55,7 @@ public class UVCoordinatesGenerator {
     private static final Logger LOGGER = Logger.getLogger(UVCoordinatesGenerator.class.getName());
 
     public static enum UVCoordinatesType {
-        TEXCO_ORCO(1), TEXCO_REFL(2), TEXCO_NORM(4), TEXCO_GLOB(8), TEXCO_UV(16), TEXCO_OBJECT(32), TEXCO_LAVECTOR(64), TEXCO_VIEW(128), 
+        TEXCO_ORCO(1), TEXCO_REFL(2), TEXCO_NORM(4), TEXCO_GLOB(8), TEXCO_UV(16), TEXCO_OBJECT(32), TEXCO_LAVECTOR(64), TEXCO_VIEW(128),
         TEXCO_STICKY(256), TEXCO_OSA(512), TEXCO_WINDOW(1024), NEED_UV(2048), TEXCO_TANGENT(4096),
         TEXCO_PARTICLE_OR_STRAND(8192), //TEXCO_PARTICLE (since blender 2.6x) has also the value of: 8192 but is used for halo materials instead of normal materials
         TEXCO_STRESS(16384), TEXCO_SPEED(32768);
@@ -90,7 +90,7 @@ public class UVCoordinatesGenerator {
      *            bounding box)
      * @return UV coordinates for the given mesh
      */
-    public static List<Vector2f> generateUVCoordinatesFor2DTexture(Mesh mesh, UVCoordinatesType texco, UVProjectionType projection, List<Geometry> geometries) {
+    public static List<Vector2f> generateUVCoordinatesFor2DTexture(Mesh mesh, UVCoordinatesType texco, UVProjectionType projection, Geometry geometries) {
         List<Vector2f> result = new ArrayList<Vector2f>();
         BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometries);
         float[] inputData = null;// positions, normals, reflection vectors, etc.
@@ -166,7 +166,7 @@ public class UVCoordinatesGenerator {
      *            bounding box)
      * @return UV coordinates for the given mesh
      */
-    public static List<Vector3f> generateUVCoordinatesFor3DTexture(Mesh mesh, UVCoordinatesType texco, int[] coordinatesSwappingIndexes, List<Geometry> geometries) {
+    public static List<Vector3f> generateUVCoordinatesFor3DTexture(Mesh mesh, UVCoordinatesType texco, int[] coordinatesSwappingIndexes, Geometry... geometries) {
         List<Vector3f> result = new ArrayList<Vector3f>();
         BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometries);
         float[] inputData = null;// positions, normals, reflection vectors, etc.
@@ -264,38 +264,22 @@ public class UVCoordinatesGenerator {
      *            the list of geometries
      * @return bounding box of the given geometries
      */
-    public static BoundingBox getBoundingBox(List<Geometry> geometries) {
+    public static BoundingBox getBoundingBox(Geometry... geometries) {
         BoundingBox result = null;
         for (Geometry geometry : geometries) {
-            BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometry.getMesh());
-            if (result == null) {
-                result = bb;
+            geometry.updateModelBound();
+            BoundingVolume bv = geometry.getModelBound();
+            if (bv instanceof BoundingBox) {
+                return (BoundingBox) bv;
+            } else if (bv instanceof BoundingSphere) {
+                BoundingSphere bs = (BoundingSphere) bv;
+                float r = bs.getRadius();
+                return new BoundingBox(bs.getCenter(), r, r, r);
             } else {
-                result.merge(bb);
+                throw new IllegalStateException("Unknown bounding volume type: " + bv.getClass().getName());
             }
         }
         return result;
-    }
-
-    /**
-     * This method returns the bounding box of the given mesh.
-     * 
-     * @param mesh
-     *            the mesh
-     * @return bounding box of the given mesh
-     */
-    /* package */static BoundingBox getBoundingBox(Mesh mesh) {
-        mesh.updateBound();
-        BoundingVolume bv = mesh.getBound();
-        if (bv instanceof BoundingBox) {
-            return (BoundingBox) bv;
-        } else if (bv instanceof BoundingSphere) {
-            BoundingSphere bs = (BoundingSphere) bv;
-            float r = bs.getRadius();
-            return new BoundingBox(bs.getCenter(), r, r, r);
-        } else {
-            throw new IllegalStateException("Unknown bounding volume type: " + bv.getClass().getName());
-        }
     }
 
     /**
@@ -305,72 +289,23 @@ public class UVCoordinatesGenerator {
      *            the list of geometries
      * @return bounding sphere of the given geometries
      */
-    /* package */static BoundingSphere getBoundingSphere(List<Geometry> geometries) {
+    /* package */static BoundingSphere getBoundingSphere(Geometry... geometries) {
         BoundingSphere result = null;
         for (Geometry geometry : geometries) {
-            BoundingSphere bs = UVCoordinatesGenerator.getBoundingSphere(geometry.getMesh());
-            if (result == null) {
-                result = bs;
+            geometry.updateModelBound();
+            BoundingVolume bv = geometry.getModelBound();
+            if (bv instanceof BoundingBox) {
+                BoundingBox bb = (BoundingBox) bv;
+                float r = Math.max(bb.getXExtent(), bb.getYExtent());
+                r = Math.max(r, bb.getZExtent());
+                return new BoundingSphere(r, bb.getCenter());
+            } else if (bv instanceof BoundingSphere) {
+                return (BoundingSphere) bv;
             } else {
-                result.merge(bs);
+                throw new IllegalStateException("Unknown bounding volume type: " + bv.getClass().getName());
             }
         }
         return result;
-    }
-
-    /**
-     * This method returns the bounding sphere of the given mesh.
-     * 
-     * @param mesh
-     *            the mesh
-     * @return bounding sphere of the given mesh
-     */
-    /* package */static BoundingSphere getBoundingSphere(Mesh mesh) {
-        mesh.updateBound();
-        BoundingVolume bv = mesh.getBound();
-        if (bv instanceof BoundingBox) {
-            BoundingBox bb = (BoundingBox) bv;
-            float r = Math.max(bb.getXExtent(), bb.getYExtent());
-            r = Math.max(r, bb.getZExtent());
-            return new BoundingSphere(r, bb.getCenter());
-        } else if (bv instanceof BoundingSphere) {
-            return (BoundingSphere) bv;
-        } else {
-            throw new IllegalStateException("Unknown bounding volume type: " + bv.getClass().getName());
-        }
-    }
-
-    /**
-     * This method returns the bounding tube of the given mesh.
-     * 
-     * @param mesh
-     *            the mesh
-     * @return bounding tube of the given mesh
-     */
-    /* package */static BoundingTube getBoundingTube(Mesh mesh) {
-        Vector3f center = new Vector3f();
-        float maxx = -Float.MAX_VALUE, minx = Float.MAX_VALUE;
-        float maxy = -Float.MAX_VALUE, miny = Float.MAX_VALUE;
-        float maxz = -Float.MAX_VALUE, minz = Float.MAX_VALUE;
-
-        FloatBuffer positions = mesh.getFloatBuffer(VertexBuffer.Type.Position);
-        int limit = positions.limit();
-        for (int i = 0; i < limit; i += 3) {
-            float x = positions.get(i);
-            float y = positions.get(i + 1);
-            float z = positions.get(i + 2);
-            center.addLocal(x, y, z);
-            maxx = x > maxx ? x : maxx;
-            minx = x < minx ? x : minx;
-            maxy = y > maxy ? y : maxy;
-            miny = y < miny ? y : miny;
-            maxz = z > maxz ? z : maxz;
-            minz = z < minz ? z : minz;
-        }
-        center.divideLocal(limit / 3);
-
-        float radius = Math.max(maxx - minx, maxy - miny) * 0.5f;
-        return new BoundingTube(radius, maxz - minz, center);
     }
 
     /**
@@ -380,10 +315,15 @@ public class UVCoordinatesGenerator {
      *            the list of geometries
      * @return bounding tube of the given geometries
      */
-    /* package */static BoundingTube getBoundingTube(List<Geometry> geometries) {
+    /* package */static BoundingTube getBoundingTube(Geometry... geometries) {
         BoundingTube result = null;
         for (Geometry geometry : geometries) {
-            BoundingTube bt = UVCoordinatesGenerator.getBoundingTube(geometry.getMesh());
+            BoundingBox bb = UVCoordinatesGenerator.getBoundingBox(geometry);
+            Vector3f max = bb.getMax(null);
+            Vector3f min = bb.getMin(null);
+            float radius = Math.max(max.x - min.x, max.y - min.y) * 0.5f;
+            
+            BoundingTube bt = new BoundingTube(radius, max.z - min.z, bb.getCenter());
             if (result == null) {
                 result = bt;
             } else {
@@ -394,7 +334,7 @@ public class UVCoordinatesGenerator {
     }
 
     /**
-     * A very simple bounding tube. Id holds only the basic data bout the
+     * A very simple bounding tube. It holds only the basic data bout the
      * bounding tube and does not provide full functionality of a
      * BoundingVolume. Should be replaced with a bounding tube that extends the
      * BoundingVolume if it is ever created.
@@ -432,7 +372,7 @@ public class UVCoordinatesGenerator {
         public BoundingTube merge(BoundingTube boundingTube) {
             // get tubes (tube1.radius >= tube2.radius)
             BoundingTube tube1, tube2;
-            if (this.radius >= boundingTube.radius) {
+            if (radius >= boundingTube.radius) {
                 tube1 = this;
                 tube2 = boundingTube;
             } else {

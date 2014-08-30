@@ -1,9 +1,13 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
+import java.util.List;
+
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.meshes.TemporalMesh;
 
 /**
  * This class represents an object's modifier. The modifier object can be varied
@@ -41,6 +45,16 @@ public abstract class Modifier {
     public abstract void apply(Node node, BlenderContext blenderContext);
 
     /**
+     * The method that is called when geometries are already created.
+     * @param node
+     *            the node that will have the modifier applied
+     * @param blenderContext
+     *            the blender context
+     */
+    public void postMeshCreationApply(Node node, BlenderContext blenderContext) {
+    }
+
+    /**
      * Determines if the modifier can be applied multiple times over one mesh.
      * At this moment only armature and object animation modifiers cannot be
      * applied multiple times.
@@ -66,5 +80,13 @@ public abstract class Modifier {
      */
     public boolean isModifying() {
         return modifying;
+    }
+
+    protected TemporalMesh getTemporalMesh(Node node) {
+        List<Spatial> children = node.getChildren();
+        if (children != null && children.size() == 1 && children.get(0) instanceof TemporalMesh) {
+            return (TemporalMesh) children.get(0);
+        }
+        return null;
     }
 }

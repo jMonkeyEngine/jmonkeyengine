@@ -53,7 +53,7 @@ import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.animations.AnimationHelper;
 import com.jme3.scene.plugins.blender.cameras.CameraHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
@@ -64,6 +64,7 @@ import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.lights.LightHelper;
 import com.jme3.scene.plugins.blender.meshes.MeshHelper;
+import com.jme3.scene.plugins.blender.meshes.TemporalMesh;
 import com.jme3.scene.plugins.blender.modifiers.Modifier;
 import com.jme3.scene.plugins.blender.modifiers.ModifierHelper;
 import com.jme3.util.TempVars;
@@ -129,7 +130,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
         }
 
         LOGGER.fine("Checking if the object has not been already loaded.");
-        Object loadedResult = blenderContext.getLoadedFeature(objectStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+        Object loadedResult = blenderContext.getLoadedFeature(objectStructure.getOldMemoryAddress(), LoadedDataType.FEATURE);
         if (loadedResult != null) {
             return loadedResult;
         }
@@ -137,12 +138,12 @@ public class ObjectHelper extends AbstractBlenderHelper {
         blenderContext.pushParent(objectStructure);
         String name = objectStructure.getName();
         LOGGER.log(Level.FINE, "Loading obejct: {0}", name);
-
+        
         int restrictflag = ((Number) objectStructure.getFieldValue("restrictflag")).intValue();
         boolean visible = (restrictflag & 0x01) != 0;
 
         Pointer pParent = (Pointer) objectStructure.getFieldValue("parent");
-        Object parent = blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
+        Object parent = blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedDataType.FEATURE);
         if (parent == null && pParent.isNotNull()) {
             Structure parentStructure = pParent.fetchData().get(0);
             parent = this.toObject(parentStructure, blenderContext);
@@ -153,6 +154,11 @@ public class ObjectHelper extends AbstractBlenderHelper {
         Node result = null;
         try {
             switch (objectType) {
+                case LATTICE:
+                case METABALL:
+                case TEXT:
+                case WAVE:
+                    LOGGER.log(Level.WARNING, "{0} type is not supported but the node will be returned in order to keep parent - child relationship.", objectType);
                 case EMPTY:
                 case ARMATURE:
                     // need to use an empty node to properly create
@@ -164,11 +170,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
                     Pointer pMesh = (Pointer) objectStructure.getFieldValue("data");
                     List<Structure> meshesArray = pMesh.fetchData();
-                    List<Geometry> geometries = meshHelper.toMesh(meshesArray.get(0), blenderContext);
-                    if (geometries != null) {
-                        for (Geometry geometry : geometries) {
-                            result.attachChild(geometry);
-                        }
+                    TemporalMesh temporalMesh = meshHelper.toTemporalMesh(meshesArray.get(0), blenderContext);
+                    if(temporalMesh != null) {
+                        result.attachChild(temporalMesh);
                     }
                     break;
                 case SURF:
@@ -207,59 +211,68 @@ public class ObjectHelper extends AbstractBlenderHelper {
                 default:
                     LOGGER.log(Level.WARNING, "Unsupported object type: {0}", type);
             }
-        } finally {
-            blenderContext.popParent();
-        }
+            
+            if (result != null) {
+                LOGGER.fine("Storing loaded feature in blender context and applying markers (those will be removed before the final result is released).");
+                Long oma = objectStructure.getOldMemoryAddress();
+                blenderContext.addLoadedFeatures(oma, LoadedDataType.STRUCTURE, objectStructure);
+                blenderContext.addLoadedFeatures(oma, LoadedDataType.FEATURE, result);
+                
+                blenderContext.addMarker(OMA_MARKER, result, objectStructure.getOldMemoryAddress());
+                if (objectType == ObjectType.ARMATURE) {
+                    blenderContext.addMarker(ARMATURE_NODE_MARKER, result, Boolean.TRUE);
+                }
 
-        if (result != null) {
-            LOGGER.fine("Storing loaded feature in blender context and applying markers (those will be removed before the final result is released).");
-            blenderContext.addLoadedFeatures(objectStructure.getOldMemoryAddress(), name, objectStructure, result);
-            blenderContext.addMarker(OMA_MARKER, result, objectStructure.getOldMemoryAddress());
-            if (objectType == ObjectType.ARMATURE) {
-                blenderContext.addMarker(ARMATURE_NODE_MARKER, result, Boolean.TRUE);
-            }
+                result.setLocalTransform(t);
+                result.setCullHint(visible ? CullHint.Always : CullHint.Inherit);
+                if (parent instanceof Node) {
+                    ((Node) parent).attachChild(result);
+                }
 
-            result.setLocalTransform(t);
-            result.setCullHint(visible ? CullHint.Always : CullHint.Inherit);
-            if (parent instanceof Node) {
-                ((Node) parent).attachChild(result);
-            }
+                LOGGER.fine("Reading and applying object's modifiers.");
+                ModifierHelper modifierHelper = blenderContext.getHelper(ModifierHelper.class);
+                Collection<Modifier> modifiers = modifierHelper.readModifiers(objectStructure, blenderContext);
+                for (Modifier modifier : modifiers) {
+                    modifier.apply(result, blenderContext);
+                }
+                
+                if (result.getChildren() != null && result.getChildren().size() > 0) {
+                    if(result.getChildren().size() == 1 && result.getChild(0) instanceof TemporalMesh) {
+                        LOGGER.fine("Converting temporal mesh into jme geometries.");
+                        ((TemporalMesh)result.getChild(0)).toGeometries();
+                    }
+                    
+                    LOGGER.fine("Applying proper scale to the geometries.");
+                    for (Spatial child : result.getChildren()) {
+                        if (child instanceof Geometry) {
+                            this.flipMeshIfRequired((Geometry) child, child.getWorldScale());
+                        }
+                    }
+                }
 
-            if (result.getChildren() != null) {
-                for (Spatial child : result.getChildren()) {
-                    if (child instanceof Geometry) {
-                        this.flipMeshIfRequired((Geometry) child, child.getWorldScale());
+                // I prefer do compute bounding box here than read it from the file
+                result.updateModelBound();
+
+                LOGGER.fine("Applying animations to the object if such are defined.");
+                AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
+                animationHelper.applyAnimations(result, blenderContext.getBlenderKey().getAnimationMatchMethod());
+
+                LOGGER.fine("Loading constraints connected with this object.");
+                ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
+                constraintHelper.loadConstraints(objectStructure, blenderContext);
+
+                LOGGER.fine("Loading custom properties.");
+                if (blenderContext.getBlenderKey().isLoadObjectProperties()) {
+                    Properties properties = this.loadProperties(objectStructure, blenderContext);
+                    // the loaded property is a group property, so we need to get
+                    // each value and set it to Spatial
+                    if (properties != null && properties.getValue() != null) {
+                        this.applyProperties(result, properties);
                     }
                 }
             }
-
-            LOGGER.fine("Reading and applying object's modifiers.");
-            ModifierHelper modifierHelper = blenderContext.getHelper(ModifierHelper.class);
-            Collection<Modifier> modifiers = modifierHelper.readModifiers(objectStructure, blenderContext);
-            for (Modifier modifier : modifiers) {
-                modifier.apply(result, blenderContext);
-            }
-
-            // I prefer do compute bounding box here than read it from the file
-            result.updateModelBound();
-
-            LOGGER.fine("Applying animations to the object if such are defined.");
-            AnimationHelper animationHelper = blenderContext.getHelper(AnimationHelper.class);
-            animationHelper.applyAnimations(result, blenderContext.getBlenderKey().getAnimationMatchMethod());
-
-            LOGGER.fine("Loading constraints connected with this object.");
-            ConstraintHelper constraintHelper = blenderContext.getHelper(ConstraintHelper.class);
-            constraintHelper.loadConstraints(objectStructure, blenderContext);
-
-            LOGGER.fine("Loading custom properties.");
-            if (blenderContext.getBlenderKey().isLoadObjectProperties()) {
-                Properties properties = this.loadProperties(objectStructure, blenderContext);
-                // the loaded property is a group property, so we need to get
-                // each value and set it to Spatial
-                if (properties != null && properties.getValue() != null) {
-                    this.applyProperties(result, properties);
-                }
-            }
+        } finally {
+            blenderContext.popParent();
         }
         return result;
     }
@@ -323,8 +336,8 @@ public class ObjectHelper extends AbstractBlenderHelper {
      * @return <b>true</b> if the first given OMA points to a parent of the second one and <b>false</b> otherwise
      */
     public boolean isParent(Long supposedParentOMA, Long spatialOMA) {
-        Spatial supposedParent = (Spatial) blenderContext.getLoadedFeature(supposedParentOMA, LoadedFeatureDataType.LOADED_FEATURE);
-        Spatial spatial = (Spatial) blenderContext.getLoadedFeature(spatialOMA, LoadedFeatureDataType.LOADED_FEATURE);
+        Spatial supposedParent = (Spatial) blenderContext.getLoadedFeature(supposedParentOMA, LoadedDataType.FEATURE);
+        Spatial spatial = (Spatial) blenderContext.getLoadedFeature(spatialOMA, LoadedDataType.FEATURE);
 
         Spatial parent = spatial.getParent();
         while (parent != null) {
@@ -350,7 +363,7 @@ public class ObjectHelper extends AbstractBlenderHelper {
         Matrix4f parentInv = tempVars.tempMat4;
         Pointer pParent = (Pointer) objectStructure.getFieldValue("parent");
         if (pParent.isNotNull()) {
-            Structure parentObjectStructure = (Structure) blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_STRUCTURE);
+            Structure parentObjectStructure = (Structure) blenderContext.getLoadedFeature(pParent.getOldMemoryAddress(), LoadedDataType.STRUCTURE);
             this.getMatrix(parentObjectStructure, "obmat", fixUpAxis, parentInv).invertLocal();
         } else {
             parentInv.loadIdentity();

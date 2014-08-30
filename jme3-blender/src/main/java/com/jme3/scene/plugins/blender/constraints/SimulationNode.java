@@ -24,7 +24,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 import com.jme3.util.TempVars;
@@ -93,7 +93,7 @@ public class SimulationNode {
      */
     private SimulationNode(Long featureOMA, BlenderContext blenderContext, boolean rootNode) {
         this.blenderContext = blenderContext;
-        Node spatial = (Node) blenderContext.getLoadedFeature(featureOMA, LoadedFeatureDataType.LOADED_FEATURE);
+        Node spatial = (Node) blenderContext.getLoadedFeature(featureOMA, LoadedDataType.FEATURE);
         if (blenderContext.getMarkerValue(ObjectHelper.ARMATURE_NODE_MARKER, spatial) != null) {
             skeleton = blenderContext.getSkeleton(featureOMA);
 

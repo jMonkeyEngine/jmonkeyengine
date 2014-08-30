@@ -1,7 +1,7 @@
 package com.jme3.scene.plugins.blender.materials;
 
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -119,7 +119,7 @@ public final class MaterialContext {
      * @param blenderContext
      *            the blender context
      */
-    public void applyMaterial(Geometry geometry, Long geometriesOMA, LinkedHashMap<String, List<Vector2f>> userDefinedUVCoordinates, BlenderContext blenderContext) {
+    public void applyMaterial(Geometry geometry, Long geometriesOMA, Map<String, List<Vector2f>> userDefinedUVCoordinates, BlenderContext blenderContext) {
         Material material = null;
         if (shadeless) {
             material = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");

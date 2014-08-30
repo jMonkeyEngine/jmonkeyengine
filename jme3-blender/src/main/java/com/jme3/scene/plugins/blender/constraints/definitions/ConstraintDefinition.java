@@ -5,7 +5,7 @@ import java.util.Set;
 import com.jme3.animation.Bone;
 import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
@@ -61,7 +61,7 @@ public abstract class ConstraintDefinition {
      */
     protected Object getOwner() {
         if (ownerOMA != null && owner == null) {
-            owner = blenderContext.getLoadedFeature(ownerOMA, LoadedFeatureDataType.LOADED_FEATURE);
+            owner = blenderContext.getLoadedFeature(ownerOMA, LoadedDataType.FEATURE);
             if (owner == null) {
                 throw new IllegalStateException("Cannot load constraint's owner for constraint type: " + this.getClass().getName());
             }

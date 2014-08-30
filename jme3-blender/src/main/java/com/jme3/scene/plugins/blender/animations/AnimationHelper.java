@@ -19,6 +19,7 @@ import com.jme3.asset.BlenderKey.AnimationMatchMethod;
 import com.jme3.scene.Node;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.animations.Ipo.ConstIpo;
 import com.jme3.scene.plugins.blender.curves.BezierCurve;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
@@ -166,7 +167,9 @@ public class AnimationHelper extends AbstractBlenderHelper {
             }
             curves.clear();
             result = new Ipo(bezierCurves, fixUpAxis, blenderContext.getBlenderVersion());
-            blenderContext.addLoadedFeatures(ipoStructure.getOldMemoryAddress(), ipoStructure.getName(), ipoStructure, result);
+            Long ipoOma = ipoStructure.getOldMemoryAddress();
+            blenderContext.addLoadedFeatures(ipoOma, LoadedDataType.STRUCTURE, ipoStructure);
+            blenderContext.addLoadedFeatures(ipoOma, LoadedDataType.FEATURE, result);
         }
         return result;
     }

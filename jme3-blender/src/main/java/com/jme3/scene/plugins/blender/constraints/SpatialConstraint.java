@@ -1,7 +1,7 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.animations.Ipo;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -20,7 +20,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
     @Override
     public boolean validate() {
         if (targetOMA != null) {
-            return blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE) != null;
+            return blenderContext.getLoadedFeature(targetOMA, LoadedDataType.FEATURE) != null;
         }
         return true;
     }

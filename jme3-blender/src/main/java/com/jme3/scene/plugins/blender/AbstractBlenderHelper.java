@@ -110,7 +110,7 @@ public abstract class AbstractBlenderHelper {
      * @param properties
      *            the properties to be applied
      */
-    protected void applyProperties(Spatial spatial, Properties properties) {
+    public void applyProperties(Spatial spatial, Properties properties) {
         List<String> propertyNames = properties.getSubPropertiesNames();
         if (propertyNames != null && propertyNames.size() > 0) {
             for (String propertyName : propertyNames) {

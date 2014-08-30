@@ -5,7 +5,7 @@ import com.jme3.animation.Skeleton;
 import com.jme3.math.Matrix4f;
 import com.jme3.math.Transform;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.animations.BoneContext;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
@@ -58,7 +58,7 @@ public class ConstraintDefinitionTransLike extends ConstraintDefinition {
      * @return the target feature; it is either Node or Bone (vertex group subtarger is not yet supported)
      */
     private Object getTarget() {
-        Object target = blenderContext.getLoadedFeature(targetOMA, LoadedFeatureDataType.LOADED_FEATURE);
+        Object target = blenderContext.getLoadedFeature(targetOMA, LoadedDataType.FEATURE);
         if (subtargetName != null && blenderContext.getMarkerValue(ObjectHelper.ARMATURE_NODE_MARKER, target) != null) {
             Skeleton skeleton = blenderContext.getSkeleton(targetOMA);
             target = skeleton.getBone(subtargetName);

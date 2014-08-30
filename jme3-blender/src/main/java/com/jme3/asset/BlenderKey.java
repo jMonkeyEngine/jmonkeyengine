@@ -124,7 +124,9 @@ public class BlenderKey extends ModelKey {
     protected boolean                  optimiseTextures;
     /** The method of matching animations to skeletons. The default value is: AT_LEAST_ONE_NAME_MATCH. */
     protected AnimationMatchMethod     animationMatchMethod      = AnimationMatchMethod.AT_LEAST_ONE_NAME_MATCH;
-
+    /** The size of points that are loaded and do not belong to any edge of the mesh. */
+    protected float                    pointsSize                = 1;
+    
     /**
      * Constructor used by serialization mechanisms.
      */
@@ -456,6 +458,22 @@ public class BlenderKey extends ModelKey {
     public AnimationMatchMethod getAnimationMatchMethod() {
         return animationMatchMethod;
     }
+    
+    /**
+     * @return the size of points that are loaded and do not belong to any edge of the mesh
+     */
+    public float getPointsSize() {
+        return pointsSize;
+    }
+
+    /**
+     * Sets the size of points that are loaded and do not belong to any edge of the mesh.
+     * @param pointsSize
+     *            The size of points that are loaded and do not belong to any edge of the mesh
+     */
+    public void setPointsSize(float pointsSize) {
+        this.pointsSize = pointsSize;
+    }
 
     /**
      * This mehtod sets the name of the WORLD data block taht should be used during file loading. By default the name is
@@ -513,6 +531,7 @@ public class BlenderKey extends ModelKey {
         oc.write(skyGeneratedTextureShape, "sky-generated-texture-shape", SkyGeneratedTextureShape.SPHERE);
         oc.write(optimiseTextures, "optimise-textures", false);
         oc.write(animationMatchMethod, "animation-match-method", AnimationMatchMethod.AT_LEAST_ONE_NAME_MATCH);
+        oc.write(pointsSize, "points-size", 1);
     }
 
     @Override
@@ -535,6 +554,7 @@ public class BlenderKey extends ModelKey {
         skyGeneratedTextureShape = ic.readEnum("sky-generated-texture-shape", SkyGeneratedTextureShape.class, SkyGeneratedTextureShape.SPHERE);
         optimiseTextures = ic.readBoolean("optimise-textures", false);
         animationMatchMethod = ic.readEnum("animation-match-method", AnimationMatchMethod.class, AnimationMatchMethod.AT_LEAST_ONE_NAME_MATCH);
+        pointsSize = ic.readFloat("points-size", 1);
     }
 
     @Override
@@ -560,6 +580,7 @@ public class BlenderKey extends ModelKey {
         result = prime * result + (skyGeneratedTextureShape == null ? 0 : skyGeneratedTextureShape.hashCode());
         result = prime * result + skyGeneratedTextureSize;
         result = prime * result + (usedWorld == null ? 0 : usedWorld.hashCode());
+        result = prime * result + (int)pointsSize;
         return result;
     }
 
@@ -636,6 +657,9 @@ public class BlenderKey extends ModelKey {
                 return false;
             }
         } else if (!usedWorld.equals(other.usedWorld)) {
+            return false;
+        }
+        if (pointsSize != other.pointsSize) {
             return false;
         }
         return true;

@@ -54,7 +54,6 @@ import com.jme3.scene.plugins.blender.file.BlenderInputStream;
 import com.jme3.scene.plugins.blender.file.DnaBlockData;
 import com.jme3.scene.plugins.blender.file.FileBlockHeader;
 import com.jme3.scene.plugins.blender.file.Structure;
-import com.jme3.scene.plugins.blender.meshes.MeshContext;
 
 /**
  * The class that stores temporary data and manages it during loading the belnd
@@ -89,14 +88,7 @@ public class BlenderContext {
      * first object in the value table is the loaded structure and the second -
      * the structure already converted into proper data.
      */
-    private Map<Long, Object[]>                 loadedFeatures         = new HashMap<Long, Object[]>();
-    /**
-     * This map stores the loaded features by their name. Only features with ID
-     * structure can be stored here. The first object in the value table is the
-     * loaded structure and the second - the structure already converted into
-     * proper data.
-     */
-    private Map<String, Object[]>               loadedFeaturesByName   = new HashMap<String, Object[]>();
+    private Map<Long, Map<LoadedDataType, Object>>                 loadedFeatures         = new HashMap<Long, Map<LoadedDataType, Object>>();
     /** A stack that hold the parent structure of currently loaded feature. */
     private Stack<Structure>                    parentStack            = new Stack<Structure>();
     /** A list of constraints for the specified object. */
@@ -107,8 +99,6 @@ public class BlenderContext {
     private Map<Long, Skeleton>                 skeletons              = new HashMap<Long, Skeleton>();
     /** A map between skeleton and node it modifies. */
     private Map<Skeleton, Node>                 nodesWithSkeletons     = new HashMap<Skeleton, Node>();
-    /** A map of mesh contexts. */
-    protected Map<Long, MeshContext>            meshContexts           = new HashMap<Long, MeshContext>();
     /** A map of bone contexts. */
     protected Map<Long, BoneContext>            boneContexts           = new HashMap<Long, BoneContext>();
     /** A map og helpers that perform loading. */
@@ -304,15 +294,16 @@ public class BlenderContext {
      * @param feature
      *            the feature we want to store
      */
-    public void addLoadedFeatures(Long oldMemoryAddress, String featureName, Structure structure, Object feature) {
-        if (oldMemoryAddress == null || structure == null || feature == null) {
+    public void addLoadedFeatures(Long oldMemoryAddress, LoadedDataType featureDataType, Object feature) {
+        if (oldMemoryAddress == null || featureDataType == null || feature == null) {
             throw new IllegalArgumentException("One of the given arguments is null!");
         }
-        Object[] storedData = new Object[] { structure, feature };
-        loadedFeatures.put(oldMemoryAddress, storedData);
-        if (featureName != null) {
-            loadedFeaturesByName.put(featureName, storedData);
+        Map<LoadedDataType, Object> map = loadedFeatures.get(oldMemoryAddress);
+        if(map == null) {
+            map = new HashMap<BlenderContext.LoadedDataType, Object>();
+            loadedFeatures.put(oldMemoryAddress, map);
         }
+        map.put(featureDataType, feature);
     }
 
     /**
@@ -326,10 +317,10 @@ public class BlenderContext {
      *            structure or already converted feature
      * @return loaded feature or null if it was not yet loaded
      */
-    public Object getLoadedFeature(Long oldMemoryAddress, LoadedFeatureDataType loadedFeatureDataType) {
-        Object[] result = loadedFeatures.get(oldMemoryAddress);
+    public Object getLoadedFeature(Long oldMemoryAddress, LoadedDataType loadedFeatureDataType) {
+        Map<LoadedDataType, Object> result = loadedFeatures.get(oldMemoryAddress);
         if (result != null) {
-            return result[loadedFeatureDataType.getIndex()];
+            return result.get(loadedFeatureDataType);
         }
         return null;
     }
@@ -485,31 +476,6 @@ public class BlenderContext {
     }
 
     /**
-     * This method sets the mesh context for the given mesh old memory address.
-     * If the context is already set it will be replaced.
-     * 
-     * @param meshOMA
-     *            the mesh's old memory address
-     * @param meshContext
-     *            the mesh's context
-     */
-    public void setMeshContext(Long meshOMA, MeshContext meshContext) {
-        meshContexts.put(meshOMA, meshContext);
-    }
-
-    /**
-     * This method returns the mesh context for the given mesh old memory
-     * address. If no context exists then <b>null</b> is returned.
-     * 
-     * @param meshOMA
-     *            the mesh's old memory address
-     * @return mesh's context
-     */
-    public MeshContext getMeshContext(Long meshOMA) {
-        return meshContexts.get(meshOMA);
-    }
-
-    /**
      * This method sets the bone context for the given bone old memory address.
      * If the context is already set it will be replaced.
      * 
@@ -645,17 +611,7 @@ public class BlenderContext {
      * 
      * @author Marcin Roguski (Kaelthas)
      */
-    public static enum LoadedFeatureDataType {
-
-        LOADED_STRUCTURE(0), LOADED_FEATURE(1);
-        private int index;
-
-        private LoadedFeatureDataType(int index) {
-            this.index = index;
-        }
-
-        public int getIndex() {
-            return index;
-        }
+    public static enum LoadedDataType {
+        STRUCTURE, FEATURE, TEMPORAL_MESH;
     }
 }

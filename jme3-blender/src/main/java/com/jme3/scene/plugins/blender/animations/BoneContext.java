@@ -10,7 +10,7 @@ import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.constraints.ConstraintHelper;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Structure;
@@ -144,10 +144,11 @@ public class BoneContext {
         Long boneOMA = boneStructure.getOldMemoryAddress();
         bone = new Bone(boneName);
         bones.add(bone);
-        blenderContext.addLoadedFeatures(boneOMA, boneName, boneStructure, bone);
+        blenderContext.addLoadedFeatures(boneOMA, LoadedDataType.STRUCTURE, boneStructure);
+        blenderContext.addLoadedFeatures(boneOMA, LoadedDataType.FEATURE, bone);
         ObjectHelper objectHelper = blenderContext.getHelper(ObjectHelper.class);
 
-        Structure skeletonOwnerObjectStructure = (Structure) blenderContext.getLoadedFeature(skeletonOwnerOma, LoadedFeatureDataType.LOADED_STRUCTURE);
+        Structure skeletonOwnerObjectStructure = (Structure) blenderContext.getLoadedFeature(skeletonOwnerOma, LoadedDataType.STRUCTURE);
         // I could load 'imat' here, but apparently in some older blenders there were bugs or unfinished functionalities that stored ZERO matrix in imat field
         // loading 'obmat' and inverting it makes us avoid errors in such cases
         Matrix4f invertedObjectOwnerGlobalMatrix = objectHelper.getMatrix(skeletonOwnerObjectStructure, "obmat", blenderContext.getBlenderKey().isFixUpAxis()).invertLocal();

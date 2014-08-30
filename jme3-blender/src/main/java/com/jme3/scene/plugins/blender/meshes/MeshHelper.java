@@ -32,10 +32,10 @@
 package com.jme3.scene.plugins.blender.meshes;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,25 +43,17 @@ import com.jme3.asset.BlenderKey.FeaturesToLoad;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector2f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.Mesh.Mode;
-import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.VertexBuffer.Usage;
+import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.AbstractBlenderHelper;
 import com.jme3.scene.plugins.blender.BlenderContext;
-import com.jme3.scene.plugins.blender.BlenderContext.LoadedFeatureDataType;
+import com.jme3.scene.plugins.blender.BlenderContext.LoadedDataType;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
+import com.jme3.scene.plugins.blender.file.DynamicArray;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
 import com.jme3.scene.plugins.blender.materials.MaterialContext;
 import com.jme3.scene.plugins.blender.materials.MaterialHelper;
-import com.jme3.scene.plugins.blender.meshes.builders.MeshBuilder;
 import com.jme3.scene.plugins.blender.objects.Properties;
-import com.jme3.scene.plugins.blender.textures.TextureHelper;
-import com.jme3.util.BufferUtils;
 
 /**
  * A class that is used in mesh calculations.
@@ -75,6 +67,9 @@ public class MeshHelper extends AbstractBlenderHelper {
     public static final int     UV_DATA_LAYER_TYPE_FMESH = 5;
     /** A type of UV data layer in bmesh type. */
     public static final int     UV_DATA_LAYER_TYPE_BMESH = 16;
+    /** The flag mask indicating if the edge belongs to a face or not. */
+    public static final int     EDGE_NOT_IN_FACE_FLAG    = 0x80;
+
     /** A material used for single lines and points. */
     private Material            blackUnshadedMaterial;
 
@@ -92,27 +87,29 @@ public class MeshHelper extends AbstractBlenderHelper {
     }
 
     /**
-     * This method reads converts the given structure into mesh. The given structure needs to be filled with the appropriate data.
+     * Converts the mesh structure into temporal mesh.
+     * The temporal mesh is stored in blender context and here always a clone is being returned because the mesh might
+     * be modified by modifiers.
      * 
      * @param meshStructure
-     *            the structure we read the mesh from
-     * @return the mesh feature
+     *            the mesh structure
+     * @param blenderContext
+     *            the blender context
+     * @return temporal mesh read from the given structure
      * @throws BlenderFileException
+     *             an exception is thrown when problems with reading blend file occur
      */
-    @SuppressWarnings("unchecked")
-    public List<Geometry> toMesh(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
-        List<Geometry> geometries = (List<Geometry>) blenderContext.getLoadedFeature(meshStructure.getOldMemoryAddress(), LoadedFeatureDataType.LOADED_FEATURE);
-        if (geometries != null) {
-            List<Geometry> copiedGeometries = new ArrayList<Geometry>(geometries.size());
-            for (Geometry geometry : geometries) {
-                copiedGeometries.add(geometry.clone());
-            }
-            return copiedGeometries;
+    public TemporalMesh toTemporalMesh(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+        LOGGER.log(Level.FINE, "Loading temporal mesh named: {0}.", meshStructure.getName());
+        TemporalMesh temporalMesh = (TemporalMesh) blenderContext.getLoadedFeature(meshStructure.getOldMemoryAddress(), LoadedDataType.TEMPORAL_MESH);
+        if (temporalMesh != null) {
+            LOGGER.fine("The mesh is already loaded. Returning its clone.");
+            return temporalMesh.clone();
         }
 
         String name = meshStructure.getName();
-        MeshContext meshContext = new MeshContext();
         LOGGER.log(Level.FINE, "Reading mesh: {0}.", name);
+        temporalMesh = new TemporalMesh(meshStructure, blenderContext);
 
         LOGGER.fine("Loading materials.");
         MaterialHelper materialHelper = blenderContext.getHelper(MaterialHelper.class);
@@ -120,129 +117,15 @@ public class MeshHelper extends AbstractBlenderHelper {
         if ((blenderContext.getBlenderKey().getFeaturesToLoad() & FeaturesToLoad.MATERIALS) != 0) {
             materials = materialHelper.getMaterials(meshStructure, blenderContext);
         }
-
-        LOGGER.fine("Reading vertices.");
-        MeshBuilder meshBuilder = new MeshBuilder(meshStructure, materials, blenderContext);
-        if (meshBuilder.isEmpty()) {
-            LOGGER.fine("The geometry is empty.");
-            geometries = new ArrayList<Geometry>(0);
-            blenderContext.addLoadedFeatures(meshStructure.getOldMemoryAddress(), meshStructure.getName(), meshStructure, geometries);
-            blenderContext.setMeshContext(meshStructure.getOldMemoryAddress(), meshContext);
-            return geometries;
-        }
-        meshContext.setVertexReferenceMap(meshBuilder.getVertexReferenceMap());
+        temporalMesh.setMaterials(materials);
 
         LOGGER.fine("Reading custom properties.");
         Properties properties = this.loadProperties(meshStructure, blenderContext);
+        temporalMesh.setProperties(properties);
 
-        LOGGER.fine("Generating meshes.");
-        Map<Integer, List<Mesh>> meshes = meshBuilder.buildMeshes();
-        geometries = new ArrayList<Geometry>(meshes.size());
-        for (Entry<Integer, List<Mesh>> meshEntry : meshes.entrySet()) {
-            int materialIndex = meshEntry.getKey();
-            for (Mesh mesh : meshEntry.getValue()) {
-                LOGGER.fine("Preparing the result part.");
-                Geometry geometry = new Geometry(name + (geometries.size() + 1), mesh);
-                if (properties != null && properties.getValue() != null) {
-                    this.applyProperties(geometry, properties);
-                }
-                geometries.add(geometry);
-                meshContext.putGeometry(materialIndex, geometry);
-            }
-        }
-
-        LOGGER.fine("Reading vertices groups.");// this MUST be done AFTER meshes are built, because otherwise we have no vertex references maps
-        Structure parent = blenderContext.peekParent();
-        Structure defbase = (Structure) parent.getFieldValue("defbase");
-        List<Structure> defs = defbase.evaluateListBase();
-        for (Structure def : defs) {
-            meshContext.addVertexGroup(def.getFieldValue("name").toString());
-        }
-
-        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
-        if (pDvert.isNotNull()) {// assigning weights and bone indices
-            List<Structure> dverts = pDvert.fetchData();
-            int blenderVertexIndex = 0;
-            for (Structure dvert : dverts) {
-                Pointer pDW = (Pointer) dvert.getFieldValue("dw");
-                if (pDW.isNotNull()) {
-                    List<Structure> dw = pDW.fetchData();
-                    for (Structure deformWeight : dw) {
-                        int groupIndex = ((Number) deformWeight.getFieldValue("def_nr")).intValue();
-                        float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
-
-                        // we need to use JME vertex index here and NOT blender vertex index
-                        for (Entry<Integer, Map<Integer, List<Integer>>> vertexReferenceMap : meshBuilder.getVertexReferenceMap().entrySet()) {// iterate through the meshes [key is the material index]
-                            for (Entry<Integer, List<Integer>> vertexEntry : vertexReferenceMap.getValue().entrySet()) {// iterate through the vertex references for the specified material
-                                if (vertexEntry.getKey().intValue() == blenderVertexIndex) {// if the indexes match then ...
-                                    for (Integer jmeVertexIndex : vertexEntry.getValue()) {// ... add all jme vertices to the specified group
-                                        meshContext.addVertexToGroup(jmeVertexIndex, weight, groupIndex);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                ++blenderVertexIndex;
-            }
-        }
-
-        // store the data in blender context before applying the material
-        blenderContext.addLoadedFeatures(meshStructure.getOldMemoryAddress(), meshStructure.getName(), meshStructure, geometries);
-        blenderContext.setMeshContext(meshStructure.getOldMemoryAddress(), meshContext);
-
-        // apply materials only when all geometries are in place
-        if (materials != null) {
-            for (Geometry geometry : geometries) {
-                int materialNumber = meshContext.getMaterialIndex(geometry);
-                if (materialNumber < 0) {
-                    geometry.setMaterial(this.getBlackUnshadedMaterial(blenderContext));
-                } else if (materials[materialNumber] != null) {
-                    LinkedHashMap<String, List<Vector2f>> uvCoordinates = meshBuilder.getUVCoordinates(materialNumber);
-                    MaterialContext materialContext = materials[materialNumber];
-                    materialContext.applyMaterial(geometry, meshStructure.getOldMemoryAddress(), uvCoordinates, blenderContext);
-                } else {
-                    geometry.setMaterial(blenderContext.getDefaultMaterial());
-                    LOGGER.warning("The importer came accross mesh that points to a null material. Default material is used to prevent loader from crashing, " + "but the model might look not the way it should. Sometimes blender does not assign materials properly. " + "Enter the edit mode and assign materials once more to your faces.");
-                }
-            }
-        } else {
-            // add UV coordinates if they are defined even if the material is not applied to the model
-            List<VertexBuffer> uvCoordsBuffer = null;
-            if (meshBuilder.hasUVCoordinates()) {
-                Map<String, List<Vector2f>> uvs = meshBuilder.getUVCoordinates(0);
-                if (uvs != null && uvs.size() > 0) {
-                    uvCoordsBuffer = new ArrayList<VertexBuffer>(uvs.size());
-                    int uvIndex = 0;
-                    for (Entry<String, List<Vector2f>> entry : uvs.entrySet()) {
-                        VertexBuffer buffer = new VertexBuffer(TextureHelper.TEXCOORD_TYPES[uvIndex++]);
-                        buffer.setupData(Usage.Static, 2, Format.Float, BufferUtils.createFloatBuffer(entry.getValue().toArray(new Vector2f[uvs.size()])));
-                        uvCoordsBuffer.add(buffer);
-                    }
-                }
-            }
-
-            for (Geometry geometry : geometries) {
-                Mode mode = geometry.getMesh().getMode();
-                if (mode != Mode.Triangles && mode != Mode.TriangleFan && mode != Mode.TriangleStrip) {
-                    geometry.setMaterial(this.getBlackUnshadedMaterial(blenderContext));
-                } else {
-                    Material defaultMaterial = blenderContext.getDefaultMaterial();
-                    if (geometry.getMesh().getBuffer(Type.Color) != null) {
-                        defaultMaterial = defaultMaterial.clone();
-                        defaultMaterial.setBoolean("VertexColor", true);
-                    }
-                    geometry.setMaterial(defaultMaterial);
-                }
-                if (uvCoordsBuffer != null) {
-                    for (VertexBuffer buffer : uvCoordsBuffer) {
-                        geometry.getMesh().setBuffer(buffer);
-                    }
-                }
-            }
-        }
-
-        return geometries;
+        blenderContext.addLoadedFeatures(meshStructure.getOldMemoryAddress(), LoadedDataType.STRUCTURE, meshStructure);
+        blenderContext.addLoadedFeatures(meshStructure.getOldMemoryAddress(), LoadedDataType.TEMPORAL_MESH, temporalMesh);
+        return temporalMesh.clone();
     }
 
     /**
@@ -258,7 +141,190 @@ public class MeshHelper extends AbstractBlenderHelper {
         return pMLoop != null && pMPoly != null && pMLoop.isNotNull() && pMPoly.isNotNull();
     }
 
-    private synchronized Material getBlackUnshadedMaterial(BlenderContext blenderContext) {
+    /**
+     * This method returns the vertices.
+     * 
+     * @param meshStructure
+     *            the structure containing the mesh data
+     * @return a list of two - element arrays, the first element is the vertex and the second - its normal
+     * @throws BlenderFileException
+     *             this exception is thrown when the blend file structure is somehow invalid or corrupted
+     */
+    @SuppressWarnings("unchecked")
+    public void loadVerticesAndNormals(Structure meshStructure, List<Vector3f> vertices, List<Vector3f> normals) throws BlenderFileException {
+        LOGGER.log(Level.FINE, "Loading vertices and normals from mesh: {0}.", meshStructure.getName());
+        int count = ((Number) meshStructure.getFieldValue("totvert")).intValue();
+        if (count > 0) {
+            Pointer pMVert = (Pointer) meshStructure.getFieldValue("mvert");
+            List<Structure> mVerts = pMVert.fetchData();
+            Vector3f co = null, no = null;
+            if (fixUpAxis) {
+                for (int i = 0; i < count; ++i) {
+                    DynamicArray<Number> coordinates = (DynamicArray<Number>) mVerts.get(i).getFieldValue("co");
+                    co = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(2).floatValue(), -coordinates.get(1).floatValue());
+                    vertices.add(co);
+
+                    DynamicArray<Number> norm = (DynamicArray<Number>) mVerts.get(i).getFieldValue("no");
+                    no = new Vector3f(norm.get(0).shortValue() / 32767.0f, norm.get(2).shortValue() / 32767.0f, -norm.get(1).shortValue() / 32767.0f);
+                    normals.add(no);
+                }
+            } else {
+                for (int i = 0; i < count; ++i) {
+                    DynamicArray<Number> coordinates = (DynamicArray<Number>) mVerts.get(i).getFieldValue("co");
+                    co = new Vector3f(coordinates.get(0).floatValue(), coordinates.get(1).floatValue(), coordinates.get(2).floatValue());
+                    vertices.add(co);
+
+                    DynamicArray<Number> norm = (DynamicArray<Number>) mVerts.get(i).getFieldValue("no");
+                    no = new Vector3f(norm.get(0).shortValue() / 32767.0f, norm.get(1).shortValue() / 32767.0f, norm.get(2).shortValue() / 32767.0f);
+                    normals.add(no);
+                }
+            }
+        }
+        LOGGER.log(Level.FINE, "Loaded {0} vertices and normals.", vertices.size());
+    }
+
+    /**
+     * This method returns the vertices colors. Each vertex is stored in byte[4] array.
+     * 
+     * @param meshStructure
+     *            the structure containing the mesh data
+     * @param blenderContext
+     *            the blender context
+     * @return a list of vertices colors, each color belongs to a single vertex or empty list of colors are not specified
+     * @throws BlenderFileException
+     *             this exception is thrown when the blend file structure is somehow invalid or corrupted
+     */
+    public List<byte[]> loadVerticesColors(Structure meshStructure, BlenderContext blenderContext) throws BlenderFileException {
+        LOGGER.log(Level.FINE, "Loading vertices colors from mesh: {0}.", meshStructure.getName());
+        MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
+        Pointer pMCol = (Pointer) meshStructure.getFieldValue(meshHelper.isBMeshCompatible(meshStructure) ? "mloopcol" : "mcol");
+        List<byte[]> verticesColors = new ArrayList<byte[]>();
+        // it was likely a bug in blender untill version 2.63 (the blue and red factors were misplaced in their structure)
+        // so we need to put them right
+        boolean useBGRA = blenderContext.getBlenderVersion() < 263;
+        if (pMCol.isNotNull()) {
+            List<Structure> mCol = pMCol.fetchData();
+            for (Structure color : mCol) {
+                byte r = ((Number) color.getFieldValue("r")).byteValue();
+                byte g = ((Number) color.getFieldValue("g")).byteValue();
+                byte b = ((Number) color.getFieldValue("b")).byteValue();
+                byte a = ((Number) color.getFieldValue("a")).byteValue();
+                verticesColors.add(useBGRA ? new byte[] { b, g, r, a } : new byte[] { r, g, b, a });
+            }
+        }
+        return verticesColors;
+    }
+
+    /**
+     * The method loads the UV coordinates. The result is a map where the key is the user's UV set name and the values are UV coordinates.
+     * But depending on the mesh type (triangle/quads or bmesh) the lists in the map have different meaning.
+     * For bmesh they are enlisted just like they are stored in the blend file (in loops).
+     * For traditional faces every 4 UV's should be assigned for a single face.
+     * @param meshStructure
+     *            the mesh structure
+     * @return a map that sorts UV coordinates between different UV sets
+     * @throws BlenderFileException
+     *             an exception is thrown when problems with blend file occur
+     */
+    @SuppressWarnings("unchecked")
+    public LinkedHashMap<String, List<Vector2f>> loadUVCoordinates(Structure meshStructure) throws BlenderFileException {
+        LOGGER.log(Level.FINE, "Loading UV coordinates from mesh: {0}.", meshStructure.getName());
+        LinkedHashMap<String, List<Vector2f>> result = new LinkedHashMap<String, List<Vector2f>>();
+        if (this.isBMeshCompatible(meshStructure)) {
+            // in this case the UV's are assigned to vertices (an array is the same length as the vertex array)
+            Structure loopData = (Structure) meshStructure.getFieldValue("ldata");
+            Pointer pLoopDataLayers = (Pointer) loopData.getFieldValue("layers");
+            List<Structure> loopDataLayers = pLoopDataLayers.fetchData();
+            for (Structure structure : loopDataLayers) {
+                Pointer p = (Pointer) structure.getFieldValue("data");
+                if (p.isNotNull() && ((Number) structure.getFieldValue("type")).intValue() == MeshHelper.UV_DATA_LAYER_TYPE_BMESH) {
+                    String uvSetName = structure.getFieldValue("name").toString();
+                    List<Structure> uvsStructures = p.fetchData();
+                    List<Vector2f> uvs = new ArrayList<Vector2f>(uvsStructures.size());
+                    for (Structure uvStructure : uvsStructures) {
+                        DynamicArray<Number> loopUVS = (DynamicArray<Number>) uvStructure.getFieldValue("uv");
+                        uvs.add(new Vector2f(loopUVS.get(0).floatValue(), loopUVS.get(1).floatValue()));
+                    }
+                    result.put(uvSetName, uvs);
+                }
+            }
+        } else {
+            // in this case UV's are assigned to faces (the array has the same legnth as the faces count)
+            Structure facesData = (Structure) meshStructure.getFieldValue("fdata");
+            Pointer pFacesDataLayers = (Pointer) facesData.getFieldValue("layers");
+            if (pFacesDataLayers.isNotNull()) {
+                List<Structure> facesDataLayers = pFacesDataLayers.fetchData();
+                for (Structure structure : facesDataLayers) {
+                    Pointer p = (Pointer) structure.getFieldValue("data");
+                    if (p.isNotNull() && ((Number) structure.getFieldValue("type")).intValue() == MeshHelper.UV_DATA_LAYER_TYPE_FMESH) {
+                        String uvSetName = structure.getFieldValue("name").toString();
+                        List<Structure> uvsStructures = p.fetchData();
+                        List<Vector2f> uvs = new ArrayList<Vector2f>(uvsStructures.size());
+                        for (Structure uvStructure : uvsStructures) {
+                            DynamicArray<Number> mFaceUVs = (DynamicArray<Number>) uvStructure.getFieldValue("uv");
+                            uvs.add(new Vector2f(mFaceUVs.get(0).floatValue(), mFaceUVs.get(1).floatValue()));
+                            uvs.add(new Vector2f(mFaceUVs.get(2).floatValue(), mFaceUVs.get(3).floatValue()));
+                            uvs.add(new Vector2f(mFaceUVs.get(4).floatValue(), mFaceUVs.get(5).floatValue()));
+                            uvs.add(new Vector2f(mFaceUVs.get(6).floatValue(), mFaceUVs.get(7).floatValue()));
+                        }
+                        result.put(uvSetName, uvs);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Loads all vertices groups.
+     * @param meshStructure
+     *            the mesh structure
+     * @return a list of vertex groups for every vertex in the mesh
+     * @throws BlenderFileException
+     *             an exception is thrown when problems with blend file occur
+     */
+    public List<Map<String, Float>> loadVerticesGroups(Structure meshStructure) throws BlenderFileException {
+        LOGGER.log(Level.FINE, "Loading vertices groups from mesh: {0}.", meshStructure.getName());
+        List<Map<String, Float>> result = new ArrayList<Map<String, Float>>();
+
+        Structure parent = blenderContext.peekParent();
+        Structure defbase = (Structure) parent.getFieldValue("defbase");
+        List<String> groupNames = new ArrayList<String>();
+        List<Structure> defs = defbase.evaluateListBase();
+        for (Structure def : defs) {
+            groupNames.add(def.getFieldValue("name").toString());
+        }
+
+        Pointer pDvert = (Pointer) meshStructure.getFieldValue("dvert");// dvert = DeformVERTices
+        if (pDvert.isNotNull()) {// assigning weights and bone indices
+            List<Structure> dverts = pDvert.fetchData();
+            for (Structure dvert : dverts) {
+                Map<String, Float> weightsForVertex = new HashMap<String, Float>();
+                Pointer pDW = (Pointer) dvert.getFieldValue("dw");
+                if (pDW.isNotNull()) {
+                    List<Structure> dw = pDW.fetchData();
+                    for (Structure deformWeight : dw) {
+                        int groupIndex = ((Number) deformWeight.getFieldValue("def_nr")).intValue();
+                        float weight = ((Number) deformWeight.getFieldValue("weight")).floatValue();
+                        String groupName = groupNames.get(groupIndex);
+
+                        weightsForVertex.put(groupName, weight);
+                    }
+                }
+                result.add(weightsForVertex);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns the black unshaded material. It is used for lines and points because that is how blender
+     * renders it.
+     * @param blenderContext
+     *            the blender context
+     * @return black unshaded material
+     */
+    public synchronized Material getBlackUnshadedMaterial(BlenderContext blenderContext) {
         if (blackUnshadedMaterial == null) {
             blackUnshadedMaterial = new Material(blenderContext.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
             blackUnshadedMaterial.setColor("Color", ColorRGBA.Black);
