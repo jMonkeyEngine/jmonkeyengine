@@ -179,21 +179,7 @@ public class Technique /* implements Savable */ {
         }
         
         if (techniqueSwitched) {
-            // If the technique was switched, check if the define list changed
-            // based on material parameters.
-            
-            ListMap params = owner.getParamsMap();
-            
-            if (!defines.equalsParams(params, def)) {
-                // Defines were changed, update define list
-                defines.clear();
-                for(int i=0;i<params.size();i++) {
-                    MatParam param = (MatParam)params.getValue(i);
-                    String defineName = def.getShaderParamDefine(param.getName());
-                    if (defineName != null) {
-                        defines.set(defineName, param.getVarType(), param.getValue());
-                    }
-                }
+            if (defines.update(owner.getParamsMap(), def)) {
                 needReload = true;
             }
         }
