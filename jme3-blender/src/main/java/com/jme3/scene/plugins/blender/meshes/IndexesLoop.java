@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.jme3.scene.plugins.blender.file.BlenderFileException;
+
 /**
  * This class represents the Face's indexes loop. It is a simplified implementation of directed graph.
  * 
@@ -218,27 +220,34 @@ public class IndexesLoop implements Comparator<Integer>, Iterable<Integer> {
      *            the start index
      * @param end
      *            the end index
-     * @return a list containing indexes on the path from start to end (inclusive)
+     * @param result
+     *            a list containing indexes on the path from start to end (inclusive)
      * @throws IllegalStateException
      *             an exception is thrown when the loop is not normalized (at least one
      *             index has more than 2 neighbours)
+     * @throws BlenderFileException
+     *             an exception is thrown if the vertices of a face create more than one loop; this is thrown
+     *             to prevent lack of memory errors during triangulation
      */
-    public List<Integer> findPath(Integer start, Integer end) {
-        List<Integer> result = new ArrayList<Integer>();
+    public void findPath(Integer start, Integer end, List<Integer> result) throws BlenderFileException {
+        result.clear();
         Integer node = start;
         while (!node.equals(end)) {
+            if (result.contains(node)) {
+                throw new BlenderFileException("Indexes of face have infinite loops!");
+            }
             result.add(node);
             List<Integer> nextSteps = edges.get(node);
-            if (nextSteps.size() == 0) {
-                return null;
+            if (nextSteps == null || nextSteps.size() == 0) {
+                result.clear();// no directed path from start to end
+                return;
             } else if (nextSteps.size() == 1) {
                 node = nextSteps.get(0);
             } else {
-                throw new IllegalStateException("Triangulation failed. Face has ambiguous indexes loop. Please triangulate your model in Blender as a workaround.");
+                throw new BlenderFileException("Triangulation failed. Face has ambiguous indexes loop. Please triangulate your model in Blender as a workaround.");
             }
         }
         result.add(end);
-        return result;
     }
 
     @Override

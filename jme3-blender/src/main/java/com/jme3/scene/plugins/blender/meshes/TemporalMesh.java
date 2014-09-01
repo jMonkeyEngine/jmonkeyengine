@@ -207,11 +207,9 @@ public class TemporalMesh extends Geometry {
      */
     public void triangulate() {
         LOGGER.fine("Triangulating temporal mesh.");
-        List<Face> triangulatedFaces = new ArrayList<Face>();
         for (Face face : faces) {
-            triangulatedFaces.addAll(face.triangulate(vertices, normals));
+            face.triangulate(vertices, normals);
         }
-        faces = triangulatedFaces;
     }
 
     /**
@@ -399,29 +397,32 @@ public class TemporalMesh extends Geometry {
                 faceMeshes.put(face.getMaterialNumber(), meshBuffers);
             }
 
-            List<Integer> indexes = face.getIndexes();
+            List<List<Integer>> triangulatedIndexes = face.getIndexes();
             List<byte[]> vertexColors = face.getVertexColors();
-            boneBuffers.clear();
-            assert indexes.size() == 3 : "The mesh has not been properly triangulated!";
-            for (int i = 0; i < 3; ++i) {
-                int vertIndex = indexes.get(i);
-                tempVerts[i] = vertices.get(vertIndex);
-                tempNormals[i] = normals.get(vertIndex);
-                tempVertColors[i] = vertexColors != null ? vertexColors.get(i) : null;
-
-                if (boneIndexes.size() > 0) {
-                    Map<Float, Integer> boneBuffersForVertex = new HashMap<Float, Integer>();
-                    Map<String, Float> vertexGroupsForVertex = vertexGroups.get(vertIndex);
-                    for (Entry<String, Integer> entry : boneIndexes.entrySet()) {
-                        if (vertexGroupsForVertex.containsKey(entry.getKey())) {
-                            boneBuffersForVertex.put(vertexGroupsForVertex.get(entry.getKey()), entry.getValue());
+            
+            for(List<Integer> indexes : triangulatedIndexes) {
+                assert indexes.size() == 3 : "The mesh has not been properly triangulated!";
+                boneBuffers.clear();
+                for (int i = 0; i < 3; ++i) {
+                    int vertIndex = indexes.get(i);
+                    tempVerts[i] = vertices.get(vertIndex);
+                    tempNormals[i] = normals.get(vertIndex);
+                    tempVertColors[i] = vertexColors != null ? vertexColors.get(i) : null;
+                    
+                    if (boneIndexes.size() > 0) {
+                        Map<Float, Integer> boneBuffersForVertex = new HashMap<Float, Integer>();
+                        Map<String, Float> vertexGroupsForVertex = vertexGroups.get(vertIndex);
+                        for (Entry<String, Integer> entry : boneIndexes.entrySet()) {
+                            if (vertexGroupsForVertex.containsKey(entry.getKey())) {
+                                boneBuffersForVertex.put(vertexGroupsForVertex.get(entry.getKey()), entry.getValue());
+                            }
                         }
+                        boneBuffers.add(boneBuffersForVertex);
                     }
-                    boneBuffers.add(boneBuffersForVertex);
                 }
+    
+                meshBuffers.append(face.isSmooth(), tempVerts, tempNormals, face.getUvSets(), tempVertColors, boneBuffers);
             }
-
-            meshBuffers.append(face.isSmooth(), tempVerts, tempNormals, face.getUvSets(), tempVertColors, boneBuffers);
         }
 
         LOGGER.fine("Converting mesh buffers to geometries.");
