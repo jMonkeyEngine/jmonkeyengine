@@ -258,7 +258,6 @@ public class SimulationNode {
                     float maxTime = animationTimeBoundaries[1];
 
                     Map<Integer, VirtualTrack> tracks = new HashMap<Integer, VirtualTrack>();
-                    Map<Integer, Transform> previousTransforms = this.getInitialTransforms();
                     for (int frame = 0; frame < maxFrame; ++frame) {
                         // this MUST be done here, otherwise setting next frame of animation will
                         // lead to possible errors
@@ -291,26 +290,15 @@ public class SimulationNode {
 
                         // ... and fill in another frame in the result track
                         for (Entry<Integer, VirtualTrack> trackEntry : tracks.entrySet()) {
-                            Integer boneIndex = trackEntry.getKey();
-                            Bone bone = skeleton.getBone(boneIndex);
-
-                            // take the initial transform of a bone and its virtual track
-                            Transform previousTransform = previousTransforms.get(boneIndex);
-                            VirtualTrack vTrack = trackEntry.getValue();
-
-                            Vector3f bonePositionDifference = bone.getLocalPosition().subtract(previousTransform.getTranslation());
-                            Quaternion boneRotationDifference = bone.getLocalRotation().mult(previousTransform.getRotation().inverse()).normalizeLocal();
-                            Vector3f boneScaleDifference = bone.getLocalScale().divide(previousTransform.getScale());
-                            if (frame > 0) {
-                                bonePositionDifference = vTrack.translations.get(frame - 1).add(bonePositionDifference);
-                                boneRotationDifference = vTrack.rotations.get(frame - 1).mult(boneRotationDifference);
-                                boneScaleDifference = vTrack.scales.get(frame - 1).mult(boneScaleDifference);
-                            }
-                            vTrack.setTransform(frame, new Transform(bonePositionDifference, boneRotationDifference, boneScaleDifference));
-
-                            previousTransform.setTranslation(bone.getLocalPosition());
-                            previousTransform.setRotation(bone.getLocalRotation());
-                            previousTransform.setScale(bone.getLocalScale());
+                            Bone bone = skeleton.getBone(trackEntry.getKey());
+                            Transform startTransform = boneStartTransforms.get(bone);
+                            
+                            // track contains differences between the frame position and bind positions of bones/spatials
+                            Vector3f bonePositionDifference = bone.getLocalPosition().subtract(startTransform.getTranslation());
+                            Quaternion boneRotationDifference = bone.getLocalRotation().mult(startTransform.getRotation().inverse()).normalizeLocal();
+                            Vector3f boneScaleDifference = bone.getLocalScale().divide(startTransform.getScale());
+                            
+                            trackEntry.getValue().setTransform(frame, new Transform(bonePositionDifference, boneRotationDifference, boneScaleDifference));
                         }
                     }
 
@@ -425,19 +413,6 @@ public class SimulationNode {
             }
         }
         return result.size() > 0 ? result : null;
-    }
-
-    /**
-     * Creates the initial transforms for all bones in the skelketon.
-     * @return the map where the key is the bone index and the value us the bone's initial transformation
-     */
-    private Map<Integer, Transform> getInitialTransforms() {
-        Map<Integer, Transform> result = new HashMap<Integer, Transform>();
-        for (int i = 0; i < skeleton.getBoneCount(); ++i) {
-            Bone bone = skeleton.getBone(i);
-            result.put(i, new Transform(bone.getLocalPosition(), bone.getLocalRotation(), bone.getLocalScale()));
-        }
-        return result;
     }
 
     @Override
