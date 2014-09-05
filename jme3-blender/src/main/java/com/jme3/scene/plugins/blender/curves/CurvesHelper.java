@@ -289,7 +289,7 @@ public class CurvesHelper extends AbstractBlenderHelper {
                 int triplesCount = controlPoints.size() / 3;
                 List<Vector3f> taperControlPoints = new ArrayList<Vector3f>(triplesCount);
                 for (int i = 0; i < triplesCount; ++i) {
-                    taperControlPoints.add(new Vector3f(controlPoints.get(i * 3 + 1).x, bezierCurve.getRadius(i), 0));
+                    taperControlPoints.add(new Vector3f(controlPoints.get(i * 3 + 1).x, (float)bezierCurve.getRadius(i), 0));
                 }
                 taperObject = new Spline(SplineType.Linear, taperControlPoints, 0, false);
             }

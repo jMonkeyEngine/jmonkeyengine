@@ -70,7 +70,7 @@ public class Ipo {
      *            the frame for which the value is calculated
      * @return calculated ipo value
      */
-    public float calculateValue(int frame) {
+    public double calculateValue(int frame) {
         return this.calculateValue(frame, 0);
     }
 
@@ -85,7 +85,7 @@ public class Ipo {
      *            the index of the curve
      * @return calculated ipo value
      */
-    public float calculateValue(int frame, int curveIndex) {
+    public double calculateValue(int frame, int curveIndex) {
         return bezierCurves[curveIndex].evaluate(frame, BezierCurve.Y_VALUE);
     }
 
@@ -170,7 +170,7 @@ public class Ipo {
                 for (int j = 0; j < bezierCurves.length; ++j) {
                     double value = bezierCurves[j].evaluate(frame, BezierCurve.Y_VALUE);
                     switch (bezierCurves[j].getType()) {
-                    // LOCATION
+                        // LOCATION
                         case AC_LOC_X:
                             translation[0] = (float) value;
                             break;
@@ -282,12 +282,12 @@ public class Ipo {
         }
 
         @Override
-        public float calculateValue(int frame) {
+        public double calculateValue(int frame) {
             return constValue;
         }
 
         @Override
-        public float calculateValue(int frame, int curveIndex) {
+        public double calculateValue(int frame, int curveIndex) {
             return constValue;
         }
 

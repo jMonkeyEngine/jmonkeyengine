@@ -24,9 +24,9 @@ public class BezierCurve {
     /** The dimension of the curve. */
     private int             dimension;
     /** A table of the bezier points. */
-    private float[][][]     bezierPoints;
+    private double[][][]    bezierPoints;
     /** Array that stores a radius for each bezier triple. */
-    private float[]         radiuses;
+    private double[]        radiuses;
 
     @SuppressWarnings("unchecked")
     public BezierCurve(final int type, final List<Structure> bezTriples, final int dimension) {
@@ -38,8 +38,8 @@ public class BezierCurve {
         // first index of the bezierPoints table has the length of triples amount
         // the second index points to a table od three points of a bezier triple (handle, point, handle)
         // the third index specifies the coordinates of the specific point in a bezier triple
-        bezierPoints = new float[bezTriples.size()][3][dimension];
-        radiuses = new float[bezTriples.size()];
+        bezierPoints = new double[bezTriples.size()][3][dimension];
+        radiuses = new double[bezTriples.size()];
         int i = 0, j, k;
         for (Structure bezTriple : bezTriples) {
             DynamicArray<Number> vec = (DynamicArray<Number>) bezTriple.getFieldValue("vec");
@@ -62,13 +62,13 @@ public class BezierCurve {
      *            Z_VALUE - the Z factor of the result
      * @return the value of the curve
      */
-    public float evaluate(int frame, int valuePart) {
+    public double evaluate(int frame, int valuePart) {
         for (int i = 0; i < bezierPoints.length - 1; ++i) {
             if (frame >= bezierPoints[i][1][0] && frame <= bezierPoints[i + 1][1][0]) {
-                float t = (frame - bezierPoints[i][1][0]) / (bezierPoints[i + 1][1][0] - bezierPoints[i][1][0]);
-                float oneMinusT = 1.0f - t;
-                float oneMinusT2 = oneMinusT * oneMinusT;
-                float t2 = t * t;
+                double t = (frame - bezierPoints[i][1][0]) / (bezierPoints[i + 1][1][0] - bezierPoints[i][1][0]);
+                double oneMinusT = 1.0f - t;
+                double oneMinusT2 = oneMinusT * oneMinusT;
+                double t2 = t * t;
                 return bezierPoints[i][1][valuePart] * oneMinusT2 * oneMinusT + 3.0f * bezierPoints[i][2][valuePart] * t * oneMinusT2 + 3.0f * bezierPoints[i + 1][0][valuePart] * t2 * oneMinusT + bezierPoints[i + 1][1][valuePart] * t2 * t;
             }
         }
@@ -103,7 +103,7 @@ public class BezierCurve {
      *            index of the bezier triple
      * @return radius of the required bezier triple
      */
-    public float getRadius(int bezierTripleIndex) {
+    public double getRadius(int bezierTripleIndex) {
         return radiuses[bezierTripleIndex];
     }
 
@@ -114,9 +114,9 @@ public class BezierCurve {
     public List<Vector3f> getControlPoints() {
         List<Vector3f> controlPoints = new ArrayList<Vector3f>(bezierPoints.length * 3);
         for (int i = 0; i < bezierPoints.length; ++i) {
-            controlPoints.add(new Vector3f(bezierPoints[i][0][0], bezierPoints[i][0][1], bezierPoints[i][0][2]));
-            controlPoints.add(new Vector3f(bezierPoints[i][1][0], bezierPoints[i][1][1], bezierPoints[i][1][2]));
-            controlPoints.add(new Vector3f(bezierPoints[i][2][0], bezierPoints[i][2][1], bezierPoints[i][2][2]));
+            controlPoints.add(new Vector3f((float)bezierPoints[i][0][0], (float)bezierPoints[i][0][1], (float)bezierPoints[i][0][2]));
+            controlPoints.add(new Vector3f((float)bezierPoints[i][1][0], (float)bezierPoints[i][1][1], (float)bezierPoints[i][1][2]));
+            controlPoints.add(new Vector3f((float)bezierPoints[i][2][0], (float)bezierPoints[i][2][1], (float)bezierPoints[i][2][2]));
         }
         return controlPoints;
     }
@@ -137,7 +137,7 @@ public class BezierCurve {
      * @return text representation of the triple
      */
     private String toStringBezTriple(int tripleIndex) {
-        if (this.dimension == 2) {
+        if (dimension == 2) {
             return "[(" + bezierPoints[tripleIndex][0][0] + ", " + bezierPoints[tripleIndex][0][1] + ") (" + bezierPoints[tripleIndex][1][0] + ", " + bezierPoints[tripleIndex][1][1] + ") (" + bezierPoints[tripleIndex][2][0] + ", " + bezierPoints[tripleIndex][2][1] + ")]";
         } else {
             return "[(" + bezierPoints[tripleIndex][0][0] + ", " + bezierPoints[tripleIndex][0][1] + ", " + bezierPoints[tripleIndex][0][2] + ") (" + bezierPoints[tripleIndex][1][0] + ", " + bezierPoints[tripleIndex][1][1] + ", " + bezierPoints[tripleIndex][1][2] + ") (" + bezierPoints[tripleIndex][2][0] + ", " + bezierPoints[tripleIndex][2][1] + ", " + bezierPoints[tripleIndex][2][2] + ")]";

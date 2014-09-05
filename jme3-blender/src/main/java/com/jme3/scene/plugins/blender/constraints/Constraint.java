@@ -123,7 +123,7 @@ public abstract class Constraint {
      */
     public void apply(int frame) {
         Transform targetTransform = targetOMA != null ? constraintHelper.getTransform(targetOMA, subtargetName, targetSpace) : null;
-        constraintDefinition.bake(ownerSpace, targetSpace, targetTransform, ipo.calculateValue(frame));
+        constraintDefinition.bake(ownerSpace, targetSpace, targetTransform, (float)ipo.calculateValue(frame));
     }
 
     @Override
