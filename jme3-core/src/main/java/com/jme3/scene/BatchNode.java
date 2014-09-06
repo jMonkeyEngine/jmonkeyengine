@@ -478,6 +478,7 @@ public class BatchNode extends GeometryGroupNode implements Savable {
     private void mergeGeometries(Mesh outMesh, List<Geometry> geometries) {
         int[] compsForBuf = new int[VertexBuffer.Type.values().length];
         VertexBuffer.Format[] formatForBuf = new VertexBuffer.Format[compsForBuf.length];
+        boolean[] normForBuf = new boolean[VertexBuffer.Type.values().length];
 
         int totalVerts = 0;
         int totalTris = 0;
@@ -516,8 +517,15 @@ public class BatchNode extends GeometryGroupNode implements Savable {
             }
 
             for (VertexBuffer vb : geom.getMesh().getBufferList().getArray()) {
+                int currentCompsForBuf = compsForBuf[vb.getBufferType().ordinal()];
+                if (vb.getBufferType() != VertexBuffer.Type.Index && currentCompsForBuf != 0 && currentCompsForBuf != vb.getNumComponents()) {
+                    throw new UnsupportedOperationException("The geometry " + geom + " buffer " + vb.getBufferType()
+                            + " has different number of components than the rest of the meshes "
+                            + "(this: " + vb.getNumComponents() + ", expected: " + currentCompsForBuf + ")");
+                }
                 compsForBuf[vb.getBufferType().ordinal()] = vb.getNumComponents();
                 formatForBuf[vb.getBufferType().ordinal()] = vb.getFormat();
+                normForBuf[vb.getBufferType().ordinal()] = vb.isNormalized();
             }
             
             maxWeights = Math.max(maxWeights, geom.getMesh().getMaxNumWeights());
@@ -555,6 +563,7 @@ public class BatchNode extends GeometryGroupNode implements Savable {
 
             VertexBuffer vb = new VertexBuffer(VertexBuffer.Type.values()[i]);
             vb.setupData(VertexBuffer.Usage.Dynamic, compsForBuf[i], formatForBuf[i], data);
+            vb.setNormalized(normForBuf[i]);
             outMesh.setBuffer(vb);
         }
 

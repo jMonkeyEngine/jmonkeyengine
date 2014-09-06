@@ -96,6 +96,7 @@ public class GeometryBatchFactory {
     public static void mergeGeometries(Collection<Geometry> geometries, Mesh outMesh) {
         int[] compsForBuf = new int[VertexBuffer.Type.values().length];
         Format[] formatForBuf = new Format[compsForBuf.length];
+         boolean[] normForBuf = new boolean[VertexBuffer.Type.values().length];
 
         int totalVerts = 0;
         int totalTris = 0;
@@ -140,6 +141,7 @@ public class GeometryBatchFactory {
                 }
                 compsForBuf[vb.getBufferType().ordinal()] = vb.getNumComponents();
                 formatForBuf[vb.getBufferType().ordinal()] = vb.getFormat();
+                normForBuf[vb.getBufferType().ordinal()] = vb.isNormalized();
             }
             
             maxWeights = Math.max(maxWeights, geom.getMesh().getMaxNumWeights());
@@ -177,6 +179,7 @@ public class GeometryBatchFactory {
 
             VertexBuffer vb = new VertexBuffer(Type.values()[i]);
             vb.setupData(Usage.Static, compsForBuf[i], formatForBuf[i], data);
+            vb.setNormalized(normForBuf[i]);
             outMesh.setBuffer(vb);
         }
 
