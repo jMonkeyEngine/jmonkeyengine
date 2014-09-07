@@ -699,7 +699,8 @@ public class ListSort<T> {
             // The last element of run A belongs at the end of the merge.
             arr[dest + lengthB] = tempArray[iterA];
         } else if(lengthA== 0){
-            throw new UnsupportedOperationException("Inconsistant comparison function");
+            throw new UnsupportedOperationException("Compare function result changed! " +
+                                                    "Make sure you do not modify the scene from another thread!");
         } else {//Fail label
             System.arraycopy(tempArray, iterA, arr, dest, lengthA);
         }
