@@ -850,7 +850,8 @@ public class ListSort<T> {
             // The first element of run B belongs at the front of the merge. 
             arr[dest] = tempArray[iterB];  
         } else if (lengthB == 0) {
-              throw new UnsupportedOperationException("Inconsistant comparison function");
+              throw new UnsupportedOperationException("Compare function result changed! " +
+                                                      "Make sure you do not modify the scene from another thread!");
         } else {//Fail label                        
             System.arraycopy(tempArray, 0, arr, dest - (lengthB - 1), lengthB);
         }
