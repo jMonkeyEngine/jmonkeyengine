@@ -24,6 +24,7 @@
 /jme3-examples/build/
 /jme3-jogl/build/
 /jme3-ios/build/
+/jme3-gl-autogen/build/
 /jme3-bullet-native/bullet.zip
 /jme3-bullet-native/bullet-2.82-r2704/
 /jme3-android-native/openal-soft/
@@ -97,6 +98,17 @@
 /sdk/jme3-documentation/nbproject/private/
 /sdk/jme3-vehicle-creator/nbproject/private/
 /sdk/jme3-code-check/nbproject/private/
+/sdk/jme3-blender/nbproject/private/
+/sdk/jme3-core-libraries/nbproject/private/
+/sdk/jme3-core-updatecenters/nbproject/private/
+/sdk/jme3-gui/nbproject/private/
+/sdk/jme3-materialeditor/nbproject/private/
+/sdk/jme3-project-baselibs/nbproject/private/
+/sdk/jme3-project-testdata/nbproject/private/
+/sdk/jme3-templates/nbproject/private/
+/sdk/jme3-terrain-editor/nbproject/private/
+/sdk/jme3-tests-template/nbproject/private/
+/sdk/jme3-texture-editor/nbproject/private/
 /bin
 /.classpath
 /.project
