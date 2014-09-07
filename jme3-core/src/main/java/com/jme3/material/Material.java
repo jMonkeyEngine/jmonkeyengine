@@ -45,6 +45,7 @@ import com.jme3.renderer.Caps;
 import com.jme3.renderer.GL1Renderer;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
@@ -717,7 +718,11 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             if (numInstances == 0) {
                 return;
             }
-            renderer.renderMesh(mesh, lodLevel, numInstances, instGeom.getAllInstanceData());
+            if (renderer.getCaps().contains(Caps.MeshInstancing)) {
+                renderer.renderMesh(mesh, lodLevel, numInstances, instGeom.getAllInstanceData());
+            } else {
+                throw new RendererException("Mesh instancing is not supported by the video hardware");
+            }
         } else {
             renderer.renderMesh(mesh, lodLevel, 1, null);
         }
