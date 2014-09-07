@@ -60,8 +60,8 @@ public class TestInconsistentCompareDetection extends SimpleApplication {
     
     @Override
     public void simpleInitApp() {
-        cam.setLocation(new Vector3f(-11.441693f, 6.7038045f, 28.274843f));
-        cam.setRotation(new Quaternion(0.059138592f, 0.9084308f, -0.13765986f, 0.3902638f));
+        cam.setLocation(new Vector3f(-11.674385f, 7.892636f, 33.133106f));
+        cam.setRotation(new Quaternion(0.06426433f, 0.90940624f, -0.15329266f, 0.38125014f));
         
         Material m = new Material(assetManager, "Common/MatDefs/Misc/ColoredTextured.j3md");
         m.setColor("Color", ColorRGBA.White);
@@ -71,8 +71,8 @@ public class TestInconsistentCompareDetection extends SimpleApplication {
         
         Box b = new Box(1, 1, 1);
 
-        for (int x = 0; x < 10; x++) {
-            for (int y = 0; y < 10; y++) {
+        for (int x = 0; x < 12; x++) {
+            for (int y = 0; y < 12; y++) {
                 Geometry g = new Geometry("g_" + x + "_" + y, b);
                 Node monkey = new Node("n_" + x + "_" + y);
                 monkey.attachChild(g);
