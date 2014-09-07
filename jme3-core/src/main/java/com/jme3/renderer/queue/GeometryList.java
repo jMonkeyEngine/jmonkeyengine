@@ -33,7 +33,7 @@ package com.jme3.renderer.queue;
 
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
-import com.jme3.util.SortUtil;
+import com.jme3.util.ListSort;
 
 /**
  * This class is a special purpose list of {@link Geometry} objects for render
@@ -47,8 +47,8 @@ public class GeometryList {
 
     private static final int DEFAULT_SIZE = 32;
 
-    private Geometry[] geometries;
-    private Geometry[] geometries2;
+    private Geometry[] geometries;    
+    private ListSort listSort;
     private int size;
     private GeometryComparator comparator;
 
@@ -60,9 +60,9 @@ public class GeometryList {
      */
     public GeometryList(GeometryComparator comparator) {
         size = 0;
-        geometries = new Geometry[DEFAULT_SIZE];
-        geometries2 = new Geometry[DEFAULT_SIZE];
+        geometries = new Geometry[DEFAULT_SIZE];      
         this.comparator = comparator;
+        listSort = new ListSort<Geometry>();
     }
 
     public void setComparator(GeometryComparator comparator) {
@@ -118,8 +118,6 @@ public class GeometryList {
             Geometry[] temp = new Geometry[size * 2];
             System.arraycopy(geometries, 0, temp, 0, size);
             geometries = temp; // original list replaced by double-size list
-
-            geometries2 = new Geometry[size * 2];
         }
         geometries[size++] = g;
     }
@@ -141,10 +139,10 @@ public class GeometryList {
     public void sort() {
         if (size > 1) {
             // sort the spatial list using the comparator
-            System.arraycopy(geometries, 0, geometries2, 0, size);
-            SortUtil.msort(geometries2, geometries, 0, size-1, comparator);
-
-
+            if(listSort.getLength() != size){
+                listSort.allocateStack(size);
+            }                       
+            listSort.sort(geometries,comparator);
         }
     }
 }
