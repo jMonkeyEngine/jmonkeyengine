@@ -110,7 +110,7 @@ task mergedSource(type: Copy){
 }
 
 task wrapper(type: Wrapper, description: 'Creates and deploys the Gradle wrapper to the current directory.') {
-    gradleVersion = '1.11'
+    gradleVersion = '1.12'
 }
 
 String findNDK() {
