@@ -114,3 +114,6 @@
 /.project
 /.settings
 *.dll
+*.so
+*.jnilib
+*.dylib
