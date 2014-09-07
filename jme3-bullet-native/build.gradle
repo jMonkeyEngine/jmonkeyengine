@@ -87,7 +87,9 @@ libraries {
                 cppCompiler.args "-fPIC"
                 cppCompiler.args "-fpermissive"
                 cppCompiler.args "-static-libgcc"
-                linker.args "-static"
+                cppCompiler.args "-static-libstdc++"
+                linker.args "-static-libgcc"
+                linker.args "-static-libstdc++"
             } else if (targetPlatform.operatingSystem.name == "windows") {
                 cppCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
 //                cppCompiler.define('WIN32')
