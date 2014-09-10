@@ -701,6 +701,9 @@ public class JoglRenderer implements Renderer {
                     case Screen:
                         gl.glBlendFunc(GL.GL_ONE, GL.GL_ONE_MINUS_SRC_COLOR);
                         break; 
+                    case Exclusion:
+                        gl.glBlendFunc(GL.GL_ONE_MINUS_DST_COLOR, GL.GL_ONE_MINUS_SRC_COLOR);
+                        break;
                     default:
                         throw new UnsupportedOperationException("Unrecognized blend mode: "
                                 + state.getBlendMode());

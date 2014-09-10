@@ -559,6 +559,9 @@ public class OGLESShaderRenderer implements Renderer {
                     case Screen:
                         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_COLOR);
                         break; 
+                    case Exclusion:
+                        GLES20.glBlendFunc(GLES20.GL_ONE_MINUS_DST_COLOR, GLES20.GL_ONE_MINUS_SRC_COLOR);
+                        break;
                     default:
                         throw new UnsupportedOperationException("Unrecognized blend mode: "
                                 + state.getBlendMode());

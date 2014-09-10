@@ -183,7 +183,15 @@ public class RenderState implements Cloneable, Savable {
          * <p>
          * Result = 1 - (1 - Source Color) * (1 - Dest Color) -> (GL_ONE, GL_ONE_MINUS_SRC_COLOR)
          */
-        Screen
+        Screen,
+        /**
+         * Mixes the destination and source colors similar to a color-based XOR
+         * operation.  This is directly equivalent to Photoshop's "Exclusion" blend.
+         * <p>
+         * Result = (Source Color * (1 - Dest Color)) + (Dest Color * (1 - Source Color))
+         *  -> (GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR) 
+         */
+        Exclusion
     }
 
     /**

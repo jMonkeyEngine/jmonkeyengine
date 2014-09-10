@@ -650,6 +650,9 @@ public class LwjglRenderer implements Renderer {
                     case Screen:
                         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
                         break;       
+                    case Exclusion:
+                        glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR);
+                        break;
                     default:
                         throw new UnsupportedOperationException("Unrecognized blend mode: "
                                 + state.getBlendMode());
