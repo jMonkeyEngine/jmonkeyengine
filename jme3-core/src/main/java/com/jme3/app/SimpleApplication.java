@@ -38,6 +38,7 @@ import com.jme3.input.FlyByCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.profile.AppStep;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue.Bucket;
 import com.jme3.scene.Node;
@@ -228,30 +229,39 @@ public abstract class SimpleApplication extends Application {
 
     @Override
     public void update() {
+        if (prof!=null) prof.appStep(AppStep.BeginFrame);
+        
         super.update(); // makes sure to execute AppTasks
         if (speed == 0 || paused) {
             return;
         }
 
         float tpf = timer.getTimePerFrame() * speed;
-
+        
         // update states
+        if (prof!=null) prof.appStep(AppStep.StateManagerUpdate);
         stateManager.update(tpf);
 
         // simple update and root node
         simpleUpdate(tpf);
  
+        if (prof!=null) prof.appStep(AppStep.SpatialUpdate);
         rootNode.updateLogicalState(tpf);
         guiNode.updateLogicalState(tpf);
         
         rootNode.updateGeometricState();
         guiNode.updateGeometricState();
-
+        
         // render states
+        if (prof!=null) prof.appStep(AppStep.StateManagerRender);
         stateManager.render(renderManager);
+        
+        if (prof!=null) prof.appStep(AppStep.RenderFrame);
         renderManager.render(tpf, context.isRenderable());
         simpleRender(renderManager);
-        stateManager.postRender();        
+        stateManager.postRender();
+                
+        if (prof!=null) prof.appStep(AppStep.EndFrame);
     }
 
     public void setDisplayFps(boolean show) {
