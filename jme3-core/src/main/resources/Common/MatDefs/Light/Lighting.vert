@@ -4,14 +4,6 @@
 
 #import "Common/ShaderLib/Skinning.glsllib"
 
-/*
-    uniform mat4 g_WorldViewProjectionMatrix;
-    uniform mat4 g_WorldViewMatrix;
-    uniform mat3 g_NormalMatrix;
-    uniform mat4 g_ViewMatrix;
-*/
-
-
 uniform vec4 m_Ambient;
 uniform vec4 m_Diffuse;
 uniform vec4 m_Specular;
@@ -58,11 +50,9 @@ varying vec3 lightVec;
 
 #ifdef USE_REFLECTION
     uniform vec3 g_CameraPosition;
-    uniform mat4 g_WorldMatrix;
 
     uniform vec3 m_FresnelParams;
     varying vec4 refVec;
-
 
     /**
      * Input:
@@ -75,10 +65,12 @@ varying vec3 lightVec;
      * varying refVec
      */
     void computeRef(in vec4 modelSpacePos){
-        vec3 worldPos = (g_WorldMatrix * modelSpacePos).xyz;
+        // vec3 worldPos = (g_WorldMatrix * modelSpacePos).xyz;
+        vec3 worldPos = TransformWorld(modelSpacePos).xyz;
 
         vec3 I = normalize( g_CameraPosition - worldPos  ).xyz;
-        vec3 N = normalize( (g_WorldMatrix * vec4(inNormal, 0.0)).xyz );
+        // vec3 N = normalize( (g_WorldMatrix * vec4(inNormal, 0.0)).xyz );
+        vec3 N = normalize( TransformWorld(vec4(inNormal, 0.0)).xyz );
 
         refVec.xyz = reflect(I, N);
         refVec.w   = m_FresnelParams.x + m_FresnelParams.y * pow(1.0 + dot(I, N), m_FresnelParams.z);
