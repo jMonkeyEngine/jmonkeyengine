@@ -19,4 +19,12 @@ void main(){
     #else
         gl_FragColor = color;
     #endif
+
+    #ifdef PRE_SHADOW
+        if (gl_FragColor.r <= 0.1 && 
+            gl_FragColor.g <= 0.1 &&
+            gl_FragColor.b <= 0.1) {
+            discard;
+        }
+    #endif
 }

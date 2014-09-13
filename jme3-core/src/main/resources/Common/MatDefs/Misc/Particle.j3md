@@ -63,6 +63,29 @@ MaterialDef Point Sprite {
         }
     }
 
+    Technique PreShadow {
+
+        VertexShader   GLSL100 : Common/MatDefs/Misc/Particle.vert
+        FragmentShader GLSL100 : Common/MatDefs/Misc/Particle.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            WorldViewMatrix
+            WorldMatrix
+            CameraPosition
+        }
+
+        Defines {
+            USE_TEXTURE : Texture
+            PRE_SHADOW
+        }
+
+        ForcedRenderState {
+            DepthWrite On
+            ColorWrite Off
+        }
+    }
+
     Technique SoftParticles{
 
         VertexShader   GLSL100 : Common/MatDefs/Misc/SoftParticle.vert
