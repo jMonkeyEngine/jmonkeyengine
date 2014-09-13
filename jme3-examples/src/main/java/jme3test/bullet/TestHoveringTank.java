@@ -84,8 +84,6 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
 
     public static void main(String[] args) {
         TestHoveringTank app = new TestHoveringTank();
-        AppSettings settings = new AppSettings(true);
-        settings.setRenderer(AppSettings.LWJGL_OPENGL3);
         app.start();
     }
 
@@ -145,7 +143,7 @@ public class TestHoveringTank extends SimpleApplication implements AnalogListene
         spaceCraft = assetManager.loadModel("Models/HoverTank/Tank2.mesh.xml");
         CollisionShape colShape = CollisionShapeFactory.createDynamicMeshShape(spaceCraft);
         spaceCraft.setShadowMode(ShadowMode.CastAndReceive);
-        spaceCraft.setLocalTranslation(new Vector3f(-140, 14, -23));
+        spaceCraft.setLocalTranslation(new Vector3f(-140, 50, -23));
         spaceCraft.setLocalRotation(new Quaternion(new float[]{0, 0.01f, 0}));
 
         hoverControl = new PhysicsHoverControl(colShape, 500);
