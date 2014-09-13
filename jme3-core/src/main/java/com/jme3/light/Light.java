@@ -31,9 +31,12 @@
  */
 package com.jme3.light;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.export.*;
 import com.jme3.math.ColorRGBA;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
@@ -64,8 +67,8 @@ public abstract class Light implements Savable, Cloneable {
         
         /**
          * Spot light.
-         * <p>
-         * Not supported by jMonkeyEngine
+         * 
+         * @see SpotLight
          */
         Spot(2),
         
@@ -108,6 +111,9 @@ public abstract class Light implements Savable, Cloneable {
      * The light name. 
      */
     protected String name;
+    
+    boolean frustumCheckNeeded = true;
+    boolean intersectsFrustum  = false;
 
     /**
      * Returns the color of the light.
@@ -168,6 +174,33 @@ public abstract class Light implements Savable, Cloneable {
         return enabled;
     }
     */
+    
+    /**
+     * Determines if the light intersects with the given bounding box.
+     * <p>
+     * For non-local lights, such as {@link DirectionalLight directional lights},
+     * {@link AmbientLight ambient lights}, or {@link PointLight point lights}
+     * without influence radius, this method should always return true.
+     * 
+     * @param box The box to check intersection against.
+     * @param vars TempVars in case it is needed.
+     * 
+     * @return True if the light intersects the box, false otherwise.
+     */
+    public abstract boolean intersectsBox(BoundingBox box, TempVars vars);
+    
+    /**
+     * Determines if the lgiht intersects with the given camera frustum.
+     * 
+     * For non-local lights, such as {@link DirectionalLight directional lights},
+     * {@link AmbientLight ambient lights}, or {@link PointLight point lights}
+     * without influence radius, this method should always return true.
+     * 
+     * @param camera The camera frustum to check intersection against.
+     * @param vars TempVars in case it is needed.
+     * @return True if the light intersects the frustum, false otherwise.
+     */
+    public abstract boolean intersectsFrustum(Camera camera, TempVars vars);
     
     @Override
     public Light clone(){

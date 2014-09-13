@@ -1051,7 +1051,11 @@ public class Camera implements Savable, Cloneable {
 
         return rVal;
     }
-
+    
+    public Plane getWorldPlane(int planeId) {
+        return worldPlane[planeId];
+    }
+    
     /**
      * <code>containsGui</code> tests a bounding volume against the ortho
      * bounding box of the camera. A bounding box spanning from

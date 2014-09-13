@@ -31,11 +31,14 @@
  */
 package com.jme3.light;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.*;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
@@ -61,16 +64,20 @@ public class SpotLight extends Light implements Savable {
     protected float spotRange = 100;
     protected float invSpotRange = 1 / 100;
     protected float packedAngleCos=0;
+    
+    protected float outerAngleCosSqr, outerAngleSinSqr;
+    protected float outerAngleSinRcp;
 
     public SpotLight() {
         super();
-        computePackedCos();
+        computeAngleParameters();
     }
 
-    private void computePackedCos() {
+    private void computeAngleParameters() {
         float innerCos = FastMath.cos(spotInnerAngle);
         float outerCos = FastMath.cos(spotOuterAngle);
         packedAngleCos = (int) (innerCos * 1000);
+        
         //due to approximations, very close angles can give the same cos
         //here we make sure outer cos is bellow inner cos.
         if (((int) packedAngleCos) == ((int) (outerCos * 1000))) {
@@ -81,8 +88,62 @@ public class SpotLight extends Light implements Savable {
         if (packedAngleCos == 0.0f) {
             throw new IllegalArgumentException("Packed angle cosine is invalid");
         }
+        
+        // compute parameters needed for cone vs sphere check.
+        float outerSin = FastMath.sin(spotOuterAngle);
+        outerAngleCosSqr = outerCos * outerCos;
+        outerAngleSinSqr = outerSin * outerSin;
+        outerAngleSinRcp = 1.0f / outerSin;
     }
 
+    @Override
+    public boolean intersectsBox(BoundingBox box, TempVars vars) {
+        if (this.spotRange > 0f) {
+            // Check spot range first.
+            // Sphere v. box collision
+            if (FastMath.abs(box.getCenter().x - position.x) >= spotRange + box.getXExtent()
+             || FastMath.abs(box.getCenter().y - position.y) >= spotRange + box.getYExtent()
+             || FastMath.abs(box.getCenter().z - position.z) >= spotRange + box.getZExtent()) {
+                return false;
+            }
+        }
+        
+        Vector3f otherCenter = box.getCenter();
+        Vector3f radVect = vars.vect4;
+        radVect.set(box.getXExtent(), box.getYExtent(), box.getZExtent());
+        float otherRadiusSquared = radVect.lengthSquared();
+        float otherRadius = FastMath.sqrt(otherRadiusSquared);
+        
+        // Check if sphere is within spot angle.
+        // Cone v. sphere collision.
+        Vector3f E = direction.mult(otherRadius * outerAngleSinRcp, vars.vect1);
+        Vector3f U = position.subtract(E, vars.vect2);
+        Vector3f D = otherCenter.subtract(U, vars.vect3);
+
+        float dsqr = D.dot(D);
+        float e = direction.dot(D);
+
+        if (e > 0f && e * e >= dsqr * outerAngleCosSqr) {
+            D = otherCenter.subtract(position, vars.vect3);
+            dsqr = D.dot(D);
+            e = -direction.dot(D);
+
+            if (e > 0f && e * e >= dsqr * outerAngleSinSqr) {
+                return dsqr <= otherRadiusSquared;
+            } else {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public boolean intersectsFrustum(Camera camera, TempVars vars) {
+        // TODO: implement cone vs. frustum collision detection.
+        return true;
+    }
+    
     @Override
     protected void computeLastDistance(Spatial owner) {
         if (owner.getWorldBound() != null) {
@@ -166,7 +227,7 @@ public class SpotLight extends Light implements Savable {
      */
     public void setSpotInnerAngle(float spotInnerAngle) {
         this.spotInnerAngle = spotInnerAngle;
-        computePackedCos();
+        computeAngleParameters();
     }
 
     /**
@@ -185,7 +246,7 @@ public class SpotLight extends Light implements Savable {
      */
     public void setSpotOuterAngle(float spotOuterAngle) {
         this.spotOuterAngle = spotOuterAngle;
-        computePackedCos();
+        computeAngleParameters();
     }
 
     /**
@@ -196,8 +257,6 @@ public class SpotLight extends Light implements Savable {
         return packedAngleCos;
     }
     
-    
-
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
@@ -215,7 +274,7 @@ public class SpotLight extends Light implements Savable {
         InputCapsule ic = im.getCapsule(this);
         spotInnerAngle = ic.readFloat("spotInnerAngle", FastMath.QUARTER_PI / 8);
         spotOuterAngle = ic.readFloat("spotOuterAngle", FastMath.QUARTER_PI / 6);
-        computePackedCos();
+        computeAngleParameters();
         direction = (Vector3f) ic.readSavable("direction", new Vector3f());
         position = (Vector3f) ic.readSavable("position", new Vector3f());
         spotRange = ic.readFloat("spotRange", 100);

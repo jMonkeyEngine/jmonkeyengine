@@ -31,6 +31,9 @@
  */
 package com.jme3.renderer;
 
+import com.jme3.light.DefaultLightFilter;
+import com.jme3.light.LightFilter;
+import com.jme3.light.LightList;
 import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.RenderState;
@@ -81,9 +84,11 @@ public class RenderManager {
     private boolean shader;
     private int viewX, viewY, viewWidth, viewHeight;
     private Matrix4f orthoMatrix = new Matrix4f();
+    private LightList filteredLightList = new LightList(null);
     private String tmpTech;
     private boolean handleTranlucentBucket = true;
     private AppProfiler prof;
+    private LightFilter lightFilter = new DefaultLightFilter();
 
     /**
      * Create a high-level rendering interface over the
@@ -521,6 +526,16 @@ public class RenderManager {
         } else {
             setWorldMatrix(g.getWorldMatrix());
         }
+        
+        // Perform light filtering if we have a light filter.
+        LightList lightList = g.getWorldLightList();
+        
+        if (lightFilter != null) {
+            filteredLightList.clear();
+            lightFilter.filterLights(g, filteredLightList);
+            lightList = filteredLightList;
+        }
+        
 
         //if forcedTechnique we try to force it for render,
         //if it does not exists in the mat def, we check for forcedMaterial and render the geom if not null
@@ -536,7 +551,7 @@ public class RenderManager {
                     forcedRenderState = g.getMaterial().getActiveTechnique().getDef().getForcedRenderState();
                 }
                 // use geometry's material
-                g.getMaterial().render(g, this);
+                g.getMaterial().render(g, lightList, this);
                 g.getMaterial().selectTechnique(tmpTech, this);
 
                 //restoring forcedRenderState
@@ -546,13 +561,13 @@ public class RenderManager {
                 //If forcedTechnique does not exists, and frocedMaterial is not set, the geom MUST NOT be rendered
             } else if (forcedMaterial != null) {
                 // use forced material
-                forcedMaterial.render(g, this);
+                forcedMaterial.render(g, lightList, this);
             }
         } else if (forcedMaterial != null) {
             // use forced material
-            forcedMaterial.render(g, this);
+            forcedMaterial.render(g, lightList, this);
         } else {
-            g.getMaterial().render(g, this);
+            g.getMaterial().render(g, lightList, this);
         }
     }
 
@@ -790,6 +805,11 @@ public class RenderManager {
         Camera cam = vp.getCamera();
         boolean depthRangeChanged = false;
 
+        // Tell the light filter which camera to use for filtering.
+        if (lightFilter != null) {
+            lightFilter.setCamera(cam);
+        }
+        
         // render opaque objects with default depth range
         // opaque objects are sorted front-to-back, reducing overdraw
         if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Opaque);

@@ -31,13 +31,19 @@
  */
 package com.jme3.light;
 
+import com.jme3.bounding.BoundingBox;
+import com.jme3.bounding.BoundingSphere;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.InputCapsule;
 import com.jme3.export.JmeExporter;
 import com.jme3.export.JmeImporter;
 import com.jme3.export.OutputCapsule;
+import com.jme3.math.FastMath;
+import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
@@ -114,9 +120,9 @@ public class PointLight extends Light {
             throw new IllegalArgumentException("Light radius cannot be negative");
         }
         this.radius = radius;
-        if(radius!=0){
+        if (radius != 0) {
             this.invRadius = 1 / radius;
-        }else{
+        } else {
             this.invRadius = 0;
         }
     }
@@ -134,6 +140,32 @@ public class PointLight extends Light {
         return Light.Type.Point;
     }
 
+    @Override
+    public boolean intersectsBox(BoundingBox box, TempVars vars) {
+        if (this.radius == 0) {
+            return true;
+        } else {
+            // Sphere v. box collision
+            return FastMath.abs(box.getCenter().x - position.x) < radius + box.getXExtent()
+                && FastMath.abs(box.getCenter().y - position.y) < radius + box.getYExtent()
+                && FastMath.abs(box.getCenter().z - position.z) < radius + box.getZExtent();
+        }
+    }
+    
+    @Override
+    public boolean intersectsFrustum(Camera camera, TempVars vars) {
+        if (this.radius == 0) {
+            return true;
+        } else {
+            for (int i = 5; i >= 0; i--) {
+                if (camera.getWorldPlane(i).pseudoDistance(position) <= -radius) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+    
     @Override
     public void write(JmeExporter ex) throws IOException {
         super.write(ex);
