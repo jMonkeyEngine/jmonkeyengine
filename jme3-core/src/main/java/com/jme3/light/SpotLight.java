@@ -140,8 +140,17 @@ public class SpotLight extends Light implements Savable {
     
     @Override
     public boolean intersectsFrustum(Camera camera, TempVars vars) {
-        // TODO: implement cone vs. frustum collision detection.
-        return true;
+        if (this.spotRange == 0) {
+            return true;
+        } else {
+            // Do a frustum v. sphere test against the spot range.
+            for (int i = 5; i >= 0; i--) {
+                if (camera.getWorldPlane(i).pseudoDistance(position) <= -spotRange) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
     
     @Override
@@ -197,8 +206,8 @@ public class SpotLight extends Light implements Savable {
             throw new IllegalArgumentException("SpotLight range cannot be negative");
         }
         this.spotRange = spotRange;
-        if (spotRange != 0) {
-            this.invSpotRange = 1 / spotRange;
+        if (spotRange != 0f) {
+            this.invSpotRange = 1f / spotRange;
         } else {
             this.invSpotRange = 0;
         }
@@ -222,10 +231,16 @@ public class SpotLight extends Light implements Savable {
 
     /**
      * Sets the inner angle of the cone of influence.
+     * <p>
+     * Must be between 0 and pi/2.
+     * <p>
      * This angle is the angle between the spot direction axis and the inner border of the cone of influence.
      * @param spotInnerAngle 
      */
     public void setSpotInnerAngle(float spotInnerAngle) {
+        if (spotInnerAngle < 0f || spotInnerAngle >= FastMath.HALF_PI) {
+            throw new IllegalArgumentException("spot angle must be between 0 and pi/2");
+        }
         this.spotInnerAngle = spotInnerAngle;
         computeAngleParameters();
     }
@@ -240,11 +255,17 @@ public class SpotLight extends Light implements Savable {
 
     /**
      * Sets the outer angle of the cone of influence.
+     * <p>
+     * Must be between 0 and pi/2.
+     * <p>
      * This angle is the angle between the spot direction axis and the outer border of the cone of influence.
      * this should be greater than the inner angle or the result will be unexpected.
      * @param spotOuterAngle 
      */
     public void setSpotOuterAngle(float spotOuterAngle) {
+        if (spotOuterAngle < 0f || spotOuterAngle >= FastMath.HALF_PI) {
+            throw new IllegalArgumentException("spot angle must be between 0 and pi/2");
+        }
         this.spotOuterAngle = spotOuterAngle;
         computeAngleParameters();
     }
