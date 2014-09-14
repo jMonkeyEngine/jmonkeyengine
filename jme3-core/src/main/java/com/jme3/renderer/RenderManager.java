@@ -805,11 +805,6 @@ public class RenderManager {
         Camera cam = vp.getCamera();
         boolean depthRangeChanged = false;
 
-        // Tell the light filter which camera to use for filtering.
-        if (lightFilter != null) {
-            lightFilter.setCamera(cam);
-        }
-        
         // render opaque objects with default depth range
         // opaque objects are sorted front-to-back, reducing overdraw
         if (prof!=null) prof.vpStep(VpStep.RenderBucket, vp, Bucket.Opaque);
@@ -936,6 +931,10 @@ public class RenderManager {
      * false if to use the camera's view and projection matrices.
      */
     public void setCamera(Camera cam, boolean ortho) {
+        // Tell the light filter which camera to use for filtering.
+        if (lightFilter != null) {
+            lightFilter.setCamera(cam);
+        }
         setViewPort(cam);
         setViewProjection(cam, ortho);
     }
