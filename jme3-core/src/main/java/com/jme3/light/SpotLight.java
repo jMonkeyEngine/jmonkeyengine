@@ -35,6 +35,7 @@ import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.export.*;
 import com.jme3.math.FastMath;
+import com.jme3.math.Plane;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Spatial;
@@ -66,8 +67,8 @@ public class SpotLight extends Light implements Savable {
     protected float packedAngleCos=0;
     
     protected float outerAngleCosSqr, outerAngleSinSqr;
-    protected float outerAngleSinRcp;
-
+    protected float outerAngleSinRcp, outerAngleSin;
+    
     public SpotLight() {
         super();
         computeAngleParameters();
@@ -90,10 +91,10 @@ public class SpotLight extends Light implements Savable {
         }
         
         // compute parameters needed for cone vs sphere check.
-        float outerSin = FastMath.sin(spotOuterAngle);
+        outerAngleSin    = FastMath.sin(spotOuterAngle);
         outerAngleCosSqr = outerCos * outerCos;
-        outerAngleSinSqr = outerSin * outerSin;
-        outerAngleSinRcp = 1.0f / outerSin;
+        outerAngleSinSqr = outerAngleSin * outerAngleSin;
+        outerAngleSinRcp = 1.0f / outerAngleSin;
     }
 
     @Override
@@ -143,9 +144,29 @@ public class SpotLight extends Light implements Savable {
         if (this.spotRange == 0) {
             return true;
         } else {
-            // Do a frustum v. sphere test against the spot range.
+            // Do a frustum v. OBB test.
+            
+            // Determine OBB extents assuming OBB center is the middle
+            // point between the cone's vertex and its range.
+            float sideExtent    = spotRange * 0.5f * outerAngleSin;
+            float forwardExtent = spotRange * 0.5f;
+            
+            // Create OBB axes via direction and Y up vector.
+            Vector3f xAxis = Vector3f.UNIT_Y.cross(direction, vars.vect1).normalizeLocal();
+            Vector3f yAxis = direction.cross(xAxis, vars.vect2).normalizeLocal();
+            Vector3f obbCenter = direction.mult(spotRange * 0.5f, vars.vect3).addLocal(position);
+
             for (int i = 5; i >= 0; i--) {
-                if (camera.getWorldPlane(i).pseudoDistance(position) <= -spotRange) {
+                Plane plane = camera.getWorldPlane(i);
+                Vector3f planeNormal = plane.getNormal();
+                
+                // OBB v. plane intersection
+                float radius = FastMath.abs(sideExtent * (planeNormal.dot(xAxis)))
+                             + FastMath.abs(sideExtent * (planeNormal.dot(yAxis)))
+                             + FastMath.abs(forwardExtent * (planeNormal.dot(direction)));
+                
+                float distance = plane.pseudoDistance(obbCenter);
+                if (distance <= -radius) {
                     return false;
                 }
             }
