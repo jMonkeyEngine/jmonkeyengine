@@ -71,7 +71,6 @@ public class WaterFilter extends Filter {
     private Texture2D foamTexture;
     private Texture2D causticsTexture;
     private Texture2D heightTexture;
-    private Plane plane;
     private Camera reflectionCam;
     protected Ray ray = new Ray();
     private Vector3f targetLocation = new Vector3f();
@@ -90,6 +89,7 @@ public class WaterFilter extends Filter {
     private Vector3f lightDirection = new Vector3f(0, -1, 0);
     private ColorRGBA lightColor = ColorRGBA.White;
     private float waterHeight = 0.0f;
+    private Plane plane = new Plane(Vector3f.UNIT_Y, waterHeight);
     private ColorRGBA waterColor = new ColorRGBA(0.0078f, 0.3176f, 0.5f, 1.0f);
     private ColorRGBA deepWaterColor = new ColorRGBA(0.0039f, 0.00196f, 0.145f, 1.0f);
     private Vector3f colorExtinction = new Vector3f(5.0f, 20.0f, 30.0f);
