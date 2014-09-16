@@ -224,6 +224,7 @@ public class WaterFilter extends Filter {
         reflectionView.setOutputFrameBuffer(reflectionPass.getRenderFrameBuffer());
         plane = new Plane(Vector3f.UNIT_Y, new Vector3f(0, waterHeight, 0).dot(Vector3f.UNIT_Y));
         reflectionProcessor = new ReflectionProcessor(reflectionCam, reflectionPass.getRenderFrameBuffer(), plane);
+        reflectionProcessor.setReflectionClipPlane(plane);
         reflectionView.addProcessor(reflectionProcessor);
 
         normalTexture = (Texture2D) manager.loadTexture("Common/MatDefs/Water/Textures/water_normalmap.dds");
@@ -279,7 +280,7 @@ public class WaterFilter extends Filter {
             material.setFloat("Radius", radius * radius);
             material.setBoolean("SquareArea", shapeType==AreaShape.Square);
         }
-
+        material.setFloat("WaterHeight", waterHeight);
 
     }
 
