@@ -12,5 +12,5 @@ dependencies {
     compile project(':jme3-core')
     compile 'lessvoid:nifty:1.3.3'
     compile 'lessvoid:nifty-default-controls:1.3.3'
-//    compile 'lessvoid:nifty-style-black:1.3.3'
+    compile 'lessvoid:nifty-style-black:1.3.3'
 }
