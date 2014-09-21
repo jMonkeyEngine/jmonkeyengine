@@ -231,6 +231,10 @@
                 <binary-origin>release/modules/ext/javassist.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/beansbinding-1.2.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/beansbinding-1.2.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/Nifty-Editor0.5.7.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/Nifty-Editor0.5.7.jar</binary-origin>
             </class-path-extension>
