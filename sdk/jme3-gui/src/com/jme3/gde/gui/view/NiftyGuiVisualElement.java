@@ -4,12 +4,16 @@
  */
 package com.jme3.gde.gui.view;
 
-import com.jme3.app.Application;
+import com.jme3.asset.AssetInfo;
+import com.jme3.asset.AssetKey;
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.AssetNotFoundException;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.gui.NiftyGuiDataObject;
 import com.jme3.gde.gui.nodes.GElementNode;
 import com.jme3.gde.gui.nodes.GUINode;
 import de.lessvoid.nifty.Nifty;
+import de.lessvoid.nifty.tools.resourceloader.ResourceLocation;
 import jada.ngeditor.controller.CommandProcessor;
 import jada.ngeditor.controller.GUIEditor;
 import jada.ngeditor.guiviews.DND.PaletteDropTarget;
@@ -27,21 +31,18 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
-import javax.swing.ActionMap;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -58,18 +59,14 @@ import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.netbeans.spi.actions.AbstractSavable;
 import org.openide.awt.UndoRedo;
 import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.ExplorerUtils;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
-import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
 import org.xml.sax.SAXException;
-import sun.rmi.runtime.Log;
 
 @MultiViewElement.Registration(
         displayName = "#LBL_NiftyGui_VISUAL",
@@ -93,13 +90,37 @@ public final class NiftyGuiVisualElement extends JPanel implements MultiViewElem
     private int guiID;
      private final InstanceContent content = new InstanceContent();
      private Lookup lookup;
+     private AssetManager assetManager;
 
+    protected class ResourceLocationJmp implements ResourceLocation {
+
+        public InputStream getResourceAsStream(String path) {
+            AssetKey<Object> key = new AssetKey<Object>(path);
+            AssetInfo info = assetManager.locateAsset(key);
+            if (info != null){
+                return info.openStream();
+            }else{
+                throw new AssetNotFoundException(path);
+            }
+        }
+
+        public URL getResource(String path) {
+            throw new UnsupportedOperationException();
+        }
+    }
+    
+    private ResourceLocation resourceLocation = new ResourceLocationJmp();
+    
+        
     public NiftyGuiVisualElement(Lookup lkp) {
         obj = lkp.lookup(NiftyGuiDataObject.class);
         assert obj != null;
+        assetManager = obj.getLookup().lookup(AssetManager.class);
+        assert assetManager != null;
+        System.out.println("AssetManagerNifty " + assetManager);
         initComponents();
         view = new J2DNiftyView(800, 600);
-        view.init();
+        view.init(resourceLocation);
         this.scrollArea.getViewport().addChangeListener(view);
         this.scrollArea.setViewportView(view);
         TrasferHandling tranf = new TrasferHandling();
