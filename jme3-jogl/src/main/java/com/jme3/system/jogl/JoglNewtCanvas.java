@@ -85,7 +85,8 @@ public class JoglNewtCanvas extends JoglNewtAbstractDisplay implements JmeCanvas
     public void destroy(boolean waitFor){
         if (waitFor)
             waitFor(false);
-        animator.stop();
+        if (animator.isAnimating())
+            animator.stop();
     }
 
     @Override
