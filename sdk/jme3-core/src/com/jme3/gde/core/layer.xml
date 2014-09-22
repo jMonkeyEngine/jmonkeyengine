@@ -319,9 +319,6 @@
     </folder>
     <folder name="Services">
         <folder name="JavaHelp">
-            <file name="core-helpset.xml" url="core-helpset.xml">
-                <attr name="position" intvalue="3358"/>
-            </file>
             <file name="org-netbeans-modules-java-helpset.xml_hidden"/>
         </folder>
         <folder name="MIMEResolver">

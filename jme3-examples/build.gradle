@@ -44,7 +44,7 @@ jar.doFirst{
     }
 }
 
-task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar']){
+task dist (dependsOn: ['build', ':jme3-jogl:jar', ':jme3-bullet:jar']) << {
     // Copy all dependencies to ../dist/lib, remove versions from jar files
     configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
         copy {

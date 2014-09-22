@@ -29,7 +29,6 @@
         <package>com.jme3.scene.plugins.blender.lights</package>
         <package>com.jme3.scene.plugins.blender.materials</package>
         <package>com.jme3.scene.plugins.blender.meshes</package>
-        <package>com.jme3.scene.plugins.blender.meshes.builders</package>
         <package>com.jme3.scene.plugins.blender.modifiers</package>
         <package>com.jme3.scene.plugins.blender.objects</package>
         <package>com.jme3.scene.plugins.blender.particles</package>
@@ -67,6 +66,7 @@
         <package>com.jme3.material.plugins</package>
         <package>com.jme3.math</package>
         <package>com.jme3.post</package>
+        <package>com.jme3.profile</package>
         <package>com.jme3.renderer</package>
         <package>com.jme3.renderer.queue</package>
         <package>com.jme3.scene</package>
@@ -127,6 +127,8 @@
         <package>com.jme3.network.serializing.serializers</package>
         <package>com.jme3.niftygui</package>
         <package>com.jme3.export.xml</package>
+        <package>com.jme3.scene.plugins.fbx</package>
+        <package>com.jme3.scene.plugins.fbx.file</package>
         <package>com.jme3.scene.plugins.ogre</package>
         <package>com.jme3.scene.plugins.ogre.matext</package>
         <package>com.jme3.terrain</package>

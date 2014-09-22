@@ -216,6 +216,10 @@
         <binary-origin>release/modules/ext/nifty-default-controls-1.3.3.jar</binary-origin>
       </class-path-extension>
       <class-path-extension>
+        <runtime-relative-path>ext/nifty-style-black-1.3.3.jar</runtime-relative-path>
+        <binary-origin>release/modules/ext/nifty-style-black-1.3.3.jar</binary-origin>
+      </class-path-extension>
+      <class-path-extension>
         <runtime-relative-path>ext/xpp3-1.1.4c.jar</runtime-relative-path>
         <binary-origin>release/modules/ext/xpp3-1.1.4c.jar</binary-origin>
       </class-path-extension>
