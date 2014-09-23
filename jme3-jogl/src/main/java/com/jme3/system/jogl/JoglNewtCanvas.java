@@ -48,7 +48,7 @@ public class JoglNewtCanvas extends JoglNewtAbstractDisplay implements JmeCanvas
         super();
         initGLCanvas();
     }
-    
+
     @Override
     protected final void initGLCanvas() {
         super.initGLCanvas();
@@ -85,6 +85,8 @@ public class JoglNewtCanvas extends JoglNewtAbstractDisplay implements JmeCanvas
     public void destroy(boolean waitFor){
         if (waitFor)
             waitFor(false);
+        if (animator.isAnimating())
+            animator.stop();
     }
 
     @Override
@@ -107,6 +109,12 @@ public class JoglNewtCanvas extends JoglNewtAbstractDisplay implements JmeCanvas
 
         renderer.initialize();
         listener.initialize();
+    }
+
+    @Override
+    protected void startGLCanvas() {
+        frameRate = settings.getFrameRate();
+        super.startGLCanvas();
     }
 
     public void display(GLAutoDrawable glad) {

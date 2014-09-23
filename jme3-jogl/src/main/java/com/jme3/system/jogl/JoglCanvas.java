@@ -65,6 +65,8 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
     public void destroy(boolean waitFor){
         if (waitFor)
             waitFor(false);
+        if (animator.isAnimating())
+            animator.stop();
     }
 
     @Override
@@ -87,6 +89,12 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
 
         renderer.initialize();
         listener.initialize();
+    }
+
+    @Override
+    protected void startGLCanvas() {
+        frameRate = settings.getFrameRate();
+        super.startGLCanvas();
     }
 
     public void display(GLAutoDrawable glad) {
@@ -115,7 +123,7 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
             animator.stop();
             wasAnimating = false;
         }
-            
+
         listener.update();
         renderer.onFrame();
 
@@ -126,7 +134,7 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
     }
 
     @Override
-    public void dispose(GLAutoDrawable arg0) {       
+    public void dispose(GLAutoDrawable arg0) {
     }
 
 }
