@@ -166,8 +166,8 @@ public class TestInstanceNode extends SimpleApplication  {
         
         for (Spatial child : instancedNode.getChildren()) {
             if (!(child instanceof InstancedGeometry)) {
-                float val = child.getUserData("height");
-                float dir = child.getUserData("dir");
+                float val = ((Float)child.getUserData("height")).floatValue();
+                float dir = ((Float)child.getUserData("dir")).floatValue();
 
                 val += (dir + ((FastMath.nextRandomFloat() * 0.5f) - 0.25f)) * tpf;
 
