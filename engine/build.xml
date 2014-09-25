@@ -122,7 +122,7 @@
         <j2seproject3:javac
             destdir="${build.dir}/terrain"
             srcdir="${src.terrain.dir}"
-            classpath="${javac.classpath}:${build.dir}/core:${build.dir}/desktop"
+            classpath="${javac.classpath}:${build.dir}/core"
             gensrcdir="${build.generated.sources.dir}"/>
         <copy todir="${build.dir}/terrain">
             <fileset dir="${src.terrain.dir}" excludes="${build.classes.excludes},${excludes}" includes="${includes}"/>
@@ -324,12 +324,263 @@
        ****************************************************************
       -->
 
-    <target name="maven-repo" depends="init" description="Creates a fucking maven repo from the jars">
+    <target name="maven-repo" depends="jar" description="Creates a fucking maven repo from the jars">
         <property file="../sdk/nbproject/project.properties"/>
         <mkdir dir="${build.dir}/maven-pom"/>
         <mkdir dir="${dist.dir}/maven"/>
         
+        <echo>Creating maven javadoc packages</echo>
         
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.core.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.core-data.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.core-plugins.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.tools.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-core-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+        
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.core-effects.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-effects-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.xml.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.ogre.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-plugins-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.desktop.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-desktop-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.terrain.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-terrain-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.jbullet.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.bullet-common.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-jbullet-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.bullet.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+            <fileset dir="${src.bullet-common.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-bullet-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.networking.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-networking-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.niftygui.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-niftygui-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.jogg.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-jogg-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.blender.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-blender-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.lwjgl.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-lwjgl-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.android.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-android-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <mkdir dir="${build.dir}/javadoc-tmp"/>
+        <javadoc additionalparam="${javadoc.additionalparam}" author="${javadoc.author}" charset="UTF-8" destdir="${build.dir}/javadoc-tmp" docencoding="UTF-8" encoding="${javadoc.encoding.used}" failonerror="true" noindex="${javadoc.noindex}" nonavbar="${javadoc.nonavbar}" notree="${javadoc.notree}" private="${javadoc.private}" source="${javac.source}" splitindex="${javadoc.splitindex}" use="${javadoc.use}" useexternalfile="true" version="${javadoc.version}" windowtitle="${javadoc.windowtitle}">
+            <classpath>
+                <path path="${run.classpath}"/>
+            </classpath>
+            <fileset dir="${src.ios.dir}" excludes="*.java,${excludes}" includes="${includes}">
+                <filename name="**/*.java"/>
+            </fileset>
+        </javadoc>
+        <jar jarfile="${build.dir}/jME3-ios-javadoc.jar" basedir="${build.dir}/javadoc-tmp" compress="true"/>
+        <delete dir="${build.dir}/javadoc-tmp"/>
+
+        <echo>Creating maven source packages</echo>
+        
+        <jar jarfile="${build.dir}/jME3-core-sources.jar" compress="true">
+            <fileset dir="${src.core.dir}"/>
+            <fileset dir="${src.core-data.dir}"/>
+            <fileset dir="${src.core-plugins.dir}"/>
+            <fileset dir="${src.tools.dir}"/>
+        </jar>
+        
+        <jar jarfile="${build.dir}/jME3-effects-sources.jar" compress="true">
+            <fileset dir="${src.core-effects.dir}"/>
+        </jar>
+        
+        <jar jarfile="${build.dir}/jME3-plugins-sources.jar" compress="true">
+            <fileset dir="${src.xml.dir}"/>
+            <fileset dir="${src.ogre.dir}"/>
+        </jar>
+        
+        <jar jarfile="${build.dir}/jME3-desktop-sources.jar" compress="true">
+            <fileset dir="${src.desktop.dir}"/>
+        </jar>
+
+        <jar jarfile="${build.dir}/jME3-terrain-sources.jar" compress="true">
+            <fileset dir="${src.terrain.dir}"/>
+        </jar>
+
+        <jar jarfile="${build.dir}/jME3-jbullet-sources.jar" compress="true">
+            <fileset dir="${src.jbullet.dir}"/>
+            <fileset dir="${src.bullet-common.dir}"/>
+        </jar>
+
+        <jar jarfile="${build.dir}/jME3-bullet-sources.jar" compress="true">
+            <fileset dir="${src.bullet.dir}"/>
+            <fileset dir="${src.bullet-common.dir}"/>
+        </jar>
+
+        <jar jarfile="${build.dir}/jME3-networking-sources.jar" compress="true">
+            <fileset dir="${src.networking.dir}"/>
+        </jar>
+
+        <jar jarfile="${build.dir}/jME3-niftygui-sources.jar" compress="true">
+            <fileset dir="${src.niftygui.dir}"/>
+        </jar>
+
+        <jar jarfile="${build.dir}/jME3-jogg-sources.jar" compress="true">
+            <fileset dir="${src.jogg.dir}"/>
+        </jar>
+
+        <jar jarfile="${build.dir}/jME3-blender-sources.jar" compress="true">
+            <fileset dir="${src.blender.dir}"/>
+        </jar>
+
+        <jar jarfile="${build.dir}/jME3-lwjgl-sources.jar" compress="true">
+            <fileset dir="${src.lwjgl.dir}"/>
+        </jar>
+
+        <jar jarfile="${build.dir}/jME3-android-sources.jar" compress="true">
+            <fileset dir="${src.android.dir}"/>
+        </jar>
+
+        <jar jarfile="${build.dir}/jME3-ios-sources.jar" compress="true">
+            <fileset dir="${src.ios.dir}"/>
+        </jar>
+
         <echo>Creating jME3 dependencies maven repo files</echo>
         
         <artifact:pom id="jme3-lib-lwjgl-pom" artifactId="lwjgl" name="lwjgl" groupId="com.jme3-lib" version="2.9.0">
@@ -507,40 +758,52 @@
         <artifact:deploy file="${build.dir}/jME3-core.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-core-pom"/>
+            <attach file="${build.dir}/jme3-core-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-core-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-effects-pom" artifactId="jme3-effects" name="jme3-effects" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
         </artifact:pom>
         <artifact:writepom pomRefId="jme3-effects-pom" file="${build.dir}/maven-pom/jme3-effects-pom.xml"/>
         <artifact:pom id="jme3-effects-pom" file="${build.dir}/maven-pom/jme3-effects-pom.xml"/>
         <artifact:deploy file="${build.dir}/jME3-effects.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-effects-pom"/>
+            <attach file="${build.dir}/jme3-effects-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-effects-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-networking-pom" artifactId="jme3-networking" name="jme3-networking" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
         </artifact:pom>
         <artifact:writepom pomRefId="jme3-networking-pom" file="${build.dir}/maven-pom/jme3-networking-pom.xml"/>
         <artifact:pom id="jme3-networking-pom" file="${build.dir}/maven-pom/jme3-networking-pom.xml"/>
         <artifact:deploy file="${build.dir}/jME3-networking.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-networking-pom"/>
+            <attach file="${build.dir}/jme3-networking-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-networking-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-plugins-pom" artifactId="jme3-plugins" name="jme3-plugins" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
         </artifact:pom>
         <artifact:writepom pomRefId="jme3-plugins-pom" file="${build.dir}/maven-pom/jme3-plugins-pom.xml"/>
         <artifact:pom id="jme3-plugins-pom" file="${build.dir}/maven-pom/jme3-plugins-pom.xml"/>
         <artifact:deploy file="${build.dir}/jME3-plugins.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-plugins-pom"/>
+            <attach file="${build.dir}/jme3-plugins-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-plugins-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-jogg-pom" artifactId="jme3-jogg" name="jme3-jogg" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
             <dependency groupId="com.jme3-lib" artifactId="joggd" version="1.0.0"/>
             <dependency groupId="com.jme3-lib" artifactId="vorbisd" version="1.0.0"/>
         </artifact:pom>
@@ -549,40 +812,55 @@
         <artifact:deploy file="${build.dir}/jME3-jogg.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-jogg-pom"/>
+            <attach file="${build.dir}/jme3-jogg-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-jogg-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-desktop-pom" artifactId="jme3-desktop" name="jme3-desktop" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
         </artifact:pom>
         <artifact:writepom pomRefId="jme3-desktop-pom" file="${build.dir}/maven-pom/jme3-desktop-pom.xml"/>
         <artifact:pom id="jme3-desktop-pom" file="${build.dir}/maven-pom/jme3-desktop-pom.xml"/>
         <artifact:deploy file="${build.dir}/jME3-desktop.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-desktop-pom"/>
+            <attach file="${build.dir}/jme3-desktop-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-desktop-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-blender-pom" artifactId="jme3-blender" name="jme3-blender" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
+            <dependency groupId="com.jme3" artifactId="jme3-plugins" version="${plugins.version}"/>
+            <dependency groupId="com.jme3" artifactId="jme3-desktop" version="${plugins.version}"/>
         </artifact:pom>
         <artifact:writepom pomRefId="jme3-blender-pom" file="${build.dir}/maven-pom/jme3-blender-pom.xml"/>
         <artifact:pom id="jme3-blender-pom" file="${build.dir}/maven-pom/jme3-blender-pom.xml"/>
         <artifact:deploy file="${build.dir}/jME3-blender.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-blender-pom"/>
+            <attach file="${build.dir}/jme3-blender-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-blender-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-terrain-pom" artifactId="jme3-terrain" name="jme3-terrain" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
         </artifact:pom>
         <artifact:writepom pomRefId="jme3-terrain-pom" file="${build.dir}/maven-pom/jme3-terrain-pom.xml"/>
         <artifact:pom id="jme3-terrain-pom" file="${build.dir}/maven-pom/jme3-terrain-pom.xml"/>
         <artifact:deploy file="${build.dir}/jME3-terrain.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-terrain-pom"/>
+            <attach file="${build.dir}/jme3-terrain-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-terrain-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-jbullet-pom" artifactId="jme3-jbullet" name="jme3-jbullet" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
+            <dependency groupId="com.jme3" artifactId="jme3-terrain" version="${plugins.version}"/>
             <dependency groupId="com.jme3-lib" artifactId="jbullet" version="${plugins.version}-jme"/>
             <dependency groupId="com.jme3-lib" artifactId="stack-alloc" version="${plugins.version}-jme"/>
             <dependency groupId="com.jme3-lib" artifactId="vecmath" version="1.3.1"/>
@@ -592,10 +870,13 @@
         <artifact:deploy file="${build.dir}/jME3-jbullet.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-jbullet-pom"/>
+            <attach file="${build.dir}/jme3-jbullet-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-jbullet-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-bullet-pom" artifactId="jme3-bullet" name="jme3-bullet" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
             <!--dependency groupId="com.jme3" artifactId="jme3-bullet-natives" version="${plugins.version}"/-->
         </artifact:pom>
         <artifact:writepom pomRefId="jme3-bullet-pom" file="${build.dir}/maven-pom/jme3-bullet-pom.xml"/>
@@ -603,10 +884,13 @@
         <artifact:deploy file="${build.dir}/jME3-bullet.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-bullet-pom"/>
+            <attach file="${build.dir}/jme3-bullet-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-bullet-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-niftygui-pom" artifactId="jme3-niftygui" name="jme3-niftygui" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
             <dependency groupId="com.jme3-lib" artifactId="nifty" version="1.3.3"/>
             <dependency groupId="com.jme3-lib" artifactId="nifty-default-controls" version="1.3.3"/>
             <dependency groupId="com.jme3-lib" artifactId="nifty-style-black" version="1.3.3"/>
@@ -618,10 +902,14 @@
         <artifact:deploy file="${build.dir}/jME3-niftygui.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-niftygui-pom"/>
+            <attach file="${build.dir}/jme3-niftygui-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-niftygui-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
         
         <artifact:pom id="jme3-lwjgl-pom" artifactId="jme3-lwjgl" name="jme3-lwjgl" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
+            <dependency groupId="com.jme3" artifactId="jme3-desktop" version="${plugins.version}"/>
             <dependency groupId="com.jme3-lib" artifactId="lwjgl" version="2.9.0"/>
             <dependency groupId="com.jme3-lib" artifactId="jinput" version="2.0.0-b01"/>
             <dependency groupId="com.jme3-lib" artifactId="lwjgl-natives" version="2.9.0"/>
@@ -631,10 +919,13 @@
         <artifact:deploy file="${build.dir}/jME3-lwjgl.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-lwjgl-pom"/>
+            <attach file="${build.dir}/jme3-lwjgl-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-lwjgl-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-android-pom" artifactId="jme3-android" name="jme3-android" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
             <dependency groupId="com.jme3" artifactId="jme3-openal-soft-android" version="${plugins.version}"/>
         </artifact:pom>
         <artifact:writepom pomRefId="jme3-android-pom" file="${build.dir}/maven-pom/jme3-android-pom.xml"/>
@@ -642,16 +933,21 @@
         <artifact:deploy file="${build.dir}/jME3-android.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-android-pom"/>
+            <attach file="${build.dir}/jme3-android-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-android-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
 
         <artifact:pom id="jme3-ios-pom" artifactId="jme3-ios" name="jme3-ios" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
+            <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
         </artifact:pom>
         <artifact:writepom pomRefId="jme3-ios-pom" file="${build.dir}/maven-pom/jme3-ios-pom.xml"/>
         <artifact:pom id="jme3-ios-pom" file="${build.dir}/maven-pom/jme3-ios-pom.xml"/>
         <artifact:deploy file="${build.dir}/jME3-ios.jar">
             <remoteRepository url="file://${basedir}/${dist.dir}/maven"/>
             <pom refid="jme3-ios-pom"/>
+            <attach file="${build.dir}/jme3-ios-sources.jar" type="jar" classifier="sources"/>
+            <attach file="${build.dir}/jme3-ios-javadoc.jar" type="jar" classifier="javadoc"/>
         </artifact:deploy>
     </target>
 
