@@ -804,7 +804,7 @@
         <artifact:pom id="jme3-jogg-pom" artifactId="jme3-jogg" name="jme3-jogg" groupId="com.jme3" version="${plugins.version}">
             <license name="BSD" url="http://opensource.org/licenses/BSD-3-Clause"/>
             <dependency groupId="com.jme3" artifactId="jme3-core" version="${plugins.version}"/>
-            <dependency groupId="com.jme3-lib" artifactId="joggd" version="1.0.0"/>
+            <dependency groupId="com.jme3-lib" artifactId="oggd" version="1.0.0"/>
             <dependency groupId="com.jme3-lib" artifactId="vorbisd" version="1.0.0"/>
         </artifact:pom>
         <artifact:writepom pomRefId="jme3-jogg-pom" file="${build.dir}/maven-pom/jme3-jogg-pom.xml"/>
