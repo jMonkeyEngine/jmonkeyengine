@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.meshes.IndexesLoop.IndexPredicate;
 
 /**
  * A class that represents a single point on the scene that is not a part of an edge.
@@ -47,9 +48,13 @@ import com.jme3.scene.plugins.blender.file.Structure;
      * The method shifts the index by a given value.
      * @param shift
      *            the value to shift the index
+     * @param predicate
+     *            the predicate that verifies which indexes should be shifted; if null then all will be shifted
      */
-    public void shiftIndexes(int shift) {
-        index += shift;
+    public void shiftIndexes(int shift, IndexPredicate predicate) {
+        if (predicate == null || predicate.execute(index)) {
+            index += shift;
+        }
     }
 
     /**

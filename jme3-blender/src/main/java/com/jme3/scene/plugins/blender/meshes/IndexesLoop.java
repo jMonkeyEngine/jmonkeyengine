@@ -18,10 +18,17 @@ import com.jme3.scene.plugins.blender.file.BlenderFileException;
  * @author Marcin Roguski (Kaelthas)
  */
 public class IndexesLoop implements Comparator<Integer>, Iterable<Integer> {
+    public static final IndexPredicate  INDEX_PREDICATE_USE_ALL = new IndexPredicate() {
+                                                                    @Override
+                                                                    public boolean execute(Integer index) {
+                                                                        return true;
+                                                                    }
+                                                                };
+
     /** The indexes. */
     private List<Integer>               nodes;
     /** The edges of the indexes graph. The key is the 'from' index and 'value' is - 'to' index. */
-    private Map<Integer, List<Integer>> edges = new HashMap<Integer, List<Integer>>();
+    private Map<Integer, List<Integer>> edges                   = new HashMap<Integer, List<Integer>>();
 
     /**
      * The constructor uses the given nodes in their give order. Each neighbour indexes will form an edge.
@@ -124,18 +131,23 @@ public class IndexesLoop implements Comparator<Integer>, Iterable<Integer> {
      * The method shifts all indexes by a given value.
      * @param shift
      *            the value to shift all indexes
+     * @param predicate
+     *            the predicate that verifies which indexes should be shifted; if null then all will be shifted
      */
-    public void shiftIndexes(int shift) {
+    public void shiftIndexes(int shift, IndexPredicate predicate) {
+        if (predicate == null) {
+            predicate = INDEX_PREDICATE_USE_ALL;
+        }
         List<Integer> nodes = new ArrayList<Integer>(this.nodes.size());
         for (Integer node : this.nodes) {
-            nodes.add(node + shift);
+            nodes.add(node + (predicate.execute(node) ? shift : 0));
         }
 
         Map<Integer, List<Integer>> edges = new HashMap<Integer, List<Integer>>();
         for (Entry<Integer, List<Integer>> entry : this.edges.entrySet()) {
             List<Integer> neighbours = new ArrayList<Integer>(entry.getValue().size());
             for (Integer neighbour : entry.getValue()) {
-                neighbours.add(neighbour + shift);
+                neighbours.add(neighbour + (predicate.execute(neighbour) ? shift : 0));
             }
             edges.put(entry.getKey() + shift, neighbours);
         }
@@ -263,5 +275,9 @@ public class IndexesLoop implements Comparator<Integer>, Iterable<Integer> {
     @Override
     public Iterator<Integer> iterator() {
         return nodes.iterator();
+    }
+
+    public static interface IndexPredicate {
+        boolean execute(Integer index);
     }
 }

@@ -116,12 +116,19 @@ import com.jme3.scene.plugins.blender.file.Structure;
         }
         return indexes.get(indexPosition);
     }
+    
+    /**
+     * @return the original indexes of the face
+     */
+    public IndexesLoop getIndexes() {
+        return indexes;
+    }
 
     /**
-     * @return all indexes
+     * @return current indexes of the face (if it is already triangulated then more than one index group will be in the result list)
      */
     @SuppressWarnings("unchecked")
-    public List<List<Integer>> getIndexes() {
+    public List<List<Integer>> getCurrentIndexes() {
         if(triangulatedFaces == null) {
             return Arrays.asList(indexes.getAll());
         }
@@ -176,25 +183,6 @@ import com.jme3.scene.plugins.blender.file.Structure;
         }
 
         return detachedFaces;
-    }
-
-    /**
-     * The method returns the position of the given index in the indexes loop.
-     * @param index
-     *            the index whose position will be queried
-     * @return position of the given index or -1 if such index is not in the index loop
-     */
-    public int indexOf(Integer index) {
-        return indexes.indexOf(index);
-    }
-
-    /**
-     * The method shifts all indexes by a given value.
-     * @param shift
-     *            the value to shift all indexes
-     */
-    public void shiftIndexes(int shift) {
-        indexes.shiftIndexes(shift);
     }
 
     /**
@@ -273,7 +261,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
                 Face face = facesToTriangulate.remove(0);
                 int previousIndex1 = -1, previousIndex2 = -1, previousIndex3 = -1;
                 while (face.vertexCount() > 0) {
-                    indexes[0] = face.getIndex(0);  
+                    indexes[0] = face.getIndex(0);
                     indexes[1] = face.findClosestVertex(indexes[0], -1);
                     indexes[2] = face.findClosestVertex(indexes[0], indexes[1]);
                     
@@ -394,7 +382,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
             // with the one creaded by vertices: [index1 - 1, index1, index2]
             // if the latter is greater than it means that the edge is outside the face
             // IMPORTANT: we assume that all vertices are in one plane (this should be ensured before creating the Face)
-            int indexOfIndex1 = this.indexOf(index1);
+            int indexOfIndex1 = indexes.indexOf(index1);
             int indexMinus1 = this.getIndex(indexOfIndex1 - 1);// indexOfIndex1 == 0 ? indexes.get(indexes.size() - 1) : indexes.get(indexOfIndex1 - 1);
             int indexPlus1 = this.getIndex(indexOfIndex1 + 1);// indexOfIndex1 == indexes.size() - 1 ? 0 : indexes.get(indexOfIndex1 + 1);
 
@@ -525,6 +513,6 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
     @Override
     public int compare(Integer index1, Integer index2) {
-        return this.indexOf(index1) - this.indexOf(index2);
+        return indexes.indexOf(index1) - indexes.indexOf(index2);
     }
 }

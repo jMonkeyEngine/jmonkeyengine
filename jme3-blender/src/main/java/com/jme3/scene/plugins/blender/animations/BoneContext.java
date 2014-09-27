@@ -23,6 +23,7 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
  */
 public class BoneContext {
     // the flags of the bone
+    public static final int      SELECTED                            = 0x0001;
     public static final int      CONNECTED_TO_PARENT                 = 0x0010;
     public static final int      DEFORM                              = 0x1000;
 

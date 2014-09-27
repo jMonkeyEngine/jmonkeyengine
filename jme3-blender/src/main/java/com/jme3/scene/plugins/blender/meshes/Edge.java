@@ -11,6 +11,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.meshes.IndexesLoop.IndexPredicate;
 
 /**
  * A class that represents a single edge between two vertices.
@@ -82,10 +83,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
      * Shifts indexes by a given amount.
      * @param shift
      *            how much the indexes should be shifted
+     * @param predicate
+     *            the predicate that verifies which indexes should be shifted; if null then all will be shifted
      */
-    public void shiftIndexes(int shift) {
-        index1 += shift;
-        index2 += shift;
+    public void shiftIndexes(int shift, IndexPredicate predicate) {
+        if (predicate == null) {
+            index1 += shift;
+            index2 += shift;
+        } else {
+            index1 += predicate.execute(index1) ? shift : 0;
+            index2 += predicate.execute(index2) ? shift : 0;
+        }
     }
 
     /**
