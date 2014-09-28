@@ -21,9 +21,6 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Sheet;
-import org.openide.util.Exceptions;
-import sun.beans.editors.BoolEditor;
-import sun.beans.editors.BooleanEditor;
 
 /**
  *
