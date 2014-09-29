@@ -683,7 +683,7 @@ public class PhysicsSpace {
      * @param gravity
      */
     public void setGravity(Vector3f gravity) {
-        gravity.set(gravity);
+        this.gravity.set(gravity);
         setGravity(physicsSpaceId, gravity);
     }
 
