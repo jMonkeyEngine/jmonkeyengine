@@ -35,7 +35,11 @@ package jme3test.post;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -61,11 +65,11 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         TestMultiRenderTarget app = new TestMultiRenderTarget();
         app.start();
     }
+    private String techOrig;
 
     @Override
     public void simpleInitApp() {
         viewPort.addProcessor(this);
-        renderManager.setForcedTechnique("GBuf");
 
 //        flyCam.setEnabled(false);
         cam.setLocation(new Vector3f(4.8037705f, 4.851632f, 10.789033f));
@@ -114,7 +118,7 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
         guiViewPort.setClearFlags(true, true, true);
         guiNode.attachChild(display);
 //        guiNode.attachChild(display1);
-//        guiNode.attachChild(display2);
+        guiNode.attachChild(display2);
 //        guiNode.attachChild(display3);
 //        guiNode.attachChild(display4);
         guiNode.updateGeometricState();
@@ -205,12 +209,15 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
     public void preFrame(float tpf) {
         Matrix4f inverseViewProj = cam.getViewProjectionMatrix().invert();
         mat.setMatrix4("ViewProjectionMatrixInverse", inverseViewProj);
+        techOrig = renderManager.getForcedTechnique();
+        renderManager.setForcedTechnique("GBuf");
     }
 
     public void postQueue(RenderQueue rq) {
     }
 
     public void postFrame(FrameBuffer out) {
+        renderManager.setForcedTechnique(techOrig);
     }
 
     public void cleanup() {
