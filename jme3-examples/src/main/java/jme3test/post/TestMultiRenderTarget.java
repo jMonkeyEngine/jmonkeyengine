@@ -35,12 +35,15 @@ package jme3test.post;
 import com.jme3.app.SimpleApplication;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
-import com.jme3.math.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
@@ -51,11 +54,13 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
 
     private FrameBuffer fb;
     private Texture2D diffuseData, normalData, specularData, depthData;
-    private Geometry sphere;
     private Picture display1, display2, display3, display4;
     
     private Picture display;
     private Material mat;
+
+    private String techOrig;
+    private PointLight[] pls;
 
     public static void main(String[] args){
         TestMultiRenderTarget app = new TestMultiRenderTarget();
@@ -65,7 +70,6 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
     @Override
     public void simpleInitApp() {
         viewPort.addProcessor(this);
-        renderManager.setForcedTechnique("GBuf");
 
 //        flyCam.setEnabled(false);
         cam.setLocation(new Vector3f(4.8037705f, 4.851632f, 10.789033f));
@@ -96,25 +100,33 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
             ColorRGBA.Yellow
         };
 
-        for (int i = 0; i < 3; i++){
+        pls = new PointLight[3];
+        for (int i = 0; i < pls.length; i++){
             PointLight pl = new PointLight();
-            float angle = 0.314159265f * i;
-            pl.setPosition( new Vector3f(FastMath.cos(angle)*2f, 0,
-                                         FastMath.sin(angle)*2f));
-            pl.setColor(colors[i]);
+            pl.setColor(colors[i % colors.length]);
             pl.setRadius(5);
-            rootNode.addLight(pl);
             display.addLight(pl);
+            pls[i] = pl;
         }
     }
 
+    @Override
+    public void simpleUpdate(float tpf) {
+        super.simpleUpdate(tpf);//To change body of generated methods, choose Tools | Templates.
+        for (int i = 0; i < 3; i++){
+            PointLight pl = pls[i];
+            float angle = (float)Math.PI * (i + (timer.getTimeInSeconds() % 6)/3); // 3s for full loop
+            pl.setPosition( new Vector3f(FastMath.cos(angle)*3f, 0,
+                                         FastMath.sin(angle)*3f));
+        }
+    }
     public void initialize(RenderManager rm, ViewPort vp) {
         reshape(vp, vp.getCamera().getWidth(), vp.getCamera().getHeight());
         viewPort.setOutputFrameBuffer(fb);
         guiViewPort.setClearFlags(true, true, true);
         guiNode.attachChild(display);
 //        guiNode.attachChild(display1);
-//        guiNode.attachChild(display2);
+        guiNode.attachChild(display2);
 //        guiNode.attachChild(display3);
 //        guiNode.attachChild(display4);
         guiNode.updateGeometricState();
@@ -205,12 +217,15 @@ public class TestMultiRenderTarget extends SimpleApplication implements ScenePro
     public void preFrame(float tpf) {
         Matrix4f inverseViewProj = cam.getViewProjectionMatrix().invert();
         mat.setMatrix4("ViewProjectionMatrixInverse", inverseViewProj);
+        techOrig = renderManager.getForcedTechnique();
+        renderManager.setForcedTechnique("GBuf");
     }
 
     public void postQueue(RenderQueue rq) {
     }
 
     public void postFrame(FrameBuffer out) {
+        renderManager.setForcedTechnique(techOrig);
     }
 
     public void cleanup() {
