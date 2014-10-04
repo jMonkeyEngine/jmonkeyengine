@@ -229,7 +229,7 @@ public class PhysicsCollisionEvent extends EventObject {
     }
 
     public Vector3f getPositionWorldOnA(Vector3f positionWorldOnA) {
-        getPositionWorldOnA(positionWorldOnA);
+        getPositionWorldOnA(manifoldPointObjectId, positionWorldOnA);
         return positionWorldOnA;
     }
     private native void getPositionWorldOnA(long manifoldPointObjectId, Vector3f positionWorldOnA);
