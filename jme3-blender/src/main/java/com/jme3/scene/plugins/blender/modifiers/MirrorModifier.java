@@ -1,5 +1,6 @@
 package com.jme3.scene.plugins.blender.modifiers;
 
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,6 +11,8 @@ import com.jme3.scene.plugins.blender.BlenderContext;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
 import com.jme3.scene.plugins.blender.file.Structure;
+import com.jme3.scene.plugins.blender.meshes.Edge;
+import com.jme3.scene.plugins.blender.meshes.Face;
 import com.jme3.scene.plugins.blender.meshes.TemporalMesh;
 import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 
@@ -69,8 +72,8 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 
             tolerance = ((Number) modifierStructure.getFieldValue("tolerance")).floatValue();
             pMirrorObject = (Pointer) modifierStructure.getFieldValue("mirror_ob");
-            
-            if(mirrorVGroup) {
+
+            if (mirrorVGroup) {
                 LOGGER.warning("Mirroring vertex groups is currently not supported.");
             }
         }
@@ -117,8 +120,8 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
 
                         TemporalMesh mirror = temporalMesh.clone();
                         for (int i = 0; i < mirror.getVertexCount(); ++i) {
-                            Vector3f vertex = mirror.getVertex(i);
-                            Vector3f normal = mirror.getNormal(i);
+                            Vector3f vertex = mirror.getVertices().get(i);
+                            Vector3f normal = mirror.getNormals().get(i);
 
                             if (mirrorAtPoint0) {
                                 d = Math.abs(vertex.get(mirrorIndex));
@@ -131,18 +134,27 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
                             if (merge && d <= tolerance) {
                                 vertex.addLocal(shiftVector);
                                 normal.set(mirrorIndex, 0);
-                                temporalMesh.getVertex(i).addLocal(shiftVector);
-                                temporalMesh.getNormal(i).set(mirrorIndex, 0);
+                                temporalMesh.getVertices().get(i).addLocal(shiftVector);
+                                temporalMesh.getNormals().get(i).set(mirrorIndex, 0);
                             } else {
                                 vertex.addLocal(shiftVector.multLocal(2));
                                 normal.set(mirrorIndex, -normal.get(mirrorIndex));
                             }
                         }
 
-                        mirror.flipIndexes();
+                        // flipping the indexes
+                        for (Face face : mirror.getFaces()) {
+                            face.flipIndexes();
+                        }
+                        for (Edge edge : mirror.getEdges()) {
+                            edge.flipIndexes();
+                        }
+                        Collections.reverse(mirror.getPoints());
 
                         if (mirrorU || mirrorV) {
-                            mirror.flipUV(mirrorU, mirrorV);
+                            for (Face face : mirror.getFaces()) {
+                                face.flipUV(mirrorU, mirrorV);
+                            }
                         }
 
                         temporalMesh.append(mirror);

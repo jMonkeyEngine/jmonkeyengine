@@ -18,7 +18,7 @@ import com.jme3.scene.plugins.blender.meshes.IndexesLoop.IndexPredicate;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-/* package */class Edge extends Line {
+public class Edge extends Line {
     private static final long   serialVersionUID = 7172714692126675311L;
 
     private static final Logger LOGGER           = Logger.getLogger(Edge.class.getName());

@@ -210,15 +210,28 @@ import com.jme3.scene.shape.Curve;
                 if (count > 0) {
                     TemporalMesh originalMesh = temporalMesh.clone();
                     for (int i = 0; i < count; ++i) {
-                        temporalMesh.append(originalMesh.clone().translate(totalTranslation));
+                        TemporalMesh clone = originalMesh.clone();
+                        for (Vector3f v : clone.getVertices()) {
+                            v.addLocal(totalTranslation);
+                        }
+                        temporalMesh.append(clone);
                         totalTranslation.addLocal(translationVector);
                     }
                 }
                 if (caps[0] != null) {
-                    temporalMesh.append(caps[0].clone().translate(translationVector.multLocal(-1)));
+                    translationVector.multLocal(-1);
+                    TemporalMesh capsClone = caps[0].clone();
+                    for (Vector3f v : capsClone.getVertices()) {
+                        v.addLocal(translationVector);
+                    }
+                    temporalMesh.append(capsClone);
                 }
                 if (caps[1] != null) {
-                    temporalMesh.append(caps[1].clone().translate(totalTranslation));
+                    TemporalMesh capsClone = caps[1].clone();
+                    for (Vector3f v : capsClone.getVertices()) {
+                        v.addLocal(totalTranslation);
+                    }
+                    temporalMesh.append(capsClone);
                 }
             } else {
                 LOGGER.log(Level.WARNING, "Cannot find temporal mesh for node: {0}. The modifier will NOT be applied!", node);

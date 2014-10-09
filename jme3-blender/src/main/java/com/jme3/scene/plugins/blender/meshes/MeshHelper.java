@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -312,6 +313,29 @@ public class MeshHelper extends AbstractBlenderHelper {
                     }
                 }
                 result.add(weightsForVertex);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Selects the proper subsets of UV coordinates for the given sublist of indexes.
+     * @param face
+     *            the face with the original UV sets
+     * @param indexesSublist
+     *            the sub list of indexes
+     * @return a map of UV coordinates subsets
+     */
+    public Map<String, List<Vector2f>> selectUVSubset(Face face, Integer... indexesSublist) {
+        Map<String, List<Vector2f>> result = null;
+        if (face.getUvSets() != null) {
+            result = new HashMap<String, List<Vector2f>>();
+            for (Entry<String, List<Vector2f>> entry : face.getUvSets().entrySet()) {
+                List<Vector2f> uvs = new ArrayList<Vector2f>(indexesSublist.length);
+                for (Integer index : indexesSublist) {
+                    uvs.add(entry.getValue().get(face.getIndexes().indexOf(index)));
+                }
+                result.put(entry.getKey(), uvs);
             }
         }
         return result;

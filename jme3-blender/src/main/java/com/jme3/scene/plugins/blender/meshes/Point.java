@@ -17,7 +17,7 @@ import com.jme3.scene.plugins.blender.meshes.IndexesLoop.IndexPredicate;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-/* package */class Point {
+public class Point {
     private static final Logger LOGGER = Logger.getLogger(Point.class.getName());
 
     /** The point's index. */

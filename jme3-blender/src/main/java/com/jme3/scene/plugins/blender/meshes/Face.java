@@ -25,13 +25,13 @@ import com.jme3.scene.plugins.blender.file.Structure;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-/* package */class Face implements Comparator<Integer> {
+public class Face implements Comparator<Integer> {
     private static final Logger         LOGGER = Logger.getLogger(Face.class.getName());
 
     /** The indexes loop of the face. */
     private IndexesLoop                 indexes;
-    
-    private List<IndexesLoop> triangulatedFaces;
+
+    private List<IndexesLoop>           triangulatedFaces;
     /** Indicates if the face is smooth or solid. */
     private boolean                     smooth;
     /** The material index of the face. */
@@ -116,7 +116,14 @@ import com.jme3.scene.plugins.blender.file.Structure;
         }
         return indexes.get(indexPosition);
     }
-    
+
+    /**
+     * @return the mesh this face belongs to
+     */
+    public TemporalMesh getTemporalMesh() {
+        return temporalMesh;
+    }
+
     /**
      * @return the original indexes of the face
      */
@@ -129,11 +136,11 @@ import com.jme3.scene.plugins.blender.file.Structure;
      */
     @SuppressWarnings("unchecked")
     public List<List<Integer>> getCurrentIndexes() {
-        if(triangulatedFaces == null) {
+        if (triangulatedFaces == null) {
             return Arrays.asList(indexes.getAll());
         }
         List<List<Integer>> result = new ArrayList<List<Integer>>(triangulatedFaces.size());
-        for(IndexesLoop loop : triangulatedFaces) {
+        for (IndexesLoop loop : triangulatedFaces) {
             result.add(loop.getAll());
         }
         return result;
@@ -155,9 +162,10 @@ import com.jme3.scene.plugins.blender.file.Structure;
         if (triangleIndexes.length != 3) {
             throw new IllegalArgumentException("Cannot detach triangle with that does not have 3 indexes!");
         }
+        MeshHelper meshHelper = temporalMesh.getBlenderContext().getHelper(MeshHelper.class);
         List<Face> detachedFaces = new ArrayList<Face>();
         List<Integer> path = new ArrayList<Integer>(indexes.size());
-        
+
         boolean[] edgeRemoved = new boolean[] { indexes.removeEdge(triangleIndexes[0], triangleIndexes[1]), indexes.removeEdge(triangleIndexes[0], triangleIndexes[2]), indexes.removeEdge(triangleIndexes[1], triangleIndexes[2]) };
         Integer[][] indexesPairs = new Integer[][] { new Integer[] { triangleIndexes[0], triangleIndexes[1] }, new Integer[] { triangleIndexes[0], triangleIndexes[2] }, new Integer[] { triangleIndexes[1], triangleIndexes[2] } };
 
@@ -171,7 +179,8 @@ import com.jme3.scene.plugins.blender.file.Structure;
                     throw new IllegalStateException("Triangulation failed. Cannot find path between two indexes. Please apply triangulation in Blender as a workaround.");
                 }
                 if (detachedFaces.size() == 0 && path.size() < indexes.size()) {
-                    detachedFaces.add(new Face(path.toArray(new Integer[path.size()]), smooth, materialNumber, faceUVCoords, vertexColors, temporalMesh));
+                    Integer[] indexesSublist = path.toArray(new Integer[path.size()]);
+                    detachedFaces.add(new Face(indexesSublist, smooth, materialNumber, meshHelper.selectUVSubset(this, indexesSublist), vertexColors, temporalMesh));
                     for (int j = 0; j < path.size() - 1; ++j) {
                         indexes.removeEdge(path.get(j), path.get(j + 1));
                     }
@@ -244,17 +253,13 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
     /**
      * The method triangulates the face.
-     * @param vertices
-     *            the vertices of the mesh (all verts and not only those belonging to the face)
-     * @param normals
-     *            the normals of the mesh (all normals and not only those belonging to the face)
      */
-    public void triangulate(List<Vector3f> vertices, List<Vector3f> normals) {
+    public void triangulate() {
         LOGGER.fine("Triangulating face.");
         assert indexes.size() >= 3 : "Invalid indexes amount for face. 3 is the required minimum!";
         triangulatedFaces = new ArrayList<IndexesLoop>(indexes.size() - 2);
         Integer[] indexes = new Integer[3];
-        
+
         try {
             List<Face> facesToTriangulate = new ArrayList<Face>(Arrays.asList(this.clone()));
             while (facesToTriangulate.size() > 0) {
@@ -264,30 +269,27 @@ import com.jme3.scene.plugins.blender.file.Structure;
                     indexes[0] = face.getIndex(0);
                     indexes[1] = face.findClosestVertex(indexes[0], -1);
                     indexes[2] = face.findClosestVertex(indexes[0], indexes[1]);
-                    
+
                     LOGGER.finer("Veryfying improper triangulation of the temporal mesh.");
-                    if(indexes[0] < 0 || indexes[1] < 0 || indexes[2] < 0) {
-                        throw new BlenderFileException("Unable to find two closest vertices while triangulating face in mesh: " + temporalMesh +
-                                "Please apply triangulation modifier in blender as a workaround and load again!");
+                    if (indexes[0] < 0 || indexes[1] < 0 || indexes[2] < 0) {
+                        throw new BlenderFileException("Unable to find two closest vertices while triangulating face in mesh: " + temporalMesh + "Please apply triangulation modifier in blender as a workaround and load again!");
                     }
-                    if(previousIndex1 == indexes[0] && previousIndex2 == indexes[1] && previousIndex3 == indexes[2]) {
-                        throw new BlenderFileException("Infinite loop detected during triangulation of mesh: " + temporalMesh +
-                                "Please apply triangulation modifier in blender as a workaround and load again!");
+                    if (previousIndex1 == indexes[0] && previousIndex2 == indexes[1] && previousIndex3 == indexes[2]) {
+                        throw new BlenderFileException("Infinite loop detected during triangulation of mesh: " + temporalMesh + "Please apply triangulation modifier in blender as a workaround and load again!");
                     }
                     previousIndex1 = indexes[0];
                     previousIndex2 = indexes[1];
                     previousIndex3 = indexes[2];
-                    
+
                     Arrays.sort(indexes, this);
                     facesToTriangulate.addAll(face.detachTriangle(indexes));
                     triangulatedFaces.add(new IndexesLoop(indexes));
                 }
             }
-        } catch(BlenderFileException e) {
-            LOGGER.log(Level.WARNING, "Errors occured during face triangulation: {0}. The face will be triangulated with the most direct algorithm, " +
-                    "but the results might not be identical to blender.", e.getLocalizedMessage());
+        } catch (BlenderFileException e) {
+            LOGGER.log(Level.WARNING, "Errors occured during face triangulation: {0}. The face will be triangulated with the most direct algorithm, " + "but the results might not be identical to blender.", e.getLocalizedMessage());
             indexes[0] = this.getIndex(0);
-            for(int i=1;i<this.vertexCount() - 1;++i) {
+            for (int i = 1; i < this.vertexCount() - 1; ++i) {
                 indexes[1] = this.getIndex(i);
                 indexes[2] = this.getIndex(i + 1);
                 triangulatedFaces.add(new IndexesLoop(indexes));
