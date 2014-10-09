@@ -340,6 +340,26 @@ public class MeshHelper extends AbstractBlenderHelper {
         }
         return result;
     }
+    
+    /**
+     * Selects the proper subsets of vertex colors for the given sublist of indexes.
+     * @param face
+     *            the face with the original vertex colors
+     * @param indexesSublist
+     *            the sub list of indexes
+     * @return a sublist of vertex colors
+     */
+    public List<byte[]> selectVertexColorSubset(Face face, Integer... indexesSublist) {
+        List<byte[]> result = null;
+        List<byte[]> vertexColors = face.getVertexColors();
+        if (vertexColors != null) {
+            result = new ArrayList<byte[]>(indexesSublist.length);
+            for (Integer index : indexesSublist) {
+                result.add(vertexColors.get(face.getIndexes().indexOf(index)));
+            }
+        }
+        return result;
+    }
 
     /**
      * Returns the black unshaded material. It is used for lines and points because that is how blender

@@ -180,7 +180,7 @@ public class Face implements Comparator<Integer> {
                 }
                 if (detachedFaces.size() == 0 && path.size() < indexes.size()) {
                     Integer[] indexesSublist = path.toArray(new Integer[path.size()]);
-                    detachedFaces.add(new Face(indexesSublist, smooth, materialNumber, meshHelper.selectUVSubset(this, indexesSublist), vertexColors, temporalMesh));
+                    detachedFaces.add(new Face(indexesSublist, smooth, materialNumber, meshHelper.selectUVSubset(this, indexesSublist), meshHelper.selectVertexColorSubset(this, indexesSublist), temporalMesh));
                     for (int j = 0; j < path.size() - 1; ++j) {
                         indexes.removeEdge(path.get(j), path.get(j + 1));
                     }
