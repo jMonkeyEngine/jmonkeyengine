@@ -316,7 +316,7 @@ public class Spline implements Savable {
      */
     public void setCurveTension(float curveTension) {
         this.curveTension = curveTension;
-        if(type==SplineType.CatmullRom) {
+        if(type==SplineType.CatmullRom && !getControlPoints().isEmpty()) {            
         	this.computeTotalLentgh();
         }
     }
