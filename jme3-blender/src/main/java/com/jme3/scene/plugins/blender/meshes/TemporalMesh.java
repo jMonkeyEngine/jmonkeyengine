@@ -101,10 +101,11 @@ public class TemporalMesh extends Geometry {
      */
     protected TemporalMesh(Structure meshStructure, BlenderContext blenderContext, boolean loadData) throws BlenderFileException {
         this.blenderContext = blenderContext;
-        name = meshStructure.getName();
         this.meshStructure = meshStructure;
 
         if (loadData) {
+            name = meshStructure.getName();
+            
             MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
 
             meshHelper.loadVerticesAndNormals(meshStructure, vertices, normals);
@@ -178,6 +179,7 @@ public class TemporalMesh extends Geometry {
     public TemporalMesh clone() {
         try {
             TemporalMesh result = new TemporalMesh(meshStructure, blenderContext, false);
+            result.name = name;
             for (Vector3f v : vertices) {
                 result.vertices.add(v.clone());
             }
@@ -534,7 +536,7 @@ public class TemporalMesh extends Geometry {
                     meshBuffers.append(vertices.get(index), normals.get(index));
                 }
                 Mesh mesh = new Mesh();
-                mesh.setPointSize(2);
+                mesh.setLineWidth(blenderContext.getBlenderKey().getLinesWidth());
                 mesh.setMode(Mode.LineStrip);
                 if (meshBuffers.isShortIndexBuffer()) {
                     mesh.setBuffer(Type.Index, 1, (ShortBuffer) meshBuffers.getIndexBuffer());

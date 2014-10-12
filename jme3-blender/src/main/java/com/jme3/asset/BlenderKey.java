@@ -126,7 +126,9 @@ public class BlenderKey extends ModelKey {
     protected AnimationMatchMethod     animationMatchMethod      = AnimationMatchMethod.AT_LEAST_ONE_NAME_MATCH;
     /** The size of points that are loaded and do not belong to any edge of the mesh. */
     protected float                    pointsSize                = 1;
-    
+    /** The width of edges that are loaded from the mesh and do not belong to any face. */
+    protected float                    linesWidth                = 1;
+
     /**
      * Constructor used by serialization mechanisms.
      */
@@ -458,7 +460,7 @@ public class BlenderKey extends ModelKey {
     public AnimationMatchMethod getAnimationMatchMethod() {
         return animationMatchMethod;
     }
-    
+
     /**
      * @return the size of points that are loaded and do not belong to any edge of the mesh
      */
@@ -473,6 +475,22 @@ public class BlenderKey extends ModelKey {
      */
     public void setPointsSize(float pointsSize) {
         this.pointsSize = pointsSize;
+    }
+
+    /**
+     * @return the width of edges that are loaded from the mesh and do not belong to any face
+     */
+    public float getLinesWidth() {
+        return linesWidth;
+    }
+
+    /**
+     * Sets the width of edges that are loaded from the mesh and do not belong to any face.
+     * @param linesWidth
+     *            the width of edges that are loaded from the mesh and do not belong to any face
+     */
+    public void setLinesWidth(float linesWidth) {
+        this.linesWidth = linesWidth;
     }
 
     /**
@@ -532,6 +550,7 @@ public class BlenderKey extends ModelKey {
         oc.write(optimiseTextures, "optimise-textures", false);
         oc.write(animationMatchMethod, "animation-match-method", AnimationMatchMethod.AT_LEAST_ONE_NAME_MATCH);
         oc.write(pointsSize, "points-size", 1);
+        oc.write(linesWidth, "lines-width", 1);
     }
 
     @Override
@@ -555,6 +574,7 @@ public class BlenderKey extends ModelKey {
         optimiseTextures = ic.readBoolean("optimise-textures", false);
         animationMatchMethod = ic.readEnum("animation-match-method", AnimationMatchMethod.class, AnimationMatchMethod.AT_LEAST_ONE_NAME_MATCH);
         pointsSize = ic.readFloat("points-size", 1);
+        linesWidth = ic.readFloat("lines-width", 1);
     }
 
     @Override
@@ -580,7 +600,8 @@ public class BlenderKey extends ModelKey {
         result = prime * result + (skyGeneratedTextureShape == null ? 0 : skyGeneratedTextureShape.hashCode());
         result = prime * result + skyGeneratedTextureSize;
         result = prime * result + (usedWorld == null ? 0 : usedWorld.hashCode());
-        result = prime * result + (int)pointsSize;
+        result = prime * result + (int) pointsSize;
+        result = prime * result + (int) linesWidth;
         return result;
     }
 
@@ -660,6 +681,9 @@ public class BlenderKey extends ModelKey {
             return false;
         }
         if (pointsSize != other.pointsSize) {
+            return false;
+        }
+        if (linesWidth != other.linesWidth) {
             return false;
         }
         return true;
