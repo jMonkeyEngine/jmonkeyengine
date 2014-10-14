@@ -19,12 +19,17 @@ import com.jme3.scene.plugins.blender.meshes.IndexesLoop.IndexPredicate;
  * @author Marcin Roguski (Kaelthas)
  */
 public class Edge extends Line {
-    private static final long   serialVersionUID = 7172714692126675311L;
+    private static final long   serialVersionUID      = 7172714692126675311L;
+    private static final Logger LOGGER                = Logger.getLogger(Edge.class.getName());
 
-    private static final Logger LOGGER           = Logger.getLogger(Edge.class.getName());
+    private static final int    FLAG_EDGE_NOT_IN_FACE = 0x80;
 
     /** The vertices indexes. */
     private int                 index1, index2;
+    /** The weight of the edge. */
+    private float               crease;
+    /** A variable that indicates if this edge belongs to any face or not. */
+    private boolean             inFace;
 
     public Edge() {
     }
@@ -36,10 +41,16 @@ public class Edge extends Line {
      *            the first index of the edge
      * @param index2
      *            the second index of the edge
+     * @param crease
+     *            the weight of the face
+     * @param inFace
+     *            a variable that indicates if this edge belongs to any face or not
      */
-    private Edge(int index1, int index2) {
+    private Edge(int index1, int index2, float crease, boolean inFace) {
         this.index1 = index1;
         this.index2 = index2;
+        this.crease = crease;
+        this.inFace = inFace;
     }
 
     /**
@@ -49,17 +60,21 @@ public class Edge extends Line {
      *            the first index of the edge
      * @param index2
      *            the second index of the edge
+     * @param crease
+     *            the weight of the face
+     * @param inFace
+     *            a variable that indicates if this edge belongs to any face or not
      * @param vertices
      *            the vertices of the mesh
      */
-    public Edge(int index1, int index2, List<Vector3f> vertices) {
-        this(index1, index2);
+    public Edge(int index1, int index2, float crease, boolean inFace, List<Vector3f> vertices) {
+        this(index1, index2, crease, inFace);
         this.set(vertices.get(index1), vertices.get(index2));
     }
 
     @Override
     public Edge clone() {
-        Edge result = new Edge(index1, index2);
+        Edge result = new Edge(index1, index2, crease, inFace);
         result.setOrigin(this.getOrigin());
         result.setDirection(this.getDirection());
         return result;
@@ -77,6 +92,20 @@ public class Edge extends Line {
      */
     public int getSecondIndex() {
         return index2;
+    }
+
+    /**
+     * @return the crease value of the edge (its weight)
+     */
+    public float getCrease() {
+        return crease;
+    }
+
+    /**
+     * @return <b>true</b> if the edge is used by at least one face and <b>false</b> otherwise
+     */
+    public boolean isInFace() {
+        return inFace;
     }
 
     /**
@@ -168,9 +197,12 @@ public class Edge extends Line {
 
     @Override
     public String toString() {
-        String result = "Edge [" + index1 + ", " + index2 + "]";
+        String result = "Edge [" + index1 + ", " + index2 + "] {" + crease + "}";
         if (this.getOrigin() != null && this.getDirection() != null) {
             result += " -> {" + this.getOrigin() + ", " + this.getOrigin().add(this.getDirection()) + "}";
+        }
+        if (inFace) {
+            result += "[F]";
         }
         return result;
     }
@@ -217,11 +249,12 @@ public class Edge extends Line {
             List<Structure> edges = pMEdge.fetchData();
             for (Structure edge : edges) {
                 int flag = ((Number) edge.getFieldValue("flag")).intValue();
-                if ((flag & MeshHelper.EDGE_NOT_IN_FACE_FLAG) != 0) {
-                    int v1 = ((Number) edge.getFieldValue("v1")).intValue();
-                    int v2 = ((Number) edge.getFieldValue("v2")).intValue();
-                    result.add(new Edge(v1, v2));
-                }
+
+                int v1 = ((Number) edge.getFieldValue("v1")).intValue();
+                int v2 = ((Number) edge.getFieldValue("v2")).intValue();
+                float crease = ((Number) edge.getFieldValue("crease")).floatValue();
+                boolean edgeInFace = (flag & Edge.FLAG_EDGE_NOT_IN_FACE) == 0;
+                result.add(new Edge(v1, v2, crease, edgeInFace));
             }
         }
         LOGGER.log(Level.FINE, "Loaded {0} edges.", result.size());

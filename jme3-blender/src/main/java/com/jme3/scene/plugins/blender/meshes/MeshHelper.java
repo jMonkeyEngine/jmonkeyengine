@@ -68,8 +68,6 @@ public class MeshHelper extends AbstractBlenderHelper {
     public static final int     UV_DATA_LAYER_TYPE_FMESH = 5;
     /** A type of UV data layer in bmesh type. */
     public static final int     UV_DATA_LAYER_TYPE_BMESH = 16;
-    /** The flag mask indicating if the edge belongs to a face or not. */
-    public static final int     EDGE_NOT_IN_FACE_FLAG    = 0x80;
 
     /** A material used for single lines and points. */
     private Material            blackUnshadedMaterial;
@@ -340,7 +338,7 @@ public class MeshHelper extends AbstractBlenderHelper {
         }
         return result;
     }
-    
+
     /**
      * Selects the proper subsets of vertex colors for the given sublist of indexes.
      * @param face

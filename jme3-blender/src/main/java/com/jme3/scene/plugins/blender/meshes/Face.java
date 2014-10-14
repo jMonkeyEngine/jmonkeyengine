@@ -343,7 +343,7 @@ public class Face implements Comparator<Integer> {
             if (i != index && i != indexToIgnore) {
                 Vector3f v2 = vertices.get(i);
                 float d = v2.distance(v1);
-                if (d < distance && this.contains(new Edge(index, i, vertices))) {
+                if (d < distance && this.contains(new Edge(index, i, 0, true, vertices))) {
                     result = i;
                     distance = d;
                 }

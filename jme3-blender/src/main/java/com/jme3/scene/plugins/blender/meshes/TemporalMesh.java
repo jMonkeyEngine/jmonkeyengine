@@ -105,7 +105,7 @@ public class TemporalMesh extends Geometry {
 
         if (loadData) {
             name = meshStructure.getName();
-            
+
             MeshHelper meshHelper = blenderContext.getHelper(MeshHelper.class);
 
             meshHelper.loadVerticesAndNormals(meshStructure, vertices, normals);
@@ -495,7 +495,12 @@ public class TemporalMesh extends Geometry {
             LOGGER.fine("Preparing lines geometries.");
 
             List<List<Integer>> separateEdges = new ArrayList<List<Integer>>();
-            List<Edge> edges = new ArrayList<Edge>(this.edges);
+            List<Edge> edges = new ArrayList<Edge>(this.edges.size());
+            for (Edge edge : this.edges) {
+                if (!edge.isInFace()) {
+                    edges.add(edge);
+                }
+            }
             while (edges.size() > 0) {
                 boolean edgeAppended = false;
                 int edgeIndex = 0;
