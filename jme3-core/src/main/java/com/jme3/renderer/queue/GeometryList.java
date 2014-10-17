@@ -31,6 +31,9 @@
  */
 package com.jme3.renderer.queue;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Geometry;
 import com.jme3.util.ListSort;
@@ -43,7 +46,7 @@ import com.jme3.util.ListSort;
  * @author Three Rings - better sorting alg.
  * @author Kirill Vainer
  */
-public class GeometryList {
+public class GeometryList implements Iterable<Geometry>{
 
     private static final int DEFAULT_SIZE = 32;
 
@@ -144,5 +147,29 @@ public class GeometryList {
             }                       
             listSort.sort(geometries,comparator);
         }
+    }
+
+    public Iterator<Geometry> iterator() {
+        return new Iterator<Geometry>() {
+
+            int index = 0;
+            
+            public boolean hasNext() {
+                return index < size();
+            }
+
+            
+            public Geometry next() {
+                if ( index >= size() ) {
+                    throw new NoSuchElementException("Geometry list has only " + size() + " elements");
+                }
+                return get(index++);
+            }
+            
+            public void remove() {
+                throw new UnsupportedOperationException("Geometry list doesn't support iterator removal");
+            }
+            
+        };
     }
 }
