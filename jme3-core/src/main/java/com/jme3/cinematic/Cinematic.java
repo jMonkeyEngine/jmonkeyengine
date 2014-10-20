@@ -328,11 +328,6 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
      */
     @Override
     public void onUpdate(float tpf) {
-        for (int i = 0; i < cinematicEvents.size(); i++) {
-            CinematicEvent ce = cinematicEvents.get(i);
-            ce.internalUpdate(tpf);
-        }
-
         int keyFrameIndex = timeLine.getKeyFrameIndexFromTime(time);
 
         //iterate to make sure every key frame is triggered
@@ -343,6 +338,13 @@ public class Cinematic extends AbstractCinematicEvent implements AppState {
             }
         }
 
+        
+        for (int i = 0; i < cinematicEvents.size(); i++) {
+            CinematicEvent ce = cinematicEvents.get(i);
+            ce.internalUpdate(tpf);
+        }
+
+        
         lastFetchedKeyFrame = keyFrameIndex;
     }
 
