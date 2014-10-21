@@ -489,6 +489,18 @@ public class Node extends Spatial implements Savable {
 
     public int collideWith(Collidable other, CollisionResults results){
         int total = 0;
+        
+        // optimization: try collideWith BoundingVolume to avoid possibly redundant tests on children
+        if (children.size() > 4)
+        {
+          BoundingVolume bv = this.getWorldBound();
+          CollisionResults bvColRes = new CollisionResults();
+          if (bv.collideWith(other, bvColRes) == 0) 
+          {
+            System.out.println("Skipping collideWith "+getName());
+            return 0;
+          }
+        }
         for (Spatial child : children.getArray()){
             total += child.collideWith(other, results);
         }
