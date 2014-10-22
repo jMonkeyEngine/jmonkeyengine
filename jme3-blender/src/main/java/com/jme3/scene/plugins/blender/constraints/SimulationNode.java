@@ -295,7 +295,7 @@ public class SimulationNode {
                             
                             // track contains differences between the frame position and bind positions of bones/spatials
                             Vector3f bonePositionDifference = bone.getLocalPosition().subtract(startTransform.getTranslation());
-                            Quaternion boneRotationDifference = bone.getLocalRotation().mult(startTransform.getRotation().inverse()).normalizeLocal();
+                            Quaternion boneRotationDifference = startTransform.getRotation().inverse().mult(bone.getLocalRotation()).normalizeLocal();
                             Vector3f boneScaleDifference = bone.getLocalScale().divide(startTransform.getScale());
                             
                             trackEntry.getValue().setTransform(frame, new Transform(bonePositionDifference, boneRotationDifference, boneScaleDifference));
