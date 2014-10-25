@@ -67,7 +67,7 @@ public class SpotLight extends Light implements Savable {
     protected float packedAngleCos=0;
     
     protected float outerAngleCosSqr, outerAngleSinSqr;
-    protected float outerAngleSinRcp, outerAngleSin;
+    protected float outerAngleSinRcp, outerAngleSin, outerAngleCos;
     
     public SpotLight() {
         super();
@@ -76,15 +76,15 @@ public class SpotLight extends Light implements Savable {
 
     private void computeAngleParameters() {
         float innerCos = FastMath.cos(spotInnerAngle);
-        float outerCos = FastMath.cos(spotOuterAngle);
+        outerAngleCos = FastMath.cos(spotOuterAngle);
         packedAngleCos = (int) (innerCos * 1000);
         
         //due to approximations, very close angles can give the same cos
         //here we make sure outer cos is bellow inner cos.
-        if (((int) packedAngleCos) == ((int) (outerCos * 1000))) {
-            outerCos -= 0.001f;
+        if (((int) packedAngleCos) == ((int) (outerAngleCos * 1000))) {
+            outerAngleCos -= 0.001f;
         }
-        packedAngleCos += outerCos;
+        packedAngleCos += outerAngleCos;
 
         if (packedAngleCos == 0.0f) {
             throw new IllegalArgumentException("Packed angle cosine is invalid");
@@ -92,7 +92,7 @@ public class SpotLight extends Light implements Savable {
         
         // compute parameters needed for cone vs sphere check.
         outerAngleSin    = FastMath.sin(spotOuterAngle);
-        outerAngleCosSqr = outerCos * outerCos;
+        outerAngleCosSqr = outerAngleCos * outerAngleCos;
         outerAngleSinSqr = outerAngleSin * outerAngleSin;
         outerAngleSinRcp = 1.0f / outerAngleSin;
     }
@@ -140,38 +140,34 @@ public class SpotLight extends Light implements Savable {
     }
     
     @Override
-    public boolean intersectsFrustum(Camera camera, TempVars vars) {
-        if (this.spotRange == 0) {
-            return true;
-        } else {
-            // Do a frustum v. OBB test.
-            
-            // Determine OBB extents assuming OBB center is the middle
-            // point between the cone's vertex and its range.
-            float sideExtent    = spotRange * 0.5f * outerAngleSin;
-            float forwardExtent = spotRange * 0.5f;
-            
-            // Create OBB axes via direction and Y up vector.
-            Vector3f xAxis = Vector3f.UNIT_Y.cross(direction, vars.vect1).normalizeLocal();
-            Vector3f yAxis = direction.cross(xAxis, vars.vect2).normalizeLocal();
-            Vector3f obbCenter = direction.mult(spotRange * 0.5f, vars.vect3).addLocal(position);
-
-            for (int i = 5; i >= 0; i--) {
-                Plane plane = camera.getWorldPlane(i);
-                Vector3f planeNormal = plane.getNormal();
-                
-                // OBB v. plane intersection
-                float radius = FastMath.abs(sideExtent * (planeNormal.dot(xAxis)))
-                             + FastMath.abs(sideExtent * (planeNormal.dot(yAxis)))
-                             + FastMath.abs(forwardExtent * (planeNormal.dot(direction)));
-                
-                float distance = plane.pseudoDistance(obbCenter);
-                if (distance <= -radius) {
-                    return false;
+    public boolean intersectsFrustum(Camera cam, TempVars vars) {
+        
+        Vector3f farPoint = vars.vect1.set(position).addLocal(vars.vect2.set(direction).multLocal(spotRange));
+        for (int i = 5; i >= 0; i--) {
+            //check origin against the plane
+            Plane plane = cam.getWorldPlane(i);
+            float dot = plane.pseudoDistance(position);
+            if(dot < 0){                
+                // outside, check the far point against the plane   
+                dot = plane.pseudoDistance(farPoint);
+                if(dot < 0){                   
+                    // outside, check the projection of the far point along the normal of the plane to the base disc perimeter of the cone
+                    //computing the radius of the base disc
+                    float farRadius = (spotRange / outerAngleCos) * outerAngleSin;                    
+                    //computing the projection direction : perpendicular to the light direction and coplanar with the direction vector and the normal vector
+                    Vector3f perpDirection = vars.vect2.set(direction).crossLocal(plane.getNormal()).normalizeLocal().crossLocal(direction);
+                    //projecting the far point on the base disc perimeter
+                    Vector3f projectedPoint = vars.vect3.set(farPoint).addLocal(perpDirection.multLocal(farRadius));
+                    //checking against the plane
+                    dot = plane.pseudoDistance(projectedPoint);
+                    if(dot < 0){                        
+                        // Outside, the light can be culled
+                        return false;
+                    }
                 }
             }
-            return true;
         }
+        return true;
     }
     
     @Override
@@ -327,3 +323,4 @@ public class SpotLight extends Light implements Savable {
         }
     }
 }
+
