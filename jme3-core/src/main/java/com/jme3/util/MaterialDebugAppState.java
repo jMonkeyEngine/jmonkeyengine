@@ -267,7 +267,7 @@ public class MaterialDebugAppState extends AbstractAppState {
 
         public void reload() {
             Material reloadedMat = reloadMaterial(geom.getMaterial());
-            //if the reload is successful, we re setupt the material with its params and reassign it to the box
+            //if the reload is successful, we re setup the material with its params and reassign it to the box
             if (reloadedMat != null) {
                 // setupMaterial(reloadedMat);
                 geom.setMaterial(reloadedMat);
