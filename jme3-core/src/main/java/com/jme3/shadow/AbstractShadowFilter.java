@@ -122,6 +122,47 @@ public abstract class AbstractShadowFilter<T extends AbstractShadowRenderer> ext
         shadowRenderer.initialize(renderManager, vp);
         this.viewPort = vp;
     }
+    
+      /**
+     * How far the shadows are rendered in the view
+     *
+     * @see setShadowZExtend(float zFar)
+     * @return shadowZExtend
+     */
+    public float getShadowZExtend() {
+        return shadowRenderer.getShadowZExtend();
+    }
+
+    /**
+     * Set the distance from the eye where the shadows will be rendered default
+     * value is dynamicaly computed to the shadow casters/receivers union bound
+     * zFar, capped to view frustum far value.
+     *
+     * @param zFar the zFar values that override the computed one
+     */
+    public void setShadowZExtend(float zFar) {
+        shadowRenderer.setShadowZExtend(zFar);
+    }
+
+    /**
+     * Define the length over which the shadow will fade out when using a
+     * shadowZextend
+     *
+     * @param length the fade length in world units
+     */
+    public void setShadowZFadeLength(float length) {
+        shadowRenderer.setShadowZFadeLength(length);
+    }
+
+    /**
+     * get the length over which the shadow will fade out when using a
+     * shadowZextend
+     *
+     * @return the fade length in world units
+     */
+    public float getShadowZFadeLength() {
+        return shadowRenderer.getShadowZFadeLength();
+    }
 
     /**
      * returns the shdaow intensity

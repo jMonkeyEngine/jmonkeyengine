@@ -71,14 +71,17 @@ vec4 main_multiSample(in int numSample){
     #endif
 
     float shadow = 1.0;
+
+    #if defined(PSSM) || defined(FADE)
+        float shadowPosition = m_ViewProjectionMatrixRow2.x * worldPos.x +  m_ViewProjectionMatrixRow2.y * worldPos.y +  m_ViewProjectionMatrixRow2.z * worldPos.z +  m_ViewProjectionMatrixRow2.w;
+    #endif
   
     #ifdef POINTLIGHT         
             shadow = getPointLightShadows(worldPos, m_LightPos,
                            m_ShadowMap0,m_ShadowMap1,m_ShadowMap2,m_ShadowMap3,m_ShadowMap4,m_ShadowMap5,
                            projCoord0, projCoord1, projCoord2, projCoord3, projCoord4, projCoord5);
     #else
-       #ifdef PSSM
-            float shadowPosition = m_ViewProjectionMatrixRow2.x * worldPos.x +  m_ViewProjectionMatrixRow2.y * worldPos.y +  m_ViewProjectionMatrixRow2.z * worldPos.z +  m_ViewProjectionMatrixRow2.w;
+       #ifdef PSSM            
             shadow = getDirectionalLightShadows(m_Splits, shadowPosition,
                            m_ShadowMap0,m_ShadowMap1,m_ShadowMap2,m_ShadowMap3,
                            projCoord0, projCoord1, projCoord2, projCoord3);
@@ -90,7 +93,7 @@ vec4 main_multiSample(in int numSample){
   
 
     #ifdef FADE
-      shadow = max(0.0,mix(shadow,1.0,(shadowPosition - m_FadeInfo.x) * m_FadeInfo.y));    
+        shadow = clamp(max(0.0,mix(shadow, 1.0 ,(shadowPosition - m_FadeInfo.x) * m_FadeInfo.y)),0.0,1.0);            
     #endif
 
     shadow= shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity);

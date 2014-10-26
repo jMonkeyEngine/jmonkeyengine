@@ -44,6 +44,7 @@ import com.jme3.export.Savable;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix4f;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.post.SceneProcessor;
 import com.jme3.renderer.Camera;
@@ -110,10 +111,16 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
     private String[] shadowMapStringCache;
     private String[] lightViewStringCache;
     /**
+     * fade shadows at distance
+     */
+    protected float zFarOverride = 0;
+    protected Vector2f fadeInfo;
+    protected float fadeLength;
+    protected Camera frustumCam;
+    /**
      * true to skip the post pass when there are no shadow casters
      */
     protected boolean skipPostPass;
-
     
     /**
      * used for serialization
@@ -319,7 +326,15 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         } else {
             postTechniqueName = "PostShadow";
         }
+        if(zFarOverride>0 && frustumCam == null){
+            initFrustumCam();
+        }
     }
+    
+    /**
+     * delegates the initialization of the frustum cam to child renderers
+     */
+    protected abstract void initFrustumCam();
 
     /**
      * Test whether this shadow renderer has been initialized.
@@ -373,25 +388,25 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         GeometryList occluders = rq.getShadowQueueContent(ShadowMode.Cast);
         sceneReceivers = rq.getShadowQueueContent(ShadowMode.Receive);
         skipPostPass = false;
-        if (sceneReceivers.size() == 0 || occluders.size() == 0) {
+        if (sceneReceivers.size() == 0 || occluders.size() == 0 || !checkCulling(viewPort.getCamera())) {
             skipPostPass = true;
             return;
         }
 
         updateShadowCams(viewPort.getCamera());
-
+        
         Renderer r = renderManager.getRenderer();
         renderManager.setForcedMaterial(preshadowMat);
         renderManager.setForcedTechnique("PreShadow");
 
         for (int shadowMapIndex = 0; shadowMapIndex < nbShadowMaps; shadowMapIndex++) {
 
-            if (debugfrustums) {
-                doDisplayFrustumDebug(shadowMapIndex);
-            }
-            renderShadowMap(shadowMapIndex, occluders, sceneReceivers);
+                if (debugfrustums) {
+                    doDisplayFrustumDebug(shadowMapIndex);
+                }
+                renderShadowMap(shadowMapIndex, occluders, sceneReceivers);
 
-        }
+            }
 
         debugfrustums = false;
         if (flushQueues) {
@@ -402,7 +417,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
         renderManager.setForcedMaterial(null);
         renderManager.setForcedTechnique(null);
         renderManager.setCamera(viewPort.getCamera(), false);
-
+        
     }
 
     protected void renderShadowMap(int shadowMapIndex, GeometryList occluders, GeometryList receivers) {
@@ -512,6 +527,7 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             for (int j = 1; j < nbShadowMaps; j++) {
                 mat.clearParam(shadowMapStringCache[j]);
             }
+            mat.clearParam("FadeInfo");
             clearMaterialParameters(mat);
         }        
         //No need to clear the postShadowMat params as the instance is locale to each renderer       
@@ -559,7 +575,9 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             mat.setInt("FilterMode", edgeFilteringMode.getMaterialParamValue());
             mat.setFloat("PCFEdge", edgesThickness);
             mat.setFloat("ShadowIntensity", shadowIntensity);
-
+            if (fadeInfo != null) {
+               mat.setVector2("FadeInfo", fadeInfo);
+            }
             setMaterialParameters(mat);
         }
 
@@ -580,9 +598,86 @@ public abstract class AbstractShadowRenderer implements SceneProcessor, Savable 
             postshadowMat.setMatrix4(lightViewStringCache[j], lightViewProjectionsMatrices[j]);
             postshadowMat.setTexture(shadowMapStringCache[j], shadowMaps[j]);
         }
+        if (fadeInfo != null) {
+              postshadowMat.setVector2("FadeInfo", fadeInfo);
+        }
     }
     
-    public void preFrame(float tpf) {
+    /**
+     * How far the shadows are rendered in the view
+     *
+     * @see #setShadowZExtend(float zFar)
+     * @return shadowZExtend
+     */
+    public float getShadowZExtend() {
+        return zFarOverride;
+    }
+
+    /**
+     * Set the distance from the eye where the shadows will be rendered default
+     * value is dynamicaly computed to the shadow casters/receivers union bound
+     * zFar, capped to view frustum far value.
+     *
+     * @param zFar the zFar values that override the computed one
+     */
+    public void setShadowZExtend(float zFar) {
+        this.zFarOverride = zFar;        
+        if(zFarOverride == 0){
+            fadeInfo = null;
+            frustumCam = null;
+        }else{
+            if (fadeInfo != null) {
+                fadeInfo.set(zFarOverride - fadeLength, 1f / fadeLength);
+            }
+            if(frustumCam == null && viewPort != null){
+                initFrustumCam();
+            }
+        }
+    }
+    
+    /**
+     * Define the length over which the shadow will fade out when using a
+     * shadowZextend This is useful to make dynamic shadows fade into baked
+     * shadows in the distance.
+     *
+     * @param length the fade length in world units
+     */
+    public void setShadowZFadeLength(float length) {
+        if (length == 0) {
+            fadeInfo = null;
+            fadeLength = 0;
+            postshadowMat.clearParam("FadeInfo");
+        } else {
+            if (zFarOverride == 0) {
+                fadeInfo = new Vector2f(0, 0);
+            } else {
+                fadeInfo = new Vector2f(zFarOverride - length, 1.0f / length);
+            }
+            fadeLength = length;
+            postshadowMat.setVector2("FadeInfo", fadeInfo);
+        }
+    }
+
+    /**
+     * get the length over which the shadow will fade out when using a
+     * shadowZextend
+     *
+     * @return the fade length in world units
+     */
+    public float getShadowZFadeLength() {
+        if (fadeInfo != null) {
+            return zFarOverride - fadeInfo.x;
+        }
+        return 0f;
+    }
+    
+    /**
+     * returns true if the light source bounding box is in the view frustum
+     * @return 
+     */
+    protected abstract boolean checkCulling(Camera viewCam);
+    
+    public void preFrame(float tpf) {           
     }
 
     public void cleanup() {

@@ -87,33 +87,18 @@ public class TestPointLightShadows extends SimpleApplication {
         plsr = new PointLightShadowRenderer(assetManager, SHADOWMAP_SIZE);
         plsr.setLight((PointLight) scene.getLocalLightList().get(0));
         plsr.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
+        plsr.setShadowZExtend(15);
+        plsr.setShadowZFadeLength(5);
        // plsr.setFlushQueues(false);
         //plsr.displayFrustum();
         plsr.displayDebug();
         viewPort.addProcessor(plsr);
 
 
-//        PointLight pl = new PointLight();
-//        pl.setPosition(new Vector3f(0, 0.5f, 0));
-//        pl.setRadius(5);
-//        rootNode.addLight(pl);
-//
-//        Geometry lightMdl2 = new Geometry("Light2", new Sphere(10, 10, 0.1f));
-//        //Geometry  lightMdl = new Geometry("Light", new Box(.1f,.1f,.1f));
-//        lightMdl2.setMaterial(assetManager.loadMaterial("Common/Materials/RedColor.j3m"));
-//        lightMdl2.setShadowMode(RenderQueue.ShadowMode.Off);
-//        rootNode.attachChild(lightMdl2);
-//        lightMdl2.setLocalTranslation(pl.getPosition());
-//        PointLightShadowRenderer plsr2 = new PointLightShadowRenderer(assetManager, 512);
-//        plsr2.setShadowIntensity(0.3f);
-//        plsr2.setLight(pl);
-//        plsr2.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
-//        //   plsr.displayDebug();
-//        viewPort.addProcessor(plsr2);
-
-
         plsf = new PointLightShadowFilter(assetManager, SHADOWMAP_SIZE);
-        plsf.setLight((PointLight) scene.getLocalLightList().get(0));     
+        plsf.setLight((PointLight) scene.getLocalLightList().get(0));    
+        plsf.setShadowZExtend(15);
+        plsf.setShadowZFadeLength(5);
         plsf.setEdgeFilteringMode(EdgeFilteringMode.PCF4);
         plsf.setEnabled(false);
 

@@ -25,7 +25,7 @@ varying vec4 projCoord3;
     #endif
 #endif
 
-#ifdef PSSM
+#if defined(PSSM) || defined(FADE)
 varying float shadowPosition;
 #endif
 varying vec3 lightVec;
@@ -52,10 +52,11 @@ void main(){
    #endif
     gl_Position = TransformWorldViewProjection(modelSpacePos);
 
+    #if defined(PSSM) || defined(FADE)
+         shadowPosition = gl_Position.z;
+    #endif  
+
     #ifndef POINTLIGHT
-        #ifdef PSSM
-             shadowPosition = gl_Position.z;
-        #endif        
         vec4 worldPos=vec4(0.0);
     #endif
     // get the vertex in world space

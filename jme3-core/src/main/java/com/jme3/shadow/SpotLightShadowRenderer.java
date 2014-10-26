@@ -44,6 +44,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.scene.Node;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
@@ -59,15 +60,12 @@ import java.io.IOException;
  */
 public class SpotLightShadowRenderer extends AbstractShadowRenderer {
 
-    protected float zFarOverride = 0;
     protected Camera shadowCam;    
     protected SpotLight light;
     protected Vector3f[] points = new Vector3f[8];
     //Holding the info for fading shadows in the far distance 
-    protected Vector2f fadeInfo;
-    protected float fadeLength;
+   
 
-    
     /**
      * Used for serialization use SpotLightShadowRenderer#SpotLightShadowRenderer(AssetManager assetManager, int shadowMapSize)
      */
@@ -94,7 +92,14 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
             points[i] = new Vector3f();
         }
     }
-    
+
+    @Override
+    protected void initFrustumCam() {
+        Camera viewCam = viewPort.getCamera();
+        frustumCam = viewCam.clone();
+        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride, viewCam.getFrustumLeft(), viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
+    }
+
     /**
      * return the light used to cast shadows
      *
@@ -173,67 +178,7 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         material.clearParam("LightPos");
         material.clearParam("LightDir");
     }
-    
-    /**
-     * How far the shadows are rendered in the view
-     *
-     * @see #setShadowZExtend(float zFar)
-     * @return shadowZExtend
-     */
-    public float getShadowZExtend() {
-        return zFarOverride;
-    }
 
-    /**
-     * Set the distance from the eye where the shadows will be rendered default
-     * value is dynamicaly computed to the shadow casters/receivers union bound
-     * zFar, capped to view frustum far value.
-     *
-     * @param zFar the zFar values that override the computed one
-     */
-    public void setShadowZExtend(float zFar) {
-        if (fadeInfo != null) {
-            fadeInfo.set(zFar - fadeLength, 1f / fadeLength);
-        }
-        this.zFarOverride = zFar;
-
-    }
-
-    /**
-     * Define the length over which the shadow will fade out when using a
-     * shadowZextend This is useful to make dynamic shadows fade into baked
-     * shadows in the distance.
-     *
-     * @param length the fade length in world units
-     */
-    public void setShadowZFadeLength(float length) {
-        if (length == 0) {
-            fadeInfo = null;
-            fadeLength = 0;
-            postshadowMat.clearParam("FadeInfo");
-        } else {
-            if (zFarOverride == 0) {
-                fadeInfo = new Vector2f(0, 0);
-            } else {
-                fadeInfo = new Vector2f(zFarOverride - length, 1.0f / length);
-            }
-            fadeLength = length;
-            postshadowMat.setVector2("FadeInfo", fadeInfo);
-        }
-    }
-
-    /**
-     * get the length over which the shadow will fade out when using a
-     * shadowZextend
-     *
-     * @return the fade length in world units
-     */
-    public float getShadowZFadeLength() {
-        if (fadeInfo != null) {
-            return zFarOverride - fadeInfo.x;
-        }
-        return 0f;
-    }
     
     @Override
     public void read(JmeImporter im) throws IOException {
@@ -255,6 +200,26 @@ public class SpotLightShadowRenderer extends AbstractShadowRenderer {
         oc.write(light, "light", null);
         oc.write(fadeInfo, "fadeInfo", null);
         oc.write(fadeLength, "fadeLength", 0f);
+    }
+    
+    /**
+     *
+     * @param viewCam
+     * @return 
+     */
+    @Override
+    protected boolean checkCulling(Camera viewCam) {      
+        Camera cam = viewCam;
+        if(frustumCam != null){
+            cam = frustumCam;            
+            cam.setLocation(viewCam.getLocation());
+            cam.setRotation(viewCam.getRotation());
+        }
+        TempVars vars = TempVars.get();
+        boolean intersects = light.intersectsFrustum(cam,vars);
+        vars.release();
+        return intersects;
+        
     }
 
 }

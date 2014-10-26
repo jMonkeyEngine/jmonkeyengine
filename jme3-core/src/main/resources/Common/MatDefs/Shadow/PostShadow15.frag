@@ -2,7 +2,7 @@
 
 out vec4 outFragColor;
 
-#ifdef PSSM
+#if defined(PSSM) || defined(FADE)
 in float shadowPosition;
 #endif
 
@@ -71,7 +71,7 @@ void main(){
     #endif   
  
     #ifdef FADE
-      shadow = max(0.0,mix(shadow,1.0,(shadowPosition - m_FadeInfo.x) * m_FadeInfo.y));    
+            shadow = max(0.0,mix(shadow,1.0,(shadowPosition - m_FadeInfo.x) * m_FadeInfo.y));    
     #endif
       
     shadow = shadow * m_ShadowIntensity + (1.0 - m_ShadowIntensity); 

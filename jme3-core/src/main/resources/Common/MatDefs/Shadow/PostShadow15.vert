@@ -25,8 +25,8 @@ out vec4 projCoord3;
     #endif
 #endif
 
-#ifdef PSSM
-out float shadowPosition;
+#if defined(PSSM) || defined(FADE)
+    out float shadowPosition;
 #endif
 out vec3 lightVec;
 
@@ -51,11 +51,12 @@ void main(){
        Skinning_Compute(modelSpacePos);
    #endif
     gl_Position =  TransformWorldViewProjection(modelSpacePos);
+    
+    #if defined(PSSM) || defined(FADE)
+        shadowPosition = gl_Position.z;
+    #endif
 
-    #ifndef POINTLIGHT
-        #ifdef PSSM
-             shadowPosition = gl_Position.z;
-        #endif        
+    #ifndef POINTLIGHT        
         vec4 worldPos=vec4(0.0);
     #endif
     // get the vertex in world space

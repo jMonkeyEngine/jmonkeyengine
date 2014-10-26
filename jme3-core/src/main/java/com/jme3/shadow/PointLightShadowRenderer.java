@@ -43,6 +43,7 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.GeometryList;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.util.TempVars;
 import java.io.IOException;
 
 /**
@@ -84,6 +85,14 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
             shadowCams[i] = new Camera(shadowMapSize, shadowMapSize);
         }
     }
+    
+    @Override
+    protected void initFrustumCam() {
+        Camera viewCam = viewPort.getCamera();
+        frustumCam = viewCam.clone();
+        frustumCam.setFrustum(viewCam.getFrustumNear(), zFarOverride, viewCam.getFrustumLeft(), viewCam.getFrustumRight(), viewCam.getFrustumTop(), viewCam.getFrustumBottom());
+    }
+    
 
     @Override
     protected void updateShadowCams(Camera viewCam) {
@@ -196,5 +205,25 @@ public class PointLightShadowRenderer extends AbstractShadowRenderer {
         super.write(ex);
         OutputCapsule oc = (OutputCapsule) ex.getCapsule(this);
         oc.write(light, "light", null);
+    }
+    
+   /**
+     *
+     * @param viewCam
+     * @return 
+     */
+    @Override
+    protected boolean checkCulling(Camera viewCam) {      
+        Camera cam = viewCam;
+        if(frustumCam != null){
+            cam = frustumCam;            
+            cam.setLocation(viewCam.getLocation());
+            cam.setRotation(viewCam.getRotation());
+        }
+        TempVars vars = TempVars.get();
+        boolean intersects = light.intersectsFrustum(cam,vars);
+        vars.release();
+        return intersects;
+        
     }
 }

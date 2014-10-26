@@ -60,8 +60,8 @@ import com.jme3.util.SkyFactory;
 import com.jme3.util.TangentBinormalGenerator;
 
 public class TestDirectionalLightShadow extends SimpleApplication implements ActionListener, AnalogListener {
-    public static final int SHADOWMAP_SIZE = 1024;
 
+    public static final int SHADOWMAP_SIZE = 1024;
     private Spatial[] obj;
     private Material[] mat;
     private DirectionalLightShadowRenderer dlsr;
@@ -195,6 +195,7 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
         inputManager.addMapping("switchGroundMat", new KeyTrigger(KeyInput.KEY_M));
         inputManager.addMapping("debug", new KeyTrigger(KeyInput.KEY_X));
         inputManager.addMapping("stabilize", new KeyTrigger(KeyInput.KEY_B));
+        inputManager.addMapping("distance", new KeyTrigger(KeyInput.KEY_N));
 
 
         inputManager.addMapping("up", new KeyTrigger(KeyInput.KEY_NUMPAD8));
@@ -207,21 +208,29 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
 
 
         inputManager.addListener(this, "lambdaUp", "lambdaDown", "ThicknessUp", "ThicknessDown",
-                "switchGroundMat", "debug", "up", "down", "right", "left", "fwd", "back", "pp","stabilize");
+                "switchGroundMat", "debug", "up", "down", "right", "left", "fwd", "back", "pp", "stabilize", "distance");
 
         ShadowTestUIManager uiMan = new ShadowTestUIManager(assetManager, dlsr, dlsf, guiNode, inputManager, viewPort);
 
         inputManager.addListener(this, "Size+", "Size-");
         inputManager.addMapping("Size+", new KeyTrigger(KeyInput.KEY_W));
         inputManager.addMapping("Size-", new KeyTrigger(KeyInput.KEY_S));
- 
+
         shadowStabilizationText = new BitmapText(guiFont, false);
         shadowStabilizationText.setSize(guiFont.getCharSet().getRenderedSize() * 0.75f);
         shadowStabilizationText.setText("(b:on/off) Shadow stabilization : " + dlsr.isEnabledStabilization());
         shadowStabilizationText.setLocalTranslation(10, viewPort.getCamera().getHeight() - 100, 0);
         guiNode.attachChild(shadowStabilizationText);
+
+
+        shadowZfarText = new BitmapText(guiFont, false);
+        shadowZfarText.setSize(guiFont.getCharSet().getRenderedSize() * 0.75f);
+        shadowZfarText.setText("(n:on/off) Shadow extend to 500 and fade to 50 : " + (dlsr.getShadowZExtend() > 0));
+        shadowZfarText.setLocalTranslation(10, viewPort.getCamera().getHeight() - 120, 0);
+        guiNode.attachChild(shadowZfarText);
     }
-    private  BitmapText shadowStabilizationText ;
+    private BitmapText shadowStabilizationText;
+    private BitmapText shadowZfarText;
 
     public void onAction(String name, boolean keyPressed, float tpf) {
 
@@ -254,8 +263,24 @@ public class TestDirectionalLightShadow extends SimpleApplication implements Act
 
         if (name.equals("stabilize") && keyPressed) {
             dlsr.setEnabledStabilization(!dlsr.isEnabledStabilization());
-            dlsf.setEnabledStabilization(!dlsf.isEnabledStabilization());  
+            dlsf.setEnabledStabilization(!dlsf.isEnabledStabilization());
             shadowStabilizationText.setText("(b:on/off) Shadow stabilization : " + dlsr.isEnabledStabilization());
+        }
+        if (name.equals("distance") && keyPressed) {
+            if (dlsr.getShadowZExtend() > 0) {
+                dlsr.setShadowZExtend(0);
+                dlsr.setShadowZFadeLength(0);
+                dlsf.setShadowZExtend(0);
+                dlsf.setShadowZFadeLength(0);
+
+            } else {
+                dlsr.setShadowZExtend(500);
+                dlsr.setShadowZFadeLength(50);
+                dlsf.setShadowZExtend(500);
+                dlsf.setShadowZFadeLength(50);
+            }
+            shadowZfarText.setText("(n:on/off) Shadow extend to 500 and fade to 50 : " + (dlsr.getShadowZExtend() > 0));
+
         }
 
         if (name.equals("switchGroundMat") && keyPressed) {

@@ -1,6 +1,6 @@
 #import "Common/ShaderLib/Shadows.glsllib"
 
-#ifdef PSSM
+#if defined(PSSM) || defined(FADE)
 varying float shadowPosition;
 #endif
 

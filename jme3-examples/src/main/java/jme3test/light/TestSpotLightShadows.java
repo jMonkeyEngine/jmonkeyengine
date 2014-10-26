@@ -36,7 +36,6 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.AmbientLight;
-import com.jme3.light.DirectionalLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
 import com.jme3.math.*;
@@ -46,12 +45,11 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Sphere;
-import com.jme3.shader.VarType;
-import com.jme3.shadow.CompareMode;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.shadow.SpotLightShadowFilter;
 import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.texture.Texture.WrapMode;
+import com.jme3.util.MaterialDebugAppState;
 import com.jme3.util.TangentBinormalGenerator;
 
 public class TestSpotLightShadows extends SimpleApplication {
@@ -78,7 +76,7 @@ public class TestSpotLightShadows extends SimpleApplication {
         spot.setSpotInnerAngle(5f * FastMath.DEG_TO_RAD);
         spot.setSpotOuterAngle(10 * FastMath.DEG_TO_RAD);
         spot.setPosition(new Vector3f(70.70334f, 34.013165f, 27.1017f));
-        spot.setDirection(lightTarget.subtract(spot.getPosition()));
+        spot.setDirection(lightTarget.subtract(spot.getPosition()).normalizeLocal());
         spot.setColor(ColorRGBA.White.mult(2));
         rootNode.addLight(spot);
 
@@ -103,12 +101,16 @@ public class TestSpotLightShadows extends SimpleApplication {
         final SpotLightShadowRenderer slsr = new SpotLightShadowRenderer(assetManager, 512);
         slsr.setLight(spot);       
         slsr.setShadowIntensity(0.5f);
+        slsr.setShadowZExtend(100);
+        slsr.setShadowZFadeLength(5);
         slsr.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);   
         viewPort.addProcessor(slsr);
 
         SpotLightShadowFilter slsf = new SpotLightShadowFilter(assetManager, 512);
         slsf.setLight(spot);    
         slsf.setShadowIntensity(0.5f);
+        slsf.setShadowZExtend(100);
+        slsf.setShadowZFadeLength(5);
         slsf.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);  
         slsf.setEnabled(false);
         
@@ -130,7 +132,12 @@ public class TestSpotLightShadows extends SimpleApplication {
         }, "stop");
 
         inputManager.addMapping("stop", new KeyTrigger(KeyInput.KEY_1));
-
+        
+        MaterialDebugAppState s = new MaterialDebugAppState();
+        s.registerBinding("Common/MatDefs/Shadow/PostShadow15.frag", rootNode);
+        s.registerBinding(new KeyTrigger(KeyInput.KEY_R), rootNode);
+        stateManager.attach(s);
+        flyCam.setDragToRotate(true);
     }
 
     public void setupFloor() {
