@@ -406,7 +406,7 @@ public class TemporalMesh extends Geometry {
                     tempNormals[i] = normals.get(vertIndex);
                     tempVertColors[i] = vertexColors != null ? vertexColors.get(face.getIndexes().indexOf(vertIndex)) : null;
 
-                    if (boneIndexes.size() > 0) {
+                    if (boneIndexes.size() > 0 && vertexGroups.size() > 0) {
                         Map<Float, Integer> boneBuffersForVertex = new HashMap<Float, Integer>();
                         Map<String, Float> vertexGroupsForVertex = vertexGroups.get(vertIndex);
                         for (Entry<String, Integer> entry : boneIndexes.entrySet()) {
