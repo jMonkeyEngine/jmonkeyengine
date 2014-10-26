@@ -81,6 +81,15 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                     if (angle != 0) {
                         Vector3f cross = currentDir.crossLocal(target).normalizeLocal();
                         q.fromAngleAxis(angle, cross);
+                        if(boneContext.isLockX()) {
+                            q.set(0, q.getY(), q.getZ(), q.getW());
+                        }
+                        if(boneContext.isLockY()) {
+                            q.set(q.getX(), 0, q.getZ(), q.getW());
+                        }
+                        if(boneContext.isLockZ()) {
+                            q.set(q.getX(), q.getY(), 0, q.getW());
+                        }
 
                         boneTransform.getRotation().set(q.multLocal(boneTransform.getRotation()));
                         constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), bone.getName(), Space.CONSTRAINT_SPACE_WORLD, boneTransform);
@@ -97,7 +106,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                 Bone bone = boneContext.getBone();
                 Transform topBoneTransform = constraintHelper.getTransform(topBone.getArmatureObjectOMA(), topBone.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD);
                 Transform boneWorldTransform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), bone.getName(), Space.CONSTRAINT_SPACE_WORLD);
-
+                
                 Vector3f e = topBoneTransform.getTranslation().addLocal(topBoneTransform.getRotation().mult(Vector3f.UNIT_Y).multLocal(topBone.getLength()));// effector
                 Vector3f j = boneWorldTransform.getTranslation(); // current join position
 
@@ -108,6 +117,16 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                     Vector3f cross = currentDir.crossLocal(target).normalizeLocal();
                     q.fromAngleAxis(angle, cross);
 
+                    if(boneContext.isLockX()) {
+                        q.set(0, q.getY(), q.getZ(), q.getW());
+                    }
+                    if(boneContext.isLockY()) {
+                        q.set(q.getX(), 0, q.getZ(), q.getW());
+                    }
+                    if(boneContext.isLockZ()) {
+                        q.set(q.getX(), q.getY(), 0, q.getW());
+                    }
+                    
                     boneWorldTransform.getRotation().set(q.multLocal(boneWorldTransform.getRotation()));
                     constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), bone.getName(), Space.CONSTRAINT_SPACE_WORLD, boneWorldTransform);
                 }
@@ -130,6 +149,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
     private List<BoneContext> loadBones() {
         List<BoneContext> bones = new ArrayList<BoneContext>();
         Bone bone = (Bone) this.getOwner();
+        chainLength = 0;
         while (bone != null) {
             BoneContext boneContext = blenderContext.getBoneContext(bone);
             chainLength += boneContext.getLength();
