@@ -85,7 +85,7 @@ public class FXAAFilter extends Filter {
     public void setSubPixelShift(float subPixelShift) {
         this.subPixelShift = subPixelShift;
         if (material != null) {
-            material.setFloat("SubPixelShif", this.subPixelShift);
+            material.setFloat("SubPixelShift", this.subPixelShift);
         }
     }
 
