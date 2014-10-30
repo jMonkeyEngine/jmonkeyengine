@@ -95,6 +95,22 @@ public class Edge extends Line {
     }
 
     /**
+     * Returns the index other than the given.
+     * @param index
+     *            index of the edge
+     * @return the remaining index number
+     */
+    public int getOtherIndex(int index) {
+        if (index == index1) {
+            return index2;
+        }
+        if (index == index2) {
+            return index1;
+        }
+        throw new IllegalArgumentException("Cannot give the other index for [" + index + "] because this index does not exist in edge: " + this);
+    }
+
+    /**
      * @return the crease value of the edge (its weight)
      */
     public float getCrease() {
@@ -106,6 +122,15 @@ public class Edge extends Line {
      */
     public boolean isInFace() {
         return inFace;
+    }
+
+    /**
+     * @return the centroid of the edge
+     */
+    public Vector3f computeCentroid() {
+        Vector3f v1 = this.getOrigin();
+        Vector3f v2 = v1.add(this.getDirection());
+        return v2.addLocal(v1).divideLocal(2);
     }
 
     /**

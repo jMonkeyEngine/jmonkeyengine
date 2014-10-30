@@ -96,6 +96,8 @@ public class ModifierHelper extends AbstractBlenderHelper {
                     modifier = new ArmatureModifier(objectStructure, modifierStructure, blenderContext);
                 } else if (Modifier.PARTICLE_MODIFIER_DATA.equals(modifierStructure.getType())) {
                     modifier = new ParticlesModifier(modifierStructure, blenderContext);
+                } else if(Modifier.SUBSURF_MODIFIER_DATA.equals(modifierStructure.getType())) {
+                    modifier = new SubdivisionSurfaceModifier(modifierStructure, blenderContext);
                 }
 
                 if (modifier != null) {

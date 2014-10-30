@@ -121,10 +121,32 @@ public class IndexesLoop implements Comparator<Integer>, Iterable<Integer> {
      * @return <b>true</b> if the given indexes are neighbours and <b>false</b> otherwise
      */
     public boolean areNeighbours(Integer index1, Integer index2) {
-        if (index1.equals(index2)) {
+        if (index1.equals(index2) || !edges.containsKey(index1) || !edges.containsKey(index2)) {
             return false;
         }
         return edges.get(index1).contains(index2) || edges.get(index2).contains(index1);
+    }
+
+    /**
+     * Returns the value of the index located after the given one. Pointint the last index will return the first one.
+     * @param index
+     *            the index value
+     * @return the value of 'next' index
+     */
+    public Integer getNextIndex(Integer index) {
+        int i = nodes.indexOf(index);
+        return i == nodes.size() - 1 ? nodes.get(0) : nodes.get(i + 1);
+    }
+
+    /**
+     * Returns the value of the index located before the given one. Pointint the first index will return the last one.
+     * @param index
+     *            the index value
+     * @return the value of 'previous' index
+     */
+    public Integer getPreviousIndex(Integer index) {
+        int i = nodes.indexOf(index);
+        return i == 0 ? nodes.get(nodes.size() - 1) : nodes.get(i - 1);
     }
 
     /**
@@ -171,7 +193,7 @@ public class IndexesLoop implements Comparator<Integer>, Iterable<Integer> {
      *            the index whose neighbour count will be checked
      * @return the count of neighbours of the given index
      */
-    public int getNeighbourCount(Integer index) {
+    private int getNeighbourCount(Integer index) {
         int result = 0;
         if (edges.containsKey(index)) {
             result = edges.get(index).size();

@@ -72,6 +72,9 @@ public class TemporalMesh extends Geometry {
     /** The points of the mesh. */
     protected List<Point>              points                    = new ArrayList<Point>();
 
+    protected Map<Integer, List<Face>> indexToFaceMapping        = new HashMap<Integer, List<Face>>();
+    protected Map<Integer, List<Edge>> indexToEdgeMapping        = new HashMap<Integer, List<Edge>>();
+
     /** The bounding box of the temporal mesh. */
     protected BoundingBox              boundingBox;
 
@@ -116,6 +119,8 @@ public class TemporalMesh extends Geometry {
             faces = Face.loadAll(meshStructure, userUVGroups, verticesColors, this, blenderContext);
             edges = Edge.loadAll(meshStructure);
             points = Point.loadAll(meshStructure);
+
+            this.rebuildIndexesMappings();
         }
     }
 
@@ -175,6 +180,61 @@ public class TemporalMesh extends Geometry {
         return vertexGroups;
     }
 
+    /**
+     * @return the faces that contain the given index or null if none contain it
+     */
+    public List<Face> getAdjacentFaces(Integer index) {
+        return indexToFaceMapping.get(index);
+    }
+
+    /**
+     * @param the
+     *            edge of the mesh
+     * @return a list of faces that contain the given edge or an empty list
+     */
+    public List<Face> getAdjacentFaces(Edge edge) {
+        List<Face> result = new ArrayList<Face>(indexToFaceMapping.get(edge.getFirstIndex()));
+        result.retainAll(indexToFaceMapping.get(edge.getSecondIndex()));
+        return result;
+    }
+
+    /**
+     * @param the
+     *            index of the mesh
+     * @return a list of edges that contain the index
+     */
+    public List<Edge> getAdjacentEdges(Integer index) {
+        return indexToEdgeMapping.get(index);
+    }
+
+    /**
+     * Tells if the given edge is a boundary edge. The boundary edge means that it belongs to a single
+     * face or to none.
+     * @param the
+     *            edge of the mesh
+     * @return <b>true</b> if the edge is a boundary one and <b>false</b> otherwise
+     */
+    public boolean isBoundary(Edge edge) {
+        return this.getAdjacentFaces(edge).size() <= 1;
+    }
+
+    /**
+     * The method tells if the given index is a boundary index. A boundary index belongs to at least
+     * one boundary edge.
+     * @param index
+     *            the index of the mesh
+     * @return <b>true</b> if the index is a boundary one and <b>false</b> otherwise
+     */
+    public boolean isBoundary(Integer index) {
+        List<Edge> adjacentEdges = indexToEdgeMapping.get(index);
+        for (Edge edge : adjacentEdges) {
+            if (this.isBoundary(edge)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public TemporalMesh clone() {
         try {
@@ -205,11 +265,47 @@ public class TemporalMesh extends Geometry {
             for (Point point : points) {
                 result.points.add(point.clone());
             }
+            result.rebuildIndexesMappings();
             return result;
         } catch (BlenderFileException e) {
             LOGGER.log(Level.SEVERE, "Error while cloning the temporal mesh: {0}. Returning null.", e.getLocalizedMessage());
         }
         return null;
+    }
+
+    /**
+     * The method rebuilds the mappings between faces and edges. Should be called after
+     * every major change of the temporal mesh done outside it.
+     * @note I will remove this method soon and make the mappings to be done automatically
+     *       when the mesh is modified.
+     */
+    public void rebuildIndexesMappings() {
+        indexToEdgeMapping.clear();
+        indexToFaceMapping.clear();
+        for (Face face : faces) {
+            for (Integer index : face.getIndexes()) {
+                List<Face> faces = indexToFaceMapping.get(index);
+                if (faces == null) {
+                    faces = new ArrayList<Face>();
+                    indexToFaceMapping.put(index, faces);
+                }
+                faces.add(face);
+            }
+        }
+        for (Edge edge : edges) {
+            List<Edge> edges = indexToEdgeMapping.get(edge.getFirstIndex());
+            if (edges == null) {
+                edges = new ArrayList<Edge>();
+                indexToEdgeMapping.put(edge.getFirstIndex(), edges);
+            }
+            edges.add(edge);
+            edges = indexToEdgeMapping.get(edge.getSecondIndex());
+            if (edges == null) {
+                edges = new ArrayList<Edge>();
+                indexToEdgeMapping.put(edge.getSecondIndex(), edges);
+            }
+            edges.add(edge);
+        }
     }
 
     @Override
@@ -285,6 +381,8 @@ public class TemporalMesh extends Geometry {
         vertexGroups.addAll(mesh.vertexGroups);
         verticesColors.addAll(mesh.verticesColors);
         boneIndexes.putAll(mesh.boneIndexes);
+
+        this.rebuildIndexesMappings();
     }
 
     /**
@@ -341,6 +439,8 @@ public class TemporalMesh extends Geometry {
         faces.clear();
         edges.clear();
         points.clear();
+        indexToEdgeMapping.clear();
+        indexToFaceMapping.clear();
     }
 
     /**
@@ -599,5 +699,25 @@ public class TemporalMesh extends Geometry {
     @Override
     public String toString() {
         return "TemporalMesh [name=" + name + ", vertices.size()=" + vertices.size() + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (meshStructure == null ? 0 : meshStructure.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof TemporalMesh)) {
+            return false;
+        }
+        TemporalMesh other = (TemporalMesh) obj;
+        return meshStructure.getOldMemoryAddress().equals(other.meshStructure.getOldMemoryAddress());
     }
 }
