@@ -194,7 +194,10 @@ public class TemporalMesh extends Geometry {
      */
     public List<Face> getAdjacentFaces(Edge edge) {
         List<Face> result = new ArrayList<Face>(indexToFaceMapping.get(edge.getFirstIndex()));
-        result.retainAll(indexToFaceMapping.get(edge.getSecondIndex()));
+        List<Face> secondIndexAdjacentFaces = indexToFaceMapping.get(edge.getSecondIndex());
+        if(secondIndexAdjacentFaces != null) {
+            result.retainAll(indexToFaceMapping.get(edge.getSecondIndex()));
+        }
         return result;
     }
 
