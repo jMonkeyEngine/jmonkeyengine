@@ -1,0 +1,19 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition ColorAdd {      
+        Type: Fragment
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Basic/colorAdd.frag
+        Documentation{
+            Adds two colors
+            @input color1 the first color
+            @input color2 the second color            
+            @output outColor the resulting color
+        }
+        Input {
+            vec4 color1
+            vec4 color2            
+        }
+        Output {
+            vec4 outColor
+        }
+    }
+}

@@ -1,0 +1,19 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition ConstructVec2 {      
+        Type: Fragment
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Math/constructVec2.frag
+        Documentation{
+            Combines 2 floats into a vec2
+            @input x the first float
+            @input y the second float            
+            @output outVec the resulting vec2
+        }
+        Input {
+            float x
+            float y            
+        }
+        Output {
+            vec2 outVec
+        }
+    }
+}

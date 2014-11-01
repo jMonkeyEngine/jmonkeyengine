@@ -1,0 +1,17 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition ColorToGrey {      
+        Type: Fragment
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Basic/colorToGrey.frag
+        Documentation{
+            Retrives the individual color channels
+            @input color the color
+            @output greyness or lightness of the color
+        }
+        Input {
+            vec4 color        
+        }
+        Output {
+            float grey
+        }
+    }
+}

@@ -1,0 +1,19 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition Pow {      
+        Type: Fragment
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Math/pow.frag
+        Documentation{
+            return power of value based on factor
+            @input value a float  
+            @input factor a float  
+            @output outFloat the resulting value
+        }
+        Input {
+            float value     
+            float factor
+        }
+        Output {
+            float outFloat
+        }
+    }
+}

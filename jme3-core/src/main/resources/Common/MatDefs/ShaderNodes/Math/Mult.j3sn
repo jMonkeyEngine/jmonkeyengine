@@ -1,0 +1,19 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition Mult {      
+        Type: Fragment
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Math/mult.frag
+        Documentation{
+            Multiplies two floats
+            @input float1 the first float
+            @input float2 the second float            
+            @output outFloat the resulting coord
+        }
+        Input {
+            float float1
+            float float2           
+        }
+        Output {
+            float outFloat
+        }
+    }
+}

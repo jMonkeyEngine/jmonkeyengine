@@ -1,0 +1,17 @@
+ShaderNodeDefinitions{
+    ShaderNodeDefinition OneMinus {      
+        Type: Fragment
+        Shader GLSL100: Common/MatDefs/ShaderNodes/Math/oneMinus.frag
+        Documentation{
+            return 1 - value
+            @input value a float  
+            @output outFloat the resulting value
+        }
+        Input {
+            float value       
+        }
+        Output {
+            float outFloat
+        }
+    }
+}
