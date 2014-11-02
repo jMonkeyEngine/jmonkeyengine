@@ -33,12 +33,11 @@ package com.jme3.asset;
 
 import com.jme3.asset.plugins.AndroidLocator;
 import com.jme3.asset.plugins.ClasspathLocator;
-import com.jme3.audio.android.AndroidAudioRenderer;
 import com.jme3.audio.plugins.AndroidAudioLoader;
 import com.jme3.audio.plugins.WAVLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.android.JmeAndroidSystem;
-import com.jme3.texture.plugins.AndroidImageLoader;
+import com.jme3.texture.plugins.AndroidBufferImageLoader;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -83,8 +82,9 @@ public class AndroidAssetManager extends DesktopAssetManager {
         registerLocator("", AndroidLocator.class);
         registerLocator("", ClasspathLocator.class);
 
-        registerLoader(AndroidImageLoader.class, "jpg", "bmp", "jpeg");
-        registerLoader(AndroidImageLoader.class, "gif", "png");
+        registerLoader(AndroidBufferImageLoader.class, "jpg", "bmp", "jpeg");
+        registerLoader(AndroidBufferImageLoader.class, "gif", "png");
+        
         if (JmeAndroidSystem.getAudioRendererType().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
             registerLoader(AndroidAudioLoader.class, "ogg", "mp3", "wav");
         } else if (JmeAndroidSystem.getAudioRendererType().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
