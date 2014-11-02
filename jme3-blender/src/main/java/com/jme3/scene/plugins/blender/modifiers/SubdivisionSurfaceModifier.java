@@ -28,12 +28,12 @@ import com.jme3.scene.plugins.blender.textures.TexturePixel;
  * @author Marcin Roguski (Kaelthas)
  */
 public class SubdivisionSurfaceModifier extends Modifier {
-    private static final Logger LOGGER             = Logger.getLogger(SubdivisionSurfaceModifier.class.getName());
+    private static final Logger LOGGER                  = Logger.getLogger(SubdivisionSurfaceModifier.class.getName());
 
-    private static final int    TYPE_CATMULLCLARK  = 0;
-    private static final int    TYPE_SIMPLE        = 1;
+    private static final int    TYPE_CATMULLCLARK       = 0;
+    private static final int    TYPE_SIMPLE             = 1;
 
-    private static final int    FLAG_SUBDIVIDE_UVS = 0x8;
+    private static final int    FLAG_SUBDIVIDE_UVS      = 0x8;
 
     /** The subdivision type. */
     private int                 subdivType;
@@ -41,6 +41,8 @@ public class SubdivisionSurfaceModifier extends Modifier {
     private int                 levels;
     /** Indicates if the UV's should also be subdivided. */
     private boolean             subdivideUVS;
+
+    private List<Integer>       verticesOnOriginalEdges = new ArrayList<Integer>();
 
     /**
      * Constructor loads all neccessary modifier data.
@@ -75,6 +77,12 @@ public class SubdivisionSurfaceModifier extends Modifier {
             TemporalMesh temporalMesh = this.getTemporalMesh(node);
             if (temporalMesh != null) {
                 LOGGER.log(Level.FINE, "Applying subdivision surface modifier to: {0}", temporalMesh);
+
+                for (Edge edge : temporalMesh.getEdges()) {
+                    verticesOnOriginalEdges.add(edge.getFirstIndex());
+                    verticesOnOriginalEdges.add(edge.getSecondIndex());
+                }
+
                 if (subdivType == TYPE_CATMULLCLARK) {
                     for (int i = 0; i < levels; ++i) {
                         this.subdivideSimple(temporalMesh);// first do simple subdivision ...
@@ -109,8 +117,21 @@ public class SubdivisionSurfaceModifier extends Modifier {
             }
         }
 
-        Vector3f[] averageVert = new Vector3f[temporalMesh.getVertices().size()];
-        int[] averageCount = new int[temporalMesh.getVertices().size()];
+        List<CreasePoint> creasePoints = new ArrayList<CreasePoint>(temporalMesh.getVertexCount());
+        for (int i = 0; i < temporalMesh.getVertexCount(); ++i) {
+            // finding adjacent edges that were created by dividing original edges
+            List<Edge> adjacentOriginalEdges = new ArrayList<Edge>();
+            for (Edge edge : temporalMesh.getAdjacentEdges(i)) {
+                if (verticesOnOriginalEdges.contains(edge.getFirstIndex()) || verticesOnOriginalEdges.contains(edge.getSecondIndex())) {
+                    adjacentOriginalEdges.add(edge);
+                }
+            }
+
+            creasePoints.add(new CreasePoint(i, boundaryVertices.contains(i), adjacentOriginalEdges, temporalMesh));
+        }
+
+        Vector3f[] averageVert = new Vector3f[temporalMesh.getVertexCount()];
+        int[] averageCount = new int[temporalMesh.getVertexCount()];
 
         for (Face face : temporalMesh.getFaces()) {
             Vector3f centroid = face.computeCentroid();
@@ -144,11 +165,23 @@ public class SubdivisionSurfaceModifier extends Modifier {
         }
 
         for (int i = 0; i < averageVert.length; ++i) {
+            Vector3f v = temporalMesh.getVertices().get(i);
             averageVert[i].divideLocal(averageCount[i]);
+
+            // computing translation vector
+            Vector3f t = averageVert[i].subtract(v);
             if (!boundaryVertices.contains(i)) {
-                temporalMesh.getVertices().get(i).addLocal(averageVert[i].subtract(temporalMesh.getVertices().get(i)).multLocal(4 / (float) averageCount[i]));
-            } else {
-                temporalMesh.getVertices().get(i).set(averageVert[i]);
+                t.multLocal(4 / (float) averageCount[i]);
+            }
+
+            // moving the vertex
+            v.addLocal(t);
+
+            // applying crease weight if neccessary
+            CreasePoint creasePoint = creasePoints.get(i);
+            if (creasePoint.getTarget() != null && creasePoint.getWeight() != 0) {
+                t = creasePoint.getTarget().subtractLocal(v).multLocal(creasePoint.getWeight());
+                v.addLocal(t);
             }
         }
     }
@@ -164,6 +197,7 @@ public class SubdivisionSurfaceModifier extends Modifier {
         Map<Edge, Integer> edgePoints = new HashMap<Edge, Integer>();
         Map<Face, Integer> facePoints = new HashMap<Face, Integer>();
         List<Face> newFaces = new ArrayList<Face>();
+        List<Edge> newEdges = new ArrayList<Edge>(temporalMesh.getEdges().size() * 2);
 
         int originalFacesCount = temporalMesh.getFaces().size();
 
@@ -198,14 +232,15 @@ public class SubdivisionSurfaceModifier extends Modifier {
                 int vPrevIndex = i == 0 ? face.getIndexes().get(face.getIndexes().size() - 1) : face.getIndexes().get(i - 1);
                 int vNextIndex = i == face.getIndexes().size() - 1 ? face.getIndexes().get(0) : face.getIndexes().get(i + 1);
 
-                Edge prevEdge = this.findEdge(temporalMesh, vPrevIndex, vIndex);// new Edge(vPrevIndex, vIndex, 0, true, temporalMesh.getVertices());
-                Edge nextEdge = this.findEdge(temporalMesh, vIndex, vNextIndex);// new Edge(vIndex, vNextIndex, 0, true, temporalMesh.getVertices());
+                Edge prevEdge = this.findEdge(temporalMesh, vPrevIndex, vIndex);
+                Edge nextEdge = this.findEdge(temporalMesh, vIndex, vNextIndex);
                 int vPrevEdgeVertIndex = edgePoints.containsKey(prevEdge) ? edgePoints.get(prevEdge) : -1;
                 int vNextEdgeVertIndex = edgePoints.containsKey(nextEdge) ? edgePoints.get(nextEdge) : -1;
 
                 Vector3f v = temporalMesh.getVertices().get(vIndex);
                 if (vPrevEdgeVertIndex < 0) {
                     vPrevEdgeVertIndex = vertices.size() + originalFacesCount + edgeVertices.size();
+                    verticesOnOriginalEdges.add(vNextEdgeVertIndex);
                     edgeVertices.add(vertices.get(vPrevIndex).add(v).divideLocal(2));
                     edgeNormals.add(normals.get(vPrevIndex).add(normals.get(vIndex)).normalizeLocal());
                     edgePoints.put(prevEdge, vPrevEdgeVertIndex);
@@ -215,6 +250,7 @@ public class SubdivisionSurfaceModifier extends Modifier {
                 }
                 if (vNextEdgeVertIndex < 0) {
                     vNextEdgeVertIndex = vertices.size() + originalFacesCount + edgeVertices.size();
+                    verticesOnOriginalEdges.add(vPrevEdgeVertIndex);
                     edgeVertices.add(vertices.get(vNextIndex).add(v).divideLocal(2));
                     edgeNormals.add(normals.get(vNextIndex).add(normals.get(vIndex)).normalizeLocal());
                     edgePoints.put(nextEdge, vNextEdgeVertIndex);
@@ -257,6 +293,11 @@ public class SubdivisionSurfaceModifier extends Modifier {
                 }
 
                 newFaces.add(new Face(indexes, face.isSmooth(), face.getMaterialNumber(), newUVSets, vertexColors, temporalMesh));
+
+                newEdges.add(new Edge(vIndex, vNextEdgeVertIndex, nextEdge.getCrease(), true, temporalMesh));
+                newEdges.add(new Edge(vNextEdgeVertIndex, facePointIndex, 0, true, temporalMesh));
+                newEdges.add(new Edge(facePointIndex, vPrevEdgeVertIndex, 0, true, temporalMesh));
+                newEdges.add(new Edge(vPrevEdgeVertIndex, vIndex, prevEdge.getCrease(), true, temporalMesh));
             }
         }
 
@@ -265,24 +306,14 @@ public class SubdivisionSurfaceModifier extends Modifier {
         normals.addAll(faceNormals);
         normals.addAll(edgeNormals);
 
-        List<Edge> newEdges = new ArrayList<Edge>(temporalMesh.getEdges().size() * 2);
         for (Edge edge : temporalMesh.getEdges()) {
             if (!edge.isInFace()) {
                 int newVertexIndex = vertices.size();
                 vertices.add(vertices.get(edge.getFirstIndex()).add(vertices.get(edge.getSecondIndex())).divideLocal(2));
                 normals.add(normals.get(edge.getFirstIndex()).add(normals.get(edge.getSecondIndex())).normalizeLocal());
 
-                newEdges.add(new Edge(edge.getFirstIndex(), newVertexIndex, 0, false, vertices));
-                newEdges.add(new Edge(newVertexIndex, edge.getSecondIndex(), 0, false, vertices));
-            } else {
-                Integer edgePoint = edgePoints.get(edge);
-                newEdges.add(new Edge(edge.getFirstIndex(), edgePoint, edge.getCrease(), true, vertices));
-                newEdges.add(new Edge(edgePoint, edge.getSecondIndex(), edge.getCrease(), true, vertices));
-                // adding edges between face points and edge points
-                List<Face> facesContainingTheEdge = temporalMesh.getAdjacentFaces(edge);
-                for (Face f : facesContainingTheEdge) {
-                    newEdges.add(new Edge(facePoints.get(f), edgePoint, 0, true, vertices));
-                }
+                newEdges.add(new Edge(edge.getFirstIndex(), newVertexIndex, 0, false, temporalMesh));
+                newEdges.add(new Edge(newVertexIndex, edge.getSecondIndex(), 0, false, temporalMesh));
             }
         }
 
@@ -506,9 +537,9 @@ public class SubdivisionSurfaceModifier extends Modifier {
             }
             faces.add(new Face(indexes, false, 0, null, null, this));
             for (i = 1; i < indexes.length; ++i) {
-                edges.add(new Edge(indexes[i - 1], indexes[i], 0, true, vertices));
+                edges.add(new Edge(indexes[i - 1], indexes[i], 0, true, this));
             }
-            edges.add(new Edge(indexes[indexes.length - 1], indexes[0], 0, true, vertices));
+            edges.add(new Edge(indexes[indexes.length - 1], indexes[0], 0, true, this));
         }
 
         /**
@@ -525,6 +556,63 @@ public class SubdivisionSurfaceModifier extends Modifier {
                 result.add(new Vector2f(v.x, v.y));
             }
             return result;
+        }
+    }
+
+    /**
+     * A point computed for each vertex before applying CC subdivision and after simple subdivision.
+     * This class has a target where the vertices will be drawn to with a proper strength (value from 0 to 1).
+     * 
+     * The algorithm of computing the target point was made by observing how blender behaves.
+     * If a vertex has one or less creased edges (means edges that have non zero crease value) the target will not exist.
+     * If a vertex is a border vertex and has two creased edges - the target will be the original simple subdivided vertex.
+     * If a vertex is not a border vertex and have two creased edges - then it will be drawned to the plane defined by those
+     * two edges.
+     * If a vertex has 3 or more creased edges it will be drawn to its original vertex before CC subdivision with average strength
+     * computed from edges' crease values.
+     * 
+     * @author Marcin Roguski (Kaelthas)
+     */
+    private static class CreasePoint {
+        private Vector3f target = new Vector3f();
+        private float    weight;
+
+        public CreasePoint(int index, boolean borderIndex, List<Edge> creaseEdges, TemporalMesh temporalMesh) {
+            if (creaseEdges == null || creaseEdges.size() <= 1) {
+                target = null;// crease is used when vertex belongs to at least 2 creased edges
+            } else {
+                int creasedEdgesCount = 0;
+                for (Edge edge : creaseEdges) {
+                    if (edge.getCrease() > 0) {
+                        ++creasedEdgesCount;
+                        weight += edge.getCrease();
+                        target.addLocal(temporalMesh.getVertices().get(edge.getOtherIndex(index)));
+                    }
+                }
+
+                if (creasedEdgesCount <= 1) {
+                    target = null;// crease is used when vertex belongs to at least 2 creased edges
+                } else if (creasedEdgesCount == 2) {
+                    if (borderIndex) {
+                        target.set(temporalMesh.getVertices().get(index));
+                    } else {
+                        target.divideLocal(creasedEdgesCount);
+                    }
+                } else {
+                    target.set(temporalMesh.getVertices().get(index));
+                }
+                if (creasedEdgesCount > 0) {
+                    weight /= creasedEdgesCount;
+                }
+            }
+        }
+
+        public Vector3f getTarget() {
+            return target;
+        }
+
+        public float getWeight() {
+            return weight;
         }
     }
 }

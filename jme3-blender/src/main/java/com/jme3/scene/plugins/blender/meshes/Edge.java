@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.math.FastMath;
-import com.jme3.math.Line;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.plugins.blender.file.BlenderFileException;
 import com.jme3.scene.plugins.blender.file.Pointer;
@@ -18,8 +17,7 @@ import com.jme3.scene.plugins.blender.meshes.IndexesLoop.IndexPredicate;
  * 
  * @author Marcin Roguski (Kaelthas)
  */
-public class Edge extends Line {
-    private static final long   serialVersionUID      = 7172714692126675311L;
+public class Edge {
     private static final Logger LOGGER                = Logger.getLogger(Edge.class.getName());
 
     private static final int    FLAG_EDGE_NOT_IN_FACE = 0x80;
@@ -30,9 +28,8 @@ public class Edge extends Line {
     private float               crease;
     /** A variable that indicates if this edge belongs to any face or not. */
     private boolean             inFace;
-
-    public Edge() {
-    }
+    /** The mesh that owns the edge. */
+    private TemporalMesh        temporalMesh;
 
     /**
      * This constructor only stores the indexes of the vertices. The position vertices should be stored
@@ -46,38 +43,17 @@ public class Edge extends Line {
      * @param inFace
      *            a variable that indicates if this edge belongs to any face or not
      */
-    private Edge(int index1, int index2, float crease, boolean inFace) {
+    public Edge(int index1, int index2, float crease, boolean inFace, TemporalMesh temporalMesh) {
         this.index1 = index1;
         this.index2 = index2;
         this.crease = crease;
         this.inFace = inFace;
-    }
-
-    /**
-     * This constructor stores both indexes and vertices list. The list should contain ALL verts and not
-     * only those belonging to the edge.
-     * @param index1
-     *            the first index of the edge
-     * @param index2
-     *            the second index of the edge
-     * @param crease
-     *            the weight of the face
-     * @param inFace
-     *            a variable that indicates if this edge belongs to any face or not
-     * @param vertices
-     *            the vertices of the mesh
-     */
-    public Edge(int index1, int index2, float crease, boolean inFace, List<Vector3f> vertices) {
-        this(index1, index2, crease, inFace);
-        this.set(vertices.get(index1), vertices.get(index2));
+        this.temporalMesh = temporalMesh;
     }
 
     @Override
     public Edge clone() {
-        Edge result = new Edge(index1, index2, crease, inFace);
-        result.setOrigin(this.getOrigin());
-        result.setDirection(this.getDirection());
-        return result;
+        return new Edge(index1, index2, crease, inFace, temporalMesh);
     }
 
     /**
@@ -128,9 +104,8 @@ public class Edge extends Line {
      * @return the centroid of the edge
      */
     public Vector3f computeCentroid() {
-        Vector3f v1 = this.getOrigin();
-        Vector3f v2 = v1.add(this.getDirection());
-        return v2.addLocal(v1).divideLocal(2);
+        List<Vector3f> vertices = temporalMesh.getVertices();
+        return vertices.get(index1).add(vertices.get(index2)).divideLocal(2);
     }
 
     /**
@@ -160,18 +135,6 @@ public class Edge extends Line {
     }
 
     /**
-     * The method sets the vertices for the first and second index.
-     * @param v1
-     *            the first vertex
-     * @param v2
-     *            the second vertex
-     */
-    public void set(Vector3f v1, Vector3f v2) {
-        this.setOrigin(v1);
-        this.setDirection(v2.subtract(v1));
-    }
-
-    /**
      * The crossing method first computes the points on both lines (that contain the edges)
      * who are closest in distance. If the distance between points is smaller than FastMath.FLT_EPSILON
      * the we consider them to be the same point (the lines cross).
@@ -198,9 +161,10 @@ public class Edge extends Line {
      * @return <b>true</b> if the edges cross and false otherwise
      */
     public boolean cross(Edge edge) {
-        Vector3f P1 = this.getOrigin(), P2 = edge.getOrigin();
-        Vector3f u = this.getDirection();
-        Vector3f v = edge.getDirection();
+        Vector3f P1 = temporalMesh.getVertices().get(index1);
+        Vector3f P2 = edge.temporalMesh.getVertices().get(edge.index1);
+        Vector3f u = temporalMesh.getVertices().get(index2).subtract(P1);
+        Vector3f v = edge.temporalMesh.getVertices().get(edge.index2).subtract(P2);
         float t2 = (u.x * (P2.y - P1.y) - u.y * (P2.x - P1.x)) / (u.y * v.x - u.x * v.y);
         float t1 = (P2.x - P1.x + v.x * t2) / u.x;
         Vector3f p1 = P1.add(u.mult(t1));
@@ -223,9 +187,7 @@ public class Edge extends Line {
     @Override
     public String toString() {
         String result = "Edge [" + index1 + ", " + index2 + "] {" + crease + "}";
-        if (this.getOrigin() != null && this.getDirection() != null) {
-            result += " -> {" + this.getOrigin() + ", " + this.getOrigin().add(this.getDirection()) + "}";
-        }
+        result += " (" + temporalMesh.getVertices().get(index1) + " -> " + temporalMesh.getVertices().get(index2) + ")";
         if (inFace) {
             result += "[F]";
         }
@@ -260,11 +222,13 @@ public class Edge extends Line {
      * The method loads all edges from the given mesh structure that does not belong to any face.
      * @param meshStructure
      *            the mesh structure
+     * @param temporalMesh
+     *            the owner of the edges
      * @return all edges without faces
      * @throws BlenderFileException
      *             an exception is thrown when problems with file reading occur
      */
-    public static List<Edge> loadAll(Structure meshStructure) throws BlenderFileException {
+    public static List<Edge> loadAll(Structure meshStructure, TemporalMesh temporalMesh) throws BlenderFileException {
         LOGGER.log(Level.FINE, "Loading all edges that do not belong to any face from mesh: {0}", meshStructure.getName());
         List<Edge> result = new ArrayList<Edge>();
 
@@ -277,9 +241,10 @@ public class Edge extends Line {
 
                 int v1 = ((Number) edge.getFieldValue("v1")).intValue();
                 int v2 = ((Number) edge.getFieldValue("v2")).intValue();
-                float crease = ((Number) edge.getFieldValue("crease")).floatValue();
+                // I do not know why, but blender stores (possibly only sometimes) crease as negative values and shows positive in the editor
+                float crease = Math.abs(((Number) edge.getFieldValue("crease")).floatValue());
                 boolean edgeInFace = (flag & Edge.FLAG_EDGE_NOT_IN_FACE) == 0;
-                result.add(new Edge(v1, v2, crease, edgeInFace));
+                result.add(new Edge(v1, v2, crease, edgeInFace, temporalMesh));
             }
         }
         LOGGER.log(Level.FINE, "Loaded {0} edges.", result.size());

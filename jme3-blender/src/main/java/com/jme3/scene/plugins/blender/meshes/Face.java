@@ -355,7 +355,7 @@ public class Face implements Comparator<Integer> {
             if (i != index && i != indexToIgnore) {
                 Vector3f v2 = vertices.get(i);
                 float d = v2.distance(v1);
-                if (d < distance && this.contains(new Edge(index, i, 0, true, vertices))) {
+                if (d < distance && this.contains(new Edge(index, i, 0, true, temporalMesh))) {
                     result = i;
                     distance = d;
                 }
@@ -378,14 +378,12 @@ public class Face implements Comparator<Integer> {
         if (!indexes.areNeighbours(index1, index2)) {
             List<Vector3f> vertices = temporalMesh.getVertices();
 
-            Edge e2 = new Edge();
             for (int i = 0; i < indexes.size(); ++i) {
                 int i1 = this.getIndex(i);
                 int i2 = this.getIndex(i + 1);
                 // check if the edges have no common verts (because if they do, they cannot cross)
                 if (i1 != index1 && i1 != index2 && i2 != index1 && i2 != index2) {
-                    e2.set(vertices.get(i1), vertices.get(i2));
-                    if (edge.cross(e2)) {
+                    if (edge.cross(new Edge(i1, i2, 0, false, temporalMesh))) {
                         return false;
                     }
                 }

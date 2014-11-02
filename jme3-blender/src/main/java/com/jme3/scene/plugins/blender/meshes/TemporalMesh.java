@@ -117,7 +117,7 @@ public class TemporalMesh extends Geometry {
             vertexGroups = meshHelper.loadVerticesGroups(meshStructure);
 
             faces = Face.loadAll(meshStructure, userUVGroups, verticesColors, this, blenderContext);
-            edges = Edge.loadAll(meshStructure);
+            edges = Edge.loadAll(meshStructure, this);
             points = Point.loadAll(meshStructure);
 
             this.rebuildIndexesMappings();
@@ -229,7 +229,7 @@ public class TemporalMesh extends Geometry {
      * @return <b>true</b> if the index is a boundary one and <b>false</b> otherwise
      */
     public boolean isBoundary(Integer index) {
-        List<Edge> adjacentEdges = indexToEdgeMapping.get(index);
+        List<Edge> adjacentEdges = this.getAdjacentEdges(index);
         for (Edge edge : adjacentEdges) {
             if (this.isBoundary(edge)) {
                 return true;
