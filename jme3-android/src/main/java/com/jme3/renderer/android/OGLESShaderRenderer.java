@@ -1283,7 +1283,7 @@ public class OGLESShaderRenderer implements Renderer {
                     + ":" + fb.getHeight() + " is not supported.");
         }
 
-        AndroidGLImageFormat imageFormat = TextureUtil.getImageFormat(rb.getFormat());
+        AndroidGLImageFormat imageFormat = TextureUtil.getImageFormat(rb.getFormat(), true);
         if (imageFormat.renderBufferStorageFormat == 0) {
             throw new RendererException("The format '" + rb.getFormat() + "' cannot be used for renderbuffers.");
         }

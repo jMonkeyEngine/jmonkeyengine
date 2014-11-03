@@ -265,7 +265,8 @@ public class TextureUtil {
         throw new UnsupportedOperationException("The image format '" + fmt + "' is unsupported by the video hardware.");
     }
 
-    public static AndroidGLImageFormat getImageFormat(Format fmt) throws UnsupportedOperationException {
+    public static AndroidGLImageFormat getImageFormat(Format fmt, boolean forRenderBuffer)
+            throws UnsupportedOperationException {
         AndroidGLImageFormat imageFormat = new AndroidGLImageFormat();
         switch (fmt) {
             case RGBA16:
@@ -352,7 +353,7 @@ public class TextureUtil {
                 break;
             case Depth:
             case Depth16:
-                if (!DEPTH_TEXTURE) {
+                if (!DEPTH_TEXTURE && !forRenderBuffer) {
                     unsupportedFormat(fmt);
                 }
                 imageFormat.format = GLES20.GL_DEPTH_COMPONENT;
@@ -434,7 +435,7 @@ public class TextureUtil {
                     + "are not supported by the video hardware "
                     + "and no scaling path available for image: " + img);
         }
-        AndroidGLImageFormat imageFormat = getImageFormat(fmt);
+        AndroidGLImageFormat imageFormat = getImageFormat(fmt, false);
 
         if (data != null) {
             GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
@@ -527,7 +528,7 @@ public class TextureUtil {
                     + "are not supported by the video hardware "
                     + "and no scaling path available for image: " + img);
         }
-        AndroidGLImageFormat imageFormat = getImageFormat(fmt);
+        AndroidGLImageFormat imageFormat = getImageFormat(fmt, false);
 
         if (data != null) {
             GLES20.glPixelStorei(GLES20.GL_UNPACK_ALIGNMENT, 1);
