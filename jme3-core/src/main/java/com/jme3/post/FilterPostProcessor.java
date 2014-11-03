@@ -80,6 +80,8 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
     private boolean cameraInit = false;
     private boolean multiView = false;
 
+    private Format fbFormat = Format.RGB111110F;
+    
     /**
      * Create a FilterProcessor 
      * @param assetManager the assetManager
@@ -139,8 +141,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         fsQuad.setHeight(1);
         
         if (!renderer.getCaps().contains(Caps.PackedFloatTexture)) {
-            throw new RendererException("FilterPostProcessor requires the " + 
-                    "video hardware to support packed float texture.");
+            fbFormat = Format.RGB8;
         }
         
         Camera cam = vp.getCamera();
@@ -443,7 +444,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
         if (numSamples > 1 && caps.contains(Caps.FrameBufferMultisample)) {
             renderFrameBufferMS = new FrameBuffer(width, height, numSamples);
             if (caps.contains(Caps.OpenGL31)) {
-                Texture2D msColor = new Texture2D(width, height, numSamples, Format.RGB111110F);
+                Texture2D msColor = new Texture2D(width, height, numSamples, fbFormat);
                 Texture2D msDepth = new Texture2D(width, height, numSamples, Format.Depth);
                 renderFrameBufferMS.setDepthTexture(msDepth);
                 renderFrameBufferMS.setColorTexture(msColor);
@@ -451,14 +452,14 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
                 depthTexture = msDepth;
             } else {
                 renderFrameBufferMS.setDepthBuffer(Format.Depth);
-                renderFrameBufferMS.setColorBuffer(Format.RGB111110F);
+                renderFrameBufferMS.setColorBuffer(fbFormat);
             }
         }
 
         if (numSamples <= 1 || !caps.contains(Caps.OpenGL31)) {
             renderFrameBuffer = new FrameBuffer(width, height, 1);
             renderFrameBuffer.setDepthBuffer(Format.Depth);
-            filterTexture = new Texture2D(width, height, Format.RGB111110F);
+            filterTexture = new Texture2D(width, height, fbFormat);
             renderFrameBuffer.setColorTexture(filterTexture);
         }
 
