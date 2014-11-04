@@ -38,6 +38,7 @@ import com.jme3.material.Material;
 import com.jme3.material.MaterialDef;
 import com.jme3.material.RenderState;
 import com.jme3.material.Technique;
+import com.jme3.material.TechniqueDef;
 import com.jme3.math.*;
 import com.jme3.post.SceneProcessor;
 import com.jme3.profile.AppProfiler;
@@ -89,6 +90,8 @@ public class RenderManager {
     private boolean handleTranlucentBucket = true;
     private AppProfiler prof;
     private LightFilter lightFilter = new DefaultLightFilter();
+    private TechniqueDef.LightMode preferredLightMode = TechniqueDef.LightMode.MultiPass;
+    private int singlePassLightBatchSize = 1;
 
     /**
      * Create a high-level rendering interface over the
@@ -780,6 +783,33 @@ public class RenderManager {
         vp.getQueue().clear();
     }
 
+    /**
+     * Sets the light filter to use when rendering Lighted Geometries
+     * 
+     * @see LightFilter
+     * @param lightFilter The light filter tose. Set it to null if you want all lights to be rendered
+     */
+    public void setLightFilter(LightFilter lightFilter) {
+        this.lightFilter = lightFilter;
+    }
+
+    public void setPreferredLightMode(TechniqueDef.LightMode preferredLightMode) {
+        this.preferredLightMode = preferredLightMode;
+    }
+
+    public TechniqueDef.LightMode getPreferredLightMode() {
+        return preferredLightMode;
+    }
+
+    public int getSinglePassLightBatchSize() {
+        return singlePassLightBatchSize;
+    }
+
+    public void setSinglePassLightBatchSize(int singlePassLightBatchSize) {
+        this.singlePassLightBatchSize = singlePassLightBatchSize;
+    }
+    
+    
     /**
      * Render the given viewport queues.
      * <p>

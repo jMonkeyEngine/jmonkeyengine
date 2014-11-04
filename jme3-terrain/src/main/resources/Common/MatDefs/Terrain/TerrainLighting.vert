@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/Lighting.glsllib"
+
 uniform mat4 g_WorldViewProjectionMatrix;
 uniform mat4 g_WorldViewMatrix;
 uniform mat3 g_NormalMatrix;
@@ -34,16 +36,6 @@ varying vec4 SpecularSum;
   varying vec3 wNormal;
 #endif
 
-// JME3 lights in world space
-void lightComputeDir(in vec3 worldPos, in vec4 color, in vec4 position, out vec4 lightDir){
-    float posLight = step(0.5, color.w);
-    vec3 tempVec = position.xyz * sign(posLight - 0.5) - (worldPos * posLight);
-    lightVec.xyz = tempVec;  
-    float dist = length(tempVec);
-    lightDir.w = clamp(1.0 - position.w * dist * posLight, 0.0, 1.0);
-    lightDir.xyz = tempVec / vec3(dist);
-}
-
 
 void main(){
     vec4 pos = vec4(inPosition, 1.0);
@@ -66,35 +58,30 @@ void main(){
     // specific to normal maps:
     //--------------------------
     #if defined(NORMALMAP) || defined(NORMALMAP_1) || defined(NORMALMAP_2) || defined(NORMALMAP_3) || defined(NORMALMAP_4) || defined(NORMALMAP_5) || defined(NORMALMAP_6) || defined(NORMALMAP_7) || defined(NORMALMAP_8) || defined(NORMALMAP_9) || defined(NORMALMAP_10) || defined(NORMALMAP_11)
-      vec3 wvTangent = normalize(g_NormalMatrix * inTangent.xyz);
-      vec3 wvBinormal = cross(wvNormal, wvTangent);
+        vec3 wvTangent = normalize(g_NormalMatrix * inTangent.xyz);
+        vec3 wvBinormal = cross(wvNormal, wvTangent);
 
-      mat3 tbnMat = mat3(wvTangent, wvBinormal * -inTangent.w,wvNormal);
+        mat3 tbnMat = mat3(wvTangent, wvBinormal * inTangent.w,wvNormal);
 
-      vPosition = wvPosition * tbnMat;
-      vViewDir  = viewDir * tbnMat;
-      lightComputeDir(wvPosition, lightColor, wvLightPos, vLightDir);
-      vLightDir.xyz = (vLightDir.xyz * tbnMat).xyz;
+        vPosition = wvPosition * tbnMat;
+        vViewDir  = viewDir * tbnMat;
+
+        lightComputeDir(wvPosition, lightColor.w, wvLightPos, vLightDir, lightVec);
+        vLightDir.xyz = (vLightDir.xyz * tbnMat).xyz;
     #else
+        //-------------------------
+        // general to all lighting
+        //-------------------------
+        vNormal = wvNormal;
 
-    //-------------------------
-    // general to all lighting
-    //-------------------------
-    vNormal = wvNormal;
+        vPosition = wvPosition;
+        vViewDir = viewDir;
 
-    vPosition = wvPosition;
-    vViewDir = viewDir;
-
-    lightComputeDir(wvPosition, lightColor, wvLightPos, vLightDir);
+        lightComputeDir(wvPosition, lightColor.w, wvLightPos, vLightDir, lightVec);
 
     #endif
    
-      //computing spot direction in view space and unpacking spotlight cos
-  // spotVec=(g_ViewMatrix *vec4(g_LightDirection.xyz,0.0) );
-  // spotVec.w=floor(g_LightDirection.w)*0.001;
-  // lightVec.w = fract(g_LightDirection.w);
-
-    AmbientSum  = vec4(0.2, 0.2, 0.2, 1.0) * g_AmbientLightColor; // Default: ambient color is dark gray
+    AmbientSum  = g_AmbientLightColor; // Default: ambient color is dark gray
     DiffuseSum  = lightColor;
     SpecularSum = lightColor;
 

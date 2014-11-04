@@ -1,0 +1,29 @@
+/*Standard Phong ligting*/
+
+/*
+* Computes diffuse factor
+*/
+float lightComputeDiffuse(in vec3 norm, in vec3 lightdir){
+    return max(0.0, dot(norm, lightdir));
+}
+
+/*
+* Computes specular factor    
+*/
+float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in float shiny){
+    vec3 R = reflect(-lightdir, norm);
+    return pow(max(dot(R, viewdir), 0.0), shiny);
+}
+
+/*
+* Computes diffuse and specular factors and pack them in a vec2 (x=diffuse, y=specular)
+*/
+vec2 computeLighting(in vec3 norm, in vec3 viewDir, in vec3 lightDir, in float attenuation, in float shininess){
+   float diffuseFactor = lightComputeDiffuse(norm, lightDir);
+   float specularFactor = lightComputeSpecular(norm, viewDir, lightDir, shininess);      
+   if (shininess <= 1.0) {
+       specularFactor = 0.0; // should be one instruction on most cards ..
+   }
+   specularFactor *= diffuseFactor;
+   return vec2(diffuseFactor, specularFactor) * vec2(attenuation);
+}

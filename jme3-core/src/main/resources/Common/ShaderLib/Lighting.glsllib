@@ -1,48 +1,30 @@
-#ifndef NUM_LIGHTS
-    #define NUM_LIGHTS 4
-#endif
+/*Common function for light calculations*/
 
-uniform mat4 g_ViewMatrix;
-uniform vec4 g_LightPosition[NUM_LIGHTS];
-uniform vec4 g_g_LightColor[NUM_LIGHTS];
-uniform float m_Shininess;
 
-float Lighting_Diffuse(vec3 norm, vec3 lightdir){
-    return max(0.0, dot(norm, lightdir));
-}
-
-float Lighting_Specular(vec3 norm, vec3 viewdir, vec3 lightdir, float shiny){
-    vec3 refdir = reflect(-lightdir, norm);
-    return pow(max(dot(refdir, viewdir), 0.0), shiny);
-}
-
-void Lighting_Direction(vec3 worldPos, vec4 color, vec4 position, out vec4 lightDir){
-    float posLight = step(0.5, color.w);
+/*
+* Computes light direction 
+* lightType should be 0.0,1.0,2.0, repectively for Directional, point and spot lights.
+* Outputs the light direction and the light half vector. 
+*/
+void lightComputeDir(in vec3 worldPos, in float ligthType, in vec4 position, out vec4 lightDir, out vec3 lightVec){
+    float posLight = step(0.5, ligthType);    
     vec3 tempVec = position.xyz * sign(posLight - 0.5) - (worldPos * posLight);
+    lightVec = tempVec;          
     float dist = length(tempVec);
-
     lightDir.w = clamp(1.0 - position.w * dist * posLight, 0.0, 1.0);
-    lightDir.xyz = tempVec / dist;
+    lightDir.xyz = tempVec / vec3(dist);
 }
 
-void Lighting_ComputePS(vec3 tanNormal, mat3 tbnMat,
-                     int lightCount, out vec3 outDiffuse, out vec3 outSpecular){
-   // find tangent view dir & vert pos
-   vec3 tanViewDir = viewDir * tbnMat;
-
-   for (int i = 0; i < lightCount; i++){
-       // find light dir in tangent space, works for point & directional lights
-       vec4 wvLightPos = (g_ViewMatrix * vec4(g_LightPosition[i].xyz, g_LightColor[i].w));
-       wvLightPos.w = g_LightPosition[i].w;
-
-       vec4 tanLightDir;
-       Lighting_Direction(wvPosition, g_LightColor[i], wvLightPos, tanLightDir);
-       tanLightDir.xyz = tanLightDir.xyz * tbnMat;
-
-       vec3 lightScale = g_LightColor[i].rgb * tanLightDir.w;
-       float specular = Lighting_Specular(tanNormal, tanViewDir, tanLightDir.xyz, m_Shininess);
-       float diffuse = Lighting_Diffuse(tanNormal, tanLightDir.xyz);
-       outSpecular += specular * lightScale * step(0.01, diffuse) * g_LightColor[i].rgb;
-       outDiffuse += diffuse * lightScale * g_LightColor[i].rgb;
-   }
+/*
+* Computes the spot falloff for a spotlight
+*/
+float computeSpotFalloff(in vec4 lightDirection, in vec3 lightVector){
+    vec3 L=normalize(lightVector);
+    vec3 spotdir = normalize(lightDirection.xyz);
+    float curAngleCos = dot(-L, spotdir);    
+    float innerAngleCos = floor(lightDirection.w) * 0.001;
+    float outerAngleCos = fract(lightDirection.w);
+    float innerMinusOuter = innerAngleCos - outerAngleCos;
+    return  clamp((curAngleCos - outerAngleCos) / innerMinusOuter, step(lightDirection.w, 0.001), 1.0);
 }
+
