@@ -35,6 +35,7 @@ import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
+import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
 
@@ -138,11 +139,21 @@ public class RenderContext {
      * @see Renderer#setShader(com.jme3.shader.Shader) 
      */
     public int boundShaderProgram;
+    
+    /**
+     * @see Renderer#setShader(com.jme3.shader.Shader) 
+     */
+    public Shader boundShader;
 
     /**
      * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer) 
      */
     public int boundFBO = 0;
+    
+    /**
+     * @see Renderer#setFrameBuffer(com.jme3.texture.FrameBuffer) 
+     */
+    public FrameBuffer boundFB;
 
     /**
      * Currently bound Renderbuffer
@@ -279,6 +290,10 @@ public class RenderContext {
      */
     public RenderState.TestFunction alphaFunc = RenderState.TestFunction.Greater;
 
+    
+    public int initialDrawBuf;
+    public int initialReadBuf;
+    
     /**
      * Reset the RenderContext to default GL state
      */
@@ -298,7 +313,9 @@ public class RenderContext {
         blendMode = RenderState.BlendMode.Off;
         wireframe = false;
         boundShaderProgram = 0;
+        boundShader = null;
         boundFBO = 0;
+        boundFB = null;
         boundRB = 0;
         boundDrawBuf = -1; 
         boundReadBuf = -1;

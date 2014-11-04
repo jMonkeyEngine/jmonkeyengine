@@ -100,10 +100,7 @@ public class LwjglRenderer implements Renderer {
     private final RenderContext context = new RenderContext();
     private final NativeObjectManager objManager = new NativeObjectManager();
     private final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
-    // current state
-    private Shader boundShader;
-    private int initialDrawBuf, initialReadBuf;
-    private int glslVer;
+
     private int vertexTextureUnits;
     private int fragTextureUnits;
     private int vertexUniforms;
@@ -119,7 +116,6 @@ public class LwjglRenderer implements Renderer {
     private int maxTriCount;
     private int maxColorTexSamples;
     private int maxDepthTexSamples;
-    private FrameBuffer lastFb = null;
     private FrameBuffer mainFbOverride = null;
     private final Statistics statistics = new Statistics();
     private int vpX, vpY, vpW, vpH;
@@ -180,7 +176,6 @@ public class LwjglRenderer implements Renderer {
             versionStr = glGetString(GL_SHADING_LANGUAGE_VERSION);
         }
         if (versionStr == null || versionStr.equals("")) {
-            glslVer = -1;
             throw new UnsupportedOperationException("GLSL and OpenGL2 is "
                     + "required for the LWJGL "
                     + "renderer!");
@@ -188,8 +183,8 @@ public class LwjglRenderer implements Renderer {
 
         // Fix issue in TestRenderToMemory when GL_FRONT is the main
         // buffer being used.
-        initialDrawBuf = glGetInteger(GL_DRAW_BUFFER);
-        initialReadBuf = glGetInteger(GL_READ_BUFFER);
+        context.initialDrawBuf = glGetInteger(GL_DRAW_BUFFER);
+        context.initialReadBuf = glGetInteger(GL_READ_BUFFER);
 
         // XXX: This has to be GL_BACK for canvas on Mac
         // Since initialDrawBuf is GL_FRONT for pbuffer, gotta
@@ -203,7 +198,7 @@ public class LwjglRenderer implements Renderer {
         }
 
         float version = Float.parseFloat(versionStr);
-        glslVer = (int) (version * 100);
+        int glslVer = (int) (version * 100);
 
         switch (glslVer) {
             default:
@@ -409,11 +404,8 @@ public class LwjglRenderer implements Renderer {
 
     public void invalidateState() {
         context.reset();
-        boundShader = null;
-        lastFb = null;
-
-        initialDrawBuf = glGetInteger(GL_DRAW_BUFFER);
-        initialReadBuf = glGetInteger(GL_READ_BUFFER);
+        context.initialDrawBuf = glGetInteger(GL_DRAW_BUFFER);
+        context.initialReadBuf = glGetInteger(GL_READ_BUFFER);
     }
 
     public void resetGLObjects() {
@@ -821,7 +813,7 @@ public class LwjglRenderer implements Renderer {
         if (context.boundShaderProgram != shaderId) {
             glUseProgram(shaderId);
             statistics.onShaderUse(shader, true);
-            boundShader = shader;
+            context.boundShader = shader;
             context.boundShaderProgram = shaderId;
         } else {
             statistics.onShaderUse(shader, false);
@@ -1531,16 +1523,16 @@ public class LwjglRenderer implements Renderer {
             fb = mainFbOverride;
         }
 
-        if (lastFb == fb) {
+        if (context.boundFB == fb) {
             if (fb == null || !fb.isUpdateNeeded()) {
                 return;
             }
         }
 
         // generate mipmaps for last FB if needed
-        if (lastFb != null) {
-            for (int i = 0; i < lastFb.getNumColorBuffers(); i++) {
-                RenderBuffer rb = lastFb.getColorBuffer(i);
+        if (context.boundFB != null) {
+            for (int i = 0; i < context.boundFB.getNumColorBuffers(); i++) {
+                RenderBuffer rb = context.boundFB.getColorBuffer(i);
                 Texture tex = rb.getTexture();
                 if (tex != null
                         && tex.getMinFilter().usesMipMapLevels()) {
@@ -1564,15 +1556,15 @@ public class LwjglRenderer implements Renderer {
             }
             // select back buffer
             if (context.boundDrawBuf != -1) {
-                glDrawBuffer(initialDrawBuf);
+                glDrawBuffer(context.initialDrawBuf);
                 context.boundDrawBuf = -1;
             }
             if (context.boundReadBuf != -1) {
-                glReadBuffer(initialReadBuf);
+                glReadBuffer(context.initialReadBuf);
                 context.boundReadBuf = -1;
             }
 
-            lastFb = null;
+            context.boundFB = null;
         } else {
             if (fb.getNumColorBuffers() == 0 && fb.getDepthBuffer() == null) {
                 throw new IllegalArgumentException("The framebuffer: " + fb
@@ -1641,7 +1633,7 @@ public class LwjglRenderer implements Renderer {
             assert fb.getId() >= 0;
             assert context.boundFBO == fb.getId();
 
-            lastFb = fb;
+            context.boundFB = fb;
 
             try {
                 checkFrameBufferError();
@@ -2210,8 +2202,9 @@ public class LwjglRenderer implements Renderer {
         }
 
         int programId = context.boundShaderProgram;
+
         if (programId > 0) {
-            Attribute attrib = boundShader.getAttribute(vb.getBufferType());
+            Attribute attrib = context.boundShader.getAttribute(vb.getBufferType());
             int loc = attrib.getLocation();
             if (loc == -1) {
                 return; // not defined
