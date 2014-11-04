@@ -1757,22 +1757,37 @@ public class LwjglRenderer implements Renderer {
         }
     }
 
-    private int convertMinFilter(Texture.MinFilter filter) {
-        switch (filter) {
-            case Trilinear:
-                return GL_LINEAR_MIPMAP_LINEAR;
-            case BilinearNearestMipMap:
-                return GL_LINEAR_MIPMAP_NEAREST;
-            case NearestLinearMipMap:
-                return GL_NEAREST_MIPMAP_LINEAR;
-            case NearestNearestMipMap:
-                return GL_NEAREST_MIPMAP_NEAREST;
-            case BilinearNoMipMaps:
-                return GL_LINEAR;
-            case NearestNoMipMaps:
-                return GL_NEAREST;
-            default:
-                throw new UnsupportedOperationException("Unknown min filter: " + filter);
+    private int convertMinFilter(Texture.MinFilter filter, boolean haveMips) {
+        if (haveMips){
+            switch (filter) {
+                case Trilinear:
+                    return GL_LINEAR_MIPMAP_LINEAR;
+                case BilinearNearestMipMap:
+                    return GL_LINEAR_MIPMAP_NEAREST;
+                case NearestLinearMipMap:
+                    return GL_NEAREST_MIPMAP_LINEAR;
+                case NearestNearestMipMap:
+                    return GL_NEAREST_MIPMAP_NEAREST;
+                case BilinearNoMipMaps:
+                    return GL_LINEAR;
+                case NearestNoMipMaps:
+                    return GL_NEAREST;
+                default:
+                    throw new UnsupportedOperationException("Unknown min filter: " + filter);
+            }
+        } else {
+            switch (filter) {
+                case Trilinear:
+                case BilinearNearestMipMap:
+                case BilinearNoMipMaps:
+                    return GL_LINEAR;
+                case NearestLinearMipMap:
+                case NearestNearestMipMap:
+                case NearestNoMipMaps:
+                    return GL_NEAREST;
+                default:
+                    throw new UnsupportedOperationException("Unknown min filter: " + filter);
+            }
         }
     }
 
@@ -1798,8 +1813,14 @@ public class LwjglRenderer implements Renderer {
         Image image = tex.getImage();
         int target = convertTextureType(tex.getType(), image != null ? image.getMultiSamples() : 1, -1);
 
+        boolean haveMips = true;
+        
+        if (image != null) {
+            haveMips = image.isGeneratedMipmapsRequired() || image.hasMipmaps();
+        }
+        
         // filter things
-        int minFilter = convertMinFilter(tex.getMinFilter());
+        int minFilter = convertMinFilter(tex.getMinFilter(), haveMips);
         int magFilter = convertMagFilter(tex.getMagFilter());
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, minFilter);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilter);
