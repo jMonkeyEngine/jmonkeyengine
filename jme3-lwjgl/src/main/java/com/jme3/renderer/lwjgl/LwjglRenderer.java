@@ -1955,6 +1955,9 @@ public class LwjglRenderer implements Renderer {
             if (img.getWidth() > maxCubeTexSize || img.getHeight() > maxCubeTexSize) {
                 throw new RendererException("Cannot upload cubemap " + img + ". The maximum supported cubemap resolution is " + maxCubeTexSize);
             }
+            if (img.getWidth() != img.getHeight()) {
+                throw new RendererException("Cubemaps must have square dimensions");
+            }
         } else {
             if (img.getWidth() > maxTexSize || img.getHeight() > maxTexSize) {
                 throw new RendererException("Cannot upload texture " + img + ". The maximum supported texture resolution is " + maxTexSize);
