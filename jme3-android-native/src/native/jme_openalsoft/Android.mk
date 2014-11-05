@@ -1,4 +1,4 @@
-TARGET_PLATFORM=android-9
+TARGET_PLATFORM := android-9
 
 LOCAL_PATH := $(call my-dir)
 
