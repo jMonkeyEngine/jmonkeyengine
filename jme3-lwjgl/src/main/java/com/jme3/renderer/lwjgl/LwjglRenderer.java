@@ -57,7 +57,9 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
 import java.nio.*;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,7 +71,6 @@ import static org.lwjgl.opengl.ARBInstancedArrays.*;
 import static org.lwjgl.opengl.ARBMultisample.*;
 import static org.lwjgl.opengl.ARBTextureMultisample.*;
 import static org.lwjgl.opengl.ARBVertexArrayObject.*;
-import org.lwjgl.opengl.ContextCapabilities;
 import static org.lwjgl.opengl.EXTFramebufferBlit.*;
 import static org.lwjgl.opengl.EXTFramebufferMultisample.*;
 import static org.lwjgl.opengl.EXTFramebufferObject.*;
@@ -83,7 +84,7 @@ import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
-import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.GL30;
 //import static org.lwjgl.opengl.GL21.*;
 //import static org.lwjgl.opengl.GL30.*;
 
@@ -121,7 +122,7 @@ public class LwjglRenderer implements Renderer {
     private int vpX, vpY, vpW, vpH;
     private int clipX, clipY, clipW, clipH;
     private boolean linearizeSrgbImages;
-    private ContextCapabilities ctxCaps;
+    private HashSet<String> extensions;
 
     public LwjglRenderer() {
     }
@@ -148,6 +149,14 @@ public class LwjglRenderer implements Renderer {
         return caps;
     }
 
+    private static HashSet<String> loadExtensions(String extensions) {
+        HashSet<String> extensionSet = new HashSet<String>(64);
+        for (String extension : extensions.split(" ")) {
+            extensionSet.add(extension);
+        }
+        return extensionSet;
+    }
+    
     private static int extractVersion(String prefixStr, String versionStr) {
         if (versionStr != null) {
             int spaceIdx = versionStr.indexOf(" ", prefixStr.length());
@@ -185,9 +194,12 @@ public class LwjglRenderer implements Renderer {
         }
     }
     
-    @SuppressWarnings("fallthrough")
-    public void initialize() {
-        int oglVer  = extractVersion("", glGetString(GL_VERSION));
+    private boolean hasExtension(String extensionName) {
+        return extensions.contains(extensionName);
+    }
+    
+    private void loadCapabilities() {
+        int oglVer = extractVersion("", glGetString(GL_VERSION));
         
         if (oglVer >= 200) {
             caps.add(Caps.OpenGL20);
@@ -205,17 +217,6 @@ public class LwjglRenderer implements Renderer {
             }
         }
         
-        // Fix issue in TestRenderToMemory when GL_FRONT is the main
-        // buffer being used.
-        context.initialDrawBuf = glGetInteger(GL_DRAW_BUFFER);
-        context.initialReadBuf = glGetInteger(GL_READ_BUFFER);
-
-        // XXX: This has to be GL_BACK for canvas on Mac
-        // Since initialDrawBuf is GL_FRONT for pbuffer, gotta
-        // change this value later on ...
-//        initialDrawBuf = GL_BACK;
-//        initialReadBuf = GL_BACK;
-
         int glslVer = extractVersion("", glGetString(GL_SHADING_LANGUAGE_VERSION));
         
         switch (glslVer) {
@@ -245,9 +246,25 @@ public class LwjglRenderer implements Renderer {
         // Workaround, always assume we support GLSL100.
         // Some cards just don't report this correctly.
         caps.add(Caps.GLSL100);
-
-        ctxCaps = GLContext.getCapabilities();
         
+        extensions = loadExtensions(glGetString(GL_EXTENSIONS));
+    }
+    
+    @SuppressWarnings("fallthrough")
+    public void initialize() {
+        loadCapabilities();
+        
+        // Fix issue in TestRenderToMemory when GL_FRONT is the main
+        // buffer being used.
+        context.initialDrawBuf = glGetInteger(GL_DRAW_BUFFER);
+        context.initialReadBuf = glGetInteger(GL_READ_BUFFER);
+
+        // XXX: This has to be GL_BACK for canvas on Mac
+        // Since initialDrawBuf is GL_FRONT for pbuffer, gotta
+        // change this value later on ...
+//        initialDrawBuf = GL_BACK;
+//        initialReadBuf = GL_BACK;
+
         glGetInteger(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, intBuf16);
         vertexTextureUnits = intBuf16.get(0);
         logger.log(Level.FINER, "VTF Units: {0}", vertexTextureUnits);
@@ -291,44 +308,41 @@ public class LwjglRenderer implements Renderer {
         maxCubeTexSize = intBuf16.get(0);
         logger.log(Level.FINER, "Maximum CubeMap Resolution: {0}", maxCubeTexSize);
 
-        if (ctxCaps.GL_ARB_color_buffer_float) {
+        // ctxCaps = GLContext.getCapabilities();
+        
+        if (hasExtension("GL_ARB_color_buffer_float") &&
+            hasExtension("GL_ARB_half_float_pixel")) {
             // XXX: Require both 16 and 32 bit float support for FloatColorBuffer.
-            if (ctxCaps.GL_ARB_half_float_pixel) {
-                caps.add(Caps.FloatColorBuffer);
-            }
+            caps.add(Caps.FloatColorBuffer);
         }
 
-        if (ctxCaps.GL_ARB_depth_buffer_float) {
+        if (hasExtension("GL_ARB_depth_buffer_float")) {
             caps.add(Caps.FloatDepthBuffer);
         }
 
-        if (ctxCaps.OpenGL30) {
+        if (caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.PackedDepthStencilBuffer);
         }
 
-        if (ctxCaps.GL_ARB_draw_instanced && ctxCaps.GL_ARB_instanced_arrays) {
+        if (hasExtension("GL_ARB_draw_instanced") && 
+            hasExtension("GL_ARB_instanced_arrays")) {
             caps.add(Caps.MeshInstancing);
         }
 
-        if (ctxCaps.GL_ARB_fragment_program) {
-            caps.add(Caps.ARBprogram);
-        }
-
-        if (ctxCaps.GL_ARB_texture_buffer_object) {
+        if (hasExtension("GL_ARB_texture_buffer_object")) {
             caps.add(Caps.TextureBuffer);
         }
 
-        if (ctxCaps.GL_ARB_texture_float) {
-            if (ctxCaps.GL_ARB_half_float_pixel) {
-                caps.add(Caps.FloatTexture);
-            }
+        if (hasExtension("GL_ARB_texture_float") &&
+            hasExtension("GL_ARB_half_float_pixel")) {
+            caps.add(Caps.FloatTexture);
         }
 
-        if (ctxCaps.GL_ARB_vertex_array_object) {
+        if (hasExtension("GL_ARB_vertex_array_object") || caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.VertexBufferArray);
         }
 
-        if (ctxCaps.GL_ARB_texture_non_power_of_two) {
+        if (hasExtension("GL_ARB_texture_non_power_of_two") || caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.NonPowerOfTwoTextures);
         } else {
             logger.log(Level.WARNING, "Your graphics card does not "
@@ -336,30 +350,34 @@ public class LwjglRenderer implements Renderer {
                     + "Some features might not work.");
         }
 
-        boolean latc = ctxCaps.GL_EXT_texture_compression_latc;
-        if (latc) {
+        if (hasExtension("GL_EXT_texture_compression_latc")) {
             caps.add(Caps.TextureCompressionLATC);
         }
 
-        if (ctxCaps.GL_EXT_packed_float || ctxCaps.OpenGL30) {
+        if (hasExtension("GL_EXT_packed_float") || caps.contains(Caps.OpenGL30)) {
             // This format is part of the OGL3 specification
             caps.add(Caps.PackedFloatColorBuffer);
-            if (ctxCaps.GL_ARB_half_float_pixel) {
+            
+            if (hasExtension("GL_ARB_half_float_pixel")) {
                 // because textures are usually uploaded as RGB16F
                 // need half-float pixel
                 caps.add(Caps.PackedFloatTexture);
             }
         }
 
-        if (ctxCaps.GL_EXT_texture_array || ctxCaps.OpenGL30) {
+        if (hasExtension("GL_EXT_texture_array") || caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.TextureArray);
         }
 
-        if (ctxCaps.GL_EXT_texture_shared_exponent || ctxCaps.OpenGL30) {
+        if (hasExtension("GL_EXT_texture_shared_exponent") || caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.SharedExponentTexture);
         }
+        
+        if (hasExtension("GL_EXT_texture_filter_anisotropic")) {
+            caps.add(Caps.TextureFilterAnisotropic);
+        }
 
-        if (ctxCaps.GL_EXT_framebuffer_object) {
+        if (hasExtension("GL_EXT_framebuffer_object")) {
             caps.add(Caps.FrameBuffer);
 
             glGetInteger(GL_MAX_RENDERBUFFER_SIZE_EXT, intBuf16);
@@ -370,7 +388,7 @@ public class LwjglRenderer implements Renderer {
             maxFBOAttachs = intBuf16.get(0);
             logger.log(Level.FINER, "FBO Max renderbuffers: {0}", maxFBOAttachs);
 
-            if (ctxCaps.GL_EXT_framebuffer_multisample) {
+            if (hasExtension("GL_EXT_framebuffer_multisample")) {
                 caps.add(Caps.FrameBufferMultisample);
 
                 glGetInteger(GL_MAX_SAMPLES_EXT, intBuf16);
@@ -378,7 +396,7 @@ public class LwjglRenderer implements Renderer {
                 logger.log(Level.FINER, "FBO Max Samples: {0}", maxFBOSamples);
             }
 
-            if (ctxCaps.GL_ARB_texture_multisample) {
+            if (hasExtension("GL_ARB_texture_multisample")) {
                 caps.add(Caps.TextureMultisample);
 
                 glGetInteger(GL_MAX_COLOR_TEXTURE_SAMPLES, intBuf16);
@@ -398,7 +416,7 @@ public class LwjglRenderer implements Renderer {
             }
         }
 
-        if (ctxCaps.GL_ARB_multisample) {
+        if (hasExtension("GL_ARB_multisample")) {
             glGetInteger(GL_SAMPLE_BUFFERS_ARB, intBuf16);
             boolean available = intBuf16.get(0) != 0;
             glGetInteger(GL_SAMPLES_ARB, intBuf16);
@@ -412,7 +430,8 @@ public class LwjglRenderer implements Renderer {
         }
         
         // Supports sRGB pipeline.
-        if ( (ctxCaps.GL_ARB_framebuffer_sRGB && ctxCaps.GL_EXT_texture_sRGB ) || ctxCaps.OpenGL30 ) {
+        if ( (hasExtension("GL_ARB_framebuffer_sRGB") && hasExtension("GL_EXT_texture_sRGB")) 
+           || caps.contains(Caps.OpenGL30) ) {
             caps.add(Caps.Srgb);
         }
 
@@ -487,7 +506,7 @@ public class LwjglRenderer implements Renderer {
     }
 
     public void setAlphaToCoverage(boolean value) {
-        if (ctxCaps.GL_ARB_multisample) {
+        if (caps.contains(Caps.Multisample)) {
             if (value) {
                 glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE_ARB);
             } else {
@@ -1089,12 +1108,12 @@ public class LwjglRenderer implements Renderer {
             glAttachShader(id, source.getId());
         }
 
-        if (ctxCaps.GL_EXT_gpu_shader4) {
+        if (caps.contains(Caps.OpenGL30)) {
             // Check if GLSL version is 1.5 for shader
-            glBindFragDataLocationEXT(id, 0, "outFragColor");
+            GL30.glBindFragDataLocation(id, 0, "outFragColor");
             // For MRT
             for (int i = 0; i < maxMRTFBOAttachs; i++) {
-                glBindFragDataLocationEXT(id, i, "outFragData[" + i + "]");
+                GL30.glBindFragDataLocation(id, i, "outFragData[" + i + "]");
             }
         }
 
@@ -1199,7 +1218,7 @@ public class LwjglRenderer implements Renderer {
     }
 
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
-        if (ctxCaps.GL_EXT_framebuffer_blit) {
+        if (caps.contains(Caps.FrameBufferBlit)) {
             int srcX0 = 0;
             int srcY0 = 0;
             int srcX1;
@@ -1300,11 +1319,11 @@ public class LwjglRenderer implements Renderer {
 
         int attachment = convertAttachmentSlot(rb.getSlot());
 
-        int type = glGetFramebufferAttachmentParameterEXT(GL_DRAW_FRAMEBUFFER_EXT,
+        int type = glGetFramebufferAttachmentParameteriEXT(GL_DRAW_FRAMEBUFFER_EXT,
                 attachment,
                 GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT);
 
-        int rbName = glGetFramebufferAttachmentParameterEXT(GL_DRAW_FRAMEBUFFER_EXT,
+        int rbName = glGetFramebufferAttachmentParameteriEXT(GL_DRAW_FRAMEBUFFER_EXT,
                 attachment,
                 GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME_EXT);
 
@@ -1405,9 +1424,9 @@ public class LwjglRenderer implements Renderer {
                     + ":" + fb.getHeight() + " is not supported.");
         }
 
-        TextureUtil.GLImageFormat glFmt = TextureUtil.getImageFormatWithError(ctxCaps, rb.getFormat(), fb.isSrgb());
+        TextureUtil.GLImageFormat glFmt = TextureUtil.getImageFormatWithError(caps, rb.getFormat(), fb.isSrgb());
 
-        if (fb.getSamples() > 1 && ctxCaps.GL_EXT_framebuffer_multisample) {
+        if (fb.getSamples() > 1 && caps.contains(Caps.FrameBufferMultisample)) {
             int samples = fb.getSamples();
             if (maxFBOSamples < samples) {
                 samples = maxFBOSamples;
@@ -1509,7 +1528,7 @@ public class LwjglRenderer implements Renderer {
         if (fb.getSamples() <= 1) {
             throw new IllegalArgumentException("Framebuffer must be multisampled");
         }
-        if (!ctxCaps.GL_ARB_texture_multisample) {
+        if (!caps.contains(Caps.TextureMultisample)) {
             throw new RendererException("Multisampled textures are not supported");
         }
 
@@ -1531,7 +1550,7 @@ public class LwjglRenderer implements Renderer {
     }
 
     public void setFrameBuffer(FrameBuffer fb) {
-        if (!ctxCaps.GL_EXT_framebuffer_object) {
+        if (!caps.contains(Caps.FrameBuffer)) {
             throw new RendererException("Framebuffer objects are not supported" +
                                         " by the video hardware");
         }
@@ -1713,7 +1732,7 @@ public class LwjglRenderer implements Renderer {
     |* Textures                                                          *|
     \*********************************************************************/
     private int convertTextureType(Texture.Type type, int samples, int face) {
-        if (samples > 1 && !ctxCaps.GL_ARB_texture_multisample) {
+        if (samples > 1 && !caps.contains(Caps.TextureMultisample)) {
             throw new RendererException("Multisample textures are not supported" + 
                                         " by the video hardware.");
         }
@@ -1826,7 +1845,7 @@ public class LwjglRenderer implements Renderer {
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, magFilter);
 
         if (tex.getAnisotropicFilter() > 1) {
-            if (ctxCaps.GL_EXT_texture_filter_anisotropic) {
+            if (caps.contains(Caps.TextureFilterAnisotropic)) {
                 glTexParameterf(target,
                         GL_TEXTURE_MAX_ANISOTROPY_EXT,
                         tex.getAnisotropicFilter());
@@ -1908,7 +1927,7 @@ public class LwjglRenderer implements Renderer {
             // Image does not have mipmaps, but they are required.
             // Generate from base level.
 
-            if (!ctxCaps.OpenGL30) {
+            if (!caps.contains(Caps.OpenGL30)) {
                 glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE);
                 img.setMipmapsGenerated(true);
             } else {
@@ -1935,7 +1954,7 @@ public class LwjglRenderer implements Renderer {
         }
 
         // Yes, some OpenGL2 cards (GeForce 5) still dont support NPOT.
-        if (!ctxCaps.GL_ARB_texture_non_power_of_two && img.isNPOT()) {
+        if (!caps.contains(Caps.NonPowerOfTwoTextures) && img.isNPOT()) {
             if (img.getData(0) == null) {
                 throw new RendererException("non-power-of-2 framebuffer textures are not supported by the video hardware");
             } else {
@@ -1944,7 +1963,7 @@ public class LwjglRenderer implements Renderer {
         }
 
         // Check if graphics card doesn't support multisample textures
-        if (!ctxCaps.GL_ARB_texture_multisample) {
+        if (!caps.contains(Caps.TextureMultisample)) {
             if (img.getMultiSamples() > 1) {
                 throw new RendererException("Multisample textures not supported by graphics hardware");
             }
@@ -1972,7 +1991,7 @@ public class LwjglRenderer implements Renderer {
                 return;
             }
             for (int i = 0; i < 6; i++) {
-                TextureUtil.uploadTexture(ctxCaps, img, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, linearizeSrgbImages);
+                TextureUtil.uploadTexture(caps, img, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, i, 0, linearizeSrgbImages);
             }
         } else if (target == GL_TEXTURE_2D_ARRAY_EXT) {
             if (!caps.contains(Caps.TextureArray)) {
@@ -1982,22 +2001,22 @@ public class LwjglRenderer implements Renderer {
             List<ByteBuffer> data = img.getData();
             
             // -1 index specifies prepare data for 2D Array
-            TextureUtil.uploadTexture(ctxCaps, img, target, -1, 0, linearizeSrgbImages);
+            TextureUtil.uploadTexture(caps, img, target, -1, 0, linearizeSrgbImages);
             
             for (int i = 0; i < data.size(); i++) {
                 // upload each slice of 2D array in turn
                 // this time with the appropriate index
-                TextureUtil.uploadTexture(ctxCaps, img, target, i, 0, linearizeSrgbImages);
+                TextureUtil.uploadTexture(caps, img, target, i, 0, linearizeSrgbImages);
             }
         } else {
-            TextureUtil.uploadTexture(ctxCaps, img, target, 0, 0, linearizeSrgbImages);
+            TextureUtil.uploadTexture(caps, img, target, 0, 0, linearizeSrgbImages);
         }
 
         if (img.getMultiSamples() != imageSamples) {
             img.setMultiSamples(imageSamples);
         }
 
-        if (ctxCaps.OpenGL30) {
+        if (caps.contains(Caps.OpenGL30)) {
             if (!img.hasMipmaps() && img.isGeneratedMipmapsRequired() && img.getData() != null) {
                 // XXX: Required for ATI
                 glEnable(target);
@@ -2048,7 +2067,7 @@ public class LwjglRenderer implements Renderer {
 
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
       setTexture(0, tex);
-      TextureUtil.uploadSubTexture(ctxCaps, pixels, convertTextureType(tex.getType(), pixels.getMultiSamples(), -1), 0, x, y, linearizeSrgbImages);
+      TextureUtil.uploadSubTexture(caps, pixels, convertTextureType(tex.getType(), pixels.getMultiSamples(), -1), 0, x, y, linearizeSrgbImages);
     }
 
     public void clearTextureUnits() {
@@ -2267,8 +2286,7 @@ public class LwjglRenderer implements Renderer {
             }
             
             if (vb.isInstanced()) {
-                if (!ctxCaps.GL_ARB_instanced_arrays
-                 || !ctxCaps.GL_ARB_draw_instanced) {
+                if (!caps.contains(Caps.MeshInstancing)) {
                     throw new RendererException("Instancing is required, "
                             + "but not supported by the "
                             + "graphics hardware");

@@ -32,11 +32,13 @@
 
 package com.jme3.renderer.lwjgl;
 
+import com.jme3.renderer.Caps;
 import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.image.ColorSpace;
 import java.nio.ByteBuffer;
+import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.lwjgl.opengl.ARBDepthBufferFloat.*;
@@ -55,7 +57,6 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL14.*;
-import static org.lwjgl.opengl.GL20.*;
 
 class TextureUtil {
 
@@ -140,7 +141,7 @@ class TextureUtil {
     
         // LTC/LATC/3Dc formats
         setFormat(Format.LTC,  GL_COMPRESSED_LUMINANCE_LATC1_EXT,       GL_LUMINANCE,       GL_UNSIGNED_BYTE, true);
-        setFormat(Format.LATC, GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, true);   
+        setFormat(Format.LATC, GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, true);
     }
     
     //sRGB formats        
@@ -157,18 +158,18 @@ class TextureUtil {
     private static final GLImageFormat sRGB_DXT3 = new GLImageFormat(GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL_RGBA, GL_UNSIGNED_BYTE, true);
     private static final GLImageFormat sRGB_DXT5 = new GLImageFormat(GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL_RGBA, GL_UNSIGNED_BYTE, true);
 
-    public static GLImageFormat getImageFormat(ContextCapabilities caps, Format fmt, boolean isSrgb){
+    public static GLImageFormat getImageFormat(EnumSet<Caps> caps, Format fmt, boolean isSrgb){
         switch (fmt){
             case DXT1:
             case DXT1A:
             case DXT3:
             case DXT5:
-                if (!caps.GL_EXT_texture_compression_s3tc) {
+                if (!caps.contains(Caps.TextureCompressionS3TC)) {
                     return null;
                 }
                 break;
             case Depth24Stencil8:
-                if (!caps.OpenGL30 && !caps.GL_EXT_packed_depth_stencil){
+                if (!caps.contains(Caps.PackedDepthStencilBuffer)){
                     return null;
                 }
                 break;
@@ -179,30 +180,30 @@ class TextureUtil {
             case RGB32F:
             case RGBA16F:
             case RGBA32F:
-                if (!caps.OpenGL30 && !caps.GL_ARB_texture_float){
+                if (!caps.contains(Caps.FloatTexture)){
                     return null;
                 }
                 break;
             case Depth32F:
-                if (!caps.OpenGL30 && !caps.GL_NV_depth_buffer_float){
+                if (!caps.contains(Caps.FloatDepthBuffer)){
                     return null;
                 }
                 break;
             case LATC:
             case LTC:
-                if (!caps.GL_EXT_texture_compression_latc){
+                if (!caps.contains(Caps.TextureCompressionLATC)){
                     return null;
                 }
                 break;
             case RGB9E5:
             case RGB16F_to_RGB9E5:
-                if (!caps.OpenGL30 && !caps.GL_EXT_texture_shared_exponent){
+                if (!caps.contains(Caps.SharedExponentTexture)){
                     return null;
                 }
                 break;
             case RGB111110F:
             case RGB16F_to_RGB111110F:
-                if (!caps.OpenGL30 && !caps.GL_EXT_packed_float){
+                if (!caps.contains(Caps.PackedFloatTexture)){
                     return null;
                 }
                 break;
@@ -214,7 +215,7 @@ class TextureUtil {
         }
     }
     
-    public static GLImageFormat getImageFormatWithError(ContextCapabilities caps, Format fmt, boolean isSrgb) {
+    public static GLImageFormat getImageFormatWithError(EnumSet<Caps> caps, Format fmt, boolean isSrgb) {
         GLImageFormat glFmt = getImageFormat(caps, fmt, isSrgb);
         if (glFmt == null) {
             throw new RendererException("Image format '" + fmt + "' is unsupported by the video hardware.");
@@ -254,7 +255,7 @@ class TextureUtil {
         }
     }
     
-    public static void uploadTexture(ContextCapabilities caps,
+    public static void uploadTexture(EnumSet<Caps> caps,
                                      Image image,
                                      int target,
                                      int index,
@@ -412,7 +413,7 @@ class TextureUtil {
      * @param y the y position where to put the image in the texture
      */
     public static void uploadSubTexture(
-        ContextCapabilities caps,
+        EnumSet<Caps> caps,
         Image image,
         int target,
         int index,
