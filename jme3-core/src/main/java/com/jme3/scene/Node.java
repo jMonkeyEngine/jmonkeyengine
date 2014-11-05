@@ -494,6 +494,9 @@ public class Node extends Spatial implements Savable {
         if (children.size() > 4)
         {
           BoundingVolume bv = this.getWorldBound();
+          if (bv==null) 
+            return 0;
+
           CollisionResults bvColRes = new CollisionResults();
           if (bv.collideWith(other, bvColRes) == 0) 
           {
@@ -650,5 +653,24 @@ public class Node extends Spatial implements Savable {
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
         queue.addAll(children);
     }
-
+/*    
+    @Override
+    void checkDoBoundUpdate() {
+        if ((refreshFlags & RF_BOUND) == 0) {
+            return;
+        }
+    
+        checkDoTransformUpdate();
+    
+        // Go to children recursively and update their bound
+        int len = getQuantity();
+        for (int i = 0; i < len; i++) {
+            Spatial child = getChild(i);
+            child.checkDoBoundUpdate();
+        }
+    
+        // All children's bounds have been updated. Update my own now.
+        updateWorldBound();
+    }
+*/
 }
