@@ -72,6 +72,9 @@ import java.util.ArrayList;
  * @author Kirill Vainer
  */
 public class FrameBuffer extends NativeObject {
+    public static int SLOT_UNDEF = -1;
+    public static int SLOT_DEPTH = -100;
+    public static int SLOT_DEPTH_STENCIL = -101;
 
     private int width = 0;
     private int height = 0;
@@ -91,7 +94,7 @@ public class FrameBuffer extends NativeObject {
         Texture tex;
         Image.Format format;
         int id = -1;
-        int slot = -1;
+        int slot = SLOT_UNDEF;
         int face = -1;
         
         /**
@@ -212,7 +215,7 @@ public class FrameBuffer extends NativeObject {
             throw new IllegalArgumentException("Depth buffer format must be depth.");
             
         depthBuf = new RenderBuffer();
-        depthBuf.slot = -100; // -100 == special slot for DEPTH_BUFFER
+        depthBuf.slot = format.isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
         depthBuf.format = format;
     }
 
@@ -404,7 +407,7 @@ public class FrameBuffer extends NativeObject {
         checkSetTexture(tex, true);
         
         depthBuf = new RenderBuffer();
-        depthBuf.slot = -100; // indicates GL_DEPTH_ATTACHMENT
+        depthBuf.slot = img.getFormat().isDepthStencilFormat() ?  SLOT_DEPTH_STENCIL : SLOT_DEPTH;
         depthBuf.tex = tex;
         depthBuf.format = img.getFormat();
     }
