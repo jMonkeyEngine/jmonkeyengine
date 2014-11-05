@@ -1,97 +1,89 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+/* API declaration export attribute */
+#define AL_API  __attribute__((visibility("protected")))
+#define ALC_API __attribute__((visibility("protected")))
 
 /* Define to the library version */
-#define ALSOFT_VERSION "1.15.1"
+#define ALSOFT_VERSION "1.16.0"
 
-#define ALIGN(x) __attribute__  ((aligned(x)))
+#ifdef IN_IDE_PARSER
+/* KDevelop's parser doesn't recognize the C99-standard restrict keyword, but
+ * recent versions (at least 4.5.1) do recognize GCC's __restrict. */
+#define restrict __restrict
+#endif 
 
-/* Define if we have the Android backend */
-/* #define HAVE_ANDROID 1 */
+/* Define any available alignment declaration */
+#define ALIGN(x) __attribute__((aligned(x)))
+
+/* Define if we have the C11 aligned_alloc function */
+/* #undef HAVE_ALIGNED_ALLOC */
+
+/* Define if we have the posix_memalign function */
+/* #undef HAVE_POSIX_MEMALIGN */
+
+/* Define if we have the _aligned_malloc function */
+/* #undef HAVE__ALIGNED_MALLOC */
+
+/* Define if we have SSE CPU extensions */
+/* #undef HAVE_SSE */
+/* #undef HAVE_SSE2 */
+/* #undef HAVE_SSE4_1 */
+
+/* Define if we have ARM Neon CPU extensions */
+/* #undef HAVE_NEON */
+
+/* Define if we have FluidSynth support */
+/* #undef HAVE_FLUIDSYNTH */
 
 /* Define if we have the ALSA backend */
-/* #define HAVE_ALSA */
+/* #undef HAVE_ALSA */
 
 /* Define if we have the OSS backend */
-/* #cmakedefine HAVE_OSS */
+/* #undef HAVE_OSS */
 
 /* Define if we have the Solaris backend */
-/* #cmakedefine HAVE_SOLARIS */
+/* #undef HAVE_SOLARIS */
 
 /* Define if we have the SndIO backend */
-/* #cmakedefine HAVE_SNDIO */
+/* #undef HAVE_SNDIO */
+
+/* Define if we have the QSA backend */
+/* #undef HAVE_QSA */
 
 /* Define if we have the MMDevApi backend */
-/* #cmakedefine HAVE_MMDEVAPI */
+/* #undef HAVE_MMDEVAPI */
 
 /* Define if we have the DSound backend */
-/* #cmakedefine HAVE_DSOUND */
+/* #undef HAVE_DSOUND */
 
 /* Define if we have the Windows Multimedia backend */
-/* #cmakedefine HAVE_WINMM */
+/* #undef HAVE_WINMM */
 
 /* Define if we have the PortAudio backend */
-/* #cmakedefine HAVE_PORTAUDIO */
+/* #undef HAVE_PORTAUDIO */
 
 /* Define if we have the PulseAudio backend */
-/* #cmakedefine HAVE_PULSEAUDIO */
+/* #undef HAVE_PULSEAUDIO */
 
 /* Define if we have the CoreAudio backend */
-/* #cmakedefine HAVE_COREAUDIO */
+/* #undef HAVE_COREAUDIO */
 
 /* Define if we have the OpenSL backend */
-#define HAVE_OPENSL /* THIS BACKEND WORKS ON >=2.3 Android!! */
+#define HAVE_OPENSL
 
 /* Define if we have the Wave Writer backend */
-/* #cmakedefine HAVE_WAVE */
-
-/* Define if we have dlfcn.h */
-#define HAVE_DLFCN_H
+#define HAVE_WAVE
 
 /* Define if we have the stat function */
 #define HAVE_STAT
 
-/* Define if we have the powf function */
-/* #define HAVE_POWF 1 */
-
-/* Define if we have the sqrtf function */
-/* #define HAVE_SQRTF 1 */
-
-/* Define if we have the cosf function */
-/* #define HAVE_COSF 1 */
-
-/* Define if we have the sinf function */
-/* #define HAVE_SINF 1 */
-
-/* Define if we have the acosf function */
-/* #define HAVE_ACOSF 1 */
-
-/* Define if we have the asinf function */
-/* #define  HAVE_ASINF 1 */
-
-/* Define if we have the atanf function */
-/* #define HAVE_ATANF 1 */
-
-/* Define if we have the atan2f function */
-/* #define HAVE_ATAN2F 1 */
-
-/* Define if we have the fabsf function */
-/* #define HAVE_FABSF 1 */
-
-/* Define if we have the log10f function */
-/* #define HAVE_LOG10F 1 */
-
-/* Define if we have the floorf function */
-/* #define HAVE_FLOORF 1 */
+/* Define if we have the lrintf function */
+#define HAVE_LRINTF
 
 /* Define if we have the strtof function */
-#define HAVE_STRTOF
-
-/* Define if we have stdint.h */
-#define HAVE_STDINT_H
+/* #undef HAVE_STRTOF */
 
 /* Define if we have the __int64 type */
-/* #cmakedefine HAVE___INT64 */
+/* #undef HAVE___INT64 */
 
 /* Define to the size of a long int type */
 #define SIZEOF_LONG 4
@@ -99,49 +91,113 @@
 /* Define to the size of a long long int type */
 #define SIZEOF_LONG_LONG 8
 
+/* Define if we have C99 variable-length array support */
+#define HAVE_C99_VLA
+
+/* Define if we have C99 _Bool support */
+#define HAVE_C99_BOOL
+
+/* Define if we have C11 _Static_assert support */
+#define HAVE_C11_STATIC_ASSERT
+
+/* Define if we have C11 _Alignas support */
+/* #undef HAVE_C11_ALIGNAS */
+
+/* Define if we have C11 _Atomic support */
+/* #undef HAVE_C11_ATOMIC */
+
 /* Define if we have GCC's destructor attribute */
 #define HAVE_GCC_DESTRUCTOR
 
 /* Define if we have GCC's format attribute */
 #define HAVE_GCC_FORMAT
 
+/* Define if we have stdint.h */
+#define HAVE_STDINT_H
+
+/* Define if we have stdbool.h */
+#define HAVE_STDBOOL_H
+
+/* Define if we have stdalign.h */
+/* #undef HAVE_STDALIGN_H */
+
+/* Define if we have windows.h */
+/* #undef HAVE_WINDOWS_H */
+
+/* Define if we have dlfcn.h */
+#define HAVE_DLFCN_H
+
 /* Define if we have pthread_np.h */
-/* #cmakedefine HAVE_PTHREAD_NP_H */
+/* #undef HAVE_PTHREAD_NP_H */
 
-/* Define if we have arm_neon.h */
-/* #cmakedefine HAVE_ARM_NEON_H */
+/* Define if we have alloca.h */
+/* #undef HAVE_ALLOCA_H */
+
+/* Define if we have malloc.h */
+#define HAVE_MALLOC_H
+
+/* Define if we have ftw.h */
+/* #undef HAVE_FTW_H */
+
+/* Define if we have io.h */
+/* #undef HAVE_IO_H */
+
+/* Define if we have strings.h */
+#define HAVE_STRINGS_H
+
+/* Define if we have cpuid.h */
+/* #undef HAVE_CPUID_H */
+
+/* Define if we have intrin.h */
+/* #undef HAVE_INTRIN_H */
+
+/* Define if we have sys/sysconf.h */
+#define HAVE_SYS_SYSCONF_H
 
 /* Define if we have guiddef.h */
-/* #cmakedefine HAVE_GUIDDEF_H */
+/* #undef HAVE_GUIDDEF_H */
 
-/* Define if we have guiddef.h */
-/* #cmakedefine HAVE_INITGUID_H */
+/* Define if we have initguid.h */
+/* #undef HAVE_INITGUID_H */
 
 /* Define if we have ieeefp.h */
-/* #cmakedefine HAVE_IEEEFP_H */
+/* #undef HAVE_IEEEFP_H */
 
 /* Define if we have float.h */
-/* #cmakedefine HAVE_FLOAT_H */
-
-/* Define if we have fpu_control.h */
-/* #cmakedefine HAVE_FPU_CONTROL_H */
+#define HAVE_FLOAT_H
 
 /* Define if we have fenv.h */
 #define HAVE_FENV_H
 
-/* Define if we have fesetround() */
-/* #cmakedefine HAVE_FESETROUND */
+/* Define if we have GCC's __get_cpuid() */
+/* #undef HAVE_GCC_GET_CPUID */
+
+/* Define if we have the __cpuid() intrinsic */
+/* #undef HAVE_CPUID_INTRINSIC */
 
 /* Define if we have _controlfp() */
-/* #cmakedefine HAVE__CONTROLFP */
+/* #undef HAVE__CONTROLFP */
+
+/* Define if we have __control87_2() */
+/* #undef HAVE___CONTROL87_2 */
+
+/* Define if we have ftw() */
+/* #undef HAVE_FTW */
+
+/* Define if we have _wfindfirst() */
+/* #undef HAVE__WFINDFIRST */
 
 /* Define if we have pthread_setschedparam() */
 #define HAVE_PTHREAD_SETSCHEDPARAM
 
-/* Define if we have the restrict keyword */
-/* #cmakedefine  HAVE_RESTRICT 1 */
+/* Define if we have pthread_setname_np() */
+#define HAVE_PTHREAD_SETNAME_NP
 
-/* Define if we have the __restrict keyword */
-#define RESTRICT __restrict
+/* Define if we have pthread_set_name_np() */
+/* #undef HAVE_PTHREAD_SET_NAME_NP */
 
-#endif
+/* Define if we have pthread_mutexattr_setkind_np() */
+/* #undef HAVE_PTHREAD_MUTEXATTR_SETKIND_NP */
+
+/* Define if we have pthread_mutex_timedlock() */
+/* #undef HAVE_PTHREAD_MUTEX_TIMEDLOCK */

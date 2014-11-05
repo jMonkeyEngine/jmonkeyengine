@@ -1,9 +1,5 @@
-// OpenAL Soft r1.15.1
-//String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/9b6a226da55a987cb883f425eeb568776ea12c8d.zip'
-// OpenAL Soft r1.15.1 + Android OpenSL Support
-String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/be25e6802dacad78876c6fa1d6a5c63797b8a9ed.zip'
-// OpenAL Soft r1.15.1 latest build (at the time)
-//String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/3f5914e0949ee12b504ee7254990e007ff8057ef.zip'
+// OpenAL Soft r1.16
+String openALSoftUrl = 'http://repo.or.cz/w/openal-soft.git/snapshot/e5016f814a265ed592a88acea95cf912c4bfdf12.zip'
 String openALSoftZipFile = 'OpenALSoft.zip'
 
 // OpenAL Soft directory the download is extracted into
@@ -81,22 +77,23 @@ task generateOpenAlSoftHeaders(dependsOn: copyJmeOpenALSoft) << {
     String classes = ""
             .concat("com.jme3.audio.android.AndroidOpenALSoftAudioRenderer, ")
 //    println "openalsoft classes = " + classes
-//    println "openalsoft destDir = " + destDir
+//    println "openalsoft destDir = " + destDirPath
 //    println "openalsoft classpath = " + project.projectClassPath
 
-    ant.javah(
-        classpath: project.projectClassPath,
-        destdir: destDirPath,
-        class: classes
-    )
+    exec {
+        executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+        args '-d', destDirPath
+        args '-classpath', project.projectClassPath
+        args "com.jme3.audio.android.AndroidOpenALSoftAudioRenderer"
+    }
 }
 
 task buildOpenAlSoftNativeLib(type: Exec, dependsOn: generateOpenAlSoftHeaders) {
 //    println "openalsoft build dir: " + openalsoftBuildDir
 //    println "ndkCommandPath: " + project.ndkCommandPath
-    args 'TARGET_PLATFORM=android-9'
     workingDir openalsoftBuildDir
     executable rootProject.ndkCommandPath
+    args '-j8'
 }
 
 task updatePreCompiledOpenAlSoftLibs(type: Copy, dependsOn: buildOpenAlSoftNativeLib) {
