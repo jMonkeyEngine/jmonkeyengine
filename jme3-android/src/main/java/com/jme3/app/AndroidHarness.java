@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
@@ -21,7 +22,6 @@ import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.controls.TouchListener;
 import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.event.TouchEvent;
-import com.jme3.renderer.android.AndroidGLSurfaceView;
 import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
 import com.jme3.system.android.AndroidConfigChooser.ConfigType;
@@ -195,7 +195,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      */
     protected int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
     protected OGLESContext ctx;
-    protected AndroidGLSurfaceView view = null;
+    protected GLSurfaceView view = null;
     protected boolean isGLThreadPaused = true;
     protected ImageView splashImageView = null;
     protected FrameLayout frameLayout = null;

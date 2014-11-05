@@ -47,13 +47,11 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import com.jme3.input.*;
-import com.jme3.input.android.AndroidInput;
 import com.jme3.input.android.AndroidSensorJoyInput;
 import com.jme3.input.android.AndroidInputHandler;
 import com.jme3.input.controls.SoftTextDialogInputListener;
 import com.jme3.input.dummy.DummyKeyInput;
 import com.jme3.input.dummy.DummyMouseInput;
-import com.jme3.renderer.android.AndroidGLSurfaceView;
 import com.jme3.renderer.android.OGLESShaderRenderer;
 import com.jme3.system.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -80,11 +78,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected AndroidInputHandler androidInput;
     protected int minFrameDuration = 0;                   // No FPS cap
     protected JoyInput androidSensorJoyInput = null;
-    /**
-     * EGL_RENDERABLE_TYPE: EGL_OPENGL_ES_BIT = OpenGL ES 1.0 |
-     * EGL_OPENGL_ES2_BIT = OpenGL ES 2.0
-     */
-    protected int clientOpenGLESVersion = 1;
 
     public OGLESContext() {
     }
@@ -103,12 +96,17 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
      *
      * @return GLSurfaceView The newly created view
      */
-    public AndroidGLSurfaceView createView() {
-        AndroidGLSurfaceView view;
-        int buildVersion = Build.VERSION.SDK_INT;
-
+    public GLSurfaceView createView() {
+        Context appContext = JmeAndroidSystem.getActivity().getApplication();
+        
+        ActivityManager am = (ActivityManager) appContext.getSystemService(Context.ACTIVITY_SERVICE);
+        ConfigurationInfo info = am.getDeviceConfigurationInfo();
+        if (info.reqGlEsVersion < 0x20000) {
+            throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
+        }
+        
         // Start to set up the view
-        view = new AndroidGLSurfaceView(JmeAndroidSystem.getActivity().getApplication());
+        GLSurfaceView view = new GLSurfaceView(appContext);
         if (androidInput == null) {
             androidInput = new AndroidInputHandler();
         }
@@ -117,20 +115,11 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
 
         // setEGLContextClientVersion must be set before calling setRenderer
         // this means it cannot be set in AndroidConfigChooser (too late)
-        int rawOpenGLESVersion = getOpenGLESVersion();
-//        logger.log(Level.FINE, "clientOpenGLESVersion {0}.{1}",
-//                new Object[]{clientOpenGLESVersion>>16, clientOpenGLESVersion<<16});
-        if (rawOpenGLESVersion < 0x20000) {
-            throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
-        } else {
-            clientOpenGLESVersion = 2;
-            view.setEGLContextClientVersion(clientOpenGLESVersion);
-        }
+        view.setEGLContextClientVersion(2);
 
         view.setFocusableInTouchMode(true);
         view.setFocusable(true);
-        view.getHolder().setType(SurfaceHolder.SURFACE_TYPE_GPU);
-
+        
         // setFormat must be set before AndroidConfigChooser is called by the surfaceview.
         // if setFormat is called after ConfigChooser is called, then execution
         // stops at the setFormat call without a crash.
@@ -160,25 +149,13 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         // Not destroying and recreating the EGL context 
         // will help with resume time by reusing the existing context to avoid
         // reloading all the OpenGL objects.
-        if (buildVersion >= 11) {
+        if (Build.VERSION.SDK_INT >= 11) {
             view.setPreserveEGLContextOnPause(true);
         }
 
         return view;
     }
-    /**
-     * Get the  OpenGL ES version
-     * @return version returns the int value of the GLES version
-     */
-    public int getOpenGLESVersion() {
-        ActivityManager am =
-                (ActivityManager) JmeAndroidSystem.getActivity().getApplication().getSystemService(Context.ACTIVITY_SERVICE);
-        ConfigurationInfo info = am.getDeviceConfigurationInfo();
-        logger.log(Level.FINE, "OpenGL Version {0}:", info.getGlEsVersion());
-        return info.reqGlEsVersion;
-//        return (info.reqGlEsVersion >= 0x20000);
-    }
-
+    
     // renderer:initialize
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig cfg) {
@@ -207,7 +184,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             }
         });
 
-        timer = new AndroidTimer();
+        timer = new NanoTimer();
         renderer = new OGLESShaderRenderer();
 
         renderer.initialize();
