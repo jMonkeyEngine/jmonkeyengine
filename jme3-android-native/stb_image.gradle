@@ -1,6 +1,6 @@
 // stb_image url for download
-String stbiUrl = 'http://www.nothings.org/stb_image.c'
-String stbiDownloadTarget = 'stb_image.c'
+String stbiUrl = 'https://raw.githubusercontent.com/nothings/stb/master/stb_image.h'
+String stbiDownloadTarget = 'stb_image.h'
 
 // stb_image is not downloaded.  The single source file is included in the repo
 String stbiFolder = 'stb_image'
@@ -63,20 +63,21 @@ task generateStbiHeaders(dependsOn: copyStbiJmeFiles) << {
 //    println "stb_image destDir = " + destDir
 //    println "stb_image classpath = " + project.projectClassPath
 
-    ant.javah(
-        classpath: project.projectClassPath,
-        destdir: destDirPath,
-        class: classes
-    )
-
+    exec {
+        executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+        args '-d', destDirPath
+        args '-classpath', project.projectClassPath
+        args "com.jme3.texture.plugins.AndroidNativeImageLoader"
+    }
 }
 
 task buildStbiNativeLib(type: Exec, dependsOn: generateStbiHeaders) {
-//    println "stb_image build dir: " + buildLibDir
-//    println "ndkCommandPath: " + project.ndkCommandPath
-    args 'TARGET_PLATFORM=android-9'
+//    println "stb_image build dir: " + stbiBuildDir
+//    println "ndkCommandPath: " + rootProject.ndkCommandPath
+    
     workingDir stbiBuildDir
     executable rootProject.ndkCommandPath
+    args '-j8'
 }
 
 task updatePreCompiledStbiLibs(type: Copy, dependsOn: buildStbiNativeLib) {
