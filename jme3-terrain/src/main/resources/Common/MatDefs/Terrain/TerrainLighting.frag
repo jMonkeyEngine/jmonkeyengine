@@ -1,3 +1,5 @@
+#import "Common/ShaderLib/PhongLighting.glsllib"
+#import "Common/ShaderLib/Lighting.glsllib"
 
 uniform float m_Shininess;
 uniform vec4 g_LightDirection;
@@ -144,54 +146,6 @@ varying vec3 lightVec;
   varying vec4 wVertex;
   varying vec3 wNormal;
 #endif
-
-
-
-float tangDot(in vec3 v1, in vec3 v2){
-    float d = dot(v1,v2);
-    #ifdef V_TANGENT
-        d = 1.0 - d*d;
-        return step(0.0, d) * sqrt(d);
-    #else
-        return d;
-    #endif
-}
-
-
-float lightComputeDiffuse(in vec3 norm, in vec3 lightdir, in vec3 viewdir){
-    return max(0.0, dot(norm, lightdir));
-}
-
-float lightComputeSpecular(in vec3 norm, in vec3 viewdir, in vec3 lightdir, in float shiny){
-    #ifdef WARDISO
-        // Isotropic Ward
-        vec3 halfVec = normalize(viewdir + lightdir);
-        float NdotH  = max(0.001, tangDot(norm, halfVec));
-        float NdotV  = max(0.001, tangDot(norm, viewdir));
-        float NdotL  = max(0.001, tangDot(norm, lightdir));
-        float a      = tan(acos(NdotH));
-        float p      = max(shiny/128.0, 0.001);
-        return NdotL * (1.0 / (4.0*3.14159265*p*p)) * (exp(-(a*a)/(p*p)) / (sqrt(NdotV * NdotL)));
-    #else
-       // Standard Phong
-       vec3 R = reflect(-lightdir, norm);
-       return pow(max(tangDot(R, viewdir), 0.0), shiny);
-    #endif
-}
-
-vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 wvLightDir){
-   float diffuseFactor = lightComputeDiffuse(wvNorm, wvLightDir, wvViewDir);
-   float specularFactor = lightComputeSpecular(wvNorm, wvViewDir, wvLightDir, m_Shininess);
-
-   if (m_Shininess <= 1.0) {
-       specularFactor = 0.0; // should be one instruction on most cards ..
-   }
-
-   float att = vLightDir.w;
-
-   return vec2(diffuseFactor, specularFactor) * vec2(att);
-}
-
 
 #ifdef ALPHAMAP
 
@@ -355,7 +309,7 @@ vec2 computeLighting(in vec3 wvPos, in vec3 wvNorm, in vec3 wvViewDir, in vec3 w
     vec4 getTriPlanarBlend(in vec4 coords, in vec3 blending, in sampler2D map, in float scale) {
       vec4 col1 = texture2D( map, coords.yz * scale);
       vec4 col2 = texture2D( map, coords.xz * scale);
-      vec4 col3 = texture2D( map, coords.xy * scale);
+      vec4 col3 = texture2D( map, coords.xy * scale); 
       // blend the results of the 3 planar projections.
       vec4 tex = col1 * blending.x + col2 * blending.y + col3 * blending.z;
       return tex;
@@ -627,7 +581,7 @@ void main(){
                   spotFallOff = clamp(spotFallOff, 0.0, 1.0);
               }
         }
-    
+
     //---------------------
     // normal calculations
     //---------------------
@@ -648,7 +602,7 @@ void main(){
     vec4 lightDir = vLightDir;
     lightDir.xyz = normalize(lightDir.xyz);
 
-    vec2 light = computeLighting(vPosition, normal, vViewDir.xyz, lightDir.xyz)*spotFallOff;
+    vec2 light = computeLighting(normal, vViewDir.xyz, lightDir.xyz,lightDir.w*spotFallOff,m_Shininess);
 
     vec4 specularColor = vec4(1.0);
 

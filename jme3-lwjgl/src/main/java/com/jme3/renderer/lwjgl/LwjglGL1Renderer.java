@@ -802,7 +802,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
         TextureUtil.uploadTexture(img, target, i, 0, tdc);
         }
         } else {*/
-        TextureUtil.uploadTexture(ctxCaps, img, target, 0, 0, false);
+        TextureUtil.uploadTexture(caps, img, target, 0, 0, false);
         //}
 
         img.clearUpdateNeeded();
@@ -853,7 +853,7 @@ public class LwjglGL1Renderer implements GL1Renderer {
 
     public void modifyTexture(Texture tex, Image pixels, int x, int y) {
       setTexture(0, tex);
-      TextureUtil.uploadSubTexture(ctxCaps, pixels, convertTextureType(tex.getType()), 0, x, y, false);
+      TextureUtil.uploadSubTexture(caps, pixels, convertTextureType(tex.getType()), 0, x, y, false);
     }
 
     private void clearTextureUnits() {

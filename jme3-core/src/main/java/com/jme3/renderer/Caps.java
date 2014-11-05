@@ -236,7 +236,22 @@ public enum Caps {
     /**
      * Supports sRGB framebuffers and sRGB texture format
      */
-    Srgb;
+    Srgb,
+    
+    /**
+     * Supports blitting framebuffers.
+     */
+    FrameBufferBlit,
+    
+    /**
+     * Supports {@link Format#DXT1} and sister formats.
+     */
+    TextureCompressionS3TC,
+    
+    /**
+     * Supports anisotropic texture filtering.
+     */
+    TextureFilterAnisotropic;
 
     /**
      * Returns true if given the renderer capabilities, the texture

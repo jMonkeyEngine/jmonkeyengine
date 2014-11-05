@@ -6,33 +6,11 @@ MaterialDef Phong Lighting {
         // For better performance
         Boolean VertexLighting
 
-        // Use more efficent algorithms to improve performance
-        Boolean LowQuality
-
-        // Improve quality at the cost of performance
-        Boolean HighQuality
-
-        // Output alpha from the diffuse map
-        Boolean UseAlpha
-
         // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
 
-        // Normal map is in BC5/ATI2n/LATC/3Dc compression format
-        Boolean LATC
-
         // Use the provided ambient, diffuse, and specular colors
         Boolean UseMaterialColors
-
-        // Activate shading along the tangent, instead of the normal
-        // Requires tangent data to be available on the model.
-        Boolean VTangent
-
-        // Use minnaert diffuse instead of lambert
-        Boolean Minnaert
-
-        // Use ward specular instead of phong
-        Boolean WardIso
 
         // Use vertex color as an additional diffuse color.
         Boolean UseVertexColor
@@ -133,7 +111,46 @@ MaterialDef Phong Lighting {
         Int NumberOfBones
         Matrix4Array BoneMatrices
                 
+        //For instancing
         Boolean UseInstancing
+    }
+
+ Technique {
+        LightMode SinglePass
+        
+        VertexShader GLSL100:   Common/MatDefs/Light/SPLighting.vert
+        FragmentShader GLSL100: Common/MatDefs/Light/SPLighting.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            NormalMatrix
+            WorldViewMatrix
+            ViewMatrix
+            CameraPosition
+            WorldMatrix
+            ViewProjectionMatrix            
+        }
+
+        Defines {           
+            VERTEX_COLOR : UseVertexColor
+            VERTEX_LIGHTING : VertexLighting           
+            MATERIAL_COLORS : UseMaterialColors         
+            DIFFUSEMAP : DiffuseMap
+            NORMALMAP : NormalMap
+            SPECULARMAP : SpecularMap
+            PARALLAXMAP : ParallaxMap
+            NORMALMAP_PARALLAX : PackedNormalParallax
+            STEEP_PARALLAX : SteepParallax
+            ALPHAMAP : AlphaMap
+            COLORRAMP : ColorRamp
+            LIGHTMAP : LightMap
+            SEPARATE_TEXCOORD : SeparateTexCoord
+            DISCARD_ALPHA : AlphaDiscardThreshold
+            USE_REFLECTION : EnvMap
+            SPHERE_MAP : SphereMap  
+            NUM_BONES : NumberOfBones                        
+            INSTANCING : UseInstancing
+        }
     }
 
     Technique {
@@ -154,17 +171,9 @@ MaterialDef Phong Lighting {
         }
 
         Defines {
-            LATC : LATC
             VERTEX_COLOR : UseVertexColor
-            VERTEX_LIGHTING : VertexLighting
-            ATTENUATION : Attenuation
+            VERTEX_LIGHTING : VertexLighting            
             MATERIAL_COLORS : UseMaterialColors
-            V_TANGENT : VTangent
-            MINNAERT  : Minnaert
-            WARDISO   : WardIso
-            LOW_QUALITY : LowQuality
-            HQ_ATTENUATION : HighQuality
-
             DIFFUSEMAP : DiffuseMap
             NORMALMAP : NormalMap
             SPECULARMAP : SpecularMap
@@ -175,15 +184,15 @@ MaterialDef Phong Lighting {
             COLORRAMP : ColorRamp
             LIGHTMAP : LightMap
             SEPARATE_TEXCOORD : SeparateTexCoord
-
+            DISCARD_ALPHA : AlphaDiscardThreshold
             USE_REFLECTION : EnvMap
             SPHERE_MAP : SphereMap  
-
-            NUM_BONES : NumberOfBones
-                        
+            NUM_BONES : NumberOfBones                        
             INSTANCING : UseInstancing
         }
     }
+
+   
 
     Technique PreShadow {
 

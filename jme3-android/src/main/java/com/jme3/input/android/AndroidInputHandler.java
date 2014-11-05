@@ -32,6 +32,7 @@
 
 package com.jme3.input.android;
 
+import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.view.View;
 import com.jme3.input.RawInputListener;
@@ -41,7 +42,6 @@ import com.jme3.input.event.KeyInputEvent;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
 import com.jme3.input.event.TouchEvent;
-import com.jme3.renderer.android.AndroidGLSurfaceView;
 import com.jme3.system.AppSettings;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
@@ -67,7 +67,7 @@ public class AndroidInputHandler implements TouchInput {
     
     
     // Internal
-    private AndroidGLSurfaceView view;
+    private GLSurfaceView view;
     private AndroidTouchHandler touchHandler;
     private AndroidKeyHandler keyHandler;
     private AndroidGestureHandler gestureHandler;
@@ -112,7 +112,7 @@ public class AndroidInputHandler implements TouchInput {
         if (gestureHandler != null) {
             gestureHandler.setView(view);
         }
-        this.view = (AndroidGLSurfaceView)view;
+        this.view = (GLSurfaceView)view;
     }
     
     public View getView() {

@@ -42,7 +42,6 @@ import com.jme3.material.TechniqueDef.LightMode;
 import com.jme3.material.TechniqueDef.ShadowMode;
 import com.jme3.math.*;
 import com.jme3.renderer.Caps;
-import com.jme3.renderer.GL1Renderer;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
@@ -52,7 +51,6 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.instancing.InstancedGeometry;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Uniform;
-import com.jme3.shader.UniformBindingManager;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
 import com.jme3.texture.image.ColorSpace;
@@ -697,12 +695,15 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         setParam(name, VarType.Vector4, value);
     }
 
-    private ColorRGBA getAmbientColor(LightList lightList) {
+    private ColorRGBA getAmbientColor(LightList lightList, boolean removeLights) {
         ambientLightColor.set(0, 0, 0, 1);
         for (int j = 0; j < lightList.size(); j++) {
             Light l = lightList.get(j);
             if (l instanceof AmbientLight) {
                 ambientLightColor.addLocal(l.getColor());
+                if(removeLights){
+                    lightList.remove(l);
+                }
             }
         }
         ambientLightColor.a = 1.0f;
@@ -741,75 +742,106 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
      * g_LightPosition.w is the inverse radius (1/r) of the light (for
      * attenuation) <br/> </p>
      */
-    protected void updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights) {
+    protected int updateLightListUniforms(Shader shader, Geometry g, LightList lightList, int numLights, RenderManager rm, int startIndex) {
         if (numLights == 0) { // this shader does not do lighting, ignore.
-            return;
+            return 0;
         }
 
-        Uniform lightColor = shader.getUniform("g_LightColor");
-        Uniform lightPos = shader.getUniform("g_LightPosition");
-        Uniform lightDir = shader.getUniform("g_LightDirection");
-        lightColor.setVector4Length(numLights);
-        lightPos.setVector4Length(numLights);
-        lightDir.setVector4Length(numLights);
-
+        Uniform lightData = shader.getUniform("g_LightData");        
+        lightData.setVector4Length(numLights * 3);//8 lights * max 3        
         Uniform ambientColor = shader.getUniform("g_AmbientLightColor");
-        ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList));
+        
 
-        int lightIndex = 0;
-
-        for (int i = 0; i < numLights; i++) {
-            if (lightList.size() <= i) {
-                lightColor.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
-                lightPos.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
-            } else {
-                Light l = lightList.get(i);
+        if (startIndex != 0) {        
+            // apply additive blending for 2nd and future passes
+            rm.getRenderer().applyRenderState(additiveLight);
+            ambientColor.setValue(VarType.Vector4, ColorRGBA.Black);            
+        }else{
+            ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList,true));
+        }
+        
+        int lightDataIndex = 0;
+        TempVars vars = TempVars.get();
+        Vector4f tmpVec = vars.vect4f1;
+        int curIndex;
+        int endIndex = numLights + startIndex;
+        for (curIndex = startIndex; curIndex < endIndex && curIndex < lightList.size(); curIndex++) {
+                
+                
+                Light l = lightList.get(curIndex);              
+                if(l.getType() == Light.Type.Ambient){
+                    endIndex++;    
+                    continue;
+                }
                 ColorRGBA color = l.getColor();
-                lightColor.setVector4InArray(color.getRed(),
+                //Color
+                lightData.setVector4InArray(color.getRed(),
                         color.getGreen(),
                         color.getBlue(),
                         l.getType().getId(),
-                        i);
-
+                        lightDataIndex);
+                lightDataIndex++;
+                
                 switch (l.getType()) {
                     case Directional:
                         DirectionalLight dl = (DirectionalLight) l;
-                        Vector3f dir = dl.getDirection();
-                        lightPos.setVector4InArray(dir.getX(), dir.getY(), dir.getZ(), -1, lightIndex);
+                        Vector3f dir = dl.getDirection();                        
+                        //Data directly sent in view space to avoid a matrix mult for each pixel
+                        tmpVec.set(dir.getX(), dir.getY(), dir.getZ(), 0.0f);
+                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);      
+//                        tmpVec.divideLocal(tmpVec.w);
+//                        tmpVec.normalizeLocal();
+                        lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), -1, lightDataIndex);
+                        lightDataIndex++;
+                        //PADDING
+                        lightData.setVector4InArray(0,0,0,0, lightDataIndex);
+                        lightDataIndex++;
                         break;
                     case Point:
                         PointLight pl = (PointLight) l;
                         Vector3f pos = pl.getPosition();
                         float invRadius = pl.getInvRadius();
-                        lightPos.setVector4InArray(pos.getX(), pos.getY(), pos.getZ(), invRadius, lightIndex);
+                        tmpVec.set(pos.getX(), pos.getY(), pos.getZ(), 1.0f);
+                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);    
+                        //tmpVec.divideLocal(tmpVec.w);
+                        lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRadius, lightDataIndex);
+                        lightDataIndex++;
+                        //PADDING
+                        lightData.setVector4InArray(0,0,0,0, lightDataIndex);
+                        lightDataIndex++;
                         break;
-                    case Spot:
+                    case Spot:                      
                         SpotLight sl = (SpotLight) l;
                         Vector3f pos2 = sl.getPosition();
                         Vector3f dir2 = sl.getDirection();
                         float invRange = sl.getInvSpotRange();
                         float spotAngleCos = sl.getPackedAngleCos();
-
-                        lightPos.setVector4InArray(pos2.getX(), pos2.getY(), pos2.getZ(), invRange, lightIndex);
-                        lightDir.setVector4InArray(dir2.getX(), dir2.getY(), dir2.getZ(), spotAngleCos, lightIndex);
-                        break;
-                    case Ambient:
-                        // skip this light. Does not increase lightIndex
-                        continue;
+                        tmpVec.set(pos2.getX(), pos2.getY(), pos2.getZ(),  1.0f);
+                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);   
+                       // tmpVec.divideLocal(tmpVec.w);
+                        lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), invRange, lightDataIndex);
+                        lightDataIndex++;
+                        
+                        //We transform the spot direction in view space here to save 5 varying later in the lighting shader
+                        //one vec4 less and a vec4 that becomes a vec3
+                        //the downside is that spotAngleCos decoding happens now in the frag shader.
+                        tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(),  0.0f);
+                        rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);                           
+                        tmpVec.normalizeLocal();
+                        lightData.setVector4InArray(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos, lightDataIndex);
+                        lightDataIndex++;
+                        break;                    
                     default:
                         throw new UnsupportedOperationException("Unknown type of light: " + l.getType());
                 }
-            }
-
-            lightIndex++;
         }
-
-        while (lightIndex < numLights) {
-            lightColor.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
-            lightPos.setVector4InArray(0f, 0f, 0f, 0f, lightIndex);
-
-            lightIndex++;
-        }
+        vars.release();        
+        //Padding of unsued buffer space
+        while(lightDataIndex < numLights * 3) {
+            lightData.setVector4InArray(0f, 0f, 0f, 0f, lightDataIndex);
+            lightDataIndex++;             
+        } 
+        return curIndex;
     }
 
     protected void renderMultipassLighting(Shader shader, Geometry g, LightList lightList, RenderManager rm) {
@@ -830,7 +862,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
 
             if (isFirstLight) {
                 // set ambient color for first light only
-                ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList));
+                ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList, false));
                 isFirstLight = false;
                 isSecondLight = true;
             } else if (isSecondLight) {
@@ -885,9 +917,9 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                     tmpLightPosition.set(pos2.getX(), pos2.getY(), pos2.getZ(), invRange);
                     lightPos.setValue(VarType.Vector4, tmpLightPosition);
 
-                    //We transform the spot directoin in view space here to save 5 varying later in the lighting shader
+                    //We transform the spot direction in view space here to save 5 varying later in the lighting shader
                     //one vec4 less and a vec4 that becomes a vec3
-                    //the downside is that spotAngleCos decoding happen now in the frag shader.
+                    //the downside is that spotAngleCos decoding happens now in the frag shader.
                     tmpVec.set(dir2.getX(), dir2.getY(), dir2.getZ(), 0);
                     rm.getCurrentCamera().getViewMatrix().mult(tmpVec, tmpVec);
                     tmpLightDirection.set(tmpVec.getX(), tmpVec.getY(), tmpVec.getZ(), spotAngleCos);
@@ -906,7 +938,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (isFirstLight && lightList.size() > 0) {
             // There are only ambient lights in the scene. Render
             // a dummy "normal light" so we can see the ambient
-            ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList));
+            ambientColor.setValue(VarType.Vector4, getAmbientColor(lightList, false));
             lightColor.setValue(VarType.Vector4, ColorRGBA.BlackNoAlpha);
             lightPos.setValue(VarType.Vector4, nullDirLight);
             r.setShader(shader);
@@ -955,9 +987,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 for (TechniqueDef techDef : techDefs) {
                     if (rendererCaps.containsAll(techDef.getRequiredCaps())) {
                         // use the first one that supports all the caps
-                        tech = new Technique(this, techDef);
+                        tech = new Technique(this, techDef);                        
                         techniques.put(name, tech);
-                        break;
+                        if(tech.getDef().getLightMode() == renderManager.getPreferredLightMode() ||
+                               tech.getDef().getLightMode() == LightMode.Disable){
+                            break;  
+                        }
                     }
                     lastTech = techDef;
                 }
@@ -990,7 +1025,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         }
 
         technique = tech;
-        tech.makeCurrent(def.getAssetManager(), true, rendererCaps);
+        tech.makeCurrent(def.getAssetManager(), true, rendererCaps, renderManager);
 
         // shader was changed
         sortingId = -1;
@@ -1000,7 +1035,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         if (technique == null) {
             selectTechnique("Default", rm);
         } else {
-            technique.makeCurrent(def.getAssetManager(), false, rm.getRenderer().getCaps());
+            technique.makeCurrent(def.getAssetManager(), false, rm.getRenderer().getCaps(), rm);
         }
     }
 
@@ -1162,8 +1197,14 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 r.setLighting(null);
                 break;
             case SinglePass:
-                updateLightListUniforms(shader, geom, lights, 4);
-                break;
+                int nbRenderedLights = 0;
+                resetUniformsNotSetByCurrent(shader);
+                while(nbRenderedLights < lights.size()){
+                    nbRenderedLights = updateLightListUniforms(shader, geom, lights, rm.getSinglePassLightBatchSize(), rm, nbRenderedLights);
+                    r.setShader(shader);
+                    renderMeshFromGeometry(r, geom);
+                }
+                return;
             case FixedPipeline:
                 r.setLighting(lights);
                 break;
