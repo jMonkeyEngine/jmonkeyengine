@@ -1,13 +1,15 @@
+TARGET_PLATFORM := android-9
+
 LOCAL_PATH := $(call my-dir)
+	
 include $(CLEAR_VARS)
 
 LOCAL_MODULE    := stbijme
-LOCAL_C_INCLUDES  := $(LOCAL_PATH)
-LOCAL_CFLAGS += -O2
-LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
-LOCAL_SRC_FILES := $(subst $(LOCAL_PATH)/,, $(wildcard $(LOCAL_PATH)/*.c))
-
-#adds zlib
-LOCAL_LDLIBS    += -lz -llog
+	
+LOCAL_C_INCLUDES  += $(LOCAL_PATH)
+	
+LOCAL_LDLIBS := -lz -llog -Wl,-s
+	
+LOCAL_SRC_FILES := com_jme3_texture_plugins_AndroidNativeImageLoader.c
 
 include $(BUILD_SHARED_LIBRARY)
