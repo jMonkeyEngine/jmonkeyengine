@@ -57,7 +57,6 @@ import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
 import java.nio.*;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -76,7 +75,6 @@ import static org.lwjgl.opengl.EXTFramebufferBlit.*;
 import static org.lwjgl.opengl.EXTFramebufferMultisample.*;
 import static org.lwjgl.opengl.EXTFramebufferObject.*;
 import static org.lwjgl.opengl.EXTFramebufferSRGB.*;
-import static org.lwjgl.opengl.EXTGpuShader4.*;
 import static org.lwjgl.opengl.EXTTextureArray.*;
 import static org.lwjgl.opengl.EXTTextureFilterAnisotropic.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -351,6 +349,10 @@ public class LwjglRenderer implements Renderer {
                     + "Some features might not work.");
         }
 
+        if (hasExtension("GL_EXT_texture_compression_s3tc")) {
+            caps.add(Caps.TextureCompressionS3TC);
+        }
+        
         if (hasExtension("GL_EXT_texture_compression_latc")) {
             caps.add(Caps.TextureCompressionLATC);
         }
