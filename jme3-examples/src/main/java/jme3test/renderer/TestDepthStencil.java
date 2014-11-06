@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 jMonkeyEngine
+ * Copyright (c) 2009-2014 jMonkeyEngine
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,208 +33,63 @@
 package jme3test.renderer;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState.StencilOperation;
-import com.jme3.material.RenderState.TestFunction;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
-import com.jme3.post.SceneProcessor;
-import com.jme3.renderer.Camera;
+import com.jme3.material.RenderState;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.Renderer;
 import com.jme3.renderer.ViewPort;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.shape.Box;
-import com.jme3.system.AppSettings;
-import com.jme3.system.JmeContext.Type;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.Texture2D;
-import com.jme3.util.BufferUtils;
-import com.jme3.util.Screenshots;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import com.jme3.ui.Picture;
 
-/**
- * This test renders a scene to an offscreen framebuffer, then copies
- * the contents to a Swing JFrame. Note that some parts are done inefficently,
- * this is done to make the code more readable.
- */
-public class TestDepthStencil extends SimpleApplication implements SceneProcessor {
-    private static String TOGGLE_STENCIL = "TOGGLE_STENCIL";
-    
-    private Geometry offBox;
-    private float angle = 0;
+public class TestDepthStencil extends SimpleApplication {
 
-    private FrameBuffer offBuffer;
-    private ViewPort offView;
-    private Texture2D offTex;
-    private Camera offCamera;
-    private ImageDisplay display;
     private boolean enableStencil = false;
-
-    private static final int width = 800, height = 600;
-
-    private final ByteBuffer cpuBuf = BufferUtils.createByteBuffer(width * height * 4);
-    private final byte[] cpuArray = new byte[width * height * 4];
-    private final BufferedImage image = new BufferedImage(width, height,
-                                            BufferedImage.TYPE_4BYTE_ABGR);
-
-    private class ImageDisplay extends JPanel {
-
-        private long t;
-        private long total;
-        private int frames;
-        private int fps;
-
-        @Override
-        public void paintComponent(Graphics gfx) {
-            super.paintComponent(gfx);
-            Graphics2D g2d = (Graphics2D) gfx;
-
-            if (t == 0)
-                t = timer.getTime();
-
-//            g2d.setBackground(Color.BLACK);
-//            g2d.clearRect(0,0,width,height);
-
-            synchronized (image){
-                g2d.drawImage(image, null, 0, 0);
-            }
-
-            long t2 = timer.getTime();
-            long dt = t2 - t;
-            total += dt;
-            frames ++;
-            t = t2;
-
-            if (total > 1000){
-                fps = frames;
-                total = 0;
-                frames = 0;
-            }
-
-            g2d.setColor(Color.white);
-            g2d.drawString("FPS: "+fps, 0, getHeight() - 100);
-            g2d.drawString("Toggle Stencil : [SPACE] (" + enableStencil + ")", 0, getHeight() - 10);
-        }
-    }
+    
+    private Node fbNode = new Node("Framebuffer Node");
+    private FrameBuffer fb;
 
     public static void main(String[] args){
         TestDepthStencil app = new TestDepthStencil();
-        app.setPauseOnLostFocus(false);
-        AppSettings settings = new AppSettings(true);
-        settings.setResolution(1, 1);
-        app.setSettings(settings);
-        app.start(Type.OffscreenSurface);
+        app.start();
     }
 
-    public void createDisplayFrame(){
-        SwingUtilities.invokeLater(new Runnable(){
-            public void run(){
-                final JFrame frame = new JFrame("Render Display");
-                display = new ImageDisplay();
-                display.setPreferredSize(new Dimension(width, height));
-                frame.getContentPane().add(display);
-                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                frame.addWindowListener(new WindowAdapter(){
-                    public void windowClosed(WindowEvent e){
-                        stop();
-                    }
-                });
-                frame.addKeyListener(new KeyListener() {
-                    public void keyTyped(KeyEvent ke) {
-                    }
+    @Override
+    public void simpleInitApp() {
+        int w = settings.getWidth();
+        int h = settings.getHeight();
 
-                    public void keyPressed(KeyEvent ke) {
-                    }
+        //setup framebuffer
+        fb = new FrameBuffer(w, h, 1);
 
-                    public void keyReleased(KeyEvent ke) {
-                        if (ke.getKeyCode() == KeyEvent.VK_SPACE) {
-                            enableStencil = !enableStencil;
-                        }else if (ke.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                            frame.setVisible(false);
-                        }
-                    }
-                });
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setResizable(false);
-                frame.setVisible(true);
-            }
-        });
-    }
-
-    public void updateImageContents(){
-        cpuBuf.clear();
-        renderer.readFrameBuffer(offBuffer, cpuBuf);
-
-        synchronized (image) {
-            Screenshots.convertScreenShot(cpuBuf, image);    
-        }
-
-        if (display != null)
-            display.repaint();
-    }
-
-    public void setupOffscreenView(){
-        offCamera = new Camera(width, height);
-
-        // create a pre-view. a view that is rendered before the main view
-        offView = renderManager.createPreView("Offscreen View", offCamera);
-        offView.setBackgroundColor(ColorRGBA.DarkGray);
-        offView.setClearFlags(true, true, true);
-        
-        // this will let us know when the scene has been rendered to the 
-        // frame buffer
-        offView.addProcessor(this);
-
-        // create offscreen framebuffer
-        offBuffer = new FrameBuffer(width, height, 1);
-
-        //setup framebuffer's cam
-        offCamera.setFrustumPerspective(45f, 1f, 1f, 1000f);
-        offCamera.setLocation(new Vector3f(0f, 0f, -5f));
-        offCamera.lookAt(new Vector3f(0f, 0f, 0f), Vector3f.UNIT_Y);
-
-        //setup framebuffer's texture
-//        offTex = new Texture2D(width, height, Format.RGBA8);
-
-        //setup framebuffer to use renderbuffer
-        // this is faster for gpu -> cpu copies
-        offBuffer.setDepthBuffer(Format.Depth24Stencil8);
-        offBuffer.setColorBuffer(Format.RGBA8);
-//        offBuffer.setColorTexture(offTex);
-        
-        //set viewport to render to offscreen framebuffer
-        offView.setOutputFrameBuffer(offBuffer);
+        Texture2D fbTex = new Texture2D(w, h, Format.RGB8);
+        fb.setDepthBuffer(Format.Depth24Stencil8);
+        fb.setColorTexture(fbTex);
 
         // setup framebuffer's scene
-        Box boxMesh = new Box(Vector3f.ZERO, 1,1,1);
-        final Material material = assetManager.loadMaterial("Interface/Logo/Logo.j3m");
-        offBox = new Geometry("box", boxMesh);
-        offBox.setMaterial(material);
-        offBox.addControl(new AbstractControl() {
+        Sphere sphMesh = new Sphere(20, 20, 1);
+        Material solidColor = assetManager.loadMaterial("Common/Materials/RedColor.j3m");
+
+        final Geometry sphere = new Geometry("sphere", sphMesh);
+        sphere.setMaterial(solidColor);
+        fbNode.attachChild(sphere);
+        
+        sphere.addControl(new AbstractControl() {
             @Override
             protected void controlUpdate(float tpf) {
-		material.getAdditionalRenderState().setStencil(enableStencil,
-                    StencilOperation.Keep, StencilOperation.Keep, StencilOperation.Keep,
-                    StencilOperation.Keep, StencilOperation.Keep, StencilOperation.Keep,
-                    TestFunction.Never, TestFunction.Never
+                Material mat = sphere.getMaterial();
+		mat.getAdditionalRenderState().setStencil(enableStencil,
+                    RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep,
+                    RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep, RenderState.StencilOperation.Keep,
+                    RenderState.TestFunction.Never, RenderState.TestFunction.Never
                     //TestFunction.Always, TestFunction.Always
 		);
             }
@@ -244,54 +99,55 @@ public class TestDepthStencil extends SimpleApplication implements SceneProcesso
             }
         });
 
-        // attach the scene to the viewport to be rendered
-        offView.attachScene(offBox);
-    }
+        //setup main scene
+        Picture p = new Picture("Picture");
+        p.setPosition(0, 0);
+        p.setWidth(w);
+        p.setHeight(h);
+        p.setTexture(assetManager, fbTex, false);
 
-    @Override
-    public void simpleInitApp() {
-        setupOffscreenView();
-        createDisplayFrame();
+        rootNode.attachChild(p);
+        
+        inputManager.addMapping("toggle", new KeyTrigger(KeyInput.KEY_SPACE));
+        ActionListener acl = new ActionListener() {
+            public void onAction(String name, boolean keyPressed, float tpf) {
+                if (name.equals("toggle") && keyPressed) {
+                    if (enableStencil) {
+                        enableStencil = false;
+                        System.out.println("Stencil Enabled (model should be hidden)");
+                    } else {
+                        enableStencil = true;
+                        System.out.println("Stencil Disabled (model should be visible)");
+                    }
+                }
+            }
+        };
+        inputManager.addListener(acl, "toggle");
+        
+        System.out.println("Press space to toggle stencil");
     }
 
     @Override
     public void simpleUpdate(float tpf){
-        Quaternion q = new Quaternion();
-        angle += tpf;
-        angle %= FastMath.TWO_PI;
-        q.fromAngles(angle, 0, angle);
-
-        offBox.setLocalRotation(q);
-        offBox.updateLogicalState(tpf);
-        offBox.updateGeometricState();
+        fbNode.updateLogicalState(tpf);
+        fbNode.updateGeometricState();
     }
 
-    public void initialize(RenderManager rm, ViewPort vp) {
-    }
+    @Override
+    public void simpleRender(RenderManager rm){
+        Renderer r = rm.getRenderer();
 
-    public void reshape(ViewPort vp, int w, int h) {
-    }
+        //do FBO rendering
+        r.setFrameBuffer(fb);
 
-    public boolean isInitialized() {
-        return true;
-    }
+        rm.setCamera(cam, false); // FBO uses current camera
+        r.clearBuffers(true, true, true);
+        rm.renderScene(fbNode, viewPort);
+        rm.flushQueue(viewPort);
 
-    public void preFrame(float tpf) {
+        //go back to default rendering and let
+        //SimpleApplication render the default scene
+        r.setFrameBuffer(null);
     }
-
-    public void postQueue(RenderQueue rq) {
-    }
-
-    /**
-     * Update the CPU image's contents after the scene has
-     * been rendered to the framebuffer.
-     */
-    public void postFrame(FrameBuffer out) {
-        updateImageContents();
-    }
-
-    public void cleanup() {
-    }
-
 
 }
