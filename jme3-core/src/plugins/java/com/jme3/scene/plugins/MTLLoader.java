@@ -221,7 +221,7 @@ public class MTLLoader implements AssetLoader {
             
         }else if (cmd.equals("d") || cmd.equals("tr")){
             float tempAlpha = scan.nextFloat();
-            if (tempAlpha != 0){
+            if (tempAlpha > 0.0f && tempAlpha < 1.0f){
                 alpha = tempAlpha;
                 transparent = true;
             }
