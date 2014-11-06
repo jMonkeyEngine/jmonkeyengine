@@ -1320,8 +1320,13 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
                 param.setName(param.getName().substring(2));
             }
             
-            checkSetParam(param.getVarType(), param.getName());
-            paramValues.put(param.getName(), param);
+            if (def.getMaterialParam(name) == null) {
+                logger.log(Level.WARNING, "The material parameter is not defined: " + 
+                                          name + ". Ignoring..");
+            } else {
+                checkSetParam(param.getVarType(), param.getName());
+                paramValues.put(param.getName(), param);
+            }
         }
 
         if (applyDefaultValues) {
