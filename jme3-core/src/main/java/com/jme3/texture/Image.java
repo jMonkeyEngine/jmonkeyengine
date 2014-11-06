@@ -31,7 +31,11 @@
  */
 package com.jme3.texture;
 
-import com.jme3.export.*;
+import com.jme3.export.InputCapsule;
+import com.jme3.export.JmeExporter;
+import com.jme3.export.JmeImporter;
+import com.jme3.export.OutputCapsule;
+import com.jme3.export.Savable;
 import com.jme3.math.FastMath;
 import com.jme3.renderer.Caps;
 import com.jme3.renderer.Renderer;
@@ -350,6 +354,13 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         }
 
         /**
+         * @return True if this format is a depth + stencil (packed) format, false otherwise.
+         */
+        boolean isDepthStencilFormat() {
+            return this == Depth24Stencil8;
+        }
+
+        /**
          * @return True if this is a compressed image format, false if
          * uncompressed.
          */
@@ -364,6 +375,8 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
         public boolean isFloatingPont(){
             return isFloatingPoint;
         }
+
+
 
     }
 

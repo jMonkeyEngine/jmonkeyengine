@@ -67,6 +67,7 @@ import jme3tools.converters.MipMapGenerator;
 import jme3tools.shader.ShaderDebug;
 
 import static org.lwjgl.opengl.ARBDrawInstanced.*;
+import static org.lwjgl.opengl.ARBFramebufferObject.*;
 import static org.lwjgl.opengl.ARBInstancedArrays.*;
 import static org.lwjgl.opengl.ARBMultisample.*;
 import static org.lwjgl.opengl.ARBTextureMultisample.*;
@@ -1446,8 +1447,10 @@ public class LwjglRenderer implements Renderer {
 
     private int convertAttachmentSlot(int attachmentSlot) {
         // can also add support for stencil here
-        if (attachmentSlot == -100) {
+        if (attachmentSlot == FrameBuffer.SLOT_DEPTH) {
             return GL_DEPTH_ATTACHMENT_EXT;
+        } else if (attachmentSlot == FrameBuffer.SLOT_DEPTH_STENCIL) {
+            return GL_DEPTH_STENCIL_ATTACHMENT;
         } else if (attachmentSlot < 0 || attachmentSlot >= 16) {
             throw new UnsupportedOperationException("Invalid FBO attachment slot: " + attachmentSlot);
         }

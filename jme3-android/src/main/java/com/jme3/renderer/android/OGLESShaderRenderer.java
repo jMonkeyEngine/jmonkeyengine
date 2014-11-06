@@ -36,8 +36,18 @@ import android.os.Build;
 import com.jme3.asset.AndroidImageInfo;
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
-import com.jme3.math.*;
-import com.jme3.renderer.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
+import com.jme3.renderer.Caps;
+import com.jme3.renderer.IDList;
+import com.jme3.renderer.RenderContext;
+import com.jme3.renderer.Renderer;
+import com.jme3.renderer.RendererException;
+import com.jme3.renderer.Statistics;
 import com.jme3.renderer.android.TextureUtil.AndroidGLImageFormat;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
@@ -58,7 +68,11 @@ import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
-import java.nio.*;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
@@ -1313,8 +1327,10 @@ public class OGLESShaderRenderer implements Renderer {
 
     private int convertAttachmentSlot(int attachmentSlot) {
         // can also add support for stencil here
-        if (attachmentSlot == -100) {
+        if (attachmentSlot == FrameBuffer.SLOT_DEPTH) {
             return GLES20.GL_DEPTH_ATTACHMENT;
+//        if (attachmentSlot == FrameBuffer.SLOT_DEPTH_STENCIL) {
+//            return GLES30.GL_DEPTH_STENCIL_ATTACHMENT;
         } else if (attachmentSlot == 0) {
             return GLES20.GL_COLOR_ATTACHMENT0;
         } else {

@@ -33,20 +33,26 @@ package com.jme3.renderer.jogl;
 
 import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
-import com.jme3.material.RenderState.StencilOperation;
-import com.jme3.material.RenderState.TestFunction;
-import com.jme3.math.*;
-import com.jme3.renderer.*;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix4f;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector2f;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector4f;
+import com.jme3.renderer.Caps;
+import com.jme3.renderer.IDList;
+import com.jme3.renderer.RenderContext;
+import com.jme3.renderer.Renderer;
+import com.jme3.renderer.RendererException;
+import com.jme3.renderer.Statistics;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.Mesh.Mode;
 import com.jme3.scene.VertexBuffer;
-import com.jme3.scene.VertexBuffer.Format;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.VertexBuffer.Usage;
 import com.jme3.shader.Attribute;
 import com.jme3.shader.Shader;
 import com.jme3.shader.Shader.ShaderSource;
-import com.jme3.shader.Shader.ShaderType;
 import com.jme3.shader.Uniform;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.FrameBuffer.RenderBuffer;
@@ -56,16 +62,6 @@ import com.jme3.texture.Texture.WrapAxis;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.ListMap;
 import com.jme3.util.NativeObjectManager;
-
-import java.nio.*;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import jme3tools.converters.MipMapGenerator;
-import jme3tools.shader.ShaderDebug;
-
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -74,7 +70,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.media.nativewindow.NativeWindowFactory;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -84,6 +79,8 @@ import javax.media.opengl.GL2ES3;
 import javax.media.opengl.GL2GL3;
 import javax.media.opengl.GL3;
 import javax.media.opengl.GLContext;
+import jme3tools.converters.MipMapGenerator;
+import jme3tools.shader.ShaderDebug;
 
 public class JoglRenderer implements Renderer {
 
@@ -1508,8 +1505,10 @@ public class JoglRenderer implements Renderer {
     
     private int convertAttachmentSlot(int attachmentSlot) {
         // can also add support for stencil here
-        if (attachmentSlot == -100) {
+        if (attachmentSlot == FrameBuffer.SLOT_DEPTH) {
             return GL.GL_DEPTH_ATTACHMENT;
+        } else if (attachmentSlot == FrameBuffer.SLOT_DEPTH_STENCIL) {
+            return GL2ES3.GL_DEPTH_STENCIL_ATTACHMENT;
         } else if (attachmentSlot < 0 || attachmentSlot >= 16) {
             throw new UnsupportedOperationException("Invalid FBO attachment slot: " + attachmentSlot);
         }

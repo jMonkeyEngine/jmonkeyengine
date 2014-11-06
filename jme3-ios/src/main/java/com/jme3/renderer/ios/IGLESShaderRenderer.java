@@ -2235,7 +2235,7 @@ public class IGLESShaderRenderer implements Renderer {
 
     private int convertAttachmentSlot(int attachmentSlot) {
         // can also add support for stencil here
-        if (attachmentSlot == -100) {
+        if (attachmentSlot == FrameBuffer.SLOT_DEPTH) {
             return JmeIosGLES.GL_DEPTH_ATTACHMENT;
         } else if (attachmentSlot == 0) {
             return JmeIosGLES.GL_COLOR_ATTACHMENT0;
