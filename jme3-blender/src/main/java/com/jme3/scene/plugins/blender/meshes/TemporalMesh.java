@@ -4,11 +4,14 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,9 +74,10 @@ public class TemporalMesh extends Geometry {
     protected List<Edge>               edges                     = new ArrayList<Edge>();
     /** The points of the mesh. */
     protected List<Point>              points                    = new ArrayList<Point>();
-
-    protected Map<Integer, List<Face>> indexToFaceMapping        = new HashMap<Integer, List<Face>>();
-    protected Map<Integer, List<Edge>> indexToEdgeMapping        = new HashMap<Integer, List<Edge>>();
+    /** A map between index and faces that contain it (for faster index - face queries). */
+    protected Map<Integer, Set<Face>>  indexToFaceMapping        = new HashMap<Integer, Set<Face>>();
+    /** A map between index and edges that contain it (for faster index - edge queries). */
+    protected Map<Integer, Set<Edge>>  indexToEdgeMapping        = new HashMap<Integer, Set<Edge>>();
 
     /** The bounding box of the temporal mesh. */
     protected BoundingBox              boundingBox;
@@ -183,7 +187,7 @@ public class TemporalMesh extends Geometry {
     /**
      * @return the faces that contain the given index or null if none contain it
      */
-    public List<Face> getAdjacentFaces(Integer index) {
+    public Collection<Face> getAdjacentFaces(Integer index) {
         return indexToFaceMapping.get(index);
     }
 
@@ -192,10 +196,10 @@ public class TemporalMesh extends Geometry {
      *            edge of the mesh
      * @return a list of faces that contain the given edge or an empty list
      */
-    public List<Face> getAdjacentFaces(Edge edge) {
+    public Collection<Face> getAdjacentFaces(Edge edge) {
         List<Face> result = new ArrayList<Face>(indexToFaceMapping.get(edge.getFirstIndex()));
-        List<Face> secondIndexAdjacentFaces = indexToFaceMapping.get(edge.getSecondIndex());
-        if(secondIndexAdjacentFaces != null) {
+        Set<Face> secondIndexAdjacentFaces = indexToFaceMapping.get(edge.getSecondIndex());
+        if (secondIndexAdjacentFaces != null) {
             result.retainAll(indexToFaceMapping.get(edge.getSecondIndex()));
         }
         return result;
@@ -206,7 +210,7 @@ public class TemporalMesh extends Geometry {
      *            index of the mesh
      * @return a list of edges that contain the index
      */
-    public List<Edge> getAdjacentEdges(Integer index) {
+    public Collection<Edge> getAdjacentEdges(Integer index) {
         return indexToEdgeMapping.get(index);
     }
 
@@ -229,7 +233,7 @@ public class TemporalMesh extends Geometry {
      * @return <b>true</b> if the index is a boundary one and <b>false</b> otherwise
      */
     public boolean isBoundary(Integer index) {
-        List<Edge> adjacentEdges = this.getAdjacentEdges(index);
+        Collection<Edge> adjacentEdges = this.getAdjacentEdges(index);
         for (Edge edge : adjacentEdges) {
             if (this.isBoundary(edge)) {
                 return true;
@@ -287,24 +291,24 @@ public class TemporalMesh extends Geometry {
         indexToFaceMapping.clear();
         for (Face face : faces) {
             for (Integer index : face.getIndexes()) {
-                List<Face> faces = indexToFaceMapping.get(index);
+                Set<Face> faces = indexToFaceMapping.get(index);
                 if (faces == null) {
-                    faces = new ArrayList<Face>();
+                    faces = new HashSet<Face>();
                     indexToFaceMapping.put(index, faces);
                 }
                 faces.add(face);
             }
         }
         for (Edge edge : edges) {
-            List<Edge> edges = indexToEdgeMapping.get(edge.getFirstIndex());
+            Set<Edge> edges = indexToEdgeMapping.get(edge.getFirstIndex());
             if (edges == null) {
-                edges = new ArrayList<Edge>();
+                edges = new HashSet<Edge>();
                 indexToEdgeMapping.put(edge.getFirstIndex(), edges);
             }
             edges.add(edge);
             edges = indexToEdgeMapping.get(edge.getSecondIndex());
             if (edges == null) {
-                edges = new ArrayList<Edge>();
+                edges = new HashSet<Edge>();
                 indexToEdgeMapping.put(edge.getSecondIndex(), edges);
             }
             edges.add(edge);
