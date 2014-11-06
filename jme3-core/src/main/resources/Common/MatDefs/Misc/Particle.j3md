@@ -32,7 +32,6 @@ MaterialDef Point Sprite {
             Blend AlphaAdditive
             DepthWrite Off
             PointSprite On
-            // AlphaTestFalloff 0.01
         }
 
         Defines {
@@ -42,6 +41,12 @@ MaterialDef Point Sprite {
     }
 
     Technique {
+
+        // This technique is used in two cases:
+        // - When the driver doesn't support GLSL 1.2
+        // - When running on OpenGL ES 2.0
+        // Point sprite should be used if running on ES2, but crash
+        // if on desktop (because its not supported by HW)
 
         VertexShader   GLSL100 : Common/MatDefs/Misc/Particle.vert
         FragmentShader GLSL100 : Common/MatDefs/Misc/Particle.frag
@@ -56,10 +61,12 @@ MaterialDef Point Sprite {
         RenderState {
             Blend AlphaAdditive
             DepthWrite Off
+            PointSprite On
         }
 
         Defines {
             USE_TEXTURE : Texture
+            POINT_SPRITE : PointSprite
         }
     }
 

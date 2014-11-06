@@ -1,3 +1,9 @@
+#ifdef POINT_SPRITE
+#  if !defined(GL_ES) && __VERSION__ < 120
+#    error Point sprite is not supported by the video hardware!
+#  endif
+#endif
+
 #ifdef USE_TEXTURE
 uniform sampler2D m_Texture;
 varying vec4 texCoord;
