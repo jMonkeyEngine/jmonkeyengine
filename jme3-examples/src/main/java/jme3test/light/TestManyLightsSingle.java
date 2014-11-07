@@ -57,6 +57,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.shape.Box;
+import com.jme3.util.MaterialDebugAppState;
 
 public class TestManyLightsSingle extends SimpleApplication {
 
@@ -64,8 +65,12 @@ public class TestManyLightsSingle extends SimpleApplication {
         TestManyLightsSingle app = new TestManyLightsSingle();
         app.start();
     }
-    TechniqueDef.LightMode lm = TechniqueDef.LightMode.MultiPass;
-    int lightNum = 6 ;
+    
+    /**
+     * Switch mode with space bar at run time
+     */
+    TechniqueDef.LightMode lm = TechniqueDef.LightMode.SinglePass;
+    int lightNum = 6;
 
     @Override
     public void simpleInitApp() {
@@ -79,24 +84,27 @@ public class TestManyLightsSingle extends SimpleApplication {
         rootNode.attachChild(scene);
         Node n = (Node) rootNode.getChild(0);
         LightList lightList = n.getWorldLightList();
-        Geometry g = (Geometry) n.getChild("Grid-geom-1");
+        final Geometry g = (Geometry) n.getChild("Grid-geom-1");
 
         g.getMaterial().setColor("Ambient", new ColorRGBA(0.2f, 0.2f, 0.2f, 1f));
 
         /* A colored lit cube. Needs light source! */
         Box boxMesh = new Box(1f, 1f, 1f);
-        Geometry boxGeo = new Geometry("Colored Box", boxMesh);
+        final Geometry boxGeo = new Geometry("Colored Box", boxMesh);
         Material boxMat = g.getMaterial().clone();
+        boxMat.clearParam("DiffuseMap");
         boxMat.setBoolean("UseMaterialColors", true);
         boxMat.setColor("Ambient", new ColorRGBA(0.2f, 0.2f, 0.2f, 1f));
         boxMat.setColor("Diffuse", ColorRGBA.Blue);
         boxGeo.setMaterial(boxMat);
 
+        final Node cubeNodes = new Node();
+        n.attachChild(cubeNodes);
         int nb = 0;
         for (Light light : lightList) {
             nb++;
             PointLight p = (PointLight) light;
-            if (nb >60) {
+            if (nb > 60) {
                 n.removeLight(light);
             } else {
 
@@ -123,8 +131,8 @@ public class TestManyLightsSingle extends SimpleApplication {
                         break;
                 }
             }
-            Geometry b = boxGeo.clone();
-            n.attachChild(b);
+            Geometry b = boxGeo.clone(false);
+            cubeNodes.attachChild(b);
             b.setLocalTranslation(p.getPosition().x, 2, p.getPosition().z);
 
         }
@@ -145,30 +153,35 @@ public class TestManyLightsSingle extends SimpleApplication {
 
 
 
-       
+
         flyCam.setDragToRotate(true);
         flyCam.setMoveSpeed(50);
-       
+
+        final MaterialDebugAppState debug = new MaterialDebugAppState();
+        stateManager.attach(debug);
 
         inputManager.addListener(new ActionListener() {
             public void onAction(String name, boolean isPressed, float tpf) {
                 if (name.equals("toggle") && isPressed) {
                     if (lm == TechniqueDef.LightMode.SinglePass) {
                         lm = TechniqueDef.LightMode.MultiPass;
+                        helloText.setText("(Multi pass)");
                     } else {
                         lm = TechniqueDef.LightMode.SinglePass;
+                        helloText.setText("(Single pass) nb lights per batch : " + lightNum);
                     }
                     renderManager.setPreferredLightMode(lm);
+                    reloadScene(g,boxGeo,cubeNodes);
                 }
                 if (name.equals("lightsUp") && isPressed) {
                     lightNum++;
                     renderManager.setSinglePassLightBatchSize(lightNum);
-                    helloText.setText("nb lights per batch : " + lightNum);
+                    helloText.setText("(Single pass) nb lights per batch : " + lightNum);
                 }
                 if (name.equals("lightsDown") && isPressed) {
                     lightNum--;
                     renderManager.setSinglePassLightBatchSize(lightNum);
-                    helloText.setText("nb lights per batch : " + lightNum);
+                    helloText.setText("(Single pass) nb lights per batch : " + lightNum);
                 }
             }
         }, "toggle", "lightsUp", "lightsDown");
@@ -202,12 +215,26 @@ public class TestManyLightsSingle extends SimpleApplication {
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         helloText = new BitmapText(guiFont, false);
         helloText.setSize(guiFont.getCharSet().getRenderedSize());
-        helloText.setText("nb lights per batch : " + lightNum);
+        helloText.setText("(Single pass) nb lights per batch : " + lightNum);
         helloText.setLocalTranslation(300, helloText.getLineHeight(), 0);
         guiNode.attachChild(helloText);
 
 
+
     }
+
+    protected void reloadScene(Geometry g, Geometry boxGeo, Node cubeNodes) {
+        MaterialDebugAppState debug = stateManager.getState(MaterialDebugAppState.class);
+        Material m = debug.reloadMaterial(g.getMaterial());
+        if (m != null) {
+            g.setMaterial(m);
+        }
+        m = debug.reloadMaterial(boxGeo.getMaterial());
+        if (m != null) {
+            cubeNodes.setMaterial(m);
+        }
+    }
+    
     BitmapText helloText;
     long time;
     long nbFrames;

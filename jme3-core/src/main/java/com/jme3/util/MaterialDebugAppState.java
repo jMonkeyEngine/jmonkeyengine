@@ -43,7 +43,6 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.Trigger;
 import com.jme3.material.MatParam;
 import com.jme3.material.Material;
-import com.jme3.material.RenderState;
 import com.jme3.post.Filter;
 import com.jme3.post.Filter.Pass;
 import com.jme3.renderer.RenderManager;
@@ -196,7 +195,7 @@ public class MaterialDebugAppState extends AbstractAppState {
         }
     }
 
-    private Material reloadMaterial(Material mat) {
+    public Material reloadMaterial(Material mat) {
         //clear the entire cache, there might be more clever things to do, like clearing only the matdef, and the associated shaders.
         ((DesktopAssetManager) assetManager).clearCache();
 
