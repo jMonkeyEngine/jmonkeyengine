@@ -134,13 +134,11 @@ public final class MaterialContext {
             material.setBoolean("UseMaterialColors", Boolean.TRUE);
 
             // setting the colors
-            material.setBoolean("Minnaert", diffuseShader == DiffuseShader.MINNAERT);
             if (!transparent) {
                 diffuseColor.a = 1;
             }
             material.setColor("Diffuse", diffuseColor);
 
-            material.setBoolean("WardIso", specularShader == SpecularShader.WARDISO);
             material.setColor("Specular", specularColor);
             material.setFloat("Shininess", shininess);
 
