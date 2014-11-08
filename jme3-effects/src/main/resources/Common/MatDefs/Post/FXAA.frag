@@ -15,7 +15,7 @@ varying vec4 posPos;
 #if __VERSION__ >= 130
     #define OffsetVec(a, b) ivec2(a, b)
     #define FxaaTexOff(t, p, o, r) textureOffset(t, p, o)
-#elif defined(GL_EXT_gpu_shader4)
+#elif defined(GL_EXT_gpu_shader4) && !defined(GL_ES)
     #define OffsetVec(a, b) ivec2(a, b)
     #define FxaaTexOff(t, p, o, r) texture2DLodOffset(t, p, 0.0, o)
 #else
