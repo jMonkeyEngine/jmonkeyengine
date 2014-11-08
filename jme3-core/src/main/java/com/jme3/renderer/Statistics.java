@@ -35,6 +35,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.shader.Shader;
 import com.jme3.texture.FrameBuffer;
 import com.jme3.texture.Image;
+import com.jme3.util.IntMap;
 import java.util.HashSet;
 
 /**
@@ -60,10 +61,12 @@ public class Statistics {
     protected int memoryFrameBuffers;
     protected int memoryTextures;
 
-    protected HashSet<Integer> shadersUsed = new HashSet<Integer>();
-    protected HashSet<Integer> texturesUsed = new HashSet<Integer>();
-    protected HashSet<Integer> fbosUsed = new HashSet<Integer>();
+    protected IntMap<Void> shadersUsed = new IntMap<Void>();
+    protected IntMap<Void> texturesUsed = new IntMap<Void>();
+    protected IntMap<Void> fbosUsed = new IntMap<Void>();
 
+    protected int lastShader = -1;
+    
     /**
      * Returns a list of labels corresponding to each statistic.
      * 
@@ -148,9 +151,15 @@ public class Statistics {
 
         if( !enabled )
             return;
-            
-        if (!shadersUsed.contains(shader.getId()))
-            shadersUsed.add(shader.getId());
+        
+        // Reduces unneccessary hashmap lookups if
+        // we already considered this shader.
+        if (lastShader != shader.getId()) {
+            lastShader = shader.getId();
+            if (!shadersUsed.containsKey(shader.getId())) {
+                shadersUsed.put(shader.getId(), null);
+            }
+        }
 
         if (wasSwitched)
             numShaderSwitches++;
@@ -177,8 +186,8 @@ public class Statistics {
         if( !enabled )
             return;
             
-        if (!texturesUsed.contains(image.getId()))
-            texturesUsed.add(image.getId());
+        if (!texturesUsed.containsKey(image.getId()))
+            texturesUsed.put(image.getId(), null);
 
         if (wasSwitched)
             numTextureBinds ++;
@@ -197,8 +206,8 @@ public class Statistics {
         if (fb != null){
             assert fb.getId() >= 1;
 
-            if (!fbosUsed.contains(fb.getId()))
-                fbosUsed.add(fb.getId());
+            if (!fbosUsed.containsKey(fb.getId()))
+                fbosUsed.put(fb.getId(), null);
         }
 
         if (wasSwitched)
@@ -220,6 +229,8 @@ public class Statistics {
         numTextureBinds = 0;
         numFboSwitches = 0;
         numUniformsSet = 0;
+        
+        lastShader = -1;
     }
 
     /**
