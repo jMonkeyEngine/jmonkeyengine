@@ -22,10 +22,10 @@ task downloadStbImage(type: MyDownload) {
     target = file(stbiFolder + File.separator + stbiDownloadTarget)
 }
 
-// Copy stb_image files to jni directory
+// Copy stb_image.h to the source directory.
 task copyStbiFiles(type: Copy) {
     def sourceDir = file(stbiFolder)
-    def outputDir = file(stbiBuildJniDir)
+    def outputDir = file(stbiJmeAndroidPath)
 //    println "copyStbiFiles sourceDir: " + sourceDir
 //    println "copyStbiFiles outputDir: " + outputDir
 
@@ -42,9 +42,23 @@ copyStbiFiles.dependsOn {
     }
 }
 
+task generateStbiHeaders(type: Exec) {
+    String destDirPath = stbiJmeAndroidPath
+    String classes = ""
+            .concat("com.jme3.texture.plugins.AndroidNativeImageLoader, ")
+
+//    println "stb_image classes = " + classes
+//    println "stb_image destDir = " + destDir
+//    println "stb_image classpath = " + project.projectClassPath
+
+    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+    args '-d', destDirPath
+    args '-classpath', project.projectClassPath
+    args "com.jme3.texture.plugins.AndroidNativeImageLoader"
+}
 
 // Copy jME Android native files to jni directory
-task copyStbiJmeFiles(type: Copy, dependsOn:copyStbiFiles) {
+task copyStbiJmeFiles(type: Copy, dependsOn:[copyStbiFiles, generateStbiHeaders]) {
     def sourceDir = file(stbiJmeAndroidPath)
     def outputDir = file(stbiBuildJniDir)
 //    println "copyStbiJmeFiles sourceDir: " + sourceDir
@@ -54,24 +68,7 @@ task copyStbiJmeFiles(type: Copy, dependsOn:copyStbiFiles) {
     into outputDir
 }
 
-task generateStbiHeaders(dependsOn: copyStbiJmeFiles) << {
-    String destDirPath = stbiBuildJniDir
-    String classes = ""
-            .concat("com.jme3.texture.plugins.AndroidNativeImageLoader, ")
-
-//    println "stb_image classes = " + classes
-//    println "stb_image destDir = " + destDir
-//    println "stb_image classpath = " + project.projectClassPath
-
-    exec {
-        executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
-        args '-d', destDirPath
-        args '-classpath', project.projectClassPath
-        args "com.jme3.texture.plugins.AndroidNativeImageLoader"
-    }
-}
-
-task buildStbiNativeLib(type: Exec, dependsOn: generateStbiHeaders) {
+task buildStbiNativeLib(type: Exec, dependsOn: copyStbiJmeFiles) {
 //    println "stb_image build dir: " + stbiBuildDir
 //    println "ndkCommandPath: " + rootProject.ndkCommandPath
     
