@@ -317,7 +317,14 @@ public class Image extends NativeObject implements Savable /*, Cloneable*/ {
          * It is also a required format, so you can count on it
          * being present.
          */
-        RGB10_A2(32, false);
+        RGB10_A2(32, false),
+        
+        /**
+         * Ericsson Texture Compression. Typically used on Android.
+         * 
+         * Requires {@link Caps#TextureCompressionETC1}.
+         */
+        ETC1(4, false, true, false);
 
         private int bpp;
         private boolean isDepth;

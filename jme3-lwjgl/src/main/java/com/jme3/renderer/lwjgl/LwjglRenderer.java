@@ -356,6 +356,10 @@ public class LwjglRenderer implements Renderer {
         if (hasExtension("GL_EXT_texture_compression_latc")) {
             caps.add(Caps.TextureCompressionLATC);
         }
+        
+        if (hasExtension("GL_ARB_ES3_compatibility")) {
+            caps.add(Caps.TextureCompressionETC1);
+        }
 
         if (hasExtension("GL_EXT_packed_float") || caps.contains(Caps.OpenGL30)) {
             // This format is part of the OGL3 specification
@@ -2208,6 +2212,9 @@ public class LwjglRenderer implements Renderer {
                     throw new UnsupportedOperationException("Unknown buffer format.");
             }
         } else {
+            // Invalidate buffer data (orphan) before uploading new data.
+            
+            
             switch (vb.getFormat()) {
                 case Byte:
                 case UnsignedByte:

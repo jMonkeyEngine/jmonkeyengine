@@ -251,7 +251,12 @@ public enum Caps {
     /**
      * Supports anisotropic texture filtering.
      */
-    TextureFilterAnisotropic;
+    TextureFilterAnisotropic,
+    
+    /**
+     * Supports {@link Format#ETC1} texture compression.
+     */
+    TextureCompressionETC1;
 
     /**
      * Returns true if given the renderer capabilities, the texture

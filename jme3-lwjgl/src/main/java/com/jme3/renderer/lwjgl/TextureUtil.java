@@ -42,10 +42,10 @@ import java.util.EnumSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.lwjgl.opengl.ARBDepthBufferFloat.*;
+import org.lwjgl.opengl.ARBES3Compatibility;
 import static org.lwjgl.opengl.ARBHalfFloatPixel.*;
 import static org.lwjgl.opengl.ARBTextureFloat.*;
 import static org.lwjgl.opengl.ARBTextureMultisample.*;
-import org.lwjgl.opengl.ContextCapabilities;
 import static org.lwjgl.opengl.EXTPackedDepthStencil.*;
 import static org.lwjgl.opengl.EXTPackedFloat.*;
 import static org.lwjgl.opengl.EXTTextureArray.*;
@@ -142,6 +142,11 @@ class TextureUtil {
         // LTC/LATC/3Dc formats
         setFormat(Format.LTC,  GL_COMPRESSED_LUMINANCE_LATC1_EXT,       GL_LUMINANCE,       GL_UNSIGNED_BYTE, true);
         setFormat(Format.LATC, GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, true);
+        
+        // ETC1 support on regular OpenGL requires ES3 compatibility extension.
+        // NOTE: ETC2 is backwards compatible with ETC1, so we can 
+        // upload ETC1 textures as ETC2.
+        setFormat(Format.ETC1, ARBES3Compatibility.GL_COMPRESSED_RGB8_ETC2, GL_RGB, GL_UNSIGNED_BYTE, true);
     }
     
     //sRGB formats        
@@ -160,6 +165,11 @@ class TextureUtil {
 
     public static GLImageFormat getImageFormat(EnumSet<Caps> caps, Format fmt, boolean isSrgb){
         switch (fmt){
+            case ETC1:
+                if (!caps.contains(Caps.TextureCompressionETC1)) {
+                    return null;
+                }
+                break;
             case DXT1:
             case DXT1A:
             case DXT3:
