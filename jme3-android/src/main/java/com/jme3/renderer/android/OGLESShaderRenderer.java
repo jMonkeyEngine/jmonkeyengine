@@ -688,21 +688,10 @@ public class OGLESShaderRenderer implements Renderer {
     }
 
     protected void updateUniform(Shader shader, Uniform uniform) {
-        int shaderId = shader.getId();
-
         assert uniform.getName() != null;
         assert shader.getId() > 0;
 
-        if (context.boundShaderProgram != shaderId) {
-            GLES20.glUseProgram(shaderId);
-            RendererUtil.checkGLError();
-
-            statistics.onShaderUse(shader, true);
-            boundShader = shader;
-            context.boundShaderProgram = shaderId;
-        } else {
-            statistics.onShaderUse(shader, false);
-        }
+        bindProgram(shader);
 
         int loc = uniform.getLocation();
         if (loc == -1) {
