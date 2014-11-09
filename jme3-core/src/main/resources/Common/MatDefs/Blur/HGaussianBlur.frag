@@ -10,7 +10,7 @@ void main(){
 
    // blur in x (vertical)
    // take nine samples, with the distance blurSize between them
-   sum += texture2D(m_Texture, vec2(texCoord.x- 4.0*blurSize, texCoord.y )) * 0.05;
+   sum += texture2D(m_Texture, vec2(texCoord.x- 4.0*blurSize, texCoord.y )) * 0.06;
    sum += texture2D(m_Texture, vec2(texCoord.x- 3.0*blurSize, texCoord.y )) * 0.09;
    sum += texture2D(m_Texture, vec2(texCoord.x - 2.0*blurSize, texCoord.y)) * 0.12;
    sum += texture2D(m_Texture, vec2(texCoord.x- blurSize, texCoord.y )) * 0.15;
@@ -18,7 +18,7 @@ void main(){
    sum += texture2D(m_Texture, vec2(texCoord.x+ blurSize, texCoord.y )) * 0.15;
    sum += texture2D(m_Texture, vec2(texCoord.x+ 2.0*blurSize, texCoord.y )) * 0.12;
    sum += texture2D(m_Texture, vec2(texCoord.x+ 3.0*blurSize, texCoord.y )) * 0.09;
-   sum += texture2D(m_Texture, vec2(texCoord.x+ 4.0*blurSize, texCoord.y )) * 0.05;
+   sum += texture2D(m_Texture, vec2(texCoord.x+ 4.0*blurSize, texCoord.y )) * 0.06;
 
    gl_FragColor = sum;
 }
