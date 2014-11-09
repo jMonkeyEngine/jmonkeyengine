@@ -221,7 +221,6 @@ public class J3MLoader implements AssetLoader {
     private void readParam(String statement) throws IOException{
         String name;
         String defaultVal = null;
-        FixedFuncBinding ffBinding = null;
         ColorSpace colorSpace = null;
         
         String[] split = statement.split("-");
@@ -251,12 +250,7 @@ public class J3MLoader implements AssetLoader {
             // get content inside parentheses
             int endParen = statement.indexOf(")", startParen);
             String bindingStr = statement.substring(startParen+1, endParen).trim();
-            try {
-                ffBinding = FixedFuncBinding.valueOf(bindingStr);
-            } catch (IllegalArgumentException ex){
-                throw new IOException("FixedFuncBinding '" +
-                                      split[1] + "' does not exist!");
-            }
+            // don't care about bindingStr
             statement = statement.substring(0, startParen);
         }
         
@@ -282,7 +276,7 @@ public class J3MLoader implements AssetLoader {
         if(type.isTextureType()){
             materialDef.addMaterialParamTexture(type, name, colorSpace);    
         }else{
-            materialDef.addMaterialParam(type, name, defaultValObj, ffBinding);
+            materialDef.addMaterialParam(type, name, defaultValObj);
         }
         
     }

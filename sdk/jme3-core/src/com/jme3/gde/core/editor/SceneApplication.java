@@ -25,9 +25,6 @@ public class SceneApplication extends SimpleApplication {
         super(new StatsAppState());
         AppSettings newSetting = new AppSettings(true);
         newSetting.setFrameRate(30);
-        if ("true".equals(NbPreferences.forModule(Installer.class).get("use_opengl_1", "false"))) {
-            newSetting.setRenderer(AppSettings.LWJGL_OPENGL1);
-        }
         newSetting.setCustomRenderer(AwtPanelsContext.class);
         setSettings(newSetting);
         setPauseOnLostFocus(false);

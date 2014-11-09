@@ -480,7 +480,7 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
             MatParam val = getParam(name);
             if (val == null) {
                 MatParam paramDef = def.getMaterialParam(name);
-                paramValues.put(name, new MatParam(type, name, value, paramDef.getFixedFuncBinding()));
+                paramValues.put(name, new MatParam(type, name, value));
             } else {
                 val.setValue(value);
             }
@@ -1089,7 +1089,12 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         for (int i = 0; i < size; i++) {
             Uniform u = uniforms.getValue(i);
             if (!u.isSetByCurrentMaterial()) {
-                u.clearValue();
+                if (u.getName().charAt(0) != 'g') {
+                    // Don't reset world globals! 
+                    // The benefits gained from this are very minimal
+                    // and cause lots of matrix -> FloatBuffer conversions.
+                    u.clearValue();
+                }
             }
         }
     }

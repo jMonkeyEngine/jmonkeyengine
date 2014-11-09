@@ -57,13 +57,6 @@ public final class AppSettings extends HashMap<String, Object> {
     private static final AppSettings defaults = new AppSettings(false);
 
     /**
-     * Use LWJGL as the display system and force using the OpenGL1.1 renderer.
-     *
-     * @see AppSettings#setRenderer(java.lang.String)
-     */
-    public static final String LWJGL_OPENGL1 = "LWJGL-OPENGL1";
-
-    /**
      * Use LWJGL as the display system and force using the OpenGL2.0 renderer.
      * <p>
      * If the underlying system does not support OpenGL2.0, then the context
@@ -86,17 +79,6 @@ public final class AppSettings extends HashMap<String, Object> {
      * @see AppSettings#setRenderer(java.lang.String)
      */
     public static final String LWJGL_OPENGL3 = "LWJGL-OpenGL3";
-
-    /**
-     * Use LWJGL as the display system and allow the context
-     * to choose an appropriate renderer based on system capabilities.
-     * <p>
-     * If the GPU supports OpenGL2 or later, then the OpenGL2.0 renderer will
-     * be used, otherwise, the OpenGL1.1 renderer is used.
-     *
-     * @see AppSettings#setRenderer(java.lang.String)
-     */
-    public static final String LWJGL_OPENGL_ANY = "LWJGL-OpenGL-Any";
 
     /**
      * Use the LWJGL OpenAL based renderer for audio capabilities.

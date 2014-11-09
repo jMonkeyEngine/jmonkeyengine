@@ -34,7 +34,6 @@ package com.jme3.material;
 import com.jme3.asset.TextureKey;
 import com.jme3.export.*;
 import com.jme3.math.*;
-import com.jme3.renderer.GL1Renderer;
 import com.jme3.renderer.Renderer;
 import com.jme3.shader.VarType;
 import com.jme3.texture.Texture;
@@ -53,32 +52,21 @@ public class MatParam implements Savable, Cloneable {
     protected String name;
     protected String prefixedName;
     protected Object value;
-    protected FixedFuncBinding ffBinding;
 
     /**
      * Create a new material parameter. For internal use only.
      */
-    public MatParam(VarType type, String name, Object value, FixedFuncBinding ffBinding) {
+    public MatParam(VarType type, String name, Object value) {
         this.type = type;
         this.name = name;
         this.prefixedName = "m_" + name;
         this.value = value;
-        this.ffBinding = ffBinding;
     }
 
     /**
      * Serialization only. Do not use.
      */
     public MatParam() {
-    }
-
-    /**
-     * Returns the fixed function binding.
-     *
-     * @return the fixed function binding.
-     */
-    public FixedFuncBinding getFixedFuncBinding() {
-        return ffBinding;
     }
 
     /**
@@ -145,9 +133,6 @@ public class MatParam implements Savable, Cloneable {
         TechniqueDef techDef = technique.getDef();
         if (techDef.isUsingShaders()) {
             technique.updateUniformParam(getPrefixedName(), getVarType(), getValue());
-        }
-        if (ffBinding != null && r instanceof GL1Renderer) {
-            ((GL1Renderer) r).setFixedFuncBinding(ffBinding, getValue());
         }
     }
 
@@ -290,7 +275,6 @@ When arrays can be inserted in J3M files
         OutputCapsule oc = ex.getCapsule(this);
         oc.write(type, "varType", null);
         oc.write(name, "name", null);
-        oc.write(ffBinding, "ff_binding", null);
         if (value instanceof Savable) {
             Savable s = (Savable) value;
             oc.write(s, "value_savable", null);
@@ -311,7 +295,6 @@ When arrays can be inserted in J3M files
         type = ic.readEnum("varType", VarType.class, null);
         name = ic.readString("name", null);
         prefixedName = "m_" + name;
-        ffBinding = ic.readEnum("ff_binding", FixedFuncBinding.class, null);
         switch (getVarType()) {
             case Boolean:
                 value = ic.readBoolean("value_bool", false);
@@ -346,9 +329,6 @@ When arrays can be inserted in J3M files
         if (this.value != other.value && (this.value == null || !this.value.equals(other.value))) {
             return false;
         }
-        if (this.ffBinding != other.ffBinding) {
-            return false;
-        }
         return true;
     }
 
@@ -358,7 +338,6 @@ When arrays can be inserted in J3M files
         hash = 59 * hash + (this.type != null ? this.type.hashCode() : 0);
         hash = 59 * hash + (this.name != null ? this.name.hashCode() : 0);
         hash = 59 * hash + (this.value != null ? this.value.hashCode() : 0);
-        hash = 59 * hash + (this.ffBinding != null ? this.ffBinding.hashCode() : 0);
         return hash;
     }
 

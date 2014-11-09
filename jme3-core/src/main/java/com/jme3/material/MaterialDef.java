@@ -119,10 +119,9 @@ public class MaterialDef {
      * @param type Type of the parameter
      * @param name Name of the parameter
      * @param value Default value of the parameter
-     * @param ffBinding Fixed function binding for the parameter
      */
-    public void addMaterialParam(VarType type, String name, Object value, FixedFuncBinding ffBinding) {
-        matParams.put(name, new MatParam(type, name, value, ffBinding));
+    public void addMaterialParam(VarType type, String name, Object value) {
+        matParams.put(name, new MatParam(type, name, value));
     }
     
     /**

@@ -35,9 +35,8 @@ package com.jme3.system.lwjgl;
 import com.jme3.input.lwjgl.JInputJoyInput;
 import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
-import com.jme3.math.FastMath;
 import com.jme3.renderer.Renderer;
-import com.jme3.renderer.lwjgl.LwjglGL1Renderer;
+import com.jme3.renderer.RendererException;
 import com.jme3.renderer.lwjgl.LwjglRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
@@ -199,30 +198,19 @@ public abstract class LwjglContext implements JmeContext {
     }
 
     protected void initContextFirstTime(){
+        if (!GLContext.getCapabilities().OpenGL20) {
+            throw new RendererException("OpenGL 2.0 or higher is " + 
+                                        "required for jMonkeyEngine");
+        }
+        
         if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
-         || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)){
+                || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
             renderer = new LwjglRenderer();
-        }else if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL1)){
-            renderer = new LwjglGL1Renderer();
-        }else if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL_ANY)){
-            // Choose an appropriate renderer based on capabilities
-            if (GLContext.getCapabilities().OpenGL20){
-                renderer = new LwjglRenderer();
-            }else{
-                renderer = new LwjglGL1Renderer();
-            }
-        }else{
+            ((LwjglRenderer) renderer).initialize();
+        } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
         
-        // Init renderer
-        if (renderer instanceof LwjglRenderer){
-            ((LwjglRenderer)renderer).initialize();
-        }else if (renderer instanceof LwjglGL1Renderer){
-            ((LwjglGL1Renderer)renderer).initialize();
-        }else{
-            assert false;
-        }
         renderer.setMainFrameBufferSrgb(settings.getGammaCorrection());
         renderer.setLinearizeSrgbImages(settings.getGammaCorrection());
 
