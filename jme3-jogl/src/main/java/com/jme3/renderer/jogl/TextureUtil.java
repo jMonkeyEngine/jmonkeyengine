@@ -51,23 +51,17 @@ public class TextureUtil {
 
     public static int convertTextureFormat(Format fmt) {
         switch (fmt) {
-            case Alpha16:
             case Alpha8:
                 return GL.GL_ALPHA;
             case Luminance8Alpha8:
-            case Luminance16Alpha16:
                 return GL.GL_LUMINANCE_ALPHA;
             case Luminance8:
-            case Luminance16:
                 return GL.GL_LUMINANCE;
-            case RGB10:
-            case RGB16:
             case BGR8:
             case RGB8:
             case RGB565:
                 return GL.GL_RGB;
             case RGB5A1:
-            case RGBA16:
             case RGBA8:
                 return GL.GL_RGBA;
             case Depth:
@@ -101,17 +95,14 @@ public class TextureUtil {
     static {
         // Alpha formats
         setFormat(Format.Alpha8,  GL2.GL_ALPHA8,  GL.GL_ALPHA, GL.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Alpha16, GL2.GL_ALPHA16, GL.GL_ALPHA, GL.GL_UNSIGNED_SHORT, false);
         
         // Luminance formats
         setFormat(Format.Luminance8,   GL2.GL_LUMINANCE8,  GL.GL_LUMINANCE, GL.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Luminance16,  GL2.GL_LUMINANCE16, GL.GL_LUMINANCE, GL.GL_UNSIGNED_SHORT, false);
         setFormat(Format.Luminance16F, GL2.GL_LUMINANCE16F, GL.GL_LUMINANCE, GL.GL_HALF_FLOAT, false);
         setFormat(Format.Luminance32F, GL2.GL_LUMINANCE32F, GL.GL_LUMINANCE, GL.GL_FLOAT, false);
         
         // Luminance alpha formats
         setFormat(Format.Luminance8Alpha8, GL2.GL_LUMINANCE8_ALPHA8,  GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.Luminance16Alpha16, GL2.GL_LUMINANCE16_ALPHA16, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_SHORT, false);
         setFormat(Format.Luminance16FAlpha16F, GL2.GL_LUMINANCE_ALPHA16F, GL.GL_LUMINANCE_ALPHA, GL.GL_HALF_FLOAT, false);
         
         // Depth formats
@@ -129,8 +120,6 @@ public class TextureUtil {
         setFormat(Format.ARGB8,       GL.GL_RGBA8,  GL.GL_BGRA, GL2.GL_UNSIGNED_INT_8_8_8_8_REV, false);
         setFormat(Format.BGRA8,       GL.GL_RGBA8,  GL.GL_BGRA, GL.GL_UNSIGNED_BYTE, false);
         setFormat(Format.RGB8,       GL.GL_RGB8,  GL.GL_RGB,        GL.GL_UNSIGNED_BYTE, false);
-//        setFormat(Format.RGB10,      GL11.GL_RGB10, GL11.GL_RGB,        GL12.GL_UNSIGNED_INT_10_10_10_2, false); 
-        setFormat(Format.RGB16,      GL2GL3.GL_RGB16, GL.GL_RGB,        GL.GL_UNSIGNED_SHORT, false); 
         setFormat(Format.RGB16F,     GL2ES2.GL_RGB16F, GL.GL_RGB, GL.GL_HALF_FLOAT, false);
         setFormat(Format.RGB32F,     GL.GL_RGB32F, GL.GL_RGB, GL.GL_FLOAT, false);
         
@@ -139,14 +128,11 @@ public class TextureUtil {
         setFormat(Format.RGB9E5,     GL2GL3.GL_RGB9_E5, GL.GL_RGB, GL2GL3.GL_UNSIGNED_INT_5_9_9_9_REV, false);
         setFormat(Format.RGB16F_to_RGB111110F, GL.GL_R11F_G11F_B10F,    GL.GL_RGB, GL.GL_HALF_FLOAT, false);
         setFormat(Format.RGB16F_to_RGB9E5, GL2.GL_RGB9_E5, GL.GL_RGB, GL.GL_HALF_FLOAT, false);
-        setFormat(Format.RGB10_A2, GL.GL_RGB10_A2,    GL.GL_RGB, GL.GL_UNSIGNED_BYTE, false);
         
         // RGBA formats
         setFormat(Format.ABGR8,   GL.GL_RGBA8,       GL2.GL_ABGR_EXT, GL.GL_UNSIGNED_BYTE, false);
         setFormat(Format.RGB5A1,    GL.GL_RGB5_A1,   GL.GL_RGBA,        GL.GL_UNSIGNED_SHORT_5_5_5_1, false);
-        setFormat(Format.ARGB4444,  GL.GL_RGBA4,     GL2.GL_ABGR_EXT, GL.GL_UNSIGNED_SHORT_4_4_4_4, false);
         setFormat(Format.RGBA8,   GL.GL_RGBA8,       GL.GL_RGBA,        GL.GL_UNSIGNED_BYTE, false);
-        setFormat(Format.RGBA16,  GL2GL3.GL_RGBA16,      GL.GL_RGBA,        GL.GL_UNSIGNED_SHORT, false); // might be incorrect
         setFormat(Format.RGBA16F, GL2ES2.GL_RGBA16F, GL.GL_RGBA, GL.GL_HALF_FLOAT, false);
         setFormat(Format.RGBA32F, GL.GL_RGBA32F, GL.GL_RGBA, GL.GL_FLOAT, false);
         
@@ -155,10 +141,6 @@ public class TextureUtil {
         setFormat(Format.DXT1A, GL.GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
         setFormat(Format.DXT3,  GL.GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
         setFormat(Format.DXT5,  GL.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, true);
-    
-        // LTC/LATC/3Dc formats
-        setFormat(Format.LTC,  GL2.GL_COMPRESSED_LUMINANCE_LATC1_EXT,       GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE, true);
-        setFormat(Format.LATC, GL2.GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, true);
     }
     
      //sRGB formats        
@@ -232,12 +214,6 @@ public class TextureUtil {
                 break;
             case Depth32F:
                 if (!gl.isExtensionAvailable("GL_VERSION_3_0") && !gl.isExtensionAvailable("GL_NV_depth_buffer_float")){
-                    return null;
-                }
-                break;
-            case LATC:
-            case LTC:
-                if (!gl.isExtensionAvailable("GL_EXT_texture_compression_latc")){
                     return null;
                 }
                 break;

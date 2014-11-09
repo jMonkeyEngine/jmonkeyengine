@@ -334,13 +334,6 @@ public class JoglRenderer implements Renderer {
                     + "Some features might not work.");
         }
 
-        boolean latc = gl.isExtensionAvailable("GL_EXT_texture_compression_latc");
-        //FIXME ignore atdc?
-        //boolean atdc = gl.isExtensionAvailable("GL_ATI_texture_compression_3dc");
-        if (latc /*|| atdc*/) {
-            caps.add(Caps.TextureCompressionLATC);
-        }
-
         if (gl.isExtensionAvailable("GL_EXT_packed_float") || gl.isExtensionAvailable("GL_VERSION_3_0")) {
         	// This format is part of the OGL3 specification
             caps.add(Caps.PackedFloatColorBuffer);
