@@ -105,9 +105,6 @@ public class AndroidImageInfo extends ImageRaster {
             case ALPHA_8:
                 format = Image.Format.Alpha8;
                 break;
-            case ARGB_4444:
-                format = Image.Format.ARGB4444;
-                break;
             case ARGB_8888:
                 format = Image.Format.RGBA8;
                 break;

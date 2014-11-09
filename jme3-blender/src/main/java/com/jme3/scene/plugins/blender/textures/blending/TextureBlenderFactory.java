@@ -71,8 +71,6 @@ public class TextureBlenderFactory {
         switch (format) {
             case Luminance8:
             case Luminance8Alpha8:
-            case Luminance16:
-            case Luminance16Alpha16:
             case Luminance16F:
             case Luminance16FAlpha16F:
             case Luminance32F:
@@ -81,9 +79,7 @@ public class TextureBlenderFactory {
             case ABGR8:
             case BGR8:
             case RGB8:
-            case RGB10:
             case RGB111110F:
-            case RGB16:
             case RGB16F:
             case RGB16F_to_RGB111110F:
             case RGB16F_to_RGB9E5:
@@ -91,7 +87,6 @@ public class TextureBlenderFactory {
             case RGB565:
             case RGB5A1:
             case RGB9E5:
-            case RGBA16:
             case RGBA16F:
             case RGBA32F:
                 return new TextureBlenderAWT(flag, negate, blendType, materialColor, color, colfac);
@@ -100,23 +95,9 @@ public class TextureBlenderFactory {
             case DXT3:
             case DXT5:
                 return new TextureBlenderDDS(flag, negate, blendType, materialColor, color, colfac);
-            case Alpha16:
-            case Alpha8:
-            case ARGB4444:
-            case Depth:
-            case Depth16:
-            case Depth24:
-            case Depth32:
-            case Depth32F:
-            case Intensity16:
-            case Intensity8:
-            case LATC:
-            case LTC:
-            case Depth24Stencil8:
+            default:
                 LOGGER.log(Level.WARNING, "Image type not yet supported for blending: {0}. Returning a blender that does not change the texture.", format);
                 return NON_CHANGING_BLENDER;
-            default:
-                throw new IllegalStateException("Unknown image format type: " + format);
         }
     }
 

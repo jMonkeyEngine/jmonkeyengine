@@ -128,14 +128,6 @@ public class AWTLoader implements AssetLoader {
                 ByteBuffer data3 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight());
                 data3.put(dataBuf3);
                 return new Image(Format.Luminance8, width, height, data3, null, com.jme3.texture.image.ColorSpace.sRGB);
-            case BufferedImage.TYPE_USHORT_GRAY: // grayscale heightmap
-                short[] dataBuf4 = (short[]) extractImageData(img);
-                if (flipY)
-                    flipImage(dataBuf4, width, height, 16);
-                
-                ByteBuffer data4 = BufferUtils.createByteBuffer(img.getWidth()*img.getHeight()*2);
-                data4.asShortBuffer().put(dataBuf4);
-                return new Image(Format.Luminance16, width, height, data4, null, com.jme3.texture.image.ColorSpace.sRGB);
             default:
                 break;
         }

@@ -27,9 +27,7 @@ public class PixelIOFactory {
                 case RGBA8:
                 case BGR8:
                 case RGB8:
-                case RGB10:
                 case RGB111110F:
-                case RGB16:
                 case RGB16F:
                 case RGB16F_to_RGB111110F:
                 case RGB16F_to_RGB9E5:
@@ -37,14 +35,11 @@ public class PixelIOFactory {
                 case RGB565:
                 case RGB5A1:
                 case RGB9E5:
-                case RGBA16:
                 case RGBA16F:
                 case RGBA32F:
                     result = new AWTPixelInputOutput();
                     break;
                 case Luminance8:
-                case Luminance16:
-                case Luminance16Alpha16:
                 case Luminance16F:
                 case Luminance16FAlpha16F:
                 case Luminance32F:

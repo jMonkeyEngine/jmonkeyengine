@@ -115,12 +115,6 @@ public class TestImageRaster extends SimpleApplication {
         image = convertImage(image, Format.RGB16F_to_RGB111110F);
         convertAndPutImage(image, 25, 0);
         
-        image = convertImage(image, Format.RGBA16);
-        convertAndPutImage(image, 0, 5);
-        
-        image = convertImage(image, Format.RGB16);
-        convertAndPutImage(image, 5, 5);
-        
         image = convertImage(image, Format.RGBA8);
         convertAndPutImage(image, 10, 5);
         
@@ -142,9 +136,6 @@ public class TestImageRaster extends SimpleApplication {
         image = convertImage(image, Format.RGB5A1);
         convertAndPutImage(image, 0, 10);
         
-        image = convertImage(image, Format.ARGB4444);
-        convertAndPutImage(image, 5, 10);
-        
         image = convertImage(image, Format.Luminance32F);
         convertAndPutImage(image, 0, 15);
         
@@ -154,17 +145,11 @@ public class TestImageRaster extends SimpleApplication {
         image = convertImage(image, Format.Luminance16F);
         convertAndPutImage(image, 10, 15);
         
-        image = convertImage(image, Format.Luminance16Alpha16);
+        image = convertImage(image, Format.Luminance8Alpha8);
         convertAndPutImage(image, 15, 15);
         
-        image = convertImage(image, Format.Luminance16);
-        convertAndPutImage(image, 20, 15);
-        
-        image = convertImage(image, Format.Luminance8Alpha8);
-        convertAndPutImage(image, 25, 15);
-        
         image = convertImage(image, Format.Luminance8);
-        convertAndPutImage(image, 30, 15);
+        convertAndPutImage(image, 20, 15);
     }
     
     public static void main(String[] args) {

@@ -204,11 +204,8 @@ public enum Caps {
      */
     SharedExponentColorBuffer,
     
-    /**
-     * Supports Format.LATC for textures, this includes
-     * support for ATI's 3Dc texture compression.
-     */
-    TextureCompressionLATC,
+    @Deprecated
+    Reserved1,
 
     /**
      * Supports Non-Power-Of-Two (NPOT) textures and framebuffers
@@ -285,8 +282,6 @@ public enum Caps {
                 return caps.contains(Caps.PackedDepthStencilBuffer);
             case Depth32F:
                 return caps.contains(Caps.FloatDepthBuffer);
-            case LATC:
-                return caps.contains(Caps.TextureCompressionLATC);
             case RGB16F_to_RGB111110F:
             case RGB111110F:
                 return caps.contains(Caps.PackedFloatTexture);

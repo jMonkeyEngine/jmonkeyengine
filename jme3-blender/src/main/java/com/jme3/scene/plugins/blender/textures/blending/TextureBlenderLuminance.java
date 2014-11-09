@@ -125,8 +125,6 @@ public class TextureBlenderLuminance extends AbstractTextureBlender {
                 pixelValue = data.get();
                 result[1] = pixelValue >= 0 ? pixelValue / 255.0f : 1.0f - ~pixelValue / 255.0f;
                 break;
-            case Luminance16:
-            case Luminance16Alpha16:
             case Luminance16F:
             case Luminance16FAlpha16F:
             case Luminance32F:

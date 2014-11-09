@@ -269,12 +269,6 @@ public class TextureUtil {
             throws UnsupportedOperationException {
         AndroidGLImageFormat imageFormat = new AndroidGLImageFormat();
         switch (fmt) {
-            case RGBA16:
-            case RGB16:
-            case RGB10:
-            case Luminance16:
-            case Luminance16Alpha16:
-            case Alpha16:
             case Depth32:
             case Depth32F:
                 throw new UnsupportedOperationException("The image format '"
@@ -312,11 +306,6 @@ public class TextureUtil {
                 imageFormat.format = GLES20.GL_RGB;
                 imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT_5_6_5;
                 imageFormat.renderBufferStorageFormat = GLES20.GL_RGB565;
-                break;
-            case ARGB4444:
-                imageFormat.format = GLES20.GL_RGBA4;
-                imageFormat.dataType = GLES20.GL_UNSIGNED_SHORT_4_4_4_4;
-                imageFormat.renderBufferStorageFormat = GLES20.GL_RGBA4;
                 break;
             case RGB5A1:
                 imageFormat.format = GLES20.GL_RGBA;

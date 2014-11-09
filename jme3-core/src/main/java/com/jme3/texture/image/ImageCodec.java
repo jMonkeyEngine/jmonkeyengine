@@ -61,17 +61,12 @@ abstract class ImageCodec {
         
         params.put(Format.Alpha8,   new ByteOffsetImageCodec(1, 0, 0, -1, -1, -1));
         
-        params.put(Format.Alpha16,  new BitMaskImageCodec(2, 0, 16, 0, 0, 0,
-                                                                0,  0, 0, 0));
-        
         // == LUMINANCE ==
 //        params.put(Format.Luminance8, new BitMaskImageCodec(1, FLAG_GRAY, 0, 8, 0, 0,
 //                                                                          0, 0, 0, 0));
         
         params.put(Format.Luminance8, new ByteOffsetImageCodec(1, FLAG_GRAY, -1, 0, -1, -1));
         
-        params.put(Format.Luminance16, new BitMaskImageCodec(2, FLAG_GRAY, 0, 16, 0, 0,
-                                                                           0, 0, 0, 0));
         params.put(Format.Luminance16F, new BitMaskImageCodec(2, FLAG_GRAY | FLAG_F16, 0, 16, 0, 0,
                                                                                         0, 0, 0, 0));
         params.put(Format.Luminance32F, new BitMaskImageCodec(4, FLAG_GRAY | FLAG_F32, 0, 32, 0, 0,
@@ -86,10 +81,6 @@ abstract class ImageCodec {
 //                                                                  8, 0, 0, 0));
         
         params.put(Format.Luminance8Alpha8, new ByteOffsetImageCodec(2, FLAG_GRAY, 1, 0, -1, -1));
-        
-        params.put(Format.Luminance16Alpha16, new BitMaskImageCodec(4, FLAG_GRAY, 
-                                                                  16, 16, 0, 0,
-                                                                  16, 0, 0, 0));
         
         params.put(Format.Luminance16FAlpha16F, new BitMaskImageCodec(4, FLAG_GRAY | FLAG_F16, 
                                                                    16, 16, 0, 0,
@@ -111,10 +102,6 @@ abstract class ImageCodec {
 //                                                            0, 0, 8, 16));
         
         params.put(Format.RGB8,     new ByteOffsetImageCodec(3, 0, -1, 0, 1, 2));
-        
-        params.put(Format.RGB16,        new ByteAlignedImageCodec(6, 0,
-                                                                  0, 2, 2, 2,
-                                                                  0, 0, 2, 4));
        
         params.put(Format.RGB32F,        new ByteAlignedImageCodec(12, FLAG_F32,
                                                                    0,  4, 4, 4,
@@ -137,11 +124,7 @@ abstract class ImageCodec {
         params.put(Format.ARGB8, new ByteOffsetImageCodec(4, 0, 0, 1, 2, 3));
         
         params.put(Format.BGRA8, new ByteOffsetImageCodec(4, 0, 3, 2, 1, 0));
-        
-        params.put(Format.ARGB4444, new BitMaskImageCodec(2, 0,
-                                                          4, 4, 4, 4,
-                                                          12, 0, 4, 8));
-
+       
         params.put(Format.RGB5A1,   new BitMaskImageCodec(2, 0, 
                                                           1, 5, 5, 5,
                                                           0, 11, 6, 1));
@@ -156,10 +139,6 @@ abstract class ImageCodec {
                                     //                      24,  0, 8, 16));
         
         params.put(Format.RGBA8, new ByteOffsetImageCodec(4, 0, 3, 0, 1, 2));
-        
-        params.put(Format.RGBA16,        new ByteAlignedImageCodec(8, 0,
-                                                                   2, 2, 2, 2,
-                                                                   6, 0, 2, 4));
         
         params.put(Format.RGBA16F,        new ByteAlignedImageCodec(8, FLAG_F16,
                                                             2, 2, 2,  2,

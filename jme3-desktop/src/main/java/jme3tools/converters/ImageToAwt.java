@@ -141,19 +141,14 @@ public class ImageToAwt {
         params.put(Format.ABGR8,    new DecodeParams(4, mx___, m___x, m__x_, m_x__,
                                                         sx___, s___x, s__x_, s_x__,
                                                         mxxxx, sxxxx));
-        params.put(Format.ARGB4444, new DecodeParams(2, m4x___, m4_x__, m4__x_, m4___x,
-                                                        s4x___, s4_x__, s4__x_, s4___x,
-                                                        mxxxx, sxxxx));
-        params.put(Format.Alpha16,  new DecodeParams(2, mxxxx, sxxxx, mxxxx, sxxxx, true));
+
         params.put(Format.Alpha8,   new DecodeParams(1, mxxxx, sxxxx, mxxxx, sxxxx, true));
         params.put(Format.BGR8,     new DecodeParams(3, 0,     m___x, m__x_, m_x__,
                                                         0,     s___x, s__x_, s_x__,
                                                         mxxxx, sxxxx));
-        params.put(Format.Luminance16, new DecodeParams(2, mxxxx, sxxxx, mxxxx, sxxxx, false));
+        
         params.put(Format.Luminance8,  new DecodeParams(1, mxxxx, sxxxx, mxxxx, sxxxx, false));
-        params.put(Format.Luminance16Alpha16, new DecodeParams(4, m__xx, mxx__, 0, 0,
-                                                                  s__xx, sxx__, 0, 0,
-                                                                  mxxxx, sxxxx));
+
         params.put(Format.Luminance16F, new DecodeParams(2, mxxxx, sxxxx, mxxxx, sxxxx, false));
         params.put(Format.Luminance16FAlpha16F, new DecodeParams(4, m__xx, mxx__, 0, 0,
                                                                     s__xx, sxx__, 0, 0,

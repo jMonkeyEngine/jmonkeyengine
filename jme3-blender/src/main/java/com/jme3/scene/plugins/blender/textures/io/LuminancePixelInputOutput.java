@@ -21,13 +21,6 @@ import java.nio.ByteBuffer;
                 pixel.fromIntensity(data.get(index));
                 pixel.setAlpha(data.get(index + 1));
                 break;
-            case Luminance16:
-                pixel.fromIntensity(data.getShort(index));
-                break;
-            case Luminance16Alpha16:
-                pixel.fromIntensity(data.getShort(index));
-                pixel.setAlpha(data.getShort(index + 2));
-                break;
             case Luminance16F:
                 pixel.intensity = FastMath.convertHalfToFloat(data.getShort(index));
                 break;
@@ -58,13 +51,6 @@ import java.nio.ByteBuffer;
             case Luminance8Alpha8:
                 data.put(index, pixel.getInt());
                 data.put(index + 1, pixel.getA8());
-                break;
-            case Luminance16:
-                data.putShort(index, (short) (pixel.intensity * 65535.0f));
-                break;
-            case Luminance16Alpha16:
-                data.putShort(index, (short) (pixel.intensity * 65535.0f));
-                data.putShort(index + 2, (short) (pixel.alpha * 65535.0f));
                 break;
             case Luminance16F:
                 data.putShort(index, FastMath.convertFloatToHalf(pixel.intensity));

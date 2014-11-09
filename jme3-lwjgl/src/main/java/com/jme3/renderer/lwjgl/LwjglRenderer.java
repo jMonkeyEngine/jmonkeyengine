@@ -353,10 +353,6 @@ public class LwjglRenderer implements Renderer {
             caps.add(Caps.TextureCompressionS3TC);
         }
         
-        if (hasExtension("GL_EXT_texture_compression_latc")) {
-            caps.add(Caps.TextureCompressionLATC);
-        }
-        
         if (hasExtension("GL_ARB_ES3_compatibility")) {
             caps.add(Caps.TextureCompressionETC1);
         }

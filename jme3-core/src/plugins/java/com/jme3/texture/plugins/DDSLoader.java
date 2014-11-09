@@ -150,12 +150,12 @@ public class DDSLoader implements AssetLoader {
 
     private void loadDX10Header() throws IOException {
         int dxgiFormat = in.readInt();
-        if (dxgiFormat != 83) {
-            throw new IOException("Only DXGI_FORMAT_BC5_UNORM "
-                    + "is supported for DirectX10 DDS! Got: " + dxgiFormat);
+        if (dxgiFormat == 0) {
+            pixelFormat = Format.ETC1;
+            bpp = 4;
+        } else {
+            throw new IOException("Unsupported DX10 format: " + dxgiFormat);
         }
-        pixelFormat = Format.LATC;
-        bpp = 8;
         compressed = true;
 
         int resDim = in.readInt();
@@ -280,6 +280,7 @@ public class DDSLoader implements AssetLoader {
                         normal = true;
                     }
                     break;
+                /*
                 case PF_ATI1:
                     bpp = 4;
                     pixelFormat = Image.Format.LTC;
@@ -288,6 +289,7 @@ public class DDSLoader implements AssetLoader {
                     bpp = 8;
                     pixelFormat = Image.Format.LATC;
                     break;
+                */
                 case PF_DX10:
                     compressed = false;
                     directx10 = true;
@@ -334,9 +336,6 @@ public class DDSLoader implements AssetLoader {
                     case 16:
                         pixelFormat = Format.Luminance8Alpha8;
                         break;
-                    case 32:
-                        pixelFormat = Format.Luminance16Alpha16;
-                        break;
                     default:
                         throw new IOException("Unsupported GrayscaleAlpha BPP: " + bpp);
                 }
@@ -346,9 +345,6 @@ public class DDSLoader implements AssetLoader {
                     case 8:
                         pixelFormat = Format.Luminance8;
                         break;
-                    case 16:
-                        pixelFormat = Format.Luminance16;
-                        break;
                     default:
                         throw new IOException("Unsupported Grayscale BPP: " + bpp);
                 }
@@ -357,9 +353,6 @@ public class DDSLoader implements AssetLoader {
                 switch (bpp) {
                     case 8:
                         pixelFormat = Format.Alpha8;
-                        break;
-                    case 16:
-                        pixelFormat = Format.Alpha16;
                         break;
                     default:
                         throw new IOException("Unsupported Alpha BPP: " + bpp);

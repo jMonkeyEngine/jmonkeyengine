@@ -434,13 +434,10 @@ public class CombinedTexture {
                 switch (image.getFormat()) {
                     case BGR8:
                     case DXT1:
-                    case Luminance16:
                     case Luminance16F:
                     case Luminance32F:
                     case Luminance8:
-                    case RGB10:
                     case RGB111110F:
-                    case RGB16:
                     case RGB16F:
                     case RGB32F:
                     case RGB565:
@@ -449,10 +446,8 @@ public class CombinedTexture {
                     case ABGR8:
                     case DXT3:
                     case DXT5:
-                    case Luminance16Alpha16:
                     case Luminance16FAlpha16F:
                     case Luminance8Alpha8:
-                    case RGBA16:
                     case RGBA16F:
                     case RGBA32F:
                     case RGBA8:// with these types it is better to make sure if the texture is or is not transparent

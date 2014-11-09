@@ -37,12 +37,6 @@ import jme3tools.converters.RGB565;
                 int b = (rgb5a1 & 0x001f) >> 1 << 3;
                 pixel.fromARGB8(a == 1 ? (byte) 255 : 0, (byte) r, (byte) g, (byte) b);
                 break;
-            case RGB16:
-                pixel.fromARGB16((short) 0xFFFF, data.getShort(index), data.getShort(index + 2), data.getShort(index + 4));
-                break;
-            case RGBA16:
-                pixel.fromARGB16(data.getShort(index + 6), data.getShort(index), data.getShort(index + 2), data.getShort(index + 4));
-                break;
             case RGB16F:
             case RGB16F_to_RGB111110F:
             case RGB16F_to_RGB9E5:
@@ -57,7 +51,6 @@ import jme3tools.converters.RGB565;
             case RGB111110F:// the data is stored as 32-bit unsigned int, that is why we cast the read data to long and remove MSB-bytes to get the positive value
                 pixel.fromARGB(1, (float) Double.longBitsToDouble((long) data.getInt(index) & 0x00000000FFFFFFFF), (float) Double.longBitsToDouble((long) data.getInt(index + 4) & 0x00000000FFFFFFFF), (float) Double.longBitsToDouble((long) data.getInt(index + 8) & 0x00000000FFFFFFFF));
                 break;
-            case RGB10:
             case RGB9E5:// TODO: support these
                 throw new IllegalStateException("Not supported image type for IO operations: " + image.getFormat());
             default:
@@ -106,17 +99,6 @@ import jme3tools.converters.RGB565;
                 short a = (short) ((short) ((argb8 & 0xFF000000) >> 24) > 0 ? 1 : 0);
                 data.putShort(index, (short) (r | g | b | a));
                 break;
-            case RGB16:
-                data.putShort(index, pixel.getR16());
-                data.putShort(index + 2, pixel.getG16());
-                data.putShort(index + 4, pixel.getB16());
-                break;
-            case RGBA16:
-                data.putShort(index, pixel.getR16());
-                data.putShort(index + 2, pixel.getG16());
-                data.putShort(index + 4, pixel.getB16());
-                data.putShort(index + 6, pixel.getA16());
-                break;
             case RGB16F:
             case RGB16F_to_RGB111110F:
             case RGB16F_to_RGB9E5:
@@ -142,7 +124,6 @@ import jme3tools.converters.RGB565;
                 data.putInt(index + 4, Float.floatToIntBits(pixel.blue));
                 data.putInt(index + 6, Float.floatToIntBits(pixel.alpha));
                 break;
-            case RGB10:
             case RGB9E5:// TODO: support these
                 throw new IllegalStateException("Not supported image type for IO operations: " + image.getFormat());
             default:
