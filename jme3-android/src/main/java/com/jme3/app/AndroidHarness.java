@@ -55,18 +55,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected Application app = null;
 
     /**
-     * ConfigType.FASTEST is RGB565, GLSurfaceView default ConfigType.BEST is
-     * RGBA8888 or better if supported by the hardware
-     * @deprecated ConfigType has been deprecated.  AppSettings are now used
-     * to determine the desired configuration to match how LWJGL is implemented.
-     * Use eglBitsPerPixel, eglAlphaBits, eglDepthBits, eglStencilBits in MainActivity to
-     * override the default values
-     * (default values: RGB888, 0 alpha bits, 16 bit depth, 0 stencil bits)
-     */
-    @Deprecated
-    protected ConfigType eglConfigType = null;
-
-    /**
      * Sets the desired RGB size for the surfaceview.  16 = RGB565, 24 = RGB888.
      * (default = 24)
      */
@@ -101,20 +89,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * (default = 0)
      */
     protected int eglStencilBits = 0;
-
-    /**
-     * If true all valid and not valid egl configs are logged
-     * @deprecated this has no use
-     */
-    @Deprecated
-    protected boolean eglConfigVerboseLogging = false;
-
-    /**
-     * set to 2, 4 to enable multisampling.
-     * @deprecated Use eglSamples
-     */
-    @Deprecated
-    protected int antiAliasingSamples = 0;
 
     /**
      * Sets the type of Audio Renderer to be used.
@@ -254,43 +228,15 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             settings.setEmulateMouse(mouseEventsEnabled);
             settings.setEmulateMouseFlipAxis(mouseEventsInvertX, mouseEventsInvertY);
             settings.setUseJoysticks(joystickEventsEnabled);
-            if (eglConfigType == null) {
-                logger.log(Level.FINE, "using new appsettings for eglConfig");
-                settings.setBitsPerPixel(eglBitsPerPixel);
-                settings.setAlphaBits(eglAlphaBits);
-                settings.setDepthBits(eglDepthBits);
-                settings.setSamples(eglSamples);
-                settings.setStencilBits(eglStencilBits);
-            } else {
-                logger.log(Level.FINE, "using old eglConfigType {0} for eglConfig", eglConfigType);
-                switch (eglConfigType) {
-                    case BEST:
-                        settings.setBitsPerPixel(24);
-                        settings.setAlphaBits(0);
-                        settings.setDepthBits(16);
-                        settings.setStencilBits(0);
-                        break;
-                    case FASTEST:
-                    case LEGACY:
-                        settings.setBitsPerPixel(16);
-                        settings.setAlphaBits(0);
-                        settings.setDepthBits(16);
-                        settings.setStencilBits(0);
-                        break;
-                    case BEST_TRANSLUCENT:
-                        settings.setBitsPerPixel(24);
-                        settings.setAlphaBits(8);
-                        settings.setDepthBits(16);
-                        settings.setStencilBits(0);
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Invalid eglConfigType");
-                }
-                settings.setSamples(antiAliasingSamples);
-            }
+
+            settings.setBitsPerPixel(eglBitsPerPixel);
+            settings.setAlphaBits(eglAlphaBits);
+            settings.setDepthBits(eglDepthBits);
+            settings.setSamples(eglSamples);
+            settings.setStencilBits(eglStencilBits);
+            
             settings.setResolution(disp.getWidth(), disp.getHeight());
             settings.setAudioRenderer(audioRendererType);
-
 
             // Create application instance
             try {
@@ -456,8 +402,8 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
         if (splashPicID != 0) {
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                    LayoutParams.FILL_PARENT,
-                    LayoutParams.FILL_PARENT,
+                    LayoutParams.MATCH_PARENT,
+                    LayoutParams.MATCH_PARENT,
                     Gravity.CENTER);
 
             frameLayout = new FrameLayout(this);
