@@ -1,13 +1,11 @@
 package com.jme3.texture.plugins;
 
 import com.jme3.asset.AssetInfo;
-import com.jme3.asset.AssetLoadException;
 import com.jme3.asset.AssetLoader;
 import com.jme3.asset.TextureKey;
 import com.jme3.texture.Image;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Logger;
 
 /**
  * Native image loader to deal with filetypes that support alpha channels.

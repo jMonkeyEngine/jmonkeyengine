@@ -9,7 +9,6 @@ import com.jme3.asset.AndroidAssetManager;
 import com.jme3.asset.AndroidImageInfo;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
-import com.jme3.audio.android.AndroidAudioRenderer;
 import com.jme3.audio.android.AndroidMediaPlayerAudioRenderer;
 import com.jme3.audio.android.AndroidOpenALSoftAudioRenderer;
 import com.jme3.system.*;
@@ -134,9 +133,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         if (initialized) {
             return;
         }
-
         initialized = true;
-
         logger.log(Level.INFO, "Running on {0}", getFullName());
     }
 

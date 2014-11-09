@@ -24,7 +24,6 @@ import com.jme3.input.controls.TouchTrigger;
 import com.jme3.input.event.TouchEvent;
 import com.jme3.system.AppSettings;
 import com.jme3.system.SystemListener;
-import com.jme3.system.android.AndroidConfigChooser.ConfigType;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.system.android.OGLESContext;
 import com.jme3.util.AndroidLogHandler;
@@ -187,7 +186,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         final DataObject data = new DataObject();
         data.app = this.app;
         inConfigChange = true;
-
         return data;
     }
 

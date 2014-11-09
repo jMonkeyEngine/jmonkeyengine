@@ -42,7 +42,6 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.text.InputType;
 import android.view.Gravity;
-import android.view.SurfaceHolder;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -57,6 +56,7 @@ import com.jme3.system.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -152,7 +152,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
         if (Build.VERSION.SDK_INT >= 11) {
             view.setPreserveEGLContextOnPause(true);
         }
-
+        
         return view;
     }
     
