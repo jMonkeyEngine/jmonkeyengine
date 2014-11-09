@@ -20,55 +20,6 @@ public class AndroidConfigChooser implements EGLConfigChooser {
     protected AppSettings settings;
     private final static int EGL_OPENGL_ES2_BIT = 4;
 
-
-    @Deprecated
-    public enum ConfigType {
-
-        /**
-         * RGB565, 0 alpha, 16 depth, 0 stencil
-         */
-        FASTEST(5, 6, 5, 0, 16, 0, 5, 6, 5, 0, 16, 0),
-        /**
-         * min RGB888, 0 alpha, 16 depth, 0 stencil max RGB888, 0 alpha, 32
-         * depth, 8 stencil
-         */
-        BEST(8, 8, 8, 0, 32, 8, 8, 8, 8, 0, 16, 0),
-        /**
-         * Turn off config chooser and use hardcoded
-         * setEGLContextClientVersion(2); setEGLConfigChooser(5, 6, 5, 0, 16,
-         * 0);
-         */
-        LEGACY(5, 6, 5, 0, 16, 0, 5, 6, 5, 0, 16, 0),
-        /**
-         * min RGB888, 8 alpha, 16 depth, 0 stencil max RGB888, 8 alpha, 32
-         * depth, 8 stencil
-         */
-        BEST_TRANSLUCENT(8, 8, 8, 8, 32, 8, 8, 8, 8, 8, 16, 0);
-        /**
-         * red, green, blue, alpha, depth, stencil (max values)
-         */
-        int r, g, b, a, d, s;
-        /**
-         * minimal values
-         */
-        int mr, mg, mb, ma, md, ms;
-
-        private ConfigType(int r, int g, int b, int a, int d, int s, int mr, int mg, int mb, int ma, int md, int ms) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
-            this.d = d;
-            this.s = s;
-            this.mr = mr;
-            this.mg = mg;
-            this.mb = mb;
-            this.ma = ma;
-            this.md = md;
-            this.ms = ms;
-        }
-    }
-
     public AndroidConfigChooser(AppSettings settings) {
         this.settings = settings;
     }
