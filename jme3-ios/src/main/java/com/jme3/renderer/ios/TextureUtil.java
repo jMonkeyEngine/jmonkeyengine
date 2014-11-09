@@ -281,12 +281,6 @@ public class TextureUtil {
     public static IosGLImageFormat getImageFormat(Format fmt) throws UnsupportedOperationException {
         IosGLImageFormat imageFormat = new IosGLImageFormat();
         switch (fmt) {
-            case RGBA16:
-            case RGB16:
-            case RGB10:
-            case Luminance16:
-            case Luminance16Alpha16:
-            case Alpha16:
             case Depth32:
             case Depth32F:
                 throw new UnsupportedOperationException("The image format '"
@@ -324,11 +318,6 @@ public class TextureUtil {
                 imageFormat.format = JmeIosGLES.GL_RGB;
                 imageFormat.dataType = JmeIosGLES.GL_UNSIGNED_SHORT_5_6_5;
                 imageFormat.renderBufferStorageFormat = JmeIosGLES.GL_RGB565;
-                break;
-            case ARGB4444:
-                imageFormat.format = JmeIosGLES.GL_RGBA4;
-                imageFormat.dataType = JmeIosGLES.GL_UNSIGNED_SHORT_4_4_4_4;
-                imageFormat.renderBufferStorageFormat = JmeIosGLES.GL_RGBA4;
                 break;
             case RGB5A1:
                 imageFormat.format = JmeIosGLES.GL_RGBA;
