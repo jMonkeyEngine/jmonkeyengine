@@ -17,10 +17,10 @@ import java.io.InputStream;
  */
 public class AndroidNativeImageLoader  implements AssetLoader {
     
-    private final byte[] tmpArray = new byte[1024];
+    private final byte[] tmpArray = new byte[10 * 1024];
     
     static {
-         System.loadLibrary("stbijme");
+         System.loadLibrary("decodejme");
     }
     
     private static native Image load(InputStream in, boolean flipY, byte[] tmpArray) throws IOException;
