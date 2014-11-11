@@ -29,7 +29,11 @@
 /jme3-bullet-native/bullet-2.82-r2704/
 /jme3-android-native/openal-soft/
 /jme3-android-native/OpenALSoft.zip
-/jme3-android-native/stb_image/
+/jme3-android-native/src/native/jme_decode/STBI/
+/jme3-android-native/src/native/jme_decode/Tremor/
+/jme3-android-native/src/native/jme_decode/com_jme3_audio_plugins_NativeVorbisFile.h
+/jme3-android-native/src/native/jme_decode/com_jme3_texture_plugins_AndroidNativeImageLoader.h
+/jme3-android-native/stb_image.h
 /sdk/jme3-tests-template/src/com/jme3/gde/templates/tests/JmeTestsProject.zip
 /sdk/jme3-tests-template/src/com/jme3/gde/templates/tests/JME3TestsAndroidProject.zip
 /sdk/jme3-project-testdata/release/
