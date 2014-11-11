@@ -1,9 +1,11 @@
 package com.jme3.asset.plugins;
 
+import android.content.res.AssetFileDescriptor;
 import com.jme3.asset.*;
 import com.jme3.system.android.JmeAndroidSystem;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AndroidLocator implements AssetLocator {
@@ -13,7 +15,7 @@ public class AndroidLocator implements AssetLocator {
     private android.content.res.AssetManager androidManager;
     private String rootPath = "";
 
-    private class AndroidAssetInfo extends AssetInfo {
+    public class AndroidAssetInfo extends AssetInfo {
 
         private InputStream in;
         private final String assetPath;
@@ -22,6 +24,14 @@ public class AndroidLocator implements AssetLocator {
             super(assetManager, key);
             this.assetPath = assetPath;
             this.in = in;
+        }
+        
+        public AssetFileDescriptor openFileDescriptor() {
+            try {
+                return androidManager.openFd(assetPath);
+            } catch (IOException ex) {
+                throw new AssetLoadException("Failed to open asset " + assetPath, ex);
+            }
         }
         
         @Override
