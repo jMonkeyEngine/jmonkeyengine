@@ -1,0 +1,110 @@
+String tremorZipFile = "TremorAndroid.zip"
+String stbiUrl = 'https://raw.githubusercontent.com/nothings/stb/master/stb_image.h'
+
+// Working directories for the ndk build.
+String decodeBuildDir = "${buildDir}" + File.separator + 'decode'
+String decodeBuildJniDir = decodeBuildDir + File.separator + 'jni'
+String decodeBuildLibsDir = decodeBuildDir + File.separator + 'libs'
+
+// Pre-compiled libs directory
+String decodePreCompiledLibsDir = 'libs' + File.separator + 'decode'
+
+// jME Android Native source files path
+String decodeSourceDir = 'src/native/jme_decode'
+
+task downloadStbImage(type: MyDownload) {
+    sourceUrl = stbiUrl
+    target = file('stb_image.h')
+}
+
+// Copy stb_image.h to the source directory.
+task copyStbiFiles(type: Copy) {
+    def sourceDir = file('stb_image.h')
+    def outputDir = file(decodeSourceDir + File.separator + "STBI")
+    from sourceDir
+    into outputDir
+}
+copyStbiFiles.dependsOn {
+    def stbiFile = file('stb_image.h')
+    if (!stbiFile.exists()) {
+        downloadStbImage
+    }
+}
+
+// Copy libtremor source to the source directory.
+task copyTremorFiles(type: Copy) {
+    def zipFile = file(tremorZipFile)
+    def outputDir = file(decodeSourceDir + File.separator + "Tremor")
+
+    from (zipTree(zipFile)) {
+        include '*.c'
+        include '*.h'
+    }
+    
+    into outputDir
+}
+
+// Generate headers via javah
+task generateJavahHeaders(type: Exec) {
+    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+    args '-d', decodeSourceDir
+    args '-classpath', project.projectClassPath
+    args "com.jme3.audio.plugins.NativeVorbisFile"
+    args "com.jme3.texture.plugins.AndroidNativeImageLoader"
+}
+
+// Copy jME Android native files to jni directory
+task copySourceToBuild(type: Copy, dependsOn:[copyTremorFiles, copyStbiFiles, generateJavahHeaders]) {
+    def sourceDir = file(decodeSourceDir)
+    def outputDir = file(decodeBuildJniDir)
+
+    from sourceDir
+    into outputDir
+}
+
+task buildNativeLib(type: Exec, dependsOn: copySourceToBuild) {
+    workingDir decodeBuildDir
+    executable rootProject.ndkCommandPath
+    args '-j8'
+}
+
+task updatePreCompiledLibs(type: Copy, dependsOn: buildNativeLib) {
+    def sourceDir = new File(decodeBuildLibsDir)
+    def outputDir = new File(decodePreCompiledLibsDir)
+
+    from sourceDir
+    into outputDir
+}
+
+// Copy pre-compiled libs to build directory (when not building new libs)
+task copyPreCompiledLibs(type: Copy) {
+    def sourceDir = file(decodePreCompiledLibsDir)
+    def outputDir = file(decodeBuildLibsDir)
+
+    from sourceDir
+    into outputDir
+}
+
+if (rootProject.ndkExists) {
+    // build native libs and update stored pre-compiled libs to commit
+    compileJava.dependsOn { updatePreCompiledLibs }
+} else {
+    // use pre-compiled native libs (not building new ones)
+    compileJava.dependsOn { copyPreCompiledLibs }
+}
+
+jar.into("lib") { from decodeBuildLibsDir }
+
+// Helper class to wrap ant dowload task
+class MyDownload extends DefaultTask {
+    @Input
+    String sourceUrl
+
+    @OutputFile
+    File target
+
+    @TaskAction
+    void download() {
+       ant.get(src: sourceUrl, dest: target)
+    }
+}

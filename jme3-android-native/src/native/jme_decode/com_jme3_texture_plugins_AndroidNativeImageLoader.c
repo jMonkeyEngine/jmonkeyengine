@@ -1,7 +1,7 @@
 #include "com_jme3_texture_plugins_AndroidNativeImageLoader.h"
 #include <assert.h>
 
-#ifdef DEBUG
+#ifndef NDEBUG
 #include <android/log.h>
 #define LOGI(fmt, ...) __android_log_print(ANDROID_LOG_INFO, \
                        "NativeImageLoader", fmt, ##__VA_ARGS__);
@@ -12,7 +12,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_NO_STDIO
 #define STBI_NO_HDR
-#include "stb_image.h"
+#include "STBI/stb_image.h"
 
 typedef struct 
 {
