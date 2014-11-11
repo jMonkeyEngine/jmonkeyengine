@@ -338,7 +338,7 @@ public class MaterialLoader implements AssetLoader {
 //            rs.setDepthWrite(false);
             mat.setTransparent(true);
             if (!noLight){
-                mat.setBoolean("UseAlpha", true);
+                // mat.setBoolean("UseAlpha", true);
             }
         }else{
             if (twoSide){
