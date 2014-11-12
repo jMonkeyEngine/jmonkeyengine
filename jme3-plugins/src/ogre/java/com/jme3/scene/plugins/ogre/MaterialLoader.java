@@ -449,7 +449,7 @@ public class MaterialLoader implements AssetLoader {
                     list = new MaterialList();
                 }
                 String[] split = statement.getLine().split(" ", 2);
-                matName = split[1].trim();
+                matName = split[1].trim().replace("\"", "");
                 readMaterial(statement);
                 Material mat = compileMaterial();
                 list.put(matName, mat);
