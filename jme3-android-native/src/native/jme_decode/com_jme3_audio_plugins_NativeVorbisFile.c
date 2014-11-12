@@ -226,8 +226,12 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_seekTime
 {
     jobject nvfBuf = (*env)->GetObjectField(env, nvf, nvf_field_ovf);
     OggVorbis_File* ovf = (OggVorbis_File*) (*env)->GetDirectBufferAddress(env, nvfBuf);
+    FileDescWrapper* wrapper = (FileDescWrapper*) ovf->datasource;
+    wrapper->env = env;
     
-    int result = ov_time_seek(ovf, time);
+    LOGI("ov_time_seek(%f)", (double)time);
+    
+    int result = ov_time_seek(ovf, (double)time);
     
     if (result != 0)
     {
@@ -240,13 +244,85 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_seekTime
 JNIEXPORT jint JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_read
   (JNIEnv *env, jobject nvf, jbyteArray buf, jint off, jint len)
 {
-    return 0;
+    int bitstream = -1;
+    jobject nvfBuf = (*env)->GetObjectField(env, nvf, nvf_field_ovf);
+    OggVorbis_File* ovf = (OggVorbis_File*) (*env)->GetDirectBufferAddress(env, nvfBuf);
+    FileDescWrapper* wrapper = (FileDescWrapper*) ovf->datasource;
+    wrapper->env = env;
+    
+    char nativeBuf[len];
+    
+    long result = ov_read(ovf, (void*) nativeBuf, sizeof(nativeBuf), &bitstream);
+    
+    LOGI("ov_read(%d) = %ld", len, result);
+    
+    if (result == 0)
+    {
+        return (jint)-1; // EOF
+    }
+    else if (result < 0)
+    {
+        char err[512];
+        sprintf(err, "ov_read failed: %ld", result);
+        throwIOException(env, err);
+        return 0;
+    }
+    
+    jbyte* javaBuf = (*env)->GetPrimitiveArrayCritical(env, buf, 0);
+    
+    if (javaBuf == NULL)
+    {
+        throwIOException(env, "Failed to acquire array elements");
+        return 0;
+    }
+    
+    memcpy(&javaBuf[off], nativeBuf, result);
+    
+    (*env)->ReleasePrimitiveArrayCritical(env, buf, javaBuf, 0);
+    
+    return result;
 }
 
 JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_readFully
   (JNIEnv *env, jobject nvf, jobject buf)
 {
+    int bitstream = -1;
+    jobject nvfBuf = (*env)->GetObjectField(env, nvf, nvf_field_ovf);
+    OggVorbis_File* ovf = (OggVorbis_File*) (*env)->GetDirectBufferAddress(env, nvfBuf);
+    FileDescWrapper* wrapper = (FileDescWrapper*) ovf->datasource;
+    wrapper->env = env;
     
+    char err[512];
+    void* byteBufferPtr = (*env)->GetDirectBufferAddress(env, buf);
+    jlong byteBufferCap = (*env)->GetDirectBufferCapacity(env, buf);
+    
+    int offset     = 0;
+    int remaining  = byteBufferCap;
+    
+    while (remaining > 0)
+    {
+        long result = ov_read(ovf, byteBufferPtr + offset, remaining, &bitstream);
+
+        LOGI("ov_read(%d, %d) = %ld", offset, remaining, result);
+        
+        if (result == 0)
+        {
+            sprintf(err, "premature EOF. expected %lld bytes, got %d.", 
+                    byteBufferCap, offset);
+            
+            throwIOException(env, err);
+            return;
+        }
+        else if (result < 0)
+        {
+            sprintf(err, "ov_read failed: %ld", result);
+            throwIOException(env, err);
+            return;
+        }
+        
+        remaining  -= result;
+        offset     += result;
+    }
 }
 
 JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_close
@@ -257,6 +333,10 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_close
     jobject ovfBuf = (*env)->GetObjectField(env, nvf, nvf_field_ovf);
     OggVorbis_File* ovf = (OggVorbis_File*) (*env)->GetDirectBufferAddress(env, ovfBuf);
     FileDescWrapper* wrapper = (FileDescWrapper*) ovf->datasource;
+    wrapper->env = env;
+    
+    ov_clear(ovf);
+    
     free(wrapper);
     free(ovf);
     (*env)->SetObjectField(env, nvf, nvf_field_ovf, NULL);
