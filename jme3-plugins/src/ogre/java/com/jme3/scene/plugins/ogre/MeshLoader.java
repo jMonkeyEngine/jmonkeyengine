@@ -429,7 +429,7 @@ public class MeshLoader extends DefaultHandler implements AssetLoader {
 
         int texCoords = parseInt(attribs.getValue("texture_coords"), 0);
         for (int i = 0; i < texCoords; i++) {
-            int dims = parseInt(attribs.getValue("texture_coord_dimensions_" + i), 2);
+            int dims = parseInt(attribs.getValue("texture_coord_dimensions_" + i).replaceAll("float2", "2"), 2);
             if (dims < 1 || dims > 4) {
                 throw new SAXException("Texture coord dimensions must be 1 <= dims <= 4");
             }
