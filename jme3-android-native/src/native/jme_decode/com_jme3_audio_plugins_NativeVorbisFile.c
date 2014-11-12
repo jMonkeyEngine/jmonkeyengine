@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "Tremor/ivorbisfile.h"
 
 #include "com_jme3_audio_plugins_NativeVorbisFile.h"
@@ -18,40 +19,105 @@ typedef struct
 {
     JNIEnv* env;
     int fd;
+    int start;
+    int end;
+    int current;
 }
 FileDescWrapper;
 
+// size_t read (int fd, void *buf, size_t nbytes)
 static size_t FileDesc_read(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
     FileDescWrapper* wrapper = (FileDescWrapper*)datasource;
-    size_t totalRead = read(wrapper->fd, ptr, size * nmemb);
     
-    LOGI("read(%zu) = %zu", size * nmemb, totalRead);
+    int req_size = size * nmemb;
+    int to_read = req_size;
     
-    return totalRead;
+    if (wrapper->end - wrapper->current > req_size)
+    {
+        to_read = wrapper->end - wrapper->current;
+    }
+    
+    if (to_read <= 0) 
+    {
+        return 0;
+    }
+    
+    size_t total_read = read(wrapper->fd, ptr, to_read);
+    
+    if (total_read > 0)
+    {
+        wrapper->current += total_read;
+    }
+    
+    LOGI("FD read(%d) = %zu", to_read, total_read);
+    
+    return total_read;
 }
 
 // off64_t lseek64(int fd, off64_t offset, int whence); 
 static int FileDesc_seek(void *datasource, ogg_int64_t offset, int whence)
 {
     FileDescWrapper* wrapper = (FileDescWrapper*)datasource;
-    int result = lseek64(wrapper->fd, offset, whence);
     
-    char* whenceStr;
-    switch (whence) {
-        case SEEK_CUR: whenceStr = "SEEK_CUR"; break;
-        case SEEK_END: whenceStr = "SEEK_END"; break;
-        case SEEK_SET: whenceStr = "SEEK_SET"; break;
-        default: whenceStr = "unknown"; break;
+    int actual_offset;
+    
+    switch (whence)
+    {
+        case SEEK_SET:
+            // set the offset relative to start location.
+            actual_offset = wrapper->start + offset;
+            break;
+        case SEEK_END:
+            // seek from the end of the file.
+            // offset needs to be negative in this case.
+            actual_offset = wrapper->end + offset;
+            break;
+        case SEEK_CUR:
+            // seek relative to current position.
+            actual_offset = wrapper->current + offset;
+            break;
+        default:
+            // invalid whence.
+            errno = EINVAL;
+            return (off_t)-1;
     }
-    LOGI("seek(%lld, %s) = %d", offset, whenceStr, result);
+    
+    if (actual_offset < wrapper->start || 
+        actual_offset > wrapper->end)
+    {
+        // actual offset should be within our acceptable range.
+        errno = EINVAL;
+        return (off_t)-1;
+    }
+    
+    int result = lseek64(wrapper->fd, actual_offset, SEEK_SET);
+    
+    LOGI("FD seek(%d) = %d", actual_offset, result);
+    
+    if (result < 0)
+    {
+        // failed, errno should have been set by lseek.
+        return (off_t)-1;
+    }
+    
+    if (result != actual_offset)
+    {
+        // did not seek the expected amount. something wrong here.
+        errno = EINVAL;
+        return (off_t)-1;
+    }
+    
+    // seek succeeded.
+    // update current position
+    wrapper->current = actual_offset;
 }
 
 static int FileDesc_close(void *datasource)
 {
     FileDescWrapper* wrapper = (FileDescWrapper*)datasource;
     
-    LOGI("close");
+    LOGI("FD close");
     
     return close(wrapper->fd);
 }
@@ -61,7 +127,14 @@ static long FileDesc_tell(void *datasource)
     FileDescWrapper* wrapper = (FileDescWrapper*)datasource;
     long result = lseek64(wrapper->fd, 0, SEEK_CUR);
     
-    LOGI("tell = %ld", result);
+    LOGI("FD tell = %ld", result);
+    
+    if (wrapper->current != result)
+    {
+        // Not sure how to deal with this.
+        LOGI("PROBLEM: stored offset does not match actual: %d != %ld", 
+             wrapper->current, result);
+    }
     
     return result;
 }
@@ -102,15 +175,18 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_nativeInit
 }
 
 JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_open
-  (JNIEnv *env, jobject nvf, jint fd)
+  (JNIEnv *env, jobject nvf, jint fd, jlong off, jlong len)
 {
-    LOGI("open: %d", fd)
-            
+    LOGI("open: fd = %d, off = %lld, len = %lld", fd, off, len);
+    
     OggVorbis_File* ovf = (OggVorbis_File*) malloc(sizeof(OggVorbis_File));
     
     FileDescWrapper* wrapper = (FileDescWrapper*) malloc(sizeof(FileDescWrapper));
     wrapper->fd = fd;
     wrapper->env = env; // NOTE: every java call has to update this
+    wrapper->start = off;
+    wrapper->current = off;
+    wrapper->end = off + len;
     
     int result = ov_open_callbacks((void*)wrapper, ovf, NULL, 0, FileDescCallbacks);
     
@@ -148,7 +224,17 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_open
 JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_seekTime
   (JNIEnv *env, jobject nvf, jdouble time)
 {
+    jobject nvfBuf = (*env)->GetObjectField(env, nvf, nvf_field_ovf);
+    OggVorbis_File* ovf = (OggVorbis_File*) (*env)->GetDirectBufferAddress(env, nvfBuf);
     
+    int result = ov_time_seek(ovf, time);
+    
+    if (result != 0)
+    {
+        char err[512];
+        sprintf(err, "ov_time_seek failed: %d", result);
+        throwIOException(env, err);
+    }
 }
 
 JNIEXPORT jint JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_read

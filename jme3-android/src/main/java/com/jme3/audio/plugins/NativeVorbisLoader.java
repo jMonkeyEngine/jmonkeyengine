@@ -65,7 +65,9 @@ public class NativeVorbisLoader implements AssetLoader {
         AssetFileDescriptor afd = aai.openFileDescriptor();
         int fd = afd.getParcelFileDescriptor().getFd();
         
-        NativeVorbisFile file = new NativeVorbisFile(fd);
+        NativeVorbisFile file = new NativeVorbisFile(fd, afd.getStartOffset(), 
+                                                         afd.getLength());
+        
         ByteBuffer data = BufferUtils.createByteBuffer(file.totalBytes);
         file.readFully(data);
         AudioBuffer ab = new AudioBuffer();

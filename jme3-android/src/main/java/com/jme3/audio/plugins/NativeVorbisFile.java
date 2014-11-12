@@ -19,11 +19,11 @@ public class NativeVorbisFile {
         nativeInit();
     }
     
-    public NativeVorbisFile(int fd) throws IOException {
-        open(fd);
+    public NativeVorbisFile(int fd, long off, long len) throws IOException {
+        open(fd, off, len);
     }
     
-    private native void open(int fd) throws IOException;
+    private native void open(int fd, long off, long len) throws IOException;
     
     public native void seekTime(double time) throws IOException;
     
