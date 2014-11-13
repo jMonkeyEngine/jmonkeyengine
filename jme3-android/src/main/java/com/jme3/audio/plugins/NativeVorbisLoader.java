@@ -52,6 +52,30 @@ public class NativeVorbisLoader implements AssetLoader {
         }
     }
     
+    private static AudioBuffer loadBuffer(AssetInfo assetInfo) throws IOException {
+        AndroidAssetInfo aai = (AndroidAssetInfo) assetInfo;
+        AssetFileDescriptor afd = null;
+        NativeVorbisFile file = null;
+        try {
+            afd = aai.openFileDescriptor();
+            int fd = afd.getParcelFileDescriptor().getFd();
+            file = new NativeVorbisFile(fd, afd.getStartOffset(), afd.getLength());
+            ByteBuffer data = BufferUtils.createByteBuffer(file.totalBytes);
+            file.readFully(data);
+            AudioBuffer ab = new AudioBuffer();
+            ab.setupFormat(file.channels, 16, file.sampleRate);
+            ab.updateData(data);
+            return ab;
+        } finally {
+            if (file != null) {
+                file.close();
+            }
+            if (afd != null) {
+                afd.close();
+            }
+        }
+    }
+    
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
         AudioKey key = (AudioKey) assetInfo.getKey();
@@ -61,18 +85,10 @@ public class NativeVorbisLoader implements AssetLoader {
                                                     "Android's assets directory");
         }
         
-        AndroidAssetInfo aai = (AndroidAssetInfo) assetInfo;
-        AssetFileDescriptor afd = aai.openFileDescriptor();
-        int fd = afd.getParcelFileDescriptor().getFd();
-        
-        NativeVorbisFile file = new NativeVorbisFile(fd, afd.getStartOffset(), 
-                                                         afd.getLength());
-        
-        ByteBuffer data = BufferUtils.createByteBuffer(file.totalBytes);
-        file.readFully(data);
-        AudioBuffer ab = new AudioBuffer();
-        ab.setupFormat(file.channels, 16, file.sampleRate);
-        ab.updateData(data);
-        return ab;
+        if (key.isStream()) {
+            throw new UnsupportedOperationException("Not supported yet. Come again.");
+        } else {
+            return loadBuffer(assetInfo);
+        }
     }
 }

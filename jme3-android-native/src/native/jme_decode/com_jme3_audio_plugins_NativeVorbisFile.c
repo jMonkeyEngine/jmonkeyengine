@@ -1,6 +1,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+
+#define LIMIT_TO_64kHz
 #include "Tremor/ivorbisfile.h"
 
 #include "com_jme3_audio_plugins_NativeVorbisFile.h"
@@ -31,12 +33,8 @@ static size_t FileDesc_read(void *ptr, size_t size, size_t nmemb, void *datasour
     FileDescWrapper* wrapper = (FileDescWrapper*)datasource;
     
     int req_size = size * nmemb;
-    int to_read = req_size;
-    
-    if (wrapper->end - wrapper->current > req_size)
-    {
-        to_read = wrapper->end - wrapper->current;
-    }
+    int remaining = wrapper->end - wrapper->current;
+    int to_read = remaining < req_size ? remaining : req_size;
     
     if (to_read <= 0) 
     {
@@ -208,9 +206,17 @@ JNIEXPORT void JNICALL Java_com_jme3_audio_plugins_NativeVorbisFile_open
     jobject ovfBuf = (*env)->NewDirectByteBuffer(env, ovf, sizeof(OggVorbis_File));
     
     vorbis_info* info = ov_info(ovf, -1);
-    jint total_bytes = ov_pcm_total(ovf, -1);
+    
+    // total # of bytes = total samples * bytes per sample * channels
+    int total_samples = ov_pcm_total(ovf, -1);
+    jint total_bytes = total_samples * 2 * info->channels;
+    
     jboolean seekable = ov_seekable(ovf) != 0;
-    jfloat duration = (jfloat) ov_time_total(ovf, -1);
+    
+    // duration = millis / 1000
+    long timeMillis = ov_time_total(ovf, -1);
+    double timeSeconds = ((double)timeMillis) / 1000.0;
+    jfloat duration = (jfloat) timeSeconds;
     
     (*env)->SetObjectField(env, nvf, nvf_field_ovf, ovfBuf);
     (*env)->SetBooleanField(env, nvf, nvf_field_seekable, seekable);
