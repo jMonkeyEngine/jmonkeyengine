@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#define LIMIT_TO_64kHz
 #include "Tremor/ivorbisfile.h"
 
 #include "com_jme3_audio_plugins_NativeVorbisFile.h"
