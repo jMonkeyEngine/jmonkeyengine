@@ -143,6 +143,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     protected Transform localTransform;
     protected Transform worldTransform;
     protected SafeArrayList<Control> controls = new SafeArrayList<Control>(Control.class);
+    protected int controlsCount() { return controls.size(); }
     protected HashMap<String, Savable> userData = null;
     /**
      * Used for smart asset caching
@@ -600,6 +601,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     public void addControl(Control control) {
         controls.add(control);
         control.setSpatial(this);
+        if (parent!=null) parent.updateChildControlsCount(1);
     }
 
     /**
@@ -612,6 +614,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
             if (controlType.isAssignableFrom(controls.get(i).getClass())) {
                 Control control = controls.remove(i);
                 control.setSpatial(null);
+                if (parent!=null) parent.updateChildControlsCount(-1);
             }
         }
     }
@@ -629,6 +632,7 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
         boolean result = controls.remove(control);
         if (result) {
             control.setSpatial(null);
+            if (parent!=null) parent.updateChildControlsCount(-1);
         }
 
         return result;

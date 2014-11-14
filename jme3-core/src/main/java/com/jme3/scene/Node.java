@@ -67,6 +67,13 @@ public class Node extends Spatial implements Savable {
     protected SafeArrayList<Spatial> children = new SafeArrayList<Spatial>(Spatial.class);
 
     /**
+     * controlsCount used to skip unnecessary children recursion in updateLogicalState
+    */
+    protected int childControlsCount = 0;
+    @Override
+    protected int controlsCount() { return controls.size() + childControlsCount;  }
+
+    /**
      * Serialization only. Do not use.
      */
     public Node() {
@@ -141,6 +148,8 @@ public class Node extends Spatial implements Savable {
 
     @Override
     public void updateLogicalState(float tpf){
+        if (controlsCount()<=0) return;
+
         super.updateLogicalState(tpf);
 
         if (children.isEmpty()) {
@@ -218,6 +227,23 @@ public class Node extends Spatial implements Savable {
         return count;
     }
 
+    public boolean checkChildControlsCountIntegrity()
+    {
+      int count = 0;
+      for ( Spatial child : children.getArray() )
+      {
+        if ( child instanceof Node && !((Node)child).checkChildControlsCountIntegrity() ) return false;
+        count += child.controlsCount();
+      }
+      
+      return (count == childControlsCount && childControlsCount >= 0);
+    }
+    
+    protected void updateChildControlsCount(int childCountDiff)
+    {
+      childControlsCount += childCountDiff;
+      if (parent!=null) parent.updateChildControlsCount(childCountDiff);
+    }
     /**
      * <code>attachChild</code> attaches a child to this node. This node
      * becomes the child's parent. The current number of children maintained is
@@ -240,6 +266,8 @@ public class Node extends Spatial implements Savable {
             }
             child.setParent(this);
             children.add(child);
+            if (child.controlsCount()>0)
+              updateChildControlsCount(child.controlsCount());
 
             // XXX: Not entirely correct? Forces bound update up the
             // tree stemming from the attached child. Also forces
@@ -278,6 +306,8 @@ public class Node extends Spatial implements Savable {
             }
             child.setParent(this);
             children.add(index, child);
+            if (child.controlsCount()>0)
+              updateChildControlsCount(child.controlsCount());
             child.setTransformRefresh();
             child.setLightListRefresh();
             if (logger.isLoggable(Level.FINE)) {
@@ -348,6 +378,8 @@ public class Node extends Spatial implements Savable {
         Spatial child =  children.remove(index);
         if ( child != null ) {
             child.setParent( null );
+            if (child.controlsCount()>0)
+              updateChildControlsCount(-child.controlsCount());
             logger.log(Level.FINE, "{0}: Child removed.", this.toString());
 
             // since a child with a bound was detached;
