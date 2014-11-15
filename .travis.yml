@@ -12,7 +12,5 @@ before_install:
   # sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch
   # newest Android NDK
   - wget http://dl.google.com/android/ndk/android-ndk-r10c-linux-x86_64.bin -O ndk.bin
-  - chmod a+x ndk.bin
-  - echo $PWD
-  - $PWD/ndk.bin
+  - 7z x ndk.bin
   - export ANDROID_NDK_HOME=`pwd`/android-ndk-r10c
