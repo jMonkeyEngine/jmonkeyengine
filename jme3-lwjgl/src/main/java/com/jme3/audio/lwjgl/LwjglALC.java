@@ -46,5 +46,11 @@ public class LwjglALC implements ALC {
         ALCdevice device = ALC10.alcGetContextsDevice(context);
         ALC10.alcGetInteger(device, param, buffer);
     }
+
+    public void alcDevicePauseSOFT() {
+    }
+
+    public void alcDeviceResumeSOFT() {
+    }
     
 }
