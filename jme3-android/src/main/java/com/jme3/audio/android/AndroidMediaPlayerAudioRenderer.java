@@ -54,7 +54,7 @@ import java.util.logging.Logger;
  * @author larynx
  * @author plan_rich
  */
-public class AndroidMediaPlayerAudioRenderer implements AndroidAudioRenderer,
+public class AndroidMediaPlayerAudioRenderer implements AudioRenderer,
         SoundPool.OnLoadCompleteListener, MediaPlayer.OnCompletionListener {
 
     private static final Logger logger = Logger.getLogger(AndroidMediaPlayerAudioRenderer.class.getName());

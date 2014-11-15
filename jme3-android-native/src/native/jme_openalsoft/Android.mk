@@ -62,7 +62,9 @@ LOCAL_SRC_FILES  :=   Alc/backends/opensl.c \
                       OpenAL32/alSource.c \
                       OpenAL32/alState.c \
                       OpenAL32/sample_cvt.c \
-		      com_jme3_audio_android_AndroidOpenALSoftAudioRenderer.cpp
+		      com_jme3_audio_android_AndroidAL.c \
+		      com_jme3_audio_android_AndroidALC.c \
+		      com_jme3_audio_android_AndroidEFX.c 
 
 include $(BUILD_SHARED_LIBRARY)
 

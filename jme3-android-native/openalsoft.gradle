@@ -72,20 +72,13 @@ task copyJmeOpenALSoft(type: Copy, dependsOn:copyOpenALSoft) {
     into outputDir
 }
 
-task generateOpenAlSoftHeaders(dependsOn: copyJmeOpenALSoft) << {
-    String destDirPath = openalsoftBuildJniDir
-    String classes = ""
-            .concat("com.jme3.audio.android.AndroidOpenALSoftAudioRenderer, ")
-//    println "openalsoft classes = " + classes
-//    println "openalsoft destDir = " + destDirPath
-//    println "openalsoft classpath = " + project.projectClassPath
-
-    exec {
-        executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
-        args '-d', destDirPath
-        args '-classpath', project.projectClassPath
-        args "com.jme3.audio.android.AndroidOpenALSoftAudioRenderer"
-    }
+task generateOpenAlSoftHeaders(type:Exec, dependsOn: copyJmeOpenALSoft) {
+    executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+    args '-d', openalsoftJmeAndroidPath
+    args '-classpath', project.projectClassPath
+    args "com.jme3.audio.android.AndroidAL"
+    args "com.jme3.audio.android.AndroidALC"
+    args "com.jme3.audio.android.AndroidEFX"
 }
 
 task buildOpenAlSoftNativeLib(type: Exec, dependsOn: generateOpenAlSoftHeaders) {

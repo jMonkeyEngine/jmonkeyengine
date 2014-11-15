@@ -37,8 +37,18 @@ import com.jme3.math.Vector3f;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.NativeObjectManager;
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.openal.*;
+import com.jogamp.openal.AL;
+import com.jogamp.openal.ALC;
+import com.jogamp.openal.ALCcontext;
+import com.jogamp.openal.ALCdevice;
+import com.jogamp.openal.ALConstants;
+import com.jogamp.openal.ALException;
+import com.jogamp.openal.ALExt;
+import com.jogamp.openal.ALExtConstants;
+import com.jogamp.openal.ALFactory;
 import com.jogamp.openal.util.ALut;
+//import com.jogamp.openal.*;
+//import com.jogamp.openal.util.ALut;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -859,6 +869,14 @@ public class JoalAudioRenderer implements AudioRenderer, Runnable {
             this.listener.setRenderer(this);
             setListenerParams(listener);
         }
+    }
+    
+    public void pauseAll() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public void resumeAll() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void playSourceInstance(AudioSource src) {
