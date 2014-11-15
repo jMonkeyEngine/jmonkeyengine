@@ -273,39 +273,32 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return null;
     }
     
-    private AudioRenderer newAudioRendererLwjgl() {
-        AL al = newObject("com.jme3.audio.lwjgl.LwjglAL");
-        ALC alc = newObject("com.jme3.audio.lwjgl.LwjglALC");
-        EFX efx = newObject("com.jme3.audio.lwjgl.LwjglEFX");
-        return new ALAudioRenderer(al, alc, efx);
-    }
-    
     @Override
     public AudioRenderer newAudioRenderer(AppSettings settings) {
         initialize(settings);
-        Class<? extends AudioRenderer> clazz = null;
-        try {
-            if (settings.getAudioRenderer().startsWith("LWJGL")) {
-                return newAudioRendererLwjgl();
-            } else if (settings.getAudioRenderer().startsWith("JOAL")) {
-                clazz = (Class<? extends AudioRenderer>) Class.forName("com.jme3.audio.joal.JoalAudioRenderer");
-            } else {
-                throw new UnsupportedOperationException(
-                        "Unrecognizable audio renderer specified: "
-                        + settings.getAudioRenderer());
-            }
 
-            AudioRenderer ar = clazz.newInstance();
-            return ar;
-        } catch (InstantiationException ex) {
-            logger.log(Level.SEVERE, "Failed to create context", ex);
-        } catch (IllegalAccessException ex) {
-            logger.log(Level.SEVERE, "Failed to create context", ex);
-        } catch (ClassNotFoundException ex) {
-            logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class is missing!\n"
-                    + "Make sure jme3_lwjgl-oal or jm3_joal is on the classpath.", ex);
+        AL al;
+        ALC alc;
+        EFX efx;
+        if (settings.getAudioRenderer().startsWith("LWJGL")) {
+            al = newObject("com.jme3.audio.lwjgl.LwjglAL");
+            alc = newObject("com.jme3.audio.lwjgl.LwjglALC");
+            efx = newObject("com.jme3.audio.lwjgl.LwjglEFX");
+        } else if (settings.getAudioRenderer().startsWith("JOAL")) {
+            al = newObject("com.jme3.audio.joal.JoalAL");
+            alc = newObject("com.jme3.audio.joal.JoalALC");
+            efx = newObject("com.jme3.audio.joal.JoalEFX");
+        } else {
+            throw new UnsupportedOperationException(
+                    "Unrecognizable audio renderer specified: "
+                    + settings.getAudioRenderer());
         }
-        return null;
+
+        if (al == null || alc == null || efx == null) {
+            return null;
+        }
+
+        return new ALAudioRenderer(al, alc, efx);
     }
 
     @Override
