@@ -37,8 +37,10 @@ import com.jme3.audio.AudioBuffer;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioKey;
 import com.jme3.audio.AudioStream;
+import com.jme3.audio.SeekableStream;
 import com.jme3.util.BufferUtils;
 import com.jme3.util.LittleEndien;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -63,7 +65,41 @@ public class WAVLoader implements AssetLoader {
     private int bytesPerSec;
     private float duration;
 
-    private LittleEndien in;
+    private ResettableInputStream in;
+    private int inOffset = 0;
+    
+    private static class ResettableInputStream extends LittleEndien implements SeekableStream {
+        
+        private AssetInfo info;
+        private int resetOffset = 0;
+        
+        public ResettableInputStream(AssetInfo info, InputStream in) {
+            super(in);
+            this.info = info;
+        }
+        
+        public void setResetOffset(int resetOffset) {
+            this.resetOffset = resetOffset;
+        }
+
+        public void setTime(float time) {
+            if (time != 0f) {
+                throw new UnsupportedOperationException("Seeking WAV files not supported");
+            }
+            InputStream newStream = info.openStream();
+            try {
+                newStream.skip(resetOffset);
+                this.in = new BufferedInputStream(newStream);
+            } catch (IOException ex) {
+                // Resource could have gotten lost, etc.
+                try {
+                    newStream.close();
+                } catch (IOException ex2) {
+                }
+                throw new RuntimeException(ex);
+            }
+        }
+    }
 
     private void readFormatChunk(int size) throws IOException{
         // if other compressions are supported, size doesn't have to be 16
@@ -118,12 +154,14 @@ public class WAVLoader implements AssetLoader {
         in.close();
     }
 
-    private void readDataChunkForStream(int len) throws IOException {
+    private void readDataChunkForStream(int offset, int len) throws IOException {
+        in.setResetOffset(offset);
         audioStream.updateData(in, duration);
     }
 
-    private AudioData load(InputStream inputStream, boolean stream) throws IOException{
-        this.in = new LittleEndien(inputStream);
+    private AudioData load(AssetInfo info, InputStream inputStream, boolean stream) throws IOException{
+        this.in = new ResettableInputStream(info, inputStream);
+        inOffset = 0;
         
         int sig = in.readInt();
         if (sig != i_RIFF)
@@ -134,6 +172,8 @@ public class WAVLoader implements AssetLoader {
         if (in.readInt() != i_WAVE)
             throw new IOException("WAVE File does not contain audio");
 
+        inOffset += 4 * 3;
+        
         readStream = stream;
         if (readStream){
             audioStream = new AudioStream();
@@ -146,17 +186,20 @@ public class WAVLoader implements AssetLoader {
         while (true) {
             int type = in.readInt();
             int len = in.readInt();
+            
+            inOffset += 4 * 2;
 
             switch (type) {
                 case i_fmt:
                     readFormatChunk(len);
+                    inOffset += len;
                     break;
                 case i_data:
                     // Compute duration based on data chunk size
                     duration = len / bytesPerSec;
 
                     if (readStream) {
-                        readDataChunkForStream(len);
+                        readDataChunkForStream(inOffset, len);
                     } else {
                         readDataChunkForBuffer(len);
                     }
@@ -166,6 +209,7 @@ public class WAVLoader implements AssetLoader {
                     if (skipped <= 0) {
                         return null;
                     }
+                    inOffset += skipped;
                     break;
             }
         }
@@ -176,7 +220,7 @@ public class WAVLoader implements AssetLoader {
         InputStream inputStream = null;
         try {
             inputStream = info.openStream();
-            data = load(inputStream, ((AudioKey)info.getKey()).isStream());
+            data = load(info, inputStream, ((AudioKey)info.getKey()).isStream());
             if (data instanceof AudioStream){
                 inputStream = null;
             }

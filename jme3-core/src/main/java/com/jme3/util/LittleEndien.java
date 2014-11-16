@@ -41,8 +41,8 @@ import java.io.*;
  */
 public class LittleEndien extends InputStream implements DataInput {
 
-    private BufferedInputStream in;
-    private BufferedReader inRead;
+    protected BufferedInputStream in;
+    protected BufferedReader inRead;
 
     /**
      * Creates a new LittleEndien reader from the given input stream.  The
