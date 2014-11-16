@@ -22,6 +22,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
  */
 public class ConstraintDefinitionIK extends ConstraintDefinition {
     private static final float MIN_DISTANCE  = 0.0001f;
+    private static final int   FLAG_USE_TAIL = 0x01;
     private static final int   FLAG_POSITION = 0x20;
 
     /** The number of affected bones. Zero means that all parent bones of the current bone should take part in baking. */
@@ -30,6 +31,8 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
     private float              chainLength;
     /** Tells if there is anything to compute at all. */
     private boolean            needToCompute = true;
+    /** Indicates if the tail of the bone should be used or not. */
+    private boolean            useTail;
     /** The amount of iterations of the algorithm. */
     private int                iterations;
 
@@ -37,6 +40,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
         super(constraintData, ownerOMA, blenderContext);
         bonesAffected = ((Number) constraintData.getFieldValue("rootbone")).intValue();
         iterations = ((Number) constraintData.getFieldValue("iterations")).intValue();
+        useTail = (flag & FLAG_USE_TAIL) != 0;
 
         if ((flag & FLAG_POSITION) == 0) {
             needToCompute = false;
@@ -49,8 +53,8 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
 
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if(influence == 0 || !needToCompute) {
-            return ;//no need to do anything
+        if (influence == 0 || !needToCompute) {
+            return;// no need to do anything
         }
         Quaternion q = new Quaternion();
         Vector3f t = targetTransform.getTranslation();
@@ -81,13 +85,13 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                     if (angle != 0) {
                         Vector3f cross = currentDir.crossLocal(target).normalizeLocal();
                         q.fromAngleAxis(angle, cross);
-                        if(boneContext.isLockX()) {
+                        if (boneContext.isLockX()) {
                             q.set(0, q.getY(), q.getZ(), q.getW());
                         }
-                        if(boneContext.isLockY()) {
+                        if (boneContext.isLockY()) {
                             q.set(q.getX(), 0, q.getZ(), q.getW());
                         }
-                        if(boneContext.isLockZ()) {
+                        if (boneContext.isLockZ()) {
                             q.set(q.getX(), q.getY(), 0, q.getW());
                         }
 
@@ -106,7 +110,7 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                 Bone bone = boneContext.getBone();
                 Transform topBoneTransform = constraintHelper.getTransform(topBone.getArmatureObjectOMA(), topBone.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD);
                 Transform boneWorldTransform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), bone.getName(), Space.CONSTRAINT_SPACE_WORLD);
-                
+
                 Vector3f e = topBoneTransform.getTranslation().addLocal(topBoneTransform.getRotation().mult(Vector3f.UNIT_Y).multLocal(topBone.getLength()));// effector
                 Vector3f j = boneWorldTransform.getTranslation(); // current join position
 
@@ -117,16 +121,16 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
                     Vector3f cross = currentDir.crossLocal(target).normalizeLocal();
                     q.fromAngleAxis(angle, cross);
 
-                    if(boneContext.isLockX()) {
+                    if (boneContext.isLockX()) {
                         q.set(0, q.getY(), q.getZ(), q.getW());
                     }
-                    if(boneContext.isLockY()) {
+                    if (boneContext.isLockY()) {
                         q.set(q.getX(), 0, q.getZ(), q.getW());
                     }
-                    if(boneContext.isLockZ()) {
+                    if (boneContext.isLockZ()) {
                         q.set(q.getX(), q.getY(), 0, q.getW());
                     }
-                    
+
                     boneWorldTransform.getRotation().set(q.multLocal(boneWorldTransform.getRotation()));
                     constraintHelper.applyTransform(boneContext.getArmatureObjectOMA(), bone.getName(), Space.CONSTRAINT_SPACE_WORLD, boneWorldTransform);
                 }
@@ -149,6 +153,12 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
     private List<BoneContext> loadBones() {
         List<BoneContext> bones = new ArrayList<BoneContext>();
         Bone bone = (Bone) this.getOwner();
+        if (bone == null) {
+            return bones;
+        }
+        if (!useTail) {
+            bone = bone.getParent();
+        }
         chainLength = 0;
         while (bone != null) {
             BoneContext boneContext = blenderContext.getBoneContext(bone);
@@ -158,7 +168,18 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
             if (bonesAffected != 0 && bones.size() >= bonesAffected) {
                 break;
             }
+            // need to add spaces between bones to the chain length
+            Transform boneWorldTransform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD);
+            Vector3f boneWorldTranslation = boneWorldTransform.getTranslation();
+
             bone = bone.getParent();
+
+            if (bone != null) {
+                boneContext = blenderContext.getBoneContext(bone);
+                Transform parentWorldTransform = constraintHelper.getTransform(boneContext.getArmatureObjectOMA(), boneContext.getBone().getName(), Space.CONSTRAINT_SPACE_WORLD);
+                Vector3f parentWorldTranslation = parentWorldTransform.getTranslation();
+                chainLength += boneWorldTranslation.distance(parentWorldTranslation);
+            }
         }
         return bones;
     }
