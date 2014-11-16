@@ -15,7 +15,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.jme3.audio.AudioRenderer;
-import com.jme3.audio.android.AndroidAudioRenderer;
 import com.jme3.input.JoyInput;
 import com.jme3.input.TouchInput;
 import com.jme3.input.android.AndroidSensorJoyInput;
@@ -522,12 +521,9 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
         if (app != null) {
             //resume the audio
-            AudioRenderer result = app.getAudioRenderer();
-            if (result != null) {
-                if (result instanceof AndroidAudioRenderer) {
-                    AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
-                    renderer.resumeAll();
-                }
+            AudioRenderer audioRenderer = app.getAudioRenderer();
+            if (audioRenderer != null) {
+                audioRenderer.resumeAll();
             }
             //resume the sensors (aka joysticks)
             if (app.getContext() != null) {
@@ -560,13 +556,9 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
         if (app != null) {
             //pause the audio
-            AudioRenderer result = app.getAudioRenderer();
-            if (result != null) {
-                logger.log(Level.FINE, "pause: {0}", result.getClass().getSimpleName());
-                if (result instanceof AndroidAudioRenderer) {
-                    AndroidAudioRenderer renderer = (AndroidAudioRenderer) result;
-                    renderer.pauseAll();
-                }
+            AudioRenderer audioRenderer = app.getAudioRenderer();
+            if (audioRenderer != null) {
+                audioRenderer.pauseAll();
             }
             //pause the sensors (aka joysticks)
             if (app.getContext() != null) {

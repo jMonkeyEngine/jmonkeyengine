@@ -162,6 +162,9 @@ void main(){
 
         #ifdef NORMALMAP   
             mat3 tbnMat = mat3(normalize(vTangent.xyz) , normalize(vBinormal.xyz) , normalize(vNormal.xyz));
+            vec3 viewDir = normalize(-vPos.xyz * tbnMat);
+        #else
+            vec3 viewDir = normalize(-vPos.xyz);
         #endif
 
         for( int i = 0;i < NB_LIGHTS; i+=3){
@@ -183,12 +186,10 @@ void main(){
          
             #ifdef NORMALMAP         
                 //Normal map -> lighting is computed in tangent space
-                lightDir.xyz = normalize(lightDir.xyz * tbnMat);
-                vec3 viewDir = normalize(-vPos.xyz * tbnMat);
+                lightDir.xyz = normalize(lightDir.xyz * tbnMat);                
             #else
                 //no Normal map -> lighting is computed in view space
-                lightDir.xyz = normalize(lightDir.xyz);
-                vec3 viewDir = normalize(-vPos.xyz);
+                lightDir.xyz = normalize(lightDir.xyz);                
             #endif
 
             vec2 light = computeLighting(normal, viewDir, lightDir.xyz, lightDir.w * spotFallOff , m_Shininess);

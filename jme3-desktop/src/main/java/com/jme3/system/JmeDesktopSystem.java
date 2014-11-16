@@ -37,6 +37,10 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.AssetNotFoundException;
 import com.jme3.asset.DesktopAssetManager;
 import com.jme3.audio.AudioRenderer;
+import com.jme3.audio.openal.AL;
+import com.jme3.audio.openal.ALAudioRenderer;
+import com.jme3.audio.openal.ALC;
+import com.jme3.audio.openal.EFX;
 import com.jme3.system.JmeContext.Type;
 import com.jme3.texture.Image;
 import com.jme3.texture.image.DefaultImageRaster;
@@ -253,32 +257,48 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         return ctx;
     }
 
+    private <T> T newObject(String className) {
+        try {
+            Class<T> clazz = (Class<T>) Class.forName(className);
+            return clazz.newInstance();
+        } catch (ClassNotFoundException ex) {
+            logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class is missing!\n"
+                                   + "Make sure jme3_lwjgl-oal or jm3_joal is on the classpath.", ex);
+        } catch (IllegalAccessException ex) {
+            logger.log(Level.SEVERE, "Failed to create context", ex);
+        } catch (InstantiationException ex) {
+            logger.log(Level.SEVERE, "Failed to create context", ex);
+        }
+        
+        return null;
+    }
+    
     @Override
     public AudioRenderer newAudioRenderer(AppSettings settings) {
         initialize(settings);
-        Class<? extends AudioRenderer> clazz = null;
-        try {
-            if (settings.getAudioRenderer().startsWith("LWJGL")) {
-                clazz = (Class<? extends AudioRenderer>) Class.forName("com.jme3.audio.lwjgl.LwjglAudioRenderer");
-            } else if (settings.getAudioRenderer().startsWith("JOAL")) {
-                clazz = (Class<? extends AudioRenderer>) Class.forName("com.jme3.audio.joal.JoalAudioRenderer");
-            } else {
-                throw new UnsupportedOperationException(
-                        "Unrecognizable audio renderer specified: "
-                        + settings.getAudioRenderer());
-            }
 
-            AudioRenderer ar = clazz.newInstance();
-            return ar;
-        } catch (InstantiationException ex) {
-            logger.log(Level.SEVERE, "Failed to create context", ex);
-        } catch (IllegalAccessException ex) {
-            logger.log(Level.SEVERE, "Failed to create context", ex);
-        } catch (ClassNotFoundException ex) {
-            logger.log(Level.SEVERE, "CRITICAL ERROR: Audio implementation class is missing!\n"
-                    + "Make sure jme3_lwjgl-oal or jm3_joal is on the classpath.", ex);
+        AL al;
+        ALC alc;
+        EFX efx;
+        if (settings.getAudioRenderer().startsWith("LWJGL")) {
+            al = newObject("com.jme3.audio.lwjgl.LwjglAL");
+            alc = newObject("com.jme3.audio.lwjgl.LwjglALC");
+            efx = newObject("com.jme3.audio.lwjgl.LwjglEFX");
+        } else if (settings.getAudioRenderer().startsWith("JOAL")) {
+            al = newObject("com.jme3.audio.joal.JoalAL");
+            alc = newObject("com.jme3.audio.joal.JoalALC");
+            efx = newObject("com.jme3.audio.joal.JoalEFX");
+        } else {
+            throw new UnsupportedOperationException(
+                    "Unrecognizable audio renderer specified: "
+                    + settings.getAudioRenderer());
         }
-        return null;
+
+        if (al == null || alc == null || efx == null) {
+            return null;
+        }
+
+        return new ALAudioRenderer(al, alc, efx);
     }
 
     @Override

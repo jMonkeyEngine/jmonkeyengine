@@ -74,6 +74,18 @@ public interface AudioRenderer {
      * @param tpf Time per frame.
      */
     public void update(float tpf);
+    
+    /**
+     * Pauses all Playing audio. 
+     * To be used when the app is placed in the background.
+     */
+    public void pauseAll();
+
+    /**
+     * Resumes all audio paused by {@link #pauseAll()}. 
+     * To be used when the app is brought back to the foreground.
+     */
+    public void resumeAll();
 
     /**
      * Cleanup/destroy the audio system. Call this when app closes.
