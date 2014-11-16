@@ -39,36 +39,37 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <code>AudioStream</code> is an implementation of AudioData that
- * acquires the audio from an InputStream. Audio can be streamed
- * from network, hard drive etc. It is assumed the data coming
- * from the input stream is uncompressed.
+ * <code>AudioStream</code> is an implementation of AudioData that acquires the
+ * audio from an InputStream. Audio can be streamed from network, hard drive
+ * etc. It is assumed the data coming from the input stream is uncompressed.
  *
  * @author Kirill Vainer
  */
-public class AudioStream extends AudioData implements Closeable{
+public class AudioStream extends AudioData implements Closeable {
 
     private final static Logger logger = Logger.getLogger(AudioStream.class.getName());
     protected InputStream in;
     protected float duration = -1f;
     protected boolean open = false;
+    protected boolean eof = false;
     protected int[] ids;
-    
-    public AudioStream(){
-        super();        
+
+    public AudioStream() {
+        super();
     }
-    
-    protected AudioStream(int[] ids){
+
+    protected AudioStream(int[] ids) {
         // Pass some dummy ID so handle
         // doesn't get created.
-        super(-1);      
+        super(-1);
         // This is what gets destroyed in reality
         this.ids = ids;
     }
 
-    public void updateData(InputStream in, float duration){
-        if (id != -1 || this.in != null)
+    public void updateData(InputStream in, float duration) {
+        if (id != -1 || this.in != null) {
             throw new IllegalStateException("Data already set!");
+        }
 
         this.in = in;
         this.duration = duration;
@@ -76,22 +77,27 @@ public class AudioStream extends AudioData implements Closeable{
     }
 
     /**
-     * Reads samples from the stream. The format of the data
-     * depends on the getSampleRate(), getChannels(), getBitsPerSample()
-     * values.
+     * Reads samples from the stream. The format of the data depends on the
+     * getSampleRate(), getChannels(), getBitsPerSample() values.
      *
      * @param buf Buffer where to read the samples
      * @param offset The offset in the buffer where to read samples
      * @param length The length inside the buffer where to read samples
      * @return number of bytes read.
      */
-    public int readSamples(byte[] buf, int offset, int length){
-        if (!open)
+    public int readSamples(byte[] buf, int offset, int length) {
+        if (!open || eof) {
             return -1;
+        }
 
-        try{
-            return in.read(buf, offset, length);
-        }catch (IOException ex){
+        try {
+            int totalRead = in.read(buf, offset, length);
+            if (totalRead < 0) {
+                eof = true;
+            }
+            return totalRead;
+        } catch (IOException ex) {
+            eof = true;
             return -1;
         }
     }
@@ -103,41 +109,41 @@ public class AudioStream extends AudioData implements Closeable{
      * @param buf Buffer where to read the samples
      * @return number of bytes read.
      */
-    public int readSamples(byte[] buf){
+    public int readSamples(byte[] buf) {
         return readSamples(buf, 0, buf.length);
     }
 
-    public float getDuration(){
+    public float getDuration() {
         return duration;
     }
 
     @Override
-    public int getId(){
+    public int getId() {
         throw new RuntimeException("Don't use getId() on streams");
     }
 
     @Override
-    public void setId(int id){
+    public void setId(int id) {
         throw new RuntimeException("Don't use setId() on streams");
     }
 
-    public void initIds(int count){
+    public void initIds(int count) {
         ids = new int[count];
     }
 
-    public int getId(int index){
+    public int getId(int index) {
         return ids[index];
     }
 
-    public void setId(int index, int id){
+    public void setId(int index, int id) {
         ids[index] = id;
     }
 
-    public int[] getIds(){
+    public int[] getIds() {
         return ids;
     }
 
-    public void setIds(int[] ids){
+    public void setIds(int[] ids) {
         this.ids = ids;
     }
 
@@ -155,9 +161,7 @@ public class AudioStream extends AudioData implements Closeable{
 
     @Override
     public void deleteObject(Object rendererObject) {
-        // It seems that the audio renderer is already doing a good
-        // job at deleting audio streams when they finish playing.
-//        ((AudioRenderer)rendererObject).deleteAudioData(this);
+        ((AudioRenderer) rendererObject).deleteAudioData(this);
     }
 
     @Override
@@ -165,42 +169,42 @@ public class AudioStream extends AudioData implements Closeable{
         return new AudioStream(ids);
     }
     
-    /**
-     * @return Whether the stream is open or not. Reading from a closed
-     * stream will always return eof.
-     */
-    public boolean isOpen(){
-        return open;
+    public boolean isEOF() {
+        return eof;
     }
-
+    
     /**
-     * Closes the stream, releasing all data relating to it. Reading
-     * from the stream will return eof.
+     * Closes the stream, releasing all data relating to it. 
+     * Reading from the stream will return eof.
+     *
      * @throws IOException
      */
     public void close() {
-        if (in != null && open){
-            try{
+        if (in != null && open) {
+            try {
                 in.close();
-            }catch (IOException ex){
+            } catch (IOException ex) {
             }
             open = false;
-        }else{
+        } else {
             throw new RuntimeException("AudioStream is already closed!");
         }
     }
 
-  
-    public void setTime(float time){
-        if(in instanceof SeekableStream){
-            ((SeekableStream)in).setTime(time);
-        }else{
-            logger.log(Level.WARNING,"Cannot use setTime on a stream that is not seekable. You must load the file with the streamCache option set to true");
+    public void setTime(float time) {
+        if (in instanceof SeekableStream) {
+            ((SeekableStream) in).setTime(time);
+            eof = false;
+        } else {
+            logger.log(Level.WARNING, 
+                    "Cannot use setTime on a stream that "
+                    + "is not seekable. You must load the file "
+                    + "with the streamCache option set to true");
         }
     }
 
     @Override
     public long getUniqueId() {
-        return ((long)OBJTYPE_AUDIOSTREAM << 32) | ((long)ids[0]);
+        return ((long) OBJTYPE_AUDIOSTREAM << 32) | ((long) ids[0]);
     }
 }

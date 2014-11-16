@@ -72,9 +72,10 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     private int auxSends = 0;
     private int reverbFx = -1;
     private int reverbFxSlot = -1;
-    // Update audio 20 times per second
+    
+    // Fill streaming sources every 50 ms
     private static final float UPDATE_RATE = 0.05f;
-    private final Thread audioThread = new Thread(this, "jME3 Audio Thread");
+    private final Thread decoderThread = new Thread(this, "jME3 Audio Decoding Thread");
     private final AtomicBoolean threadLock = new AtomicBoolean(false);
 
     private final AL al;
@@ -88,23 +89,26 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     }
 
     public void initialize() {
-        if (!audioThread.isAlive()) {
-            audioThread.setDaemon(true);
-            audioThread.setPriority(Thread.NORM_PRIORITY + 1);
-            audioThread.start();
+        if (!decoderThread.isAlive()) {
+            // Set high priority to avoid buffer starvation.
+            decoderThread.setDaemon(true);
+            decoderThread.setPriority(Thread.NORM_PRIORITY + 1);
+            decoderThread.start();
         } else {
             throw new IllegalStateException("Initialize already called");
         }
     }
 
     private void checkDead() {
-        if (audioThread.getState() == Thread.State.TERMINATED) {
-            throw new IllegalStateException("Audio thread is terminated");
+        if (decoderThread.getState() == Thread.State.TERMINATED) {
+            throw new IllegalStateException("Decoding thread is terminated");
         }
     }
 
     public void run() {
-        initInThread();
+        initInDecoderThread();
+        
+        // Notify render thread that OAL context is available.
         synchronized (threadLock) {
             threadLock.set(true);
             threadLock.notifyAll();
@@ -120,7 +124,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
 
             synchronized (threadLock) {
-                updateInThread(UPDATE_RATE);
+                updateInDecoderThread(UPDATE_RATE);
             }
 
             long endTime = System.nanoTime();
@@ -139,11 +143,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
 
         synchronized (threadLock) {
-            cleanupInThread();
+            cleanupInDecoderThread();
         }
     }
 
-    public void initInThread() {
+    public void initInDecoderThread() {
         try {
             if (!alc.isCreated()) {
                 alc.createALC();
@@ -225,7 +229,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         }
     }
 
-    public void cleanupInThread() {
+    public void cleanupInDecoderThread() {
         if (audioDisabled) {
             alc.destroyALC();
             return;
@@ -264,10 +268,10 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
     public void cleanup() {
         // kill audio thread
-        if (audioThread.isAlive()) {
-            audioThread.interrupt();
+        if (decoderThread.isAlive()) {
+            decoderThread.interrupt();
             try {
-                audioThread.join();
+                decoderThread.join();
             } catch (InterruptedException ex) {
             }
         }
@@ -453,10 +457,8 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     }
                     break;
                 case Looping:
-                    if (src.isLooping()) {
-                        if (!(src.getAudioData() instanceof AudioStream)) {
-                            al.alSourcei(id, AL_LOOPING, AL_TRUE);
-                        }
+                    if (src.isLooping() && !(src.getAudioData() instanceof AudioStream)) {
+                        al.alSourcei(id, AL_LOOPING, AL_TRUE);
                     } else {
                         al.alSourcei(id, AL_LOOPING, AL_FALSE);
                     }
@@ -509,7 +511,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             }
         }
 
-        if (forceNonLoop) {
+        if (forceNonLoop || src.getAudioData() instanceof AudioStream) {
             al.alSourcei(id, AL_LOOPING, AL_FALSE);
         } else {
             al.alSourcei(id, AL_LOOPING, src.isLooping() ? AL_TRUE : AL_FALSE);
@@ -661,45 +663,71 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         return true;
     }
 
-    private boolean fillStreamingSource(int sourceId, AudioStream stream) {
-        if (!stream.isOpen()) {
-            return false;
-        }
-
-        boolean active = true;
+    private boolean fillStreamingSource(int sourceId, AudioStream stream, boolean looping) {
+        boolean success = false;
         int processed = al.alGetSourcei(sourceId, AL_BUFFERS_PROCESSED);
-
-//        while((processed--) != 0){
-        if (processed > 0) {
+        
+        for (int i = 0; i < processed; i++) {
             int buffer;
 
             ib.position(0).limit(1);
             al.alSourceUnqueueBuffers(sourceId, 1, ib);
             buffer = ib.get(0);
 
-            active = fillBuffer(stream, buffer);
-
-            ib.position(0).limit(1);
-            ib.put(0, buffer);
-            al.alSourceQueueBuffers(sourceId, 1, ib);
+            boolean active = fillBuffer(stream, buffer);
+            
+            if (!active && !stream.isEOF()) {
+                throw new AssertionError();
+            }
+            
+            if (!active && looping) {
+                stream.setTime(0);
+                active = fillBuffer(stream, buffer);
+            }
+            
+            if (active) {
+                ib.position(0).limit(1);
+                ib.put(0, buffer);
+                al.alSourceQueueBuffers(sourceId, 1, ib);
+                // At least one buffer enqueued = success.
+                success = true;
+            } else {
+                // No more data left to process.
+                break;
+            }
         }
 
-        if (!active && stream.isOpen()) {
-            stream.close();
-        }
-
-        return active;
+        return success;
     }
 
-    private boolean attachStreamToSource(int sourceId, AudioStream stream) {
-        boolean active = true;
-        for (int id : stream.getIds()) {
-            active = fillBuffer(stream, id);
-            ib.position(0).limit(1);
-            ib.put(id).flip();
-            al.alSourceQueueBuffers(sourceId, 1, ib);
+    private boolean attachStreamToSource(int sourceId, AudioStream stream, boolean looping) {
+        boolean success = false;
+        
+        // Reset the stream. Typically happens if it finished playing on 
+        // its own and got reclaimed. 
+        // Note that AudioNode.stop() already resets the stream
+        // since it might not be in EOF when stopped.
+        if (stream.isEOF()) {
+            stream.setTime(0);
         }
-        return active;
+        
+        for (int id : stream.getIds()) {
+            boolean active = fillBuffer(stream, id);
+            if (!active && !stream.isEOF()) {
+                throw new AssertionError();
+            }
+            if (!active && looping) {
+                stream.setTime(0);
+                active = fillBuffer(stream, id);
+            }
+            if (active) {
+                ib.position(0).limit(1);
+                ib.put(id).flip();
+                al.alSourceQueueBuffers(sourceId, 1, ib);
+                success = true;
+            }
+        }
+        return success;
     }
 
     private boolean attachBufferToSource(int sourceId, AudioBuffer buffer) {
@@ -707,11 +735,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         return true;
     }
 
-    private boolean attachAudioToSource(int sourceId, AudioData data) {
+    private boolean attachAudioToSource(int sourceId, AudioData data, boolean looping) {
         if (data instanceof AudioBuffer) {
             return attachBufferToSource(sourceId, (AudioBuffer) data);
         } else if (data instanceof AudioStream) {
-            return attachStreamToSource(sourceId, (AudioStream) data);
+            return attachStreamToSource(sourceId, (AudioStream) data, looping);
         }
         throw new UnsupportedOperationException();
     }
@@ -723,15 +751,9 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             int sourceId = channels[index];
             al.alSourceStop(sourceId);
-
-            if (src.getAudioData() instanceof AudioStream) {
-                AudioStream str = (AudioStream) src.getAudioData();
-                ib.position(0).limit(STREAMING_BUFFER_COUNT);
-                ib.put(str.getIds()).flip();
-                al.alSourceUnqueueBuffers(sourceId, STREAMING_BUFFER_COUNT, ib);
-            } else if (src.getAudioData() instanceof AudioBuffer) {
-                al.alSourcei(sourceId, AL_BUFFER, 0);
-            }
+            
+            // For streaming sources, this will clear all queued buffers.
+            al.alSourcei(sourceId, AL_BUFFER, 0);
 
             if (src.getDryFilter() != null && supportEfx) {
                 // detach filter
@@ -747,71 +769,118 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             chanSrcs[index] = null;
         }
     }
-
-    public void update(float tpf) {
-        // does nothing
+    
+    private AudioSource.Status convertStatus(int oalStatus) {
+        switch (oalStatus) {
+            case AL_INITIAL:
+            case AL_STOPPED:
+                return Status.Stopped;
+            case AL_PAUSED:
+                return Status.Paused;
+            case AL_PLAYING:
+                return Status.Playing;
+            default:
+                throw new UnsupportedOperationException("Unrecognized OAL state: " + oalStatus);
+        }
     }
 
-    public void updateInThread(float tpf) {
+    public void update(float tpf) {
+        synchronized (threadLock) {
+            updateInRenderThread(tpf);
+        }
+    }
+
+    public void updateInRenderThread(float tpf) {
+        if (audioDisabled) {
+            return;
+        }
+        
+        for (int i = 0; i < channels.length; i++) {
+            AudioSource src = chanSrcs[i];
+            
+            if (src == null) {
+                continue;
+            }
+
+            int sourceId = channels[i];
+            boolean boundSource = i == src.getChannel();
+            boolean reclaimChannel = false;
+            
+            Status oalStatus = convertStatus(al.alGetSourcei(sourceId, AL_SOURCE_STATE));
+            Status jmeStatus = src.getStatus();
+            
+            // Check if we need to sync JME status with OAL status.
+            if (oalStatus != jmeStatus) {
+                if (oalStatus == Status.Stopped && jmeStatus == Status.Playing) {
+                    // Maybe we need to reclaim the channel.
+                    if (src.getAudioData() instanceof AudioStream) {
+                        AudioStream stream = (AudioStream) src.getAudioData();
+                        
+                        if (stream.isEOF() && !src.isLooping()) {
+                            // Stream finished playing
+                            reclaimChannel = true;
+                        } else {
+                            // Stream still has data. 
+                            // Buffer starvation occured.
+                            // Audio decoder thread will fill the data 
+                            // and start the channel again.
+                        }
+                    } else {
+                        // Buffer finished playing.
+                        reclaimChannel = true;
+                    }
+                    
+                    if (reclaimChannel) {
+                        if (boundSource) {
+                            src.setStatus(Status.Stopped);
+                            src.setChannel(-1);
+                        }
+                        clearChannel(i);
+                        freeChannel(i);
+                    }
+                } else {
+                    // jME3 state does not match OAL state.
+                    throw new AssertionError();
+                }
+            } else {
+                // Stopped channel was not cleared correctly.
+                if (oalStatus == Status.Stopped) {
+                    throw new AssertionError();
+                }
+            }
+        }
+    }
+    
+    public void updateInDecoderThread(float tpf) {
         if (audioDisabled) {
             return;
         }
 
         for (int i = 0; i < channels.length; i++) {
             AudioSource src = chanSrcs[i];
-            if (src == null) {
+            
+            if (src == null || !(src.getAudioData() instanceof AudioStream)) {
                 continue;
             }
 
             int sourceId = channels[i];
+            AudioStream stream = (AudioStream) src.getAudioData();
 
-            // is the source bound to this channel
-            // if false, it's an instanced playback
-            boolean boundSource = i == src.getChannel();
+            Status oalStatus = convertStatus(al.alGetSourcei(sourceId, AL_SOURCE_STATE));
+            Status jmeStatus = src.getStatus();
 
-            // source's data is streaming
-            boolean streaming = src.getAudioData() instanceof AudioStream;
+            // Keep filling data (even if we are stopped / paused)
+            boolean buffersWereFilled = fillStreamingSource(sourceId, stream, src.isLooping());
 
-            // only buffered sources can be bound
-            assert (boundSource && streaming) || (!streaming);
-
-            int state = al.alGetSourcei(sourceId, AL_SOURCE_STATE);
-            boolean wantPlaying = src.getStatus() == Status.Playing;
-            boolean stopped = state == AL_STOPPED;
-
-            if (streaming && wantPlaying) {
-                AudioStream stream = (AudioStream) src.getAudioData();
-                if (stream.isOpen()) {
-                    fillStreamingSource(sourceId, stream);
-                    if (stopped) {
-                        al.alSourcePlay(sourceId);
-                    }
+            if (buffersWereFilled) {
+                if (oalStatus == Status.Stopped && jmeStatus == Status.Playing) {
+                    // The source got stopped due to buffer starvation.
+                    // Start it again.
+                    logger.log(Level.WARNING, "Buffer starvation "
+                                            + "occurred while playing stream");
+                    al.alSourcePlay(sourceId);
                 } else {
-                    if (stopped) {
-                        // became inactive
-                        src.setStatus(Status.Stopped);
-                        src.setChannel(-1);
-                        clearChannel(i);
-                        freeChannel(i);
-
-                        // And free the audio since it cannot be
-                        // played again anyway.
-                        deleteAudioData(stream);
-                    }
-                }
-            } else if (!streaming) {
-                boolean paused = state == AL_PAUSED;
-
-                // make sure OAL pause state & source state coincide
-                assert (src.getStatus() == Status.Paused && paused) || (!paused);
-
-                if (stopped) {
-                    if (boundSource) {
-                        src.setStatus(Status.Stopped);
-                        src.setChannel(-1);
-                    }
-                    clearChannel(i);
-                    freeChannel(i);
+                    // Buffers were filled, stream continues to play.
                 }
             }
         }
@@ -877,7 +946,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             if (src.getAudioData() instanceof AudioStream) {
                 throw new UnsupportedOperationException(
                         "Cannot play instances "
-                        + "of audio streams. Use playSource() instead.");
+                        + "of audio streams. Use play() instead.");
             }
 
             if (src.getAudioData().isUpdateNeeded()) {
@@ -896,7 +965,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
             // set parameters, like position and max distance
             setSourceParams(sourceId, src, true);
-            attachAudioToSource(sourceId, src.getAudioData());
+            attachAudioToSource(sourceId, src.getAudioData(), false);
             chanSrcs[index] = src;
 
             // play the channel
@@ -917,12 +986,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 return;
             }
 
-            //assert src.getStatus() == Status.Stopped || src.getChannel() == -1;
-
             if (src.getStatus() == Status.Playing) {
                 return;
             } else if (src.getStatus() == Status.Stopped) {
-
+                assert src.getChannel() != -1;
+                
                 // allocate channel to this source
                 int index = newChannel();
                 if (index == -1) {
@@ -939,7 +1007,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
 
                 chanSrcs[index] = src;
                 setSourceParams(channels[index], src, false);
-                attachAudioToSource(channels[index], data);
+                attachAudioToSource(channels[index], data, src.isLooping());
             }
 
             al.alSourcePlay(channels[src.getChannel()]);
@@ -989,16 +1057,9 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 src.setChannel(-1);
                 clearChannel(chan);
                 freeChannel(chan);
-
+                
                 if (src.getAudioData() instanceof AudioStream) {
-                    AudioStream stream = (AudioStream) src.getAudioData();
-                    if (stream.isOpen()) {
-                        stream.close();
-                    }
-
-                    // And free the audio since it cannot be
-                    // played again anyway.
-                    deleteAudioData(src.getAudioData());
+                    ((AudioStream)src.getAudioData()).setTime(0);
                 }
             }
         }
