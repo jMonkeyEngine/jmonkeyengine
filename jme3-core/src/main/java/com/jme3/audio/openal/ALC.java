@@ -50,7 +50,6 @@ public interface ALC {
     /**
      * Capture extension
      */
-    static final int ALC_EXT_CAPTURE = 1;
     static final int ALC_CAPTURE_DEVICE_SPECIFIER = 0x310;
     static final int ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER = 0x311;
     static final int ALC_CAPTURE_SAMPLES = 0x312;
@@ -58,7 +57,6 @@ public interface ALC {
     /**
      * ALC_ENUMERATE_ALL_EXT enums
      */
-    static final int ALC_ENUMERATE_ALL_EXT = 1;
     static final int ALC_DEFAULT_ALL_DEVICES_SPECIFIER = 0x1012;
     static final int ALC_ALL_DEVICES_SPECIFIER = 0x1013;
     
