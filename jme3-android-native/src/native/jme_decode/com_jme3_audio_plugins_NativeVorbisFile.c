@@ -12,7 +12,7 @@
 #define LOGI(fmt, ...) __android_log_print(ANDROID_LOG_INFO, \
                        "NativeVorbisFile", fmt, ##__VA_ARGS__);
 #else
-#error We are building in release mode, arent we?
+// #error We are building in release mode, arent we?
 #define LOGI(fmt, ...)
 #endif
 
