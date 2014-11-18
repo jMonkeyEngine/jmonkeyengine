@@ -33,7 +33,6 @@ package com.jme3.system.ios;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioRenderer;
-import com.jme3.audio.android.AndroidOpenALSoftAudioRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystemDelegate;
@@ -98,7 +97,7 @@ public class JmeIosSystem extends JmeSystemDelegate {
 
     @Override
     public AudioRenderer newAudioRenderer(AppSettings settings) {
-        return new AndroidOpenALSoftAudioRenderer();
+        return null;
     }
 
     @Override
