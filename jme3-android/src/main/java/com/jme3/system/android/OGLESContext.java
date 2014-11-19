@@ -99,10 +99,14 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     public GLSurfaceView createView() {
         Context appContext = JmeAndroidSystem.getActivity().getApplication();
         
-        ActivityManager am = (ActivityManager) appContext.getSystemService(Context.ACTIVITY_SERVICE);
-        ConfigurationInfo info = am.getDeviceConfigurationInfo();
-        if (info.reqGlEsVersion < 0x20000) {
-            throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
+        // NOTE: We assume all ICS devices have OpenGL ES 2.0.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            // below 4.0, check OpenGL ES 2.0 support.
+            ActivityManager am = (ActivityManager) appContext.getSystemService(Context.ACTIVITY_SERVICE);
+            ConfigurationInfo info = am.getDeviceConfigurationInfo();
+            if (info.reqGlEsVersion < 0x20000) {
+                throw new UnsupportedOperationException("OpenGL ES 2.0 is not supported on this device");
+            }
         }
         
         // Start to set up the view
