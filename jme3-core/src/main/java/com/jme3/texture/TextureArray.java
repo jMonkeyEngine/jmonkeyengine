@@ -33,6 +33,7 @@ package com.jme3.texture;
 
 import com.jme3.texture.Image.Format;
 import com.jme3.texture.image.ColorSpace;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,8 +73,10 @@ public class TextureArray extends Texture {
         int height = images.get(0).getHeight();
         Format format = images.get(0).getFormat();
         ColorSpace colorSpace = images.get(0).getColorSpace();
+        int[] mipMapSizes = images.get(0).getMipMapSizes();
         Image arrayImage = new Image(format, width, height, null, colorSpace);
-
+        arrayImage.setMipMapSizes(mipMapSizes);
+        
         for (Image img : images) {
             if (img.getHeight() != height || img.getWidth() != width) {
                 throw new IllegalArgumentException("Images in texture array must have same dimensions");
@@ -81,9 +84,13 @@ public class TextureArray extends Texture {
             if (img.getFormat() != format) {
                 throw new IllegalArgumentException("Images in texture array must have same format");
             }
+            if (!Arrays.equals(mipMapSizes, img.getMipMapSizes())) {
+                throw new IllegalArgumentException("Images in texture array must have same mipmap sizes");
+            }
             
             arrayImage.addData(img.getData(0));
         }
+        
         setImage(arrayImage);
     }
 
