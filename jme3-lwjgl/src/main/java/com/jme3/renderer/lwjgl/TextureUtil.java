@@ -298,13 +298,25 @@ class TextureUtil {
             if (glFmt.compressed && data != null){
                 if (target == GL_TEXTURE_3D){
                     glCompressedTexImage3D(target,
-                                            i,
-                                            glFmt.internalFormat,
-                                            mipWidth,
-                                            mipHeight,
-                                            mipDepth,
-                                            border,
-                                            data);
+                                           i,
+                                           glFmt.internalFormat,
+                                           mipWidth,
+                                           mipHeight,
+                                           mipDepth,
+                                           border,
+                                           data);
+                } else if (target == GL_TEXTURE_2D_ARRAY_EXT) {
+                    // Upload compressed texture array slice
+                    glCompressedTexSubImage3D(target, 
+                                              i, 
+                                              0, 
+                                              0, 
+                                              index, 
+                                              mipWidth, 
+                                              mipHeight, 
+                                              1, 
+                                              glFmt.internalFormat, 
+                                              data);
                 }else{
                     //all other targets use 2D: array, cubemap, 2d
                     glCompressedTexImage2D(target,
@@ -347,8 +359,8 @@ class TextureUtil {
                                         0, // xoffset
                                         0, // yoffset
                                         index, // zoffset
-                                        width, // width
-                                        height, // height
+                                        mipWidth, // width
+                                        mipHeight, // height
                                         1, // depth
                                         glFmt.format,
                                         glFmt.dataType,
