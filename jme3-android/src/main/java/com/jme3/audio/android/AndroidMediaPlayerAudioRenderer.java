@@ -41,6 +41,7 @@ import android.media.SoundPool;
 import com.jme3.asset.AssetKey;
 import com.jme3.audio.*;
 import com.jme3.audio.AudioSource.Status;
+import com.jme3.audio.openal.ALAudioRenderer;
 import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import java.io.IOException;
@@ -53,7 +54,11 @@ import java.util.logging.Logger;
  *
  * @author larynx
  * @author plan_rich
+ * 
+ * @deprecated No longer supported due to too many limitations. 
+ * Please use the generic {@link ALAudioRenderer} instead.
  */
+@Deprecated
 public class AndroidMediaPlayerAudioRenderer implements AudioRenderer,
         SoundPool.OnLoadCompleteListener, MediaPlayer.OnCompletionListener {
 

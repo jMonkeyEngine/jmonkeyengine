@@ -90,16 +90,19 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
      * <p>
-     * NOTE: Supports Android 2.2+ platforms.  This is the current default for
-     * Android platforms.
+     * NOTE: Supports Android 2.2+ platforms.  
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
+     * @deprecated This audio renderer has too many limitations. 
+     * use {@link #ANDROID_OPENAL_SOFT} instead.
      */
+    @Deprecated
     public static final String ANDROID_MEDIAPLAYER = "MediaPlayer";
 
     /**
      * Use the OpenAL Soft based renderer for Android audio capabilities.
      * <p>
+     * This is the current default for Android platforms.
      * NOTE: Only to be used on Android 2.3+ platforms due to using OpenSL.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
