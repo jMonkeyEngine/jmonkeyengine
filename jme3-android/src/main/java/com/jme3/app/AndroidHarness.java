@@ -91,7 +91,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     /**
      * Sets the type of Audio Renderer to be used.
      * <p>
-     * Android MediaPlayer / SoundPool is the default and can be used on all
+     * Android MediaPlayer / SoundPool can be used on all
      * supported Android platform versions (2.2+)<br>
      * OpenAL Soft uses an OpenSL backend and is only supported on Android
      * versions 2.3+.
@@ -99,7 +99,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * Only use ANDROID_ static strings found in AppSettings
      *
      */
-    protected String audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
+    protected String audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
 
     /**
      * If true Android Sensors are used as simulated Joysticks. Users can use the
