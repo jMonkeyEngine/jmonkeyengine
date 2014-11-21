@@ -7,6 +7,7 @@ import com.jme3.asset.plugins.AndroidLocator;
 import com.jme3.asset.plugins.AndroidLocator.AndroidAssetInfo;
 import com.jme3.audio.AudioBuffer;
 import com.jme3.audio.AudioKey;
+import com.jme3.audio.AudioStream;
 import com.jme3.audio.SeekableStream;
 import com.jme3.util.BufferUtils;
 import java.io.IOException;
@@ -17,9 +18,11 @@ public class NativeVorbisLoader implements AssetLoader {
     
     private static class VorbisInputStream extends InputStream implements SeekableStream {
 
+        private final AssetFileDescriptor afd;
         private final NativeVorbisFile file;
         
-        public VorbisInputStream(NativeVorbisFile file) {
+        public VorbisInputStream(AssetFileDescriptor afd, NativeVorbisFile file) {
+            this.afd = afd;
             this.file = file;
         }
         
@@ -50,6 +53,12 @@ public class NativeVorbisLoader implements AssetLoader {
                 throw new RuntimeException(ex);
             }
         }
+        
+        @Override
+        public void close() throws IOException {
+            file.close();
+            afd.close();
+        }
     }
     
     private static AudioBuffer loadBuffer(AssetInfo assetInfo) throws IOException {
@@ -76,6 +85,36 @@ public class NativeVorbisLoader implements AssetLoader {
         }
     }
     
+    private static AudioStream loadStream(AssetInfo assetInfo) throws IOException {
+        AndroidAssetInfo aai = (AndroidAssetInfo) assetInfo;
+        AssetFileDescriptor afd = null;
+        NativeVorbisFile file = null;
+        boolean success = false;
+        
+        try {
+            afd = aai.openFileDescriptor();
+            int fd = afd.getParcelFileDescriptor().getFd();
+            file = new NativeVorbisFile(fd, afd.getStartOffset(), afd.getLength());
+            
+            AudioStream stream = new AudioStream();
+            stream.setupFormat(file.channels, 16, file.sampleRate);
+            stream.updateData(new VorbisInputStream(afd, file), file.duration);
+            
+            success = true;
+            
+            return stream;
+        } finally {
+            if (!success) {
+                if (file != null) {
+                    file.close();
+                }
+                if (afd != null) {
+                    afd.close();
+                }
+            }
+        }
+    }
+    
     @Override
     public Object load(AssetInfo assetInfo) throws IOException {
         AudioKey key = (AudioKey) assetInfo.getKey();
@@ -86,7 +125,7 @@ public class NativeVorbisLoader implements AssetLoader {
         }
         
         if (key.isStream()) {
-            throw new UnsupportedOperationException("Not supported yet. Come again.");
+            return loadStream(assetInfo);
         } else {
             return loadBuffer(assetInfo);
         }
