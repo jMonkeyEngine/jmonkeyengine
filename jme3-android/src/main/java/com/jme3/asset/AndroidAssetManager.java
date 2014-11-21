@@ -34,10 +34,12 @@ package com.jme3.asset;
 import com.jme3.asset.plugins.AndroidLocator;
 import com.jme3.asset.plugins.ClasspathLocator;
 import com.jme3.audio.plugins.AndroidAudioLoader;
+import com.jme3.audio.plugins.NativeVorbisLoader;
 import com.jme3.audio.plugins.WAVLoader;
 import com.jme3.system.AppSettings;
 import com.jme3.system.android.JmeAndroidSystem;
 import com.jme3.texture.plugins.AndroidBufferImageLoader;
+import com.jme3.texture.plugins.AndroidNativeImageLoader;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,16 +52,6 @@ import java.util.logging.Logger;
 public class AndroidAssetManager extends DesktopAssetManager {
 
     private static final Logger logger = Logger.getLogger(AndroidAssetManager.class.getName());
-
-    public AndroidAssetManager() {
-        this(null);
-    }
-
-    @Deprecated
-    public AndroidAssetManager(boolean loadDefaults) {
-        //this(Thread.currentThread().getContextClassLoader().getResource("com/jme3/asset/Android.cfg"));
-        this(null);
-    }
 
     private void registerLoaderSafe(String loaderClass, String ... extensions) {
         try {
@@ -82,16 +74,13 @@ public class AndroidAssetManager extends DesktopAssetManager {
         registerLocator("", AndroidLocator.class);
         registerLocator("", ClasspathLocator.class);
 
-        registerLoader(AndroidBufferImageLoader.class, "jpg", "bmp", "jpeg");
-        registerLoader(AndroidBufferImageLoader.class, "gif", "png");
+        registerLoader(AndroidNativeImageLoader.class, "jpg", "jpeg", "bmp", "gif", "png");
         
         if (JmeAndroidSystem.getAudioRendererType().equals(AppSettings.ANDROID_MEDIAPLAYER)) {
             registerLoader(AndroidAudioLoader.class, "ogg", "mp3", "wav");
         } else if (JmeAndroidSystem.getAudioRendererType().equals(AppSettings.ANDROID_OPENAL_SOFT)) {
             registerLoader(WAVLoader.class, "wav");
-            // TODO jogg is not in core, need to add some other way to get around compile errors, or not.
-//            registerLoader(com.jme3.audio.plugins.OGGLoader.class, "ogg");
-            registerLoaderSafe("com.jme3.audio.plugins.OGGLoader", "ogg");
+            registerLoader(NativeVorbisLoader.class, "ogg");
         } else {
             throw new IllegalStateException("No Audio Renderer Type defined!");
         }

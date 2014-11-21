@@ -32,7 +32,7 @@ import java.util.logging.Level;
 public class JmeAndroidSystem extends JmeSystemDelegate {
 
     private static Activity activity;
-    private static String audioRendererType = AppSettings.ANDROID_MEDIAPLAYER;
+    private static String audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
 
     static {
         try {
