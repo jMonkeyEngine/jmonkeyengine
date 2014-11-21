@@ -76,7 +76,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
     // Fill streaming sources every 50 ms
     private static final float UPDATE_RATE = 0.05f;
     private final Thread decoderThread = new Thread(this, "jME3 Audio Decoding Thread");
-    private final AtomicBoolean threadLock = new AtomicBoolean(false);
+    private final Object threadLock = new Object();
 
     private final AL al;
     private final ALC alc;
