@@ -220,7 +220,7 @@ public class OGLESShaderRenderer implements Renderer {
         }
 
         // Check shader language version
-        glslVer = extractVersion("OpenGL ES GLSL ES ", GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION));
+        glslVer = extractVersion("OpenGL ES GLSL ", GLES20.glGetString(GLES20.GL_SHADING_LANGUAGE_VERSION));
         switch (glslVer) {
             // TODO: When new versions of OpenGL ES shader language come out,
             // update this.
