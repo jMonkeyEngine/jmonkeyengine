@@ -142,7 +142,7 @@ public class OGLESShaderRenderer implements Renderer {
         return caps;
     }
 
-    private int extractVersion(String prefixStr, String versionStr) {
+    private static int extractVersion(String prefixStr, String versionStr) {
         if (versionStr != null) {
             int spaceIdx = versionStr.indexOf(" ", prefixStr.length());
             if (spaceIdx >= 1) {
@@ -150,10 +150,37 @@ public class OGLESShaderRenderer implements Renderer {
             } else {
                 versionStr = versionStr.substring(prefixStr.length()).trim();
             }
-            //some device have ":" at the end of the version.
-            versionStr = versionStr.replaceAll("\\:", "");
-            float version = Float.parseFloat(versionStr);
-            return (int) (version * 100);
+            
+            // Find a character which is not a period or digit.
+            for (int i = 0; i < versionStr.length(); i++) {
+                char c = versionStr.charAt(i);
+                if (c != '.' && (c < '0' || c > '9')) {
+                    versionStr = versionStr.substring(0, i);
+                    break;
+                }
+            }
+            
+            // Pivot on first point.
+            int firstPoint = versionStr.indexOf(".");
+            
+            // Remove everything after second point.
+            int secondPoint = versionStr.indexOf(".", firstPoint + 1);
+            
+            if (secondPoint != -1) {
+                versionStr = versionStr.substring(0, secondPoint);
+            }
+            
+            String majorVerStr = versionStr.substring(0, firstPoint);
+            String minorVerStr = versionStr.substring(firstPoint + 1);
+            
+            if (minorVerStr.endsWith("0") && minorVerStr.length() > 1) {
+                minorVerStr = minorVerStr.substring(0, minorVerStr.length() - 1);
+            }
+            
+            int majorVer = Integer.parseInt(majorVerStr);
+            int minorVer = Integer.parseInt(minorVerStr);
+            
+            return majorVer * 100 + minorVer * 10;
         } else {
             return -1;
         }

@@ -164,8 +164,15 @@ public class LwjglRenderer implements Renderer {
             } else {
                 versionStr = versionStr.substring(prefixStr.length()).trim();
             }
-            // Some device have ":" at the end of the version.
-            versionStr = versionStr.replaceAll("\\:", "");
+            
+            // Find a character which is not a period or digit.
+            for (int i = 0; i < versionStr.length(); i++) {
+                char c = versionStr.charAt(i);
+                if (c != '.' && (c < '0' || c > '9')) {
+                    versionStr = versionStr.substring(0, i);
+                    break;
+                }
+            }
             
             // Pivot on first point.
             int firstPoint = versionStr.indexOf(".");
