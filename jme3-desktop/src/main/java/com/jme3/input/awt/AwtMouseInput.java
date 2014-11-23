@@ -36,8 +36,6 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.RawInputListener;
 import com.jme3.input.event.MouseButtonEvent;
 import com.jme3.input.event.MouseMotionEvent;
-import com.jme3.system.JmeSystem;
-import com.jme3.system.Platform;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -141,7 +139,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     public long getInputTimeNanos() {
         return System.nanoTime();
     }
-
+    
     public void setCursorVisible(boolean visible) {
 //        if(JmeSystem.getPlatform() != Platform.MacOSX32 &&
 //                JmeSystem.getPlatform() != Platform.MacOSX64 &&
@@ -170,7 +168,7 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
             int newY = location.y;
             int newWheel = wheelPos;
 
-            // invert DY
+            // invert actual Y and DY for motion events
             int actualX = lastKnownLocation.x;
             int actualY = component.getHeight() - lastKnownLocation.y;
             MouseMotionEvent evt = new MouseMotionEvent(actualX, actualY,
@@ -227,7 +225,9 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     }
 
     public void mousePressed(MouseEvent awtEvt) {
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), true, awtEvt.getX(), awtEvt.getY());
+        // Must flip Y!
+        int y = component.getHeight() - awtEvt.getY();
+        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), true, awtEvt.getX(), y);
         evt.setTime(awtEvt.getWhen());
         synchronized (eventQueue) {
             eventQueue.add(evt);
@@ -235,7 +235,8 @@ public class AwtMouseInput implements MouseInput, MouseListener, MouseWheelListe
     }
 
     public void mouseReleased(MouseEvent awtEvt) {
-        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), false, awtEvt.getX(), awtEvt.getY());
+        int y = component.getHeight() - awtEvt.getY();
+        MouseButtonEvent evt = new MouseButtonEvent(getJMEButtonIndex(awtEvt), false, awtEvt.getX(), y);
         evt.setTime(awtEvt.getWhen());
         synchronized (eventQueue) {
             eventQueue.add(evt);
