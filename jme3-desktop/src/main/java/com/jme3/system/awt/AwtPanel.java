@@ -288,19 +288,15 @@ public class AwtPanel extends Canvas implements SceneProcessor {
         repaintRequest.set(true);
     }
 
-    public void postFrame(FrameBuffer out) {
-        if (!attachAsMain && out != fb){
-            throw new IllegalStateException("Why did you change the output framebuffer?");
-        }
-        
-        if (reshapeNeeded.getAndSet(false)){
+    void onFrameEnd() {
+        if (reshapeNeeded.getAndSet(false)) {
             reshapeInThread(newWidth, newHeight);
-        }else{
-            if (!checkVisibilityState()){
+        } else {
+            if (!checkVisibilityState()) {
                 return;
             }
-            
-            switch (paintMode){
+
+            switch (paintMode) {
                 case Accelerated:
                     drawFrameInThread();
                     break;
@@ -308,12 +304,20 @@ public class AwtPanel extends Canvas implements SceneProcessor {
                     repaintInThread();
                     break;
                 case OnRequest:
-                    if (repaintRequest.getAndSet(false)){
+                    if (repaintRequest.getAndSet(false)) {
                         repaintInThread();
                     }
                     break;
             }
         }
+    }
+    
+    public void postFrame(FrameBuffer out) {
+        if (!attachAsMain && out != fb){
+            throw new IllegalStateException("Why did you change the output framebuffer?");
+        }
+        
+        // onFrameEnd();
     }
     
     public void reshape(ViewPort vp, int w, int h) {
