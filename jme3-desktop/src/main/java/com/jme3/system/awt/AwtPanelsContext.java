@@ -178,7 +178,7 @@ public class AwtPanelsContext implements JmeContext {
             }
         }
 
-        if (needThrottle){
+        if (needThrottle) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
@@ -186,6 +186,10 @@ public class AwtPanelsContext implements JmeContext {
         }
 
         listener.update();
+        
+        for (AwtPanel panel : panels){
+            panel.onFrameEnd();
+        }
     }
 
     private void destroyInThread(){
