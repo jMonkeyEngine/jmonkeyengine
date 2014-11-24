@@ -35,6 +35,9 @@ public class ConstraintDefinitionTransLike extends ConstraintDefinition {
 
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
+        if(influence == 0 || targetTransform == null) {
+            return ;// no need to do anything
+        }
         Object target = this.getTarget();// Bone or Node
         Object owner = this.getOwner();// Bone or Node
         if (!target.getClass().equals(owner.getClass())) {

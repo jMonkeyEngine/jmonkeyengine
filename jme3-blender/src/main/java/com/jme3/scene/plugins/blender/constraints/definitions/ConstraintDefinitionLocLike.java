@@ -49,6 +49,9 @@ import com.jme3.scene.plugins.blender.file.Structure;
             // location copy does not work on bones who are connected to their parent
             return;
         }
+        if(influence == 0 || targetTransform == null) {
+            return ;// no need to do anything
+        }
         
         Transform ownerTransform = this.getOwnerTransform(ownerSpace);
         

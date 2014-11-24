@@ -29,6 +29,9 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
+        if(influence == 0 || targetTransform == null) {
+            return ;// no need to do anything
+        }
         Transform ownerTransform = this.getOwnerTransform(ownerSpace);
         
         Quaternion ownerRotation = ownerTransform.getRotation();

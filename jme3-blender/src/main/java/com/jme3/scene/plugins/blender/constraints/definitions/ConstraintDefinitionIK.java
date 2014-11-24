@@ -53,12 +53,15 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
 
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if (influence == 0 || !needToCompute) {
+        if (influence == 0 || !needToCompute || targetTransform == null) {
             return;// no need to do anything
         }
         Quaternion q = new Quaternion();
         Vector3f t = targetTransform.getTranslation();
         List<BoneContext> bones = this.loadBones();
+        if(bones.size() == 0) {
+            return;// no need to do anything
+        }
         float distanceFromTarget = Float.MAX_VALUE;
 
         int iterations = this.iterations;
