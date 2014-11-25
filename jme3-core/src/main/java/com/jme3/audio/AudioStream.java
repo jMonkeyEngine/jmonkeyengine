@@ -97,6 +97,7 @@ public class AudioStream extends AudioData implements Closeable {
             }
             return totalRead;
         } catch (IOException ex) {
+            ex.printStackTrace();
             eof = true;
             return -1;
         }
@@ -196,7 +197,7 @@ public class AudioStream extends AudioData implements Closeable {
             ((SeekableStream) in).setTime(time);
             eof = false;
         } else {
-            logger.log(Level.WARNING, 
+            throw new IllegalStateException(
                     "Cannot use setTime on a stream that "
                     + "is not seekable. You must load the file "
                     + "with the streamCache option set to true");
