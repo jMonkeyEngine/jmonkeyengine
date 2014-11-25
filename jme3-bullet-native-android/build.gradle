@@ -141,27 +141,27 @@ task generateNativeHeaders(dependsOn: copyJmeAndroid) << {
             com.jme3.bullet.joints.motors.TranslationalLimitMotor, \
             \
             com.jme3.bullet.util.NativeMeshUtil, \
-            com.jme3.bullet.util.DebugShapeFactory, \
-            "
+            com.jme3.bullet.util.DebugShapeFactory"
 
     String projectClassPath = configurations.runtime.asFileTree.matching {
         exclude ".gradle"
     }.asPath
 
-    ant.javah(
-        classpath: projectClassPath,
-        destdir: destDirPath,
-        class: classes
-    )
-
+    exec {
+        executable org.gradle.internal.jvm.Jvm.current().getExecutable('javah')
+        args '-d', destDirPath
+        args '-classpath', projectClassPath
+        args classes.split(",").collect { it.trim() }
+    }
 }
 
 task buildBulletNativeLib(type: Exec, dependsOn: generateNativeHeaders) {
-    args 'TARGET_PLATFORM=android-9'
+//    args 'TARGET_PLATFORM=android-9'
 //    println "buildBulletNativeLib ndkWorkingPath: " + ndkWorkingPath
 //    println "buildBulletNativeLib rootProject.ndkCommandPath: " + rootProject.ndkCommandPath
     workingDir ndkWorkingPath
     executable rootProject.ndkCommandPath
+    args "-j8"
 }
 
 //task updatePreCompiledBulletLibs(type: Copy, dependsOn: generateNativeHeaders) {
