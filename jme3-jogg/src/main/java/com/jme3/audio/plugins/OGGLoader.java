@@ -63,15 +63,18 @@ public class OGGLoader implements AssetLoader {
   
     private static class JOggInputStream extends InputStream {
 
-        private boolean endOfStream = false;
+        protected boolean endOfStream = false;
         protected PhysicalOggStream ps;
         protected LogicalOggStream ls;
         protected VorbisStream vs;
+        protected int current = 0;
+        protected final int maximum;
 
-        public JOggInputStream(PhysicalOggStream ps, LogicalOggStream ls, VorbisStream vs){   
+        public JOggInputStream(PhysicalOggStream ps, LogicalOggStream ls, VorbisStream vs, int maximum){   
             this.ps = ps;
             this.ls = ls;
-            this.vs = vs;       
+            this.vs = vs;
+            this.maximum = maximum;
         }
 
         @Override
@@ -94,25 +97,37 @@ public class OGGLoader implements AssetLoader {
             assert length % 2 == 0; // read buffer should be even
 
             while (bytesRead < length) {
-                if ((cnt = vs.readPcm(buf, offset + bytesRead, length - bytesRead)) <= 0) {
-                    System.out.println("Read " + cnt + " bytes");
-                    System.out.println("offset " + offset);
-                    System.out.println("bytesRead " + bytesRead);
-                    System.out.println("buf length " + length);
-                    for (int i = 0; i < bytesRead; i++) {
-                        System.out.print(buf[i]);
+                try {
+                    int toRead;
+                    if (maximum != -1) {
+                        if (current >= maximum) {
+                            endOfStream = true;
+                            break;
+                        }
+                        int remainingInStream = maximum - current;
+                        int remainingToBuffer = length - bytesRead;
+                        toRead = Math.min(remainingInStream, remainingToBuffer);
+                    } else {
+                        toRead = length - bytesRead;
                     }
-                    System.out.println("");
-
-                    System.out.println("EOS");
+                    if ((cnt = vs.readPcm(buf, offset + bytesRead, toRead)) <= 0) {
+                        endOfStream = true;
+                        break;
+                    }
+                } catch (EndOfOggStreamException ex) {
                     endOfStream = true;
                     break;
                 }
                 bytesRead += cnt;
+                current += cnt;
             }
 
-            swapBytes(buf, offset, bytesRead);
-            return bytesRead;
+            if (endOfStream && bytesRead <= 0) {
+                return -1;
+            } else {
+                swapBytes(buf, offset, bytesRead);
+                return bytesRead;
+            }
         }
 
         @Override
@@ -124,8 +139,8 @@ public class OGGLoader implements AssetLoader {
     
     private static class SeekableJOggInputStream extends JOggInputStream implements SeekableStream {
      
-        public SeekableJOggInputStream(PhysicalOggStream ps, LogicalOggStream ls, VorbisStream vs){           
-            super(ps, ls, vs);
+        public SeekableJOggInputStream(PhysicalOggStream ps, LogicalOggStream ls, VorbisStream vs, int maximum){           
+            super(ps, ls, vs, maximum);
         }
 
         public void setTime(float time) {
@@ -140,6 +155,8 @@ public class OGGLoader implements AssetLoader {
                 // an streaming OGG file via setTime(0).
                 ls = ((CachedOggStream) ps).reloadLogicalOggStream();
                 vs = new VorbisStream(ls);
+                endOfStream = false;
+                current = 0;
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -235,9 +252,10 @@ public class OGGLoader implements AssetLoader {
 
     private InputStream readToStream(boolean seekable) {
         if (seekable) {
-            return new SeekableJOggInputStream(oggStream, loStream, vorbisStream);
+            int maximum = getOggTotalBytes(Integer.MAX_VALUE);
+            return new SeekableJOggInputStream(oggStream, loStream, vorbisStream, maximum);
         } else {
-            return new JOggInputStream(oggStream, loStream, vorbisStream);
+            return new JOggInputStream(oggStream, loStream, vorbisStream, -1);
         }
     }
     
@@ -288,7 +306,12 @@ public class OGGLoader implements AssetLoader {
         InputStream in = null;
         try {
             in = info.openStream();
-            return load(in, readStream, streamCache);
+            AudioData data = load(in, readStream, streamCache);
+            if (readStream && !streamCache) {
+                // we still need the stream in this case ..
+                in = null;
+            }
+            return data;
         } finally {
             if (in != null){
                 in.close();
