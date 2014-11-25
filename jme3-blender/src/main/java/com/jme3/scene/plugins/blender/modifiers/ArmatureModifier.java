@@ -53,18 +53,21 @@ import com.jme3.scene.plugins.blender.meshes.TemporalMesh;
                 modifying = useBoneEnvelopes || useVertexGroups;
                 if (modifying) {// if neither option is used the modifier will not modify anything anyway
                     Structure armatureObject = pArmatureObject.fetchData().get(0);
-                    
-                    // load skeleton
-                    Structure armatureStructure = ((Pointer) armatureObject.getFieldValue("data")).fetchData().get(0);
-                    List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase();
-                    List<Bone> bonesList = new ArrayList<Bone>();
-                    for (int i = 0; i < bonebase.size(); ++i) {
-                        this.buildBones(armatureObject.getOldMemoryAddress(), bonebase.get(i), null, bonesList, objectStructure.getOldMemoryAddress(), blenderContext);
-                    }
-                    bonesList.add(0, new Bone(""));
-                    Bone[] bones = bonesList.toArray(new Bone[bonesList.size()]);
-                    skeleton = new Skeleton(bones);
-                    blenderContext.setSkeleton(armatureObject.getOldMemoryAddress(), skeleton);
+                    if(blenderContext.getSkeleton(armatureObject.getOldMemoryAddress()) == null) {
+                        LOGGER.fine("Creating new skeleton for armature modifier.");
+                        Structure armatureStructure = ((Pointer) armatureObject.getFieldValue("data")).fetchData().get(0);
+                        List<Structure> bonebase = ((Structure) armatureStructure.getFieldValue("bonebase")).evaluateListBase();
+                        List<Bone> bonesList = new ArrayList<Bone>();
+                        for (int i = 0; i < bonebase.size(); ++i) {
+                            this.buildBones(armatureObject.getOldMemoryAddress(), bonebase.get(i), null, bonesList, objectStructure.getOldMemoryAddress(), blenderContext);
+                        }
+                        bonesList.add(0, new Bone(""));
+                        Bone[] bones = bonesList.toArray(new Bone[bonesList.size()]);
+                        skeleton = new Skeleton(bones);
+                        blenderContext.setSkeleton(armatureObject.getOldMemoryAddress(), skeleton);
+                    } else {
+                        skeleton = blenderContext.getSkeleton(armatureObject.getOldMemoryAddress());
+                    }                    
                 }
             } else {
                 modifying = false;

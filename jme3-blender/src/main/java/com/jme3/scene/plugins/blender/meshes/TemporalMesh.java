@@ -518,8 +518,14 @@ public class TemporalMesh extends Geometry {
                         Map<String, Float> vertexGroupsForVertex = vertexGroups.get(vertIndex);
                         for (Entry<String, Integer> entry : boneIndexes.entrySet()) {
                             if (vertexGroupsForVertex.containsKey(entry.getKey())) {
-                                boneBuffersForVertex.put(vertexGroupsForVertex.get(entry.getKey()), entry.getValue());
+                                float weight = vertexGroupsForVertex.get(entry.getKey());
+                                if(weight > 0) {// no need to use such weights
+                                    boneBuffersForVertex.put(weight, entry.getValue());
+                                }
                             }
+                        }
+                        if(boneBuffersForVertex.size() == 0) {// attach the vertex to zero-indexed bone so that it does not collapse to (0, 0, 0)
+                            boneBuffersForVertex.put(1.0f, 0);
                         }
                         boneBuffers.add(boneBuffersForVertex);
                     }
