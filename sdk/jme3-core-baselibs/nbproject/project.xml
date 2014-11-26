@@ -55,6 +55,7 @@
         <package>com.jme3.effect.influencers</package>
         <package>com.jme3.effect.shapes</package>
         <package>com.jme3.audio</package>
+        <package>com.jme3.audio.openal</package>
         <package>com.jme3.audio.plugins</package>
         <package>com.jme3.light</package>
         <package>com.jme3.cinematic</package>
