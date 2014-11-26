@@ -652,7 +652,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             ib.position(0).limit(1);
             al.alSourceUnqueueBuffers(sourceId, 1, ib);
             buffer = ib.get(0);
-
+            
             boolean active = fillBuffer(stream, buffer);
             
             if (!active && !stream.isEOF()) {
@@ -662,6 +662,10 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             if (!active && looping) {
                 stream.setTime(0);
                 active = fillBuffer(stream, buffer);
+                if (!active) {
+                    throw new IllegalStateException("Looping streaming source " +
+                            "was rewinded but could not be filled");
+                }
             }
             
             if (active) {
@@ -679,7 +683,7 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         return success;
     }
 
-    private boolean attachStreamToSource(int sourceId, AudioStream stream, boolean looping) {
+    private void attachStreamToSource(int sourceId, AudioStream stream, boolean looping) {
         boolean success = false;
         
         // Reset the stream. Typically happens if it finished playing on 
@@ -698,6 +702,10 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             if (!active && looping) {
                 stream.setTime(0);
                 active = fillBuffer(stream, id);
+                if (!active) {
+                    throw new IllegalStateException("Looping streaming source " +
+                            "was rewinded but could not be filled");
+                }
             }
             if (active) {
                 ib.position(0).limit(1);
@@ -706,7 +714,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 success = true;
             }
         }
-        return success;
+        
+        if (!success) {
+            // should never happen
+            throw new IllegalStateException("No valid data could be read from stream");
+        }
     }
 
     private boolean attachBufferToSource(int sourceId, AudioBuffer buffer) {
@@ -714,13 +726,14 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
         return true;
     }
 
-    private boolean attachAudioToSource(int sourceId, AudioData data, boolean looping) {
+    private void attachAudioToSource(int sourceId, AudioData data, boolean looping) {
         if (data instanceof AudioBuffer) {
-            return attachBufferToSource(sourceId, (AudioBuffer) data);
+            attachBufferToSource(sourceId, (AudioBuffer) data);
         } else if (data instanceof AudioStream) {
-            return attachStreamToSource(sourceId, (AudioStream) data, looping);
+            attachStreamToSource(sourceId, (AudioStream) data, looping);
+        } else {
+            throw new UnsupportedOperationException();
         }
-        throw new UnsupportedOperationException();
     }
 
     private void clearChannel(int index) {
@@ -786,6 +799,21 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
             boolean reclaimChannel = false;
             
             Status oalStatus = convertStatus(al.alGetSourcei(sourceId, AL_SOURCE_STATE));
+            
+            if (!boundSource) {
+                // Rules for instanced playback vary significantly. 
+                // Handle it here.
+                if (oalStatus == Status.Stopped) {
+                    // Instanced audio stopped playing. Reclaim channel.
+                    clearChannel(i);
+                    freeChannel(i);
+                } else if (oalStatus == Status.Paused) {
+                    throw new AssertionError("Instanced audio cannot be paused");
+                }
+                
+                continue;
+            }
+            
             Status jmeStatus = src.getStatus();
             
             // Check if we need to sync JME status with OAL status.
@@ -806,25 +834,31 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                         }
                     } else {
                         // Buffer finished playing.
-                        reclaimChannel = true;
+                        if (src.isLooping()) {
+                            throw new AssertionError("Unexpected state: " + 
+                                                     "A looping sound has stopped playing");
+                        } else {
+                            reclaimChannel = true;
+                        }
                     }
                     
                     if (reclaimChannel) {
-                        if (boundSource) {
-                            src.setStatus(Status.Stopped);
-                            src.setChannel(-1);
-                        }
+                        src.setStatus(Status.Stopped);
+                        src.setChannel(-1);
                         clearChannel(i);
                         freeChannel(i);
                     }
                 } else {
                     // jME3 state does not match OAL state.
-                    throw new AssertionError();
+                    // This is only relevant for bound sources.
+                    throw new AssertionError("Unexpected sound status. "
+                                            + "OAL: " + oalStatus 
+                                            + ", JME: " + jmeStatus);
                 }
             } else {
                 // Stopped channel was not cleared correctly.
                 if (oalStatus == Status.Stopped) {
-                    throw new AssertionError();
+                    throw new AssertionError("Channel " + i + " was not reclaimed");
                 }
             }
         }
@@ -860,6 +894,11 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                     al.alSourcePlay(sourceId);
                 } else {
                     // Buffers were filled, stream continues to play.
+                    if (oalStatus == Status.Playing && jmeStatus == Status.Playing) {
+                        // Nothing to do.
+                    } else {
+                        throw new AssertionError();
+                    }
                 }
             }
         }
