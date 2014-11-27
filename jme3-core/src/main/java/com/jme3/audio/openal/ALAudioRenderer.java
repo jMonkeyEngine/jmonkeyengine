@@ -1047,7 +1047,14 @@ public class ALAudioRenderer implements AudioRenderer, Runnable {
                 freeChannel(chan);
                 
                 if (src.getAudioData() instanceof AudioStream) {
-                    ((AudioStream)src.getAudioData()).setTime(0);
+                    // If the stream is seekable, then rewind it.
+                    // Otherwise, close it, as it is no longer valid.
+                    AudioStream stream = (AudioStream)src.getAudioData();
+                    if (stream.isSeekable()) {
+                        stream.setTime(0);
+                    } else {
+                        stream.close();
+                    }
                 }
             }
         }

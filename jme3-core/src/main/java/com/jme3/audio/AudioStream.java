@@ -191,6 +191,10 @@ public class AudioStream extends AudioData implements Closeable {
             throw new RuntimeException("AudioStream is already closed!");
         }
     }
+    
+    public boolean isSeekable() {
+        return in instanceof SeekableStream;
+    }
 
     public void setTime(float time) {
         if (in instanceof SeekableStream) {
