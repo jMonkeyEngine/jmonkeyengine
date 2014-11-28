@@ -66,7 +66,6 @@ import jme3tools.converters.MipMapGenerator;
 import jme3tools.shader.ShaderDebug;
 
 import static org.lwjgl.opengl.ARBDrawInstanced.*;
-import static org.lwjgl.opengl.ARBFramebufferObject.*;
 import static org.lwjgl.opengl.ARBInstancedArrays.*;
 import static org.lwjgl.opengl.ARBMultisample.*;
 import static org.lwjgl.opengl.ARBTextureMultisample.*;
@@ -84,8 +83,6 @@ import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import org.lwjgl.opengl.GL30;
-//import static org.lwjgl.opengl.GL21.*;
-//import static org.lwjgl.opengl.GL30.*;
 
 
 public class LwjglRenderer implements Renderer {
@@ -398,6 +395,10 @@ public class LwjglRenderer implements Renderer {
             maxFBOAttachs = intBuf16.get(0);
             logger.log(Level.FINER, "FBO Max renderbuffers: {0}", maxFBOAttachs);
 
+            if (hasExtension("GL_EXT_framebuffer_blit")) {
+                caps.add(Caps.FrameBufferBlit);
+            }
+            
             if (hasExtension("GL_EXT_framebuffer_multisample")) {
                 caps.add(Caps.FrameBufferMultisample);
 
@@ -1002,8 +1003,6 @@ public class LwjglRenderer implements Renderer {
                 return GL_FRAGMENT_SHADER;
             case Vertex:
                 return GL_VERTEX_SHADER;
-//            case Geometry:
-//                return ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB;
             default:
                 throw new UnsupportedOperationException("Unrecognized shader type.");
         }
@@ -1459,11 +1458,13 @@ public class LwjglRenderer implements Renderer {
         if (attachmentSlot == FrameBuffer.SLOT_DEPTH) {
             return GL_DEPTH_ATTACHMENT_EXT;
         } else if (attachmentSlot == FrameBuffer.SLOT_DEPTH_STENCIL) {
-            return GL_DEPTH_STENCIL_ATTACHMENT;
+            // NOTE: Using depth stencil format requires GL3, this is already
+            // checked via render caps.
+            return GL30.GL_DEPTH_STENCIL_ATTACHMENT;
         } else if (attachmentSlot < 0 || attachmentSlot >= 16) {
             throw new UnsupportedOperationException("Invalid FBO attachment slot: " + attachmentSlot);
         }
-
+        
         return GL_COLOR_ATTACHMENT0_EXT + attachmentSlot;
     }
 
