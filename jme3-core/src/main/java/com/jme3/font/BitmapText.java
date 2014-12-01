@@ -352,7 +352,7 @@ public class BitmapText extends Node {
     public void setTabPosition(float... tabs) {
         block.setTabPosition(tabs);
         letters.invalidate();
-        needRefresh = false;
+        needRefresh = true;
     }
 
     /**
@@ -362,7 +362,7 @@ public class BitmapText extends Node {
     public void setTabWidth(float width) {
         block.setTabWidth(width);
         letters.invalidate();
-        needRefresh = false;
+        needRefresh = true;
     }
 
     /**
@@ -373,7 +373,7 @@ public class BitmapText extends Node {
     public void setEllipsisChar(char c) {
         block.setEllipsisChar(c);
         letters.invalidate();
-        needRefresh = false;
+        needRefresh = true;
     }
 
     /**
