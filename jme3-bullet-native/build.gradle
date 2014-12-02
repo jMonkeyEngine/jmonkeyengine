@@ -10,6 +10,32 @@ dependencies {
     compile project(':jme3-bullet')
 }
 
+// Defines created C++ libraries
+libraries {
+    bulletjme {
+    }
+    all {
+        binaries.all {
+            cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+            if (targetPlatform.operatingSystem.name == "osx") {
+                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
+            } else if (targetPlatform.operatingSystem.name == "linux") {
+                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
+                cppCompiler.args "-fPIC"
+                cppCompiler.args "-fpermissive"
+                cppCompiler.args "-static-libgcc"
+                cppCompiler.args "-static-libstdc++"
+                linker.args "-static-libgcc"
+                linker.args "-static-libstdc++"
+            } else if (targetPlatform.operatingSystem.name == "windows") {
+                cppCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+//                cppCompiler.define('WIN32')
+//                linker.args 'Shlwapi.lib', 'Advapi32.lib'
+            }
+        }
+    }
+}
+
 // C++ sources for binary compilation
 sources {
     bulletjme {
@@ -73,32 +99,6 @@ model {
     }
 }
 
-// Defines created C++ libraries
-libraries {
-    bulletjme {
-    }
-    all {
-        binaries.all {
-            cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
-            if (targetPlatform.operatingSystem.name == "osx") {
-                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
-            } else if (targetPlatform.operatingSystem.name == "linux") {
-                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/linux"
-                cppCompiler.args "-fPIC"
-                cppCompiler.args "-fpermissive"
-                cppCompiler.args "-static-libgcc"
-                cppCompiler.args "-static-libstdc++"
-                linker.args "-static-libgcc"
-                linker.args "-static-libstdc++"
-            } else if (targetPlatform.operatingSystem.name == "windows") {
-                cppCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
-//                cppCompiler.define('WIN32')
-//                linker.args 'Shlwapi.lib', 'Advapi32.lib'
-            }
-        }
-    }
-}
-
 // Download bullet if not available
 task downloadBullet(type: MyDownload) {
     sourceUrl = bulletUrl
@@ -145,7 +145,8 @@ binaries.withType(SharedLibraryBinary) { binary ->
         return
     }
     // Get builder of this binary
-    def builderTask = binary.tasks.builder
+    def builderTask = binary.tasks
+    
     // Add output to jar file
     jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") { from builderTask.outputFile }
     // Add depend on build
