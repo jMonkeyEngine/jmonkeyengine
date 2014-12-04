@@ -653,24 +653,4 @@ public class Node extends Spatial implements Savable {
     protected void breadthFirstTraversal(SceneGraphVisitor visitor, Queue<Spatial> queue) {
         queue.addAll(children);
     }
-/*    
-    @Override
-    void checkDoBoundUpdate() {
-        if ((refreshFlags & RF_BOUND) == 0) {
-            return;
-        }
-    
-        checkDoTransformUpdate();
-    
-        // Go to children recursively and update their bound
-        int len = getQuantity();
-        for (int i = 0; i < len; i++) {
-            Spatial child = getChild(i);
-            child.checkDoBoundUpdate();
-        }
-    
-        // All children's bounds have been updated. Update my own now.
-        updateWorldBound();
-    }
-*/
 }
