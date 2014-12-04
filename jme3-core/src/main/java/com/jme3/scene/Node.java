@@ -177,13 +177,13 @@ public class Node extends Spatial implements Savable {
             updateWorldTransforms();
         }
 
+        refreshFlags &= ~RF_CHILD_LIGHTLIST;
         if (!children.isEmpty()) {
             // the important part- make sure child geometric state is refreshed
             // first before updating own world bound. This saves
             // a round-trip later on.
             // NOTE 9/19/09
             // Although it does save a round trip,
-            refreshFlags &= ~RF_CHILD_LIGHTLIST;
             for (Spatial child : children.getArray()) {
                 child.updateGeometricState();
             }
