@@ -213,7 +213,10 @@ public abstract class Texture implements CloneableSmartAsset, Savable, Cloneable
          * coordinate will be clamped to the range [-1/(2N), 1 + 1/(2N)] where N
          * is the size of the texture in the direction of clamping. Falls back
          * on Clamp if not supported.
+         * 
+         * @deprecated Not supported by OpenGL 3 or OpenGL ES 2
          */ 
+        @Deprecated
         BorderClamp,
         /**
          * Wrap mode MIRROR_CLAMP_TO_BORDER_EXT mirrors and clamps to border the
