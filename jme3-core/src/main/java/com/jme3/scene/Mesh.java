@@ -1349,9 +1349,17 @@ public class Mesh implements Savable, Cloneable {
         return buffersList;
     }
     
+    /**
+     * Determines if the mesh uses bone animation.
+     * 
+     * A mesh uses bone animation if it has bone index / weight buffers
+     * such as {@link Type#BoneIndex} or {@link Type#HWBoneIndex}.
+     * 
+     * @return true if the mesh uses bone animation, false otherwise
+     */
     public boolean isAnimated() {
-        //TODO this won't work once we have pose animations, we should find a better way to check for animation
-        return getBuffer(Type.BindPosePosition) != null && getBuffer(Type.BoneIndex) != null && getBuffer(Type.BoneWeight) != null;
+        return getBuffer(Type.BoneIndex) != null || 
+               getBuffer(Type.HWBoneIndex) != null;
     }
 
 
