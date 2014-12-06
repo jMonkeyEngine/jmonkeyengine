@@ -307,10 +307,6 @@ public class JoglRenderer implements Renderer {
             caps.add(Caps.MeshInstancing);
         }
 
-        if (gl.isExtensionAvailable("GL_ARB_fragment_program")) {
-            caps.add(Caps.ARBprogram);
-        }
-
         if (gl.isExtensionAvailable("GL_ARB_texture_buffer_object")) {
             caps.add(Caps.TextureBuffer);
         }

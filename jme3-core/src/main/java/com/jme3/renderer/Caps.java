@@ -53,6 +53,21 @@ public enum Caps {
      * <p>
      * OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
      * OpenGL ES: Renderer supports OpenGL ES 2.0.
+     *//**
+     * Supports {@link FrameBuffer FrameBuffers}.
+     * <p>
+     * OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
+     * OpenGL ES: Renderer supports OpenGL ES 2.0.
+     *//**
+     * Supports {@link FrameBuffer FrameBuffers}.
+     * <p>
+     * OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
+     * OpenGL ES: Renderer supports OpenGL ES 2.0.
+     *//**
+     * Supports {@link FrameBuffer FrameBuffers}.
+     * <p>
+     * OpenGL: Renderer exposes the GL_EXT_framebuffer_object extension.<br>
+     * OpenGL ES: Renderer supports OpenGL ES 2.0.
      */
     FrameBuffer,
 
@@ -107,12 +122,12 @@ public enum Caps {
     OpenGL32,
 
     /**
-     * Supports OpenGL ARB program.
-     * <p>
-     * OpenGL: Renderer exposes ARB_vertex_program and ARB_fragment_program
-     * extensions.
+     * Do not use.
+     * 
+     * @deprecated do not use.
      */
-    ARBprogram,
+    @Deprecated
+    Reserved0,
     
     /**
      * Supports GLSL 1.0
@@ -170,7 +185,7 @@ public enum Caps {
     TextureBuffer,
 
     /**
-     * Supports floating point textures (Format.RGB16F)
+     * Supports floating point & half textures (Format.RGB16F)
      */
     FloatTexture,
 
@@ -204,6 +219,11 @@ public enum Caps {
      */
     SharedExponentColorBuffer,
     
+    /**
+     * Do not use.
+     * 
+     * @deprecated do not use.
+     */
     @Deprecated
     Reserved1,
 
@@ -212,7 +232,9 @@ public enum Caps {
      */
     NonPowerOfTwoTextures,
 
-    /// Vertex Buffer features
+    /**
+     * Supports geometry instancing.
+     */
     MeshInstancing,
 
     /**
@@ -253,7 +275,33 @@ public enum Caps {
     /**
      * Supports {@link Format#ETC1} texture compression.
      */
-    TextureCompressionETC1;
+    TextureCompressionETC1,
+    
+    /**
+     * Supports {@link Format#ETC1} texture compression by uploading
+     * the texture as ETC2 (they are backwards compatible).
+     */
+    TextureCompressionETC2,
+    
+    /**
+     * Supports OpenGL ES 2
+     */
+    OpenGLES20,
+    
+    /**
+     * Supports RGB8 / RGBA8 textures
+     */
+    Rgba8,
+    
+    /**
+     * Supports depth textures.
+     */
+    DepthTexture,
+    
+    /**
+     * Supports 32-bit index buffers.
+     */
+    IntegerIndexBuffer;
 
     /**
      * Returns true if given the renderer capabilities, the texture
