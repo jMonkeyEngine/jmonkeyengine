@@ -37,7 +37,9 @@ import com.jme3.input.lwjgl.LwjglKeyInput;
 import com.jme3.input.lwjgl.LwjglMouseInput;
 import com.jme3.renderer.Renderer;
 import com.jme3.renderer.RendererException;
-import com.jme3.renderer.lwjgl.LwjglRenderer;
+import com.jme3.renderer.lwjgl.LwjglGL;
+import com.jme3.renderer.lwjgl.LwjglGLExt;
+import com.jme3.renderer.opengl.GLRenderer;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.jme3.system.JmeSystem;
@@ -205,8 +207,10 @@ public abstract class LwjglContext implements JmeContext {
         
         if (settings.getRenderer().equals(AppSettings.LWJGL_OPENGL2)
                 || settings.getRenderer().equals(AppSettings.LWJGL_OPENGL3)) {
-            renderer = new LwjglRenderer();
-            ((LwjglRenderer) renderer).initialize();
+            LwjglGL gl = new LwjglGL();
+            LwjglGLExt glext = new LwjglGLExt();
+            renderer = new GLRenderer(gl, glext);
+            renderer.initialize();
         } else {
             throw new UnsupportedOperationException("Unsupported renderer: " + settings.getRenderer());
         }
