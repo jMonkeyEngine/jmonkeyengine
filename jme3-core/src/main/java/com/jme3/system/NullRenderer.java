@@ -54,6 +54,9 @@ public class NullRenderer implements Renderer {
     private static final EnumSet<Caps> caps = EnumSet.noneOf(Caps.class);
     private static final Statistics stats = new Statistics();
 
+    public void initialize() {
+    }
+    
     public EnumSet<Caps> getCaps() {
         return caps;
     }

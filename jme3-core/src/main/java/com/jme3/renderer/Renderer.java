@@ -55,6 +55,8 @@ import java.util.EnumSet;
  */
 public interface Renderer {
 
+    public void initialize();
+    
     /**
      * Get the capabilities of the renderer.
      * @return The capabilities of the renderer.
