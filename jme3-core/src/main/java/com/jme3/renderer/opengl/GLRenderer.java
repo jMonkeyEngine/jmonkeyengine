@@ -62,6 +62,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import jme3tools.shader.ShaderDebug;
 
 public class GLRenderer implements Renderer {
@@ -145,50 +147,22 @@ public class GLRenderer implements Renderer {
         return extensionSet;
     }
     
-    private static int extractVersion(String prefixStr, String versionStr) {
-        if (versionStr != null) {
-            int spaceIdx = versionStr.indexOf(" ", prefixStr.length());
-            if (spaceIdx >= 1) {
-                versionStr = versionStr.substring(prefixStr.length(), spaceIdx).trim();
-            } else {
-                versionStr = versionStr.substring(prefixStr.length()).trim();
-            }
-            
-            // Find a character which is not a period or digit.
-            for (int i = 0; i < versionStr.length(); i++) {
-                char c = versionStr.charAt(i);
-                if (c != '.' && (c < '0' || c > '9')) {
-                    versionStr = versionStr.substring(0, i);
-                    break;
-                }
-            }
-            
-            // Pivot on first point.
-            int firstPoint = versionStr.indexOf(".");
-            
-            // Remove everything after second point.
-            int secondPoint = versionStr.indexOf(".", firstPoint + 1);
-            
-            if (secondPoint != -1) {
-                versionStr = versionStr.substring(0, secondPoint);
-            }
-            
-            String majorVerStr = versionStr.substring(0, firstPoint);
-            String minorVerStr = versionStr.substring(firstPoint + 1);
-            
-            if (minorVerStr.endsWith("0") && minorVerStr.length() > 1) {
-                minorVerStr = minorVerStr.substring(0, minorVerStr.length() - 1);
-            }
-            
-            int majorVer = Integer.parseInt(majorVerStr);
-            int minorVer = Integer.parseInt(minorVerStr);
-            
-            return majorVer * 100 + minorVer * 10;
+    private static final Pattern VERSION = Pattern.compile(".*?(\\d+)\\.(\\d+).*");
+
+
+    public static int extractVersion(String version) {
+
+        Matcher m = VERSION.matcher(version);
+        if (m.matches()) {
+            int major = Integer.parseInt(m.group(1));
+            int minor = Integer.parseInt(m.group(2));
+
+            return major * 100 + minor * 10;
         } else {
             return -1;
         }
     }
-    
+
     private boolean hasExtension(String extensionName) {
         return extensions.contains(extensionName);
     }
@@ -201,7 +175,7 @@ public class GLRenderer implements Renderer {
     }
     
     private void loadCapabilitiesGL2() {
-        int oglVer = extractVersion("", gl.glGetString(GL.GL_VERSION));
+        int oglVer = extractVersion(gl.glGetString(GL.GL_VERSION));
         
         if (oglVer >= 200) {
             caps.add(Caps.OpenGL20);
@@ -219,7 +193,7 @@ public class GLRenderer implements Renderer {
             }
         }
         
-        int glslVer = extractVersion("", gl.glGetString(GL.GL_SHADING_LANGUAGE_VERSION));
+        int glslVer = extractVersion(gl.glGetString(GL.GL_SHADING_LANGUAGE_VERSION));
         
         switch (glslVer) {
             default:
