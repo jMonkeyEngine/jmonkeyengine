@@ -162,16 +162,24 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     protected transient int refreshFlags = 0;
 
     /**
-     * Serialization only. Do not use.
+     * Set to true if a subclass requires updateLogicalState() even
+     * if it doesn't have any controls.  Defaults to true thus implementing
+     * the legacy behavior for any subclasses not specifically turning it
+     * off.
+     * This flag should be set during construction and never changed
+     * as it's supposed to be class-specific and not runtime state.
      */
-    public Spatial() {
-        localTransform = new Transform();
-        worldTransform = new Transform();
+    private boolean requiresUpdates = true;
 
-        localLights = new LightList(this);
-        worldLights = new LightList(this);
-
-        refreshFlags |= RF_BOUND;
+    /**
+     * Serialization only. Do not use.
+     * Not really. This class is never instantiated directly but the
+     * subclasses like to use the no-arg constructor for their own 
+     * no-arg constructor... which is technically weaker than
+     * forward supplying defaults.
+     */
+    protected Spatial() {
+        this(null);
     }
 
     /**
@@ -182,9 +190,16 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      *            the name of the scene element. This is required for
      *            identification and comparison purposes.
      */
-    public Spatial(String name) {
-        this();
+    protected Spatial(String name) {
         this.name = name;
+        
+        localTransform = new Transform();
+        worldTransform = new Transform();
+
+        localLights = new LightList(this);
+        worldLights = new LightList(this);
+
+        refreshFlags |= RF_BOUND;
     }
 
     public void setKey(AssetKey key) {
@@ -194,6 +209,54 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
     public AssetKey getKey() {
         return key;
     }
+
+    /**
+     * Returns true if this spatial requires updateLogicalState() to
+     * be called, either because setRequiresUpdate(true) has been called
+     * or because the spatial has controls.  This is package private to
+     * avoid exposing it to the public API since it is only used by Node.
+     */
+    boolean requiresUpdates() {
+        return requiresUpdates | !controls.isEmpty();
+    }
+    
+    /**
+     * Subclasses can call this with true to denote that they require 
+     * updateLogicalState() to be called even if they contain no controls.
+     * Setting this to false reverts to the default behavior of only
+     * updating if the spatial has controls.  This is not meant to
+     * indicate dynamic state in any way and must be called while 
+     * unattached or an IllegalStateException is thrown.  It is designed
+     * to be called during object construction and then never changed, ie:
+     * it's meant to be subclass specific state and not runtime state.
+     * Subclasses of Node or Geometry that do not set this will get the
+     * old default behavior as if this was set to true.  Subclasses should
+     * call setRequiresUpdate(false) in their constructors to receive
+     * optimal behavior if they don't require updateLogicalState() to be
+     * called even if there are no controls.
+     */
+    protected void setRequiresUpdates( boolean f ) {
+        // Note to explorers, the reason this was done as a protected setter
+        // instead of passed on construction is because it frees all subclasses
+        // from having to make sure to always pass the value up in case they
+        // are subclassed.
+        // The reason that requiresUpdates() isn't just a protected method to
+        // override (which would be more correct) is because the flag provides
+        // some flexibility in how we break subclasses.  A protected method
+        // would require that all subclasses that required updates need implement
+        // this method or they would silently stop processing updates.  A flag
+        // lets us set a default when a subclass is detected that is different
+        // than the internal "more efficient" default.
+        // Spatial's default is 'true' for this flag requiring subclasses to
+        // override it for more optimal behavior.  Node and Geometry will override
+        // it to false if the class is Node.class or Geometry.class.
+        // This means that all subclasses will default to the old behavior
+        // unless they opt in. 
+        if( parent != null ) {
+            throw new IllegalStateException("setRequiresUpdates() cannot be called once attached."); 
+        }
+        this.requiresUpdates = f;
+    } 
 
     /**
      * Indicate that the transform of this spatial has changed and that
@@ -599,8 +662,17 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * @see Spatial#removeControl(java.lang.Class) 
      */
     public void addControl(Control control) {
+        boolean before = requiresUpdates();
         controls.add(control);
         control.setSpatial(this);
+        boolean after = requiresUpdates();
+        
+        // If the requirement to be updated has changed
+        // then we need to let the parent node know so it
+        // can rebuild its update list.
+        if( parent != null && before != after ) {
+            parent.invalidateUpdateList();   
+        }
     }
 
     /**
@@ -609,11 +681,21 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * @see Spatial#addControl(com.jme3.scene.control.Control) 
      */
     public void removeControl(Class<? extends Control> controlType) {
+        boolean before = requiresUpdates();
         for (int i = 0; i < controls.size(); i++) {
             if (controlType.isAssignableFrom(controls.get(i).getClass())) {
                 Control control = controls.remove(i);
                 control.setSpatial(null);
+                break; // added to match the javadoc  -pspeed
             }
+        }
+        boolean after = requiresUpdates();
+        
+        // If the requirement to be updated has changed
+        // then we need to let the parent node know so it
+        // can rebuild its update list.
+        if( parent != null && before != after ) {
+            parent.invalidateUpdateList();   
         }
     }
 
@@ -627,11 +709,21 @@ public abstract class Spatial implements Savable, Cloneable, Collidable, Cloneab
      * @see Spatial#addControl(com.jme3.scene.control.Control) 
      */
     public boolean removeControl(Control control) {
+        boolean before = requiresUpdates();
         boolean result = controls.remove(control);
         if (result) {
             control.setSpatial(null);
         }
 
+        boolean after = requiresUpdates();
+        
+        // If the requirement to be updated has changed
+        // then we need to let the parent node know so it
+        // can rebuild its update list.
+        if( parent != null && before != after ) {
+            parent.invalidateUpdateList();   
+        }
+        
         return result;
     }
 

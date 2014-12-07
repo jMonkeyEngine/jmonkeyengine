@@ -77,15 +77,18 @@ public class Geometry extends Spatial {
      * is managed by.
      */
     protected GeometryGroupNode groupNode;
+    
     /**
      * The start index of this <code>Geometry's</code> inside 
      * the {@link GeometryGroupNode}.
      */
-    protected int startIndex = -1;    
+    protected int startIndex = -1;
+        
     /**
      * Serialization only. Do not use.
      */
     public Geometry() {
+        this(null);
     }
 
     /**
@@ -97,6 +100,12 @@ public class Geometry extends Spatial {
      */
     public Geometry(String name) {
         super(name);
+        
+        // For backwards compatibility, only clear the "requires
+        // update" flag if we are not a subclass of Geometry.
+        // This prevents subclass from silently failing to receive
+        // updates when they upgrade.
+        setRequiresUpdates(Geometry.class != getClass()); 
     }
 
     /**

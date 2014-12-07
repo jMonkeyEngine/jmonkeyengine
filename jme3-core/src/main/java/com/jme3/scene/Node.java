@@ -67,9 +67,26 @@ public class Node extends Spatial implements Savable {
     protected SafeArrayList<Spatial> children = new SafeArrayList<Spatial>(Spatial.class);
 
     /**
+     * If this node is a root, this list will contain the current
+     * set of children (and children of children) that require 
+     * updateLogicalState() to be called as indicated by their
+     * requiresUpdate() method.
+     */
+    private SafeArrayList<Spatial> updateList = null;
+    
+    /**
+     * False if the update list requires rebuilding.  This is Node.class
+     * specific and therefore not included as part of the Spatial update flags.
+     * A flag is used instead of nulling the updateList to avoid reallocating
+     * a whole list every time the scene graph changes.
+     */     
+    private boolean updateListValid = false;    
+
+    /**
      * Serialization only. Do not use.
      */
     public Node() {
+        this(null);
     }
 
     /**
@@ -81,6 +98,12 @@ public class Node extends Spatial implements Savable {
      */
     public Node(String name) {
         super(name);
+        
+        // For backwards compatibility, only clear the "requires
+        // update" flag if we are not a subclass of Node.
+        // This prevents subclass from silently failing to receive
+        // updates when they upgrade.
+        setRequiresUpdates(Node.class != getClass()); 
     }
 
     /**
@@ -153,15 +176,71 @@ public class Node extends Spatial implements Savable {
     }
 
     @Override
+    protected void setParent(Node parent) {
+        if( this.parent == null && parent != null ) {
+            // We were a root before and now we aren't... make sure if
+            // we had an updateList then we clear it completely to 
+            // avoid holding the dead array.
+            updateList = null;
+            updateListValid = false;
+        }
+        super.setParent(parent);
+    }
+
+    private void addUpdateChildren( SafeArrayList<Spatial> results ) {
+        for( Spatial child : children.getArray() ) {
+            if( child.requiresUpdates() ) {
+                results.add(child);
+            }
+            if( child instanceof Node ) {
+                ((Node)child).addUpdateChildren(results);
+            }
+        }
+    }
+
+    /**
+     *  Called to invalide the root node's update list.  This is
+     *  called whenever a spatial is attached/detached as well as
+     *  when a control is added/removed from a Spatial in a way
+     *  that would change state.
+     */
+    void invalidateUpdateList() {
+        updateListValid = false;
+        for( Node n = parent; n != null; n = n.getParent() ) {
+            n.invalidateUpdateList();
+        }
+    }
+
+    private SafeArrayList<Spatial> getUpdateList() {
+        if( updateListValid ) {
+            return updateList;
+        }
+        if( updateList == null ) {
+            updateList = new SafeArrayList<Spatial>(Spatial.class);            
+        } else {
+            updateList.clear();
+        }
+
+        // Build the list
+        addUpdateChildren(updateList);
+        updateListValid = true;       
+        return updateList;   
+    }
+
+    @Override
     public void updateLogicalState(float tpf){
         super.updateLogicalState(tpf);
 
-        if (children.isEmpty()) {
+        // Only perform updates on children if we are the
+        // root and then only peform updates on children we
+        // know to require updates.
+        // So if this isn't the root, abort.
+        if( parent != null ) {
             return;
         }
-        
-        for (Spatial child : children.getArray()) {
-            child.updateLogicalState(tpf);
+
+        for( Spatial s : getUpdateList().getArray() ) {
+            s.updateLogicalState(tpf);
         }
     }
 
@@ -251,28 +330,7 @@ public class Node extends Spatial implements Savable {
      * @throws IllegalArgumentException if child is null.
      */
     public int attachChild(Spatial child) {
-        if (child == null)
-            throw new IllegalArgumentException("child cannot be null");
-
-        if (child.getParent() != this && child != this) {
-            if (child.getParent() != null) {
-                child.getParent().detachChild(child);
-            }
-            child.setParent(this);
-            children.add(child);
-
-            // XXX: Not entirely correct? Forces bound update up the
-            // tree stemming from the attached child. Also forces
-            // transform update down the tree-
-            child.setTransformRefresh();
-            child.setLightListRefresh();
-            if (logger.isLoggable(Level.FINE)) {
-                logger.log(Level.FINE,"Child ({0}) attached to this node ({1})",
-                        new Object[]{child.getName(), getName()});
-            }
-        }
-        
-        return children.size();
+        return attachChildAt(child, children.size());
     }
     
     /**
@@ -298,12 +356,18 @@ public class Node extends Spatial implements Savable {
             }
             child.setParent(this);
             children.add(index, child);
+            
+            // XXX: Not entirely correct? Forces bound update up the
+            // tree stemming from the attached child. Also forces
+            // transform update down the tree-
             child.setTransformRefresh();
             child.setLightListRefresh();
             if (logger.isLoggable(Level.FINE)) {
                 logger.log(Level.FINE,"Child ({0}) attached to this node ({1})",
                         new Object[]{child.getName(), getName()});
             }
+            
+            invalidateUpdateList();
         }
         
         return children.size();
@@ -380,6 +444,8 @@ public class Node extends Spatial implements Savable {
             child.setTransformRefresh();
             // lights are also inherited from parent
             child.setLightListRefresh();
+            
+            invalidateUpdateList();
         }
         return child;
     }
@@ -390,6 +456,9 @@ public class Node extends Spatial implements Savable {
      * node.
      */
     public void detachAllChildren() {
+        // Note: this could be a bit more efficient if it delegated
+        // to a private method that avoided setBoundRefresh(), etc.
+        // for every child and instead did one in here at the end.
         for ( int i = children.size() - 1; i >= 0; i-- ) {
             detachChildAt(i);
         }
