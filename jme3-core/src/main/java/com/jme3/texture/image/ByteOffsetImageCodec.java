@@ -49,8 +49,8 @@ public class ByteOffsetImageCodec extends ImageCodec {
     }
     
     @Override
-    public void readComponents(ByteBuffer buf, int x, int y, int width, int[] components, byte[] tmp) {
-        int i = (y * width + x) * bpp;
+    public void readComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
+        int i = (y * width + x) * bpp + offset;
         buf.position(i);
         buf.get(tmp, 0, bpp);
         if (alphaPos != -1) {
@@ -68,8 +68,8 @@ public class ByteOffsetImageCodec extends ImageCodec {
     }
 
     @Override
-    public void writeComponents(ByteBuffer buf, int x, int y, int width, int[] components, byte[] tmp) {
-        int i = (y * width + x) * bpp;
+    public void writeComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
+        int i = (y * width + x) * bpp + offset;
         if (alphaPos != -1) {
             tmp[alphaPos] = (byte) components[0];
         }

@@ -67,6 +67,11 @@ public class DefaultImageRaster extends ImageRaster {
         }
     }
     
+    public void setSlice(int slice) {
+        this.slice = slice;
+        this.buffer = image.getData(slice);
+    }
+    
     @Override
     public int getWidth() {
         return width;
@@ -76,7 +81,7 @@ public class DefaultImageRaster extends ImageRaster {
     public int getHeight() {
         return height;
     }
-    
+
     @Override
     public void setPixel(int x, int y, ColorRGBA color) {
         rangeCheck(x, y);
@@ -108,7 +113,7 @@ public class DefaultImageRaster extends ImageRaster {
                 components[3] = Math.min( (int) (color.b * codec.maxBlue + 0.5f), codec.maxBlue);
                 break;
         }     
-        codec.writeComponents(getBuffer(), x, y, width, components, temp);
+        codec.writeComponents(getBuffer(), x, y, width, 0, components, temp);
         image.setUpdateNeeded();
     }
     
@@ -123,7 +128,7 @@ public class DefaultImageRaster extends ImageRaster {
     public ColorRGBA getPixel(int x, int y, ColorRGBA store) {
         rangeCheck(x, y);
         
-        codec.readComponents(getBuffer(), x, y, width, components, temp);
+        codec.readComponents(getBuffer(), x, y, width, 0, components, temp);
         if (store == null) {
             store = new ColorRGBA();
         }

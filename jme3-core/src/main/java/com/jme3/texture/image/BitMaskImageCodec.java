@@ -95,15 +95,15 @@ class BitMaskImageCodec extends ImageCodec {
     }
 
     @Override
-    public void readComponents(ByteBuffer buf, int x, int y, int width, int[] components, byte[] tmp) {
-        int inputPixel = readPixelRaw(buf, (x + y * width) * bpp, bpp);
+    public void readComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
+        int inputPixel = readPixelRaw(buf, (x + y * width) * bpp + offset, bpp);
         components[0] = (inputPixel >> as) & maxAlpha;
         components[1] = (inputPixel >> rs) & maxRed;
         components[2] = (inputPixel >> gs) & maxGreen;
         components[3] = (inputPixel >> bs) & maxBlue;
     }
 
-    public void writeComponents(ByteBuffer buf, int x, int y, int width, int[] components, byte[] tmp) {
+    public void writeComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp) {
         // Shift components then mask them
         // Map all components into a single bitspace
         int outputPixel = ((components[0] & maxAlpha) << as)
@@ -113,6 +113,6 @@ class BitMaskImageCodec extends ImageCodec {
         
         // Find index in image where to write pixel.
         // Write the resultant bitspace into the pixel.
-        writePixelRaw(buf, (x + y * width) * bpp, outputPixel, bpp);
+        writePixelRaw(buf, (x + y * width) * bpp + offset, outputPixel, bpp);
     }
 }

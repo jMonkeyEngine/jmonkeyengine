@@ -149,9 +149,9 @@ abstract class ImageCodec {
                                                             12, 0, 4, 8));
     }
     
-    public abstract void readComponents(ByteBuffer buf, int x, int y, int width, int[] components, byte[] tmp);
+    public abstract void readComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp);
     
-    public abstract void writeComponents(ByteBuffer buf, int x, int y, int width, int[] components, byte[] tmp);
+    public abstract void writeComponents(ByteBuffer buf, int x, int y, int width, int offset, int[] components, byte[] tmp);
     
     /**
      * Looks up the format in the codec registry.
