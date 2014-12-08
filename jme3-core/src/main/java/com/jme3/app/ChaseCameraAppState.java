@@ -127,6 +127,7 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
         initTogleRotateInput();
 
         inputManager.addListener(this, inputs);
+        inputManager.setCursorVisible(dragToRotate);
     }
 
     public void onAction(String name, boolean keyPressed, float tpf) {
@@ -429,7 +430,9 @@ public class ChaseCameraAppState extends AbstractAppState implements ActionListe
     public void setDragToRotate(boolean dragToRotate) {
         this.dragToRotate = dragToRotate;
         this.canRotate = !dragToRotate;
-        inputManager.setCursorVisible(dragToRotate);
+        if(inputManager != null){
+            inputManager.setCursorVisible(dragToRotate);
+        }
     }
 
     /**
