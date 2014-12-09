@@ -65,7 +65,7 @@ task copySourceToBuild(type: Copy, dependsOn:[copyTremorFiles, copyStbiFiles, ge
 task buildNativeLib(type: Exec, dependsOn: copySourceToBuild) {
     workingDir decodeBuildDir
     executable rootProject.ndkCommandPath
-    args '-j8'
+    args "-j" + Runtime.runtime.availableProcessors()
 }
 
 task updatePreCompiledLibs(type: Copy, dependsOn: buildNativeLib) {

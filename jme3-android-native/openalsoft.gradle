@@ -86,7 +86,7 @@ task buildOpenAlSoftNativeLib(type: Exec, dependsOn: generateOpenAlSoftHeaders) 
 //    println "ndkCommandPath: " + project.ndkCommandPath
     workingDir openalsoftBuildDir
     executable rootProject.ndkCommandPath
-    args '-j8'
+    args "-j" + Runtime.runtime.availableProcessors()
 }
 
 task updatePreCompiledOpenAlSoftLibs(type: Copy, dependsOn: buildOpenAlSoftNativeLib) {

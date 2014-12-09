@@ -161,7 +161,7 @@ task buildBulletNativeLib(type: Exec, dependsOn: generateNativeHeaders) {
 //    println "buildBulletNativeLib rootProject.ndkCommandPath: " + rootProject.ndkCommandPath
     workingDir ndkWorkingPath
     executable rootProject.ndkCommandPath
-    args "-j8"
+    args "-j" + Runtime.runtime.availableProcessors()
 }
 
 //task updatePreCompiledBulletLibs(type: Copy, dependsOn: generateNativeHeaders) {
