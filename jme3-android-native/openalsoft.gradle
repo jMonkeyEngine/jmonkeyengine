@@ -111,7 +111,7 @@ task copyPreCompiledOpenAlSoftLibs(type: Copy) {
     into outputDir
 }
 
-if (rootProject.ndkExists) {
+if (rootProject.ndkExists && rootProject.buildNativeProjects) {
     // build native libs and update stored pre-compiled libs to commit
     compileJava.dependsOn { updatePreCompiledOpenAlSoftLibs }
 } else {
