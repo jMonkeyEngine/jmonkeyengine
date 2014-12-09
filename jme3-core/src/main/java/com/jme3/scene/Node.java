@@ -199,15 +199,15 @@ public class Node extends Spatial implements Savable {
     }
 
     /**
-     *  Called to invalide the root node's update list.  This is
+     *  Called to invalidate the root node's update list.  This is
      *  called whenever a spatial is attached/detached as well as
      *  when a control is added/removed from a Spatial in a way
      *  that would change state.
      */
     void invalidateUpdateList() {
         updateListValid = false;
-        for( Node n = parent; n != null; n = n.getParent() ) {
-            n.invalidateUpdateList();
+        if ( parent != null ) {
+          parent.invalidateUpdateList();
         }
     }
 
