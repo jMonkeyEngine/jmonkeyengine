@@ -156,7 +156,11 @@ public class GLRenderer implements Renderer {
         if (m.matches()) {
             int major = Integer.parseInt(m.group(1));
             int minor = Integer.parseInt(m.group(2));
-
+            if (minor >= 10 && minor % 10 == 0) {
+                // some versions can look like "1.30" instead of "1.3". 
+                // make sure to correct for this
+                minor /= 10;
+            }
             return major * 100 + minor * 10;
         } else {
             return -1;
@@ -1087,12 +1091,7 @@ public class GLRenderer implements Renderer {
             int length = intBuf1.get(0);
             if (length > 3) {
                 // get infos
-                ByteBuffer logBuf = BufferUtils.createByteBuffer(length);
-                gl.glGetShaderInfoLog(id, null, logBuf);
-                byte[] logBytes = new byte[length];
-                logBuf.get(logBytes, 0, length);
-                // convert to string, etc
-                infoLog = new String(logBytes);
+                infoLog = gl.glGetShaderInfoLog(id, length);
             }
         }
 
@@ -1158,13 +1157,7 @@ public class GLRenderer implements Renderer {
             int length = intBuf1.get(0);
             if (length > 3) {
                 // get infos
-                ByteBuffer logBuf = BufferUtils.createByteBuffer(length);
-                gl.glGetProgramInfoLog(id, null, logBuf);
-
-                // convert to string, etc
-                byte[] logBytes = new byte[length];
-                logBuf.get(logBytes, 0, length);
-                infoLog = new String(logBytes);
+                infoLog = gl.glGetProgramInfoLog(id, length);
             }
         }
 
@@ -2164,9 +2157,6 @@ public class GLRenderer implements Renderer {
                     break;
                 case Float:
                     gl.glBufferData(target, (FloatBuffer) vb.getData(), usage);
-                    break;
-                case Double:
-                    gl.glBufferData(target, (DoubleBuffer) vb.getData(), usage);
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown buffer format.");

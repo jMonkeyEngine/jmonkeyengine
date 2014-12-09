@@ -171,12 +171,10 @@ public interface GL {
 	public void glBindTexture(int target, int texture);
 	public void glBlendFunc(int sfactor, int dfactor);
 	public void glBufferData(int target, FloatBuffer data, int usage);
-	public void glBufferData(int target, DoubleBuffer data, int usage);
 	public void glBufferData(int target, ShortBuffer data, int usage);
 	public void glBufferData(int target, ByteBuffer data, int usage);
 	public void glBufferSubData(int target, long offset, FloatBuffer data);
 	public void glBufferSubData(int target, long offset, ShortBuffer data);
-	public void glBufferSubData(int target, long offset, DoubleBuffer data);
 	public void glBufferSubData(int target, long offset, ByteBuffer data);
 	public void glClear(int mask);
 	public void glClearColor(float red, float green, float blue, float alpha);
@@ -209,9 +207,9 @@ public interface GL {
         public int glGetError();
 	public void glGetInteger(int pname, IntBuffer params);
 	public void glGetProgram(int program, int pname, IntBuffer params);
-	public void glGetProgramInfoLog(int program, IntBuffer length, ByteBuffer infoLog);
+	public String glGetProgramInfoLog(int program, int maxSize);
 	public void glGetShader(int shader, int pname, IntBuffer params);
-	public void glGetShaderInfoLog(int shader, IntBuffer length, ByteBuffer infoLog);
+	public String glGetShaderInfoLog(int shader, int maxSize);
 	public String glGetString(int name);
 	public int glGetUniformLocation(int program, String name);
 	public boolean glIsEnabled(int cap);

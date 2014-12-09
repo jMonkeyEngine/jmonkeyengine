@@ -3,7 +3,6 @@ package com.jme3.renderer.lwjgl;
 import com.jme3.renderer.opengl.GL;
 import com.jme3.renderer.opengl.GL2;
 import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
@@ -12,7 +11,6 @@ import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 
 public class LwjglGL implements GL, GL2 {
     
@@ -32,16 +30,8 @@ public class LwjglGL implements GL, GL2 {
         GL15.glBindBuffer(param1, param2);
     }
 
-    public void glBindFragDataLocation(int param1, int param2, String param3) {
-        GL30.glBindFragDataLocation(param1, param2, param3);
-    }
-
     public void glBindTexture(int param1, int param2) {
         GL11.glBindTexture(param1, param2);
-    }
-
-    public void glBindVertexArray(int param1) {
-        GL30.glBindVertexArray(param1);
     }
 
     public void glBlendFunc(int param1, int param2) {
@@ -52,19 +42,7 @@ public class LwjglGL implements GL, GL2 {
         GL15.glBufferData(param1, param2, param3);
     }
 
-    public void glBufferData(int param1, DoubleBuffer param2, int param3) {
-        GL15.glBufferData(param1, param2, param3);
-    }
-
     public void glBufferData(int param1, ShortBuffer param2, int param3) {
-        GL15.glBufferData(param1, param2, param3);
-    }
-
-    public void glBufferData(int param1, IntBuffer param2, int param3) {
-        GL15.glBufferData(param1, param2, param3);
-    }
-
-    public void glBufferData(int param1, long param2, int param3) {
         GL15.glBufferData(param1, param2, param3);
     }
 
@@ -72,19 +50,11 @@ public class LwjglGL implements GL, GL2 {
         GL15.glBufferData(param1, param2, param3);
     }
 
-    public void glBufferSubData(int param1, long param2, IntBuffer param3) {
-        GL15.glBufferSubData(param1, param2, param3);
-    }
-
     public void glBufferSubData(int param1, long param2, FloatBuffer param3) {
         GL15.glBufferSubData(param1, param2, param3);
     }
 
     public void glBufferSubData(int param1, long param2, ShortBuffer param3) {
-        GL15.glBufferSubData(param1, param2, param3);
-    }
-
-    public void glBufferSubData(int param1, long param2, DoubleBuffer param3) {
         GL15.glBufferSubData(param1, param2, param3);
     }
 
@@ -220,16 +190,8 @@ public class LwjglGL implements GL, GL2 {
         GL20.glGetProgram(param1, param2, param3);
     }
 
-    public void glGetProgramInfoLog(int param1, IntBuffer param2, ByteBuffer param3) {
-        GL20.glGetProgramInfoLog(param1, param2, param3);
-    }
-
     public void glGetShader(int param1, int param2, IntBuffer param3) {
         GL20.glGetShader(param1, param2, param3);
-    }
-
-    public void glGetShaderInfoLog(int param1, IntBuffer param2, ByteBuffer param3) {
-        GL20.glGetShaderInfoLog(param1, param2, param3);
     }
 
     public String glGetString(int param1) {
@@ -268,26 +230,6 @@ public class LwjglGL implements GL, GL2 {
         GL11.glReadBuffer(param1);
     }
 
-    public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, IntBuffer param7) {
-        GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
-    }
-
-    public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, FloatBuffer param7) {
-        GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
-    }
-
-    public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, ShortBuffer param7) {
-        GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
-    }
-
-    public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, long param7) {
-        GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
-    }
-
-    public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, DoubleBuffer param7) {
-        GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
-    }
-
     public void glReadPixels(int param1, int param2, int param3, int param4, int param5, int param6, ByteBuffer param7) {
         GL11.glReadPixels(param1, param2, param3, param4, param5, param6, param7);
     }
@@ -304,51 +246,11 @@ public class LwjglGL implements GL, GL2 {
         GL20.glStencilOpSeparate(param1, param2, param3, param4);
     }
 
-    public void glTexImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, IntBuffer param9) {
-        GL11.glTexImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
-    }
-
-    public void glTexImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, FloatBuffer param9) {
-        GL11.glTexImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
-    }
-
-    public void glTexImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, ShortBuffer param9) {
-        GL11.glTexImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
-    }
-
-    public void glTexImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, long param9) {
-        GL11.glTexImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
-    }
-
     public void glTexImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, ByteBuffer param9) {
         GL11.glTexImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
     }
 
-    public void glTexImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, DoubleBuffer param9) {
-        GL11.glTexImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
-    }
-
-    public void glTexImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, FloatBuffer param10) {
-        GL12.glTexImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
-    }
-
-    public void glTexImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, IntBuffer param10) {
-        GL12.glTexImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
-    }
-
-    public void glTexImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, long param10) {
-        GL12.glTexImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
-    }
-
-    public void glTexImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, DoubleBuffer param10) {
-        GL12.glTexImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
-    }
-
     public void glTexImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, ByteBuffer param10) {
-        GL12.glTexImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
-    }
-
-    public void glTexImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, ShortBuffer param10) {
         GL12.glTexImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
     }
 
@@ -360,51 +262,11 @@ public class LwjglGL implements GL, GL2 {
         GL11.glTexParameteri(param1, param2, param3);
     }
 
-    public void glTexSubImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, FloatBuffer param9) {
-        GL11.glTexSubImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
-    }
-
-    public void glTexSubImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, IntBuffer param9) {
-        GL11.glTexSubImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
-    }
-
-    public void glTexSubImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, ShortBuffer param9) {
-        GL11.glTexSubImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
-    }
-
-    public void glTexSubImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, long param9) {
-        GL11.glTexSubImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
-    }
-
-    public void glTexSubImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, DoubleBuffer param9) {
-        GL11.glTexSubImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
-    }
-
     public void glTexSubImage2D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, ByteBuffer param9) {
         GL11.glTexSubImage2D(param1, param2, param3, param4, param5, param6, param7, param8, param9);
     }
 
-    public void glTexSubImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10, IntBuffer param11) {
-        GL12.glTexSubImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
-    }
-
-    public void glTexSubImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10, long param11) {
-        GL12.glTexSubImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
-    }
-
-    public void glTexSubImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10, ShortBuffer param11) {
-        GL12.glTexSubImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
-    }
-
-    public void glTexSubImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10, FloatBuffer param11) {
-        GL12.glTexSubImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
-    }
-
     public void glTexSubImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10, ByteBuffer param11) {
-        GL12.glTexSubImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
-    }
-
-    public void glTexSubImage3D(int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10, DoubleBuffer param11) {
         GL12.glTexSubImage3D(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11);
     }
 
@@ -472,32 +334,8 @@ public class LwjglGL implements GL, GL2 {
         GL20.glUseProgram(param1);
     }
 
-    public void glVertexAttribPointer(int param1, int param2, boolean param3, boolean param4, int param5, ShortBuffer param6) {
-        GL20.glVertexAttribPointer(param1, param2, param3, param4, param5, param6);
-    }
-
-    public void glVertexAttribPointer(int param1, int param2, boolean param3, boolean param4, int param5, IntBuffer param6) {
-        GL20.glVertexAttribPointer(param1, param2, param3, param4, param5, param6);
-    }
-
     public void glVertexAttribPointer(int param1, int param2, int param3, boolean param4, int param5, long param6) {
         GL20.glVertexAttribPointer(param1, param2, param3, param4, param5, param6);
-    }
-
-    public void glVertexAttribPointer(int param1, int param2, int param3, boolean param4, int param5, ByteBuffer param6) {
-        GL20.glVertexAttribPointer(param1, param2, param3, param4, param5, param6);
-    }
-
-    public void glVertexAttribPointer(int param1, int param2, boolean param3, boolean param4, int param5, ByteBuffer param6) {
-        GL20.glVertexAttribPointer(param1, param2, param3, param4, param5, param6);
-    }
-
-    public void glVertexAttribPointer(int param1, int param2, boolean param3, int param4, FloatBuffer param5) {
-        GL20.glVertexAttribPointer(param1, param2, param3, param4, param5);
-    }
-
-    public void glVertexAttribPointer(int param1, int param2, boolean param3, int param4, DoubleBuffer param5) {
-        GL20.glVertexAttribPointer(param1, param2, param3, param4, param5);
     }
 
     public void glViewport(int param1, int param2, int param3, int param4) {
@@ -514,5 +352,13 @@ public class LwjglGL implements GL, GL2 {
 
     public void glShaderSource(int param1, String[] param2, IntBuffer param3) {
         GL20.glShaderSource(param1, param2);
+    }
+
+    public String glGetProgramInfoLog(int program, int maxSize) {
+        return GL20.glGetProgramInfoLog(program, maxSize);
+    }
+
+    public String glGetShaderInfoLog(int shader, int maxSize) {
+        return GL20.glGetShaderInfoLog(shader, maxSize);
     }
 }
