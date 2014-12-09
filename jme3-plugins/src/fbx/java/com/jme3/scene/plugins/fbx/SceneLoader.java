@@ -458,7 +458,7 @@ public class SceneLoader implements AssetLoader {
 			for(FBXElement e : element.children) {
 				if(e.id.equals("Type"))
 					data.type = (String) e.properties.get(0);
-				else if(e.id.equals("Filename"))
+				else if(e.id.equals("FileName"))
 					data.filename = (String) e.properties.get(0);
 				else if(e.id.equals("RelativeFilename"))
 					data.relativeFilename = (String) e.properties.get(0);
