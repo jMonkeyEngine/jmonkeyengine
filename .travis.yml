@@ -1,6 +1,6 @@
 language: java
-jdk:
-  - oraclejdk8
+# jdk:
+#   - oraclejdk8
 
 branches:
   only:
