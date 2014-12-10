@@ -222,6 +222,9 @@ public class Node extends Spatial implements Savable {
         }
 
         // Build the list
+        if( requiresUpdates() ) {
+            updateList.add(this);
+        }
         addUpdateChildren(updateList);
         updateListValid = true;       
         return updateList;   
