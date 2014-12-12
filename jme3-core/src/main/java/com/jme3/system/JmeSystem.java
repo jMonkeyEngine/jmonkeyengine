@@ -103,6 +103,11 @@ public class JmeSystem {
         systemDelegate.setSoftTextDialogInput(input);
     }
 
+    public static void showSoftKeyboard(boolean show) {
+        checkDelegate();
+        systemDelegate.showSoftKeyboard(show);
+    }
+
     public static SoftTextDialogInput getSoftTextDialogInput() {
         checkDelegate();
         return systemDelegate.getSoftTextDialogInput();

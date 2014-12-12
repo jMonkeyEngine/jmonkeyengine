@@ -230,4 +230,8 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     public static String getAudioRendererType() {
         return audioRendererType;
     }
+
+    @Override
+    public void showSoftKeyboard(boolean show) {
+    }
 }

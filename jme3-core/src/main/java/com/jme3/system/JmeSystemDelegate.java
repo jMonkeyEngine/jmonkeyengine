@@ -179,4 +179,6 @@ public abstract class JmeSystemDelegate {
     public abstract void initialize(AppSettings settings);
 
     public abstract ImageRaster createImageRaster(Image image, int slice);
+
+    public abstract void showSoftKeyboard(boolean show);
 }

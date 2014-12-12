@@ -68,7 +68,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
     public AssetManager newAssetManager(URL configFile) {
         return new DesktopAssetManager(configFile);
     }
-    
+
     @Override
     public void writeImageFile(OutputStream outStream, String format, ByteBuffer imageData, int width, int height) throws IOException {
         BufferedImage awtImage = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
@@ -96,7 +96,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             }
         });
     }
-    
+
     @Override
     public boolean showSettingsDialog(AppSettings sourceSettings, final boolean loadFromRegistry) {
         if (SwingUtilities.isEventDispatchThread()) {
@@ -105,7 +105,7 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
 
         final AppSettings settings = new AppSettings(false);
         settings.copyFrom(sourceSettings);
-        String iconPath = sourceSettings.getSettingsDialogImage();        
+        String iconPath = sourceSettings.getSettingsDialogImage();
         if(iconPath == null){
             iconPath = "";
         }
@@ -269,10 +269,10 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
         } catch (InstantiationException ex) {
             logger.log(Level.SEVERE, "Failed to create context", ex);
         }
-        
+
         return null;
     }
-    
+
     @Override
     public AudioRenderer newAudioRenderer(AppSettings settings) {
         initialize(settings);
@@ -327,5 +327,9 @@ public class JmeDesktopSystem extends JmeSystemDelegate {
             logger.log(Level.SEVERE, "Security error in creating log file", ex);
         }
         logger.log(Level.INFO, "Running on {0}", getFullName());
+    }
+
+    @Override
+    public void showSoftKeyboard(boolean show) {
     }
 }

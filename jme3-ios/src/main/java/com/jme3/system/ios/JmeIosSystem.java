@@ -71,7 +71,7 @@ public class JmeIosSystem extends JmeSystemDelegate {
         showDialog(message);
         System.err.println("JME APPLICATION ERROR:" + message);
     }
-    
+
     private native void showDialog(String message);
 
     @Override
@@ -108,6 +108,11 @@ public class JmeIosSystem extends JmeSystemDelegate {
 
     @Override
     public ImageRaster createImageRaster(Image image, int slice) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void showSoftKeyboard(boolean show) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }
