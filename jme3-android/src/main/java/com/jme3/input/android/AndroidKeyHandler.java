@@ -45,29 +45,29 @@ import java.util.logging.Logger;
  * the jME KeyEvents.  onKey is used by Android to receive keys from the keyboard
  * or device buttons.  All key events are consumed by jME except for the Volume
  * buttons and menu button.
- * 
+ *
  * This class also provides the functionality to display or hide the soft keyboard
  * for inputing single key events.  Use OGLESContext to display an dialog to type
  * in complete strings.
- * 
+ *
  * @author iwgeric
  */
 public class AndroidKeyHandler implements View.OnKeyListener {
     private static final Logger logger = Logger.getLogger(AndroidKeyHandler.class.getName());
-    
+
     private AndroidInputHandler androidInput;
     private boolean sendKeyEvents = true;
-    
+
     public AndroidKeyHandler(AndroidInputHandler androidInput) {
         this.androidInput = androidInput;
     }
-    
+
     public void initialize() {
     }
-    
+
     public void destroy() {
     }
-    
+
     public void setView(View view) {
         if (view != null) {
             view.setOnKeyListener(this);
@@ -75,7 +75,7 @@ public class AndroidKeyHandler implements View.OnKeyListener {
             androidInput.getView().setOnKeyListener(null);
         }
     }
-    
+
     /**
      * onKey gets called from android thread on key events
      */
@@ -83,7 +83,7 @@ public class AndroidKeyHandler implements View.OnKeyListener {
         if (androidInput.isInitialized() && view != androidInput.getView()) {
             return false;
         }
-        
+
         TouchEvent evt;
         // TODO: get touch event from pool
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -107,50 +107,34 @@ public class AndroidKeyHandler implements View.OnKeyListener {
             androidInput.addEvent(evt);
 
         }
-        
-        
-        KeyInputEvent kie;
-        char unicodeChar = (char)event.getUnicodeChar();
-        int jmeKeyCode = AndroidKeyMapping.getJmeKey(keyCode);
-        
-        boolean pressed = event.getAction() == KeyEvent.ACTION_DOWN;
-        boolean repeating = pressed && event.getRepeatCount() > 0;
 
-        kie = new KeyInputEvent(jmeKeyCode, unicodeChar, pressed, repeating);
-        kie.setTime(event.getEventTime());
-        androidInput.addEvent(kie);
-//        logger.log(Level.FINE, "onKey keyCode: {0}, jmeKeyCode: {1}, pressed: {2}, repeating: {3}", 
-//                new Object[]{keyCode, jmeKeyCode, pressed, repeating});
-//        logger.log(Level.FINE, "creating KeyInputEvent: {0}", kie);
-        
+        if (androidInput.isSimulateKeyboard()) {
+            KeyInputEvent kie;
+            char unicodeChar = (char)event.getUnicodeChar();
+            int jmeKeyCode = AndroidKeyMapping.getJmeKey(keyCode);
+
+            boolean pressed = event.getAction() == KeyEvent.ACTION_DOWN;
+            boolean repeating = pressed && event.getRepeatCount() > 0;
+
+            kie = new KeyInputEvent(jmeKeyCode, unicodeChar, pressed, repeating);
+            kie.setTime(event.getEventTime());
+            androidInput.addEvent(kie);
+//            logger.log(Level.FINE, "onKey keyCode: {0}, jmeKeyCode: {1}, pressed: {2}, repeating: {3}",
+//                    new Object[]{keyCode, jmeKeyCode, pressed, repeating});
+//            logger.log(Level.FINE, "creating KeyInputEvent: {0}", kie);
+        }
+
         // consume all keys ourself except Volume Up/Down and Menu
         //   Don't do Menu so that typical Android Menus can be created and used
         //   by the user in MainActivity
-        if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP) || 
-                (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) || 
+        if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP) ||
+                (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) ||
                 (keyCode == KeyEvent.KEYCODE_MENU)) {
             return false;
         } else {
             return true;
         }
+
    }
-    
-    public void showVirtualKeyboard (final boolean visible) {
-        androidInput.getView().getHandler().post(new Runnable() {
 
-            public void run() {
-                InputMethodManager manager = 
-                        (InputMethodManager)androidInput.getView().getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-
-                if (visible) {
-                    manager.showSoftInput(androidInput.getView(), 0);
-                    sendKeyEvents = true;
-                } else {
-                    manager.hideSoftInputFromWindow(androidInput.getView().getWindowToken(), 0);
-                    sendKeyEvents = false;
-                }
-            }
-        });
-    }
-    
 }

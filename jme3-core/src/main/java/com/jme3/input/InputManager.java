@@ -764,12 +764,25 @@ public class InputManager implements RawInputListener {
         }
     }
     /**
+     * @deprecated Use isSimulateMouse
      * Returns state of simulation of mouse events. Used for touchscreen input only.
      *
      */
     public boolean getSimulateMouse() {
         if (touch != null) {
-            return touch.getSimulateMouse();
+            return touch.isSimulateMouse();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Returns state of simulation of mouse events. Used for touchscreen input only.
+     *
+     */
+    public boolean isSimulateMouse() {
+        if (touch != null) {
+            return touch.isSimulateMouse();
         } else {
             return false;
         }
@@ -783,6 +796,18 @@ public class InputManager implements RawInputListener {
     public void setSimulateKeyboard(boolean value) {
         if (touch != null) {
             touch.setSimulateKeyboard(value);
+        }
+    }
+
+    /**
+     * Returns state of simulation of key events. Used for touchscreen input only.
+     *
+     */
+    public boolean isSimulateKeyboard() {
+        if (touch != null) {
+            return touch.isSimulateKeyboard();
+        } else {
+            return false;
         }
     }
 

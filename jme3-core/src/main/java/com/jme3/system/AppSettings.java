@@ -90,10 +90,10 @@ public final class AppSettings extends HashMap<String, Object> {
     /**
      * Use the Android MediaPlayer / SoundPool based renderer for Android audio capabilities.
      * <p>
-     * NOTE: Supports Android 2.2+ platforms.  
+     * NOTE: Supports Android 2.2+ platforms.
      *
      * @see AppSettings#setAudioRenderer(java.lang.String)
-     * @deprecated This audio renderer has too many limitations. 
+     * @deprecated This audio renderer has too many limitations.
      * use {@link #ANDROID_OPENAL_SOFT} instead.
      */
     @Deprecated
@@ -456,6 +456,26 @@ public final class AppSettings extends HashMap<String, Object> {
     }
 
     /**
+     * Enable or disable keyboard emulation on touchscreen based devices.
+     * This will convert soft keyboard key presses on the touchscreen
+     * into the appropriate key events.
+     *
+     * @param emulateKeyboard If soft keyboard emulation should be enabled.
+     */
+    public void setEmulateKeyboard(boolean emulateKeyboard) {
+        putBoolean("TouchEmulateKeyboard", emulateKeyboard);
+    }
+
+    /**
+     * Returns true if keyboard emulation is enabled, false otherwise.
+     *
+     * @return Soft keyboard emulation mode.
+     */
+    public boolean isEmulateKeyboard() {
+        return getBoolean("TouchEmulateKeyboard");
+    }
+
+    /**
      * @param frameRate The frame-rate is the upper limit on how high
      * the application's frames-per-second can go.
      * (Default: -1 no frame rate limit imposed)
@@ -731,12 +751,12 @@ public final class AppSettings extends HashMap<String, Object> {
     public void setSettingsDialogImage(String path) {
         putString("SettingsDialogImage", path);
     }
-    
+
     /**
      * Enables Gamma Correction
-     * This requires that the GPU supports GL_ARB_framebuffer_sRGB and will 
+     * This requires that the GPU supports GL_ARB_framebuffer_sRGB and will
      * disabled otherwise.
-     * @param gammaCorrection 
+     * @param gammaCorrection
      * (Default : true)
      */
     public void setGammaCorrection(boolean gammaCorrection) {
@@ -911,7 +931,7 @@ public final class AppSettings extends HashMap<String, Object> {
     public String getSettingsDialogImage() {
         return getString("SettingsDialogImage");
     }
-    
+
     public boolean getGammaCorrection() {
         return getBoolean("GammaCorrection");
     }
