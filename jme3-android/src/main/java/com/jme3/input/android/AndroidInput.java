@@ -679,4 +679,8 @@ public class AndroidInput implements
         return mouseEventsEnabled;
     }
 
+    public boolean isSimulateKeyboard() {
+        return keyboardEventsEnabled;
+    }
+
 }

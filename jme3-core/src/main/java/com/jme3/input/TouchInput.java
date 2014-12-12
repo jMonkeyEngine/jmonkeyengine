@@ -93,6 +93,11 @@ public interface TouchInput extends Input {
     public void setSimulateKeyboard(boolean simulate);
 
     /**
+     * @return true if key event simulation is enabled, false otherwise.
+     */
+    public boolean isSimulateKeyboard();
+
+    /**
      * Set if historic android events should be transmitted, can be used to get better performance and less mem
      * @see <a href="http://developer.android.com/reference/android/view/MotionEvent.html#getHistoricalX%28int,%20int%29">
      * http://developer.android.com/reference/android/view/MotionEvent.html#getHistoricalX%28int,%20int%29</a>
