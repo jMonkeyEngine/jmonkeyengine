@@ -136,8 +136,7 @@ public class AndroidInputHandler implements TouchInput {
     }
 
     public void loadSettings(AppSettings settings) {
-        // TODO: add simulate keyboard to settings
-//        keyboardEventsEnabled = true;
+        keyboardEventsEnabled = settings.isEmulateKeyboard();
         mouseEventsEnabled = settings.isEmulateMouse();
         mouseEventsInvertX = settings.isEmulateMouseFlipX();
         mouseEventsInvertY = settings.isEmulateMouseFlipY();
@@ -257,6 +256,10 @@ public class AndroidInputHandler implements TouchInput {
 
     public void setSimulateKeyboard(boolean simulate) {
         this.keyboardEventsEnabled = simulate;
+    }
+
+    public boolean isSimulateKeyboard() {
+        return keyboardEventsEnabled;
     }
 
     public void setOmitHistoricEvents(boolean dontSendHistory) {

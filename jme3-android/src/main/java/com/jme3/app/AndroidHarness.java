@@ -108,6 +108,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      */
     protected boolean joystickEventsEnabled = false;
     /**
+     * If true KeyEvents are generated from TouchEvents
+     */
+    protected boolean keyEventsEnabled = true;
+    /**
      * If true MouseEvents are generated from TouchEvents
      */
     protected boolean mouseEventsEnabled = true;
@@ -224,6 +228,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             settings.setEmulateMouse(mouseEventsEnabled);
             settings.setEmulateMouseFlipAxis(mouseEventsInvertX, mouseEventsInvertY);
             settings.setUseJoysticks(joystickEventsEnabled);
+            settings.setEmulateKeyboard(keyEventsEnabled);
 
             settings.setBitsPerPixel(eglBitsPerPixel);
             settings.setAlphaBits(eglAlphaBits);

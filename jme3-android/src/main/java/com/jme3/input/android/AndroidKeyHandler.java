@@ -108,20 +108,21 @@ public class AndroidKeyHandler implements View.OnKeyListener {
 
         }
 
+        if (androidInput.isSimulateKeyboard()) {
+            KeyInputEvent kie;
+            char unicodeChar = (char)event.getUnicodeChar();
+            int jmeKeyCode = AndroidKeyMapping.getJmeKey(keyCode);
 
-        KeyInputEvent kie;
-        char unicodeChar = (char)event.getUnicodeChar();
-        int jmeKeyCode = AndroidKeyMapping.getJmeKey(keyCode);
+            boolean pressed = event.getAction() == KeyEvent.ACTION_DOWN;
+            boolean repeating = pressed && event.getRepeatCount() > 0;
 
-        boolean pressed = event.getAction() == KeyEvent.ACTION_DOWN;
-        boolean repeating = pressed && event.getRepeatCount() > 0;
-
-        kie = new KeyInputEvent(jmeKeyCode, unicodeChar, pressed, repeating);
-        kie.setTime(event.getEventTime());
-        androidInput.addEvent(kie);
-//        logger.log(Level.FINE, "onKey keyCode: {0}, jmeKeyCode: {1}, pressed: {2}, repeating: {3}",
-//                new Object[]{keyCode, jmeKeyCode, pressed, repeating});
-//        logger.log(Level.FINE, "creating KeyInputEvent: {0}", kie);
+            kie = new KeyInputEvent(jmeKeyCode, unicodeChar, pressed, repeating);
+            kie.setTime(event.getEventTime());
+            androidInput.addEvent(kie);
+//            logger.log(Level.FINE, "onKey keyCode: {0}, jmeKeyCode: {1}, pressed: {2}, repeating: {3}",
+//                    new Object[]{keyCode, jmeKeyCode, pressed, repeating});
+//            logger.log(Level.FINE, "creating KeyInputEvent: {0}", kie);
+        }
 
         // consume all keys ourself except Volume Up/Down and Menu
         //   Don't do Menu so that typical Android Menus can be created and used
@@ -133,6 +134,7 @@ public class AndroidKeyHandler implements View.OnKeyListener {
         } else {
             return true;
         }
+
    }
 
 }
