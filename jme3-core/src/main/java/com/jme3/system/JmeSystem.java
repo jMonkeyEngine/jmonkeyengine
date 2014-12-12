@@ -103,6 +103,10 @@ public class JmeSystem {
         systemDelegate.setSoftTextDialogInput(input);
     }
 
+    /**
+     * Displays or hides the onscreen soft keyboard
+     * @param show If true, the keyboard is displayed, if false, the screen is hidden.
+     */
     public static void showSoftKeyboard(boolean show) {
         checkDelegate();
         systemDelegate.showSoftKeyboard(show);
