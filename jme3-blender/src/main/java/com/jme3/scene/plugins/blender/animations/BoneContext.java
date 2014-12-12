@@ -67,9 +67,9 @@ public class BoneContext {
     private float                length;
     /** The bone's deform envelope. */
     private BoneEnvelope         boneEnvelope;
-    
+
     // The below data is used only for IK constraint computations.
-    
+
     /** The bone's stretch value. */
     private float                ikStretch;
     /** Bone's rotation minimum values. */
@@ -364,6 +364,30 @@ public class BoneContext {
      */
     public boolean is(int flagMask) {
         return (flag & flagMask) != 0;
+    }
+
+    /**
+     * @return the root bone context of this bone context
+     */
+    public BoneContext getRoot() {
+        BoneContext result = this;
+        while (result.parent != null) {
+            result = result.parent;
+        }
+        return result;
+    }
+
+    /**
+     * @return a number of bones from this bone to its root
+     */
+    public int getDistanceFromRoot() {
+        int result = 0;
+        BoneContext boneContext = this;
+        while (boneContext.parent != null) {
+            boneContext = boneContext.parent;
+            ++result;
+        }
+        return result;
     }
 
     @Override

@@ -29,8 +29,6 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
     private int                bonesAffected;
     /** The total length of the bone chain. Useful for optimisation of computations speed in some cases. */
     private float              chainLength;
-    /** Tells if there is anything to compute at all. */
-    private boolean            needToCompute = true;
     /** Indicates if the tail of the bone should be used or not. */
     private boolean            useTail;
     /** The amount of iterations of the algorithm. */
@@ -43,23 +41,23 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
         useTail = (flag & FLAG_USE_TAIL) != 0;
 
         if ((flag & FLAG_POSITION) == 0) {
-            needToCompute = false;
+            trackToBeChanged = false;
         }
 
-        if (needToCompute) {
+        if (trackToBeChanged) {
             alteredOmas = new HashSet<Long>();
         }
     }
 
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if (influence == 0 || !needToCompute || targetTransform == null) {
+        if (influence == 0 || !trackToBeChanged || targetTransform == null) {
             return;// no need to do anything
         }
         Quaternion q = new Quaternion();
         Vector3f t = targetTransform.getTranslation();
         List<BoneContext> bones = this.loadBones();
-        if(bones.size() == 0) {
+        if (bones.size() == 0) {
             return;// no need to do anything
         }
         float distanceFromTarget = Float.MAX_VALUE;
@@ -185,5 +183,21 @@ public class ConstraintDefinitionIK extends ConstraintDefinition {
             }
         }
         return bones;
+    }
+
+    @Override
+    public boolean isTrackToBeChanged() {
+        if (trackToBeChanged) {
+            // need to check the bone structure too (when constructor was called not all of the bones might have been loaded yet)
+            // that is why it is also checked here
+            List<BoneContext> bones = this.loadBones();
+            trackToBeChanged = bones.size() > 0;
+        }
+        return trackToBeChanged;
+    }
+
+    @Override
+    public boolean isTargetRequired() {
+        return true;
     }
 }

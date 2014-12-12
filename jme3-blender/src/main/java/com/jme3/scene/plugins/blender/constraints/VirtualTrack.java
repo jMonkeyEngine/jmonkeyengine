@@ -16,6 +16,8 @@ import com.jme3.math.Vector3f;
  * @author Marcin Roguski (Kaelthas)
  */
 /* package */class VirtualTrack {
+    /** The name of the track (for debugging purposes). */
+    private String               name;
     /** The last frame for the track. */
     public int                   maxFrame;
     /** The max time for the track. */
@@ -35,7 +37,8 @@ import com.jme3.math.Vector3f;
      * @param maxTime
      *            the max time for the track
      */
-    public VirtualTrack(int maxFrame, float maxTime) {
+    public VirtualTrack(String name, int maxFrame, float maxTime) {
+        this.name = name;
         this.maxFrame = maxFrame;
         this.maxTime = maxTime;
     }
@@ -101,7 +104,7 @@ import com.jme3.math.Vector3f;
      */
     private float[] createTimes() {
         float[] times = new float[maxFrame];
-        float dT = maxTime / (float) maxFrame;
+        float dT = maxTime / maxFrame;
         float t = 0;
         for (int i = 0; i < maxFrame; ++i) {
             times[i] = t;
@@ -142,5 +145,21 @@ import com.jme3.math.Vector3f;
         for (int i = 0; i < count; ++i) {
             list.add(element);
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder(2048);
+        result.append("TRACK: ").append(name).append('\n');
+        if (translations != null && translations.size() > 0) {
+            result.append("TRANSLATIONS: ").append(translations.toString()).append('\n');
+        }
+        if (rotations != null && rotations.size() > 0) {
+            result.append("ROTATIONS:    ").append(rotations.toString()).append('\n');
+        }
+        if (scales != null && scales.size() > 0) {
+            result.append("SCALES:       ").append(scales.toString()).append('\n');
+        }
+        return result.toString();
     }
 }

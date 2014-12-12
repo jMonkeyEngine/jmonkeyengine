@@ -27,16 +27,18 @@ import com.jme3.scene.plugins.blender.file.Structure;
                                                 // them
             flag |= y << 1;
             flag |= z >> 1;
+
+            trackToBeChanged = (flag & (SIZELIKE_X | SIZELIKE_Y | SIZELIKE_Z)) != 0;
         }
     }
-    
+
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if(influence == 0 || targetTransform == null) {
+        if (influence == 0 || targetTransform == null || !trackToBeChanged) {
             return;// no need to do anything
         }
         Transform ownerTransform = this.getOwnerTransform(ownerSpace);
-        
+
         Vector3f ownerScale = ownerTransform.getScale();
         Vector3f targetScale = targetTransform.getScale();
 
@@ -56,12 +58,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
             ownerScale.z = targetScale.z * influence + (1.0f - influence) * ownerScale.z;
         }
         ownerScale.addLocal(offset);
-        
+
         this.applyOwnerTransform(ownerTransform, ownerSpace);
     }
 
     @Override
     public String getConstraintTypeName() {
         return "Copy scale";
+    }
+
+    @Override
+    public boolean isTargetRequired() {
+        return true;
     }
 }

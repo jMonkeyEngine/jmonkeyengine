@@ -25,15 +25,16 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
     public ConstraintDefinitionRotLike(Structure constraintData, Long ownerOMA, BlenderContext blenderContext) {
         super(constraintData, ownerOMA, blenderContext);
+        trackToBeChanged = (flag & (ROTLIKE_X | ROTLIKE_Y | ROTLIKE_Z)) != 0;
     }
 
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if(influence == 0 || targetTransform == null) {
-            return ;// no need to do anything
+        if (influence == 0 || targetTransform == null || !trackToBeChanged) {
+            return;// no need to do anything
         }
         Transform ownerTransform = this.getOwnerTransform(ownerSpace);
-        
+
         Quaternion ownerRotation = ownerTransform.getRotation();
         ownerAngles = ownerRotation.toAngles(ownerAngles);
         targetAngles = targetTransform.getRotation().toAngles(targetAngles);
@@ -70,12 +71,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
             // ownerLocation.addLocal(startLocation);
             // TODO
         }
-        
+
         this.applyOwnerTransform(ownerTransform, ownerSpace);
     }
 
     @Override
     public String getConstraintTypeName() {
         return "Copy rotation";
+    }
+
+    @Override
+    public boolean isTargetRequired() {
+        return true;
     }
 }

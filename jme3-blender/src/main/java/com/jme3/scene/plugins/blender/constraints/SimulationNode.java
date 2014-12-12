@@ -1,6 +1,8 @@
 package com.jme3.scene.plugins.blender.constraints;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -132,7 +134,7 @@ public class SimulationNode {
                 }
             }
             Node node = blenderContext.getControlledNode(skeleton);
-            Long animatedNodeOMA = ((Number)blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, node)).longValue();
+            Long animatedNodeOMA = ((Number) blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, node)).longValue();
             animations = blenderContext.getAnimations(animatedNodeOMA);
         } else {
             animations = blenderContext.getAnimations(featureOMA);
@@ -206,7 +208,7 @@ public class SimulationNode {
                     int maxFrame = (int) animationTimeBoundaries[0];
                     float maxTime = animationTimeBoundaries[1];
 
-                    VirtualTrack vTrack = new VirtualTrack(maxFrame, maxTime);
+                    VirtualTrack vTrack = new VirtualTrack(spatial.getName(), maxFrame, maxTime);
                     for (Track track : animation.getTracks()) {
                         for (int frame = 0; frame < maxFrame; ++frame) {
                             spatial.setLocalTranslation(((SpatialTrack) track).getTranslations()[frame]);
@@ -252,6 +254,8 @@ public class SimulationNode {
             if (animations != null) {
                 TempVars vars = TempVars.get();
                 AnimChannel animChannel = animControl.createChannel();
+
+                List<Bone> bonesWithConstraints = this.collectBonesWithConstraints(skeleton);
                 for (Animation animation : animations) {
                     float[] animationTimeBoundaries = this.computeAnimationTimeBoundaries(animation);
                     int maxFrame = (int) animationTimeBoundaries[0];
@@ -271,11 +275,8 @@ public class SimulationNode {
                         }
 
                         // ... and then apply constraints from the root bone to the last child ...
-                        for (Bone rootBone : skeleton.getRoots()) {
-                            if (skeleton.getBoneIndex(rootBone) > 0) {
-                                // ommit the 0 - indexed root bone as it is the bone added by importer
-                                this.applyConstraints(rootBone, alteredOmas, frame);
-                            }
+                        for (Bone rootBone : bonesWithConstraints) {
+                            this.applyConstraints(rootBone, alteredOmas, frame);
                         }
 
                         // ... add virtual tracks if neccessary, for bones that were altered but had no tracks before ...
@@ -283,7 +284,7 @@ public class SimulationNode {
                             BoneContext boneContext = blenderContext.getBoneContext(boneOMA);
                             int boneIndex = skeleton.getBoneIndex(boneContext.getBone());
                             if (!tracks.containsKey(boneIndex)) {
-                                tracks.put(boneIndex, new VirtualTrack(maxFrame, maxTime));
+                                tracks.put(boneIndex, new VirtualTrack(boneContext.getBone().getName(), maxFrame, maxTime));
                             }
                         }
                         alteredOmas.clear();
@@ -292,12 +293,12 @@ public class SimulationNode {
                         for (Entry<Integer, VirtualTrack> trackEntry : tracks.entrySet()) {
                             Bone bone = skeleton.getBone(trackEntry.getKey());
                             Transform startTransform = boneStartTransforms.get(bone);
-                            
+
                             // track contains differences between the frame position and bind positions of bones/spatials
                             Vector3f bonePositionDifference = bone.getLocalPosition().subtract(startTransform.getTranslation());
                             Quaternion boneRotationDifference = startTransform.getRotation().inverse().mult(bone.getLocalRotation()).normalizeLocal();
                             Vector3f boneScaleDifference = bone.getLocalScale().divide(startTransform.getScale());
-                            
+
                             trackEntry.getValue().setTransform(frame, new Transform(bonePositionDifference, boneRotationDifference, boneScaleDifference));
                         }
                     }
@@ -349,9 +350,6 @@ public class SimulationNode {
                 alteredOmas.add(boneContext.getBoneOma());
             }
         }
-        for (Bone child : bone.getChildren()) {
-            this.applyConstraints(child, alteredOmas, frame);
-        }
     }
 
     /**
@@ -367,6 +365,150 @@ public class SimulationNode {
     }
 
     /**
+     * Collects the bones that will take part in constraint computations.
+     * The result will not include bones whose constraints will not change them or are invalid.
+     * The bones are sorted so that the constraint applying is done in the proper order.
+     * @param skeleton
+     *            the simulated skeleton
+     * @return a list of bones that will take part in constraints computations
+     */
+    private List<Bone> collectBonesWithConstraints(Skeleton skeleton) {
+        Map<BoneContext, List<Constraint>> bonesWithConstraints = new HashMap<BoneContext, List<Constraint>>();
+        for (int i = 1; i < skeleton.getBoneCount(); ++i) {// ommit the 0 - indexed root bone as it is the bone added by importer
+            Bone bone = skeleton.getBone(i);
+            BoneContext boneContext = blenderContext.getBoneContext(bone);
+            List<Constraint> constraints = this.findConstraints(boneContext.getBoneOma(), blenderContext);
+            if (constraints != null && constraints.size() > 0) {
+                bonesWithConstraints.put(boneContext, constraints);
+            }
+        }
+
+        // first sort out constraints that are not implemented or invalid or will not affect the bone's tracks
+        List<BoneContext> bonesToRemove = new ArrayList<BoneContext>(bonesWithConstraints.size());
+        for (Entry<BoneContext, List<Constraint>> entry : bonesWithConstraints.entrySet()) {
+            List<Constraint> validConstraints = new ArrayList<Constraint>(entry.getValue().size());
+            for (Constraint constraint : entry.getValue()) {// TODO: sprawdziæ czy wprowadza jakiekolwiek zmiany
+                if (constraint.isImplemented() && constraint.validate() && constraint.isTrackToBeChanged()) {
+                    validConstraints.add(constraint);
+                }
+            }
+            if (validConstraints.size() > 0) {
+                entry.setValue(validConstraints);
+            } else {
+                bonesToRemove.add(entry.getKey());
+            }
+        }
+        for (BoneContext boneContext : bonesToRemove) {
+            bonesWithConstraints.remove(boneContext);
+        }
+
+        List<BoneContext> bonesConstrainedWithoutTarget = new ArrayList<BoneContext>();
+        Set<Long> remainedOMAS = new HashSet<Long>();
+        // later move all bones with not dependant constraints to the front
+        bonesToRemove.clear();
+        for (Entry<BoneContext, List<Constraint>> entry : bonesWithConstraints.entrySet()) {
+            boolean hasDependantConstraints = false;
+            for (Constraint constraint : entry.getValue()) {
+                if (constraint.targetOMA != null) {
+                    hasDependantConstraints = true;
+                    break;
+                }
+            }
+
+            if (!hasDependantConstraints) {
+                bonesConstrainedWithoutTarget.add(entry.getKey());
+                bonesToRemove.add(entry.getKey());
+            } else {
+                remainedOMAS.add(entry.getKey().getBoneOma());
+            }
+        }
+        for (BoneContext boneContext : bonesToRemove) {
+            bonesWithConstraints.remove(boneContext);
+        }
+
+        this.sortBonesByChain(bonesConstrainedWithoutTarget);
+
+        // another step is to add those bones whose constraints depend only on bones already added to the result or to those
+        // that are not included neither in the result nor in the remaining map
+        // do this as long as bones are being moved to the result and the 'bonesWithConstraints' is not empty
+        List<BoneContext> bonesConstrainedWithTarget = new ArrayList<BoneContext>();
+        do {
+            bonesToRemove.clear();
+            for (Entry<BoneContext, List<Constraint>> entry : bonesWithConstraints.entrySet()) {
+                boolean unconstrainedBone = true;
+                for (Constraint constraint : entry.getValue()) {
+                    if (remainedOMAS.contains(constraint.getTargetOMA())) {
+                        unconstrainedBone = false;
+                        break;
+                    }
+                }
+                if (unconstrainedBone) {
+                    bonesToRemove.add(entry.getKey());
+                    bonesConstrainedWithTarget.add(entry.getKey());
+                }
+            }
+
+            for (BoneContext boneContext : bonesToRemove) {
+                bonesWithConstraints.remove(boneContext);
+                remainedOMAS.remove(boneContext.getBoneOma());
+            }
+        } while (bonesWithConstraints.size() > 0 && bonesToRemove.size() > 0);
+        this.sortBonesByChain(bonesConstrainedWithoutTarget);
+
+        // prepare the result
+        List<Bone> result = new ArrayList<Bone>();
+        for (BoneContext boneContext : bonesConstrainedWithoutTarget) {
+            result.add(boneContext.getBone());
+        }
+        for (BoneContext boneContext : bonesConstrainedWithTarget) {
+            result.add(boneContext.getBone());
+        }
+
+        // in the end prepare the mapping between bone OMA
+        if (bonesWithConstraints.size() > 0) {
+            LOGGER.warning("Some bones have loops in their constraints' definitions. The result might not be properly computed!");
+            for (BoneContext boneContext : bonesWithConstraints.keySet()) {
+                result.add(boneContext.getBone());
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * The method sorts the given bones from root to top.
+     * If the list contains bones from different branches then those branches will be listed
+     * one after another - which means that bones will be grouped by branches they belong to.
+     * @param bones
+     *            a list of bones
+     */
+    private void sortBonesByChain(List<BoneContext> bones) {
+        Map<BoneContext, List<BoneContext>> branches = new HashMap<BoneContext, List<BoneContext>>();
+
+        for (BoneContext bone : bones) {
+            BoneContext root = bone.getRoot();
+            List<BoneContext> list = branches.get(root);
+            if (list == null) {
+                list = new ArrayList<BoneContext>();
+                branches.put(root, list);
+            }
+            list.add(bone);
+        }
+
+        // sort the bones in each branch from root to leaf
+        bones.clear();
+        for (Entry<BoneContext, List<BoneContext>> entry : branches.entrySet()) {
+            Collections.sort(entry.getValue(), new Comparator<BoneContext>() {
+                @Override
+                public int compare(BoneContext o1, BoneContext o2) {
+                    return o1.getDistanceFromRoot() - o2.getDistanceFromRoot();
+                }
+            });
+            bones.addAll(entry.getValue());
+        }
+    }
+
+    /**
      * Computes the maximum frame and time for the animation. Different tracks
      * can have different lengths so here the maximum one is being found.
      * 
@@ -376,7 +518,7 @@ public class SimulationNode {
      */
     private float[] computeAnimationTimeBoundaries(Animation animation) {
         int maxFrame = Integer.MIN_VALUE;
-        float maxTime = Float.MIN_VALUE;
+        float maxTime = -Float.MAX_VALUE;
         for (Track track : animation.getTracks()) {
             if (track instanceof BoneTrack) {
                 maxFrame = Math.max(maxFrame, ((BoneTrack) track).getTranslations().length);

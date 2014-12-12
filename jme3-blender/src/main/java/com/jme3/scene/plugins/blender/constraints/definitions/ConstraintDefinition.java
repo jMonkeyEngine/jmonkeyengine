@@ -28,6 +28,8 @@ public abstract class ConstraintDefinition {
     protected Long             ownerOMA;
     /** Stores the OMA addresses of all features whose transform had been altered beside the constraint owner. */
     protected Set<Long>        alteredOmas;
+    /** The variable that determines if the constraint will alter the track in any way. */
+    protected boolean          trackToBeChanged = true;
 
     /**
      * Loads a constraint definition based on the constraint definition
@@ -51,6 +53,20 @@ public abstract class ConstraintDefinition {
         constraintHelper = (ConstraintHelper) (blenderContext == null ? null : blenderContext.getHelper(ConstraintHelper.class));
         this.ownerOMA = ownerOMA;
     }
+
+    /**
+     * @return determines if the definition of the constraint will change the bone in any way; in most cases
+     *         it is possible to tell that even before the constraint baking simulation is started, so we can discard such bones from constraint
+     *         computing to improve the computation speed and lower the computations complexity
+     */
+    public boolean isTrackToBeChanged() {
+        return trackToBeChanged;
+    }
+
+    /**
+     * @return determines if this constraint definition requires a defined target or not
+     */
+    public abstract boolean isTargetRequired();
 
     /**
      * This method is here because we have no guarantee that the owner is loaded
@@ -132,4 +148,9 @@ public abstract class ConstraintDefinition {
      *            the influence of the constraint (from range <0; 1>)
      */
     public abstract void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence);
+
+    @Override
+    public String toString() {
+        return this.getConstraintTypeName();
+    }
 }

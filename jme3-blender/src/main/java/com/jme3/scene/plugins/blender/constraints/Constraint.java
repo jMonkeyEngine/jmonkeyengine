@@ -117,13 +117,30 @@ public abstract class Constraint {
     public abstract boolean validate();
 
     /**
+     * @return the OMA of the target or 0 if no target is specified for the constraint
+     */
+    public abstract Long getTargetOMA();
+
+    /**
      * Applies the constraint to owner (and in some cases can alter other bones of the skeleton).
      * @param frame
      *            the frame of the animation
      */
     public void apply(int frame) {
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.log(Level.FINEST, "Applying constraint: {0} for frame {1}", new Object[] { name, frame });
+        }
         Transform targetTransform = targetOMA != null ? constraintHelper.getTransform(targetOMA, subtargetName, targetSpace) : null;
-        constraintDefinition.bake(ownerSpace, targetSpace, targetTransform, (float)ipo.calculateValue(frame));
+        constraintDefinition.bake(ownerSpace, targetSpace, targetTransform, (float) ipo.calculateValue(frame));
+    }
+
+    /**
+     * @return determines if the definition of the constraint will change the bone in any way; in most cases
+     *         it is possible to tell that even before the constraint baking simulation is started, so we can discard such bones from constraint
+     *         computing to improve the computation speed and lower the computations complexity
+     */
+    public boolean isTrackToBeChanged() {
+        return constraintDefinition == null ? false : constraintDefinition.isTrackToBeChanged();
     }
 
     @Override
@@ -162,5 +179,10 @@ public abstract class Constraint {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Constraint(name = " + name + ", def = " + constraintDefinition + ")";
     }
 }

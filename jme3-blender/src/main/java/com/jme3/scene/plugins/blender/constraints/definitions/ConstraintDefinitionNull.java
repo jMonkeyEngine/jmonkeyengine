@@ -14,6 +14,7 @@ import com.jme3.scene.plugins.blender.file.Structure;
 
     public ConstraintDefinitionNull(Structure constraintData, Long ownerOMA, BlenderContext blenderContext) {
         super(constraintData, ownerOMA, blenderContext);
+        trackToBeChanged = false;
     }
 
     @Override
@@ -24,5 +25,10 @@ import com.jme3.scene.plugins.blender.file.Structure;
     @Override
     public String getConstraintTypeName() {
         return "Null";
+    }
+
+    @Override
+    public boolean isTargetRequired() {
+        return false;
     }
 }

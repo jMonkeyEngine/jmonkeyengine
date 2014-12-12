@@ -22,6 +22,11 @@ import com.jme3.scene.plugins.blender.file.Structure;
         if (targetOMA != null) {
             return blenderContext.getLoadedFeature(targetOMA, LoadedDataType.FEATURE) != null;
         }
-        return true;
+        return constraintDefinition == null ? true : constraintDefinition.isTargetRequired();
+    }
+    
+    @Override
+    public Long getTargetOMA() {
+        return targetOMA;
     }
 }

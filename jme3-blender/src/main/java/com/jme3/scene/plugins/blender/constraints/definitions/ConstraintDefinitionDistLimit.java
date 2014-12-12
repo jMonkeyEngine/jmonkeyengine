@@ -26,18 +26,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
         mode = ((Number) constraintData.getFieldValue("mode")).intValue();
         dist = ((Number) constraintData.getFieldValue("dist")).floatValue();
     }
-    
+
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null &&
-            blenderContext.getBoneContext(ownerOMA).is(BoneContext.CONNECTED_TO_PARENT)) {
+        if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null && blenderContext.getBoneContext(ownerOMA).is(BoneContext.CONNECTED_TO_PARENT)) {
             // distance limit does not work on bones who are connected to their parent
             return;
         }
-        if(influence == 0 || targetTransform == null) {
-            return ;// no need to do anything
+        if (influence == 0 || targetTransform == null) {
+            return;// no need to do anything
         }
-        
+
         Transform ownerTransform = this.getOwnerTransform(ownerSpace);
 
         Vector3f v = ownerTransform.getTranslation().subtract(targetTransform.getTranslation());
@@ -71,6 +70,11 @@ import com.jme3.scene.plugins.blender.file.Structure;
         }
 
         this.applyOwnerTransform(ownerTransform, ownerSpace);
+    }
+
+    @Override
+    public boolean isTargetRequired() {
+        return true;
     }
 
     @Override

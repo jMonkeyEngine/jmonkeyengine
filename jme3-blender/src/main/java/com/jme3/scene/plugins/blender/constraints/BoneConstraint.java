@@ -62,12 +62,27 @@ import com.jme3.scene.plugins.blender.objects.ObjectHelper;
                 }
             }
         }
-        return true;
+        return constraintDefinition == null ? true : constraintDefinition.isTargetRequired();
     }
 
     @Override
     public void apply(int frame) {
         super.apply(frame);
         blenderContext.getBoneContext(ownerOMA).getBone().updateModelTransforms();
+    }
+    
+    @Override
+    public Long getTargetOMA() {
+        if(targetOMA != null && subtargetName != null && !subtargetName.trim().isEmpty()) {
+            Spatial nodeTarget = (Spatial) blenderContext.getLoadedFeature(targetOMA, LoadedDataType.FEATURE);
+            if(nodeTarget != null) {
+                if(blenderContext.getMarkerValue(ObjectHelper.ARMATURE_NODE_MARKER, nodeTarget) != null) {
+                    BoneContext boneContext = blenderContext.getBoneByName(targetOMA, subtargetName);
+                    return boneContext != null ? boneContext.getBoneOma() : 0L;
+                }
+                return targetOMA;
+            }
+        }
+        return 0L;
     }
 }

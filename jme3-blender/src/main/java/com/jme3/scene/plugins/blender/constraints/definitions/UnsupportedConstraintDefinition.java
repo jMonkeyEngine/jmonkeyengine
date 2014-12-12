@@ -16,6 +16,7 @@ import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
     public UnsupportedConstraintDefinition(String typeName) {
         super(null, null, null);
         this.typeName = typeName;
+        trackToBeChanged = false;
     }
 
     @Override
@@ -30,5 +31,10 @@ import com.jme3.scene.plugins.blender.constraints.ConstraintHelper.Space;
     @Override
     public String getConstraintTypeName() {
         return typeName;
+    }
+
+    @Override
+    public boolean isTargetRequired() {
+        return false;
     }
 }
