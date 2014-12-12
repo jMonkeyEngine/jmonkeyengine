@@ -56,7 +56,7 @@ import java.util.logging.Logger;
  */
 public class AndroidInputHandler implements TouchInput {
     private static final Logger logger = Logger.getLogger(AndroidInputHandler.class.getName());
-    
+
     // Custom settings
     private boolean mouseEventsEnabled = true;
     private boolean mouseEventsInvertX = false;
@@ -64,8 +64,8 @@ public class AndroidInputHandler implements TouchInput {
     private boolean keyboardEventsEnabled = false;
     private boolean joystickEventsEnabled = false;
     private boolean dontSendHistory = false;
-    
-    
+
+
     // Internal
     private GLSurfaceView view;
     private AndroidTouchHandler touchHandler;
@@ -78,8 +78,8 @@ public class AndroidInputHandler implements TouchInput {
     private final TouchEventPool touchEventPool = new TouchEventPool(MAX_TOUCH_EVENTS);
     private float scaleX = 1f;
     private float scaleY = 1f;
-    
-    
+
+
     public AndroidInputHandler() {
         int buildVersion = Build.VERSION.SDK_INT;
         logger.log(Level.INFO, "Android Build Version: {0}", buildVersion);
@@ -94,14 +94,14 @@ public class AndroidInputHandler implements TouchInput {
             keyHandler = new AndroidKeyHandler(this);
         }
     }
-    
-    public AndroidInputHandler(AndroidTouchHandler touchInput, 
+
+    public AndroidInputHandler(AndroidTouchHandler touchInput,
             AndroidKeyHandler keyInput, AndroidGestureHandler gestureHandler) {
         this.touchHandler = touchInput;
         this.keyHandler = keyInput;
         this.gestureHandler = gestureHandler;
     }
-    
+
     public void setView(View view) {
         if (touchHandler != null) {
             touchHandler.setView(view);
@@ -114,27 +114,27 @@ public class AndroidInputHandler implements TouchInput {
         }
         this.view = (GLSurfaceView)view;
     }
-    
+
     public View getView() {
         return view;
     }
-    
+
     public float invertX(float origX) {
         return getJmeX(view.getWidth()) - origX;
     }
-    
+
     public float invertY(float origY) {
         return getJmeY(view.getHeight()) - origY;
     }
-    
+
     public float getJmeX(float origX) {
         return origX * scaleX;
     }
-    
+
     public float getJmeY(float origY) {
         return origY * scaleY;
     }
-    
+
     public void loadSettings(AppSettings settings) {
         // TODO: add simulate keyboard to settings
 //        keyboardEventsEnabled = true;
@@ -142,15 +142,15 @@ public class AndroidInputHandler implements TouchInput {
         mouseEventsInvertX = settings.isEmulateMouseFlipX();
         mouseEventsInvertY = settings.isEmulateMouseFlipY();
         joystickEventsEnabled = settings.useJoysticks();
-        
+
         // view width and height are 0 until the view is displayed on the screen
         if (view.getWidth() != 0 && view.getHeight() != 0) {
             scaleX = (float)settings.getWidth() / (float)view.getWidth();
             scaleY = (float)settings.getHeight() / (float)view.getHeight();
         }
-        logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}", 
+        logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}",
                 new Object[]{scaleX, scaleY});
-        
+
     }
 
         // -----------------------------------------
@@ -167,14 +167,14 @@ public class AndroidInputHandler implements TouchInput {
         if (gestureHandler != null) {
             gestureHandler.initialize();
         }
-        
+
         initialized = true;
     }
 
     @Override
     public void destroy() {
         initialized = false;
-        
+
         touchEventPool.destroy();
         if (touchHandler != null) {
             touchHandler.destroy();
@@ -185,7 +185,7 @@ public class AndroidInputHandler implements TouchInput {
         if (gestureHandler != null) {
             gestureHandler.destroy();
         }
-        
+
         setView(null);
     }
 
@@ -203,11 +203,11 @@ public class AndroidInputHandler implements TouchInput {
     public long getInputTimeNanos() {
         return System.nanoTime();
     }
-    
+
     public void update() {
         if (listener != null) {
             InputEvent inputEvent;
-            
+
             while ((inputEvent = inputEventQueue.poll()) != null) {
                 if (inputEvent instanceof TouchEvent) {
                     listener.onTouchEvent((TouchEvent)inputEvent);
@@ -223,11 +223,11 @@ public class AndroidInputHandler implements TouchInput {
     }
 
     // -----------------------------------------
-    
+
     public TouchEvent getFreeTouchEvent() {
             return touchEventPool.getNextFreeEvent();
     }
-    
+
     public void addEvent(InputEvent event) {
         inputEventQueue.add(event);
         if (event instanceof TouchEvent) {
@@ -246,7 +246,7 @@ public class AndroidInputHandler implements TouchInput {
     public boolean getSimulateMouse() {
         return mouseEventsEnabled;
     }
-    
+
     public boolean isMouseEventsInvertX() {
         return mouseEventsInvertX;
     }
@@ -254,7 +254,7 @@ public class AndroidInputHandler implements TouchInput {
     public boolean isMouseEventsInvertY() {
         return mouseEventsInvertY;
     }
-    
+
     public void setSimulateKeyboard(boolean simulate) {
         this.keyboardEventsEnabled = simulate;
     }
@@ -262,12 +262,5 @@ public class AndroidInputHandler implements TouchInput {
     public void setOmitHistoricEvents(boolean dontSendHistory) {
         this.dontSendHistory = dontSendHistory;
     }
-
-    public void showVirtualKeyboard(boolean visible) {
-        if (keyHandler != null) {
-            keyHandler.showVirtualKeyboard(visible);
-        }
-    }
-
 
 }

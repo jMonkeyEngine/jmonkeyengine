@@ -59,27 +59,27 @@ public interface TouchInput extends Input {
     /**
      * Volume up key.
      */
-    public static final int KEYCODE_VOLUME_UP = 0x18;        
+    public static final int KEYCODE_VOLUME_UP = 0x18;
     /**
      * Volume down key.
      */
-    public static final int KEYCODE_VOLUME_DOWN = 0x19;    
+    public static final int KEYCODE_VOLUME_DOWN = 0x19;
 
-    
+
     /**
      * Set if mouse events should be generated
-     * 
+     *
      * @param simulate if mouse events should be generated
      */
     public void setSimulateMouse(boolean simulate);
-    
+
     /**
      * Get if mouse events are generated
      * @deprecated Use {@link #isSimulateMouse() }.
      */
     @Deprecated
     public boolean getSimulateMouse();
-    
+
     /**
      * @return true if mouse event simulation is enabled, false otherwise.
      */
@@ -87,11 +87,11 @@ public interface TouchInput extends Input {
 
     /**
      * Set if keyboard events should be generated
-     * 
+     *
      * @param simulate if keyboard events should be generated
      */
     public void setSimulateKeyboard(boolean simulate);
-    
+
     /**
      * Set if historic android events should be transmitted, can be used to get better performance and less mem
      * @see <a href="http://developer.android.com/reference/android/view/MotionEvent.html#getHistoricalX%28int,%20int%29">
@@ -99,11 +99,5 @@ public interface TouchInput extends Input {
      * @param dontSendHistory turn of historic events if true, false else and default
      */
     public void setOmitHistoricEvents(boolean dontSendHistory);
-    
-    /**
-     * Displays or hides the onscreen soft keyboard
-     * @param visible 
-     */
-    public void showVirtualKeyboard (final boolean visible);
-    
+
 }

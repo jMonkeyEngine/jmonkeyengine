@@ -400,7 +400,7 @@ public class AndroidInput implements
             if(eventQueue.size()< MAX_EVENTS){
                 eventQueue.push(event);
             }
-            
+
         }
     }
 
@@ -677,10 +677,6 @@ public class AndroidInput implements
 
     public boolean isSimulateMouse() {
         return mouseEventsEnabled;
-    }
-
-    public void showVirtualKeyboard(boolean visible) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

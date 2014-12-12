@@ -49,11 +49,11 @@ public class IosInputHandler implements TouchInput {
 
     @Override
     public void update() {
-         logger.log(Level.FINE, "InputEvent update : {0}", 
+         logger.log(Level.FINE, "InputEvent update : {0}",
                 new Object[]{listener});
        if (listener != null) {
             InputEvent inputEvent;
-            
+
             while ((inputEvent = inputEventQueue.poll()) != null) {
                 if (inputEvent instanceof TouchEvent) {
                     listener.onTouchEvent((TouchEvent)inputEvent);
@@ -117,20 +117,15 @@ public class IosInputHandler implements TouchInput {
         this.dontSendHistory = dontSendHistory;
     }
 
-    @Override
-    public void showVirtualKeyboard(boolean visible) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     // ----------------
-        
+
     public void loadSettings(AppSettings settings) {
         // TODO: add simulate keyboard to settings
 //        keyboardEventsEnabled = true;
         mouseEventsEnabled = true;//settings.isEmulateMouse();
         mouseEventsInvertX = settings.isEmulateMouseFlipX();
         mouseEventsInvertY = settings.isEmulateMouseFlipY();
-        
+
         // view width and height are 0 until the view is displayed on the screen
         //if (view.getWidth() != 0 && view.getHeight() != 0) {
         //    scaleX = (float)settings.getWidth() / (float)view.getWidth();
@@ -140,10 +135,10 @@ public class IosInputHandler implements TouchInput {
         scaleY = 1.0f;
         width = settings.getWidth();
         height = settings.getHeight();
-        logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}, width: {2}, height: {3}", 
+        logger.log(Level.FINE, "Setting input scaling, scaleX: {0}, scaleY: {1}, width: {2}, height: {3}",
                 new Object[]{scaleX, scaleY, width, height});
     }
-    
+
     public boolean isMouseEventsInvertX() {
         return mouseEventsInvertX;
     }
@@ -151,19 +146,19 @@ public class IosInputHandler implements TouchInput {
     public boolean isMouseEventsInvertY() {
         return mouseEventsInvertY;
     }
-    
+
     public float invertX(float origX) {
         return getJmeX(width) - origX;
     }
-    
+
     public float invertY(float origY) {
         return getJmeY(height) - origY;
     }
-    
+
     public float getJmeX(float origX) {
         return origX * scaleX;
     }
-    
+
     public float getJmeY(float origY) {
         return origY * scaleY;
     }
@@ -171,7 +166,7 @@ public class IosInputHandler implements TouchInput {
     public TouchEvent getFreeTouchEvent() {
             return touchEventPool.getNextFreeEvent();
     }
-    
+
     public void addEvent(InputEvent event) {
         inputEventQueue.add(event);
         if (event instanceof TouchEvent) {
@@ -180,9 +175,9 @@ public class IosInputHandler implements TouchInput {
     }
 
     // ----------------
-    
+
     public void injectTouchDown(int pointerId, long time, float x, float y) {
-        logger.log(Level.FINE, "Using input scaling, scaleX: {0}, scaleY: {1}, width: {2}, height: {3}", 
+        logger.log(Level.FINE, "Using input scaling, scaleX: {0}, scaleY: {1}, width: {2}, height: {3}",
                 new Object[]{scaleX, scaleY, width, height});
         if (touchHandler != null) {
             touchHandler.actionDown(pointerId, time, x, y);
