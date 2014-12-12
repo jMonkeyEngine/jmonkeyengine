@@ -1,10 +1,11 @@
 package com.jme3.system.android;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Environment;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import com.jme3.asset.AndroidAssetManager;
 import com.jme3.asset.AndroidImageInfo;
 import com.jme3.asset.AssetManager;
@@ -31,7 +32,7 @@ import java.util.logging.Level;
 
 public class JmeAndroidSystem extends JmeSystemDelegate {
 
-    private static Activity activity;
+    private static View view;
     private static String audioRendererType = AppSettings.ANDROID_OPENAL_SOFT;
 
     static {
@@ -82,9 +83,9 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     public void showErrorDialog(String message) {
         final String finalMsg = message;
         final String finalTitle = "Error in application";
-        final Activity context = JmeAndroidSystem.getActivity();
+        final Context context = JmeAndroidSystem.getView().getContext();
 
-        context.runOnUiThread(new Runnable() {
+        view.getHandler().post(new Runnable() {
             @Override
             public void run() {
                 AlertDialog dialog = new AlertDialog.Builder(context)
@@ -184,7 +185,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                 // The files can only be accessed by this application
                 storageFolder = storageFolders.get(type);
                 if (storageFolder == null) {
-                    storageFolder = activity.getApplicationContext().getDir("", Context.MODE_PRIVATE);
+                    storageFolder = view.getContext().getDir("", Context.MODE_PRIVATE);
                     storageFolders.put(type, storageFolder);
                 }
                 break;
@@ -203,7 +204,7 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
                     String state = Environment.getExternalStorageState();
                     logger.log(Level.FINE, "ExternalStorageState: {0}", state);
                     if (state.equals(Environment.MEDIA_MOUNTED)) {
-                        storageFolder = activity.getApplicationContext().getExternalFilesDir(null);
+                        storageFolder = view.getContext().getExternalFilesDir(null);
                         storageFolders.put(type, storageFolder);
                     }
                 }
@@ -219,12 +220,12 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
         return storageFolder;
     }
 
-    public static void setActivity(Activity activity) {
-        JmeAndroidSystem.activity = activity;
+    public static void setView(View view) {
+        JmeAndroidSystem.view = view;
     }
 
-    public static Activity getActivity() {
-        return activity;
+    public static View getView() {
+        return view;
     }
 
     public static String getAudioRendererType() {
@@ -232,6 +233,19 @@ public class JmeAndroidSystem extends JmeSystemDelegate {
     }
 
     @Override
-    public void showSoftKeyboard(boolean show) {
+    public void showSoftKeyboard(final boolean show) {
+        view.getHandler().post(new Runnable() {
+
+            public void run() {
+                InputMethodManager manager =
+                        (InputMethodManager)view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                if (show) {
+                    manager.showSoftInput(view, 0);
+                } else {
+                    manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            }
+        });
     }
 }

@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 public class AndroidLocator implements AssetLocator {
 
     private static final Logger logger = Logger.getLogger(AndroidLocator.class.getName());
-    
+
     private android.content.res.AssetManager androidManager;
     private String rootPath = "";
 
@@ -25,7 +25,7 @@ public class AndroidLocator implements AssetLocator {
             this.assetPath = assetPath;
             this.in = in;
         }
-        
+
         public AssetFileDescriptor openFileDescriptor() {
             try {
                 return androidManager.openFd(assetPath);
@@ -33,7 +33,7 @@ public class AndroidLocator implements AssetLocator {
                 throw new AssetLoadException("Failed to open asset " + assetPath, ex);
             }
         }
-        
+
         @Override
         public InputStream openStream() {
             if (in != null){
@@ -66,9 +66,9 @@ public class AndroidLocator implements AssetLocator {
             return null;
         }
     }
-    
+
     public AndroidLocator() {
-        androidManager = JmeAndroidSystem.getActivity().getAssets();
+        androidManager = JmeAndroidSystem.getView().getContext().getAssets();
     }
 
     public void setRootPath(String rootPath) {
@@ -89,7 +89,7 @@ public class AndroidLocator implements AssetLocator {
             return create(manager, key, assetPath);
         } catch (IOException ex) {
             // This is different handling than URL locator
-            // since classpath locating would return null at the getResource() 
+            // since classpath locating would return null at the getResource()
             // call, otherwise there's a more critical error...
             throw new AssetLoadException("Failed to open asset " + assetPath, ex);
         }

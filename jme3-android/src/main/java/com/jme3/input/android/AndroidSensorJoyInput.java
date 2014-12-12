@@ -32,7 +32,6 @@
 
 package com.jme3.input.android;
 
-import android.app.Activity;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -40,7 +39,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Vibrator;
 import android.view.Surface;
-import android.view.View;
+import android.view.WindowManager;
 import com.jme3.input.AbstractJoystick;
 import com.jme3.input.DefaultJoystickAxis;
 import com.jme3.input.InputManager;
@@ -98,9 +97,10 @@ import java.util.logging.Logger;
 public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     private final static Logger logger = Logger.getLogger(AndroidSensorJoyInput.class.getName());
 
-    private Activity activity = null;
+    private Context context = null;
     private InputManager inputManager = null;
     private SensorManager sensorManager = null;
+    private WindowManager windowManager = null;
     private Vibrator vibrator = null;
     private boolean vibratorActive = false;
     private long maxRumbleTime = 250;  // 250ms
@@ -135,11 +135,13 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
     }
 
     private void initSensorManager() {
-        this.activity = JmeAndroidSystem.getActivity();
+        this.context = JmeAndroidSystem.getView().getContext();
+        // Get instance of the WindowManager from the current Context
+        windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         // Get instance of the SensorManager from the current Context
-        sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         // Get instance of Vibrator from current Context
-        vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator == null) {
             logger.log(Level.FINE, "Vibrator Service not found.");
         }
@@ -306,7 +308,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
      * @return Current device rotation amount
      */
     private int getScreenRotation() {
-        return activity.getWindowManager().getDefaultDisplay().getRotation();
+        return windowManager.getDefaultDisplay().getRotation();
     }
 
     /**
@@ -592,7 +594,7 @@ public class AndroidSensorJoyInput implements JoyInput, SensorEventListener {
         joysticks = null;
         sensorManager = null;
         vibrator = null;
-        activity = null;
+        context = null;
     }
 
     public boolean isInitialized() {

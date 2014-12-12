@@ -195,7 +195,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         logger.fine("onCreate");
         super.onCreate(savedInstanceState);
 
-        JmeAndroidSystem.setActivity(this);
         if (screenFullScreen) {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -231,7 +230,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             settings.setDepthBits(eglDepthBits);
             settings.setSamples(eglSamples);
             settings.setStencilBits(eglStencilBits);
-            
+
             settings.setResolution(disp.getWidth(), disp.getHeight());
             settings.setAudioRenderer(audioRendererType);
 
@@ -252,7 +251,9 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
         }
 
         ctx = (OGLESContext) app.getContext();
-        view = ctx.createView();
+        view = ctx.createView(this);
+        // store the glSurfaceView in JmeAndroidSystem for future use
+        JmeAndroidSystem.setView(view);
         // AndroidHarness wraps the app as a SystemListener.
         ctx.setSystemListener(this);
         layoutDisplay();
@@ -307,10 +308,10 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             }
         }
         setContentView(new TextView(this));
-        JmeAndroidSystem.setActivity(null);
         ctx = null;
         app = null;
         view = null;
+        JmeAndroidSystem.setView(null);
 
         super.onDestroy();
     }
@@ -479,7 +480,7 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
             if (app.getInputManager().hasMapping(SimpleApplication.INPUT_MAPPING_EXIT)) {
                 app.getInputManager().deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT);
             }
-            
+
             app.getInputManager().addMapping(ESCAPE_EVENT, new TouchTrigger(TouchInput.KEYCODE_BACK));
             app.getInputManager().addListener(this, new String[]{ESCAPE_EVENT});
         }
