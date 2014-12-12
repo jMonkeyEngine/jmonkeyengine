@@ -98,11 +98,6 @@ public class IosInputHandler implements TouchInput {
     }
 
     @Override
-    public boolean getSimulateMouse() {
-        return mouseEventsEnabled;
-    }
-
-    @Override
     public boolean isSimulateMouse() {
         return mouseEventsEnabled;
     }

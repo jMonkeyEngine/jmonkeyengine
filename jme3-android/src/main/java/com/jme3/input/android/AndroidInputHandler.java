@@ -242,10 +242,6 @@ public class AndroidInputHandler implements TouchInput {
         return mouseEventsEnabled;
     }
 
-    public boolean getSimulateMouse() {
-        return mouseEventsEnabled;
-    }
-
     public boolean isMouseEventsInvertX() {
         return mouseEventsInvertX;
     }
