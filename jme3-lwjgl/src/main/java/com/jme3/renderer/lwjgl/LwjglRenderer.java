@@ -84,8 +84,13 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import org.lwjgl.opengl.GL30;
 
-
-public class LwjglRenderer implements Renderer {
+/**
+ * 
+ * Should not be used, has been replaced by Unified Rendering Architechture.
+ * @deprecated
+ */
+@Deprecated 
+public class LwjglRenderer  {
 
     private static final Logger logger = Logger.getLogger(LwjglRenderer.class.getName());
     private static final boolean VALIDATE_SHADER = false;
@@ -135,12 +140,12 @@ public class LwjglRenderer implements Renderer {
         nameBuf.rewind();
     }
 
-    @Override
+//    @Override
     public Statistics getStatistics() {
         return statistics;
     }
 
-    @Override
+ //   @Override
     public EnumSet<Caps> getCaps() {
         return caps;
     }
