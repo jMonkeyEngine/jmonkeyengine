@@ -222,7 +222,7 @@ public interface Renderer {
     /**
      * Reads the pixels currently stored in the specified framebuffer
      * into the given ByteBuffer object. 
-     * Only color pixels are transferred, the format is BGRA with 8 bits 
+     * Only color pixels are transferred, the format is RGBA with 8 bits 
      * per component. The given byte buffer should have at least
      * fb.getWidth() * fb.getHeight() * 4 bytes remaining.
      * 
@@ -230,6 +230,19 @@ public interface Renderer {
      * @param byteBuf The bytebuffer to transfer color data to
      */
     public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf);
+    
+    /**
+     * Reads the pixels currently stored in the specified framebuffer
+     * into the given ByteBuffer object. 
+     * Only color pixels are transferred, witht hte given format. 
+     * The given byte buffer should have at least
+     * fb.getWidth() * fb.getHeight() * 4 bytes remaining.
+     * 
+     * @param fb The framebuffer to read from
+     * @param byteBuf The bytebuffer to transfer color data to
+     * @param format the image format to use when reading the frameBuffer.
+     */
+    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format);
 
     /**
      * Deletes a framebuffer and all attached renderbuffers
