@@ -155,7 +155,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     public void repaintInThread(){
         // Convert screenshot.
         byteBuf.clear();
-        rm.getRenderer().readFrameBuffer(fb, byteBuf);
+        rm.getRenderer().readFrameBufferWithFormat(fb, byteBuf,Format.BGRA8);
         
         synchronized (lock){
             // All operations on img must be synchronized
@@ -168,7 +168,7 @@ public class AwtPanel extends Canvas implements SceneProcessor {
     public void drawFrameInThread(){
         // Convert screenshot.
         byteBuf.clear();
-        rm.getRenderer().readFrameBuffer(fb, byteBuf);
+        rm.getRenderer().readFrameBufferWithFormat(fb, byteBuf,Format.BGRA8);
         Screenshots.convertScreenShot2(intBuf, img);
         
         synchronized (lock){
