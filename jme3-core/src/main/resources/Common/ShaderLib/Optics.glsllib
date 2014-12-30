@@ -23,13 +23,15 @@ vec2 Optics_SphereCoord(in vec3 dir){
     return (dir.xy * vec2(inv_two_p)) + vec2(0.5);
 }
 
-#define PI 3.141592653589793
-//const vec2 rads = vec2(1.0 / (PI * 2.0), 1.0 / PI);
-const vec2 rads = vec2(0.159154943091895, 0.318309886183790);
+#ifndef PI
+    #define PI 3.14159265358979323846264
+#endif
+//should be vec2(1.0 / (PI * 2.0), 1.0 / PI) but it's precomputed.
+const vec2 Optics_Glsllib_Rads = vec2(0.159154943091895, 0.318309886183790);
 vec2 Optics_LonLatCoords(in ENVMAP envMap, in vec3 dir){
  float lon = atan(dir.z, dir.x)+ PI;
  float lat = acos(dir.y); 
- return vec2(lon, lat) * rads; 
+ return vec2(lon, lat) * Optics_Glsllib_Rads; 
 }
 
 vec4 Optics_GetEnvColor(in ENVMAP envMap, in vec3 dir){
