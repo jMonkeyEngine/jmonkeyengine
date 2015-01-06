@@ -89,13 +89,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
     protected int eglStencilBits = 0;
 
     /**
-     * Set the desired frame rate.  If frameRate > 0, the application
-     * will be capped at the desired frame rate.
-     * (default = -1, no frame rate cap)
-     */
-    protected int frameRate = -1;
-
-    /**
      * Sets the type of Audio Renderer to be used.
      * <p>
      * Android MediaPlayer / SoundPool can be used on all
@@ -245,8 +238,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
 
             settings.setResolution(disp.getWidth(), disp.getHeight());
             settings.setAudioRenderer(audioRendererType);
-
-            settings.setFrameRate(frameRate);
 
             // Create application instance
             try {

@@ -75,8 +75,7 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
     protected SystemListener listener;
     protected boolean autoFlush = true;
     protected AndroidInputHandler androidInput;
-    protected long minFrameDuration = 0;                   // No FPS cap
-    protected long lastUpdateTime = 0;
+    protected int minFrameDuration = 0;                   // No FPS cap
     protected JoyInput androidSensorJoyInput = null;
 
     public OGLESContext() {
@@ -226,12 +225,6 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
             androidInput.loadSettings(settings);
         }
 
-        if (settings.getFrameRate() > 0) {
-            minFrameDuration = (long)(1000d / (double)settings.getFrameRate()); // ms
-            logger.log(Level.FINE, "Setting min tpf: {0}ms", minFrameDuration);
-        } else {
-            minFrameDuration = 0;
-        }
     }
 
     @Override
@@ -327,25 +320,23 @@ public class OGLESContext implements JmeContext, GLSurfaceView.Renderer, SoftTex
                 throw new IllegalStateException("onDrawFrame without create");
             }
 
+            long milliStart = System.currentTimeMillis();
+
             listener.update();
             if (autoFlush) {
                 renderer.onFrame();
             }
 
-            long updateDelta = System.currentTimeMillis() - lastUpdateTime;
+            long milliDelta = System.currentTimeMillis() - milliStart;
 
             // Enforce a FPS cap
-            if (updateDelta < minFrameDuration) {
-//                    logger.log(Level.INFO, "lastUpdateTime: {0}, updateDelta: {1}, minTimePerFrame: {2}",
-//                            new Object[]{lastUpdateTime, updateDelta, minTimePerFrame});
+            if (milliDelta < minFrameDuration) {
+                //logger.log(Level.FINE, "Time per frame {0}", milliDelta);
                 try {
-                    Thread.sleep(minFrameDuration - updateDelta);
+                    Thread.sleep(minFrameDuration - milliDelta);
                 } catch (InterruptedException e) {
                 }
             }
-
-            lastUpdateTime = System.currentTimeMillis();
-
         }
     }
 
