@@ -32,4 +32,10 @@ import com.jme3.scene.plugins.blender.file.Structure;
     public void apply(int frame) {
         LOGGER.warning("Applying constraints to skeleton is not supported.");
     }
+    
+    @Override
+    public Long getTargetOMA() {
+        LOGGER.warning("Constraints for skeleton are not supported.");
+        return null;
+    }
 }

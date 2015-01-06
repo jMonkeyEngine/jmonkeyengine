@@ -2,8 +2,10 @@ package com.jme3.scene.plugins.blender.constraints;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.jme3.animation.Bone;
@@ -170,30 +172,23 @@ public class ConstraintHelper extends AbstractBlenderHelper {
      *            the blender context
      */
     public void bakeConstraints(BlenderContext blenderContext) {
-        List<SimulationNode> simulationRootNodes = new ArrayList<SimulationNode>();
+        Set<Long> owners = new HashSet<Long>();
         for (Constraint constraint : blenderContext.getAllConstraints()) {
-            boolean constraintUsed = false;
-            for (SimulationNode node : simulationRootNodes) {
-                if (node.contains(constraint)) {
-                    constraintUsed = true;
-                    break;
+            if(constraint instanceof BoneConstraint) {
+                BoneContext boneContext = blenderContext.getBoneContext(constraint.ownerOMA);
+                owners.add(boneContext.getArmatureObjectOMA());
+            } else {
+                Spatial spatial = (Spatial) blenderContext.getLoadedFeature(constraint.ownerOMA, LoadedDataType.FEATURE);
+                while (spatial.getParent() != null) {
+                    spatial = spatial.getParent();
                 }
+                owners.add((Long)blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, spatial));
             }
-
-            if (!constraintUsed) {
-                if (constraint instanceof BoneConstraint) {
-                    BoneContext boneContext = blenderContext.getBoneContext(constraint.ownerOMA);
-                    simulationRootNodes.add(new SimulationNode(boneContext.getArmatureObjectOMA(), blenderContext));
-                } else if (constraint instanceof SpatialConstraint) {
-                    Spatial spatial = (Spatial) blenderContext.getLoadedFeature(constraint.ownerOMA, LoadedDataType.FEATURE);
-                    while (spatial.getParent() != null) {
-                        spatial = spatial.getParent();
-                    }
-                    simulationRootNodes.add(new SimulationNode((Long) blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, spatial), blenderContext));
-                } else {
-                    throw new IllegalStateException("Unsupported constraint type: " + constraint);
-                }
-            }
+        }
+        
+        List<SimulationNode> simulationRootNodes = new ArrayList<SimulationNode>(owners.size());
+        for(Long ownerOMA : owners) {
+            simulationRootNodes.add(new SimulationNode(ownerOMA, blenderContext));
         }
 
         for (SimulationNode node : simulationRootNodes) {

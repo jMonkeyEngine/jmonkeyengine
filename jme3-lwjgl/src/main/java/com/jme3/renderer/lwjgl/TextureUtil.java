@@ -49,7 +49,6 @@ import static org.lwjgl.opengl.ARBTextureMultisample.*;
 import static org.lwjgl.opengl.EXTPackedDepthStencil.*;
 import static org.lwjgl.opengl.EXTPackedFloat.*;
 import static org.lwjgl.opengl.EXTTextureArray.*;
-import static org.lwjgl.opengl.EXTTextureCompressionLATC.*;
 import static org.lwjgl.opengl.EXTTextureCompressionS3TC.*;
 import static org.lwjgl.opengl.EXTTextureSRGB.*;
 import static org.lwjgl.opengl.EXTTextureSharedExponent.*;
@@ -58,6 +57,12 @@ import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL14.*;
 
+/**
+ * 
+ * Should not be used, has been replaced by Unified Rendering Architechture.
+ * @deprecated
+ */
+@Deprecated 
 class TextureUtil {
 
     static class GLImageFormat {

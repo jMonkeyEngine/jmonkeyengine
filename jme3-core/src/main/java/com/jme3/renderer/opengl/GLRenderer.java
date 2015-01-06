@@ -1629,6 +1629,10 @@ public class GLRenderer implements Renderer {
     }
 
     public void readFrameBuffer(FrameBuffer fb, ByteBuffer byteBuf) {
+        readFrameBufferWithGLFormat(fb, byteBuf, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+    }
+    
+    private void readFrameBufferWithGLFormat(FrameBuffer fb, ByteBuffer byteBuf, int glFormat, int dataType) {
         if (fb != null) {
             RenderBuffer rb = fb.getColorBuffer();
             if (rb == null) {
@@ -1647,7 +1651,12 @@ public class GLRenderer implements Renderer {
             setFrameBuffer(null);
         }
 
-        gl.glReadPixels(vpX, vpY, vpW, vpH, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, byteBuf);
+        gl.glReadPixels(vpX, vpY, vpW, vpH, glFormat, dataType, byteBuf);
+    }
+    
+     public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {         
+        GLImageFormat glFormat = texUtil.getImageFormatWithError(format, false);
+        readFrameBufferWithGLFormat(fb, byteBuf, glFormat.format, glFormat.dataType);
     }
 
     private void deleteRenderBuffer(FrameBuffer fb, RenderBuffer rb) {

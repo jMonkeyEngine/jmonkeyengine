@@ -50,12 +50,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
             limits[2][0] = ((Number) constraintData.getFieldValue("zmin")).floatValue();
             limits[2][1] = ((Number) constraintData.getFieldValue("zmax")).floatValue();
         }
+
+        trackToBeChanged = (flag & (LIMIT_XMIN | LIMIT_XMAX | LIMIT_YMIN | LIMIT_YMAX | LIMIT_ZMIN | LIMIT_ZMAX)) != 0;
     }
-    
+
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
+        if (influence == 0 || !trackToBeChanged) {
+            return;
+        }
         Transform ownerTransform = this.getOwnerTransform(ownerSpace);
-        
+
         Vector3f scale = ownerTransform.getScale();
         if ((flag & LIMIT_XMIN) != 0 && scale.x < limits[0][0]) {
             scale.x -= (scale.x - limits[0][0]) * influence;
@@ -75,12 +80,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
         if ((flag & LIMIT_ZMAX) != 0 && scale.z > limits[2][1]) {
             scale.z -= (scale.z - limits[2][1]) * influence;
         }
-        
+
         this.applyOwnerTransform(ownerTransform, ownerSpace);
     }
 
     @Override
     public String getConstraintTypeName() {
         return "Limit scale";
+    }
+
+    @Override
+    public boolean isTargetRequired() {
+        return false;
     }
 }

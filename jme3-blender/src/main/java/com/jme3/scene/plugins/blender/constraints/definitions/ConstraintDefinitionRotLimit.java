@@ -65,12 +65,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
          * if(limits[i][0] > limits[i][1]) { float temp = limits[i][0];
          * limits[i][0] = limits[i][1]; limits[i][1] = temp; } }
          */
+
+        trackToBeChanged = (flag & (LIMIT_XROT | LIMIT_YROT | LIMIT_ZROT)) != 0;
     }
-    
+
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
+        if (influence == 0 || !trackToBeChanged) {
+            return;
+        }
         Transform ownerTransform = this.getOwnerTransform(ownerSpace);
-        
+
         ownerTransform.getRotation().toAngles(angles);
         // make sure that the rotations are always in range [0, 2PI)
         // TODO: same comment as in constructor
@@ -108,12 +113,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
             angles[2] -= difference;
         }
         ownerTransform.getRotation().fromAngles(angles);
-        
+
         this.applyOwnerTransform(ownerTransform, ownerSpace);
     }
 
     @Override
     public String getConstraintTypeName() {
         return "Limit rotation";
+    }
+
+    @Override
+    public boolean isTargetRequired() {
+        return false;
     }
 }

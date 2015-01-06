@@ -44,6 +44,7 @@ import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.system.JmeSystem;
 import com.jme3.texture.FrameBuffer;
+import com.jme3.texture.Image;
 import com.jme3.util.BufferUtils;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -229,7 +230,7 @@ public class ScreenshotAppState extends AbstractAppState implements ActionListen
             int viewHeight = (int) ((curCamera.getViewPortTop() - curCamera.getViewPortBottom()) * curCamera.getHeight());
 
             renderer.setViewPort(0, 0, width, height);
-            renderer.readFrameBuffer(out, outBuf);
+            renderer.readFrameBufferWithFormat(out, outBuf, Image.Format.BGRA8);
             renderer.setViewPort(viewX, viewY, viewWidth, viewHeight);
 
             File file;

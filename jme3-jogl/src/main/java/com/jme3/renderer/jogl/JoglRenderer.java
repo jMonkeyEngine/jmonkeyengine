@@ -2713,4 +2713,8 @@ public class JoglRenderer implements Renderer {
 	public void setLinearizeSrgbImages(boolean linearize) {
         linearizeSrgbImages = linearize;
     }
+
+    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
+        throw new UnsupportedOperationException("Not supported yet. URA will make that work seamlessly"); 
+    }
 }

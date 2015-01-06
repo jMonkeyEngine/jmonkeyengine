@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.jme3.animation.AnimChannel;
@@ -41,14 +40,13 @@ import com.jme3.util.TempVars;
 public class SimulationNode {
     private static final Logger  LOGGER   = Logger.getLogger(SimulationNode.class.getName());
 
+    private Long featureOMA;
     /** The blender context. */
     private BlenderContext       blenderContext;
     /** The name of the node (for debugging purposes). */
     private String               name;
     /** A list of children for the node (either bones or child spatials). */
     private List<SimulationNode> children = new ArrayList<SimulationNode>();
-    /** A list of constraints that the current node has. */
-    private List<Constraint>     constraints;
     /** A list of node's animations. */
     private List<Animation>      animations;
 
@@ -66,7 +64,7 @@ public class SimulationNode {
     private Transform            spatialStartTransform;
     /** Star transformations for bones. Needed to properly reset the bones. */
     private Map<Bone, Transform> boneStartTransforms;
-
+    
     /**
      * Builds the nodes tree for the given feature. The feature (bone or
      * spatial) is found by its OMA. The feature must be a root bone or a root
@@ -92,6 +90,7 @@ public class SimulationNode {
      *            indicates if the feature is a root bone or root spatial or not
      */
     private SimulationNode(Long featureOMA, BlenderContext blenderContext, boolean rootNode) {
+        this.featureOMA = featureOMA;
         this.blenderContext = blenderContext;
         Node spatial = (Node) blenderContext.getLoadedFeature(featureOMA, LoadedDataType.FEATURE);
         if (blenderContext.getMarkerValue(ObjectHelper.ARMATURE_NODE_MARKER, spatial) != null) {
@@ -115,24 +114,10 @@ public class SimulationNode {
 
         name = '>' + spatial.getName() + '<';
 
-        constraints = this.findConstraints(featureOMA, blenderContext);
-        if (constraints == null) {
-            constraints = new ArrayList<Constraint>();
-        }
-
         // add children nodes
         if (skeleton != null) {
-            // bone with index 0 is a root bone and should not be considered
-            // here
-            for (int i = 1; i < skeleton.getBoneCount(); ++i) {
-                BoneContext boneContext = blenderContext.getBoneContext(skeleton.getBone(i));
-                List<Constraint> boneConstraints = this.findConstraints(boneContext.getBoneOma(), blenderContext);
-                if (boneConstraints != null) {
-                    constraints.addAll(boneConstraints);
-                }
-            }
             Node node = blenderContext.getControlledNode(skeleton);
-            Long animatedNodeOMA = ((Number)blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, node)).longValue();
+            Long animatedNodeOMA = ((Number) blenderContext.getMarkerValue(ObjectHelper.OMA_MARKER, node)).longValue();
             animations = blenderContext.getAnimations(animatedNodeOMA);
         } else {
             animations = blenderContext.getAnimations(featureOMA);
@@ -142,38 +127,6 @@ public class SimulationNode {
                 }
             }
         }
-
-        LOGGER.info("Removing invalid constraints.");
-        List<Constraint> validConstraints = new ArrayList<Constraint>(constraints.size());
-        for (Constraint constraint : constraints) {
-            if (constraint.validate()) {
-                validConstraints.add(constraint);
-            } else {
-                LOGGER.log(Level.WARNING, "Constraint {0} is invalid and will not be applied.", constraint.name);
-            }
-        }
-        constraints = validConstraints;
-    }
-
-    /**
-     * Tells if the node already contains the given constraint (so that it is
-     * not applied twice).
-     * 
-     * @param constraint
-     *            the constraint to be checked
-     * @return <b>true</b> if the constraint already is stored in the node and
-     *         <b>false</b> otherwise
-     */
-    public boolean contains(Constraint constraint) {
-        boolean result = false;
-        if (constraints != null && constraints.size() > 0) {
-            for (Constraint c : constraints) {
-                if (c.equals(constraint)) {
-                    return true;
-                }
-            }
-        }
-        return result;
     }
 
     /**
@@ -189,6 +142,7 @@ public class SimulationNode {
             for (Entry<Bone, Transform> entry : boneStartTransforms.entrySet()) {
                 Transform t = entry.getValue();
                 entry.getKey().setBindTransforms(t.getTranslation(), t.getRotation(), t.getScale());
+                entry.getKey().updateModelTransforms();
             }
             skeleton.reset();
         }
@@ -198,7 +152,9 @@ public class SimulationNode {
      * Simulates the spatial node.
      */
     private void simulateSpatial() {
+        List<Constraint> constraints = blenderContext.getConstraints(featureOMA);
         if (constraints != null && constraints.size() > 0) {
+            LOGGER.fine("Simulating spatial.");
             boolean applyStaticConstraints = true;
             if (animations != null) {
                 for (Animation animation : animations) {
@@ -206,7 +162,7 @@ public class SimulationNode {
                     int maxFrame = (int) animationTimeBoundaries[0];
                     float maxTime = animationTimeBoundaries[1];
 
-                    VirtualTrack vTrack = new VirtualTrack(maxFrame, maxTime);
+                    VirtualTrack vTrack = new VirtualTrack(spatial.getName(), maxFrame, maxTime);
                     for (Track track : animation.getTracks()) {
                         for (int frame = 0; frame < maxFrame; ++frame) {
                             spatial.setLocalTranslation(((SpatialTrack) track).getTranslations()[frame]);
@@ -246,84 +202,86 @@ public class SimulationNode {
      * Simulates the bone node.
      */
     private void simulateSkeleton() {
-        if (constraints != null && constraints.size() > 0) {
-            Set<Long> alteredOmas = new HashSet<Long>();
+        LOGGER.fine("Simulating skeleton.");
+        Set<Long> alteredOmas = new HashSet<Long>();
 
-            if (animations != null) {
-                TempVars vars = TempVars.get();
-                AnimChannel animChannel = animControl.createChannel();
-                for (Animation animation : animations) {
-                    float[] animationTimeBoundaries = this.computeAnimationTimeBoundaries(animation);
-                    int maxFrame = (int) animationTimeBoundaries[0];
-                    float maxTime = animationTimeBoundaries[1];
+        if (animations != null) {
+            TempVars vars = TempVars.get();
+            AnimChannel animChannel = animControl.createChannel();
+            
+            // List<Bone> bonesWithConstraints = this.collectBonesWithConstraints(skeleton);
+            for (Animation animation : animations) {
+                float[] animationTimeBoundaries = this.computeAnimationTimeBoundaries(animation);
+                int maxFrame = (int) animationTimeBoundaries[0];
+                float maxTime = animationTimeBoundaries[1];
 
-                    Map<Integer, VirtualTrack> tracks = new HashMap<Integer, VirtualTrack>();
-                    for (int frame = 0; frame < maxFrame; ++frame) {
-                        // this MUST be done here, otherwise setting next frame of animation will
-                        // lead to possible errors
-                        this.reset();
+                Map<Integer, VirtualTrack> tracks = new HashMap<Integer, VirtualTrack>();
+                for (int frame = 0; frame < maxFrame; ++frame) {
+                    // this MUST be done here, otherwise setting next frame of animation will
+                    // lead to possible errors
+                    this.reset();
 
-                        // first set proper time for all bones in all the tracks ...
-                        for (Track track : animation.getTracks()) {
-                            float time = ((BoneTrack) track).getTimes()[frame];
-                            track.setTime(time, 1, animControl, animChannel, vars);
-                            skeleton.updateWorldVectors();
-                        }
+                    // first set proper time for all bones in all the tracks ...
+                    for (Track track : animation.getTracks()) {
+                        float time = ((BoneTrack) track).getTimes()[frame];
+                        track.setTime(time, 1, animControl, animChannel, vars);
+                        skeleton.updateWorldVectors();
+                    }
 
-                        // ... and then apply constraints from the root bone to the last child ...
-                        for (Bone rootBone : skeleton.getRoots()) {
-                            if (skeleton.getBoneIndex(rootBone) > 0) {
-                                // ommit the 0 - indexed root bone as it is the bone added by importer
-                                this.applyConstraints(rootBone, alteredOmas, frame);
-                            }
-                        }
-
-                        // ... add virtual tracks if neccessary, for bones that were altered but had no tracks before ...
-                        for (Long boneOMA : alteredOmas) {
-                            BoneContext boneContext = blenderContext.getBoneContext(boneOMA);
-                            int boneIndex = skeleton.getBoneIndex(boneContext.getBone());
-                            if (!tracks.containsKey(boneIndex)) {
-                                tracks.put(boneIndex, new VirtualTrack(maxFrame, maxTime));
-                            }
-                        }
-                        alteredOmas.clear();
-
-                        // ... and fill in another frame in the result track
-                        for (Entry<Integer, VirtualTrack> trackEntry : tracks.entrySet()) {
-                            Bone bone = skeleton.getBone(trackEntry.getKey());
-                            Transform startTransform = boneStartTransforms.get(bone);
-                            
-                            // track contains differences between the frame position and bind positions of bones/spatials
-                            Vector3f bonePositionDifference = bone.getLocalPosition().subtract(startTransform.getTranslation());
-                            Quaternion boneRotationDifference = startTransform.getRotation().inverse().mult(bone.getLocalRotation()).normalizeLocal();
-                            Vector3f boneScaleDifference = bone.getLocalScale().divide(startTransform.getScale());
-                            
-                            trackEntry.getValue().setTransform(frame, new Transform(bonePositionDifference, boneRotationDifference, boneScaleDifference));
+                    // ... and then apply constraints from the root bone to the last child ...
+                    Set<Long> applied = new HashSet<Long>();
+                    for (Bone rootBone : skeleton.getRoots()) {
+                        // ignore the 0-indexed bone
+                        if (skeleton.getBoneIndex(rootBone) > 0) {
+                            this.applyConstraints(rootBone, alteredOmas, applied, frame);
                         }
                     }
 
+                    // ... add virtual tracks if neccessary, for bones that were altered but had no tracks before ...
+                    for (Long boneOMA : alteredOmas) {
+                        BoneContext boneContext = blenderContext.getBoneContext(boneOMA);
+                        int boneIndex = skeleton.getBoneIndex(boneContext.getBone());
+                        if (!tracks.containsKey(boneIndex)) {
+                            tracks.put(boneIndex, new VirtualTrack(boneContext.getBone().getName(), maxFrame, maxTime));
+                        }
+                    }
+                    alteredOmas.clear();
+
+                    // ... and fill in another frame in the result track
                     for (Entry<Integer, VirtualTrack> trackEntry : tracks.entrySet()) {
-                        Track newTrack = trackEntry.getValue().getAsBoneTrack(trackEntry.getKey());
-                        if (newTrack != null) {
-                            boolean trackReplaced = false;
-                            for (Track track : animation.getTracks()) {
-                                if (((BoneTrack) track).getTargetBoneIndex() == trackEntry.getKey().intValue()) {
-                                    animation.removeTrack(track);
-                                    animation.addTrack(newTrack);
-                                    trackReplaced = true;
-                                    break;
-                                }
-                            }
-                            if (!trackReplaced) {
+                        Bone bone = skeleton.getBone(trackEntry.getKey());
+                        Transform startTransform = boneStartTransforms.get(bone);
+
+                        // track contains differences between the frame position and bind positions of bones/spatials
+                        Vector3f bonePositionDifference = bone.getLocalPosition().subtract(startTransform.getTranslation());
+                        Quaternion boneRotationDifference = startTransform.getRotation().inverse().mult(bone.getLocalRotation()).normalizeLocal();
+                        Vector3f boneScaleDifference = bone.getLocalScale().divide(startTransform.getScale());
+
+                        trackEntry.getValue().setTransform(frame, new Transform(bonePositionDifference, boneRotationDifference, boneScaleDifference));
+                    }
+                }
+
+                for (Entry<Integer, VirtualTrack> trackEntry : tracks.entrySet()) {
+                    Track newTrack = trackEntry.getValue().getAsBoneTrack(trackEntry.getKey());
+                    if (newTrack != null) {
+                        boolean trackReplaced = false;
+                        for (Track track : animation.getTracks()) {
+                            if (((BoneTrack) track).getTargetBoneIndex() == trackEntry.getKey().intValue()) {
+                                animation.removeTrack(track);
                                 animation.addTrack(newTrack);
+                                trackReplaced = true;
+                                break;
                             }
+                        }
+                        if (!trackReplaced) {
+                            animation.addTrack(newTrack);
                         }
                     }
                 }
-                vars.release();
-                animControl.clearChannels();
-                this.reset();
             }
+            vars.release();
+            animControl.clearChannels();
+            this.reset();
         }
     }
 
@@ -337,20 +295,33 @@ public class SimulationNode {
      * @param frame
      *            the current frame of the animation
      */
-    private void applyConstraints(Bone bone, Set<Long> alteredOmas, int frame) {
+    private void applyConstraints(Bone bone, Set<Long> alteredOmas, Set<Long> applied, int frame) {
         BoneContext boneContext = blenderContext.getBoneContext(bone);
-        List<Constraint> constraints = this.findConstraints(boneContext.getBoneOma(), blenderContext);
-        if (constraints != null && constraints.size() > 0) {
-            for (Constraint constraint : constraints) {
-                constraint.apply(frame);
-                if (constraint.getAlteredOmas() != null) {
-                    alteredOmas.addAll(constraint.getAlteredOmas());
+        if(!applied.contains(boneContext.getBoneOma())) {
+            List<Constraint> constraints = this.findConstraints(boneContext.getBoneOma(), blenderContext);
+            if (constraints != null && constraints.size() > 0) {
+                // TODO: BEWARE OF INFINITE LOOPS !!!!!!!!!!!!!!!!!!!!!!!!!!
+                for (Constraint constraint : constraints) {
+                    if (constraint.getTargetOMA() != null && constraint.getTargetOMA() > 0L) {
+                        // first apply constraints of the target bone
+                        BoneContext targetBone = blenderContext.getBoneContext(constraint.getTargetOMA());
+                        this.applyConstraints(targetBone.getBone(), alteredOmas, applied, frame);
+                    }
+                    constraint.apply(frame);
+                    if (constraint.getAlteredOmas() != null) {
+                        alteredOmas.addAll(constraint.getAlteredOmas());
+                    }
+                    alteredOmas.add(boneContext.getBoneOma());
                 }
-                alteredOmas.add(boneContext.getBoneOma());
             }
+            applied.add(boneContext.getBoneOma());
         }
-        for (Bone child : bone.getChildren()) {
-            this.applyConstraints(child, alteredOmas, frame);
+        
+        List<Bone> children = bone.getChildren();
+        if (children != null && children.size() > 0) {
+            for (Bone child : bone.getChildren()) {
+                this.applyConstraints(child, alteredOmas, applied, frame);
+            }
         }
     }
 
@@ -376,7 +347,7 @@ public class SimulationNode {
      */
     private float[] computeAnimationTimeBoundaries(Animation animation) {
         int maxFrame = Integer.MIN_VALUE;
-        float maxTime = Float.MIN_VALUE;
+        float maxTime = -Float.MAX_VALUE;
         for (Track track : animation.getTracks()) {
             if (track instanceof BoneTrack) {
                 maxFrame = Math.max(maxFrame, ((BoneTrack) track).getTranslations().length);
@@ -405,11 +376,10 @@ public class SimulationNode {
         List<Constraint> constraints = blenderContext.getConstraints(ownerOMA);
         if (constraints != null) {
             for (Constraint constraint : constraints) {
-                if (constraint.isImplemented() && constraint.validate()) {
+                if (constraint.isImplemented() && constraint.validate() && constraint.isTrackToBeChanged()) {
                     result.add(constraint);
-                } else {
-                    LOGGER.log(Level.WARNING, "Constraint named: ''{0}'' of type ''{1}'' is not implemented and will NOT be applied!", new Object[] { constraint.name, constraint.getConstraintTypeName() });
                 }
+                // TODO: add proper warnings to some map or set so that they are not logged on every frame
             }
         }
         return result.size() > 0 ? result : null;

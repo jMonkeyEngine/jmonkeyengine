@@ -2564,4 +2564,8 @@ public class OGLESShaderRenderer implements Renderer {
     public void setLinearizeSrgbImages(boolean linearize) {
         //TODO once opglES3.0 is supported maybe....
     }
+    
+    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {
+        throw new UnsupportedOperationException("Not supported yet. URA will make that work seamlessly"); 
+    }
 }

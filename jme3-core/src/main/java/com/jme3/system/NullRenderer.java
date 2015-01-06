@@ -161,4 +161,7 @@ public class NullRenderer implements Renderer {
     public void setLinearizeSrgbImages(boolean linearize) {    
     }
 
+    public void readFrameBufferWithFormat(FrameBuffer fb, ByteBuffer byteBuf, Image.Format format) {        
+    }
+
 }

@@ -34,27 +34,30 @@ import com.jme3.scene.plugins.blender.file.Structure;
             int invZ = flag & LOCLIKE_Z_INVERT;
             // clear the other flags to swap them
             flag &= LOCLIKE_X | LOCLIKE_X_INVERT | LOCLIKE_OFFSET;
-            
+
             flag |= y << 1;
             flag |= invY << 1;
             flag |= z >> 1;
             flag |= invZ >> 1;
+
+            trackToBeChanged = (flag & LOCLIKE_X) != 0 || (flag & LOCLIKE_Y) != 0 || (flag & LOCLIKE_Z) != 0;
         }
     }
-    
+
+    @Override
+    public boolean isTrackToBeChanged() {
+        // location copy does not work on bones who are connected to their parent
+        return trackToBeChanged && !(this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null && blenderContext.getBoneContext(ownerOMA).is(BoneContext.CONNECTED_TO_PARENT));
+    }
+
     @Override
     public void bake(Space ownerSpace, Space targetSpace, Transform targetTransform, float influence) {
-        if (this.getOwner() instanceof Bone && ((Bone) this.getOwner()).getParent() != null &&
-            blenderContext.getBoneContext(ownerOMA).is(BoneContext.CONNECTED_TO_PARENT)) {
-            // location copy does not work on bones who are connected to their parent
+        if (influence == 0 || targetTransform == null || !this.isTrackToBeChanged()) {
             return;
         }
-        if(influence == 0 || targetTransform == null) {
-            return ;// no need to do anything
-        }
-        
+
         Transform ownerTransform = this.getOwnerTransform(ownerSpace);
-        
+
         Vector3f ownerLocation = ownerTransform.getTranslation();
         Vector3f targetLocation = targetTransform.getTranslation();
 
@@ -88,12 +91,17 @@ import com.jme3.scene.plugins.blender.file.Structure;
             startLocation.subtractLocal(ownerLocation).normalizeLocal().mult(influence);
             ownerLocation.addLocal(startLocation);
         }
-        
+
         this.applyOwnerTransform(ownerTransform, ownerSpace);
     }
 
     @Override
     public String getConstraintTypeName() {
         return "Copy location";
+    }
+
+    @Override
+    public boolean isTargetRequired() {
+        return true;
     }
 }
