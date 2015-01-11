@@ -97,44 +97,6 @@
     </target>
     
     <target name="-hudson-revert-changes">
-        <exec executable="svn" dir="engine" failonerror="true">
-            <arg value="cleanup" />
-        </exec>
-        <exec executable="svn" dir="engine">
-            <arg value="revert" />
-            <arg value="-R" />
-            <arg value="." />
-        </exec>
-        <exec executable="svn" dir="engine">
-            <arg value="cleanup" />
-        </exec>
-        <exec executable="svn" dir="engine">
-            <arg value="update" />
-        </exec>
-        
-        <exec executable="svn" dir="sdk">
-            <arg value="cleanup" />
-        </exec>
-        <exec executable="svn" dir="sdk">
-            <arg value="revert" />
-            <arg value="." />
-            <arg value="-R" />
-        </exec>
-        <exec executable="svn" dir="sdk">
-            <arg value="cleanup" />
-        </exec>
-        <exec executable="svn" dir="sdk">
-            <arg value="update" />
-        </exec>
-
-        <exec executable="svn" dir=".">
-            <arg value="unlock" />
-            <arg value="engine" />
-        </exec>
-        <exec executable="svn" dir=".">
-            <arg value="unlock" />
-            <arg value="sdk" />
-        </exec>
     </target>
 
     <target name="-hudson-build-engine">
