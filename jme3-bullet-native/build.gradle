@@ -16,7 +16,12 @@ libraries {
     }
     all {
         binaries.all {
-            cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+            if (toolChain in VisualCpp) {
+                cppCompiler.args "/I${org.gradle.internal.jvm.Jvm.current().javaHome}\\include"
+            } else{
+                cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
+            }
+            
             if (targetPlatform.operatingSystem.name == "osx") {
                 cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
             } else if (targetPlatform.operatingSystem.name == "linux") {
@@ -28,8 +33,13 @@ libraries {
 //                linker.args "-static-libgcc"
 //                linker.args "-static-libstdc++"
             } else if (targetPlatform.operatingSystem.name == "windows") {
-                cppCompiler.args "-I${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
-//                cppCompiler.define('WIN32')
+                if (toolChain in Gcc) {
+                    cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/win32"
+                }
+                else if (toolChain in VisualCpp) {
+                    cppCompiler.args "/I${org.gradle.internal.jvm.Jvm.current().javaHome}\\include\\win32"
+                }
+                cppCompiler.define('WIN32')
 //                linker.args 'Shlwapi.lib', 'Advapi32.lib'
             }
         }
