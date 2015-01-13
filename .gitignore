@@ -124,3 +124,9 @@
 *.jnilib
 *.dylib
 /sdk/dist/
+!/jme3-bullet-native/libs/native/windows/x86_64/bulletjme.dll
+!/jme3-bullet-native/libs/native/windows/x86/bulletjme.dll
+!/jme3-bullet-native/libs/native/osx/x86/libbulletjme.dylib
+!/jme3-bullet-native/libs/native/osx/x86_64/libbulletjme.dylib
+!/jme3-bullet-native/libs/native/linux/x86/libbulletjme.so
+!/jme3-bullet-native/libs/native/linux/x86_64/libbulletjme.so
