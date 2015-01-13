@@ -144,8 +144,8 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("bulletjme", Platform.Windows64, "native/windows/x86_64/bulletjme.dll");
         registerNativeLibrary("bulletjme", Platform.Linux32,   "native/linux/x86/libbulletjme.so");
         registerNativeLibrary("bulletjme", Platform.Linux64,   "native/linux/x86_64/libbulletjme.so");
-        registerNativeLibrary("bulletjme", Platform.MacOSX32,  "native/macosx/x86/libbulletjme.jnilib");
-        registerNativeLibrary("bulletjme", Platform.MacOSX64,  "native/macosx/x86_64/libbulletjme.jnilib");
+        registerNativeLibrary("bulletjme", Platform.MacOSX32,  "native/macosx/x86/libbulletjme.dylib");
+        registerNativeLibrary("bulletjme", Platform.MacOSX64,  "native/macosx/x86_64/libbulletjme.dylib");
         
         // JInput
         registerNativeLibrary("jinput", Platform.Windows32, "native/windows/jinput-raw.dll");
@@ -250,7 +250,7 @@ public final class NativeLibraryLoader {
         URLConnection conn = null;
         try {
             String classpath = System.getProperty("java.class.path");
-            URL url = Thread.currentThread().getContextClassLoader().getResource("com/jme3/system/Natives.class");
+            URL url = Thread.currentThread().getContextClassLoader().getResource("com/jme3/system/NativeLibraryLoder.class");
 
             StringBuilder sb = new StringBuilder(url.toString());
             if (sb.indexOf("jar:") == 0) {
