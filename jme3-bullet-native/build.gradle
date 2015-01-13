@@ -152,7 +152,15 @@ compileJava.dependsOn {
 binaries.withType(SharedLibraryBinary) { binary ->
     if (!buildable) {
         //TODO: obtain elsewhere if not available
-        return
+        if(!binary.tasks.outputFile.get(0).exists()){
+            return
+        }else{
+            // Add output to jar file if the binary exists in the build folder already,
+            // e.g. when the build of jme3-bullet-native has been run on a virtual box
+            // and the project hasn't been cleaned yet.
+            jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") { from binary.tasks.outputFile }
+            return
+        }
     }
     // Get builder of this binary
     def builderTask = binary.tasks
