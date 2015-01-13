@@ -307,12 +307,12 @@ void jmeBulletUtil::convertQuat(JNIEnv* env, const btMatrix3x3* in, jobject out)
     }
 }
 
-void jmeBulletUtil::addResult(JNIEnv* env, jobject resultlist, btVector3 hitnormal, btVector3 m_hitPointWorld, btScalar m_hitFraction, const btCollisionObject* hitobject) {
+void jmeBulletUtil::addResult(JNIEnv* env, jobject resultlist, btVector3* hitnormal, btVector3* m_hitPointWorld, btScalar m_hitFraction, const btCollisionObject* hitobject) {
 
     jobject singleresult = env->AllocObject(jmeClasses::PhysicsRay_Class);
     jobject hitnormalvec = env->AllocObject(jmeClasses::Vector3f);
 
-    convert(env, const_cast<btVector3*> (&hitnormal), hitnormalvec);
+    convert(env, hitnormal, hitnormalvec);
     jmeUserPointer *up1 = (jmeUserPointer*) hitobject -> getUserPointer();
 
     env->SetObjectField(singleresult, jmeClasses::PhysicsRay_normalInWorldSpace, hitnormalvec);

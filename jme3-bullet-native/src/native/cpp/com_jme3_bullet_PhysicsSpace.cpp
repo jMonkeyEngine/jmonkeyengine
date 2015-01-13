@@ -448,7 +448,7 @@ extern "C" {
                 }
                 m_hitPointWorld.setInterpolate3(m_rayFromWorld, m_rayToWorld, rayResult.m_hitFraction);
 
-                jmeBulletUtil::addResult(env, resultlist, m_hitNormalWorld, m_hitPointWorld, rayResult.m_hitFraction, rayResult.m_collisionObject);
+                jmeBulletUtil::addResult(env, resultlist, &m_hitNormalWorld, &m_hitPointWorld, rayResult.m_hitFraction, rayResult.m_collisionObject);
 
                 return 1.f;
             }
