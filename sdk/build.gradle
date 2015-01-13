@@ -30,10 +30,8 @@ dependencies {
     optlibs project(':jme3-jogl')
     optlibs project(':jme3-android')
     optlibs project(':jme3-ios')
-    if(buildNativeProjects == "true"){
-        optlibs project(':jme3-android-native')
-        optlibs project(':jme3-bullet-native')
-    }
+    optlibs project(':jme3-android-native')
+    optlibs project(':jme3-bullet-native')
     testdatalibs project(':jme3-testdata')
 
     examplelibs project(':jme3-examples')
