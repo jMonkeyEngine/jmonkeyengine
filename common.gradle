@@ -11,7 +11,7 @@ apply plugin: 'maven'
 String mavenGroupId = 'com.jme3'
 String mavenVersion = jmeVersion + '-' + jmeVersionTag //'-SNAPSHOT'
 
-sourceCompatibility = '1.5'
+sourceCompatibility = '1.6'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 repositories {
