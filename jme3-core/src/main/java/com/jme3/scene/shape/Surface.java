@@ -39,6 +39,8 @@ import com.jme3.math.Vector4f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.util.BufferUtils;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,14 +52,13 @@ import java.util.Map;
  * @author Marcin Roguski (Kealthas)
  */
 public class Surface extends Mesh {
-
-    private SplineType type;						//the type of the surface
-    private List<List<Vector4f>> controlPoints;		//space control points and their weights
-    private List<Float>[] knots;					//knots of the surface
-    private int basisUFunctionDegree;				//the degree of basis U function
-    private int basisVFunctionDegree;				//the degree of basis V function
-    private int uSegments;							//the amount of U segments
-    private int vSegments;							//the amount of V segments
+    private SplineType           type;                // the type of the surface
+    private List<List<Vector4f>> controlPoints;       // space control points and their weights
+    private List<Float>[]        knots;               // knots of the surface
+    private int                  basisUFunctionDegree; // the degree of basis U function
+    private int                  basisVFunctionDegree; // the degree of basis V function
+    private int                  uSegments;           // the amount of U segments
+    private int                  vSegments;           // the amount of V segments
 
     /**
      * Constructor. Constructs required surface.
@@ -67,15 +68,15 @@ public class Surface extends Mesh {
      * @param vSegments the amount of V segments
      * @param basisUFunctionDegree the degree of basis U function
      * @param basisVFunctionDegree the degree of basis V function
+     * @param smooth defines if the mesu should be smooth (true) or flat (false)
      */
-    private Surface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots,
-            int uSegments, int vSegments, int basisUFunctionDegree, int basisVFunctionDegree) {
+    private Surface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots, int uSegments, int vSegments, int basisUFunctionDegree, int basisVFunctionDegree, boolean smooth) {
         this.validateInputData(controlPoints, nurbKnots, uSegments, vSegments);
-        this.type = SplineType.Nurb;
+        type = SplineType.Nurb;
         this.uSegments = uSegments;
         this.vSegments = vSegments;
         this.controlPoints = controlPoints;
-        this.knots = nurbKnots;
+        knots = nurbKnots;
         this.basisUFunctionDegree = basisUFunctionDegree;
         CurveAndSurfaceMath.prepareNurbsKnots(nurbKnots[0], basisUFunctionDegree);
         if (nurbKnots[1] != null) {
@@ -83,7 +84,27 @@ public class Surface extends Mesh {
             CurveAndSurfaceMath.prepareNurbsKnots(nurbKnots[1], basisVFunctionDegree);
         }
 
-        this.buildSurface();
+        this.buildSurface(smooth);
+    }
+
+    /**
+     * This method creates a NURBS surface. The created mesh is smooth by default.
+     * @param controlPoints
+     *            space control points
+     * @param nurbKnots
+     *            knots of the surface
+     * @param uSegments
+     *            the amount of U segments
+     * @param vSegments
+     *            the amount of V segments
+     * @param basisUFunctionDegree
+     *            the degree of basis U function
+     * @param basisVFunctionDegree
+     *            the degree of basis V function
+     * @return an instance of NURBS surface
+     */
+    public static final Surface createNurbsSurface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots, int uSegments, int vSegments, int basisUFunctionDegree, int basisVFunctionDegree) {
+        return Surface.createNurbsSurface(controlPoints, nurbKnots, uSegments, vSegments, basisUFunctionDegree, basisVFunctionDegree, true);
     }
 
     /**
@@ -96,18 +117,18 @@ public class Surface extends Mesh {
      * @param basisVFunctionDegree the degree of basis V function
      * @return an instance of NURBS surface
      */
-    public static final Surface createNurbsSurface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots,
-            int uSegments, int vSegments, int basisUFunctionDegree, int basisVFunctionDegree) {
-        Surface result = new Surface(controlPoints, nurbKnots, uSegments, vSegments, basisUFunctionDegree, basisVFunctionDegree);
+    public static final Surface createNurbsSurface(List<List<Vector4f>> controlPoints, List<Float>[] nurbKnots, int uSegments, int vSegments, int basisUFunctionDegree, int basisVFunctionDegree, boolean smooth) {
+        Surface result = new Surface(controlPoints, nurbKnots, uSegments, vSegments, basisUFunctionDegree, basisVFunctionDegree, smooth);
         result.type = SplineType.Nurb;
         return result;
     }
 
     /**
      * This method creates the surface.
+     * @param smooth
+     *            defines if the mesu should be smooth (true) or flat (false)
      */
-    private void buildSurface() {
-        boolean smooth = true;//TODO: take smoothing into consideration
+    private void buildSurface(boolean smooth) {
         float minUKnot = this.getMinUNurbKnot();
         float maxUKnot = this.getMaxUNurbKnot();
         float deltaU = (maxUKnot - minUKnot) / uSegments;
@@ -116,54 +137,97 @@ public class Surface extends Mesh {
         float maxVKnot = this.getMaxVNurbKnot();
         float deltaV = (maxVKnot - minVKnot) / vSegments;
 
-        Vector3f[] vertices = new Vector3f[(uSegments + 1) * (vSegments + 1)];
+        List<Vector3f> vertices = new ArrayList<Vector3f>((uSegments + 1) * (vSegments + 1));// new Vector3f[(uSegments + 1) * (vSegments + 1)];
 
         float u = minUKnot, v = minVKnot;
-        int arrayIndex = 0;
-
         for (int i = 0; i <= vSegments; ++i) {
             for (int j = 0; j <= uSegments; ++j) {
                 Vector3f interpolationResult = new Vector3f();
                 CurveAndSurfaceMath.interpolate(u, v, controlPoints, knots, basisUFunctionDegree, basisVFunctionDegree, interpolationResult);
-                vertices[arrayIndex++] = interpolationResult;
+                vertices.add(interpolationResult);
                 u += deltaU;
             }
             u = minUKnot;
             v += deltaV;
         }
+        if(!smooth) {
+            // separate the vertices that will share faces (they will need separate normals anyway)
+            // what happens with the mesh is represented here (be careful with code formatting here !!!)
+            // * -- * -- *       * -- * * -- *
+            // |    |    |       |    | |    |
+            // * -- * -- *       * -- * * -- *
+            // |    |    |  ==>  * -- * * -- *
+            // * -- * -- *       |    | |    |
+            // |    |    |       * -- * * -- *
+            // * -- * -- *       .............
+            // first duplicate all verts that are not on the border along the U axis
+            int uVerticesAmount = uSegments + 1;
+            int vVerticesAmount = vSegments + 1;
+            int newUVerticesAmount = 2 + (uVerticesAmount - 2) * 2;
+            List<Vector3f> verticesWithUDuplicates = new ArrayList<Vector3f>(vVerticesAmount * newUVerticesAmount);
+            for(int i=0;i<vertices.size();++i) {
+                verticesWithUDuplicates.add(vertices.get(i));
+                if(i % uVerticesAmount != 0 && i % uVerticesAmount != uVerticesAmount - 1) {
+                    verticesWithUDuplicates.add(vertices.get(i));
+                }
+            }
+            // and then duplicate all verts that are not on the border along the V axis
+            List<Vector3f> verticesWithVDuplicates = new ArrayList<Vector3f>(verticesWithUDuplicates.size() * vVerticesAmount);
+            verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(0, newUVerticesAmount));
+            for(int i=1;i<vSegments;++i) {
+                verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(i * newUVerticesAmount, i * newUVerticesAmount + newUVerticesAmount));
+                verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(i * newUVerticesAmount, i * newUVerticesAmount + newUVerticesAmount));
+            }
+            verticesWithVDuplicates.addAll(verticesWithUDuplicates.subList(vSegments * newUVerticesAmount, vSegments * newUVerticesAmount + newUVerticesAmount));
+            vertices = verticesWithVDuplicates;
+        }
 
-        //adding indexes
-        int uVerticesAmount = uSegments + 1;
+        // adding indexes
         int[] indices = new int[uSegments * vSegments * 6];
-        arrayIndex = 0;
-        for (int i = 0; i < vSegments; ++i) {
-            for (int j = 0; j < uSegments; ++j) {
-                indices[arrayIndex++] = j + i * uVerticesAmount;
-                indices[arrayIndex++] = j + i * uVerticesAmount + 1;
-                indices[arrayIndex++] = j + i * uVerticesAmount + uVerticesAmount;
-                indices[arrayIndex++] = j + i * uVerticesAmount + 1;
-                indices[arrayIndex++] = j + i * uVerticesAmount + uVerticesAmount + 1;
-                indices[arrayIndex++] = j + i * uVerticesAmount + uVerticesAmount;
+        int arrayIndex = 0;
+        int uVerticesAmount = smooth ? uSegments + 1 : uSegments * 2;
+        if(smooth) {
+            for (int i = 0; i < vSegments; ++i) { 
+                for (int j = 0; j < uSegments; ++j) {
+                    indices[arrayIndex++] = j + i * uVerticesAmount + uVerticesAmount;
+                    indices[arrayIndex++] = j + i * uVerticesAmount + 1;
+                    indices[arrayIndex++] = j + i * uVerticesAmount;
+                    indices[arrayIndex++] = j + i * uVerticesAmount + uVerticesAmount;
+                    indices[arrayIndex++] = j + i * uVerticesAmount + uVerticesAmount + 1;
+                    indices[arrayIndex++] = j + i * uVerticesAmount + 1;
+                }
+            }
+        } else {
+            for (int i = 0; i < vSegments; ++i) {
+                for (int j = 0; j < uSegments; ++j) {
+                    indices[arrayIndex++] = i * 2 * uVerticesAmount + uVerticesAmount + j * 2;
+                    indices[arrayIndex++] = i * 2 * uVerticesAmount + j * 2 + 1;
+                    indices[arrayIndex++] = i * 2 * uVerticesAmount + j * 2;
+                    indices[arrayIndex++] = i * 2 * uVerticesAmount + uVerticesAmount + j * 2;
+                    indices[arrayIndex++] = i * 2 * uVerticesAmount + uVerticesAmount + j * 2 + 1;
+                    indices[arrayIndex++] = i * 2 * uVerticesAmount + j * 2 + 1;
+                }
             }
         }
 
-        //normalMap merges normals of faces that will be rendered smooth
-        Map<Vector3f, Vector3f> normalMap = new HashMap<Vector3f, Vector3f>(vertices.length);
+        Vector3f[] verticesArray = vertices.toArray(new Vector3f[vertices.size()]);
+        // normalMap merges normals of faces that will be rendered smooth
+        Map<Vector3f, Vector3f> normalMap = new HashMap<Vector3f, Vector3f>(verticesArray.length);
         for (int i = 0; i < indices.length; i += 3) {
-            Vector3f n = FastMath.computeNormal(vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]);
-            this.addNormal(n, normalMap, smooth, vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]);
+            Vector3f n = FastMath.computeNormal(verticesArray[indices[i]], verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
+            this.addNormal(n, normalMap, smooth, verticesArray[indices[i]], verticesArray[indices[i + 1]], verticesArray[indices[i + 2]]);
         }
-        //preparing normal list (the order of normals must match the order of vertices)
-        float[] normals = new float[vertices.length * 3];
+        // preparing normal list (the order of normals must match the order of vertices)
+        float[] normals = new float[verticesArray.length * 3];
         arrayIndex = 0;
-        for (int i = 0; i < vertices.length; ++i) {
-            Vector3f n = normalMap.get(vertices[i]);
+        for (int i = 0; i < verticesArray.length; ++i) {
+            Vector3f n = normalMap.get(verticesArray[i]);
             normals[arrayIndex++] = n.x;
             normals[arrayIndex++] = n.y;
             normals[arrayIndex++] = n.z;
         }
 
-        this.setBuffer(VertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(vertices));
+        this.setBuffer(VertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(verticesArray));
         this.setBuffer(VertexBuffer.Type.Index, 3, indices);
         this.setBuffer(VertexBuffer.Type.Normal, 3, normals);
         this.updateBound();
