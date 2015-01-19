@@ -301,7 +301,7 @@ public class FilterPostProcessor implements SceneProcessor, Savable {
 
         FrameBuffer sceneBuffer = renderFrameBuffer;
         if (renderFrameBufferMS != null && !renderer.getCaps().contains(Caps.OpenGL31)) {
-            renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer);
+            renderer.copyFrameBuffer(renderFrameBufferMS, renderFrameBuffer, true);
         } else if (renderFrameBufferMS != null) {
             sceneBuffer = renderFrameBufferMS;
         }

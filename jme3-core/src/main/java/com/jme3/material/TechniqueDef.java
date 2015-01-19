@@ -85,13 +85,9 @@ public class TechniqueDef implements Savable {
         MultiPass,
         
         /**
-         * Enable light rendering by using the 
-         * {@link Renderer#setLighting(com.jme3.light.LightList) renderer's setLighting} 
-         * method.
-         * <p>
-         * The specific details of rendering the lighting is up to the 
-         * renderer implementation.
+         * @deprecated OpenGL1 is not supported anymore
          */
+        @Deprecated
         FixedPipeline,
     }
 
