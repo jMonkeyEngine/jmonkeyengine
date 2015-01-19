@@ -4,7 +4,6 @@
  */
 package com.jme3.gde.materialdefinition.editor;
 
-import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.materials.MaterialPreviewRenderer;
 import com.jme3.material.Material;
 import java.awt.Component;
