@@ -351,6 +351,6 @@ public class JoglDisplay extends JoglAbstractDisplay {
         }
 
         listener.update();
-        renderer.onFrame();
+        renderer.postFrame();
     }
 }

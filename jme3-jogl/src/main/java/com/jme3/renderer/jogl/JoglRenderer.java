@@ -832,16 +832,8 @@ public class JoglRenderer implements Renderer {
     }
 
     @Override
-	public void onFrame() {
+	public void postFrame() {
         objManager.deleteUnused(this);
-    }
-    
-    @Override
-	public void setViewProjectionMatrices(Matrix4f viewMatrix, Matrix4f projMatrix) {
-    }
-
-    @Override
-	public void setWorldMatrix(Matrix4f worldMatrix) {
     }
 
     /*********************************************************************\
@@ -996,14 +988,6 @@ public class JoglRenderer implements Renderer {
             Uniform uniform = uniforms.getValue(i);
             uniform.reset(); // e.g check location again
         }
-    }
-
-    /*
-     * (Non-javadoc)
-     * Only used for fixed-function. Ignored.
-     */
-    @Override
-	public void setLighting(LightList list) {
     }
     
     public int convertShaderType(Shader.ShaderType type) {
@@ -1248,11 +1232,6 @@ public class JoglRenderer implements Renderer {
     /*********************************************************************\
     |* Framebuffers                                                      *|
     \*********************************************************************/
-    @Override
-	public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
-        copyFrameBuffer(src, dst, true);
-    }
-
     @Override
 	public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
         GL gl = GLContext.getCurrentGL();

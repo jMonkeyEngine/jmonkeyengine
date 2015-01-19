@@ -643,18 +643,12 @@ public class OGLESShaderRenderer implements Renderer {
         }
     }
 
-    public void onFrame() {
+    public void postFrame() {
         RendererUtil.checkGLErrorForced();
 
         objManager.deleteUnused(this);
     }
-
-    public void setWorldMatrix(Matrix4f worldMatrix) {
-    }
-
-    public void setViewProjectionMatrices(Matrix4f viewMatrix, Matrix4f projMatrix) {
-    }
-
+    
     /*********************************************************************\
     |* Shaders                                                           *|
     \*********************************************************************/
@@ -1072,9 +1066,6 @@ public class OGLESShaderRenderer implements Renderer {
     /*********************************************************************\
     |* Framebuffers                                                      *|
     \*********************************************************************/
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst) {
-        copyFrameBuffer(src, dst, true);
-    }
 
     public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst, boolean copyDepth) {
             throw new RendererException("Copy framebuffer not implemented yet.");

@@ -125,7 +125,7 @@ public class JoglCanvas extends JoglAbstractDisplay implements JmeCanvasContext 
         }
 
         listener.update();
-        renderer.onFrame();
+        renderer.postFrame();
 
     }
 

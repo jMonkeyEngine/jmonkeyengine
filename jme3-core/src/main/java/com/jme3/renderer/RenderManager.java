@@ -82,7 +82,6 @@ public class RenderManager {
     private Material forcedMaterial = null;
     private String forcedTechnique = null;
     private RenderState forcedRenderState = null;
-    private boolean shader;
     private int viewX, viewY, viewWidth, viewHeight;
     private Matrix4f orthoMatrix = new Matrix4f();
     private LightList filteredLightList = new LightList(null);
@@ -476,11 +475,7 @@ public class RenderManager {
      * @param mat The world matrix to set
      */
     public void setWorldMatrix(Matrix4f mat) {
-        if (shader) {
-            uniformBindingManager.setWorldMatrix(mat);
-        } else {
-            renderer.setWorldMatrix(mat);
-        }
+        uniformBindingManager.setWorldMatrix(mat);
     }
 
     /**
@@ -927,19 +922,10 @@ public class RenderManager {
     }
 
     private void setViewProjection(Camera cam, boolean ortho) {
-        if (shader) {
-            if (ortho) {
-                uniformBindingManager.setCamera(cam, Matrix4f.IDENTITY, orthoMatrix, orthoMatrix);
-            } else {
-                uniformBindingManager.setCamera(cam, cam.getViewMatrix(), cam.getProjectionMatrix(), cam.getViewProjectionMatrix());
-            }
+        if (ortho) {
+            uniformBindingManager.setCamera(cam, Matrix4f.IDENTITY, orthoMatrix, orthoMatrix);
         } else {
-            if (ortho) {
-                renderer.setViewProjectionMatrices(Matrix4f.IDENTITY, orthoMatrix);
-            } else {
-                renderer.setViewProjectionMatrices(cam.getViewMatrix(),
-                        cam.getProjectionMatrix());
-            }
+            uniformBindingManager.setCamera(cam, cam.getViewMatrix(), cam.getProjectionMatrix(), cam.getViewProjectionMatrix());
         }
     }
 
@@ -1087,10 +1073,6 @@ public class RenderManager {
         
         if (prof!=null) prof.vpStep(VpStep.EndRender, vp, null);
     }
-
-    public void setUsingShaders(boolean usingShaders) { 
-        this.shader = usingShaders;
-    }
     
     /**
      * Called by the application to render any ViewPorts
@@ -1110,7 +1092,6 @@ public class RenderManager {
             return;
         }
 
-        this.shader = renderer.getCaps().contains(Caps.GLSL100);
         uniformBindingManager.newFrame();        
 
         if (prof!=null) prof.appStep(AppStep.RenderPreviewViewPorts);        

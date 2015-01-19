@@ -184,7 +184,7 @@ public abstract class LwjglAbstractDisplay extends LwjglContext implements Runna
 
         // Subclasses just call GLObjectManager clean up objects here
         // it is safe .. for now.
-        renderer.onFrame();
+        renderer.postFrame();
     }
 
     /**

@@ -43,7 +43,6 @@ import java.nio.IntBuffer;
  */
 public interface GLExt extends GLFbo {
 
-        public static final int GL_ETC1_RGB8_OES = 0x8D64;
 	public static final int GL_COMPRESSED_RGB8_ETC2 = 0x9274;
 	public static final int GL_COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;
 	public static final int GL_COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2;
@@ -56,6 +55,7 @@ public interface GLExt extends GLFbo {
         public static final int GL_DEPTH_COMPONENT32F = 0x8CAC;
 	public static final int GL_DEPTH24_STENCIL8_EXT = 0x88F0;
 	public static final int GL_DEPTH_STENCIL_EXT = 0x84F9;
+        public static final int GL_ETC1_RGB8_OES = 0x8D64;
 	public static final int GL_FRAMEBUFFER_SRGB_CAPABLE_EXT = 0x8DBA;
 	public static final int GL_FRAMEBUFFER_SRGB_EXT = 0x8DB9;
 	public static final int GL_HALF_FLOAT_ARB = 0x140B;

@@ -101,7 +101,7 @@ public class JoglOffscreenBuffer extends JoglContext implements Runnable {
         listener.update();
         checkGLError();
 
-        renderer.onFrame();
+        renderer.postFrame();
 
         int frameRate = settings.getFrameRate();
         if (frameRate >= 1) {

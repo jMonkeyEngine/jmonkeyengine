@@ -424,11 +424,13 @@ public class LwjglRenderer  {
                 logger.log(Level.FINER, "Texture Multisample Depth Samples: {0}", maxDepthTexSamples);
             }
 
-            glGetInteger(GL_MAX_DRAW_BUFFERS, intBuf16);
-            maxMRTFBOAttachs = intBuf16.get(0);
-            if (maxMRTFBOAttachs > 1) {
-                caps.add(Caps.FrameBufferMRT);
-                logger.log(Level.FINER, "FBO Max MRT renderbuffers: {0}", maxMRTFBOAttachs);
+            if (hasExtension("GL_ARB_draw_buffers")) {
+                glGetInteger(GL_MAX_DRAW_BUFFERS, intBuf16);
+                maxMRTFBOAttachs = intBuf16.get(0);
+                if (maxMRTFBOAttachs > 1) {
+                    caps.add(Caps.FrameBufferMRT);
+                    logger.log(Level.FINER, "FBO Max MRT renderbuffers: {0}", maxMRTFBOAttachs);
+                }
             }
         }
 
@@ -832,7 +834,7 @@ public class LwjglRenderer  {
         }
     }
 
-    public void onFrame() {
+    public void postFrame() {
         objManager.deleteUnused(this);
 //        statistics.clearFrame();
     }
@@ -1945,7 +1947,7 @@ public class LwjglRenderer  {
             // Image does not have mipmaps, but they are required.
             // Generate from base level.
 
-            if (!caps.contains(Caps.OpenGL30)) {
+            if (!caps.contains(Caps.OpenGL30) && !caps.contains(Caps.OpenGLES20)) {
                 glTexParameteri(target, GL_GENERATE_MIPMAP, GL_TRUE);
                 img.setMipmapsGenerated(true);
             } else {

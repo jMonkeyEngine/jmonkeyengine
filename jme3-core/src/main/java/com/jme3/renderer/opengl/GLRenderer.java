@@ -70,6 +70,8 @@ public class GLRenderer implements Renderer {
 
     private static final Logger logger = Logger.getLogger(GLRenderer.class.getName());
     private static final boolean VALIDATE_SHADER = false;
+    private static final Pattern GLVERSION_PATTERN = Pattern.compile(".*?(\\d+)\\.(\\d+).*");
+    
     private final ByteBuffer nameBuf = BufferUtils.createByteBuffer(250);
     private final StringBuilder stringBuf = new StringBuilder(250);
     private final IntBuffer intBuf1 = BufferUtils.createIntBuffer(1);
@@ -117,18 +119,6 @@ public class GLRenderer implements Renderer {
         this.texUtil = new TextureUtil(gl, gl2, glext);
     }
 
-    protected void updateNameBuffer() {
-        int len = stringBuf.length();
-
-        nameBuf.position(0);
-        nameBuf.limit(len);
-        for (int i = 0; i < len; i++) {
-            nameBuf.put((byte) stringBuf.charAt(i));
-        }
-
-        nameBuf.rewind();
-    }
-
     @Override
     public Statistics getStatistics() {
         return statistics;
@@ -147,12 +137,8 @@ public class GLRenderer implements Renderer {
         return extensionSet;
     }
     
-    private static final Pattern VERSION = Pattern.compile(".*?(\\d+)\\.(\\d+).*");
-
-
     public static int extractVersion(String version) {
-
-        Matcher m = VERSION.matcher(version);
+        Matcher m = GLVERSION_PATTERN.matcher(version);
         if (m.matches()) {
             int major = Integer.parseInt(m.group(1));
             int minor = Integer.parseInt(m.group(2));
@@ -492,12 +478,6 @@ public class GLRenderer implements Renderer {
         invalidateState();
     }
 
-    private void checkCap(Caps cap) {
-        if (!caps.contains(cap)) {
-            throw new UnsupportedOperationException("Required capability missing: " + cap.name());
-        }
-    }
-
     /*********************************************************************\
     |* Render State                                                      *|
     \*********************************************************************/
@@ -516,11 +496,10 @@ public class GLRenderer implements Renderer {
             bits = GL.GL_COLOR_BUFFER_BIT;
         }
         if (depth) {
-
-            //glClear(GL.GL_DEPTH_BUFFER_BIT) seems to not work when glDepthMask is false
-            //here s some link on openl board
-            //http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=257223
-            //if depth clear is requested, we enable the depthMask
+            // glClear(GL.GL_DEPTH_BUFFER_BIT) seems to not work when glDepthMask is false
+            // here s some link on openl board
+            // http://www.opengl.org/discussion_boards/ubbthreads.php?ubb=showflat&Number=257223
+            // if depth clear is requested, we enable the depthMask
             if (context.depthWriteEnabled == false) {
                 gl.glDepthMask(true);
                 context.depthWriteEnabled = true;
@@ -528,6 +507,8 @@ public class GLRenderer implements Renderer {
             bits |= GL.GL_DEPTH_BUFFER_BIT;
         }
         if (stencil) {
+            // May need to set glStencilMask(0xFF) here if we ever allow users
+            // to change the stencil mask.
             bits |= GL.GL_STENCIL_BUFFER_BIT;
         }
         if (bits != 0) {
@@ -536,7 +517,10 @@ public class GLRenderer implements Renderer {
     }
 
     public void setBackgroundColor(ColorRGBA color) {
-        gl.glClearColor(color.r, color.g, color.b, color.a);
+        if (!context.clearColor.equals(color)) {
+            gl.glClearColor(color.r, color.g, color.b, color.a);
+            context.clearColor.set(color);
+        }
     }
 
     public void setAlphaToCoverage(boolean value) {
@@ -608,30 +592,28 @@ public class GLRenderer implements Renderer {
             context.colorWriteEnabled = false;
         }
 
-        if (state.isPointSprite() && !context.pointSprite) {
-            // Only enable/disable sprite
-            if (context.boundTextures[0] != null) {
-                if (context.boundTextureUnit != 0) {
-                    gl.glActiveTexture(GL.GL_TEXTURE0);
-                    context.boundTextureUnit = 0;
-                }
-                if (gl2 != null) {
+        if (gl2 != null) {
+            if (state.isPointSprite() && !context.pointSprite) {
+                // Only enable/disable sprite
+                if (context.boundTextures[0] != null) {
+                    if (context.boundTextureUnit != 0) {
+                        gl.glActiveTexture(GL.GL_TEXTURE0);
+                        context.boundTextureUnit = 0;
+                    }
                     gl2.glEnable(GL2.GL_POINT_SPRITE);
                     gl2.glEnable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
                 }
-            }
-            context.pointSprite = true;
-        } else if (!state.isPointSprite() && context.pointSprite) {
-            if (context.boundTextures[0] != null) {
-                if (context.boundTextureUnit != 0) {
-                    gl.glActiveTexture(GL.GL_TEXTURE0);
-                    context.boundTextureUnit = 0;
-                }
-                if (gl2 != null) {
+                context.pointSprite = true;
+            } else if (!state.isPointSprite() && context.pointSprite) {
+                if (context.boundTextures[0] != null) {
+                    if (context.boundTextureUnit != 0) {
+                        gl.glActiveTexture(GL.GL_TEXTURE0);
+                        context.boundTextureUnit = 0;
+                    }
                     gl2.glDisable(GL2.GL_POINT_SPRITE);
                     gl2.glDisable(GL2.GL_VERTEX_PROGRAM_POINT_SIZE);
+                    context.pointSprite = false;
                 }
-                context.pointSprite = false;
             }
         }
 
@@ -858,24 +840,15 @@ public class GLRenderer implements Renderer {
         }
     }
 
-    public void onFrame() {
+    public void postFrame() {
         objManager.deleteUnused(this);
-//        statistics.clearFrame();
-    }
-
-    public void setWorldMatrix(Matrix4f worldMatrix) {
-    }
-
-    public void setViewProjectionMatrices(Matrix4f viewMatrix, Matrix4f projMatrix) {
     }
 
     /*********************************************************************\
     |* Shaders                                                           *|
     \*********************************************************************/
     protected void updateUniformLocation(Shader shader, Uniform uniform) {
-        stringBuf.setLength(0);
-        stringBuf.append(uniform.getName()).append('\0');
-        int loc = gl.glGetUniformLocation(shader.getId(), stringBuf.toString());
+        int loc = gl.glGetUniformLocation(shader.getId(), uniform.getName());
         if (loc < 0) {
             uniform.setLocation(-1);
             // uniform is not declared in shader
@@ -1020,13 +993,6 @@ public class GLRenderer implements Renderer {
         }
     }
 
-    /*
-     * (Non-javadoc)
-     * Only used for fixed-function. Ignored.
-     */
-    public void setLighting(LightList list) {
-    }
-
     public int convertShaderType(ShaderType type) {
         switch (type) {
             case Fragment:
@@ -1052,9 +1018,16 @@ public class GLRenderer implements Renderer {
             throw new RendererException("Cannot recompile shader source");
         }
 
+        boolean gles2 = caps.contains(Caps.OpenGLES20);
+        String language = source.getLanguage();
+        
+        if (gles2 && !language.equals("GLSL100")) {
+            throw new RendererException("This shader cannot run in OpenGL ES 2. "
+                                      + "Only GLSL 1.00 shaders are supported.");
+        }
+        
         // Upload shader source.
         // Merge the defines and source code.
-        String language = source.getLanguage();
         stringBuf.setLength(0);
         if (language.startsWith("GLSL")) {
             int version = Integer.parseInt(language.substring(4));
@@ -1066,11 +1039,20 @@ public class GLRenderer implements Renderer {
                 }
                 stringBuf.append("\n");
             } else {
-                // version 100 does not exist in desktop GLSL.
-                // put version 110 in that case to enable strict checking
-                stringBuf.append("#version 110\n");
+                if (gles2) {
+                    if (source.getType() == ShaderType.Fragment) {
+                        // GLES2 requires precision qualifier.
+                        stringBuf.append("precision mediump float;\n");
+                    }
+                } else {
+                    // version 100 does not exist in desktop GLSL.
+                    // put version 110 in that case to enable strict checking
+                    // (Only enabled for desktop GL)
+                    stringBuf.append("#version 110\n");
+                }
             }
         }
+        
         stringBuf.append(source.getDefines());
         stringBuf.append(source.getSource());
         
@@ -1309,8 +1291,7 @@ public class GLRenderer implements Renderer {
                 throw ex;
             }
         } else {
-            throw new RendererException("EXT_framebuffer_blit required.");
-            // TODO: support non-blit copies?
+            throw new RendererException("Framebuffer blitting not supported by the video hardware");
         }
     }
 
@@ -1504,10 +1485,10 @@ public class GLRenderer implements Renderer {
         }
 
         if (!caps.contains(Caps.FrameBuffer)) {
-            throw new RendererException("Framebuffer objects are not supported" +
-                                        " by the video hardware");
+            throw new RendererException("Framebuffer objects are not supported"
+                    + " by the video hardware");
         }
-        
+
         // generate mipmaps for last FB if needed
         if (context.boundFB != null) {
             for (int i = 0; i < context.boundFB.getNumColorBuffers(); i++) {
@@ -1518,14 +1499,18 @@ public class GLRenderer implements Renderer {
                     setTexture(0, rb.getTexture());
 
                     int textureType = convertTextureType(tex.getType(), tex.getImage().getMultiSamples(), rb.getFace());
-                    if (gl2 != null) gl2.glEnable(textureType);
+                    if (gl2 != null) {
+                        gl2.glEnable(textureType);
+                    }
                     glfbo.glGenerateMipmapEXT(textureType);
-                    if (gl2 != null) gl2.glDisable(textureType);
+                    if (gl2 != null) {
+                        gl2.glDisable(textureType);
+                    }
                 }
             }
         }
 
-    if (fb == null) {
+        if (fb == null) {
             // unbind any fbos
             if (context.boundFBO != 0) {
                 glfbo.glBindFramebufferEXT(GLExt.GL_FRAMEBUFFER_EXT, 0);
@@ -1579,7 +1564,7 @@ public class GLRenderer implements Renderer {
                         gl2.glReadBuffer(GL.GL_NONE);
                         context.boundReadBuf = -2;
                     }
-                    }
+                }
             } else {
                 if (fb.getNumColorBuffers() > maxFBOAttachs) {
                     throw new RendererException("Framebuffer has more color "
@@ -1588,8 +1573,8 @@ public class GLRenderer implements Renderer {
                 }
                 if (fb.isMultiTarget()) {
                     if (!caps.contains(Caps.FrameBufferMRT)) {
-                        throw new RendererException("Multiple render targets " +
-                                " are not supported by the video hardware");
+                        throw new RendererException("Multiple render targets "
+                                + " are not supported by the video hardware");
                     }
                     if (fb.getNumColorBuffers() > maxMRTFBOAttachs) {
                         throw new RendererException("Framebuffer has more"
@@ -1694,14 +1679,6 @@ public class GLRenderer implements Renderer {
             throw new RendererException("Multisample textures are not supported" + 
                                         " by the video hardware.");
         }
-        if (type == Texture.Type.ThreeDimensional && gl2 == null) {
-            throw new RendererException("3D textures are not supported" + 
-                                        " by the video hardware.");
-        } else if (type == Texture.Type.TwoDimensionalArray && !caps.contains(Caps.TextureArray)) {
-            throw new RendererException("Array textures are not supported" + 
-                                        " by the video hardware.");
-        }
-        
         
         switch (type) {
             case TwoDimensional:
@@ -1711,13 +1688,21 @@ public class GLRenderer implements Renderer {
                     return GL.GL_TEXTURE_2D;
                 }
             case TwoDimensionalArray:
+                if (!caps.contains(Caps.TextureArray)) {
+                    throw new RendererException("Array textures are not supported"
+                            + " by the video hardware.");
+                }
                 if (samples > 1) {
                     return GLExt.GL_TEXTURE_2D_MULTISAMPLE_ARRAY;
                 } else {
                     return GLExt.GL_TEXTURE_2D_ARRAY_EXT;
                 }
             case ThreeDimensional:
-                return GL3.GL_TEXTURE_3D;
+                if (!caps.contains(Caps.OpenGL20)) {
+                    throw new RendererException("3D textures are not supported" + 
+                                        " by the video hardware.");
+                }
+                return GL2.GL_TEXTURE_3D;
             case CubeMap:
                 if (face < 0) {
                     return GL.GL_TEXTURE_CUBE_MAP;
@@ -2140,7 +2125,7 @@ public class GLRenderer implements Renderer {
                 //statistics.onVertexBufferUse(vb, false);
             }
         }
-
+        
         int usage = convertUsage(vb.getUsage());
         vb.getData().rewind();
 
@@ -2158,10 +2143,6 @@ public class GLRenderer implements Renderer {
                     break;
                 case Int:
                 case UnsignedInt:
-                    if (!caps.contains(Caps.IntegerIndexBuffer)) {
-                        throw new RendererException("32-bit index buffers are not supported by the video hardware");
-                    }
-                    
                     glext.glBufferData(target, (IntBuffer) vb.getData(), usage);
                     break;
                 case Float:
@@ -2230,108 +2211,103 @@ public class GLRenderer implements Renderer {
             throw new IllegalArgumentException("Index buffers not allowed to be set to vertex attrib");
         }
 
-        int programId = context.boundShaderProgram;
+        if (context.boundShaderProgram <= 0) {
+            throw new IllegalStateException("Cannot render mesh without shader bound");
+        }
+        
+        Attribute attrib = context.boundShader.getAttribute(vb.getBufferType());
+        int loc = attrib.getLocation();
+        if (loc == -1) {
+            return; // not defined
+        }
+        if (loc == -2) {
+            loc = gl.glGetAttribLocation(context.boundShaderProgram, "in" + vb.getBufferType().name());
 
-        if (programId > 0) {
-            Attribute attrib = context.boundShader.getAttribute(vb.getBufferType());
-            int loc = attrib.getLocation();
-            if (loc == -1) {
-                return; // not defined
+            // not really the name of it in the shader (inPosition) but
+            // the internal name of the enum (Position).
+            if (loc < 0) {
+                attrib.setLocation(-1);
+                return; // not available in shader.
+            } else {
+                attrib.setLocation(loc);
             }
-            if (loc == -2) {
-                stringBuf.setLength(0);
-                stringBuf.append("in").append(vb.getBufferType().name()).append('\0');
-                loc = gl.glGetAttribLocation(programId, stringBuf.toString());
+        }
 
-                // not really the name of it in the shader (inPosition\0) but
-                // the internal name of the enum (Position).
-                if (loc < 0) {
-                    attrib.setLocation(-1);
-                    return; // not available in shader.
-                } else {
-                    attrib.setLocation(loc);
-                }
+        if (vb.isInstanced()) {
+            if (!caps.contains(Caps.MeshInstancing)) {
+                throw new RendererException("Instancing is required, "
+                        + "but not supported by the "
+                        + "graphics hardware");
             }
-            
-            if (vb.isInstanced()) {
-                if (!caps.contains(Caps.MeshInstancing)) {
-                    throw new RendererException("Instancing is required, "
-                            + "but not supported by the "
-                            + "graphics hardware");
-                }
+        }
+        int slotsRequired = 1;
+        if (vb.getNumComponents() > 4) {
+            if (vb.getNumComponents() % 4 != 0) {
+                throw new RendererException("Number of components in multi-slot "
+                        + "buffers must be divisible by 4");
             }
-            int slotsRequired = 1;
-            if (vb.getNumComponents() > 4) {
-                if (vb.getNumComponents() % 4 != 0) {
-                    throw new RendererException("Number of components in multi-slot "
-                            + "buffers must be divisible by 4");
-                }
-                slotsRequired = vb.getNumComponents() / 4;
+            slotsRequired = vb.getNumComponents() / 4;
+        }
+
+        if (vb.isUpdateNeeded() && idb == null) {
+            updateBufferData(vb);
+        }
+
+        VertexBuffer[] attribs = context.boundAttribs;
+        for (int i = 0; i < slotsRequired; i++) {
+            if (!context.attribIndexList.moveToNew(loc + i)) {
+                gl.glEnableVertexAttribArray(loc + i);
+            }
+        }
+        if (attribs[loc] != vb) {
+            // NOTE: Use id from interleaved buffer if specified
+            int bufId = idb != null ? idb.getId() : vb.getId();
+            assert bufId != -1;
+            if (context.boundArrayVBO != bufId) {
+                gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufId);
+                context.boundArrayVBO = bufId;
+                //statistics.onVertexBufferUse(vb, true);
+            } else {
+                //statistics.onVertexBufferUse(vb, false);
             }
 
-            if (vb.isUpdateNeeded() && idb == null) {
-                updateBufferData(vb);
-            }
-
-            VertexBuffer[] attribs = context.boundAttribs;
-            for (int i = 0; i < slotsRequired; i++) {
-                if (!context.attribIndexList.moveToNew(loc + i)) {
-                    gl.glEnableVertexAttribArray(loc + i);
-                    //System.out.println("Enabled ATTRIB IDX: "+loc);
-                }
-            }
-            if (attribs[loc] != vb) {
-                // NOTE: Use id from interleaved buffer if specified
-                int bufId = idb != null ? idb.getId() : vb.getId();
-                assert bufId != -1;
-                if (context.boundArrayVBO != bufId) {
-                    gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufId);
-                    context.boundArrayVBO = bufId;
-                    //statistics.onVertexBufferUse(vb, true);
-                } else {
-                    //statistics.onVertexBufferUse(vb, false);
-                }
-
-                if (slotsRequired == 1) {
-                    gl.glVertexAttribPointer(loc,
-                            vb.getNumComponents(),
+            if (slotsRequired == 1) {
+                gl.glVertexAttribPointer(loc,
+                        vb.getNumComponents(),
+                        convertFormat(vb.getFormat()),
+                        vb.isNormalized(),
+                        vb.getStride(),
+                        vb.getOffset());
+            } else {
+                for (int i = 0; i < slotsRequired; i++) {
+                    // The pointer maps the next 4 floats in the slot.
+                    // E.g.
+                    // P1: XXXX____________XXXX____________
+                    // P2: ____XXXX____________XXXX________
+                    // P3: ________XXXX____________XXXX____
+                    // P4: ____________XXXX____________XXXX
+                    // stride = 4 bytes in float * 4 floats in slot * num slots
+                    // offset = 4 bytes in float * 4 floats in slot * slot index
+                    gl.glVertexAttribPointer(loc + i,
+                            4,
                             convertFormat(vb.getFormat()),
                             vb.isNormalized(),
-                            vb.getStride(),
-                            vb.getOffset());
-                } else {
-                    for (int i = 0; i < slotsRequired; i++) {
-                        // The pointer maps the next 4 floats in the slot.
-                        // E.g.
-                        // P1: XXXX____________XXXX____________
-                        // P2: ____XXXX____________XXXX________
-                        // P3: ________XXXX____________XXXX____
-                        // P4: ____________XXXX____________XXXX
-                        // stride = 4 bytes in float * 4 floats in slot * num slots
-                        // offset = 4 bytes in float * 4 floats in slot * slot index
-                        gl.glVertexAttribPointer(loc + i,
-                                4,
-                                convertFormat(vb.getFormat()),
-                                vb.isNormalized(),
-                                4 * 4 * slotsRequired,
-                                4 * 4 * i);
-                    }
-                }
-
-                for (int i = 0; i < slotsRequired; i++) {
-                    int slot = loc + i;
-                    if (vb.isInstanced() && (attribs[slot] == null || !attribs[slot].isInstanced())) {
-                        // non-instanced -> instanced
-                        glext.glVertexAttribDivisorARB(slot, vb.getInstanceSpan());
-                    } else if (!vb.isInstanced() && attribs[slot] != null && attribs[slot].isInstanced()) {
-                        // instanced -> non-instanced
-                        glext.glVertexAttribDivisorARB(slot, 0);
-                    }
-                    attribs[slot] = vb;
+                            4 * 4 * slotsRequired,
+                            4 * 4 * i);
                 }
             }
-        } else {
-            throw new IllegalStateException("Cannot render mesh without shader bound");
+
+            for (int i = 0; i < slotsRequired; i++) {
+                int slot = loc + i;
+                if (vb.isInstanced() && (attribs[slot] == null || !attribs[slot].isInstanced())) {
+                    // non-instanced -> instanced
+                    glext.glVertexAttribDivisorARB(slot, vb.getInstanceSpan());
+                } else if (!vb.isInstanced() && attribs[slot] != null && attribs[slot].isInstanced()) {
+                    // instanced -> non-instanced
+                    glext.glVertexAttribDivisorARB(slot, 0);
+                }
+                attribs[slot] = vb;
+            }
         }
     }
 
@@ -2354,6 +2330,21 @@ public class GLRenderer implements Renderer {
             throw new IllegalArgumentException("Only index buffers are allowed as triangle lists.");
         }
 
+        switch (indexBuf.getFormat()) {
+            case UnsignedShort:
+                // OK: Works on all platforms.
+                break;
+            case UnsignedInt:
+                // Requres extension on OpenGL ES 2.
+                if (!caps.contains(Caps.IntegerIndexBuffer)) {
+                    throw new RendererException("32-bit index buffers are not supported by the video hardware");
+                }
+                break;
+            default:
+                // What is this?
+                throw new RendererException("Unexpected format for index buffer: " + indexBuf.getFormat());
+        }
+        
         if (indexBuf.isUpdateNeeded()) {
             updateBufferData(indexBuf);
         }

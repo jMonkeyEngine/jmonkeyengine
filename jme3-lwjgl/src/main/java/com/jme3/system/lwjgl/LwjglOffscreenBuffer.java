@@ -125,7 +125,7 @@ public class LwjglOffscreenBuffer extends LwjglContext implements Runnable {
         listener.update();
         checkGLError();
 
-        renderer.onFrame();
+        renderer.postFrame();
 
         int frameRate = settings.getFrameRate();
         if (frameRate >= 1) {

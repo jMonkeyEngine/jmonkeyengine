@@ -251,36 +251,6 @@ public class RenderContext {
     public IDList attribIndexList = new IDList();
     
     /**
-     * Ambient color (GL1 only)
-     */
-    public ColorRGBA ambient;
-    
-    /**
-     * Diffuse color (GL1 only)
-     */
-    public ColorRGBA diffuse;
-    
-    /**
-     * Specular color (GL1 only)
-     */
-    public ColorRGBA specular;
-    
-    /**
-     * Material color (GL1 only)
-     */
-    public ColorRGBA color;
-    
-    /**
-     * Shininess (GL1 only)
-     */
-    public float shininess;
-    
-    /**
-     * Use vertex color (GL1 only)
-     */
-    public boolean useVertexColor;
-    
-    /**
      * depth tets function
      */
     public RenderState.TestFunction depthFunc = RenderState.TestFunction.LessOrEqual;
@@ -290,9 +260,10 @@ public class RenderContext {
      */
     public RenderState.TestFunction alphaFunc = RenderState.TestFunction.Greater;
 
-    
     public int initialDrawBuf;
     public int initialReadBuf;
+    
+    public ColorRGBA clearColor = new ColorRGBA(0,0,0,0);
     
     /**
      * Reset the RenderContext to default GL state
@@ -343,10 +314,8 @@ public class RenderContext {
         frontStencilFunction = RenderState.TestFunction.Always;
         backStencilFunction = RenderState.TestFunction.Always;
         
-        ambient = diffuse = specular = color = null;
-        shininess = 0;
-        useVertexColor = false;
         depthFunc = RenderState.TestFunction.LessOrEqual;    
         alphaFunc = RenderState.TestFunction.Greater;
+        clearColor.set(0,0,0,0);
     }
 }

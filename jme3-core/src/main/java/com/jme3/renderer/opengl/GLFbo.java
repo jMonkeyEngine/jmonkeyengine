@@ -60,6 +60,7 @@ public interface GLFbo {
     public static final int GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_EXT = 0x8D56;
     public static final int GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT = 0x8CDC;
     public static final int GL_FRAMEBUFFER_UNSUPPORTED_EXT = 0x8CDD;
+    public static final int GL_INVALID_FRAMEBUFFER_OPERATION_EXT = 0x506;
     public static final int GL_MAX_COLOR_ATTACHMENTS_EXT = 0x8CDF;
     public static final int GL_MAX_RENDERBUFFER_SIZE_EXT = 0x84E8;
     public static final int GL_READ_FRAMEBUFFER_BINDING_EXT = 0x8CAA;

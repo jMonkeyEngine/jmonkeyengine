@@ -31,10 +31,8 @@
  */
 package com.jme3.renderer;
 
-import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Matrix4f;
 import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer;
 import com.jme3.shader.Shader;
@@ -55,6 +53,11 @@ import java.util.EnumSet;
  */
 public interface Renderer {
 
+    /**
+     * Detects available capabilities of the GPU. 
+     * 
+     * Must be called prior to any other Renderer methods.
+     */
     public void initialize();
     
     /**
@@ -113,24 +116,7 @@ public interface Renderer {
     /**
      * Called when a new frame has been rendered.
      */
-    public void onFrame();
-
-    /**
-     * Set the world matrix to use. Does nothing if the Renderer is 
-     * shader based.
-     * 
-     * @param worldMatrix World matrix to use.
-     */
-    public void setWorldMatrix(Matrix4f worldMatrix);
-
-    /**
-     * Sets the view and projection matrices to use. Does nothing if the Renderer 
-     * is shader based.
-     * 
-     * @param viewMatrix The view matrix to use.
-     * @param projMatrix The projection matrix to use.
-     */
-    public void setViewProjectionMatrices(Matrix4f viewMatrix, Matrix4f projMatrix);
+    public void postFrame();
 
     /**
      * Set the viewport location and resolution on the screen.
@@ -161,16 +147,6 @@ public interface Renderer {
     public void clearClipRect();
 
     /**
-     * Set lighting state.
-     * Does nothing if the renderer is shader based.
-     * The lights should be provided in world space. 
-     * Specify <code>null</code> to disable lighting.
-     * 
-     * @param lights The light list to set.
-     */
-    public void setLighting(LightList lights);
-
-    /**
      * Sets the shader to use for rendering.
      * If the shader has not been uploaded yet, it is compiled
      * and linked. If it has been uploaded, then the 
@@ -194,11 +170,6 @@ public interface Renderer {
      * @param source The ShaderSource to delete.
      */
     public void deleteShaderSource(ShaderSource source);
-
-    /**
-     * Copies contents from src to dst, scaling if necessary.
-     */
-    public void copyFrameBuffer(FrameBuffer src, FrameBuffer dst);
 
     /**
      * Copies contents from src to dst, scaling if necessary.

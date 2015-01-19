@@ -80,7 +80,7 @@ public class NullRenderer implements Renderer {
     public void setDepthRange(float start, float end) {
     }
 
-    public void onFrame() {
+    public void postFrame() {
     }
 
     public void setWorldMatrix(Matrix4f worldMatrix) {

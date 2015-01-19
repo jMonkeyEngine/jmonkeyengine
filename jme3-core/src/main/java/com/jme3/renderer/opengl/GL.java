@@ -79,6 +79,9 @@ public interface GL {
 	public static final int GL_INCR_WRAP = 0x8507;
 	public static final int GL_INFO_LOG_LENGTH = 0x8B84;
 	public static final int GL_INT = 0x1404;
+        public static final int GL_INVALID_ENUM = 0x500;
+        public static final int GL_INVALID_VALUE = 0x501;
+        public static final int GL_INVALID_OPERATION = 0x502;
 	public static final int GL_INVERT = 0x150A;
 	public static final int GL_KEEP = 0x1E00;
 	public static final int GL_LEQUAL = 0x203;
@@ -102,12 +105,14 @@ public interface GL {
 	public static final int GL_NEAREST_MIPMAP_LINEAR = 0x2702;
 	public static final int GL_NEAREST_MIPMAP_NEAREST = 0x2700;
 	public static final int GL_NEVER = 0x200;
+        public static final int GL_NO_ERROR = 0x0;
 	public static final int GL_NONE = 0x0;
 	public static final int GL_NOTEQUAL = 0x205;
 	public static final int GL_ONE = 0x1;
 	public static final int GL_ONE_MINUS_DST_COLOR = 0x307;
 	public static final int GL_ONE_MINUS_SRC_ALPHA = 0x303;
 	public static final int GL_ONE_MINUS_SRC_COLOR = 0x301;
+        public static final int GL_OUT_OF_MEMORY = 0x505;
 	public static final int GL_POINTS = 0x0;
 	public static final int GL_POLYGON_OFFSET_FILL = 0x8037;
 	public static final int GL_REPEAT = 0x2901;

@@ -239,7 +239,7 @@ public class JoglNewtDisplay extends JoglNewtAbstractDisplay {
         }
 
         listener.update();
-        renderer.onFrame();
+        renderer.postFrame();
     }
 }
 

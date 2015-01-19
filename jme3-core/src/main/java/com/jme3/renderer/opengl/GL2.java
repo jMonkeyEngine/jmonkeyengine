@@ -62,6 +62,8 @@ public interface GL2 extends GL {
     public static final int GL_MAX_VERTEX_UNIFORM_COMPONENTS = 0x8B4A;
     public static final int GL_READ_BUFFER = 0xC02;
     public static final int GL_RGB8 = 0x8051;
+    public static final int GL_STACK_OVERFLOW = 0x503;
+    public static final int GL_STACK_UNDERFLOW = 0x504;
     public static final int GL_TEXTURE_3D = 0x806F;
     public static final int GL_POINT_SPRITE = 0x8861;
     public static final int GL_TEXTURE_COMPARE_FUNC = 0x884D;

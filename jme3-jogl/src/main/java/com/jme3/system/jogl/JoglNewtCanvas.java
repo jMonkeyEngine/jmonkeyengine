@@ -145,7 +145,7 @@ public class JoglNewtCanvas extends JoglNewtAbstractDisplay implements JmeCanvas
         }
             
         listener.update();
-        renderer.onFrame();
+        renderer.postFrame();
 
     }
 

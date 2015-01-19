@@ -335,7 +335,7 @@ public class IGLESShaderRenderer implements Renderer {
     /**
      * Called when a new frame has been rendered.
      */
-    public void onFrame() {
+    public void postFrame() {
         logger.log(Level.FINE, "IGLESShaderRenderer onFrame");
         //JmeIosGLES.checkGLErrorForced();
         JmeIosGLES.checkGLError();

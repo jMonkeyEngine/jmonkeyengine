@@ -1199,20 +1199,18 @@ public class Material implements CloneableSmartAsset, Cloneable, Savable {
         // send lighting information, if needed
         switch (techDef.getLightMode()) {
             case Disable:
-                r.setLighting(null);
                 break;
             case SinglePass:
                 int nbRenderedLights = 0;
                 resetUniformsNotSetByCurrent(shader);
-                while(nbRenderedLights < lights.size()){
+                while (nbRenderedLights < lights.size()) {
                     nbRenderedLights = updateLightListUniforms(shader, geom, lights, rm.getSinglePassLightBatchSize(), rm, nbRenderedLights);
                     r.setShader(shader);
                     renderMeshFromGeometry(r, geom);
                 }
                 return;
             case FixedPipeline:
-                r.setLighting(lights);
-                break;
+                throw new IllegalArgumentException("OpenGL1 is not supported");
             case MultiPass:
                 // NOTE: Special case!
                 resetUniformsNotSetByCurrent(shader);

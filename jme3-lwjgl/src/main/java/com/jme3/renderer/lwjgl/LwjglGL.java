@@ -343,11 +343,13 @@ public class LwjglGL implements GL, GL2 {
     }
 
     public int glGetAttribLocation(int param1, String param2) {
-        return GL20.glGetAttribLocation(param1, param2);
+        // NOTE: LWJGL requires null-terminated strings
+        return GL20.glGetAttribLocation(param1, param2 + "\0");
     }
 
     public int glGetUniformLocation(int param1, String param2) {
-        return GL20.glGetUniformLocation(param1, param2);
+        // NOTE: LWJGL requires null-terminated strings
+        return GL20.glGetUniformLocation(param1, param2 + "\0");
     }
 
     public void glShaderSource(int param1, String[] param2, IntBuffer param3) {

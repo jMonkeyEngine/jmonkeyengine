@@ -126,6 +126,7 @@ public final class GLImageFormats {
             format(formatToGL, Format.RGB8,             GLExt.GL_RGBA8, GL.GL_RGB,             GL.GL_UNSIGNED_BYTE);
             format(formatToGL, Format.RGBA8,            GLExt.GL_RGBA8, GL.GL_RGBA,            GL.GL_UNSIGNED_BYTE);
         } else {
+            // Actually, the internal format isn't used for OpenGL ES 2! This is the same as the above..
             format(formatToGL, Format.Alpha8,           GL.GL_RGBA4,   GL.GL_ALPHA,           GL.GL_UNSIGNED_BYTE);
             format(formatToGL, Format.Luminance8,       GL.GL_RGB565,  GL.GL_LUMINANCE,       GL.GL_UNSIGNED_BYTE);
             format(formatToGL, Format.Luminance8Alpha8, GL.GL_RGBA4,   GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE);
