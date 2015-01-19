@@ -35,6 +35,7 @@ import com.jme3.util.IntMap;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
@@ -112,7 +113,7 @@ public final class GLTracer implements InvocationHandler {
         this.constMap = constMap;
     }
     
-    public static IntMap<String> generateConstantMap(Class<?> ... classes) {
+    private static IntMap<String> generateConstantMap(Class<?> ... classes) {
         IntMap<String> constMap = new IntMap<String>();
         for (Class<?> clazz : classes) {
             for (Field field : clazz.getFields()) {
@@ -129,7 +130,35 @@ public final class GLTracer implements InvocationHandler {
         }
         return constMap;
     }
+    
+    /**
+     * Creates a tracer implementation that wraps OpenGL ES 2.
+     * 
+     * @param gl OGL interface
+     * @param glext OGL extension interface
+     * @return A tracer that implements GL, GLFbo, and GLExt.
+     */
+    public static GL createGlesTracer(GL gl, GLExt glext) {
+        IntMap<String> constMap = generateConstantMap(GL.class, GLExt.class);
+        return (GL) Proxy.newProxyInstance(glext.getClass().getClassLoader(),
+                                           new Class<?>[] { GL.class, GLExt.class }, 
+                                           new GLTracer(gl, glext, constMap));
+    }
 
+    /**
+     * Creates a tracer implementation that wraps OpenGL 2+.
+     * 
+     * @param gl OGL interface
+     * @param glext OGL extension interface
+     * @return A tracer that implements GL, GL2, GL3, GLFbo, and GLExt.
+     */
+    public static GL createDesktopGlTracer(GL3 gl, GLExt glext) {
+        IntMap<String> constMap = generateConstantMap(GL3.class, GLExt.class);
+        return (GL) Proxy.newProxyInstance(glext.getClass().getClassLoader(),
+                                           new Class<?>[] { GL3.class, GLExt.class }, 
+                                           new GLTracer(gl, glext, constMap));
+    }
+    
     private String translateInteger(String method, int value, int argIndex) {
         IntMap<Void> argSlotMap = nonEnumArgMap.get(method);
         if (argSlotMap != null && argSlotMap.containsKey(argIndex)) {
