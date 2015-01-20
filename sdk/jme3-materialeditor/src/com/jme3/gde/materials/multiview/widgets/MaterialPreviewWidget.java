@@ -10,62 +10,46 @@
  */
 package com.jme3.gde.materials.multiview.widgets;
 
+import com.jme3.asset.DesktopAssetManager;
 import com.jme3.asset.MaterialKey;
 import com.jme3.gde.core.assets.ProjectAssetManager;
 import com.jme3.gde.core.scene.PreviewRequest;
 import com.jme3.gde.core.scene.SceneApplication;
 import com.jme3.gde.core.scene.SceneListener;
 import com.jme3.gde.core.scene.SceneRequest;
+import com.jme3.gde.materials.MaterialPreviewRenderer;
+import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.renderer.RendererException;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.util.MaterialDebugAppState;
 import com.jme3.util.TangentBinormalGenerator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 
 /**
  *
  * @author Nehon
  */
-public class MaterialPreviewWidget extends javax.swing.JPanel implements SceneListener {
+public class MaterialPreviewWidget extends javax.swing.JPanel {
 
-    private Geometry sphere;
-    private Geometry box;
-    private Geometry quad;
-    private Geometry currentGeom;
-    private Material currentMaterial;
     private boolean init=false;
-
+    private MaterialPreviewRenderer matRenderer;
     /** Creates new form MaterialPreviewWidget */
     public MaterialPreviewWidget() {
         initComponents();        
     }
 
     private  void initWidget() {
-        SceneApplication.getApplication().addSceneListener(this);
-        Sphere sphMesh = new Sphere(32, 32, 2.5f);
-        sphMesh.setTextureMode(Sphere.TextureMode.Projected);
-        sphMesh.updateGeometry(32, 32, 2.5f, false, false);
-        TangentBinormalGenerator.generate(sphMesh);
-        sphere = new Geometry("previewSphere", sphMesh);
-        sphere.setLocalRotation(new Quaternion().fromAngleAxis(FastMath.QUARTER_PI, Vector3f.UNIT_X));
-
-        Box boxMesh = new Box(new Vector3f(0, 0, 0), 1.75f, 1.75f, 1.75f);
-        TangentBinormalGenerator.generate(boxMesh);
-        box = new Geometry("previewBox", boxMesh);
-        box.setLocalRotation(new Quaternion().fromAngleAxis(-FastMath.DEG_TO_RAD * 30, Vector3f.UNIT_X).multLocal(new Quaternion().fromAngleAxis(FastMath.QUARTER_PI, Vector3f.UNIT_Y)));
-
-        Quad quadMesh = new Quad(4.5f, 4.5f);
-        TangentBinormalGenerator.generate(quadMesh);
-        quad = new Geometry("previewQuad", quadMesh);
-        quad.setLocalTranslation(new Vector3f(-2.25f, -2.25f, 0));
-
-        currentGeom = sphere;
         sphereButton.setSelected(true);
+        matRenderer = new MaterialPreviewRenderer(previewLabel);
         init=true;
     }
 
@@ -73,30 +57,8 @@ public class MaterialPreviewWidget extends javax.swing.JPanel implements SceneLi
     public void showMaterial(ProjectAssetManager assetManager, String materialFileName) {
         if(!init){
             initWidget();
-        }
-        try {
-            MaterialKey key = new MaterialKey(assetManager.getRelativeAssetPath(materialFileName));
-            assetManager.deleteFromCache(key);
-            Material mat = (Material) assetManager.loadAsset(key);
-            if (mat != null) {
-                currentMaterial = mat;
-                doShowMaterial(mat);
-            }
-        } catch (Exception e) {
-        }
-    }
-
-    private void doShowMaterial(Material m) {
-
-//        geom.setLocalTranslation(-2.5f, -2.5f, 0);
-//        geom.lookAt(new Vector3f(5, 5, 5), Vector3f.UNIT_Y);
-        currentGeom.setMaterial(m);
-        if (currentGeom.getMaterial() != null) {
-            PreviewRequest request = new PreviewRequest(this, currentGeom);
-            request.getCameraRequest().setLocation(new Vector3f(0, 0, 7));
-            request.getCameraRequest().setLookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
-            SceneApplication.getApplication().createPreview(request);
-        }
+        }        
+        matRenderer.showMaterial(assetManager, materialFileName);
     }
 
     public void clear() {
@@ -110,21 +72,9 @@ public class MaterialPreviewWidget extends javax.swing.JPanel implements SceneLi
     }
 
     public void cleanUp(){
-         SceneApplication.getApplication().removeSceneListener(this);
+         matRenderer.cleanUp();
     }
     
-    public void previewCreated(PreviewRequest request) {        
-        if (request.getRequester() == this) {
-            final ImageIcon icon = new ImageIcon(request.getImage());
-            java.awt.EventQueue.invokeLater(new Runnable() {
-
-                public void run() {
-                    previewLabel.setIcon(icon);
-                }
-            });
-        }
-    }
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -209,18 +159,15 @@ public class MaterialPreviewWidget extends javax.swing.JPanel implements SceneLi
     }// </editor-fold>//GEN-END:initComponents
 
 private void sphereButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sphereButtonActionPerformed
-    currentGeom = sphere;
-    doShowMaterial(currentMaterial);
+    matRenderer.switchDisplay(MaterialPreviewRenderer.DisplayType.Sphere);
 }//GEN-LAST:event_sphereButtonActionPerformed
 
 private void cubeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cubeButtonActionPerformed
-    currentGeom = box;
-    doShowMaterial(currentMaterial);
+    matRenderer.switchDisplay(MaterialPreviewRenderer.DisplayType.Box);
 }//GEN-LAST:event_cubeButtonActionPerformed
 
 private void planeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_planeButtonActionPerformed
-    currentGeom = quad;
-    doShowMaterial(currentMaterial);
+    matRenderer.switchDisplay(MaterialPreviewRenderer.DisplayType.Quad);
 }//GEN-LAST:event_planeButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton cubeButton;

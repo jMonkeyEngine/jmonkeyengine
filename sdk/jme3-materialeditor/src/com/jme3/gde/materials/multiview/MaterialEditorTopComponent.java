@@ -521,7 +521,9 @@ public final class MaterialEditorTopComponent extends CloneableTopComponent impl
             String text = jTextArea1.getText();
             materialFile.setAsText(text);
             dataObject.setModified(false);
-            materialPreviewWidget1.showMaterial(manager, materialFileName);
+            if( ! text.trim().equals("")){
+                materialPreviewWidget1.showMaterial(manager, materialFileName);
+            }
         }
     }
 

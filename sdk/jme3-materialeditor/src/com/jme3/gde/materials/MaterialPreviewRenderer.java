@@ -41,7 +41,7 @@ public class MaterialPreviewRenderer implements SceneListener {
     private Geometry currentGeom;
     private Material currentMaterial;
     private boolean init = false;
-    private JLabel label;
+    private final JLabel label;
     
     public enum DisplayType {
         
@@ -125,10 +125,10 @@ public class MaterialPreviewRenderer implements SceneListener {
     }
     
       public Material reloadMaterial(Material mat, DesktopAssetManager assetManager) {
-        //clear the entire cache, there might be more clever things to do, like clearing only the matdef, and the associated shaders.
-        
-        assetManager.clearCache();
 
+//        MaterialKey key = new MaterialKey(mat.getMaterialDef().getAssetName());
+//        assetManager.deleteFromCache(key);
+        
         //creating a dummy mat with the mat def of the mat to reload
         Material dummy = new Material(mat.getMaterialDef());
 
