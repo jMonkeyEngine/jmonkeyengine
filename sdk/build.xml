@@ -54,6 +54,7 @@
             <exclude name="**/build/"/>
             <exclude name="**/dist/"/>
             <exclude name="**/nbproject/private/"/>
+            <exclude name="**/*.keep"/>
         </zip>
         <zip basedir="JME3TestsTemplate/" destfile="jme3-tests-template/src/com/jme3/gde/templates/tests/JmeTestsProject.zip">
             <exclude name="**/build/"/>
