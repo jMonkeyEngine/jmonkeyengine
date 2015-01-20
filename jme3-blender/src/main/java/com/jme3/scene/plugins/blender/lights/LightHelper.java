@@ -81,7 +81,9 @@ public class LightHelper extends AbstractBlenderHelper {
                 ((PointLight) light).setRadius(distance);
                 break;
             case 1:// Sun
-                LOGGER.log(Level.WARNING, "'Sun' lamp is not supported in jMonkeyEngine.");
+                LOGGER.log(Level.WARNING, "'Sun' lamp is not supported in jMonkeyEngine. Using PointLight with radius = Float.MAX_VALUE.");
+                light = new PointLight();
+                ((PointLight) light).setRadius(Float.MAX_VALUE);
                 break;
             case 2:// Spot
                 light = new SpotLight();
@@ -98,21 +100,17 @@ public class LightHelper extends AbstractBlenderHelper {
                 ((SpotLight) light).setSpotInnerAngle(innerAngle);
                 break;
             case 3:// Hemi
-                LOGGER.log(Level.WARNING, "'Hemi' lamp is not supported in jMonkeyEngine.");
-                break;
+                LOGGER.log(Level.WARNING, "'Hemi' lamp is not supported in jMonkeyEngine. Using DirectionalLight instead.");
             case 4:// Area
                 light = new DirectionalLight();
                 break;
             default:
                 throw new BlenderFileException("Unknown light source type: " + type);
         }
-        if (light != null) {
-            float r = ((Number) structure.getFieldValue("r")).floatValue();
-            float g = ((Number) structure.getFieldValue("g")).floatValue();
-            float b = ((Number) structure.getFieldValue("b")).floatValue();
-            light.setColor(new ColorRGBA(r, g, b, 1.0f));
-            result = new LightNode(structure.getName(), light);
-        }
-        return result;
+        float r = ((Number) structure.getFieldValue("r")).floatValue();
+        float g = ((Number) structure.getFieldValue("g")).floatValue();
+        float b = ((Number) structure.getFieldValue("b")).floatValue();
+        light.setColor(new ColorRGBA(r, g, b, 1.0f));
+        return new LightNode(structure.getName(), light);
     }
 }
