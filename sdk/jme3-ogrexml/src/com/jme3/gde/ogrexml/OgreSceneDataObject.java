@@ -33,10 +33,45 @@ package com.jme3.gde.ogrexml;
 
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
 import java.io.IOException;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.MIMEResolver;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
 
+@MIMEResolver.NamespaceRegistration(
+        displayName = "OgreXML Scene",
+        mimeType = "text/ogrescene+xml",
+        elementNS = {"scene"},
+        acceptedExtension = { "scene", "xml" },
+        checkedExtension = { "scene", "xml" }
+)
+@DataObject.Registration(displayName = "OgreXML Scene", mimeType = "text/ogrescene+xml", iconBase = "com/jme3/gde/ogrexml/ogre-scene.png")
+@ActionReferences(value = {
+    @ActionReference(id =
+    @ActionID(category = "jMonkeyPlatform", id = "com.jme3.gde.core.assets.actions.ConvertModel"), path = "Loaders/text/ogrescene+xml/Actions", position = 10),
+    @ActionReference(id =
+    @ActionID(category = "jMonkeyPlatform", id = "com.jme3.gde.core.assets.actions.OpenModel"), path = "Loaders/text/ogrescene+xml/Actions", position = 20),
+    @ActionReference(id =
+    @ActionID(category = "Edit", id = "org.openide.actions.CutAction"), path = "Loaders/text/ogrescene+xml/Actions", position = 200, separatorBefore = 100),
+    @ActionReference(id =
+    @ActionID(category = "Edit", id = "org.openide.actions.CopyAction"), path = "Loaders/text/ogrescene+xml/Actions", position = 300, separatorAfter = 400),
+    @ActionReference(id =
+    @ActionID(category = "Edit", id = "org.openide.actions.DeleteAction"), path = "Loaders/text/ogrescene+xml/Actions", position = 500),
+    @ActionReference(id =
+    @ActionID(category = "System", id = "org.openide.actions.RenameAction"), path = "Loaders/text/ogrescene+xml/Actions", position = 600, separatorAfter = 700),
+    @ActionReference(id =
+    @ActionID(category = "System", id = "org.openide.actions.SaveAsTemplateAction"), path = "Loaders/text/ogrescene+xml/Actions", position = 800, separatorAfter = 900),
+    @ActionReference(id =
+    @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"), path = "Loaders/text/ogrescene+xml/Actions", position = 1000, separatorAfter = 1100),
+    @ActionReference(id =
+    @ActionID(category = "System", id = "org.openide.actions.ToolsAction"), path = "Loaders/text/ogrescene+xml/Actions", position = 1200),
+    @ActionReference(id =
+    @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"), path = "Loaders/text/ogrescene+xml/Actions", position = 1300)
+})
 public class OgreSceneDataObject extends SpatialAssetDataObject {
 
     public OgreSceneDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {

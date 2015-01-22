@@ -34,9 +34,18 @@ package com.jme3.gde.ogrexml;
 import com.jme3.gde.core.assets.SpatialAssetDataObject;
 import java.io.IOException;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.MIMEResolver;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
 
+@MIMEResolver.NamespaceRegistration(
+        displayName = "OgreXML Skeleton",
+        mimeType = "text/ogrexmlskeleton+xml",
+        elementNS = {"skeleton"},
+        acceptedExtension = {"xml", "skeleton"}
+)
+@DataObject.Registration(displayName = "OgreXML Skeleton", mimeType = "text/ogrexmlskeleton+xml", iconBase = "com/jme3/gde/ogrexml/ogre-logo.png")
 public class OgreXMLSkeletonDataObject extends SpatialAssetDataObject {
 
     public OgreXMLSkeletonDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {

@@ -34,12 +34,20 @@ package com.jme3.gde.ogrexml;
 import com.jme3.gde.core.assets.AssetDataObject;
 import java.io.IOException;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.MIMEResolver;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.text.DataEditorSupport;
 
+@MIMEResolver.ExtensionRegistration(
+    displayName="OgreXML Material",
+    mimeType="text/ogrematerial",
+    extension={ "material" }
+)
+@DataObject.Registration(displayName = "OgreXML Material", mimeType = "text/ogrematerial", iconBase = "com/jme3/gde/ogrexml/ogre-logo.png")
 public class OgreMaterialDataObject extends AssetDataObject {
 
     public OgreMaterialDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
