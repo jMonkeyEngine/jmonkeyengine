@@ -44,8 +44,6 @@
                 <replacestring from='#jdkhome="/path/to/jdk"' to ='${jdkhome.string}'/>
             </filterchain>
         </copy>
-        <copy file="jmonkeyplatform.import" tofile="build/launcher/etc/jmonkeyplatform.import"/>
-        <copy file="jmonkeyplatform.import" tofile="build/etc/jmonkeyplatform.import"/>
     </target>
 
     <!--zips up the templates and adds them to the template project-->
