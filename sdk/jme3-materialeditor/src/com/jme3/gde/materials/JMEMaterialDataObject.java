@@ -35,12 +35,19 @@ import com.jme3.gde.core.assets.AssetDataObject;
 import com.jme3.gde.materials.multiview.MaterialOpenSupport;
 import java.io.IOException;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.MIMEResolver;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
-import org.openide.text.DataEditorSupport;
 
+@MIMEResolver.ExtensionRegistration(
+        displayName = "jME3 Material",
+        mimeType = "text/jme3material",
+        extension = {"j3m", "J3M"}
+)
+@DataObject.Registration(displayName = "jME3 Material", mimeType = "text/jme3material", iconBase = "com/jme3/gde/materials/jme-logo.png")
 public class JMEMaterialDataObject extends AssetDataObject {
 
     public JMEMaterialDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
