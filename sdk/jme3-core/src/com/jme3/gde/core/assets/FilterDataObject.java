@@ -34,7 +34,12 @@ package com.jme3.gde.core.assets;
 import com.jme3.gde.core.filters.FilterPostProcessorNode;
 import com.jme3.post.FilterPostProcessor;
 import java.io.IOException;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.MIMEResolver;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
 
@@ -42,6 +47,22 @@ import org.openide.loaders.MultiFileLoader;
  *
  * @author normenhansen
  */
+@MIMEResolver.ExtensionRegistration(
+        displayName = "FilterPostProcessor Files",
+        mimeType = "application/jme3filterpostprocessor",
+        extension = {"j3f"}
+)
+@DataObject.Registration(iconBase = "com/jme3/gde/core/icons/eye.gif", displayName = "jME3 FilterPostProcessor", mimeType = "application/jme3filterpostprocessor")
+@ActionReferences({
+    @ActionReference(id = @ActionID(category = "Edit", id = "org.openide.actions.CutAction"), path = "Loaders/application/jme3filterpostprocessor/Actions", position = 200, separatorBefore = 100),
+    @ActionReference(id = @ActionID(category = "Edit", id = "org.openide.actions.CopyAction"), path = "Loaders/application/jme3filterpostprocessor/Actions", position = 300, separatorAfter = 400),
+    @ActionReference(id = @ActionID(category = "Edit", id = "org.openide.actions.DeleteAction"), path = "Loaders/application/jme3filterpostprocessor/Actions", position = 500),
+    @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.RenameAction"), path = "Loaders/application/jme3filterpostprocessor/Actions", position = 600, separatorAfter = 700),
+    @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.SaveAsTemplateAction"), path = "Loaders/application/jme3filterpostprocessor/Actions", position = 800, separatorAfter = 900),
+    @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"), path = "Loaders/application/jme3filterpostprocessor/Actions", position = 1000, separatorAfter = 1100),
+    @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.ToolsAction"), path = "Loaders/application/jme3filterpostprocessor/Actions", position = 1200),
+    @ActionReference(id = @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"), path = "Loaders/application/jme3filterpostprocessor/Actions", position = 1300)
+})
 public class FilterDataObject extends AssetDataObject {
 
     public FilterDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
