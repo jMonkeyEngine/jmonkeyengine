@@ -7,12 +7,17 @@ package com.jme3.gde.wavefront;
 import com.jme3.gde.core.assets.AssetDataObject;
 import java.io.IOException;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.MIMEResolver;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
-import org.openide.nodes.CookieSet;
-import org.openide.nodes.Node;
-import org.openide.text.DataEditorSupport;
 
+@MIMEResolver.ExtensionRegistration(
+        displayName = "Wavefront OBJ Material",
+        mimeType = "text/x-wavefrontmtl",
+        extension = {"mtl", "MTL"}
+)
+@DataObject.Registration(displayName = "Wavefront OBJ Material", mimeType = "text/x-wavefrontmtl", iconBase="com/jme3/gde/wavefront/Computer_File_083.gif")
 public class WaveFrontMaterialDataObject extends AssetDataObject {
 
     public WaveFrontMaterialDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
