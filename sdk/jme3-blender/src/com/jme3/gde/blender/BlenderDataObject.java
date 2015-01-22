@@ -12,12 +12,26 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject.Registration;
+import org.openide.filesystems.MIMEResolver;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.util.NbBundle.Messages;
 
-//TODO: move this new way of registering to core
-@Registration(displayName = "CTL_OpenInBlender", iconBase = "com/jme3/gde/blender/blender.png", mimeType = "application/blender")
+@Messages({
+    "LBL_Blender_LOADER=Blender Files"
+})
+@MIMEResolver.ExtensionRegistration(
+    displayName="#LBL_Blender_LOADER",
+    mimeType="application/blender",
+    extension={ "blend" }
+)
+@DataObject.Registration(
+    mimeType = "application/blender", 
+    iconBase = "com/jme3/gde/blender/blender.png",
+    displayName="#LBL_Blender_LOADER",
+    position=300
+)
 @ActionReferences(value = {
     @ActionReference(id =
     @ActionID(category = "jMonkeyPlatform", id = "com.jme3.gde.core.assets.actions.ConvertModel"), path = "Loaders/application/blender/Actions", position = 10),
@@ -38,7 +52,8 @@ import org.openide.loaders.MultiFileLoader;
     @ActionReference(id =
     @ActionID(category = "System", id = "org.openide.actions.ToolsAction"), path = "Loaders/application/blender/Actions", position = 1200),
     @ActionReference(id =
-    @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"), path = "Loaders/application/blender/Actions", position = 1300)})
+    @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"), path = "Loaders/application/blender/Actions", position = 1300)
+})
 public class BlenderDataObject extends SpatialAssetDataObject {
 
     public BlenderDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
