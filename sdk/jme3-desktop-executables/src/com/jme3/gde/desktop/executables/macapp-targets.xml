@@ -16,6 +16,7 @@
                 <replacestring from="$${run.jvmargs}" to="${jfxdeploy.jvmargs}"/>
                 <replacestring from="$${application.title}" to="${application.title}"/>
                 <replacestring from="$${jfxdeploy.jvmargs}" to="-Xnoagent"/>
+                <replacestring from="$${jar.name}" to="${application.title}.jar"/>
             </filterchain>
         </copy>
         <zip destfile="${dist.dir}/${application.title}-MacOSX.zip">

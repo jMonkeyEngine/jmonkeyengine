@@ -28,8 +28,13 @@
   <string>1</string>
   <key>NSHumanReadableCopyright</key>
   <string>Unknown</string>
+  <!-- Put the JRE in /Contents/Plugins/jdk1.8.0_31.jdk (or name specified below) -->
+  <!--key>JVMRuntime</key>
+  <string>jdk1.8.0_31.jdk</string-->
   <key>JVMMainClassName</key>
   <string>${main.class}</string>
+  <key>JVMMainJarName</key>
+  <string>${jar.name}</string>
   <key>JVMOptions</key>
   <array>
       <string>${run.jvmargs}</string>
