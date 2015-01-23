@@ -75,7 +75,11 @@ public class UpdateNetBeansDependencies extends Task {
                                 change = true;
                                 log("Updating dependency in for " + name + " to " + newVersion);
                             } else {
-                                log("Unknown " + name + ", cannot update dependency.", LogLevel.WARN.getLevel());
+                                if(newVersion == null){
+                                    log("Unknown " + name + ", cannot update dependency.", LogLevel.WARN.getLevel());
+                                }else{
+                                    log("Dependency " + name + " is up to date.", LogLevel.INFO.getLevel());
+                                }
                             }
                         }
                     }
