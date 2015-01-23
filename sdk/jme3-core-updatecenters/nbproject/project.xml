@@ -9,7 +9,7 @@
                 <dependency>
                     <code-name-base>org.netbeans.modules.autoupdate.services</code-name-base>
                     <run-dependency>
-                        <specification-version>1.39.2</specification-version>
+                        <specification-version>1.47.2</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -17,7 +17,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>7.35.1</specification-version>
+                        <specification-version>7.43.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -25,7 +25,7 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>8.29.3</specification-version>
+                        <specification-version>8.39.1</specification-version>
                     </run-dependency>
                 </dependency>
             </module-dependencies>
