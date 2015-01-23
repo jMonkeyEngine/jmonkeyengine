@@ -1,0 +1,25 @@
+ShaderNodeDefinitions{ 
+    ShaderNodeDefinition ${defName} {      
+        Type: ${defType}
+        Shader GLSL100: ${shaderSnippet}
+        Documentation{
+            ${description}            
+            <#list inputParams as param>                
+            @input ${param[0]} ${param[1]} ${param[2]}
+            </#list>
+            <#list outputParams as param>                
+            @output ${param[0]} ${param[1]} ${param[2]}
+            </#list>            
+        }
+        Input {
+            <#list inputParams as param>                
+            ${param[0]} ${param[1]}
+            </#list>            
+        }
+        Output {
+            <#list outputParams as param>                
+             ${param[0]} ${param[1]}
+            </#list>                        
+        }
+    }
+}
