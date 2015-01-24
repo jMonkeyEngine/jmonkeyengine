@@ -21,7 +21,7 @@ libraries {
             } else{
                 cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include"
             }
-            
+
             if (targetPlatform.operatingSystem.name == "osx") {
                 cppCompiler.args '-I', "${org.gradle.internal.jvm.Jvm.current().javaHome}/include/darwin"
             } else if (targetPlatform.operatingSystem.name == "linux") {
@@ -160,7 +160,7 @@ binaries.withType(SharedLibraryBinary) { binary ->
             return
         }
     }
-    
+
     // For all binaries that can be built on the current system
     def builderTask = binary.tasks
     // Add output to jar file
@@ -176,20 +176,22 @@ binaries.withType(SharedLibraryBinary) { binary ->
     jar.dependsOn("copyBinaryToLibs${targetPlatform}")
 }
 
-// Remove all native build tasks, will be added as needed above
-gradle.startParameter.excludedTaskNames += "windows_x86BulletjmeStaticLibrary"
-gradle.startParameter.excludedTaskNames += "windows_x86_64BulletjmeStaticLibrary"
-gradle.startParameter.excludedTaskNames += "linux_x86BulletjmeStaticLibrary"
-gradle.startParameter.excludedTaskNames += "linux_x86_64BulletjmeStaticLibrary"
-gradle.startParameter.excludedTaskNames += "osx_x86BulletjmeStaticLibrary"
-gradle.startParameter.excludedTaskNames += "osx_x86_64BulletjmeStaticLibrary"
+task {
+    // Remove all native build tasks, will be added as needed above
+    gradle.startParameter.excludedTaskNames += "windows_x86BulletjmeStaticLibrary"
+    gradle.startParameter.excludedTaskNames += "windows_x86_64BulletjmeStaticLibrary"
+    gradle.startParameter.excludedTaskNames += "linux_x86BulletjmeStaticLibrary"
+    gradle.startParameter.excludedTaskNames += "linux_x86_64BulletjmeStaticLibrary"
+    gradle.startParameter.excludedTaskNames += "osx_x86BulletjmeStaticLibrary"
+    gradle.startParameter.excludedTaskNames += "osx_x86_64BulletjmeStaticLibrary"
 
-gradle.startParameter.excludedTaskNames += "windows_x86BulletjmeSharedLibrary"
-gradle.startParameter.excludedTaskNames += "windows_x86_64BulletjmeSharedLibrary"
-gradle.startParameter.excludedTaskNames += "linux_x86BulletjmeSharedLibrary"
-gradle.startParameter.excludedTaskNames += "linux_x86_64BulletjmeSharedLibrary"
-gradle.startParameter.excludedTaskNames += "osx_x86BulletjmeSharedLibrary"
-gradle.startParameter.excludedTaskNames += "osx_x86_64BulletjmeSharedLibrary"
+    gradle.startParameter.excludedTaskNames += "windows_x86BulletjmeSharedLibrary"
+    gradle.startParameter.excludedTaskNames += "windows_x86_64BulletjmeSharedLibrary"
+    gradle.startParameter.excludedTaskNames += "linux_x86BulletjmeSharedLibrary"
+    gradle.startParameter.excludedTaskNames += "linux_x86_64BulletjmeSharedLibrary"
+    gradle.startParameter.excludedTaskNames += "osx_x86BulletjmeSharedLibrary"
+    gradle.startParameter.excludedTaskNames += "osx_x86_64BulletjmeSharedLibrary"
+}
 
 // Helper class to wrap ant dowload task
 class MyDownload extends DefaultTask {
