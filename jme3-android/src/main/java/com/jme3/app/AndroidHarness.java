@@ -166,17 +166,14 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
      * splashPicID = 0, then no splash screen will be displayed.
      */
     protected int splashPicID = 0;
+
     /**
-     * Set the screen orientation, default is SENSOR
-     * ActivityInfo.SCREEN_ORIENTATION_* constants package
-     * android.content.pm.ActivityInfo
-     *
-     * SCREEN_ORIENTATION_UNSPECIFIED SCREEN_ORIENTATION_LANDSCAPE
-     * SCREEN_ORIENTATION_PORTRAIT SCREEN_ORIENTATION_USER
-     * SCREEN_ORIENTATION_BEHIND SCREEN_ORIENTATION_SENSOR (default)
-     * SCREEN_ORIENTATION_NOSENSOR
+     * No longer used - Use the android:screenOrientation declaration in
+     * the AndroidManifest.xml file.
      */
+    @Deprecated
     protected int screenOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+
     protected OGLESContext ctx;
     protected GLSurfaceView view = null;
     protected boolean isGLThreadPaused = true;
@@ -215,8 +212,6 @@ public class AndroidHarness extends Activity implements TouchListener, DialogInt
                 requestWindowFeature(Window.FEATURE_NO_TITLE);
             }
         }
-
-        setRequestedOrientation(screenOrientation);
 
         final DataObject data = (DataObject) getLastNonConfigurationInstance();
         if (data != null) {
