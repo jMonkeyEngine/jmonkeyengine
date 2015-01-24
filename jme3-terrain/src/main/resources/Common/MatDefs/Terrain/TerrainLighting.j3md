@@ -296,10 +296,6 @@ MaterialDef Terrain Lighting {
         }
     }
 
-    Technique {
-        LightMode FixedPipeline
-    }
-
     Technique Glow {
 
         VertexShader GLSL100:   Common/MatDefs/Misc/Unshaded.vert
