@@ -32,6 +32,7 @@
 package com.jme3.renderer.opengl;
 
 import com.jme3.renderer.Caps;
+import com.jme3.renderer.RenderContext;
 import com.jme3.renderer.RendererException;
 import com.jme3.texture.Image;
 import com.jme3.texture.Image.Format;
@@ -53,12 +54,14 @@ final class TextureUtil {
     private final GL gl;
     private final GL2 gl2;
     private final GLExt glext;
+    private final RenderContext context;
     private GLImageFormat[][] formats;
 
-    public TextureUtil(GL gl, GL2 gl2, GLExt glext) {
+    public TextureUtil(GL gl, GL2 gl2, GLExt glext, RenderContext context) {
         this.gl = gl;
         this.gl2 = gl2;
         this.glext = glext;
+        this.context = context;
     }
     
     public void initialize(EnumSet<Caps> caps) {
@@ -210,24 +213,21 @@ final class TextureUtil {
         Image.Format jmeFormat = image.getFormat();
         GLImageFormat oglFormat = getImageFormatWithError(jmeFormat, getSrgbFormat);
 
-        ByteBuffer data;
+        ByteBuffer data = null;
         int sliceCount = 1;
-        if (index >= 0 && image.getData() != null && image.getData().size() > 0) {
+        
+        if (index >= 0) {
             data = image.getData(index);
+        }
+        
+        if (image.getData() != null && image.getData().size() > 0) {
             sliceCount = image.getData().size();
-        } else {
-            data = null;
         }
 
         int width = image.getWidth();
         int height = image.getHeight();
         int depth = image.getDepth();
         
-
-        if (data != null) {
-            gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
-        }
-
         int[] mipSizes = image.getMipMapSizes();
         int pos = 0;
         // TODO: Remove unneccessary allocation

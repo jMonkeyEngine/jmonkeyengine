@@ -61,14 +61,18 @@ public final class GLImageFormats {
     }
     
     private static void formatComp(GLImageFormat[][] formatToGL, Image.Format format, 
-                               int glCompressedFormat){
-        formatToGL[0][format.ordinal()] = new GLImageFormat(glCompressedFormat);
+                                   int glCompressedFormat,
+                                   int glFormat, 
+                                   int glDataType){
+        formatToGL[0][format.ordinal()] = new GLImageFormat(glCompressedFormat, glFormat, glDataType, true);
     }
     
     private static void formatCompSrgb(GLImageFormat[][] formatToGL, Image.Format format, 
-                                   int glCompressedFormat)
+                                       int glCompressedFormat,
+                                       int glFormat, 
+                                       int glDataType)
     {
-        formatToGL[1][format.ordinal()] = new GLImageFormat(glCompressedFormat);
+        formatToGL[1][format.ordinal()] = new GLImageFormat(glCompressedFormat, glFormat, glDataType, true);
     }
     
     /**
@@ -112,10 +116,10 @@ public final class GLImageFormats {
                 formatSrgb(formatToGL, Format.BGRA8,            GLExt.GL_SRGB8_ALPHA8_EXT,       GL2.GL_BGRA,           GL.GL_UNSIGNED_BYTE);
                 
                 if (caps.contains(Caps.TextureCompressionS3TC)) {
-                    formatCompSrgb(formatToGL, Format.DXT1,  GLExt.GL_COMPRESSED_SRGB_S3TC_DXT1_EXT);
-                    formatCompSrgb(formatToGL, Format.DXT1A, GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT);
-                    formatCompSrgb(formatToGL, Format.DXT3,  GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT);
-                    formatCompSrgb(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT);
+                    formatCompSrgb(formatToGL, Format.DXT1,  GLExt.GL_COMPRESSED_SRGB_S3TC_DXT1_EXT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
+                    formatCompSrgb(formatToGL, Format.DXT1A, GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+                    formatCompSrgb(formatToGL, Format.DXT3,  GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+                    formatCompSrgb(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
                 }
             }
         } else if (caps.contains(Caps.Rgba8)) {
@@ -179,16 +183,16 @@ public final class GLImageFormats {
         
         // Compressed formats
         if (caps.contains(Caps.TextureCompressionS3TC)) {
-            formatComp(formatToGL, Format.DXT1,  GLExt.GL_COMPRESSED_RGB_S3TC_DXT1_EXT);
-            formatComp(formatToGL, Format.DXT1A, GLExt.GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
-            formatComp(formatToGL, Format.DXT3,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
-            formatComp(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
+            formatComp(formatToGL, Format.DXT1,  GLExt.GL_COMPRESSED_RGB_S3TC_DXT1_EXT,  GL.GL_RGB,  GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.DXT1A, GLExt.GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.DXT3,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT3_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
+            formatComp(formatToGL, Format.DXT5,  GLExt.GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE);
         }
         
         if (caps.contains(Caps.TextureCompressionETC2)) {
-            formatComp(formatToGL, Format.ETC1, GLExt.GL_COMPRESSED_RGB8_ETC2);
+            formatComp(formatToGL, Format.ETC1, GLExt.GL_COMPRESSED_RGB8_ETC2, GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
         } else if (caps.contains(Caps.TextureCompressionETC1)) {
-            formatComp(formatToGL, Format.ETC1, GLExt.GL_ETC1_RGB8_OES);
+            formatComp(formatToGL, Format.ETC1, GLExt.GL_ETC1_RGB8_OES,        GL.GL_RGB, GL.GL_UNSIGNED_BYTE);
         }
         
         return formatToGL;

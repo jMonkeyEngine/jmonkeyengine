@@ -31,7 +31,6 @@
  */
 package com.jme3.renderer.opengl;
 
-import com.jme3.light.LightList;
 import com.jme3.material.RenderState;
 import com.jme3.material.RenderState.StencilOperation;
 import com.jme3.material.RenderState.TestFunction;
@@ -116,7 +115,7 @@ public class GLRenderer implements Renderer {
         this.gl3 = gl instanceof GL3 ? (GL3)gl : null;
         this.glfbo = glfbo;
         this.glext = glfbo instanceof GLExt ? (GLExt)glfbo : null;
-        this.texUtil = new TextureUtil(gl, gl2, glext);
+        this.texUtil = new TextureUtil(gl, gl2, glext, context);
     }
 
     @Override
@@ -359,6 +358,11 @@ public class GLRenderer implements Renderer {
                                     + "support non-power-of-2 textures. "
                                     + "Some features might not work.");
         }
+        
+        if (caps.contains(Caps.OpenGLES20)) {
+            // OpenGL ES 2 has some limited support for NPOT textures
+            caps.add(Caps.PartialNonPowerOfTwoTextures);
+        }
 
         if (hasExtension("GL_EXT_texture_array") || caps.contains(Caps.OpenGL30)) {
             caps.add(Caps.TextureArray);
@@ -454,6 +458,9 @@ public class GLRenderer implements Renderer {
     @SuppressWarnings("fallthrough")
     public void initialize() {
         loadCapabilities();
+        
+        // Initialize default state..
+        gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
     }
 
     public void invalidateState() {
@@ -1383,6 +1390,9 @@ public class GLRenderer implements Renderer {
         Texture tex = rb.getTexture();
         Image image = tex.getImage();
         if (image.isUpdateNeeded()) {
+            // Check NPOT requirements
+            checkNonPowerOfTwo(tex);
+            
             updateTexImageData(image, tex.getType(), 0);
 
             // NOTE: For depth textures, sets nearest/no-mips mode
@@ -1844,6 +1854,61 @@ public class GLRenderer implements Renderer {
     }
 
     /**
+     * Validates if a potentially NPOT texture is supported by the hardware.
+     * <p>
+     * Textures with power-of-2 dimensions are supported on all hardware, however 
+     * non-power-of-2 textures may or may not be supported depending on which
+     * texturing features are used.
+     * 
+     * @param tex The texture to validate.
+     * @throws RendererException If the texture is not supported by the hardware
+     */
+    private void checkNonPowerOfTwo(Texture tex) {
+        if (!tex.getImage().isNPOT()) {
+            // Texture is power-of-2, safe to use.
+            return;
+        }
+        
+        if (caps.contains(Caps.NonPowerOfTwoTextures)) {
+            // Texture is NPOT but it is supported by video hardware.
+            return;
+        }
+        
+        // Maybe we have some / partial support for NPOT?
+        if (!caps.contains(Caps.PartialNonPowerOfTwoTextures)) {
+            // Cannot use any type of NPOT texture (uncommon)
+            throw new RendererException("non-power-of-2 textures are not "
+                                      + "supported by the video hardware");
+        }
+        
+        // Partial NPOT supported..
+        if (tex.getMinFilter().usesMipMapLevels()) {
+            throw new RendererException("non-power-of-2 textures with mip-maps "
+                                      + "are not supported by the video hardware");
+        }
+
+        switch (tex.getType()) {
+            case CubeMap:
+            case ThreeDimensional:
+                if (tex.getWrap(WrapAxis.R) != Texture.WrapMode.EdgeClamp) {
+                    throw new RendererException("repeating non-power-of-2 textures "
+                                              + "are not supported by the video hardware");
+                }
+                // fallthrough intentional!!!
+            case TwoDimensionalArray:
+            case TwoDimensional:
+                if (tex.getWrap(WrapAxis.S) != Texture.WrapMode.EdgeClamp
+                        || tex.getWrap(WrapAxis.T) != Texture.WrapMode.EdgeClamp) {
+                    throw new RendererException("repeating non-power-of-2 textures "
+                                              + "are not supported by the video hardware");
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException("unrecongized texture type");
+        }
+    }
+    
+    /**
      * Uploads the given image to the GL driver.
      * 
      * @param img The image to upload
@@ -1903,11 +1968,6 @@ public class GLRenderer implements Renderer {
             } else {
                 img.setMultiSamples(Math.min(maxColorTexSamples, imageSamples));
             }
-        }
-
-        // Yes, some OpenGL2 cards (GeForce 5) still dont support NPOT.
-        if (!caps.contains(Caps.NonPowerOfTwoTextures) && img.isNPOT()) {
-            throw new RendererException("non-power-of-2 framebuffer textures are not supported by the video hardware");
         }
 
         // Check if graphics card doesn't support multisample textures
@@ -1984,6 +2044,9 @@ public class GLRenderer implements Renderer {
     public void setTexture(int unit, Texture tex) {
         Image image = tex.getImage();
         if (image.isUpdateNeeded() || (image.isGeneratedMipmapsRequired() && !image.isMipmapsGenerated())) {
+            // Check NPOT requirements
+            checkNonPowerOfTwo(tex);
+            
             updateTexImageData(image, tex.getType(), unit);
         }
 

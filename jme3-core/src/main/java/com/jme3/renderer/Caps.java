@@ -301,7 +301,22 @@ public enum Caps {
     /**
      * Supports 32-bit index buffers.
      */
-    IntegerIndexBuffer;
+    IntegerIndexBuffer,
+    
+    /**
+     * Partial support for non-power-of-2 textures, typically found
+     * on OpenGL ES 2 devices.
+     * <p>
+     * Use of NPOT textures is allowed iff:
+     * <ul>
+     * <li>The {@link Texture.WrapMode} is set to 
+     * {@link Texture.WrapMode#EdgeClamp}.</li>
+     * <li>Mip-mapping is not used, meaning {@link Texture.MinFilter} is set to
+     * {@link Texture.MinFilter#BilinearNoMipMaps} or 
+     * {@link Texture.MinFilter#NearestNoMipMaps}</li>
+     * </ul>
+     */
+    PartialNonPowerOfTwoTextures;
 
     /**
      * Returns true if given the renderer capabilities, the texture

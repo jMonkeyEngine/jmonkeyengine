@@ -44,7 +44,7 @@ public final class GLImageFormat {
     public final boolean compressed;
 
     /**
-     * Constructor for uncompressed formats.
+     * Constructor for formats.
      * 
      * @param internalFormat OpenGL internal format
      * @param format OpenGL format
@@ -58,14 +58,16 @@ public final class GLImageFormat {
     }
     
     /**
-     * Constructor for compressed formats.
+     * Constructor for formats.
      * 
-     * @param compressedFormat OpenGL compressed internal format
+     * @param internalFormat OpenGL internal format
+     * @param format OpenGL format
+     * @param dataType OpenGL datatype
      */
-    public GLImageFormat(int compressedFormat) {
-        this.internalFormat = compressedFormat;
-        this.format = -1;
-        this.dataType = -1;
-        this.compressed = true;
+    public GLImageFormat(int internalFormat, int format, int dataType, boolean compressed) {
+        this.internalFormat = internalFormat;
+        this.format = format;
+        this.dataType = dataType;
+        this.compressed = compressed;
     }
 }
