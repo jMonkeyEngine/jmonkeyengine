@@ -80,7 +80,7 @@ public class TestTextureArrayCompressed extends SimpleApplication
     */
    public static void main(String[] args)
    {
-       TestTextureArray app = new TestTextureArray();
+       TestTextureArrayCompressed app = new TestTextureArrayCompressed();
        app.start();
    }
 
