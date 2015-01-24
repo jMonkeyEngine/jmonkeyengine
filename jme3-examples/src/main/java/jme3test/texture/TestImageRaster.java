@@ -136,6 +136,9 @@ public class TestImageRaster extends SimpleApplication {
         image = convertImage(image, Format.RGB5A1);
         convertAndPutImage(image, 0, 10);
         
+        image = convertImage(image, Format.RGB565);
+        convertAndPutImage(image, 5, 10);
+        
         image = convertImage(image, Format.Luminance32F);
         convertAndPutImage(image, 0, 15);
         
