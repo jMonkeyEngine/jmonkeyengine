@@ -8,6 +8,7 @@ import com.jme3.gde.core.j2seproject.ProjectExtensionManager;
 import com.jme3.gde.core.j2seproject.ProjectExtensionProperties;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import javax.swing.JComponent;
 
@@ -27,10 +28,13 @@ public class DesktopExeCompositeProvider implements ProjectCustomizer.CompositeC
 
     private static final String CAT_LWJGL_APPLET = "DesktopExe"; // NOI18N
     private static ProjectExtensionProperties jwsProps = null;
-    private String[] keyList = new String[]{
-        "launch4j.exe.enabled",
-        "mac.app.enabled",
-        "linux.launcher.enabled"
+    private final String[] keyList = new String[]{
+        "windows-x86.app.enabled",
+        "windows-x64.app.enabled",
+        "linux-x86.app.enabled",
+        "linux-x64.app.enabled",
+        "macosx-x64.app.enabled",
+        "bundle.jre.enabled"
     };
 
     public DesktopExeCompositeProvider() {
@@ -53,47 +57,81 @@ public class DesktopExeCompositeProvider implements ProjectCustomizer.CompositeC
 
     private class SavePropsListener implements ActionListener {
 
-        private ProjectExtensionManager launch4j;
-        private ProjectExtensionManager macapp;
-        private ProjectExtensionManager linux;
-        private ProjectExtensionProperties properties;
-        private Project project;
+        private final ProjectExtensionManager desktopDeployment;
+        private final ProjectExtensionProperties properties;
+        private final Project project;
 
         public SavePropsListener(ProjectExtensionProperties props, Project project) {
             this.properties = props;
             this.project = project;
-            launch4j = new ProjectExtensionManager("launch4j", "v1.4", new String[]{"jar", "-launch4j-exe"});
-            launch4j.setAntTaskLibrary("launch4j");
-            launch4j.setDataZip("nbres:/com/jme3/gde/desktop/executables/winapp-data.zip");
-            macapp = new ProjectExtensionManager("macapp", "v2.0", new String[]{"jar", "-mac-app"});
-            macapp.setDataZip("nbres:/com/jme3/gde/desktop/executables/macapp-data.zip");
-            linux = new ProjectExtensionManager("linuxlauncher", "v1.1", new String[]{"jar", "-linux-launcher"});
+            desktopDeployment = new ProjectExtensionManager("desktop-deployment", "v1.0", new String[]{"jar", "-desktop-deployment"});
+            desktopDeployment.setDataZip("nbres:/com/jme3/gde/desktop/executables/desktop-deployment-data.zip");
         }
 
         public void actionPerformed(ActionEvent e) {
-            if ("true".equals(properties.getProperty("launch4j.exe.enabled"))) {
-                launch4j.loadTargets("nbres:/com/jme3/gde/desktop/executables/launch4j-targets.xml");
-                launch4j.checkExtension(project);
+            if ("true".equals(properties.getProperty("windows-x86.app.enabled"))
+                    || "true".equals(properties.getProperty("windows-x64.app.enabled"))
+                    || "true".equals(properties.getProperty("linux-x86.app.enabled"))
+                    || "true".equals(properties.getProperty("linux-x64.app.enabled"))
+                    || "true".equals(properties.getProperty("macosx-x64.app.enabled"))) {
+                desktopDeployment.loadTargets("nbres:/com/jme3/gde/desktop/executables/desktop-deployment-targets.xml");
+                desktopDeployment.checkExtension(project);
+                if("true".equals(properties.getProperty("bundle.jre.enabled"))){
+                    checkJreDownloads();
+                }
             } else {
-                launch4j.removeExtension(project);
-            }
-            if ("true".equals(properties.getProperty("linux.launcher.enabled"))) {
-                linux.loadTargets("nbres:/com/jme3/gde/desktop/executables/linux-targets.xml");
-                linux.checkExtension(project);
-            } else {
-                linux.removeExtension(project);
-            }
-            if ("true".equals(properties.getProperty("mac.app.enabled"))) {
-                macapp.loadTargets("nbres:/com/jme3/gde/desktop/executables/macapp-targets.xml");
-                macapp.checkExtension(project);
-            } else {
-                macapp.removeExtension(project);
+                desktopDeployment.removeExtension(project);
+                
             }
 
             try {
                 properties.store();
             } catch (IOException ioe) {
                 Exceptions.printStackTrace(ioe);
+            }
+        }
+
+        public void checkJreDownloads() {
+            String projectPath = project.getProjectDirectory().getPath();
+            if ("true".equals(properties.getProperty("windows-x86.app.enabled"))) {
+                String jreName = projectPath + File.separator + "resources"
+                        + File.separator + "desktop-deployment"
+                        + File.separator + "jre-windows-x86.tar.gz";
+                if (!new File(jreName).exists()) {
+                    JreDownloader.downloadJre("windows-i586", jreName);
+                }
+            }
+            if ("true".equals(properties.getProperty("windows-x64.app.enabled"))) {
+                String jreName = projectPath + File.separator + "resources"
+                        + File.separator + "desktop-deployment"
+                        + File.separator + "jre-windows-x64.tar.gz";
+                if (!new File(jreName).exists()) {
+                    JreDownloader.downloadJre("windows-x64", jreName);
+                }
+            }
+            if ("true".equals(properties.getProperty("linux-x86.app.enabled"))) {
+                String jreName = projectPath + File.separator + "resources"
+                        + File.separator + "desktop-deployment"
+                        + File.separator + "jre-linux-x86.tar.gz";
+                if (!new File(jreName).exists()) {
+                    JreDownloader.downloadJre("linux-i586", jreName);
+                }
+            }
+            if ("true".equals(properties.getProperty("linux-x64.app.enabled"))) {
+                String jreName = projectPath + File.separator + "resources"
+                        + File.separator + "desktop-deployment"
+                        + File.separator + "jre-linux-x64.tar.gz";
+                if (!new File(jreName).exists()) {
+                    JreDownloader.downloadJre("linux-x64", jreName);
+                }
+            }
+            if ("true".equals(properties.getProperty("macosx-x64.app.enabled"))) {
+                String jreName = projectPath + File.separator + "resources"
+                        + File.separator + "desktop-deployment"
+                        + File.separator + "jre-macosx-x64.tar.gz";
+                if (!new File(jreName).exists()) {
+                    JreDownloader.downloadJre("macosx-x64", jreName);
+                }
             }
         }
 

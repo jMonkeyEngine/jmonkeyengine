@@ -1,0 +1,238 @@
+    <target name="-desktop-deployment" depends="-create-launcher-jvmargs, -test-platforms-enabled, -windows-x86-app, -windows-x64-app, -linux-x86-app, -linux-x64-app, -macosx-x64-app"/>
+    
+    <target name="-windows-x86-app" if="is.windows-x86.app.enabled">
+        <echo>Windows 32bit Application Creation</echo>
+        <copy file="resources/desktop-deployment/windows-x86/package.cfg" tofile="resources/desktop-deployment/windows-x86/_package.cfg">
+            <filterchain>
+                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${launcher.jvmargs}" to="${launcher.jvmargs}"/>
+                <replacestring from="$${application.title}" to="${application.title}"/>
+                <replacestring from="$${jar.name}" to="${application.title}.jar"/>
+            </filterchain>
+        </copy>
+        
+        <zip destfile="${dist.dir}/${application.title}-Windows-x86.zip">
+            <zipfileset file="resources/desktop-deployment/windows-x86/stub.exe" filemode="755" fullpath="${application.title}/${application.title}.exe"/>
+            <zipfileset file="resources/desktop-deployment/windows-x86/_package.cfg" fullpath="${application.title}/app/package.cfg"/>
+            <zipfileset file="resources/desktop-deployment/windows-x86/icon.ico" fullpath="${application.title}/${application.title}.ico"/>
+            <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
+            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}/app/lib"/>
+        </zip>
+        <delete file="resources/desktop-deployment/windows-x86/_package.cfg"/>
+        <antcall target="-package-windows-x86-jre"/>
+    </target>
+    
+    <target name="-package-windows-x86-jre" if="is.bundle.jre.enabled">
+        <untar src="resources/desktop-deployment/jre-windows-x86.tar.gz" dest="build/jre" compression="gzip"/>
+        <dirset dir="build/jre" id="dirId-windows-x86">
+            <include name="jre*"/>
+        </dirset>
+        <property name= "dirName-windows-x86" refid= "dirId-windows-x86"/>
+        <zip destfile="${dist.dir}/${application.title}-Windows-x86.zip" update="true">
+            <zipfileset dir="build/jre/${dirName-windows-x86}" prefix="${application.title}/runtime/jre"/>
+        </zip>
+        <delete dir="build/jre"/>
+    </target>
+    
+    <target name="-windows-x64-app" if="is.windows-x64.app.enabled">
+        <echo>Windows 64bit Application Creation</echo>
+        <copy file="resources/desktop-deployment/windows-x64/package.cfg" tofile="resources/desktop-deployment/windows-x64/_package.cfg">
+            <filterchain>
+                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${launcher.jvmargs}" to="${launcher.jvmargs}"/>
+                <replacestring from="$${application.title}" to="${application.title}"/>
+                <replacestring from="$${jar.name}" to="${application.title}.jar"/>
+            </filterchain>
+        </copy>
+        
+        <zip destfile="${dist.dir}/${application.title}-Windows-x64.zip">
+            <zipfileset file="resources/desktop-deployment/windows-x64/stub.exe" filemode="755" fullpath="${application.title}/${application.title}.exe"/>
+            <zipfileset file="resources/desktop-deployment/windows-x64/_package.cfg" fullpath="${application.title}/app/package.cfg"/>
+            <zipfileset file="resources/desktop-deployment/windows-x64/icon.ico" fullpath="${application.title}/${application.title}.ico"/>
+            <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
+            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}/app/lib"/>
+        </zip>
+        <delete file="resources/desktop-deployment/windows-x64/_package.cfg"/>
+        <antcall target="-package-windows-x64-jre"/>
+    </target>
+    
+    <target name="-package-windows-x64-jre" if="is.bundle.jre.enabled">
+        <untar src="resources/desktop-deployment/jre-windows-x64.tar.gz" dest="build/jre" compression="gzip"/>
+        <dirset dir="build/jre" id="dirId-windows-x64">
+            <include name="jre*"/>
+        </dirset>
+        <property name= "dirName-windows-x64" refid= "dirId-windows-x64"/>
+        <zip destfile="${dist.dir}/${application.title}-Windows-x64.zip" update="true">
+            <zipfileset dir="build/jre/${dirName-windows-x64}" prefix="${application.title}/runtime/jre"/>
+        </zip>
+        <delete dir="build/jre"/>
+    </target>
+    
+    <target name="-linux-x86-app" if="is.linux-x86.app.enabled">
+        <echo>Linux 32bit Application Creation</echo>
+        <copy file="resources/desktop-deployment/linux-x86/package.cfg" tofile="resources/desktop-deployment/linux-x86/_package.cfg">
+            <filterchain>
+                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${launcher.jvmargs}" to="${launcher.jvmargs}"/>
+                <replacestring from="$${application.title}" to="${application.title}"/>
+                <replacestring from="$${jar.name}" to="${application.title}.jar"/>
+            </filterchain>
+        </copy>
+        
+        <zip destfile="${dist.dir}/${application.title}-Linux-x86.zip">
+            <zipfileset file="resources/desktop-deployment/linux-x86/stub" filemode="755" fullpath="${application.title}/${application.title}"/>
+            <zipfileset file="resources/desktop-deployment/linux-x86/_package.cfg" fullpath="${application.title}/app/package.cfg"/>
+            <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
+            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}/app/lib"/>
+        </zip>
+        <delete file="resources/desktop-deployment/linux-x86/_package.cfg"/>
+        <antcall target="-package-linux-x86-jre"/>
+    </target>
+    
+    <target name="-package-linux-x86-jre" if="is.bundle.jre.enabled">
+        <untar src="resources/desktop-deployment/jre-linux-x86.tar.gz" dest="build/jre" compression="gzip"/>
+        <dirset dir="build/jre" id="dirId-linux-x86">
+            <include name="jre*"/>
+        </dirset>
+        <property name= "dirName-linux-x86" refid= "dirId-linux-x86"/>
+        <zip destfile="${dist.dir}/${application.title}-Linux-x86.zip" update="true">
+            <zipfileset dir="build/jre/${dirName-linux-x86}" excludes ="bin/*" prefix="${application.title}/runtime/jre"/>
+            <zipfileset dir="build/jre/${dirName-linux-x86}" includes ="bin/*" filemode="755" prefix="${application.title}/runtime/jre"/>
+        </zip>
+        <delete dir="build/jre"/>
+    </target>
+    
+    <target name="-linux-x64-app" if="is.linux-x64.app.enabled">
+        <echo>Linux 64bit Application Creation</echo>
+        <copy file="resources/desktop-deployment/linux-x64/package.cfg" tofile="resources/desktop-deployment/linux-x64/_package.cfg">
+            <filterchain>
+                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${launcher.jvmargs}" to="${launcher.jvmargs}"/>
+                <replacestring from="$${application.title}" to="${application.title}"/>
+                <replacestring from="$${jar.name}" to="${application.title}.jar"/>
+            </filterchain>
+        </copy>
+        
+        <zip destfile="${dist.dir}/${application.title}-Linux-x64.zip">
+            <zipfileset file="resources/desktop-deployment/linux-x64/stub" filemode="755" fullpath="${application.title}/${application.title}"/>
+            <zipfileset file="resources/desktop-deployment/linux-x64/_package.cfg" fullpath="${application.title}/app/package.cfg"/>
+            <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
+            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}/app/lib"/>
+        </zip>
+        <delete file="resources/desktop-deployment/linux-x64/_package.cfg"/>
+        <antcall target="-package-linux-x64-jre"/>
+    </target>
+    
+    <target name="-package-linux-x64-jre" if="is.bundle.jre.enabled">
+        <untar src="resources/desktop-deployment/jre-linux-x64.tar.gz" dest="build/jre" compression="gzip"/>
+        <dirset dir="build/jre" id="dirId-linux-x64">
+            <include name="jre*"/>
+        </dirset>
+        <property name= "dirName-linux-x64" refid= "dirId-linux-x64"/>
+        <zip destfile="${dist.dir}/${application.title}-Linux-x64.zip" update="true">
+            <zipfileset dir="build/jre/${dirName-linux-x64}" excludes ="bin/*" prefix="${application.title}/runtime/jre"/>
+            <zipfileset dir="build/jre/${dirName-linux-x64}" includes ="bin/*" filemode="755" prefix="${application.title}/runtime/jre"/>
+        </zip>
+        <delete dir="build/jre"/>
+    </target>
+
+    <target name="-macosx-x64-app" if="is.macosx-x64.app.enabled">
+        <echo>MacOSX Application Creation</echo>
+        <loadresource property="jfxdeploy.jvmargs">
+            <propertyresource name="run.jvmargs"/>
+            <filterchain>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replacestring from=" " to="&lt;/string&gt;&lt;string&gt;"/>
+                </tokenfilter>
+            </filterchain>
+        </loadresource>
+        <antcall target="-update-macosx-x64-plist-with-runtime"/>
+        <antcall target="-update-macosx-x64-plist-without-runtime"/>
+        <zip destfile="${dist.dir}/${application.title}-MacOSX.zip">
+            <zipfileset file="resources/desktop-deployment/macosx-x64/stub" filemode="755" fullpath="${application.title}.app/Contents/MacOS/JavaAppLauncher"/>
+            <zipfileset file="resources/desktop-deployment/macosx-x64/_Info.plist" fullpath="${application.title}.app/Contents/Info.plist"/>
+            <zipfileset file="resources/desktop-deployment/macosx-x64/icon.icns" fullpath="${application.title}.app/Contents/Resources/GenericApp.icns"/>
+            <zipfileset file="${dist.jar}" prefix="${application.title}.app/Contents/Java"/>
+            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}.app/Contents/Java/lib"/>
+        </zip>
+        <delete file="resources/desktop-deployment/macosx-x64/_Info.plist"/>
+        <antcall target="-package-macosx-x64-jre"/>
+    </target>
+    
+    <target name="-update-macosx-x64-plist-with-runtime" if="is.bundle.jre.enabled">
+        <!--key>JVMRuntime</key>
+        <string>jdk1.8.0_31.jdk</string-->
+        <copy file="resources/desktop-deployment/macosx-x64/Info.plist" tofile="resources/desktop-deployment/macosx-x64/_Info.plist">
+            <filterchain>
+                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${run.jvmargs}" to="${jfxdeploy.jvmargs}"/>
+                <replacestring from="$${application.title}" to="${application.title}"/>
+                <replacestring from="$${jfxdeploy.jvmargs}" to="-Xnoagent"/>
+                <replacestring from="$${jar.name}" to="${application.title}.jar"/>
+                <replacestring from="&lt;!--jvmruntime--&gt;" to="&lt;key&gt;JVMRuntime&lt;/key&gt;&#13;  &lt;string&gt;jre.jre&lt;/string&gt;"/>
+            </filterchain>
+        </copy>
+    </target>
+    
+    <target name="-update-macosx-x64-plist-without-runtime" unless="is.bundle.jre.enabled">
+        <copy file="resources/desktop-deployment/macosx-x64/Info.plist" tofile="resources/desktop-deployment/macosx-x64/_Info.plist">
+            <filterchain>
+                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${run.jvmargs}" to="${jfxdeploy.jvmargs}"/>
+                <replacestring from="$${application.title}" to="${application.title}"/>
+                <replacestring from="$${jfxdeploy.jvmargs}" to="-Xnoagent"/>
+                <replacestring from="$${jar.name}" to="${application.title}.jar"/>
+            </filterchain>
+        </copy>
+    </target>
+    
+    <target name="-package-macosx-x64-jre" if="is.bundle.jre.enabled">
+        <untar src="resources/desktop-deployment/jre-macosx-x64.tar.gz" dest="build/jre" compression="gzip"/>
+        <dirset dir="build/jre" id="dirId-macosx-x64">
+            <include name="jre*"/>
+        </dirset>
+        <property name= "dirName-macosx-x64" refid= "dirId-macosx-x64"/>
+        <zip destfile="${dist.dir}/${application.title}-MacOSX.zip" update="true">
+            <zipfileset dir="build/jre/${dirName-macosx-x64}/Contents/Home" excludes ="bin/*" prefix="${application.title}.app/Contents/PlugIns/jre.jre/Contents/Home/jre"/>
+            <zipfileset dir="build/jre/${dirName-macosx-x64}/Contents/Home" includes ="bin/*" filemode="755" prefix="${application.title}.app/Contents/PlugIns/jre.jre/Contents/Home/jre"/>
+            <zipfileset file="build/jre/${dirName-macosx-x64}/Contents/Info.plist" fullpath="${application.title}.app/Contents/PlugIns/jre.jre/Contents/Info.plist"/>
+            <zipfileset dir="build/jre/${dirName-macosx-x64}/Contents/MacOS" prefix="${application.title}.app/Contents/PlugIns/jre.jre/Contents/MacOS"/>
+        </zip>
+        <delete dir="build/jre"/>
+    </target>
+    
+    <target name="-test-platforms-enabled">
+        <condition property="is.windows-x86.app.enabled">
+            <istrue value="${windows-x86.app.enabled}"/>
+        </condition>
+        <condition property="is.windows-x64.app.enabled">
+            <istrue value="${windows-x64.app.enabled}"/>
+        </condition>
+        <condition property="is.linux-x86.app.enabled">
+            <istrue value="${linux-x86.app.enabled}"/>
+        </condition>
+        <condition property="is.linux-x64.app.enabled">
+            <istrue value="${linux-x64.app.enabled}"/>
+        </condition>
+        <condition property="is.macosx-x64.app.enabled">
+            <istrue value="${macosx-x64.app.enabled}"/>
+        </condition>
+        <condition property="is.bundle.jre.enabled">
+            <istrue value="${bundle.jre.enabled}"/>
+        </condition>
+    </target>
+
+    <target name="-create-launcher-jvmargs">
+        <script language="javascript">
+            <![CDATA[
+            var args = project.getProperty("run.jvmargs");
+            var res = args.split(" ");
+            var out = "";
+            for (var i = 1; i < res.length+1; i++) {
+                out = out + "jvmarg." + i + "=" + res[i-1] + "\n";
+            }
+            project.setProperty("launcher.jvmargs", out);
+            ]]>
+        </script>        
+    </target>

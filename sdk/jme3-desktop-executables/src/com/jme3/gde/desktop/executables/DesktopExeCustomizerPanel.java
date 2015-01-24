@@ -32,41 +32,74 @@ public class DesktopExeCustomizerPanel extends javax.swing.JPanel implements Act
     }
 
     private void loadProperties() {
-        String str = properties.getProperty("launch4j.exe.enabled");
+        String str = properties.getProperty("windows-x86.app.enabled");
         if ("true".equals(str)) {
             jCheckBox1.setSelected(true);
         } else {
             jCheckBox1.setSelected(false);
         }
-        String str2 = properties.getProperty("mac.app.enabled");
+        String str2 = properties.getProperty("windows-x64.app.enabled");
         if ("true".equals(str2)) {
             jCheckBox2.setSelected(true);
         } else {
             jCheckBox2.setSelected(false);
         }
-        String str3 = properties.getProperty("linux.launcher.enabled");
+        String str3 = properties.getProperty("linux-x86.app.enabled");
         if ("true".equals(str3)) {
             jCheckBox3.setSelected(true);
         } else {
             jCheckBox3.setSelected(false);
         }
+        String str4 = properties.getProperty("linux-x64.app.enabled");
+        if ("true".equals(str4)) {
+            jCheckBox4.setSelected(true);
+        } else {
+            jCheckBox4.setSelected(false);
+        }
+        String str5 = properties.getProperty("macosx-x64.app.enabled");
+        if ("true".equals(str5)) {
+            jCheckBox5.setSelected(true);
+        } else {
+            jCheckBox5.setSelected(false);
+        }
+        String str6 = properties.getProperty("bundle.jre.enabled");
+        if ("true".equals(str6)) {
+            jCheckBox6.setSelected(true);
+        } else {
+            jCheckBox6.setSelected(false);
+        }
     }
 
     private void saveProperties() {
         if (jCheckBox1.isSelected()) {
-            properties.setProperty("launch4j.exe.enabled", "true");
+            properties.setProperty("windows-x86.app.enabled", "true");
         } else {
-            properties.setProperty("launch4j.exe.enabled", "");
+            properties.setProperty("windows-x86.app.enabled", "");
         }
         if (jCheckBox2.isSelected()) {
-            properties.setProperty("mac.app.enabled", "true");
+            properties.setProperty("windows-x64.app.enabled", "true");
         } else {
-            properties.setProperty("mac.app.enabled", "");
+            properties.setProperty("windows-x64.app.enabled", "");
         }
         if (jCheckBox3.isSelected()) {
-            properties.setProperty("linux.launcher.enabled", "true");
+            properties.setProperty("linux-x86.app.enabled", "true");
         } else {
-            properties.setProperty("linux.launcher.enabled", "");
+            properties.setProperty("linux-x86.app.enabled", "");
+        }
+        if (jCheckBox4.isSelected()) {
+            properties.setProperty("linux-x64.app.enabled", "true");
+        } else {
+            properties.setProperty("linux-x64.app.enabled", "");
+        }
+        if (jCheckBox5.isSelected()) {
+            properties.setProperty("macosx-x64.app.enabled", "true");
+        } else {
+            properties.setProperty("macosx-x64.app.enabled", "");
+        }
+        if (jCheckBox6.isSelected()) {
+            properties.setProperty("bundle.jre.enabled", "true");
+        } else {
+            properties.setProperty("bundle.jre.enabled", "");
         }
     }
 
@@ -89,6 +122,9 @@ public class DesktopExeCustomizerPanel extends javax.swing.JPanel implements Act
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
+        jCheckBox4 = new javax.swing.JCheckBox();
+        jCheckBox5 = new javax.swing.JCheckBox();
+        jCheckBox6 = new javax.swing.JCheckBox();
 
         jCheckBox1.setText(org.openide.util.NbBundle.getMessage(DesktopExeCustomizerPanel.class, "DesktopExeCustomizerPanel.jCheckBox1.text")); // NOI18N
 
@@ -107,19 +143,29 @@ public class DesktopExeCustomizerPanel extends javax.swing.JPanel implements Act
         jTextArea1.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         jScrollPane1.setViewportView(jTextArea1);
 
+        jCheckBox4.setText(org.openide.util.NbBundle.getMessage(DesktopExeCustomizerPanel.class, "DesktopExeCustomizerPanel.jCheckBox4.text")); // NOI18N
+
+        jCheckBox5.setText(org.openide.util.NbBundle.getMessage(DesktopExeCustomizerPanel.class, "DesktopExeCustomizerPanel.jCheckBox5.text")); // NOI18N
+
+        jCheckBox6.setText(org.openide.util.NbBundle.getMessage(DesktopExeCustomizerPanel.class, "DesktopExeCustomizerPanel.jCheckBox6.text")); // NOI18N
+        jCheckBox6.setToolTipText(org.openide.util.NbBundle.getMessage(DesktopExeCustomizerPanel.class, "DesktopExeCustomizerPanel.jCheckBox6.toolTipText")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 398, Short.MAX_VALUE)
+            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
-                    .addComponent(jCheckBox2, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
-                    .addComponent(jCheckBox3, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
+                    .addComponent(jCheckBox1, javax.swing.GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE)
+                    .addComponent(jCheckBox2, javax.swing.GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE)
+                    .addComponent(jCheckBox3, javax.swing.GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jScrollPane1)))
+                        .addComponent(jScrollPane1))
+                    .addComponent(jCheckBox4, javax.swing.GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE)
+                    .addComponent(jCheckBox5, javax.swing.GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE)
+                    .addComponent(jCheckBox6, javax.swing.GroupLayout.DEFAULT_SIZE, 365, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -133,14 +179,24 @@ public class DesktopExeCustomizerPanel extends javax.swing.JPanel implements Act
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jCheckBox3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+                .addComponent(jCheckBox4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jCheckBox5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jCheckBox6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
+    private javax.swing.JCheckBox jCheckBox4;
+    private javax.swing.JCheckBox jCheckBox5;
+    private javax.swing.JCheckBox jCheckBox6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextArea1;

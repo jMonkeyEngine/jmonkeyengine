@@ -12,9 +12,4 @@
             </folder>
         </folder>
     </folder>
-    <folder name="org-netbeans-api-project-libraries">
-        <folder name="Libraries">
-            <file name="launch4j.xml" url="launch4j.xml"/>
-        </folder>
-    </folder>
 </filesystem>
