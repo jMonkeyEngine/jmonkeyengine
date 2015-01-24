@@ -38,6 +38,7 @@ import java.util.logging.Logger;
 import javax.swing.JPopupMenu;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.modules.ModuleInstall;
+import org.openide.modules.Places;
 import org.openide.util.NbBundle;
 import org.openide.util.NbPreferences;
 
@@ -91,7 +92,7 @@ public class Installer extends ModuleInstall {
         System.setProperty("netbeans.projects.dir", projectDir);
 
         //set extraction dir for platform natives
-        String jmpDir = System.getProperty("netbeans.user");
+        String jmpDir = Places.getUserDirectory().getAbsolutePath();
         File file = new File(jmpDir);
         if (!file.exists()) {
             logger.log(Level.INFO, "Create settings dir {0}", projectDir);

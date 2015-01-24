@@ -128,6 +128,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
+import org.openide.modules.Places;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 import org.openide.windows.WindowManager;
@@ -165,7 +166,7 @@ public class BlenderTool {
     }
 
     private static boolean checkBlenderFolders() {
-        String jmpDir = System.getProperty("netbeans.user");
+        String jmpDir = Places.getUserDirectory().getAbsolutePath();
         FileObject fileObject = FileUtil.toFileObject(new File(jmpDir));
         if (fileObject != null) {
             FileObject configFileObject = fileObject.getFileObject(configFolderName);
@@ -215,7 +216,7 @@ public class BlenderTool {
     }
 
     private static String getConfigEnv() {
-        String ret = System.getProperty("netbeans.user") + "/" + configFolderName;
+        String ret = Places.getUserDirectory().getAbsolutePath() + "/" + configFolderName;
         ret = ret.replace("/", File.separator);
         return ret;
     }
@@ -229,13 +230,13 @@ public class BlenderTool {
     }
 
     private static String getUserScriptsEnv() {
-        String ret = System.getProperty("netbeans.user") + "/" + userScriptsFolderName;
+        String ret = Places.getUserDirectory().getAbsolutePath() + "/" + userScriptsFolderName;
         ret = ret.replace("/", File.separator);
         return ret;
     }
 
     private static String getScriptPath(String scriptName, String prefix) {
-        String ret = System.getProperty("netbeans.user") + "/" + jmeScriptsFolderName + "/" + prefix + "_" + scriptName + ".py";
+        String ret = Places.getUserDirectory().getAbsolutePath() + "/" + jmeScriptsFolderName + "/" + prefix + "_" + scriptName + ".py";
         ret = ret.replace("/", File.separator);
         return ret;
     }

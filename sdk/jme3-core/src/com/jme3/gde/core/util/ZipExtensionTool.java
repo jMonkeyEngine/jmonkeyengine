@@ -52,6 +52,8 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.modules.InstalledFileLocator;
+import org.openide.modules.Places;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 
@@ -69,7 +71,7 @@ public class ZipExtensionTool {
     private static final Logger logger = Logger.getLogger(ZipExtensionTool.class.getName());
     static final ConcurrentHashMap<String, Boolean> installMap = new ConcurrentHashMap<String, Boolean>();
     static final int BUFFER = 2048;
-    private final String settingsFolder = System.getProperty("netbeans.user");
+    private final String settingsFolder = Places.getUserDirectory().getAbsolutePath();
     public String SUFFIX_WIN = "windows";
     public String SUFFIX_LINUX = "linux";
     public String SUFFIX_OSX = "mac";

@@ -16,6 +16,7 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Confirmation;
+import org.openide.modules.Places;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 
@@ -26,9 +27,9 @@ import org.openide.util.Utilities;
 public class OgreXMLConvert {
 
     static final int BUFFER = 2048;
-    public static String osx_path = System.getProperty("netbeans.user") + "/ogretools/";
-    public static String windows_path = System.getProperty("netbeans.user") + "\\ogretools\\";
-    public static String linux_path = System.getProperty("netbeans.user") + "/.ogretools/";
+    public static String osx_path = Places.getUserDirectory().getAbsolutePath() + "/ogretools/";
+    public static String windows_path = Places.getUserDirectory().getAbsolutePath() + "\\ogretools\\";
+    public static String linux_path = Places.getUserDirectory().getAbsolutePath() + "/.ogretools/";
 
     public boolean doConvert(OgreXMLConvertOptions options, ProgressHandle handle) {
         if (!checkTools()) {
