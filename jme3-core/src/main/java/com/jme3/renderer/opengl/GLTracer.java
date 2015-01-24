@@ -47,7 +47,6 @@ import java.util.HashMap;
  */
 public final class GLTracer implements InvocationHandler {
     
-    private final GL gl;
     private final Object obj;
     private final IntMap<String> constMap;
     private static final HashMap<String, IntMap<Void>> nonEnumArgMap = new HashMap<String, IntMap<Void>>();
@@ -70,6 +69,9 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glPixelStorei", 1);
 //        noEnumArgs("glTexParameteri", 2);
         noEnumArgs("glTexImage2D", 1, 3, 4, 5);
+        noEnumArgs("glTexImage3D", 1, 3, 4, 5, 6);
+        noEnumArgs("glTexSubImage3D", 1, 2, 3, 4, 5, 6, 7);
+        noEnumArgs("glCompressedTexSubImage3D", 1, 2, 3, 4, 5, 6, 7);
         noEnumArgs("glDeleteTextures", 0);
         
         noEnumArgs("glBindBuffer", 1);
@@ -107,8 +109,7 @@ public final class GLTracer implements InvocationHandler {
         noEnumArgs("glDeleteProgram", 0);
     }
     
-    public GLTracer(GL gl, Object obj, IntMap<String> constMap) {
-        this.gl = gl;
+    public GLTracer(Object obj, IntMap<String> constMap) {
         this.obj = obj;
         this.constMap = constMap;
     }
@@ -134,29 +135,29 @@ public final class GLTracer implements InvocationHandler {
     /**
      * Creates a tracer implementation that wraps OpenGL ES 2.
      * 
-     * @param gl OGL interface
-     * @param glext OGL extension interface
-     * @return A tracer that implements GL, GLFbo, and GLExt.
+     * @param glInterface OGL object to wrap
+     * @param glInterfaceClass The interface to implement
+     * @return A tracer that implements the given interface
      */
-    public static GL createGlesTracer(GL gl, GLExt glext) {
+    public static Object createGlesTracer(Object glInterface, Class<?> glInterfaceClass) {
         IntMap<String> constMap = generateConstantMap(GL.class, GLExt.class);
-        return (GL) Proxy.newProxyInstance(glext.getClass().getClassLoader(),
-                                           new Class<?>[] { GL.class, GLExt.class }, 
-                                           new GLTracer(gl, glext, constMap));
+        return Proxy.newProxyInstance(glInterface.getClass().getClassLoader(),
+                                      new Class<?>[] { glInterfaceClass }, 
+                                      new GLTracer(glInterface, constMap));
     }
 
     /**
      * Creates a tracer implementation that wraps OpenGL 2+.
      * 
-     * @param gl OGL interface
-     * @param glext OGL extension interface
-     * @return A tracer that implements GL, GL2, GL3, GLFbo, and GLExt.
+     * @param glInterface OGL object to wrap
+     * @param glInterfaceClass The interface to implement
+     * @return A tracer that implements the given interface
      */
-    public static GL createDesktopGlTracer(GL3 gl, GLExt glext) {
-        IntMap<String> constMap = generateConstantMap(GL3.class, GLExt.class);
-        return (GL) Proxy.newProxyInstance(glext.getClass().getClassLoader(),
-                                           new Class<?>[] { GL3.class, GLExt.class }, 
-                                           new GLTracer(gl, glext, constMap));
+    public static Object createDesktopGlTracer(Object glInterface, Class<?> glInterfaceClass) {
+        IntMap<String> constMap = generateConstantMap(GL2.class, GLExt.class);
+        return Proxy.newProxyInstance(glInterface.getClass().getClassLoader(),
+                                      new Class<?>[] { glInterfaceClass }, 
+                                      new GLTracer(glInterface, constMap));
     }
     
     private String translateInteger(String method, int value, int argIndex) {
