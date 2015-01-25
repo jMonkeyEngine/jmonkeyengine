@@ -6,6 +6,7 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class BloomWizardPanel1 implements WizardDescriptor.Panel {
 
     /**

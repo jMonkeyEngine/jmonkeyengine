@@ -1,7 +1,6 @@
 package com.jme3.gde.gui.palette;
 
 
-import com.google.common.base.Predicate;
 import jada.ngeditor.model.elements.GControl;
 import jada.ngeditor.model.elements.GElement;
 import java.util.List;
@@ -10,6 +9,7 @@ import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class CategoryChildFactory extends ChildFactory<ElementFilter> {
 
     @Override

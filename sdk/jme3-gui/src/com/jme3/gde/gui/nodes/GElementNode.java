@@ -26,6 +26,7 @@ import org.openide.nodes.Sheet;
  *
  * @author cris
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class GElementNode extends AbstractNode{
     private final GElement element;
     private static final String basePath="com/jme3/gde/gui/multiview/icons";

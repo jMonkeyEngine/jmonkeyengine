@@ -76,6 +76,7 @@ import org.xml.sax.SAXException;
         preferredID = "NiftyGuiVisual",
         position = 2000)
 @Messages("LBL_NiftyGui_VISUAL=Visual")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class NiftyGuiVisualElement extends JPanel implements MultiViewElement , ExplorerManager.Provider,Observer, PropertyChangeListener {
     private static final Logger logger = Logger.getLogger(NiftyGuiVisualElement.class.getName());
     private NiftyGuiDataObject obj;

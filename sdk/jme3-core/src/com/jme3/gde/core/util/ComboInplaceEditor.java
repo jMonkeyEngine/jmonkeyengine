@@ -46,6 +46,7 @@ import org.openide.explorer.propertysheet.PropertyModel;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ComboInplaceEditor implements InplaceEditor {
     
     private PropertyEditor editor = null;

@@ -26,6 +26,7 @@ import org.openide.util.Utilities;
  * @author normenhansen
  */
 @NavigatorPanel.Registration(displayName = "SceneExplorer", mimeType = "application/jme3model")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SceneNavigatorPanel extends JPanel implements NavigatorPanel, LookupListener, ExplorerManager.Provider {
 
     private final BeanTreeView beanTreeView = new BeanTreeView();

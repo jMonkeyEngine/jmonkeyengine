@@ -51,6 +51,7 @@ import org.openide.util.Exceptions;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeGeometry extends JmeSpatial implements MaterialChangeListener {
 
     private static Image smallImage = IconList.geometry.getImage();

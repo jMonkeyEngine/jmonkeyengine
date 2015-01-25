@@ -18,6 +18,7 @@ import org.openide.nodes.Node;
  *
  * @author cris
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class WidgetChildFactory extends ChildFactory<Class>{
     private final ElementFilter category;
 

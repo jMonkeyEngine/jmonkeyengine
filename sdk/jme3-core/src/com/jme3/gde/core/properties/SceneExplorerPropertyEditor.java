@@ -36,6 +36,7 @@ package com.jme3.gde.core.properties;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public interface SceneExplorerPropertyEditor {
     public void setEditor(Class valueType, SceneExplorerProperty prop);
 }

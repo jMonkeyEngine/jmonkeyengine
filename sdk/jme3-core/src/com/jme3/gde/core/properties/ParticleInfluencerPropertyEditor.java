@@ -54,6 +54,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ParticleInfluencerPropertyEditor implements PropertyEditor {
 
     private LinkedList<PropertyChangeListener> listeners = new LinkedList<PropertyChangeListener>();

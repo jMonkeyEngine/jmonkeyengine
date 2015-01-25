@@ -15,6 +15,7 @@ import org.openide.WizardDescriptor;
 // @ActionID(category="...", id="com.jme3.gde.core.filters.impl.bloom.BloomWizardAction")
 // @ActionRegistration(displayName="Open Bloom Wizard")
 // @ActionReference(path="Menu/Tools", position=...)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class BloomWizardAction implements ActionListener {
 
     private WizardDescriptor.Panel[] panels;

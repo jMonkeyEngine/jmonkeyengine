@@ -10,6 +10,7 @@ import com.google.common.base.Predicate;
  *
  * @author cris
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 abstract class  ElementFilter implements Predicate<Class>{
     private final String name;
 

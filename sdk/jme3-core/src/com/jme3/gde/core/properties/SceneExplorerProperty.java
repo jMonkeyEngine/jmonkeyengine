@@ -61,7 +61,7 @@ import org.openide.util.Mutex;
  *
  * @author normenhansen
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SceneExplorerProperty<T> extends PropertySupport.Reflection<T> {
 
     protected static final Logger logger = Logger.getLogger(SceneExplorerProperty.class.getName());

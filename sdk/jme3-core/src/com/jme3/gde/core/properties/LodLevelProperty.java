@@ -43,6 +43,7 @@ import java.util.concurrent.Callable;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class LodLevelProperty extends SceneExplorerProperty {
 
     ComboBoxPropertyEditor editor = null;

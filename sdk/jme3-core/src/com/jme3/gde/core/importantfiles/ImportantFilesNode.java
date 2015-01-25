@@ -27,6 +27,7 @@ import org.openide.util.Lookup;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ImportantFilesNode extends AbstractNode implements FileChangeListener {
 
     private static Image smallImage = IconList.important.getImage();
