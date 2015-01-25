@@ -147,7 +147,7 @@ binaries.withType(SharedLibraryBinary) { binary ->
         //Get from libs folder if no fresh build is available in the build folder and add to jar file
         if(!binary.tasks.outputFile.get(0).exists()){
             def fileName = binary.tasks.outputFile.get(0).getName();
-            def precompiledFile = new File("libs/native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}/${fileName}")
+            def precompiledFile = new File(project.projectDir.absolutePath + File.separator + "libs" + File.separator + "native" + File.separator + "${targetPlatform.operatingSystem.name}" + File.separator + "${targetPlatform.architecture.name}" + File.separator + "${fileName}")
             if(precompiledFile.exists()){
                 jar.into("native/${targetPlatform.operatingSystem.name}/${targetPlatform.architecture.name}") { from precompiledFile }
             }
