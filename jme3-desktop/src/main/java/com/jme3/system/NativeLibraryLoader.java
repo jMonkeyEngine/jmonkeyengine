@@ -128,8 +128,8 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("lwjgl", Platform.Windows64, "native/windows/lwjgl64.dll");
         registerNativeLibrary("lwjgl", Platform.Linux32,   "native/linux/liblwjgl.so");
         registerNativeLibrary("lwjgl", Platform.Linux64,   "native/linux/liblwjgl64.so");
-        registerNativeLibrary("lwjgl", Platform.MacOSX32,  "native/macosx/liblwjgl.jnilib");
-        registerNativeLibrary("lwjgl", Platform.MacOSX64,  "native/macosx/liblwjgl.jnilib");
+        registerNativeLibrary("lwjgl", Platform.MacOSX32,  "native/macosx/liblwjgl.dylib");
+        registerNativeLibrary("lwjgl", Platform.MacOSX64,  "native/macosx/liblwjgl.dylib");
         
         // OpenAL
         registerNativeLibrary("openal", Platform.Windows32, "native/windows/OpenAL32.dll", false);
