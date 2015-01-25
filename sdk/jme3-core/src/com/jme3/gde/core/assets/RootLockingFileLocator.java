@@ -40,6 +40,7 @@ import com.jme3.asset.plugins.FileLocator;
  * FileLocator that doesn't allow paths outside the AssetManager root.
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class RootLockingFileLocator extends FileLocator {
 
     @Override

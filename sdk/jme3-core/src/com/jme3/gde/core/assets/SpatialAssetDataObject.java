@@ -51,6 +51,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SpatialAssetDataObject extends AssetDataObject {
 
     public SpatialAssetDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {

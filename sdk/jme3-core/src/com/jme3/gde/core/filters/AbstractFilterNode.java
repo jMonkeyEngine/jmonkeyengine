@@ -59,7 +59,7 @@ import org.openide.util.actions.SystemAction;
  *
  * @author normenhansen
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class AbstractFilterNode extends AbstractNode implements FilterNode, ScenePropertyChangeListener, SceneSyncListener {
 
     protected boolean readOnly = false;

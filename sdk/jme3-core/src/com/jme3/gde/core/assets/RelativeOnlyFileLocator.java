@@ -55,6 +55,7 @@ import java.io.InputStream;
  * 
  * @author Kirill Vainer
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class RelativeOnlyFileLocator implements AssetLocator {
 
     private File root;

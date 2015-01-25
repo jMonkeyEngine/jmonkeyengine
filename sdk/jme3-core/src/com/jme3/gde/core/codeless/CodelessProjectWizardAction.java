@@ -56,7 +56,7 @@ import org.openide.util.actions.CallableSystemAction;
 
 // An example action demonstrating how the wizard could be called from within
 // your code. You can copy-paste the code below wherever you need.
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class CodelessProjectWizardAction extends CallableSystemAction {
 
     private static final Logger logger = Logger.getLogger(CodelessProjectWizardAction.class.getName());

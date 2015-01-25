@@ -52,6 +52,7 @@ import org.openide.util.Exceptions;
 // @ActionID(category="...", id="com.jme3.gde.core.sceneexplorer.nodes.actions.impl.NewCustomControlWizardAction")
 // @ActionRegistration(displayName="Open NewCustomControl Wizard")
 // @ActionReference(path="Menu/Tools", position=...)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class NewAppStateWizardAction implements ActionListener {
 
     private WizardDescriptor.Panel[] panels;

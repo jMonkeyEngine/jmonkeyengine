@@ -4,6 +4,7 @@ package com.jme3.gde.core.filters.impl.bloom;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class BloomVisualPanel1 extends JPanel {
 
     /**

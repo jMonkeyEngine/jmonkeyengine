@@ -2,7 +2,6 @@ package com.jme3.gde.core.editor;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.StatsAppState;
-import com.jme3.gde.core.Installer;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Node;
 import com.jme3.system.AppSettings;
@@ -10,12 +9,12 @@ import com.jme3.system.awt.AwtPanel;
 import com.jme3.system.awt.AwtPanelsContext;
 import com.jme3.system.awt.PaintMode;
 import java.util.concurrent.Callable;
-import org.openide.util.NbPreferences;
 
 /**
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SceneApplication extends SimpleApplication {
 
     private AwtPanel panel;

@@ -47,6 +47,7 @@ import org.openide.util.Lookup;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AssetDataNode extends DataNode {
 
     public AssetDataNode(DataObject obj, Children ch) {

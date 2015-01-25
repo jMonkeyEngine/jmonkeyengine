@@ -45,6 +45,7 @@ import org.openide.WizardDescriptor;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class CreateTerrainWizardPanel2 implements WizardDescriptor.Panel {
 
     private int terrainTotalSize;

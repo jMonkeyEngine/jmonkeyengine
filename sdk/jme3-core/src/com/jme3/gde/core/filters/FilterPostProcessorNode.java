@@ -59,6 +59,7 @@ import org.openide.util.lookup.Lookups;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class FilterPostProcessorNode extends AbstractNode {
 
     private FilterDataObject dataObject;

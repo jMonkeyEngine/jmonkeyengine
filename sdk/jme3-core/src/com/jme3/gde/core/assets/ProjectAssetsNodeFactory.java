@@ -44,6 +44,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProjectAssetsNodeFactory implements NodeFactory {
 
     private Project proj;

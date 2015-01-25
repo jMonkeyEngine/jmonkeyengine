@@ -48,6 +48,7 @@ import org.openide.nodes.Node;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = NewFilterAction.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class NewBloomFilterAction extends AbstractNewFilterWizardAction {
 
     private WizardDescriptor.Panel[] panels;
