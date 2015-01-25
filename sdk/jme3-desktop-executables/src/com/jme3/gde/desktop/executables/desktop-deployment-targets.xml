@@ -4,7 +4,7 @@
         <echo>Windows 32bit Application Creation</echo>
         <copy file="resources/desktop-deployment/windows-x86/package.cfg" tofile="resources/desktop-deployment/windows-x86/_package.cfg">
             <filterchain>
-                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${main.class}" to="${main.class.launcher}"/>
                 <replacestring from="$${launcher.jvmargs}" to="${launcher.jvmargs}"/>
                 <replacestring from="$${application.title}" to="${application.title}"/>
                 <replacestring from="$${jar.name}" to="${application.title}.jar"/>
@@ -38,7 +38,7 @@
         <echo>Windows 64bit Application Creation</echo>
         <copy file="resources/desktop-deployment/windows-x64/package.cfg" tofile="resources/desktop-deployment/windows-x64/_package.cfg">
             <filterchain>
-                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${main.class}" to="${main.class.launcher}"/>
                 <replacestring from="$${launcher.jvmargs}" to="${launcher.jvmargs}"/>
                 <replacestring from="$${application.title}" to="${application.title}"/>
                 <replacestring from="$${jar.name}" to="${application.title}.jar"/>
@@ -72,7 +72,7 @@
         <echo>Linux 32bit Application Creation</echo>
         <copy file="resources/desktop-deployment/linux-x86/package.cfg" tofile="resources/desktop-deployment/linux-x86/_package.cfg">
             <filterchain>
-                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${main.class}" to="${main.class.launcher}"/>
                 <replacestring from="$${launcher.jvmargs}" to="${launcher.jvmargs}"/>
                 <replacestring from="$${application.title}" to="${application.title}"/>
                 <replacestring from="$${jar.name}" to="${application.title}.jar"/>
@@ -106,7 +106,7 @@
         <echo>Linux 64bit Application Creation</echo>
         <copy file="resources/desktop-deployment/linux-x64/package.cfg" tofile="resources/desktop-deployment/linux-x64/_package.cfg">
             <filterchain>
-                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${main.class}" to="${main.class.launcher}"/>
                 <replacestring from="$${launcher.jvmargs}" to="${launcher.jvmargs}"/>
                 <replacestring from="$${application.title}" to="${application.title}"/>
                 <replacestring from="$${jar.name}" to="${application.title}.jar"/>
@@ -230,9 +230,18 @@
             var res = args.split(" ");
             var out = "";
             for (var i = 1; i < res.length+1; i++) {
-                out = out + "jvmarg." + i + "=" + res[i-1] + "\n";
+                out = out + "jvmarg." + i + "=" + res[i-1] + "\r\n";
             }
             project.setProperty("launcher.jvmargs", out);
             ]]>
-        </script>        
+        </script>
+        <loadresource property="main.class.launcher">
+            <propertyresource name="main.class"/>
+            <filterchain>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replacestring from="." to="/"/>
+                </tokenfilter>
+            </filterchain>
+        </loadresource>
     </target>
