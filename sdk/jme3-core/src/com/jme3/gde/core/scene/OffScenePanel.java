@@ -219,7 +219,7 @@ public class OffScenePanel extends javax.swing.JPanel implements SceneProcessor 
 
     public void postFrame(FrameBuffer fb) {
 //        cpuBuf.clear();
-        SceneApplication.getApplication().getRenderer().readFrameBuffer(offBuffer, cpuBuf);
+        SceneApplication.getApplication().getRenderer().readFrameBufferWithFormat(offBuffer, cpuBuf,Format.BGRA8);
 //
 //        // copy native memory to java memory
 //        cpuBuf.clear();

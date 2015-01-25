@@ -169,7 +169,7 @@ public class ScenePreviewProcessor implements SceneProcessor {
     public void postFrame(FrameBuffer fb) {
         if (currentPreviewRequest != null) {
             cpuBuf.clear();
-            SceneApplication.getApplication().getRenderer().readFrameBuffer(offBuffer, cpuBuf);
+            SceneApplication.getApplication().getRenderer().readFrameBufferWithFormat(offBuffer, cpuBuf, Format.BGRA8);
 
             // copy native memory to java memory
             cpuBuf.clear();
