@@ -22,6 +22,7 @@ import org.openide.util.HelpCtx;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class MobileCustomizerPanel extends javax.swing.JPanel implements ActionListener {
 
     private ProjectExtensionProperties properties;

@@ -55,6 +55,7 @@ import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.openide.util.Exceptions;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class NewAppStateVisualPanel1 extends JPanel {
 
     private Project proj;

@@ -47,6 +47,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class ImportWorldForgeAction implements Action {
 
     private final AssetPackProject project;

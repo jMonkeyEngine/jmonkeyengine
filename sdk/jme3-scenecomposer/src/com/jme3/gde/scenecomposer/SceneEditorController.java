@@ -58,7 +58,7 @@ import org.openide.util.Lookup;
  * do.. methods do not use global variables.
  * @author normenhansen
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SceneEditorController implements PropertyChangeListener, NodeListener {
     
     private final JmeSpatial jmeRootNode;

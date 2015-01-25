@@ -54,6 +54,7 @@ import org.openide.util.Exceptions;
     @ActionReference(id =
     @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"), path = "Loaders/application/ogrebinarymesh/Actions", position = 1300)
 })
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class OgreBinaryMeshDataObject extends SpatialAssetDataObject {
 
     public OgreBinaryMeshDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {

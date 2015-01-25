@@ -32,6 +32,7 @@ import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 
 @org.openide.util.lookup.ServiceProvider(service = NewSpatialAction.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class NewNavMeshWizardAction extends AbstractNewSpatialWizardAction {
 
     private WizardDescriptor.Panel[] panels;

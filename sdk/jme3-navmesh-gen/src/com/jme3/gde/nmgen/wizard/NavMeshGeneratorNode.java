@@ -20,6 +20,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class NavMeshGeneratorNode extends AbstractNode {
 
     private NavMeshGenerator key;

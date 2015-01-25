@@ -61,6 +61,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JME3TestsAndroidWizardIterator implements WizardDescriptor./*Progress*/InstantiatingIterator {
 
     private int index;

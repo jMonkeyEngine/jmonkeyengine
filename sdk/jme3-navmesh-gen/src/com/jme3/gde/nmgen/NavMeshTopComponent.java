@@ -42,6 +42,7 @@ import org.openide.windows.WindowManager;
     dtd="-//com.sploreg.tritium.editor.navmesh//NavMesh//EN",
     autostore=false
 )
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class NavMeshTopComponent extends TopComponent implements SceneListener, LookupListener {
     
     private static NavMeshTopComponent instance;

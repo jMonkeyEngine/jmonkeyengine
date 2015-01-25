@@ -57,6 +57,7 @@ import org.openide.loaders.DataObject;
  * 
  * @author Brent Owens, Shirkit
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public abstract class TerrainTool {
     
     private static final Vector3f[] axisVectors = {

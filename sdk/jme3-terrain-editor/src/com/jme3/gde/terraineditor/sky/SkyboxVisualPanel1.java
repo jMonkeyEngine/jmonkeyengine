@@ -34,6 +34,7 @@ package com.jme3.gde.terraineditor.sky;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class SkyboxVisualPanel1 extends JPanel {
 
     /** Creates new form SkyboxVisualPanel1 */

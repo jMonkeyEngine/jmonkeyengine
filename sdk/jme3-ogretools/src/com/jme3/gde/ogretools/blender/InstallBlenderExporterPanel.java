@@ -32,6 +32,7 @@ import org.openide.NotifyDescriptor.Confirmation;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class InstallBlenderExporterPanel extends javax.swing.JDialog {
 
     /** Creates new form InstallBlenderExporterPanel */

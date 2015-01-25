@@ -8,6 +8,7 @@ import java.awt.Font;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class AngelFontVisualPanel2 extends JPanel {
 
     String fontName = "";

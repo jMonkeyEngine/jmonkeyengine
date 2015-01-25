@@ -21,7 +21,7 @@ import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
-@SuppressWarnings({"unchecked", "serial"})
+@SuppressWarnings({"unchecked", "serial", "rawtypes"})
 public final class ModelImporterVisualPanel3 extends JPanel {
 
     private static final Logger logger = Logger.getLogger(ModelImporterVisualPanel3.class.getName());

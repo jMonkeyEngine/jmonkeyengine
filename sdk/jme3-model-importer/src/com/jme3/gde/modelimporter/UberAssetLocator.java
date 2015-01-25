@@ -57,6 +57,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class UberAssetLocator implements AssetLocator {
     //ugly static due to Locator instantiation
 

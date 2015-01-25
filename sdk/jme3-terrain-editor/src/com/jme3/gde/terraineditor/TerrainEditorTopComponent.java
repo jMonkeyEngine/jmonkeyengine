@@ -102,6 +102,7 @@ import org.openide.windows.WindowManager;
  */
 @ConvertAsProperties(dtd = "-//com.jme3.gde.terraineditor//TerrainEditor//EN",
 autostore = false)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class TerrainEditorTopComponent extends TopComponent implements SceneListener, LookupListener {
 
     private static TerrainEditorTopComponent instance;

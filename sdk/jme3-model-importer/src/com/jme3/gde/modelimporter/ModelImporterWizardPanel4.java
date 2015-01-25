@@ -9,6 +9,7 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ModelImporterWizardPanel4 implements WizardDescriptor.Panel {
 
     /**

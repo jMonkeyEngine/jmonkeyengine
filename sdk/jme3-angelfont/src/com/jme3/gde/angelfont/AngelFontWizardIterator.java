@@ -26,6 +26,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class AngelFontWizardIterator implements WizardDescriptor.InstantiatingIterator {
 
     private int index;

@@ -61,7 +61,7 @@ import org.openide.util.Mutex.Action;
  *
  * @author normenhansen
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AssetData {
 
     private static final Logger logger = Logger.getLogger(AssetData.class.getName());

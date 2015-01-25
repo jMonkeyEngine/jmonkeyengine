@@ -25,6 +25,7 @@ import org.openide.util.actions.SystemAction;
  */
 @ConvertAsProperties(dtd = "-//com.jme3.gde.assetpack.browser//AssetPackBrowser//EN",
 autostore = false)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class AssetPackBrowserTopComponent extends TopComponent implements ExplorerManager.Provider {
 
     private static AssetPackBrowserTopComponent instance;

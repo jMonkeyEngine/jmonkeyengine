@@ -8,6 +8,7 @@ import java.awt.GraphicsEnvironment;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class AngelFontVisualPanel1 extends JPanel {
 
     String selectedFont = "";

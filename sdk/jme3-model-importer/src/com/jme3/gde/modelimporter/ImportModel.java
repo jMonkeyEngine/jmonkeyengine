@@ -60,7 +60,7 @@ displayName = "#CTL_ImportModel")
     @ActionReference(path = "Toolbars/File", position = 310)
 })
 @NbBundle.Messages("CTL_SomeAction=test")
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class ImportModel implements ActionListener {
 
     private static final Logger logger = Logger.getLogger(ImportModel.class.getName());

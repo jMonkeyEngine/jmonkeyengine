@@ -24,6 +24,7 @@ import org.netbeans.api.project.ui.OpenProjects;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProjectSelection extends javax.swing.JDialog {
 
     private List<Project> projects;

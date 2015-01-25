@@ -11,6 +11,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class CreateTerrainVisualPanel2 extends JPanel {
 
     //String[] types = {"Flat", "Image Based", "Hill", "Fault Fractal"};

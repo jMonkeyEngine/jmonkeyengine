@@ -19,7 +19,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 
-@SuppressWarnings({"unchecked", "serial"})
+@SuppressWarnings({"unchecked", "serial", "rawtypes"})
 public final class ModelImporterVisualPanel1 extends JPanel {
 
     private ModelImporterWizardPanel1 panel;

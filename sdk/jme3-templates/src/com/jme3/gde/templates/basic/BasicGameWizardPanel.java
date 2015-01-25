@@ -44,6 +44,7 @@ import org.openide.util.NbBundle;
 /**
  * Panel just asking for basic info.
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class BasicGameWizardPanel implements WizardDescriptor.Panel,
         WizardDescriptor.ValidatingPanel, WizardDescriptor.FinishablePanel {
 

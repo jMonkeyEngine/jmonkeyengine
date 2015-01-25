@@ -7,6 +7,7 @@ package com.jme3.gde.assetpack.project.wizards;
 import javax.swing.JPanel;
 import org.openide.WizardDescriptor;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class ImportVisualPanel1 extends JPanel {
 
     /** Creates new form ImportVisualPanel1 */

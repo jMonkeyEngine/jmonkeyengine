@@ -24,6 +24,7 @@ import org.openide.WizardDescriptor;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = NewSpatialAction.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AddSkyboxAction extends AbstractNewSpatialWizardAction {
 
     private WizardDescriptor.Panel[] panels;

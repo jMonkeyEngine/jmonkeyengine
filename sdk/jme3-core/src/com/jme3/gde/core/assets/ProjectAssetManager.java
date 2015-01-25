@@ -75,7 +75,7 @@ import org.openide.util.lookup.Lookups;
  *
  * @author normenhansen
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ProjectAssetManager extends DesktopAssetManager {
 
     private static final Logger logger = Logger.getLogger(ProjectAssetManager.class.getName());

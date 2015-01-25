@@ -86,7 +86,7 @@ import org.openide.util.lookup.InstanceContent;
  * 
  * @author normenhansen, bowens
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class TerrainEditorController implements NodeListener {
     private JmeSpatial jmeRootNode;
     private JmeSpatial selectedSpat;

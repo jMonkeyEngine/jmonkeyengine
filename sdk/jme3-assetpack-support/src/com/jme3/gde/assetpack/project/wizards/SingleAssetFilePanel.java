@@ -18,6 +18,7 @@ import java.util.List;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SingleAssetFilePanel extends javax.swing.JPanel {
 
     FileDescription desc;

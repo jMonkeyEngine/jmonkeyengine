@@ -78,6 +78,7 @@ displayName = "#CTL_RunAppState")
     @ActionReference(path = "Editors/text/x-java/Popup", position = 1740)
 })
 @Messages("CTL_RunAppState=Run AppState")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class RunAppStateAction implements ContextAwareAction {
 
     private static final Logger logger = Logger.getLogger(RunAppStateAction.class.getName());

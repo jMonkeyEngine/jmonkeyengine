@@ -21,6 +21,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ImportKeyNode extends AbstractNode {
     private AssetKey key;
 

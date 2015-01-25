@@ -23,6 +23,7 @@ import org.w3c.dom.Element;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class VariationSelection extends javax.swing.JDialog {
 
     List<SelectionEntry> list;

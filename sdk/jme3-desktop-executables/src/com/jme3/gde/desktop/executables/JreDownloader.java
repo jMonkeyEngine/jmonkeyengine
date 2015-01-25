@@ -55,6 +55,7 @@ import org.openide.util.RequestProcessor;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JreDownloader {
 
     private static final Logger logger = Logger.getLogger(JreDownloader.class.getName());

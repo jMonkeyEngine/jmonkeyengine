@@ -55,6 +55,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AppStateNode extends AbstractNode implements ScenePropertyChangeListener, SceneSyncListener {
 
     protected AppState appState;

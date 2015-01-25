@@ -72,7 +72,7 @@ import org.openide.util.lookup.ProxyLookup;
  *
  * @author normenhansen
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AssetDataObject extends MultiDataObject {
 
     protected static final Logger logger = Logger.getLogger(AssetDataObject.class.getName());

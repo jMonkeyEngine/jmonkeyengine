@@ -38,6 +38,7 @@ import org.openide.util.Exceptions;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = NewSpatialAction.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AddTerrainAction extends AbstractNewSpatialWizardAction {
 
     private WizardDescriptor.Panel[] panels;

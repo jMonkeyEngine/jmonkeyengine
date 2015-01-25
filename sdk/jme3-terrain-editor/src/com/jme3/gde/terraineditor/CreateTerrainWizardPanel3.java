@@ -41,6 +41,7 @@ import org.openide.util.HelpCtx;
  *
  * @author bowens
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class CreateTerrainWizardPanel3 implements WizardDescriptor.Panel {
 
     /**
