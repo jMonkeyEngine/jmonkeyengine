@@ -44,6 +44,7 @@ import org.openide.nodes.Sheet;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeBitmapText extends JmeNode {
 
     private static Image smallImage = IconList.font.getImage();

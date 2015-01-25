@@ -51,6 +51,7 @@ import org.openide.util.Exceptions;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeBone extends AbstractSceneExplorerNode {
 
     private static Image smallImage = IconList.bone.getImage();

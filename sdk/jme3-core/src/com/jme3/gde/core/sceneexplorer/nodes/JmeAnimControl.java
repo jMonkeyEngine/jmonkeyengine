@@ -56,6 +56,7 @@ import org.openide.util.actions.SystemAction;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeAnimControl extends AbstractSceneExplorerNode {
 
     private AnimControl animControl;

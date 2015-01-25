@@ -67,6 +67,7 @@ import org.openide.util.actions.SystemAction;
  * @author nehon
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeAnimation extends AbstractSceneExplorerNode {
 
     private Animation animation;

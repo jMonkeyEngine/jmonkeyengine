@@ -39,7 +39,7 @@ import com.jme3.gde.core.sceneexplorer.nodes.JmeAnimation;
  * @author Nehon
  */
 
-
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ChannelDialog extends javax.swing.JDialog {
     
     JmeAnimation jmeAnim;

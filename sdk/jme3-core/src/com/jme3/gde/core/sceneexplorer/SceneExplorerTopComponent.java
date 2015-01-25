@@ -71,6 +71,7 @@ import org.openide.windows.WindowManager;
  */
 @ConvertAsProperties(dtd = "-//com.jme3.gde.core.sceneexplorer//SceneExplorer//EN",
 autostore = false)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class SceneExplorerTopComponent extends TopComponent implements ExplorerManager.Provider, SceneListener/*, LookupListener */ {
 
     private static final Logger logger = Logger.getLogger(SceneExplorerTopComponent.class.getName());

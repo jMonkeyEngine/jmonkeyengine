@@ -85,7 +85,7 @@ import org.openide.util.lookup.Lookups;
  *
  * @author normenhansen
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SceneApplication extends Application implements LookupProvider {
 
     private static final Logger logger = Logger.getLogger(SceneApplication.class.getName());

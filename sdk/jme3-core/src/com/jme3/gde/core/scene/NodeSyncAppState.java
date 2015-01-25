@@ -48,6 +48,7 @@ import org.openide.util.Utilities;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class NodeSyncAppState extends AbstractAppState implements LookupListener {
 
     private final List<SceneSyncListener> newNodes = Collections.synchronizedList(new LinkedList<SceneSyncListener>());
