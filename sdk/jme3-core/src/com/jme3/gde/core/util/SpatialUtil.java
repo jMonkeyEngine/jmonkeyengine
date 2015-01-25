@@ -51,6 +51,7 @@ import java.util.logging.Logger;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class SpatialUtil {
 
     private static final Logger logger = Logger.getLogger(SpatialUtil.class.getName());

@@ -63,6 +63,7 @@ import org.openide.util.Exceptions;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class UserDataDialog extends javax.swing.JDialog {
 
     JmeSpatial spat;

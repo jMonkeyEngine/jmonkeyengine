@@ -44,6 +44,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class AudioTrackVisualPanel1 extends JPanel {
 
     Spatial rootNode;

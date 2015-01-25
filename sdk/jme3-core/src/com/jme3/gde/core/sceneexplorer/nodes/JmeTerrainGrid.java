@@ -47,6 +47,7 @@ import org.openide.nodes.Sheet;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service = SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeTerrainGrid extends JmeTerrainQuad implements TerrainGridListener {
 
     private static final Logger logger = Logger.getLogger(JmeTerrainGrid.class.getName());

@@ -42,6 +42,7 @@ import org.openide.nodes.Sheet;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmePicture extends JmeGeometry {
 
     private static Image smallImage = IconList.texture.getImage();

@@ -57,6 +57,7 @@ import org.openide.util.actions.SystemAction;
  * @author Brent Owens
  */
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeTerrainLodControl extends AbstractSceneExplorerNode {
     
     private static Image smallImage = IconList.wheel.getImage();

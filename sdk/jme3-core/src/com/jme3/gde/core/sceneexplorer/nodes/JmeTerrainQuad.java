@@ -45,6 +45,7 @@ import org.openide.nodes.Sheet;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeTerrainQuad extends JmeNode {
 
     private static Image smallImage = IconList.terrain.getImage();

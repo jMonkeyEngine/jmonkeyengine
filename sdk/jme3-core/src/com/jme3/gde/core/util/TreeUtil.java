@@ -13,6 +13,7 @@ import javax.swing.tree.TreePath;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class TreeUtil {
 
     public static void createTree(JTree jTree1, String[] leaves) {

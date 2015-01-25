@@ -40,6 +40,7 @@ import java.lang.reflect.Method;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class PropertyUtils {
 
     public static PropertyDescriptor getPropertyDescriptor(Class c, Field field) {

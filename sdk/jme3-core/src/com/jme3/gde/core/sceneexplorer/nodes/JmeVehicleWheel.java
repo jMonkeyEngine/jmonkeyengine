@@ -53,6 +53,7 @@ import org.openide.util.actions.SystemAction;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeVehicleWheel extends AbstractSceneExplorerNode{
 
     private VehicleWheel wheel;

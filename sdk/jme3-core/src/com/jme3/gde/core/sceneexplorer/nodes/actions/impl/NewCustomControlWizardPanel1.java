@@ -37,6 +37,7 @@ import org.netbeans.api.project.Project;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class NewCustomControlWizardPanel1 implements WizardDescriptor.Panel {
 
     /**

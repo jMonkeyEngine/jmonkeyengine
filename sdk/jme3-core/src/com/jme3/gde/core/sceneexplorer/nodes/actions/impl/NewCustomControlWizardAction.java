@@ -53,6 +53,7 @@ import org.openide.util.Exceptions;
 // @ActionRegistration(displayName="Open NewCustomControl Wizard")
 // @ActionReference(path="Menu/Tools", position=...)
 @org.openide.util.lookup.ServiceProvider(service = NewControlAction.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class NewCustomControlWizardAction extends AbstractNewControlWizardAction {
 
     private WizardDescriptor.Panel[] panels;

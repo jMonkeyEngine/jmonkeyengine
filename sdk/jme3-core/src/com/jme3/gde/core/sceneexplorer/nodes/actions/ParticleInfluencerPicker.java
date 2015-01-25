@@ -67,6 +67,7 @@ import org.openide.util.Exceptions;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ParticleInfluencerPicker extends javax.swing.JDialog {
 
     JmeParticleEmitter jmePE;

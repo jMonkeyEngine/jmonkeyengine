@@ -50,6 +50,7 @@ import org.openide.WizardDescriptor;
 // @ActionID(category="...", id="com.jme3.gde.core.sceneexplorer.nodes.actions.impl.tracks.EffectTrackWizardAction")
 // @ActionRegistration(displayName="Open EffectTrack Wizard")
 // @ActionReference(path="Menu/Tools", position=...)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class EffectTrackWizardAction implements ActionListener {
 
     private WizardDescriptor.Panel[] panels;

@@ -54,6 +54,7 @@ import org.openide.util.actions.SystemAction;
  * @author normenhansen
  */
 @org.openide.util.lookup.ServiceProvider(service=SceneExplorerNode.class)
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeGhostControl extends AbstractSceneExplorerNode {
 
     private static Image smallImage = IconList.ghostControl.getImage();

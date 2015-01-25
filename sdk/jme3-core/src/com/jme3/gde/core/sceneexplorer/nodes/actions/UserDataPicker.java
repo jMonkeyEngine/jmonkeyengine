@@ -66,6 +66,7 @@ import org.openide.util.Exceptions;
  *
  * @author Nehon
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class UserDataPicker extends javax.swing.JDialog {
 
     UserDataDialog parentDialog;

@@ -65,6 +65,7 @@ import org.openide.windows.TopComponent;
     "CTL_NewGeometrySettingsTopComponent=NewGeometrySettings",
     "HINT_NewGeometrySettingsTopComponent=This is a NewGeometrySettings window"
 })
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class NewGeometrySettingsTopComponent extends TopComponent {
 
     public NewGeometrySettingsTopComponent() {

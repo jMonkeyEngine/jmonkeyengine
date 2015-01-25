@@ -39,6 +39,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import jme3tools.optimize.LodGenerator;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public final class GenerateLODVisualPanel1 extends JPanel {
 
     private List<JTextField> valuesFields = new ArrayList<JTextField>();

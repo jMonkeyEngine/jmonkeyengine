@@ -51,6 +51,7 @@ import org.openide.util.actions.SystemAction;
  *
  * @author normenhansen
  */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class JmeGenericControl extends AbstractSceneExplorerNode {
 
     private final Control control;

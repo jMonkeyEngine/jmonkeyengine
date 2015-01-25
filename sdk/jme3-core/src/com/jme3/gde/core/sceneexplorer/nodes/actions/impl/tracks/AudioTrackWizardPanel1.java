@@ -38,6 +38,7 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class AudioTrackWizardPanel1 implements WizardDescriptor.Panel {
 
     Spatial rootNode;
