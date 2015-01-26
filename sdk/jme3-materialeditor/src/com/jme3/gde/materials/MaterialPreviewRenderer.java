@@ -126,8 +126,8 @@ public class MaterialPreviewRenderer implements SceneListener {
     
       public Material reloadMaterial(Material mat, DesktopAssetManager assetManager) {
 
-//        MaterialKey key = new MaterialKey(mat.getMaterialDef().getAssetName());
-//        assetManager.deleteFromCache(key);
+        MaterialKey key = new MaterialKey(mat.getMaterialDef().getAssetName());
+        assetManager.deleteFromCache(key);
         
         //creating a dummy mat with the mat def of the mat to reload
         Material dummy = new Material(mat.getMaterialDef());
