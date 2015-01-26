@@ -140,10 +140,17 @@ compileJava.dependsOn {
     }
 }
 
+binaries.withType(StaticLibraryBinarySpec) {
+    buildable = false
+}
+
 // Adds all available binaries to java jar task
 binaries.withType(SharedLibraryBinary) { binary ->
     // For all binaries that can't be built on the current system
-    if (!buildable || buildNativeProjects!="true") {
+    if(buildNativeProjects!="true"){
+        buildable = false;
+    }
+    if (!buildable) {
         //Get from libs folder if no fresh build is available in the build folder and add to jar file
         if(!binary.tasks.outputFile.get(0).exists()){
             def fileName = binary.tasks.outputFile.get(0).getName();
@@ -174,23 +181,6 @@ binaries.withType(SharedLibraryBinary) { binary ->
     }
     // Add depend on copy
     jar.dependsOn("copyBinaryToLibs${targetPlatform}")
-}
-
-task {
-    // Remove all native build tasks, will be added as needed above
-    gradle.startParameter.excludedTaskNames += "windows_x86BulletjmeStaticLibrary"
-    gradle.startParameter.excludedTaskNames += "windows_x86_64BulletjmeStaticLibrary"
-    gradle.startParameter.excludedTaskNames += "linux_x86BulletjmeStaticLibrary"
-    gradle.startParameter.excludedTaskNames += "linux_x86_64BulletjmeStaticLibrary"
-    gradle.startParameter.excludedTaskNames += "osx_x86BulletjmeStaticLibrary"
-    gradle.startParameter.excludedTaskNames += "osx_x86_64BulletjmeStaticLibrary"
-
-    gradle.startParameter.excludedTaskNames += "windows_x86BulletjmeSharedLibrary"
-    gradle.startParameter.excludedTaskNames += "windows_x86_64BulletjmeSharedLibrary"
-    gradle.startParameter.excludedTaskNames += "linux_x86BulletjmeSharedLibrary"
-    gradle.startParameter.excludedTaskNames += "linux_x86_64BulletjmeSharedLibrary"
-    gradle.startParameter.excludedTaskNames += "osx_x86BulletjmeSharedLibrary"
-    gradle.startParameter.excludedTaskNames += "osx_x86_64BulletjmeSharedLibrary"
 }
 
 // Helper class to wrap ant dowload task
