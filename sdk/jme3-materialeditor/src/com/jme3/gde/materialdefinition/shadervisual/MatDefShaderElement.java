@@ -36,11 +36,14 @@ import com.jme3.gde.materialdefinition.EditableMatDefFile;
 import com.jme3.gde.materialdefinition.MatDefDataObject;
 import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JPanel;
+import javax.swing.text.EditorKit;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
+import org.openide.text.CloneableEditorSupport;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
@@ -65,6 +68,11 @@ public final class MatDefShaderElement extends JPanel implements MultiViewElemen
         initComponents();
         toolbar.setParent(this);       
         refresh();
+
+        String mime = "text/x-glsl";
+        EditorKit ek = CloneableEditorSupport.getEditorKit(mime);
+        jEditorPane1.setEditorKit(ek);
+        jEditorPane1.setContentType(mime);                
     }
 
     public final void refresh() {
