@@ -40,6 +40,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -280,6 +281,17 @@ public final class NativeLibraryLoader {
         }
     }
     
+    public static File[] getJarsWithNatives() {
+        HashSet<File> jarFiles = new HashSet<File>();
+        for (Map.Entry<NativeLibrary.Key, NativeLibrary> lib : nativeLibraryMap.entrySet()) {
+            File jarFile = getJarForNativeLibrary(lib.getValue().getPlatform(), lib.getValue().getName());
+            if (jarFile != null) {
+                jarFiles.add(jarFile);
+            }
+        }
+        return jarFiles.toArray(new File[0]);
+    }
+    
     public static void extractNativeLibraries(Platform platform, File targetDir) throws IOException {
         for (Map.Entry<NativeLibrary.Key, NativeLibrary> lib : nativeLibraryMap.entrySet()) {
             if (lib.getValue().getPlatform() == platform) {
@@ -304,7 +316,44 @@ public final class NativeLibraryLoader {
         }
     }
     
-    public static void extractNativeLibrary(Platform platform, String name, File extractionDir) throws IOException {
+    public static File getJarForNativeLibrary(Platform platform, String name) {
+        NativeLibrary library = nativeLibraryMap.get(new NativeLibrary.Key(name, platform));
+        if (library == null) {
+            return null;
+        }
+
+        String pathInJar = library.getPathInNativesJar();
+        if (pathInJar == null) {
+            return null;
+        }
+        
+        String fileNameInJar;
+        if (pathInJar.contains("/")) {
+            fileNameInJar = pathInJar.substring(pathInJar.lastIndexOf("/") + 1);
+        } else {
+            fileNameInJar = pathInJar;
+        }
+        
+        URL url = Thread.currentThread().getContextClassLoader().getResource(pathInJar);
+        if (url == null) {
+            url = Thread.currentThread().getContextClassLoader().getResource(fileNameInJar);
+        }
+        
+        if (url == null) {
+            return null;
+        }
+        
+        StringBuilder sb = new StringBuilder(url.toString());
+        if (sb.indexOf("jar:file:/") == 0) {
+            sb.delete(0, 9);
+            sb.delete(sb.indexOf("!"), sb.length());
+            return new File(sb.toString());
+        } else {
+            return null; // not a jar
+        }
+    }
+    
+    public static void extractNativeLibrary(Platform platform, String name, File targetDir) throws IOException {
         NativeLibrary library = nativeLibraryMap.get(new NativeLibrary.Key(name, platform));
         if (library == null) {
             return;
@@ -356,7 +405,7 @@ public final class NativeLibraryLoader {
         URLConnection conn = url.openConnection();
         InputStream in = conn.getInputStream();
         
-        File targetFile = new File(extractionDir, loadedAsFileName);
+        File targetFile = new File(targetDir, loadedAsFileName);
         OutputStream out = null;
         try {
             out = new FileOutputStream(targetFile);
