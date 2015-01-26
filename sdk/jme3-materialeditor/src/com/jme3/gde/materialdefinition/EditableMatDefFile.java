@@ -97,9 +97,11 @@ public class EditableMatDefFile {
             lock = matDefFile.lock();
             List<Statement> sta = BlockLanguageParser.parse(obj.getPrimaryFile().getInputStream());
             matDefStructure = new MatDefBlock(sta.get(0));
-            AssetKey<MaterialDef> matDefKey = new AssetKey<MaterialDef>(assetManager.getRelativeAssetPath(assetManager.getRelativeAssetPath(matDefFile.getPath())));
-            assetManager.deleteFromCache(matDefKey);
-            materialDef = (MaterialDef) assetManager.loadAsset(assetManager.getRelativeAssetPath(matDefFile.getPath()));
+            if(assetManager!=null){
+                AssetKey<MaterialDef> matDefKey = new AssetKey<MaterialDef>(assetManager.getRelativeAssetPath(assetManager.getRelativeAssetPath(matDefFile.getPath())));
+                assetManager.deleteFromCache(matDefKey);
+                materialDef = (MaterialDef) assetManager.loadAsset(assetManager.getRelativeAssetPath(matDefFile.getPath()));
+            }
             lock.releaseLock();
         } catch (Exception ex) {
             Throwable t = ex.getCause();

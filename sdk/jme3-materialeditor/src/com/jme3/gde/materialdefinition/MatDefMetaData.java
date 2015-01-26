@@ -390,7 +390,9 @@ public class MatDefMetaData {
                 FileObject jmedataFolder = root.getFileObject("/nbproject/jme3Data");
                 if (jmedataFolder == null) {
                     jmedataFolder = root.getFileObject("/nbproject");
-                    jmedataFolder = jmedataFolder.createFolder("jme3Data");
+                    if(jmedataFolder!=null){
+                        jmedataFolder = jmedataFolder.createFolder("jme3Data");
+                    }
                 }
                 return jmedataFolder;
             }

@@ -36,6 +36,8 @@ import com.jme3.gde.materialdefinition.navigator.MatDefNavigatorPanel;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import javax.swing.JEditorPane;
+import javax.swing.text.EditorKit;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -52,6 +54,7 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.text.CloneableEditorSupport;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.lookup.AbstractLookup;
@@ -228,7 +231,10 @@ public class MatDefDataObject extends MultiDataObject {
             @Override
             public void componentDeactivated() {
                 super.componentDeactivated();
-                getEditorPane().removeKeyListener(listener);
+                JEditorPane editorPane = getEditorPane();
+                if (editorPane != null) {
+                    getEditorPane().removeKeyListener(listener);
+                }
             }
 
             @Override
@@ -245,7 +251,9 @@ public class MatDefDataObject extends MultiDataObject {
     @Override
     protected void handleDelete() throws IOException {
         MatDefMetaData metaData = lookup.lookup(MatDefMetaData.class);
-        metaData.cleanup();
+        if(metaData != null){
+            metaData.cleanup();
+        }
         super.handleDelete();
     }
 
