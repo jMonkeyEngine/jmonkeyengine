@@ -24,17 +24,6 @@
         </condition>
     </target>
 
-    <target name="-create-library-property" depends="-create-mac-library-property">
+    <target name="-create-library-property">
         <property name="proguard.library.path" value="${platform.home}/jre/lib/rt.jar"/>
     </target>
-
-    <target name="-create-mac-library-property" depends="-test-mac" if="is.macos">
-        <property name="proguard.library.path" value="/System/Library/Frameworks/JavaVM.framework/Classes/classes.jar"/>
-    </target>
-
-    <target name="-test-mac">
-        <condition property="is.macos">
-            <os family="mac"/>
-        </condition>
-    </target>
-    
