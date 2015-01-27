@@ -17,7 +17,7 @@
             <zipfileset file="resources/desktop-deployment/windows-x86/icon.ico" fullpath="${application.title}/${application.title}.ico"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
             <zipfileset dir="${dist.dir}/lib" excludes="${deployment.jarexcludes}" prefix="${application.title}/app/lib"/>
-            <zipfileset dir="${build.dir}/natives/windows-x86" prefix="${application.title}/app/jni" erroronmissingdir="false"/>
+            <zipfileset dir="${build.dir}/natives/windows-x86" prefix="${application.title}/app" erroronmissingdir="false"/>
         </zip>
         <delete file="resources/desktop-deployment/windows-x86/_package.cfg"/>
         <antcall target="-package-windows-x86-jre"/>
@@ -52,7 +52,7 @@
             <zipfileset file="resources/desktop-deployment/windows-x64/icon.ico" fullpath="${application.title}/${application.title}.ico"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
             <zipfileset dir="${dist.dir}/lib" excludes="${deployment.jarexcludes}" prefix="${application.title}/app/lib"/>
-            <zipfileset dir="${build.dir}/natives/windows-x64" prefix="${application.title}/app/jni" erroronmissingdir="false"/>
+            <zipfileset dir="${build.dir}/natives/windows-x64" prefix="${application.title}/app" erroronmissingdir="false"/>
         </zip>
         <delete file="resources/desktop-deployment/windows-x64/_package.cfg"/>
         <antcall target="-package-windows-x64-jre"/>
@@ -86,7 +86,7 @@
             <zipfileset file="resources/desktop-deployment/linux-x86/_package.cfg" fullpath="${application.title}/app/package.cfg"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
             <zipfileset dir="${dist.dir}/lib" excludes="${deployment.jarexcludes}" prefix="${application.title}/app/lib"/>
-            <zipfileset dir="${build.dir}/natives/linux-x86" prefix="${application.title}/app/jni" erroronmissingdir="false"/>
+            <zipfileset dir="${build.dir}/natives/linux-x86" prefix="${application.title}/app" erroronmissingdir="false"/>
         </zip>
         <delete file="resources/desktop-deployment/linux-x86/_package.cfg"/>
         <antcall target="-package-linux-x86-jre"/>
@@ -121,7 +121,7 @@
             <zipfileset file="resources/desktop-deployment/linux-x64/_package.cfg" fullpath="${application.title}/app/package.cfg"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
             <zipfileset dir="${dist.dir}/lib" excludes="${deployment.jarexcludes}" prefix="${application.title}/app/lib"/>
-            <zipfileset dir="${build.dir}/natives/linux-x64" prefix="${application.title}/app/jni" erroronmissingdir="false"/>
+            <zipfileset dir="${build.dir}/natives/linux-x64" prefix="${application.title}/app" erroronmissingdir="false"/>
         </zip>
         <delete file="resources/desktop-deployment/linux-x64/_package.cfg"/>
         <antcall target="-package-linux-x64-jre"/>
@@ -159,7 +159,7 @@
             <zipfileset file="resources/desktop-deployment/macosx-x64/icon.icns" fullpath="${application.title}.app/Contents/Resources/GenericApp.icns"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}.app/Contents/Java"/>
             <zipfileset dir="${dist.dir}/lib" excludes="${deployment.jarexcludes}" prefix="${application.title}.app/Contents/Java/lib"/>
-            <zipfileset dir="${build.dir}/natives/macosx-x64" prefix="${application.title}.app/Contents/Java/jni" erroronmissingdir="false"/>
+            <zipfileset dir="${build.dir}/natives/macosx-x64" prefix="${application.title}.app/Contents/Java" erroronmissingdir="false"/>
         </zip>
         <delete file="resources/desktop-deployment/macosx-x64/_Info.plist"/>
         <antcall target="-package-macosx-x64-jre"/>

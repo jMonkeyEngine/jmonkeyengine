@@ -36,7 +36,7 @@
   <key>JVMMainClassName</key>
   <string>${main.class}</string>
   <key>JVMAppClasspath</key>
-  <string>jni</string>
+  <string></string>
   <key>JVMMainJarName</key>
   <string>${jar.name}</string>
   <key>JVMPreferencesID</key>
