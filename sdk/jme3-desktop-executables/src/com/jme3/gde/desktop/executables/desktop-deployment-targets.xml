@@ -1,4 +1,4 @@
-    <target name="-desktop-deployment" depends="-create-launcher-jvmargs, -test-platforms-enabled, -windows-x86-app, -windows-x64-app, -linux-x86-app, -linux-x64-app, -macosx-x64-app"/>
+    <target name="-desktop-deployment" depends="-extract-native-binaries, -create-launcher-jvmargs, -test-platforms-enabled, -windows-x86-app, -windows-x64-app, -linux-x86-app, -linux-x64-app, -macosx-x64-app"/>
     
     <target name="-windows-x86-app" if="is.windows-x86.app.enabled">
         <echo>Windows 32bit Application Creation</echo>
@@ -16,7 +16,8 @@
             <zipfileset file="resources/desktop-deployment/windows-x86/_package.cfg" fullpath="${application.title}/app/package.cfg"/>
             <zipfileset file="resources/desktop-deployment/windows-x86/icon.ico" fullpath="${application.title}/${application.title}.ico"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
-            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}/app/lib"/>
+            <zipfileset dir="${dist.dir}/lib" excludes="${deployment.jarexcludes}" prefix="${application.title}/app/lib"/>
+            <zipfileset dir="${build.dir}/natives/windows-x86" prefix="${application.title}/app/jni" erroronmissingdir="false"/>
         </zip>
         <delete file="resources/desktop-deployment/windows-x86/_package.cfg"/>
         <antcall target="-package-windows-x86-jre"/>
@@ -50,7 +51,8 @@
             <zipfileset file="resources/desktop-deployment/windows-x64/_package.cfg" fullpath="${application.title}/app/package.cfg"/>
             <zipfileset file="resources/desktop-deployment/windows-x64/icon.ico" fullpath="${application.title}/${application.title}.ico"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
-            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}/app/lib"/>
+            <zipfileset dir="${dist.dir}/lib" excludes="${deployment.jarexcludes}" prefix="${application.title}/app/lib"/>
+            <zipfileset dir="${build.dir}/natives/windows-x64" prefix="${application.title}/app/jni" erroronmissingdir="false"/>
         </zip>
         <delete file="resources/desktop-deployment/windows-x64/_package.cfg"/>
         <antcall target="-package-windows-x64-jre"/>
@@ -83,7 +85,8 @@
             <zipfileset file="resources/desktop-deployment/linux-x86/stub" filemode="755" fullpath="${application.title}/${application.title}"/>
             <zipfileset file="resources/desktop-deployment/linux-x86/_package.cfg" fullpath="${application.title}/app/package.cfg"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
-            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}/app/lib"/>
+            <zipfileset dir="${dist.dir}/lib" excludes="${deployment.jarexcludes}" prefix="${application.title}/app/lib"/>
+            <zipfileset dir="${build.dir}/natives/linux-x86" prefix="${application.title}/app/jni" erroronmissingdir="false"/>
         </zip>
         <delete file="resources/desktop-deployment/linux-x86/_package.cfg"/>
         <antcall target="-package-linux-x86-jre"/>
@@ -117,7 +120,8 @@
             <zipfileset file="resources/desktop-deployment/linux-x64/stub" filemode="755" fullpath="${application.title}/${application.title}"/>
             <zipfileset file="resources/desktop-deployment/linux-x64/_package.cfg" fullpath="${application.title}/app/package.cfg"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}/app"/>
-            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}/app/lib"/>
+            <zipfileset dir="${dist.dir}/lib" excludes="${deployment.jarexcludes}" prefix="${application.title}/app/lib"/>
+            <zipfileset dir="${build.dir}/natives/linux-x64" prefix="${application.title}/app/jni" erroronmissingdir="false"/>
         </zip>
         <delete file="resources/desktop-deployment/linux-x64/_package.cfg"/>
         <antcall target="-package-linux-x64-jre"/>
@@ -154,7 +158,8 @@
             <zipfileset file="resources/desktop-deployment/macosx-x64/_Info.plist" fullpath="${application.title}.app/Contents/Info.plist"/>
             <zipfileset file="resources/desktop-deployment/macosx-x64/icon.icns" fullpath="${application.title}.app/Contents/Resources/GenericApp.icns"/>
             <zipfileset file="${dist.jar}" prefix="${application.title}.app/Contents/Java"/>
-            <zipfileset dir="${dist.dir}/lib" prefix="${application.title}.app/Contents/Java/lib"/>
+            <zipfileset dir="${dist.dir}/lib" excludes="${deployment.jarexcludes}" prefix="${application.title}.app/Contents/Java/lib"/>
+            <zipfileset dir="${build.dir}/natives/macosx-x64" prefix="${application.title}.app/Contents/Java/jni" erroronmissingdir="false"/>
         </zip>
         <delete file="resources/desktop-deployment/macosx-x64/_Info.plist"/>
         <antcall target="-package-macosx-x64-jre"/>
@@ -244,4 +249,30 @@
                 </tokenfilter>
             </filterchain>
         </loadresource>
+    </target>
+    
+    <target name="-extract-native-binaries">
+        <java outputproperty="deployment.jarexcludes" dir="${basedir}" classname="com.jme3.system.ExtractNativeLibraries" fork="true" failonerror="false" classpath="${dist.jar}">
+            <arg value="getjarexcludes"/>
+        </java>        
+        <java dir="${basedir}" classname="com.jme3.system.ExtractNativeLibraries" fork="true" failonerror="false" classpath="${dist.jar}">
+            <arg value="Windows32"/>
+            <arg value="${build.dir}/natives/windows-x86"/>
+        </java>
+        <java dir="${basedir}" classname="com.jme3.system.ExtractNativeLibraries" fork="true" failonerror="false" classpath="${dist.jar}">
+            <arg value="Windows64"/>
+            <arg value="${build.dir}/natives/windows-x64"/>
+        </java>
+        <java dir="${basedir}" classname="com.jme3.system.ExtractNativeLibraries" fork="true" failonerror="false" classpath="${dist.jar}">
+            <arg value="Linux32"/>
+            <arg value="${build.dir}/natives/linux-x86"/>
+        </java>
+        <java dir="${basedir}" classname="com.jme3.system.ExtractNativeLibraries" fork="true" failonerror="false" classpath="${dist.jar}">
+            <arg value="Linux64"/>
+            <arg value="${build.dir}/natives/linux-x64"/>
+        </java>
+        <java dir="${basedir}" classname="com.jme3.system.ExtractNativeLibraries" fork="true" failonerror="false" classpath="${dist.jar}">
+            <arg value="MacOSX64"/>
+            <arg value="${build.dir}/natives/macosx-x64"/>
+        </java>
     </target>
