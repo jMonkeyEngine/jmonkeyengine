@@ -46,6 +46,9 @@ import org.netbeans.spi.project.LookupProvider;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.NotifyDescriptor.Message;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
@@ -66,7 +69,8 @@ public class AssetsLookupProvider implements LookupProvider {
         "assets.jar.name",
         "assets.folder.name",
         "assets.excludes",
-        "assets.compress"
+        "assets.compress",
+        "jme.project.version"
     };
     private String extensionName = "assets";
     private String extensionVersion = "v1.0";
@@ -88,12 +92,7 @@ public class AssetsLookupProvider implements LookupProvider {
     public Lookup createAdditionalLookup(Lookup lookup) {
         Project prj = lookup.lookup(Project.class);
         project = prj;
-        FileObject assetsProperties = prj.getProjectDirectory().getFileObject("nbproject/assets.properties");
-        if (assetsProperties == null) {
-            assetsProperties = prj.getProjectDirectory().getFileObject("nbproject/project.properties");
-        } else {
-            Logger.getLogger(AssetsLookupProvider.class.getName()).log(Level.WARNING, "Project is using old assets.properties file");
-        }
+        FileObject assetsProperties = prj.getProjectDirectory().getFileObject("nbproject/project.properties");
         if (assetsProperties != null && assetsProperties.isValid()) {
             FileLock lock = null;
             try {
@@ -129,6 +128,10 @@ public class AssetsLookupProvider implements LookupProvider {
                 EditableProperties properties = getProperties(project);
                 if (properties.getProperty("assets.folder.name") != null) {
                     manager.checkExtension(project);
+//                    String version = properties.getProperty("jme.project.version");
+//                    if(version == null){
+//                        DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Message("This project is not compatible with the current SDK.",Message.ERROR_MESSAGE));
+//                    }
                 }
             }
         }
@@ -139,32 +142,7 @@ public class AssetsLookupProvider implements LookupProvider {
         if (!(project instanceof J2SEProject)) {
             return props;
         }
-        FileObject projDir = project.getProjectDirectory();
-        //old properties files
-        FileObject oldProperties = projDir.getFileObject("nbproject/assets.properties");
-        if (oldProperties != null) {
-            logger.log(Level.FINE, "Deleting old project assets.properties");
-            try {
-                props.load(oldProperties.getInputStream());
-                store(props, project);
-                oldProperties.delete();
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        } else {
-            load(props, project);
-//            if (props.getProperty("assets.folder.name") == null) {
-//                props.setProperty("assets.jar.name", "assets.jar");
-//                props.setProperty("assets.folder.name", "assets");
-//                props.setProperty("assets.excludes", "**/*.mesh\\.xml,**/*.skeleton\\.xml,**/*.scene,**/*.material,**/*.obj,**/*.mtl,**/*.j3odata");
-//                props.setProperty("assets.compress", "true");
-//                try {
-//                    store(props, project);
-//                } catch (IOException ex) {
-//                    Exceptions.printStackTrace(ex);
-//                }
-//            }
-        }
+        load(props, project);
         return props;
     }
 
