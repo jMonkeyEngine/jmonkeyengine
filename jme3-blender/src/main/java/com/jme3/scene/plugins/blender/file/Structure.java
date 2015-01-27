@@ -126,12 +126,24 @@ public class Structure implements Cloneable {
      * @return the value of the field or null if no field with a given name is found
      */
     public Object getFieldValue(String fieldName) {
+        return this.getFieldValue(fieldName, null);
+    }
+
+    /**
+     * This method returns the value of the filed with a given name.
+     * @param fieldName
+     *            the name of the field
+     * @param defaultValue
+     *            the value that is being returned when no field of a given name is found
+     * @return the value of the field or the given default value if no field with a given name is found
+     */
+    public Object getFieldValue(String fieldName, Object defaultValue) {
         for (Field field : fields) {
             if (field.name.equalsIgnoreCase(fieldName)) {
                 return field.value;
             }
         }
-        return null;
+        return defaultValue;
     }
 
     /**

@@ -71,6 +71,20 @@ public class Edge {
     }
 
     /**
+     * @return the first vertex of the edge
+     */
+    public Vector3f getFirstVertex() {
+        return temporalMesh.getVertices().get(index1);
+    }
+
+    /**
+     * @return the second vertex of the edge
+     */
+    public Vector3f getSecondVertex() {
+        return temporalMesh.getVertices().get(index2);
+    }
+
+    /**
      * Returns the index other than the given.
      * @param index
      *            index of the edge
@@ -101,11 +115,24 @@ public class Edge {
     }
 
     /**
+     * @return the length of the edge
+     */
+    public float getLength() {
+        return this.getFirstVertex().distance(this.getSecondVertex());
+    }
+
+    /**
+     * @return the mesh this edge belongs to
+     */
+    public TemporalMesh getTemporalMesh() {
+        return temporalMesh;
+    }
+
+    /**
      * @return the centroid of the edge
      */
     public Vector3f computeCentroid() {
-        List<Vector3f> vertices = temporalMesh.getVertices();
-        return vertices.get(index1).add(vertices.get(index2)).divideLocal(2);
+        return this.getFirstVertex().add(this.getSecondVertex()).divideLocal(2);
     }
 
     /**
@@ -161,10 +188,10 @@ public class Edge {
      * @return <b>true</b> if the edges cross and false otherwise
      */
     public boolean cross(Edge edge) {
-        Vector3f P1 = temporalMesh.getVertices().get(index1);
-        Vector3f P2 = edge.temporalMesh.getVertices().get(edge.index1);
-        Vector3f u = temporalMesh.getVertices().get(index2).subtract(P1);
-        Vector3f v = edge.temporalMesh.getVertices().get(edge.index2).subtract(P2);
+        Vector3f P1 = this.getFirstVertex();
+        Vector3f P2 = edge.getFirstVertex();
+        Vector3f u = this.getSecondVertex().subtract(P1);
+        Vector3f v = edge.getSecondVertex().subtract(P2);
         float t2 = (u.x * (P2.y - P1.y) - u.y * (P2.x - P1.x)) / (u.y * v.x - u.x * v.y);
         float t1 = (P2.x - P1.x + v.x * t2) / u.x;
         Vector3f p1 = P1.add(u.mult(t1));
@@ -187,7 +214,7 @@ public class Edge {
     @Override
     public String toString() {
         String result = "Edge [" + index1 + ", " + index2 + "] {" + crease + "}";
-        result += " (" + temporalMesh.getVertices().get(index1) + " -> " + temporalMesh.getVertices().get(index2) + ")";
+        result += " (" + this.getFirstVertex() + " -> " + this.getSecondVertex() + ")";
         if (inFace) {
             result += "[F]";
         }
