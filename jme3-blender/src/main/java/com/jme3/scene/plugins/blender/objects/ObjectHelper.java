@@ -182,9 +182,9 @@ public class ObjectHelper extends AbstractBlenderHelper {
                     if (pCurve.isNotNull()) {
                         CurvesHelper curvesHelper = blenderContext.getHelper(CurvesHelper.class);
                         Structure curveData = pCurve.fetchData().get(0);
-                        List<Geometry> curves = curvesHelper.toCurve(curveData, blenderContext);
-                        for (Geometry curve : curves) {
-                            result.attachChild(curve);
+                        TemporalMesh curvesTemporalMesh = curvesHelper.toCurve(curveData, blenderContext);
+                        if(curvesTemporalMesh != null) {
+                            result.attachChild(curvesTemporalMesh);
                         }
                     }
                     break;

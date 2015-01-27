@@ -28,8 +28,12 @@ public class BezierCurve {
     /** Array that stores a radius for each bezier triple. */
     private double[]        radiuses;
 
-    @SuppressWarnings("unchecked")
     public BezierCurve(final int type, final List<Structure> bezTriples, final int dimension) {
+        this(type, bezTriples, dimension, false);
+    }
+
+    @SuppressWarnings("unchecked")
+    public BezierCurve(final int type, final List<Structure> bezTriples, final int dimension, boolean fixUpAxis) {
         if (dimension != 2 && dimension != 3) {
             throw new IllegalArgumentException("The dimension of the curve should be 2 or 3!");
         }
@@ -45,7 +49,12 @@ public class BezierCurve {
             DynamicArray<Number> vec = (DynamicArray<Number>) bezTriple.getFieldValue("vec");
             for (j = 0; j < 3; ++j) {
                 for (k = 0; k < dimension; ++k) {
-                    bezierPoints[i][j][k] = vec.get(j, k).floatValue();
+                    bezierPoints[i][j][k] = vec.get(j, k).doubleValue();
+                }
+                if (fixUpAxis && dimension == 3) {
+                    double temp = bezierPoints[i][j][2];
+                    bezierPoints[i][j][2] = -bezierPoints[i][j][1];
+                    bezierPoints[i][j][1] = temp;
                 }
             }
             radiuses[i++] = ((Number) bezTriple.getFieldValue("radius")).floatValue();
@@ -114,9 +123,9 @@ public class BezierCurve {
     public List<Vector3f> getControlPoints() {
         List<Vector3f> controlPoints = new ArrayList<Vector3f>(bezierPoints.length * 3);
         for (int i = 0; i < bezierPoints.length; ++i) {
-            controlPoints.add(new Vector3f((float)bezierPoints[i][0][0], (float)bezierPoints[i][0][1], (float)bezierPoints[i][0][2]));
-            controlPoints.add(new Vector3f((float)bezierPoints[i][1][0], (float)bezierPoints[i][1][1], (float)bezierPoints[i][1][2]));
-            controlPoints.add(new Vector3f((float)bezierPoints[i][2][0], (float)bezierPoints[i][2][1], (float)bezierPoints[i][2][2]));
+            controlPoints.add(new Vector3f((float) bezierPoints[i][0][0], (float) bezierPoints[i][0][1], (float) bezierPoints[i][0][2]));
+            controlPoints.add(new Vector3f((float) bezierPoints[i][1][0], (float) bezierPoints[i][1][1], (float) bezierPoints[i][1][2]));
+            controlPoints.add(new Vector3f((float) bezierPoints[i][2][0], (float) bezierPoints[i][2][1], (float) bezierPoints[i][2][2]));
         }
         return controlPoints;
     }

@@ -17,6 +17,9 @@ import java.util.logging.Logger;
 
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
+import com.jme3.material.Material;
+import com.jme3.material.RenderState.FaceCullMode;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
@@ -364,32 +367,34 @@ public class TemporalMesh extends Geometry {
      *            the mesh to be appended
      */
     public void append(TemporalMesh mesh) {
-        // we need to shift the indexes in faces, lines and points
-        int shift = vertices.size();
-        if (shift > 0) {
-            for (Face face : mesh.faces) {
-                face.getIndexes().shiftIndexes(shift, null);
-                face.setTemporalMesh(this);
+        if (mesh != null) {
+            // we need to shift the indexes in faces, lines and points
+            int shift = vertices.size();
+            if (shift > 0) {
+                for (Face face : mesh.faces) {
+                    face.getIndexes().shiftIndexes(shift, null);
+                    face.setTemporalMesh(this);
+                }
+                for (Edge edge : mesh.edges) {
+                    edge.shiftIndexes(shift, null);
+                }
+                for (Point point : mesh.points) {
+                    point.shiftIndexes(shift, null);
+                }
             }
-            for (Edge edge : mesh.edges) {
-                edge.shiftIndexes(shift, null);
-            }
-            for (Point point : mesh.points) {
-                point.shiftIndexes(shift, null);
-            }
+
+            faces.addAll(mesh.faces);
+            edges.addAll(mesh.edges);
+            points.addAll(mesh.points);
+
+            vertices.addAll(mesh.vertices);
+            normals.addAll(mesh.normals);
+            vertexGroups.addAll(mesh.vertexGroups);
+            verticesColors.addAll(mesh.verticesColors);
+            boneIndexes.putAll(mesh.boneIndexes);
+
+            this.rebuildIndexesMappings();
         }
-
-        faces.addAll(mesh.faces);
-        edges.addAll(mesh.edges);
-        points.addAll(mesh.points);
-
-        vertices.addAll(mesh.vertices);
-        normals.addAll(mesh.normals);
-        vertexGroups.addAll(mesh.vertexGroups);
-        verticesColors.addAll(mesh.verticesColors);
-        boneIndexes.putAll(mesh.boneIndexes);
-
-        this.rebuildIndexesMappings();
     }
 
     /**
@@ -506,11 +511,17 @@ public class TemporalMesh extends Geometry {
 
             for (List<Integer> indexes : triangulatedIndexes) {
                 assert indexes.size() == 3 : "The mesh has not been properly triangulated!";
+                
+                Vector3f normal = null;
+                if(!face.isSmooth()) {
+                    normal = FastMath.computeNormal(vertices.get(indexes.get(0)), vertices.get(indexes.get(1)), vertices.get(indexes.get(2)));
+                }
+                
                 boneBuffers.clear();
                 for (int i = 0; i < 3; ++i) {
                     int vertIndex = indexes.get(i);
                     tempVerts[i] = vertices.get(vertIndex);
-                    tempNormals[i] = normals.get(vertIndex);
+                    tempNormals[i] = normal != null ? normal : normals.get(vertIndex);
                     tempVertColors[i] = vertexColors != null ? vertexColors.get(face.getIndexes().indexOf(vertIndex)) : null;
 
                     if (boneIndexes.size() > 0 && vertexGroups.size() > 0) {
@@ -519,12 +530,12 @@ public class TemporalMesh extends Geometry {
                         for (Entry<String, Integer> entry : boneIndexes.entrySet()) {
                             if (vertexGroupsForVertex.containsKey(entry.getKey())) {
                                 float weight = vertexGroupsForVertex.get(entry.getKey());
-                                if(weight > 0) {// no need to use such weights
+                                if (weight > 0) {// no need to use such weights
                                     boneBuffersForVertex.put(weight, entry.getValue());
                                 }
                             }
                         }
-                        if(boneBuffersForVertex.size() == 0) {// attach the vertex to zero-indexed bone so that it does not collapse to (0, 0, 0)
+                        if (boneBuffersForVertex.size() == 0) {// attach the vertex to zero-indexed bone so that it does not collapse to (0, 0, 0)
                             boneBuffersForVertex.put(1.0f, 0);
                         }
                         boneBuffers.add(boneBuffersForVertex);
@@ -591,7 +602,9 @@ public class TemporalMesh extends Geometry {
             if (materialIndex >= 0 && materials != null && materials.length > materialIndex && materials[materialIndex] != null) {
                 materials[materialIndex].applyMaterial(geometry, meshStructure.getOldMemoryAddress(), entry.getValue().getUvCoords(), blenderContext);
             } else {
-                geometry.setMaterial(blenderContext.getDefaultMaterial());
+                Material defaultMaterial = blenderContext.getDefaultMaterial().clone();
+                defaultMaterial.getAdditionalRenderState().setFaceCullMode(FaceCullMode.Off);
+                geometry.setMaterial(defaultMaterial);
             }
         }
     }
