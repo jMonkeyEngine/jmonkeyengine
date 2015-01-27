@@ -181,6 +181,14 @@
             <file name="org-netbeans-modules-java-helpset.xml_hidden"/>
         </folder>
     </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <folder name="Import">
+                <file name="org-netbeans-modules-projectimport-eclipse-core-ImportProjectAction.shadow_hidden"/>
+                <file name="org-netbeans-modules-projectimport-eclipse-core-ResynchronizeEclipseAction.shadow_hidden"/>
+            </folder>
+        </folder>
+    </folder>
     <folder name="Windows2">
         <folder name="Components">
             <file name="SceneExplorerTopComponent.settings" url="SceneExplorerTopComponentSettings.xml"/>
