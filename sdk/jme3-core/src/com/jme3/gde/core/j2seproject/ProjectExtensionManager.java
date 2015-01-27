@@ -445,21 +445,9 @@ public class ProjectExtensionManager {
             while ((entry = str.getNextEntry()) != null) {
                 String fileName = resourcesFolder + "/" + extensionName + "/" + entry.getName();
                 if (entry.isDirectory()) {
-                    //XXX: deleting old (beta) files here
-                    FileObject fo = projectRoot.getFileObject(entry.getName());
-                    if (fo != null && entry.getSize() != -1 && entry.getSize() == fo.getSize()) {
-                        logger.log(Level.FINE, "Deleting old folder {0}", fo.getNameExt());
-                        fo.delete();
-                    }
                     FileUtil.createFolder(projectRoot, fileName);
                 } else {
-                    //XXX: deleting old (beta) files here
-                    FileObject fo = projectRoot.getFileObject(entry.getName());
-                    if (fo != null && !fo.equals(projectRoot)) {
-                        logger.log(Level.FINE, "Deleting old file {0}", fo.getNameExt());
-                        fo.delete();
-                    }
-                    fo = projectRoot.getFileObject(fileName);
+                    FileObject fo  = projectRoot.getFileObject(fileName);
                     if (fo == null) {
                         fo = FileUtil.createData(projectRoot, fileName);
                         writeFile(str, fo);
@@ -483,14 +471,6 @@ public class ProjectExtensionManager {
             ZipInputStream str = new ZipInputStream(in);
             ZipEntry entry;
             while ((entry = str.getNextEntry()) != null) {
-                //XXX: deleting old (beta) files here
-                FileObject old = projectRoot.getFileObject(entry.getName());
-                if (old != null && !old.equals(projectRoot)) {
-                    logger.log(Level.FINE, "Deleting old file {0}", old.getNameExt());
-                    if (entry.getSize() != -1 && entry.getSize() == old.getSize()) {
-                        old.delete();
-                    }
-                }
                 String fileName = resourcesFolder + "/" + extensionName + "/" + entry.getName();
                 FileObject obj = projectRoot.getFileObject(fileName);
                 if (obj != null && !obj.equals(projectRoot) && !obj.isFolder()) {
