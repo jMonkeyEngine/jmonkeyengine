@@ -45,8 +45,7 @@ import org.openide.loaders.MultiFileLoader;
 @MIMEResolver.NamespaceRegistration(
         displayName = "OgreXML Scene",
         mimeType = "text/ogrescene+xml",
-        elementNS = {"scene"},
-        acceptedExtension = { "scene", "xml" },
+        elementName = "scene",
         checkedExtension = { "scene", "xml" }
 )
 @DataObject.Registration(displayName = "OgreXML Scene", mimeType = "text/ogrescene+xml", iconBase = "com/jme3/gde/ogrexml/ogre-scene.png")

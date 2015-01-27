@@ -42,8 +42,8 @@ import org.openide.loaders.MultiFileLoader;
 @MIMEResolver.NamespaceRegistration(
         displayName = "OgreXML Skeleton",
         mimeType = "text/ogrexmlskeleton+xml",
-        elementNS = {"skeleton"},
-        acceptedExtension = {"xml", "skeleton"}
+        elementName = "skeleton",
+        checkedExtension = {"xml", "skeleton"}
 )
 @DataObject.Registration(displayName = "OgreXML Skeleton", mimeType = "text/ogrexmlskeleton+xml", iconBase = "com/jme3/gde/ogrexml/ogre-logo.png")
 public class OgreXMLSkeletonDataObject extends SpatialAssetDataObject {

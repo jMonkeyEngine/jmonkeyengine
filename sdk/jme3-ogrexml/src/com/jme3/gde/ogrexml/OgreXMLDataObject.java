@@ -54,8 +54,7 @@ import org.openide.util.Exceptions;
 @MIMEResolver.NamespaceRegistration(
         displayName = "OgreXML File",
         mimeType = "text/ogrexml+xml",
-        elementNS = {"mesh"},
-        acceptedExtension = { "xml", "meshxml" },
+        elementName = "mesh",
         checkedExtension = {"xml", "meshxml"}
 )
 @DataObject.Registration(displayName = "OgreXML File", mimeType = "text/ogrexml+xml", iconBase = "com/jme3/gde/ogrexml/ogre-logo.png")
