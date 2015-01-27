@@ -490,11 +490,13 @@ public final class NativeLibraryLoader {
                 if (isRequired) {
                     throw new UnsatisfiedLinkError(
                             "The required native library '" + name + "'"
-                            + " was not found in the classpath via '" + pathInJar + "'");
+                            + " was not found in the classpath via '" + pathInJar
+                            + "'. Error message: " + e.getMessage());
                 } else {
                     logger.log(Level.FINE, "The optional native library ''{0}''" + 
-                                           " was not found in the classpath via ''{1}''", 
-                                           new Object[]{name, pathInJar});
+                                           " was not found in the classpath via ''{1}''" +
+                                           ". Error message: {2}",
+                                           new Object[]{name, pathInJar, e.getMessage()});
                 }
             }
             
