@@ -70,7 +70,8 @@ import java.util.logging.Logger;
  *
  * @author iwgeric
  */
-public class AndroidHarnessFragment extends Fragment implements TouchListener, DialogInterface.OnClickListener, SystemListener {
+public class AndroidHarnessFragment extends Fragment implements
+        TouchListener, DialogInterface.OnClickListener, View.OnLayoutChangeListener, SystemListener {
     private static final Logger logger = Logger.getLogger(AndroidHarnessFragment.class.getName());
 
     /**
@@ -120,6 +121,18 @@ public class AndroidHarnessFragment extends Fragment implements TouchListener, D
      * (default = -1, no frame rate cap)
      */
     protected int frameRate = -1;
+
+    /**
+     * Set the maximum resolution for the surfaceview in either the
+     * width or height screen direction depending on the screen size.
+     * If the surfaceview is retangular, the longest side (width or height)
+     * will have the resolution set to a maximum of maxResolutionDimension.
+     * The other direction will be set to a value that maintains the aspect
+     * ratio of the surfaceview. </br>
+     * Any value < 0 (default = -1) will result in the surfaceview having the
+     * same resolution as the view layout (ie. no max resolution).
+     */
+    protected int maxResolutionDimension = -1;
 
     /**
      * Sets the type of Audio Renderer to be used.
@@ -208,6 +221,8 @@ public class AndroidHarnessFragment extends Fragment implements TouchListener, D
     final private String ESCAPE_EVENT = "TouchEscape";
     private boolean firstDrawFrame = true;
     private Application app = null;
+    private int viewWidth = 0;
+    private int viewHeight = 0;
 
     // Retrieves the jME application object
     public Application getJmeApplication() {
@@ -294,6 +309,7 @@ public class AndroidHarnessFragment extends Fragment implements TouchListener, D
         // store the glSurfaceView in JmeAndroidSystem for future use
         JmeAndroidSystem.setView(view);
         createLayout();
+        view.addOnLayoutChangeListener(this);
         return frameLayout;
     }
 
@@ -346,6 +362,19 @@ public class AndroidHarnessFragment extends Fragment implements TouchListener, D
     @Override
     public void onDestroyView() {
         logger.fine("onDestroyView");
+        if (splashImageView != null) {
+            ((ViewGroup) splashImageView.getParent()).removeView(splashImageView);
+        }
+        if (view.getParent() != null) {
+            ((ViewGroup) view.getParent()).removeView(view);
+        }
+        if (frameLayout != null && frameLayout.getParent() != null) {
+            ((ViewGroup) frameLayout.getParent()).removeView(frameLayout);
+        }
+        view.removeOnLayoutChangeListener(this);
+
+        splashImageView = null;
+        frameLayout = null;
         view = null;
         JmeAndroidSystem.setView(null);
 
@@ -490,9 +519,9 @@ public class AndroidHarnessFragment extends Fragment implements TouchListener, D
             }
             frameLayout.addView(splashImageView, lp);
 
-           logger.log(Level.FINE, "Splash Screen Created");
+           logger.fine("Splash Screen Created");
         } else {
-            logger.log(Level.FINE, "Splash Screen Skipped.");
+            logger.fine("Splash Screen Skipped.");
         }
     }
 
@@ -509,10 +538,10 @@ public class AndroidHarnessFragment extends Fragment implements TouchListener, D
                         }
                     });
                 } else {
-                    logger.log(Level.FINE, "splashImageView is null");
+                    logger.fine("splashImageView is null");
                 }
             } else {
-                logger.log(Level.FINE, "frameLayout is null");
+                logger.fine("frameLayout is null");
             }
         }
     }
@@ -642,6 +671,50 @@ public class AndroidHarnessFragment extends Fragment implements TouchListener, D
             }
         }
 
+    }
+
+    @Override
+    public void onLayoutChange(View v,
+            int left, int top, int right, int bottom,
+            int oldLeft, int oldTop, int oldRight, int oldBottom) {
+
+        if (v.equals(view)) {
+//            logger.log(Level.INFO, "surfaceview layout changed. left: {0}, top: {1}, right: {2}, bottom: {3}",
+//                    new Object[]{left, top, right, bottom});
+
+            if (v.equals(view) && maxResolutionDimension > 0) {
+                int newWidth = right-left;
+                int newHeight = bottom-top;
+
+                if (viewWidth != newWidth || viewHeight != newHeight) {
+                    logger.log(Level.FINE, "SurfaceView layout changed: old width: {0}, old height: {1}, new width: {2}, new height: {3}",
+                            new Object[]{viewWidth, viewHeight, newWidth, newHeight});
+                    viewWidth = newWidth;
+                    viewHeight = newHeight;
+
+                    int fixedSizeWidth = viewWidth;
+                    int fixedSizeHeight = viewHeight;
+                    if (viewWidth > viewHeight && viewWidth > maxResolutionDimension) {
+                        // landscape
+                        fixedSizeWidth = maxResolutionDimension;
+                        fixedSizeHeight = (int)(maxResolutionDimension * ((float)viewHeight / (float)viewWidth));
+                    } else if (viewHeight > viewWidth && viewHeight > maxResolutionDimension) {
+                        // portrait
+                        fixedSizeWidth = (int)(maxResolutionDimension * ((float)viewWidth / (float)viewHeight));
+                        fixedSizeHeight = maxResolutionDimension;
+                    } else if (viewWidth == viewHeight && viewWidth > maxResolutionDimension) {
+                        fixedSizeWidth = maxResolutionDimension;
+                        fixedSizeHeight = maxResolutionDimension;
+                    }
+                    // set the surfaceview resolution if the size != current view size
+                    if (fixedSizeWidth != viewWidth || fixedSizeHeight != viewHeight) {
+                        logger.log(Level.FINE, "setting surfaceview resolution to width: {0}, height: {1}",
+                                new Object[]{fixedSizeWidth, fixedSizeHeight});
+                        view.getHolder().setFixedSize(fixedSizeWidth, fixedSizeHeight);
+                    }
+                }
+            }
+        }
     }
 
 }
