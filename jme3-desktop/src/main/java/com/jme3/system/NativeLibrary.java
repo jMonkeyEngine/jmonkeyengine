@@ -40,8 +40,8 @@ final class NativeLibrary {
     
     private final String name;
     private final Platform platform;
-    private final boolean isJNI;
     private final String pathInNativesJar;
+    private final String extractedAsFileName;
 
     /**
      * Key for map to find a library for a name and platform.
@@ -98,12 +98,17 @@ final class NativeLibrary {
     }
 
     /**
-     * If this library is a JNI library.
+     * The filename that the library should be extracted as.
      * 
-     * @return True if JNI library, false if native code (e.g. C/C++) library.
+     * In some cases can be different than {@link #getPathInNativesJar() path in natives jar},
+     * since the names of the libraries specified in the jars are often incorrect.
+     * If set to <code>null</code>, then the same name as the filename in 
+     * natives jar shall be used.
+     * 
+     * @return the name that should be given to the extracted file.
      */
-    public boolean isJNI() {
-        return isJNI;
+    public String getExtractedAsName() {
+        return extractedAsFileName;
     }
 
     /**
@@ -121,17 +126,17 @@ final class NativeLibrary {
     /**
      * Create a new NativeLibrary.
      */
-    public NativeLibrary(String name, Platform platform, String pathInNativesJar, boolean isJNI) {
+    public NativeLibrary(String name, Platform platform, String pathInNativesJar, String extractedAsFileName) {
         this.name = name;
         this.platform = platform;
         this.pathInNativesJar = pathInNativesJar;
-        this.isJNI = isJNI;
+        this.extractedAsFileName = extractedAsFileName;
     }
 
     /**
      * Create a new NativeLibrary.
      */
     public NativeLibrary(String name, Platform platform, String pathInNativesJar) {
-        this(name, platform, pathInNativesJar, true);
+        this(name, platform, pathInNativesJar, null);
     }
 }

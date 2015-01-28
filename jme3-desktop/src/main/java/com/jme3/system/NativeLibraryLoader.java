@@ -94,13 +94,13 @@ public final class NativeLibraryLoader {
      * @param path The path inside the natives-jar or classpath
      * corresponding to this library. Must be compatible with the platform 
      * argument.
-     * @param isJNI True if this is a JNI library, false if this is a regular
-     * native (C/C++) library.
+     * @param extractAsName The filename that the library should be extracted as,
+     * if null, use the same name as in the path.
      */
     public static void registerNativeLibrary(String name, Platform platform,
-            String path, boolean isJNI) {
+            String path, String extractAsName) {
         nativeLibraryMap.put(new NativeLibrary.Key(name, platform),
-                new NativeLibrary(name, platform, path, isJNI));
+                new NativeLibrary(name, platform, path, extractAsName));
     }
     
     /**
@@ -121,7 +121,7 @@ public final class NativeLibraryLoader {
      */
     public static void registerNativeLibrary(String name, Platform platform,
             String path) {
-        registerNativeLibrary(name, platform, path, true);
+        registerNativeLibrary(name, platform, path, null);
     }
     
     static {
@@ -134,12 +134,13 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("lwjgl", Platform.MacOSX64,  "native/macosx/liblwjgl.dylib");
         
         // OpenAL
-        registerNativeLibrary("openal", Platform.Windows32, "native/windows/OpenAL32.dll", false);
-        registerNativeLibrary("openal", Platform.Windows64, "native/windows/OpenAL64.dll", false);
-        registerNativeLibrary("openal", Platform.Linux32,   "native/linux/libopenal.so", false);
-        registerNativeLibrary("openal", Platform.Linux64,   "native/linux/libopenal64.so", false);
-        registerNativeLibrary("openal", Platform.MacOSX32,  "native/macosx/openal.dylib", false);
-        registerNativeLibrary("openal", Platform.MacOSX64,  "native/macosx/openal.dylib", false);
+        // For OSX: Need to add lib prefix when extracting
+        registerNativeLibrary("openal", Platform.Windows32, "native/windows/OpenAL32.dll");
+        registerNativeLibrary("openal", Platform.Windows64, "native/windows/OpenAL64.dll");
+        registerNativeLibrary("openal", Platform.Linux32,   "native/linux/libopenal.so");
+        registerNativeLibrary("openal", Platform.Linux64,   "native/linux/libopenal64.so");
+        registerNativeLibrary("openal", Platform.MacOSX32,  "native/macosx/openal.dylib", "libopenal.dylib");
+        registerNativeLibrary("openal", Platform.MacOSX64,  "native/macosx/openal.dylib", "libopenal.dylib");
         
         // BulletJme
         registerNativeLibrary("bulletjme", Platform.Windows32, "native/windows/x86/bulletjme.dll");
@@ -150,12 +151,13 @@ public final class NativeLibraryLoader {
         registerNativeLibrary("bulletjme", Platform.MacOSX64,  "native/osx/x86_64/libbulletjme.dylib");
         
         // JInput
+        // For OSX: Need to rename extension jnilib -> dylib when extracting
         registerNativeLibrary("jinput", Platform.Windows32, "native/windows/jinput-raw.dll");
         registerNativeLibrary("jinput", Platform.Windows64, "native/windows/jinput-raw_64.dll");
         registerNativeLibrary("jinput", Platform.Linux32,   "native/windows/libjinput-linux.so");
         registerNativeLibrary("jinput", Platform.Linux64,   "native/windows/libjinput-linux64.so");
-        registerNativeLibrary("jinput", Platform.MacOSX32,  "native/macosx/libjinput-osx.jnilib");
-        registerNativeLibrary("jinput", Platform.MacOSX64,  "native/macosx/libjinput-osx.jnilib");
+        registerNativeLibrary("jinput", Platform.MacOSX32,  "native/macosx/libjinput-osx.jnilib", "libjinput-osx.dylib");
+        registerNativeLibrary("jinput", Platform.MacOSX64,  "native/macosx/libjinput-osx.jnilib", "libjinput-osx.dylib");
         
         // JInput Auxiliary (only required on Windows)
         registerNativeLibrary("jinput-dx8", Platform.Windows32, "native/windows/jinput-dx8.dll");
@@ -407,23 +409,8 @@ public final class NativeLibraryLoader {
         }
         
         String loadedAsFileName;
-        if (library.isJNI()) {
-            String fileNameInJarWithoutExtension 
-                    = fileNameInJar.substring(0, fileNameInJar.lastIndexOf("."));
-            
-//            if (platform.is64Bit() && !fileNameInJarWithoutExtension.endsWith("64")) {
-//                fileNameInJarWithoutExtension += "64";
-//            }
-            
-            String systemJniExtension;
-            String dummyLib = mapLibraryName_emulated("", platform);
-            if (dummyLib.contains(".")) {
-                systemJniExtension = dummyLib.substring(dummyLib.lastIndexOf("."));
-            } else {
-                systemJniExtension = "";
-            }
-            
-            loadedAsFileName = fileNameInJarWithoutExtension + systemJniExtension;
+        if (library.getExtractedAsName() != null) {
+            loadedAsFileName = library.getExtractedAsName();
         } else {
             loadedAsFileName = fileNameInJar;
         }
@@ -538,29 +525,9 @@ public final class NativeLibraryLoader {
         // The library has been found and is ready to be extracted.
         // Determine what filename it should be extracted as.
         String loadedAsFileName;
-        if (library.isJNI()) {
-            // JNI libraries on Mac / JDK6 use jnilib extension.
-            // JNI libraries on Mac / JDK7 use dylib extension.
-            String fileNameInJarWithoutExtension 
-                    = fileNameInJar.substring(0, fileNameInJar.lastIndexOf("."));
-            
-//            if (platform.is64Bit() && !fileNameInJarWithoutExtension.endsWith("64")) {
-//                // This is to avoid conflicts with 32-bit versions of the 
-//                // same library when extracting.
-//                fileNameInJarWithoutExtension += "64";
-//            }
-            
-            String systemJniExtension;
-            String dummyLib = System.mapLibraryName("");
-            if (dummyLib.contains(".")) {
-                systemJniExtension = dummyLib.substring(dummyLib.lastIndexOf("."));
-            } else {
-                systemJniExtension = "";
-            }
-            
-            loadedAsFileName = fileNameInJarWithoutExtension + systemJniExtension;
+        if (library.getExtractedAsName() != null) {
+            loadedAsFileName = library.getExtractedAsName();
         } else {
-            // Not a JNI library.
             // Just use the original filename as it is in the JAR.
             loadedAsFileName = fileNameInJar;
         }
