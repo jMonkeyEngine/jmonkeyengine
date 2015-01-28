@@ -34,7 +34,13 @@ package com.jme3.gde.core.errorreport;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
 
+@ActionID(id = "com.jme3.gde.core.errorreport.RendererInfoAction", category = "jMonkeyPlatform")
+@ActionRegistration(displayName = "#CTL_RendererInfoAction", iconInMenu = true)
+@ActionReference(path = "Menu/Help", position = 1225)
 public final class RendererInfoAction implements ActionListener {
 
     RendererInfo info;

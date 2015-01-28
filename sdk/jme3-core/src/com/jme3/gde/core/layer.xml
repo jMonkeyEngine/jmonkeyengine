@@ -23,12 +23,6 @@
                 <attr name="selectionType" stringvalue="ANY"/>
                 <attr name="type" stringvalue="com.jme3.gde.core.assets.SpatialAssetDataObject"/>
             </file>
-            <file name="com-jme3-gde-core-errorreport-RendererInfoAction.instance">
-                <attr name="delegate" newvalue="com.jme3.gde.core.errorreport.RendererInfoAction"/>
-                <attr name="displayName" bundlevalue="com.jme3.gde.core.errorreport.Bundle#CTL_RendererInfoAction"/>
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="noIconInMenu" boolvalue="false"/>
-            </file>
         </folder>
         <folder name="Window">
             <file name="com-jme3-gde-core-sceneexplorer-SceneExplorerAction.instance">
@@ -61,10 +55,6 @@
             </folder>
         </folder>
         <folder name="Help">
-            <file name="com-jme3-gde-core-errorreport-RendererInfoAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/jMonkeyPlatform/com-jme3-gde-core-errorreport-RendererInfoAction.instance"/>
-                <attr name="position" intvalue="1225"/>
-            </file>
             <file name="jmewiki.url" url="jmewiki.url">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.jme3.gde.core.Bundle"/>
                 <attr name="displayName" bundlevalue="com.jme3.gde.core.Bundle#Menu/Help/jmewiki.url"/>
