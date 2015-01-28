@@ -316,6 +316,32 @@ public final class NativeLibraryLoader {
         }
     }
     
+    /**
+     * Removes platform-specific portions of a library file name so
+     * that it can be accepted by {@link System#loadLibrary(java.lang.String) }.
+     * <p>
+     * E.g.<br>
+     * <ul>
+     * <li>jinput-dx8_64.dll => jinput-dx8_64</li>
+     * <li>liblwjgl64.so => lwjgl64</li>
+     * <li>libopenal.so => openal</li>
+     * </ul>
+     * 
+     * @param filename The filename to strip platform-specific parts
+     * @return The stripped library name
+     */
+    private static String unmapLibraryName(String filename) {
+        StringBuilder sb = new StringBuilder(filename);
+        if (sb.indexOf("lib") == 0 && !filename.toLowerCase().endsWith(".dll")) {
+            sb.delete(0, 3);
+        }
+        int dot = sb.lastIndexOf(".");
+        if (dot > 0) {
+            sb.delete(dot, sb.length());
+        }
+        return sb.toString();
+    }
+    
     public static File getJarForNativeLibrary(Platform platform, String name) {
         NativeLibrary library = nativeLibraryMap.get(new NativeLibrary.Key(name, platform));
         if (library == null) {
@@ -482,21 +508,27 @@ public final class NativeLibraryLoader {
         
         if (url == null) {
             // Attempt to load it as a system library.
+            String unmappedName = unmapLibraryName(fileNameInJar);
             try {
-                System.loadLibrary(name);
-                logger.log(Level.FINE, "Loaded system installed " + 
-                                       "version of native library: {0}", name);
+                // XXX: HACK. Vary loading method based on library name..
+                // lwjgl and jinput handle loading by themselves.
+                if (!name.equals("lwjgl") && !name.equals("jinput")) {
+                    // Need to unmap it from library specific parts.
+                    System.loadLibrary(unmappedName);
+                    logger.log(Level.FINE, "Loaded system installed "
+                            + "version of native library: {0}", unmappedName);
+                }
             } catch (UnsatisfiedLinkError e) {
                 if (isRequired) {
                     throw new UnsatisfiedLinkError(
-                            "The required native library '" + name + "'"
+                            "The required native library '" + unmappedName + "'"
                             + " was not found in the classpath via '" + pathInJar
                             + "'. Error message: " + e.getMessage());
                 } else {
                     logger.log(Level.FINE, "The optional native library ''{0}''" + 
                                            " was not found in the classpath via ''{1}''" +
                                            ". Error message: {2}",
-                                           new Object[]{name, pathInJar, e.getMessage()});
+                                           new Object[]{unmappedName, pathInJar, e.getMessage()});
                 }
             }
             
