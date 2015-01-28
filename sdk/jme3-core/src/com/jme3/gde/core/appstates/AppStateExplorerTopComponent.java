@@ -59,7 +59,7 @@ autostore = false)
     preferredID = "AppStateExplorerTopComponent",
 //iconBase="SET/PATH/TO/ICON/HERE", 
 persistenceType = TopComponent.PERSISTENCE_ALWAYS)
-@TopComponent.Registration(mode = "explorer", openAtStartup = true)
+@TopComponent.Registration(mode = "explorer", openAtStartup = true, position = 400)
 @ActionID(category = "Window", id = "com.jme3.gde.core.appstates.AppStateExplorerTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
